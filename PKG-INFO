@@ -1,0 +1,10 @@
+Metadata-Version: 1.1
+Name: uncompyle
+Version: 1.1
+Summary: Python byte-code to source-code converter
+Home-page: http://github.com/sysfrog/uncompyle
+Author: Hartmut Goebel
+Author-email: hartmut@oberon.noris.de
+License: GPLv3
+Description: UNKNOWN
+Platform: UNKNOWN

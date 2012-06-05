@@ -1,0 +1,106 @@
+
+                          uncompyle2 
+        A Python 2.5, 2.6, 2.7 byte-code decompiler, written in Python 2.7
+                          0.13
+                          2012-6-5
+
+Introduction
+------------
+
+'uncompyle2' converts Python byte-code back into equivalent Python
+source. It accepts byte-code from Python version 2.5, 2.6 & 2.7. Additionally,
+it will only run on Python 2.7.
+
+The generated source is very readable: docstrings, lists, tuples and
+hashes get pretty-printed.
+
+'uncompyle2' may also verify the equivalence of the generated source by
+by compiling it and comparing both byte-codes.
+
+'uncompyle2' is based on John Aycock's generic small languages compiler
+'spark' (http://www.csr.uvic.ca/~aycock/python/) and his prior work on
+'uncompyle'.
+
+Additional note (3 July 2004, Ben Burton):
+
+    The original website from which this software was obtained is no longer
+    available.  It has now become a commercial decompilation service, with
+    no software available for download.
+
+    Any developers seeking to make alterations or enhancements to this code
+    should therefore consider these debian packages an appropriate starting
+    point.
+
+Additional note (5 June 2012):
+
+    The decompilation of python bytecode 2.5 & 2.6 is based on the work of
+    Eloi Vanderbeken. bytecode is translated to a pseudo 2.7 python bytecode
+    and then decompiled.
+
+Features
+--------
+
+  * decompiles Python byte-code into equivalent Python source
+
+  * decompiles byte-code from Python version 2.5, 2.6, 2.7
+
+  * pretty-prints docstrings, hashes, lists and tuples
+  
+  * reads directly from .pyc/.pyo files, bulk-decompile whole
+    directories
+
+  * output may be written to file, a directory or to stdout
+
+  * option for including byte-code disassembly into generated source
+
+  For a list of changes please refer to the 'CHANGES' file.
+
+
+Requirements
+------------
+
+uncompyle2 requires Python 2.7
+
+
+Installation
+------------
+
+You may either create a RPM and install this, or install directly from
+the source distribution.
+
+Creating RPMS:
+
+  python setup.py bdist_rpm
+
+  If you need to force the python interpreter to eg. pyton2:
+     python2 setup.py bdist_rpm --python=python2
+
+
+Installation from the source distribution:
+
+     python setup.py install
+
+   To install to a user's home-dir:
+     python setup.py install --home=<dir>
+
+   To install to another prefix (eg. /usr/local)
+     python setup.py install --prefix=/usr/local
+
+  If you need to force the python interpreter to eg. pyton2:
+     python2 setup.py install
+
+  For more information on 'Installing Python Modules' please refer to
+     http://www.python.org/doc/current/inst/inst.html
+
+
+Usage
+-----
+
+uncompyle2 -h		prints short usage
+uncompyle2 --help	prints long usage
+
+
+Known Bugs/Restrictions
+-----------------------
+
+I have some known bug in the 2.5 & 2.6 decompilation version but this will be fixed in a few.

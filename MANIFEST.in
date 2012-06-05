@@ -1,0 +1,11 @@
+include MANIFEST 
+include MANIFEST.in 
+include README
+include ANNOUNCE CHANGES TODO
+include uncompyle
+include test_pythonlib
+include test_one
+include compile_tests
+graft test
+graft scripts
+global-exclude *~ .*~
