@@ -793,5 +793,4 @@ class Scanner:
             elif op == END_FINALLY and i in self.fixed_jumps:
                 label = self.fixed_jumps[i]
                 targets[label] = targets.get(label, []) + [i]
-        print self.structs
         return targets
