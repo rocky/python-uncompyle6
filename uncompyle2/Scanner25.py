@@ -259,7 +259,8 @@ class Scanner:
         opcode = self.code[i]
         opsize = self.op_size(opcode)
         if opcode == EXTENDED_ARG:
-            raise 'A faire'
+            raise 'TODO'
+        # del POP_TOP
         if opcode in (PJIF,PJIT,JA,JF):
             if self.code[i+opsize] == POP_TOP:
                 if self.code[i+opsize] == self.code[i+opsize+1] and self.code[i+opsize] == self.code[i+opsize+2] \
@@ -289,7 +290,7 @@ class Scanner:
                         end += self.op_size(LOAD_FAST)
                 # log JA/POP_TOP to del and update PJIF
                 while start < end:
-                    start = self.first_instr(start, len(self.code), (PJIF))
+                    start = self.first_instr(start, len(self.code), (PJIF,PJIT))
                     if start == None: break
                     target = self.get_target(start)
                     if self.code[target] == POP_TOP and self.code[target-3] == JA:
@@ -297,11 +298,12 @@ class Scanner:
                         # update PJIF
                         target = self.get_target(target-3)
                         if target > 0xFFFF:
-                            raise 'A gerer'
+                            raise 'TODO'
                         self.code[start+1] = target & 0xFF
                         self.code[start+2] = (target >> 8) & 0xFF
                     start += self.op_size(PJIF)	
                 # del DELETE_NAME x 
+                start = end
                 while end < len(self.code):
                     end = self.first_instr(end, len(self.code), (DELETE_NAME,DELETE_FAST))
                     if nameDel == self.get_argument(end):
@@ -312,6 +314,13 @@ class Scanner:
                     else:
                         end += self.op_size(DELETE_FAST)
                 return toDel
+        # change join(for..) struct
+        if opcode == SETUP_LOOP:
+            if self.code[i+3] == LOAD_FAST and self.code[i+6] == FOR_ITER: 
+                end = self.first_instr(i, len(self.code), RETURN_VALUE)
+                end = self.first_instr(i, end, YIELD_VALUE)
+                if end and self.code[end+1] == POP_TOP and self.code[end+2] == JA and self.code[end+5] == POP_BLOCK:
+                    return [i,end+5]
         return None
 		
     def restructRelativeJump(self):
@@ -693,9 +702,10 @@ class Scanner:
             jump_back = self.last_instr(start, end, JA,
                                           next_line_byte, False)
             if not jump_back: # loop suite ends in return. wtf right?
-                jump_back = self.last_instr(start, end, RETURN_VALUE) + 1
+                jump_back = self.last_instr(start, end, RETURN_VALUE)
                 if not jump_back:               
                     return
+                jump_back += 1
                 if code[self.prev[next_line_byte]] not in (PJIF, PJIT):
                     loop_type = 'for'
                 else:
