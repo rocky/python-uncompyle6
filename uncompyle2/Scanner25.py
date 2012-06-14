@@ -57,9 +57,9 @@ class Scanner:
         # linestarts contains bloc code adresse (addr,block)
         self.linestarts = list(dis.findlinestarts(co))
         self.prev = [0]
-        pop_delet = 0
-        i=0
+        # change jump struct
         self.restructRelativeJump()
+
         # class and names
         if classname:
             classname = '_' + classname.lstrip('_') + '__'
@@ -78,15 +78,13 @@ class Scanner:
         self.names = names
         # add instruction to remonde in "toDel" list
         toDel = []
-        while i < n-pop_delet:
+        # add instruction to change in "toChange" list
+        self.toChange = []
+        for i in self.op_range(0, n):
             op = self.code[i]
             ret = self.getOpcodeToDel(i)
             if ret != None:
                 toDel += ret
-            if op >= dis.HAVE_ARGUMENT:
-                i += 2
-            i += 1
-
         if toDel: # degeu a revoir / repenser (tout faire d'un coup? chaud)
             toDel = sorted(list(set(toDel)))
             delta = 0
@@ -103,8 +101,9 @@ class Scanner:
                     self.code.pop(x-delta)
                     self.restructCode(x-delta)
                     delta += 1
+
         # mapping adresses of prev instru
-        n = len(self.code)
+        n = len(self.code) 
         for i in self.op_range(0, n):
             op = self.code[i]
             self.prev.append(i)
@@ -152,19 +151,19 @@ class Scanner:
                     if self.code[last_import] == IMPORT_NAME == self.code[i]:
                         replace[i] = 'IMPORT_NAME_CONT'
                 last_import = i
-        
+
         extended_arg = 0
         for offset in self.op_range(0, n):
+            op = self.code[offset]
+            opname = dis.opname[op]
+            oparg = None; pattr = None
+
             if offset in cf:
                 k = 0
                 for j in cf[offset]:
                     rv.append(Token('COME_FROM', None, repr(j),
                                     offset="%s_%d" % (offset, k) ))
                     k += 1
-                    
-            op = self.code[offset]
-            opname = dis.opname[op]
-            oparg = None; pattr = None
             if op >= HAVE_ARGUMENT:
                 oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
@@ -204,7 +203,10 @@ class Scanner:
                     pattr = dis.cmp_op[oparg]
                 elif op in dis.hasfree:
                     pattr = free[oparg]
-
+            if offset in self.toChange:
+                if self.code[offset] == JA and self.code[oparg] == WITH_CLEANUP:
+                    opname = 'SETUP_WITH'
+                    cf[oparg] = cf.get(oparg, []) + [offset]
             if op in (BUILD_LIST, BUILD_TUPLE, BUILD_SLICE,
                             UNPACK_SEQUENCE,
                             MAKE_FUNCTION, CALL_FUNCTION, MAKE_CLOSURE,
@@ -244,7 +246,7 @@ class Scanner:
                 rv.append(Token(opname, oparg, pattr, offset, linestart = offset in linestartoffsets))
             else:
                 rv.append(Token(replace[offset], oparg, pattr, offset, linestart = offset in linestartoffsets))
-            
+		
         if self.showasm:
             out = self.out # shortcut
             for t in rv:
@@ -321,6 +323,46 @@ class Scanner:
                 end = self.first_instr(i, end, YIELD_VALUE)
                 if end and self.code[end+1] == POP_TOP and self.code[end+2] == JA and self.code[end+5] == POP_BLOCK:
                     return [i,end+5]
+        # with stmt
+        if opcode == WITH_CLEANUP:
+            chckDel = i-self.op_size(DELETE_NAME)
+            assert self.code[chckDel] in (DELETE_NAME, DELETE_FAST)
+            toDel = [chckDel]
+            nameDel = self.get_argument(chckDel)
+            chckDel -= self.op_size(LOAD_NAME)
+            assert self.code[chckDel] in (LOAD_NAME, LOAD_FAST)
+            toDel += [chckDel]
+			
+            allStore = self.all_instr(0, i, (STORE_NAME,STORE_FAST))
+            chckStore = -1
+            for store in allStore:
+                if nameDel == self.get_argument(store):
+                    if self.code[store+3] == LOAD_ATTR and self.code[store-3] == LOAD_ATTR \
+                        and self.code[store-4] == DUP_TOP:
+                        chckStore = store
+            assert chckStore > 0
+            toDel += [chckStore-4,chckStore-3,chckStore+3]
+
+            chckStp = -1
+            allSetup = self.all_instr(chckStore+3, i, (SETUP_FINALLY))
+            for stp in allSetup:
+                if chckDel == self.get_target(stp):
+                    chckStp = stp
+            assert chckStp > 0
+            toDel += [chckStp]
+            chckDel = chckStore+3+self.op_size(self.code[chckStore+3])
+            while chckDel < chckStp-3:
+                toDel += [chckDel]
+                chckDel += self.op_size(self.code[chckDel])
+            if self.code[chckStp-3] in (STORE_NAME,STORE_FAST) and self.code[chckStp+3] in (LOAD_NAME,LOAD_FAST) \
+                and self.code[chckStp+6] in (DELETE_NAME,DELETE_FAST):
+                toDel += [chckStp-3,chckStp+3,chckStp+6]
+            # SETUP_WITH opcode dosen't exist in 2.5 but is necessary for the grammar
+            self.code[chckStore] = JUMP_ABSOLUTE # ugly hack
+            self.code[chckStore+1] = i & 0xFF
+            self.code[chckStore+2] = (i >> 8) & 0xFF
+            self.toChange.append(chckStore)
+            return toDel
         return None
 		
     def restructRelativeJump(self):
@@ -358,7 +400,10 @@ class Scanner:
             else:
                 result.append((item[0], item[1]))
         self.linestarts = result
-		
+
+        for change in self.toChange:
+            if change > i:
+                self.toChange[self.toChange.index(change)] -= 1
         for x in self.op_range(0, len(self.code)):
             op = self.code[x]
             if op >= HAVE_ARGUMENT:
