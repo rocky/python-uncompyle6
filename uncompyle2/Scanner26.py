@@ -76,6 +76,7 @@ class Scanner:
             names = co.co_names
             varnames = co.co_varnames
         self.names = names
+        print self.linestarts
         # add instruction to remonde in "toDel" list
         toDel = []
         # add instruction to change in "toChange" list
@@ -85,21 +86,18 @@ class Scanner:
             ret = self.getOpcodeToDel(i)
             if ret != None:
                 toDel += ret
-        if toDel: # degeu a revoir / repenser (tout faire d'un coup? chaud)
+        if toDel:
             toDel = sorted(list(set(toDel)))
             delta = 0
+            self.restructCode(toDel)
             for x in toDel:
                 if self.code[x-delta] >= dis.HAVE_ARGUMENT:
                     self.code.pop(x-delta)
-                    self.restructCode(x-delta)
                     self.code.pop(x-delta)
-                    self.restructCode(x-delta)
                     self.code.pop(x-delta)
-                    self.restructCode(x-delta)
                     delta += 3
                 else:
                     self.code.pop(x-delta)
-                    self.restructCode(x-delta)
                     delta += 1
 
         # mapping adresses of prev instru
@@ -110,9 +108,10 @@ class Scanner:
             if op >= HAVE_ARGUMENT:
                 self.prev.append(i)
                 self.prev.append(i)
-	
-        j = 0		
+
+        j = 0
         linestarts = self.linestarts
+        print self.linestarts
         self.lines = []
         linetuple = namedtuple('linetuple', ['l_no', 'next'])
         linestartoffsets = {a for (a, _) in linestarts}
@@ -383,40 +382,51 @@ class Scanner:
                         raise 'A gerer'
                     self.code[i+1] = target & 0xFF
                     self.code[i+2] = (target >> 8) & 0xFF
-		
-    def restructCode(self, i):
+
+    def restructCode(self, listDel):
         """
         restruct linestarts and jump destination after removing a POP_TOP
         """
         result = list()
-        for item in self.linestarts:
-            if i < item[0]:	
-                result.append((item[0]-1, item[1]))
-            else:
-                result.append((item[0], item[1]))
+        for block in self.linestarts:
+            startBlock = 0
+            for toDel in listDel:
+                if toDel < block[0]:
+                    startBlock -= self.op_size(self.code[toDel])
+                else:
+                    break
+            result.append((block[0]+startBlock, block[1]))
         self.linestarts = result
 
         for change in self.toChange:
-            if change > i:
-                self.toChange[self.toChange.index(change)] -= 1
-        for x in self.op_range(0, len(self.code)):
-            op = self.code[x]
-            if op >= HAVE_ARGUMENT:
-                if op in dis.hasjrel:
-                    if x < i and self.get_target(x) > i:
-                        if self.code[x+1]-1 < 0:
-                            self.code[x+2] -= 1
-                            self.code[x+1] = self.code[x+1]+255
-                        else:
-                            self.code[x+1] -= 1
-                elif op in dis.hasjabs:
-                    if i < self.get_target(x):
-                        if self.code[x+1]-1 < 0:
-                            self.code[x+2] -= 1
-                            self.code[x+1] = self.code[x+1]+255
-                        else:
-                            self.code[x+1] -= 1
-    	
+            for toDel in listDel:
+                if change > toDel:
+                    self.toChange[self.toChange.index(change)] -= self.op_size(self.code[toDel])
+                else:
+                    break
+        
+        for jmp in self.op_range(0, len(self.code)):
+            op = self.code[jmp]
+            if op in dis.hasjrel+dis.hasjabs: # jmp
+                offset = 0
+                jmpTarget = self.get_target(jmp)
+                for toDel in listDel:
+                    if toDel < jmpTarget:
+                        if op in dis.hasjabs:
+                            offset-=self.op_size(self.code[toDel])
+                        elif jmp < toDel:
+                            offset-=self.op_size(self.code[toDel])
+                    else:
+                        break
+                self.restructJump(jmp, offset)
+                
+    def restructJump(self, pos, offset):
+        target = self.get_argument(pos) + offset
+        if target > 0xFFFF:
+            raise 'A gerer'
+        self.code[pos+2] = (target >> 8) & 0xFF
+        self.code[pos+1] = target & 0xFF
+        
     def get_target(self, pos, op=None):
         if op is None:
             op = self.code[pos]
