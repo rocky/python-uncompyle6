@@ -258,6 +258,7 @@ TABLE_DIRECT = {
 
     'whilestmt':	( '%|while %c:\n%+%c%-\n\n', 1, 2 ),
     'while1stmt':	( '%|while 1:\n%+%c%-\n\n', 1 ),
+    'while1elsestmt':  ( '%|while 1:\n%+%c%-%|else:\n%+%c%-\n\n', 1, 3 ),
     'whileelsestmt':	( '%|while %c:\n%+%c%-%|else:\n%+%c%-\n\n', 1, 2, -2 ),
     'whileelselaststmt':	( '%|while %c:\n%+%c%-%|else:\n%+%c%-', 1, 2, -2 ),
     'forstmt':		( '%|for %c in %c:\n%+%c%-\n\n', 3, 1, 4 ),
@@ -1360,7 +1361,7 @@ class Walker(GenericASTTraversal, object):
         #else:
         #    print ast[-1][-1]
 
-        for g in find_globals(ast, {}).keys():
+        for g in find_globals(ast, set()):
            self.print_(indent, 'global ', g)
            
         self.gen_source(ast, code._customize)

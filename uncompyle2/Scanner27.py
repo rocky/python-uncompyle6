@@ -538,6 +538,10 @@ class Scanner:
             (line_no, next_line_byte) = self.lines[pos]
             jump_back = self.last_instr(start, end, JA,
                                           next_line_byte, False)
+            if jump_back and jump_back != self.prev[end] and code[jump_back+3] in (JA, JF):
+                if code[self.prev[end]] == RETURN_VALUE or \
+                    (code[self.prev[end]] == POP_BLOCK and code[self.prev[self.prev[end]]] == RETURN_VALUE):
+                    jump_back = None
             if not jump_back: # loop suite ends in return. wtf right?
                 jump_back = self.last_instr(start, end, RETURN_VALUE) + 1
                 if not jump_back:               
@@ -576,7 +580,7 @@ class Scanner:
                         test_target = self.get_target(test)
                         if test_target > (jump_back+3):
                             jump_back = test_target
-                 
+                self.not_continue.add(jump_back)
             self.loops.append(target)
             self.structs.append({'type': loop_type + '-loop',
                                    'start': target,
