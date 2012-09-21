@@ -1,13 +1,3 @@
-"""
-test_loops.py -- source test pattern for loops
-
-This source is part of the decompyle test suite.
-
-decompyle is a Python byte-code decompiler
-See http://www.goebel-consult.de/decompyle/ for download and
-for further information
-"""
-
 for i in range(10):
     if i == 3:
         continue

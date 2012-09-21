@@ -1,13 +1,3 @@
-"""
-augmentedAssign.py -- source test pattern for augmented assigns
-
-This source is part of the decompyle test suite.
-
-decompyle is a Python byte-code decompiler
-See http://www.goebel-consult.de/decompyle/ for download and
-for further information
-"""
-
 raise "This program can't be run"
 
 a = 1

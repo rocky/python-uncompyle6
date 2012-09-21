@@ -1,14 +1,3 @@
-"""
-test_prettyprint.py --	source test pattern for tesing the prettyprint
-			funcionality of decompyle
-
-This source is part of the decompyle test suite.
-
-decompyle is a Python byte-code decompiler
-See http://www.goebel-consult.de/decompyle/ for download and
-for further information
-"""
-
 import pprint
 
 aa = 'aa'

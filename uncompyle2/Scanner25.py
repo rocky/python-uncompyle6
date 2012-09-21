@@ -261,12 +261,29 @@ class Scanner:
             raise 'TODO'
         # del POP_TOP
         if opcode in (PJIF,PJIT,JA,JF):
+            toDel = []
+            # del POP_TOP
             if self.code[i+opsize] == POP_TOP:
                 if self.code[i+opsize] == self.code[i+opsize+1] and self.code[i+opsize] == self.code[i+opsize+2] \
                 and opcode in (JF,JA) and self.code[i+opsize] != self.code[i+opsize+3]:
                     pass
                 else:
-                    return [i+opsize]
+                    toDel += [i+opsize]
+            # conditional tuple
+            if self.code[i] == JA and self.code[i+opsize] == POP_TOP \
+                and self.code[i+opsize+1] == JA and self.code[i+opsize+4] == POP_BLOCK:
+                jmpabs1target = self.get_target(i)
+                jmpabs2target = self.get_target(i+opsize+1)
+                if jmpabs1target == jmpabs2target and self.code[jmpabs1target] == FOR_ITER:
+                    destFor = self.get_target(jmpabs1target)
+                    if destFor == i+opsize+4:
+                        setupLoop = self.last_instr(0, jmpabs1target, SETUP_LOOP)
+                        assert self.get_target(setupLoop) >= i+opsize+4+self.op_size(POP_BLOCK)
+                        self.restructJump(jmpabs1target, destFor+self.op_size(POP_BLOCK))
+                        toDel += [setupLoop, i+opsize+1, i+opsize+4]
+            if len(toDel) > 0:
+                return toDel
+            return None
         if opcode == RAISE_VARARGS:
             if self.code[i+opsize] == POP_TOP:
                 return [i+opsize]
@@ -296,10 +313,7 @@ class Scanner:
                         toDel += [target, target-3]
                         # update PJIF
                         target = self.get_target(target-3)
-                        if target > 0xFFFF:
-                            raise 'TODO'
-                        self.code[start+1] = target & 0xFF
-                        self.code[start+2] = (target >> 8) & 0xFF
+                        self.restructJump(start, target)
                     start += self.op_size(PJIF)
                 # del DELETE_NAME x 
                 start = end
@@ -356,8 +370,7 @@ class Scanner:
                 toDel += [chckStp-3,chckStp+3,chckStp+6]
             # SETUP_WITH opcode dosen't exist in 2.5 but is necessary for the grammar
             self.code[chckStore] = JUMP_ABSOLUTE # ugly hack
-            self.code[chckStore+1] = i & 0xFF
-            self.code[chckStore+2] = (i >> 8) & 0xFF
+            self.restructJump(chckStore, i)
             self.toChange.append(chckStore)
             return toDel
         return None
@@ -371,20 +384,14 @@ class Scanner:
             if(self.code[i] in (PJIF,PJIT)):
                 target = self.get_argument(i)
                 target += i + 3
-                if target > 0xFFFF:
-                    raise 'A gerer'
-                self.code[i+1] = target & 0xFF
-                self.code[i+2] = (target >> 8) & 0xFF
+                self.restructJump(i, target)
 
         for i in self.op_range(0, len(self.code)):
             if(self.code[i] in (PJIF,PJIT)):
                 target = self.get_target(i)
                 if self.code[target] == JA:
                     target = self.get_target(target)
-                    if target > 0xFFFF:
-                        raise 'A gerer'
-                    self.code[i+1] = target & 0xFF
-                    self.code[i+2] = (target >> 8) & 0xFF
+                    self.restructJump(i, target)
 
     def restructCode(self, listDel):
         """
@@ -422,12 +429,17 @@ class Scanner:
                             offset-=self.op_size(self.code[toDel])
                     else:
                         break
-                self.restructJump(jmp, offset)
+                self.restructJump(jmp, self.get_target(jmp)+offset)
 
-    def restructJump(self, pos, offset):
-        target = self.get_argument(pos) + offset
-        if target > 0xFFFF:
-            raise 'A gerer'
+    def restructJump(self, pos, newTarget):
+        if not (self.code[pos] in dis.hasjabs+dis.hasjrel):
+            raise 'Can t change this argument. Opcode is not a jump'
+        if newTarget > 0xFFFF:
+            raise 'TODO'
+        offset = newTarget-self.get_target(pos)
+        target = self.get_argument(pos)+offset
+        if target < 0 or target > 0xFFFF:
+            raise 'TODO'
         self.code[pos+2] = (target >> 8) & 0xFF
         self.code[pos+1] = target & 0xFF
 

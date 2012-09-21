@@ -76,7 +76,7 @@ class Scanner:
             names = co.co_names
             varnames = co.co_varnames
         self.names = names
-        print self.linestarts
+        
         # add instruction to remonde in "toDel" list
         toDel = []
         # add instruction to change in "toChange" list
@@ -111,7 +111,7 @@ class Scanner:
 
         j = 0
         linestarts = self.linestarts
-        print self.linestarts
+        
         self.lines = []
         linetuple = namedtuple('linetuple', ['l_no', 'next'])
         linestartoffsets = {a for (a, _) in linestarts}
@@ -246,7 +246,7 @@ class Scanner:
                 rv.append(Token(opname, oparg, pattr, offset, linestart = offset in linestartoffsets))
             else:
                 rv.append(Token(replace[offset], oparg, pattr, offset, linestart = offset in linestartoffsets))
-		
+
         if self.showasm:
             out = self.out # shortcut
             for t in rv:
@@ -260,30 +260,49 @@ class Scanner:
         """
         opcode = self.code[i]
         opsize = self.op_size(opcode)
-		
+
         if i+opsize >= len(self.code):
             return None
 
         if opcode == EXTENDED_ARG:
             raise 'TODO'
-        # del POP_TOP
+        # modification of some jump structure
         if opcode in (PJIF,PJIT,JA,JF,RETURN_VALUE):
+            toDel = []
+            # del POP_TOP
             if self.code[i+opsize] == POP_TOP:
                 if self.code[i+opsize] == self.code[i+opsize+1] and self.code[i+opsize] == self.code[i+opsize+2] \
                 and opcode in (JF,JA) and self.code[i+opsize] != self.code[i+opsize+3]:
                     pass
                 else:
-                    return [i+opsize]
+                    toDel += [i+opsize]
+            # conditional tuple
+            if self.code[i] == JA and self.code[i+opsize] == POP_TOP \
+                and self.code[i+opsize+1] == JA and self.code[i+opsize+4] == POP_BLOCK:
+                jmpabs1target = self.get_target(i)
+                jmpabs2target = self.get_target(i+opsize+1)
+                if jmpabs1target == jmpabs2target and self.code[jmpabs1target] == FOR_ITER:
+                    destFor = self.get_target(jmpabs1target)
+                    if destFor == i+opsize+4:
+                        setupLoop = self.last_instr(0, jmpabs1target, SETUP_LOOP)
+                        assert self.get_target(setupLoop) >= i+opsize+4+self.op_size(POP_BLOCK)
+                        self.restructJump(jmpabs1target, destFor+self.op_size(POP_BLOCK))
+                        toDel += [setupLoop, i+opsize+1, i+opsize+4]
+            if len(toDel) > 0:
+                return toDel
+            return None
+        # raise_varags not realy handle for the moment
         if opcode == RAISE_VARARGS:
             if self.code[i+opsize] == POP_TOP:
                 return [i+opsize]
+        # modification of list structure
         if opcode == BUILD_LIST:
             if self.code[i+opsize] == DUP_TOP and self.code[i+opsize+1] in (STORE_NAME,STORE_FAST):
                 # del DUP/STORE_NAME x
                 toDel = [i+opsize,i+opsize+1]
                 nameDel = self.get_argument(i+opsize+1)
                 start = i+opsize+1
-                end = start	
+                end = start
                 # del LOAD_NAME x
                 while end < len(self.code):
                     end = self.first_instr(end, len(self.code), (LOAD_NAME,LOAD_FAST))
@@ -305,9 +324,8 @@ class Scanner:
                         target = self.get_target(target-3)
                         if target > 0xFFFF:
                             raise 'TODO'
-                        self.code[start+1] = target & 0xFF
-                        self.code[start+2] = (target >> 8) & 0xFF
-                    start += self.op_size(PJIF)	
+                        self.restructJump(start, i)
+                    start += self.op_size(PJIF)
                 # del DELETE_NAME x 
                 start = end
                 while end < len(self.code):
@@ -320,8 +338,9 @@ class Scanner:
                     else:
                         end += self.op_size(DELETE_FAST)
                 return toDel
-        # change join(for..) struct
+        # for / while struct
         if opcode == SETUP_LOOP:
+            # change join(for..) struct
             if self.code[i+3] == LOAD_FAST and self.code[i+6] == FOR_ITER: 
                 end = self.first_instr(i, len(self.code), RETURN_VALUE)
                 end = self.first_instr(i, end, YIELD_VALUE)
@@ -353,25 +372,23 @@ class Scanner:
                 toDel += [chckStp-3,chckStp+3,chckStp+6]
             # SETUP_WITH opcode dosen't exist in 2.6 but is necessary for the grammar
             self.code[chckRot+1] = JUMP_ABSOLUTE # ugly hack
-            self.code[chckRot+2] = i & 0xFF
-            self.code[chckRot+3] = (i >> 8) & 0xFF
+            self.restructJump(chckRot+1, i)
             self.toChange.append(chckRot+1)
             return toDel
         return None
-		
+
     def restructRelativeJump(self):
         """
         change relative JUMP_IF_FALSE/TRUE to absolut jump
-		and remap the target of PJIF/PJIT
+        and remap the target of PJIF/PJIT
         """
         for i in self.op_range(0, len(self.code)):
             if(self.code[i] in (PJIF,PJIT)):
                 target = self.get_argument(i)
                 target += i + 3
                 if target > 0xFFFF:
-                    raise 'A gerer'
-                self.code[i+1] = target & 0xFF
-                self.code[i+2] = (target >> 8) & 0xFF
+                    raise 'TODO'
+                self.restructJump(i, target)
 
         for i in self.op_range(0, len(self.code)):
             if(self.code[i] in (PJIF,PJIT)):
@@ -379,9 +396,8 @@ class Scanner:
                 if self.code[target] == JA:
                     target = self.get_target(target)
                     if target > 0xFFFF:
-                        raise 'A gerer'
-                    self.code[i+1] = target & 0xFF
-                    self.code[i+2] = (target >> 8) & 0xFF
+                        raise 'TODO'
+                    self.restructJump(i, target)
 
     def restructCode(self, listDel):
         """
@@ -418,12 +434,17 @@ class Scanner:
                             offset-=self.op_size(self.code[toDel])
                     else:
                         break
-                self.restructJump(jmp, offset)
+                self.restructJump(jmp, self.get_target(jmp)+offset)
                 
-    def restructJump(self, pos, offset):
-        target = self.get_argument(pos) + offset
-        if target > 0xFFFF:
-            raise 'A gerer'
+    def restructJump(self, pos, newTarget):
+        if not (self.code[pos] in dis.hasjabs+dis.hasjrel):
+            raise 'Can t change this argument. Opcode is not a jump'
+        if newTarget > 0xFFFF:
+            raise 'TODO'
+        offset = newTarget-self.get_target(pos)
+        target = self.get_argument(pos)+offset
+        if target < 0 or target > 0xFFFF:
+            raise 'TODO'
         self.code[pos+2] = (target >> 8) & 0xFF
         self.code[pos+1] = target & 0xFF
         
@@ -438,7 +459,16 @@ class Scanner:
     def get_argument(self, pos):
         target = self.code[pos+1] + self.code[pos+2] * 256
         return target
-		
+    
+    def print_bytecode(self):
+        for i in self.op_range(0, len(self.code)):
+            op = self.code[i]
+            if op in dis.hasjabs+dis.hasjrel:
+                dest = self.get_target(i, op)
+                print '%i\t%s\t%i' % (i, dis.opname[op], dest)
+            else:
+                print '%i\t%s\t' % (i, dis.opname[op])
+    
     def first_instr(self, start, end, instr, target=None, exact=True):
         """
         Find the first <instr> in the block from start to end.
@@ -834,7 +864,7 @@ class Scanner:
                         end_else = self.get_target(jmp)
                     if self.code[jmp] == JF:
                         #self.fixed_jumps[i] = jmp
-						self.fixed_jumps[jmp] = -1
+                        self.fixed_jumps[jmp] = -1
                     self.structs.append({'type':  'except',
                                    'start': i,
                                    'end':   jmp})

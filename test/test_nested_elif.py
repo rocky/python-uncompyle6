@@ -1,11 +1,3 @@
-# nested_elif.py -- source test pattern for nested elif
-#
-# This simple program is part of the decompyle test suite.
-#
-# decompyle is a Python byte-code decompiler
-# See http://www.goebel-consult.de/decompyle/ for download and
-# for further information
-
 a = None
 
 if a == 1:

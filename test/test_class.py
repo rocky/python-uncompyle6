@@ -1,12 +1,3 @@
-"""
-test_class.py -- source test pattern for class definitions
-
-This source is part of the decompyle test suite.
-
-decompyle is a Python byte-code decompiler
-See http://www.goebel-consult.de/decompyle/ for download and
-for further information
-"""
 
 class A:
 

@@ -1,11 +1,3 @@
-# augmentedAssign.py -- source test pattern for augmented assigns
-#
-# This simple program is part of the decompyle test suite.
-#
-# decompyle is a Python byte-code decompiler
-# See http://www.goebel-consult.de/decompyle/ for download and
-# for further information
-
 for i in range(1<<15+1):
     print 'a%d = %d' % (i,i)
     

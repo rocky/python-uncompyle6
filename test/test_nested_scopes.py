@@ -1,11 +1,3 @@
-# test_nested_scopes.py -- source test pattern for nested scopes
-#
-# This source is part of the decompyle test suite.
-#
-# decompyle is a Python byte-code decompiler
-# See http://www.goebel-consult.de/decompyle/ for download and
-# for further information
-
 from __future__ import nested_scopes
 
 blurb = 1
