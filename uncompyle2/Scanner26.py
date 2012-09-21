@@ -322,9 +322,7 @@ class Scanner:
                         toDel += [target, target-3]
                         # update PJIF
                         target = self.get_target(target-3)
-                        if target > 0xFFFF:
-                            raise 'TODO'
-                        self.restructJump(start, i)
+                        self.restructJump(start, target)
                     start += self.op_size(PJIF)
                 # del DELETE_NAME x 
                 start = end
