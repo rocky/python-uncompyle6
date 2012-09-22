@@ -285,9 +285,10 @@ class Scanner:
                     destFor = self.get_target(jmpabs1target)
                     if destFor == i+opsize+4:
                         setupLoop = self.last_instr(0, jmpabs1target, SETUP_LOOP)
-                        assert self.get_target(setupLoop) >= i+opsize+4+self.op_size(POP_BLOCK)
-                        self.restructJump(jmpabs1target, destFor+self.op_size(POP_BLOCK))
-                        toDel += [setupLoop, i+opsize+1, i+opsize+4]
+                        standarFor =  self.last_instr(setupLoop, jmpabs1target, GET_ITER)
+                        if standarFor == None:
+                            self.restructJump(jmpabs1target, destFor+self.op_size(POP_BLOCK))
+                            toDel += [setupLoop, i+opsize+1, i+opsize+4]
             if len(toDel) > 0:
                 return toDel
             return None
@@ -384,8 +385,6 @@ class Scanner:
             if(self.code[i] in (PJIF,PJIT)):
                 target = self.get_argument(i)
                 target += i + 3
-                if target > 0xFFFF:
-                    raise 'TODO'
                 self.restructJump(i, target)
 
         for i in self.op_range(0, len(self.code)):
@@ -393,8 +392,6 @@ class Scanner:
                 target = self.get_target(i)
                 if self.code[target] == JA:
                     target = self.get_target(target)
-                    if target > 0xFFFF:
-                        raise 'TODO'
                     self.restructJump(i, target)
 
     def restructCode(self, listDel):

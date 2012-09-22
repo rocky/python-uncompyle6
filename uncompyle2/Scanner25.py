@@ -85,6 +85,9 @@ class Scanner:
             ret = self.getOpcodeToDel(i)
             if ret != None:
                 toDel += ret
+
+        #self.print_bytecode()
+
         if toDel:
             toDel = sorted(list(set(toDel)))
             delta = 0
@@ -278,9 +281,10 @@ class Scanner:
                     destFor = self.get_target(jmpabs1target)
                     if destFor == i+opsize+4:
                         setupLoop = self.last_instr(0, jmpabs1target, SETUP_LOOP)
-                        assert self.get_target(setupLoop) >= i+opsize+4+self.op_size(POP_BLOCK)
-                        self.restructJump(jmpabs1target, destFor+self.op_size(POP_BLOCK))
-                        toDel += [setupLoop, i+opsize+1, i+opsize+4]
+                        standarFor =  self.last_instr(setupLoop, jmpabs1target, GET_ITER)
+                        if standarFor == None:
+                            self.restructJump(jmpabs1target, destFor+self.op_size(POP_BLOCK))
+                            toDel += [setupLoop, i+opsize+1, i+opsize+4]
             if len(toDel) > 0:
                 return toDel
             return None
@@ -455,6 +459,15 @@ class Scanner:
         target = self.code[pos+1] + self.code[pos+2] * 256
         return target
 
+    def print_bytecode(self):
+        for i in self.op_range(0, len(self.code)):
+            op = self.code[i]
+            if op in dis.hasjabs+dis.hasjrel:
+                dest = self.get_target(i, op)
+                print '%i\t%s\t%i' % (i, dis.opname[op], dest)
+            else:
+                print '%i\t%s\t' % (i, dis.opname[op])
+        
     def first_instr(self, start, end, instr, target=None, exact=True):
         """
         Find the first <instr> in the block from start to end.

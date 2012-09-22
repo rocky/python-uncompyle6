@@ -36,3 +36,12 @@ while i < 10:
     print i,
 else:
     print 'Else'
+    
+for x, y in [(1,2),(3,4)]:
+    if x in ['==', '>=', '>']:
+        if '0' in y:
+            print
+
+for x in (1, 2, 3):
+    if x == 1:
+        print x
