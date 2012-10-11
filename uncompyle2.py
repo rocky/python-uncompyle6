@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 #
-"""
+'''
 Usage: uncompyle [OPTIONS]... [ FILE | DIR]...
 
 Examples:
@@ -38,7 +38,7 @@ Extensions of generated files:
   '.dis'             successfully decompiled (and verified if --verify)
   '.dis_unverified'  successfully decompile but --verify failed
   '.nodis'           uncompyle failed (contact author for enhancement)
-"""
+'''
 
 Usage_short = \
 "decomyple [--help] [--verify] [--showasm] [--showast] [-o <path>] FILE|DIR..."

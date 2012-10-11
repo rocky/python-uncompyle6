@@ -1,12 +1,7 @@
-
-"""
+'''
 opcode module - potentially shared between dis and other modules which
 operate on bytecodes (e.g. peephole optimizers).
-"""
-
-__all__ = ["cmp_op", "hasconst", "hasname", "hasjrel", "hasjabs",
-           "haslocal", "hascompare", "hasfree", "opname", "opmap",
-           "HAVE_ARGUMENT", "EXTENDED_ARG"]
+'''
 
 cmp_op = ('<', '<=', '==', '!=', '>', '>=', 'in', 'not in', 'is',
         'is not', 'exception match', 'BAD')
@@ -18,6 +13,7 @@ hasjabs = []
 haslocal = []
 hascompare = []
 hasfree = []
+PJIF = PJIT = JA = JF = 0
 
 opmap = {}
 opname = [''] * 256
@@ -27,6 +23,7 @@ del op
 def def_op(name, op):
     opname[op] = name
     opmap[name] = op
+    globals().update({name: op}) 
 
 def name_op(name, op):
     def_op(name, op)
@@ -40,6 +37,14 @@ def jabs_op(name, op):
     def_op(name, op)
     hasjabs.append(op)
 
+def updateGlobal():
+    globals().update({'PJIF': opmap['JUMP_IF_FALSE']})
+    globals().update({'PJIT': opmap['JUMP_IF_TRUE']})
+    globals().update({'JA': opmap['JUMP_ABSOLUTE']})
+    globals().update({'JF': opmap['JUMP_FORWARD']})
+    globals().update({k.replace('+','_'):v for (k,v) in opmap.items()})
+    globals().update({'JUMP_OPs': map(lambda op: opname[op], hasjrel + hasjabs)})
+    
 # Instruction opcodes for compiled code
 # Blank lines correspond to available opcodes
 
@@ -182,4 +187,5 @@ def_op('CALL_FUNCTION_VAR_KW', 142) # 113 # #args + (#kwargs << 8)
 def_op('EXTENDED_ARG', 143) # 114
 EXTENDED_ARG = 143			# 114
 
+updateGlobal()
 del def_op, name_op, jrel_op, jabs_op

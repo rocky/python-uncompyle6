@@ -17,4 +17,4 @@ del x[1,2,3]
 
 x=[1,2,3]
 b=(1 for i in x if i)
-b=(e for i in range(4) if i == 2 for j in range(7) if i + i % 2 == 0)
+b=(e for i in range(4) if i == 2)

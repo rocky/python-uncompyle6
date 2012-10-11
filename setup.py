@@ -10,6 +10,5 @@ setup (name = "uncompyle2",
        author = "Mysterie",
        author_email = "kajusska@gmail.com",
        url = "http://github.com/Mysterie/uncompyle2",
-       packages=['uncompyle2', 'uncompyle2.opcode'],
-       scripts=['scripts/uncompyle2'],
+       packages=['uncompyle2', 'uncompyle2.opcode']
       )

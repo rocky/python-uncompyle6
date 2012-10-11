@@ -15,7 +15,6 @@ for i in range(10):
 else:
     print 'Else'
 
-
 i = 0
 while i < 10:
     i = i+1
@@ -45,3 +44,15 @@ for x, y in [(1,2),(3,4)]:
 for x in (1, 2, 3):
     if x == 1:
         print x
+
+i = 0
+while i < 10:
+    i+=1
+    for x in (1,2,3):
+        for y in (1,2,3):
+            if x == y and x == 1:
+                while i < 10:
+                    print x
+                    break
+
+

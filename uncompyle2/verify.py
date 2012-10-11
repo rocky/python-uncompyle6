@@ -7,7 +7,7 @@
 import types
 import operator
 import dis
-import uncompyle2, Scanner
+import uncompyle2, scanner
 
 BIN_OP_FUNCS = {
 'BINARY_POWER': operator.pow,
@@ -284,7 +284,7 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
                              getattr(code_obj1,member),
                              getattr(code_obj2,member))
 
-class Token(Scanner.Token):
+class Token(scanner.Token):
     """Token class with changed semantics for 'cmp()'."""
     
     def __cmp__(self, o):

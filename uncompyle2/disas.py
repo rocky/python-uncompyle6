@@ -139,7 +139,7 @@ def disassemble_string(code, lasti=-1, varnames=None, names=None,
                 print '(' + cmp_op[oparg] + ')',
         print
 
-disco = disassemble                     # XXX For backwards compatibility
+disco = disassemble # XXX For backwards compatibility
 
 def findlabels(code):
     """Detect all offsets in a byte code which are jump targets.
@@ -188,28 +188,6 @@ def findlinestarts(code):
         lineno += line_incr
     if lineno != lastlineno:
         yield (addr, lineno)
-
-def setVersion(version):
-    if version == 2.7:
-        import uncompyle2.opcode.opcode_27 as opcodyn
-    elif version == 2.6:
-        import uncompyle2.opcode.opcode_26 as opcodyn
-    elif version == 2.5:
-        import uncompyle2.opcode.opcode_25 as opcodyn
-
-    globals().update({'cmp_op': opcodyn.cmp_op})
-    globals().update({'hasconst': opcodyn.hasconst})
-    globals().update({'hasname': opcodyn.hasname})
-    globals().update({'hasjrel': opcodyn.hasjrel})
-    globals().update({'hasjabs': opcodyn.hasjabs})
-    globals().update({'haslocal': opcodyn.haslocal})
-    globals().update({'hascompare': opcodyn.hascompare})
-    globals().update({'hasfree': opcodyn.hasfree})
-    globals().update({'opname': opcodyn.opname})
-    globals().update({'opmap': opcodyn.opmap})
-    globals().update({'HAVE_ARGUMENT': opcodyn.HAVE_ARGUMENT})
-    globals().update({'EXTENDED_ARG': opcodyn.EXTENDED_ARG})
-
 
 def _test():
     """Simple test program to disassemble a file."""

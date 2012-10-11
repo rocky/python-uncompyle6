@@ -1,54 +1,33 @@
-#  Copyright (c) 1999 John Aycock
-#  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
-#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-#
-#  See main module for license.
-#
+'''
+  Copyright (c) 1999 John Aycock
+  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
+  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 
-__all__ = ['Token', 'Scanner', 'getscanner']
+  See main module for license.
+'''
 
 import types
-import disas as dis
 from collections import namedtuple
 from array import array
 from operator import itemgetter
 from struct import *
-from Scanner import Token, Code
 
-class Scanner:
-    def __init__(self, version):
-        self.version = version
-        self.resetTokenClass()
+from uncompyle2.opcode.opcode_26 import *
+import disas as dis
+import scanner as scan
 
-        dis.setVersion(version)
-        globals().update({'HAVE_ARGUMENT': dis.HAVE_ARGUMENT})
-        globals().update({k.replace('+','_'):v for (k,v) in dis.opmap.items()})
-        globals().update({'PJIF': dis.opmap['JUMP_IF_FALSE']}) 
-        globals().update({'PJIT': dis.opmap['JUMP_IF_TRUE']})
-        globals().update({'JA': dis.opmap['JUMP_ABSOLUTE']})
-        globals().update({'JF': dis.opmap['JUMP_FORWARD']})
-
-        self.JUMP_OPs = map(lambda op: dis.opname[op],
-                            dis.hasjrel + dis.hasjabs)        
-
-    def setShowAsm(self, showasm, out=None):
-        self.showasm = showasm
-        self.out = out
-            
-    def setTokenClass(self, tokenClass):
-        assert type(tokenClass) == types.ClassType
-        self.Token = tokenClass
-        
-    def resetTokenClass(self):
-        self.setTokenClass(Token)
+class Scanner26(scan.Scanner):
+    def __init__(self):
+        self.Token = scan.Scanner.__init__(self, 2.6)
         
     def disassemble(self, co, classname=None):
-        """
+        '''
         Disassemble a code object, returning a list of 'Token'.
 
         The main part of this procedure is modelled after
         dis.disassemble().
-        """
+        '''
+        
         rv = []
         customize = {}
         Token = self.Token # shortcut
@@ -59,7 +38,6 @@ class Scanner:
         self.prev = [0]
         # change jump struct
         self.restructRelativeJump()
-
         # class and names
         if classname:
             classname = '_' + classname.lstrip('_') + '__'
@@ -76,7 +54,7 @@ class Scanner:
             names = co.co_names
             varnames = co.co_varnames
         self.names = names
-        
+
         # add instruction to remonde in "toDel" list
         toDel = []
         # add instruction to change in "toChange" list
@@ -91,7 +69,7 @@ class Scanner:
             delta = 0
             self.restructCode(toDel)
             for x in toDel:
-                if self.code[x-delta] >= dis.HAVE_ARGUMENT:
+                if self.code[x-delta] >= HAVE_ARGUMENT:
                     self.code.pop(x-delta)
                     self.code.pop(x-delta)
                     self.code.pop(x-delta)
@@ -111,7 +89,7 @@ class Scanner:
 
         j = 0
         linestarts = self.linestarts
-        
+
         self.lines = []
         linetuple = namedtuple('linetuple', ['l_no', 'next'])
         linestartoffsets = {a for (a, _) in linestarts}
@@ -154,7 +132,7 @@ class Scanner:
         extended_arg = 0
         for offset in self.op_range(0, n):
             op = self.code[offset]
-            opname = dis.opname[op]
+            op_name = opname[op]
             oparg = None; pattr = None
 
             if offset in cf:
@@ -166,23 +144,23 @@ class Scanner:
             if op >= HAVE_ARGUMENT:
                 oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
-                if op == dis.EXTENDED_ARG:
+                if op == EXTENDED_ARG:
                     raise 'TODO'
                     extended_arg = oparg * 65536L
                     continue
-                if op in dis.hasconst:
+                if op in hasconst:
                     const = co.co_consts[oparg]
                     if type(const) == types.CodeType:
                         oparg = const
                         if const.co_name == '<lambda>':
-                            assert opname == 'LOAD_CONST'
-                            opname = 'LOAD_LAMBDA'
+                            assert op_name == 'LOAD_CONST'
+                            op_name = 'LOAD_LAMBDA'
                         elif const.co_name == '<genexpr>':
-                            opname = 'LOAD_GENEXPR'
+                            op_name = 'LOAD_GENEXPR'
                         elif const.co_name == '<dictcomp>':
-                            opname = 'LOAD_DICTCOMP'
+                            op_name = 'LOAD_DICTCOMP'
                         elif const.co_name == '<setcomp>':
-                            opname = 'LOAD_SETCOMP'
+                            op_name = 'LOAD_SETCOMP'
                         # verify uses 'pattr' for comparism, since 'attr'
                         # now holds Code(const) and thus can not be used
                         # for comparism (todo: think about changing this)
@@ -191,21 +169,21 @@ class Scanner:
                         pattr = '<code_object ' + const.co_name + '>'
                     else:
                         pattr = const
-                elif op in dis.hasname:
+                elif op in hasname:
                     pattr = names[oparg]
-                elif op in dis.hasjrel:
+                elif op in hasjrel:
                     pattr = repr(offset + 3 + oparg)
-                elif op in dis.hasjabs:
+                elif op in hasjabs:
                     pattr = repr(oparg)
-                elif op in dis.haslocal:
+                elif op in haslocal:
                     pattr = varnames[oparg]
-                elif op in dis.hascompare:
-                    pattr = dis.cmp_op[oparg]
-                elif op in dis.hasfree:
+                elif op in hascompare:
+                    pattr = cmp_op[oparg]
+                elif op in hasfree:
                     pattr = free[oparg]
             if offset in self.toChange:
                 if self.code[offset] == JA and self.code[oparg] == WITH_CLEANUP:
-                    opname = 'SETUP_WITH'
+                    op_name = 'SETUP_WITH'
                     cf[oparg] = cf.get(oparg, []) + [offset]
             if op in (BUILD_LIST, BUILD_TUPLE, BUILD_SLICE,
                             UNPACK_SEQUENCE,
@@ -220,30 +198,30 @@ class Scanner:
                     self.code[offset-3] == LOAD_CLOSURE:
                     continue
                 else:
-                    opname = '%s_%d' % (opname, oparg)
+                    op_name = '%s_%d' % (op_name, oparg)
                     if op != BUILD_SLICE:
-                        customize[opname] = oparg
+                        customize[op_name] = oparg
             elif op == JA:
                 target = self.get_target(offset)
                 if target < offset:
                     if offset in self.stmts and self.code[offset+3] not in (END_FINALLY, POP_BLOCK) \
                      and offset not in self.not_continue:
-                        opname = 'CONTINUE'
+                        op_name = 'CONTINUE'
                     else:
-                        opname = 'JUMP_BACK'
+                        op_name = 'JUMP_BACK'
 
             elif op == LOAD_GLOBAL:
                 try:
                     if pattr == 'AssertionError' and rv and rv[-1] == 'JUMP_IF_TRUE':
-                        opname = 'LOAD_ASSERT'
+                        op_name = 'LOAD_ASSERT'
                 except AttributeError:
                     pass
             elif op == RETURN_VALUE:
                 if offset in self.return_end_ifs:
-                    opname = 'RETURN_END_IF'
+                    op_name = 'RETURN_END_IF'
 
             if offset not in replace:
-                rv.append(Token(opname, oparg, pattr, offset, linestart = offset in linestartoffsets))
+                rv.append(Token(op_name, oparg, pattr, offset, linestart = offset in linestartoffsets))
             else:
                 rv.append(Token(replace[offset], oparg, pattr, offset, linestart = offset in linestartoffsets))
 
@@ -255,9 +233,9 @@ class Scanner:
         return rv, customize
 
     def getOpcodeToDel(self, i):
-        """
+        '''
         check validity of the opcode at position I and return a list of opcode to delete
-        """
+        '''
         opcode = self.code[i]
         opsize = self.op_size(opcode)
 
@@ -276,19 +254,21 @@ class Scanner:
                     pass
                 else:
                     toDel += [i+opsize]
-            # conditional tuple
+            # conditional tuple (not optimal at all, no good solution...)
             if self.code[i] == JA and self.code[i+opsize] == POP_TOP \
                 and self.code[i+opsize+1] == JA and self.code[i+opsize+4] == POP_BLOCK:
                 jmpabs1target = self.get_target(i)
                 jmpabs2target = self.get_target(i+opsize+1)
-                if jmpabs1target == jmpabs2target and self.code[jmpabs1target] == FOR_ITER:
+                if jmpabs1target == jmpabs2target and self.code[jmpabs1target] == FOR_ITER \
+                and self.code[jmpabs1target-1] != GET_ITER:
                     destFor = self.get_target(jmpabs1target)
                     if destFor == i+opsize+4:
                         setupLoop = self.last_instr(0, jmpabs1target, SETUP_LOOP)
                         standarFor =  self.last_instr(setupLoop, jmpabs1target, GET_ITER)
-                        if standarFor == None:
+                        if standarFor == None: 
                             self.restructJump(jmpabs1target, destFor+self.op_size(POP_BLOCK))
                             toDel += [setupLoop, i+opsize+1, i+opsize+4]
+                            
             if len(toDel) > 0:
                 return toDel
             return None
@@ -377,10 +357,10 @@ class Scanner:
         return None
 
     def restructRelativeJump(self):
-        """
+        '''
         change relative JUMP_IF_FALSE/TRUE to absolut jump
         and remap the target of PJIF/PJIT
-        """
+        '''
         for i in self.op_range(0, len(self.code)):
             if(self.code[i] in (PJIF,PJIT)):
                 target = self.get_argument(i)
@@ -395,9 +375,9 @@ class Scanner:
                     self.restructJump(i, target)
 
     def restructCode(self, listDel):
-        """
+        '''
         restruct linestarts and jump destination after removing a POP_TOP
-        """
+        '''
         result = list()
         for block in self.linestarts:
             startBlock = 0
@@ -409,21 +389,24 @@ class Scanner:
             result.append((block[0]+startBlock, block[1]))
         self.linestarts = result
 
-        for change in self.toChange:
+        for index in xrange(len(self.toChange)):
+            change = self.toChange[index]
+            delta = 0
             for toDel in listDel:
                 if change > toDel:
-                    self.toChange[self.toChange.index(change)] -= self.op_size(self.code[toDel])
+                    delta += self.op_size(self.code[toDel])
                 else:
                     break
+            self.toChange[index] -= delta
         
         for jmp in self.op_range(0, len(self.code)):
             op = self.code[jmp]
-            if op in dis.hasjrel+dis.hasjabs: # jmp
+            if op in hasjrel+hasjabs: # jmp
                 offset = 0
                 jmpTarget = self.get_target(jmp)
                 for toDel in listDel:
                     if toDel < jmpTarget:
-                        if op in dis.hasjabs:
+                        if op in hasjabs:
                             offset-=self.op_size(self.code[toDel])
                         elif jmp < toDel:
                             offset-=self.op_size(self.code[toDel])
@@ -432,7 +415,7 @@ class Scanner:
                 self.restructJump(jmp, self.get_target(jmp)+offset)
                 
     def restructJump(self, pos, newTarget):
-        if not (self.code[pos] in dis.hasjabs+dis.hasjrel):
+        if not (self.code[pos] in hasjabs+hasjrel):
             raise 'Can t change this argument. Opcode is not a jump'
         if newTarget > 0xFFFF:
             raise 'TODO'
@@ -442,140 +425,6 @@ class Scanner:
             raise 'TODO'
         self.code[pos+2] = (target >> 8) & 0xFF
         self.code[pos+1] = target & 0xFF
-        
-    def get_target(self, pos, op=None):
-        if op is None:
-            op = self.code[pos]
-        target = self.get_argument(pos)
-        if op in dis.hasjrel:
-            target += pos + 3
-        return target
-
-    def get_argument(self, pos):
-        target = self.code[pos+1] + self.code[pos+2] * 256
-        return target
-    
-    def print_bytecode(self):
-        for i in self.op_range(0, len(self.code)):
-            op = self.code[i]
-            if op in dis.hasjabs+dis.hasjrel:
-                dest = self.get_target(i, op)
-                print '%i\t%s\t%i' % (i, dis.opname[op], dest)
-            else:
-                print '%i\t%s\t' % (i, dis.opname[op])
-    
-    def first_instr(self, start, end, instr, target=None, exact=True):
-        """
-        Find the first <instr> in the block from start to end.
-        <instr> is any python bytecode instruction or a list of opcodes
-        If <instr> is an opcode with a target (like a jump), a target
-        destination can be specified which must match precisely if exact
-        is True, or if exact is False, the instruction which has a target
-        closest to <target> will be returned.
-
-        Return index to it or None if not found.
-        """
-        code = self.code
-        assert(start>=0 and end<=len(code))
-
-        try:    None in instr
-        except: instr = [instr]
-
-        pos = None
-        distance = len(code)
-        for i in self.op_range(start, end):
-            op = code[i]
-            if op in instr:
-                if target is None:
-                    return i
-                dest = self.get_target(i, op)
-                if dest == target:
-                    return i
-                elif not exact:
-                    _distance = abs(target - dest)
-                    if _distance < distance:
-                        distance = _distance
-                        pos = i
-        return pos
-
-    def last_instr(self, start, end, instr, target=None, exact=True):
-        """
-        Find the last <instr> in the block from start to end.
-        <instr> is any python bytecode instruction or a list of opcodes
-        If <instr> is an opcode with a target (like a jump), a target
-        destination can be specified which must match precisely if exact
-        is True, or if exact is False, the instruction which has a target
-        closest to <target> will be returned.
-
-        Return index to it or None if not found.
-        """
-
-        code = self.code
-        if not (start>=0 and end<=len(code)):
-            return None
-
-        try:    None in instr
-        except: instr = [instr]
-
-        pos = None
-        distance = len(code)
-        for i in self.op_range(start, end):
-            op = code[i]
-            if op in instr:
-                if target is None:
-                    pos = i
-                else:
-                    dest = self.get_target(i, op)
-                    if dest == target:
-                        distance = 0
-                        pos = i
-                    elif not exact:
-                        _distance = abs(target - dest)
-                        if _distance <= distance:
-                            distance = _distance
-                            pos = i
-        return pos
-
-    def all_instr(self, start, end, instr, target=None, include_beyond_target=False):
-        """
-        Find all <instr> in the block from start to end.
-        <instr> is any python bytecode instruction or a list of opcodes
-        If <instr> is an opcode with a target (like a jump), a target
-        destination can be specified which must match precisely.
-
-        Return a list with indexes to them or [] if none found.
-        """
-        
-        code = self.code
-        assert(start>=0 and end<=len(code))
-
-        try:    None in instr
-        except: instr = [instr]
-
-        result = []
-        for i in self.op_range(start, end):
-            op = code[i]
-            if op in instr:
-                if target is None:
-                    result.append(i)
-                else:
-                    t = self.get_target(i, op)
-                    if include_beyond_target and t >= target:
-                        result.append(i)
-                    elif t == target:
-                        result.append(i)
-        return result
-
-    def op_size(self, op):
-        if op < HAVE_ARGUMENT:
-            return 1
-        else:
-            return 3
-            
-    def op_range(self, start, end):
-        while start < end:
-            yield start
-            start += self.op_size(self.code[start])
 
     def build_stmt_indices(self):
         code = self.code
@@ -654,62 +503,12 @@ class Scanner:
             slist += [s] * (s-i)
             i = s
         slist += [len(code)] * (len(code)-len(slist))
-               
-    def remove_mid_line_ifs(self, ifs):
-        filtered = []
-        for i in ifs:
-            if self.lines[i].l_no == self.lines[i+3].l_no:
-                if self.code[self.prev[self.lines[i].next]] in (PJIT, PJIF):
-                    continue
-            filtered.append(i)
-        return filtered
-
-    
-    def rem_or(self, start, end, instr, target=None, include_beyond_target=False):
-        """
-        Find all <instr> in the block from start to end.
-        <instr> is any python bytecode instruction or a list of opcodes
-        If <instr> is an opcode with a target (like a jump), a target
-        destination can be specified which must match precisely.
-
-        Return a list with indexes to them or [] if none found.
-        """
-        
-        code = self.code
-        assert(start>=0 and end<=len(code))
-
-        try:    None in instr
-        except: instr = [instr]
-
-        result = []
-        for i in self.op_range(start, end):
-            op = code[i]
-            if op in instr:
-                if target is None:
-                    result.append(i)
-                else:
-                    t = self.get_target(i, op)
-                    if include_beyond_target and t >= target:
-                        result.append(i)
-                    elif t == target:
-                        result.append(i)
-                        
-        pjits = self.all_instr(start, end, PJIT)
-        filtered = []
-        for pjit in pjits:
-            tgt = self.get_target(pjit)-3
-            for i in result:
-                if i <= pjit or i >= tgt:
-                    filtered.append(i)
-            result = filtered
-            filtered = []
-        return result
 
     def next_except_jump(self, start):
-        """
+        '''
         Return the next jump that was generated by an except SomeException:
         construct in a try...except...else clause or None if not found.
-        """
+        '''
         except_match = self.first_instr(start, self.lines[start].next, (PJIF))
         if except_match:
             jmp = self.prev[self.get_target(except_match)]
@@ -731,17 +530,11 @@ class Scanner:
                 count_SETUP_ += 1
         #return self.lines[start].next
 
-    def restrict_to_parent(self, target, parent):
-        """Restrict pos to parent boundaries."""
-        if not (parent['start'] < target < parent['end']):
-            target = parent['end']
-        return target
-        
     def detect_structure(self, pos, op=None):
-        """
+        '''
         Detect type of block structures and their boundaries to fix optimizied jumps
         in python2.3+
-        """
+        '''
 
         # TODO: check the struct boundaries more precisely -Dan
 
@@ -844,7 +637,7 @@ class Scanner:
 
             ## Add the except blocks
             i = end
-            while self.code[i] != END_FINALLY:
+            while i < len(self.code) and self.code[i] != END_FINALLY:
                 jmp = self.next_except_jump(i)
                 if jmp == None: # check
                     i = self.next_stmt[i]
@@ -985,17 +778,14 @@ class Scanner:
             #        self.fixed_jumps[pos] = self.restrict_to_parent(target, parent)
 
     def find_jump_targets(self, code):
-        """
+        '''
         Detect all offsets in a byte code which are jump targets.
 
         Return the list of offsets.
 
         This procedure is modelled after dis.findlables(), but here
         for each target the number of jumps are counted.
-        """
-
-        hasjrel = dis.hasjrel
-        hasjabs = dis.hasjabs
+        '''
 
         n = len(code)
         self.structs = [{'type':  'root',

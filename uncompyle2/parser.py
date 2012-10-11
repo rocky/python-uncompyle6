@@ -1,9 +1,10 @@
-#  Copyright (c) 1999 John Aycock
-#  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
-#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-#
-#  See main module for license.
-#
+'''
+  Copyright (c) 1999 John Aycock
+  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
+  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+
+  See main module for license.
+'''
 
 __all__ = ['parse', 'AST', 'ParserError', 'Parser']
 
@@ -11,7 +12,7 @@ from spark import GenericASTBuilder
 import string, exceptions, sys
 from UserList import UserList
 
-from Scanner import Token
+from scanner import Token
 
 class AST(UserList):
     def __init__(self, type, kids=[]):
@@ -41,7 +42,7 @@ class ParserError(Exception):
         self.offset = offset
 
     def __str__(self):
-        return "Syntax error at or near `%r' token at offset %s" % \
+        return "Syntax error at or near `%r' token at offset %s\n" % \
                (self.token, self.offset)
     
 
@@ -774,5 +775,5 @@ def parse(tokens, customize):
             raise Exception('unknown customize token %s' % k)
         p.addRule(rule, nop)
     ast = p.parse(tokens)
-#    p.cleanup()
+#   p.cleanup()
     return ast

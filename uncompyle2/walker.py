@@ -1,51 +1,52 @@
-#  Copyright (c) 1999 John Aycock
-#  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
-#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-#
-#  See main module for license.
-#
-#
-#  Decompilation (walking AST)
-#
-#  All table-driven.  Step 1 determines a table (T) and a path to a
-#  table key (K) from the node type (N) (other nodes are shown as O):
-#
-#         N                  N               N&K
-#     / | ... \          / | ... \        / | ... \
-#    O  O      O        O  O      K      O  O      O
-#              |
-#              K
-#
-#  MAP_R0 (TABLE_R0)  MAP_R (TABLE_R)  MAP_DIRECT (TABLE_DIRECT)
-#
-#  The default is a direct mapping.  The key K is then extracted from the
-#  subtree and used to find a table entry T[K], if any.  The result is a
-#  format string and arguments (a la printf()) for the formatting engine.
-#  Escapes in the format string are:
-#
-#	%c	evaluate N[A] recursively*
-#	%C	evaluate N[A[0]]..N[A[1]-1] recursively, separate by A[2]*
-#	%,	print ',' if last %C only printed one item (for tuples--unused)
-#	%|	tab to current indentation level
-#	%+	increase current indentation level
-#	%-	decrease current indentation level
-#	%{...}	evaluate ... in context of N
-#	%%	literal '%'
-#
-#  * indicates an argument (A) required.
-#
-#  The '%' may optionally be followed by a number (C) in square brackets, which
-#  makes the engine walk down to N[C] before evaluating the escape code.
-#
+'''
+  Copyright (c) 1999 John Aycock
+  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
+  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+
+  See main module for license.
+
+
+  Decompilation (walking AST)
+
+  All table-driven.  Step 1 determines a table (T) and a path to a
+  table key (K) from the node type (N) (other nodes are shown as O):
+
+         N                  N               N&K
+     / | ... \          / | ... \        / | ... \
+    O  O      O        O  O      K      O  O      O
+              |
+              K
+
+  MAP_R0 (TABLE_R0)  MAP_R (TABLE_R)  MAP_DIRECT (TABLE_DIRECT)
+
+  The default is a direct mapping.  The key K is then extracted from the
+  subtree and used to find a table entry T[K], if any.  The result is a
+  format string and arguments (a la printf()) for the formatting engine.
+  Escapes in the format string are:
+
+	%c	evaluate N[A] recursively*
+	%C	evaluate N[A[0]]..N[A[1]-1] recursively, separate by A[2]*
+	%,	print ',' if last %C only printed one item (for tuples--unused)
+	%|	tab to current indentation level
+	%+	increase current indentation level
+	%-	decrease current indentation level
+	%{...}	evaluate ... in context of N
+	%%	literal '%'
+
+  * indicates an argument (A) required.
+
+  The '%' may optionally be followed by a number (C) in square brackets, which
+  makes the engine walk down to N[C] before evaluating the escape code.
+'''
 
 import sys, re, cStringIO
 from types import ListType, TupleType, DictType, \
      EllipsisType, IntType, CodeType
 
 from spark import GenericASTTraversal
-import Parser
-from Parser import AST
-from Scanner import Token, Code
+import parser
+from parser import AST
+from scanner import Token, Code
 
 minint = -sys.maxint-1
 
@@ -385,7 +386,7 @@ escape = re.compile(r'''
                  ( [{] (?P<expr> [^}]* ) [}] ))
         ''', re.VERBOSE)
 
-class ParserError(Parser.ParserError):
+class ParserError(parser.ParserError):
     def __init__(self, error, tokens):
         self.error = error # previous exception
         self.tokens = tokens
@@ -1387,17 +1388,17 @@ class Walker(GenericASTTraversal, object):
     def build_ast(self, tokens, customize, isLambda=0, noneInNames=False):
         assert type(tokens) == ListType
         #assert isinstance(tokens[0], Token)
-        
+
         if isLambda:
             tokens.append(Token('LAMBDA_MARKER'))
             try:
-                ast = Parser.parse(tokens, customize)
-            except Parser.ParserError, e:
+                ast = parser.parse(tokens, customize)
+            except parser.ParserError, e:
                 raise ParserError(e, tokens)
             if self.showast:
                 self.print_(repr(ast))
             return ast        
-            
+
         if len(tokens) > 2 or len(tokens) == 2 and not noneInNames:
             if tokens[-1] == Token('RETURN_VALUE'):
                 if tokens[-2] == Token('LOAD_CONST'):
@@ -1406,14 +1407,14 @@ class Walker(GenericASTTraversal, object):
                     tokens.append(Token('RETURN_LAST'))
         if len(tokens) == 0:
             return PASS
-
+        
         # Build AST from disassembly.
         try:
-            ast = Parser.parse(tokens, customize)
-        except Parser.ParserError, e:
+            ast = parser.parse(tokens, customize)
+        except parser.ParserError, e:
             raise ParserError(e, tokens)
 
         if self.showast:
             self.print_(repr(ast))
-        
+
         return ast
