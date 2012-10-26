@@ -18,11 +18,10 @@ import scanner as scan
 class Scanner27(scan.Scanner):
     def __init__(self):
         self.Token = scan.Scanner.__init__(self, 2.6)
-        
+    
     def disassemble(self, co, classname=None):
         '''
         Disassemble a code object, returning a list of 'Token'.
-
         The main part of this procedure is modelled after
         dis.disassemble().
         '''
@@ -98,14 +97,13 @@ class Scanner27(scan.Scanner):
         
         extended_arg = 0
         for offset in self.op_range(0, n):
-            
             if offset in cf:
                 k = 0
                 for j in cf[offset]:
                     rv.append(Token('COME_FROM', None, repr(j),
-                                    offset="%s_%d" % (offset, k) ))
+                                    offset="%s_%d" % (offset, k)))
                     k += 1
-                    
+            
             op = code[offset]
             op_name = opname[op]
             oparg = None; pattr = None
@@ -274,7 +272,7 @@ class Scanner27(scan.Scanner):
             last_stmt = s
             slist += [s] * (s-i)
             i = s
-        slist += [len(code)] * (len(code)-len(slist))
+        slist += [end] * (end-len(slist))
                
     def remove_mid_line_ifs(self, ifs):
         filtered = []
@@ -341,13 +339,13 @@ class Scanner27(scan.Scanner):
             start = pos+3
             target = self.get_target(pos, op)
             end    = self.restrict_to_parent(target, parent)
-			
+
             if target != end:
                 self.fixed_jumps[pos] = end
-            
             (line_no, next_line_byte) = self.lines[pos]
             jump_back = self.last_instr(start, end, JA,
                                           next_line_byte, False)
+
             if jump_back and jump_back != self.prev[end] and code[jump_back+3] in (JA, JF):
                 if code[self.prev[end]] == RETURN_VALUE or \
                     (code[self.prev[end]] == POP_BLOCK and code[self.prev[self.prev[end]]] == RETURN_VALUE):
@@ -365,8 +363,7 @@ class Scanner27(scan.Scanner):
                 end = jump_back + 3
             else:
                 if self.get_target(jump_back) >= next_line_byte:
-                    jump_back = self.last_instr(start, end, JA,
-                                              start, False)
+                    jump_back = self.last_instr(start, end, JA, start, False)
                 if end > jump_back+4 and code[end] in (JF, JA):
                     if code[jump_back+4] in (JA, JF):
                         if self.get_target(jump_back+4) == self.get_target(end):
@@ -375,9 +372,8 @@ class Scanner27(scan.Scanner):
                 elif target < pos:
                     self.fixed_jumps[pos] = jump_back+4
                     end = jump_back+4
-                 
                 target = self.get_target(jump_back, JA)
-
+                
                 if code[target] in (FOR_ITER, GET_ITER):
                     loop_type = 'for'
                 else:
@@ -385,7 +381,7 @@ class Scanner27(scan.Scanner):
                     test = self.prev[next_line_byte]
                     if test == pos:
                         loop_type = 'while 1'
-                    else:
+                    elif self.code[test] in hasjabs+hasjrel: 
                         self.ignore_if.add(test)
                         test_target = self.get_target(test)
                         if test_target > (jump_back+3):
@@ -455,7 +451,7 @@ class Scanner27(scan.Scanner):
             #does this jump to right after another cond jump?
             # if so, it's part of a larger conditional
             if (code[pre[target]] in (JUMP_IF_FALSE_OR_POP, JUMP_IF_TRUE_OR_POP,
-                    PJIF, PJIT)) and (target > pos):				
+                    PJIF, PJIT)) and (target > pos):
                 self.fixed_jumps[pos] = pre[target]
                 self.structs.append({'type':  'and/or',
                                        'start': start,

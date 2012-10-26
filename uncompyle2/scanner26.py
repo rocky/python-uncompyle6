@@ -502,7 +502,7 @@ class Scanner26(scan.Scanner):
             last_stmt = s
             slist += [s] * (s-i)
             i = s
-        slist += [len(code)] * (len(code)-len(slist))
+        slist += [end] * (end-len(slist))
 
     def next_except_jump(self, start):
         '''
@@ -607,7 +607,7 @@ class Scanner26(scan.Scanner):
                     test = self.prev[next_line_byte]
                     if test == pos:
                         loop_type = 'while 1'
-                    else:
+                    elif self.code[test] in hasjabs+hasjrel: 
                         self.ignore_if.add(test)
                         test_target = self.get_target(test)
                         if test_target > (jump_back+3):

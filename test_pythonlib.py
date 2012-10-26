@@ -13,10 +13,10 @@ Usage-Examples:
 Adding own test-trees:
 
 Step 1) Edit this file and add a new entry to 'test_options', eg.
-          test_options['mylib'] = ('/usr/lib/mylib', PYOC, 'mylib')
+  test_options['mylib'] = ('/usr/lib/mylib', PYOC, 'mylib')
 Step 2: Run the test:
-	  test_pythonlib --mylib	  # decompile 'mylib'
-	  test_pythonlib --mylib --verify # decompile verify 'mylib'
+  test_pythonlib --mylib	  # decompile 'mylib'
+  test_pythonlib --mylib --verify # decompile verify 'mylib'
 '''
 
 from uncompyle2 import main, verify
@@ -105,7 +105,7 @@ if __name__ == '__main__':
                 test_dirs.append(test_options[val])
         else:
             help()
-    
+
     for src_dir, pattern, target_dir in test_dirs:
         for libpath in lib_prefix:
             testpath = os.path.join(libpath, src_dir)
@@ -114,6 +114,7 @@ if __name__ == '__main__':
             if os.path.exists(testlibfile) or os.path.exists(testfile):
                 src_dir = testpath
                 checked_dirs.append([src_dir, pattern, target_dir])
+                break
 
     for src_dir, pattern, target_dir in checked_dirs:
         target_dir = os.path.join(target_base, target_dir)
