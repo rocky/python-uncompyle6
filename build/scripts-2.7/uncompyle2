@@ -1,7 +1,7 @@
 #!/usr/bin/python2.7
 # Mode: -*- python -*-
 #
-# Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
+# Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 """
 Usage: uncompyle [OPTIONS]... [ FILE | DIR]...
