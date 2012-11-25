@@ -15,13 +15,14 @@ hashes get pretty-printed.
 
 'uncompyle2' is based on John Aycock's generic small languages compiler
 'spark' (http://www.csr.uvic.ca/~aycock/python/) and his prior work on
-'uncompyle'.
+a tool called 'decompyle'. This tool has been vastly improved by
+Hartmut Goebel `http://www.crazy-compilers.com/`_
 
 ### Additional note (3 July 2004, Ben Burton):
 
-The original website from which this software was obtained is no longer
-available.  It has now become a commercial decompilation service, with
-no software available for download.
+This software is no longer available from the original website. It has
+now become a commercial decompilation service, with no software
+available for download.
 
 Any developers seeking to make alterations or enhancements to this code
 should therefore consider these debian packages an appropriate starting

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
+# (C) Copyright 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 # byte-code verifier for uncompyle
 #

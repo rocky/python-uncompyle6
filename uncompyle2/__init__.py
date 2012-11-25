@@ -1,6 +1,6 @@
 '''
   Copyright (c) 1999 John Aycock
-  Copyright (c) 2000 by hartmut Goebel <hartmut@goebel.noris.de>
+  Copyright (c) 2000 by hartmut Goebel <h.goebel@crazy-compilers.com>
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
