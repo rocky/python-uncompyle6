@@ -206,13 +206,16 @@ class Scanner(object):
                     elif t == target:
                         result.append(i)
         return result
-
+    
     def op_size(self, op):
-        if op < self.opc.HAVE_ARGUMENT:
+        if op < self.opc.HAVE_ARGUMENT and op not in self.opc.hasArgumentExtended:
             return 1
         else:
             return 3
-            
+    
+    def op_hasArgument(self, op):
+        return self.op_size(op) > 1
+    
     def op_range(self, start, end):
         while start < end:
             yield start

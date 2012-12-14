@@ -13,6 +13,7 @@ hasjabs = []
 haslocal = []
 hascompare = []
 hasfree = []
+hasArgumentExtended = []
 PJIF = PJIT = JA = JF = 0
 
 opmap = {}
@@ -37,6 +38,10 @@ def jabs_op(name, op):
     def_op(name, op)
     hasjabs.append(op)
 
+def def_extArg(name, op):
+    def_op(name, op)
+    hasArgumentExtended.append(op)
+    
 def updateGlobal():
     globals().update({'PJIF': opmap['JUMP_IF_FALSE']})
     globals().update({'PJIT': opmap['JUMP_IF_TRUE']})
@@ -63,7 +68,7 @@ def_op('UNARY_CONVERT', 13)	# 25
 
 def_op('UNARY_INVERT', 15)	# 34
 
-def_op('LIST_APPEND', 18)	# 68
+def_extArg('LIST_APPEND', 18)	# 68
 def_op('BINARY_POWER', 19)	# 28
 def_op('BINARY_MULTIPLY', 20) # 36
 def_op('BINARY_DIVIDE', 21) # 12

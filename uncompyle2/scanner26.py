@@ -32,12 +32,9 @@ class Scanner26(scan.Scanner):
         customize = {}
         Token = self.Token # shortcut
         self.code = array('B', co.co_code)
-        n = len(self.code)
         # linestarts contains bloc code adresse (addr,block)
         self.linestarts = list(dis.findlinestarts(co))
         self.prev = [0]
-        # change jump struct
-        self.restructRelativeJump()
         # class and names
         if classname:
             classname = '_' + classname.lstrip('_') + '__'
@@ -55,41 +52,19 @@ class Scanner26(scan.Scanner):
             varnames = co.co_varnames
         self.names = names
 
-        # add instruction to remonde in "toDel" list
-        toDel = []
-        # add instruction to change in "toChange" list
+        # list of instruction to remove/add or change to match with bytecode 2.7
         self.toChange = []
-        for i in self.op_range(0, n):
-            op = self.code[i]
-            ret = self.getOpcodeToDel(i)
-            if ret != None:
-                toDel += ret
-        if toDel:
-            toDel = sorted(list(set(toDel)))
-            delta = 0
-            self.restructCode(toDel)
-            for x in toDel:
-                if self.code[x-delta] >= HAVE_ARGUMENT:
-                    self.code.pop(x-delta)
-                    self.code.pop(x-delta)
-                    self.code.pop(x-delta)
-                    delta += 3
-                else:
-                    self.code.pop(x-delta)
-                    delta += 1
-
-        # mapping adresses of prev instru
-        n = len(self.code) 
-        for i in self.op_range(0, n):
+        self.restructBytecode()
+        codelen = len(self.code)
+        # mapping adresses of prev instru 
+        for i in self.op_range(0, codelen):
             op = self.code[i]
             self.prev.append(i)
-            if op >= HAVE_ARGUMENT:
+            if self.op_hasArgument(op):
                 self.prev.append(i)
                 self.prev.append(i)
-
         j = 0
         linestarts = self.linestarts
-
         self.lines = []
         linetuple = namedtuple('linetuple', ['l_no', 'next'])
         linestartoffsets = {a for (a, _) in linestarts}
@@ -100,8 +75,8 @@ class Scanner26(scan.Scanner):
                 j += 1
             last_op = self.code[self.prev[start_byte]]
             (prev_start_byte, prev_line_no) = (start_byte, line_no)
-        while j < n:
-            self.lines.append(linetuple(prev_line_no, n))
+        while j < codelen:
+            self.lines.append(linetuple(prev_line_no, codelen))
             j+=1
         # self.lines contains (block,addrLastInstr)
         cf = self.find_jump_targets(self.code)
@@ -110,7 +85,7 @@ class Scanner26(scan.Scanner):
         last_stmt = self.next_stmt[0]
         i = self.next_stmt[last_stmt]
         replace = {}
-        while i < n-1:
+        while i < codelen-1:
             if self.lines[last_stmt].next > i:
                 if self.code[last_stmt] == PRINT_ITEM:
                     if self.code[i] == PRINT_ITEM:
@@ -120,7 +95,7 @@ class Scanner26(scan.Scanner):
             last_stmt = i
             i = self.next_stmt[i]
         
-        imports = self.all_instr(0, n, (IMPORT_NAME, IMPORT_FROM, IMPORT_STAR))
+        imports = self.all_instr(0, codelen, (IMPORT_NAME, IMPORT_FROM, IMPORT_STAR))
         if len(imports) > 1:
             last_import = imports[0]
             for i in imports[1:]:
@@ -130,7 +105,7 @@ class Scanner26(scan.Scanner):
                 last_import = i
 
         extended_arg = 0
-        for offset in self.op_range(0, n):
+        for offset in self.op_range(0, codelen):
             op = self.code[offset]
             op_name = opname[op]
             oparg = None; pattr = None
@@ -141,7 +116,7 @@ class Scanner26(scan.Scanner):
                     rv.append(Token('COME_FROM', None, repr(j),
                                     offset="%s_%d" % (offset, k) ))
                     k += 1
-            if op >= HAVE_ARGUMENT:
+            if self.op_hasArgument(op):
                 oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
                 if op == EXTENDED_ARG:
@@ -296,7 +271,7 @@ class Scanner26(scan.Scanner):
                         end += self.op_size(LOAD_FAST)
                 # log JA/POP_TOP to del and update PJIF
                 while start < end:
-                    start = self.first_instr(start, len(self.code), (PJIF,PJIT))
+                    start = self.first_instr(start, end, (PJIF,PJIT))
                     if start == None: break
                     target = self.get_target(start)
                     if self.code[target] == POP_TOP and self.code[target-3] == JA:
@@ -356,64 +331,145 @@ class Scanner26(scan.Scanner):
             return toDel
         return None
 
-    def restructRelativeJump(self):
-        '''
-        change relative JUMP_IF_FALSE/TRUE to absolut jump
-        and remap the target of PJIF/PJIT
-        '''
-        for i in self.op_range(0, len(self.code)):
-            if(self.code[i] in (PJIF,PJIT)):
-                target = self.get_argument(i)
-                target += i + 3
-                self.restructJump(i, target)
+    def getOpcodeToExp(self):
+        # we handle listExp, if opcode have to be resized
+        listExp = []
+        i=0
+        while i < len(self.code): # we can't use op_range for the moment
+            op = self.code[i]
+            if op in self.opc.hasArgumentExtended:
+                listExp += [i]
+            elif self.op_hasArgument(op):
+                i+=2
+            i+=1
+        return listExp
 
-        for i in self.op_range(0, len(self.code)):
-            if(self.code[i] in (PJIF,PJIT)):
-                target = self.get_target(i)
-                if self.code[target] == JA:
-                    target = self.get_target(target)
-                    self.restructJump(i, target)
-
-    def restructCode(self, listDel):
+    def restructCode(self, listDel, listExp):
         '''
-        restruct linestarts and jump destination after removing a POP_TOP
+        restruct linestarts and jump destination after converting bytecode
         '''
+        # restruct linestarts with deleted / modificated opcode
         result = list()
         for block in self.linestarts:
             startBlock = 0
             for toDel in listDel:
                 if toDel < block[0]:
                     startBlock -= self.op_size(self.code[toDel])
-                else:
-                    break
+            for toExp in listExp:
+                if toExp < block[0]:
+                    startBlock += 2
             result.append((block[0]+startBlock, block[1]))
         self.linestarts = result
-
+        # handle opcodeToChange deplacement
         for index in xrange(len(self.toChange)):
             change = self.toChange[index]
             delta = 0
             for toDel in listDel:
                 if change > toDel:
-                    delta += self.op_size(self.code[toDel])
-                else:
-                    break
-            self.toChange[index] -= delta
+                    delta -= self.op_size(self.code[toDel])
+            for toExp in listExp:
+                if change > toExp:
+                    delta += 2
+            self.toChange[index] += delta
+        # restruct jmp opcode
+        if listDel:
+            for jmp in self.op_range(0, len(self.code)):
+                op = self.code[jmp]
+                if op in hasjrel+hasjabs: 
+                    offset = 0
+                    jmpTarget = self.get_target(jmp)
+                    for toDel in listDel:
+                        if toDel < jmpTarget:
+                            if op in hasjabs or jmp < toDel:
+                                offset-=self.op_size(self.code[toDel])
+                    self.restructJump(jmp, jmpTarget+offset)
+        if listExp:
+            jmp = 0
+            while jmp < len(self.code): # we can't use op_range for the moment
+                op = self.code[jmp]
+                if op in hasjrel+hasjabs:
+                    offset = 0
+                    jmpTarget = self.get_target(jmp)
+                    for toExp in listExp:
+                        if toExp < jmpTarget:
+                            if op in hasjabs or jmp < toExp:
+                                offset+=2
+                    self.restructJump(jmp, jmpTarget+offset)
+                if self.op_hasArgument(op) and op not in self.opc.hasArgumentExtended:
+                    jmp += 3
+                else: jmp += 1
+
+    def restructBytecode(self):
+        '''
+        add/change/delete bytecode for suiting bytecode 2.7
+        '''
+        # we can't use op_range for the moment
+        # convert jump opcode to 2.7
+        self.restructRelativeJump()
         
-        for jmp in self.op_range(0, len(self.code)):
-            op = self.code[jmp]
-            if op in hasjrel+hasjabs: # jmp
-                offset = 0
-                jmpTarget = self.get_target(jmp)
-                for toDel in listDel:
-                    if toDel < jmpTarget:
-                        if op in hasjabs:
-                            offset-=self.op_size(self.code[toDel])
-                        elif jmp < toDel:
-                            offset-=self.op_size(self.code[toDel])
-                    else:
-                        break
-                self.restructJump(jmp, self.get_target(jmp)+offset)
-                
+        listExp = self.getOpcodeToExp()
+        # change code structure 
+        if listExp:
+            listExp = sorted(list(set(listExp)))
+            self.restructCode([], listExp)
+            # we add arg to expended opcode
+            offset=0
+            for toExp in listExp:
+                self.code.insert(toExp+offset+1, 0)
+                self.code.insert(toExp+offset+1, 0)
+                offset+=2
+        # op_range is now ok :)
+        # add instruction to change in "toChange" list + MAJ toDel
+        listDel = []
+        for i in self.op_range(0, len(self.code)):
+            ret = self.getOpcodeToDel(i)
+            if ret != None:
+                listDel += ret
+        
+        # change code structure after deleting byte
+        if listDel:
+            listDel = sorted(list(set(listDel)))
+            self.restructCode(listDel, [])
+            # finaly we delete useless opcode
+            delta = 0
+            for x in listDel:
+                if self.op_hasArgument(self.code[x-delta]):
+                    self.code.pop(x-delta)
+                    self.code.pop(x-delta)
+                    self.code.pop(x-delta)
+                    delta += 3
+                else:
+                    self.code.pop(x-delta)
+                    delta += 1
+
+    def restructRelativeJump(self):
+        '''
+        change relative JUMP_IF_FALSE/TRUE to absolut jump
+        and remap the target of PJIF/PJIT
+        '''
+        i=0
+        while i < len(self.code): # we can't use op_range for the moment
+            op = self.code[i]
+            if(op in (PJIF,PJIT)):
+                target = self.get_argument(i)
+                target += i + 3
+                self.restructJump(i, target)
+            if self.op_hasArgument(op) and op not in self.opc.hasArgumentExtended:
+                i += 3
+            else: i += 1
+
+        i=0
+        while i < len(self.code): # we can't use op_range for the moment
+            op = self.code[i]
+            if(op in (PJIF,PJIT)):
+                target = self.get_target(i)
+                if self.code[target] == JA:
+                    target = self.get_target(target)
+                    self.restructJump(i, target)
+            if self.op_hasArgument(op) and op not in self.opc.hasArgumentExtended:
+                i += 3
+            else: i += 1
+                    
     def restructJump(self, pos, newTarget):
         if not (self.code[pos] in hasjabs+hasjrel):
             raise 'Can t change this argument. Opcode is not a jump'
@@ -425,7 +481,7 @@ class Scanner26(scan.Scanner):
             raise 'TODO'
         self.code[pos+2] = (target >> 8) & 0xFF
         self.code[pos+1] = target & 0xFF
-
+        
     def build_stmt_indices(self):
         code = self.code
         start = 0;
@@ -805,7 +861,7 @@ class Scanner26(scan.Scanner):
             ## Determine structures and fix jumps for 2.3+
             self.detect_structure(i, op)
 
-            if op >= HAVE_ARGUMENT:
+            if self.op_hasArgument(op):
                 label = self.fixed_jumps.get(i)
                 oparg = self.get_argument(i)  
                 if label is None:

@@ -194,6 +194,12 @@ class Scanner27(scan.Scanner):
             print >>out
         return rv, customize
 
+    def op_size(self, op):
+        if op < self.opc.HAVE_ARGUMENT:
+            return 1
+        else:
+            return 3
+        
     def build_stmt_indices(self):
         code = self.code
         start = 0;
