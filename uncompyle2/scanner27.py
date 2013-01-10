@@ -157,7 +157,7 @@ class Scanner27(scan.Scanner):
                 #      Now all values loaded via LOAD_CLOSURE are packed into
                 #      a tuple before calling MAKE_CLOSURE.
                 if op == BUILD_TUPLE and \
-                    code[offset-3] == LOAD_CLOSURE:
+                    code[self.prev[offset]] == LOAD_CLOSURE:
                     continue
                 else:
                     op_name = '%s_%d' % (op_name, oparg)
