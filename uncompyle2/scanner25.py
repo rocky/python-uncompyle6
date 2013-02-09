@@ -822,17 +822,13 @@ class Scanner25(scan.Scanner):
                                        'start': rtarget,
                                        'end':   end})
             elif code[pre[rtarget]] == RETURN_VALUE:
+                # if it's an old JUMP_IF_FALSE_OR_POP, JUMP_IF_TRUE_OR_POP (return 1<2<3 case)
+                if pos < rtarget and code[rtarget] == ROT_TWO:
+                    return
                 self.structs.append({'type':  'if-then',
                                        'start': start,
                                        'end':   rtarget})
                 self.return_end_ifs.add(pre[rtarget])
-            # if it's an old JUMP_IF_FALSE_OR_POP, JUMP_IF_TRUE_OR_POP
-            #if target > pos:
-            #    unop_target = self.last_instr(pos, target, JF, target)
-            #    if unop_target and code[unop_target+3] != ROT_TWO:
-            #        self.fixed_jumps[pos] = unop_target
-            #    else:
-            #        self.fixed_jumps[pos] = self.restrict_to_parent(target, parent)
 
     def find_jump_targets(self, code):
         '''

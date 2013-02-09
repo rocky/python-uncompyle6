@@ -48,3 +48,6 @@ def func_with_tuple_args5((a,b), (c,d), *args, **kwargs):
 def func_with_tuple_args6((a,b), (c,d)=(2,3), *args, **kwargs):
     print a
     print c
+
+def func_ret1():
+    return 1 < 2 < 3
