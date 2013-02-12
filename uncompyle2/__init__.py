@@ -84,6 +84,7 @@ def uncompyle(version, co, out=None, showasm=0, showast=0):
     '''
     diassembles a given code block 'co'
     '''
+
     assert type(co) == types.CodeType
 
     # store final output stream for case of error
@@ -138,7 +139,11 @@ def uncompyle_file(filename, outstream=None, showasm=0, showast=0):
     decompile Python byte-code file (.pyc)
     """
     version, co = _load_module(filename)
-    uncompyle(version, co, outstream, showasm, showast)
+    if type(co) == list:
+       for con in co:
+           uncompyle(version, con, outstream, showasm, showast)
+    else:
+        uncompyle(version, co, outstream, showasm, showast)
     co = None
 
 # ---- main ----
