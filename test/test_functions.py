@@ -51,3 +51,8 @@ def func_with_tuple_args6((a,b), (c,d)=(2,3), *args, **kwargs):
 
 def func_ret1():
     return 1 < 2 < 3
+    
+def read(size=0):
+    if size > 0 and size <= x - cur:
+        return 0
+    return 0

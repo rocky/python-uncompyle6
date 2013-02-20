@@ -777,6 +777,9 @@ class Scanner25(scan.Scanner):
                                     last_jump_good = False
                             self.fixed_jumps[pos] = fix or match[-1]
                             return
+                    elif pos < rtarget and code[target] == ROT_TWO:
+                        self.fixed_jumps[pos] = target 
+                        return
                     else:
                         self.fixed_jumps[pos] = match[-1]
                         return
