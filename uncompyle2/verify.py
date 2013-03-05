@@ -159,10 +159,18 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
         if member in __IGNORE_CODE_MEMBERS__:
             pass
         elif member == 'co_code':
-            scanner = Scanner.getscanner(version)
+            if version == 2.7:
+                import scanner27 as scan
+                scanner = scan.Scanner27()
+            elif version == 2.6:
+                import scanner26 as scan
+                scanner = scan.Scanner26()
+            elif version == 2.5:
+                import scanner25 as scan
+                scanner = scan.Scanner25()
             scanner.setShowAsm( showasm=0 )
             global JUMP_OPs
-            JUMP_OPs = scanner.JUMP_OPs + ['JUMP_BACK']
+            JUMP_OPs = scan.JUMP_OPs + ['JUMP_BACK']
             
             # use changed Token class
             #   we (re)set this here to save exception handling,
