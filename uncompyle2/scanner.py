@@ -93,8 +93,8 @@ class Scanner(object):
         return target
 
     def get_argument(self, pos):
-        target = self.code[pos+1] + self.code[pos+2] * 256
-        return target
+        arg = self.code[pos+1] + self.code[pos+2] * 256
+        return arg
 
     def print_bytecode(self):
         for i in self.op_range(0, len(self.code)):

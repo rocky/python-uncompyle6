@@ -231,9 +231,7 @@ class Parser(GenericASTBuilder):
         importlist2 ::= importlist2 import_as
         importlist2 ::= import_as
         import_as ::= IMPORT_NAME designator
-        import_as ::= IMPORT_NAME LOAD_ATTR designator
-        import_as ::= IMPORT_NAME LOAD_ATTR LOAD_ATTR designator
-        import_as ::= IMPORT_NAME LOAD_ATTR LOAD_ATTR LOAD_ATTR designator
+        import_as ::= IMPORT_NAME load_attrs designator
         import_as ::= IMPORT_FROM designator
 
         importstmt ::= LOAD_CONST LOAD_CONST import_as 
@@ -247,10 +245,11 @@ class Parser(GenericASTBuilder):
         imports_cont ::= import_cont
         import_cont ::= LOAD_CONST LOAD_CONST import_as_cont
         import_as_cont ::= IMPORT_NAME_CONT designator
-        import_as_cont ::= IMPORT_NAME_CONT LOAD_ATTR designator
-        import_as_cont ::= IMPORT_NAME_CONT LOAD_ATTR LOAD_ATTR designator
-        import_as_cont ::= IMPORT_NAME_CONT LOAD_ATTR LOAD_ATTR LOAD_ATTR designator
+        import_as_cont ::= IMPORT_NAME_CONT load_attrs designator
         import_as_cont ::= IMPORT_FROM designator
+        
+        load_attrs ::= LOAD_ATTR
+        load_attrs ::= load_attrs LOAD_ATTR
         '''
 
     def p_grammar(self, args):
@@ -331,13 +330,13 @@ class Parser(GenericASTBuilder):
         call_stmt ::= expr POP_TOP
 
         stmt ::= return_stmt
-        return_stmt ::= expr RETURN_VALUE
+        return_stmt ::= ret_expr RETURN_VALUE
         return_stmts ::= return_stmt
         return_stmts ::= _stmts return_stmt
         
         return_if_stmts ::= return_if_stmt
         return_if_stmts ::= _stmts return_if_stmt
-        return_if_stmt ::= expr RETURN_END_IF
+        return_if_stmt ::= ret_expr RETURN_END_IF
 
         stmt ::= break_stmt
         break_stmt ::= BREAK_LOOP
@@ -349,9 +348,15 @@ class Parser(GenericASTBuilder):
         continue_stmts ::= lastl_stmt continue_stmt
         continue_stmts ::= continue_stmt
         
-        stmt ::= raise_stmt
-        raise_stmt ::= exprlist RAISE_VARARGS
-        raise_stmt ::= nullexprlist RAISE_VARARGS
+        stmt ::= raise_stmt0
+        stmt ::= raise_stmt1
+        stmt ::= raise_stmt2
+        stmt ::= raise_stmt3
+
+        raise_stmt0 ::= RAISE_VARARGS_0
+        raise_stmt1 ::= expr RAISE_VARARGS_1
+        raise_stmt2 ::= expr expr RAISE_VARARGS_2
+        raise_stmt3 ::= expr expr expr RAISE_VARARGS_3
         
         stmt ::= exec_stmt
         exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
@@ -406,24 +411,14 @@ class Parser(GenericASTBuilder):
         jmp_false   ::= JUMP_IF_FALSE
         jmp_true    ::= POP_JUMP_IF_TRUE
         jmp_true    ::= JUMP_IF_TRUE
-
-        multi_come_from ::= multi_come_from COME_FROM
-        multi_come_from ::= 
-        assert_end  ::= multi_come_from POP_TOP
-        assert_end  ::= 
-		
-        assert ::= assert_expr jmp_true
-                LOAD_ASSERT RAISE_VARARGS assert_end
-        assert2 ::= assert_expr jmp_true
-                LOAD_ASSERT expr RAISE_VARARGS assert_end
-        assert ::= assert_expr jmp_true
-                LOAD_GLOBAL RAISE_VARARGS assert_end
-        assert2 ::= assert_expr jmp_true
-                LOAD_GLOBAL expr RAISE_VARARGS assert_end
-
+        
+        assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
+        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
+        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_2
+        
+        assert_expr ::= expr
         assert_expr ::= assert_expr_or
         assert_expr ::= assert_expr_and
-        assert_expr ::= expr
         assert_expr_or ::= assert_expr jmp_true expr
         assert_expr_and ::= assert_expr jmp_false expr
 
@@ -477,7 +472,7 @@ class Parser(GenericASTBuilder):
         except_suite ::= c_stmts_opt JUMP_FORWARD
         except_suite ::= c_stmts_opt jmp_abs
         except_suite ::= return_stmts
-		
+
         except_cond1 ::= DUP_TOP expr COMPARE_OP
                 jmp_false POP_TOP POP_TOP POP_TOP                
 
@@ -638,12 +633,24 @@ class Parser(GenericASTBuilder):
         conditional ::= expr jmp_false expr JUMP_ABSOLUTE expr
         expr ::= conditionalnot
         conditionalnot ::= expr jmp_true expr _jump expr COME_FROM
+        
+        ret_expr ::= expr
+        ret_expr ::= ret_and
+        ret_expr ::= ret_or
+        
+        ret_expr_or_cond ::= ret_expr
+        ret_expr_or_cond ::= ret_cond
+        ret_expr_or_cond ::= ret_cond_not
+
+        ret_and  ::= expr jmp_false ret_expr_or_cond COME_FROM
+        ret_or   ::= expr jmp_true ret_expr_or_cond COME_FROM
+        ret_cond ::= expr jmp_false expr RETURN_END_IF ret_expr_or_cond
+        ret_cond_not ::= expr jmp_true expr RETURN_END_IF ret_expr_or_cond
 
         stmt ::= return_lambda
         stmt ::= conditional_lambda
-        stmt ::= conditional_lambda2
         
-        return_lambda ::= expr RETURN_VALUE LAMBDA_MARKER
+        return_lambda ::= ret_expr RETURN_VALUE LAMBDA_MARKER
         conditional_lambda ::= expr jmp_false return_if_stmt return_stmt LAMBDA_MARKER 
 
         cmp ::= cmp_list
@@ -744,7 +751,7 @@ def parse(tokens, customize):
             rule = 'unpack ::= ' + k + ' designator'*v
         elif op == 'UNPACK_LIST':
             rule = 'unpack_list ::= ' + k + ' designator'*v
-        elif op == 'DUP_TOPX':
+        elif op in ('DUP_TOPX', 'RAISE_VARARGS'):
             # no need to add a rule
             continue
             #rule = 'dup_topx ::= ' + 'expr '*v + k

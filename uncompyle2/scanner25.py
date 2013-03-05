@@ -62,7 +62,7 @@ class Scanner25(scan.Scanner):
             self.prev.append(i)
             if self.op_hasArgument(op):
                 self.prev.append(i)
-                self.prev.append(i)                
+                self.prev.append(i)
         j = 0
         linestarts = self.linestarts
         self.lines = []
@@ -78,6 +78,13 @@ class Scanner25(scan.Scanner):
         while j < codelen:
             self.lines.append(linetuple(prev_line_no, codelen))
             j+=1
+        
+        self.load_asserts = set()
+        for i in self.op_range(0, codelen):
+            if self.code[i] == PJIT and self.code[i+3] == LOAD_GLOBAL:
+                if names[self.get_argument(i+3)] == 'AssertionError':
+                    self.load_asserts.add(i+3)
+        
         # self.lines contains (block,addrLastInstr)
         cf = self.find_jump_targets(self.code)
         # contains (code, [addrRefToCode])
@@ -163,7 +170,7 @@ class Scanner25(scan.Scanner):
                             UNPACK_SEQUENCE,
                             MAKE_FUNCTION, CALL_FUNCTION, MAKE_CLOSURE,
                             CALL_FUNCTION_VAR, CALL_FUNCTION_KW,
-                            CALL_FUNCTION_VAR_KW, DUP_TOPX,
+                            CALL_FUNCTION_VAR_KW, DUP_TOPX, RAISE_VARARGS
                             ):
                 # CE - Hack for >= 2.5
                 #      Now all values loaded via LOAD_CLOSURE are packed into
@@ -185,11 +192,8 @@ class Scanner25(scan.Scanner):
                         op_name = 'JUMP_BACK'
 
             elif op == LOAD_GLOBAL:
-                try:
-                    if pattr == 'AssertionError' and rv and rv[-1] == 'JUMP_IF_TRUE':
-                        op_name = 'LOAD_ASSERT'
-                except AttributeError:
-                    pass
+                if offset in self.load_asserts:
+                    op_name = 'LOAD_ASSERT'
             elif op == RETURN_VALUE:
                 if offset in self.return_end_ifs:
                     op_name = 'RETURN_END_IF'
@@ -573,6 +577,7 @@ class Scanner25(scan.Scanner):
         if except_match:
             jmp = self.prev[self.get_target(except_match)]
             self.ignore_if.add(except_match)
+            self.not_continue.add(jmp)
             return jmp
 
         count_END_FINALLY = 0
@@ -584,6 +589,7 @@ class Scanner25(scan.Scanner):
                     if self.code[self.prev[i]] == NOP:
                         i = self.prev[i]
                     assert self.code[self.prev[i]] in (JA, JF, RETURN_VALUE)
+                    self.not_continue.add(self.prev[i])
                     return self.prev[i]
                 count_END_FINALLY += 1
             elif op in (SETUP_EXCEPT, SETUP_FINALLY):
@@ -784,6 +790,11 @@ class Scanner25(scan.Scanner):
                         self.fixed_jumps[pos] = match[-1]
                         return
             else: # op == PJIT
+                if (pos+3) in self.load_asserts:
+                    if code[pre[rtarget]] == RAISE_VARARGS:
+                        return
+                    self.load_asserts.remove(pos+3)
+                
                 next = self.next_stmt[pos]
                 if pre[next] == pos:
                     pass

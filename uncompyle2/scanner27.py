@@ -56,8 +56,6 @@ class Scanner27(scan.Scanner):
             self.lines.append(linetuple(prev_line_no, n))
             j+=1
         # self.lines contains (block,addrLastInstr)
-        cf = self.find_jump_targets(code)
-        # contains (code, [addrRefToCode])
         if classname:
             classname = '_' + classname.lstrip('_') + '__'
             def unmangle(name):
@@ -73,6 +71,14 @@ class Scanner27(scan.Scanner):
             names = co.co_names
             varnames = co.co_varnames
 
+        self.load_asserts = set()
+        for i in self.op_range(0, n):
+            if code[i] == PJIT and code[i+3] == LOAD_GLOBAL:
+                if names[self.get_argument(i+3)] == 'AssertionError':
+                    self.load_asserts.add(i+3)
+        
+        cf = self.find_jump_targets(code)
+        # contains (code, [addrRefToCode])
         last_stmt = self.next_stmt[0]
         i = self.next_stmt[last_stmt]
         replace = {}
@@ -108,7 +114,7 @@ class Scanner27(scan.Scanner):
             op_name = opname[op]
             oparg = None; pattr = None
             if op >= HAVE_ARGUMENT:
-                oparg = code[offset+1] + code[offset+2] * 256 + extended_arg
+                oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
                 if op == EXTENDED_ARG:
                     extended_arg = oparg * 65536L
@@ -151,7 +157,7 @@ class Scanner27(scan.Scanner):
                             UNPACK_SEQUENCE,
                             MAKE_FUNCTION, CALL_FUNCTION, MAKE_CLOSURE,
                             CALL_FUNCTION_VAR, CALL_FUNCTION_KW,
-                            CALL_FUNCTION_VAR_KW, DUP_TOPX,
+                            CALL_FUNCTION_VAR_KW, DUP_TOPX, RAISE_VARARGS
                             ):
                 # CE - Hack for >= 2.5
                 #      Now all values loaded via LOAD_CLOSURE are packed into
@@ -173,11 +179,8 @@ class Scanner27(scan.Scanner):
                         op_name = 'JUMP_BACK'
 
             elif op == LOAD_GLOBAL:
-                try:
-                    if pattr == 'AssertionError' and rv and rv[-1] == 'POP_JUMP_IF_TRUE':
-                        op_name = 'LOAD_ASSERT'
-                except AttributeError:
-                    pass
+                if offset in self.load_asserts:
+                    op_name = 'LOAD_ASSERT'
             elif op == RETURN_VALUE:
                 if offset in self.return_end_ifs:
                     op_name = 'RETURN_END_IF'
@@ -299,6 +302,7 @@ class Scanner27(scan.Scanner):
         if except_match:
             jmp = self.prev[self.get_target(except_match)]
             self.ignore_if.add(except_match)
+            self.not_continue.add(jmp)
             return jmp
             
         count_END_FINALLY = 0
@@ -308,6 +312,7 @@ class Scanner27(scan.Scanner):
             if op == END_FINALLY:
                 if count_END_FINALLY == count_SETUP_:
                     assert self.code[self.prev[i]] in (JA, JF, RETURN_VALUE)
+                    self.not_continue.add(self.prev[i])
                     return self.prev[i]
                 count_END_FINALLY += 1
             elif op in (SETUP_EXCEPT, SETUP_WITH, SETUP_FINALLY):
@@ -503,6 +508,11 @@ class Scanner27(scan.Scanner):
                         self.fixed_jumps[pos] = match[-1]
                         return
             else: # op == PJIT
+                if (pos+3) in self.load_asserts:
+                    if code[pre[rtarget]] == RAISE_VARARGS:
+                        return
+                    self.load_asserts.remove(pos+3)
+                
                 next = self.next_stmt[pos]
                 if pre[next] == pos:
                     pass
@@ -511,19 +521,30 @@ class Scanner27(scan.Scanner):
                         if code[next] == JF or target != rtarget or code[pre[pre[rtarget]]] not in (JA, RETURN_VALUE):
                             self.fixed_jumps[pos] = pre[next]
                             return
-                elif code[next] == JA and code[target] in (JA, JF) \
-                      and self.get_target(target) == self.get_target(next):
-                    self.fixed_jumps[pos] = pre[next]
-                    return
+                elif code[next] == JA and code[target] in (JA, JF):
+                    next_target = self.get_target(next)
+                    if self.get_target(target) == next_target:
+                        self.fixed_jumps[pos] = pre[next]
+                        return
+                    elif code[next_target] in (JA, JF) and self.get_target(next_target) == self.get_target(target):
+                        self.fixed_jumps[pos] = pre[next]
+                        return
             
             #don't add a struct for a while test, it's already taken care of
             if pos in self.ignore_if:
                 return
 
             if code[pre[rtarget]] == JA and pre[rtarget] in self.stmts \
-                    and pre[rtarget] != pos and pre[pre[rtarget]] != pos \
-                    and not (code[rtarget] == JA and code[rtarget+3] == POP_BLOCK and code[pre[pre[rtarget]]] != JA):
-                rtarget = pre[rtarget]
+                    and pre[rtarget] != pos and pre[pre[rtarget]] != pos:
+                if code[rtarget] == JA and code[rtarget+3] == POP_BLOCK:
+                    if code[pre[pre[rtarget]]] != JA:
+                        pass
+                    elif self.get_target(pre[pre[rtarget]]) != target:
+                        pass
+                    else:
+                        rtarget = pre[rtarget]
+                else:
+                    rtarget = pre[rtarget]
             #does the if jump just beyond a jump op, then this is probably an if statement
             if code[pre[rtarget]] in (JA, JF):
                 if_end = self.get_target(pre[rtarget])
@@ -552,15 +573,7 @@ class Scanner27(scan.Scanner):
 
         elif op in (JUMP_IF_FALSE_OR_POP, JUMP_IF_TRUE_OR_POP):
             target = self.get_target(pos, op)
-            if target > pos:
-                unop_target = self.last_instr(pos, target, JF, target)
-                if unop_target and code[unop_target+3] != ROT_TWO:
-                    self.fixed_jumps[pos] = unop_target
-                else:
-                    self.fixed_jumps[pos] = self.restrict_to_parent(target, parent)
-                
-                
-             
+            self.fixed_jumps[pos] = self.restrict_to_parent(target, parent)
 
     def find_jump_targets(self, code):
         '''

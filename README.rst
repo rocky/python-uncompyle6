@@ -18,7 +18,7 @@ hashes get pretty-printed.
 a tool called 'decompyle'. This tool has been vastly improved by
 Hartmut Goebel `http://www.crazy-compilers.com/`_
 
-### Additional note (3 July 2004, Ben Burton):
+# Additional note (3 July 2004, Ben Burton):
 
 This software is no longer available from the original website. It has
 now become a commercial decompilation service, with no software
@@ -28,7 +28,7 @@ Any developers seeking to make alterations or enhancements to this code
 should therefore consider these debian packages an appropriate starting
 point.
 
-### Additional note (5 June 2012):
+# Additional note (5 June 2012):
 
 The decompilation of python bytecode 2.5 & 2.6 is based on the work of
 Eloi Vanderbeken. bytecode is translated to a pseudo 2.7 python bytecode
@@ -86,9 +86,9 @@ http://www.python.org/doc/current/inst/inst.html
 Usage
 -----
 
-uncompyle2 -h		prints short usage
-uncompyle2 --help	prints long usage
+./uncompyle2.py -h		prints usage
 
+./test_pythonlib.py		test files and python library
 
 Known Bugs/Restrictions
 -----------------------
