@@ -917,6 +917,7 @@ class Walker(GenericASTTraversal, object):
         #assert isinstance(code, Code)
 
         ast = self.build_ast(code._tokens, code._customize)
+        self.customize(code._customize)
         ast = ast[0][0][0]
         
         n = ast[iter_index]
@@ -1420,7 +1421,7 @@ class Walker(GenericASTTraversal, object):
                 self.print_(repr(ast))
             return ast        
 
-        if len(tokens) > 2 or len(tokens) == 2 and not noneInNames:
+        if len(tokens) >= 2 and not noneInNames:
             if tokens[-1] == Token('RETURN_VALUE'):
                 if tokens[-2] == Token('LOAD_CONST'):
                     del tokens[-2:]

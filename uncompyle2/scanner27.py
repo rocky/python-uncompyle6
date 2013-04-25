@@ -28,12 +28,16 @@ class Scanner27(scan.Scanner):
         rv = []
         customize = {}
         Token = self.Token # shortcut
-        self.code = code = array('B', co.co_code)
-        n = len(code)
+        self.code = array('B', co.co_code)
+        for i in self.op_range(0, len(self.code)):
+            if self.code[i] in (RETURN_VALUE, END_FINALLY):
+                n = i + 1
+        self.code = array('B', co.co_code[:n])
+        
         self.prev = [0]
         # mapping adresses of instru & arg
         for i in self.op_range(0, n):
-            op = code[i]
+            op = self.code[i]
             self.prev.append(i)
             if op >= HAVE_ARGUMENT:
                 self.prev.append(i)
@@ -50,7 +54,7 @@ class Scanner27(scan.Scanner):
             while j < start_byte:
                 self.lines.append(linetuple(prev_line_no, start_byte))
                 j += 1
-            last_op = code[self.prev[start_byte]]
+            last_op = self.code[self.prev[start_byte]]
             (prev_start_byte, prev_line_no) = (start_byte, line_no)
         while j < n:
             self.lines.append(linetuple(prev_line_no, n))
@@ -73,21 +77,21 @@ class Scanner27(scan.Scanner):
 
         self.load_asserts = set()
         for i in self.op_range(0, n):
-            if code[i] == PJIT and code[i+3] == LOAD_GLOBAL:
+            if self.code[i] == PJIT and self.code[i+3] == LOAD_GLOBAL:
                 if names[self.get_argument(i+3)] == 'AssertionError':
                     self.load_asserts.add(i+3)
         
-        cf = self.find_jump_targets(code)
+        cf = self.find_jump_targets(self.code)
         # contains (code, [addrRefToCode])
         last_stmt = self.next_stmt[0]
         i = self.next_stmt[last_stmt]
         replace = {}
         while i < n-1:
             if self.lines[last_stmt].next > i:
-                if code[last_stmt] == PRINT_ITEM:
-                    if code[i] == PRINT_ITEM:
+                if self.code[last_stmt] == PRINT_ITEM:
+                    if self.code[i] == PRINT_ITEM:
                         replace[i] = 'PRINT_ITEM_CONT'
-                    elif code[i] == PRINT_NEWLINE:
+                    elif self.code[i] == PRINT_NEWLINE:
                         replace[i] = 'PRINT_NEWLINE_CONT'
             last_stmt = i
             i = self.next_stmt[i]
@@ -97,7 +101,7 @@ class Scanner27(scan.Scanner):
             last_import = imports[0]
             for i in imports[1:]:
                 if self.lines[last_import].next > i:
-                    if code[last_import] == IMPORT_NAME == code[i]:
+                    if self.code[last_import] == IMPORT_NAME == self.code[i]:
                         replace[i] = 'IMPORT_NAME_CONT'
                 last_import = i
         
@@ -110,7 +114,7 @@ class Scanner27(scan.Scanner):
                                     offset="%s_%d" % (offset, k)))
                     k += 1
             
-            op = code[offset]
+            op = self.code[offset]
             op_name = opname[op]
             oparg = None; pattr = None
             if op >= HAVE_ARGUMENT:
@@ -163,7 +167,7 @@ class Scanner27(scan.Scanner):
                 #      Now all values loaded via LOAD_CLOSURE are packed into
                 #      a tuple before calling MAKE_CLOSURE.
                 if op == BUILD_TUPLE and \
-                    code[self.prev[offset]] == LOAD_CLOSURE:
+                    self.code[self.prev[offset]] == LOAD_CLOSURE:
                     continue
                 else:
                     op_name = '%s_%d' % (op_name, oparg)
@@ -172,7 +176,7 @@ class Scanner27(scan.Scanner):
             elif op == JA:
                 target = self.get_target(offset)
                 if target < offset:
-                    if offset in self.stmts and code[offset+3] not in (END_FINALLY, POP_BLOCK) \
+                    if offset in self.stmts and self.code[offset+3] not in (END_FINALLY, POP_BLOCK) \
                      and offset not in self.not_continue:
                         op_name = 'CONTINUE'
                     else:
@@ -298,12 +302,13 @@ class Scanner27(scan.Scanner):
         construct in a try...except...else clause or None if not found.
         '''
 
-        except_match = self.first_instr(start, self.lines[start].next, POP_JUMP_IF_FALSE)
-        if except_match:
-            jmp = self.prev[self.get_target(except_match)]
-            self.ignore_if.add(except_match)
-            self.not_continue.add(jmp)
-            return jmp
+        if self.code[start] == DUP_TOP:
+            except_match = self.first_instr(start, len(self.code), POP_JUMP_IF_FALSE)
+            if except_match:
+                jmp = self.prev[self.get_target(except_match)]
+                self.ignore_if.add(except_match)
+                self.not_continue.add(jmp)
+                return jmp
             
         count_END_FINALLY = 0
         count_SETUP_ = 0
@@ -346,7 +351,6 @@ class Scanner27(scan.Scanner):
         origStructCount = len(self.structs)
 
         if op == SETUP_LOOP:
-            #import pdb; pdb.set_trace()
             start = pos+3
             target = self.get_target(pos, op)
             end    = self.restrict_to_parent(target, parent)
