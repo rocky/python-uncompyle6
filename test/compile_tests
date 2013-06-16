@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.5
+#! python
 """
 compile_tests -- compile test patterns for the decompyle test suite
 """
