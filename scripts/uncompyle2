@@ -1,15 +1,15 @@
-#!/usr/bin/python2.7
+#! python
 # Mode: -*- python -*-
 #
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
-"""
-Usage: uncompyle [OPTIONS]... [ FILE | DIR]...
+'''
+Usage: uncompyle2 [OPTIONS]... [ FILE | DIR]...
 
 Examples:
-  uncompyle      foo.pyc bar.pyc       # uncompyle foo.pyc, bar.pyc to stdout
-  uncompyle -o . foo.pyc bar.pyc       # uncompyle to ./foo.dis and ./bar.dis
-  uncompyle -o /tmp /usr/lib/python1.5 # uncompyle whole library
+  uncompyle2      foo.pyc bar.pyc       # decompile foo.pyc, bar.pyc to stdout
+  uncompyle2 -o . foo.pyc bar.pyc       # decompile to ./foo.pyc_dis and ./bar.pyc_dis
+  uncompyle2 -o /tmp /usr/lib/python1.5 # decompile whole library
 
 Options:
   -o <path>     output decompiled files to this path:
@@ -17,11 +17,11 @@ Options:
                 is stripped from these names and the remainder appended to
                 <path>
                   uncompyle -o /tmp bla/fasel.pyc bla/foo.pyc
-                    -> /tmp/fasel.dis, /tmp/foo.dis
+                    -> /tmp/fasel.pyc_dis, /tmp/foo.pyc_dis
                   uncompyle -o /tmp bla/fasel.pyc bar/foo.pyc
-                    -> /tmp/bla/fasel.dis, /tmp/bar/foo.dis
+                    -> /tmp/bla/fasel.pyc_dis, /tmp/bar/foo.pyc_dis
                   uncompyle -o /tmp /usr/lib/python1.5
-                    -> /tmp/smtplib.dis ... /tmp/lib-tk/FixTk.dis
+                    -> /tmp/smtplib.pyc_dis ... /tmp/lib-tk/FixTk.pyc_dis
   -c <file>     attempts a disassembly after compiling <file>
   -d            do not print timestamps
   -p <integer>  use <integer> number of processes
@@ -35,13 +35,13 @@ Debugging Options:
   --showast   -t  include AST (abstract syntax tree) (disables --verify)
 
 Extensions of generated files:
-  '.dis'             successfully decompiled (and verified if --verify)
-  '.dis_unverified'  successfully decompile but --verify failed
-  '.nodis'           uncompyle failed (contact author for enhancement)
-"""
+  '.pyc_dis' '.pyo_dis'   successfully decompiled (and verified if --verify)
+    + '_unverified'       successfully decompile but --verify failed
+    + '_failed'           decompile failed (contact author for enhancement)
+'''
 
 Usage_short = \
-"decomyple [--help] [--verify] [--showasm] [--showast] [-o <path>] FILE|DIR..."
+"uncompyle2 [--help] [--verify] [--showasm] [--showast] [-o <path>] FILE|DIR..."
 
 import sys, os, getopt
 import os.path

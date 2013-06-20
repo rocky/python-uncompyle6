@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#! python
 
 '''
 test_pythonlib -- uncompyle and verify Python libraries

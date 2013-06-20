@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! python
 
 """Setup script for the 'uncompyle' distribution."""
 
@@ -10,5 +10,6 @@ setup (name = "uncompyle2",
        author = "Mysterie",
        author_email = "kajusska@gmail.com",
        url = "http://github.com/Mysterie/uncompyle2",
-       packages=['uncompyle2', 'uncompyle2.opcode']
+       packages=['uncompyle2', 'uncompyle2.opcode'],
+       scripts=['scripts/uncompyle2']
       )
