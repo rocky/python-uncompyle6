@@ -29,6 +29,8 @@
 
 import sys, types, os
 import walker, verify, magics
+import disas as dis
+import marshal
 
 sys.setrecursionlimit(5000)
 __all__ = ['uncompyle_file', 'main']
@@ -65,7 +67,6 @@ def _load_module(filename):
     code_object: code_object from this file
     '''
     
-    import magics, marshal
     fp = open(filename, 'rb')
     magic = fp.read(4)
     try:
@@ -76,7 +77,7 @@ def _load_module(filename):
         raise ImportError, "This is a Python %s file! Only Python 2.5 to 2.7 files are supported." % version
     #print version
     fp.read(4) # timestamp
-    co = marshal.load(fp)
+    co = marshal.load(fp) #dis.marshalLoad(fp)
     fp.close()
     return version, co
 
@@ -90,7 +91,7 @@ def uncompyle(version, co, out=None, showasm=0, showast=0):
     # store final output stream for case of error
     __real_out = out or sys.stdout
     if co.co_filename:
-        print >>__real_out, '#Embedded file name: %s' % co.co_filename
+        print >>__real_out, '# Embedded file name: %s' % co.co_filename
     # diff scanner
     if version == 2.7:
         import scanner27 as scan
@@ -101,11 +102,9 @@ def uncompyle(version, co, out=None, showasm=0, showast=0):
     elif version == 2.5:
         import scanner25 as scan
         scanner = scan.Scanner25()
-    
     scanner.setShowAsm(showasm, out)
     tokens, customize = scanner.disassemble(co)
 
-    #sys.exit(0)
     #  Build AST from disassembly.
     walk = walker.Walker(out, scanner, showast=showast)
     try:
@@ -113,7 +112,6 @@ def uncompyle(version, co, out=None, showasm=0, showast=0):
     except walker.ParserError, e :  # parser failed, dump disassembly
         print >>__real_out, e
         raise
-
     del tokens # save memory
 
     # convert leading '__doc__ = "..." into doc string
@@ -185,11 +183,11 @@ def main(in_base, out_base, files, codes, outfile=None,
     of = outfile
     tot_files = okay_files = failed_files = verify_failed_files = 0
 
-    for code in codes:
-        version = sys.version[:3] # "2.5"
-        with open(code, "r") as f:
-            co = compile(f.read(), "", "exec")
-        uncompyle(sys.version[:3], co, sys.stdout, showasm=showasm, showast=showast)
+    #for code in codes:
+    #    version = sys.version[:3] # "2.5"
+    #    with open(code, "r") as f:
+    #        co = compile(f.read(), "", "exec")
+    #    uncompyle(sys.version[:3], co, sys.stdout, showasm=showasm, showast=showast)
 
     for file in files:
         infile = os.path.join(in_base, file)
@@ -223,7 +221,6 @@ def main(in_base, out_base, files, codes, outfile=None,
                 sys.stderr.write("\n# Can't uncompyle %s\n" % infile)
                 import traceback
                 traceback.print_exc()
-            #raise
         else: # uncompyle successfull
             if outfile:
                 outstream.close()

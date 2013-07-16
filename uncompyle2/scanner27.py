@@ -17,7 +17,7 @@ import scanner as scan
 
 class Scanner27(scan.Scanner):
     def __init__(self):
-        self.Token = scan.Scanner.__init__(self, 2.6)
+        self.Token = scan.Scanner.__init__(self, 2.7) # check
     
     def disassemble(self, co, classname=None):
         '''

@@ -1247,7 +1247,7 @@ class Walker(GenericASTTraversal, object):
                #if node[1][0] not in ('unpack', 'unpack_list'):
                return '(' + self.traverse(node[1]) + ')'
                #return self.traverse(node[1])
-       raise "Can't find tuple parameter" % name
+       raise Exception("Can't find tuple parameter " + name)
 
 
     def make_function(self, node, isLambda, nested=1):

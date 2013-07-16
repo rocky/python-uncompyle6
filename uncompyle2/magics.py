@@ -40,7 +40,27 @@ versions = {
     # introduce POP_JUMP_IF_FALSE and POP_JUMP_IF_TRUE)
     __build_magic(62191): '2.7', #2.7a0 (introduce SETUP_WITH)
     __build_magic(62201): '2.7', #2.7a0 (introduce BUILD_SET)
-    __build_magic(62211): '2.7'  #2.7a0 (introduce MAP_ADD and SET_ADD)
+    __build_magic(62211): '2.7', #2.7a0 (introduce MAP_ADD and SET_ADD)
+    __build_magic(3000): '3.0',  #3.000 
+    __build_magic(3010): '3.0',  #3.000 (removed UNARY_CONVERT)
+    __build_magic(3020): '3.0',  #3.000 (added BUILD_SET)
+    __build_magic(3030): '3.0',  #3.000 (added keyword-only parameters)
+    __build_magic(3040): '3.0',  #3.000 (added signature annotations)
+    __build_magic(3050): '3.0',  #3.000 (print becomes a function)
+    __build_magic(3060): '3.0',  #3.000 (PEP 3115 metaclass syntax)
+    __build_magic(3061): '3.0',  #3.000 (string literals become unicode)
+    __build_magic(3071): '3.0',  #3.000 (PEP 3109 raise changes)
+    __build_magic(3081): '3.0',  #3.000 (PEP 3137 make __file__ and __name__ unicode)
+    __build_magic(3091): '3.0',  #3.000 (kill str8 interning)
+    __build_magic(3101): '3.0',  #3.000 (merge from 2.6a0, see 62151)
+    __build_magic(3103): '3.0',  #3.000 (__file__ points to source file)
+    __build_magic(3111): '3.0',  #3.0a4 (WITH_CLEANUP optimization).
+    __build_magic(3131): '3.0',  #3.0a5 (lexical exception stacking, including POP_EXCEPT)
+    __build_magic(3141): '3.1',  #3.1a0 (optimize list, set and dict comprehensions)
+    __build_magic(3151): '3.1',  #3.1a0 (optimize conditional branches)
+    __build_magic(3160): '3.2',  #3.2a0 (add SETUP_WITH)
+    __build_magic(3170): '3.2',  #3.2a1 (add DUP_TOP_TWO, remove DUP_TOPX and ROT_FOUR)
+    __build_magic(3180): '3.2',  #3.2a2 (add DELETE_DEREF)
 }
 
 magics = __by_version(versions)
