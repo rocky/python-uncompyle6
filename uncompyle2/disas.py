@@ -254,7 +254,6 @@ def load(fp):
         n = unpack('l', fp.read(4))[0]
         if n == 0:
             return long(0)
-        ratio = 2 #2 for 64bit 1 for 32bit
         size = abs(n); 
         d = long(0)
         for j in range(0, size):
@@ -277,7 +276,8 @@ def load(fp):
         return interned
     elif marshalType == 'u':
         strsize = unpack('l', fp.read(4))[0]
-        return unicode(fp.read(strsize))
+        unicodestring = fp.read(strsize)
+        return unicodestring.decode('utf-8')
     # collection type
     elif marshalType == '(':
         tuplesize = unpack('l', fp.read(4))[0]

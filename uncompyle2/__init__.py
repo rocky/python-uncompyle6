@@ -38,13 +38,10 @@ __all__ = ['uncompyle_file', 'main']
 def _load_file(filename):
     '''
     load a Python source file and compile it to byte-code
-
     _load_module(filename: string): code_object
-
     filename:	name of file containing Python source code
     		(normally a .py)
     code_object: code_object compiled from this source code
-
     This function does NOT write any file!
     '''
     fp = open(filename, 'rb')
@@ -61,7 +58,6 @@ def _load_module(filename):
     '''
     load a module without importing it
     _load_module(filename: string): code_object
-
     filename:	name of file containing Python byte-code object
     		(normally a .pyc)
     code_object: code_object from this file
@@ -77,7 +73,7 @@ def _load_module(filename):
         raise ImportError, "This is a Python %s file! Only Python 2.5 to 2.7 files are supported." % version
     #print version
     fp.read(4) # timestamp
-    co = marshal.load(fp) #dis.marshalLoad(fp)
+    co = dis.marshalLoad(fp)
     fp.close()
     return version, co
 
