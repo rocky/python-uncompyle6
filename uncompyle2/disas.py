@@ -202,10 +202,10 @@ def load(fp):
     if marshalType == 'c':
         Code = types.CodeType
         
-        co_argcount = unpack('l', fp.read(4))[0]
-        co_nlocals = unpack('l', fp.read(4))[0]
-        co_stacksize = unpack('l', fp.read(4))[0]
-        co_flags = unpack('l', fp.read(4))[0]
+        co_argcount = unpack('i', fp.read(4))[0]
+        co_nlocals = unpack('i', fp.read(4))[0]
+        co_stacksize = unpack('i', fp.read(4))[0]
+        co_flags = unpack('i', fp.read(4))[0]
         co_code = load(fp)
         co_consts = load(fp)
         co_names = load(fp)
@@ -214,7 +214,7 @@ def load(fp):
         co_cellvars = load(fp)
         co_filename = load(fp)
         co_name = load(fp)
-        co_firstlineno = unpack('l', fp.read(4))[0]
+        co_firstlineno = unpack('i', fp.read(4))[0]
         co_lnotab = load(fp)
         return Code(co_argcount, co_nlocals, co_stacksize, co_flags, co_code, co_consts, co_names,\
         co_varnames, co_filename, co_name, co_firstlineno, co_lnotab, co_freevars, co_cellvars)
@@ -240,7 +240,7 @@ def load(fp):
     elif marshalType == 'g':
         return float(unpack('d', fp.read(8))[0])
     elif marshalType == 'i':
-        return int(unpack('l', fp.read(4))[0])
+        return int(unpack('i', fp.read(4))[0])
     elif marshalType == 'I':
         raise KeyError, marshalType
         return None
@@ -251,7 +251,7 @@ def load(fp):
         raise KeyError, marshalType
         return None
     elif marshalType == 'l':
-        n = unpack('l', fp.read(4))[0]
+        n = unpack('i', fp.read(4))[0]
         if n == 0:
             return long(0)
         size = abs(n); 
@@ -264,23 +264,23 @@ def load(fp):
         return d
     # strings type
     elif marshalType == 'R':
-        refnum = unpack('l', fp.read(4))[0]
+        refnum = unpack('i', fp.read(4))[0]
         return internStrings[refnum]
     elif marshalType == 's':
-        strsize = unpack('l', fp.read(4))[0]
+        strsize = unpack('i', fp.read(4))[0]
         return str(fp.read(strsize))
     elif marshalType == 't':
-        strsize = unpack('l', fp.read(4))[0]
+        strsize = unpack('i', fp.read(4))[0]
         interned = str(fp.read(strsize))
         internStrings.append(interned)
         return interned
     elif marshalType == 'u':
-        strsize = unpack('l', fp.read(4))[0]
+        strsize = unpack('i', fp.read(4))[0]
         unicodestring = fp.read(strsize)
         return unicodestring.decode('utf-8')
     # collection type
     elif marshalType == '(':
-        tuplesize = unpack('l', fp.read(4))[0]
+        tuplesize = unpack('i', fp.read(4))[0]
         ret = tuple()
         while tuplesize > 0:
             ret += load(fp),
