@@ -63,10 +63,6 @@ Creating RPMS:
 
     python setup.py bdist_rpm
 
-If you need to force the python interpreter to eg. pyton2:
-
-    python2 setup.py bdist_rpm --python=python2
-
 ### Installation from the source distribution:
 
     python setup.py install
@@ -86,7 +82,7 @@ http://www.python.org/doc/current/inst/inst.html
 Usage
 -----
 
-./uncompyle2.py -h		prints usage
+./scripts/uncompyle2 -h		prints usage
 
 ./test_pythonlib.py		test files and python library
 
