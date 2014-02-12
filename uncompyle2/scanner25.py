@@ -130,7 +130,7 @@ class Scanner25(scan.Scanner):
                 oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
                 if op == EXTENDED_ARG:
-                    raise 'TODO'
+                    raise NotImplementedError
                     extended_arg = oparg * 65536L
                     continue
                 if op in hasconst:
@@ -225,7 +225,7 @@ class Scanner25(scan.Scanner):
             return None
         
         if opcode == EXTENDED_ARG:
-            raise 'TODO'
+            raise NotImplementedError
         # del POP_TOP
         if opcode in (PJIF,PJIT,JA,JF):
             toDel = []
@@ -341,6 +341,8 @@ class Scanner25(scan.Scanner):
             self.restructJump(chckStore, i)
             self.toChange.append(chckStore)
             return toDel
+        if opcode == NOP:
+            return [i]
         return None
 
     def getOpcodeToExp(self):
@@ -486,11 +488,11 @@ class Scanner25(scan.Scanner):
         if not (self.code[pos] in hasjabs+hasjrel):
             raise 'Can t change this argument. Opcode is not a jump'
         if newTarget > 0xFFFF:
-            raise 'TODO'
+            raise NotImplementedError
         offset = newTarget-self.get_target(pos)
         target = self.get_argument(pos)+offset
         if target < 0 or target > 0xFFFF:
-            raise 'TODO'
+            raise NotImplementedError
         self.code[pos+2] = (target >> 8) & 0xFF
         self.code[pos+1] = target & 0xFF
         
