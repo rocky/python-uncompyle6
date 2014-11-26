@@ -242,8 +242,7 @@ def load(fp):
     elif marshalType == 'i':
         return int(unpack('i', fp.read(4))[0])
     elif marshalType == 'I':
-        raise KeyError, marshalType
-        return None
+        return unpack('q', fp.read(8))[0]
     elif marshalType == 'x':
         raise KeyError, marshalType
         return None
