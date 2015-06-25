@@ -1,4 +1,4 @@
-#! python
+#!/usr/bin/env python
 # Mode: -*- python -*-
 #
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
