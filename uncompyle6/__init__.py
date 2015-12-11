@@ -43,7 +43,7 @@ def _load_file(filename):
     load a Python source file and compile it to byte-code
     _load_module(filename: string): code_object
     filename:	name of file containing Python source code
-    		(normally a .py)
+                (normally a .py)
     code_object: code_object compiled from this source code
     This function does NOT write any file!
     '''
@@ -62,7 +62,7 @@ def _load_module(filename):
     load a module without importing it
     _load_module(filename: string): code_object
     filename:	name of file containing Python byte-code object
-    		(normally a .pyc)
+                (normally a .pyc)
     code_object: code_object from this file
     '''
 
@@ -74,7 +74,7 @@ def _load_module(filename):
         raise ImportError("Unknown magic number %s in %s" % (ord(magic[0])+256*ord(magic[1]), filename))
     if (version > 2.7) or (version < 2.5):
         raise ImportError("This is a Python %s file! Only Python 2.5 to 2.7 files are supported." % version)
-    #print version
+    # print version
     fp.read(4) # timestamp
     co = dis.marshalLoad(fp)
     fp.close()
@@ -85,7 +85,7 @@ def uncompyle(version, co, out=None, showasm=0, showast=0):
     diassembles a given code block 'co'
     '''
 
-    assert type(co) == types.CodeType
+    assert isinstance(co, types.CodeType)
 
     # store final output stream for case of error
     __real_out = out or sys.stdout
@@ -121,7 +121,7 @@ def uncompyle(version, co, out=None, showasm=0, showast=0):
             del ast[0]
         if ast[-1] == walker.RETURN_NONE:
             ast.pop() # remove last node
-            #todo: if empty, add 'pass'
+            # todo: if empty, add 'pass'
     except:
         pass
     walk.mod_globs = walker.find_globals(ast, set())
@@ -137,8 +137,8 @@ def uncompyle_file(filename, outstream=None, showasm=0, showast=0):
     """
     version, co = _load_module(filename)
     if type(co) == list:
-       for con in co:
-           uncompyle(version, con, outstream, showasm, showast)
+        for con in co:
+            uncompyle(version, con, outstream, showasm, showast)
     else:
         uncompyle(version, co, outstream, showasm, showast)
     co = None
@@ -182,7 +182,7 @@ def main(in_base, out_base, files, codes, outfile=None,
     of = outfile
     tot_files = okay_files = failed_files = verify_failed_files = 0
 
-    #for code in codes:
+    # for code in codes:
     #    version = sys.version[:3] # "2.5"
     #    with open(code, "r") as f:
     #        co = compile(f.read(), "", "exec")
@@ -190,7 +190,7 @@ def main(in_base, out_base, files, codes, outfile=None,
 
     for file in files:
         infile = os.path.join(in_base, file)
-        #print >>sys.stderr, infile
+        # print >>sys.stderr, infile
 
         if of: # outfile was given as parameter
             outstream = _get_outstream(outfile)
@@ -199,7 +199,7 @@ def main(in_base, out_base, files, codes, outfile=None,
         else:
             outfile = os.path.join(out_base, file) + '_dis'
             outstream = _get_outstream(outfile)
-        #print >>sys.stderr, outfile
+        # print >>sys.stderr, outfile
 
         # try to decomyple the input file
         try:

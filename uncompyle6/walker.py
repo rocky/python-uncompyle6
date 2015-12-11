@@ -1282,7 +1282,7 @@ class Walker(GenericASTTraversal, object):
 
         assert type(code) == CodeType
         code = Code(code, self.scanner, self.currentclass)
-        #assert isinstance(code, Code)
+        # assert isinstance(code, Code)
 
         # add defaults values to parameter names
         argc = code.co_argcount
@@ -1303,12 +1303,12 @@ class Walker(GenericASTTraversal, object):
 
         # build parameters
 
-        ##This would be a nicer piece of code, but I can't get this to work
-        ## now, have to find a usable lambda constuct  hG/2000-09-05
-        ##params = map(lambda name, default: build_param(ast, name, default),
-        ##	     paramnames, defparams)
+        # This would be a nicer piece of code, but I can't get this to work
+        # now, have to find a usable lambda constuct  hG/2000-09-05
+        # params = map(lambda name, default: build_param(ast, name, default),
+        # paramnames, defparams)
         params = []
-        for name, default in map(lambda a,b: (a,b), paramnames, defparams):
+        for name, default in map(lambda a, b: (a, b), paramnames, defparams):
             params.append( build_param(ast, name, default) )
 
         params.reverse() # back to correct order
@@ -1331,7 +1331,6 @@ class Walker(GenericASTTraversal, object):
         if len(code.co_consts)>0 and code.co_consts[0] != None and not isLambda: # ugly
             # docstring exists, dump it
             self.print_docstring(indent, code.co_consts[0])
-
 
         code._tokens = None # save memory
         assert ast == 'stmts'
@@ -1373,25 +1372,24 @@ class Walker(GenericASTTraversal, object):
             del ast[0]
 
         # if docstring exists, dump it
-        if code.co_consts and code.co_consts[0] != None and ast[0][0] == ASSIGN_DOC_STRING(code.co_consts[0]):
+        if (code.co_consts and code.co_consts[0] is not None
+            and ast[0][0] == ASSIGN_DOC_STRING(code.co_consts[0])):
             self.print_docstring(indent, code.co_consts[0])
             self.print_()
             del ast[0]
-
 
         # the function defining a class normally returns locals(); we
         # don't want this to show up in the source, thus remove the node
         if ast[-1][0] == RETURN_LOCALS:
             del ast[-1] # remove last node
-        #else:
+        # else:
         #    print ast[-1][-1]
 
         for g in find_globals(ast, set()):
-           self.print_(indent, 'global ', g)
+            self.print_(indent, 'global ', g)
 
         self.gen_source(ast, code._customize)
         code._tokens = None; code._customize = None # save memory
-
 
     def gen_source(self, ast, customize, isLambda=0, returnNone=False):
         """convert AST to source code"""

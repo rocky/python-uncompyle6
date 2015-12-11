@@ -27,6 +27,7 @@ class AST(UserList):
         UserList.__init__(self, kids)
 
     def __getslice__(self, low, high):    return self.data[low:high]
+
     def __eq__(self, o):
         if isinstance(o, AST):
             return self.type == o.type \
@@ -147,7 +148,6 @@ class Parser(GenericASTBuilder):
         genexpr_func ::= LOAD_FAST FOR_ITER designator comp_iter JUMP_BACK
         '''
 
-
     def p_dictcomp(self, args):
         '''
         expr ::= dictcomp
@@ -158,7 +158,6 @@ class Parser(GenericASTBuilder):
                 comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
 
         '''
-
 
     def p_augmented_assign(self, args):
         '''
@@ -707,7 +706,7 @@ class Parser(GenericASTBuilder):
             rv = args[0]
             rv.append(args[1])
         else:
-           rv = GenericASTBuilder.nonterminal(self, nt, args)
+            rv = GenericASTBuilder.nonterminal(self, nt, args)
         return rv
 
     def __ambiguity(self, children):
@@ -720,7 +719,7 @@ class Parser(GenericASTBuilder):
             return 'funcdef'
         if 'grammar' in list and 'expr' in list:
             return 'expr'
-        #print >> sys.stderr, 'resolve', str(list)
+        # print >> sys.stderr, 'resolve', str(list)
         return GenericASTBuilder.resolve(self, list)
 
 nop = lambda self, args: None
@@ -728,22 +727,22 @@ nop = lambda self, args: None
 p = Parser()
 
 def parse(tokens, customize):
-    #
-    #  Special handling for opcodes that take a variable number
-    #  of arguments -- we add a new rule for each:
-    #
-    #    expr ::= {expr}^n BUILD_LIST_n
-    #    expr ::= {expr}^n BUILD_TUPLE_n
-    #    unpack_list ::= UNPACK_LIST {expr}^n
-    #    unpack ::= UNPACK_TUPLE {expr}^n
-    #    unpack ::= UNPACK_SEQEUENE {expr}^n
-    #    mkfunc ::= {expr}^n LOAD_CONST MAKE_FUNCTION_n
-    #    mkfunc ::= {expr}^n load_closure LOAD_CONST MAKE_FUNCTION_n
-    #    expr ::= expr {expr}^n CALL_FUNCTION_n
-    #    expr ::= expr {expr}^n CALL_FUNCTION_VAR_n POP_TOP
-    #    expr ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n POP_TOP
-    #    expr ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
-    #
+    '''
+    Special handling for opcodes that take a variable number
+    of arguments -- we add a new rule for each:
+
+        expr ::= {expr}^n BUILD_LIST_n
+        expr ::= {expr}^n BUILD_TUPLE_n
+        unpack_list ::= UNPACK_LIST {expr}^n
+        unpack ::= UNPACK_TUPLE {expr}^n
+        unpack ::= UNPACK_SEQEUENE {expr}^n
+        mkfunc ::= {expr}^n LOAD_CONST MAKE_FUNCTION_n
+        mkfunc ::= {expr}^n load_closure LOAD_CONST MAKE_FUNCTION_n
+        expr ::= expr {expr}^n CALL_FUNCTION_n
+        expr ::= expr {expr}^n CALL_FUNCTION_VAR_n POP_TOP
+        expr ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n POP_TOP
+        expr ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
+    '''
     global p
     for k, v in list(customize.items()):
         # avoid adding the same rule twice to this parser
@@ -751,7 +750,7 @@ def parse(tokens, customize):
             continue
         p.customized[k] = None
 
-        #nop = lambda self, args: None
+        # nop = lambda self, args: None
         op = k[:string.rfind(k, '_')]
         if op in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
             rule = 'build_list ::= ' + 'expr '*v + k
@@ -762,7 +761,7 @@ def parse(tokens, customize):
         elif op in ('DUP_TOPX', 'RAISE_VARARGS'):
             # no need to add a rule
             continue
-            #rule = 'dup_topx ::= ' + 'expr '*v + k
+            # rule = 'dup_topx ::= ' + 'expr '*v + k
         elif op == 'MAKE_FUNCTION':
             p.addRule('mklambda ::= %s LOAD_LAMBDA %s' %
                   ('expr '*v, k), nop)

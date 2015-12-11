@@ -37,9 +37,8 @@ def dis(x=None):
     elif isinstance(x, str):
         disassemble_string(x)
     else:
-        raise TypeError, \
-              "don't know how to disassemble %s objects" % \
-              type(x).__name__
+        raise (TypeError,
+               "don't know how to disassemble %s objects" % type(x).__name__)
 
 def distb(tb=None):
     """Disassemble a traceback (default: last traceback)."""
@@ -47,7 +46,7 @@ def distb(tb=None):
         try:
             tb = sys.last_traceback
         except AttributeError:
-            raise RuntimeError, "no last traceback to disassemble"
+            raise(RuntimeError, "no last traceback to disassemble")
         while tb.tb_next: tb = tb.tb_next
     disassemble(tb.tb_frame.f_code, tb.tb_lasti)
 
@@ -123,7 +122,7 @@ def disassemble_string(code, lasti=-1, varnames=None, names=None,
                 if constants:
                     print '(' + repr(constants[oparg]) + ')',
                 else:
-                    print '(%d)'%oparg,
+                    print '(%d)' % oparg,
             elif op in hasname:
                 if names is not None:
                     print '(' + names[oparg] + ')',
@@ -140,7 +139,7 @@ def disassemble_string(code, lasti=-1, varnames=None, names=None,
                 print '(' + cmp_op[oparg] + ')',
         print
 
-disco = disassemble 
+disco = disassemble
 # XXX For backwards compatibility
 
 def findlabels(code):
@@ -191,17 +190,17 @@ def marshalLoad(fp):
     global internStrings
     internStrings = []
     return load(fp)
-        
+
 def load(fp):
     """
-    Load marshal 
+    Load marshal
     """
     global internStrings
-    
+
     marshalType = fp.read(1)
     if marshalType == 'c':
         Code = types.CodeType
-        
+
         co_argcount = unpack('i', fp.read(4))[0]
         co_nlocals = unpack('i', fp.read(4))[0]
         co_stacksize = unpack('i', fp.read(4))[0]
@@ -216,12 +215,13 @@ def load(fp):
         co_name = load(fp)
         co_firstlineno = unpack('i', fp.read(4))[0]
         co_lnotab = load(fp)
-        return Code(co_argcount, co_nlocals, co_stacksize, co_flags, co_code, co_consts, co_names,\
-        co_varnames, co_filename, co_name, co_firstlineno, co_lnotab, co_freevars, co_cellvars)
-        
+        return Code(co_argcount, co_nlocals, co_stacksize, co_flags, co_code,
+                    co_consts, co_names, co_varnames, co_filename, co_name,
+                    co_firstlineno, co_lnotab, co_freevars, co_cellvars)
+
     # const type
     elif marshalType == '.':
-        return Ellipsis 
+        return Ellipsis
     elif marshalType == '0':
         raise KeyError, marshalType
         return None
@@ -253,7 +253,7 @@ def load(fp):
         n = unpack('i', fp.read(4))[0]
         if n == 0:
             return long(0)
-        size = abs(n); 
+        size = abs(n);
         d = long(0)
         for j in range(0, size):
             md = int(unpack('h', fp.read(2))[0])
@@ -296,7 +296,7 @@ def load(fp):
         return None
     else:
         sys.stderr.write("Unkown type %i (hex %x)\n" % (ord(marshalType), ord(marshalType)))
-    
+
 def _test():
     """Simple test program to disassemble a file."""
     if sys.argv[1:]:
