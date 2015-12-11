@@ -26,12 +26,14 @@
 
 	%c	evaluate N[A] recursively*
 	%C	evaluate N[A[0]]..N[A[1]-1] recursively, separate by A[2]*
+    %P  same as %C but sets operator precedence
 	%,	print ',' if last %C only printed one item (for tuples--unused)
 	%|	tab to current indentation level
 	%+	increase current indentation level
 	%-	decrease current indentation level
 	%{...}	evaluate ... in context of N
 	%%	literal '%'
+    %p evaluate N setting precedence
 
   * indicates an argument (A) required.
 

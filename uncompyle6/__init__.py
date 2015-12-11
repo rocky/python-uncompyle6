@@ -9,10 +9,10 @@
   distribute, sublicense, and/or sell copies of the Software, and to
   permit persons to whom the Software is furnished to do so, subject to
   the following conditions:
-  
+
   The above copyright notice and this permission notice shall be
   included in all copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -62,7 +62,7 @@ def _load_module(filename):
     		(normally a .pyc)
     code_object: code_object from this file
     '''
-    
+
     fp = open(filename, 'rb')
     magic = fp.read(4)
     try:
@@ -168,7 +168,7 @@ def main(in_base, out_base, files, codes, outfile=None,
     def _get_outstream(outfile):
         dir = os.path.dirname(outfile)
         failed_file = outfile + '_failed'
-        if os.path.exists(failed_file): 
+        if os.path.exists(failed_file):
             os.remove(failed_file)
         try:
             os.makedirs(dir)
@@ -196,7 +196,7 @@ def main(in_base, out_base, files, codes, outfile=None,
         else:
             outfile = os.path.join(out_base, file) + '_dis'
             outstream = _get_outstream(outfile)
-        #print >>sys.stderr, outfile 
+        #print >>sys.stderr, outfile
 
         # try to decomyple the input file
         try:
@@ -228,7 +228,7 @@ def main(in_base, out_base, files, codes, outfile=None,
                 except verify.VerifyCmpError, e:
                     verify_failed_files += 1
                     os.rename(outfile, outfile + '_unverified')
-                    if not outfile: 
+                    if not outfile:
                         print >>sys.stderr, "### Error Verifiying", file
                         print >>sys.stderr, e
             else:

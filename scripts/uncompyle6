@@ -4,12 +4,12 @@
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 '''
-Usage: uncompyle2 [OPTIONS]... [ FILE | DIR]...
+Usage: uncompyle6 [OPTIONS]... [ FILE | DIR]...
 
 Examples:
-  uncompyle2      foo.pyc bar.pyc       # decompile foo.pyc, bar.pyc to stdout
-  uncompyle2 -o . foo.pyc bar.pyc       # decompile to ./foo.pyc_dis and ./bar.pyc_dis
-  uncompyle2 -o /tmp /usr/lib/python1.5 # decompile whole library
+  uncompyle6      foo.pyc bar.pyc       # decompile foo.pyc, bar.pyc to stdout
+  uncompyle6 -o . foo.pyc bar.pyc       # decompile to ./foo.pyc_dis and ./bar.pyc_dis
+  uncompyle6 -o /tmp /usr/lib/python1.5 # decompile whole library
 
 Options:
   -o <path>     output decompiled files to this path:
@@ -41,17 +41,17 @@ Extensions of generated files:
 '''
 
 Usage_short = \
-"uncompyle2 [--help] [--verify] [--showasm] [--showast] [-o <path>] FILE|DIR..."
+"uncompyle6 [--help] [--verify] [--showasm] [--showast] [-o <path>] FILE|DIR..."
 
 import sys, os, getopt
 import os.path
-from uncompyle2 import main, verify
+from uncompyle6 import main, verify
 import time
 
 if sys.version[:3] != '2.7':
-    print >>sys.stderr, 'Error:  uncompyle2 requires Python 2.7.'
+    print >>sys.stderr, 'Error:  uncompyle6 requires Python 2.7.'
     sys.exit(-1)
-    
+
 showasm = showast = do_verify = numproc = recurse_dirs = 0
 outfile = '-'
 out_base = None
@@ -64,7 +64,7 @@ try:
                            ['help', 'verify', 'showast', 'showasm'])
 except getopt.GetoptError, e:
     print >>sys.stderr, '%s: %s' % (os.path.basename(sys.argv[0]), e)
-    sys.exit(-1)    
+    sys.exit(-1)
 
 for opt, val in opts:
     if opt in ('-h', '--help'):
@@ -114,7 +114,7 @@ if src_base:
     sb_len = len( os.path.join(src_base, '') )
     files = map(lambda f: f[sb_len:], files)
     del sb_len
-    
+
 if outfile == '-':
     outfile = None # use stdout
 elif outfile and os.path.isdir(outfile):
@@ -140,9 +140,9 @@ else:
         fqueue.put(f)
     for i in range(numproc):
         fqueue.put(None)
-        
+
     rqueue = Queue(numproc)
-    
+
     def process_func():
         try:
             (tot_files, okay_files, failed_files, verify_failed_files) = (0,0,0,0)
@@ -181,7 +181,7 @@ else:
               (tot_files, okay_files, failed_files, verify_failed_files)
     except (KeyboardInterrupt, OSError):
         pass
-        
+
 
 if timestamp:
     print time.strftime(timestampfmt)

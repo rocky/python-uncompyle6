@@ -1,0 +1,18 @@
+#!/bin/bash
+
+PAGER=${PAGER:-less}
+file=$1
+shift
+options=$@
+
+#BASEDIR=test/bytecode_1.5
+#BASEDIR=test/bytecode_2.0
+#BASEDIR=test/bytecode_2.1
+#BASEDIR=test/bytecode_2.2
+BASEDIR=test/bytecode_2.7
+
+if [[ `dirname $file` == '.' ]] ; then
+    file=$BASEDIR/test_$file.pyc
+fi
+
+python -u ./scripts/uncompyle6 $options $file 2>&1 | $PAGER

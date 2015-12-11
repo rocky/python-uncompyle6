@@ -3,6 +3,9 @@ from uncompyle2 import uncompyle, walker, verify, magics
 from uncompyle2.spark import GenericASTTraversal, GenericASTTraversalPruningException
 import sys, inspect, types, cStringIO
 
+from collections import namedtuple
+NodeInfo = namedtuple("NodeInfo", "node start finish")
+
 class FindWalker(walker.Walker, object):
     stacked_params = ('f', 'indent', 'isLambda', '_globals')
 
@@ -21,6 +24,10 @@ class FindWalker(walker.Walker, object):
         self.mod_globs = set()
         self.currentclass = None
         self.pending_newlines = 0
+
+        self.found_offset = False
+        self.offsets = {}
+
 
     f = property(lambda s: s.__params['f'],
                  lambda s, x: s.__params.__setitem__('f', x),
@@ -47,10 +54,10 @@ class FindWalker(walker.Walker, object):
             node = self.ast
 
         if hasattr(node, 'offset'):
-            print "Name %s has an offset %d" % (self.typestring(node), node.offset)
+            start = len(self.f.getvalue())
             if node.offset == self.find_offset:
                 self.found_offset = True
-                print 'BINGO!'
+                # print 'BINGO!'
 
         try:
             name = 'n_' + self.typestring(node)
@@ -60,6 +67,12 @@ class FindWalker(walker.Walker, object):
             else:
                 self.default(node)
         except GenericASTTraversalPruningException:
+            if hasattr(node, 'offset'):
+                self.offsets[node.offset] = NodeInfo(node = node,
+                                                     start = start,
+                                                     finish = len(self.f.getvalue()))
+                # print self.offsets[node.offset]
+                # print self.f.getvalue()[start:]
             return
 
         for kid in node:
@@ -69,6 +82,9 @@ class FindWalker(walker.Walker, object):
         if hasattr(self, name):
             func = getattr(self, name)
             func(node)
+
+        return
+
 
     def find_source(self, offset, ast, customize, isLambda=0, returnNone=False):
         """convert AST to source code"""
@@ -86,10 +102,11 @@ class FindWalker(walker.Walker, object):
             self.print_(self.indent, 'pass')
         else:
             self.customize(customize)
+            result = self.traverse(ast, isLambda=isLambda)
             if isLambda:
-                self.write(self.traverse(ast, isLambda=isLambda))
+                self.write(result)
             else:
-                self.print_(self.traverse(ast, isLambda=isLambda))
+                self.print_(result)
         self.return_none = rn
 
     # FIXME; below duplicated the code, since we don't find self.__params
@@ -172,7 +189,7 @@ def uncompyle_test():
         uncompyle(2.7, co, sys.stdout, 1)
         print
         print '------------------------'
-        uncompyle_find(2.7, co, 24)
+        uncompyle_find(2.7, co, 33)
     finally:
         del frame
 
