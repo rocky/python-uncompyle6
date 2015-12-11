@@ -1,16 +1,20 @@
 from __future__ import print_function
-import struct
+
+import struct, sys
 
 __all__ = ['magics', 'versions']
 
 def __build_magic(magic):
-    return struct.pack('Hcc', magic, '\r', '\n')
+    if (sys.version_info > (3, 0)):
+        return struct.pack('Hcc', magic, bytes('\r', 'utf-8'), bytes('\n', 'utf-8'))
+    else:
+        return struct.pack('Hcc', magic, '\r', '\n')
 
 by_magic = {}
 by_version = {}
 
 def __by_version(magics):
-    for m, v in magics.items():
+    for m, v in list(magics.items()):
         by_magic[m] = v
         by_version[v] = m
     return by_version
@@ -77,6 +81,7 @@ def test():
     magic_20 = magics['2.0']
     current = imp.get_magic()
     current_version = struct.unpack('HBB', current)[0]
+    from trepan.api import debug; debug()
     magic_current = by_magic[ current ]
     print(type(magic_20), len(magic_20), repr(magic_20))
     print()

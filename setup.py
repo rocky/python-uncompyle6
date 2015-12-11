@@ -1,15 +1,38 @@
 #! python
 
-"""Setup script for the 'uncompyle' distribution."""
+"""Setup script for the 'uncompyle6' distribution."""
 
 from distutils.core import setup, Extension
 
-setup (name = "uncompyle6",
-       version = "2.0",
-       description = "Python byte-code to source-code converter",
-       author = "Mysterie",
-       author_email = "kajusska@gmail.com",
-       url = "http://github.com/Mysterie/uncompyle2",
-       packages=['uncompyle6', 'uncompyle6.opcode'],
-       scripts=['scripts/uncompyle6']
-      )
+# Get the package information used in setup().
+# from __pkginfo__ import \
+#     author,           author_email,       classifiers,                    \
+#     install_requires, license,            long_description,               \
+#     modname,          packages,           py_modules,   \
+#     short_desc,       version,            web,              zip_safe
+
+from __pkginfo__ import \
+    author,           author_email,                         \
+    long_description,               \
+    modname,          packages,           py_modules,   \
+    short_desc,       version,            web,              zip_safe
+
+__import__('pkg_resources')
+from setuptools import setup
+
+setup(
+       author             = author,
+       author_email       = author_email,
+       # classifiers        = classifiers,
+       description        = short_desc,
+       # install_requires   = install_requires,
+       # license            = license,
+       long_description   = long_description,
+       py_modules         = py_modules,
+       name               = modname,
+       packages           = packages,
+       test_suite         = 'nose.collector',
+       url                = web,
+       setup_requires     = ['nose>=1.0'],
+       version            = version,
+       zip_safe           = zip_safe)

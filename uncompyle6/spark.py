@@ -1,6 +1,7 @@
-'''  
+from __future__ import print_function
+'''
 Copyright (c) 1998-2002 John Aycock
-  
+
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
   "Software"), to deal in the Software without restriction, including
@@ -8,17 +9,17 @@ Copyright (c) 1998-2002 John Aycock
   distribute, sublicense, and/or sell copies of the Software, and to
   permit persons to whom the Software is furnished to do so, subject to
   the following conditions:
-  
+
   The above copyright notice and this permission notice shall be
   included in all copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
   CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
 __version__ = 'SPARK-0.7 (pre-alpha-7) uncompyle trim'
@@ -28,31 +29,31 @@ def _namelist(instance):
     for c in classlist:
         for b in c.__bases__:
             classlist.append(b)
-        for name in c.__dict__.keys():
-            if not namedict.has_key(name):
+        for name in list(c.__dict__.keys()):
+            if name not in namedict:
                 namelist.append(name)
                 namedict[name] = 1
     return namelist
 
-#
-#  Extracted from GenericParser and made global so that [un]picking works.
-#
 class _State:
+    '''
+    Extracted from GenericParser and made global so that [un]picking works.
+    '''
     def __init__(self, stateno, items):
         self.T, self.complete, self.items = [], [], items
         self.stateno = stateno
 
 class GenericParser:
-    #
-    #  An Earley parser, as per J. Earley, "An Efficient Context-Free
-    #  Parsing Algorithm", CACM 13(2), pp. 94-102.  Also J. C. Earley,
-    #  "An Efficient Context-Free Parsing Algorithm", Ph.D. thesis,
-    #  Carnegie-Mellon University, August 1968.  New formulation of
-    #  the parser according to J. Aycock, "Practical Earley Parsing
-    #  and the SPARK Toolkit", Ph.D. thesis, University of Victoria,
-    #  2001, and J. Aycock and R. N. Horspool, "Practical Earley
-    #  Parsing", unpublished paper, 2001.
-    #
+    '''
+    An Earley parser, as per J. Earley, "An Efficient Context-Free
+    Parsing Algorithm", CACM 13(2), pp. 94-102.  Also J. C. Earley,
+    "An Efficient Context-Free Parsing Algorithm", Ph.D. thesis,
+    Carnegie-Mellon University, August 1968.  New formulation of
+    the parser according to J. Aycock, "Practical Earley Parsing
+    and the SPARK Toolkit", Ph.D. thesis, University of Victoria,
+    2001, and J. Aycock and R. N. Horspool, "Practical Earley
+    Parsing", unpublished paper, 2001.
+    '''
 
     def __init__(self, start):
         self.rules = {}
@@ -90,7 +91,7 @@ class GenericParser:
         changes = 1
         while changes:
             changes = 0
-            for k, v in self.edges.items():
+            for k, v in list(self.edges.items()):
                 if v is None:
                     state, sym = k
                     if self.states.has_key(state):
@@ -127,12 +128,12 @@ class GenericParser:
         rules = doc.split()
 
         index = []
-        for i in xrange(len(rules)):
+        for i in range(len(rules)):
             if rules[i] == '::=':
                 index.append(i-1)
         index.append(len(rules))
 
-        for i in xrange(len(index)-1):
+        for i in range(len(index)-1):
             lhs = rules[index[i]]
             rhs = rules[index[i]+2:index[i+1]]
             rule = (lhs, tuple(rhs))
@@ -140,7 +141,7 @@ class GenericParser:
             if _preprocess:
                 rule, fn = self.preprocess(rule, func)
 
-            if self.rules.has_key(lhs):
+            if lhs in self.rules:
                 self.rules[lhs].append(rule)
             else:
                 self.rules[lhs] = [ rule ]
@@ -163,7 +164,7 @@ class GenericParser:
         self.nullable = {}
         tbd = []
 
-        for rulelist in self.rules.values():
+        for rulelist in list(self.rules.values()):
             lhs = rulelist[0][0]
             self.nullable[lhs] = 0
             for rule in rulelist:
@@ -178,7 +179,7 @@ class GenericParser:
                 #  grammars.
                 #
                 for sym in rhs:
-                    if not self.rules.has_key(sym):
+                    if sym not in self.rules:
                         break
                 else:
                     tbd.append(rule)
@@ -212,7 +213,7 @@ class GenericParser:
 
     def makeNewRules(self):
         worklist = []
-        for rulelist in self.rules.values():
+        for rulelist in list(self.rules.values()):
             for rule in rulelist:
                 worklist.append((rule, 0, 1, rule))
 
@@ -221,7 +222,7 @@ class GenericParser:
             n = len(rhs)
             while i < n:
                 sym = rhs[i]
-                if not self.rules.has_key(sym) or \
+                if sym not in self.rules or \
                     not self.nullable[sym]:
                         candidate = 0
                         i = i + 1
@@ -238,7 +239,7 @@ class GenericParser:
                 if candidate:
                     lhs = self._NULLABLE+lhs
                     rule = (lhs, rhs)
-                if self.newrules.has_key(lhs):
+                if lhs in self.newrules:
                     self.newrules[lhs].append(rule)
                 else:
                     self.newrules[lhs] = [ rule ]
@@ -248,7 +249,7 @@ class GenericParser:
         return None
 
     def error(self, token):
-        print "Syntax error at or near `%s' token" % token
+        print("Syntax error at or near `%s' token" % token)
         raise SystemExit
 
     def parse(self, tokens):
@@ -274,7 +275,7 @@ class GenericParser:
         else:
             sets.append([])
             self.makeSet(None, sets, len(tokens))
-        
+
         finalitem = (self.finalState(tokens), 0)
         if finalitem not in sets[-2]:
             if len(tokens) > 0:
@@ -292,7 +293,8 @@ class GenericParser:
         #
         return self._NULLABLE == sym[0:len(self._NULLABLE)]
 
-    def skip(self, (lhs, rhs), pos=0):
+    def skip(self, xxx_todo_changeme, pos=0):
+        (lhs, rhs) = xxx_todo_changeme
         n = len(rhs)
         while pos < n:
             if not self.isnullable(rhs[pos]):
@@ -551,12 +553,12 @@ class GenericParser:
             rule = self.ambiguity(self.newrules[nt])
         else:
             rule = self.newrules[nt][0]
-        #print rule
+        # print(rule)
 
         rhs = rule[1]
         attr = [None] * len(rhs)
 
-        for i in xrange(len(rhs)-1, -1, -1):
+        for i in range(len(rhs)-1, -1, -1):
             attr[i] = self.deriveEpsilon(rhs[i])
         return self.rule2func[self.new2old[rule]](attr)
 
@@ -570,12 +572,12 @@ class GenericParser:
         rule = choices[0]
         if len(choices) > 1:
             rule = self.ambiguity(choices)
-        #print rule
+        # print(rule)
 
         rhs = rule[1]
         attr = [None] * len(rhs)
 
-        for i in xrange(len(rhs)-1, -1, -1):
+        for i in range(len(rhs)-1, -1, -1):
             sym = rhs[i]
             if not self.newrules.has_key(sym):
                 if sym != self._BOF:
@@ -599,24 +601,23 @@ class GenericParser:
         #	 appears in >1 method.  Also undefined results if rules
         #	 causing the ambiguity appear in the same method.
         #
-        
         sortlist = []
         name2index = {}
-        for i in xrange(len(rules)):
+        for i in range(len(rules)):
             lhs, rhs = rule = rules[i]
             name = self.rule2name[self.new2old[rule]]
             sortlist.append((len(rhs), name))
             name2index[name] = i
         sortlist.sort()
-        list = map(lambda (a,b): b, sortlist)
+        list = [a_b[1] for a_b in sortlist]
         return rules[name2index[self.resolve(list)]]
 
     def resolve(self, list):
-        #
-        #  Resolve ambiguity in favor of the shortest RHS.
-        #  Since we walk the tree from the top down, this
-        #  should effectively resolve in favor of a "shift".
-        #
+        '''
+        Resolve ambiguity in favor of the shortest RHS.
+        Since we walk the tree from the top down, this
+        should effectively resolve in favor of a "shift".
+        '''
         return list[0]
 
 #
@@ -645,28 +646,29 @@ class GenericASTBuilder(GenericParser):
             if isinstance(arg, self.AST):
                 children.append(arg)
             else:
-                children.append(arg)
+                children.append(self.terminal(arg))
         return self.nonterminal(lhs, children)
+
+    def terminal(self, token):	return token
 
     def nonterminal(self, type, args):
         rv = self.AST(type)
         rv[:len(args)] = args
         return rv
 
-#
-#  GenericASTTraversal is a Visitor pattern according to Design Patterns.  For
-#  each node it attempts to invoke the method n_<node type>, falling
-#  back onto the default() method if the n_* can't be found.  The preorder
-#  traversal also looks for an exit hook named n_<node type>_exit (no default
-#  routine is called if it's not found).  To prematurely halt traversal
-#  of a subtree, call the prune() method -- this only makes sense for a
-#  preorder traversal.  Node type is determined via the typestring() method.
-#
-
 class GenericASTTraversalPruningException:
     pass
 
 class GenericASTTraversal:
+    '''
+    GenericASTTraversal is a Visitor pattern according to Design Patterns.  For
+    each node it attempts to invoke the method n_<node type>, falling
+    back onto the default() method if the n_* can't be found.  The preorder
+    traversal also looks for an exit hook named n_<node type>_exit (no default
+    routine is called if it's not found).  To prematurely halt traversal
+    of a subtree, call the prune() method -- this only makes sense for a
+    preorder traversal.  Node type is determined via the typestring() method.
+    '''
     def __init__(self, ast):
         self.ast = ast
 

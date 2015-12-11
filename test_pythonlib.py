@@ -1,4 +1,5 @@
-#! python
+#!/usr/bin/env python
+from __future__ import print_function
 
 '''
 test_pythonlib -- uncompyle and verify Python libraries
@@ -19,7 +20,7 @@ Step 2: Run the test:
   test_pythonlib --mylib --verify # decompile verify 'mylib'
 '''
 
-from uncompyle2 import main, verify
+from uncompyle6 import main, verify
 import getopt, sys
 import os, time, shutil
 from fnmatch import fnmatch
@@ -44,11 +45,11 @@ test_options = {
 #-----
 
 def help():
-    print 'Usage-Examples:'
-    print 'test_pythonlib --all             # decompile all tests (suite + libs)'
-    print 'test_pythonlib --all --verify    # decomyile all tests and verify results'
-    print 'test_pythonlib --test            # decompile only the testsuite'
-    print 'test_pythonlib --2.2 --verify    # decompile and verify python lib 2.2'
+    print('Usage-Examples:')
+    print('test_pythonlib --all             # decompile all tests (suite + libs)')
+    print('test_pythonlib --all --verify    # decomyile all tests and verify results')
+    print('test_pythonlib --test            # decompile only the testsuite')
+    print('test_pythonlib --2.2 --verify    # decompile and verify python lib 2.2')
 
 def do_tests(src_dir, patterns, target_dir, start_with=None, do_verify=0):
     def visitor(files, dirname, names):
@@ -69,18 +70,18 @@ def do_tests(src_dir, patterns, target_dir, start_with=None, do_verify=0):
         try:
             start_with = files.index(start_with)
             files = files[start_with:]
-            print '>>> starting with file', files[0]
+            print('>>> starting with file', files[0])
         except ValueError:
             pass
 
-    print time.ctime()
-    print 'Working directory: ', src_dir
+    print(time.ctime())
+    print('Working directory: ', src_dir)
     try:
         main(src_dir, target_dir, files, [], do_verify=do_verify)
     except (KeyboardInterrupt, OSError):
-        print 
+        print
         exit(1)
-    
+
 if __name__ == '__main__':
     do_verify = 0
     test_dirs = []

@@ -1,6 +1,6 @@
-import uncompyle2
-from uncompyle2 import uncompyle, walker, verify, magics
-from uncompyle2.spark import GenericASTTraversal, GenericASTTraversalPruningException
+import uncompyle6
+from uncompyle6 import uncompyle, walker, verify, magics
+from uncompyle6.spark import GenericASTTraversal, GenericASTTraversalPruningException
 import sys, inspect, types, cStringIO
 
 from collections import namedtuple
@@ -137,7 +137,7 @@ def uncompyle_find(version, co, find_offset, out=sys.stdout, showasm=0, showast=
     # store final output stream for case of error
     __real_out = out or sys.stdout
     if version == 2.7:
-        import uncompyle2.scanner27 as scan
+        import uncompyle6.scanner27 as scan
         scanner = scan.Scanner27()
     elif version == 2.6:
         import scanner26 as scan

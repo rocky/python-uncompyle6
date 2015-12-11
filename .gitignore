@@ -1,4 +1,5 @@
 *.pyc
 *~
 /.python-version
+/uncompyle6.egg-info
 build

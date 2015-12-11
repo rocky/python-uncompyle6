@@ -1,3 +1,6 @@
+from __future__ import print_function
+
+
 '''
   Copyright (c) 1999 John Aycock
   Copyright (c) 2000 by hartmut Goebel <h.goebel@crazy-compilers.com>
@@ -68,9 +71,9 @@ def _load_module(filename):
     try:
         version = float(magics.versions[magic])
     except KeyError:
-        raise ImportError, "Unknown magic number %s in %s" % (ord(magic[0])+256*ord(magic[1]), filename)
+        raise ImportError("Unknown magic number %s in %s" % (ord(magic[0])+256*ord(magic[1]), filename))
     if (version > 2.7) or (version < 2.5):
-        raise ImportError, "This is a Python %s file! Only Python 2.5 to 2.7 files are supported." % version
+        raise ImportError("This is a Python %s file! Only Python 2.5 to 2.7 files are supported." % version)
     #print version
     fp.read(4) # timestamp
     co = dis.marshalLoad(fp)
@@ -105,7 +108,7 @@ def uncompyle(version, co, out=None, showasm=0, showast=0):
     walk = walker.Walker(out, scanner, showast=showast)
     try:
         ast = walk.build_ast(tokens, customize)
-    except walker.ParserError, e :  # parser failed, dump disassembly
+    except walker.ParserError as e :  # parser failed, dump disassembly
         print >>__real_out, e
         raise
     del tokens # save memory
@@ -223,9 +226,9 @@ def main(in_base, out_base, files, codes, outfile=None,
             if do_verify:
                 try:
                     verify.compare_code_with_srcfile(infile, outfile)
-                    if not outfile: print '\n# okay decompyling', infile, __memUsage()
+                    if not outfile: print('\n# okay decompyling', infile, __memUsage())
                     okay_files += 1
-                except verify.VerifyCmpError, e:
+                except verify.VerifyCmpError as e:
                     verify_failed_files += 1
                     os.rename(outfile, outfile + '_unverified')
                     if not outfile:
@@ -233,7 +236,7 @@ def main(in_base, out_base, files, codes, outfile=None,
                         print >>sys.stderr, e
             else:
                 okay_files += 1
-                if not outfile: print '\n# okay decompyling', infile, __memUsage()
+                if not outfile: print('\n# okay decompyling', infile, __memUsage())
         if outfile:
             sys.stdout.write("decompiled %i files: %i okay, %i failed, %i verify failed\r" % (tot_files, okay_files, failed_files, verify_failed_files))
             sys.stdout.flush()
