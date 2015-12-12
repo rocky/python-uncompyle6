@@ -45,16 +45,19 @@ from __future__ import print_function
 
 try:
     from StringIO import StringIO
+    from spark import GenericASTTraversal
+    from parser import AST
+    from scanner import Token, Code
 except ImportError:
     from io import StringIO
+    from .spark import GenericASTTraversal
+    from .parser import AST
+    from .scanner import Token, Code
 
 import sys, re
-from types import IntType, CodeType
+from types import CodeType
 
-from spark import GenericASTTraversal
 import parser
-from parser import AST
-from scanner import Token, Code
 
 minint = -sys.maxint-1
 
@@ -704,7 +707,7 @@ class Walker(GenericASTTraversal, object):
 
     def n_LOAD_CONST(self, node):
         data = node.pattr; datatype = type(data)
-        if datatype is IntType and data == minint:
+        if isinstance(datatype, int) and data == minint:
             # convert to hex, since decimal representation
             # would result in 'LOAD_CONST; UNARY_NEGATIVE'
             # change:hG/2002-02-07: this was done for all negative integers

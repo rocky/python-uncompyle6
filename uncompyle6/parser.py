@@ -10,7 +10,11 @@ from __future__ import print_function
 
 __all__ = ['parse', 'AST', 'ParserError', 'Parser']
 
-from spark import GenericASTBuilder
+try:
+    from spark import GenericASTBuilder
+except ImportError:
+    from .spark import GenericASTBuilder
+
 import string, sys
 
 if (sys.version_info > (3, 0)):
@@ -18,8 +22,6 @@ if (sys.version_info > (3, 0)):
     from collections import UserList
 else:
     from UserList import UserList
-
-from scanner import Token
 
 class AST(UserList):
     def __init__(self, type, kids=[]):

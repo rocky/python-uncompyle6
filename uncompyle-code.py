@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from __future__ import print_function
 
 import uncompyle6
@@ -186,7 +188,7 @@ def uncompyle_test():
     frame = inspect.currentframe()
     try:
         co = frame.f_code
-        uncompyle(2.7, co, sys.stdout, 1)
+        uncompyle(2.7, co, sys.stdout, 1, 1)
         print()
         print('------------------------')
         uncompyle_find(2.7, co, 33)
