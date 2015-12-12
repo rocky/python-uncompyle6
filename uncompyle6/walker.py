@@ -49,21 +49,21 @@ if (sys.version_info > (3, 0)):
     from io import StringIO
     import uncompyle6
     from .spark import GenericASTTraversal
-    from .parser import AST
+    from .dparser import AST
     from .scanner import Token, Code
     minint = -sys.maxsize-1
     maxint = sys.maxsize
 else:
     from StringIO import StringIO
     from spark import GenericASTTraversal
-    from parser import AST
+    from dparser import AST
     from scanner import Token, Code
     minint = -sys.maxint-1
     maxint = sys.maxint
 
 from types import CodeType
 
-import parser
+import uncompyle6.dparser as dparser
 
 
 # Some ASTs used for comparing code fragments (like 'return None' at
@@ -410,7 +410,7 @@ escape = re.compile(r'''
                  ( [{] (?P<expr> [^}]* ) [}] ))
         ''', re.VERBOSE)
 
-class ParserError(parser.ParserError):
+class ParserError(dparser.ParserError):
     def __init__(self, error, tokens):
         self.error = error # previous exception
         self.tokens = tokens
@@ -1428,8 +1428,8 @@ class Walker(GenericASTTraversal, object):
         if isLambda:
             tokens.append(Token('LAMBDA_MARKER'))
             try:
-                ast = parser.parse(tokens, customize)
-            except parser.ParserError as e:
+                ast = dparser.parse(tokens, customize)
+            except dparser.ParserError as e:
                 raise ParserError(e, tokens)
             if self.showast:
                 self.print_(repr(ast))
@@ -1446,8 +1446,8 @@ class Walker(GenericASTTraversal, object):
 
         # Build AST from disassembly.
         try:
-            ast = parser.parse(tokens, customize)
-        except parser.ParserError as e:
+            ast = dparser.parse(tokens, customize)
+        except dparser.ParserError as e:
             raise ParserError(e, tokens)
 
         if self.showast:
