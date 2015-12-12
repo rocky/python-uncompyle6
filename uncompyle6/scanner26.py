@@ -13,7 +13,7 @@ from operator import itemgetter
 from struct import *
 
 from uncompyle6.opcodes.opcode_26 import *
-import disas as dis
+import dis
 import scanner as scan
 
 class Scanner26(scan.Scanner):

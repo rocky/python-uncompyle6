@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 '''
   Copyright (c) 1999 John Aycock
   Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
@@ -6,14 +8,13 @@
   See main module for license.
 '''
 
-import types
+import dis, types
 from collections import namedtuple
 from array import array
 from operator import itemgetter
 
 from uncompyle6.opcodes.opcode_27 import *
-import disas as dis
-import scanner as scan
+import uncompyle6.scanner as scan
 
 class Scanner27(scan.Scanner):
     def __init__(self):
@@ -121,7 +122,7 @@ class Scanner27(scan.Scanner):
                 oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
                 if op == EXTENDED_ARG:
-                    extended_arg = oparg * 65536L
+                    extended_arg = oparg * 65536
                     continue
                 if op in hasconst:
                     const = co.co_consts[oparg]
@@ -197,8 +198,8 @@ class Scanner27(scan.Scanner):
         if self.showasm:
             out = self.out # shortcut
             for t in rv:
-                print >>out, t
-            print >>out
+                print(t, file=out)
+            print(file=out)
         return rv, customize
 
     def op_size(self, op):

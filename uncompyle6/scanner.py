@@ -9,12 +9,17 @@ from __future__ import print_function
 
 __all__ = ['Token', 'Scanner', 'Code']
 
-import types
+import sys, types
 from collections import namedtuple
 from array import array
 from operator import itemgetter
 
+if (sys.version_info > (3, 0)):
+    intern = sys.intern
+    import uncompyle6
+
 from uncompyle6.opcodes import opcode_25, opcode_26, opcode_27
+
 
 class Token:
     '''
@@ -84,7 +89,7 @@ class Scanner(object):
         self.out = out
 
     def setTokenClass(self, tokenClass):
-        assert isinstance(tokenClass, types.ClassType)
+        # assert isinstance(tokenClass, types.ClassType)
         self.Token = tokenClass
         return self.Token
 

@@ -43,23 +43,28 @@ from __future__ import print_function
   makes the engine walk down to N[C] before evaluating the escape code.
 '''
 
-try:
+import sys, re
+
+if (sys.version_info > (3, 0)):
+    from io import StringIO
+    import uncompyle6
+    from .spark import GenericASTTraversal
+    from .parser import AST
+    from .scanner import Token, Code
+    minint = -sys.maxsize-1
+    maxint = sys.maxsize
+else:
     from StringIO import StringIO
     from spark import GenericASTTraversal
     from parser import AST
     from scanner import Token, Code
-except ImportError:
-    from io import StringIO
-    from .spark import GenericASTTraversal
-    from .parser import AST
-    from .scanner import Token, Code
+    minint = -sys.maxint-1
+    maxint = sys.maxint
 
-import sys, re
 from types import CodeType
 
 import parser
 
-minint = -sys.maxint-1
 
 # Some ASTs used for comparing code fragments (like 'return None' at
 # the end of functions).
@@ -114,7 +119,7 @@ TABLE_R = {
     'DELETE_SLICE+2':	( '%|del %c[:%c]\n', 0, 1 ),
     'DELETE_SLICE+3':	( '%|del %c[%c:%c]\n', 0, 1, 2 ),
     'DELETE_ATTR':	( '%|del %c.%[-1]{pattr}\n', 0 ),
-#   'EXEC_STMT':	( '%|exec %c in %[1]C\n', 0, (0,sys.maxint,', ') ),
+#   'EXEC_STMT':	( '%|exec %c in %[1]C\n', 0, (0,maxint,', ') ),
 }
 TABLE_R0 = {
 #    'BUILD_LIST':	( '[%C]',      (0,-1,', ') ),
@@ -183,9 +188,9 @@ TABLE_DIRECT = {
     'STORE_NAME':	( '%{pattr}', ),
     'STORE_GLOBAL':	( '%{pattr}', ),
     'STORE_DEREF':	( '%{pattr}', ),
-    'unpack':		( '%C%,', (1, sys.maxint, ', ') ),
-    'unpack_w_parens':		( '(%C%,)', (1, sys.maxint, ', ') ),
-    'unpack_list':	( '[%C]', (1, sys.maxint, ', ') ),
+    'unpack':		( '%C%,', (1, maxint, ', ') ),
+    'unpack_w_parens':		( '(%C%,)', (1, maxint, ', ') ),
+    'unpack_list':	( '[%C]', (1, maxint, ', ') ),
     'build_tuple2':	( '%P', (0,-1,', ', 100) ),
 
     #'list_compr':	( '[ %c ]', -2),	# handled by n_list_compr
@@ -232,7 +237,7 @@ TABLE_DIRECT = {
     'classdefdeco':  	( '%c', 0),
     'classdefdeco1':  	( '\n\n%|@%c%c', 0, 1),
     'kwarg':    	( '%[0]{pattr}=%c', 1),
-    'importlist2':	( '%C', (0, sys.maxint, ', ') ),
+    'importlist2':	( '%C', (0, maxint, ', ') ),
 
     'assert':		( '%|assert %c\n' , 0 ),
     'assert2':		( '%|assert %c, %c\n' , 0, 3 ),
@@ -294,7 +299,7 @@ TABLE_DIRECT = {
     'except':		( '%|except:\n%+%c%-', 3 ),
     'except_cond1':	( '%|except %c:\n', 1 ),
     'except_cond2':	( '%|except %c as %c:\n', 1, 5 ),
-    'except_suite':     ( '%+%c%-%C', 0, (1, sys.maxint, '') ),
+    'except_suite':     ( '%+%c%-%C', 0, (1, maxint, '') ),
     'tryfinallystmt':	( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 5 ),
     'withstmt':     ( '%|with %c:\n%+%c%-', 0, 3),
     'withasstmt':   ( '%|with %c as %c:\n%+%c%-', 0, 2, 3),
@@ -302,7 +307,7 @@ TABLE_DIRECT = {
     'STORE_FAST':	( '%{pattr}', ),
     'kv':		( '%c: %c', 3, 1 ),
     'kv2':		( '%c: %c', 1, 2 ),
-    'mapexpr':		( '{%[1]C}', (0,sys.maxint,', ') ),
+    'mapexpr':		( '{%[1]C}', (0,maxint,', ') ),
 
     ##
     ## Python 2.5 Additions
@@ -583,7 +588,7 @@ class Walker(GenericASTTraversal, object):
             #Restore escaped backslashes
             docstring = docstring.replace('\t', '\\\\')
         lines = docstring.split('\n')
-        calculate_indent = sys.maxint
+        calculate_indent = maxint
         for line in lines[1:]:
             stripped = line.lstrip()
             if len(stripped) > 0:
@@ -591,7 +596,7 @@ class Walker(GenericASTTraversal, object):
         calculate_indent = min(calculate_indent, len(lines[-1]) - len(lines[-1].lstrip()))
         # Remove indentation (first line is special):
         trimmed = [lines[0]]
-        if calculate_indent < sys.maxint:
+        if calculate_indent < maxint:
             trimmed += [line[calculate_indent:] for line in lines[1:]]
 
         self.write(quote)

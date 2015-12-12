@@ -100,7 +100,7 @@ def uncompyle(version, co, out=None, showasm=0, showast=0):
               file=__real_out)
     # diff scanner
     if version == 2.7:
-        import scanner27 as scan
+        import uncompyle6.scanner27 as scan
         scanner = scan.Scanner27()
     elif version == 2.6:
         import scanner26 as scan

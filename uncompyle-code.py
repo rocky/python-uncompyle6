@@ -5,7 +5,12 @@ from __future__ import print_function
 import uncompyle6
 from uncompyle6 import uncompyle, walker, verify, magics
 from uncompyle6.spark import GenericASTTraversal, GenericASTTraversalPruningException
-import sys, inspect, types, cStringIO
+import sys, inspect, types
+
+if (sys.version_info > (3, 0)):
+    from io import StringIO
+else:
+    from StringIO import StringIO
 
 from collections import namedtuple
 NodeInfo = namedtuple("NodeInfo", "node start finish")
@@ -120,7 +125,7 @@ class FindWalker(walker.Walker, object):
         self.pending_newlines = 0
         self.__params = {
             '_globals': {},
-            'f': cStringIO.StringIO(),
+            'f': StringIO(),
             'indent': indent,
             'isLambda': isLambda,
             }
