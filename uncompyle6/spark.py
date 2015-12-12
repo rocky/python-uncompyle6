@@ -94,11 +94,11 @@ class GenericParser:
             for k, v in list(self.edges.items()):
                 if v is None:
                     state, sym = k
-                    if self.states.has_key(state):
+                    if state in self.states:
                         self.goto(state, sym)
                         changes = 1
         rv = self.__dict__.copy()
-        for s in self.states.values():
+        for s in list(self.states.values()):
             del s.items
         del rv['rule2func']
         del rv['nullable']
@@ -266,7 +266,7 @@ class GenericParser:
             self.states = { 0: self.makeState0() }
             self.makeState(0, self._BOF)
 
-        for i in xrange(len(tokens)):
+        for i in range(len(tokens)):
             sets.append([])
 
             if sets[i] == []:
@@ -315,7 +315,7 @@ class GenericParser:
                 kitems.append((rule, self.skip(rule, pos+1)))
 
         tcore = tuple(sorted(kitems))
-        if self.cores.has_key(tcore):
+        if tcore in self.cores:
             return self.cores[tcore]
         #
         #  Nope, doesn't exist.  Compute it and the associated
@@ -339,13 +339,13 @@ class GenericParser:
 
                 nextSym = rhs[pos]
                 key = (X.stateno, nextSym)
-                if not rules.has_key(nextSym):
-                    if not edges.has_key(key):
+                if nextSym not in rules:
+                    if key not in edges:
                         edges[key] = None
                         X.T.append(nextSym)
                 else:
                     edges[key] = None
-                    if not predicted.has_key(nextSym):
+                    if nextSym not in predicted:
                         predicted[nextSym] = 1
                         for prule in rules[nextSym]:
                             ppos = self.skip(prule)
@@ -370,7 +370,7 @@ class GenericParser:
         #  to do this without accidentally duplicating states.
         #
         tcore = tuple(sorted(predicted.keys()))
-        if self.cores.has_key(tcore):
+        if tcore in self.cores:
             self.edges[(k, None)] = self.cores[tcore]
             return k
 
@@ -381,7 +381,7 @@ class GenericParser:
 
     def goto(self, state, sym):
         key = (state, sym)
-        if not self.edges.has_key(key):
+        if key not in self.edges:
             #
             #  No transitions from state on sym.
             #
@@ -579,7 +579,7 @@ class GenericParser:
 
         for i in range(len(rhs)-1, -1, -1):
             sym = rhs[i]
-            if not self.newrules.has_key(sym):
+            if sym not in self.newrules:
                 if sym != self._BOF:
                     attr[i] = tokens[k-1]
                     key = (item, k)
@@ -656,7 +656,7 @@ class GenericASTBuilder(GenericParser):
         rv[:len(args)] = args
         return rv
 
-class GenericASTTraversalPruningException:
+class GenericASTTraversalPruningException(BaseException):
     pass
 
 class GenericASTTraversal:

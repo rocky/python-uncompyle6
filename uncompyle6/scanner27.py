@@ -55,7 +55,6 @@ class Scanner27(scan.Scanner):
             while j < start_byte:
                 self.lines.append(linetuple(prev_line_no, start_byte))
                 j += 1
-            last_op = self.code[self.prev[start_byte]]
             (prev_start_byte, prev_line_no) = (start_byte, line_no)
         while j < n:
             self.lines.append(linetuple(prev_line_no, n))
@@ -63,6 +62,7 @@ class Scanner27(scan.Scanner):
         # self.lines contains (block,addrLastInstr)
         if classname:
             classname = '_' + classname.lstrip('_') + '__'
+
             def unmangle(name):
                 if name.startswith(classname) and name[-2:] != '__':
                     return name[len(classname) - 2:]
@@ -126,7 +126,7 @@ class Scanner27(scan.Scanner):
                     continue
                 if op in hasconst:
                     const = co.co_consts[oparg]
-                    if type(const) == types.CodeType:
+                    if isinstance(const, types.CodeType):
                         oparg = const
                         if const.co_name == '<lambda>':
                             assert op_name == 'LOAD_CONST'
@@ -348,8 +348,6 @@ class Scanner27(scan.Scanner):
                 start  = _start
                 end    = _end
                 parent = s
-        # We need to know how many new structures were added in this run
-        origStructCount = len(self.structs)
 
         if op == SETUP_LOOP:
             start = pos+3
@@ -444,7 +442,7 @@ class Scanner27(scan.Scanner):
                                    'end':   jmp})
                     i = jmp + 3
 
-            ## Add the try-else block
+            # Add the try-else block
             if end_else != start_else:
                 r_end_else = self.restrict_to_parent(end_else, parent)
                 self.structs.append({'type':  'try-else',
@@ -453,7 +451,6 @@ class Scanner27(scan.Scanner):
                 self.fixed_jumps[i] = r_end_else
             else:
                 self.fixed_jumps[i] = i+1
-
 
         elif op in (PJIF, PJIT):
             start = pos+3
@@ -464,7 +461,7 @@ class Scanner27(scan.Scanner):
             if target != rtarget and parent['type'] == 'and/or':
                 self.fixed_jumps[pos] = rtarget
                 return
-            #does this jump to right after another cond jump?
+            # does this jump to right after another cond jump?
             # if so, it's part of a larger conditional
             if (code[pre[target]] in (JUMP_IF_FALSE_OR_POP, JUMP_IF_TRUE_OR_POP,
                     PJIF, PJIT)) and (target > pos):
@@ -491,10 +488,11 @@ class Scanner27(scan.Scanner):
                             pass
                         elif code[pre[pre[rtarget]]] == RETURN_VALUE \
                                 and self.remove_mid_line_ifs([pos]) \
-                                and 1 == (len(set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]], \
-                                                             (PJIF, PJIT), target))) \
-                                              | set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]], \
-                                                           (PJIF, PJIT, JA), pre[rtarget], True))))):
+                                and 1 == (len(set(self.remove_mid_line_ifs(self.rem_or(start,
+                                                                                       pre[pre[rtarget]],
+                                                                                       (PJIF, PJIT), target)))
+                                              | set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]],
+                                                            (PJIF, PJIT, JA), pre[rtarget], True))))):
                             pass
                         else:
                             fix = None
@@ -535,7 +533,7 @@ class Scanner27(scan.Scanner):
                         self.fixed_jumps[pos] = pre[next]
                         return
 
-            #don't add a struct for a while test, it's already taken care of
+            # don't add a struct for a while test, it's already taken care of
             if pos in self.ignore_if:
                 return
 
@@ -550,11 +548,11 @@ class Scanner27(scan.Scanner):
                         rtarget = pre[rtarget]
                 else:
                     rtarget = pre[rtarget]
-            #does the if jump just beyond a jump op, then this is probably an if statement
+            # does the if jump just beyond a jump op, then this is probably an if statement
             if code[pre[rtarget]] in (JA, JF):
                 if_end = self.get_target(pre[rtarget])
 
-                #is this a loop not an if?
+                # is this a loop not an if?
                 if (if_end < pre[rtarget]) and (code[pre[if_end]] == SETUP_LOOP):
                     if(if_end > start):
                         return

@@ -42,7 +42,7 @@ class AST(UserList):
     def __repr__(self, indent=''):
         rv = str(self.type)
         for k in self:
-            rv = rv + '\n' + string.replace(str(k), '\n', '\n   ')
+            rv = rv + '\n' + str(k).replace('\n', '\n   ')
         return rv
 
 
@@ -753,7 +753,8 @@ def parse(tokens, customize):
         p.customized[k] = None
 
         # nop = lambda self, args: None
-        op = k[:string.rfind(k, '_')]
+
+        op = k[:k.rfind('_')]
         if op in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
             rule = 'build_list ::= ' + 'expr '*v + k
         elif op in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
@@ -784,7 +785,7 @@ def parse(tokens, customize):
             na = (v & 0xff)           # positional parameters
             nk = (v >> 8) & 0xff      # keyword parameters
             # number of apply equiv arguments:
-            nak = ( len(op)-len('CALL_FUNCTION') ) / 3
+            nak = ( len(op)-len('CALL_FUNCTION') ) // 3
             rule = 'call_function ::= expr ' + 'expr '*na + 'kwarg '*nk \
                    + 'expr ' * nak + k
         else:

@@ -8,14 +8,13 @@ from __future__ import print_function
   See main module for license.
 '''
 
-import types
+import dis, types
 from collections import namedtuple
 from array import array
 from operator import itemgetter
 
 from uncompyle6.opcodes.opcode_27 import *
-import disas as dis
-import scanner as scan
+import uncompyle6.scanner as scan
 
 class Scanner27(scan.Scanner):
     def __init__(self):
@@ -56,7 +55,6 @@ class Scanner27(scan.Scanner):
             while j < start_byte:
                 self.lines.append(linetuple(prev_line_no, start_byte))
                 j += 1
-            last_op = self.code[self.prev[start_byte]]
             (prev_start_byte, prev_line_no) = (start_byte, line_no)
         while j < n:
             self.lines.append(linetuple(prev_line_no, n))
@@ -64,6 +62,7 @@ class Scanner27(scan.Scanner):
         # self.lines contains (block,addrLastInstr)
         if classname:
             classname = '_' + classname.lstrip('_') + '__'
+
             def unmangle(name):
                 if name.startswith(classname) and name[-2:] != '__':
                     return name[len(classname) - 2:]
@@ -141,8 +140,8 @@ class Scanner27(scan.Scanner):
                         # verify uses 'pattr' for comparism, since 'attr'
                         # now holds Code(const) and thus can not be used
                         # for comparism (todo: think about changing this)
-                        #pattr = 'code_object @ 0x%x %s->%s' %\
-                        #	(id(const), const.co_filename, const.co_name)
+                        # pattr = 'code_object @ 0x%x %s->%s' %\
+                        # (id(const), const.co_filename, const.co_name)
                         pattr = '<code_object ' + const.co_name + '>'
                     else:
                         pattr = const
@@ -211,7 +210,7 @@ class Scanner27(scan.Scanner):
 
     def build_stmt_indices(self):
         code = self.code
-        start = 0;
+        start = 0
         end = len(code)
 
         stmt_opcodes = {
@@ -271,7 +270,7 @@ class Scanner27(scan.Scanner):
                 j = self.prev[s]
                 while code[j] == JA:
                     j = self.prev[j]
-                if code[j] == LIST_APPEND: #list comprehension
+                if code[j] == LIST_APPEND: # list comprehension
                     stmts.remove(s)
                     continue
             elif code[s] == POP_TOP and code[self.prev[s]] == ROT_TWO:
@@ -338,7 +337,7 @@ class Scanner27(scan.Scanner):
         if op is None:
             op = code[pos]
 
-        ## Detect parent structure
+        # Detect parent structure
         parent = self.structs[0]
         start  = parent['start']
         end    = parent['end']
@@ -349,7 +348,7 @@ class Scanner27(scan.Scanner):
                 start  = _start
                 end    = _end
                 parent = s
-        ## We need to know how many new structures were added in this run
+        # We need to know how many new structures were added in this run
         origStructCount = len(self.structs)
 
         if op == SETUP_LOOP:
@@ -418,15 +417,15 @@ class Scanner27(scan.Scanner):
             end    = self.restrict_to_parent(target, parent)
             if target != end:
                 self.fixed_jumps[pos] = end
-                #print target, end, parent
-            ## Add the try block
+                # print target, end, parent
+            # Add the try block
             self.structs.append({'type':  'try',
                                    'start': start,
                                    'end':   end-4})
-            ## Now isolate the except and else blocks
+            # Now isolate the except and else blocks
             end_else = start_else = self.get_target(self.prev[end])
 
-            ## Add the except blocks
+            # Add the except blocks
             i = end
             while self.code[i] != END_FINALLY:
                 jmp = self.next_except_jump(i)
@@ -445,7 +444,7 @@ class Scanner27(scan.Scanner):
                                    'end':   jmp})
                     i = jmp + 3
 
-            ## Add the try-else block
+            # Add the try-else block
             if end_else != start_else:
                 r_end_else = self.restrict_to_parent(end_else, parent)
                 self.structs.append({'type':  'try-else',
@@ -454,7 +453,6 @@ class Scanner27(scan.Scanner):
                 self.fixed_jumps[i] = r_end_else
             else:
                 self.fixed_jumps[i] = i+1
-
 
         elif op in (PJIF, PJIT):
             start = pos+3
@@ -465,7 +463,7 @@ class Scanner27(scan.Scanner):
             if target != rtarget and parent['type'] == 'and/or':
                 self.fixed_jumps[pos] = rtarget
                 return
-            #does this jump to right after another cond jump?
+            # does this jump to right after another cond jump?
             # if so, it's part of a larger conditional
             if (code[pre[target]] in (JUMP_IF_FALSE_OR_POP, JUMP_IF_TRUE_OR_POP,
                     PJIF, PJIT)) and (target > pos):
@@ -492,10 +490,11 @@ class Scanner27(scan.Scanner):
                             pass
                         elif code[pre[pre[rtarget]]] == RETURN_VALUE \
                                 and self.remove_mid_line_ifs([pos]) \
-                                and 1 == (len(set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]], \
-                                                             (PJIF, PJIT), target))) \
-                                              | set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]], \
-                                                           (PJIF, PJIT, JA), pre[rtarget], True))))):
+                                and 1 == (len(set(self.remove_mid_line_ifs(self.rem_or(start,
+                                                                                       pre[pre[rtarget]],
+                                                                                       (PJIF, PJIT), target)))
+                                              | set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]],
+                                                            (PJIF, PJIT, JA), pre[rtarget], True))))):
                             pass
                         else:
                             fix = None

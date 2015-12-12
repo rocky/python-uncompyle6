@@ -42,6 +42,7 @@ class Scanner25(scan.Scanner):
         # class and names
         if classname:
             classname = '_' + classname.lstrip('_') + '__'
+
             def unmangle(name):
                 if name.startswith(classname) and name[-2:] != '__':
                     return name[len(classname) - 2:]
