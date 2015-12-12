@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 '''
   Copyright (c) 1999 John Aycock
   Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
@@ -41,9 +43,13 @@
   makes the engine walk down to N[C] before evaluating the escape code.
 '''
 
-import sys, re, cStringIO
-from types import ListType, TupleType, DictType, \
-     EllipsisType, IntType, CodeType
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+
+import sys, re
+from types import IntType, CodeType
 
 from spark import GenericASTTraversal
 import parser
@@ -488,7 +494,7 @@ class Walker(GenericASTTraversal, object):
         self.pending_newlines = 0
         self.__params = {
             '_globals': {},
-            'f': cStringIO.StringIO(),
+            'f': StringIO(),
             'indent': indent,
             'isLambda': isLambda,
             }
@@ -704,7 +710,7 @@ class Walker(GenericASTTraversal, object):
             # change:hG/2002-02-07: this was done for all negative integers
             # todo: check whether this is necessary in Python 2.1
             self.write( hex(data) )
-        elif datatype is EllipsisType:
+        elif datatype is type(Ellipsis):
             self.write('...')
         elif data is None:
             # LOAD_CONST 'None' only occurs, when None is
@@ -1118,7 +1124,7 @@ class Walker(GenericASTTraversal, object):
                 if m.group('child'):
                     node = node[int(m.group('child'))]
             except:
-                print node.__dict__
+                print(node.__dict__)
                 raise
 
             if   typ == '%':	self.write('%')
@@ -1166,7 +1172,7 @@ class Walker(GenericASTTraversal, object):
                 try:
                     self.write(eval(expr, d, d))
                 except:
-                    print node
+                    print(node)
                     raise
             m = escape.search(fmt, i)
         self.write(fmt[i:])
@@ -1268,9 +1274,9 @@ class Walker(GenericASTTraversal, object):
 
             if default:
                 if self.showast:
-                    print '--', name
-                    print default
-                    print '--'
+                    print('--', name)
+                    print(default)
+                    print('--')
                 result = '%s = %s' % (name, self.traverse(default, indent='') )
                 if result[-2:] == '= ':	# default was 'LOAD_CONST None'
                     result += 'None'
@@ -1408,14 +1414,14 @@ class Walker(GenericASTTraversal, object):
         self.return_none = rn
 
     def build_ast(self, tokens, customize, isLambda=0, noneInNames=False):
-        assert type(tokens) == ListType
-        #assert isinstance(tokens[0], Token)
+
+        # assert isinstance(tokens[0], Token)
 
         if isLambda:
             tokens.append(Token('LAMBDA_MARKER'))
             try:
                 ast = parser.parse(tokens, customize)
-            except parser.ParserError, e:
+            except parser.ParserError as e:
                 raise ParserError(e, tokens)
             if self.showast:
                 self.print_(repr(ast))
@@ -1433,7 +1439,7 @@ class Walker(GenericASTTraversal, object):
         # Build AST from disassembly.
         try:
             ast = parser.parse(tokens, customize)
-        except parser.ParserError, e:
+        except parser.ParserError as e:
             raise ParserError(e, tokens)
 
         if self.showast:

@@ -31,8 +31,14 @@ from __future__ import print_function
 '''
 
 import sys, types, os
-import walker, verify, magics
-import disas as dis
+
+if (sys.version_info > (3, 0)):
+    from . import walker, verify, magics
+    from . import disas as dis
+else:
+    import walker, verify, magics
+    import disas as dis
+
 import marshal
 
 sys.setrecursionlimit(5000)
@@ -90,7 +96,8 @@ def uncompyle(version, co, out=None, showasm=0, showast=0):
     # store final output stream for case of error
     __real_out = out or sys.stdout
     if co.co_filename:
-        print >>__real_out, '# Embedded file name: %s' % co.co_filename
+        print('# Embedded file name: %s' % co.co_filename,
+              file=__real_out)
     # diff scanner
     if version == 2.7:
         import scanner27 as scan
@@ -109,7 +116,7 @@ def uncompyle(version, co, out=None, showasm=0, showast=0):
     try:
         ast = walk.build_ast(tokens, customize)
     except walker.ParserError as e :  # parser failed, dump disassembly
-        print >>__real_out, e
+        print(e, file=__real_out)
         raise
     del tokens # save memory
 
@@ -190,7 +197,7 @@ def main(in_base, out_base, files, codes, outfile=None,
 
     for file in files:
         infile = os.path.join(in_base, file)
-        # print >>sys.stderr, infile
+        # print (infile, file=sys.stderr)
 
         if of: # outfile was given as parameter
             outstream = _get_outstream(outfile)
@@ -199,7 +206,7 @@ def main(in_base, out_base, files, codes, outfile=None,
         else:
             outfile = os.path.join(out_base, file) + '_dis'
             outstream = _get_outstream(outfile)
-        # print >>sys.stderr, outfile
+        # print(outfile, file=sys.stderr)
 
         # try to decomyple the input file
         try:
@@ -232,8 +239,8 @@ def main(in_base, out_base, files, codes, outfile=None,
                     verify_failed_files += 1
                     os.rename(outfile, outfile + '_unverified')
                     if not outfile:
-                        print >>sys.stderr, "### Error Verifiying", file
-                        print >>sys.stderr, e
+                        print("### Error Verifiying %s" % file,  file=sys.stderr)
+                        print(e, file=sys.stderr)
             else:
                 okay_files += 1
                 if not outfile: print('\n# okay decompyling', infile, __memUsage())

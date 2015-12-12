@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import uncompyle6
 from uncompyle6 import uncompyle, walker, verify, magics
 from uncompyle6.spark import GenericASTTraversal, GenericASTTraversalPruningException
@@ -27,7 +29,6 @@ class FindWalker(walker.Walker, object):
 
         self.found_offset = False
         self.offsets = {}
-
 
     f = property(lambda s: s.__params['f'],
                  lambda s, x: s.__params.__setitem__('f', x),
@@ -85,7 +86,6 @@ class FindWalker(walker.Walker, object):
 
         return
 
-
     def find_source(self, offset, ast, customize, isLambda=0, returnNone=False):
         """convert AST to source code"""
 
@@ -133,7 +133,7 @@ class FindWalker(walker.Walker, object):
     pass
 
 def uncompyle_find(version, co, find_offset, out=sys.stdout, showasm=0, showast=0):
-    assert type(co) == types.CodeType
+    assert isinstance(co, types.CodeType)
     # store final output stream for case of error
     __real_out = out or sys.stdout
     if version == 2.7:
@@ -154,8 +154,8 @@ def uncompyle_find(version, co, find_offset, out=sys.stdout, showasm=0, showast=
 
     try:
         ast = walk.build_ast(tokens, customize)
-    except walker.ParserError, e :  # parser failed, dump disassembly
-        print >>__real_out, e
+    except walker.ParserError as e :  # parser failed, dump disassembly
+        print(e,  file=__real_out)
         raise
     del tokens # save memory
 
@@ -169,7 +169,7 @@ def uncompyle_find(version, co, find_offset, out=sys.stdout, showasm=0, showast=
             del ast[0]
         if ast[-1] == walker.RETURN_NONE:
             ast.pop() # remove last node
-            #todo: if empty, add 'pass'
+            # todo: if empty, add 'pass'
     except:
         pass
     walk.mod_globs = walker.find_globals(ast, set())
@@ -187,8 +187,8 @@ def uncompyle_test():
     try:
         co = frame.f_code
         uncompyle(2.7, co, sys.stdout, 1)
-        print
-        print '------------------------'
+        print()
+        print('------------------------')
         uncompyle_find(2.7, co, 33)
     finally:
         del frame
