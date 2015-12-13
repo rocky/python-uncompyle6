@@ -11,7 +11,7 @@ check: check-short check-2.7-ok
 
 #: Run quick tests
 check-short:
-	$(PYTHON) test_pythonlib.py --base2 --verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --base-2.7 --verify $(COMPILE)
 
 #: Run longer Python 2.7's lib files known to be okay
 check-2.7-ok:

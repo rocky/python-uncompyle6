@@ -46,22 +46,29 @@ PYOC = ('*.pyc', '*.pyo')
 
 test_options = {
     # name:   (src_basedir, pattern, output_base_suffix)
-    'test':   ['test', PYC, 'test'],
-    '2.7':    ['python2.7', PYC, 'python2.7'],
-    'ok-2.7': [os.path.join(src_dir, 'ok_2.7'),
-               PYC, 'ok-2.7'],
-    'base2':  [os.path.join(src_dir, 'base-tests', 'python2'),
-               PYC, 'base2'],
+    'test':      ['test', PYC, 'test'],
+    '2.7':       ['python2.7', PYC, 'python2.7'],
+    'ok-2.6':    [os.path.join(src_dir, 'ok_2.6'),
+                 PYC, 'ok-2.6'],
+    'ok-2.7':    [os.path.join(src_dir, 'ok_2.7'),
+                 PYC, 'ok-2.7'],
+    'base-2.7':  [os.path.join(src_dir, 'base-tests', 'python2.7'),
+                  PYC, 'base_2.7'],
 }
 
 #-----
 
 def help():
-    print("""
-Usage-Examples:
-  test_pythonlib.py --base2 --verify --compile   # compile, decompyle and verify short tests
-  test_pythonlib.py --ok-2.7 --verify            # decompile and verify known good python 2.7
-  test_pythonlib.py --2.7             # decompile Python's installed lib files
+    print("""Usage-Examples:
+
+  # compile, decompyle and verify short tests for Python 2.7:
+  test_pythonlib.py --base-2.7 --verify --compile
+
+  # decompile and verify known good python 2.7
+  test_pythonlib.py --ok-2.7 --verify
+
+  # decompile all of Python's installed lib files
+  test_pythonlib.py --2.7
 """)
     sys.exit(1)
 
