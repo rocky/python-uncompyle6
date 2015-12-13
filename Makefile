@@ -23,27 +23,14 @@ html:
 #: Same as "check"
 test: check
 
-#: Same as "check"
-nosetests: check
-
-#: Run all tests
-check-short: test-unit-short
-
-#: Run all tests: unit, functional and integration verbosely
-check: test-unit lint
-
-#: Run unit (white-box) tests
-test-unit:
-	$(PYTHON) ./setup.py nosetests
-
-#: Run unit (white-box) tests
-test-unit-short:
-	$(PYTHON) ./setup.py nosetests --quiet 2>&1 | \
-	$(PYTHON) ./test/make-check-filter.py
+#: Run tests
+check check-short:
+	$(MAKE) -C test $@
 
 #: Clean up temporary files and .pyc files
 clean: clean_pyc
 	$(PYTHON) ./setup.py $@
+	(cd test && $(MAKE) clean)
 
 #: Create source (tarball) and binary (egg) distribution
 dist:
@@ -51,7 +38,7 @@ dist:
 
 #: Remove .pyc files
 clean_pyc:
-	$(RM) -f */*.pyc */*/*.pyc */*/*/*.pyc */*/*/*/*.pyc
+	( cd uncompyle6 && $(RM) -f *.pyc */*.pyc )
 
 #: Create source tarball
 sdist:

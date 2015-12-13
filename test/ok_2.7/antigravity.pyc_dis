@@ -1,0 +1,3 @@
+# Embedded file name: /src/external-vcs/github/rocky/uncompyle6/test/ok_2.7/antigravity.py
+import webbrowser
+webbrowser.open('http://xkcd.com/353/')

@@ -56,9 +56,9 @@ def _load_file(filename):
     fp = open(filename, 'rb')
     source = fp.read()+'\n'
     try:
-        co = compile(source, filename, 'exec')
+        co = compile(source, filename, 'exec', dont_inherit=True)
     except SyntaxError:
-        print >> sys.stderr, '>>Syntax error in', filename, '\n'
+        print('>>Syntax error in %s\n' % filename, file= sys.stderr)
         raise
     fp.close()
     return co

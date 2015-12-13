@@ -1,12 +1,8 @@
-#!/usr/bin/env python2.3
+#!/usr/bin/env python
+from __future__ import print_function
+
 """
 compile_tests -- compile test patterns for the decompyle test suite
-
-This source is part of the decompyle test suite.
-
-decompyle is a Python byte-code decompiler
-See http://www.crazy-compilers.com/decompyle/ for
-for further information
 """
 
 import py_compile, os, sys, getopt
@@ -26,8 +22,8 @@ for opt, val in opts:
 if args:
     raise 'This tool does not want any arguments'
 
-print "Using files in dir %s" % src_dir
-print "Compiling into dir %s" % work_dir
+print("Using files in dir %s" % src_dir)
+print("Compiling into dir %s" % work_dir)
 
 tests = {}
 
@@ -52,6 +48,7 @@ tests['2.3'] = tests['2.2']
 tests['2.5'] = tests['2.3']
 tests['2.6'] = tests['2.5']
 tests['2.7'] = ['mine'] + tests['2.6']
+tests['3.4'] = ['mine']
 total_tests = len(tests['2.7'])
 #tests['2.2'].sort(); print tests['2.2']
 
@@ -74,7 +71,7 @@ try:
 except AttributeError:
     version = sys.version[:3]
 
-print 'Compiling test files for Python', version,
-print '(%i/%i files)' % (len(tests[version]), total_tests)
+print('Compiling test files for Python', version)
+print('(%i/%i files)' % (len(tests[version]), total_tests))
 compile_for_version(version)
-print 'Done.'
+print('Done.')
