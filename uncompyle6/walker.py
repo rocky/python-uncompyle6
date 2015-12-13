@@ -45,19 +45,17 @@ from __future__ import print_function
 
 import sys, re
 
+from uncompyle6.spark import GenericASTTraversal
+from uncompyle6.dparser import AST
+from uncompyle6.scanner import Token, Code
+
 if (sys.version_info >= (3, 0)):
     from io import StringIO
     import uncompyle6
-    from .spark import GenericASTTraversal
-    from .dparser import AST
-    from .scanner import Token, Code
     minint = -sys.maxsize-1
     maxint = sys.maxsize
 else:
     from StringIO import StringIO
-    from spark import GenericASTTraversal
-    from dparser import AST
-    from scanner import Token, Code
     minint = -sys.maxint-1
     maxint = sys.maxint
 

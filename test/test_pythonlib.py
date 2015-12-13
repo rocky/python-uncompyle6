@@ -54,12 +54,22 @@ PYOC = ('*.pyc', '*.pyo')
 
 test_options = {
     # name:   (src_basedir, pattern, output_base_suffix, pythoin_version)
-    'test':      ['test', PYC, 'test'],
-    '2.7':       ['python2.7', PYC, 'python2.7', '2.7'],
-    'ok-2.6':    [os.path.join(src_dir, 'ok_2.6'),
-                 PYC, 'ok-2.6', '2.6'],
+    'test':
+        ['test', PYC, 'test'],
+
+    'bytecode-2.5':
+        ['bytecode_2.5', PYC, 'bytecode_2.5', '2.5'],
+
+    '2.7':
+        ['python2.7', PYC, 'python2.7', '2.7'],
+
+    'ok-2.6':
+        [os.path.join(src_dir, 'ok_2.6'),
+         PYC, 'ok-2.6', '2.6'],
+
     'ok-2.7':    [os.path.join(src_dir, 'ok_2.7'),
                  PYC, 'ok-2.7', '2.7'],
+
     'base-2.7':  [os.path.join(src_dir, 'base-tests', 'python2.7'),
                   PYC, 'base_2.7', '2.7'],
 }
@@ -113,9 +123,9 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
             pass
         pass
 
-    for root, dirs, basenames in os.walk(src_dir):
+    for root, dirs, basenames in os.walk('.'):
         # Turn root into a relative path
-        dirname = root[len(src_dir)+1:]
+        dirname = root[2:]  # 2 = len('.') + 1
         file_matches(files, dirname, basenames, obj_patterns)
 
     if not files:
