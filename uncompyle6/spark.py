@@ -253,7 +253,7 @@ class GenericParser:
         raise SystemExit
 
     def parse(self, tokens):
-        sets = [ [(1,0), (2,0)] ]
+        sets = [ [(1, 0), (2, 0)] ]
         self.links = {}
 
         if self.ruleschanged:
@@ -470,30 +470,30 @@ class GenericParser:
             if ttype is not None:
                 k = self.edges.get((state, ttype), None)
                 if k is not None:
-                    #self.add(next, (k, parent), i+1, ptr)
-                    #INLINED --v
+                    # self.add(next, (k, parent), i+1, ptr)
+                    # INLINED --------v
                     new = (k, parent)
                     key = (new, i+1)
                     if new not in next:
                         self.links[key] = []
                         next.append(new)
                     self.links[key].append((ptr, None))
-                    #INLINED --^
-                    #nk = self.goto(k, None)
+                    # INLINED --------^
+                    # nk = self.goto(k, None)
                     nk = self.edges.get((k, None), None)
                     if nk is not None:
-                        #self.add(next, (nk, i+1))
-                        #INLINED --v
+                        # self.add(next, (nk, i+1))
+                        # INLINED -------------v
                         new = (nk, i+1)
                         if new not in next:
                             next.append(new)
-                        #INLINED --^
+                        # INLINED ---------------^
             else:
                 add = self.gotoST(state, token)
                 for k in add:
                     if k is not None:
                         self.add(next, (k, parent), i+1, ptr)
-                        #nk = self.goto(k, None)
+                        # nk = self.goto(k, None)
                         nk = self.edges.get((k, None), None)
                         if nk is not None:
                             self.add(next, (nk, i+1))
@@ -510,25 +510,24 @@ class GenericParser:
                     if k is not None:
                         why = (item, i, rule)
                         pptr = (pitem, parent)
-                        #self.add(cur, (k, pparent),
-                        #	 i, pptr, why)
-                        #INLINED --v
+                        # self.add(cur, (k, pparent), i, pptr, why)
+                        # INLINED ---------v
                         new = (k, pparent)
                         key = (new, i)
                         if new not in cur:
                             self.links[key] = []
                             cur.append(new)
                         self.links[key].append((pptr, why))
-                        #INLINED --^
+                        # INLINED ----------^
                         #nk = self.goto(k, None)
                         nk = self.edges.get((k, None), None)
                         if nk is not None:
                             #self.add(cur, (nk, i))
-                            #INLINED --v
+                            # INLINED ---------v
                             new = (nk, i)
                             if new not in cur:
                                 cur.append(new)
-                            #INLINED --^
+                            # INLINED ----------^
 
     def predecessor(self, key, causal):
         for p, c in self.links[key]:

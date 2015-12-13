@@ -3,6 +3,8 @@
 #
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
+from __future__ import print_function
+
 '''
 Usage: uncompyle6 [OPTIONS]... [ FILE | DIR]...
 
@@ -48,8 +50,8 @@ import os.path
 from uncompyle6 import main, verify
 import time
 
-if sys.version[:3] != '2.7':
-    print >>sys.stderr, 'Error:  uncompyle6 requires Python 2.7.'
+if sys.version[:3] != '2.7' and sys.version[:3] != '3.4':
+    print('Error:  uncompyle6 requires Python 2.7 or 3.4.', file=sys.stderr)
     sys.exit(-1)
 
 showasm = showast = do_verify = numproc = recurse_dirs = 0
@@ -62,13 +64,13 @@ timestampfmt = "# %Y.%m.%d %H:%M:%S %Z"
 try:
     opts, files = getopt.getopt(sys.argv[1:], 'hatdro:c:p:',
                            ['help', 'verify', 'showast', 'showasm'])
-except getopt.GetoptError, e:
-    print >>sys.stderr, '%s: %s' % (os.path.basename(sys.argv[0]), e)
+except getopt.GetoptError as e:
+    print('%s: %s' % (os.path.basename(sys.argv[0]), e),  file=sys.stderr)
     sys.exit(-1)
 
 for opt, val in opts:
     if opt in ('-h', '--help'):
-        print __doc__
+        print(__doc__)
         sys.exit(0)
     elif opt == '--verify':
         do_verify = 1
@@ -89,8 +91,8 @@ for opt, val in opts:
     elif opt == '-r':
         recurse_dirs = 1
     else:
-        print opt
-        print Usage_short
+        print(opt)
+        print(Usage_short)
         sys.exit(1)
 
 # expand directory if specified
@@ -112,7 +114,7 @@ if src_base[-1:] != os.sep:
     src_base = os.path.dirname(src_base)
 if src_base:
     sb_len = len( os.path.join(src_base, '') )
-    files = map(lambda f: f[sb_len:], files)
+    files = [f[sb_len:] for f in files]
     del sb_len
 
 if outfile == '-':
@@ -123,18 +125,23 @@ elif outfile and len(files) > 1:
     out_base = outfile; outfile = None
 
 if timestamp:
-    print time.strftime(timestampfmt)
+    print(time.strftime(timestampfmt))
 if numproc <= 1:
     try:
         result = main(src_base, out_base, files, codes, outfile, showasm, showast, do_verify)
-        print '# decompiled %i files: %i okay, %i failed, %i verify failed' % result
+        print('# decompiled %i files: %i okay, %i failed, %i verify failed' % result)
     except (KeyboardInterrupt):
         pass
     except verify.VerifyCmpError:
         raise
 else:
     from multiprocessing import Process, Queue
-    from Queue import Empty
+
+    try:
+        from Queue import Empty
+    except ImportError:
+        from Queue import Empty
+
     fqueue = Queue(len(files)+numproc)
     for f in files:
         fqueue.put(f)
@@ -145,10 +152,10 @@ else:
 
     def process_func():
         try:
-            (tot_files, okay_files, failed_files, verify_failed_files) = (0,0,0,0)
+            (tot_files, okay_files, failed_files, verify_failed_files) = (0, 0, 0, 0)
             while 1:
                 f = fqueue.get()
-                if f == None:
+                if f is None:
                     break
                 (t, o, f, v) = \
                     main(src_base, out_base, [f], codes, outfile, showasm, showast, do_verify)
@@ -168,8 +175,8 @@ else:
         for p in procs:
             p.join()
         try:
-            (tot_files, okay_files, failed_files, verify_failed_files) = (0,0,0,0)
-            while 1:
+            (tot_files, okay_files, failed_files, verify_failed_files) = (0, 0, 0, 0)
+            while True:
                 (t, o, f, v) = rqueue.get(False)
                 tot_files += t
                 okay_files += o
@@ -177,11 +184,11 @@ else:
                 verify_failed_files += v
         except Empty:
             pass
-        print '# decompiled %i files: %i okay, %i failed, %i verify failed' % \
-              (tot_files, okay_files, failed_files, verify_failed_files)
+        print('# decompiled %i files: %i okay, %i failed, %i verify failed' %
+              (tot_files, okay_files, failed_files, verify_failed_files))
     except (KeyboardInterrupt, OSError):
         pass
 
 
 if timestamp:
-    print time.strftime(timestampfmt)
+    print(time.strftime(timestampfmt))

@@ -30,16 +30,12 @@ from __future__ import print_function
   Probably a complete rewrite would be sensefull. hG/2000-12-27
 '''
 
-import sys, types, os
+import os, marshal, sys, types
 
 if (sys.version_info > (3, 0)):
     from . import walker, verify, magics
-    from . import disas as dis
 else:
     import walker, verify, magics
-    import disas as dis
-
-import marshal
 
 sys.setrecursionlimit(5000)
 __all__ = ['uncompyle_file', 'main']
@@ -82,7 +78,9 @@ def _load_module(filename):
         raise ImportError("This is a Python %s file! Only Python 2.5 to 2.7 files are supported." % version)
     # print version
     fp.read(4) # timestamp
-    co = dis.marshalLoad(fp)
+
+    bytecode = fp.read()
+    co = marshal.loads(bytecode)
     fp.close()
     return version, co
 

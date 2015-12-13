@@ -24,7 +24,7 @@ del op
 def def_op(name, op):
     opname[op] = name
     opmap[name] = op
-    globals().update({name: op}) 
+    globals().update({name: op})
 
 def name_op(name, op):
     def_op(name, op)
@@ -41,15 +41,15 @@ def jabs_op(name, op):
 def def_extArg(name, op):
     def_op(name, op)
     hasArgumentExtended.append(op)
-    
+
 def updateGlobal():
     globals().update({'PJIF': opmap['JUMP_IF_FALSE']})
     globals().update({'PJIT': opmap['JUMP_IF_TRUE']})
     globals().update({'JA': opmap['JUMP_ABSOLUTE']})
     globals().update({'JF': opmap['JUMP_FORWARD']})
-    globals().update({k.replace('+','_'):v for (k,v) in opmap.items()})
+    globals().update({k.replace('+', '_'): v for (k, v) in opmap.items()})
     globals().update({'JUMP_OPs': map(lambda op: opname[op], hasjrel + hasjabs)})
-    
+
 # Instruction opcodes for compiled code
 # Blank lines correspond to available opcodes
 

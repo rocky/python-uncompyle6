@@ -81,14 +81,14 @@ class CmpErrorCode(VerifyCmpError):
         self.tokens = [tokens1, tokens2]
 
     def __str__(self):
-        s =  reduce(lambda s,t: "%s%-37s\t%-37s\n" % (s, t[0], t[1]),
-                    list(map(lambda a,b: (a,b),
+        s =  reduce(lambda s, t: "%s%-37s\t%-37s\n" % (s, t[0], t[1]),
+                    list(map(lambda a,b: (a, b),
                              self.tokens[0],
                              self.tokens[1])),
                   'Code differs in %s\n' % str(self.name))
-        return ('Code differs in %s at offset %s [%s] != [%s]\n\n' % \
-               (repr(self.name), self.index,
-            repr(self.token1), repr(self.token2))) + s
+        return ('Code differs in %s at offset %s [%s] != [%s]\n\n' %
+                (repr(self.name), self.index,
+                 repr(self.token1), repr(self.token2))) + s
 
 class CmpErrorCodeLen(VerifyCmpError):
     """Exception to be raised when code length differs."""
@@ -97,8 +97,8 @@ class CmpErrorCodeLen(VerifyCmpError):
         self.tokens = [tokens1, tokens2]
 
     def __str__(self):
-        return reduce(lambda s,t: "%s%-37s\t%-37s\n" % (s, t[0], t[1]),
-                      list(map(lambda a,b: (a,b),
+        return reduce(lambda s, t: "%s%-37s\t%-37s\n" % (s, t[0], t[1]),
+                      list(map(lambda a, b: (a, b),
                                self.tokens[0],
                                self.tokens[1])),
                   'Code len differs in %s\n' % str(self.name))
@@ -115,7 +115,7 @@ class CmpErrorMember(VerifyCmpError):
                (repr(self.member), repr(self.name),
             repr(self.data[0]), repr(self.data[1]))
 
-#--- compare ---
+# --- compare ---
 
 # these members are ignored
 __IGNORE_CODE_MEMBERS__ = ['co_filename', 'co_firstlineno', 'co_lnotab', 'co_stacksize', 'co_names']
@@ -126,10 +126,10 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
 
     This is the main part of this module.
     """
-    #print code_obj1, type(code_obj2)
-    assert type(code_obj1) == types.CodeType
-    assert type(code_obj2) == types.CodeType
-    #print dir(code_obj1)
+    # print code_obj1, type(code_obj2)
+    assert isinstance(code_obj1, types.CodeType)
+    assert isinstance(code_obj2, types.CodeType)
+    # print dir(code_obj1)
     if isinstance(code_obj1, object):
         # new style classes (Python 2.2)
         # assume _both_ code objects to be new stle classes
@@ -152,14 +152,14 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
         # if this compare fails, we use the old routine to
         # find out, what exactly is nor equal
         # if this compare succeds, simply return
-        #return
+        # return
         pass
 
     if isinstance(code_obj1, object):
         members = [x for x in dir(code_obj1) if x.startswith('co_')]
     else:
-        members = dir(code_obj1);
-    members.sort(); #members.reverse()
+        members = dir(code_obj1)
+    members.sort()  # ; members.reverse()
 
     tokens1 = None
     for member in members:
@@ -185,9 +185,9 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
             scanner.setTokenClass(Token)
             try:
                 # disassemble both code-objects
-                tokens1,customize = scanner.disassemble(code_obj1)
+                tokens1, customize = scanner.disassemble(code_obj1)
                 del customize # save memory
-                tokens2,customize = scanner.disassemble(code_obj2)
+                tokens2, customize = scanner.disassemble(code_obj2)
                 del customize # save memory
             finally:
                 scanner.resetTokenClass() # restore Token class
@@ -203,7 +203,7 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
                     if len(tokens1) == len(tokens2) + 2 \
                           and tokens1[-1].type == 'RETURN_VALUE' \
                           and tokens1[-2].type == 'LOAD_CONST' \
-                          and tokens1[-2].pattr == None \
+                          and tokens1[-2].pattr is None \
                           and tokens1[-3].type == 'RETURN_VALUE':
                         break
                     else:
@@ -275,11 +275,11 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
                             raise CmpErrorCode(name, tokens1[i1].offset, tokens1[i1],
                                        tokens2[i2], tokens1, tokens2)
                     else:
-                        #import pdb; pdb.set_trace()
+                        # import pdb; pdb.set_trace()
                         if dest1 in check_jumps:
-                            check_jumps[dest1].append((i1,i2,dest2))
+                            check_jumps[dest1].append((i1, i2, dest2))
                         else:
-                            check_jumps[dest1] = [(i1,i2,dest2)]
+                            check_jumps[dest1] = [(i1, i2, dest2)]
 
                 i1 += 1
                 i2 += 1

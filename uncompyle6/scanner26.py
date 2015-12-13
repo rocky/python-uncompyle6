@@ -152,7 +152,7 @@ class Scanner26(scan.Scanner):
                         # now holds Code(const) and thus can not be used
                         # for comparism (todo: think about changing this)
                         # pattr = 'code_object @ 0x%x %s->%s' %\
-                        #	(id(const), const.co_filename, const.co_name)
+                        # (id(const), const.co_filename, const.co_name)
                         pattr = '<code_object ' + const.co_name + '>'
                     else:
                         pattr = const
@@ -229,7 +229,7 @@ class Scanner26(scan.Scanner):
         if opcode == EXTENDED_ARG:
             raise NotImplementedError
         # modification of some jump structure
-        if opcode in (PJIF,PJIT,JA,JF,RETURN_VALUE):
+        if opcode in (PJIF, PJIT, JA, JF, RETURN_VALUE):
             toDel = []
             # del POP_TOP
             if self.code[i+opsize] == POP_TOP:
@@ -495,7 +495,7 @@ class Scanner26(scan.Scanner):
 
     def build_stmt_indices(self):
         code = self.code
-        start = 0;
+        start = 0
         end = len(code)
 
         stmt_opcodes = {
@@ -553,7 +553,7 @@ class Scanner26(scan.Scanner):
                 j = self.prev[s]
                 while code[j] == JA:
                     j = self.prev[j]
-                if code[j] == LIST_APPEND: #list comprehension
+                if code[j] == LIST_APPEND: # list comprehension
                     stmts.remove(s)
                     continue
             elif code[s] == POP_TOP and code[self.prev[s]] == ROT_TWO:
@@ -599,7 +599,7 @@ class Scanner26(scan.Scanner):
                 count_END_FINALLY += 1
             elif op in (SETUP_EXCEPT, SETUP_FINALLY):
                 count_SETUP_ += 1
-        #return self.lines[start].next
+        # return self.lines[start].next
 
     def detect_structure(self, pos, op=None):
         '''
@@ -614,7 +614,7 @@ class Scanner26(scan.Scanner):
         if op is None:
             op = code[pos]
 
-        ## Detect parent structure
+        # Detect parent structure
         parent = self.structs[0]
         start  = parent['start']
         end    = parent['end']
@@ -625,8 +625,6 @@ class Scanner26(scan.Scanner):
                 start  = _start
                 end    = _end
                 parent = s
-        ## We need to know how many new structures were added in this run
-        origStructCount = len(self.structs)
 
         if op == SETUP_LOOP:
             start = pos+3
@@ -697,15 +695,15 @@ class Scanner26(scan.Scanner):
             end    = self.restrict_to_parent(target, parent)
             if target != end:
                 self.fixed_jumps[pos] = end
-                #print target, end, parent
-            ## Add the try block
+                # print target, end, parent
+            # Add the try block
             self.structs.append({'type':  'try',
                                    'start': start,
                                    'end':   end-4})
-            ## Now isolate the except and else blocks
+            # Now isolate the except and else blocks
             end_else = start_else = self.get_target(self.prev[end])
 
-            ## Add the except blocks
+            # Add the except blocks
             i = end
             while i < len(self.code) and self.code[i] != END_FINALLY:
                 jmp = self.next_except_jump(i)
@@ -721,14 +719,13 @@ class Scanner26(scan.Scanner):
                     if self.get_target(jmp) != start_else:
                         end_else = self.get_target(jmp)
                     if self.code[jmp] == JF:
-                        #self.fixed_jumps[i] = jmp
                         self.fixed_jumps[jmp] = -1
                     self.structs.append({'type':  'except',
                                    'start': i,
                                    'end':   jmp})
                     i = jmp + 3
 
-            ## Add the try-else block
+            # Add the try-else block
             if end_else != start_else:
                 r_end_else = self.restrict_to_parent(end_else, parent)
                 self.structs.append({'type':  'try-else',
@@ -747,7 +744,7 @@ class Scanner26(scan.Scanner):
             if target != rtarget and parent['type'] == 'and/or':
                 self.fixed_jumps[pos] = rtarget
                 return
-            #does this jump to right after another cond jump?
+            # does this jump to right after another cond jump?
             # if so, it's part of a larger conditional
             if (code[pre[target]] in (PJIF, PJIT)) and (target > pos):
                 self.fixed_jumps[pos] = pre[target]
@@ -814,7 +811,7 @@ class Scanner26(scan.Scanner):
                       and self.get_target(target) == self.get_target(next):
                     self.fixed_jumps[pos] = pre[next]
                     return
-            #don't add a struct for a while test, it's already taken care of
+            # don't add a struct for a while test, it's already taken care of
             if pos in self.ignore_if:
                 return
 
@@ -822,11 +819,11 @@ class Scanner26(scan.Scanner):
                     and pre[rtarget] != pos and pre[pre[rtarget]] != pos \
                     and not (code[rtarget] == JA and code[rtarget+3] == POP_BLOCK and code[pre[pre[rtarget]]] != JA):
                 rtarget = pre[rtarget]
-            #does the if jump just beyond a jump op, then this is probably an if statement
+            # does the if jump just beyond a jump op, then this is probably an if statement
             if code[pre[rtarget]] in (JA, JF):
                 if_end = self.get_target(pre[rtarget])
 
-                #is this a loop not an if?
+                # is this a loop not an if?
                 if (if_end < pre[rtarget]) and (code[pre[if_end]] == SETUP_LOOP):
                     if(if_end > start):
                         return
@@ -865,8 +862,8 @@ class Scanner26(scan.Scanner):
         self.structs = [{'type':  'root',
                            'start': 0,
                            'end':   n-1}]
-        self.loops = []  ## All loop entry points
-        self.fixed_jumps = {} ## Map fixed jumps to their real destination
+        self.loops = []  # All loop entry points
+        self.fixed_jumps = {} # Map fixed jumps to their real destination
         self.ignore_if = set()
         self.build_stmt_indices()
         self.not_continue = set()
@@ -876,7 +873,7 @@ class Scanner26(scan.Scanner):
         for i in self.op_range(0, n):
             op = code[i]
 
-            ## Determine structures and fix jumps for 2.3+
+            # Determine structures and fix jumps for 2.3+
             self.detect_structure(i, op)
 
             if self.op_hasArgument(op):
@@ -885,10 +882,6 @@ class Scanner26(scan.Scanner):
                 if label is None:
                     if op in hasjrel and op != FOR_ITER:
                         label = i + 3 + oparg
-                    #elif op in hasjabs: Pas de gestion des jump abslt
-                        #if op in (PJIF, PJIT): Or pop a faire
-                            #if (oparg > i):
-                                #label = oparg
                 if label is not None and label != -1:
                     targets[label] = targets.get(label, []) + [i]
             elif op == END_FINALLY and i in self.fixed_jumps:

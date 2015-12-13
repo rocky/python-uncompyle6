@@ -126,7 +126,7 @@ class Scanner27(scan.Scanner):
                     continue
                 if op in hasconst:
                     const = co.co_consts[oparg]
-                    if type(const) == types.CodeType:
+                    if isinstance(const, types.CodeType):
                         oparg = const
                         if const.co_name == '<lambda>':
                             assert op_name == 'LOAD_CONST'
@@ -348,8 +348,6 @@ class Scanner27(scan.Scanner):
                 start  = _start
                 end    = _end
                 parent = s
-        # We need to know how many new structures were added in this run
-        origStructCount = len(self.structs)
 
         if op == SETUP_LOOP:
             start = pos+3
