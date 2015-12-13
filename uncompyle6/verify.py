@@ -11,7 +11,7 @@ import dis, operator, sys, types
 import uncompyle6
 import uncompyle6.scanner as scanner
 
-if (sys.version_info > (3, 0)):
+if (sys.version_info >= (3, 0)):
     truediv = operator.truediv
 else:
     truediv = operator.div

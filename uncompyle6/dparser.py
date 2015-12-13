@@ -17,7 +17,7 @@ except ImportError:
 
 import string, sys
 
-if (sys.version_info > (3, 0)):
+if (sys.version_info >= (3, 0)):
     intern = sys.intern
     from collections import UserList
 else:

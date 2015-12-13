@@ -45,7 +45,7 @@ from __future__ import print_function
 
 import sys, re
 
-if (sys.version_info > (3, 0)):
+if (sys.version_info >= (3, 0)):
     from io import StringIO
     import uncompyle6
     from .spark import GenericASTTraversal

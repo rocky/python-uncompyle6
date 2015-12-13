@@ -5,7 +5,7 @@ import struct, sys
 __all__ = ['magics', 'versions']
 
 def __build_magic(magic):
-    if (sys.version_info > (3, 0)):
+    if (sys.version_info >= (3, 0)):
         return struct.pack('Hcc', magic, bytes('\r', 'utf-8'), bytes('\n', 'utf-8'))
     else:
         return struct.pack('Hcc', magic, '\r', '\n')

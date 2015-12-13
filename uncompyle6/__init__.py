@@ -32,10 +32,9 @@ from __future__ import print_function
 
 import os, marshal, sys, types
 
-if (sys.version_info > (3, 0)):
-    from . import walker, verify, magics
-else:
-    import walker, verify, magics
+PYTHON_VERSION = sys.version_info.major + (sys.version_info.minor / 10.0)
+
+from uncompyle6 import disas, walker, verify, magics
 
 sys.setrecursionlimit(5000)
 __all__ = ['uncompyle_file', 'main']
@@ -68,20 +67,25 @@ def _load_module(filename):
     code_object: code_object from this file
     '''
 
-    fp = open(filename, 'rb')
-    magic = fp.read(4)
-    try:
-        version = float(magics.versions[magic])
-    except KeyError:
-        raise ImportError("Unknown magic number %s in %s" % (ord(magic[0])+256*ord(magic[1]), filename))
-    if (version > 2.7) or (version < 2.5):
-        raise ImportError("This is a Python %s file! Only Python 2.5 to 2.7 files are supported." % version)
-    # print version
-    fp.read(4) # timestamp
+    with open(filename, 'rb') as fp:
+        magic = fp.read(4)
+        try:
+            version = float(magics.versions[magic])
+        except KeyError:
+            raise ImportError("Unknown magic number %s in %s" % (ord(magic[0])+256*ord(magic[1]), filename))
+        if (version > 2.7) or (version < 2.5):
+            raise ImportError("This is a Python %s file! Only Python 2.5 to 2.7 files are supported." % version)
 
-    bytecode = fp.read()
-    co = marshal.loads(bytecode)
-    fp.close()
+        # print version
+        fp.read(4) # timestamp
+
+        if version == PYTHON_VERSION:
+            bytecode = fp.read()
+            co = marshal.loads(bytecode)
+        else:
+            co = disas.load(fp)
+        pass
+
     return version, co
 
 def uncompyle(version, co, out=None, showasm=0, showast=0):

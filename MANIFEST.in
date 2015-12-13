@@ -1,5 +1,5 @@
 include README.rst
 include __pkginfo__.py
-recursive-include uncompyle6
+recursive-include uncompyle6 *.py
 include script/uncompyle6
-recursive-include/test/*
+recursive-include test *.py *.pyc *.pyo
