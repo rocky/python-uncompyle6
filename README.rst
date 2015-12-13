@@ -11,7 +11,7 @@ Introduction
 
 'uncompyle6' converts Python byte-code back into equivalent Python
 source code. It accepts byte-codes from Python version 2.5 to 2.7.
-It runs on Python 2.7 and with a little more work Python 3.
+It runs on Python 2.7 and, with a little more work, on Python 3 as well.
 
 The generated source is fairly readable: docstrings, lists, tuples and
 hashes are somewhat pretty-printed.
