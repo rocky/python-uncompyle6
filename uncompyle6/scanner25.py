@@ -232,7 +232,7 @@ class Scanner25(scan.Scanner):
             # del POP_TOP
             if self.code[i+opsize] == POP_TOP:
                 if self.code[i+opsize] == self.code[i+opsize+1] and self.code[i+opsize] == self.code[i+opsize+2] \
-                and opcode in (JF,JA) and self.code[i+opsize] != self.code[i+opsize+3]:
+                and opcode in (JF, JA) and self.code[i+opsize] != self.code[i+opsize+3]:
                     pass
                 else:
                     toDel += [i+opsize]
@@ -334,10 +334,10 @@ class Scanner25(scan.Scanner):
             while chckDel < chckStp-3:
                 toDel += [chckDel]
                 chckDel += self.op_size(self.code[chckDel])
-            if (self.code[chckStp-3] in (STORE_NAME,STORE_FAST)
-                and self.code[chckStp+3] in (LOAD_NAME,LOAD_FAST)
-                and self.code[chckStp+6] in (DELETE_NAME,DELETE_FAST)):
-                toDel += [chckStp-3,chckStp+3,chckStp+6]
+            if (self.code[chckStp-3] in (STORE_NAME, STORE_FAST)
+                and self.code[chckStp+3] in (LOAD_NAME, LOAD_FAST)
+                and self.code[chckStp+6] in (DELETE_NAME, DELETE_FAST)):
+                toDel += [chckStp-3, chckStp+3, chckStp+6]
             # SETUP_WITH opcode dosen't exist in 2.5 but is necessary for the grammar
             self.code[chckStore] = JUMP_ABSOLUTE # ugly hack
             self.restructJump(chckStore, i)
@@ -466,7 +466,7 @@ class Scanner25(scan.Scanner):
         i=0
         while i < len(self.code): # we can't use op_range for the moment
             op = self.code[i]
-            if(op in (PJIF,PJIT)):
+            if(op in (PJIF, PJIT)):
                 target = self.get_argument(i)
                 target += i + 3
                 self.restructJump(i, target)
@@ -477,7 +477,7 @@ class Scanner25(scan.Scanner):
         i=0
         while i < len(self.code): # we can't use op_range for the moment
             op = self.code[i]
-            if(op in (PJIF,PJIT)):
+            if(op in (PJIF, PJIT)):
                 target = self.get_target(i)
                 if self.code[target] == JA:
                     target = self.get_target(target)
@@ -500,7 +500,7 @@ class Scanner25(scan.Scanner):
 
     def build_stmt_indices(self):
         code = self.code
-        start = 0;
+        start = 0
         end = len(code)
 
         stmt_opcodes = {
@@ -627,7 +627,7 @@ class Scanner25(scan.Scanner):
                 start  = _start
                 end    = _end
                 parent = s
-        ## We need to know how many new structures were added in this run
+        # We need to know how many new structures were added in this run
 
         if op == SETUP_LOOP:
             start = pos+3
@@ -771,9 +771,9 @@ class Scanner25(scan.Scanner):
                             pass
                         elif code[pre[pre[rtarget]]] == RETURN_VALUE \
                                 and self.remove_mid_line_ifs([pos]) \
-                                and 1 == (len(set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]], \
-                                                             (PJIF, PJIT), target))) \
-                                              | set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]], \
+                                and 1 == (len(set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]],
+                                                             (PJIF, PJIT), target)))
+                                              | set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]],
                                                            (PJIF, PJIT, JA), pre[rtarget], True))))):
                             pass
                         else:
@@ -813,7 +813,7 @@ class Scanner25(scan.Scanner):
                       and self.get_target(target) == self.get_target(next):
                     self.fixed_jumps[pos] = pre[next]
                     return
-            #don't add a struct for a while test, it's already taken care of
+            # don't add a struct for a while test, it's already taken care of
             if pos in self.ignore_if:
                 return
 
@@ -821,11 +821,11 @@ class Scanner25(scan.Scanner):
                     and pre[rtarget] != pos and pre[pre[rtarget]] != pos \
                     and not (code[rtarget] == JA and code[rtarget+3] == POP_BLOCK and code[pre[pre[rtarget]]] != JA):
                 rtarget = pre[rtarget]
-            #does the if jump just beyond a jump op, then this is probably an if statement
+            # does the if jump just beyond a jump op, then this is probably an if statement
             if code[pre[rtarget]] in (JA, JF):
                 if_end = self.get_target(pre[rtarget])
 
-                #is this a loop not an if?
+                # is this a loop not an if?
                 if (if_end < pre[rtarget]) and (code[pre[if_end]] == SETUP_LOOP):
                     if(if_end > start):
                         return
@@ -864,8 +864,8 @@ class Scanner25(scan.Scanner):
         self.structs = [{'type':  'root',
                            'start': 0,
                            'end':   n-1}]
-        self.loops = []  ## All loop entry points
-        self.fixed_jumps = {} ## Map fixed jumps to their real destination
+        self.loops = []  # All loop entry points
+        self.fixed_jumps = {} # Map fixed jumps to their real destination
         self.ignore_if = set()
         self.build_stmt_indices()
         self.not_continue = set()
@@ -875,7 +875,7 @@ class Scanner25(scan.Scanner):
         for i in self.op_range(0, n):
             op = code[i]
 
-            ## Determine structures and fix jumps for 2.3+
+            # Determine structures and fix jumps for 2.3+
             self.detect_structure(i, op)
 
             if self.op_hasArgument(op):
@@ -884,10 +884,10 @@ class Scanner25(scan.Scanner):
                 if label is None:
                     if op in hasjrel and op != FOR_ITER:
                         label = i + 3 + oparg
-                    #elif op in hasjabs: Pas de gestion des jump abslt
-                        #if op in (PJIF, PJIT): Or pop a faire
-                            #if (oparg > i):
-                                #label = oparg
+                    # elif op in hasjabs: Pas de gestion des jump abslt
+                        # if op in (PJIF, PJIT): Or pop a faire
+                            # if (oparg > i):
+                                # label = oparg
                 if label is not None and label != -1:
                     targets[label] = targets.get(label, []) + [i]
             elif op == END_FINALLY and i in self.fixed_jumps:

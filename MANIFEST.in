@@ -1,0 +1,5 @@
+include README.rst
+include __pkginfo__.py
+recursive-include uncompyle6
+include script/uncompyle6
+recursive-include/test/*

@@ -137,7 +137,7 @@ class Scanner26(scan.Scanner):
                     continue
                 if op in hasconst:
                     const = co.co_consts[oparg]
-                    if type(const) == types.CodeType:
+                    if isinstance(const, types.CodeType):
                         oparg = const
                         if const.co_name == '<lambda>':
                             assert op_name == 'LOAD_CONST'
@@ -234,7 +234,7 @@ class Scanner26(scan.Scanner):
             # del POP_TOP
             if self.code[i+opsize] == POP_TOP:
                 if self.code[i+opsize] == self.code[i+opsize+1] and self.code[i+opsize] == self.code[i+opsize+2] \
-                and opcode in (JF,JA) and self.code[i+opsize] != self.code[i+opsize+3]:
+                and opcode in (JF, JA) and self.code[i+opsize] != self.code[i+opsize+3]:
                     pass
                 else:
                     toDel += [i+opsize]
@@ -262,15 +262,16 @@ class Scanner26(scan.Scanner):
                 return [i+opsize]
         # modification of list structure
         if opcode == BUILD_LIST:
-            if self.code[i+opsize] == DUP_TOP and self.code[i+opsize+1] in (STORE_NAME,STORE_FAST):
+            if (self.code[i+opsize] == DUP_TOP and
+                self.code[i+opsize+1] in (STORE_NAME, STORE_FAST)):
                 # del DUP/STORE_NAME x
-                toDel = [i+opsize,i+opsize+1]
+                toDel = [i+opsize, i+opsize+1]
                 nameDel = self.get_argument(i+opsize+1)
                 start = i+opsize+1
                 end = start
                 # del LOAD_NAME x
                 while end < len(self.code):
-                    end = self.first_instr(end, len(self.code), (LOAD_NAME,LOAD_FAST))
+                    end = self.first_instr(end, len(self.code), (LOAD_NAME, LOAD_FAST))
                     if nameDel == self.get_argument(end):
                         toDel += [end]
                         break
@@ -280,7 +281,7 @@ class Scanner26(scan.Scanner):
                         end += self.op_size(LOAD_FAST)
                 # log JA/POP_TOP to del and update PJIF
                 while start < end:
-                    start = self.first_instr(start, end, (PJIF,PJIT))
+                    start = self.first_instr(start, end, (PJIF, PJIT))
                     if start is None: break
                     target = self.get_target(start)
                     if self.code[target] == POP_TOP and self.code[target-3] == JA:
@@ -292,7 +293,8 @@ class Scanner26(scan.Scanner):
                 # del DELETE_NAME x
                 start = end
                 while end < len(self.code):
-                    end = self.first_instr(end, len(self.code), (DELETE_NAME,DELETE_FAST))
+                    end = self.first_instr(end, len(self.code),
+                                           (DELETE_NAME, DELETE_FAST))
                     if nameDel == self.get_argument(end):
                         toDel += [end]
                         break
@@ -308,7 +310,7 @@ class Scanner26(scan.Scanner):
                 end = self.first_instr(i, len(self.code), RETURN_VALUE)
                 end = self.first_instr(i, end, YIELD_VALUE)
                 if end and self.code[end+1] == POP_TOP and self.code[end+2] == JA and self.code[end+5] == POP_BLOCK:
-                    return [i,end+5]
+                    return [i, end+5]
         # with stmt
         if opcode == WITH_CLEANUP:
             allRot = self.all_instr(0, i, (ROT_TWO))
@@ -318,7 +320,7 @@ class Scanner26(scan.Scanner):
                     and self.code[rot-4] == DUP_TOP:
                     chckRot = rot
             assert chckRot > 0
-            toDel = [chckRot-4,chckRot-3,chckRot]
+            toDel = [chckRot-4, chckRot-3, chckRot]
             chckStp = -1
             allSetup = self.all_instr(chckRot+1, i, (SETUP_FINALLY))
             for stp in allSetup:
@@ -330,9 +332,10 @@ class Scanner26(scan.Scanner):
             while chckDel < chckStp-3:
                 toDel += [chckDel]
                 chckDel += self.op_size(self.code[chckDel])
-            if self.code[chckStp-3] in (STORE_NAME,STORE_FAST) and self.code[chckStp+3] in (LOAD_NAME,LOAD_FAST) \
-                and self.code[chckStp+6] in (DELETE_NAME,DELETE_FAST):
-                toDel += [chckStp-3,chckStp+3,chckStp+6]
+            if (self.code[chckStp-3] in (STORE_NAME, STORE_FAST) and
+                self.code[chckStp+3] in (LOAD_NAME, LOAD_FAST)
+                and self.code[chckStp+6] in (DELETE_NAME, DELETE_FAST)):
+                toDel += [chckStp-3, chckStp+3, chckStp+6]
             # SETUP_WITH opcode dosen't exist in 2.6 but is necessary for the grammar
             self.code[chckRot+1] = JUMP_ABSOLUTE # ugly hack
             self.restructJump(chckRot+1, i)
@@ -461,7 +464,7 @@ class Scanner26(scan.Scanner):
         i=0
         while i < len(self.code): # we can't use op_range for the moment
             op = self.code[i]
-            if(op in (PJIF,PJIT)):
+            if(op in (PJIF, PJIT)):
                 target = self.get_argument(i)
                 target += i + 3
                 self.restructJump(i, target)
@@ -472,7 +475,7 @@ class Scanner26(scan.Scanner):
         i=0
         while i < len(self.code): # we can't use op_range for the moment
             op = self.code[i]
-            if(op in (PJIF,PJIT)):
+            if(op in (PJIF, PJIT)):
                 target = self.get_target(i)
                 if self.code[target] == JA:
                     target = self.get_target(target)
@@ -707,7 +710,7 @@ class Scanner26(scan.Scanner):
             i = end
             while i < len(self.code) and self.code[i] != END_FINALLY:
                 jmp = self.next_except_jump(i)
-                if jmp == None: # check
+                if jmp is None: # check
                     i = self.next_stmt[i]
                     continue
                 if self.code[jmp] == RETURN_VALUE:
@@ -769,9 +772,9 @@ class Scanner26(scan.Scanner):
                             pass
                         elif code[pre[pre[rtarget]]] == RETURN_VALUE \
                                 and self.remove_mid_line_ifs([pos]) \
-                                and 1 == (len(set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]], \
-                                                             (PJIF, PJIT), target))) \
-                                              | set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]], \
+                                and 1 == (len(set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]],
+                                                             (PJIF, PJIT), target)))
+                                              | set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]],
                                                            (PJIF, PJIT, JA), pre[rtarget], True))))):
                             pass
                         else:

@@ -121,7 +121,8 @@ class GenericParser:
     #  thee not with this; nor shall thee toucheth the _preprocess
     #  argument to addRule.
     #
-    def preprocess(self, rule, func):	return rule, func
+    def preprocess(self, rule, func):
+        return rule, func
 
     def addRule(self, doc, func, _preprocess=1):
         fn = func
@@ -505,7 +506,7 @@ class GenericParser:
                 lhs, rhs = rule
                 for pitem in sets[parent]:
                     pstate, pparent = pitem
-                    #k = self.goto(pstate, lhs)
+                    # k = self.goto(pstate, lhs)
                     k = self.edges.get((pstate, lhs), None)
                     if k is not None:
                         why = (item, i, rule)
@@ -519,10 +520,10 @@ class GenericParser:
                             cur.append(new)
                         self.links[key].append((pptr, why))
                         # INLINED ----------^
-                        #nk = self.goto(k, None)
+                        # nk = self.goto(k, None)
                         nk = self.edges.get((k, None), None)
                         if nk is not None:
-                            #self.add(cur, (nk, i))
+                            # self.add(cur, (nk, i))
                             # INLINED ---------v
                             new = (nk, i)
                             if new not in cur:
@@ -583,7 +584,7 @@ class GenericParser:
                     attr[i] = tokens[k-1]
                     key = (item, k)
                     item, k = self.predecessor(key, None)
-            #elif self.isnullable(sym):
+            # elif self.isnullable(sym):
             elif self._NULLABLE == sym[0:len(self._NULLABLE)]:
                 attr[i] = self.deriveEpsilon(sym)
             else:
@@ -597,8 +598,8 @@ class GenericParser:
     def ambiguity(self, rules):
         #
         #  XXX - problem here and in collectRules() if the same rule
-        #	 appears in >1 method.  Also undefined results if rules
-        #	 causing the ambiguity appear in the same method.
+        #  appears in >1 method.  Also undefined results if rules
+        #  causing the ambiguity appear in the same method.
         #
         sortlist = []
         name2index = {}
@@ -648,7 +649,8 @@ class GenericASTBuilder(GenericParser):
                 children.append(self.terminal(arg))
         return self.nonterminal(lhs, children)
 
-    def terminal(self, token):	return token
+    def terminal(self, token):
+        return token
 
     def nonterminal(self, type, args):
         rv = self.AST(type)

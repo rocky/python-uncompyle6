@@ -34,7 +34,7 @@ BIN_OP_FUNCS = {
 
 JUMP_OPs = None
 
-#--- exceptions ---
+# --- exceptions ---
 
 class VerifyCmpError(Exception):
     pass
@@ -82,7 +82,7 @@ class CmpErrorCode(VerifyCmpError):
 
     def __str__(self):
         s =  reduce(lambda s, t: "%s%-37s\t%-37s\n" % (s, t[0], t[1]),
-                    list(map(lambda a,b: (a, b),
+                    list(map(lambda a, b: (a, b),
                              self.tokens[0],
                              self.tokens[1])),
                   'Code differs in %s\n' % str(self.name))
@@ -287,8 +287,8 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
         elif member == 'co_consts':
             # partial optimization can make the co_consts look different,
             #   so we'll just compare the code consts
-            codes1 = ( c for c in code_obj1.co_consts if type(c) == types.CodeType )
-            codes2 = ( c for c in code_obj2.co_consts if type(c) == types.CodeType )
+            codes1 = ( c for c in code_obj1.co_consts if isinstance(c, types.CodeType) )
+            codes2 = ( c for c in code_obj2.co_consts if isinstance(c, types.CodeType) )
 
             for c1, c2 in zip(codes1, codes2):
                 cmp_code_objects(version, c1, c2, name=name)
@@ -296,8 +296,8 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
             # all other members must be equal
             if getattr(code_obj1, member) != getattr(code_obj2, member):
                 raise CmpErrorMember(name, member,
-                             getattr(code_obj1,member),
-                             getattr(code_obj2,member))
+                             getattr(code_obj1, member),
+                             getattr(code_obj2, member))
 
 class Token(scanner.Token):
     """Token class with changed semantics for 'cmp()'."""
@@ -306,7 +306,7 @@ class Token(scanner.Token):
         t = self.type # shortcut
         loads = ('LOAD_NAME', 'LOAD_GLOBAL', 'LOAD_CONST')
         if t in loads and o.type in loads:
-            if self.pattr == 'None' and o.pattr == None:
+            if self.pattr == 'None' and o.pattr is None:
                 return 0
         if t == 'BUILD_TUPLE_0' and o.type == 'LOAD_CONST' and o.pattr == ():
             return 0
