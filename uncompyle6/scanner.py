@@ -118,7 +118,7 @@ class Scanner(object):
                 print('%i\t%s\t' % (i, self.opc.opname[op]))
 
     def first_instr(self, start, end, instr, target=None, exact=True):
-        '''
+        """
         Find the first <instr> in the block from start to end.
         <instr> is any python bytecode instruction or a list of opcodes
         If <instr> is an opcode with a target (like a jump), a target
@@ -127,32 +127,34 @@ class Scanner(object):
         closest to <target> will be returned.
 
         Return index to it or None if not found.
-        '''
+        """
         code = self.code
-        assert(start>=0 and end<=len(code))
+        assert(start >= 0 and end <= len(code))
 
-        try:    None in instr
-        except: instr = [instr]
+        try:
+            None in instr
+        except:
+            instr = [instr]
 
-        pos = None
-        distance = len(code)
-        for i in self.op_range(start, end):
-            op = code[i]
+        result_offset = None
+        current_distance = len(code)
+        for offset in self.op_range(start, end):
+            op = code[offset]
             if op in instr:
                 if target is None:
-                    return i
-                dest = self.get_target(i, op)
+                    return offset
+                dest = self.get_target(offset)
                 if dest == target:
-                    return i
+                    return offset
                 elif not exact:
-                    _distance = abs(target - dest)
-                    if _distance < distance:
-                        distance = _distance
-                        pos = i
-        return pos
+                    new_distance = abs(target - dest)
+                    if new_distance < current_distance:
+                        current_distance = new_distance
+                        result_offset = offset
+        return result_offset
 
     def last_instr(self, start, end, instr, target=None, exact=True):
-        '''
+        """
         Find the last <instr> in the block from start to end.
         <instr> is any python bytecode instruction or a list of opcodes
         If <instr> is an opcode with a target (like a jump), a target
@@ -161,65 +163,74 @@ class Scanner(object):
         closest to <target> will be returned.
 
         Return index to it or None if not found.
-        '''
+        """
 
         code = self.code
+        # Make sure requested positions do not go out of
+        # code bounds
         if not (start>=0 and end<=len(code)):
             return None
 
-        try:    None in instr
-        except: instr = [instr]
+        try:
+            None in instr
+        except:
+            instr = [instr]
 
-        pos = None
-        distance = len(code)
-        for i in self.op_range(start, end):
-            op = code[i]
+        result_offset = None
+        current_distance = len(code)
+        for offset in self.op_range(start, end):
+            op = code[offset]
             if op in instr:
                 if target is None:
-                    pos = i
+                    result_offset = offset
                 else:
-                    dest = self.get_target(i, op)
+                    dest = self.get_target(offset)
                     if dest == target:
-                        distance = 0
-                        pos = i
+                        current_distance = 0
+                        result_offset = offset
                     elif not exact:
-                        _distance = abs(target - dest)
-                        if _distance <= distance:
-                            distance = _distance
-                            pos = i
-        return pos
+                        new_distance = abs(target - dest)
+                        if new_distance <= current_distance:
+                            current_distance = new_distance
+                            result_offset = offset
+        return result_offset
 
     def all_instr(self, start, end, instr, target=None, include_beyond_target=False):
-        '''
+        """
         Find all <instr> in the block from start to end.
         <instr> is any python bytecode instruction or a list of opcodes
         If <instr> is an opcode with a target (like a jump), a target
         destination can be specified which must match precisely.
 
         Return a list with indexes to them or [] if none found.
-        '''
-
+        """
         code = self.code
-        assert(start>=0 and end<=len(code))
+        assert(start >= 0 and end <= len(code))
 
-        try:    None in instr
-        except: instr = [instr]
+        try:
+            None in instr
+        except:
+            instr = [instr]
 
         result = []
-        for i in self.op_range(start, end):
-            op = code[i]
+        for offset in self.op_range(start, end):
+            op = code[offset]
             if op in instr:
                 if target is None:
-                    result.append(i)
+                    result.append(offset)
                 else:
-                    t = self.get_target(i, op)
+                    t = self.get_target(offset)
                     if include_beyond_target and t >= target:
-                        result.append(i)
+                        result.append(offset)
                     elif t == target:
-                        result.append(i)
+                        result.append(offset)
         return result
 
     def op_size(self, op):
+        """
+        Return size of operator with its arguments
+        for given opcode <op>.
+        """
         if op < self.opc.HAVE_ARGUMENT and op not in self.opc.hasArgumentExtended:
             return 1
         else:
@@ -229,6 +240,10 @@ class Scanner(object):
         return self.op_size(op) > 1
 
     def op_range(self, start, end):
+        """
+        Iterate through positions of opcodes, skipping
+        arguments.
+        """
         while start < end:
             yield start
             start += self.op_size(self.code[start])
@@ -243,14 +258,14 @@ class Scanner(object):
         return filtered
 
     def rem_or(self, start, end, instr, target=None, include_beyond_target=False):
-        '''
+        """
         Find all <instr> in the block from start to end.
         <instr> is any python bytecode instruction or a list of opcodes
         If <instr> is an opcode with a target (like a jump), a target
         destination can be specified which must match precisely.
 
         Return a list with indexes to them or [] if none found.
-        '''
+        """
 
         code = self.code
         assert(start>=0 and end<=len(code))
