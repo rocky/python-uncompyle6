@@ -101,7 +101,7 @@ for usage help
 Known Bugs/Restrictions
 -----------------------
 
-Support Python 3 bytecode and syntax is lacking.
+Support for Python 3 bytecode and syntax is lacking.
 
 .. _trepan: https://pypi.python.org/pypi/trepan
 .. _debuggers: https://pypi.python.org/pypi/trepan3k
