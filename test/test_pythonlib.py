@@ -58,20 +58,20 @@ test_options = {
         ['test', PYC, 'test'],
 
     'bytecode-2.5':
-        ['bytecode_2.5', PYC, 'bytecode_2.5', '2.5'],
+        ['bytecode_2.5', PYC, 'bytecode_2.5', 2.5],
 
     '2.7':
-        ['python2.7', PYC, 'python2.7', '2.7'],
+        ['python2.7', PYC, 'python2.7', 2.7],
 
     'ok-2.6':
         [os.path.join(src_dir, 'ok_2.6'),
-         PYC, 'ok-2.6', '2.6'],
+         PYC, 'ok-2.6', 2.6],
 
     'ok-2.7':    [os.path.join(src_dir, 'ok_2.7'),
-                 PYC, 'ok-2.7', '2.7'],
+                 PYC, 'ok-2.7', 2.7],
 
     'base-2.7':  [os.path.join(src_dir, 'base-tests', 'python2.7'),
-                  PYC, 'base_2.7', '2.7'],
+                  PYC, 'base_2.7', 2.7],
 }
 
 #-----
