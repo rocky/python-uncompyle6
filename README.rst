@@ -19,23 +19,23 @@ hashes are somewhat pretty-printed.
 'uncompyle6' is based on John Aycock's generic small languages
 compiler 'spark' (http://www.csr.uvic.ca/~aycock/python/) and his
 prior work on a tool called 'decompyle'. This was improved by Hartmut Goebel
-`http://www.crazy-compilers.com/`_
+http://www.crazy-compilers.com
 
-# Additional note (3 July 2004):
+*Additional note (3 July 2004):*
 
 This software is no longer available from the original website.
 However http://www.crazy-compilers.com/decompyle/ provides a
 decompilation service.
 
-# Additional note (5 June 2012):
+*Additional note (5 June 2012):*
 
 The decompilation of python bytecode 2.5 & 2.6 is based on the work of
 Eloi Vanderbeken. bytecode is translated to a pseudo 2.7 python bytecode
 and then decompiled.
 
-# Additional note (12 Dec 2016):
+*Additional note (12 Dec 2016):*
 
-I will be using this to deparse fragments of code inside my trepan_
+This will be used to deparse fragments of code inside my trepan_
 debuggers_. For that, I need to record text fragements for all
 byte-code offsets (of interest). This purpose although largely
 compatible with the original intention is yet a little bit different.
@@ -67,6 +67,8 @@ Installation
 
 This uses setup.py, so it follows the standard Python routine:
 
+::
+
     python setup.py install # may need sudo
     # or if you have pyenv:
     python setup.py develop
@@ -88,7 +90,10 @@ Usage
 
 Run
 
+::
+
      ./scripts/uncompyle6 -h
+
 
 for usage help
 
