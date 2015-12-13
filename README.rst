@@ -17,7 +17,7 @@ The generated source is fairly readable: docstrings, lists, tuples and
 hashes are somewhat pretty-printed.
 
 'uncompyle6' is based on John Aycock's generic small languages
-compiler 'spark' (http://www.csr.uvic.ca/~aycock/python/) and his
+compiler 'spark' (http://pages.cpsc.ucalgary.ca/~aycock/spark/) and his
 prior work on a tool called 'decompyle'. This was improved by Hartmut Goebel
 http://www.crazy-compilers.com
 
