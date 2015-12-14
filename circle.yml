@@ -1,0 +1,7 @@
+machine:
+    python:
+        version: 2.7.8
+
+test:
+    override:
+        - make check
