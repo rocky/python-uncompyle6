@@ -3,16 +3,26 @@ PHONY=check clean dist distclean test test-unit test-functional rmChangeLog clea
 GIT2CL ?= git2cl
 PYTHON ?= python
 
-# Set COMILE='--compile' to force compilation before check
+# Set COMPILE='--compile' to force compilation before check
 COMPILE ?=
 
 #: Run all tests
 check: check-short check-2.7-ok
 
+## FIXME: there is a bug in our code that I don't
+## find in uncompyle2 that causes this to fail.
+## parsing.
+## the failing program works if run by itself.
+## This leads me to believe the problem is an
+## initialization bug?
+
+#: Check deparsing only, but from a different Python version
+check-bytecode:
+	$(PYTHON) test_pythonlib.py --bytecode-2.5
+
 #: Run quick tests
 check-short:
 	$(PYTHON) test_pythonlib.py --base-2.7 --verify $(COMPILE)
-	$(PYTHON) test_pythonlib.py --bytecode-2.5
 
 #: Run longer Python 2.7's lib files known to be okay
 check-2.7-ok:

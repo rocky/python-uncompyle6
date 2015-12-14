@@ -148,7 +148,14 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
     print('Source directory: ', src_dir)
     print('Output directory: ', target_dir)
     try:
-        main(src_dir, target_dir, files, [], do_verify=opts['do_verify'])
+        _, _, failed_files, failed_verify = \
+          main(src_dir, target_dir, files, [],
+               do_verify=opts['do_verify'])
+        if failed_files != 0:
+            exit(2)
+        elif failed_verify != 0:
+            exit(3)
+
     except (KeyboardInterrupt, OSError):
         print()
         exit(1)
