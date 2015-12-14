@@ -72,14 +72,26 @@ def _load_module(filename):
         try:
             version = float(magics.versions[magic])
         except KeyError:
-            raise ImportError("Unknown magic number %s in %s" % (ord(magic[0])+256*ord(magic[1]), filename))
-        if (version > 2.7) or (version < 2.5):
-            raise ImportError("This is a Python %s file! Only Python 2.5 to 2.7 files are supported." % version)
+            raise ImportError("Unknown magic number %s in %s" %
+                              (ord(magic[0])+256*ord(magic[1]), filename))
+        if not (2.5 <= version <= 2.7) and not (version == 3.4):
+            raise ImportError("This is a Python %s file! Only "
+                              "Python 2.5 to 2.7 and 3.4 files are supported."
+                              % version)
 
         # print version
         fp.read(4) # timestamp
 
         if version == PYTHON_VERSION:
+            magic_int = magics.magic2int(magic)
+            # Note: a higher magic number necessarily mean a later
+            # release.  At Pyton 3.0 the magic number decreased
+            # significantly. Hence the range below. Also note
+            # inclusion of the size info, occurred within a
+            # Python magor/minor release. Hence the test on the
+            # magic value rather than PYTHON_VERSION
+            if 3200 <= magic_int < 20121:
+                fp.read(4) # size mod 2**32
             bytecode = fp.read()
             co = marshal.loads(bytecode)
         else:
@@ -112,6 +124,9 @@ def uncompyle(version, co, out=None, showasm=0, showast=0):
     elif version == 2.5:
         import uncompyle6.scanners.scanner25 as scan
         scanner = scan.Scanner25()
+    elif version == 3.4:
+        import uncompyle6.scanners.scanner34 as scan
+        scanner = scan.Scanner34()
     scanner.setShowAsm(showasm, out)
     tokens, customize = scanner.disassemble(co)
 

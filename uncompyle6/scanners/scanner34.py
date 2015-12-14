@@ -17,12 +17,12 @@ from uncompyle6.scanner import Token
 # Get all the opcodes into globals
 globals().update(dis.opmap)
 from uncompyle6.opcodes.opcode_27 import *
-import scanner as scan
+import uncompyle6.scanner as scan
 
 
 class Scanner34(scan.Scanner):
     def __init__(self):
-        self.Token = scan.Scanner.__init__(self, 2.7) # check
+        self.Token = scan.Scanner.__init__(self, 3.4) # check
 
     def run(self, bytecode):
         code_object = marshal.loads(bytecode)
@@ -60,8 +60,7 @@ class Scanner34(scan.Scanner):
             op = code[offset]
             # Create token and fill all the fields we can
             # w/o touching arguments
-            current_token = Token()
-            current_token.type = dis.opname[op]
+            current_token = Token(dis.opname[op])
             current_token.offset = offset
             current_token.linestart = True if offset in self.linestarts else False
             if op >= dis.HAVE_ARGUMENT:
@@ -134,6 +133,16 @@ class Scanner34(scan.Scanner):
             op = code[offset]
             for _ in range(self.op_size(op)):
                 self.prev_op.append(offset)
+
+    def op_size(self, op):
+        """
+        Return size of operator with its arguments
+        for given opcode <op>.
+        """
+        if op < dis.HAVE_ARGUMENT:
+            return 1
+        else:
+            return 3
 
     def find_jump_targets(self):
         """

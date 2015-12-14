@@ -9,11 +9,13 @@ When the two are the same, you can simply use marshal.loads()
 to prodoce a code object
 """
 
-import marshal, pickle, sys, types
-
+import imp, marshal, pickle, sys, types
 import dis as Mdis
 
 from struct import unpack
+
+import uncompyle6
+from uncompyle6.magics import magic2int
 
 internStrings = []
 
@@ -21,6 +23,8 @@ internStrings = []
 disco = Mdis.disassemble
 
 PYTHON3 = (sys.version_info >= (3, 0))
+PYTHON_MAGIC_INT = magic2int(imp.get_magic())
+
 if PYTHON3:
     def long(n): return n
 
@@ -34,7 +38,12 @@ def marshalLoad(fp):
 
 def load(fp):
     """
-    Load marshal
+    marshal.load() written in Python. When the Python bytecode magic loaded is the
+    same magic for the running Python interpreter, we can simply use the
+    Python-supplied mashal.load().
+
+    However we need to use this when versions are different since the internal
+    code structures are different. Sigh.
     """
     global internStrings
 
@@ -56,17 +65,25 @@ def load(fp):
         co_name = load(fp)
         co_firstlineno = unpack('i', fp.read(4))[0]
         co_lnotab = load(fp)
-        if PYTHON3:
-            # The Python3 code object is different than Python2's which
-            # we are reading if we get here.  In particular, it has a
-            # kwonlyargcount parameter which we set to 0.
-            # Also various parameters which were strings are now
+        # The Python3 code object is different than Python2's which
+        # we are reading if we get here.
+        # Also various parameters which were strings are now
             # bytes (which is probably more logical).
-            return Code(co_argcount, 0, co_nlocals, co_stacksize, co_flags,
-                        bytes(co_code, encoding='utf-8'),
-                        co_consts, co_names, co_varnames, co_filename, co_name,
-                        co_firstlineno, bytes(co_lnotab, encoding='utf-8'),
-                        co_freevars, co_cellvars)
+        if PYTHON3:
+            if PYTHON_MAGIC_INT > 3020:
+                # In later Python3 versions, there is a
+                # kwonlyargcount parameter which we set to 0.
+                return Code(co_argcount, 0, co_nlocals, co_stacksize, co_flags,
+                            bytes(co_code, encoding='utf-8'),
+                            co_consts, co_names, co_varnames, co_filename, co_name,
+                            co_firstlineno, bytes(co_lnotab, encoding='utf-8'),
+                            co_freevars, co_cellvars)
+            else:
+                return Code(co_argcount, 0, co_nlocals, co_stacksize, co_flags,
+                            bytes(co_code, encoding='utf-8'),
+                            co_consts, co_names, co_varnames, co_filename, co_name,
+                            co_firstlineno, bytes(co_lnotab, encoding='utf-8'),
+                            co_freevars, co_cellvars)
         else:
             return Code(co_argcount, co_nlocals, co_stacksize, co_flags, co_code,
                         co_consts, co_names, co_varnames, co_filename, co_name,
