@@ -49,7 +49,7 @@ def _load_file(filename):
     This function does NOT write any file!
     '''
     fp = open(filename, 'rb')
-    source = fp.read()+'\n'
+    source = fp.read().decode('utf-8') + '\n'
     try:
         co = compile(source, filename, 'exec', dont_inherit=True)
     except SyntaxError:
@@ -104,13 +104,13 @@ def uncompyle(version, co, out=None, showasm=0, showast=0):
 
     # Pick up appropriate scanner
     if version == 2.7:
-        import uncompyle6.scanner27 as scan
+        import uncompyle6.scanners.scanner27 as scan
         scanner = scan.Scanner27()
     elif version == 2.6:
-        import uncompyle6.scanner26 as scan
+        import uncompyle6.scanners.scanner26 as scan
         scanner = scan.Scanner26()
     elif version == 2.5:
-        import uncompyle6.scanner25 as scan
+        import uncompyle6.scanners.scanner25 as scan
         scanner = scan.Scanner25()
     scanner.setShowAsm(showasm, out)
     tokens, customize = scanner.disassemble(co)

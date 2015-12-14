@@ -10,7 +10,6 @@ import types
 from collections import namedtuple
 from array import array
 from operator import itemgetter
-from struct import *
 
 from uncompyle6.opcodes.opcode_26 import *
 import dis
@@ -78,8 +77,7 @@ class Scanner26(scan.Scanner):
             while j < start_byte:
                 self.lines.append(linetuple(prev_line_no, start_byte))
                 j += 1
-            last_op = self.code[self.prev[start_byte]]
-            (prev_start_byte, prev_line_no) = (start_byte, line_no)
+            prev_line_no = line_no
         while j < codelen:
             self.lines.append(linetuple(prev_line_no, codelen))
             j+=1

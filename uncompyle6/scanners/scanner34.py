@@ -151,7 +151,7 @@ class Scanner34(scan.Scanner):
                          'end':   codelen-1}]
 
         # All loop entry points
-        #self.loops = []
+        # self.loops = []
         # Map fixed jumps to their real destination
         self.fixed_jumps = {}
         self.ignore_if = set()
@@ -186,10 +186,9 @@ class Scanner34(scan.Scanner):
                 targets[label] = targets.get(label, []) + [offset]
         return targets
 
-
     def build_statement_indices(self):
         code = self.code
-        start = 0;
+        start = 0
         end = codelen = len(code)
 
         statement_opcodes = {

@@ -28,10 +28,13 @@ check-short:
 check-2.7-ok:
 	$(PYTHON) test_pythonlib.py --ok-2.7 --verify $(COMPILE)
 
-clean: clean-py-dis clean-dis
+clean: clean-py-dis clean-dis clean-unverified
 
 clean-dis:
 	find . -name '*_dis' -exec rm -v '{}' ';'
+
+clean-unverified:
+	find . -name '*_unverified' -exec rm -v '{}' ';'
 
 #: Clean temporary compile/decompile/verify direcotries in /tmp
 clean-py-dis:

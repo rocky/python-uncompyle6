@@ -1,4 +1,3 @@
-
 """
 opcode module - potentially shared between dis and other modules which
 operate on bytecodes (e.g. peephole optimizers).
@@ -41,6 +40,7 @@ def jabs_op(name, op):
     hasjabs.append(op)
 
 # Instruction opcodes for compiled code
+# Blank lines correspond to available opcodes
 
 def_op('STOP_CODE', 0)
 def_op('POP_TOP', 1)

@@ -21,7 +21,7 @@ if (sys.version_info > (3, 0)):
 else:
     L65536 = long(65536)
 
-from uncompyle6.opcodes import opcode_25, opcode_26, opcode_27
+from uncompyle6.opcodes import opcode_25, opcode_26, opcode_27, opcode_34
 
 
 class Token:
@@ -84,6 +84,8 @@ class Scanner(object):
             self.opc = opcode_26
         elif version == 2.5:
             self.opc = opcode_25
+        elif version == 3.4:
+            self.opc = opcode_34
 
         return self.resetTokenClass()
 

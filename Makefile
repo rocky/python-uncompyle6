@@ -11,7 +11,7 @@ RM      ?= rm
 LINT    = flake8
 
 #EXTRA_DIST=ipython/ipy_trepan.py trepan
-PHONY=check clean dist distclean test test-unit test-functional rmChangeLog clean_pyc nosetests
+PHONY=check clean dist distclean lint flake8 test test-unit test-functional rmChangeLog clean_pyc nosetests
 
 #: Default target - same as "check"
 all: check
@@ -46,7 +46,9 @@ sdist:
 
 
 #: Style check. Set env var LINT to pyflakes, flake, or flake8
-lint:
+lint: flake8
+
+flake8:
 	$(LINT) uncompyle6
 
 #: Create binary egg distribution

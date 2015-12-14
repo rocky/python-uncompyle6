@@ -1,6 +1,0 @@
-# Embedded file name: /src/external-vcs/github/rocky/uncompyle6/test/base-tests/python2/test_divide_future.py
-from __future__ import division
-print '  1 // 2   =', 0
-print '1.0 // 2.0 =', 0.0
-print '  1 /  2   =', 0.5
-print '1.0 /  2.0 =', 0.5

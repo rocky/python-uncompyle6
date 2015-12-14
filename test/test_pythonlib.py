@@ -70,7 +70,7 @@ test_options = {
     'ok-2.7':    [os.path.join(src_dir, 'ok_2.7'),
                  PYC, 'ok-2.7', 2.7],
 
-    'base-2.7':  [os.path.join(src_dir, 'base-tests', 'python2.7'),
+    'base-2.7':  [os.path.join(src_dir, 'base_tests', 'python2.7'),
                   PYC, 'base_2.7', 2.7],
 }
 

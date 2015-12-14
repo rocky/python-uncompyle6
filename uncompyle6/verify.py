@@ -167,13 +167,13 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
             pass
         elif member == 'co_code':
             if version == 2.7:
-                import scanner27 as scan
+                import uncompyle6.scanners.scanner27 as scan
                 scanner = scan.Scanner27()
             elif version == 2.6:
-                import scanner26 as scan
+                import uncompyle6.scanners.scanner26 as scan
                 scanner = scan.Scanner26()
             elif version == 2.5:
-                import scanner25 as scan
+                import uncompyle65.scanners.scanner25 as scan
                 scanner = scan.Scanner25()
             scanner.setShowAsm( showasm=0 )
             global JUMP_OPs
