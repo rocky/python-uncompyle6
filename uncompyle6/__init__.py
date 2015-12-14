@@ -97,10 +97,12 @@ def uncompyle(version, co, out=None, showasm=0, showast=0):
 
     # store final output stream for case of error
     __real_out = out or sys.stdout
+    print('# Python %s' % version, file=__real_out)
     if co.co_filename:
         print('# Embedded file name: %s' % co.co_filename,
               file=__real_out)
-    # diff scanner
+
+    # Pick up appropriate scanner
     if version == 2.7:
         import uncompyle6.scanner27 as scan
         scanner = scan.Scanner27()
@@ -247,7 +249,10 @@ def main(in_base, out_base, files, codes, outfile=None,
                 okay_files += 1
                 if not outfile: print('\n# okay decompyling', infile, __memUsage())
         if outfile:
-            sys.stdout.write("decompiled %i files: %i okay, %i failed, %i verify failed\r" % (tot_files, okay_files, failed_files, verify_failed_files))
+            mess = "decompiled %i files: %i okay, %i failed" % (tot_files, okay_files, failed_files)
+            if do_verify:
+                mess += (", %i verify failed" % verify_failed_files)
+            sys.stdout.write("%s\r" % mess)
             sys.stdout.flush()
     if outfile:
         sys.stdout.write("\n")
