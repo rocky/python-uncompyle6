@@ -55,7 +55,7 @@ class Scanner27(scan.Scanner):
             while j < start_byte:
                 self.lines.append(linetuple(prev_line_no, start_byte))
                 j += 1
-            (prev_start_byte, prev_line_no) = (start_byte, line_no)
+            (_, prev_line_no) = (start_byte, line_no)
         while j < n:
             self.lines.append(linetuple(prev_line_no, n))
             j+=1
@@ -122,7 +122,7 @@ class Scanner27(scan.Scanner):
                 oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
                 if op == EXTENDED_ARG:
-                    extended_arg = oparg * 65536
+                    extended_arg = oparg * scan.L65536
                     continue
                 if op in hasconst:
                     const = co.co_consts[oparg]

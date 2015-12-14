@@ -47,7 +47,7 @@ Usage_short = \
 
 import sys, os, getopt
 import os.path
-from uncompyle6 import main, verify
+from uncompyle6 import main, status_msg, verify
 import time
 
 if sys.version[:3] != '2.7' and sys.version[:3] != '3.4':
@@ -128,8 +128,12 @@ if timestamp:
     print(time.strftime(timestampfmt))
 if numproc <= 1:
     try:
-        result = main(src_base, out_base, files, codes, outfile, showasm, showast, do_verify)
-        print('# decompiled %i files: %i okay, %i failed, %i verify failed' % result)
+        result = main(src_base, out_base, files, codes, outfile, showasm,
+                      showast, do_verify)
+        if len(files) > 1:
+            mess = status_msg(do_verify, *result)
+            print('# ' + mess)
+            pass
     except (KeyboardInterrupt):
         pass
     except verify.VerifyCmpError:

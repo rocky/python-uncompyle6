@@ -133,7 +133,7 @@ class Scanner26(scan.Scanner):
                 extended_arg = 0
                 if op == EXTENDED_ARG:
                     raise NotImplementedError
-                    extended_arg = oparg * 65536L
+                    extended_arg = oparg * scan.L65536
                     continue
                 if op in hasconst:
                     const = co.co_consts[oparg]
@@ -375,7 +375,7 @@ class Scanner26(scan.Scanner):
             result.append((block[0]+startBlock, block[1]))
         self.linestarts = result
         # handle opcodeToChange deplacement
-        for index in xrange(len(self.toChange)):
+        for index in range(len(self.toChange)):
             change = self.toChange[index]
             delta = 0
             for toDel in listDel:

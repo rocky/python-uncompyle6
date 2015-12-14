@@ -107,10 +107,10 @@ def uncompyle(version, co, out=None, showasm=0, showast=0):
         import uncompyle6.scanner27 as scan
         scanner = scan.Scanner27()
     elif version == 2.6:
-        import scanner26 as scan
+        import uncompyle6.scanner26 as scan
         scanner = scan.Scanner26()
     elif version == 2.5:
-        import scanner25 as scan
+        import uncompyle6.scanner25 as scan
         scanner = scan.Scanner25()
     scanner.setShowAsm(showasm, out)
     tokens, customize = scanner.disassemble(co)
@@ -165,6 +165,23 @@ if sys.platform.startswith('linux') and os.uname()[2][:2] == '2.':
 else:
     def __memUsage():
         return ''
+
+def status_msg(do_verify, tot_files, okay_files, failed_files,
+               verify_failed_files):
+    if tot_files == 1:
+        if failed_files:
+            return "decompile failed"
+        elif verify_failed_files:
+            return "decompile verify failed"
+        else:
+            return "Successfully decompiled file"
+            pass
+        pass
+    mess = "decompiled %i files: %i okay, %i failed" % (tot_files, okay_files, failed_files)
+    if do_verify:
+        mess += (", %i verify failed" % verify_failed_files)
+    return mess
+
 
 def main(in_base, out_base, files, codes, outfile=None,
          showasm=0, showast=0, do_verify=0):
@@ -249,10 +266,8 @@ def main(in_base, out_base, files, codes, outfile=None,
                 okay_files += 1
                 if not outfile: print('\n# okay decompyling', infile, __memUsage())
         if outfile:
-            mess = "decompiled %i files: %i okay, %i failed" % (tot_files, okay_files, failed_files)
-            if do_verify:
-                mess += (", %i verify failed" % verify_failed_files)
-            sys.stdout.write("%s\r" % mess)
+            sys.stdout.write("%s\r" %
+                             status_msg(do_verify, tot_files, okay_files, failed_files, verify_failed_files))
             sys.stdout.flush()
     if outfile:
         sys.stdout.write("\n")

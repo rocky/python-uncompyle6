@@ -16,7 +16,10 @@ from operator import itemgetter
 
 if (sys.version_info > (3, 0)):
     intern = sys.intern
+    L65536 = 65536
     import uncompyle6
+else:
+    L65536 = long(65536)
 
 from uncompyle6.opcodes import opcode_25, opcode_26, opcode_27
 

@@ -20,9 +20,12 @@ internStrings = []
 # XXX For backwards compatibility
 disco = Mdis.disassemble
 
-if (sys.version_info >= (3, 0)):
-    def long(n):
-        return n
+PYTHON3 = (sys.version_info >= (3, 0))
+if PYTHON3:
+    def long(n): return n
+
+def compat_str(s):
+    return s.decode('utf-8', errors='ignore') if PYTHON3 else str(s)
 
 def marshalLoad(fp):
     global internStrings
@@ -53,9 +56,21 @@ def load(fp):
         co_name = load(fp)
         co_firstlineno = unpack('i', fp.read(4))[0]
         co_lnotab = load(fp)
-        return Code(co_argcount, co_nlocals, co_stacksize, co_flags, co_code,
-                    co_consts, co_names, co_varnames, co_filename, co_name,
-                    co_firstlineno, co_lnotab, co_freevars, co_cellvars)
+        if PYTHON3:
+            # The Python3 code object is different than Python2's which
+            # we are reading if we get here.  In particular, it has a
+            # kwonlyargcount parameter which we set to 0.
+            # Also various parameters which were strings are now
+            # bytes (which is probably more logical).
+            return Code(co_argcount, 0, co_nlocals, co_stacksize, co_flags,
+                        bytes(co_code, encoding='utf-8'),
+                        co_consts, co_names, co_varnames, co_filename, co_name,
+                        co_firstlineno, bytes(co_lnotab, encoding='utf-8'),
+                        co_freevars, co_cellvars)
+        else:
+            return Code(co_argcount, co_nlocals, co_stacksize, co_flags, co_code,
+                        co_consts, co_names, co_varnames, co_filename, co_name,
+                        co_firstlineno, co_lnotab, co_freevars, co_cellvars)
 
     # const type
     elif marshalType == '.':
@@ -105,10 +120,10 @@ def load(fp):
         return internStrings[refnum]
     elif marshalType == 's':
         strsize = unpack('i', fp.read(4))[0]
-        return str(fp.read(strsize))
+        return compat_str(fp.read(strsize))
     elif marshalType == 't':
         strsize = unpack('i', fp.read(4))[0]
-        interned = str(fp.read(strsize))
+        interned = compat_str(fp.read(strsize))
         internStrings.append(interned)
         return interned
     elif marshalType == 'u':
