@@ -6,8 +6,8 @@ python:
   - '2.7'
 
 install:
-  - python setup.py install
+  - python ./setup.py develop
   - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install unittest2; fi
 
 script:
-- COMPILE='--compile' make test
+- python ./setup.py develop && COMPILE='--compile' make test
