@@ -6,4 +6,4 @@ machine:
 
 test:
     override:
-        - make check
+        - python ./setup.py develop && make check
