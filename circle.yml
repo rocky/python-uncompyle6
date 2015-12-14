@@ -1,7 +1,9 @@
 machine:
     python:
         version: 2.7.8
+    environment:
+        COMPILE: --compile
 
 test:
     override:
-        - COMPILE='--compile' make check
+        - make check
