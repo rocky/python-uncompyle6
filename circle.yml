@@ -4,4 +4,4 @@ machine:
 
 test:
     override:
-        - make check
+        - COMPILE='--compile' make check
