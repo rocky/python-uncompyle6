@@ -84,6 +84,8 @@ class Scanner(object):
             self.opc = opcode_26
         elif version == 2.5:
             self.opc = opcode_25
+        elif version == 3.2:
+            self.opc = opcode_32
         elif version == 3.4:
             self.opc = opcode_34
 

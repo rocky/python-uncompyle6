@@ -74,9 +74,9 @@ def _load_module(filename):
         except KeyError:
             raise ImportError("Unknown magic number %s in %s" %
                               (ord(magic[0])+256*ord(magic[1]), filename))
-        if not (2.5 <= version <= 2.7) and not (version == 3.4):
+        if not (2.5 <= version <= 2.7) and not (3.2 <= version <= 3.4):
             raise ImportError("This is a Python %s file! Only "
-                              "Python 2.5 to 2.7 and 3.4 files are supported."
+                              "Python 2.5 to 2.7 and 3.2 to 3.4 files are supported."
                               % version)
 
         # print version
@@ -124,6 +124,9 @@ def uncompyle(version, co, out=None, showasm=0, showast=0):
     elif version == 2.5:
         import uncompyle6.scanners.scanner25 as scan
         scanner = scan.Scanner25()
+    elif version == 3.2:
+        import uncompyle6.scanners.scanner32 as scan
+        scanner = scan.Scanner32()
     elif version == 3.4:
         import uncompyle6.scanners.scanner34 as scan
         scanner = scan.Scanner34()
