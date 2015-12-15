@@ -1,7 +1,8 @@
 uncompyle6
 ==========
 
-A Python 2.x and possibly 3.x byte-code decompiler.
+A CPython 2.x and possibly 3.x byte-code disassembler and
+adecompiler.
 
 This is written in Python 2.7 but is Python3 compatible.
 
@@ -21,22 +22,34 @@ compiler 'spark' (http://pages.cpsc.ucalgary.ca/~aycock/spark/) and his
 prior work on a tool called 'decompyle'. This was improved by Hartmut Goebel
 http://www.crazy-compilers.com
 
-*Additional note (3 July 2004):*
+In order to the decompile a program, we need to be able to disassemble
+it first. And this process may be useful in of itself. So we provide a
+utility for just that piece as well.
 
-This software is no longer available from the original website.
-However http://www.crazy-compilers.com/decompyle/ provides a
-decompilation service.
+'pydisassemble' gives a CPython disassembly of Python byte-code. How
+is this different than what Python already provides via the "dis"
+module?  Here, we can cross disassemble bytecodes from different
+versions of CPython than the version of CPython that is doing the
+disassembly.
 
-*Additional note (5 June 2012):*
+'pydisassemble works on the same versions as 'uncompyle6' and handles the
+same sets of CPython bytecode versions.
+
+*Note from 3 July 2004:*
+
+This software was original available from http://www.crazy-compilers.com;
+http://www.crazy-compilers.com/decompyle/ provides a decompilation service.
+
+*Note (5 June 2012):*
 
 The decompilation of python bytecode 2.5 & 2.6 is based on the work of
 Eloi Vanderbeken. bytecode is translated to a pseudo 2.7 python bytecode
 and then decompiled.
 
-*Additional note (12 Dec 2016):*
+*Note (12 Dec 2016):*
 
-This will be used to deparse fragments of code inside my trepan_
-debuggers_. For that, I need to record text fragements for all
+This project will be used to deparse fragments of code inside my
+trepan_ debuggers_. For that, I need to record text fragements for all
 byte-code offsets (of interest). This purpose although largely
 compatible with the original intention is yet a little bit different.
 

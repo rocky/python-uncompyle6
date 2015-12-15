@@ -42,7 +42,7 @@ __all__ = ['uncompyle_file', 'main']
 def _load_file(filename):
     '''
     load a Python source file and compile it to byte-code
-    _load_module(filename: string): code_object
+    _load_file(filename: string): code_object
     filename:	name of file containing Python source code
                 (normally a .py)
     code_object: code_object compiled from this source code
@@ -58,10 +58,10 @@ def _load_file(filename):
     fp.close()
     return co
 
-def _load_module(filename):
+def load_module(filename):
     '''
     load a module without importing it
-    _load_module(filename: string): code_object
+    load_module(filename: string): code_object
     filename:	name of file containing Python byte-code object
                 (normally a .pyc)
     code_object: code_object from this file
@@ -100,10 +100,10 @@ def _load_module(filename):
 
     return version, co
 
-def uncompyle(version, co, out=None, showasm=0, showast=0):
-    '''
-    diassembles a given code block 'co'
-    '''
+def uncompyle(version, co, out=None, showasm=False, showast=False):
+    """
+    diassembles and deparses a given code block 'co'
+    """
 
     assert isinstance(co, types.CodeType)
 
@@ -160,11 +160,11 @@ def uncompyle(version, co, out=None, showasm=0, showast=0):
     if walk.ERROR:
         raise walk.ERROR
 
-def uncompyle_file(filename, outstream=None, showasm=0, showast=0):
+def uncompyle_file(filename, outstream=None, showasm=False, showast=False):
     """
     decompile Python byte-code file (.pyc)
     """
-    version, co = _load_module(filename)
+    version, co = load_module(filename)
     if type(co) == list:
         for con in co:
             uncompyle(version, con, outstream, showasm, showast)
@@ -174,9 +174,10 @@ def uncompyle_file(filename, outstream=None, showasm=0, showast=0):
 
 # ---- main ----
 
-if sys.platform.startswith('linux') and os.uname()[2][:2] == '2.':
+if sys.platform.startswith('linux') and os.uname()[2][:2] in ['2.', '3.', '4.']:
     def __memUsage():
         mi = open('/proc/self/stat', 'r')
+        from trepan.api import debug; debug()
         mu = mi.readline().split()[22]
         mi.close()
         return int(mu) / 1000000
@@ -202,7 +203,7 @@ def status_msg(do_verify, tot_files, okay_files, failed_files,
 
 
 def main(in_base, out_base, files, codes, outfile=None,
-         showasm=0, showast=0, do_verify=0):
+         showasm=False, showast=False, do_verify=False):
     '''
     in_base	base directory for input files
     out_base	base directory for output files (ignored when
@@ -234,8 +235,8 @@ def main(in_base, out_base, files, codes, outfile=None,
     #        co = compile(f.read(), "", "exec")
     #    uncompyle(sys.version[:3], co, sys.stdout, showasm=showasm, showast=showast)
 
-    for file in files:
-        infile = os.path.join(in_base, file)
+    for filename in files:
+        infile = os.path.join(in_base, filename)
         # print (infile, file=sys.stderr)
 
         if of: # outfile was given as parameter
@@ -243,7 +244,7 @@ def main(in_base, out_base, files, codes, outfile=None,
         elif out_base is None:
             outstream = sys.stdout
         else:
-            outfile = os.path.join(out_base, file) + '_dis'
+            outfile = os.path.join(out_base, filename) + '_dis'
             outstream = _get_outstream(outfile)
         # print(outfile, file=sys.stderr)
 
@@ -282,7 +283,10 @@ def main(in_base, out_base, files, codes, outfile=None,
                         print(e, file=sys.stderr)
             else:
                 okay_files += 1
-                if not outfile: print('\n# okay decompyling', infile, __memUsage())
+                if not outfile:
+                    mess = '\n# okay decompyling'
+                    # mem_usage = __memUsage()
+                    print(mess, infile)
         if outfile:
             sys.stdout.write("%s\r" %
                              status_msg(do_verify, tot_files, okay_files, failed_files, verify_failed_files))

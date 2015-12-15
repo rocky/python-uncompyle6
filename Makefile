@@ -62,7 +62,7 @@ DISTCLEAN_FILES = build dist *.pyc
 
 #: Remove ALL derived files
 distclean: clean
-	-rm -fr $(DISTCLEAN_FILES) || true
+	-rm -fvr $(DISTCLEAN_FILES) || true
 	-find . -name \*.pyc -exec rm -v {} \;
 	-find . -name \*.egg-info -exec rm -vr {} \;
 

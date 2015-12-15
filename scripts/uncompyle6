@@ -3,9 +3,7 @@
 #
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
-from __future__ import print_function
-
-'''
+"""
 Usage: uncompyle6 [OPTIONS]... [ FILE | DIR]...
 
 Examples:
@@ -18,11 +16,11 @@ Options:
                 if multiple input files are decompiled, the common prefix
                 is stripped from these names and the remainder appended to
                 <path>
-                  uncompyle -o /tmp bla/fasel.pyc bla/foo.pyc
+                  uncompyle6 -o /tmp bla/fasel.pyc bla/foo.pyc
                     -> /tmp/fasel.pyc_dis, /tmp/foo.pyc_dis
-                  uncompyle -o /tmp bla/fasel.pyc bar/foo.pyc
+                  uncompyle6 -o /tmp bla/fasel.pyc bar/foo.pyc
                     -> /tmp/bla/fasel.pyc_dis, /tmp/bar/foo.pyc_dis
-                  uncompyle -o /tmp /usr/lib/python1.5
+                  uncompyle6 -o /tmp /usr/lib/python1.5
                     -> /tmp/smtplib.pyc_dis ... /tmp/lib-tk/FixTk.pyc_dis
   -c <file>     attempts a disassembly after compiling <file>
   -d            do not print timestamps
@@ -40,7 +38,9 @@ Extensions of generated files:
   '.pyc_dis' '.pyo_dis'   successfully decompiled (and verified if --verify)
     + '_unverified'       successfully decompile but --verify failed
     + '_failed'           decompile failed (contact author for enhancement)
-'''
+"""
+
+from __future__ import print_function
 
 Usage_short = \
 "uncompyle6 [--help] [--verify] [--showasm] [--showast] [-o <path>] FILE|DIR..."
@@ -54,7 +54,8 @@ if sys.version[:3] != '2.7' and sys.version[:3] != '3.4':
     print('Error:  uncompyle6 requires Python 2.7 or 3.4.', file=sys.stderr)
     sys.exit(-1)
 
-showasm = showast = do_verify = numproc = recurse_dirs = 0
+showasm = showast = do_verify = recurse_dirs = False
+numproc = 0
 outfile = '-'
 out_base = None
 codes = []
@@ -73,13 +74,13 @@ for opt, val in opts:
         print(__doc__)
         sys.exit(0)
     elif opt == '--verify':
-        do_verify = 1
+        do_verify = True
     elif opt in ('--showasm', '-a'):
-        showasm = 1
-        do_verify = 0
+        showasm = True
+        do_verify = False
     elif opt in ('--showast', '-t'):
-        showast = 1
-        do_verify = 0
+        showast = True
+        do_verify = False
     elif opt == '-o':
         outfile = val
     elif opt == '-d':
@@ -89,7 +90,7 @@ for opt, val in opts:
     elif opt == '-p':
         numproc = int(val)
     elif opt == '-r':
-        recurse_dirs = 1
+        recurse_dirs = True
     else:
         print(opt)
         print(Usage_short)
