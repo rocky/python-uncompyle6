@@ -9,14 +9,14 @@ This is written in Python 2.7 but is Python3 compatible.
 Introduction
 ------------
 
-_uncompyle6_ converts Python byte-code back into equivalent Python
+*uncompyle6* converts Python byte-code back into equivalent Python
 source code. It accepts byte-codes from Python version 2.5 to 2.7.
 It runs on Python 2.7 and with a little more work Python 3.
 
 The generated source is fairly readable: docstrings, lists, tuples and
 hashes are somewhat pretty-printed.
 
-_uncompyle6_ is based on John Aycock's generic small languages
+*uncompyle6* is based on John Aycock's generic small languages
 compiler 'spark' (http://www.csr.uvic.ca/~aycock/python/) and his
 prior work on a tool called 'decompyle'. This was improved by Hartmut Goebel
 `http://www.crazy-compilers.com/`_
@@ -67,6 +67,8 @@ Installation
 
 This uses setup.py, so it follows the standard Python routine:
 
+::
+
     python setup.py install # may need sudo
     # or if you have pyenv:
     python setup.py develop
@@ -87,6 +89,8 @@ Usage
 -----
 
 Run
+
+::
 
      ./scripts/uncompyle6 -h
 
