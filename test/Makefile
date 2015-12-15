@@ -38,4 +38,4 @@ clean-unverified:
 
 #: Clean temporary compile/decompile/verify direcotries in /tmp
 clean-py-dis:
-	rm -fvr /tmp/py-dis-* || true
+	rm -fr /tmp/py-dis-* || true

@@ -4,6 +4,9 @@ machine:
     environment:
         COMPILE: --compile
 
+dependencies:
+    override:
+        - pip install -r test-requirements.txt
 test:
     override:
         - python ./setup.py develop && make check

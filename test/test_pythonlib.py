@@ -138,7 +138,7 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
 
     if opts['start_with']:
         try:
-            start_with = files.index(start_with)
+            start_with = files.index(opts['start_with'])
             files = files[start_with:]
             print('>>> starting with file', files[0])
         except ValueError:
@@ -203,7 +203,7 @@ if __name__ == '__main__':
             print("Can't find directory %s. Skipping" % src_dir,
                   file=sys.stderr)
             continue
-        if last_compile_version and last_compile_version != compile_version:
+        if last_compile_version and last_compile_version != compiled_version:
             print("Warning: mixed python version decompylation")
         else:
             last_compile_version = compiled_version

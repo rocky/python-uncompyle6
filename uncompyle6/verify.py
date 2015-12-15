@@ -181,7 +181,7 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
             elif version == 3.4:
                 import uncompyle6.scanners.scanner34 as scan
                 scanner = scan.Scanner34()
-            scanner.setShowAsm( showasm=0 )
+            scanner.setShowAsm( showasm=False )
             global JUMP_OPs
             JUMP_OPs = scan.JUMP_OPs + ['JUMP_BACK']
 

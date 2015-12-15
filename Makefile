@@ -11,21 +11,21 @@ RM      ?= rm
 LINT    = flake8
 
 #EXTRA_DIST=ipython/ipy_trepan.py trepan
-PHONY=check clean dist distclean lint flake8 test test-unit test-functional rmChangeLog clean_pyc nosetests
+PHONY=check clean pytest dist distclean lint flake8 test test-unit test-functional rmChangeLog clean_pyc nosetests
 
 #: Default target - same as "check"
 all: check
 
-#: Make HTML docs
-html:
-	cd docs && $(MAKE) html
-
 #: Same as "check"
-test: check
+test check: pytest check-short
 
 #: Run tests
-check check-short:
+check-short: pytest
 	$(MAKE) -C test $@
+
+#: Run tests
+pytest:
+	$(MAKE) -C pytest check
 
 #: Clean up temporary files and .pyc files
 clean: clean_pyc

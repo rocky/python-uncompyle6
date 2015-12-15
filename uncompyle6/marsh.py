@@ -62,16 +62,16 @@ def load_code_internal(fp, magic_int):
         # a range here.
         if 3000 < magic_int < 20121:
             fp.read(4)
-        co_code = load_code(fp, magic_int)
-        co_consts = load_code(fp, magic_int)
-        co_names = load_code(fp, magic_int)
-        co_varnames = load_code(fp, magic_int)
-        co_freevars = load_code(fp, magic_int)
-        co_cellvars = load_code(fp, magic_int)
-        co_filename = load_code(fp, magic_int)
-        co_name = load_code(fp, magic_int)
+        co_code = load_code_internal(fp, magic_int)
+        co_consts = load_code_internal(fp, magic_int)
+        co_names = load_code_internal(fp, magic_int)
+        co_varnames = load_code_internal(fp, magic_int)
+        co_freevars = load_code_internal(fp, magic_int)
+        co_cellvars = load_code_internal(fp, magic_int)
+        co_filename = load_code_internal(fp, magic_int)
+        co_name = load_code_internal(fp, magic_int)
         co_firstlineno = unpack('i', fp.read(4))[0]
-        co_lnotab = load_code(fp, magic_int)
+        co_lnotab = load_code_internal(fp, magic_int)
         # The Python3 code object is different than Python2's which
         # we are reading if we get here.
         # Also various parameters which were strings are now
@@ -159,7 +159,7 @@ def load_code_internal(fp, magic_int):
         tuplesize = unpack('i', fp.read(4))[0]
         ret = tuple()
         while tuplesize > 0:
-            ret += load_code(fp, magic_int),
+            ret += load_code_internal(fp, magic_int),
             tuplesize -= 1
         return ret
     elif marshalType == '[':
