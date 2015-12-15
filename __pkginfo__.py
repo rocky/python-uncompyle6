@@ -32,6 +32,7 @@ modname            = 'uncompyle6'
 packages           = ['uncompyle6', 'uncompyle6.opcodes']
 py_modules         = None
 short_desc         = 'Python byte-code to source-code converter'
+scripts            = ['uncompyle6', 'pydisassemble']
 
 import os
 import os.path, sys
@@ -47,7 +48,7 @@ version            = '2.0'
 web                = 'https://github.com/rocky/uncompyle6/'
 
 # tracebacks in zip files are funky and not debuggable
-zip_safe = False
+zip_safe = True
 
 
 def read(*rnames):

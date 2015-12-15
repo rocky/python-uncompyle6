@@ -12,9 +12,9 @@ from distutils.core import setup, Extension
 #     short_desc,       version,            web,              zip_safe
 
 from __pkginfo__ import \
-    author,           author_email,                         \
-    long_description,               \
-    modname,          packages,           py_modules,   \
+    author,           author_email,                                  \
+    long_description,                                                \
+    modname,          packages,           py_modules,       scripts, \
     short_desc,       version,            web,              zip_safe
 
 __import__('pkg_resources')
@@ -25,6 +25,12 @@ setup(
        author_email       = author_email,
        # classifiers        = classifiers,
        description        = short_desc,
+       entry_points = {
+            'console_scripts': [
+            'trepan2  = trepan.cli:main',
+            'trepan2c  = trepan.client:main',
+        ]},
+
        # install_requires   = install_requires,
        # license            = license,
        long_description   = long_description,
@@ -34,5 +40,6 @@ setup(
        test_suite         = 'nose.collector',
        url                = web,
        setup_requires     = ['nose>=1.0'],
+       scripts            = scripts,
        version            = version,
        zip_safe           = zip_safe)
