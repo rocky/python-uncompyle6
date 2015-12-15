@@ -12,27 +12,26 @@ copyright   = """
 Copyright (C) 2015 Rocky Bernstein <rocky@gnu.org>.
 """
 
-# classifiers =  ['Development Status :: 5 - Production/Stable',
-#                 'Environment :: Console',
-#                 'Intended Audience :: Developers',
-#                 'License :: OSI Approved :: GNU General Public License (GPL)',
-#                 'Operating System :: OS Independent',
-#                 'Programming Language :: Python',
-#                 'Topic :: Software Development :: Debuggers',
-#                 'Topic :: Software Development :: Libraries :: Python Modules',
-#                 ]
+classifiers =  ['Development Status :: 3 - Alpha',
+                'Intended Audience :: Developers',
+                'Operating System :: OS Independent',
+                'Programming Language :: Python',
+                'Topic :: Software Development :: Debuggers',
+                'Topic :: Software Development :: Libraries :: Python Modules',
+                ]
 
 # The rest in alphabetic order
 author             = "Rocky Bernstein"
-author_email       = "rocky@gnu.org"
+author_email       = "rb@dustyfeet.com"
 ftp_url            = None
 # license            = 'GPL'
 mailing_list       = 'python-debugger@googlegroups.com'
 modname            = 'uncompyle6'
 packages           = ['uncompyle6', 'uncompyle6.opcodes']
 py_modules         = None
-short_desc         = 'Python byte-code to source-code converter'
-scripts            = ['bin/uncompyle6', 'bin/pydisassemble']
+short_desc         = 'Python byte-code disassembler and source-code converter'
+# scripts            = ['bin/uncompyle6', 'bin/pydissassemble']
+scripts            = ['bin/uncompyle6']
 
 import os
 import os.path, sys
@@ -45,7 +44,7 @@ def get_srcdir():
 # VERSION.py sets variable VERSION.
 ns = {}
 version            = '2.0'
-web                = 'https://github.com/rocky/uncompyle6/'
+web                = 'https://github.com/rocky/python-uncompyle6/'
 
 # tracebacks in zip files are funky and not debuggable
 zip_safe = True
