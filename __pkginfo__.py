@@ -32,7 +32,7 @@ modname            = 'uncompyle6'
 packages           = ['uncompyle6', 'uncompyle6.opcodes']
 py_modules         = None
 short_desc         = 'Python byte-code to source-code converter'
-scripts            = ['uncompyle6', 'pydisassemble']
+scripts            = ['bin/uncompyle6', 'bin/pydisassemble']
 
 import os
 import os.path, sys
