@@ -38,11 +38,11 @@ def disassemble_code(version, co, out=None):
     assert isinstance(co, types.CodeType)
 
     # store final output stream for case of error
-    __real_out = out or sys.stdout
-    print('# Python %s' % version, file=__real_out)
+    real_out = out or sys.stdout
+    print('# Python %s' % version, file=real_out)
     if co.co_filename:
         print('# Embedded file name: %s' % co.co_filename,
-              file=__real_out)
+              file=real_out)
 
     # Pick up appropriate scanner
     if version == 2.7:
@@ -62,6 +62,11 @@ def disassemble_code(version, co, out=None):
         scanner = scan.Scanner34()
     scanner.setShowAsm(True, out)
     tokens, customize = scanner.disassemble(co)
+
+    for t in tokens:
+        print(t, file=real_out)
+    print(file=out)
+
 
 
 def disassemble_file(filename, outstream=None, showasm=False, showast=False):

@@ -21,7 +21,7 @@ if (sys.version_info > (3, 0)):
 else:
     L65536 = long(65536)
 
-from uncompyle6.opcodes import opcode_25, opcode_26, opcode_27, opcode_34
+from uncompyle6.opcodes import opcode_25, opcode_26, opcode_27, opcode_32, opcode_34
 
 
 class Token:
@@ -31,7 +31,7 @@ class Token:
     A byte-code token is equivalent to the contents of one line
     as output by dis.dis().
     '''
-    def __init__(self, type_, attr=None, pattr=None, offset=-1, linestart=False):
+    def __init__(self, type_, attr=None, pattr=None, offset=-1, linestart=None):
         self.type = intern(type_)
         self.attr = attr
         self.pattr = pattr
@@ -51,9 +51,9 @@ class Token:
     def __str__(self):
         pattr = self.pattr
         if self.linestart:
-            return '\n%s\t%-17s %r' % (self.offset, self.type, pattr)
+            return '\n%4d  %6s\t%-17s %r' % (self.linestart, self.offset, self.type, pattr)
         else:
-            return '%s\t%-17s %r' % (self.offset, self.type, pattr)
+            return '      %6s\t%-17s %r' % (self.offset, self.type, pattr)
 
     def __hash__(self):
         return hash(self.type)

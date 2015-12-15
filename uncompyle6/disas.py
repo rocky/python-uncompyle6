@@ -36,7 +36,7 @@ def marshalLoad(fp):
     internStrings = []
     return load(fp)
 
-def load(fp):
+def load(fp, magic_int):
     """
     marshal.load() written in Python. When the Python bytecode magic loaded is the
     same magic for the running Python interpreter, we can simply use the
@@ -51,27 +51,34 @@ def load(fp):
     if marshalType == 'c':
         Code = types.CodeType
 
+        # FIXME If 'i' is deprecated, what would we use?
         co_argcount = unpack('i', fp.read(4))[0]
         co_nlocals = unpack('i', fp.read(4))[0]
         co_stacksize = unpack('i', fp.read(4))[0]
         co_flags = unpack('i', fp.read(4))[0]
-        co_code = load(fp)
-        co_consts = load(fp)
-        co_names = load(fp)
-        co_varnames = load(fp)
-        co_freevars = load(fp)
-        co_cellvars = load(fp)
-        co_filename = load(fp)
-        co_name = load(fp)
+        # FIXME: somewhere between Python 2.7 and python 3.2 there's
+        # another 4 bytes before we get to the bytecode. What's going on?
+        # Again, because magic ints decreased between python 2.7 and 3.0 we need
+        # a range here.
+        if 3000 < magic_int < 20121:
+            fp.read(4)
+        co_code = load(fp, magic_int)
+        co_consts = load(fp, magic_int)
+        co_names = load(fp, magic_int)
+        co_varnames = load(fp, magic_int)
+        co_freevars = load(fp, magic_int)
+        co_cellvars = load(fp, magic_int)
+        co_filename = load(fp, magic_int)
+        co_name = load(fp, magic_int)
         co_firstlineno = unpack('i', fp.read(4))[0]
-        co_lnotab = load(fp)
+        co_lnotab = load(fp, magic_int)
         # The Python3 code object is different than Python2's which
         # we are reading if we get here.
         # Also various parameters which were strings are now
             # bytes (which is probably more logical).
         if PYTHON3:
             if PYTHON_MAGIC_INT > 3020:
-                # In later Python3 versions, there is a
+                # In later Python3 magic_ints, there is a
                 # kwonlyargcount parameter which we set to 0.
                 return Code(co_argcount, 0, co_nlocals, co_stacksize, co_flags,
                             bytes(co_code, encoding='utf-8'),
@@ -152,7 +159,7 @@ def load(fp):
         tuplesize = unpack('i', fp.read(4))[0]
         ret = tuple()
         while tuplesize > 0:
-            ret += load(fp),
+            ret += load(fp, magic_int),
             tuplesize -= 1
         return ret
     elif marshalType == '[':

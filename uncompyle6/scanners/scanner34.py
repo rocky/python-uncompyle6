@@ -11,8 +11,7 @@ from __future__ import print_function
 import dis, marshal
 from collections import namedtuple
 
-from uncompyle6.scanner import Token
-
+from uncompyle6.scanner import Token, L65536
 
 # Get all the opcodes into globals
 globals().update(dis.opmap)
@@ -62,14 +61,19 @@ class Scanner34(scan.Scanner):
             # w/o touching arguments
             current_token = Token(dis.opname[op])
             current_token.offset = offset
-            current_token.linestart = True if offset in self.linestarts else False
+
+            if offset in self.linestarts:
+                current_token.linestart = self.linestarts[offset]
+            else:
+                current_token.linestart = None
+
             if op >= dis.HAVE_ARGUMENT:
                 # Calculate op's argument value based on its argument and
                 # preceding extended argument, if any
                 oparg = code[offset+1] + code[offset+2]*256 + extended_arg
                 extended_arg = 0
                 if op == dis.EXTENDED_ARG:
-                    extended_arg = oparg*65536
+                    extended_arg = oparg * L65536
 
                 # Fill token's attr/pattr fields
                 current_token.attr = oparg

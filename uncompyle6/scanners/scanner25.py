@@ -35,8 +35,14 @@ class Scanner25(scan.Scanner):
             if self.code[i] in (RETURN_VALUE, END_FINALLY):
                 n = i + 1
         self.code = array('B', co.co_code[:n])
-        # linestarts contains bloc code adresse (addr,block)
+
+        # linestarts is a tuple of (offset, line number.
+        # Turn that in a has that we can index
         self.linestarts = list(dis.findlinestarts(co))
+        linestartoffsets = {}
+        for offset, lineno in self.linestarts:
+            linestartoffsets[offset] = lineno
+
         self.prev = [0]
 
         # class and names
@@ -72,7 +78,13 @@ class Scanner25(scan.Scanner):
         linestarts = self.linestarts
         self.lines = []
         linetuple = namedtuple('linetuple', ['l_no', 'next'])
-        linestartoffsets = {a for (a, _) in linestarts}
+
+        # linestarts is a tuple of (offset, line number).
+        # Turn that in a has that we can index
+        linestartoffsets = {}
+        for offset, lineno in linestarts:
+            linestartoffsets[offset] = lineno
+
         (prev_start_byte, prev_line_no) = linestarts[0]
         for (start_byte, line_no) in linestarts[1:]:
             while j < start_byte:
@@ -202,16 +214,16 @@ class Scanner25(scan.Scanner):
                 if offset in self.return_end_ifs:
                     op_name = 'RETURN_END_IF'
 
-            if offset not in replace:
-                rv.append(Token(op_name, oparg, pattr, offset, linestart = offset in linestartoffsets))
+            if offset in linestartoffsets:
+                linestart = linestartoffsets[offset]
             else:
-                rv.append(Token(replace[offset], oparg, pattr, offset, linestart = offset in linestartoffsets))
+                linestart = None
 
-        if self.showasm:
-            out = self.out # shortcut
-            for t in rv:
-                print >>out, t
-            print >>out
+            if offset not in replace:
+                rv.append(Token(op_name, oparg, pattr, offset, linestart))
+            else:
+                rv.append(Token(replace[offset], oparg, pattr, offset, linestart))
+
         return rv, customize
 
     def getOpcodeToDel(self, i):

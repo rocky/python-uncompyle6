@@ -1,8 +1,7 @@
 uncompyle6
 ==========
 
-A CPython 2.x and possibly 3.x byte-code disassembler and
-adecompiler.
+A Python 2.x and possibly 3.x byte-code decompiler.
 
 This is written in Python 2.7 but is Python3 compatible.
 
@@ -10,46 +9,34 @@ This is written in Python 2.7 but is Python3 compatible.
 Introduction
 ------------
 
-'uncompyle6' converts Python byte-code back into equivalent Python
+_uncompyle6_ converts Python byte-code back into equivalent Python
 source code. It accepts byte-codes from Python version 2.5 to 2.7.
-It runs on Python 2.7 and, with a little more work, on Python 3 as well.
+It runs on Python 2.7 and with a little more work Python 3.
 
 The generated source is fairly readable: docstrings, lists, tuples and
 hashes are somewhat pretty-printed.
 
-'uncompyle6' is based on John Aycock's generic small languages
-compiler 'spark' (http://pages.cpsc.ucalgary.ca/~aycock/spark/) and his
+_uncompyle6_ is based on John Aycock's generic small languages
+compiler 'spark' (http://www.csr.uvic.ca/~aycock/python/) and his
 prior work on a tool called 'decompyle'. This was improved by Hartmut Goebel
-http://www.crazy-compilers.com
+`http://www.crazy-compilers.com/`_
 
-In order to the decompile a program, we need to be able to disassemble
-it first. And this process may be useful in of itself. So we provide a
-utility for just that piece as well.
+# Additional note (3 July 2004):
 
-'pydisassemble' gives a CPython disassembly of Python byte-code. How
-is this different than what Python already provides via the "dis"
-module?  Here, we can cross disassemble bytecodes from different
-versions of CPython than the version of CPython that is doing the
-disassembly.
+This software is no longer available from the original website.
+However http://www.crazy-compilers.com/decompyle/ provides a
+decompilation service.
 
-'pydisassemble works on the same versions as 'uncompyle6' and handles the
-same sets of CPython bytecode versions.
-
-*Note from 3 July 2004:*
-
-This software was original available from http://www.crazy-compilers.com;
-http://www.crazy-compilers.com/decompyle/ provides a decompilation service.
-
-*Note (5 June 2012):*
+# Additional note (5 June 2012):
 
 The decompilation of python bytecode 2.5 & 2.6 is based on the work of
 Eloi Vanderbeken. bytecode is translated to a pseudo 2.7 python bytecode
 and then decompiled.
 
-*Note (12 Dec 2016):*
+# Additional note (12 Dec 2016):
 
-This project will be used to deparse fragments of code inside my
-trepan_ debuggers_. For that, I need to record text fragements for all
+I will be using this to deparse fragments of code inside my trepan_
+debuggers_. For that, I need to record text fragements for all
 byte-code offsets (of interest). This purpose although largely
 compatible with the original intention is yet a little bit different.
 
@@ -80,8 +67,6 @@ Installation
 
 This uses setup.py, so it follows the standard Python routine:
 
-::
-
     python setup.py install # may need sudo
     # or if you have pyenv:
     python setup.py develop
@@ -103,10 +88,7 @@ Usage
 
 Run
 
-::
-
      ./scripts/uncompyle6 -h
-
 
 for usage help
 
@@ -114,7 +96,7 @@ for usage help
 Known Bugs/Restrictions
 -----------------------
 
-Support for Python 3 bytecode and syntax is lacking.
+Support Python 3 bytecode and syntax is lacking.
 
 .. _trepan: https://pypi.python.org/pypi/trepan
 .. _debuggers: https://pypi.python.org/pypi/trepan3k

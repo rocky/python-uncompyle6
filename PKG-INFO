@@ -2,7 +2,7 @@ Metadata-Version: 2.0
 Name: uncompyle6
 Version: 2.0.1
 Summary: Python byte-code to source-code converter
-Home-page: http://github.com/rocky/uncompyle6
+Home-page: http://github.com/rocky/python-uncompyle6
 Author: Rocky
 Author-email: rb@dustyfeet.com
 License: GPLv3

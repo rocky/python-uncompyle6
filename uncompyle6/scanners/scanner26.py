@@ -13,7 +13,7 @@ from operator import itemgetter
 
 from uncompyle6.opcodes.opcode_26 import *
 import dis
-import scanner as scan
+import uncompyle6.scanner as scan
 
 class Scanner26(scan.Scanner):
     def __init__(self):
@@ -71,7 +71,13 @@ class Scanner26(scan.Scanner):
         linestarts = self.linestarts
         self.lines = []
         linetuple = namedtuple('linetuple', ['l_no', 'next'])
-        linestartoffsets = {a for (a, _) in linestarts}
+
+        # linestarts is a tuple of (offset, line number).
+        # Turn that in a has that we can index
+        linestartoffsets = {}
+        for offset, lineno in linestarts:
+            linestartoffsets[offset] = lineno
+
         (prev_start_byte, prev_line_no) = linestarts[0]
         for (start_byte, line_no) in linestarts[1:]:
             while j < start_byte:
@@ -202,16 +208,16 @@ class Scanner26(scan.Scanner):
                 if offset in self.return_end_ifs:
                     op_name = 'RETURN_END_IF'
 
-            if offset not in replace:
-                rv.append(Token(op_name, oparg, pattr, offset, linestart = offset in linestartoffsets))
+            if offset in linestartoffsets:
+                linestart = linestartoffsets[offset]
             else:
-                rv.append(Token(replace[offset], oparg, pattr, offset, linestart = offset in linestartoffsets))
+                linestart = None
 
-        if self.showasm:
-            out = self.out # shortcut
-            for t in rv:
-                print >>out, t
-            print >>out
+            if offset not in replace:
+                rv.append(Token(op_name, oparg, pattr, offset, linestart))
+            else:
+                rv.append(Token(replace[offset], oparg, pattr, offset, linestart))
+
         return rv, customize
 
     def getOpcodeToDel(self, i):

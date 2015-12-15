@@ -81,11 +81,11 @@ def load_module(filename):
 
         # print version
         fp.read(4) # timestamp
+        magic_int = magics.magic2int(magic)
 
         if version == PYTHON_VERSION:
-            magic_int = magics.magic2int(magic)
             # Note: a higher magic number necessarily mean a later
-            # release.  At Pyton 3.0 the magic number decreased
+            # release.  At Python 3.0 the magic number decreased
             # significantly. Hence the range below. Also note
             # inclusion of the size info, occurred within a
             # Python magor/minor release. Hence the test on the
@@ -95,7 +95,7 @@ def load_module(filename):
             bytecode = fp.read()
             co = marshal.loads(bytecode)
         else:
-            co = disas.load(fp)
+            co = disas.load(fp, magic_int)
         pass
 
     return version, co
@@ -108,11 +108,11 @@ def uncompyle(version, co, out=None, showasm=False, showast=False):
     assert isinstance(co, types.CodeType)
 
     # store final output stream for case of error
-    __real_out = out or sys.stdout
-    print('# Python %s' % version, file=__real_out)
+    real_out = out or sys.stdout
+    print('# Python %s' % version, file=real_out)
     if co.co_filename:
         print('# Embedded file name: %s' % co.co_filename,
-              file=__real_out)
+              file=real_out)
 
     # Pick up appropriate scanner
     if version == 2.7:
@@ -133,12 +133,17 @@ def uncompyle(version, co, out=None, showasm=False, showast=False):
     scanner.setShowAsm(showasm, out)
     tokens, customize = scanner.disassemble(co)
 
+    if showasm:
+        for t in tokens:
+            print(t, file=real_out)
+        print(file=out)
+
     #  Build AST from disassembly.
     walk = walker.Walker(out, scanner, showast=showast)
     try:
         ast = walk.build_ast(tokens, customize)
     except walker.ParserError as e :  # parser failed, dump disassembly
-        print(e, file=__real_out)
+        print(e, file=real_out)
         raise
     del tokens # save memory
 
