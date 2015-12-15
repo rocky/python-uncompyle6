@@ -92,7 +92,8 @@ Run
 
 ::
 
-     ./scripts/uncompyle6 -h
+     ./bin/uncompyle6 -h
+     ./bin/pydisassemble -y
 
 for usage help
 
