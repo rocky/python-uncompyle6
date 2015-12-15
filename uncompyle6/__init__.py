@@ -37,6 +37,7 @@ PYTHON_VERSION = sys.version_info.major + (sys.version_info.minor / 10.0)
 PYTHON3 = (sys.version_info >= (3, 0))
 
 import uncompyle6
+import uncompyle6.marsh
 from uncompyle6 import walker, verify, magics
 
 sys.setrecursionlimit(5000)
