@@ -30,11 +30,9 @@ modname            = 'uncompyle6'
 packages           = ['uncompyle6', 'uncompyle6.opcodes']
 py_modules         = None
 short_desc         = 'Python byte-code disassembler and source-code converter'
-# scripts            = ['bin/uncompyle6', 'bin/pydissassemble']
-scripts            = ['bin/uncompyle6']
+scripts            = ['bin/uncompyle6', 'bin/pydisassemble']
 
-import os
-import os.path, sys
+import os.path
 
 
 def get_srcdir():

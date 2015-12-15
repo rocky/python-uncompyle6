@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # emacs-mode: -*-python-*-
 
-from __future__ import print_function
-
-'''
+"""
 test_pythonlib.py -- compile, uncompyle, and verify Python libraries
 
 Usage-Examples:
@@ -27,11 +25,13 @@ Step 1) Edit this file and add a new entry to 'test_options', eg.
 Step 2: Run the test:
   test_pythonlib.py --mylib	  # decompile 'mylib'
   test_pythonlib.py --mylib --verify # decompile verify 'mylib'
-'''
+"""
+
+from __future__ import print_function
 
 import getopt, os, py_compile, sys, shutil, tempfile, time
 
-from uncompyle6 import main, verify, PYTHON_VERSION
+from uncompyle6 import main, PYTHON_VERSION
 from fnmatch import fnmatch
 
 def get_srcdir():

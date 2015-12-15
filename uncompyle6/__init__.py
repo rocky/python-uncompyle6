@@ -4,6 +4,7 @@ from __future__ import print_function
 '''
   Copyright (c) 1999 John Aycock
   Copyright (c) 2000 by hartmut Goebel <h.goebel@crazy-compilers.com>
+  Copyright (c) 2015 by Rocky Bernstein
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -33,8 +34,10 @@ from __future__ import print_function
 import os, marshal, sys, types
 
 PYTHON_VERSION = sys.version_info.major + (sys.version_info.minor / 10.0)
+PYTHON3 = (sys.version_info >= (3, 0))
 
-from uncompyle6 import disas, walker, verify, magics
+import uncompyle6
+from uncompyle6 import walker, verify, magics
 
 sys.setrecursionlimit(5000)
 __all__ = ['uncompyle_file', 'main']
@@ -95,7 +98,7 @@ def load_module(filename):
             bytecode = fp.read()
             co = marshal.loads(bytecode)
         else:
-            co = disas.load(fp, magic_int)
+            co = uncompyle6.marsh.load_code(fp, magic_int)
         pass
 
     return version, co
@@ -284,7 +287,7 @@ def main(in_base, out_base, files, codes, outfile=None,
                     verify_failed_files += 1
                     os.rename(outfile, outfile + '_unverified')
                     if not outfile:
-                        print("### Error Verifiying %s" % file,  file=sys.stderr)
+                        print("### Error Verifiying %s" % filename,  file=sys.stderr)
                         print(e, file=sys.stderr)
             else:
                 okay_files += 1

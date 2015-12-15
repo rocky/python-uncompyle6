@@ -1,201 +1,153 @@
-from __future__ import print_function
+"""
+CPython magic- and version- independent disassembly routines
 
-"""Disassembler of Python byte code into mnemonics.
+Copyright (c) 1999 John Aycock
+Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+Copyright (c) 2015 by Rocky Bernstein
 
 This is needed when the bytecode extracted is from
 a different version than the currently-running Python.
 
-When the two are the same, you can simply use marshal.loads()
-to prodoce a code object
+When the two are the same, you can simply use Python's built-in disassemble
 """
 
-import imp, marshal, pickle, sys, types
-import dis as Mdis
+from __future__ import print_function
 
-from struct import unpack
+import os, sys, types
 
 import uncompyle6
-from uncompyle6.magics import magic2int
 
-internStrings = []
-
-# XXX For backwards compatibility
-disco = Mdis.disassemble
-
-PYTHON3 = (sys.version_info >= (3, 0))
-PYTHON_MAGIC_INT = magic2int(imp.get_magic())
-
-if PYTHON3:
-    def long(n): return n
-
-def compat_str(s):
-    return s.decode('utf-8', errors='ignore') if PYTHON3 else str(s)
-
-def marshalLoad(fp):
-    global internStrings
-    internStrings = []
-    return load(fp)
-
-def load(fp, magic_int):
+def disco(version, co, out=None):
     """
-    marshal.load() written in Python. When the Python bytecode magic loaded is the
-    same magic for the running Python interpreter, we can simply use the
-    Python-supplied mashal.load().
-
-    However we need to use this when versions are different since the internal
-    code structures are different. Sigh.
+    diassembles and deparses a given code block 'co'
     """
-    global internStrings
 
-    marshalType = fp.read(1).decode('utf-8')
-    if marshalType == 'c':
-        Code = types.CodeType
+    assert isinstance(co, types.CodeType)
 
-        # FIXME If 'i' is deprecated, what would we use?
-        co_argcount = unpack('i', fp.read(4))[0]
-        co_nlocals = unpack('i', fp.read(4))[0]
-        co_stacksize = unpack('i', fp.read(4))[0]
-        co_flags = unpack('i', fp.read(4))[0]
-        # FIXME: somewhere between Python 2.7 and python 3.2 there's
-        # another 4 bytes before we get to the bytecode. What's going on?
-        # Again, because magic ints decreased between python 2.7 and 3.0 we need
-        # a range here.
-        if 3000 < magic_int < 20121:
-            fp.read(4)
-        co_code = load(fp, magic_int)
-        co_consts = load(fp, magic_int)
-        co_names = load(fp, magic_int)
-        co_varnames = load(fp, magic_int)
-        co_freevars = load(fp, magic_int)
-        co_cellvars = load(fp, magic_int)
-        co_filename = load(fp, magic_int)
-        co_name = load(fp, magic_int)
-        co_firstlineno = unpack('i', fp.read(4))[0]
-        co_lnotab = load(fp, magic_int)
-        # The Python3 code object is different than Python2's which
-        # we are reading if we get here.
-        # Also various parameters which were strings are now
-            # bytes (which is probably more logical).
-        if PYTHON3:
-            if PYTHON_MAGIC_INT > 3020:
-                # In later Python3 magic_ints, there is a
-                # kwonlyargcount parameter which we set to 0.
-                return Code(co_argcount, 0, co_nlocals, co_stacksize, co_flags,
-                            bytes(co_code, encoding='utf-8'),
-                            co_consts, co_names, co_varnames, co_filename, co_name,
-                            co_firstlineno, bytes(co_lnotab, encoding='utf-8'),
-                            co_freevars, co_cellvars)
-            else:
-                return Code(co_argcount, 0, co_nlocals, co_stacksize, co_flags,
-                            bytes(co_code, encoding='utf-8'),
-                            co_consts, co_names, co_varnames, co_filename, co_name,
-                            co_firstlineno, bytes(co_lnotab, encoding='utf-8'),
-                            co_freevars, co_cellvars)
-        else:
-            return Code(co_argcount, co_nlocals, co_stacksize, co_flags, co_code,
-                        co_consts, co_names, co_varnames, co_filename, co_name,
-                        co_firstlineno, co_lnotab, co_freevars, co_cellvars)
+    # store final output stream for case of error
+    real_out = out or sys.stdout
+    print('# Python %s' % version, file=real_out)
+    if co.co_filename:
+        print('# Embedded file name: %s' % co.co_filename,
+              file=real_out)
 
-    # const type
-    elif marshalType == '.':
-        return Ellipsis
-    elif marshalType == '0':
-        raise KeyError(marshalType)
-        return None
-    elif marshalType == 'N':
-        return None
-    elif marshalType == 'T':
-        return True
-    elif marshalType == 'F':
-        return False
-    elif marshalType == 'S':
-        return StopIteration
-    # number type
-    elif marshalType == 'f':
-        n = fp.read(1)
-        return float(unpack('d', fp.read(n))[0])
-    elif marshalType == 'g':
-        return float(unpack('d', fp.read(8))[0])
-    elif marshalType == 'i':
-        return int(unpack('i', fp.read(4))[0])
-    elif marshalType == 'I':
-        return unpack('q', fp.read(8))[0]
-    elif marshalType == 'x':
-        raise KeyError(marshalType)
-        return None
-    elif marshalType == 'y':
-        raise KeyError(marshalType)
-        return None
-    elif marshalType == 'l':
-        n = unpack('i', fp.read(4))[0]
-        if n == 0:
-            return long(0)
-        size = abs(n)
-        d = long(0)
-        for j in range(0, size):
-            md = int(unpack('h', fp.read(2))[0])
-            d += md << j*15
-        if n < 0:
-            return long(d*-1)
-        return d
-    # strings type
-    elif marshalType == 'R':
-        refnum = unpack('i', fp.read(4))[0]
-        return internStrings[refnum]
-    elif marshalType == 's':
-        strsize = unpack('i', fp.read(4))[0]
-        return compat_str(fp.read(strsize))
-    elif marshalType == 't':
-        strsize = unpack('i', fp.read(4))[0]
-        interned = compat_str(fp.read(strsize))
-        internStrings.append(interned)
-        return interned
-    elif marshalType == 'u':
-        strsize = unpack('i', fp.read(4))[0]
-        unicodestring = fp.read(strsize)
-        return unicodestring.decode('utf-8')
-    # collection type
-    elif marshalType == '(':
-        tuplesize = unpack('i', fp.read(4))[0]
-        ret = tuple()
-        while tuplesize > 0:
-            ret += load(fp, magic_int),
-            tuplesize -= 1
-        return ret
-    elif marshalType == '[':
-        raise KeyError(marshalType)
-        return None
-    elif marshalType == '{':
-        raise KeyError(marshalType)
-        return None
-    elif marshalType in ['<', '>']:
-        raise KeyError(marshalType)
-        return None
+    # Pick up appropriate scanner
+    if version == 2.7:
+        import uncompyle6.scanners.scanner27 as scan
+        scanner = scan.Scanner27()
+    elif version == 2.6:
+        import uncompyle6.scanners.scanner26 as scan
+        scanner = scan.Scanner26()
+    elif version == 2.5:
+        import uncompyle6.scanners.scanner25 as scan
+        scanner = scan.Scanner25()
+    elif version == 3.2:
+        import uncompyle6.scanners.scanner32 as scan
+        scanner = scan.Scanner32()
+    elif version == 3.4:
+        import uncompyle6.scanners.scanner34 as scan
+        scanner = scan.Scanner34()
+    scanner.setShowAsm(True, out)
+    tokens, customize = scanner.disassemble(co)
+
+    for t in tokens:
+        print(t, file=real_out)
+    print(file=out)
+
+
+def disassemble_file(filename, outstream=None):
+    """
+    disassemble Python byte-code file (.pyc)
+    """
+    version, co = uncompyle6.load_module(filename)
+    if type(co) == list:
+        for con in co:
+            disco(version, con, outstream)
     else:
-        sys.stderr.write("Unknown type %i (hex %x)\n" % (ord(marshalType), ord(marshalType)))
+        disco(version, co, outstream)
+    co = None
+
+def disassemble_files(in_base, out_base, files, outfile=None):
+    """
+    in_base	base directory for input files
+    out_base	base directory for output files (ignored when
+    files	list of filenames to be uncompyled (relative to src_base)
+    outfile	write output to this filename (overwrites out_base)
+
+    For redirecting output to
+    - <filename>		outfile=<filename> (out_base is ignored)
+    - files below out_base	out_base=...
+    - stdout			out_base=None, outfile=None
+    """
+    def _get_outstream(outfile):
+        dir = os.path.dirname(outfile)
+        failed_file = outfile + '_failed'
+        if os.path.exists(failed_file):
+            os.remove(failed_file)
+        try:
+            os.makedirs(dir)
+        except OSError:
+            pass
+        return open(outfile, 'w')
+
+    of = outfile
+    if outfile == '-':
+        outfile = None # use stdout
+    elif outfile and os.path.isdir(outfile):
+        out_base = outfile; outfile = None
+    elif outfile:
+        out_base = outfile; outfile = None
+
+    for filename in files:
+        infile = os.path.join(in_base, filename)
+        # print (infile, file=sys.stderr)
+
+        if of: # outfile was given as parameter
+            outstream = _get_outstream(outfile)
+        elif out_base is None:
+            outstream = sys.stdout
+        else:
+            outfile = os.path.join(out_base, filename) + '_dis'
+            outstream = _get_outstream(outfile)
+            # print(outfile, file=sys.stderr)
+            pass
+
+        # try to decomyple the input file
+        try:
+            disassemble_file(infile, outstream)
+        except KeyboardInterrupt:
+            if outfile:
+                outstream.close()
+                os.remove(outfile)
+            raise
+        except:
+            if outfile:
+                outstream.close()
+                os.rename(outfile, outfile + '_failed')
+            else:
+                sys.stderr.write("\n# Can't disassemble %s\n" % infile)
+                import traceback
+                traceback.print_exc()
+        else: # uncompyle successfull
+            if outfile:
+                outstream.close()
+            if not outfile: print('\n# okay decompyling', infile)
+            sys.stdout.flush()
+
+        if outfile:
+            sys.stdout.write("\n")
+            sys.stdout.flush()
+        return
 
 def _test():
     """Simple test program to disassemble a file."""
-    if sys.argv[1:]:
-        if sys.argv[2:]:
-            sys.stderr.write("usage: python dis.py [-|file]\n")
-            sys.exit(2)
-        fn = sys.argv[1]
-        if not fn or fn == "-":
-            fn = None
-    else:
-        fn = None
-    if fn is None:
-        f = sys.stdin
-    else:
-        f = open(fn)
-    source = f.read()
-    if fn is not None:
-        f.close()
-    else:
-        fn = "<stdin>"
-    code = compile(source, fn, "exec")
-    Mdis.dis(code)
+    argc = len(sys.argv)
+    if argc != 2:
+        sys.stderr.write("usage: %s [-|CPython compiled file]\n" % __file__)
+        sys.exit(2)
+    fn = sys.argv[1]
+    disassemble_file(fn)
 
 if __name__ == "__main__":
     _test()

@@ -1,16 +1,21 @@
-'''
+"""
+  Python 2.5 bytecode scanner/deparser
+
   Copyright (c) 1999 John Aycock
   Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
   Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+  Copyright (c) 2015 by Rocky Bernstein
 
   See main module for license.
-'''
+
+This overlaps Python's 2.5's dis module, but it can be run from
+Python3 and other versions of Python. Also, we save token information
+for later use in deparsing.
+"""
 
 import types
 from collections import namedtuple
 from array import array
-from operator import itemgetter
-from struct import *
 
 import dis
 from uncompyle6.opcodes.opcode_25 import *

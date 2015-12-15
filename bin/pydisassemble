@@ -1,0 +1,77 @@
+#!/usr/bin/env python
+# Mode: -*- python -*-
+#
+# Copyright (c) 2015 by Rocky Bernstein <rb@dustyfeet.com>
+#
+"""
+Usage: pydisassemble [OPTIONS]... FILE
+
+Examples:
+  pydisassemble      foo.pyc
+  pydisassemble      foo.py
+  pydisassemble -o foo.pydis foo.pyc
+  pydisassemble -o /tmp foo.pyc
+
+Options:
+  -o <path>     output decompiled files to this path:
+                if multiple input files are decompiled, the common prefix
+                is stripped from these names and the remainder appended to
+                <path>
+  --help        show this message
+
+"""
+
+from __future__ import print_function
+
+Usage_short = \
+"pydissassemble [--help] [--verify] [--showasm] [--showast] [-o <path>] FILE|DIR..."
+
+import sys, os, getopt
+import os.path
+
+from uncompyle6.disas import disassemble_files
+
+if sys.version[:3] != '2.7' and sys.version[:3] != '3.4':
+    print('Error:  pydisassemble requires Python 2.7 or 3.4.', file=sys.stderr)
+    sys.exit(-1)
+
+outfile = '-'
+out_base = None
+
+
+try:
+    opts, files = getopt.getopt(sys.argv[1:], 'ho:', ['help'])
+except getopt.GetoptError as e:
+    print('%s: %s' % (os.path.basename(sys.argv[0]), e),  file=sys.stderr)
+    sys.exit(-1)
+
+for opt, val in opts:
+    if opt in ('-h', '--help'):
+        print(__doc__)
+        sys.exit(0)
+    elif opt == '-o':
+        outfile = val
+    else:
+        print(opt)
+        print(Usage_short)
+        sys.exit(1)
+
+# argl, commonprefix works on strings, not on path parts,
+# thus we must handle the case with files in 'some/classes'
+# and 'some/cmds'
+src_base = os.path.commonprefix(files)
+if src_base[-1:] != os.sep:
+    src_base = os.path.dirname(src_base)
+if src_base:
+    sb_len = len( os.path.join(src_base, '') )
+    files = [f[sb_len:] for f in files]
+    del sb_len
+
+if outfile == '-':
+    outfile = None # use stdout
+elif outfile and os.path.isdir(outfile):
+    out_base = outfile; outfile = None
+elif outfile and len(files) > 1:
+    out_base = outfile; outfile = None
+
+disassemble_files(src_base, out_base, files, outfile)

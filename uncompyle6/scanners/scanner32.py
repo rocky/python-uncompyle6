@@ -1,12 +1,19 @@
-from __future__ import print_function
+"""
+  Python 3.2 bytecode scanner/deparser
 
-'''
   Copyright (c) 1999 John Aycock
   Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
   Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+  Copyright (c) 2015 by Rocky Bernstein
 
   See main module for license.
-'''
+
+This overlaps Python's 3.2's dis module, but it can be run from
+Python3 and other versions of Python. Also, we save token information
+for later use in deparsing.
+"""
+
+from __future__ import print_function
 
 import dis, marshal
 from collections import namedtuple

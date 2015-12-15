@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import struct, sys
 
-__all__ = ['magics', 'versions', 'magics2int']
+__all__ = ['magics', 'versions', 'magic2int']
 
 def __build_magic(magic):
     if (sys.version_info >= (3, 0)):
@@ -10,7 +10,7 @@ def __build_magic(magic):
     else:
         return struct.pack('Hcc', magic, '\r', '\n')
 
-def magic2int (magic):
+def magic2int(magic):
     return struct.unpack('Hcc', magic)[0]
 
 by_magic = {}
@@ -73,20 +73,20 @@ versions = {
     __build_magic(3160): '3.2',  # 3.2a0 (add SETUP_WITH)
     __build_magic(3170): '3.2',  # 3.2a1 (add DUP_TOP_TWO, remove DUP_TOPX and ROT_FOUR)
     __build_magic(3180): '3.2',  # 3.2a2 (add DELETE_DEREF)
-    __build_magic(3190): '3.3',  #     Python 3.3a0  3190 __class__ super closure changed
-    __build_magic(3200): '3.3',  #     Python 3.3a0  3200 (__qualname__ added)
-    __build_magic(3200): '3.3',  #     3210 (added size modulo 2**32 to the pyc header)
-    __build_magic(3220): '3.3',  #     Python 3.3a1  3220 (changed PEP 380 implementation)
-    __build_magic(3230): '3.3',  #     Python 3.3a4  3230 (revert changes to implicit __class__ closure)
-    __build_magic(3250): '3.4',  #     Python 3.4a1  3250 (evaluate positional default arg
-                                 #                        keyword-only defaults)
-    __build_magic(3260): '3.4',  #     Python 3.4a1  3260 (add LOAD_CLASSDEREF; allow locals of class to override
-                                 #                        free vars)
-    __build_magic(3270): '3.4',  #     Python 3.4a1  3270 (various tweaks to the __class__ closure)
-    __build_magic(3280): '3.4',  #     Python 3.4a1  3280 (remove implicit class argument)
-    __build_magic(3290): '3.4',  #     Python 3.4a4  3290 (changes to __qualname__ computation)
-    __build_magic(3300): '3.4',  #     Python 3.4a4  3300 (more changes to __qualname__ computation)
-    __build_magic(3310): '3.4',  #     Python 3.4rc2 3310 (alter __qualname__ computation)
+    __build_magic(3190): '3.3',  # 3.3a0  3190 __class__ super closure changed
+    __build_magic(3100): '3.3',  # 3.3a0  3200 (__qualname__ added)
+    __build_magic(3210): '3.3',  # 3210 (added size modulo 2**32 to the pyc header)
+    __build_magic(3220): '3.3',  # 3.3a1  3220 (changed PEP 380 implementation)
+    __build_magic(3230): '3.3',  # 3.3a4  3230 (revert changes to implicit __class__ closure)
+    __build_magic(3250): '3.4',  # 3.4a1  3250 (evaluate positional default arg
+                                 # keyword-only defaults)
+    __build_magic(3260): '3.4',  # 3.4a1  3260 (add LOAD_CLASSDEREF;
+                                 # allow locals of class to override free vars)
+    __build_magic(3270): '3.4',  # 3.4a1  3270 (various tweaks to the __class__ closure)
+    __build_magic(3280): '3.4',  # 3.4a1  3280 (remove implicit class argument)
+    __build_magic(3290): '3.4',  # 3.4a4  3290 (changes to __qualname__ computation)
+    __build_magic(3300): '3.4',  # 3.4a4  3300 (more changes to __qualname__ computation)
+    __build_magic(3310): '3.4',  # 3.4rc2 3310 (alter __qualname__ computation)
 
 }
 

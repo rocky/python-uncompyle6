@@ -1,11 +1,12 @@
-'''
+"""
+  Deparsing saving text fragment information indexed by offset
+
   Copyright (c) 1999 John Aycock
   Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
   Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
   Copyright (c) 2015 by Rocky Bernstein
 
   See main module for license.
-
 
   Decompilation (walking AST)
 
@@ -44,7 +45,7 @@
 
   The '%' may optionally be followed by a number (C) in square brackets, which
   makes the engine walk down to N[C] before evaluating the escape code.
-'''
+"""
 
 from __future__ import print_function
 
