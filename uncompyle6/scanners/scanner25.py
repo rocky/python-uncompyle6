@@ -911,3 +911,9 @@ class Scanner25(scan.Scanner):
                 label = self.fixed_jumps[i]
                 targets[label] = targets.get(label, []) + [i]
         return targets
+
+if __name__ == "__main__":
+    co = inspect.currentframe().f_code
+    tokens, customize = Scanner25().disassemble(co)
+    for t in tokens:
+        print(t)

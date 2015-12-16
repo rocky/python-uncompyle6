@@ -20,26 +20,33 @@ __all__ = ['Token', 'Scanner', 'Code']
 
 import sys
 
+from uncompyle6 import PYTHON3
+
 # FIXME: DRY
-if (sys.version_info > (3, 0)):
+if PYTHON3:
     intern = sys.intern
     L65536 = 65536
 
     def cmp(a, b):
         return (a > b) - (a < b)
 else:
-    L65536 = long(65536)
+    L65536 = long(65536) # NOQA
 
 from uncompyle6.opcodes import opcode_25, opcode_26, opcode_27, opcode_32, opcode_34
 
 
 class Token:
-    '''
+    """
     Class representing a byte-code token.
 
-    A byte-code token is equivalent to the contents of one line
-    as output by dis.dis().
-    '''
+    A byte-code token is equivalent to Python 3's  dis.instruction or
+    the contents of one line as output by dis.dis().
+    """
+    # FIXME: match Python 3.4's terms:
+    #    type_ should be opname
+    #    linestart = starts_line
+    #    attr = argval
+    #    pattr = argrepr
     def __init__(self, type_, attr=None, pattr=None, offset=-1, linestart=None):
         self.type = intern(type_)
         self.attr = attr
@@ -98,7 +105,9 @@ class Scanner(object):
         elif version == 3.4:
             self.opc = opcode_34
 
-        return self.resetTokenClass()
+        # FIXME: This weird Python2 behavior is not Python3
+        if not PYTHON3:
+            return self.resetTokenClass()
 
     def setShowAsm(self, showasm, out=None):
         self.showasm = showasm
@@ -318,3 +327,11 @@ class Scanner(object):
         if not (parent['start'] < target < parent['end']):
             target = parent['end']
         return target
+
+if __name__ == "__main__":
+    import inspect, uncompyle6
+    co = inspect.currentframe().f_code
+    tokens, customize = Scanner(uncompyle6.PYTHON_VERSION).disassemble(co)
+    for t in tokens:
+        print(t)
+    pass

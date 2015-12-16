@@ -7,7 +7,8 @@
 """
 Python 3.4 bytecode scanner/deparser
 
-This overlaps Python's 3.4's dis module, but it can be run from
+This overlaps Python's 3.4's dis module, and in fact in some cases
+we just fall back to that. But the intent is that it can be run from
 Python 2 and other versions of Python. Also, we save token information
 for later use in deparsing.
 """
@@ -17,6 +18,7 @@ from __future__ import print_function
 import dis
 from collections import namedtuple
 
+from uncompyle6 import PYTHON_VERSION
 from uncompyle6.scanner import Token, L65536
 
 # Get all the opcodes into globals
@@ -30,10 +32,31 @@ class Scanner34(scan.Scanner):
         self.Token = scan.Scanner.__init__(self, 3.4) # check
 
     def disassemble(self, co):
-        """
-        Convert code object <co> into a sequence of tokens.
+        fn = self.disassemble_built_in if PYTHON_VERSION == 3.4 \
+            else self.disassemble_cross_version
+        return fn(co)
 
-        Based on dis.disassemble() function.
+    def disassemble_built_in(self, co):
+        bytecode = dis.Bytecode(co)
+        tokens = []
+        for inst in bytecode:
+            tokens.append(
+                Token(
+                    type_ = inst.opname,
+                    attr = inst.argval,
+                    pattr = inst.argrepr,
+                    offset = inst.offset,
+                    linestart = inst.starts_line,
+                    )
+                )
+            pass
+        return tokens, {}
+
+    def disassemble_cross_version(self, co):
+        """
+        Convert code object <co> into a sequence of tokens
+        FIXME: the below code faulty in many was is probably based on older Python2's dis.disassemble() function.
+        It needs to be rewritten and moduled off of Python 3.4's dis.disassemble_bytes().
         """
         # Container for tokens
         tokens = []
@@ -488,3 +511,11 @@ class Scanner34(scan.Scanner):
                     continue
             filtered.append(if_)
         return filtered
+
+if __name__ == "__main__":
+    import inspect
+    co = inspect.currentframe().f_code
+    tokens, customize = Scanner34().disassemble(co)
+    for t in tokens:
+        print(t)
+    pass
