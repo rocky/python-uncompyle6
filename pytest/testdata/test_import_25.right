@@ -5,25 +5,25 @@
            3	STORE_NAME        '__doc__'
 
   11       6	LOAD_CONST        -1
-           9	LOAD_CONST        None
+           9	LOAD_CONST        ''
           12	IMPORT_NAME       'sys'
           15	STORE_NAME        'sys'
 
   12      18	LOAD_CONST        -1
-          21	LOAD_CONST        None
+          21	LOAD_CONST        ''
           24	IMPORT_NAME       'os'
           27	STORE_NAME        'os'
           30	LOAD_CONST        -1
-          33	LOAD_CONST        None
+          33	LOAD_CONST        ''
           36	IMPORT_NAME_CONT  'sys'
           39	STORE_NAME        'sys'
           42	LOAD_CONST        -1
-          45	LOAD_CONST        None
+          45	LOAD_CONST        ''
           48	IMPORT_NAME_CONT  'BaseHTTPServer'
           51	STORE_NAME        'BaseHTTPServer'
 
   14      54	LOAD_CONST        -1
-          57	LOAD_CONST        None
+          57	LOAD_CONST        ''
           60	IMPORT_NAME       'test.test_MimeWriter'
           63	STORE_NAME        'test'
 
@@ -32,7 +32,7 @@
           72	IMPORT_NAME       'rfc822'
           75	IMPORT_FROM       'Message'
           78	STORE_NAME        'Message'
-          81	POP_TOP           None
+          81	POP_TOP           ''
 
   17      82	LOAD_CONST        -1
           85	LOAD_CONST        ('Message', 'decode', 'choose_boundary')
@@ -43,33 +43,33 @@
          100	STORE_NAME        'decode'
          103	IMPORT_FROM       'choose_boundary'
          106	STORE_NAME        'choose_boundary'
-         109	POP_TOP           None
+         109	POP_TOP           ''
 
   18     110	LOAD_CONST        -1
          113	LOAD_CONST        ('*',)
          116	IMPORT_NAME       'os'
-         119	IMPORT_STAR       None
+         119	IMPORT_STAR       ''
 
   20     120	SETUP_LOOP        '162'
          123	LOAD_NAME         'globals'
-         126	CALL_FUNCTION_0   None
+         126	CALL_FUNCTION_0   ''
          129	LOAD_ATTR         'items'
-         132	CALL_FUNCTION_0   None
-         135	GET_ITER          None
+         132	CALL_FUNCTION_0   ''
+         135	GET_ITER          ''
          136	FOR_ITER          '161'
-         139	UNPACK_SEQUENCE_2 None
+         139	UNPACK_SEQUENCE_2 ''
          142	STORE_NAME        'k'
          145	STORE_NAME        'v'
 
   21     148	LOAD_NAME         'k'
-         151	UNARY_CONVERT     None
-         152	PRINT_ITEM        None
+         151	UNARY_CONVERT     ''
+         152	PRINT_ITEM        ''
          153	LOAD_NAME         'v'
-         156	PRINT_ITEM_CONT   None
-         157	PRINT_NEWLINE_CONT None
+         156	PRINT_ITEM_CONT   ''
+         157	PRINT_NEWLINE_CONT ''
          158	JUMP_BACK         '136'
-         161	POP_BLOCK         None
+         161	POP_BLOCK         ''
        162_0	COME_FROM         '120'
-         162	LOAD_CONST        None
-         165	RETURN_VALUE      None
+         162	LOAD_CONST        ''
+         165	RETURN_VALUE      ''
 

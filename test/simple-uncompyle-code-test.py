@@ -2,10 +2,8 @@
 
 from __future__ import print_function
 
-import uncompyle6
-from uncompyle6 import uncompyle, walker, verify, magics
-from uncompyle6.spark import GenericASTTraversal, GenericASTTraversalPruningException
-import sys, inspect, types
+from uncompyle6 import uncompyle
+import sys, inspect
 
 if (sys.version_info > (3, 0)):
     from io import StringIO

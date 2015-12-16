@@ -18,7 +18,7 @@
   19      24	LOAD_CONST        'Topic :: Software Development :: Debuggers'
 
   20      27	LOAD_CONST        'Topic :: Software Development :: Libraries :: Python Modules'
-          30	BUILD_LIST_6      None
+          30	BUILD_LIST_6      ''
           33	STORE_NAME        'classifiers'
 
   24      36	LOAD_CONST        'Rocky Bernstein'
@@ -27,7 +27,7 @@
   25      42	LOAD_CONST        'rb@dustyfeet.com'
           45	STORE_NAME        'author_email'
 
-  26      48	LOAD_CONST        None
+  26      48	LOAD_CONST        ''
           51	STORE_NAME        'ftp_url'
 
   28      54	LOAD_CONST        'python-debugger@googlegroups.com'
@@ -38,10 +38,10 @@
 
   30      66	LOAD_CONST        'uncompyle6'
           69	LOAD_CONST        'uncompyle6.opcodes'
-          72	BUILD_LIST_2      None
+          72	BUILD_LIST_2      ''
           75	STORE_NAME        'packages'
 
-  31      78	LOAD_CONST        None
+  31      78	LOAD_CONST        ''
           81	STORE_NAME        'py_modules'
 
   32      84	LOAD_CONST        'Python byte-code disassembler and source-code converter'
@@ -49,19 +49,19 @@
 
   33      90	LOAD_CONST        'bin/uncompyle6'
           93	LOAD_CONST        'bin/pydisassemble'
-          96	BUILD_LIST_2      None
+          96	BUILD_LIST_2      ''
           99	STORE_NAME        'scripts'
 
   35     102	LOAD_CONST        -1
-         105	LOAD_CONST        None
+         105	LOAD_CONST        ''
          108	IMPORT_NAME       'os.path'
          111	STORE_NAME        'os'
 
   38     114	LOAD_CONST        '<code_object get_srcdir>'
-         117	MAKE_FUNCTION_0   None
+         117	MAKE_FUNCTION_0   ''
          120	STORE_NAME        'get_srcdir'
 
-  43     123	BUILD_MAP         None
+  43     123	BUILD_MAP         ''
          126	STORE_NAME        'ns'
 
   44     129	LOAD_CONST        '2.0'
@@ -74,15 +74,15 @@
          144	STORE_NAME        'zip_safe'
 
   51     147	LOAD_CONST        '<code_object read>'
-         150	MAKE_FUNCTION_0   None
+         150	MAKE_FUNCTION_0   ''
          153	STORE_NAME        'read'
 
   54     156	LOAD_NAME         'read'
          159	LOAD_CONST        'README.rst'
-         162	CALL_FUNCTION_1   None
+         162	CALL_FUNCTION_1   ''
          165	LOAD_CONST        '\n'
-         168	BINARY_ADD        None
+         168	BINARY_ADD        ''
          169	STORE_NAME        'long_description'
-         172	LOAD_CONST        None
-         175	RETURN_VALUE      None
+         172	LOAD_CONST        ''
+         175	RETURN_VALUE      ''
 

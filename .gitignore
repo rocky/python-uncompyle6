@@ -1,8 +1,10 @@
-*.pyc
 *_dis
 *~
+/.cache
 /.eggs
 /.python-version
+/__pkginfo__.pyc
 /dist
 /uncompyle6.egg-info
+__pycache__
 build

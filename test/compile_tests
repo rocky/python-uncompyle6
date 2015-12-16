@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.3
+#!/usr/bin/env python
 """
 compile_tests -- compile test patterns for the decompyle test suite
 
@@ -8,6 +8,8 @@ decompyle is a Python byte-code decompiler
 See http://www.crazy-compilers.com/decompyle/ for
 for further information
 """
+
+from __future__ import print_function
 
 import py_compile, os, sys, getopt
 
@@ -26,8 +28,8 @@ for opt, val in opts:
 if args:
     raise 'This tool does not want any arguments'
 
-print "Using files in dir %s" % src_dir
-print "Compiling into dir %s" % work_dir
+print("Using files in dir %s" % src_dir)
+print( "Compiling into dir %s" % work_dir)
 
 tests = {}
 
@@ -51,30 +53,44 @@ tests['2.2'] = ['divide_future', 'divide_no_future', 'iterators',
 tests['2.3'] = tests['2.2']
 tests['2.5'] = tests['2.3']
 tests['2.6'] = tests['2.5']
-tests['2.7'] = ['mine'] + tests['2.6']
+# tests['2.7'] = ['mine'] + tests['2.6']
+tests['2.7'] = [
+    'source_3.4/call_arguments/keyword',
+    'source_3.4/call_arguments/positional'
+    ]
+
+tests['3.4'] = [
+    # 'source_3.4/branching/ifelse',
+    # 'source_3.4/branching/if'
+    'source_3.4/call_arguments/keyword',
+    'source_3.4/call_arguments/positional'
+    ]
+
 total_tests = len(tests['2.7'])
 #tests['2.2'].sort(); print tests['2.2']
 
 extension = '.py' + (__debug__ and 'c' or 'o')
 
-def compile(file, target_dir):
-    sfile = os.path.join(src_dir,    'test_%s.py' % file)
-    cfile = os.path.join(target_dir, 'test_%s%s' % (file,  extension) )
+def compile(filename, target_dir):
+    sfile = os.path.join(src_dir,    '%s.py' % filename)
+    cfile = os.path.join(target_dir, '%s%s'
+                         % (os.path.basename(filename),  extension) )
     py_compile.compile(sfile, cfile=cfile)
 
 def compile_for_version(version):
     target_dir = os.path.join(work_dir, 'bytecode_' + version)
     if not os.path.exists(target_dir):
         os.mkdir(target_dir)
-    for file in tests[version]:
-        compile(file, target_dir)
+    for filename in tests[version]:
+        compile(filename, target_dir)
 
 try:
     version = '%i.%i' % sys.version_info[:2]
 except AttributeError:
     version = sys.version[:3]
 
-print 'Compiling test files for Python', version,
-print '(%i/%i files)' % (len(tests[version]), total_tests)
+print('Compiling test files for Python', version)
+# print('(%i/%i files)' % (len(tests[version]), total_tests))
+print('%i files' % len(tests[version]))
 compile_for_version(version)
-print 'Done.'
+print('Done.')

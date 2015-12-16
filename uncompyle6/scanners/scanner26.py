@@ -1,14 +1,14 @@
+#  Copyright (c) 1999 John Aycock
+#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+#  Copyright (c) 2015 by Rocky Bernstein
+#
+#  See main module for license.
+
 """
-  Python 2.6 bytecode scanner
+Python 2.6 bytecode scanner
 
-  Copyright (c) 1999 John Aycock
-  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-  Copyright (c) 2015 by Rocky Bernstein
-
-  See main module for license.
-
-This overlaps Python's 2.6's dis module, but it can be run from Python3 and
+This overlaps Python's 2.6's dis module, but it can be run from Python 3 and
 other versions of Python. Also, we save token information for later
 use in deparsing.
 """

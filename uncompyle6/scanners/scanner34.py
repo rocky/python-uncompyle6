@@ -1,35 +1,33 @@
+#  Copyright (c) 1999 John Aycock
+#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+#  Copyright (c) 2015 by Rocky Bernstein
+#
+#  See main module for license.
 """
-  Python 2.5 bytecode scanner/deparser
+Python 3.4 bytecode scanner/deparser
 
-  Copyright (c) 1999 John Aycock
-  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-  Copyright (c) 2015 by Rocky Bernstein
-
-  See main module for license.
+This overlaps Python's 3.4's dis module, but it can be run from
+Python 2 and other versions of Python. Also, we save token information
+for later use in deparsing.
 """
 
 from __future__ import print_function
 
-import dis, marshal
+import dis
 from collections import namedtuple
 
 from uncompyle6.scanner import Token, L65536
 
 # Get all the opcodes into globals
 globals().update(dis.opmap)
-from uncompyle6.opcodes.opcode_27 import *
+from uncompyle6.opcodes.opcode_34 import *
 import uncompyle6.scanner as scan
 
 
 class Scanner34(scan.Scanner):
     def __init__(self):
         self.Token = scan.Scanner.__init__(self, 3.4) # check
-
-    def run(self, bytecode):
-        code_object = marshal.loads(bytecode)
-        tokens = self.tokenize(code_object)
-        return tokens
 
     def disassemble(self, co):
         """

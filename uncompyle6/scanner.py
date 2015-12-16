@@ -1,23 +1,30 @@
-from __future__ import print_function
-
 #  Copyright (c) 1999 John Aycock
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #
 #  See main module for license.
 #
+"""
+scanner/disassembler module. From here we call various verison-specific
+scanners, e.g. for Python 2.7 or 3.4.
+
+This overlaps Python's dis module, but it can be run from Python 2 or
+Python 3 and other versions of Python. Also, we save token information
+for later use in deparsing.
+"""
+
+from __future__ import print_function
+
 
 __all__ = ['Token', 'Scanner', 'Code']
 
-import sys, types
-from collections import namedtuple
-from array import array
-from operator import itemgetter
+import sys
 
 if (sys.version_info > (3, 0)):
     intern = sys.intern
     L65536 = 65536
-    import uncompyle6
+    def cmp(a, b):
+        return (a > b) - (a < b)
 else:
     L65536 = long(65536)
 
@@ -49,7 +56,7 @@ class Token:
         return str(self.type)
 
     def __str__(self):
-        pattr = self.pattr
+        pattr = self.pattr if self.pattr is not None else ''
         if self.linestart:
             return '\n%4d  %6s\t%-17s %r' % (self.linestart, self.offset, self.type, pattr)
         else:

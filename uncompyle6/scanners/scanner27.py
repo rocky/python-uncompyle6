@@ -1,17 +1,15 @@
+# Copyright (c) 1999 John Aycock
+#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+#  Copyright (c) 2015 by Rocky Bernstein
 """
-  Python 2.5 bytecode scanner/deparser
-
-  Copyright (c) 1999 John Aycock
-  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-  Copyright (c) 2015 by Rocky Bernstein
-
-  See main module for license.
+Python 2.7 bytecode scanner/deparser
 
 This overlaps Python's 2.7's dis module, but it can be run from
-Python3 and other versions of Python. Also, we save token information
+Python 3 and other versions of Python. Also, we save token information
 for later use in deparsing.
 """
+
 
 from __future__ import print_function
 
