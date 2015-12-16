@@ -17,6 +17,10 @@ check: check-short check-2.7-ok
 ## initialization bug?
 
 #: Check deparsing only, but from a different Python version
+check-disasm:
+	$(PYTHON) dis-compare.py
+
+#: Check deparsing only, but from a different Python version
 check-bytecode:
 	$(PYTHON) test_pythonlib.py --bytecode-2.5
 

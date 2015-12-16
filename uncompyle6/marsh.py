@@ -1,17 +1,17 @@
 """
 CPython magic- and version- independent marshal routines
 
-  Copyright (c) 1999 John Aycock
-  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-  Copyright (c) 2015 by Rocky Bernstein
-
 This is needed when the bytecode extracted is from
 a different version than the currently-running Python.
 
 When the two are the same, you can simply use Python's built-in marshal.loads()
 to produce a code object
 """
+
+# Copyright (c) 1999 John Aycock
+# Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+# Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+# Copyright (c) 2015 by Rocky Bernstein
 
 from __future__ import print_function
 

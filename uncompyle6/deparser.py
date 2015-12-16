@@ -61,7 +61,7 @@ try:
 except ImportError:
     from io import StringIO
 
-import sys, inspect, types, re
+import sys, inspect, re
 
 
 # FIXME: remove uncompyle dups
@@ -464,7 +464,7 @@ class Traverser(walker.Walker, object):
         self.prec = 27
         code = node[-5].attr
 
-        assert isinstance(code, types.CodeType)
+        assert inspect.iscode(code)
         code = Code(code, self.scanner, self.currentclass)
         # assert isinstance(code, Code)
 
@@ -1115,7 +1115,7 @@ class Traverser(walker.Walker, object):
     pass
 
 def deparse(version, co, out=StringIO(), showasm=0, showast=0):
-    assert isinstance(co, types.CodeType)
+    assert inspect.iscode(co)
     # store final output stream for case of error
     __real_out = out or sys.stdout
     try:

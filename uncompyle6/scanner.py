@@ -20,9 +20,11 @@ __all__ = ['Token', 'Scanner', 'Code']
 
 import sys
 
+# FIXME: DRY
 if (sys.version_info > (3, 0)):
     intern = sys.intern
     L65536 = 65536
+
     def cmp(a, b):
         return (a > b) - (a < b)
 else:

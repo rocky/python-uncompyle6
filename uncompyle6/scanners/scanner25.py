@@ -13,7 +13,7 @@ Python 3 and other versions of Python. Also, we save token
 information for later use in deparsing.
 """
 
-import types
+import inspect
 from collections import namedtuple
 from array import array
 
@@ -152,7 +152,7 @@ class Scanner25(scan.Scanner):
                     continue
                 if op in hasconst:
                     const = co.co_consts[oparg]
-                    if isinstance(const, types.CodeType):
+                    if inspect.iscode(const):
                         oparg = const
                         if const.co_name == '<lambda>':
                             assert op_name == 'LOAD_CONST'

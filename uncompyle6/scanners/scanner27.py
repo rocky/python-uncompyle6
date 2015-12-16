@@ -13,7 +13,7 @@ for later use in deparsing.
 
 from __future__ import print_function
 
-import dis, types
+import dis, inspect
 from collections import namedtuple
 from array import array
 
@@ -136,7 +136,7 @@ class Scanner27(scan.Scanner):
                     continue
                 if op in hasconst:
                     const = co.co_consts[oparg]
-                    if isinstance(const, types.CodeType):
+                    if inspect.iscode(const):
                         oparg = const
                         if const.co_name == '<lambda>':
                             assert op_name == 'LOAD_CONST'

@@ -20,8 +20,12 @@ all: check
 test check: pytest check-short
 
 #: Run tests
-check-short: pytest
+check-short:  pytest
 	$(MAKE) -C test $@
+
+#: check that disassembly exactly matches Python lib's dis
+check-disasm:
+	$(MAKE) -C test check-disasm
 
 #: Run tests
 pytest:

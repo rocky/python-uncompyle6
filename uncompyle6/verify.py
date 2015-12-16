@@ -1,18 +1,23 @@
-from __future__ import print_function
-
 #
 # (C) Copyright 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 # byte-code verifier for uncompyle
 #
 
-import dis, operator, sys, types
+from __future__ import print_function
+
+import dis, inspect, operator, sys, types
 
 import uncompyle6
 import uncompyle6.scanner as scanner
 
+# FIXME: DRY
 if (sys.version_info >= (3, 0)):
     truediv = operator.truediv
+
+    def cmp(a, b):
+        return (a > b) - (a < b)
+    from functools import reduce
 else:
     truediv = operator.div
 
@@ -127,8 +132,8 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
     This is the main part of this module.
     """
     # print code_obj1, type(code_obj2)
-    assert isinstance(code_obj1, types.CodeType)
-    assert isinstance(code_obj2, types.CodeType)
+    assert inspect.iscode(code_obj1)
+    assert inspect.iscode(code_obj2)
     # print dir(code_obj1)
     if isinstance(code_obj1, object):
         # new style classes (Python 2.2)

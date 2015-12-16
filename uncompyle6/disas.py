@@ -1,29 +1,41 @@
+# Copyright (c) 1999 John Aycock
+# Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+# Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+# Copyright (c) 2015 by Rocky Bernstein
+
 """
 CPython magic- and version- independent disassembly routines
 
-Copyright (c) 1999 John Aycock
-Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-Copyright (c) 2015 by Rocky Bernstein
+There are two reasons we can't use Python's built-in routines
+from dis. First, the bytecode we are extracting may be from a different
+version of Python (different magic number) than the version of Python
+that is doing the extraction.
 
-This is needed when the bytecode extracted is from
-a different version than the currently-running Python.
-
-When the two are the same, you can simply use Python's built-in disassemble
+Second, we need structured instruction information for the
+(de)-parsing step. Python 3.4 and up provides this, but we still do
+want to run on Python 2.7.
 """
 
 from __future__ import print_function
 
-import os, sys, types
-
+import importlib, inspect, os, sys
 import uncompyle6
+
+def check_object_path(path):
+    if path.endswith(".py"):
+        if uncompyle6.PYTHON3:
+            path = importlib.util.cache_from_source(path)
+            return path
+    if not path.endswith(".pyc") and not path.endswith(".pyo"):
+        raise ValueError("path must point to a .py or .pyc file")
+    return path
 
 def disco(version, co, out=None):
     """
     diassembles and deparses a given code block 'co'
     """
 
-    assert isinstance(co, types.CodeType)
+    assert inspect.iscode(co)
 
     # store final output stream for case of error
     real_out = out or sys.stdout
@@ -59,7 +71,11 @@ def disco(version, co, out=None):
 def disassemble_file(filename, outstream=None):
     """
     disassemble Python byte-code file (.pyc)
+
+    If given a Python source file (".py") file, we'll
+    try to find the corresponding compiled object.
     """
+    filename = check_object_path(filename)
     version, co = uncompyle6.load_module(filename)
     if type(co) == list:
         for con in co:
@@ -144,9 +160,13 @@ def _test():
     """Simple test program to disassemble a file."""
     argc = len(sys.argv)
     if argc != 2:
-        sys.stderr.write("usage: %s [-|CPython compiled file]\n" % __file__)
-        sys.exit(2)
-    fn = sys.argv[1]
+        if argc == 1 and uncompyle6.PYTHON3:
+            fn = __file__
+        else:
+            sys.stderr.write("usage: %s [-|CPython compiled file]\n" % __file__)
+            sys.exit(2)
+    else:
+        fn = sys.argv[1]
     disassemble_file(fn)
 
 if __name__ == "__main__":

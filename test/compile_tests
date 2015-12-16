@@ -55,8 +55,10 @@ tests['2.5'] = tests['2.3']
 tests['2.6'] = tests['2.5']
 # tests['2.7'] = ['mine'] + tests['2.6']
 tests['2.7'] = [
-    'source_3.4/call_arguments/keyword',
-    'source_3.4/call_arguments/positional'
+    'source_3.4/branching/ifelse',
+    'source_3.4/branching/if'
+    # 'source_3.4/call_arguments/keyword',
+    # 'source_3.4/call_arguments/positional'
     ]
 
 tests['3.4'] = [
