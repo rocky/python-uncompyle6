@@ -1,23 +1,16 @@
-from __future__ import print_function
+#  Copyright (c) 1999 John Aycock
+#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+#  Copyright (c) 2015 Rocky Bernstein
+"""
+Spark parser for Python.
+"""
 
-'''
-  Copyright (c) 1999 John Aycock
-  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+from uncompyle6 import PYTHON3
+from uncompyle6.spark import GenericASTBuilder
 
-  See main module for license.
-'''
-
-__all__ = ['parse', 'AST', 'ParserError', 'Parser']
-
-try:
-    from spark import GenericASTBuilder
-except ImportError:
-    from .spark import GenericASTBuilder
-
-import string, sys
-
-if (sys.version_info >= (3, 0)):
+import sys
+if PYTHON3:
     intern = sys.intern
     from collections import UserList
 else:
@@ -794,3 +787,24 @@ def parse(tokens, customize):
     ast = p.parse(tokens)
 #   p.cleanup()
     return ast
+
+
+def parser(version, co, out=sys.stdout, showasm=False):
+    import inspect
+    assert inspect.iscode(co)
+    from uncompyle6.scanner import get_scanner
+    scanner = get_scanner(version)
+    tokens, customize = scanner.disassemble(co)
+    if showasm:
+        for t in tokens:
+            print(t)
+
+    return parse(tokens, customize)
+
+if __name__ == '__main__':
+    def parse_test(co):
+        sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
+        ast = parser(sys_version, co, showasm=True)
+        print(ast)
+        return
+    parse_test(parse_test.__code__)

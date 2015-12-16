@@ -1,12 +1,11 @@
+#  Copyright (c) 1999 John Aycock
+#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+#  Copyright (c) 2015 by Rocky Bernstein
+#  See LICENSE for license
 """
   Deparsing saving text fragment information indexed by offset
 
-  Copyright (c) 1999 John Aycock
-  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-  Copyright (c) 2015 by Rocky Bernstein
-
-  See main module for license.
 
   Decompilation (walking AST)
 
@@ -55,6 +54,7 @@ from uncompyle6.walker import AST, NONE, find_all_globals
 from uncompyle6.walker import find_globals, find_none, INDENT_PER_LEVEL
 from uncompyle6.walker import ParserError
 from uncompyle6 import parser
+from uncompyle6.scanner import Token, Code, get_scanner
 
 try:
     from StringIO import StringIO
@@ -69,13 +69,6 @@ import sys, inspect, re
 from uncompyle6.spark import GenericASTTraversal
 from uncompyle6.spark import GenericASTTraversalPruningException
 from types import CodeType
-
-try:
-    from uncompyle6.Scanner import Token, Code
-    older_uncompyle = True
-except ImportError:
-    from uncompyle6.scanner import Token, Code
-    older_uncompyle = False
 
 from collections import namedtuple
 NodeInfo = namedtuple("NodeInfo", "node start finish")
@@ -1118,27 +1111,7 @@ def deparse(version, co, out=StringIO(), showasm=0, showast=0):
     assert inspect.iscode(co)
     # store final output stream for case of error
     __real_out = out or sys.stdout
-    try:
-        import uncompyle6.Scanner as scan
-        scanner = scan.Scanner(version)
-    except ImportError:
-        if version == 2.5:
-            import uncompyle6.scanners.scanner25 as scan
-            scanner = scan.Scanner25()
-        elif version == 2.6:
-            import uncompyle6.scanners.scanner26 as scan
-            scanner = scan.Scanner26()
-        elif version == 2.7:
-            import uncompyle6.scanners.scanner27 as scan
-            scanner = scan.Scanner27()
-        elif version == 3.2:
-            import uncompyle6.scanners.scanner34 as scan
-            scanner = scan.Scanner32()
-        elif version == 3.4:
-            import uncompyle6.scanners.scanner34 as scan
-            scanner = scan.Scanner34()
-
-    scanner.setShowAsm(showasm, out)
+    scanner = get_scanner(version)
     tokens, customize = scanner.disassemble(co)
 
     #  Build AST from disassembly.
@@ -1146,10 +1119,7 @@ def deparse(version, co, out=StringIO(), showasm=0, showast=0):
     walk = Traverser(scanner, showast=showast)
 
     try:
-        if older_uncompyle:
-            walk.ast = walk.build_ast_d(tokens, customize)
-        else:
-            walk.ast = walk.build_ast_d(tokens, customize)
+        walk.ast = walk.build_ast_d(tokens, customize)
     except walker.ParserError as e :  # parser failed, dump disassembly
         print(e, file=__real_out)
         raise

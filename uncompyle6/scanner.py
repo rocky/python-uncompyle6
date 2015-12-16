@@ -2,10 +2,10 @@
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #
-#  See main module for license.
+#  See LICENSE
 #
 """
-scanner/disassembler module. From here we call various verison-specific
+scanner/disassembler module. From here we call various version-specific
 scanners, e.g. for Python 2.7 or 3.4.
 
 This overlaps Python's dis module, but it can be run from Python 2 or
@@ -15,8 +15,6 @@ for later use in deparsing.
 
 from __future__ import print_function
 
-
-__all__ = ['Token', 'Scanner', 'Code']
 
 import sys
 
@@ -328,10 +326,32 @@ class Scanner(object):
             target = parent['end']
         return target
 
+def get_scanner(version):
+    # Pick up appropriate scanner
+    if version == 2.7:
+        import uncompyle6.scanners.scanner27 as scan
+        scanner = scan.Scanner27()
+    elif version == 2.6:
+        import uncompyle6.scanners.scanner26 as scan
+        scanner = scan.Scanner26()
+    elif version == 2.5:
+        import uncompyle6.scanners.scanner25 as scan
+        scanner = scan.Scanner25()
+    elif version == 3.2:
+        import uncompyle6.scanners.scanner32 as scan
+        scanner = scan.Scanner32()
+    elif version == 3.4:
+        import uncompyle6.scanners.scanner34 as scan
+        scanner = scan.Scanner34()
+    else:
+        raise RuntimeError("Unsupported Python version %d" % version)
+    return scanner
+
 if __name__ == "__main__":
     import inspect, uncompyle6
     co = inspect.currentframe().f_code
     tokens, customize = Scanner(uncompyle6.PYTHON_VERSION).disassemble(co)
+    print('-' * 30)
     for t in tokens:
         print(t)
     pass

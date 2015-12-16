@@ -1,13 +1,8 @@
-from __future__ import print_function
+#  Copyright (c) 1999 John Aycock
+#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 
-'''
-  Copyright (c) 1999 John Aycock
-  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-
-  See main module for license.
-
-
+"""
   Decompilation (walking AST)
 
   All table-driven.  Step 1 determines a table (T) and a path to a
@@ -41,17 +36,19 @@ from __future__ import print_function
 
   The '%' may optionally be followed by a number (C) in square brackets, which
   makes the engine walk down to N[C] before evaluating the escape code.
-'''
+"""
 
-import sys, re
+from __future__ import print_function
 
+import inspect, sys, re
+
+from uncompyle6 import PYTHON3
 from uncompyle6.spark import GenericASTTraversal
 from uncompyle6.parser import AST
-from uncompyle6.scanner import Token, Code
+from uncompyle6.scanner import Token, Code, get_scanner
 
-if (sys.version_info >= (3, 0)):
+if PYTHON3:
     from io import StringIO
-    import uncompyle6
     minint = -sys.maxsize-1
     maxint = sys.maxsize
 else:
@@ -59,10 +56,7 @@ else:
     minint = -sys.maxint-1
     maxint = sys.maxint
 
-from types import CodeType
-
 import uncompyle6.parser as dparser
-
 
 # Some ASTs used for comparing code fragments (like 'return None' at
 # the end of functions).
@@ -451,7 +445,7 @@ def find_none(node):
 class Walker(GenericASTTraversal, object):
     stacked_params = ('f', 'indent', 'isLambda', '_globals')
 
-    def __init__(self, out, scanner, showast=0):
+    def __init__(self, out, scanner, showast=False):
         GenericASTTraversal.__init__(self, ast=None)
         self.scanner = scanner
         params = {
@@ -920,7 +914,7 @@ class Walker(GenericASTTraversal, object):
         self.prec = 27
         code = node[-5].attr
 
-        assert type(code) == CodeType
+        assert inspect.iscode(code)
         code = Code(code, self.scanner, self.currentclass)
         # assert isinstance(code, Code)
 
@@ -1283,7 +1277,7 @@ class Walker(GenericASTTraversal, object):
         defparams = node[:node[-1].attr] # node[-1] == MAKE_xxx_n
         code = node[-2].attr
 
-        assert type(code) == CodeType
+        assert inspect.iscode(code)
         code = Code(code, self.scanner, self.currentclass)
         # assert isinstance(code, Code)
 
@@ -1349,7 +1343,7 @@ class Walker(GenericASTTraversal, object):
     def build_class(self, code):
         """Dump class definition, doc string and class body."""
 
-        assert type(code) == CodeType
+        assert inspect.iscode(code)
         code = Code(code, self.scanner, self.currentclass)
         # assert isinstance(code, Code)
 
@@ -1431,3 +1425,45 @@ class Walker(GenericASTTraversal, object):
             self.print_(repr(ast))
 
         return ast
+
+def walker(version, co, out=sys.stdout, showasm=False, showast=False):
+    assert inspect.iscode(co)
+    # store final output stream for case of error
+    __real_out = out or sys.stdout
+    scanner = get_scanner(version)
+
+    tokens, customize = scanner.disassemble(co)
+    if showasm:
+        for t in tokens:
+            print(t)
+
+    #  Build AST from disassembly.
+    walk = Walker(out, scanner, showast=showast)
+
+    try:
+        walk.ast = walk.build_ast(tokens, customize)
+    except ParserError as e :  # parser failed, dump disassembly
+        print(e, file=__real_out)
+        raise
+
+    del tokens # save memory
+
+    # convert leading '__doc__ = "..." into doc string
+    assert walk.ast == 'stmts'
+    walk.mod_globs = find_globals(walk.ast, set())
+    walk.gen_source(walk.ast, customize)
+
+    for g in walk.mod_globs:
+        walk.write('global %s ## Warning: Unused global' % g)
+    if walk.ERROR:
+        raise walk.ERROR
+
+    return walk
+
+if __name__ == '__main__':
+    def walk_test(co):
+        sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
+        walker(sys_version, co, showasm=True, showast=True)
+        print()
+        return
+    walk_test(walk_test.__code__)

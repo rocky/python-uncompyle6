@@ -20,6 +20,7 @@ from __future__ import print_function
 
 import importlib, inspect, os, sys
 import uncompyle6
+from uncompyle6.scanner import get_scanner
 
 def check_object_path(path):
     if path.endswith(".py"):
@@ -44,23 +45,7 @@ def disco(version, co, out=None):
         print('# Embedded file name: %s' % co.co_filename,
               file=real_out)
 
-    # Pick up appropriate scanner
-    if version == 2.7:
-        import uncompyle6.scanners.scanner27 as scan
-        scanner = scan.Scanner27()
-    elif version == 2.6:
-        import uncompyle6.scanners.scanner26 as scan
-        scanner = scan.Scanner26()
-    elif version == 2.5:
-        import uncompyle6.scanners.scanner25 as scan
-        scanner = scan.Scanner25()
-    elif version == 3.2:
-        import uncompyle6.scanners.scanner32 as scan
-        scanner = scan.Scanner32()
-    elif version == 3.4:
-        import uncompyle6.scanners.scanner34 as scan
-        scanner = scan.Scanner34()
-    scanner.setShowAsm(True, out)
+    scanner = get_scanner(version)
     tokens, customize = scanner.disassemble(co)
 
     for t in tokens:
