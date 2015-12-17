@@ -1,0 +1,13 @@
+# Python 2.7
+# Embedded file name: ./source_3.4/branching/if.py
+
+   1       0	LOAD_NAME         'a'
+           3	POP_JUMP_IF_FALSE '15'
+
+   2       6	LOAD_NAME         'c'
+           9	STORE_NAME        'b'
+          12	JUMP_FORWARD      '15'
+        15_0	COME_FROM         '12'
+          15	LOAD_CONST        ''
+          18	RETURN_VALUE      ''
+

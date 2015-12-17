@@ -21,9 +21,14 @@ from collections import namedtuple
 from uncompyle6 import PYTHON_VERSION
 from uncompyle6.scanner import Token, L65536
 
+import uncompyle6.opcodes.opcode_34
 # Get all the opcodes into globals
+JUMP_OPs = uncompyle6.opcodes.opcode_34.JUMP_OPs
 globals().update(dis.opmap)
+
 from uncompyle6.opcodes.opcode_34 import *
+
+
 import uncompyle6.scanner as scan
 
 

@@ -9,4 +9,4 @@ dependencies:
         - pip install -r test-requirements.txt
 test:
     override:
-        - python ./setup.py develop && make check
+        - python ./setup.py develop && make check-2.7

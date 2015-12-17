@@ -28,8 +28,8 @@ def check_object_path(path):
             path = importlib.util.cache_from_source(path)
             return path
     if not path.endswith(".pyc") and not path.endswith(".pyo"):
-        raise FileNotFoundError("path %s must point to a .py or .pyc file" %
-                                path)
+        raise ValueError("path %s must point to a .py or .pyc file" %
+                         path)
     return path
 
 def disco(version, co, out=None):
@@ -134,7 +134,7 @@ def disassemble_files(in_base, out_base, files, outfile=None):
         else: # uncompyle successfull
             if outfile:
                 outstream.close()
-            if not outfile: print('\n# okay decompyling', infile)
+            if not outfile: print('\n# okay disassembling', infile)
             sys.stdout.flush()
 
         if outfile:

@@ -17,7 +17,7 @@ import dis, inspect
 from collections import namedtuple
 from array import array
 
-from uncompyle6.opcodes.opcode_27 import *
+from uncompyle6.opcodes.opcode_27 import * # NOQA
 import uncompyle6.scanner as scan
 
 class Scanner27(scan.Scanner):
@@ -40,7 +40,7 @@ class Scanner27(scan.Scanner):
         self.code = array('B', co.co_code[:n])
 
         self.prev = [0]
-        # mapping adresses of instru & arg
+        # mapping addresses of instruction & argument
         for i in self.op_range(0, n):
             op = self.code[i]
             self.prev.append(i)

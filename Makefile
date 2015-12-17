@@ -17,11 +17,16 @@ PHONY=check clean pytest dist distclean lint flake8 test test-unit test-function
 all: check
 
 #: Same as "check"
-test check: pytest check-short
+test check: pytest check-long
+
+#: Run tests
+check-long:  pytest
+	$(MAKE) -C test check-2.7
 
 #: Run tests
 check-short:  pytest
-	$(MAKE) -C test $@
+	$(MAKE) -C test check-short-2.7
+
 
 #: check that disassembly exactly matches Python lib's dis
 check-disasm:

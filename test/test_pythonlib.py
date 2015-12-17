@@ -60,6 +60,12 @@ test_options = {
     'bytecode-2.5':
         ['bytecode_2.5', PYC, 'bytecode_2.5', 2.5],
 
+    'bytecode-2.7':
+        ['bytecode_2.7', PYC, 'bytecode_2.7', 2.7],
+
+    'bytecode-3.4':
+        ['bytecode_3.4', PYC, 'bytecode_3.4', 3.4],
+
     '2.7':
         ['python2.7', PYC, 'python2.7', 2.7],
 
@@ -67,7 +73,7 @@ test_options = {
         [os.path.join(src_dir, 'ok_2.6'),
          PYC, 'ok-2.6', 2.6],
 
-    'ok-2.7':    [os.path.join(src_dir, 'ok_2.7'),
+    'ok-2.7':    [os.path.join(src_dir, 'ok_lib2.7'),
                  PYC, 'ok-2.7', 2.7],
 
     'base-2.7':  [os.path.join(src_dir, 'base_tests', 'python2.7'),

@@ -6,4 +6,4 @@ python:
   - '2.7'
 
 script:
-- python ./setup.py develop && COMPILE='--compile' make test
+- python ./setup.py develop && COMPILE='--compile' make check-2.7

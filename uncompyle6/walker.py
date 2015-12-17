@@ -1406,9 +1406,13 @@ class Walker(GenericASTTraversal, object):
                 self.print_(repr(ast))
             return ast
 
+        # The bytecode for the end of the main routine has a
+        # "return None". However you can't issue a "return" statement in
+        # main. So as the old cigarette slogan goes: I'd rather switch (the token stream)
+        # than fight (with the grammar to not emit "return None").
         if len(tokens) >= 2 and not noneInNames:
-            if tokens[-1] == Token('RETURN_VALUE'):
-                if tokens[-2] == Token('LOAD_CONST'):
+            if tokens[-1].type == 'RETURN_VALUE':
+                if tokens[-2].type == 'LOAD_CONST':
                     del tokens[-2:]
                 else:
                     tokens.append(Token('RETURN_LAST'))

@@ -44,6 +44,8 @@ class _State:
         self.T, self.complete, self.items = [], [], items
         self.stateno = stateno
 
+# DEFAULT_DEBUG = {'rules': True, 'transition': False}
+DEFAULT_DEBUG = {'rules': False, 'transition': False}
 class GenericParser:
     '''
     An Earley parser, as per J. Earley, "An Efficient Context-Free
@@ -56,7 +58,7 @@ class GenericParser:
     Parsing", unpublished paper, 2001.
     '''
 
-    def __init__(self, start, debug=False):
+    def __init__(self, start, debug=DEFAULT_DEBUG):
         self.rules = {}
         self.rule2func = {}
         self.rule2name = {}
@@ -401,10 +403,11 @@ class GenericParser:
         return rv
 
     def gotoT(self, state, t):
-        if self.debug: print("Terminal", t)
+        if self.debug['rules']: print("Terminal", t, state)
         return [self.goto(state, t)]
 
     def gotoST(self, state, st):
+        if self.debug['transition']: print("GotoST", st, state)
         rv = []
         for t in self.states[state].T:
             if st == t:
@@ -567,7 +570,7 @@ class GenericParser:
         return self.rule2func[self.new2old[rule]](attr)
 
     def buildTree(self, nt, item, tokens, k):
-        if self.debug:
+        if self.debug['rules']:
             print("NT", nt)
         state, parent = item
 

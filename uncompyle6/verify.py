@@ -14,12 +14,13 @@ import uncompyle6.scanner as scanner
 # FIXME: DRY
 if (sys.version_info >= (3, 0)):
     truediv = operator.truediv
-
-    def cmp(a, b):
-        return (a > b) - (a < b)
     from functools import reduce
 else:
     truediv = operator.div
+
+
+def code_equal(a, b):
+    return a.co_code == b.co_code
 
 BIN_OP_FUNCS = {
 'BINARY_POWER': operator.pow,
@@ -151,7 +152,7 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
         name = '%s.%s' % (name, code_obj1.co_name)
         if name == '.?': name = '__main__'
 
-    if isinstance(code_obj1, object) and cmp(code_obj1, code_obj2):
+    if isinstance(code_obj1, object) and code_equal(code_obj1, code_obj2):
         # use the new style code-classes' __cmp__ method, which
         # should be faster and more sophisticated
         # if this compare fails, we use the old routine to
@@ -186,9 +187,9 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
             elif version == 3.4:
                 import uncompyle6.scanners.scanner34 as scan
                 scanner = scan.Scanner34()
-            scanner.setShowAsm( showasm=False )
+
             global JUMP_OPs
-            JUMP_OPs = scan.JUMP_OPs + ['JUMP_BACK']
+            JUMP_OPs = list(scan.JUMP_OPs) + ['JUMP_BACK']
 
             # use changed Token class
             #   we (re)set this here to save exception handling,
@@ -227,7 +228,7 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
                         raise CmpErrorCode(name, tokens1[idx1].offset, tokens1[idx1],
                                    tokens2[idx2], tokens1, tokens2)
 
-                if tokens1[i1] != tokens2[i2]:
+                if tokens1[i1].type != tokens2[i2].type:
                     if tokens1[i1].type == 'LOAD_CONST' == tokens2[i2].type:
                         i = 1
                         while tokens1[i1+i].type == 'LOAD_CONST':

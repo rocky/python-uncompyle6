@@ -561,9 +561,17 @@ class Traverser(walker.Walker, object):
                 print(repr(ast))
             return ast
 
+        # The bytecode for the end of the main routine has a
+        # "return None". However you can't issue a "return" statement in
+        # main. In the other build_ast routine we eliminate the
+        # return statement instructions before parsing.
+        # But here we want to keep these instructions at the expense of
+        # a fully runnable Python program because we
+        # my be queried about the role of one of those instructuions
+
         if len(tokens) >= 2 and not noneInNames:
-            if tokens[-1] == Token('RETURN_VALUE'):
-                if tokens[-2] != Token('LOAD_CONST'):
+            if tokens[-1].type == 'RETURN_VALUE':
+                if tokens[-2].type != 'LOAD_CONST':
                     tokens.append(Token('RETURN_LAST'))
         if len(tokens) == 0:
             return

@@ -248,7 +248,7 @@ def main(in_base, out_base, files, codes, outfile=None,
         try:
             uncompyle_file(infile, outstream, showasm, showast)
             tot_files += 1
-        except FileNotFoundError as e:
+        except ValueError as e:
             sys.stderr.write("\n# %s" % e)
             failed_files += 1
         except KeyboardInterrupt:

@@ -42,6 +42,10 @@ def jabs_op(name, op):
     def_op(name, op)
     hasjabs.append(op)
 
+def updateGlobal():
+    # JUMP_OPs are used in verification
+    globals().update({'JUMP_OPs': map(lambda op: opname[op], hasjrel + hasjabs)})
+
 # Instruction opcodes for compiled code
 # Blank lines correspond to available opcodes
 
@@ -189,4 +193,5 @@ hasfree.append(148)
 def_op('EXTENDED_ARG', 144)
 EXTENDED_ARG = 144
 
+updateGlobal()
 del def_op, name_op, jrel_op, jabs_op
