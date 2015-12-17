@@ -22,14 +22,14 @@ import uncompyle6.scanner as scan
 
 class Scanner27(scan.Scanner):
     def __init__(self):
-        self.Token = scan.Scanner.__init__(self, 2.7) # check
+        scan.Scanner.__init__(self, 2.7) # check
 
     def disassemble(self, co, classname=None):
-        '''
+        """
         Disassemble a code object, returning a list of 'Token'.
         The main part of this procedure is modelled after
         dis.disassemble().
-        '''
+        """
         rv = []
         customize = {}
         Token = self.Token # shortcut

@@ -1,4 +1,3 @@
-from __future__ import print_function
 '''
 Copyright (c) 1998-2002 John Aycock
 
@@ -22,7 +21,9 @@ Copyright (c) 1998-2002 John Aycock
   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-__version__ = 'SPARK-0.7 (pre-alpha-7) uncompyle trim'
+from __future__ import print_function
+
+__version__ = 'SPARK-1.0 Python3 compatible'
 
 def _namelist(instance):
     namelist, namedict, classlist = [], {}, [instance.__class__]

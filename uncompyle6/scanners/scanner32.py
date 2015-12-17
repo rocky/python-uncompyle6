@@ -28,7 +28,7 @@ import uncompyle6.scanner as scan
 
 class Scanner32(scan.Scanner):
     def __init__(self):
-        self.Token = scan.Scanner.__init__(self, 3.2) # check
+        scan.Scanner.__init__(self, 3.2) # check
 
     def run(self, bytecode):
         code_object = marshal.loads(bytecode)

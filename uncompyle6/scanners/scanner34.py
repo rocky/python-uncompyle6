@@ -29,7 +29,7 @@ import uncompyle6.scanner as scan
 
 class Scanner34(scan.Scanner):
     def __init__(self):
-        self.Token = scan.Scanner.__init__(self, 3.4) # check
+        scan.Scanner.__init__(self, 3.4) # check
 
     def disassemble(self, co):
         fn = self.disassemble_built_in if PYTHON_VERSION == 3.4 \

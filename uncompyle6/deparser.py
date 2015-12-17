@@ -48,7 +48,11 @@
 
 from __future__ import print_function
 
+import inspect, re, sys
+
+from uncompyle6 import PYTHON3
 from uncompyle6 import walker
+from uncompyle6.parser import get_python_parser
 from uncompyle6.walker import escape, PRECEDENCE, minint
 from uncompyle6.walker import AST, NONE, find_all_globals
 from uncompyle6.walker import find_globals, find_none, INDENT_PER_LEVEL
@@ -56,18 +60,14 @@ from uncompyle6.walker import ParserError
 from uncompyle6 import parser
 from uncompyle6.scanner import Token, Code, get_scanner
 
-try:
-    from StringIO import StringIO
-except ImportError:
+if PYTHON3:
     from io import StringIO
-
-import sys, inspect, re
-
+else:
+    from StringIO import StringIO
 
 # FIXME: remove uncompyle dups
 # from uncompyle6.walker import find_all_globals, find_globals, find_none
-from uncompyle6.spark import GenericASTTraversal
-from uncompyle6.spark import GenericASTTraversalPruningException
+from uncompyle6.parsers.spark import GenericASTTraversal, GenericASTTraversalPruningException
 from types import CodeType
 
 from collections import namedtuple
@@ -78,10 +78,14 @@ ExtractInfo = namedtuple("ExtractInfo",
 class Traverser(walker.Walker, object):
     stacked_params = ('f', 'indent', 'isLambda', '_globals')
 
-    def __init__(self, scanner, showast=0):
+    def __init__(self, version, scanner, showast=False):
         GenericASTTraversal.__init__(self, ast=None)
         self.scanner = scanner
-        params = {'f': StringIO(), 'indent': '', }
+        params = {
+            'f': StringIO(),
+            'indent': '',
+            }
+        self.p = get_python_parser(version)
         self.showast = showast
         self.__params = params
         self.__param_stack = []
@@ -550,7 +554,7 @@ class Traverser(walker.Walker, object):
         if isLambda:
             tokens.append(Token('LAMBDA_MARKER'))
             try:
-                ast = parser.parse(tokens, customize)
+                ast = parser.parse(self.p, tokens, customize)
             except parser.ParserError as e:
                 raise ParserError(e, tokens)
             if self.showast:
@@ -566,7 +570,7 @@ class Traverser(walker.Walker, object):
 
         # Build AST from disassembly.
         try:
-            ast = parser.parse(tokens, customize)
+            ast = parser.parse(self.p, tokens, customize)
         except parser.ParserError as e:
             raise ParserError(e, tokens)
 
@@ -1107,7 +1111,7 @@ class Traverser(walker.Walker, object):
 
     pass
 
-def deparse(version, co, out=StringIO(), showasm=0, showast=0):
+def deparse(version, co, out=StringIO(), showasm=False, showast=False):
     assert inspect.iscode(co)
     # store final output stream for case of error
     __real_out = out or sys.stdout
@@ -1116,7 +1120,7 @@ def deparse(version, co, out=StringIO(), showasm=0, showast=0):
 
     #  Build AST from disassembly.
     # walk = walker.Walker(out, scanner, showast=showast)
-    walk = Traverser(scanner, showast=showast)
+    walk = Traverser(version, scanner, showast=showast)
 
     try:
         walk.ast = walk.build_ast_d(tokens, customize)
@@ -1144,7 +1148,7 @@ if __name__ == '__main__':
 
     def deparse_test(co):
         sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
-        walk = deparse(sys_version, co, showasm=1, showast=1)
+        walk = deparse(sys_version, co, showasm=True, showast=True)
         print("deparsed source")
         print(walk.text, "\n")
         print('------------------------')

@@ -51,8 +51,6 @@ def compare_ok(version, co):
     for good_line in good_lines:
         if '\tCOME_FROM         ' in got_lines[i]:
             i += 1
-        if '\tJUMP_FORWARD      ' in good_line:
-            good_line = good_line = good_line[:32] + good_line[35:]
 
         if got_lines[i] != good_line:
             print('line %d %s' % (i+1, ('=' * 30)))

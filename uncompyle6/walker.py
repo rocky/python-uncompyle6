@@ -43,8 +43,9 @@ from __future__ import print_function
 import inspect, sys, re
 
 from uncompyle6 import PYTHON3
-from uncompyle6.spark import GenericASTTraversal
-from uncompyle6.parser import AST
+from uncompyle6.parser import AST, get_python_parser
+from uncompyle6.parsers.spark import GenericASTTraversal
+import uncompyle6.parser as python_parser
 from uncompyle6.scanner import Token, Code, get_scanner
 
 if PYTHON3:
@@ -55,8 +56,6 @@ else:
     from StringIO import StringIO
     minint = -sys.maxint-1
     maxint = sys.maxint
-
-import uncompyle6.parser as dparser
 
 # Some ASTs used for comparing code fragments (like 'return None' at
 # the end of functions).
@@ -402,7 +401,7 @@ escape = re.compile(r'''
                  ( [{] (?P<expr> [^}]* ) [}] ))
         ''', re.VERBOSE)
 
-class ParserError(dparser.ParserError):
+class ParserError(python_parser.ParserError):
     def __init__(self, error, tokens):
         self.error = error # previous exception
         self.tokens = tokens
@@ -445,13 +444,14 @@ def find_none(node):
 class Walker(GenericASTTraversal, object):
     stacked_params = ('f', 'indent', 'isLambda', '_globals')
 
-    def __init__(self, out, scanner, showast=False):
+    def __init__(self, version, out, scanner, showast=False):
         GenericASTTraversal.__init__(self, ast=None)
         self.scanner = scanner
         params = {
             'f': out,
             'indent': '',
             }
+        self.p = get_python_parser(version)
         self.showast = showast
         self.params = params
         self.param_stack = []
@@ -1399,8 +1399,8 @@ class Walker(GenericASTTraversal, object):
         if isLambda:
             tokens.append(Token('LAMBDA_MARKER'))
             try:
-                ast = dparser.parse(tokens, customize)
-            except dparser.ParserError as e:
+                ast = python_parser.parse(self.p, tokens, customize)
+            except python_parser.ParserError as e:
                 raise ParserError(e, tokens)
             if self.showast:
                 self.print_(repr(ast))
@@ -1417,8 +1417,8 @@ class Walker(GenericASTTraversal, object):
 
         # Build AST from disassembly.
         try:
-            ast = dparser.parse(tokens, customize)
-        except dparser.ParserError as e:
+            ast = python_parser.parse(self.p, tokens, customize)
+        except python_parser.ParserError as e:
             raise ParserError(e, tokens)
 
         if self.showast:
@@ -1438,7 +1438,7 @@ def walker(version, co, out=sys.stdout, showasm=False, showast=False):
             print(t)
 
     #  Build AST from disassembly.
-    walk = Walker(out, scanner, showast=showast)
+    walk = Walker(version, out, scanner, showast=showast)
 
     try:
         walk.ast = walk.build_ast(tokens, customize)

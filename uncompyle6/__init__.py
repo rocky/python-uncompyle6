@@ -37,6 +37,7 @@ PYTHON_VERSION = sys.version_info.major + (sys.version_info.minor / 10.0)
 PYTHON3 = (sys.version_info >= (3, 0))
 
 import uncompyle6
+from uncompyle6.scanner import get_scanner
 import uncompyle6.marsh
 from uncompyle6 import walker, verify, magics
 
@@ -118,23 +119,7 @@ def uncompyle(version, co, out=None, showasm=False, showast=False):
         print('# Embedded file name: %s' % co.co_filename,
               file=real_out)
 
-    # Pick up appropriate scanner
-    if version == 2.7:
-        import uncompyle6.scanners.scanner27 as scan
-        scanner = scan.Scanner27()
-    elif version == 2.6:
-        import uncompyle6.scanners.scanner26 as scan
-        scanner = scan.Scanner26()
-    elif version == 2.5:
-        import uncompyle6.scanners.scanner25 as scan
-        scanner = scan.Scanner25()
-    elif version == 3.2:
-        import uncompyle6.scanners.scanner32 as scan
-        scanner = scan.Scanner32()
-    elif version == 3.4:
-        import uncompyle6.scanners.scanner34 as scan
-        scanner = scan.Scanner34()
-    scanner.setShowAsm(showasm, out)
+    scanner = get_scanner(version)
     tokens, customize = scanner.disassemble(co)
 
     if showasm:
@@ -143,7 +128,7 @@ def uncompyle(version, co, out=None, showasm=False, showast=False):
         print(file=out)
 
     #  Build AST from disassembly.
-    walk = walker.Walker(out, scanner, showast=showast)
+    walk = walker.Walker(version, out, scanner, showast=showast)
     try:
         ast = walk.build_ast(tokens, customize)
     except walker.ParserError as e :  # parser failed, dump disassembly

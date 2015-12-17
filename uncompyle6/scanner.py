@@ -104,8 +104,7 @@ class Scanner(object):
             self.opc = opcode_34
 
         # FIXME: This weird Python2 behavior is not Python3
-        if not PYTHON3:
-            return self.resetTokenClass()
+        self.resetTokenClass()
 
     def setShowAsm(self, showasm, out=None):
         self.showasm = showasm
@@ -350,7 +349,8 @@ def get_scanner(version):
 if __name__ == "__main__":
     import inspect, uncompyle6
     co = inspect.currentframe().f_code
-    tokens, customize = Scanner(uncompyle6.PYTHON_VERSION).disassemble(co)
+    scanner = get_scanner(uncompyle6.PYTHON_VERSION)
+    tokens, customize = scanner.disassemble(co)
     print('-' * 30)
     for t in tokens:
         print(t)

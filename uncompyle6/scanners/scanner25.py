@@ -23,7 +23,7 @@ import uncompyle6.scanner as scan
 
 class Scanner25(scan.Scanner):
     def __init__(self):
-        self.Token = scan.Scanner.__init__(self, 2.5)
+        scan.Scanner.__init__(self, 2.5) # check
 
     def disassemble(self, co, classname=None):
         '''
