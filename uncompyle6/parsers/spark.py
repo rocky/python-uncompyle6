@@ -306,6 +306,7 @@ class GenericParser:
 
     def makeState(self, state, sym):
         assert sym is not None
+        # print(sym) # debug
         #
         #  Compute \epsilon-kernel state's core and see if
         #  it exists already.
@@ -554,7 +555,7 @@ class GenericParser:
             rule = self.ambiguity(self.newrules[nt])
         else:
             rule = self.newrules[nt][0]
-        # print(rule)
+        # print(rule) # debug
 
         rhs = rule[1]
         attr = [None] * len(rhs)
@@ -573,7 +574,7 @@ class GenericParser:
         rule = choices[0]
         if len(choices) > 1:
             rule = self.ambiguity(choices)
-        # print(rule)
+        # print(rule) # debug
 
         rhs = rule[1]
         attr = [None] * len(rhs)

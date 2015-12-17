@@ -37,9 +37,24 @@ class Scanner34(scan.Scanner):
         return fn(co)
 
     def disassemble_built_in(self, co):
-        bytecode = dis.Bytecode(co)
+        # Container for tokens
         tokens = []
+        self.code = co.co_code
+        self.build_lines_data(co)
+        self.build_prev_op()
+        # Get jump targets
+        # Format: {target offset: [jump offsets]}
+        jump_targets = self.find_jump_targets()
+        bytecode = dis.Bytecode(co)
         for inst in bytecode:
+            if inst.offset in jump_targets:
+                jump_idx = 0
+                for jump_offset in jump_targets[inst.offset]:
+                    tokens.append(Token('COME_FROM', None, repr(jump_offset),
+                                        offset='%s_%s' % (inst.offset, jump_idx)))
+                    jump_idx += 1
+                    pass
+                pass
             tokens.append(
                 Token(
                     type_ = inst.opname,
@@ -60,7 +75,6 @@ class Scanner34(scan.Scanner):
         """
         # Container for tokens
         tokens = []
-        customize = {}
         self.code = code = co.co_code
         codelen = len(code)
         self.build_lines_data(co)
@@ -116,7 +130,7 @@ class Scanner34(scan.Scanner):
                         free = co.co_cellvars + co.co_freevars
                     current_token.pattr = free[oparg]
             tokens.append(current_token)
-        return tokens, customize
+        return tokens, {}
 
     def build_lines_data(self, code_obj):
         """

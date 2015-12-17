@@ -1,0 +1,7 @@
+Files in this directory contain very simnple constructs that work
+across all versions of Python.
+
+Their simnplicity is to try to make it easier to debug grammar
+and AST walking routines.
+
+This code originally taken from https://github.com/DarkFenX/uncompyle3

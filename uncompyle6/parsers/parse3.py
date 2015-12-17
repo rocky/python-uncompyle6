@@ -3,7 +3,7 @@
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2015 Rocky Bernstein
 #
-#  See main module for license.
+#  See LICENSE for license
 """
 A spark grammar for Python 3.x.
 
