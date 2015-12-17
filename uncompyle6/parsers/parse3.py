@@ -456,7 +456,7 @@ class Python3Parser(PythonParser):
 
         whilestmt ::= SETUP_LOOP
                 testexpr
-                l_stmts_opt JUMP_BACK
+                l_stmts_opt JUMP_ABSOLUTE
                 POP_BLOCK COME_FROM
 
         whilestmt ::= SETUP_LOOP
@@ -481,7 +481,7 @@ class Python3Parser(PythonParser):
         _for ::= GET_ITER FOR_ITER
         _for ::= LOAD_CONST FOR_LOOP
 
-        for_block ::= l_stmts_opt JUMP_BACK
+        for_block ::= l_stmts_opt JUMP_ABSOLUTE
         for_block ::= return_stmts _come_from
 
         forstmt ::= SETUP_LOOP expr _for designator
