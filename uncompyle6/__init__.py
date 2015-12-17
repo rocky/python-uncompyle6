@@ -38,6 +38,7 @@ PYTHON3 = (sys.version_info >= (3, 0))
 
 import uncompyle6
 from uncompyle6.scanner import get_scanner
+from uncompyle6.disas import check_object_path
 import uncompyle6.marsh
 from uncompyle6 import walker, verify, magics
 
@@ -158,6 +159,7 @@ def uncompyle_file(filename, outstream=None, showasm=False, showast=False):
     """
     decompile Python byte-code file (.pyc)
     """
+    check_object_path(filename)
     version, co = load_module(filename)
     if type(co) == list:
         for con in co:
@@ -246,6 +248,9 @@ def main(in_base, out_base, files, codes, outfile=None,
         try:
             uncompyle_file(infile, outstream, showasm, showast)
             tot_files += 1
+        except FileNotFoundError as e:
+            sys.stderr.write("\n# %s" % e)
+            failed_files += 1
         except KeyboardInterrupt:
             if outfile:
                 outstream.close()
@@ -259,8 +264,6 @@ def main(in_base, out_base, files, codes, outfile=None,
                 os.rename(outfile, outfile + '_failed')
             else:
                 sys.stderr.write("\n# Can't uncompyle %s\n" % infile)
-                import traceback
-                traceback.print_exc()
         else: # uncompyle successfull
             if outfile:
                 outstream.close()

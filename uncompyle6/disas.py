@@ -28,7 +28,8 @@ def check_object_path(path):
             path = importlib.util.cache_from_source(path)
             return path
     if not path.endswith(".pyc") and not path.endswith(".pyo"):
-        raise ValueError("path must point to a .py or .pyc file")
+        raise FileNotFoundError("path %s must point to a .py or .pyc file" %
+                                path)
     return path
 
 def disco(version, co, out=None):

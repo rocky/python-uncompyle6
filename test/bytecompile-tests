@@ -12,6 +12,7 @@ for further information
 from __future__ import print_function
 
 import py_compile, os, sys, getopt
+from fnmatch import fnmatch
 
 work_dir = os.path.dirname(sys.argv[0])
 src_dir = work_dir
@@ -61,14 +62,22 @@ tests['2.7'] = [
     # 'simple-source/call_arguments/positional'
     ]
 
-tests['3.4'] = [
-    # 'simple-source/branching/ifelse',
-    # 'simple-source/branching/if'
-    # 'simple-source/call_arguments/keyword',
-    # 'simple-source/call_arguments/positional'
-    'simple-source/looping/for',
-    'simple-source/looping/while'
-    ]
+def file_matches(files, root, basenames, patterns):
+    files.extend(
+        [os.path.normpath(os.path.join(root, n))
+         for n in basenames for pat in patterns
+        if fnmatch(n, pat)])
+
+PY = ('*.py', )
+files = ['simple-source']
+simple_source = []
+for root, dirs, basenames in os.walk('simple-source'):
+    for basename in basenames:
+        if basename.endswith('.py'):
+            simple_source.append(os.path.join(root, basename)[0:-3])
+    pass
+
+tests['3.4'] = simple_source
 
 total_tests = len(tests['2.7'])
 #tests['2.2'].sort(); print tests['2.2']

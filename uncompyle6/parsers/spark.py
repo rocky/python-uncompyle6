@@ -56,13 +56,14 @@ class GenericParser:
     Parsing", unpublished paper, 2001.
     '''
 
-    def __init__(self, start):
+    def __init__(self, start, debug=False):
         self.rules = {}
         self.rule2func = {}
         self.rule2name = {}
         self.collectRules()
         self.augment(start)
-        self.ruleschanged = 1
+        self.ruleschanged = True
+        self.debug = debug
 
     _NULLABLE = '\e_'
     _START = 'START'
@@ -82,7 +83,7 @@ class GenericParser:
             self.newrules = {}
             self.new2old = {}
             self.makeNewRules()
-            self.ruleschanged = 0
+            self.ruleschanged = False
             self.edges, self.cores = {}, {}
             self.states = { 0: self.makeState0() }
             self.makeState(0, self._BOF)
@@ -149,7 +150,7 @@ class GenericParser:
                 self.rules[lhs] = [ rule ]
             self.rule2func[rule] = fn
             self.rule2name[rule] = func.__name__[2:]
-        self.ruleschanged = 1
+        self.ruleschanged = True
 
     def collectRules(self):
         for name in _namelist(self):
@@ -263,7 +264,7 @@ class GenericParser:
             self.newrules = {}
             self.new2old = {}
             self.makeNewRules()
-            self.ruleschanged = 0
+            self.ruleschanged = False
             self.edges, self.cores = {}, {}
             self.states = { 0: self.makeState0() }
             self.makeState(0, self._BOF)
@@ -400,6 +401,7 @@ class GenericParser:
         return rv
 
     def gotoT(self, state, t):
+        if self.debug: print("Terminal", t)
         return [self.goto(state, t)]
 
     def gotoST(self, state, st):
@@ -565,6 +567,8 @@ class GenericParser:
         return self.rule2func[self.new2old[rule]](attr)
 
     def buildTree(self, nt, item, tokens, k):
+        if self.debug:
+            print("NT", nt)
         state, parent = item
 
         choices = []
