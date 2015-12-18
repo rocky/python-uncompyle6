@@ -27,9 +27,13 @@ check-long:  pytest
 check-short:  pytest
 	$(MAKE) -C test check-short-2.7
 
-#: Run quick tests
+#: Run tests if Python 2.7
+check-2.7:  pytest
+	$(MAKE) -C test $@
+
+#: Run tests if Python 3.4
 check-3.4:  pytest
-	$(MAKE) -C test check-3.4
+	$(MAKE) -C test $@
 
 
 #: check that disassembly exactly matches Python lib's dis
