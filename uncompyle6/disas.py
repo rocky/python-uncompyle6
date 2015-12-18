@@ -38,7 +38,7 @@ def check_object_path(path):
                 pass
             pass
         basename = os.path.basename(path)[0:-3]
-        spath = path if PYTHON3 else path.decude('utf-8')
+        spath = path if PYTHON3 else path.decode('utf-8')
         path = tempfile.mkstemp(prefix=basename + '-',
                                 suffix='.pyc', text=False)[1]
         py_compile.compile(spath, cfile=path)

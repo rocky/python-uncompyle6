@@ -17,12 +17,14 @@ that a later phase can tern into a sequence of ASCII text.
 
 from __future__ import print_function
 
-from uncompyle6.parser import PythonParser, AST
+from uncompyle6.parser import PythonParser, nop_func
+from uncompyle6.parsers.astnode import AST
 from uncompyle6.parsers.spark import GenericASTBuilder
 
 class Python3Parser(PythonParser):
 
     def __init__(self):
+        self.added_rules = set()
         GenericASTBuilder.__init__(self, AST, 'stmts')
         self.customized = {}
 
@@ -643,3 +645,31 @@ class Python3Parser(PythonParser):
 
         nullexprlist ::=
         '''
+
+    def add_custom_rules(self, tokens, customize):
+        new_rules = set()
+        for token in tokens:
+            if token.type != 'CALL_FUNCTION':
+                continue
+            # Low byte indicates number of positional paramters,
+            # high byte number of positional parameters
+            args_pos = token.attr & 0xff
+            args_kw = (token.attr >> 8) & 0xff
+            pos_args_line = '' if args_pos == 0 else ' {}'.format(' '.join('expr' for _ in range(args_pos)))
+            kw_args_line = '' if args_kw == 0 else ' {}'.format(' '.join('kwarg' for _ in range(args_kw)))
+            if args_kw == 0:
+                token.type = 'CALL_FUNCTION_%i' % (args_pos)
+                rule = ('call_function ::= expr%s%s %s' %
+                        (pos_args_line, kw_args_line, token.type))
+                # Make sure we do not add the same rule twice
+                if rule not in new_rules:
+                    new_rules.add(rule)
+                    self.addRule(rule, nop_func)
+                    customize[token.type] = args_pos
+                    pass
+            else:
+                assert False, "Can't handle kw args yet"
+        new_rules.difference_update(self.added_rules)
+        for rule in new_rules:
+            self.addRule(rule, nop_func)
+        self.added_rules.update(new_rules)

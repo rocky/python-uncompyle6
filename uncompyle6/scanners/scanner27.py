@@ -209,7 +209,6 @@ class Scanner27(scan.Scanner):
                 rv.append(Token(op_name, oparg, pattr, offset, linestart))
             else:
                 rv.append(Token(replace[offset], oparg, pattr, offset, linestart))
-
         return rv, customize
 
     def op_size(self, op):

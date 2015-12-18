@@ -43,7 +43,8 @@ from __future__ import print_function
 import inspect, sys, re
 
 from uncompyle6 import PYTHON3
-from uncompyle6.parser import AST, get_python_parser
+from uncompyle6.parser import get_python_parser
+from uncompyle6.parsers.astnode import AST
 from uncompyle6.parsers.spark import GenericASTTraversal
 import uncompyle6.parser as python_parser
 from uncompyle6.scanner import Token, Code, get_scanner
@@ -115,7 +116,7 @@ TABLE_R = {
 TABLE_R0 = {
 #    'BUILD_LIST':	( '[%C]',      (0,-1,', ') ),
 #    'BUILD_TUPLE':	( '(%C)',      (0,-1,', ') ),
-#    'CALL_FUNCTION':	( '%c(%C)', 0, (1,-1,', ') ),
+#    'CALL_FUNCTION':	( '%c(%P)', 0, (1,-1,', ') ),
 }
 TABLE_DIRECT = {
     'BINARY_ADD':	( '+' ,),
@@ -1186,7 +1187,8 @@ class Walker(GenericASTTraversal, object):
             if k in TABLE_R:
                 continue
             op = k[ :k.rfind('_') ]
-            if op == 'CALL_FUNCTION':	TABLE_R[k] = ('%c(%P)', 0, (1, -1, ', ', 100))
+            if op == 'CALL_FUNCTION':
+                TABLE_R[k] = ('%c(%P)', 0, (1, -1, ', ', 100))
             elif op in ('CALL_FUNCTION_VAR',
                         'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
                 if v == 0:

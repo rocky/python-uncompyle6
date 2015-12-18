@@ -1,17 +1,14 @@
 uncompyle6
 ==========
 
-A Python 2.x and possibly 3.x byte-code decompiler.
-
-This is written in Python 2.7 but is Python3 compatible.
-
+A Python 2.x and 3.x byte-code decompiler.
 
 Introduction
 ------------
 
 *uncompyle6* converts Python byte-code back into equivalent Python
 source code. It accepts byte-codes from Python version 2.5 to 2.7.
-It runs on Python 2.7 and with a little more work Python 3.
+It runs on Python 2.6 and 2.7 and Python 3.4
 
 The generated source is fairly readable: docstrings, lists, tuples and
 hashes are somewhat pretty-printed.
@@ -51,17 +48,6 @@ Features
 - output may be written to file, a directory or to stdout
 - option for including byte-code disassembly into generated source
 
-Requirements
-------------
-
-The code runs on Python 2.7. It is compatable with Python3,
-and I've run some tests there, but more work is needed to make that
-more solid.
-
-Work to support decompyling Python 3 bytecodes and magics is
-still needed.
-
-
 Installation
 ------------
 
@@ -78,6 +64,9 @@ sudo) will do the steps above.
 
 Testing
 -------
+
+   make check-2.7 # if running on Python 2.7
+   make check-3.4 # if running on Pyton 3.4
 
 Testing right now is largely via utility `test/test_pythonlib.py`.  A
 GNU makefile has been added to smooth over setting running the right
