@@ -511,7 +511,7 @@ class Scanner26(scan.Scanner):
         start = 0
         end = len(code)
 
-        stmt_opcodes = {
+        stmt_opcodes = set([
             SETUP_LOOP, BREAK_LOOP, CONTINUE_LOOP,
             SETUP_FINALLY, END_FINALLY, SETUP_EXCEPT,
             POP_BLOCK, STORE_FAST, DELETE_FAST, STORE_DEREF,
@@ -520,15 +520,15 @@ class Scanner26(scan.Scanner):
             RETURN_VALUE, RAISE_VARARGS, POP_TOP,
             PRINT_EXPR, PRINT_ITEM, PRINT_NEWLINE, PRINT_ITEM_TO, PRINT_NEWLINE_TO,
             JUMP_ABSOLUTE, EXEC_STMT,
-        }
+        ])
 
         stmt_opcode_seqs = [(PJIF, JF), (PJIF, JA), (PJIT, JF), (PJIT, JA)]
 
-        designator_ops = {
+        designator_ops = set([
             STORE_FAST, STORE_NAME, STORE_GLOBAL, STORE_DEREF, STORE_ATTR,
             STORE_SLICE_0, STORE_SLICE_1, STORE_SLICE_2, STORE_SLICE_3,
             STORE_SUBSCR, UNPACK_SEQUENCE, JA
-        }
+        ])
 
         prelim = self.all_instr(start, end, stmt_opcodes)
 

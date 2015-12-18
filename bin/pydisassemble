@@ -3,14 +3,19 @@
 #
 # Copyright (c) 2015 by Rocky Bernstein <rb@dustyfeet.com>
 #
-"""
-Usage: pydisassemble [OPTIONS]... FILE
+from __future__ import print_function
+import sys, os, getopt
+
+program =  os.path.basename(__file__)
+
+__doc__ = """
+Usage: %s [OPTIONS]... FILE
 
 Examples:
-  pydisassemble      foo.pyc
-  pydisassemble      foo.py
-  pydisassemble -o foo.pydis foo.pyc
-  pydisassemble -o /tmp foo.pyc
+  %s      foo.pyc
+  %s      foo.py
+  %s -o foo.pydis foo.pyc
+  %s -o /tmp foo.pyc
 
 Options:
   -o <path>     output decompiled files to this path:
@@ -19,21 +24,16 @@ Options:
                 <path>
   --help        show this message
 
-"""
+""" % ((program,) * 5)
 
-from __future__ import print_function
 
 Usage_short = \
-"pydissassemble [--help] [--verify] [--showasm] [--showast] [-o <path>] FILE|DIR..."
+"%s [--help] [--verify] [--showasm] [--showast] [-o <path>] FILE|DIR..." % program
 
-import sys, os, getopt
-import os.path
-
+from uncompyle6 import check_python_version
 from uncompyle6.disas import disassemble_files
 
-if sys.version[:3] != '2.7' and sys.version[:3] != '3.4':
-    print('Error:  pydisassemble requires Python 2.7 or 3.4.', file=sys.stderr)
-    sys.exit(-1)
+check_python_version(program)
 
 outfile = '-'
 out_base = None

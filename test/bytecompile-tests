@@ -53,7 +53,6 @@ tests['2.2'] = ['divide_future', 'divide_no_future', 'iterators',
 
 tests['2.3'] = tests['2.2']
 tests['2.5'] = tests['2.3']
-tests['2.6'] = tests['2.5']
 # tests['2.7'] = ['mine'] + tests['2.6']
 tests['2.7'] = [
     'simple-source/branching/ifelse',
@@ -61,6 +60,7 @@ tests['2.7'] = [
     # 'simple-source/call_arguments/keyword',
     # 'simple-source/call_arguments/positional'
     ]
+tests['2.6'] = tests['2.7']
 
 def file_matches(files, root, basenames, patterns):
     files.extend(

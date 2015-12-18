@@ -23,9 +23,13 @@ test check: pytest check-long
 check-long:  pytest
 	$(MAKE) -C test check-2.7
 
-#: Run tests
+#: Run quick tests
 check-short:  pytest
 	$(MAKE) -C test check-short-2.7
+
+#: Run quick tests
+check-3.4:  pytest
+	$(MAKE) -C test check-3.4
 
 
 #: check that disassembly exactly matches Python lib's dis

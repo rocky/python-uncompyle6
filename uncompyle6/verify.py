@@ -332,8 +332,8 @@ class Token(scanner.Token):
             return 0
         if JUMP_OPs and t in JUMP_OPs:
             # ignore offset
-            return cmp(t, o.type)
-        return cmp(t, o.type) or cmp(self.pattr, o.pattr)
+            return t == o.type
+        return (t ==  o.type) or self.pattr ==  o.pattr
 
     def __repr__(self):
         return '%s %s (%s)' % (str(self.type), str(self.attr),

@@ -18,13 +18,15 @@ want to run on Python 2.7.
 
 from __future__ import print_function
 
-import importlib, inspect, os, sys
+import inspect, os, sys
+
 import uncompyle6
 from uncompyle6.scanner import get_scanner
 
 def check_object_path(path):
     if path.endswith(".py"):
         if uncompyle6.PYTHON3:
+            import importlib
             path = importlib.util.cache_from_source(path)
             return path
     if not path.endswith(".pyc") and not path.endswith(".pyo"):

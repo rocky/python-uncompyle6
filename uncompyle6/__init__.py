@@ -33,7 +33,7 @@ from __future__ import print_function
 
 import os, marshal, sys, types
 
-PYTHON_VERSION = sys.version_info.major + (sys.version_info.minor / 10.0)
+# set before importing scanner
 PYTHON3 = (sys.version_info >= (3, 0))
 
 import uncompyle6
@@ -43,6 +43,21 @@ import uncompyle6.marsh
 from uncompyle6 import walker, verify, magics
 
 sys.setrecursionlimit(5000)
+
+# We do this crazy way to support Python 2.6 which
+# doesn't support version_major, and has a bug in
+# floating point so we can't divide 26 by 10 and get
+# 2.6
+PYTHON_VERSION = sys.version_info[0]+ (sys.version_info[1] / 10.0)
+PYTHON_VERSION_STR  = "%s.%s" % (sys.version_info[0], sys.version_info[1])
+
+def check_python_version(program):
+    if not (sys.version_info[0:2] in ((2,6), (2,7), (3,4))):
+        print('Error: %s requires %s Python 2.6, 2.7 or 3.4' % program,
+              file=sys.stderr)
+        sys.exit(-1)
+    return
+
 __all__ = ['uncompyle_file', 'main']
 
 def _load_file(filename):

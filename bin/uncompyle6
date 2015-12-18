@@ -41,18 +41,17 @@ Extensions of generated files:
 """
 
 from __future__ import print_function
+import sys, os, getopt
+
+program =  os.path.basename(__file__)
 
 Usage_short = \
-"uncompyle6 [--help] [--verify] [--showasm] [--showast] [-o <path>] FILE|DIR..."
+"%s [--help] [--verify] [--showasm] [--showast] [-o <path>] FILE|DIR..." % program
 
-import sys, os, getopt
-import os.path
-from uncompyle6 import main, status_msg, verify
+from uncompyle6 import main, status_msg, verify, check_python_version
 import time
 
-if sys.version[:3] != '2.7' and sys.version[:3] != '3.4':
-    print('Error:  uncompyle6 requires Python 2.7 or 3.4.', file=sys.stderr)
-    sys.exit(-1)
+check_python_version(program)
 
 showasm = showast = do_verify = recurse_dirs = False
 numproc = 0

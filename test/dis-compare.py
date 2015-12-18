@@ -6,7 +6,7 @@
 from __future__ import print_function
 
 
-import dis, os.path, sys
+import dis, os.path
 
 try:
     from StringIO import StringIO
@@ -16,16 +16,15 @@ except ImportError:
 program =  os.path.basename(__file__)
 
 __doc__ = """
-Usage: {0} [OPTIONS]... FILE
+Usage: %s [OPTIONS]... FILE
 
-""".format(program)
+""" % program
 
-usage_short = "Usage: {0} [OPTIONS]... FILE".format(program)
+usage_short = "Usage: %s [OPTIONS]... FILE" % program
 
 import uncompyle6
+from uncompyle6 import PYTHON_VERSION_STR, check_python_version
 from uncompyle6.disas import disco
-
-version = sys.version[:3]
 
 def inst_fmt(inst):
     if inst.starts_line:
@@ -39,9 +38,9 @@ def inst_fmt(inst):
 
 def compare_ok(version, co):
     out  = StringIO()
-    if version == 2.7:
+    if version in (2.6, 2.7):
         dis.disco(co)
-        return
+        return True
 
     bytecode = dis.Bytecode(co)
     disco(version, co, out)
@@ -61,10 +60,7 @@ def compare_ok(version, co):
         i += 1
     return True
 
-if version != '2.7' and version != '3.4':
-    print('Error:  {0} requires Python 2.7 or 3.4.'.format(program),
-          file=sys.stderr)
-    sys.exit(-1)
+check_python_version(program)
 
 # if len(sys.argv) != 2:
 #     print(usage_short, file=sys.stderr)
@@ -85,7 +81,7 @@ files=[
     ]
 
 for base in files:
-    filename = "bytecode_%s/%s.pyc" % (version, base)
+    filename = "bytecode_%s/%s.pyc" % (PYTHON_VERSION_STR, base)
     version, co = uncompyle6.load_module(filename)
     ok = True
     if type(co) == list:
