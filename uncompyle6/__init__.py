@@ -31,7 +31,7 @@ from __future__ import print_function
   Probably a complete rewrite would be sensefull. hG/2000-12-27
 '''
 
-import os, marshal, sys, types
+import imp, os, marshal, sys, types
 
 # set before importing scanner
 PYTHON3 = (sys.version_info >= (3, 0))
@@ -103,8 +103,9 @@ def load_module(filename):
         # print version
         fp.read(4) # timestamp
         magic_int = magics.magic2int(magic)
+        my_magic_int = magics.magic2int(imp.get_magic())
 
-        if version == PYTHON_VERSION:
+        if my_magic_int == magic_int:
             # Note: a higher magic number necessarily mean a later
             # release.  At Python 3.0 the magic number decreased
             # significantly. Hence the range below. Also note
