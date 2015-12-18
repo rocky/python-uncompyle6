@@ -55,8 +55,10 @@ tests['2.3'] = tests['2.2']
 tests['2.5'] = tests['2.3']
 # tests['2.7'] = ['mine'] + tests['2.6']
 tests['2.7'] = [
-    'simple-source/branching/ifelse',
-    'simple-source/branching/if'
+    # 'simple-source/branching/ifelse',
+    # 'simple-source/branching/if'
+    'simple-source/misc/assert',
+    'simple-source/misc/assign',
     # 'simple-source/call_arguments/keyword',
     # 'simple-source/call_arguments/positional'
     ]

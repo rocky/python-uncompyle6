@@ -37,8 +37,13 @@ check-bytecode:
 check-native-short:
 	$(PYTHON) test_pythonlib.py --bytecode-$(PYTHON_VERSION) --verify $(COMPILE)
 
+#: Short, quickly-running Python 2.7 programs. Useful in debugging grammar problems
 check-short-2.7:
 	$(PYTHON) test_pythonlib.py --bytecode-2.7 --verify $(COMPILE)
+
+#: Short, quickly-running Python 2.7 programs. Useful in debugging grammar problems
+check-short-3.4:
+	$(PYTHON) test_pythonlib.py --bytecode-3.4 --verify $(COMPILE)
 
 #: Run longer Python 2.7's lib files known to be okay
 check-2.7-ok:
