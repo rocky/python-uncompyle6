@@ -18,17 +18,31 @@ want to run on Python 2.7.
 
 from __future__ import print_function
 
-import inspect, os, sys
+import inspect, os, py_compile, sys, tempfile
 
 import uncompyle6
+from uncompyle6 import PYTHON3
 from uncompyle6.scanner import get_scanner
 
 def check_object_path(path):
     if path.endswith(".py"):
-        if uncompyle6.PYTHON3:
+        try:
             import importlib
-            path = importlib.util.cache_from_source(path)
-            return path
+            return importlib.util.cache_from_source(path,
+                                                    optimization='')
+        except:
+            try:
+                import imp
+                imp.cache_from_source(path, debug_override=False)
+            except:
+                pass
+            pass
+        basename = os.path.basename(path)[0:-3]
+        spath = path if PYTHON3 else path.decude('utf-8')
+        path = tempfile.mkstemp(prefix=basename + '-',
+                                suffix='.pyc', text=False)[1]
+        py_compile.compile(spath, cfile=path)
+
     if not path.endswith(".pyc") and not path.endswith(".pyo"):
         raise ValueError("path %s must point to a .py or .pyc file" %
                          path)
