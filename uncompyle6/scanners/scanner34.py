@@ -17,6 +17,7 @@ from __future__ import print_function
 
 import dis
 from collections import namedtuple
+from array import array
 
 from uncompyle6 import PYTHON_VERSION
 from uncompyle6.scanner import Token, L65536
@@ -36,21 +37,59 @@ class Scanner34(scan.Scanner):
     def __init__(self):
         scan.Scanner.__init__(self, 3.4) # check
 
+    def get_argument(self, bytecode, pos):
+        arg = bytecode[pos+1] + bytecode[pos+2] * 256
+        return arg
+
     def disassemble(self, co):
         fn = self.disassemble_built_in if PYTHON_VERSION == 3.4 \
             else self.disassemble_cross_version
         return fn(co)
 
-    def disassemble_built_in(self, co):
+    def disassemble_built_in(self, co, classname=None):
         # Container for tokens
         tokens = []
-        self.code = co.co_code
+        customize = {}
+        self.code = array('B', co.co_code)
         self.build_lines_data(co)
         self.build_prev_op()
+
         # Get jump targets
         # Format: {target offset: [jump offsets]}
         jump_targets = self.find_jump_targets()
         bytecode = dis.Bytecode(co)
+
+        # self.lines contains (block,addrLastInstr)
+        # if classname:
+        #     classname = '_' + classname.lstrip('_') + '__'
+
+        #     def unmangle(name):
+        #         if name.startswith(classname) and name[-2:] != '__':
+        #             return name[len(classname) - 2:]
+        #         return name
+
+        #     free = [ unmangle(name) for name in (co.co_cellvars + co.co_freevars) ]
+        #     names = [ unmangle(name) for name in co.co_names ]
+        #     varnames = [ unmangle(name) for name in co.co_varnames ]
+        # else:
+        #     free = co.co_cellvars + co.co_freevars
+        #     names = co.co_names
+        #     varnames = co.co_varnames
+
+        # Scan for assertions. Later we will
+        # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT' for those
+        # assertions
+        self.load_asserts = set()
+        bs = list(bytecode)
+        n = len(bs)
+        for i in range(n):
+            inst = bs[i]
+            if inst.opname == 'POP_JUMP_IF_TRUE' and  i+1 < n:
+                next_inst = bs[i+1]
+                if (next_inst.opname == 'LOAD_GLOBAL' and
+                    next_inst.argval == 'AssertionError'):
+                    self.load_asserts.add(next_inst.offset)
+
         for inst in bytecode:
             if inst.offset in jump_targets:
                 jump_idx = 0
@@ -60,14 +99,38 @@ class Scanner34(scan.Scanner):
                     jump_idx += 1
                     pass
                 pass
+
+            pattr =  inst.argrepr
+            opname = inst.opname
+
             # For constants, the pattr is the same as attr. Using pattr adds
             # an extra level of quotes which messes other things up, like getting
             # keyword attribute names in a call. I suspect there will be things
             # other than LOAD_CONST, but we'll start out with just this for now.
-            pattr = inst.argval if inst.opname in ['LOAD_CONST'] else inst.argrepr
+            if opname in ['LOAD_CONST']:
+                pattr = inst.argval
+            elif opname in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET', 'BUILD_SLICE',
+                            'UNPACK_SEQUENCE',
+                            'MAKE_FUNCTION', 'MAKE_CLOSURE',
+                            'DUP_TOPX', 'RAISE_VARARGS'
+                            ):
+                # if opname == 'BUILD_TUPLE' and \
+                #     self.code[self.prev[offset]] == LOAD_CLOSURE:
+                #     continue
+                # else:
+                #     op_name = '%s_%d' % (op_name, oparg)
+                #     if opname != BUILD_SLICE:
+                #         customize[op_name] = oparg
+                opname = '%s_%d' % (opname, inst.argval)
+                if inst.opname != 'BUILD_SLICE':
+                    customize[opname] = inst.argval
+
+            elif inst.offset in self.load_asserts:
+                opname = 'LOAD_ASSERT'
+
             tokens.append(
                 Token(
-                    type_ = inst.opname,
+                    type_ = opname,
                     attr = inst.argval,
                     pattr = pattr,
                     offset = inst.offset,
@@ -85,7 +148,7 @@ class Scanner34(scan.Scanner):
         """
         # Container for tokens
         tokens = []
-        self.code = code = co.co_code
+        self.code = code = array('B', co.co_code)
         codelen = len(code)
         self.build_lines_data(co)
         self.build_prev_op()

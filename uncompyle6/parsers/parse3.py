@@ -665,24 +665,23 @@ class Python3Parser(PythonParser):
         """
         new_rules = set()
         for token in tokens:
-            if token.type not in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
-                                  'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
-                continue
-            # Low byte indicates number of positional paramters,
-            # high byte number of positional parameters
-            args_pos = token.attr & 0xff
-            args_kw = (token.attr >> 8) & 0xff
-            nak = ( len(token.type)-len('CALL_FUNCTION') ) // 3
-            token.type = 'CALL_FUNCTION_%i' % token.attr
-            rule = ('call_function ::= expr '
-                    + ('expr ' * args_pos)
-                    + ('kwarg ' * args_kw)
-                    + 'expr ' * nak + token.type)
-            # Make sure we do not add the same rule twice
-            if rule not in new_rules:
-                new_rules.add(rule)
-                self.addRule(rule, nop_func)
-                customize[token.type] = args_pos
+            if token.type in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
+                                'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
+                # Low byte indicates number of positional paramters,
+                # high byte number of positional parameters
+                args_pos = token.attr & 0xff
+                args_kw = (token.attr >> 8) & 0xff
+                nak = ( len(token.type)-len('CALL_FUNCTION') ) // 3
+                token.type = 'CALL_FUNCTION_%i' % token.attr
+                rule = ('call_function ::= expr '
+                        + ('expr ' * args_pos)
+                        + ('kwarg ' * args_kw)
+                        + 'expr ' * nak + token.type)
+                # Make sure we do not add the same rule twice
+                if rule not in new_rules:
+                    new_rules.add(rule)
+                    self.addRule(rule, nop_func)
+                    customize[token.type] = args_pos
+                    pass
                 pass
-            pass
         return
