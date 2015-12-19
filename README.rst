@@ -22,7 +22,7 @@ I using this to deparse fragments of code inside my trepan_
 debuggers_. For that, I need to record text fragements for all
 byte-code offsets (of interest). This purpose although largely
 compatible with the original intention is yet a little bit different.
-See [this](https://github.com/rocky/python-uncompyle6/wiki/Deparsing-technology-and-its-use-in-exact-location-reporting) for more information.
+See this_ for more information.
 
 This library though could be used in showing stack traces or any
 program that wants to show a location in more detail than just a line
@@ -86,3 +86,4 @@ https://github.com/zrax/pycdc
 .. _debuggers: https://pypi.python.org/pypi/trepan3k
 .. _remake: https://bashdb.sf.net/remake
 .. _pycdc: https://github.com/zrax/pycdc
+.. _this: https://github.com/rocky/python-uncompyle6/wiki/Deparsing-technology-and-its-use-in-exact-location-reporting
