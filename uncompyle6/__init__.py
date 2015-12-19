@@ -77,13 +77,18 @@ def _load_file(filename):
     return co
 
 def load_module(filename):
-    '''
-    load a module without importing it
-    load_module(filename: string): code_object
+    """
+    load a module without importing it.
+    load_module(filename: string): version, magic_int, code_object
+
     filename:	name of file containing Python byte-code object
                 (normally a .pyc)
+
     code_object: code_object from this file
-    '''
+    version: Python major/minor value e.g. 2.7. or 3.4
+    magic_int: more specific than version. The actual byte code version of the
+               code object
+    """
 
     with open(filename, 'rb') as fp:
         magic = fp.read(4)
@@ -117,11 +122,11 @@ def load_module(filename):
             co = uncompyle6.marsh.load_code(fp, magic_int)
         pass
 
-    return version, co
+    return version, magic_int, co
 
 def uncompyle(version, co, out=None, showasm=False, showast=False):
     """
-    diassembles and deparses a given code block 'co'
+    disassembles and deparses a given code block 'co'
     """
 
     assert isinstance(co, types.CodeType)
@@ -173,7 +178,7 @@ def uncompyle_file(filename, outstream=None, showasm=False, showast=False):
     decompile Python byte-code file (.pyc)
     """
     check_object_path(filename)
-    version, co = load_module(filename)
+    version, magic_int, co = load_module(filename)
     if type(co) == list:
         for con in co:
             uncompyle(version, con, outstream, showasm, showast)
@@ -282,9 +287,13 @@ def main(in_base, out_base, files, codes, outfile=None,
                 outstream.close()
             if do_verify:
                 try:
-                    verify.compare_code_with_srcfile(infile, outfile)
-                    if not outfile: print('\n# okay decompyling', infile, __memUsage())
-                    okay_files += 1
+                    msg = verify.compare_code_with_srcfile(infile, outfile)
+                    if not outfile:
+                        if not msg:
+                            print('\n# okay decompyling %s' % infile)
+                            okay_files += 1
+                        else:
+                            print('\n# %s\n\t%s', infile, msg)
                 except verify.VerifyCmpError as e:
                     verify_failed_files += 1
                     os.rename(outfile, outfile + '_unverified')

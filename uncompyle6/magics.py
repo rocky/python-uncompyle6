@@ -1,8 +1,6 @@
 from __future__ import print_function
 
-import struct, sys
-
-__all__ = ['magics', 'versions', 'magic2int']
+import imp, struct, sys
 
 def __build_magic(magic):
     if (sys.version_info >= (3, 0)):
@@ -12,6 +10,8 @@ def __build_magic(magic):
 
 def magic2int(magic):
     return struct.unpack('Hcc', magic)[0]
+
+PYTHON_MAGIC_INT = magic2int(imp.get_magic())
 
 by_magic = {}
 by_version = {}
@@ -96,15 +96,13 @@ def __show(text, magic):
     print(text, struct.unpack('BBBB', magic), struct.unpack('HBB', magic))
 
 def test():
-    import imp
     magic_20 = magics['2.0']
     current = imp.get_magic()
-    current_version = struct.unpack('HBB', current)[0]
     magic_current = by_magic[ current ]
     print(type(magic_20), len(magic_20), repr(magic_20))
     print()
     print('This Python interpreter has version', magic_current)
-    print('Magic code: ', current_version)
+    print('Magic code: ', PYTHON_MAGIC_INT)
     print(type(magic_20), len(magic_20), repr(magic_20))
 
 if __name__ == '__main__':

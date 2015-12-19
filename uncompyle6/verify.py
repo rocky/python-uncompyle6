@@ -1,18 +1,22 @@
 #
 # (C) Copyright 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+# (C) Copyright 2015 by Rocky Bernstein
 #
-# byte-code verifier for uncompyle
-#
+"""
+byte-code verification
+"""
 
 from __future__ import print_function
 
-import dis, inspect, operator, sys, types
+import dis, inspect, operator, types
 
 import uncompyle6
 import uncompyle6.scanner as scanner
+from uncompyle6 import PYTHON3
+from uncompyle6.magics import PYTHON_MAGIC_INT
 
 # FIXME: DRY
-if (sys.version_info >= (3, 0)):
+if PYTHON3:
     truediv = operator.truediv
     from functools import reduce
 else:
@@ -344,14 +348,19 @@ class Token(scanner.Token):
 
 def compare_code_with_srcfile(pyc_filename, src_filename):
     """Compare a .pyc with a source code file."""
-    version, code_obj1 = uncompyle6.load_module(pyc_filename)
+    version, magic_int, code_obj1 = uncompyle6.load_module(pyc_filename)
+    if magic_int != PYTHON_MAGIC_INT:
+        msg = ("Can't compare code - Python is running with magic %s, but code is magic %s "
+               % (PYTHON_MAGIC_INT, magic_int))
+        return msg
     code_obj2 = uncompyle6._load_file(src_filename)
     cmp_code_objects(version, code_obj1, code_obj2)
+    return None
 
 def compare_files(pyc_filename1, pyc_filename2):
     """Compare two .pyc files."""
-    version, code_obj1 = uncompyle6.load_module(pyc_filename1)
-    version, code_obj2 = uncompyle6.load_module(pyc_filename2)
+    version, magic_int1, code_obj1 = uncompyle6.load_module(pyc_filename1)
+    version, magic_int2, code_obj2 = uncompyle6.load_module(pyc_filename2)
     cmp_code_objects(version, code_obj1, code_obj2)
 
 if __name__ == '__main__':
@@ -359,6 +368,4 @@ if __name__ == '__main__':
     t2 = Token('LOAD_CONST', -421, 'code_object _expandLang', 55)
     print(repr(t1))
     print(repr(t2))
-
-    if (sys.version_info < (3, 0)):
-        print(cmp(t1, t2), cmp(t1.type, t2.type), cmp(t1.attr, t2.attr))
+    print(t1.type ==  t2.type, t1.attr == t2.attr)

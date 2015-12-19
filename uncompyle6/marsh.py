@@ -15,14 +15,13 @@ to produce a code object
 
 from __future__ import print_function
 
-import imp, sys, types
+import sys, types
 from struct import unpack
 
-from uncompyle6.magics import magic2int
+from uncompyle6.magics import PYTHON_MAGIC_INT
 
 internStrings = []
 
-PYTHON_MAGIC_INT = magic2int(imp.get_magic())
 PYTHON3 = (sys.version_info >= (3, 0))
 
 if PYTHON3:
