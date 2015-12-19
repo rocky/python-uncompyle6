@@ -1,14 +1,16 @@
 uncompyle6
 ==========
 
-A Python 2.x and 3.x byte-code decompiler.
+A Python Byte-code Disassembler and Decompiler
+
 
 Introduction
 ------------
 
-*uncompyle6* converts Python byte-code back into equivalent Python
-source code. It accepts byte-codes from Python version 2.5 to 2.7.
-It runs on Python 2.6 and 2.7 and Python 3.4
+A Python 2.x and 3.x byte-code decompiler.
+*uncompyle6* translates Python byte-code back into equivalent Python
+source code. It accepts byte-codes from Python version 2.5 to 2.7, and
+runs on Python 2.6 and 2.7 and Python 3.4.
 
 The generated source is fairly readable: docstrings, lists, tuples and
 hashes are somewhat pretty-printed.
@@ -65,6 +67,8 @@ sudo) will do the steps above.
 Testing
 -------
 
+::
+
    make check-2.7 # if running on Python 2.7
    make check-3.4 # if running on Pyton 3.4
 
@@ -92,6 +96,13 @@ Known Bugs/Restrictions
 
 Support Python 3 bytecode and syntax is lacking.
 
+See Also
+--------
+
+https://github.com/zrax/pycdc
+
+
 .. _trepan: https://pypi.python.org/pypi/trepan
 .. _debuggers: https://pypi.python.org/pypi/trepan3k
 .. _remake: https://bashdb.sf.net/remake
+.. _pycdc: https://github.com/zrax/pycdc
