@@ -41,10 +41,10 @@ class Scanner34(scan.Scanner):
         arg = bytecode[pos+1] + bytecode[pos+2] * 256
         return arg
 
-    def disassemble(self, co):
+    def disassemble(self, co, classname=None):
         fn = self.disassemble_built_in if PYTHON_VERSION == 3.4 \
             else self.disassemble_cross_version
-        return fn(co)
+        return fn(co, classname)
 
     def disassemble_built_in(self, co, classname=None):
         # Container for tokens

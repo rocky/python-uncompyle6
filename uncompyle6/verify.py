@@ -8,7 +8,7 @@ byte-code verification
 
 from __future__ import print_function
 
-import dis, inspect, operator, types
+import dis, inspect, operator
 
 import uncompyle6
 import uncompyle6.scanner as scanner
@@ -303,8 +303,8 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
         elif member == 'co_consts':
             # partial optimization can make the co_consts look different,
             #   so we'll just compare the code consts
-            codes1 = ( c for c in code_obj1.co_consts if isinstance(c, types.CodeType) )
-            codes2 = ( c for c in code_obj2.co_consts if isinstance(c, types.CodeType) )
+            codes1 = ( c for c in code_obj1.co_consts if inspect.iscode(c) )
+            codes2 = ( c for c in code_obj2.co_consts if inspect.iscode(c) )
 
             for c1, c2 in zip(codes1, codes2):
                 cmp_code_objects(version, c1, c2, name=name)

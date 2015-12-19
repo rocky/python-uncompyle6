@@ -443,10 +443,20 @@ class Traverser(walker.Walker, object):
     def n_mkfunc(self, node):
         start = len(self.f.getvalue())
         old_name = self.name
-        self.name = node[-2].attr.co_name # code.co_name
+        if PYTHON3:
+            # LOAD_CONST code object ..
+            # LOAD_CONST        'x0'
+            # MAKE_FUNCTION ..
+            self.name  = node[-2].attr
+            code_index = -3
+        else:
+            # LOAD_CONST code object ..
+            # MAKE_FUNCTION ..
+            self.name  = node[-2].attr.co_name
+            code_index = -2
         self.write(self.name)
         self.indentMore()
-        self.make_function(node, isLambda=0)
+        self.make_function(node, isLambda=False, code_index=code_index)
         self.name = old_name
         self.set_pos_info(node, start, len(self.f.getvalue()))
         if len(self.__param_stack) > 1:
@@ -1018,7 +1028,7 @@ class Traverser(walker.Walker, object):
                 self.set_pos_info(last_node, startnode_start, self.last_finish)
         return
 
-    def make_function(self, node, isLambda, nested=1):
+    def make_function(self, node, isLambda, nested=1, code_index=-2):
         """Dump function defintion, doc string, and function body."""
 
         def build_param(ast, name, default):
@@ -1050,8 +1060,9 @@ class Traverser(walker.Walker, object):
             else:
                 return name
 
-        defparams = node[:node[-1].attr] # node[-1] == MAKE_xxx_n
-        code = node[-2].attr
+        # node[-1] == MAKE_xxx_n
+        defparams = node[:node[-1].attr]
+        code = node[code_index].attr
 
         assert type(code) == CodeType
         code = Code(code, self.scanner, self.currentclass)

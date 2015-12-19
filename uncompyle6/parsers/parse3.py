@@ -27,6 +27,17 @@ class Python3Parser(PythonParser):
         self.added_rules = set()
         GenericASTBuilder.__init__(self, AST, 'stmts')
         self.customized = {}
+        self.new_rules = set()
+
+    def add_unique_rule(self, rule, opname, count, customize):
+        """Add rule to grammar, but only if it hasn't been added previously
+        """
+        if rule not in self.new_rules:
+            self.new_rules.add(rule)
+            self.addRule(rule, nop_func)
+            customize[opname] = count
+            pass
+        return
 
     def p_funcdef(self, args):
         '''
@@ -651,37 +662,40 @@ class Python3Parser(PythonParser):
         Special handling for opcodes that take a variable number
         of arguments -- we add a new rule for each:
 
-            expr ::= {expr}^n BUILD_LIST_n
-            expr ::= {expr}^n BUILD_TUPLE_n
+            expr        ::= {expr}^n BUILD_LIST_n
+            expr        ::= {expr}^n BUILD_TUPLE_n
             unpack_list ::= UNPACK_LIST {expr}^n
-            unpack ::= UNPACK_TUPLE {expr}^n
-            unpack ::= UNPACK_SEQEUENE {expr}^n
-            mkfunc ::= {expr}^n LOAD_CONST MAKE_FUNCTION_n
-            mkfunc ::= {expr}^n load_closure LOAD_CONST MAKE_FUNCTION_n
+            unpack      ::= UNPACK_TUPLE {expr}^n
+            unpack      ::= UNPACK_SEQEUENE {expr}^n
+            mkfunc      ::= {expr}^n LOAD_CONST MAKE_FUNCTION_n
+            mklambda    ::= {expr}^n LOAD_LAMBDA MAKE_FUNCTION_n
+            mkfunc      ::= {expr}^n load_closure LOAD_CONST MAKE_FUNCTION_n
             expr ::= expr {expr}^n CALL_FUNCTION_n
             expr ::= expr {expr}^n CALL_FUNCTION_VAR_n POP_TOP
             expr ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n POP_TOP
             expr ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
         """
-        new_rules = set()
         for token in tokens:
-            if token.type in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
-                                'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
+            opname = token.type
+            if opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
+                          'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
                 # Low byte indicates number of positional paramters,
                 # high byte number of positional parameters
                 args_pos = token.attr & 0xff
                 args_kw = (token.attr >> 8) & 0xff
-                nak = ( len(token.type)-len('CALL_FUNCTION') ) // 3
+                nak = ( len(opname)-len('CALL_FUNCTION') ) // 3
                 token.type = 'CALL_FUNCTION_%i' % token.attr
                 rule = ('call_function ::= expr '
                         + ('expr ' * args_pos)
                         + ('kwarg ' * args_kw)
                         + 'expr ' * nak + token.type)
-                # Make sure we do not add the same rule twice
-                if rule not in new_rules:
-                    new_rules.add(rule)
-                    self.addRule(rule, nop_func)
-                    customize[token.type] = args_pos
-                    pass
+                self.add_unique_rule(rule, token.type, args_pos, customize)
+            elif opname.startswith('MAKE_FUNCTION_'):
+                # from trepan.api import debug
+                # debug(start_opts={'startup-profile': True})
+                self.addRule('mklambda ::= %s LOAD_LAMBDA %s' %
+                      ('expr ' * token.attr, opname), nop_func)
+                rule = 'mkfunc ::= %s LOAD_CONST LOAD_CONST %s' % ('expr ' * token.attr, opname)
+                self.add_unique_rule(rule, opname, token.attr, customize)
                 pass
         return

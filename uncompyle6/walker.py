@@ -877,9 +877,21 @@ class Walker(GenericASTTraversal, object):
     n_importstar = n_importfrom
 
     def n_mkfunc(self, node):
-        self.write(node[-2].attr.co_name) # = code.co_name
+        if PYTHON3:
+            # LOAD_CONST code object ..
+            # LOAD_CONST        'x0'
+            # MAKE_FUNCTION ..
+            func_name =  node[-2].attr
+            code_index = -3
+        else:
+            # LOAD_CONST code object ..
+            # MAKE_FUNCTION ..
+            func_name =   node[-2].attr.co_name
+            code_index = -2
+        self.write(func_name)
+
         self.indentMore()
-        self.make_function(node, isLambda=0)
+        self.make_function(node, isLambda=False, code_index=code_index)
         if len(self.param_stack) > 1:
             self.write('\n\n')
         else:
@@ -888,7 +900,7 @@ class Walker(GenericASTTraversal, object):
         self.prune() # stop recursing
 
     def n_mklambda(self, node):
-        self.make_function(node, isLambda=1)
+        self.make_function(node, isLambda=True)
         self.prune() # stop recursing
 
     def n_list_compr(self, node):
@@ -1251,7 +1263,7 @@ class Walker(GenericASTTraversal, object):
             # return self.traverse(node[1])
         raise Exception("Can't find tuple parameter " + name)
 
-    def make_function(self, node, isLambda, nested=1):
+    def make_function(self, node, isLambda, nested=1, code_index=-2):
         """Dump function defintion, doc string, and function body."""
 
         def build_param(ast, name, default):
@@ -1276,8 +1288,9 @@ class Walker(GenericASTTraversal, object):
                 return result
             else:
                 return name
-        defparams = node[:node[-1].attr] # node[-1] == MAKE_xxx_n
-        code = node[-2].attr
+        # node[-1] == MAKE_xxx_n
+        defparams = node[:node[-1].attr]
+        code = node[code_index].attr
 
         assert inspect.iscode(code)
         code = Code(code, self.scanner, self.currentclass)

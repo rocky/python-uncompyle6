@@ -191,7 +191,6 @@ def uncompyle_file(filename, outstream=None, showasm=False, showast=False):
 if sys.platform.startswith('linux') and os.uname()[2][:2] in ['2.', '3.', '4.']:
     def __memUsage():
         mi = open('/proc/self/stat', 'r')
-        from trepan.api import debug; debug()
         mu = mi.readline().split()[22]
         mi.close()
         return int(mu) / 1000000

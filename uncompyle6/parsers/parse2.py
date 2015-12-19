@@ -656,6 +656,7 @@ class Python2Parser(PythonParser):
             unpack ::= UNPACK_TUPLE {expr}^n
             unpack ::= UNPACK_SEQEUENE {expr}^n
             mkfunc ::= {expr}^n LOAD_CONST MAKE_FUNCTION_n
+            mklambda ::= {expr}^n LOAD_LAMBDA MAKE_FUNCTION_n
             mkfunc ::= {expr}^n load_closure LOAD_CONST MAKE_FUNCTION_n
             expr ::= expr {expr}^n CALL_FUNCTION_n
             expr ::= expr {expr}^n CALL_FUNCTION_VAR_n POP_TOP
