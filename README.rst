@@ -1,54 +1,34 @@
 uncompyle6
 ==========
 
-A Python Byte-code Disassembler and Decompiler
+A native Python Byte-code Disassembler, Decompiler, and byte-code library
 
 
 Introduction
 ------------
 
-A Python 2.x and 3.x byte-code decompiler.
 *uncompyle6* translates Python byte-code back into equivalent Python
 source code. It accepts byte-codes from Python version 2.5 to 2.7, and
 runs on Python 2.6 and 2.7 and Python 3.4.
 
-The generated source is fairly readable: docstrings, lists, tuples and
-hashes are somewhat pretty-printed.
+Why this?
+---------
 
-*uncompyle6* is based on John Aycock's generic small languages
-compiler 'spark' (http://www.csr.uvic.ca/~aycock/python/) and his
-prior work on a tool called 'decompyle'. This was improved by Hartmut Goebel
-`http://www.crazy-compilers.com/`_
+What makes this different other CPython byte-code decompilers?  Its
+ability to deparse just fragments and give source-code information
+around a given bytecode offset.
 
-# Additional note (3 July 2004):
-
-This software is no longer available from the original website.
-However http://www.crazy-compilers.com/decompyle/ provides a
-decompilation service.
-
-# Additional note (5 June 2012):
-
-The decompilation of python bytecode 2.5 & 2.6 is based on the work of
-Eloi Vanderbeken. bytecode is translated to a pseudo 2.7 python bytecode
-and then decompiled.
-
-# Additional note (12 Dec 2016):
-
-I will be using this to deparse fragments of code inside my trepan_
+I using this to deparse fragments of code inside my trepan_
 debuggers_. For that, I need to record text fragements for all
 byte-code offsets (of interest). This purpose although largely
 compatible with the original intention is yet a little bit different.
+See [this](https://github.com/rocky/python-uncompyle6/wiki/Deparsing-technology-and-its-use-in-exact-location-reporting) for more information.
 
+This library though could be used in showing stack traces or any
+program that wants to show a location in more detail than just a line
+number.  In fact it can be used when when source-code information does
+exist and there is just bytecode information.
 
-Features
---------
-
-- decompiles Python byte-code into equivalent Python source
-- decompiles byte-code from Python version 2.5, 2.6, 2.7
-- pretty-prints docstrings, hashes, lists and tuples
-- reads directly from .pyc/.pyo files, bulk-decompile whole directories
-- output may be written to file, a directory or to stdout
-- option for including byte-code disassembly into generated source
 
 Installation
 ------------
