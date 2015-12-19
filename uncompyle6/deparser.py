@@ -259,7 +259,7 @@ class Traverser(walker.Walker, object):
             n = node[0][-1][0]
         else:
             n = node[0]
-        self.prec = PRECEDENCE.get(n, -2)
+        self.prec = PRECEDENCE.get(n.type, -2)
         if n == 'LOAD_CONST' and repr(n.pattr)[0] == '-':
             n.parent = node
             self.set_pos_info(n, start, len(self.f.getvalue()))
