@@ -647,29 +647,42 @@ class Python3Parser(PythonParser):
         '''
 
     def add_custom_rules(self, tokens, customize):
+        """
+        Special handling for opcodes that take a variable number
+        of arguments -- we add a new rule for each:
+
+            expr ::= {expr}^n BUILD_LIST_n
+            expr ::= {expr}^n BUILD_TUPLE_n
+            unpack_list ::= UNPACK_LIST {expr}^n
+            unpack ::= UNPACK_TUPLE {expr}^n
+            unpack ::= UNPACK_SEQEUENE {expr}^n
+            mkfunc ::= {expr}^n LOAD_CONST MAKE_FUNCTION_n
+            mkfunc ::= {expr}^n load_closure LOAD_CONST MAKE_FUNCTION_n
+            expr ::= expr {expr}^n CALL_FUNCTION_n
+            expr ::= expr {expr}^n CALL_FUNCTION_VAR_n POP_TOP
+            expr ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n POP_TOP
+            expr ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
+        """
         new_rules = set()
         for token in tokens:
-            if token.type != 'CALL_FUNCTION':
+            if token.type not in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
+                                  'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
                 continue
             # Low byte indicates number of positional paramters,
             # high byte number of positional parameters
             args_pos = token.attr & 0xff
             args_kw = (token.attr >> 8) & 0xff
-            pos_args_line = '' if args_pos == 0 else ' {}'.format(' '.join('expr' for _ in range(args_pos)))
-            kw_args_line = '' if args_kw == 0 else ' {}'.format(' '.join('kwarg' for _ in range(args_kw)))
-            if args_kw == 0:
-                token.type = 'CALL_FUNCTION_%i' % (args_pos)
-                rule = ('call_function ::= expr%s%s %s' %
-                        (pos_args_line, kw_args_line, token.type))
-                # Make sure we do not add the same rule twice
-                if rule not in new_rules:
-                    new_rules.add(rule)
-                    self.addRule(rule, nop_func)
-                    customize[token.type] = args_pos
-                    pass
-            else:
-                assert False, "Can't handle kw args yet"
-        new_rules.difference_update(self.added_rules)
-        for rule in new_rules:
-            self.addRule(rule, nop_func)
-        self.added_rules.update(new_rules)
+            nak = ( len(token.type)-len('CALL_FUNCTION') ) // 3
+            token.type = 'CALL_FUNCTION_%i' % token.attr
+            rule = ('call_function ::= expr '
+                    + ('expr ' * args_pos)
+                    + ('kwarg ' * args_kw)
+                    + 'expr ' * nak + token.type)
+            # Make sure we do not add the same rule twice
+            if rule not in new_rules:
+                new_rules.add(rule)
+                self.addRule(rule, nop_func)
+                customize[token.type] = args_pos
+                pass
+            pass
+        return

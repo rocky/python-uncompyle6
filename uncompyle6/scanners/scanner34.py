@@ -60,11 +60,16 @@ class Scanner34(scan.Scanner):
                     jump_idx += 1
                     pass
                 pass
+            # For constants, the pattr is the same as attr. Using pattr adds
+            # an extra level of quotes which messes other things up, like getting
+            # keyword attribute names in a call. I suspect there will be things
+            # other than LOAD_CONST, but we'll start out with just this for now.
+            pattr = inst.argval if inst.opname in ['LOAD_CONST'] else inst.argrepr
             tokens.append(
                 Token(
                     type_ = inst.opname,
                     attr = inst.argval,
-                    pattr = inst.argrepr,
+                    pattr = pattr,
                     offset = inst.offset,
                     linestart = inst.starts_line,
                     )

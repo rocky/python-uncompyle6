@@ -1,7 +1,4 @@
-from __future__ import print_function
-
-
-'''
+"""
   Copyright (c) 1999 John Aycock
   Copyright (c) 2000 by hartmut Goebel <h.goebel@crazy-compilers.com>
   Copyright (c) 2015 by Rocky Bernstein
@@ -25,11 +22,11 @@ from __future__ import print_function
   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-  See the file 'CHANGES' for a list of changes
-
   NB. This is not a masterpiece of software, but became more like a hack.
   Probably a complete rewrite would be sensefull. hG/2000-12-27
-'''
+"""
+
+from __future__ import print_function
 
 import imp, os, marshal, sys, types
 

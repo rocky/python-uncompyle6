@@ -34,6 +34,7 @@ class Scanner27(scan.Scanner):
         customize = {}
         Token = self.Token # shortcut
         self.code = array('B', co.co_code)
+
         for i in self.op_range(0, len(self.code)):
             if self.code[i] in (RETURN_VALUE, END_FINALLY):
                 n = i + 1
@@ -127,6 +128,7 @@ class Scanner27(scan.Scanner):
 
             op = self.code[offset]
             op_name = opname[op]
+
             oparg = None; pattr = None
             if op >= HAVE_ARGUMENT:
                 oparg = self.get_argument(offset) + extended_arg
@@ -147,9 +149,9 @@ class Scanner27(scan.Scanner):
                             op_name = 'LOAD_DICTCOMP'
                         elif const.co_name == '<setcomp>':
                             op_name = 'LOAD_SETCOMP'
-                        # verify uses 'pattr' for comparism, since 'attr'
+                        # verify() uses 'pattr' for comparison, since 'attr'
                         # now holds Code(const) and thus can not be used
-                        # for comparism (todo: think about changing this)
+                        # for comparison (todo: think about changing this)
                         # pattr = 'code_object @ 0x%x %s->%s' %\
                         # (id(const), const.co_filename, const.co_name)
                         pattr = '<code_object ' + const.co_name + '>'

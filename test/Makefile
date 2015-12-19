@@ -16,7 +16,7 @@ check-2.7: check-short-2.7 check-bytecode check-2.7-ok
 check-3.4: check-short-2.7 check-bytecode check-native-short
 
 check:
-	@echo "For now, use check-2.7 or check.3.4" && false
+	@echo "For now, use check-2.7 or check-3.4" && false
 
 ## FIXME: there is a bug in our code that I don't
 ## find in uncompyle2 that causes this to fail.

@@ -4,7 +4,6 @@
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2015 by Rocky Bernstein
 #
-#  See main module for license.
 """
 Python 2.5 bytecode scanner/deparser
 
@@ -163,9 +162,9 @@ class Scanner25(scan.Scanner):
                             op_name = 'LOAD_DICTCOMP'
                         elif const.co_name == '<setcomp>':
                             op_name = 'LOAD_SETCOMP'
-                        # verify uses 'pattr' for comparism, since 'attr'
+                        # verify uses 'pattr' for comparison, since 'attr'
                         # now holds Code(const) and thus can not be used
-                        # for comparism (todo: think about changing this)
+                        # for comparison (todo: think about changing this)
                         # pattr = 'code_object @ 0x%x %s->%s' %
                         # (id(const), const.co_filename, const.co_name)
                         pattr = '<code_object ' + const.co_name + '>'

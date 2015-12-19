@@ -327,6 +327,9 @@ class Scanner(object):
 
 def get_scanner(version):
     # Pick up appropriate scanner
+    # from trepan.api import debug;
+    # debug(start_opts={'startup-profile': True})
+
     if version == 2.7:
         import uncompyle6.scanners.scanner27 as scan
         scanner = scan.Scanner27()

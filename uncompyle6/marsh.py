@@ -44,7 +44,7 @@ def load_code(fp, magic_int):
     internStrings = []
     return load_code_internal(fp, magic_int)
 
-def load_code_internal(fp, magic_int):
+def load_code_internal(fp, magic_int, bytes_for_s=False):
     global internStrings
 
     marshalType = fp.read(1).decode('utf-8')
@@ -62,7 +62,8 @@ def load_code_internal(fp, magic_int):
         # a range here.
         if 3000 < magic_int < 20121:
             fp.read(4)
-        co_code = load_code_internal(fp, magic_int)
+
+        co_code = load_code_internal(fp, magic_int, bytes_for_s=True)
         co_consts = load_code_internal(fp, magic_int)
         co_names = load_code_internal(fp, magic_int)
         co_varnames = load_code_internal(fp, magic_int)
@@ -81,13 +82,13 @@ def load_code_internal(fp, magic_int):
                 # In later Python3 magic_ints, there is a
                 # kwonlyargcount parameter which we set to 0.
                 return Code(co_argcount, 0, co_nlocals, co_stacksize, co_flags,
-                            bytes(co_code, encoding='utf-8'),
+                            co_code,
                             co_consts, co_names, co_varnames, co_filename, co_name,
                             co_firstlineno, bytes(co_lnotab, encoding='utf-8'),
                             co_freevars, co_cellvars)
             else:
                 return Code(co_argcount, 0, co_nlocals, co_stacksize, co_flags,
-                            bytes(co_code, encoding='utf-8'),
+                            co_code,
                             co_consts, co_names, co_varnames, co_filename, co_name,
                             co_firstlineno, bytes(co_lnotab, encoding='utf-8'),
                             co_freevars, co_cellvars)
@@ -144,7 +145,10 @@ def load_code_internal(fp, magic_int):
         return internStrings[refnum]
     elif marshalType == 's':
         strsize = unpack('i', fp.read(4))[0]
-        return compat_str(fp.read(strsize))
+        s = fp.read(strsize)
+        if not bytes_for_s:
+            s = compat_str(s)
+        return s
     elif marshalType == 't':
         strsize = unpack('i', fp.read(4))[0]
         interned = compat_str(fp.read(strsize))
