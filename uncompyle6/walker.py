@@ -1292,6 +1292,7 @@ class Walker(GenericASTTraversal, object):
             else:
                 return name
         # node[-1] == MAKE_xxx_n
+
         defparams = node[:node[-1].attr]
         code = node[code_index].attr
 
@@ -1323,7 +1324,8 @@ class Walker(GenericASTTraversal, object):
         # params = map(lambda name, default: build_param(ast, name, default),
         # paramnames, defparams)
         params = []
-        for name, default in map(lambda a, b: (a, b), paramnames, defparams):
+        for i, name in enumerate(paramnames):
+            default = defparams[i] if len(defparams) > i else None
             params.append( build_param(ast, name, default) )
 
         params.reverse() # back to correct order
