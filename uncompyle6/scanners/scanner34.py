@@ -163,11 +163,12 @@ class Scanner34(scan.Scanner):
     def disassemble_cross_version(self, co):
         """
         Convert code object <co> into a sequence of tokens
-        FIXME: the below code faulty in many was is probably based on older Python2's dis.disassemble() function.
-        It needs to be rewritten and moduled off of Python 3.4's dis.disassemble_bytes().
+        FIXME: the below is not based on the current Python 3.4 dis.disassemble_bytes().
+        Fix that.
         """
         # Container for tokens
         tokens = []
+        customize = {}
         self.code = code = array('B', co.co_code)
         codelen = len(code)
         self.build_lines_data(co)
@@ -223,7 +224,7 @@ class Scanner34(scan.Scanner):
                         free = co.co_cellvars + co.co_freevars
                     current_token.pattr = free[oparg]
             tokens.append(current_token)
-        return tokens, {}
+        return tokens, customize
 
     def build_lines_data(self, code_obj):
         """
@@ -620,7 +621,6 @@ class Scanner34(scan.Scanner):
         return filtered
 
 if __name__ == "__main__":
-    import inspect
     co = inspect.currentframe().f_code
     tokens, customize = Scanner34().disassemble(co)
     for t in tokens:

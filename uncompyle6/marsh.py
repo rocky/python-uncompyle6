@@ -92,6 +92,14 @@ def load_code_internal(fp, magic_int, bytes_for_s=False):
                             co_firstlineno, bytes(co_lnotab, encoding='utf-8'),
                             co_freevars, co_cellvars)
         else:
+            if (3000 < magic_int < 20121):
+                # Python 3  encodes some fields as Unicode while Python2
+                # requires the corresponding field to have string values
+                co_consts = tuple([str(s) if s else None for s in co_consts])
+                co_names  = tuple([str(s) if s else None for s in co_names])
+                co_varnames  = tuple([str(s) if s else None for s in co_varnames])
+                co_filename = str(co_filename)
+                co_name = str(co_name)
             return Code(co_argcount, co_nlocals, co_stacksize, co_flags, co_code,
                         co_consts, co_names, co_varnames, co_filename, co_name,
                         co_firstlineno, co_lnotab, co_freevars, co_cellvars)

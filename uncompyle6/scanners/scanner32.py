@@ -14,6 +14,7 @@ from __future__ import print_function
 
 import dis, marshal
 from collections import namedtuple
+from array import array
 
 from uncompyle6.scanner import Token, L65536
 
@@ -42,7 +43,7 @@ class Scanner32(scan.Scanner):
         # Container for tokens
         tokens = []
         customize = {}
-        self.code = code = co.co_code
+        self.code = code = array('B', co.co_code)
         codelen = len(code)
         self.build_lines_data(co)
         self.build_prev_op()
@@ -97,7 +98,6 @@ class Scanner32(scan.Scanner):
                         free = co.co_cellvars + co.co_freevars
                     current_token.pattr = free[oparg]
             tokens.append(current_token)
-
         return tokens, customize
 
     def build_lines_data(self, code_obj):
