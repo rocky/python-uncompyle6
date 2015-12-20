@@ -65,6 +65,8 @@ def disco(version, co, out=None):
     scanner = get_scanner(version)
     tokens, customize = scanner.disassemble(co)
 
+    for t in tokens:
+        print(t, file=real_out)
     print(file=out)
 
 
