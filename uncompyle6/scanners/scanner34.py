@@ -15,7 +15,7 @@ for later use in deparsing.
 
 from __future__ import print_function
 
-import dis
+import dis, inspect
 from collections import namedtuple
 from array import array
 
@@ -108,7 +108,27 @@ class Scanner34(scan.Scanner):
             # keyword attribute names in a call. I suspect there will be things
             # other than LOAD_CONST, but we'll start out with just this for now.
             if opname in ['LOAD_CONST']:
-                pattr = inst.argval
+                const = inst.argval
+                if inspect.iscode(const):
+                    if const.co_name == '<lambda>':
+                        opname = 'LOAD_LAMBDA'
+                    elif const.co_name == '<genexpr>':
+                        opname = 'LOAD_GENEXPR'
+                    elif const.co_name == '<dictcomp>':
+                        opname = 'LOAD_DICTCOMP'
+                    elif const.co_name == '<setcomp>':
+                        opname = 'LOAD_SETCOMP'
+                    elif const.co_name == '<listcomp>':
+                        opname = 'LOAD_LISTCOMP'
+                    # verify() uses 'pattr' for comparison, since 'attr'
+                    # now holds Code(const) and thus can not be used
+                    # for comparison (todo: think about changing this)
+                    # pattr = 'code_object @ 0x%x %s->%s' %\
+                    # (id(const), const.co_filename, const.co_name)
+                    pattr = '<code_object ' + const.co_name + '>'
+                else:
+                    pattr = const
+                    pass
             elif opname in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET', 'BUILD_SLICE',
                             'UNPACK_SEQUENCE',
                             'MAKE_FUNCTION', 'MAKE_CLOSURE',

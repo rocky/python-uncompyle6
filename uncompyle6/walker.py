@@ -910,9 +910,12 @@ class Walker(GenericASTTraversal, object):
         self.prune() # stop recursing
 
     def n_list_compr(self, node):
+        """List comprehensions the way they are done in Python2.
+        """
         p = self.prec
         self.prec = 27
         n = node[-1]
+
         assert n == 'list_iter'
         # find innerst node
         while n == 'list_iter':
@@ -928,10 +931,10 @@ class Walker(GenericASTTraversal, object):
         self.prec = p
         self.prune() # stop recursing
 
-    def comprehension_walk(self, node, iter_index):
+    def comprehension_walk(self, node, iter_index, code_index=-5):
         p = self.prec
         self.prec = 27
-        code = node[-5].attr
+        code = node[code_index].attr
 
         assert inspect.iscode(code)
         code = Code(code, self.scanner, self.currentclass)
@@ -940,11 +943,10 @@ class Walker(GenericASTTraversal, object):
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
         ast = ast[0][0][0]
-
         n = ast[iter_index]
         assert n == 'comp_iter'
         # find innerst node
-        while n == 'comp_iter':
+        while n == 'comp_iter': # list_iter
             n = n[0] # recurse one step
             if   n == 'comp_for':	n = n[3]
             elif n == 'comp_if':	n = n[2]
@@ -961,14 +963,64 @@ class Walker(GenericASTTraversal, object):
 
     def n_genexpr(self, node):
         self.write('(')
-        self.comprehension_walk(node, 3)
+        self.comprehension_walk(node, iter_index=3)
         self.write(')')
         self.prune()
 
     def n_setcomp(self, node):
         self.write('{')
-        self.comprehension_walk(node, 4)
+        self.comprehension_walk(node, iter_index=4)
         self.write('}')
+        self.prune()
+
+    def listcomprehension_walk3(self, node, iter_index, code_index=-5):
+        """List comprehensions the way they are done in Python3.
+        They're more other comprehensions, e.g. set comprehensions
+        See if we can combine code.
+        """
+        p = self.prec
+        self.prec = 27
+        code = node[code_index].attr
+
+        assert inspect.iscode(code)
+        code = Code(code, self.scanner, self.currentclass)
+        # assert isinstance(code, Code)
+
+        ast = self.build_ast(code._tokens, code._customize)
+        self.customize(code._customize)
+        ast = ast[0][0][0][0][0]
+
+        n = ast[iter_index]
+        assert n == 'list_iter'
+        # find innermost node
+        while n == 'list_iter': # list_iter
+            n = n[0] # recurse one step
+            if   n == 'list_for':
+                designator = n[2]
+                n = n[3]
+            elif n == 'list_if':
+                # FIXME: just a guess
+                designator = n[1]
+
+                n = n[2]
+            elif n == 'list_ifnot':
+                # FIXME: just a guess
+                designator = n[1]
+                n = n[2]
+        assert n == 'lc_body', ast
+
+        self.preorder(n[0])
+        self.write(' for ')
+        self.preorder(designator)
+        self.write(' in ')
+        self.preorder(node[-3])
+        # self.preorder(ast[iter_index])
+        self.prec = p
+
+    def n_listcomp(self, node):
+        self.write('[')
+        self.listcomprehension_walk3(node, iter_index=1, code_index=0)
+        self.write(']')
         self.prune()
 
     n_dictcomp = n_setcomp

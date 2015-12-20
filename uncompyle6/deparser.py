@@ -483,7 +483,7 @@ class Traverser(walker.Walker, object):
 
         n = ast[iter_index]
         assert n == 'comp_iter'
-        # find innerst node
+        # find innermost node
         while n == 'comp_iter':
             n = n[0] # recurse one step
             if   n == 'comp_for':	n = n[3]
@@ -494,14 +494,66 @@ class Traverser(walker.Walker, object):
         self.preorder(n[0])
         self.write(' for ')
         start = len(self.f.getvalue())
-        self.preorder(ast[iter_index-1])
-        self.set_pos_info(node, start, len(self.f.getvalue()))
+        designator = ast[iter_index-1]
+        self.preorder(designator)
+        self.set_pos_info(ast[iter_index-1], start, len(self.f.getvalue()))
         self.write(' in ')
         start = len(self.f.getvalue())
         node[-3].parent = node
         self.preorder(node[-3])
-        self.set_pos_info(node, start, len(self.f.getvalue()))
+        self.set_pos_info(node[-3], start, len(self.f.getvalue()))
+        start = len(self.f.getvalue())
         self.preorder(ast[iter_index])
+        self.set_pos_info(iter_index, start, len(self.f.getvalue()))
+        self.prec = p
+
+    def listcomprehension_walk3(self, node, iter_index, code_index=-5):
+        """List comprehensions the way they are done in Python3.
+        They're more other comprehensions, e.g. set comprehensions
+        See if we can combine code.
+        """
+        p = self.prec
+        self.prec = 27
+        code = node[code_index].attr
+
+        assert inspect.iscode(code)
+        code = Code(code, self.scanner, self.currentclass)
+        # assert isinstance(code, Code)
+
+        ast = self.build_ast(code._tokens, code._customize)
+        self.customize(code._customize)
+        ast = ast[0][0][0][0][0]
+
+        n = ast[iter_index]
+        assert n == 'list_iter'
+        # find innermost node
+        while n == 'list_iter': # list_iter
+            n = n[0] # recurse one step
+            if   n == 'list_for':
+                designator = n[2]
+                n = n[3]
+            elif n == 'list_if':
+                # FIXME: just a guess
+                designator = n[1]
+
+                n = n[2]
+            elif n == 'list_ifnot':
+                # FIXME: just a guess
+                designator = n[1]
+                n = n[2]
+        assert n == 'lc_body', ast
+
+        self.preorder(n[0])
+        self.write(' for ')
+        start = len(self.f.getvalue())
+        self.preorder(designator)
+        self.set_pos_info(designator, start, len(self.f.getvalue()))
+        self.write(' in ')
+        start = len(self.f.getvalue())
+        node[-3].parent = node
+        self.preorder(node[-3])
+        self.set_pos_info(node[-3], start, len(self.f.getvalue()))
+        # self.preorder(ast[iter_index])
         self.prec = p
 
     def n_genexpr(self, node):

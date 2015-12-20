@@ -10,10 +10,10 @@ NATIVE_CHECK = check-$(PYTHON_VERSION)
 COMPILE ?=
 
 #: Run working tests from Python 2.7
-check-2.7: check-short-2.7 check-bytecode check-2.7-ok
+check-2.7: check-short-2.7 check-bytecode-2.5 check-2.7-ok
 
 #: Run working tests from Python 3.4
-check-3.4: check-short-3.4 check-short-2.7 check-bytecode
+check-3.4: check-short-3.4 check-short-2.7 check-bytecode-2.5 check-bytecode-3.2
 
 check: check-short
 	@$(PYTHON) -V && PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2`; \
@@ -27,9 +27,14 @@ check-short:
 check-disasm:
 	$(PYTHON) dis-compare.py
 
-#: Check deparsing only, but from a different Python version
-check-bytecode:
+#: Check deparsing only, from Python 2.5
+check-bytecode-2.5:
 	$(PYTHON) test_pythonlib.py --bytecode-2.5
+
+
+#: Check deparsing only, from Python 3.2
+check-bytecode-3.2:
+	$(PYTHON) test_pythonlib.py --bytecode-3.2
 
 #: short tests for bytecodes only for this version of Python
 check-native-short:

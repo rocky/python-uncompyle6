@@ -54,6 +54,10 @@ class Python3Parser(PythonParser):
 
     def p_list_comprehension(self, args):
         '''
+        expr ::= listcomp
+        listcomp ::= LOAD_LISTCOMP LOAD_CONST MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
+
+
         expr ::= list_compr
         list_compr ::= BUILD_LIST_0 list_iter
 
@@ -65,7 +69,7 @@ class Python3Parser(PythonParser):
         _come_from ::= COME_FROM
         _come_from ::=
 
-        list_for ::= expr _for designator list_iter JUMP_BACK
+        list_for ::= expr FOR_ITER designator list_iter JUMP_ABSOLUTE
         list_if ::= expr jmp_false list_iter
         list_if_not ::= expr jmp_true list_iter
 
@@ -96,7 +100,7 @@ class Python3Parser(PythonParser):
 
         comp_if ::= expr jmp_false comp_iter
         comp_ifnot ::= expr jmp_true comp_iter
-        comp_for ::= expr _for designator comp_iter JUMP_BACK
+        comp_for ::= expr _for designator comp_iter JUMP_ABSOLUTE
         '''
 
     def p_genexpr(self, args):
