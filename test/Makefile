@@ -13,17 +13,15 @@ COMPILE ?=
 check-2.7: check-short-2.7 check-bytecode check-2.7-ok
 
 #: Run working tests from Python 3.4
-check-3.4: check-short-2.7 check-bytecode check-native-short
+check-3.4: check-short-3.4 check-short-2.7 check-bytecode
 
-check:
-	@echo "For now, use check-2.7 or check-3.4" && false
+check: check-short
+	@$(PYTHON) -V && PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2`; \
+	$(MAKE) check-$$PYTHON_VERSION
 
-## FIXME: there is a bug in our code that I don't
-## find in uncompyle2 that causes this to fail.
-## parsing.
-## the failing program works if run by itself.
-## This leads me to believe the problem is an
-## initialization bug?
+check-short:
+	@$(PYTHON) -V && PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2`; \
+	$(MAKE) check-short-$$PYTHON_VERSION
 
 #: Check deparsing only, but from a different Python version
 check-disasm:

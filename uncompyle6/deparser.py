@@ -61,8 +61,10 @@ from uncompyle6 import parser
 from uncompyle6.scanner import Token, Code, get_scanner
 
 if PYTHON3:
+    from itertools import zip_longest
     from io import StringIO
 else:
+    from itertools import izip_longest as zip_longest
     from StringIO import StringIO
 
 # FIXME: remove uncompyle dups
@@ -1088,14 +1090,14 @@ class Traverser(walker.Walker, object):
 
         # build parameters
 
-        # This would be a nicer piece of code, but I can't get this to work
-        #  now, have to find a usable lambda constuct  hG/2000-09-05
-        # params = map(lambda name, default: build_param(ast, name, default),
-        # 	     paramnames, defparams)
-        params = []
-        for i, name in enumerate(paramnames):
-            default = defparams[i] if len(defparams) > i else None
-            params.append( build_param(ast, name, default) )
+        params = [build_param(ast, name, default) for
+                  name, default in zip_longest(paramnames, defparams, fillvalue=None)]
+        # params = [ build_param(ast, name, default) for
+        #           name, default in zip(paramnames, defparams) ]
+        # params = []
+        # for i, name in enumerate(paramnames):
+        #     default = defparams[i] if len(defparams) > i else None
+        #     params.append( build_param(ast, name, default) )
 
         params.reverse() # back to correct order
 

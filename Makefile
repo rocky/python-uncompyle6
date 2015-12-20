@@ -11,36 +11,26 @@ RM      ?= rm
 LINT    = flake8
 
 #EXTRA_DIST=ipython/ipy_trepan.py trepan
-PHONY=check clean pytest dist distclean lint flake8 test test-unit test-functional rmChangeLog clean_pyc nosetests
+PHONY=all check clean pytest check-long dist distclean lint flake8 test rmChangeLog clean_pyc
+
+TEST_TYPES=check-long check-short check-2.7 check-3.4
 
 #: Default target - same as "check"
 all: check
 
-#: Same as "check"
-test check: pytest check-long
+all test check check_long:
+	@$(PYTHON) -V && PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2`; \
+	$(MAKE) check-$$PYTHON_VERSION
 
-#: Run tests
-check-long:  pytest
-	$(MAKE) -C test check-2.7
-
-#: Run quick tests
-check-short:  pytest
-	$(MAKE) -C test check-short-2.7
-
-#: Run tests if Python 2.7
-check-2.7:  pytest
+#: Run working tests from Python 2.7
+check-2.7: pytest
 	$(MAKE) -C test $@
 
-#: Run tests if Python 3.4
-check-3.4:  pytest
+#: Run working tests from Python 3.4
+check-3.4:
 	$(MAKE) -C test $@
 
-
-#: check that disassembly exactly matches Python lib's dis
-check-disasm:
-	$(MAKE) -C test check-disasm
-
-#: Run tests
+#: Run py.test tests
 pytest:
 	$(MAKE) -C pytest check
 

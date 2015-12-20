@@ -39,10 +39,12 @@ def inst_fmt(inst):
 def compare_ok(version, co):
     out  = StringIO()
     if version in (2.6, 2.7):
-        dis.disco(co)
+        print("Doesn't work on %d\n yet"  %  version)
+        # dis.disco(co)
         return True
 
     bytecode = dis.Bytecode(co)
+
     disco(version, co, out)
     got_lines = out.getvalue().split("\n")[2:]
     i = 0
@@ -82,8 +84,9 @@ files=[
 
 for base in files:
     filename = "bytecode_%s/%s.pyc" % (PYTHON_VERSION_STR, base)
-    version, co = uncompyle6.load_module(filename)
+    version, magic_int, co = uncompyle6.load_module(filename)
     ok = True
+
     if type(co) == list:
         for con in co:
             ok = compare_ok(version, con)

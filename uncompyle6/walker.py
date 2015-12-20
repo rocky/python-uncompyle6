@@ -42,6 +42,7 @@ from __future__ import print_function
 
 import inspect, sys, re
 
+
 from uncompyle6 import PYTHON3
 from uncompyle6.parser import get_python_parser
 from uncompyle6.parsers.astnode import AST
@@ -50,10 +51,12 @@ import uncompyle6.parser as python_parser
 from uncompyle6.scanner import Token, Code, get_scanner
 
 if PYTHON3:
+    from itertools import zip_longest
     from io import StringIO
     minint = -sys.maxsize-1
     maxint = sys.maxsize
 else:
+    from itertools import izip_longest as zip_longest
     from StringIO import StringIO
     minint = -sys.maxint-1
     maxint = sys.maxint
@@ -1319,14 +1322,14 @@ class Walker(GenericASTTraversal, object):
 
         # build parameters
 
-        # This would be a nicer piece of code, but I can't get this to work
-        # now, have to find a usable lambda constuct  hG/2000-09-05
-        # params = map(lambda name, default: build_param(ast, name, default),
-        # paramnames, defparams)
-        params = []
-        for i, name in enumerate(paramnames):
-            default = defparams[i] if len(defparams) > i else None
-            params.append( build_param(ast, name, default) )
+        params = [build_param(ast, name, default) for
+                  name, default in zip_longest(paramnames, defparams, fillvalue=None)]
+        # params = [ build_param(ast, name, default) for
+        #           name, default in zip(paramnames, defparams) ]
+        # params = []
+        # for i, name in enumerate(paramnames):
+        #     default = defparams[i] if len(defparams) > i else None
+        #     params.append( build_param(ast, name, default) )
 
         params.reverse() # back to correct order
 

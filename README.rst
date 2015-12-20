@@ -49,13 +49,13 @@ Testing
 
 ::
 
-   make check-2.7 # if running on Python 2.7
-   make check-3.4 # if running on Pyton 3.4
+   make check
 
-Testing right now is largely via utility `test/test_pythonlib.py`.  A
-GNU makefile has been added to smooth over setting running the right
-command. If you have remake_ installed, you can see the list of all
-tasks including tests via `remake --tasks`
+A GNU makefile has been added to smooth over setting running the right
+command, and running tests from fastest to slowest.
+
+If you have remake_ installed, you can see the list of all tasks
+including tests via `remake --tasks`
 
 
 Usage
