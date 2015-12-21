@@ -441,18 +441,19 @@ class Python3Parser(PythonParser):
         except_stmt ::= except_cond2 except_suite
         except_stmt ::= except
 
-        except_suite ::= c_stmts_opt JUMP_FORWARD
-        except_suite ::= c_stmts_opt jmp_abs
+        except_suite ::= c_stmts_opt POP_EXCEPT JUMP_FORWARD
+        except_suite ::= c_stmts_opt POP_EXCEPT jmp_abs
         except_suite ::= return_stmts
 
         except_cond1 ::= DUP_TOP expr COMPARE_OP
                 jmp_false POP_TOP POP_TOP POP_TOP
 
         except_cond2 ::= DUP_TOP expr COMPARE_OP
-                jmp_false POP_TOP designator POP_TOP
+                jmp_false POP_TOP designator
 
+        except  ::=  POP_TOP POP_TOP POP_TOP POP_EXCEPT c_stmts_opt JUMP_FORWARD
         except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt JUMP_FORWARD
-        except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt jmp_abs
+        except  ::=  POP_TOP POP_TOP POP_TOP POP_EXCEPT c_stmts_opt jmp_abs
         except  ::=  POP_TOP POP_TOP POP_TOP return_stmts
 
         jmp_abs ::= JUMP_ABSOLUTE

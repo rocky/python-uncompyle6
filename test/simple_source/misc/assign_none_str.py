@@ -1,1 +1,0 @@
-vario = 'None'

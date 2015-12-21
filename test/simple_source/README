@@ -4,4 +4,9 @@ across all versions of Python.
 Their simnplicity is to try to make it easier to debug grammar
 and AST walking routines.
 
-This code originally taken from https://github.com/DarkFenX/uncompyle3
+The numbers in the filenames are to assist running the programs from
+the simplest to more complex. For example, many tests have assignment
+statements or function calls, so we want to test those constructs
+first.
+
+Code and organization merged from uncompyle3, uncompyle{,2}, and pycdc

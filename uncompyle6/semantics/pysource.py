@@ -314,7 +314,6 @@ TABLE_DIRECT = {
     'tryelsestmtl':		( '%|try:\n%+%c%-%c%|else:\n%+%c%-', 1, 3, 4 ),
     'tf_trystmt':		( '%c%-%c%+', 1, 3 ),
     'tf_tryelsestmt':		( '%c%-%c%|else:\n%+%c', 1, 3, 4 ),
-    'except':		( '%|except:\n%+%c%-', 3 ),
     'except_cond1':	( '%|except %c:\n', 1 ),
     'except_cond2':	( '%|except %c as %c:\n', 1, 5 ),
     'except_suite':     ( '%+%c%-%C', 0, (1, maxint, '') ),
@@ -489,6 +488,14 @@ class Walker(GenericASTTraversal, object):
         self.mod_globs = set()
         self.currentclass = None
         self.pending_newlines = 0
+
+        if version >= 3.0:
+            # Python 3 adds a POP_EXCEPT instruction
+            TABLE_DIRECT['except'] =  ('%|except:\n%+%c%-', 4 )
+        else:
+            TABLE_DIRECT['except'] =  ('%|except:\n%+%c%-', 3 )
+            pass
+        return
 
     f = property(lambda s: s.params['f'],
                  lambda s, x: s.params.__setitem__('f', x),
@@ -1183,6 +1190,9 @@ class Walker(GenericASTTraversal, object):
     def engine(self, entry, startnode):
         # self.print_("-----")
         # self.print(startnode)
+
+        # from trepan.api import debug
+        # debug(start_opts={'startup-profile': True})
 
         fmt = entry[0]
         arg = 1

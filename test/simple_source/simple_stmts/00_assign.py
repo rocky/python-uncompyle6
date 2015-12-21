@@ -1,4 +1,6 @@
 # Tests:
 # assign ::= expr designator
 
-vario = 556
+a = 'None'
+b = None
+c = 556
