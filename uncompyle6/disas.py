@@ -18,35 +18,11 @@ want to run on Python 2.7.
 
 from __future__ import print_function
 
-import inspect, os, py_compile, sys, tempfile
+import inspect, os, sys
 
 import uncompyle6
-from uncompyle6 import PYTHON3
 from uncompyle6.scanner import get_scanner
-
-def check_object_path(path):
-    if path.endswith(".py"):
-        try:
-            import importlib
-            return importlib.util.cache_from_source(path,
-                                                    optimization='')
-        except:
-            try:
-                import imp
-                imp.cache_from_source(path, debug_override=False)
-            except:
-                pass
-            pass
-        basename = os.path.basename(path)[0:-3]
-        spath = path if PYTHON3 else path.decode('utf-8')
-        path = tempfile.mkstemp(prefix=basename + '-',
-                                suffix='.pyc', text=False)[1]
-        py_compile.compile(spath, cfile=path)
-
-    if not path.endswith(".pyc") and not path.endswith(".pyo"):
-        raise ValueError("path %s must point to a .py or .pyc file" %
-                         path)
-    return path
+from uncompyle6.load import check_object_path, load_module
 
 def disco(version, co, out=None):
     """
@@ -78,7 +54,7 @@ def disassemble_file(filename, outstream=None):
     try to find the corresponding compiled object.
     """
     filename = check_object_path(filename)
-    version, magic_int, co = uncompyle6.load_module(filename)
+    version, magic_int, co = load_module(filename)
     if type(co) == list:
         for con in co:
             disco(version, con, outstream)

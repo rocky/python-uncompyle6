@@ -2,61 +2,28 @@
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2015 by Rocky Bernstein
-#  See LICENSE for license
 """
-  Deparsing saving text fragment information indexed by offset
+Creates Python source code from an uncompyle6 abstract syntax tree,
+and indexes fragments which can be accessed by instruction offset
+address.
 
-
-  Decompilation (walking AST)
-
-  All table-driven. (rocky: well, mostly. I need to add more format
-  specifiers for say duplicating info from one node to another.)
-
-  Step 1 determines a table (T) and a path to a
-  table key (K) from the node type (N) (other nodes are shown as O):
-
-         N                  N               N&K
-     / | ... \          / | ... \        / | ... \
-    O  O      O        O  O      K      O  O      O
-              |
-              K
-
-  MAP_R0 (TABLE_R0)  MAP_R (TABLE_R)  MAP_DIRECT (TABLE_DIRECT)
-
-  The default is a direct mapping.  The key K is then extracted from the
-  subtree and used to find a table entry T[K], if any.  The result is a
-  format string and arguments (a la printf()) for the formatting engine.
-  Escapes in the format string are:
-
-    %c  evaluate N[A] recursively*
-    %C  evaluate N[A[0]]..N[A[1]-1] recursively, separate by A[2]*
-    %P  same as %C but sets operator precedence
-    %,  print ',' if last %C only printed one item (for tuples--unused)
-    %|  tab to current indentation level
-    %+ increase current indentation level
-    %- decrease current indentation level
-    %{...} evaluate ... in context of N
-    %% literal '%'
-    %p evaluate N setting precedence
-
-
-  * indicates an argument (A) required.
-
-  The '%' may optionally be followed by a number (C) in square brackets, which
-  makes the engine walk down to N[C] before evaluating the escape code.
+See the comments in pysource for information on the abstract sytax tree
+and how semantic actions are written.
 """
+
+# FIXME: DRY code with pysource
 
 from __future__ import print_function
 
 import inspect, re, sys
 
 from uncompyle6 import PYTHON3
-from uncompyle6 import walker
+from uncompyle6.semantics import pysource
 from uncompyle6.parser import get_python_parser
-from uncompyle6.walker import escape, PRECEDENCE, minint
-from uncompyle6.walker import AST, NONE, find_all_globals
-from uncompyle6.walker import find_globals, find_none, INDENT_PER_LEVEL
-from uncompyle6.walker import ParserError
+from uncompyle6.semantics.pysource import escape, PRECEDENCE, minint
+from uncompyle6.semantics.pysource import AST, NONE, find_all_globals
+from uncompyle6.semantics.pysource import find_globals, find_none, INDENT_PER_LEVEL
+from uncompyle6.semantics.pysource import ParserError
 from uncompyle6 import parser
 from uncompyle6.scanner import Token, Code, get_scanner
 
@@ -67,8 +34,7 @@ else:
     from itertools import izip_longest as zip_longest
     from StringIO import StringIO
 
-# FIXME: remove uncompyle dups
-# from uncompyle6.walker import find_all_globals, find_globals, find_none
+
 from uncompyle6.parsers.spark import GenericASTTraversal, GenericASTTraversalPruningException
 from types import CodeType
 
@@ -77,7 +43,7 @@ NodeInfo = namedtuple("NodeInfo", "node start finish")
 ExtractInfo = namedtuple("ExtractInfo",
                          "lineNo lineStartOffset markerLine selectedLine selectedText")
 
-class Traverser(walker.Walker, object):
+class Traverser(pysource.Walker, object):
     stacked_params = ('f', 'indent', 'isLambda', '_globals')
 
     def __init__(self, version, scanner, showast=False):
@@ -1186,7 +1152,7 @@ class Traverser(walker.Walker, object):
 
     pass
 
-def deparse(version, co, out=StringIO(), showasm=False, showast=False):
+def deparse_code(version, co, out=StringIO(), showasm=False, showast=False):
     assert inspect.iscode(co)
     # store final output stream for case of error
     __real_out = out or sys.stdout
@@ -1199,7 +1165,7 @@ def deparse(version, co, out=StringIO(), showasm=False, showast=False):
 
     try:
         walk.ast = walk.build_ast_d(tokens, customize)
-    except walker.ParserError as e :  # parser failed, dump disassembly
+    except pysource.ParserError as e :  # parser failed, dump disassembly
         print(e, file=__real_out)
         raise
 
@@ -1207,7 +1173,7 @@ def deparse(version, co, out=StringIO(), showasm=False, showast=False):
 
     # convert leading '__doc__ = "..." into doc string
     assert walk.ast == 'stmts'
-    walk.mod_globs = walker.find_globals(walk.ast, set())
+    walk.mod_globs = pysource.find_globals(walk.ast, set())
     walk.gen_source_d(walk.ast, co.co_name, customize)
     walk.set_pos_info(walk.ast, 0, len(walk.text))
     walk.fixup_parents(walk.ast, None)
@@ -1219,70 +1185,52 @@ def deparse(version, co, out=StringIO(), showasm=False, showast=False):
 
     return walk
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
-    def deparse_test(co):
-        sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
-        walk = deparse(sys_version, co, showasm=True, showast=True)
-        print("deparsed source")
-        print(walk.text, "\n")
-        print('------------------------')
-        for name, offset in sorted(walk.offsets.keys()):
-            print("name %s, offset %s" % (name, offset))
-            nodeInfo = walk.offsets[name, offset]
-            node = nodeInfo.node
-            extractInfo = walk.extract_node_info(node)
-            print("code: %s" % node.type)
-            # print extractInfo
-            print(extractInfo.selectedText)
-            print(extractInfo.selectedLine)
-            print(extractInfo.markerLine)
-            extractInfo, p = walk.extract_parent_info(node)
-            if extractInfo:
-                print("Contained in...")
-                print(extractInfo.selectedLine)
-                print(extractInfo.markerLine)
-                print("code: %s" % p.type)
-                print('=' * 40)
-                pass
-            pass
-        return
+#     def deparse_test(co):
+#         sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
+#         walk = deparse_code(sys_version, co, showasm=False, showast=False)
+#         print("deparsed source")
+#         print(walk.text, "\n")
+#         print('------------------------')
+#         for name, offset in sorted(walk.offsets.keys(),
+#                                    key=lambda x: str(x[0])):
+#             print("name %s, offset %s" % (name, offset))
+#             nodeInfo = walk.offsets[name, offset]
+#             node = nodeInfo.node
+#             extractInfo = walk.extract_node_info(node)
+#             print("code: %s" % node.type)
+#             # print extractInfo
+#             print(extractInfo.selectedText)
+#             print(extractInfo.selectedLine)
+#             print(extractInfo.markerLine)
+#             extractInfo, p = walk.extract_parent_info(node)
+#             if extractInfo:
+#                 print("Contained in...")
+#                 print(extractInfo.selectedLine)
+#                 print(extractInfo.markerLine)
+#                 print("code: %s" % p.type)
+#                 print('=' * 40)
+#                 pass
+#             pass
+#         return
 
-    def get_code_for_fn(fn):
-        return fn.__code__
+#     def get_code_for_fn(fn):
+#         return fn.__code__
 
-    def foo(a, **options):
-        def bar(a, b=1, c=2):
-            print("a, b, c= ", a, int(b), c)
-        bar(a, **options)
-        options = {'c': 5, 'b': 10}
-        bar(a, **options)
-        return None
+#     def gcd(a, b):
+#         if a > b:
+#             (a, b) = (b, a)
+#             pass
 
-    def check_args(args):
-        deparse_test(inspect.currentframe().f_code)
-        for i in range(2):
-            try:
-                i  = int(args[i])
-            except ValueError:
-                print("** Expecting an integer, got: %s" % repr(args[i]))
-                sys.exit(2)
-                pass
-            pass
+#         if a <= 0:
+#             return None
+#         if a == 1 or a == b:
+#             return a
+#         return gcd(b-a, a)
 
-    def gcd(a, b):
-        if a > b:
-            (a, b) = (b, a)
-            pass
-
-        if a <= 0:
-            return None
-        if a == 1 or a == b:
-            return a
-        return gcd(b-a, a)
-
-    # check_args(['3', '5'])
-    deparse_test(get_code_for_fn(gcd))
-    # deparse_test(get_code_for_fn(gcd))
-    # deparse_test(get_code_for_fn(Traverser.fixup_offsets))
-    # deparse_test(inspect.currentframe().f_code)
+#     # check_args(['3', '5'])
+#     deparse_test(get_code_for_fn(gcd))
+#     # deparse_test(get_code_for_fn(gcd))
+#     # deparse_test(get_code_for_fn(Traverser.fixup_offsets))
+#     # deparse_test(inspect.currentframe().f_code)

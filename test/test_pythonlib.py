@@ -31,7 +31,8 @@ from __future__ import print_function
 
 import getopt, os, py_compile, sys, shutil, tempfile, time
 
-from uncompyle6 import main, PYTHON_VERSION
+from uncompyle6 import PYTHON_VERSION
+from uncompyle6.main import main
 from fnmatch import fnmatch
 
 def get_srcdir():
@@ -212,10 +213,7 @@ if __name__ == '__main__':
             print("Can't find directory %s. Skipping" % src_dir,
                   file=sys.stderr)
             continue
-        if last_compile_version and last_compile_version != compiled_version:
-            print("Warning: mixed python version decompylation")
-        else:
-            last_compile_version = compiled_version
+        last_compile_version = compiled_version
         pass
 
     if not checked_dirs:

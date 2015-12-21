@@ -2,7 +2,8 @@
 # Mode: -*- python -*-
 #
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-#
+# Copyright (c) 2015 by Rocky Bernstein
+
 """
 Usage: uncompyle6 [OPTIONS]... [ FILE | DIR]...
 
@@ -41,15 +42,19 @@ Extensions of generated files:
 """
 
 from __future__ import print_function
-import sys, os, getopt
+import sys, os, getopt, time
 
 program =  os.path.basename(__file__)
 
-Usage_short = \
-"%s [--help] [--verify] [--showasm] [--showast] [-o <path>] FILE|DIR..." % program
+from uncompyle6 import verify, check_python_version
+from uncompyle6.main import main, status_msg
 
-from uncompyle6 import main, status_msg, verify, check_python_version
-import time
+def usage():
+    print("""usage:
+   %s [--help] [--verify] [--showasm] [--showast] [-o <path>] FILE|DIR...
+"""  % program)
+    sys.exit(1)
+
 
 check_python_version(program)
 
@@ -91,9 +96,8 @@ for opt, val in opts:
     elif opt == '-r':
         recurse_dirs = True
     else:
-        print(opt)
-        print(Usage_short)
-        sys.exit(1)
+        print(opt, file=sys.stderr)
+        usage()
 
 # expand directory if specified
 if recurse_dirs:
@@ -116,6 +120,11 @@ if src_base:
     sb_len = len( os.path.join(src_base, '') )
     files = [f[sb_len:] for f in files]
     del sb_len
+
+if not files:
+    print("No files given", file=sys.stderr)
+    usage()
+
 
 if outfile == '-':
     outfile = None # use stdout
@@ -162,7 +171,7 @@ else:
                 if f is None:
                     break
                 (t, o, f, v) = \
-                    main(src_base, out_base, [f], codes, outfile, showasm, showast, do_verify)
+                  main(src_base, out_base, [f], codes, outfile, showasm, showast, do_verify)
                 tot_files += t
                 okay_files += o
                 failed_files += f

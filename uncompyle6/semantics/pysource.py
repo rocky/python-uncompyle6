@@ -1,11 +1,31 @@
 #  Copyright (c) 1999 John Aycock
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+#  Copyright (c) 2015 by Rocky Bernstein
 
 """
-  Decompilation (walking AST)
+Creates Python source code from an uncompyle6 abstract syntax tree.
 
-  All table-driven.  Step 1 determines a table (T) and a path to a
+The terminal symbols are CPython bytecode instructions. (See the
+python documentation under module "dis" for a list of instructions
+and what they mean).
+
+Upper levels of the grammar is a more-or-less conventional grammar for
+Python.
+
+Semantic action rules for nonterminal symbols can be table driven.
+This mechanism uses a printf-like syntax to direct substitution from
+attributes of the nonterminal and its children..
+
+The other way to specify a semantic rule is to create a method
+prefaced with "n_" for that nonterminal. For example, "n_exec_stmt"
+handles the semantic actions for the "exec_smnt" nonterminal symbol.
+
+The rest of the below describes how table-driven semantic actions work
+and gives a list of the format specifiers. The default() and engine()
+methods implement most of the below.
+
+  Step 1 determines a table (T) and a path to a
   table key (K) from the node type (N) (other nodes are shown as O):
 
          N                  N               N&K
@@ -32,10 +52,12 @@
     %% literal '%'
     %p evaluate N setting precedence
 
+
   * indicates an argument (A) required.
 
   The '%' may optionally be followed by a number (C) in square brackets, which
   makes the engine walk down to N[C] before evaluating the escape code.
+
 """
 
 from __future__ import print_function
@@ -552,8 +574,8 @@ class Walker(GenericASTTraversal, object):
     def print_docstring(self, indent, docstring):
         quote = '"""'
         self.write(indent)
-        # FIXME for Python3
-        if type(docstring) == unicode:
+        if not PYTHON3 and not isinstance(docstring, str):
+            # Must be unicode in Python2
             self.write('u')
             docstring = repr(docstring.expandtabs())[2:-1]
         else:
@@ -915,7 +937,6 @@ class Walker(GenericASTTraversal, object):
         p = self.prec
         self.prec = 27
         n = node[-1]
-
         assert n == 'list_iter'
         # find innerst node
         while n == 'list_iter':
@@ -943,6 +964,7 @@ class Walker(GenericASTTraversal, object):
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
         ast = ast[0][0][0]
+
         n = ast[iter_index]
         assert n == 'comp_iter'
         # find innerst node
@@ -1464,7 +1486,8 @@ class Walker(GenericASTTraversal, object):
             if isLambda:
                 self.write(self.traverse(ast, isLambda=isLambda))
             else:
-                self.print_(self.traverse(ast, isLambda=isLambda))
+                self.text = self.traverse(ast, isLambda=isLambda)
+                self.print_(self.text)
         self.return_none = rn
 
     def build_ast(self, tokens, customize, isLambda=0, noneInNames=False):
@@ -1505,7 +1528,11 @@ class Walker(GenericASTTraversal, object):
 
         return ast
 
-def walker(version, co, out=sys.stdout, showasm=False, showast=False):
+def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False):
+    """
+    disassembles and deparses a given code block 'co'
+    """
+
     assert inspect.iscode(co)
     # store final output stream for case of error
     __real_out = out or sys.stdout
@@ -1540,9 +1567,9 @@ def walker(version, co, out=sys.stdout, showasm=False, showast=False):
     return walk
 
 if __name__ == '__main__':
-    def walk_test(co):
+    def deparse_test(co):
         sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
-        walker(sys_version, co, showasm=True, showast=True)
-        print()
+        deparsed = deparse_code(sys_version, co, showasm=False, showast=False)
+        print(deparsed.text)
         return
-    walk_test(walk_test.__code__)
+    deparse_test(deparse_test.__code__)

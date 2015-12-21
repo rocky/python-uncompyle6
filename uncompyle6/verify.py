@@ -14,6 +14,7 @@ import uncompyle6
 import uncompyle6.scanner as scanner
 from uncompyle6 import PYTHON3
 from uncompyle6.magics import PYTHON_MAGIC_INT
+from uncompyle6.load import load_file, load_module
 
 # FIXME: DRY
 if PYTHON3:
@@ -348,12 +349,12 @@ class Token(scanner.Token):
 
 def compare_code_with_srcfile(pyc_filename, src_filename):
     """Compare a .pyc with a source code file."""
-    version, magic_int, code_obj1 = uncompyle6.load_module(pyc_filename)
+    version, magic_int, code_obj1 = load_module(pyc_filename)
     if magic_int != PYTHON_MAGIC_INT:
         msg = ("Can't compare code - Python is running with magic %s, but code is magic %s "
                % (PYTHON_MAGIC_INT, magic_int))
         return msg
-    code_obj2 = uncompyle6._load_file(src_filename)
+    code_obj2 = load_file(src_filename)
     cmp_code_objects(version, code_obj1, code_obj2)
     return None
 
