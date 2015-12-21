@@ -1,5 +1,6 @@
 import sys
 from uncompyle6 import PYTHON3
+from uncompyle6.scanners.tok import NoneToken
 
 if PYTHON3:
     intern = sys.intern
@@ -12,6 +13,11 @@ class AST(UserList):
     def __init__(self, type, kids=[]):
         self.type = intern(type)
         UserList.__init__(self, kids)
+
+    def isNone(self):
+        """An AST None token. We can't use regular list comparisons
+        because AST token offsets might be different"""
+        return len(self.data) == 1 and self.data[0] == NoneToken
 
     def __getslice__(self, low, high):    return self.data[low:high]
 

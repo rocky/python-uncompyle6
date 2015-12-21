@@ -35,7 +35,6 @@ class Python3Parser(PythonParser):
             self.new_rules.add(rule)
             self.addRule(rule, nop_func)
             customize[opname] = count
-            # print("XXXX" , rule)
             pass
         return
 
@@ -578,14 +577,7 @@ class Python3Parser(PythonParser):
 
         load_attr ::= expr LOAD_ATTR
         get_iter ::= expr GET_ITER
-        slice0 ::= expr SLICE+0
-        slice0 ::= expr DUP_TOP SLICE+0
-        slice1 ::= expr expr SLICE+1
-        slice1 ::= expr expr DUP_TOPX_2 SLICE+1
-        slice2 ::= expr expr SLICE+2
-        slice2 ::= expr expr DUP_TOPX_2 SLICE+2
-        slice3 ::= expr expr expr SLICE+3
-        slice3 ::= expr expr expr DUP_TOPX_3 SLICE+3
+
         buildslice3 ::= expr expr expr BUILD_SLICE_3
         buildslice2 ::= expr expr BUILD_SLICE_2
 

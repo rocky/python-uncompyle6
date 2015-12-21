@@ -23,7 +23,7 @@ check:
 check-2.7: check-bytecode check-2.7-ok
 
 #: Run working tests from Python 3.4
-check-3.4: check-bytecode
+check-3.4: check-bytecode check-bytecode-3.4
 	$(PYTHON) test_pythonlib.py --bytecode-3.4
 
 #: Check deparsing only, but from a different Python version
@@ -44,6 +44,10 @@ check-bytecode-2.7:
 
 #: Check deparsing Python 3.2
 check-bytecode-3.2:
+	$(PYTHON) test_pythonlib.py --bytecode-3.2
+
+#: Check deparsing Python 3.2
+check-bytecode-3.4:
 	$(PYTHON) test_pythonlib.py --bytecode-3.2
 
 #: short tests for bytecodes only for this version of Python

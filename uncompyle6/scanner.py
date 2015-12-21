@@ -15,10 +15,10 @@ for later use in deparsing.
 
 from __future__ import print_function
 
-
 import sys
 
 from uncompyle6 import PYTHON3
+from uncompyle6.scanners.tok import Token
 
 # FIXME: DRY
 if PYTHON3:
@@ -27,53 +27,13 @@ if PYTHON3:
 
     def cmp(a, b):
         return (a > b) - (a < b)
+
+    def long(l): l
 else:
     L65536 = long(65536) # NOQA
 
 from uncompyle6.opcodes import opcode_25, opcode_26, opcode_27, opcode_32, opcode_34
 
-
-class Token:
-    """
-    Class representing a byte-code token.
-
-    A byte-code token is equivalent to Python 3's  dis.instruction or
-    the contents of one line as output by dis.dis().
-    """
-    # FIXME: match Python 3.4's terms:
-    #    type_ should be opname
-    #    linestart = starts_line
-    #    attr = argval
-    #    pattr = argrepr
-    def __init__(self, type_, attr=None, pattr=None, offset=-1, linestart=None):
-        self.type = intern(type_)
-        self.attr = attr
-        self.pattr = pattr
-        self.offset = offset
-        self.linestart = linestart
-
-    def __cmp__(self, o):
-        if isinstance(o, Token):
-            # both are tokens: compare type and pattr
-            return cmp(self.type, o.type) or cmp(self.pattr, o.pattr)
-        else:
-            return cmp(self.type, o)
-
-    def __repr__(self):
-        return str(self.type)
-
-    def __str__(self):
-        pattr = self.pattr if self.pattr is not None else ''
-        if self.linestart:
-            return '\n%4d  %6s\t%-17s %r' % (self.linestart, self.offset, self.type, pattr)
-        else:
-            return '      %6s\t%-17s %r' % (self.offset, self.type, pattr)
-
-    def __hash__(self):
-        return hash(self.type)
-
-    def __getitem__(self, i):
-        raise IndexError
 
 class Code:
     '''

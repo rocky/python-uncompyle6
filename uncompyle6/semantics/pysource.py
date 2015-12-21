@@ -69,8 +69,9 @@ from uncompyle6 import PYTHON3
 from uncompyle6.parser import get_python_parser
 from uncompyle6.parsers.astnode import AST
 from uncompyle6.parsers.spark import GenericASTTraversal
+from uncompyle6.scanner import Code, get_scanner
+from uncompyle6.scanners.tok import Token, NoneToken
 import uncompyle6.parser as python_parser
-from uncompyle6.scanner import Token, Code, get_scanner
 
 if PYTHON3:
     from itertools import zip_longest
@@ -91,7 +92,7 @@ RETURN_LOCALS = AST('return_stmt',
                       Token('RETURN_VALUE')])
 
 
-NONE = AST('expr', [ Token('LOAD_CONST', pattr=None) ] )
+NONE = AST('expr', [ NoneToken ] )
 
 RETURN_NONE = AST('stmt',
                   [ AST('return_stmt',
@@ -666,13 +667,13 @@ class Walker(GenericASTTraversal, object):
     def n_buildslice3(self, node):
         p = self.prec
         self.prec = 100
-        if node[0] != NONE:
+        if not node[0].isNone():
             self.preorder(node[0])
         self.write(':')
-        if node[1] != NONE:
+        if not node[1].isNone():
             self.preorder(node[1])
         self.write(':')
-        if node[2] != NONE:
+        if not node[2].isNone():
             self.preorder(node[2])
         self.prec = p
         self.prune() # stop recursing
@@ -680,20 +681,13 @@ class Walker(GenericASTTraversal, object):
     def n_buildslice2(self, node):
         p = self.prec
         self.prec = 100
-        if node[0] != NONE:
+        if not node[0].isNone():
             self.preorder(node[0])
         self.write(':')
-        if node[1] != NONE:
+        if not node[1].isNone():
             self.preorder(node[1])
         self.prec = p
         self.prune() # stop recursing
-
-#    def n_l_stmts(self, node):
-#        if node[0] == '_stmts':
-#            if len(node[0]) >= 2 and node[0][1] == 'stmt':
-#                if node[0][-1][0] == 'continue_stmt':
-#                    del node[0][-1]
-#        self.default(node)
 
     def n_expr(self, node):
         p = self.prec
@@ -781,7 +775,7 @@ class Walker(GenericASTTraversal, object):
         """
         self.write(self.indent, 'exec ')
         self.preorder(node[0])
-        if node[1][0] != NONE:
+        if not node[1][0].isNone():
             sep = ' in '
             for subnode in node[1]:
                 self.write(sep); sep = ", "
