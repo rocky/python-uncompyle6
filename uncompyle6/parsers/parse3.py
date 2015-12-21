@@ -26,7 +26,6 @@ class Python3Parser(PythonParser):
     def __init__(self):
         self.added_rules = set()
         GenericASTBuilder.__init__(self, AST, 'stmts')
-        self.customized = {}
         self.new_rules = set()
 
     def add_unique_rule(self, rule, opname, count, customize):
@@ -36,6 +35,7 @@ class Python3Parser(PythonParser):
             self.new_rules.add(rule)
             self.addRule(rule, nop_func)
             customize[opname] = count
+            # print("XXXX" , rule)
             pass
         return
 
@@ -666,11 +666,12 @@ class Python3Parser(PythonParser):
         Special handling for opcodes that take a variable number
         of arguments -- we add a new rule for each:
 
-            expr        ::= {expr}^n BUILD_LIST_n
-            expr        ::= {expr}^n BUILD_TUPLE_n
+            build_list  ::= {expr}^n BUILD_LIST_n
+            build_list  ::= {expr}^n BUILD_TUPLE_n
             unpack_list ::= UNPACK_LIST {expr}^n
             unpack      ::= UNPACK_TUPLE {expr}^n
-            unpack      ::= UNPACK_SEQEUENE {expr}^n
+            unpack      ::= UNPACK_SEQEUENCE {expr}^n
+
             mkfunc      ::= {expr}^n LOAD_CONST MAKE_FUNCTION_n
             mklambda    ::= {expr}^n LOAD_LAMBDA MAKE_FUNCTION_n
             mkfunc      ::= {expr}^n load_closure LOAD_CONST MAKE_FUNCTION_n
@@ -679,8 +680,13 @@ class Python3Parser(PythonParser):
             expr ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n POP_TOP
             expr ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
         """
+
+        # from trepan.api import debug
+        # debug(start_opts={'startup-profile': True})
         for token in tokens:
             opname = token.type
+            opname_base = opname[:opname.rfind('_')]
+
             if opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
                           'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
                 # Low byte indicates number of positional paramters,
@@ -694,9 +700,15 @@ class Python3Parser(PythonParser):
                         + ('kwarg ' * args_kw)
                         + 'expr ' * nak + token.type)
                 self.add_unique_rule(rule, token.type, args_pos, customize)
-            elif opname.startswith('MAKE_FUNCTION_'):
-                # from trepan.api import debug
-                # debug(start_opts={'startup-profile': True})
+            elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
+                rule = 'build_list ::= ' + 'expr ' * token.attr + opname
+                self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
+                rule = 'unpack ::= ' + opname + ' designator' * token.attr
+                self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname_base == 'UNPACK_LIST':
+                rule = 'unpack_list ::= ' + opname + ' designator' * token.attr
+            elif opname_base == ('MAKE_FUNCTION'):
                 self.addRule('mklambda ::= %s LOAD_LAMBDA %s' %
                       ('expr ' * token.attr, opname), nop_func)
                 rule = 'mkfunc ::= %s LOAD_CONST LOAD_CONST %s' % ('expr ' * token.attr, opname)

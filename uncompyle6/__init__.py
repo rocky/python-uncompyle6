@@ -52,8 +52,6 @@ import uncompyle6.semantics.pysource
 import uncompyle6.semantics.fragments
 
 # Conventience functions so you can say:
-# from uncompyle6 import deparse_code and
-# from uncompyle6 import deparse_code_fragments
+# from uncompyle6 import deparse_code
 
 deparse_code = uncompyle6.semantics.pysource.deparse_code
-deparse_fragments = uncompyle6.semantics.fragments.deparse_code

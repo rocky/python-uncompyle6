@@ -650,11 +650,12 @@ class Python2Parser(PythonParser):
         Special handling for opcodes that take a variable number
         of arguments -- we add a new rule for each:
 
-            expr ::= {expr}^n BUILD_LIST_n
-            expr ::= {expr}^n BUILD_TUPLE_n
+            build_list  ::= {expr}^n BUILD_TUPLE_n
+            build_list  ::= {expr}^n BUILD_LIST_n
             unpack_list ::= UNPACK_LIST {expr}^n
-            unpack ::= UNPACK_TUPLE {expr}^n
-            unpack ::= UNPACK_SEQEUENE {expr}^n
+            unpack      ::= UNPACK_TUPLE {expr}^n
+            unpack      ::= UNPACK_SEQEUENCE {expr}^n
+
             mkfunc ::= {expr}^n LOAD_CONST MAKE_FUNCTION_n
             mklambda ::= {expr}^n LOAD_LAMBDA MAKE_FUNCTION_n
             mkfunc ::= {expr}^n load_closure LOAD_CONST MAKE_FUNCTION_n

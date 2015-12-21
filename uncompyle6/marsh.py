@@ -41,12 +41,19 @@ def load_code(fp, magic_int):
     """
     global internStrings
     internStrings = []
+    seek_pos = fp.tell()
+    # Do a sanity check. Is this a code type?
+    if fp.read(1).decode('utf-8') != 'c':
+        raise TypeError("File %s doesn't smell like Python bytecode" % fp.name)
+
+    fp.seek(seek_pos)
     return load_code_internal(fp, magic_int)
 
 def load_code_internal(fp, magic_int, bytes_for_s=False):
     global internStrings
 
-    marshalType = fp.read(1).decode('utf-8')
+    b1 = fp.read(1)
+    marshalType = b1.decode('utf-8')
     if marshalType == 'c':
         Code = types.CodeType
 
