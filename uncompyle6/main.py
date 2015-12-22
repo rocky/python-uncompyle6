@@ -117,7 +117,7 @@ def main(in_base, out_base, files, codes, outfile=None,
             outstream = _get_outstream(outfile)
         # print(outfile, file=sys.stderr)
 
-        # try to decomyple the input file
+        # Try to uncmpile the input file
         try:
             uncompyle_file(infile, outstream, showasm, showast)
             tot_files += 1
@@ -136,8 +136,8 @@ def main(in_base, out_base, files, codes, outfile=None,
                 outstream.close()
                 os.rename(outfile, outfile + '_failed')
             else:
-                sys.stderr.write("\n# Can't uncompyle %s\n" % infile)
-        else: # uncompyle successfull
+                sys.stderr.write("\n# Can't uncompile %s\n" % infile)
+        else: # uncompile successfull
             if outfile:
                 outstream.close()
             if do_verify:
@@ -145,7 +145,7 @@ def main(in_base, out_base, files, codes, outfile=None,
                     msg = verify.compare_code_with_srcfile(infile, outfile)
                     if not outfile:
                         if not msg:
-                            print('\n# okay decompyling %s' % infile)
+                            print('\n# okay decompiling %s' % infile)
                             okay_files += 1
                         else:
                             print('\n# %s\n\t%s', infile, msg)
@@ -158,7 +158,7 @@ def main(in_base, out_base, files, codes, outfile=None,
             else:
                 okay_files += 1
                 if not outfile:
-                    mess = '\n# okay decompyling'
+                    mess = '\n# okay decompiling'
                     # mem_usage = __memUsage()
                     print(mess, infile)
         if outfile:

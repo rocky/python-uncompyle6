@@ -44,8 +44,8 @@ class _State:
         self.T, self.complete, self.items = [], [], items
         self.stateno = stateno
 
-# DEFAULT_DEBUG = {'rules': True, 'transition': False}
-DEFAULT_DEBUG = {'rules': False, 'transition': False}
+# DEFAULT_DEBUG = {'rules': True, 'transition': True, 'reduce' : True}
+DEFAULT_DEBUG = {'rules': False, 'transition': False, 'reduce': False}
 class GenericParser:
     '''
     An Earley parser, as per J. Earley, "An Efficient Context-Free
@@ -450,6 +450,8 @@ class GenericParser:
 
             for rule in self.states[state].complete:
                 lhs, rhs = rule
+                if self.debug['reduce']:
+                    print("%s ::= %s" % (lhs, ' '.join(rhs)))
                 for pitem in sets[parent]:
                     pstate, pparent = pitem
                     k = self.goto(pstate, lhs)

@@ -43,7 +43,13 @@ def jabs_op(name, op):
     hasjabs.append(op)
 
 def updateGlobal():
-    # JUMP_OPs are used in verification
+    # JUMP_OPs are used in verification and in the scanner in resolving forward/backward
+    # jumps
+    globals().update({'PJIF': opmap['POP_JUMP_IF_FALSE']})
+    globals().update({'PJIT': opmap['POP_JUMP_IF_TRUE']})
+    globals().update({'JA': opmap['JUMP_ABSOLUTE']})
+    globals().update({'JF': opmap['JUMP_FORWARD']})
+    globals().update(dict([(k.replace('+','_'),v) for (k,v) in opmap.items()]))
     globals().update({'JUMP_OPs': map(lambda op: opname[op], hasjrel + hasjabs)})
 
 # Instruction opcodes for compiled code
