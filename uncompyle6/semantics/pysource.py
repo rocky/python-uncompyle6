@@ -59,7 +59,6 @@ methods implement most of the below.
   makes the engine walk down to N[C] before evaluating the escape code.
 
 """
-
 from __future__ import print_function
 
 import inspect, sys, re
@@ -334,8 +333,8 @@ TABLE_DIRECT = {
     'importstmt': ( '%|import %c\n', 2),
     'importstar': ( '%|from %[2]{pattr} import *\n', ),
     'importfrom': ( '%|from %[2]{pattr} import %c\n', 3 ),
-    'importmultiple': ( '%|import %c%c\n', 2, 3),
-    'import_cont'   : ( ', %c', 2),
+    'importmultiple': ( '%|import %c%c\n', 2, 3 ),
+    'import_cont'   : ( ', %c', 2 ),
 
     # CE - Fixes for tuples
     'assign2':     ( '%|%c, %c = %c, %c\n', 3, 4, 0, 1 ),

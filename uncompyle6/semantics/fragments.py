@@ -9,6 +9,16 @@ address.
 
 See the comments in pysource for information on the abstract sytax tree
 and how semantic actions are written.
+
+We add a format specifier here not used in pysource
+
+   %x takes an argument (src, (dest...)) and copies all of the range attributes
+from src to dest. For example in:
+
+
+    'importstmt': ( '%|import %c%x\n', 2, (2,(0,1)), ),
+
+node 2 range information, it in %c, is copied to nodes 0 and 1.
 """
 
 # FIXME: DRY code with pysource
@@ -20,12 +30,11 @@ import inspect, re, sys
 from uncompyle6 import PYTHON3
 from uncompyle6.semantics import pysource
 from uncompyle6.parser import get_python_parser
-from uncompyle6.semantics.pysource import escape, PRECEDENCE, minint
-from uncompyle6.semantics.pysource import AST, NONE, find_all_globals
-from uncompyle6.semantics.pysource import find_globals, find_none, INDENT_PER_LEVEL
-from uncompyle6.semantics.pysource import ParserError
 from uncompyle6 import parser
 from uncompyle6.scanner import Token, Code, get_scanner
+
+from uncompyle6.semantics.pysource import AST, INDENT_PER_LEVEL, NONE, PRECEDENCE, \
+     ParserError, TABLE_DIRECT, escape, find_all_globals, find_globals, find_none, minint
 
 if PYTHON3:
     from itertools import zip_longest
@@ -44,6 +53,10 @@ from collections import namedtuple
 NodeInfo = namedtuple("NodeInfo", "node start finish")
 ExtractInfo = namedtuple("ExtractInfo",
                          "lineNo lineStartOffset markerLine selectedLine selectedText")
+
+TABLE_DIRECT_FRAGMENT = {
+    'importstmt': ( '%|import %c%x\n', 2, (2,(0,1)), ),
+    }
 
 class Traverser(pysource.Walker, object):
     stacked_params = ('f', 'indent', 'isLambda', '_globals')
@@ -69,6 +82,10 @@ class Traverser(pysource.Walker, object):
 
         self.offsets = {}
         self.last_finish = -1
+
+        # Customize with our more-pervisive rules
+        TABLE_DIRECT.update(TABLE_DIRECT_FRAGMENT)
+
 
     f = property(lambda s: s.__params['f'],
                  lambda s, x: s.__params.__setitem__('f', x),
@@ -395,8 +412,11 @@ class Traverser(pysource.Walker, object):
     def n_import_as(self, node):
         start = len(self.f.getvalue())
         iname = node[0].pattr
-        assert node[-1][-1].type.startswith('STORE_')
-        sname = node[-1][-1].pattr # assume one of STORE_.... here
+
+        store_import_node = node[-1][-1]
+        assert store_import_node.type.startswith('STORE_')
+
+        sname = store_import_node.pattr
         self.write(iname)
         finish = len(self.f.getvalue())
         if iname == sname or iname.startswith(sname + '.'):
@@ -997,6 +1017,12 @@ class Traverser(pysource.Walker, object):
 
                 self.set_pos_info(node, start, len(self.f.getvalue()))
                 arg += 1
+            elif typ == 'x':
+                assert isinstance(entry[arg], tuple)
+                src, dest = entry[arg]
+                for n in dest:
+                    self.set_pos_info(node[n], node[src].start, node[src].finish)
+                arg += 1
             elif typ == 'P':
                 p = self.prec
                 low, high, sep, self.prec = entry[arg]
@@ -1235,6 +1261,7 @@ if __name__ == '__main__':
         return fn.__code__
 
     def gcd(a, b):
+        import math
         if a > b:
             (a, b) = (b, a)
             pass
