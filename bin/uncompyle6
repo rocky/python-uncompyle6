@@ -24,7 +24,7 @@ Options:
                   uncompyle6 -o /tmp /usr/lib/python1.5
                     -> /tmp/smtplib.pyc_dis ... /tmp/lib-tk/FixTk.pyc_dis
   -c <file>     attempts a disassembly after compiling <file>
-  -d            do not print timestamps
+  -d            print timestamps
   -p <integer>  use <integer> number of processes
   -r            recurse directories looking for .pyc and .pyo files
   --verify      compare generated source with input byte-code
@@ -64,7 +64,7 @@ numproc = 0
 outfile = '-'
 out_base = None
 codes = []
-timestamp = True
+timestamp = False
 timestampfmt = "# %Y.%m.%d %H:%M:%S %Z"
 
 try:
@@ -93,7 +93,7 @@ for opt, val in opts:
     elif opt == '-o':
         outfile = val
     elif opt == ('--timestamp', '-d'):
-        timestamp = False
+        timestamp = True
     elif opt == '-c':
         codes.append(val)
     elif opt == '-p':
@@ -140,6 +140,7 @@ elif outfile and len(files) > 1:
 
 if timestamp:
     print(time.strftime(timestampfmt))
+
 if numproc <= 1:
     try:
         result = main(src_base, out_base, files, codes, outfile,

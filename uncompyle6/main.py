@@ -1,21 +1,17 @@
 from __future__ import print_function
-import os, sys, types
+import os, sys
 
 from uncompyle6.disas import check_object_path
 from uncompyle6 import verify
 from uncompyle6.semantics import pysource
 
-from uncompyle6.scanner import get_scanner
 from uncompyle6.load import load_module
 
-# FIXME: remove duplicate code from deparse_code
 def uncompyle(version, co, out=None, showasm=False, showast=False,
               showgrammar=False):
     """
     disassembles and deparses a given code block 'co'
     """
-
-    assert isinstance(co, types.CodeType)
 
     # store final output stream for case of error
     real_out = out or sys.stdout
@@ -24,43 +20,25 @@ def uncompyle(version, co, out=None, showasm=False, showast=False,
         print('# Embedded file name: %s' % co.co_filename,
               file=real_out)
 
-    scanner = get_scanner(version)
-    tokens, customize = scanner.disassemble(co)
-
-    if showasm:
-        for t in tokens:
-            print(t, file=real_out)
-        print(file=out)
-
-    #  Build AST from disassembly.
-    walk = pysource.Walker(version, out, scanner,
-                           showast=showast, showgrammar=showgrammar)
     try:
-        ast = walk.build_ast(tokens, customize)
+        deparsed = pysource.deparse_code(version, co, out, showasm, showast, showgrammar)
     except pysource.ParserError as e :  # parser failed, dump disassembly
         print(e, file=real_out)
         raise
-    del tokens # save memory
 
-    # convert leading '__doc__ = "..." into doc string
-    assert ast == 'stmts'
+    # FIXME: remove duplicate code from deparse_code
     try:
-        if ast[0][0] == pysource.ASSIGN_DOC_STRING(co.co_consts[0]):
-            walk.print_docstring('', co.co_consts[0])
-            del ast[0]
-        if ast[-1] == pysource.RETURN_NONE:
-            ast.pop() # remove last node
+        if deparsed.ast[0][0] == pysource.ASSIGN_DOC_STRING(co.co_consts[0]):
+            deparsed.print_docstring('', co.co_consts[0])
+            del deparsed.ast[0]
+        if deparsed.ast[-1] == pysource.RETURN_NONE:
+            deparsed.ast.pop() # remove last node
             # todo: if empty, add 'pass'
     except:
         pass
-    walk.mod_globs = pysource.find_globals(ast, set())
-    walk.gen_source(ast, customize)
-    for g in walk.mod_globs:
-        walk.write('global %s ## Warning: Unused global' % g)
-    if walk.ERROR:
-        raise walk.ERROR
 
-def uncompyle_file(filename, outstream=None, showasm=False, showast=False):
+def uncompyle_file(filename, outstream=None, showasm=False, showast=False,
+                   showgrammar=False):
     """
     decompile Python byte-code file (.pyc)
     """
@@ -68,14 +46,15 @@ def uncompyle_file(filename, outstream=None, showasm=False, showast=False):
     version, magic_int, co = load_module(filename)
     if type(co) == list:
         for con in co:
-            uncompyle(version, con, outstream, showasm, showast)
+            uncompyle(version, con, outstream, showasm, showast, showgrammar)
     else:
-        uncompyle(version, co, outstream, showasm, showast)
+        uncompyle(version, co, outstream, showasm, showast, showgrammar)
     co = None
 
 def main(in_base, out_base, files, codes, outfile=None,
-         showasm=False, showast=False, do_verify=False):
-    '''
+         showasm=False, showast=False, do_verify=False,
+         showgrammar=False):
+    """
     in_base	base directory for input files
     out_base	base directory for output files (ignored when
     files	list of filenames to be uncompyled (relative to src_base)
@@ -85,7 +64,7 @@ def main(in_base, out_base, files, codes, outfile=None,
     - <filename>		outfile=<filename> (out_base is ignored)
     - files below out_base	out_base=...
     - stdout			out_base=None, outfile=None
-    '''
+    """
     def _get_outstream(outfile):
         dir = os.path.dirname(outfile)
         failed_file = outfile + '_failed'
@@ -121,7 +100,7 @@ def main(in_base, out_base, files, codes, outfile=None,
 
         # Try to uncmpile the input file
         try:
-            uncompyle_file(infile, outstream, showasm, showast)
+            uncompyle_file(infile, outstream, showasm, showast, showgrammar)
             tot_files += 1
         except ValueError as e:
             sys.stderr.write("\n# %s" % e)
@@ -138,6 +117,7 @@ def main(in_base, out_base, files, codes, outfile=None,
                 outstream.close()
                 os.rename(outfile, outfile + '_failed')
             else:
+                sys.stderr.write("\n# %s" % sys.exc_info()[1])
                 sys.stderr.write("\n# Can't uncompile %s\n" % infile)
         else: # uncompile successfull
             if outfile:

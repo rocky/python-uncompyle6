@@ -470,7 +470,8 @@ def find_none(node):
 class Walker(GenericASTTraversal, object):
     stacked_params = ('f', 'indent', 'isLambda', '_globals')
 
-    def __init__(self, version, out, scanner, showast=False, showgrammar=False):
+    def __init__(self, version, out, scanner, showast=False,
+                 debug_parser=PARSER_DEFAULT_DEBUG):
         GenericASTTraversal.__init__(self, ast=None)
         self.scanner = scanner
         params = {
@@ -478,7 +479,8 @@ class Walker(GenericASTTraversal, object):
             'indent': '',
             }
         self.version = version
-        self.p = get_python_parser(version)
+        self.p = get_python_parser(version, debug_parser=debug_parser)
+        self.debug_parser = dict(debug_parser)
         self.showast = showast
         self.params = params
         self.param_stack = []
@@ -1540,7 +1542,6 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
 
     assert inspect.iscode(co)
     # store final output stream for case of error
-    __real_out = out or sys.stdout
     scanner = get_scanner(version)
 
     tokens, customize = scanner.disassemble(co)
@@ -1548,37 +1549,37 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
         for t in tokens:
             print(t)
 
-    parser_debug = dict(PARSER_DEFAULT_DEBUG)
-    parser_debug['reduce'] = showgrammar
+    debug_parser = dict(PARSER_DEFAULT_DEBUG)
+    debug_parser['reduce'] = showgrammar
 
 
     #  Build AST from disassembly.
-    walk = Walker(version, out, scanner, showast=showast)
+    deparsed = Walker(version, out, scanner, showast=showast, debug_parser=debug_parser)
 
-    try:
-        walk.ast = walk.build_ast(tokens, customize)
-    except ParserError as e :  # parser failed, dump disassembly
-        print(e, file=__real_out)
-        raise
+    deparsed.ast = deparsed.build_ast(tokens, customize)
+
+    assert deparsed.ast == 'stmts', 'Should have parsed grammar start'
 
     del tokens # save memory
 
     # convert leading '__doc__ = "..." into doc string
-    assert walk.ast == 'stmts'
-    walk.mod_globs = find_globals(walk.ast, set())
-    walk.gen_source(walk.ast, customize)
+    deparsed.mod_globs = find_globals(deparsed.ast, set())
 
-    for g in walk.mod_globs:
-        walk.write('global %s ## Warning: Unused global' % g)
-    if walk.ERROR:
-        raise walk.ERROR
+    # What we've been waiting for: Generate source from AST!
+    deparsed.gen_source(deparsed.ast, customize)
 
-    return walk
+    for g in deparsed.mod_globs:
+        deparsed.write('# global %s ## Warning: Unused global' % g)
+
+    return deparsed
 
 if __name__ == '__main__':
     def deparse_test(co):
+        "This is a docstring"
         sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
         deparsed = deparse_code(sys_version, co, showasm=False, showast=False)
+        # deparsed = deparse_code(sys_version, co, showasm=False, showast=False,
+        #                         showgrammar=True)
         print(deparsed.text)
         return
     deparse_test(deparse_test.__code__)

@@ -19,12 +19,12 @@ from __future__ import print_function
 
 from uncompyle6.parser import PythonParser, nop_func
 from uncompyle6.parsers.astnode import AST
-from uncompyle6.parsers.spark import GenericASTBuilder
+from uncompyle6.parsers.spark import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 class Python2Parser(PythonParser):
 
-    def __init__(self):
-        GenericASTBuilder.__init__(self, AST, 'stmts')
+    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
+        GenericASTBuilder.__init__(self, AST, 'stmts', debug=debug_parser)
         self.customized = {}
 
     def p_funcdef(self, args):

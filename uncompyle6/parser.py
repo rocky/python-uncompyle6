@@ -10,7 +10,7 @@ from __future__ import print_function
 
 import sys
 
-from uncompyle6.parsers.spark import GenericASTBuilder
+from uncompyle6.parsers.spark import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 class ParserError(Exception):
     def __init__(self, token, offset):
@@ -75,19 +75,20 @@ def parse(p, tokens, customize):
     return ast
 
 
-def get_python_parser(version):
+def get_python_parser(version, debug_parser):
     """
     Returns parser object for Python version 2 or 3
     depending on the parameter passed.
     """
     if version < 3.0:
         import uncompyle6.parsers.parse2 as parse2
-        return parse2.Python2Parser()
+        return parse2.Python2Parser(debug_parser)
     else:
         import uncompyle6.parsers.parse3 as parse3
-        return parse3.Python3Parser()
+        return parse3.Python3Parser(debug_parser)
 
-def python_parser(version, co, out=sys.stdout, showasm=False):
+def python_parser(version, co, out=sys.stdout, showasm=False,
+                  parser_debug=PARSER_DEFAULT_DEBUG):
     import inspect
     assert inspect.iscode(co)
     from uncompyle6.scanner import get_scanner
@@ -97,7 +98,7 @@ def python_parser(version, co, out=sys.stdout, showasm=False):
     #     for t in tokens:
     #         print(t)
 
-    p = get_python_parser(version)
+    p = get_python_parser(version, parser_debug)
     return parse(p, tokens, customize)
 
 if __name__ == '__main__':

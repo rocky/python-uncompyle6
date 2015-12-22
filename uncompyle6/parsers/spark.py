@@ -643,7 +643,7 @@ class GenericParser:
 
 class GenericASTBuilder(GenericParser):
     def __init__(self, AST, start, debug=DEFAULT_DEBUG):
-        GenericParser.__init__(self, start)
+        GenericParser.__init__(self, start, debug=debug)
         self.AST = AST
 
     def preprocess(self, rule, func):
