@@ -103,3 +103,4 @@ THe HISTORY file.
 .. _pycdc: https://github.com/zrax/pycdc
 .. _this: https://github.com/rocky/python-uncompyle6/wiki/Deparsing-technology-and-its-use-in-exact-location-reporting
 .. |buildstatus| image:: https://travis-ci.org/rocky/python-uncompyle6.svg
+		 :target: https://travis-ci.org/rocky/python-uncompyle6
