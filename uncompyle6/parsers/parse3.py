@@ -164,34 +164,35 @@ class Python3Parser(PythonParser):
         assign3 ::= expr expr expr ROT_THREE ROT_TWO designator designator designator
         '''
 
-    def p_print(self, args):
-        '''
-        stmt ::= print_items_stmt
-        stmt ::= print_nl
-        stmt ::= print_items_nl_stmt
+    # Python3 doesn't have a built-in print.
+    # def p_print(self, args):
+    #     '''
+    #     stmt ::= print_items_stmt
+    #     stmt ::= print_nl
+    #     stmt ::= print_items_nl_stmt
 
-        print_items_stmt ::= expr PRINT_ITEM print_items_opt
-        print_items_nl_stmt ::= expr PRINT_ITEM print_items_opt PRINT_NEWLINE_CONT
-        print_items_opt ::= print_items
-        print_items_opt ::=
-        print_items ::= print_items print_item
-        print_items ::= print_item
-        print_item ::= expr PRINT_ITEM_CONT
-        print_nl ::= PRINT_NEWLINE
-        '''
+    #     print_items_stmt ::= expr PRINT_ITEM print_items_opt
+    #     print_items_nl_stmt ::= expr PRINT_ITEM print_items_opt PRINT_NEWLINE_CONT
+    #     print_items_opt ::= print_items
+    #     print_items_opt ::=
+    #     print_items ::= print_items print_item
+    #     print_items ::= print_item
+    #     print_item ::= expr PRINT_ITEM_CONT
+    #     print_nl ::= PRINT_NEWLINE
+    #     '''
 
-    def p_print_to(self, args):
-        '''
-        stmt ::= print_to
-        stmt ::= print_to_nl
-        stmt ::= print_nl_to
-        print_to ::= expr print_to_items POP_TOP
-        print_to_nl ::= expr print_to_items PRINT_NEWLINE_TO
-        print_nl_to ::= expr PRINT_NEWLINE_TO
-        print_to_items ::= print_to_items print_to_item
-        print_to_items ::= print_to_item
-        print_to_item ::= DUP_TOP expr ROT_TWO PRINT_ITEM_TO
-        '''
+    # def p_print_to(self, args):
+    #     '''
+    #     stmt ::= print_to
+    #     stmt ::= print_to_nl
+    #     stmt ::= print_nl_to
+    #     print_to ::= expr print_to_items POP_TOP
+    #     print_to_nl ::= expr print_to_items PRINT_NEWLINE_TO
+    #     print_nl_to ::= expr PRINT_NEWLINE_TO
+    #     print_to_items ::= print_to_items print_to_item
+    #     print_to_items ::= print_to_item
+    #     print_to_item ::= DUP_TOP expr ROT_TWO PRINT_ITEM_TO
+    #     '''
 
     def p_import20(self, args):
         '''

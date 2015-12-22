@@ -100,12 +100,18 @@ def_op('BINARY_OR', 66)
 def_op('INPLACE_POWER', 67)
 def_op('GET_ITER', 68)
 
-## FIXME: no code generates this
+# FIXME: no code generates this
 def_op('STORE_LOCALS', 69)
 
 def_op('PRINT_EXPR', 70)
 def_op('LOAD_BUILD_CLASS', 71)
 def_op('YIELD_FROM', 72)
+
+# Python3 drops/changes:
+#  def_op('PRINT_ITEM', 71)
+#  def_op('PRINT_NEWLINE', 72)
+#  def_op('PRINT_ITEM_TO', 73)
+#  def_op('PRINT_NEWLINE_TO', 74)
 
 def_op('INPLACE_LSHIFT', 75)
 def_op('INPLACE_RSHIFT', 76)
