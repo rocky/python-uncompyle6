@@ -47,7 +47,7 @@ def updateGlobal():
     globals().update({'PJIT': opmap['JUMP_IF_TRUE']})
     globals().update({'JA': opmap['JUMP_ABSOLUTE']})
     globals().update({'JF': opmap['JUMP_FORWARD']})
-    globals().update(dict([(k.replace('+','_'),v) for (k,v) in opmap.items()]))
+    globals().update(dict([(k.replace('+', '_'), v) for (k, v) in opmap.items()]))
     globals().update({'JUMP_OPs': map(lambda op: opname[op], hasjrel + hasjabs)})
 
 # Instruction opcodes for compiled code

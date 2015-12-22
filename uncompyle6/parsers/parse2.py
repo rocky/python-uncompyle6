@@ -3,7 +3,7 @@
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2015 Rocky Bernstein
 #
-#  See LICENSE for lisence
+#  See LICENSE for license
 """
 A spark grammar for Python 2.x.
 
@@ -650,15 +650,15 @@ class Python2Parser(PythonParser):
         Special handling for opcodes that take a variable number
         of arguments -- we add a new rule for each:
 
-            build_list  ::= {expr}^n BUILD_TUPLE_n
             build_list  ::= {expr}^n BUILD_LIST_n
+            build_list  ::= {expr}^n BUILD_TUPLE_n
             unpack_list ::= UNPACK_LIST {expr}^n
             unpack      ::= UNPACK_TUPLE {expr}^n
             unpack      ::= UNPACK_SEQEUENCE {expr}^n
 
-            mkfunc ::= {expr}^n LOAD_CONST MAKE_FUNCTION_n
-            mklambda ::= {expr}^n LOAD_LAMBDA MAKE_FUNCTION_n
-            mkfunc ::= {expr}^n load_closure LOAD_CONST MAKE_FUNCTION_n
+            mkfunc      ::= {expr}^n LOAD_CONST MAKE_FUNCTION_n
+            mklambda    ::= {expr}^n LOAD_LAMBDA MAKE_FUNCTION_n
+            mkfunc      ::= {expr}^n load_closure LOAD_CONST MAKE_FUNCTION_n
             expr ::= expr {expr}^n CALL_FUNCTION_n
             expr ::= expr {expr}^n CALL_FUNCTION_VAR_n POP_TOP
             expr ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n POP_TOP

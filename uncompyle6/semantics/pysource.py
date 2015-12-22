@@ -1052,8 +1052,12 @@ class Walker(GenericASTTraversal, object):
 
     def n_classdef(self, node):
         # class definition ('class X(A,B,C):')
+
         cclass = self.currentclass
-        self.currentclass = str(node[0].pattr)
+        if self.version > 3.0:
+            self.currentclass = str(node[1][1].pattr)
+        else:
+            self.currentclass = str(node[0].pattr)
 
         self.write('\n\n')
         self.write(self.indent, 'class ', self.currentclass)
@@ -1062,7 +1066,11 @@ class Walker(GenericASTTraversal, object):
 
         # class body
         self.indentMore()
-        self.build_class(node[2][-2].attr)
+
+        if self.version > 3.0:
+            self.build_class(node[1][0].attr)
+        else:
+            self.build_class(node[2][-2].attr)
         self.indentLess()
 
         self.currentclass = cclass
@@ -1551,7 +1559,6 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
 
     debug_parser = dict(PARSER_DEFAULT_DEBUG)
     debug_parser['reduce'] = showgrammar
-
 
     #  Build AST from disassembly.
     deparsed = Walker(version, out, scanner, showast=showast, debug_parser=debug_parser)

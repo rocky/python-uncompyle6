@@ -35,7 +35,9 @@ else:
     from StringIO import StringIO
 
 
-from uncompyle6.parsers.spark import GenericASTTraversal, GenericASTTraversalPruningException
+from uncompyle6.parsers.spark import GenericASTTraversal, GenericASTTraversalPruningException, \
+     DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+
 from types import CodeType
 
 from collections import namedtuple
@@ -46,14 +48,15 @@ ExtractInfo = namedtuple("ExtractInfo",
 class Traverser(pysource.Walker, object):
     stacked_params = ('f', 'indent', 'isLambda', '_globals')
 
-    def __init__(self, version, scanner, showast=False):
+    def __init__(self, version, scanner, showast=False,
+                 debug_parser=PARSER_DEFAULT_DEBUG):
         GenericASTTraversal.__init__(self, ast=None)
         self.scanner = scanner
         params = {
             'f': StringIO(),
             'indent': '',
             }
-        self.p = get_python_parser(version)
+        self.p = get_python_parser(version, dict(debug_parser))
         self.showast = showast
         self.__params = params
         self.__param_stack = []
@@ -563,7 +566,7 @@ class Traverser(pysource.Walker, object):
 
         self.prune()
 
-    def gen_source_d(self, ast, name, customize, isLambda=0, returnNone=False):
+    def gen_source(self, ast, name, customize, isLambda=0, returnNone=False):
         """convert AST to source code"""
 
         rn = self.return_none
@@ -1146,91 +1149,104 @@ class Traverser(pysource.Walker, object):
             self.print_(self.indent, 'global ', g)
         self.mod_globs -= all_globals
         rn = ('None' in code.co_names) and not find_none(ast)
-        self.gen_source_d(ast, code.co_name, code._customize, isLambda=isLambda,
+        self.gen_source(ast, code.co_name, code._customize, isLambda=isLambda,
                           returnNone=rn)
         code._tokens = None; code._customize = None # save memory
 
     pass
 
-def deparse_code(version, co, out=StringIO(), showasm=False, showast=False):
+def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
+                 showgrammar=False):
+
     assert inspect.iscode(co)
     # store final output stream for case of error
-    __real_out = out or sys.stdout
     scanner = get_scanner(version)
+
     tokens, customize = scanner.disassemble(co)
 
-    #  Build AST from disassembly.
-    # walk = walker.Walker(out, scanner, showast=showast)
-    walk = Traverser(version, scanner, showast=showast)
+    tokens, customize = scanner.disassemble(co)
+    if showasm:
+        for t in tokens:
+            print(t)
 
-    try:
-        walk.ast = walk.build_ast_d(tokens, customize)
-    except pysource.ParserError as e :  # parser failed, dump disassembly
-        print(e, file=__real_out)
-        raise
+    debug_parser = dict(PARSER_DEFAULT_DEBUG)
+    debug_parser['reduce'] = showgrammar
+
+    #  Build AST from disassembly.
+    # deparsed = pysource.Walker(out, scanner, showast=showast)
+    deparsed = Traverser(version, scanner, showast=showast, debug_parser=debug_parser)
+
+    deparsed.ast = deparsed.build_ast_d(tokens, customize)
+
+    assert deparsed.ast == 'stmts', 'Should have parsed grammar start'
 
     del tokens # save memory
 
     # convert leading '__doc__ = "..." into doc string
-    assert walk.ast == 'stmts'
-    walk.mod_globs = pysource.find_globals(walk.ast, set())
-    walk.gen_source_d(walk.ast, co.co_name, customize)
-    walk.set_pos_info(walk.ast, 0, len(walk.text))
-    walk.fixup_parents(walk.ast, None)
+    assert deparsed.ast == 'stmts'
+    deparsed.mod_globs = pysource.find_globals(deparsed.ast, set())
 
-    for g in walk.mod_globs:
-        walk.write('global %s ## Warning: Unused global' % g)
-    if walk.ERROR:
-        raise walk.ERROR
+    # Just when you think we've forgotten about what we
+    # were supposed to to: Generate source from AST!
+    deparsed.gen_source(deparsed.ast, co.co_name, customize)
 
-    return walk
+    deparsed.set_pos_info(deparsed.ast, 0, len(deparsed.text))
+    deparsed.fixup_parents(deparsed.ast, None)
 
-# if __name__ == '__main__':
+    for g in deparsed.mod_globs:
+        deparsed.write('# global %s ## Warning: Unused global' % g)
+    if deparsed.ERROR:
+        raise deparsed.ERROR
 
-#     def deparse_test(co):
-#         sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
-#         walk = deparse_code(sys_version, co, showasm=False, showast=False)
-#         print("deparsed source")
-#         print(walk.text, "\n")
-#         print('------------------------')
-#         for name, offset in sorted(walk.offsets.keys(),
-#                                    key=lambda x: str(x[0])):
-#             print("name %s, offset %s" % (name, offset))
-#             nodeInfo = walk.offsets[name, offset]
-#             node = nodeInfo.node
-#             extractInfo = walk.extract_node_info(node)
-#             print("code: %s" % node.type)
-#             # print extractInfo
-#             print(extractInfo.selectedText)
-#             print(extractInfo.selectedLine)
-#             print(extractInfo.markerLine)
-#             extractInfo, p = walk.extract_parent_info(node)
-#             if extractInfo:
-#                 print("Contained in...")
-#                 print(extractInfo.selectedLine)
-#                 print(extractInfo.markerLine)
-#                 print("code: %s" % p.type)
-#                 print('=' * 40)
-#                 pass
-#             pass
-#         return
+    return deparsed
 
-#     def get_code_for_fn(fn):
-#         return fn.__code__
+if __name__ == '__main__':
 
-#     def gcd(a, b):
-#         if a > b:
-#             (a, b) = (b, a)
-#             pass
+    def deparse_test(co):
+        sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
+        walk = deparse_code(sys_version, co, showasm=False, showast=False,
+                            showgrammar=False)
+        print("deparsed source")
+        print(walk.text, "\n")
+        print('------------------------')
+        for name, offset in sorted(walk.offsets.keys(),
+                                   key=lambda x: str(x[0])):
+            print("name %s, offset %s" % (name, offset))
+            nodeInfo = walk.offsets[name, offset]
+            node = nodeInfo.node
+            extractInfo = walk.extract_node_info(node)
+            print("code: %s" % node.type)
+            # print extractInfo
+            print(extractInfo.selectedText)
+            print(extractInfo.selectedLine)
+            print(extractInfo.markerLine)
+            extractInfo, p = walk.extract_parent_info(node)
+            if extractInfo:
+                print("Contained in...")
+                print(extractInfo.selectedLine)
+                print(extractInfo.markerLine)
+                print("code: %s" % p.type)
+                print('=' * 40)
+                pass
+            pass
+        return
 
-#         if a <= 0:
-#             return None
-#         if a == 1 or a == b:
-#             return a
-#         return gcd(b-a, a)
+    def get_code_for_fn(fn):
+        return fn.__code__
 
-#     # check_args(['3', '5'])
-#     deparse_test(get_code_for_fn(gcd))
-#     # deparse_test(get_code_for_fn(gcd))
-#     # deparse_test(get_code_for_fn(Traverser.fixup_offsets))
-#     # deparse_test(inspect.currentframe().f_code)
+    def gcd(a, b):
+        if a > b:
+            (a, b) = (b, a)
+            pass
+
+        if a <= 0:
+            return None
+        if a == 1 or a == b:
+            return a
+        return gcd(b-a, a)
+
+    # check_args(['3', '5'])
+    deparse_test(get_code_for_fn(gcd))
+    # deparse_test(get_code_for_fn(gcd))
+    # deparse_test(get_code_for_fn(Traverser.fixup_offsets))
+    # deparse_test(inspect.currentframe().f_code)

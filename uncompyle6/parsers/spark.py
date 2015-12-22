@@ -1,5 +1,6 @@
-'''
+"""
 Copyright (c) 1998-2002 John Aycock
+Copyright (c) 2015 Rocky Bernstein
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -19,9 +20,10 @@ Copyright (c) 1998-2002 John Aycock
   CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-'''
-
+"""
 from __future__ import print_function
+
+import os, re
 
 __version__ = 'SPARK-1.0 Python3 compatible'
 
@@ -130,8 +132,13 @@ class GenericParser:
     def preprocess(self, rule, func):
         return rule, func
 
-    def addRule(self, doc, func, _preprocess=1):
+    def addRule(self, doc, func, _preprocess=True):
+        """Add a grammar rules to self.rules, self.rule2func and self.rule2name"""
         fn = func
+
+        # remove blanks lines and comment lines, e.g. lines starting with "#"
+        doc = os.linesep.join([s for s in doc.splitlines() if s and not re.match("^\s*#", s)])
+
         rules = doc.split()
 
         index = []

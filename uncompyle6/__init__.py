@@ -42,7 +42,7 @@ PYTHON_VERSION_STR  = "%s.%s" % (sys.version_info[0], sys.version_info[1])
 sys.setrecursionlimit(5000)
 
 def check_python_version(program):
-    if not (sys.version_info[0:2] in ((2,6), (2,7), (3,4))):
+    if not (sys.version_info[0:2] in ((2, 6), (2, 7), (3, 4))):
         print('Error: %s requires %s Python 2.6, 2.7 or 3.4' % program,
               file=sys.stderr)
         sys.exit(-1)

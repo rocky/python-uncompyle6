@@ -53,6 +53,9 @@ class Python3Parser(PythonParser):
 
     def p_list_comprehension(self, args):
         '''
+        # Python3 adds LOAD_LISTCOMP and does list comprehension like
+        # other comprehensions (set, dictionary).
+
         expr ::= listcomp
         listcomp ::= LOAD_LISTCOMP LOAD_CONST MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
 
@@ -367,8 +370,9 @@ class Python3Parser(PythonParser):
 
         kwarg   ::= LOAD_CONST expr
 
-        classdef ::= LOAD_CONST expr mkfunc
-                    CALL_FUNCTION_0 BUILD_CLASS designator
+        # Python3 introduced LOAD_BUILD_CLASS
+        classdef ::= LOAD_BUILD_CLASS mkfunc LOAD_CONST
+                    CALL_FUNCTION_2 designator
 
         stmt ::= classdefdeco
         classdefdeco ::= classdefdeco1 designator
@@ -442,6 +446,7 @@ class Python3Parser(PythonParser):
         except_stmt ::= except_cond2 except_suite
         except_stmt ::= except
 
+        # Python3 introduced POP_EXCEPT
         except_suite ::= c_stmts_opt POP_EXCEPT JUMP_FORWARD
         except_suite ::= c_stmts_opt POP_EXCEPT jmp_abs
         except_suite ::= return_stmts
@@ -580,6 +585,7 @@ class Python3Parser(PythonParser):
         load_attr ::= expr LOAD_ATTR
         get_iter ::= expr GET_ITER
 
+        # Python3 drops slice0..slice3
         buildslice3 ::= expr expr expr BUILD_SLICE_3
         buildslice2 ::= expr expr BUILD_SLICE_2
 
@@ -674,7 +680,6 @@ class Python3Parser(PythonParser):
             expr ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n POP_TOP
             expr ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
         """
-
         # from trepan.api import debug
         # debug(start_opts={'startup-profile': True})
         for token in tokens:
