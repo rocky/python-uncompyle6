@@ -1,3 +1,5 @@
+|buildstatus|
+
 uncompyle6
 ==========
 
@@ -8,8 +10,8 @@ Introduction
 ------------
 
 *uncompyle6* translates Python byte-code back into equivalent Python
-source code. It accepts byte-codes from Python version 2.5 to 2.7, and
-runs on Python 2.6 and 2.7 and Python 3.4.
+source code. It accepts byte-codes from Python version 2.5 to 3.4 or
+so and has been tested on Python 2.6,  2.7 and Python 3.4.
 
 Why this?
 ---------
@@ -24,10 +26,17 @@ byte-code offsets (of interest). This purpose although largely
 compatible with the original intention is yet a little bit different.
 See this_ for more information.
 
-This library though could be used in showing stack traces or any
-program that wants to show a location in more detail than just a line
-number.  In fact it can be used when when source-code information does
-exist and there is just bytecode information.
+The idea of Python fragment deparing given an instruction offset can
+be used in showing stack traces or any program that wants to show a
+location in more detail than just a line number.  It can be also used
+when source-code information does not exist and there is just bytecode
+information.
+
+Other parts of the library can be used inside Python for various
+bytecode-related tasks. For example you can read in bytecode (do a
+version indepedant `marshal.loads()` and disassemble that from a
+version of Python different from the one the bytecode was compiled
+for.
 
 
 Installation
@@ -74,16 +83,23 @@ for usage help
 Known Bugs/Restrictions
 -----------------------
 
-Support Python 3 bytecode and syntax is lacking.
+Python 3 deparsing is getting there, but not solid.  Using Python 2 to
+deparse Python 3 is problematic, especilly for versions 3.4 and
+greater.
 
 See Also
 --------
 
-https://github.com/zrax/pycdc
+* https://github.com/zrax/pycdc
+* https://github.com/Mysterie/uncompyle2
+* https://github.com/DarkFenX/uncompyle3
+* https://code.google.com/p/unpyc3/
 
+THe HISTORY file.
 
 .. _trepan: https://pypi.python.org/pypi/trepan
 .. _debuggers: https://pypi.python.org/pypi/trepan3k
 .. _remake: https://bashdb.sf.net/remake
 .. _pycdc: https://github.com/zrax/pycdc
 .. _this: https://github.com/rocky/python-uncompyle6/wiki/Deparsing-technology-and-its-use-in-exact-location-reporting
+.. |buildstatus| image:: https://circleci.com/gh/rocky/python-uncompyle6.svg?&style=shield)
