@@ -32,8 +32,9 @@ Options:
   --help        show this message
 
 Debugging Options:
-  --showasm   -a  include byte-code                  (disables --verify)
-  --showast   -t  include AST (abstract syntax tree) (disables --verify)
+  --asm     -a  include byte-code         (disables --verify)
+  --grammar -g  show matching grammar
+  --treee   -t  include syntax tree       (disables --verify)
 
 Extensions of generated files:
   '.pyc_dis' '.pyo_dis'   successfully decompiled (and verified if --verify)
@@ -51,7 +52,7 @@ from uncompyle6.main import main, status_msg
 
 def usage():
     print("""usage:
-   %s [--help] [--verify] [--showasm] [--showast] [-o <path>] FILE|DIR...
+   %s [--help] [--verify] [--asm] [--tree] [--grammar] [-o <path>] FILE|DIR...
 """  % program)
     sys.exit(1)
 
@@ -67,33 +68,37 @@ timestamp = True
 timestampfmt = "# %Y.%m.%d %H:%M:%S %Z"
 
 try:
-    opts, files = getopt.getopt(sys.argv[1:], 'hatdro:c:p:',
-                           ['help', 'verify', 'showast', 'showasm'])
+    opts, files = getopt.getopt(sys.argv[1:], 'hagtdro:c:p:',
+                                'help asm grammar recurse timestamp tree verify '
+                                'showgrammar'.split(' '))
 except getopt.GetoptError as e:
     print('%s: %s' % (os.path.basename(sys.argv[0]), e),  file=sys.stderr)
     sys.exit(-1)
 
+options = {}
 for opt, val in opts:
     if opt in ('-h', '--help'):
         print(__doc__)
         sys.exit(0)
     elif opt == '--verify':
-        do_verify = True
-    elif opt in ('--showasm', '-a'):
-        showasm = True
-        do_verify = False
-    elif opt in ('--showast', '-t'):
-        showast = True
-        do_verify = False
+        options['do_verify'] = True
+    elif opt in ('--asm', '-a'):
+        options['showasm'] = True
+        options['do_verify'] = False
+    elif opt in ('--tree', '-t'):
+        options['showast'] = True
+        options['do_verify'] = False
+    elif opt in ('--grammar', '-g'):
+        options['showgrammar'] = True
     elif opt == '-o':
         outfile = val
-    elif opt == '-d':
+    elif opt == ('--timestamp', '-d'):
         timestamp = False
     elif opt == '-c':
         codes.append(val)
     elif opt == '-p':
         numproc = int(val)
-    elif opt == '-r':
+    elif opt == ('--recurse', '-r'):
         recurse_dirs = True
     else:
         print(opt, file=sys.stderr)
@@ -137,8 +142,8 @@ if timestamp:
     print(time.strftime(timestampfmt))
 if numproc <= 1:
     try:
-        result = main(src_base, out_base, files, codes, outfile, showasm,
-                      showast, do_verify)
+        result = main(src_base, out_base, files, codes, outfile,
+                      **options)
         if len(files) > 1:
             mess = status_msg(do_verify, *result)
             print('# ' + mess)
@@ -171,7 +176,7 @@ else:
                 if f is None:
                     break
                 (t, o, f, v) = \
-                  main(src_base, out_base, [f], codes, outfile, showasm, showast, do_verify)
+                  main(src_base, out_base, [f], codes, outfile, **options)
                 tot_files += t
                 okay_files += o
                 failed_files += f

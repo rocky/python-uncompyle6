@@ -13,11 +13,11 @@ os.chdir(src_dir)
 
 @pytest.mark.parametrize(("test_tuple", "function_to_test"), [
     (
-        ('../test/bytecode_2.7/if.pyc', 'testdata/if-2.7.right',),
+        ('../test/bytecode_2.7/05_if.pyc', 'testdata/if-2.7.right',),
         disassemble_file
     ),
     (
-        ('../test/bytecode_2.7/ifelse.pyc', 'testdata/ifelse-2.7.right',),
+        ('../test/bytecode_2.7/05_ifelse.pyc', 'testdata/ifelse-2.7.right',),
         disassemble_file
     ),
 ])

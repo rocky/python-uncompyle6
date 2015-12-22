@@ -45,7 +45,9 @@ class _State:
         self.stateno = stateno
 
 # DEFAULT_DEBUG = {'rules': True, 'transition': True, 'reduce' : True}
+# DEFAULT_DEBUG = {'rules': False, 'transition': False, 'reduce' : True}
 DEFAULT_DEBUG = {'rules': False, 'transition': False, 'reduce': False}
+
 class GenericParser:
     '''
     An Earley parser, as per J. Earley, "An Efficient Context-Free
@@ -640,7 +642,7 @@ class GenericParser:
 #
 
 class GenericASTBuilder(GenericParser):
-    def __init__(self, AST, start):
+    def __init__(self, AST, start, debug=DEFAULT_DEBUG):
         GenericParser.__init__(self, start)
         self.AST = AST
 

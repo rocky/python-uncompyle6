@@ -68,7 +68,7 @@ import inspect, sys, re
 from uncompyle6 import PYTHON3
 from uncompyle6.parser import get_python_parser
 from uncompyle6.parsers.astnode import AST
-from uncompyle6.parsers.spark import GenericASTTraversal
+from uncompyle6.parsers.spark import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.scanner import Code, get_scanner
 from uncompyle6.scanners.tok import Token, NoneToken
 import uncompyle6.parser as python_parser
@@ -470,7 +470,7 @@ def find_none(node):
 class Walker(GenericASTTraversal, object):
     stacked_params = ('f', 'indent', 'isLambda', '_globals')
 
-    def __init__(self, version, out, scanner, showast=False):
+    def __init__(self, version, out, scanner, showast=False, showgrammar=False):
         GenericASTTraversal.__init__(self, ast=None)
         self.scanner = scanner
         params = {
@@ -1532,7 +1532,8 @@ class Walker(GenericASTTraversal, object):
 
         return ast
 
-def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False):
+def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
+                 showgrammar=False):
     """
     disassembles and deparses a given code block 'co'
     """
@@ -1546,6 +1547,10 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False):
     if showasm:
         for t in tokens:
             print(t)
+
+    parser_debug = dict(PARSER_DEFAULT_DEBUG)
+    parser_debug['reduce'] = showgrammar
+
 
     #  Build AST from disassembly.
     walk = Walker(version, out, scanner, showast=showast)

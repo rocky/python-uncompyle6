@@ -1,0 +1,12 @@
+b = True
+c = False
+d = True
+a = b and c or d
+a = (b or c) and d
+a = b or c or d
+a = b and c and d
+a = b or c and d
+a = b and (c or d)
+a = b and c or d
+a = (b or c and d) and b
+a = (b or c and d or a) and b

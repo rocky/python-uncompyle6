@@ -1,14 +1,14 @@
 # Python 2.7
-# Embedded file name: ./source_3.4/branching/ifelse.py
+# Embedded file name: simple_source/branching/05_ifelse.py
 
-   1       0	LOAD_NAME         'a'
+   3       0	LOAD_NAME         'True'
            3	POP_JUMP_IF_FALSE '15'
 
-   2       6	LOAD_NAME         'c'
+   4       6	LOAD_CONST        1
            9	STORE_NAME        'b'
           12	JUMP_FORWARD      '21'
 
-   4      15	LOAD_NAME         'e'
+   6      15	LOAD_CONST        2
           18	STORE_NAME        'd'
         21_0	COME_FROM         '12'
           21	LOAD_CONST        ''

@@ -9,7 +9,8 @@ from uncompyle6.scanner import get_scanner
 from uncompyle6.load import load_module
 
 # FIXME: remove duplicate code from deparse_code
-def uncompyle(version, co, out=None, showasm=False, showast=False):
+def uncompyle(version, co, out=None, showasm=False, showast=False,
+              showgrammar=False):
     """
     disassembles and deparses a given code block 'co'
     """
@@ -32,7 +33,8 @@ def uncompyle(version, co, out=None, showasm=False, showast=False):
         print(file=out)
 
     #  Build AST from disassembly.
-    walk = pysource.Walker(version, out, scanner, showast=showast)
+    walk = pysource.Walker(version, out, scanner,
+                           showast=showast, showgrammar=showgrammar)
     try:
         ast = walk.build_ast(tokens, customize)
     except pysource.ParserError as e :  # parser failed, dump disassembly

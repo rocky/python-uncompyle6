@@ -46,9 +46,9 @@ check-bytecode-2.7:
 check-bytecode-3.2:
 	$(PYTHON) test_pythonlib.py --bytecode-3.2
 
-#: Check deparsing Python 3.2
+#: Check deparsing Python 3.4
 check-bytecode-3.4:
-	$(PYTHON) test_pythonlib.py --bytecode-3.2
+	$(PYTHON) test_pythonlib.py --bytecode-3.4
 
 #: short tests for bytecodes only for this version of Python
 check-native-short:

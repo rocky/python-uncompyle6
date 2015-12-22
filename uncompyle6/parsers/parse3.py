@@ -19,13 +19,13 @@ from __future__ import print_function
 
 from uncompyle6.parser import PythonParser, nop_func
 from uncompyle6.parsers.astnode import AST
-from uncompyle6.parsers.spark import GenericASTBuilder
+from uncompyle6.parsers.spark import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 class Python3Parser(PythonParser):
 
-    def __init__(self):
+    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
         self.added_rules = set()
-        GenericASTBuilder.__init__(self, AST, 'stmts')
+        GenericASTBuilder.__init__(self, AST, 'stmts', debug=debug_parser)
         self.new_rules = set()
 
     def add_unique_rule(self, rule, opname, count, customize):

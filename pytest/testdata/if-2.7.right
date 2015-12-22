@@ -1,10 +1,10 @@
 # Python 2.7
-# Embedded file name: ./source_3.4/branching/if.py
+# Embedded file name: simple_source/branching/05_if.py
 
-   1       0	LOAD_NAME         'a'
+   6       0	LOAD_NAME         'True'
            3	POP_JUMP_IF_FALSE '15'
 
-   2       6	LOAD_NAME         'c'
+   7       6	LOAD_NAME         'False'
            9	STORE_NAME        'b'
           12	JUMP_FORWARD      '15'
         15_0	COME_FROM         '12'
