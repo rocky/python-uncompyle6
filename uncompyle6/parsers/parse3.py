@@ -370,9 +370,12 @@ class Python3Parser(PythonParser):
 
         kwarg   ::= LOAD_CONST expr
 
+        classdef ::= buildclass designator
+
         # Python3 introduced LOAD_BUILD_CLASS
-        classdef ::= LOAD_BUILD_CLASS mkfunc LOAD_CONST
-                    CALL_FUNCTION_2 designator
+        # FIXME: the below should be created by custom rules
+        buildclass ::= LOAD_BUILD_CLASS mkfunc LOAD_CONST LOAD_NAME CALL_FUNCTION_3
+        buildclass ::= LOAD_BUILD_CLASS mkfunc LOAD_CONST CALL_FUNCTION_2
 
         stmt ::= classdefdeco
         classdefdeco ::= classdefdeco1 designator

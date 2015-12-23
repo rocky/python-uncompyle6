@@ -1053,26 +1053,29 @@ class Walker(GenericASTTraversal, object):
         # class definition ('class X(A,B,C):')
 
         cclass = self.currentclass
+
         if self.version > 3.0:
             buildclass = node[1]
-            self.currentclass = str(buildclass[1].pattr)
+            build_list = node[0]
+            subclass = build_list[1][0].attr
         else:
             buildclass = node[0]
-            self.currentclass = str(buildclass[0].pattr)
+            build_list = buildclass[1][0]
+            subclass = buildclass[-3][0].attr
 
         self.write('\n\n')
+        self.currentclass = str(buildclass[0].pattr)
         self.write(self.indent, 'class ', self.currentclass)
 
-        self.print_super_classes(buildclass)
+        if self.version > 3.0:
+            self.print_super_classes3(build_list)
+        else:
+            self.print_super_classes(build_list)
         self.print_(':')
 
         # class body
         self.indentMore()
-
-        if self.version > 3.0:
-            self.build_class(buildclass[0].attr)
-        else:
-            self.build_class(buildclass[-3][0].attr)
+        self.build_class(subclass)
         self.indentLess()
 
         self.currentclass = cclass
@@ -1086,7 +1089,6 @@ class Walker(GenericASTTraversal, object):
     n_classdefdeco2 = n_classdef
 
     def print_super_classes(self, node):
-        node = node[1][0]
         if not (node == 'build_list'):
             return
 
@@ -1095,6 +1097,29 @@ class Walker(GenericASTTraversal, object):
         sep = ''
         for elem in node[:-1]:
             value = self.traverse(elem)
+            self.write(sep, value)
+            sep = line_separator
+
+        self.write(')')
+
+    def print_super_classes3(self, node):
+
+        # FIXME: put blow logic into grammar
+        # as a custom rule
+        i = 0
+        for i, n in enumerate(node[:-1]):
+            if n.type == 'LOAD_NAME':
+                break
+            pass
+
+        if i == 0:
+            return
+        self.write('(')
+        line_separator = ', '
+        sep = ''
+        while i <= len(node) - 2:
+            value = self.traverse(node[i])
+            i += 1
             self.write(sep, value)
             sep = line_separator
 
