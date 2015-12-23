@@ -1054,22 +1054,25 @@ class Walker(GenericASTTraversal, object):
 
         cclass = self.currentclass
         if self.version > 3.0:
-            self.currentclass = str(node[1][1].pattr)
+            buildclass = node[1]
+            self.currentclass = str(buildclass[1].pattr)
         else:
-            self.currentclass = str(node[0].pattr)
+            buildclass = node[0]
+            self.currentclass = str(buildclass[0].pattr)
 
         self.write('\n\n')
         self.write(self.indent, 'class ', self.currentclass)
-        self.print_super_classes(node)
+
+        self.print_super_classes(buildclass)
         self.print_(':')
 
         # class body
         self.indentMore()
 
         if self.version > 3.0:
-            self.build_class(node[1][0].attr)
+            self.build_class(buildclass[0].attr)
         else:
-            self.build_class(node[2][-2].attr)
+            self.build_class(buildclass[-3][0].attr)
         self.indentLess()
 
         self.currentclass = cclass
@@ -1568,8 +1571,18 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
 
     del tokens # save memory
 
-    # convert leading '__doc__ = "..." into doc string
     deparsed.mod_globs = find_globals(deparsed.ast, set())
+
+    # convert leading '__doc__ = "..." into doc string
+    try:
+        if deparsed.ast[0][0] == ASSIGN_DOC_STRING(co.co_consts[0]):
+            deparsed.print_docstring('', co.co_consts[0])
+            del deparsed.ast[0]
+        if deparsed.ast[-1] == RETURN_NONE:
+            deparsed.ast.pop() # remove last node
+            # todo: if empty, add 'pass'
+    except:
+        pass
 
     # What we've been waiting for: Generate source from AST!
     deparsed.gen_source(deparsed.ast, customize)

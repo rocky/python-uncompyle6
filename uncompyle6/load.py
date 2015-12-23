@@ -70,8 +70,12 @@ def load_module(filename):
         try:
             version = float(magics.versions[magic])
         except KeyError:
-            raise ImportError("Unknown magic number %s in %s" %
-                              (ord(magic[0])+256*ord(magic[1]), filename))
+            if len(magic) >= 2:
+                raise ImportError("Unknown magic number %s in %s" %
+                                (ord(magic[0])+256*ord(magic[1]), filename))
+            else:
+                raise ImportError("Bad magic number: '%s'" % magic)
+
         if not (2.5 <= version <= 2.7) and not (3.2 <= version <= 3.4):
             raise ImportError("This is a Python %s file! Only "
                               "Python 2.5 to 2.7 and 3.2 to 3.4 files are supported."

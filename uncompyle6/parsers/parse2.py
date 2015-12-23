@@ -351,8 +351,10 @@ class Python2Parser(PythonParser):
 
         kwarg   ::= LOAD_CONST expr
 
-        classdef ::= LOAD_CONST expr mkfunc
-                    CALL_FUNCTION_0 BUILD_CLASS designator
+        classdef ::= buildclass designator
+
+        buildclass ::= LOAD_CONST expr mkfunc
+                     CALL_FUNCTION_0 BUILD_CLASS
 
         stmt ::= classdefdeco
         classdefdeco ::= classdefdeco1 designator

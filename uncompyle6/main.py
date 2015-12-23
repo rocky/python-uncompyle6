@@ -1,5 +1,5 @@
 from __future__ import print_function
-import os, sys
+import inspect, os, sys
 
 from uncompyle6.disas import check_object_path
 from uncompyle6 import verify
@@ -13,6 +13,8 @@ def uncompyle(version, co, out=None, showasm=False, showast=False,
     disassembles and deparses a given code block 'co'
     """
 
+    assert inspect.iscode(co)
+
     # store final output stream for case of error
     real_out = out or sys.stdout
     print('# Python %s' % version, file=real_out)
@@ -21,28 +23,18 @@ def uncompyle(version, co, out=None, showasm=False, showast=False,
               file=real_out)
 
     try:
-        deparsed = pysource.deparse_code(version, co, out, showasm, showast, showgrammar)
+        pysource.deparse_code(version, co, out, showasm, showast, showgrammar)
     except pysource.ParserError as e :  # parser failed, dump disassembly
         print(e, file=real_out)
         raise
-
-    # FIXME: remove duplicate code from deparse_code
-    try:
-        if deparsed.ast[0][0] == pysource.ASSIGN_DOC_STRING(co.co_consts[0]):
-            deparsed.print_docstring('', co.co_consts[0])
-            del deparsed.ast[0]
-        if deparsed.ast[-1] == pysource.RETURN_NONE:
-            deparsed.ast.pop() # remove last node
-            # todo: if empty, add 'pass'
-    except:
-        pass
 
 def uncompyle_file(filename, outstream=None, showasm=False, showast=False,
                    showgrammar=False):
     """
     decompile Python byte-code file (.pyc)
     """
-    check_object_path(filename)
+
+    filename = check_object_path(filename)
     version, magic_int, co = load_module(filename)
     if type(co) == list:
         for con in co:
@@ -119,24 +111,31 @@ def main(in_base, out_base, files, codes, outfile=None,
             else:
                 sys.stderr.write("\n# %s" % sys.exc_info()[1])
                 sys.stderr.write("\n# Can't uncompile %s\n" % infile)
-        else: # uncompile successfull
+        else: # uncompile successful
             if outfile:
                 outstream.close()
-            if do_verify:
-                try:
-                    msg = verify.compare_code_with_srcfile(infile, outfile)
-                    if not outfile:
-                        if not msg:
-                            print('\n# okay decompiling %s' % infile)
-                            okay_files += 1
-                        else:
-                            print('\n# %s\n\t%s', infile, msg)
-                except verify.VerifyCmpError as e:
-                    verify_failed_files += 1
-                    os.rename(outfile, outfile + '_unverified')
-                    if not outfile:
-                        print("### Error Verifiying %s" % filename,  file=sys.stderr)
-                        print(e, file=sys.stderr)
+                if do_verify:
+                    try:
+                        msg = verify.compare_code_with_srcfile(infile, outfile)
+                        if not outfile:
+                            if not msg:
+                                print('\n# okay decompiling %s' % infile)
+                                okay_files += 1
+                            else:
+                                print('\n# %s\n\t%s', infile, msg)
+                    except verify.VerifyCmpError as e:
+                        verify_failed_files += 1
+                        os.rename(outfile, outfile + '_unverified')
+                        if not outfile:
+                            print("### Error Verifiying %s" % filename,  file=sys.stderr)
+                            print(e, file=sys.stderr)
+                            pass
+                        pass
+                pass
+            elif do_verify:
+                print("\n### uncompile successful, but no file to compare against",
+                      file=sys.stderr)
+                pass
             else:
                 okay_files += 1
                 if not outfile:
