@@ -56,6 +56,7 @@ ExtractInfo = namedtuple("ExtractInfo",
 
 TABLE_DIRECT_FRAGMENT = {
     'importstmt': ( '%|import %c%x\n', 2, (2,(0,1)), ),
+    'importfrom': ( '%|from %[2]{pattr}%x import %c\n', (2,(0,1)), 3),
     }
 
 class Traverser(pysource.Walker, object):
@@ -702,7 +703,7 @@ class Traverser(pysource.Walker, object):
         self.write(node_text)
         self.last_finish = len(self.f.getvalue())
 
-    # FIXME; below duplicated the code, since we don't find self.__params
+    # FIXME: duplicated from pysource, since we don't find self.__params
     def traverse(self, node, indent=None, isLambda=0):
         '''Buulds up fragment which can be used inside a larger
         block of code'''
@@ -1261,7 +1262,7 @@ if __name__ == '__main__':
         return fn.__code__
 
     def gcd(a, b):
-        import math
+        from os import path
         if a > b:
             (a, b) = (b, a)
             pass
