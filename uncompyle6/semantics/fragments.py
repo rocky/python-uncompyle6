@@ -55,8 +55,8 @@ ExtractInfo = namedtuple("ExtractInfo",
                          "lineNo lineStartOffset markerLine selectedLine selectedText")
 
 TABLE_DIRECT_FRAGMENT = {
-    'importstmt': ( '%|import %c%x\n', 2, (2,(0,1)), ),
-    'importfrom': ( '%|from %[2]{pattr}%x import %c\n', (2,(0,1)), 3),
+    'importstmt': ( '%|import %c%x\n', 2, (2, (0, 1)), ),
+    'importfrom': ( '%|from %[2]{pattr}%x import %c\n', (2, (0, 1)), 3),
     }
 
 class Traverser(pysource.Walker, object):
@@ -86,7 +86,6 @@ class Traverser(pysource.Walker, object):
 
         # Customize with our more-pervisive rules
         TABLE_DIRECT.update(TABLE_DIRECT_FRAGMENT)
-
 
     f = property(lambda s: s.__params['f'],
                  lambda s, x: s.__params.__setitem__('f', x),
