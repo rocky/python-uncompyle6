@@ -349,7 +349,7 @@ class Token(scanner.Token):
 
 def compare_code_with_srcfile(pyc_filename, src_filename):
     """Compare a .pyc with a source code file."""
-    version, magic_int, code_obj1 = load_module(pyc_filename)
+    version, timestamp, magic_int, code_obj1 = load_module(pyc_filename)
     if magic_int != PYTHON_MAGIC_INT:
         msg = ("Can't compare code - Python is running with magic %s, but code is magic %s "
                % (PYTHON_MAGIC_INT, magic_int))
