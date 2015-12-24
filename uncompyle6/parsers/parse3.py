@@ -425,11 +425,21 @@ class Python3Parser(PythonParser):
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
 
 
-        trystmt ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                try_middle COME_FROM
+        trystmt        ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                           try_middle COME_FROM
 
-        tryelsestmt ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                try_middle else_suite COME_FROM
+        tryfinallystmt ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                           try_middle
+                           POP_TOP SETUP_FINALLY POP_BLOCK POP_EXCEPT LOAD_CONST
+                           COME_FROM suite_stmts END_FINALLY
+                           JUMP_FORWARD END_FINALLY COME_FROM COME_FROM
+
+        tryfinallystmt ::= SETUP_FINALLY suite_stmts
+                           POP_BLOCK LOAD_CONST
+                           COME_FROM suite_stmts END_FINALLY
+
+        tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt
+                           try_middle else_suite COME_FROM
 
         tryelsestmtc ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                 try_middle else_suitec COME_FROM
@@ -437,15 +447,17 @@ class Python3Parser(PythonParser):
         tryelsestmtl ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                 try_middle else_suitel COME_FROM
 
-        try_middle ::= jmp_abs COME_FROM except_stmts
-                END_FINALLY
+        try_middle ::= jmp_abs COME_FROM except_stmts END_FINALLY
         try_middle ::= JUMP_FORWARD COME_FROM except_stmts
-                END_FINALLY COME_FROM
+                       END_FINALLY COME_FROM
+        try_middle ::= JUMP_FORWARD COME_FROM except_cond2
+
 
         except_stmts ::= except_stmts except_stmt
         except_stmts ::= except_stmt
 
         except_stmt ::= except_cond1 except_suite
+        except_stmt ::= except_cond2 except_suite
         except_stmt ::= except_cond2 except_suite
         except_stmt ::= except
 
@@ -467,10 +479,6 @@ class Python3Parser(PythonParser):
 
         jmp_abs ::= JUMP_ABSOLUTE
         jmp_abs ::= JUMP_BACK
-
-        tryfinallystmt ::= SETUP_FINALLY suite_stmts
-                POP_BLOCK LOAD_CONST
-                COME_FROM suite_stmts_opt END_FINALLY
 
         withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
                 POP_BLOCK LOAD_CONST COME_FROM
