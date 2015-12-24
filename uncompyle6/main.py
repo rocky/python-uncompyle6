@@ -1,5 +1,5 @@
 from __future__ import print_function
-import inspect, os, sys
+import datetime, inspect, os, sys
 
 from uncompyle6.disas import check_object_path
 from uncompyle6 import verify
@@ -8,7 +8,7 @@ from uncompyle6.semantics import pysource
 from uncompyle6.load import load_module
 
 def uncompyle(version, co, out=None, showasm=False, showast=False,
-              showgrammar=False):
+              timestamp=None, showgrammar=False):
     """
     disassembles and deparses a given code block 'co'
     """
@@ -20,6 +20,9 @@ def uncompyle(version, co, out=None, showasm=False, showast=False,
     print('# Python %s' % version, file=real_out)
     if co.co_filename:
         print('# Embedded file name: %s' % co.co_filename,
+              file=real_out)
+    if timestamp:
+        print('# Compiled at: %s' % datetime.datetime.fromtimestamp(timestamp),
               file=real_out)
 
     try:
@@ -35,12 +38,15 @@ def uncompyle_file(filename, outstream=None, showasm=False, showast=False,
     """
 
     filename = check_object_path(filename)
-    version, magic_int, co = load_module(filename)
+    version, timestamp, magic_int, co = load_module(filename)
+
     if type(co) == list:
         for con in co:
-            uncompyle(version, con, outstream, showasm, showast, showgrammar)
+            uncompyle(version, con, outstream, showasm, showast,
+                      timestamp, showgrammar)
     else:
-        uncompyle(version, co, outstream, showasm, showast, showgrammar)
+        uncompyle(version, co, outstream, showasm, showast,
+                  timestamp, showgrammar)
     co = None
 
 def main(in_base, out_base, files, codes, outfile=None,

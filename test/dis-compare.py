@@ -84,7 +84,7 @@ files=[
 
 for base in files:
     filename = "bytecode_%s/%s.pyc" % (PYTHON_VERSION_STR, base)
-    version, magic_int, co = uncompyle6.load_module(filename)
+    version, timestamp, magic_int, co = uncompyle6.load_module(filename)
     ok = True
 
     if type(co) == list:

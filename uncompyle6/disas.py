@@ -54,7 +54,7 @@ def disassemble_file(filename, outstream=None):
     try to find the corresponding compiled object.
     """
     filename = check_object_path(filename)
-    version, magic_int, co = load_module(filename)
+    version, timestamp, magic_int, co = load_module(filename)
     if type(co) == list:
         for con in co:
             disco(version, con, outstream)

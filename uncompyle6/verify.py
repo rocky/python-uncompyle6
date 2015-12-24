@@ -360,8 +360,8 @@ def compare_code_with_srcfile(pyc_filename, src_filename):
 
 def compare_files(pyc_filename1, pyc_filename2):
     """Compare two .pyc files."""
-    version, magic_int1, code_obj1 = uncompyle6.load_module(pyc_filename1)
-    version, magic_int2, code_obj2 = uncompyle6.load_module(pyc_filename2)
+    version, timestamp, magic_int1, code_obj1 = uncompyle6.load_module(pyc_filename1)
+    version, timestamp, magic_int2, code_obj2 = uncompyle6.load_module(pyc_filename2)
     cmp_code_objects(version, code_obj1, code_obj2)
 
 if __name__ == '__main__':

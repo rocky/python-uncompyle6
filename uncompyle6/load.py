@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import imp, marshal, os, py_compile, sys, tempfile
+from struct import unpack
 
 import uncompyle6.marsh
 from uncompyle6 import PYTHON3
@@ -82,7 +83,8 @@ def load_module(filename):
                               % version)
 
         # print version
-        fp.read(4) # timestamp
+        ts = fp.read(4)
+        timestamp = unpack("I", ts)[0]
         magic_int = magics.magic2int(magic)
         my_magic_int = magics.magic2int(imp.get_magic())
 
@@ -101,10 +103,13 @@ def load_module(filename):
             co = uncompyle6.marsh.load_code(fp, magic_int)
         pass
 
-    return version, magic_int, co
+    return version, timestamp, magic_int, co
 
 if __name__ == '__main__':
     co = load_file(__file__)
     obj_path = check_object_path(__file__)
-    co2 = load_module(obj_path)
-    assert co == co2[2]
+    version, timestamp, magic_int, co2 = load_module(obj_path)
+    print("version ", version, "magic int", magic_int)
+    import datetime
+    print(datetime.datetime.fromtimestamp(timestamp))
+    assert co == co2
