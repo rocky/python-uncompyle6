@@ -407,19 +407,24 @@ class Python2Parser(PythonParser):
         trystmt ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                 try_middle COME_FROM
 
+        # this is nested inside a trystmt
+        tryfinallystmt ::= SETUP_FINALLY suite_stmts
+                           POP_BLOCK LOAD_CONST
+                           COME_FROM suite_stmts_opt END_FINALLY
+
         tryelsestmt ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                try_middle else_suite COME_FROM
+                        try_middle else_suite COME_FROM
 
         tryelsestmtc ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                try_middle else_suitec COME_FROM
+                         try_middle else_suitec COME_FROM
 
         tryelsestmtl ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                try_middle else_suitel COME_FROM
+                         try_middle else_suitel COME_FROM
 
         try_middle ::= jmp_abs COME_FROM except_stmts
-                END_FINALLY
+                       END_FINALLY
         try_middle ::= JUMP_FORWARD COME_FROM except_stmts
-                END_FINALLY COME_FROM
+                       END_FINALLY COME_FROM
 
         except_stmts ::= except_stmts except_stmt
         except_stmts ::= except_stmt
@@ -444,10 +449,6 @@ class Python2Parser(PythonParser):
 
         jmp_abs ::= JUMP_ABSOLUTE
         jmp_abs ::= JUMP_BACK
-
-        tryfinallystmt ::= SETUP_FINALLY suite_stmts
-                POP_BLOCK LOAD_CONST
-                COME_FROM suite_stmts_opt END_FINALLY
 
         withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
                 POP_BLOCK LOAD_CONST COME_FROM

@@ -425,49 +425,50 @@ class Python3Parser(PythonParser):
         trystmt        ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            try_middle COME_FROM
 
-        tryfinallystmt ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           try_middle
-                           POP_TOP SETUP_FINALLY POP_BLOCK POP_EXCEPT LOAD_CONST
-                           COME_FROM suite_stmts END_FINALLY
-                           JUMP_FORWARD END_FINALLY COME_FROM COME_FROM
-
+        # this is nested inside a trystmt
         tryfinallystmt ::= SETUP_FINALLY suite_stmts
                            POP_BLOCK LOAD_CONST
-                           COME_FROM suite_stmts END_FINALLY
+                           COME_FROM suite_stmts_opt END_FINALLY
 
-        tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt
+        tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            try_middle else_suite COME_FROM
 
         tryelsestmtc ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                try_middle else_suitec COME_FROM
+                         try_middle else_suitec COME_FROM
 
         tryelsestmtl ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                try_middle else_suitel COME_FROM
+                         try_middle else_suitel COME_FROM
 
-        try_middle ::= jmp_abs COME_FROM except_stmts END_FINALLY
+        try_middle ::= jmp_abs COME_FROM except_stmts
+                       END_FINALLY
         try_middle ::= JUMP_FORWARD COME_FROM except_stmts
                        END_FINALLY COME_FROM
-        try_middle ::= JUMP_FORWARD COME_FROM except_cond2
-
 
         except_stmts ::= except_stmts except_stmt
         except_stmts ::= except_stmt
 
         except_stmt ::= except_cond1 except_suite
         except_stmt ::= except_cond2 except_suite
-        except_stmt ::= except_cond2 except_suite
         except_stmt ::= except
 
         # Python3 introduced POP_EXCEPT
         except_suite ::= c_stmts_opt POP_EXCEPT JUMP_FORWARD
         except_suite ::= c_stmts_opt POP_EXCEPT jmp_abs
+
+        # This is used in Python 3 in
+        # "except ... as e" to remove 'e' after the c_stmts_opt finishes
+        except_suite ::= SETUP_FINALLY c_stmts_opt
+                         POP_BLOCK POP_EXCEPT LOAD_CONST COME_FROM LOAD_CONST
+                         STORE_NAME DELETE_NAME END_FINALLY
+                         JUMP_FORWARD
+
         except_suite ::= return_stmts
 
         except_cond1 ::= DUP_TOP expr COMPARE_OP
                 jmp_false POP_TOP POP_TOP POP_TOP
 
         except_cond2 ::= DUP_TOP expr COMPARE_OP
-                jmp_false POP_TOP designator
+                jmp_false POP_TOP designator POP_TOP
 
         except  ::=  POP_TOP POP_TOP POP_TOP POP_EXCEPT c_stmts_opt JUMP_FORWARD
         except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt JUMP_FORWARD
