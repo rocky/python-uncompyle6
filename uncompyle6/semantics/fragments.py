@@ -70,6 +70,7 @@ class Traverser(pysource.Walker, object):
             'f': StringIO(),
             'indent': '',
             }
+        self.version = version
         self.p = get_python_parser(version, dict(debug_parser))
         self.showast = showast
         self.__params = params
@@ -79,6 +80,7 @@ class Traverser(pysource.Walker, object):
         self.return_none = False
         self.mod_globs = set()
         self.currentclass = None
+        self.classes = []
         self.pending_newlines = 0
         self.hide_internal = False
 

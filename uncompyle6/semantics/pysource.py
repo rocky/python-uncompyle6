@@ -1480,7 +1480,7 @@ class Walker(GenericASTTraversal, object):
             self.print_(self.indent, 'global ', g)
         self.mod_globs -= all_globals
         rn = ('None' in code.co_names) and not find_none(ast)
-        self.gen_source(ast, code._customize, isLambda=isLambda, returnNone=rn)
+        self.gen_source(ast, code.co_name, code._customize, isLambda=isLambda, returnNone=rn)
         code._tokens = None; code._customize = None # save memory
 
     def build_class(self, code):
@@ -1530,15 +1530,16 @@ class Walker(GenericASTTraversal, object):
         for g in find_globals(ast, set()):
             self.print_(indent, 'global ', g)
 
-        self.gen_source(ast, code._customize)
+        self.gen_source(ast, code.co_name, code._customize)
         code._tokens = None; code._customize = None # save memory
         self.classes.pop(-1)
 
-    def gen_source(self, ast, customize, isLambda=0, returnNone=False):
+    def gen_source(self, ast, name, customize, isLambda=0, returnNone=False):
         """convert AST to source code"""
 
         rn = self.return_none
         self.return_none = returnNone
+        self.name = name
         # if code would be empty, append 'pass'
         if len(ast) == 0:
             self.print_(self.indent, 'pass')
@@ -1631,7 +1632,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
         pass
 
     # What we've been waiting for: Generate source from AST!
-    deparsed.gen_source(deparsed.ast, customize)
+    deparsed.gen_source(deparsed.ast, co.co_name, customize)
 
     for g in deparsed.mod_globs:
         deparsed.write('# global %s ## Warning: Unused global' % g)
