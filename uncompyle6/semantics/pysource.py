@@ -491,6 +491,7 @@ class Walker(GenericASTTraversal, object):
         self.currentclass = None
         self.classes = []
         self.pending_newlines = 0
+        self.hide_internal = True
 
         if version >= 3.0:
             # Python 3 adds a POP_EXCEPT instruction
@@ -1497,7 +1498,7 @@ class Walker(GenericASTTraversal, object):
         assert ast == 'stmts'
 
         if ast[0][0] == NAME_MODULE:
-            del ast[0]
+            if self.hide_internal: del ast[0]
             pass
 
         qualname = '.'.join(self.classes)
@@ -1508,20 +1509,21 @@ class Walker(GenericASTTraversal, object):
                         AST('designator', [ Token('STORE_NAME', pattr='__qualname__')])
                         ])])
         if ast[0][0] == QUAL_NAME:
-            del ast[0]
+            if self.hide_internal: del ast[0]
             pass
 
         # if docstring exists, dump it
         if (code.co_consts and code.co_consts[0] is not None
             and len(ast) > 0 and ast[0][0] == ASSIGN_DOC_STRING(code.co_consts[0])):
-            self.print_docstring(indent, code.co_consts[0])
-            self.print_()
-            del ast[0]
+            if self.hide_internal:
+                self.print_docstring(indent, code.co_consts[0])
+                self.print_()
+                del ast[0]
 
         # the function defining a class normally returns locals(); we
         # don't want this to show up in the source, thus remove the node
         if len(ast) > 0 and ast[-1][0] == RETURN_LOCALS:
-            del ast[-1] # remove last node
+            if self.hide_internal: del ast[-1] # remove last node
         # else:
         #    print ast[-1][-1]
 
@@ -1567,14 +1569,15 @@ class Walker(GenericASTTraversal, object):
         # "return None". However you can't issue a "return" statement in
         # main. So as the old cigarette slogan goes: I'd rather switch (the token stream)
         # than fight (with the grammar to not emit "return None").
-        if len(tokens) >= 2 and not noneInNames:
-            if tokens[-1].type == 'RETURN_VALUE':
-                if tokens[-2].type == 'LOAD_CONST':
-                    del tokens[-2:]
-                else:
-                    tokens.append(Token('RETURN_LAST'))
-        if len(tokens) == 0:
-            return PASS
+        if self.hide_internal:
+            if len(tokens) >= 2 and not noneInNames:
+                if tokens[-1].type == 'RETURN_VALUE':
+                    if tokens[-2].type == 'LOAD_CONST':
+                        del tokens[-2:]
+                    else:
+                        tokens.append(Token('RETURN_LAST'))
+            if len(tokens) == 0:
+                return PASS
 
         # Build AST from disassembly.
         try:

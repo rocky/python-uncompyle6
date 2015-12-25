@@ -80,6 +80,7 @@ class Traverser(pysource.Walker, object):
         self.mod_globs = set()
         self.currentclass = None
         self.pending_newlines = 0
+        self.hide_internal = False
 
         self.offsets = {}
         self.last_finish = -1
@@ -466,7 +467,7 @@ class Traverser(pysource.Walker, object):
         code = Code(code, self.scanner, self.currentclass)
         # assert isinstance(code, Code)
 
-        ast = self.build_ast_d(code._tokens, code._customize)
+        ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
         ast = ast[0][0][0]
 
@@ -613,7 +614,7 @@ class Traverser(pysource.Walker, object):
             self.text = self.traverse(ast, isLambda=isLambda)
         self.return_none = rn
 
-    def build_ast_d(self, tokens, customize, isLambda=0, noneInNames=False):
+    def build_ast(self, tokens, customize, isLambda=0, noneInNames=False):
         # assert type(tokens) == ListType
         # assert isinstance(tokens[0], Token)
 
@@ -1167,10 +1168,10 @@ class Traverser(pysource.Walker, object):
         paramnames.reverse(); defparams.reverse()
 
         try:
-            ast = self.build_ast_d(code._tokens,
-                                   code._customize,
-                                   isLambda = isLambda,
-                                   noneInNames = ('None' in code.co_names))
+            ast = self.build_ast(code._tokens,
+                                 code._customize,
+                                 isLambda = isLambda,
+                                 noneInNames = ('None' in code.co_names))
         except ParserError as p:
             self.write( str(p))
             self.ERROR = p
@@ -1243,7 +1244,7 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
     # deparsed = pysource.Walker(out, scanner, showast=showast)
     deparsed = Traverser(version, scanner, showast=showast, debug_parser=debug_parser)
 
-    deparsed.ast = deparsed.build_ast_d(tokens, customize)
+    deparsed.ast = deparsed.build_ast(tokens, customize)
 
     assert deparsed.ast == 'stmts', 'Should have parsed grammar start'
 
