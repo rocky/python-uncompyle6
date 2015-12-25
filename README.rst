@@ -26,7 +26,7 @@ byte-code offsets (of interest). This purpose although largely
 compatible with the original intention is yet a little bit different.
 See this_ for more information.
 
-The idea of Python fragment deparing given an instruction offset can
+The idea of Python fragment deparsing given an instruction offset can
 be used in showing stack traces or any program that wants to show a
 location in more detail than just a line number.  It can be also used
 when source-code information does not exist and there is just bytecode
@@ -95,7 +95,7 @@ See Also
 * https://github.com/DarkFenX/uncompyle3
 * https://code.google.com/p/unpyc3/
 
-THe HISTORY file.
+The HISTORY file.
 
 .. _trepan: https://pypi.python.org/pypi/trepan
 .. _debuggers: https://pypi.python.org/pypi/trepan3k
