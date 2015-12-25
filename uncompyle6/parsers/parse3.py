@@ -371,11 +371,8 @@ class Python3Parser(PythonParser):
         kwarg   ::= LOAD_CONST expr
 
         classdef ::= buildclass designator
-
         # Python3 introduced LOAD_BUILD_CLASS
-        # FIXME: the below should be created by custom rules
-        buildclass ::= LOAD_BUILD_CLASS mkfunc LOAD_CONST LOAD_NAME CALL_FUNCTION_3
-        buildclass ::= LOAD_BUILD_CLASS mkfunc LOAD_CONST CALL_FUNCTION_2
+        # the definition of buildclass is a custom rule
 
         stmt ::= classdefdeco
         classdefdeco ::= classdefdeco1 designator
@@ -672,6 +669,44 @@ class Python3Parser(PythonParser):
         nullexprlist ::=
         '''
 
+    def custom_buildclass_rule(self, opname, i, token, tokens, customize):
+
+        # look for next MAKE_FUNCTION
+        for i in range(i+1, len(tokens)):
+            if tokens[i].type.startswith('MAKE_FUNCTION'):
+                break
+            pass
+        assert i < len(tokens)
+        assert tokens[i+1].type == 'LOAD_CONST'
+        # find load names
+        have_loadname = False
+        for i in range(i+1, len(tokens)):
+            if tokens[i].type == 'LOAD_NAME':
+                have_loadname = True
+                break
+            if tokens[i].type in 'CALL_FUNCTION':
+                break
+            pass
+        assert i < len(tokens)
+        if have_loadname:
+            j = 1
+            for i in range(i+1, len(tokens)):
+                if tokens[i].type in 'CALL_FUNCTION':
+                    break
+                assert tokens[i].type == 'LOAD_NAME'
+                j += 1
+                pass
+            load_names = 'LOAD_NAME ' * j
+        else:
+            j = 0
+            load_names = ''
+        # customize CALL_FUNCTION
+        call_function = 'CALL_FUNCTION_%d' % (j + 2)
+        rule = ("buildclass ::= LOAD_BUILD_CLASS mkfunc LOAD_CONST %s%s" %
+                (load_names, call_function))
+        self.add_unique_rule(rule, opname, token.attr, customize)
+        return
+
     def add_custom_rules(self, tokens, customize):
         """
         Special handling for opcodes that take a variable number
@@ -693,7 +728,7 @@ class Python3Parser(PythonParser):
         """
         # from trepan.api import debug
         # debug(start_opts={'startup-profile': True})
-        for token in tokens:
+        for i, token in enumerate(tokens):
             opname = token.type
             opname_base = opname[:opname.rfind('_')]
 
@@ -710,6 +745,8 @@ class Python3Parser(PythonParser):
                         + ('kwarg ' * args_kw)
                         + 'expr ' * nak + token.type)
                 self.add_unique_rule(rule, token.type, args_pos, customize)
+            elif opname == 'LOAD_BUILD_CLASS':
+                self.custom_buildclass_rule(opname, i, token, tokens, customize)
             elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
                 rule = 'build_list ::= ' + 'expr ' * token.attr + opname
                 self.add_unique_rule(rule, opname, token.attr, customize)

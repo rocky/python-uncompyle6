@@ -8,8 +8,8 @@
 #   classdef ::= LOAD_CONST expr mkfunc CALL_FUNCTION_0 BUILD_CLASS designator
 #   mkfunc ::= LOAD_CONST MAKE_FUNCTION_0
 
-# class A:
-#     pass
+class A:
+    pass
 
 class B(Exception):
     pass

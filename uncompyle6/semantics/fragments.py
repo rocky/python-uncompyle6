@@ -564,17 +564,30 @@ class Traverser(pysource.Walker, object):
     def n_classdef(self, node):
         # class definition ('class X(A,B,C):')
         cclass = self.currentclass
-        self.currentclass = str(node[0].pattr)
+
+        if self.version > 3.0:
+            buildclass = node[1]
+            build_list = node[0]
+            subclass = build_list[1][0].attr
+        else:
+            buildclass = node[0]
+            build_list = buildclass[1][0]
+            subclass = buildclass[-3][0].attr
 
         self.write('\n\n')
+        self.currentclass = str(buildclass[0].pattr)
         start = len(self.f.getvalue())
         self.write(self.indent, 'class ', self.currentclass)
-        self.print_super_classes(node)
+
+        if self.version > 3.0:
+            self.print_super_classes3(build_list)
+        else:
+            self.print_super_classes(build_list)
         self.print_(':')
 
         # class body
         self.indentMore()
-        self.build_class(node[2][-2].attr)
+        self.build_class(subclass)
         self.indentLess()
 
         self.currentclass = cclass
@@ -840,6 +853,34 @@ class Traverser(pysource.Walker, object):
             value = self.traverse(elem)
             self.node_append(sep, value, elem)
             # self.write(sep, value)
+            sep = line_separator
+
+        self.write(')')
+        self.set_pos_info(node, start, len(self.f.getvalue()))
+
+    def print_super_classes3(self, node):
+
+        # FIXME: wrap superclasses onto a node
+        # as a custom rule
+        start = len(self.f.getvalue())
+        n = len(node)-1
+        assert node[n].type.startswith('CALL_FUNCTION')
+        for i in range(n-1, 0, -1):
+            if node[i].type != 'LOAD_NAME':
+                break
+            pass
+
+        if i == n-1:
+            return
+        self.write('(')
+        line_separator = ', '
+        sep = ''
+        i += 1
+        while i < n:
+            value = self.traverse(node[i])
+            self.node_append(sep, value, node[i])
+            i += 1
+            self.write(sep, value)
             sep = line_separator
 
         self.write(')')

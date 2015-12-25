@@ -1104,20 +1104,22 @@ class Walker(GenericASTTraversal, object):
 
     def print_super_classes3(self, node):
 
-        # FIXME: put blow logic into grammar
+        # FIXME: wrap superclasses onto a node
         # as a custom rule
-        i = 0
-        for i, n in enumerate(node[:-1]):
-            if n.type == 'LOAD_NAME':
+        n = len(node)-1
+        assert node[n].type.startswith('CALL_FUNCTION')
+        for i in range(n-1, 0, -1):
+            if node[i].type != 'LOAD_NAME':
                 break
             pass
 
-        if i == 0:
+        if i == n-1:
             return
         self.write('(')
         line_separator = ', '
         sep = ''
-        while i <= len(node) - 2:
+        i += 1
+        while i < n:
             value = self.traverse(node[i])
             i += 1
             self.write(sep, value)
@@ -1493,17 +1495,26 @@ class Walker(GenericASTTraversal, object):
 
         if ast[0][0] == NAME_MODULE:
             del ast[0]
+            QUAL_NAME = AST('stmt',
+                [ AST('assign',
+                    [ AST('expr', [Token('LOAD_CONST', pattr=self.currentclass)]),
+                      AST('designator', [ Token('STORE_NAME', pattr='__qualname__')])
+                      ])])
+            if ast[0][0] == QUAL_NAME:
+                del ast[0]
+                pass
+            pass
 
         # if docstring exists, dump it
         if (code.co_consts and code.co_consts[0] is not None
-            and ast[0][0] == ASSIGN_DOC_STRING(code.co_consts[0])):
+            and len(ast) > 0 and ast[0][0] == ASSIGN_DOC_STRING(code.co_consts[0])):
             self.print_docstring(indent, code.co_consts[0])
             self.print_()
             del ast[0]
 
         # the function defining a class normally returns locals(); we
         # don't want this to show up in the source, thus remove the node
-        if ast[-1][0] == RETURN_LOCALS:
+        if len(ast) > 0 and ast[-1][0] == RETURN_LOCALS:
             del ast[-1] # remove last node
         # else:
         #    print ast[-1][-1]
