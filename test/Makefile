@@ -19,6 +19,9 @@ check:
 	@$(PYTHON) -V && PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2`; \
 	$(MAKE) check-$$PYTHON_VERSION
 
+#: Run working tests from Python 2.6
+check-2.6: check-bytecode-2.5 check-bytecode-2.7
+
 #: Run working tests from Python 2.7
 check-2.7: check-bytecode check-2.7-ok
 

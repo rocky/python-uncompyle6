@@ -1,0 +1,15 @@
+uncompyle6 1.0.0 2015-12-11
+
+Changes from uncompyle2
+
+- Can give code fragments given an instruction offset. See
+  https://github.com/rocky/python-uncompyle6/wiki/Deparsing-technology-and-its-use-in-exact-location-reporting
+- Runs under Python3. Decompiles Python 2.5-2.7 and some Python 3.2-3.4
+- Allows for multiple Python grammars, specifically Python2 vs Python 3
+- Add a cross-version Python disassembler command-line utility
+- Add some py.test and start reorganizing tests
+
+SPARK:
+  add option to show grammar rules applied
+  allow Python-style # comments in grammar
+  Runs on Python 3 and Python 2

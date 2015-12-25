@@ -1,6 +1,9 @@
 include README.rst
+include HISTORY.md
+include ChangeLog
 include __pkginfo__.py
 recursive-include uncompyle6 *.py
 include bin/uncompyle6
 include bin/pydisassemble
-recursive-include test *.py *.pyc *.pyo
+recursive-include test *.py
+recursive-include pytest *.py

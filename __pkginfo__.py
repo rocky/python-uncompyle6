@@ -9,7 +9,7 @@
 
 # Things that change more often go here.
 copyright   = """
-Copyright (C) 2015 Rocky Bernstein <rocky@gnu.org>.
+Copyright (C) 2015 Rocky Bernstein <rb@dustyfeet.com>.
 """
 
 classifiers =  ['Development Status :: 3 - Alpha',
@@ -21,10 +21,10 @@ classifiers =  ['Development Status :: 3 - Alpha',
                 ]
 
 # The rest in alphabetic order
-author             = "Rocky Bernstein"
+author             = "Rocky Bernstein, Hartmut Goebel, John Aycock, and others"
 author_email       = "rb@dustyfeet.com"
 ftp_url            = None
-# license            = 'GPL'
+# license            = 'BSDish'
 mailing_list       = 'python-debugger@googlegroups.com'
 modname            = 'uncompyle6'
 packages           = ['uncompyle6', 'uncompyle6.opcodes']
@@ -39,9 +39,8 @@ def get_srcdir():
     filename = os.path.normcase(os.path.dirname(os.path.abspath(__file__)))
     return os.path.realpath(filename)
 
-# VERSION.py sets variable VERSION.
 ns = {}
-version            = '2.0'
+version            = '2.0.0'
 web                = 'https://github.com/rocky/python-uncompyle6/'
 
 # tracebacks in zip files are funky and not debuggable

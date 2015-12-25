@@ -1,0 +1,1385 @@
+2015-12-25  rocky <rb@dustyfeet.com>
+
+	* pytest/test_deparse.py: Port deparse test from python-deparse to
+	py.test
+
+2015-12-24  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Remove Python3 class __qualname__
+	assignment. Change LOAD_NAME to LOAD_CLASSNAME to make parsing more
+	reliable and intentional.
+
+2015-12-24  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/def/01_class.py,
+	test/simple_source/exception/05_try_except.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Improve Python3 class definition
+	handling
+
+2015-12-24  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/verify.py: One more place for API change
+
+2015-12-24  rocky <rb@dustyfeet.com>
+
+	* pytest/test_load.py, test/dis-compare.py, uncompyle6/disas.py,
+	uncompyle6/load.py, uncompyle6/main.py, uncompyle6/verify.py: Show
+	embeded timestamp of byte-decompiled file
+
+2015-12-23  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py: Lint
+
+2015-12-23  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/exception/05_try_except.py,
+	uncompyle6/parsers/parse3.py: WIP: Python3 exceptions
+
+2015-12-23  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/simple_stmts/00_import.py,
+	test/simple_source/simple_stmts/00_pass.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/semantics/pysource.py: 
+	Start Python3 class(superclass) handling
+
+2015-12-23  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/def/01_class.py, uncompyle6/load.py,
+	uncompyle6/main.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/semantics/pysource.py: parse2.py, pysource.py: add
+	buildclass nonterminal to structure tree better and make more
+	similar to Python3 load.py: handle magic errors better main.py:
+	correct use when passing a .py instead of a .pyc better and a
+	message err when file not found.  pysource.py: fix up main
+	docstring; code moved from main.py
+
+2015-12-23  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py: Add fragmnet offsets for 'from
+	x import..'
+
+2015-12-22  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Propogate offsets in imports.
+	Added a new %x format specifier.
+
+2015-12-22  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/def/01_class.py,
+	test/simple_source/def/02_def.py, test/simple_source/def/def0.py,
+	test/simple_source/def/def1.py, uncompyle6/__init__.py,
+	uncompyle6/opcodes/opcode_25.py, uncompyle6/opcodes/opcode_26.py,
+	uncompyle6/opcodes/opcode_27.py, uncompyle6/opcodes/opcode_34.py,
+	uncompyle6/parsers/astnode.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/parsers/spark.py,
+	uncompyle6/semantics/fragments.py, uncompyle6/semantics/pysource.py: 
+	Allow comments in grammar rules. Start working on Python3 class (not
+	finished). More test organization.
+
+2015-12-22  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/def/01_class.py,
+	test/simple_source/def/10_class.py,
+	uncompyle6/opcodes/opcode_32.py, uncompyle6/opcodes/opcode_34.py,
+	uncompyle6/parsers/parse3.py: Remove Python2 buitin "print" from
+	Python3's grammr. Start class tests
+
+2015-12-22  rocky <rb@dustyfeet.com>
+
+	* bin/uncompyle6, uncompyle6/main.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/spark.py,
+	uncompyle6/semantics/pysource.py: main.py, pysource.py DRY
+	deparse_code from main. Is better on showing exception errrors such
+	as when a pyc file is not found uncompyle6: Hook in --grammar option
+	to showing grammar.  rules. Default now does not show timestamp.
+
+2015-12-22  rocky <rb@dustyfeet.com>
+
+	* bin/uncompyle6, pytest/test_disasm.py,
+	pytest/testdata/if-2.7.right, pytest/testdata/ifelse-2.7.right,
+	test/Makefile, test/add-test.py,
+	test/simple_source/branching/05_if.py,
+	test/simple_source/branching/05_ifelse.py,
+	test/simple_source/branching/if.py,
+	test/simple_source/branching/ifelse.py,
+	test/simple_source/call_arguments/01_positional.py,
+	test/simple_source/call_arguments/10_keyword.py,
+	test/simple_source/call_arguments/keyword.py,
+	test/simple_source/call_arguments/positional.py,
+	test/simple_source/exception/20_try_except.py,
+	test/simple_source/exception/25_try_except.py,
+	test/simple_source/misc/assert.py,
+	test/simple_source/misc/assign_none.py,
+	test/simple_source/operation_logic/01_boolean.py,
+	test/simple_source/operation_logic/10_mixed_boolean.py,
+	test/simple_source/operation_logic/or.py,
+	test/simple_source/simple_stmts/15_assert.py,
+	test/simple_source/slice/01_slice.py,
+	test/simple_source/slice/02_slice.py, uncompyle6/main.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/parsers/spark.py,
+	uncompyle6/semantics/pysource.py: Add spark option to show grammer.
+	Revise uncompyle options. Start to reorganize tests more
+
+2015-12-21  rocky <rb@dustyfeet.com>
+
+	* README.rst: grammar
+
+2015-12-21  rocky <rb@dustyfeet.com>
+
+	* README.rst: Add meat to CI tag
+
+2015-12-21  rocky <rb@dustyfeet.com>
+
+	* README.rst: Use travis badge for now
+
+2015-12-21  rocky <rb@dustyfeet.com>
+
+	* README.rst: Make README.rst reflect current situation better
+
+2015-12-21  rocky <rb@dustyfeet.com>
+
+	* HISTORY.md, test/simple_source/README,
+	test/simple_source/exception/20_try_except.py,
+	test/simple_source/looping/10_for.py,
+	test/simple_source/looping/for.py, uncompyle6/main.py,
+	uncompyle6/opcodes/opcode_34.py, uncompyle6/parsers/spark.py,
+	uncompyle6/scanners/scanner34.py: Bug in for loop with try. Add more
+	of 2.7's COME_FROM statements.  spark.py: add tracing reduce rules.
+	main: reduce cutsines.  Start history
+
+2015-12-21  rocky <rb@dustyfeet.com>
+
+	* test/bytecode_2.7/README, test/bytecode_3.2/README,
+	test/bytecode_3.4/README, test/bytecompile-tests,
+	test/simple_source/README,
+	test/simple_source/exception/01_try_except.py,
+	test/simple_source/misc/assign.py,
+	test/simple_source/misc/assign_none_str.py,
+	test/simple_source/simple_stmts/00_assign.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/semantics/pysource.py: 
+	Start Python3 execption handling
+
+2015-12-21  rocky <rb@dustyfeet.com>
+
+	* test/simple-source/README, test/simple-source/branching/if.py,
+	test/simple-source/branching/ifelse.py,
+	test/simple-source/call_arguments/keyword.py,
+	test/simple-source/call_arguments/positional.py,
+	test/simple-source/comprehension/01-lc.py,
+	test/simple-source/comprehension/forelse.py,
+	test/simple-source/def/def0.py, test/simple-source/def/def1.py,
+	test/simple-source/looping/for.py,
+	test/simple-source/looping/while.py,
+	test/simple-source/misc/assert.py,
+	test/simple-source/misc/assign.py,
+	test/simple-source/misc/assign_none.py,
+	test/simple-source/misc/assign_none_str.py,
+	test/simple-source/operation_binary/add.py,
+	test/simple-source/operation_binary/and.py,
+	test/simple-source/operation_binary/divide_floor.py,
+	test/simple-source/operation_binary/divide_true.py,
+	test/simple-source/operation_binary/modulo.py,
+	test/simple-source/operation_binary/multiply.py,
+	test/simple-source/operation_binary/or.py,
+	test/simple-source/operation_binary/power.py,
+	test/simple-source/operation_binary/shift_left.py,
+	test/simple-source/operation_binary/shift_right.py,
+	test/simple-source/operation_binary/subscription.py,
+	test/simple-source/operation_binary/subtract.py,
+	test/simple-source/operation_binary/xor.py,
+	test/simple-source/operation_comparison/equal.py,
+	test/simple-source/operation_comparison/greater.py,
+	test/simple-source/operation_comparison/greater_equal.py,
+	test/simple-source/operation_comparison/less.py,
+	test/simple-source/operation_comparison/less_equal.py,
+	test/simple-source/operation_comparison/notequal.py,
+	test/simple-source/operation_inplace/add.py,
+	test/simple-source/operation_inplace/and.py,
+	test/simple-source/operation_inplace/divide_floor.py,
+	test/simple-source/operation_inplace/divide_true.py,
+	test/simple-source/operation_inplace/modulo.py,
+	test/simple-source/operation_inplace/multiply.py,
+	test/simple-source/operation_inplace/or.py,
+	test/simple-source/operation_inplace/power.py,
+	test/simple-source/operation_inplace/shift_left.py,
+	test/simple-source/operation_inplace/shift_right.py,
+	test/simple-source/operation_inplace/subtract.py,
+	test/simple-source/operation_inplace/xor.py,
+	test/simple-source/operation_logic/and.py,
+	test/simple-source/operation_logic/complex1.py,
+	test/simple-source/operation_logic/complex2.py,
+	test/simple-source/operation_logic/complex3.py,
+	test/simple-source/precedence/left.py,
+	test/simple-source/precedence/right.py,
+	test/simple-source/precedence/structure.py,
+	test/simple-source/slice/01-slice.py, test/simple_source/README,
+	test/simple_source/branching/if.py,
+	test/simple_source/branching/ifelse.py,
+	test/simple_source/call_arguments/keyword.py,
+	test/simple_source/call_arguments/positional.py,
+	test/simple_source/comprehension/01_list_comprehension.py,
+	test/simple_source/comprehension/forelse.py,
+	test/simple_source/def/def0.py, test/simple_source/def/def1.py,
+	test/simple_source/exception/01_try_except.py,
+	test/simple_source/looping/for.py,
+	test/simple_source/looping/while.py,
+	test/simple_source/misc/assert.py,
+	test/simple_source/misc/assign.py,
+	test/simple_source/misc/assign_none.py,
+	test/simple_source/misc/assign_none_str.py,
+	test/simple_source/operation_binary/add.py,
+	test/simple_source/operation_binary/and.py,
+	test/simple_source/operation_binary/divide_floor.py,
+	test/simple_source/operation_binary/divide_true.py,
+	test/simple_source/operation_binary/modulo.py,
+	test/simple_source/operation_binary/multiply.py,
+	test/simple_source/operation_binary/or.py,
+	test/simple_source/operation_binary/power.py,
+	test/simple_source/operation_binary/shift_left.py,
+	test/simple_source/operation_binary/shift_right.py,
+	test/simple_source/operation_binary/subscription.py,
+	test/simple_source/operation_binary/subtract.py,
+	test/simple_source/operation_binary/xor.py,
+	test/simple_source/operation_comparison/equal.py,
+	test/simple_source/operation_comparison/greater.py,
+	test/simple_source/operation_comparison/greater_equal.py,
+	test/simple_source/operation_comparison/less.py,
+	test/simple_source/operation_comparison/less_equal.py,
+	test/simple_source/operation_comparison/notequal.py,
+	test/simple_source/operation_inplace/add.py,
+	test/simple_source/operation_inplace/and.py,
+	test/simple_source/operation_inplace/divide_floor.py,
+	test/simple_source/operation_inplace/divide_true.py,
+	test/simple_source/operation_inplace/modulo.py,
+	test/simple_source/operation_inplace/multiply.py,
+	test/simple_source/operation_inplace/or.py,
+	test/simple_source/operation_inplace/power.py,
+	test/simple_source/operation_inplace/shift_left.py,
+	test/simple_source/operation_inplace/shift_right.py,
+	test/simple_source/operation_inplace/subtract.py,
+	test/simple_source/operation_inplace/xor.py,
+	test/simple_source/operation_logic/or.py,
+	test/simple_source/operation_unary/invert.py,
+	test/simple_source/operation_unary/iter.py,
+	test/simple_source/operation_unary/negative.py,
+	test/simple_source/operation_unary/not.py,
+	test/simple_source/operation_unary/positive.py,
+	test/simple_source/precedence/left.py,
+	test/simple_source/precedence/right.py,
+	test/simple_source/precedence/structure.py,
+	test/simple_source/slice/01_slice.py: Regularize test names.
+
+2015-12-21  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/simple-source/slice/01-slice.py,
+	uncompyle6/opcodes/opcode_32.py, uncompyle6/opcodes/opcode_34.py,
+	uncompyle6/parsers/astnode.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanner.py, uncompyle6/scanners/tok.py,
+	uncompyle6/semantics/pysource.py: Start Python3 slices. Split off
+	token routine.
+
+2015-12-21  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/__init__.py, uncompyle6/marsh.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py: Start
+	slice and build list on Python3. Do sanity check on marshal load of
+	code.
+
+2015-12-20  rocky <rb@dustyfeet.com>
+
+	* Makefile, bin/uncompyle6, pytest/test_load.py, test/Makefile,
+	test/test_pythonlib.py, uncompyle6/__init__.py,
+	uncompyle6/deparser.py, uncompyle6/disas.py, uncompyle6/load.py,
+	uncompyle6/main.py, uncompyle6/semantics/__init__.py,
+	uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py, uncompyle6/verify.py,
+	uncompyle6/walker.py: Part of a much needed cleanup. Move semantics
+	routines into its own directory. Move out lots of stuff from
+	__init__ to their own files.  Add file loading tests. Document AST
+	handling a tad more complete.
+
+2015-12-20  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/simple-source/misc/assign_none.py,
+	test/simple-source/misc/assign_none_str.py, uncompyle6/marsh.py,
+	uncompyle6/scanners/scanner32.py, uncompyle6/scanners/scanner34.py: 
+	Python 3 decompilation from Python2
+
+2015-12-20  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/simple-source/comprehension/01-lc.py,
+	test/test_pythonlib.py, uncompyle6/deparser.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner34.py,
+	uncompyle6/walker.py: First list comprehensions from Python3. More
+	test makefile hacking
+
+2015-12-20  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/disas.py: dissasemble_file output is needed for pytest
+
+2015-12-20  rocky <rb@dustyfeet.com>
+
+	* Makefile, README.rst, test/Makefile, test/dis-compare.py,
+	uncompyle6/deparser.py, uncompyle6/disas.py, uncompyle6/walker.py: 
+	Go over makefiles to make "make check" work. walker, deparser: use
+	zip_longest
+
+2015-12-19  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/deparser.py, uncompyle6/walker.py: 3.4: correct picking
+	up parameter names on oa function call
+
+2015-12-19  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/deparser.py, uncompyle6/walker.py: Python3 compatiblity
+	for getting precidence. n_mkfunc needs to key off of bytecode
+	version, not running Python version.
+
+2015-12-19  rocky <rb@dustyfeet.com>
+
+	* README.rst: rSt-style linking
+
+2015-12-19  rocky <rb@dustyfeet.com>
+
+	* README.rst: Update what this is about
+
+2015-12-19  rocky <rb@dustyfeet.com>
+
+	* test/simple-source/def/def0.py, test/simple-source/def/def1.py,
+	uncompyle6/__init__.py, uncompyle6/deparser.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanners/scanner34.py, uncompyle6/verify.py,
+	uncompyle6/walker.py: Python 3.4: MAKE_FUNCTION starts to work.
+
+2015-12-19  rocky <rb@dustyfeet.com>
+
+	* LICENSE, README.rst: Docs
+
+2015-12-19  rocky <rb@dustyfeet.com>
+
+	* test/simple-source/operation_binary/multiply.py,
+	test/simple-source/operation_binary/or.py,
+	test/simple-source/operation_binary/power.py,
+	test/simple-source/operation_binary/shift_left.py,
+	test/simple-source/operation_binary/shift_right.py,
+	test/simple-source/operation_binary/subscription.py,
+	test/simple-source/operation_binary/subtract.py,
+	test/simple-source/operation_binary/xor.py,
+	test/simple-source/operation_comparison/equal.py,
+	test/simple-source/operation_comparison/greater.py,
+	test/simple-source/operation_comparison/greater_equal.py,
+	test/simple-source/operation_comparison/less.py,
+	test/simple-source/operation_comparison/less_equal.py,
+	test/simple-source/operation_comparison/notequal.py,
+	test/simple-source/operation_inplace/add.py,
+	test/simple-source/operation_inplace/and.py,
+	test/simple-source/operation_inplace/divide_floor.py,
+	test/simple-source/operation_inplace/divide_true.py,
+	test/simple-source/operation_inplace/modulo.py,
+	test/simple-source/operation_inplace/multiply.py,
+	test/simple-source/operation_inplace/or.py,
+	test/simple-source/operation_inplace/power.py,
+	test/simple-source/operation_inplace/shift_left.py,
+	test/simple-source/operation_inplace/shift_right.py,
+	test/simple-source/operation_inplace/subtract.py,
+	test/simple-source/operation_inplace/xor.py,
+	test/simple-source/operation_logic/and.py,
+	test/simple-source/operation_logic/complex1.py,
+	test/simple-source/operation_logic/complex2.py,
+	test/simple-source/operation_logic/complex3.py,
+	test/simple-source/precedence/left.py,
+	test/simple-source/precedence/right.py,
+	test/simple-source/precedence/structure.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner34.py: 
+	Python 3 bytecode handles opcodes with varargs (better). Decompiling
+	assert works. Add more of the simple tests and their compiled
+	bytecode.
+
+2015-12-18  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/disas.py, uncompyle6/opcodes/opcode_23.py: disas.py:
+	track load_module API change opcode_23.py: make it more like
+	opcode_27.py
+
+2015-12-18  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/__init__.py, uncompyle6/magics.py,
+	uncompyle6/marsh.py, uncompyle6/verify.py: verify.py: Don't try to
+	verify bytecode against compiled code if magics of running
+	interpreter mismatch bytecode to be compared.  load_module() now
+	returns the magic found in the code object file.
+
+2015-12-18  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, uncompyle6/__init__.py, uncompyle6/marsh.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner25.py, uncompyle6/scanners/scanner26.py,
+	uncompyle6/scanners/scanner27.py, uncompyle6/scanners/scanner32.py,
+	uncompyle6/scanners/scanner34.py: marshal.py: Python2 marshal code
+	shouldn't try to turn a code object into a string. parse3.py: handle
+	both keyword and positional function calls. scanner34.py: Remove
+	extra level of quoting in LOAD_CONST.  Keyward handling now works
+	cross Python 2/3. Some other spelling and doc fixes.
+
+2015-12-18  rocky <rb@dustyfeet.com>
+
+	* README.rst, test/simple-source/call_arguments/positional.py,
+	uncompyle6/disas.py, uncompyle6/parser.py,
+	uncompyle6/parsers/astnode.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner27.py,
+	uncompyle6/walker.py: Python3 postional arguments. Clean up code
+	more along the lines of uncompyle3.
+
+2015-12-18  rocky <rb@dustyfeet.com>
+
+	* test/simple-source/comprehension/forelse.py, uncompyle6/disas.py: 
+	disas.py: Do better for finding/turning a .py file into a .pyc file
+	across supported versions of Python. Add for else list comprehension
+	test
+
+2015-12-17  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/__init__.py: Restrict marshal.loads when magic is the
+	same. This is more stringent than using the Python major/minor
+	version
+
+2015-12-17  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/bytecode_2.5/README, test/bytecompile-tests,
+	test/simple-source/misc/assert.py,
+	test/simple-source/misc/assign.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py: Frank Ebersoll's grammar fix to make
+	"assert isinstance(1, int)" work.
+
+2015-12-17  rocky <rb@dustyfeet.com>
+
+	* test/ok_lib2.7/asyncore.py: Remove 2.7 lib testfile pending
+	further resolution
+
+2015-12-17  rocky <rb@dustyfeet.com>
+
+	* Makefile: correct makefile build targets
+
+2015-12-17  rocky <rb@dustyfeet.com>
+
+	* Makefile, bin/pydisassemble, bin/uncompyle6,
+	test/bytecompile-tests, test/dis-compare.py,
+	uncompyle6/__init__.py, uncompyle6/disas.py,
+	uncompyle6/opcodes/opcode_25.py, uncompyle6/opcodes/opcode_26.py,
+	uncompyle6/opcodes/opcode_27.py, uncompyle6/scanners/scanner25.py,
+	uncompyle6/scanners/scanner26.py, uncompyle6/scanners/scanner27.py,
+	uncompyle6/verify.py: Python 2.6 compatability via ericfrederich's
+	patch. DRY version-checking code
+
+2015-12-17  rocky <rb@dustyfeet.com>
+
+	* .travis.yml, Makefile, circle.yml, pytest/test_disasm.py,
+	pytest/testdata/if-2.7.right, pytest/testdata/ifelse-2.7.right,
+	pytest/testdata/test1.right, test/Makefile,
+	test/bytecode_2.7/README, test/bytecode_3.4/README,
+	test/ok_2.6/anydbm.py, test/ok_2.7/aifc.py,
+	test/ok_2.7/antigravity.py, test/ok_2.7/anydbm.py,
+	test/ok_2.7/asynchat.py, test/ok_2.7/asyncore.py,
+	test/ok_2.7/atexit.py, test/ok_2.7/audiodev.py,
+	test/ok_2.7/base64.py, test/ok_2.7/binhex.py,
+	test/ok_2.7/bisect.py, test/ok_2.7/bsddb/__init__.py,
+	test/ok_2.7/bsddb/db.py, test/ok_2.7/bsddb/dbobj.py,
+	test/ok_2.7/bsddb/dbrecio.py, test/ok_2.7/bsddb/dbshelve.py,
+	test/ok_2.7/bsddb/dbutils.py, test/ok_2.7/calendar.py,
+	test/ok_2.7/cgitb.py, test/ok_2.7/chunk.py, test/ok_2.7/codeop.py,
+	test/ok_2.7/colorsys.py, test/ok_2.7/commands.py,
+	test/ok_2.7/compileall.py, test/ok_2.7/compiler/__init__.py,
+	test/ok_2.7/compiler/ast.py, test/ok_2.7/compiler/consts.py,
+	test/ok_2.7/compiler/future.py, test/ok_2.7/compiler/misc.py,
+	test/ok_2.7/compiler/syntax.py, test/ok_2.7/ctypes/_endian.py,
+	test/ok_2.7/ctypes/util.py, test/ok_2.7/ctypes/wintypes.py,
+	test/ok_2.7/curses/__init__.py, test/ok_2.7/curses/ascii.py,
+	test/ok_2.7/curses/has_key.py, test/ok_2.7/curses/panel.py,
+	test/ok_2.7/curses/wrapper.py, test/ok_2.7/dircache.py,
+	test/ok_2.7/dis.py, test/ok_lib2.6/README,
+	test/ok_lib2.6/anydbm.py, test/ok_lib2.7/README,
+	test/ok_lib2.7/aifc.py, test/ok_lib2.7/antigravity.py,
+	test/ok_lib2.7/anydbm.py, test/ok_lib2.7/asynchat.py,
+	test/ok_lib2.7/asyncore.py, test/ok_lib2.7/atexit.py,
+	test/ok_lib2.7/audiodev.py, test/ok_lib2.7/base64.py,
+	test/ok_lib2.7/binhex.py, test/ok_lib2.7/bisect.py,
+	test/ok_lib2.7/calendar.py, test/ok_lib2.7/cgitb.py,
+	test/ok_lib2.7/chunk.py, test/ok_lib2.7/codeop.py,
+	test/ok_lib2.7/colorsys.py, test/ok_lib2.7/commands.py,
+	test/ok_lib2.7/compileall.py,
+	test/simple-source/operation_binary/add.py,
+	test/simple-source/operation_binary/and.py,
+	test/simple-source/operation_binary/divide_floor.py,
+	test/simple-source/operation_binary/divide_true.py,
+	test/simple-source/operation_binary/modulo.py,
+	test/test_pythonlib.py, uncompyle6/__init__.py,
+	uncompyle6/deparser.py, uncompyle6/disas.py,
+	uncompyle6/opcodes/opcode_34.py, uncompyle6/parsers/spark.py,
+	uncompyle6/scanners/scanner27.py, uncompyle6/scanners/scanner34.py,
+	uncompyle6/verify.py, uncompyle6/walker.py: Python3: remove "return
+	None" at end of main for uncompyle. Fix up verify for Python3. First
+	automated Python 3.4 tests via "makecheck-3.4" in test directory.
+
+2015-12-17  rocky <rb@dustyfeet.com>
+
+	* test/bytecompile-tests, test/simple-source/branching/if.py,
+	test/simple-source/branching/ifelse.py,
+	test/simple-source/looping/for.py, uncompyle6/__init__.py,
+	uncompyle6/disas.py, uncompyle6/parsers/spark.py: Add spark grammar
+	debugging. Start to comment grammer construct covered by simple
+	tests.
+
+2015-12-17  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/opcodes/opcode_34.py, uncompyle6/parsers/parse3.py: 
+	Python 3.4 correct grammar for some looping constructs
+
+2015-12-17  rocky <rb@dustyfeet.com>
+
+	* test/bytecompile-tests, test/compile_tests,
+	test/simple-source/README, test/simple-source/branching/if.py,
+	test/simple-source/branching/ifelse.py,
+	test/simple-source/call_arguments/keyword.py,
+	test/simple-source/call_arguments/positional.py,
+	test/simple-source/looping/for.py,
+	test/simple-source/looping/while.py,
+	test/source_3.4/branching/if.py,
+	test/source_3.4/branching/ifelse.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/parsers/spark.py,
+	uncompyle6/scanners/scanner34.py: Python 3.4 if ifelse decompyling
+	now works.
+
+2015-12-16  rocky <rb@dustyfeet.com>
+
+	* test/dis-compare.py, test/simple-uncompyle-code-test.py,
+	uncompyle6/__init__.py, uncompyle6/deparser.py,
+	uncompyle6/parser.py, uncompyle6/parsers/__init__.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/spark.py, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner25.py, uncompyle6/scanners/scanner26.py,
+	uncompyle6/scanners/scanner27.py, uncompyle6/scanners/scanner32.py,
+	uncompyle6/scanners/scanner34.py, uncompyle6/spark.py,
+	uncompyle6/walker.py: Supoer multiple parsers, specifically for
+	Python2 and Python3. In the process some OO cleanup and some global
+	variable hacks removed.
+
+2015-12-16  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/deparser.py, uncompyle6/disas.py,
+	uncompyle6/parser.py, uncompyle6/scanner.py, uncompyle6/walker.py: 
+	Add LICENSE. Add demo programs and DRY code a little
+
+2015-12-16  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/opcodes/opcode_34.py, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner25.py, uncompyle6/scanners/scanner26.py,
+	uncompyle6/scanners/scanner27.py, uncompyle6/scanners/scanner34.py: 
+	On Python3.4 decompiling Python 3.4 instructions, use its built-in
+	disassembler routines. In contrast to what was here, they most
+	likely work!
+
+2015-12-16  rocky <rb@dustyfeet.com>
+
+	* Makefile, pytest/testdata/.gitignore, test/Makefile,
+	test/compile_tests, uncompyle6/deparser.py, uncompyle6/disas.py,
+	uncompyle6/marsh.py, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner25.py, uncompyle6/scanners/scanner26.py,
+	uncompyle6/scanners/scanner27.py, uncompyle6/verify.py: Tidy a
+	little bit
+
+2015-12-16  rocky <rb@dustyfeet.com>
+
+	* .gitignore, pytest/.gitignore, pytest/testdata/test1.right,
+	pytest/testdata/test_import_25.right, test/compile_tests,
+	test/dis-compare.py, test/simple-uncompyle-code-test.py,
+	test/source_3.4/branching/if.py,
+	test/source_3.4/branching/ifelse.py, test/uncompyle-code.py,
+	uncompyle6/.gitignore, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner25.py, uncompyle6/scanners/scanner26.py,
+	uncompyle6/scanners/scanner27.py, uncompyle6/scanners/scanner32.py,
+	uncompyle6/scanners/scanner34.py: Start 3.4 more stringent
+	disassembly testing. Disassembly format has changed slightly. misc
+	small bugs.
+
+2015-12-15  rocky <rb@dustyfeet.com>
+
+	* : 2.7 pyc for disasm test
+
+2015-12-15  rocky <rb@dustyfeet.com>
+
+	* Makefile, circle.yml, pytest/Makefile, pytest/test_disasm.py,
+	pytest/testdata/test1.right, pytest/testdata/test_import_25.right,
+	test-requirements.txt, test/Makefile, test/test_pythonlib.py,
+	uncompyle6/marsh.py, uncompyle6/verify.py: Add some disassemble
+	tests using pytest.
+
+2015-12-15  rocky <rb@dustyfeet.com>
+
+	* test/.gitignore, uncompyle6/__init__.py: Less ignore. Not sure
+	what's up with not finding marsh in python3
+
+2015-12-15  rocky <rb@dustyfeet.com>
+
+	* test/.gitignore, uncompyle6/disasm/__init__.py,
+	uncompyle6/disasm/dis_25.py: disasm is unused code. More ignore.
+
+2015-12-15  rocky <rb@dustyfeet.com>
+
+	* .gitignore, __pkginfo__.py, bin/pydisassemble,
+	bin/pydissassemble, test/test_pythonlib.py, uncompyle6/__init__.py,
+	uncompyle6/deparser.py, uncompyle6/disas.py, uncompyle6/magics.py,
+	uncompyle6/marsh.py, uncompyle6/scanners/scanner25.py,
+	uncompyle6/scanners/scanner26.py, uncompyle6/scanners/scanner27.py,
+	uncompyle6/scanners/scanner32.py, uncompyle6/scanners/scanner34.py: 
+	Split out marhsal and disassemble code and spell disassemble
+	correctly.  Fix some lint issues
+
+2015-12-15  R. Bernstein <rocky@users.noreply.github.com>
+
+	* README.rst: Update README.rst
+
+2015-12-15  R. Bernstein <rocky@users.noreply.github.com>
+
+	* README.rst: Update README.rst
+
+2015-12-15  rocky <rb@dustyfeet.com>
+
+	* PKG-INFO, README.rst, bin/pydissassemble, uncompyle6/__init__.py,
+	uncompyle6/disas.py, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner25.py, uncompyle6/scanners/scanner26.py,
+	uncompyle6/scanners/scanner27.py, uncompyle6/scanners/scanner32.py,
+	uncompyle6/scanners/scanner34.py: README.rst: note addition of
+	pydisassemble Remove duplicate disassembly printing from scanners
+	and put common code in caller(s). Show source-code line numbers in
+	disassembly output and fix alignment of byte offsets.  disas.py:
+	workaround Python 2/3 different layouts before we get to bytecodes
+	in a code object.
+
+2015-12-14  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py: Disable installing pydisassemble for now pending
+	understanding what's up with CI
+
+2015-12-14  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, setup.py: Package scripts correctly now
+
+2015-12-14  rocky <rb@dustyfeet.com>
+
+	* MANIFEST.in, __pkginfo__.py, bin/pydissassemble, bin/uncompyle6,
+	scripts/pydissassemble, scripts/uncompyle6, setup.py: scripts->bin.
+	Add pydisassemble to list of scripts to install
+
+2015-12-14  rocky <rb@dustyfeet.com>
+
+	* Makefile, README.rst, scripts/pydissassemble, scripts/uncompyle6,
+	test/Makefile, uncompyle6/__init__.py, uncompyle6/verify.py: Add a
+	standalone disassemble utility. __init__.py: Shun using 0, 1 for
+	booleans
+
+2015-12-14  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/verify.py: Typos
+
+2015-12-14  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/__init__.py, uncompyle6/deparser.py,
+	uncompyle6/disasm/__init__.py, uncompyle6/disasm/dis_25.py,
+	uncompyle6/opcodes/opcode_32.py, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner32.py, uncompyle6/verify.py: Start to
+	move deparser from python-deparse here. Start Python 3.2 tolerance
+
+2015-12-14  rocky <rb@dustyfeet.com>
+
+	* .travis.yml: Clean up travis file now that I know what works
+
+2015-12-14  rocky <rb@dustyfeet.com>
+
+	* .travis.yml: Travis: try install a different way
+
+2015-12-14  rocky <rb@dustyfeet.com>
+
+	* .travis.yml, circle.yml: Do setup install on CI boxes
+
+2015-12-14  rocky <rb@dustyfeet.com>
+
+	* circle.yml: A correct way to set a circleci envvar?
+
+2015-12-14  rocky <rb@dustyfeet.com>
+
+	* circle.yml: Add --compile to cicleci build
+
+2015-12-14  rocky <rb@dustyfeet.com>
+
+	* circle.yml: Try circleci
+
+2015-12-14  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/dparser.py, uncompyle6/parser.py, uncompyle6/walker.py: 
+	uncompyle6/dparser -> uncompyle6/parser
+
+2015-12-14  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/__init__.py, uncompyle6/disas.py,
+	uncompyle6/magics.py, uncompyle6/scanners/scanner34.py: Closer to
+	being able to handle Python 3.4 bytecode. Loading of Python Python
+	bytecode now works. magics from 3.3 to Python 3.4 has been added.
+	Some Python 3.4 scanner issues have been fixed.
+
+2015-12-14  rocky <rb@dustyfeet.com>
+
+	* Makefile, test/Makefile, test/base-tests/compile_tests,
+	test/base-tests/python2.7/test_applyEquiv.py,
+	test/base-tests/python2.7/test_applyEquiv.pyc_dis_unverified,
+	test/base-tests/python2.7/test_augmentedAssign.py,
+	test/base-tests/python2.7/test_augmentedAssign.pyc_dis_unverified,
+	test/base-tests/python2.7/test_class.py,
+	test/base-tests/python2.7/test_class.pyc_dis_unverified,
+	test/base-tests/python2.7/test_del.py,
+	test/base-tests/python2.7/test_divide_future.py,
+	test/base-tests/python2.7/test_divide_future.pyc_dis_unverified,
+	test/base-tests/python2.7/test_divide_no_future.py,
+	test/base-tests/python2.7/test_docstring.py,
+	test/base-tests/python2.7/test_empty.py,
+	test/base-tests/python2.7/test_exceptions.py,
+	test/base-tests/python2.7/test_exceptions.pyc_dis_unverified,
+	test/base-tests/python2.7/test_exec.py,
+	test/base-tests/python2.7/test_expressions.py,
+	test/base-tests/python2.7/test_extendedImport.py,
+	test/base-tests/python2.7/test_extendedPrint.py,
+	test/base-tests/python2.7/test_extendedarg.py-notyet,
+	test/base-tests/python2.7/test_functions.py,
+	test/base-tests/python2.7/test_global.py,
+	test/base-tests/python2.7/test_globals.py,
+	test/base-tests/python2.7/test_import.py,
+	test/base-tests/python2.7/test_import_as.py,
+	test/base-tests/python2.7/test_integers.py,
+	test/base-tests/python2.7/test_iterators.py,
+	test/base-tests/python2.7/test_lambda.py,
+	test/base-tests/python2.7/test_listComprehensions.py,
+	test/base-tests/python2.7/test_loops.py,
+	test/base-tests/python2.7/test_loops2.py,
+	test/base-tests/python2.7/test_mine.py,
+	test/base-tests/python2.7/test_misc.py,
+	test/base-tests/python2.7/test_nested_elif.py,
+	test/base-tests/python2.7/test_nested_scopes.py,
+	test/base-tests/python2.7/test_prettyprint.py,
+	test/base-tests/python2.7/test_print.py,
+	test/base-tests/python2.7/test_print_to.py,
+	test/base-tests/python2.7/test_single_stmt.py,
+	test/base-tests/python2.7/test_slices.py,
+	test/base-tests/python2.7/test_tuple_params.py-notyet,
+	test/base-tests/python2.7/test_tuples.py-notyet,
+	test/base-tests/python2.7/test_yield.py,
+	test/base_tests/compile_tests,
+	test/base_tests/python2.7/test_applyEquiv.py,
+	test/base_tests/python2.7/test_augmentedAssign.py,
+	test/base_tests/python2.7/test_class.py,
+	test/base_tests/python2.7/test_del.py,
+	test/base_tests/python2.7/test_divide_future.py,
+	test/base_tests/python2.7/test_divide_no_future.py,
+	test/base_tests/python2.7/test_docstring.py,
+	test/base_tests/python2.7/test_empty.py,
+	test/base_tests/python2.7/test_exceptions.py,
+	test/base_tests/python2.7/test_exec.py,
+	test/base_tests/python2.7/test_expressions.py,
+	test/base_tests/python2.7/test_extendedImport.py,
+	test/base_tests/python2.7/test_extendedPrint.py,
+	test/base_tests/python2.7/test_extendedarg.py-notyet,
+	test/base_tests/python2.7/test_functions.py,
+	test/base_tests/python2.7/test_global.py,
+	test/base_tests/python2.7/test_globals.py,
+	test/base_tests/python2.7/test_import.py,
+	test/base_tests/python2.7/test_import_as.py,
+	test/base_tests/python2.7/test_integers.py,
+	test/base_tests/python2.7/test_iterators.py,
+	test/base_tests/python2.7/test_lambda.py,
+	test/base_tests/python2.7/test_listComprehensions.py,
+	test/base_tests/python2.7/test_loops.py,
+	test/base_tests/python2.7/test_loops2.py,
+	test/base_tests/python2.7/test_mine.py,
+	test/base_tests/python2.7/test_misc.py,
+	test/base_tests/python2.7/test_nested_elif.py,
+	test/base_tests/python2.7/test_nested_scopes.py,
+	test/base_tests/python2.7/test_prettyprint.py,
+	test/base_tests/python2.7/test_print.py,
+	test/base_tests/python2.7/test_print_to.py,
+	test/base_tests/python2.7/test_single_stmt.py,
+	test/base_tests/python2.7/test_slices.py,
+	test/base_tests/python2.7/test_tuple_params.py-notyet,
+	test/base_tests/python2.7/test_tuples.py-notyet,
+	test/base_tests/python2.7/test_yield.py,
+	test/base_tests/python3.4/__init__.py, test/test_pythonlib.py,
+	uncompyle6/__init__.py, uncompyle6/opcodes/opcode_23.py,
+	uncompyle6/opcodes/opcode_24.py, uncompyle6/opcodes/opcode_25.py,
+	uncompyle6/opcodes/opcode_26.py, uncompyle6/opcodes/opcode_27.py,
+	uncompyle6/opcodes/opcode_34.py, uncompyle6/scanner.py,
+	uncompyle6/scanner25.py, uncompyle6/scanner26.py,
+	uncompyle6/scanner27.py, uncompyle6/scanner34.py,
+	uncompyle6/scanners/__init__.py, uncompyle6/scanners/scanner25.py,
+	uncompyle6/scanners/scanner26.py, uncompyle6/scanners/scanner27.py,
+	uncompyle6/scanners/scanner34.py, uncompyle6/verify.py: Move
+	scanners in its own directory. Dir base-tests -> base_tests so we
+	can import from that.
+
+2015-12-14  rocky <rb@dustyfeet.com>
+
+	* scripts/uncompyle6, uncompyle6/__init__.py, uncompyle6/disas.py,
+	uncompyle6/scanner.py, uncompyle6/scanner25.py,
+	uncompyle6/scanner26.py, uncompyle6/scanner27.py: Python3
+	compatibility: (disas, scanner*) Reduce useless verbiage in status
+	messages and DRY code a little; __init__, uncompyle6
+
+2015-12-13  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/test_pythonlib.py: Make sure we pass return
+	code back.
+
+2015-12-13  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/__init__.py: Add Python version and tidy up stats
+	output: don't show verify stats if we didn't verify!
+
+2015-12-13  rocky <rb@dustyfeet.com>
+
+	* test/test_pythonlib.py: Correct testing python version check
+
+2015-12-13  rocky <rb@dustyfeet.com>
+
+	* .travis.yml: Force 2.7 bytecode compilation on Travis
+
+2015-12-13  rocky <rb@dustyfeet.com>
+
+	* .travis.yml: Try Travis
+
+2015-12-13  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/ok_2.7/aifc.pyc_dis,
+	test/ok_2.7/antigravity.pyc_dis, test/ok_2.7/anydbm.pyc_dis,
+	test/ok_2.7/asynchat.pyc_dis, test/ok_2.7/asyncore.pyc_dis,
+	test/ok_2.7/atexit.pyc_dis, test/ok_2.7/audiodev.pyc_dis,
+	test/test_pythonlib.py, uncompyle6/walker.py: test_pythonlib: Fix
+	bug in traversing directores walker.py: imports; Add test Python2.5
+	bytecode - it works! Makefile: remove temporary directories and _dis
+	files which were added by mistake
+
+2015-12-13  rocky <rb@dustyfeet.com>
+
+	* MANIFEST.in, test/test_pythonlib.py, uncompyle6/__init__.py,
+	uncompyle6/disas.py, uncompyle6/dparser.py, uncompyle6/magics.py,
+	uncompyle6/verify.py, uncompyle6/walker.py: need disas.py for cross
+	version Python compiling fixup MANIFEST.in pythonlib.py: store
+	expected python version and don't compile if it mismatches. Work
+	files now go in temp directory. Start masrhal load in Python for
+	Python3.
+
+2015-12-13  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/base-tests/compile_tests,
+	test/base-tests/python2.7/test_applyEquiv.py,
+	test/base-tests/python2.7/test_applyEquiv.pyc_dis_unverified,
+	test/base-tests/python2.7/test_augmentedAssign.py,
+	test/base-tests/python2.7/test_augmentedAssign.pyc_dis_unverified,
+	test/base-tests/python2.7/test_class.py,
+	test/base-tests/python2.7/test_class.pyc_dis_unverified,
+	test/base-tests/python2.7/test_del.py,
+	test/base-tests/python2.7/test_divide_future.py,
+	test/base-tests/python2.7/test_divide_future.pyc_dis_unverified,
+	test/base-tests/python2.7/test_divide_no_future.py,
+	test/base-tests/python2.7/test_docstring.py,
+	test/base-tests/python2.7/test_empty.py,
+	test/base-tests/python2.7/test_exceptions.py,
+	test/base-tests/python2.7/test_exceptions.pyc_dis_unverified,
+	test/base-tests/python2.7/test_exec.py,
+	test/base-tests/python2.7/test_expressions.py,
+	test/base-tests/python2.7/test_extendedImport.py,
+	test/base-tests/python2.7/test_extendedPrint.py,
+	test/base-tests/python2.7/test_extendedarg.py-notyet,
+	test/base-tests/python2.7/test_functions.py,
+	test/base-tests/python2.7/test_global.py,
+	test/base-tests/python2.7/test_globals.py,
+	test/base-tests/python2.7/test_import.py,
+	test/base-tests/python2.7/test_import_as.py,
+	test/base-tests/python2.7/test_integers.py,
+	test/base-tests/python2.7/test_iterators.py,
+	test/base-tests/python2.7/test_lambda.py,
+	test/base-tests/python2.7/test_listComprehensions.py,
+	test/base-tests/python2.7/test_loops.py,
+	test/base-tests/python2.7/test_loops2.py,
+	test/base-tests/python2.7/test_mine.py,
+	test/base-tests/python2.7/test_misc.py,
+	test/base-tests/python2.7/test_nested_elif.py,
+	test/base-tests/python2.7/test_nested_scopes.py,
+	test/base-tests/python2.7/test_prettyprint.py,
+	test/base-tests/python2.7/test_print.py,
+	test/base-tests/python2.7/test_print_to.py,
+	test/base-tests/python2.7/test_single_stmt.py,
+	test/base-tests/python2.7/test_slices.py,
+	test/base-tests/python2.7/test_tuple_params.py-notyet,
+	test/base-tests/python2.7/test_tuples.py-notyet,
+	test/base-tests/python2.7/test_yield.py,
+	test/base-tests/python2/compile_tests,
+	test/base-tests/python2/test_applyEquiv.py,
+	test/base-tests/python2/test_augmentedAssign.py,
+	test/base-tests/python2/test_class.py,
+	test/base-tests/python2/test_del.py,
+	test/base-tests/python2/test_divide_future.py,
+	test/base-tests/python2/test_divide_no_future.py,
+	test/base-tests/python2/test_docstring.py,
+	test/base-tests/python2/test_empty.py,
+	test/base-tests/python2/test_exceptions.py,
+	test/base-tests/python2/test_exec.py,
+	test/base-tests/python2/test_expressions.py,
+	test/base-tests/python2/test_extendedImport.py,
+	test/base-tests/python2/test_extendedPrint.py,
+	test/base-tests/python2/test_extendedarg.py-notyet,
+	test/base-tests/python2/test_functions.py,
+	test/base-tests/python2/test_global.py,
+	test/base-tests/python2/test_globals.py,
+	test/base-tests/python2/test_import.py,
+	test/base-tests/python2/test_import_as.py,
+	test/base-tests/python2/test_integers.py,
+	test/base-tests/python2/test_iterators.py,
+	test/base-tests/python2/test_lambda.py,
+	test/base-tests/python2/test_listComprehensions.py,
+	test/base-tests/python2/test_loops.py,
+	test/base-tests/python2/test_loops2.py,
+	test/base-tests/python2/test_mine.py,
+	test/base-tests/python2/test_misc.py,
+	test/base-tests/python2/test_nested_elif.py,
+	test/base-tests/python2/test_nested_scopes.py,
+	test/base-tests/python2/test_prettyprint.py,
+	test/base-tests/python2/test_print.py,
+	test/base-tests/python2/test_print_to.py,
+	test/base-tests/python2/test_single_stmt.py,
+	test/base-tests/python2/test_slices.py,
+	test/base-tests/python2/test_tuple_params.py-notyet,
+	test/base-tests/python2/test_tuples.py-notyet,
+	test/base-tests/python2/test_yield.py, test/ok_2.6/anydbm.py,
+	test/test_pythonlib.py: add a single Python 2.6 source/code test
+
+2015-12-13  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanner.py, uncompyle6/scanner34.py: Start off with
+	Anton Vorobyov's (DarkFenX) Python 3 scanner.
+
+2015-12-13  rocky <rb@dustyfeet.com>
+
+	* MANIFEST, MANIFEST.in, PKG-INFO, README.rst,
+	uncompyle6/opcodes/opcode_23.py, uncompyle6/opcodes/opcode_26.py,
+	uncompyle6/opcodes/opcode_27.py, uncompyle6/scanner25.py,
+	uncompyle6/scanner26.py, uncompyle6/spark.py, uncompyle6/verify.py: 
+	Correct MANIFEST->MANIFEST.in more lint
+
+2015-12-13  R. Bernstein <rocky@users.noreply.github.com>
+
+	* README.rst: Update README.rst
+
+2015-12-13  R. Bernstein <rocky@users.noreply.github.com>
+
+	* README.rst: Update README.rst
+
+2015-12-13  rocky <rb@dustyfeet.com>
+
+	* scripts/uncompyle6, uncompyle6/#spark.py#,
+	uncompyle6/__init__.py, uncompyle6/disas.py,
+	uncompyle6/opcodes/opcode_25.py, uncompyle6/opcodes/opcode_26.py,
+	uncompyle6/scanner25.py, uncompyle6/scanner26.py,
+	uncompyle6/scanner34.py, uncompyle6/spark.py, uncompyle6/verify.py: 
+	Make uncompyle6 run on Python3.4 and Python 2.7 We don't need our
+	own disassembler. Python's will do fine
+
+2015-12-13  R. Bernstein <rocky@users.noreply.github.com>
+
+	* README.rst: Update README.rst
+
+2015-12-13  R. Bernstein <rocky@users.noreply.github.com>
+
+	* README.rst: rSt formatting
+
+2015-12-13  rocky <rb@dustyfeet.com>
+
+	* .gitignore, Makefile, README.rst, test/Makefile,
+	test/base-tests/python2/compile_tests,
+	test/base-tests/python2/test_applyEquiv.py,
+	test/base-tests/python2/test_augmentedAssign.py,
+	test/base-tests/python2/test_class.py,
+	test/base-tests/python2/test_del.py,
+	test/base-tests/python2/test_divide_future.py,
+	test/base-tests/python2/test_divide_no_future.py,
+	test/base-tests/python2/test_docstring.py,
+	test/base-tests/python2/test_empty.py,
+	test/base-tests/python2/test_exceptions.py,
+	test/base-tests/python2/test_exec.py,
+	test/base-tests/python2/test_expressions.py,
+	test/base-tests/python2/test_extendedImport.py,
+	test/base-tests/python2/test_extendedPrint.py,
+	test/base-tests/python2/test_extendedarg.py-notyet,
+	test/base-tests/python2/test_functions.py,
+	test/base-tests/python2/test_global.py,
+	test/base-tests/python2/test_globals.py,
+	test/base-tests/python2/test_import.py,
+	test/base-tests/python2/test_import_as.py,
+	test/base-tests/python2/test_integers.py,
+	test/base-tests/python2/test_iterators.py,
+	test/base-tests/python2/test_lambda.py,
+	test/base-tests/python2/test_listComprehensions.py,
+	test/base-tests/python2/test_loops.py,
+	test/base-tests/python2/test_loops2.py,
+	test/base-tests/python2/test_mine.py,
+	test/base-tests/python2/test_misc.py,
+	test/base-tests/python2/test_nested_elif.py,
+	test/base-tests/python2/test_nested_scopes.py,
+	test/base-tests/python2/test_prettyprint.py,
+	test/base-tests/python2/test_print.py,
+	test/base-tests/python2/test_print_to.py,
+	test/base-tests/python2/test_single_stmt.py,
+	test/base-tests/python2/test_slices.py,
+	test/base-tests/python2/test_tuple_params.py-notyet,
+	test/base-tests/python2/test_tuples.py-notyet,
+	test/base-tests/python2/test_yield.py, test/compile_tests,
+	test/ok_2.7/aifc.py, test/ok_2.7/aifc.pyc_dis,
+	test/ok_2.7/antigravity.py, test/ok_2.7/antigravity.pyc_dis,
+	test/ok_2.7/anydbm.py, test/ok_2.7/anydbm.pyc_dis,
+	test/ok_2.7/asynchat.py, test/ok_2.7/asynchat.pyc_dis,
+	test/ok_2.7/asyncore.py, test/ok_2.7/asyncore.pyc_dis,
+	test/ok_2.7/atexit.py, test/ok_2.7/atexit.pyc_dis,
+	test/ok_2.7/audiodev.py, test/ok_2.7/audiodev.pyc_dis,
+	test/ok_2.7/base64.py, test/ok_2.7/binhex.py,
+	test/ok_2.7/bisect.py, test/ok_2.7/bsddb/__init__.py,
+	test/ok_2.7/bsddb/db.py, test/ok_2.7/bsddb/dbobj.py,
+	test/ok_2.7/bsddb/dbrecio.py, test/ok_2.7/bsddb/dbshelve.py,
+	test/ok_2.7/bsddb/dbutils.py, test/ok_2.7/calendar.py,
+	test/ok_2.7/cgitb.py, test/ok_2.7/chunk.py, test/ok_2.7/codeop.py,
+	test/ok_2.7/colorsys.py, test/ok_2.7/commands.py,
+	test/ok_2.7/compileall.py, test/ok_2.7/compiler/__init__.py,
+	test/ok_2.7/compiler/ast.py, test/ok_2.7/compiler/consts.py,
+	test/ok_2.7/compiler/future.py, test/ok_2.7/compiler/misc.py,
+	test/ok_2.7/compiler/syntax.py, test/ok_2.7/ctypes/_endian.py,
+	test/ok_2.7/ctypes/util.py, test/ok_2.7/ctypes/wintypes.py,
+	test/ok_2.7/curses/__init__.py, test/ok_2.7/curses/ascii.py,
+	test/ok_2.7/curses/has_key.py, test/ok_2.7/curses/panel.py,
+	test/ok_2.7/curses/wrapper.py, test/ok_2.7/dircache.py,
+	test/ok_2.7/dis.py, test/test_applyEquiv.py,
+	test/test_augmentedAssign.py, test/test_class.py, test/test_del.py,
+	test/test_divide_future.py, test/test_divide_no_future.py,
+	test/test_docstring.py, test/test_empty.py,
+	test/test_exceptions.py, test/test_exec.py,
+	test/test_expressions.py, test/test_extendedImport.py,
+	test/test_extendedPrint.py, test/test_extendedarg.py,
+	test/test_functions.py, test/test_global.py, test/test_globals.py,
+	test/test_import.py, test/test_import_as.py, test/test_integers.py,
+	test/test_iterators.py, test/test_lambda.py,
+	test/test_listComprehensions.py, test/test_loops.py,
+	test/test_loops2.py, test/test_mine.py, test/test_misc.py,
+	test/test_nested_elif.py, test/test_nested_scopes.py,
+	test/test_one, test/test_prettyprint.py, test/test_print.py,
+	test/test_print_to.py, test/test_pythonlib.py,
+	test/test_single_stmt.py, test/test_slices.py,
+	test/test_tuple_params.py, test/test_tuples.py, test/test_yield.py,
+	test/uncompyle-code.py, test_one, test_pythonlib.py,
+	uncompyle-code.py, uncompyle6/#spark.py#, uncompyle6/__init__.py,
+	uncompyle6/verify.py: Add tests and start a more turnkey testing
+	system.
+
+2015-12-12  rocky <rb@dustyfeet.com>
+
+	* tox.ini, uncompyle-code.py, uncompyle6/dparser.py,
+	uncompyle6/scanner25.py, uncompyle6/scanner27.py,
+	uncompyle6/scanner34.py, uncompyle6/spark.py, uncompyle6/walker.py: 
+	Minimal disassemble, ast compile and deparse work on Python 3.  Some
+	linting
+
+2015-12-12  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/dparser.py, uncompyle6/parser.py, uncompyle6/walker.py: 
+	parser -> dparser so as not to conflict with python3's parser.
+
+2015-12-12  rocky <rb@dustyfeet.com>
+
+	* uncompyle-code.py, uncompyle6/__init__.py, uncompyle6/disas.py,
+	uncompyle6/scanner.py, uncompyle6/scanner25.py,
+	uncompyle6/scanner26.py, uncompyle6/scanner27.py,
+	uncompyle6/verify.py, uncompyle6/walker.py: More Python3
+	compatability. Remove duplicate disassembly code and get it from
+	Python's standard library instead.
+
+2015-12-12  rocky <rb@dustyfeet.com>
+
+	* uncompyle-code.py, uncompyle6/__init__.py, uncompyle6/parser.py,
+	uncompyle6/scanner.py, uncompyle6/walker.py: Python3 compatibility
+
+2015-12-11  rocky <rb@dustyfeet.com>
+
+	* uncompyle-code.py, uncompyle6/__init__.py, uncompyle6/walker.py: 
+	python3 compatibiity and remove some flake8 warnings.
+
+2015-12-11  rocky <rb@dustyfeet.com>
+
+	* Makefile, uncompyle6/Makefile, uncompyle6/__init__.py,
+	uncompyle6/disas.py, uncompyle6/parser.py, uncompyle6/scanner26.py,
+	uncompyle6/scanner27.py, uncompyle6/scanner34.py,
+	uncompyle6/walker.py: Lint stuff
+
+2015-12-11  rocky <rb@dustyfeet.com>
+
+	* .gitignore, __pkginfo__.py, setup.py, test/compile_tests,
+	test_pythonlib.py, uncompyle-code.py, uncompyle6/__init__.py,
+	uncompyle6/magics.py, uncompyle6/opcode/__init__.py,
+	uncompyle6/opcode/opcode_23.py, uncompyle6/opcode/opcode_24.py,
+	uncompyle6/opcode/opcode_25.py, uncompyle6/opcode/opcode_26.py,
+	uncompyle6/opcode/opcode_27.py, uncompyle6/opcodes/__init__.py,
+	uncompyle6/opcodes/opcode_23.py, uncompyle6/opcodes/opcode_24.py,
+	uncompyle6/opcodes/opcode_25.py, uncompyle6/opcodes/opcode_26.py,
+	uncompyle6/opcodes/opcode_27.py, uncompyle6/parser.py,
+	uncompyle6/scanner25.py, uncompyle6/scanner26.py,
+	uncompyle6/scanner27.py, uncompyle6/spark.py: More python2 ->
+	python3 compatibility
+
+2015-12-11  rocky <rb@dustyfeet.com>
+
+	* .travis.yml, Makefile, scripts/uncompyle2, scripts/uncompyle6,
+	setup.py, test_one, tox.ini, uncompyle-code.py,
+	uncompyle2/__init__.py, uncompyle2/disas.py, uncompyle2/magics.py,
+	uncompyle2/opcode/__init__.py, uncompyle2/opcode/opcode_23.py,
+	uncompyle2/opcode/opcode_24.py, uncompyle2/opcode/opcode_25.py,
+	uncompyle2/opcode/opcode_26.py, uncompyle2/opcode/opcode_27.py,
+	uncompyle2/parser.py, uncompyle2/scanner.py,
+	uncompyle2/scanner25.py, uncompyle2/scanner26.py,
+	uncompyle2/scanner27.py, uncompyle2/spark.py, uncompyle2/verify.py,
+	uncompyle2/walker.py, uncompyle6/__init__.py, uncompyle6/disas.py,
+	uncompyle6/magics.py, uncompyle6/opcode/__init__.py,
+	uncompyle6/opcode/opcode_23.py, uncompyle6/opcode/opcode_24.py,
+	uncompyle6/opcode/opcode_25.py, uncompyle6/opcode/opcode_26.py,
+	uncompyle6/opcode/opcode_27.py, uncompyle6/parser.py,
+	uncompyle6/scanner25.py, uncompyle6/scanner26.py,
+	uncompyle6/scanner27.py, uncompyle6/spark.py, uncompyle6/verify.py,
+	uncompyle6/walker.py: Start process of making python3 compatible
+
+2015-11-25  rocky <rb@dustyfeet.com>
+
+	* .gitignore, uncompyle-code.py, uncompyle2/walker.py: First steps
+	to find-offset-based routine
+
+2015-06-25  Mysterie <kajusska@gmail.com>
+
+	* : Merge pull request #27 from kernelsmith/master call python via /usr/bin/env python to make script more portable
+
+2014-11-26  Mysterie <kajusska@gmail.com>
+
+	* : Merge pull request #23 from jbremer/master support hardcoded 64-bit integers (sorry, so late lol)
+
+2014-02-12  root <root@oros.mysterie.fr>
+
+	* uncompyle2/scanner25.py, uncompyle2/scanner26.py: Fix Raise TODO +
+	NOP opcode
+
+2013-12-30  root <root@oros.mysterie.fr>
+
+	* README.rst: MAJ readme
+
+2013-07-19  root <root@debian>
+
+	* uncompyle2/disas.py: marshal unpack cast bug
+
+2013-07-18  root <root@debian>
+
+	* uncompyle2/__init__.py, uncompyle2/disas.py: Fix marshal UTF8 bug
+
+2013-07-16  root <root@debian>
+
+	* uncompyle2/__init__.py, uncompyle2/disas.py,
+	uncompyle2/magics.py, uncompyle2/scanner27.py, uncompyle2/walker.py: 
+	marshal disassembly improvement
+
+2013-06-20  Mysterie <kajusska@gmail.com>
+
+	* : Merge pull request #13 from ralph-moeritz/master Minor script cleanup
+
+2013-04-25  root <root@debian>
+
+	* uncompyle2/scanner25.py, uncompyle2/scanner26.py,
+	uncompyle2/scanner27.py, uncompyle2/walker.py: Improvement from
+	wibiti
+
+2013-03-05  root <root@debian>
+
+	* README.rst, uncompyle2/parser.py, uncompyle2/scanner.py,
+	uncompyle2/scanner25.py, uncompyle2/scanner26.py,
+	uncompyle2/scanner27.py, uncompyle2/walker.py: Grammar improvement
+
+2013-03-05  Mysterie <kajusska@gmail.com>
+
+	* : Merge pull request #9 from SuperVirus/master Fix for issue #6
+
+2013-02-20  Mysterie <kajusska@gmail.com>
+
+	* : Merge pull request #8 from skyfion/master fix  error
+
+2013-02-13  skyfion <sky.fion@gmail.com>
+
+	* uncompyle2/__init__.py: correct work if list  in def
+	uncompyle_file
+
+2013-02-09  root <root@debian>
+
+	* test/test_functions.py, uncompyle2/scanner25.py,
+	uncompyle2/scanner26.py: Fix for RETURN_END_IF bug
+
+2013-01-10  Mysterie <kajusska@gmail.com>
+
+	* uncompyle2/scanner25.py, uncompyle2/scanner26.py,
+	uncompyle2/scanner27.py: Patch bug on LOAD_CLOSURE
+
+2012-12-14  Mysterie <kajusska@gmail.com>
+
+	* uncompyle2/opcode/opcode_25.py, uncompyle2/opcode/opcode_26.py,
+	uncompyle2/opcode/opcode_27.py, uncompyle2/scanner.py,
+	uncompyle2/scanner25.py, uncompyle2/scanner26.py,
+	uncompyle2/scanner27.py: modification of LIST_APPEND opcode handling
+
+2012-11-25  Mysterie <kajusska@gmail.com>
+
+	* : Merge pull request #3 from htgoebel/mysterie Update email and URLs for original author.
+
+2012-11-16  Hartmut Goebel <h.goebel@crazy-compilers.com>
+
+	* build/scripts-2.7/uncompyle2, uncompyle2.py,
+	uncompyle2/__init__.py, uncompyle2/parser.py,
+	uncompyle2/scanner.py, uncompyle2/scanner25.py,
+	uncompyle2/scanner26.py, uncompyle2/scanner27.py,
+	uncompyle2/verify.py, uncompyle2/walker.py: Updating original
+	authors email-address.
+
+2012-10-26  Mysterie <kajusska@gmail.com>
+
+	* README, README.rst: README patch
+
+2012-10-26  Mysterie <kajusska@gmail.com>
+
+	* MANIFEST, MANIFEST.in, README, test_pythonlib.py,
+	uncompyle2/disas.py, uncompyle2/scanner25.py,
+	uncompyle2/scanner26.py, uncompyle2/scanner27.py: Patch for while
+	loop + manifest + bug in test_pythonlib.py
+
+2012-10-11  Mysterie <kajusska@gmail.com>
+
+	* scripts/uncompyle2, setup.py, test/test_loops.py,
+	test/test_tuples.py, test_one, test_pythonlib, test_pythonlib.py,
+	uncompyle2.py, uncompyle2/Parser.py, uncompyle2/Scanner.py,
+	uncompyle2/Scanner25.py, uncompyle2/Scanner26.py,
+	uncompyle2/Scanner27.py, uncompyle2/Walker.py,
+	uncompyle2/__init__.py, uncompyle2/disas.py,
+	uncompyle2/opcode/opcode_25.py, uncompyle2/opcode/opcode_26.py,
+	uncompyle2/opcode/opcode_27.py, uncompyle2/parser.py,
+	uncompyle2/scanner.py, uncompyle2/scanner25.py,
+	uncompyle2/scanner26.py, uncompyle2/scanner27.py,
+	uncompyle2/spark.py, uncompyle2/verify.py, uncompyle2/walker.py: 
+	Cleaning code & patch
+
+2012-09-22  Mysterie <kajusska@gmail.com>
+
+	* test/test_loops.py, uncompyle2/Scanner25.py,
+	uncompyle2/Scanner26.py: Improvement of loop handling
+
+2012-09-22  Mysterie <kajusska@gmail.com>
+
+	* uncompyle2/Scanner26.py: Little modification in Scanner26
+
+2012-09-21  Mysterie <kajusska@gmail.com>
+
+	* test/compile_tests, test/test_applyEquiv.py,
+	test/test_augmentedAssign.py, test/test_class.py, test/test_del.py,
+	test/test_docstring.py, test/test_exec.py,
+	test/test_expressions.py, test/test_extendedImport.py,
+	test/test_extendedPrint.py, test/test_extendedarg.py,
+	test/test_functions.py, test/test_global.py, test/test_globals.py,
+	test/test_import.py, test/test_import_as.py, test/test_integers.py,
+	test/test_lambda.py, test/test_listComprehensions.py,
+	test/test_loops.py, test/test_loops2.py, test/test_misc.py,
+	test/test_nested_elif.py, test/test_nested_scopes.py,
+	test/test_prettyprint.py, test/test_print.py,
+	test/test_print_to.py, test/test_slices.py,
+	test/test_tuple_params.py, test/test_tuples.py,
+	uncompyle2/Scanner25.py, uncompyle2/Scanner26.py: Patch for
+	conditional tuple
+
+2012-09-20  Mysterie <kajusska@gmail.com>
+
+	* uncompyle2/Scanner25.py, uncompyle2/Scanner26.py: Optimisation for
+	bytecode 2.5/2.6 restructuration
+
+2012-09-20  Mysterie <kajusska@gmail.com>
+
+	* uncompyle2/Parser.py, uncompyle2/Scanner25.py,
+	uncompyle2/Scanner26.py, uncompyle2/Scanner27.py,
+	uncompyle2/Walker.py: Update from master branch uncompyle2
+
+2012-06-14  Mysterie <kajusska@gmail.com>
+
+	* uncompyle2/Scanner25.py, uncompyle2/Scanner26.py,
+	uncompyle2/__init__.py: fix for the with statement
+
+2012-06-12  Mysterie <kajusska@gmail.com>
+
+	* uncompyle2/Scanner25.py, uncompyle2/Scanner26.py: fix module & 2.6
+
+2012-06-12  Mysterie <kajusska@gmail.com>
+
+	* uncompyle2/Scanner.py: fix module & 2.6
+
+2012-06-05  Mysterie <kajusska@gmail.com>
+
+	* build/lib.linux-i686-2.7/uncompyle2/Parser.py,
+	build/lib.linux-i686-2.7/uncompyle2/Scanner.py,
+	build/lib.linux-i686-2.7/uncompyle2/Scanner25.py,
+	build/lib.linux-i686-2.7/uncompyle2/Scanner26.py,
+	build/lib.linux-i686-2.7/uncompyle2/Scanner27.py,
+	build/lib.linux-i686-2.7/uncompyle2/Walker.py,
+	build/lib.linux-i686-2.7/uncompyle2/__init__.py,
+	build/lib.linux-i686-2.7/uncompyle2/disas.py,
+	build/lib.linux-i686-2.7/uncompyle2/magics.py,
+	build/lib.linux-i686-2.7/uncompyle2/opcode/__init__.py,
+	build/lib.linux-i686-2.7/uncompyle2/opcode/opcode_23.py,
+	build/lib.linux-i686-2.7/uncompyle2/opcode/opcode_24.py,
+	build/lib.linux-i686-2.7/uncompyle2/opcode/opcode_25.py,
+	build/lib.linux-i686-2.7/uncompyle2/opcode/opcode_26.py,
+	build/lib.linux-i686-2.7/uncompyle2/opcode/opcode_27.py,
+	build/lib.linux-i686-2.7/uncompyle2/spark.py,
+	build/lib.linux-i686-2.7/uncompyle2/verify.py: creating clean .py
+
+2012-06-05  Mysterie <kajusska@gmail.com>
+
+	* build/lib.linux-i686-2.7/uncompyle2/Parser.py,
+	build/lib.linux-i686-2.7/uncompyle2/Scanner25.py,
+	build/lib.linux-i686-2.7/uncompyle2/Scanner26.py,
+	build/lib.linux-i686-2.7/uncompyle2/Scanner27.py,
+	build/lib.linux-i686-2.7/uncompyle2/Walker.py,
+	build/lib.linux-i686-2.7/uncompyle2/__init__.py,
+	build/lib.linux-i686-2.7/uncompyle2/disas.py,
+	build/lib.linux-i686-2.7/uncompyle2/magics.py,
+	build/lib.linux-i686-2.7/uncompyle2/opcode/__init__.py,
+	build/lib.linux-i686-2.7/uncompyle2/opcode/opcode_23.py,
+	build/lib.linux-i686-2.7/uncompyle2/opcode/opcode_24.py,
+	build/lib.linux-i686-2.7/uncompyle2/opcode/opcode_25.py,
+	build/lib.linux-i686-2.7/uncompyle2/opcode/opcode_26.py,
+	build/lib.linux-i686-2.7/uncompyle2/opcode/opcode_27.py,
+	build/lib.linux-i686-2.7/uncompyle2/spark.py,
+	build/lib.linux-i686-2.7/uncompyle2/verify.py,
+	uncompyle2/__init__.py: creating clean .py
+
+2012-06-05  Mysterie <kajusska@gmail.com>
+
+	* PKG-INFO, setup.cfg, setup.py: MAJ owner/information
+
+2012-06-05  Mysterie <kajusska@gmail.com>
+
+	* uncompyle2/Scanner.py: delete old file
+
+2012-06-05  Mysterie <kajusska@gmail.com>
+
+	* first commit
+
