@@ -866,7 +866,7 @@ class Traverser(pysource.Walker, object):
         n = len(node)-1
         assert node[n].type.startswith('CALL_FUNCTION')
         for i in range(n-1, 0, -1):
-            if node[i].type != 'LOAD_NAME':
+            if node[i].type != 'LOAD_CLASSNAME':
                 break
             pass
 

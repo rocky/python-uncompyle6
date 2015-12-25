@@ -189,6 +189,7 @@ TABLE_DIRECT = {
     'load_attr':	( '%c.%[1]{pattr}', 0),
     'LOAD_FAST':	( '%{pattr}', ),
     'LOAD_NAME':	( '%{pattr}', ),
+    'LOAD_CLASSNAME':	( '%{pattr}', ),
     'LOAD_GLOBAL':	( '%{pattr}', ),
     'LOAD_DEREF':	( '%{pattr}', ),
     'LOAD_LOCALS':	( 'locals()', ),
@@ -488,6 +489,7 @@ class Walker(GenericASTTraversal, object):
         self.return_none = False
         self.mod_globs = set()
         self.currentclass = None
+        self.classes = []
         self.pending_newlines = 0
 
         if version >= 3.0:
@@ -1109,7 +1111,7 @@ class Walker(GenericASTTraversal, object):
         n = len(node)-1
         assert node[n].type.startswith('CALL_FUNCTION')
         for i in range(n-1, 0, -1):
-            if node[i].type != 'LOAD_NAME':
+            if node[i].type != 'LOAD_CLASSNAME':
                 break
             pass
 
@@ -1484,6 +1486,7 @@ class Walker(GenericASTTraversal, object):
         """Dump class definition, doc string and class body."""
 
         assert inspect.iscode(code)
+        self.classes.append(self.currentclass)
         code = Code(code, self.scanner, self.currentclass)
         # assert isinstance(code, Code)
 
@@ -1495,14 +1498,17 @@ class Walker(GenericASTTraversal, object):
 
         if ast[0][0] == NAME_MODULE:
             del ast[0]
-            QUAL_NAME = AST('stmt',
-                [ AST('assign',
-                    [ AST('expr', [Token('LOAD_CONST', pattr=self.currentclass)]),
-                      AST('designator', [ Token('STORE_NAME', pattr='__qualname__')])
-                      ])])
-            if ast[0][0] == QUAL_NAME:
-                del ast[0]
-                pass
+            pass
+
+        qualname = '.'.join(self.classes)
+
+        QUAL_NAME = AST('stmt',
+                    [ AST('assign',
+                        [ AST('expr', [Token('LOAD_CONST', pattr=qualname)]),
+                        AST('designator', [ Token('STORE_NAME', pattr='__qualname__')])
+                        ])])
+        if ast[0][0] == QUAL_NAME:
+            del ast[0]
             pass
 
         # if docstring exists, dump it
@@ -1524,6 +1530,7 @@ class Walker(GenericASTTraversal, object):
 
         self.gen_source(ast, code._customize)
         code._tokens = None; code._customize = None # save memory
+        self.classes.pop(-1)
 
     def gen_source(self, ast, customize, isLambda=0, returnNone=False):
         """convert AST to source code"""

@@ -682,6 +682,7 @@ class Python3Parser(PythonParser):
         have_loadname = False
         for i in range(i+1, len(tokens)):
             if tokens[i].type == 'LOAD_NAME':
+                tokens[i].type = 'LOAD_CLASSNAME'
                 have_loadname = True
                 break
             if tokens[i].type in 'CALL_FUNCTION':
@@ -694,9 +695,10 @@ class Python3Parser(PythonParser):
                 if tokens[i].type in 'CALL_FUNCTION':
                     break
                 assert tokens[i].type == 'LOAD_NAME'
+                tokens[i].type = 'LOAD_CLASSNAME'
                 j += 1
                 pass
-            load_names = 'LOAD_NAME ' * j
+            load_names = 'LOAD_CLASSNAME ' * j
         else:
             j = 0
             load_names = ''
