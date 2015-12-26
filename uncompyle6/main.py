@@ -27,8 +27,10 @@ def uncompyle(version, co, out=None, showasm=False, showast=False,
 
     try:
         pysource.deparse_code(version, co, out, showasm, showast, showgrammar)
-    except pysource.ParserError as e :  # parser failed, dump disassembly
-        print(e, file=real_out)
+    except pysource.WalkerError as e:
+        # deparsing failed
+        if real_out != out:
+            print(e, file=real_out)
         raise
 
 def uncompyle_file(filename, outstream=None, showasm=False, showast=False,

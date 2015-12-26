@@ -449,6 +449,7 @@ class Python3Parser(PythonParser):
 
         except_stmt ::= except_cond1 except_suite
         except_stmt ::= except_cond2 except_suite
+        except_stmt ::= except_cond2 except_suite_finalize
         except_stmt ::= except
 
         # Python3 introduced POP_EXCEPT
@@ -457,10 +458,11 @@ class Python3Parser(PythonParser):
 
         # This is used in Python 3 in
         # "except ... as e" to remove 'e' after the c_stmts_opt finishes
-        except_suite ::= SETUP_FINALLY c_stmts_opt
-                         POP_BLOCK POP_EXCEPT LOAD_CONST COME_FROM LOAD_CONST
-                         STORE_NAME DELETE_NAME END_FINALLY
-                         JUMP_FORWARD
+        except_suite_finalize ::= SETUP_FINALLY c_stmts_opt except_var_finalize
+                                  END_FINALLY JUMP_FORWARD
+
+        except_var_finalize ::= POP_BLOCK POP_EXCEPT LOAD_CONST COME_FROM LOAD_CONST
+                                designator del_stmt
 
         except_suite ::= return_stmts
 

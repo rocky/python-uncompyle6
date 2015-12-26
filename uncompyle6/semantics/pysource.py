@@ -63,7 +63,6 @@ from __future__ import print_function
 
 import inspect, sys, re
 
-
 from uncompyle6 import PYTHON3
 from uncompyle6.parser import get_python_parser
 from uncompyle6.parsers.astnode import AST
@@ -124,9 +123,14 @@ TAB = ' ' *4   # is less spacy than "\t"
 INDENT_PER_LEVEL = ' ' # additional intent per pretty-print level
 
 TABLE_R = {
-    'POP_TOP':		( '%|%c\n', 0 ),
     'STORE_ATTR':	( '%c.%[1]{pattr}', 0),
 #   'STORE_SUBSCR':	( '%c[%c]', 0, 1 ),
+    'DELETE_ATTR':	( '%|del %c.%[-1]{pattr}\n', 0 ),
+#   'EXEC_STMT':	( '%|exec %c in %[1]C\n', 0, (0,maxint,', ') ),
+}
+
+if not PYTHON3:
+    TABLE_R.update({
     'STORE_SLICE+0':	( '%c[:]', 0 ),
     'STORE_SLICE+1':	( '%c[%p:]', 0, (1, 100) ),
     'STORE_SLICE+2':	( '%c[:%p]', 0, (1, 100) ),
@@ -135,9 +139,8 @@ TABLE_R = {
     'DELETE_SLICE+1':	( '%|del %c[%c:]\n', 0, 1 ),
     'DELETE_SLICE+2':	( '%|del %c[:%c]\n', 0, 1 ),
     'DELETE_SLICE+3':	( '%|del %c[%c:%c]\n', 0, 1, 2 ),
-    'DELETE_ATTR':	( '%|del %c.%[-1]{pattr}\n', 0 ),
-#   'EXEC_STMT':	( '%|exec %c in %[1]C\n', 0, (0,maxint,', ') ),
-}
+        })
+
 TABLE_R0 = {
 #    'BUILD_LIST':	( '[%C]',      (0,-1,', ') ),
 #    'BUILD_TUPLE':	( '(%C)',      (0,-1,', ') ),
@@ -317,6 +320,7 @@ TABLE_DIRECT = {
     'except_cond1':	( '%|except %c:\n', 1 ),
     'except_cond2':	( '%|except %c as %c:\n', 1, 5 ),
     'except_suite':     ( '%+%c%-%C', 0, (1, maxint, '') ),
+    'except_suite_finalize':     ( '%+%c%-%C', 1, (3, maxint, '') ),
     'tryfinallystmt':	( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 5 ),
     'withstmt':     ( '%|with %c:\n%+%c%-', 0, 3),
     'withasstmt':   ( '%|with %c as %c:\n%+%c%-', 0, 2, 3),
@@ -438,7 +442,6 @@ class ParserError(python_parser.ParserError):
         lines.extend( ['', str(self.error)] )
         return '\n'.join(lines)
 
-
 def find_globals(node, globs):
     """Find globals in this statement."""
     for n in node:
@@ -466,6 +469,13 @@ def find_none(node):
         elif n.type == 'LOAD_CONST' and n.pattr is None:
             return True
     return False
+
+class WalkerError(Exception):
+    def __init__(self, errmsg):
+        self.errmsg = errmsg
+
+    def __str__(self):
+        return self.errmsg
 
 class Walker(GenericASTTraversal, object):
     stacked_params = ('f', 'indent', 'isLambda', '_globals')
@@ -1233,8 +1243,6 @@ class Walker(GenericASTTraversal, object):
         # self.print_("-----")
         # self.print(startnode)
 
-        # from trepan.api import debug
-        # debug(start_opts={'startup-profile': True})
 
         fmt = entry[0]
         arg = 1
@@ -1262,7 +1270,18 @@ class Walker(GenericASTTraversal, object):
             elif typ == ',':
                 pass
             elif typ == 'c':
-                self.preorder(node[entry[arg]])
+                # FIXME: In Python3 sometimes like from
+                # importfrom
+                #   importlist2
+                #     import_as
+                #       designator
+                # STORE_NAME        'load_entry_point'
+                #	POP_TOP           '' (2, (0, 1))
+                # we get that weird POP_TOP tuple, e.g (2, (0,1)).
+                # Why? and
+                # Is there some sort of invalid bounds access going on?
+                if isinstance(entry[arg], int):
+                    self.preorder(node[entry[arg]])
                 arg += 1
             elif typ == 'p':
                 p = self.prec
@@ -1637,6 +1656,8 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
     for g in deparsed.mod_globs:
         deparsed.write('# global %s ## Warning: Unused global' % g)
 
+    if deparsed.ERROR:
+        raise WalkerError("Deparsing stopped due to parse error")
     return deparsed
 
 if __name__ == '__main__':
