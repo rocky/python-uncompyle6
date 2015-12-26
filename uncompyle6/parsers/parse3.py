@@ -71,7 +71,7 @@ class Python3Parser(PythonParser):
         _come_from ::= COME_FROM
         _come_from ::=
 
-        list_for ::= expr FOR_ITER designator list_iter JUMP_ABSOLUTE
+        list_for ::= expr FOR_ITER designator list_iter JUMP_BACK
         list_if ::= expr jmp_false list_iter
         list_if_not ::= expr jmp_true list_iter
 
@@ -407,7 +407,7 @@ class Python3Parser(PythonParser):
         testtrue ::= expr jmp_true
 
         _ifstmts_jump ::= return_if_stmts
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM _come_from
 
         iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
 
@@ -459,7 +459,7 @@ class Python3Parser(PythonParser):
         # This is used in Python 3 in
         # "except ... as e" to remove 'e' after the c_stmts_opt finishes
         except_suite_finalize ::= SETUP_FINALLY c_stmts_opt except_var_finalize
-                                  END_FINALLY JUMP_FORWARD
+                                  END_FINALLY _jump
 
         except_var_finalize ::= POP_BLOCK POP_EXCEPT LOAD_CONST COME_FROM LOAD_CONST
                                 designator del_stmt
@@ -490,7 +490,7 @@ class Python3Parser(PythonParser):
 
         whilestmt ::= SETUP_LOOP
                 testexpr
-                l_stmts_opt JUMP_ABSOLUTE
+                l_stmts_opt JUMP_BACK
                 POP_BLOCK COME_FROM
 
         whilestmt ::= SETUP_LOOP
@@ -515,11 +515,11 @@ class Python3Parser(PythonParser):
         _for ::= GET_ITER FOR_ITER
         _for ::= LOAD_CONST FOR_LOOP
 
-        for_block ::= l_stmts_opt JUMP_ABSOLUTE
+        for_block ::= l_stmts_opt JUMP_BACK
         for_block ::= return_stmts _come_from
 
         forstmt ::= SETUP_LOOP expr _for designator
-                for_block POP_BLOCK COME_FROM
+                for_block POP_BLOCK _come_from
 
         forelsestmt ::= SETUP_LOOP expr _for designator
                 for_block POP_BLOCK else_suite COME_FROM

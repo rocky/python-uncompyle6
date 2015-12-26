@@ -20,7 +20,7 @@ from collections import namedtuple
 from array import array
 
 from uncompyle6 import PYTHON_VERSION
-from uncompyle6.scanner import Token, L65536
+from uncompyle6.scanner import Token
 
 import uncompyle6.opcodes.opcode_34
 # Get all the opcodes into globals
@@ -145,6 +145,17 @@ class Scanner34(scan.Scanner):
                 if inst.opname != 'BUILD_SLICE':
                     customize[opname] = inst.argval
 
+            elif opname == 'JUMP_ABSOLUTE':
+                pattr = inst.argval
+                target = self.get_target(inst.offset)
+                if target < inst.offset:
+                    if (inst.offset in self.stmts and
+                        self.code[inst.offset+3] not in (END_FINALLY, POP_BLOCK)
+                        and offset not in self.not_continue):
+                        opname = 'CONTINUE'
+                    else:
+                        opname = 'JUMP_BACK'
+
             elif inst.offset in self.load_asserts:
                 opname = 'LOAD_ASSERT'
 
@@ -160,71 +171,8 @@ class Scanner34(scan.Scanner):
             pass
         return tokens, {}
 
-    def disassemble_cross_version(self, co):
-        """
-        Convert code object <co> into a sequence of tokens
-        FIXME: the below is not based on the current Python 3.4 dis.disassemble_bytes().
-        Fix that.
-        """
-        # Container for tokens
-        tokens = []
-        customize = {}
-        self.code = code = array('B', co.co_code)
-        codelen = len(code)
-        self.build_lines_data(co)
-        self.build_prev_op()
-        # Get jump targets
-        # Format: {target offset: [jump offsets]}
-        jump_targets = self.find_jump_targets()
-        # Initialize extended arg at 0. When extended arg op is encountered,
-        # variable preserved for next cycle and added as arg for next op
-        extended_arg = 0
-        free = None
-        for offset in self.op_range(0, codelen):
-            # Add jump target tokens
-            if offset in jump_targets:
-                jump_idx = 0
-                for jump_offset in jump_targets[offset]:
-                    tokens.append(Token('COME_FROM', None, repr(jump_offset),
-                                        offset='{}_{}'.format(offset, jump_idx)))
-                    jump_idx += 1
-            op = code[offset]
-            # Create token and fill all the fields we can
-            # w/o touching arguments
-            current_token = Token(dis.opname[op])
-            current_token.offset = offset
-
-            if offset in self.linestarts:
-                current_token.linestart = self.linestarts[offset]
-            else:
-                current_token.linestart = None
-
-            if op >= dis.HAVE_ARGUMENT:
-                # Calculate op's argument value based on its argument and
-                # preceding extended argument, if any
-                oparg = code[offset+1] + code[offset+2]*256 + extended_arg
-                extended_arg = 0
-                if op == dis.EXTENDED_ARG:
-                    extended_arg = oparg * L65536
-
-                # Fill token's attr/pattr fields
-                current_token.attr = oparg
-                if op in dis.hasconst:
-                    current_token.pattr = repr(co.co_consts[oparg])
-                elif op in dis.hasname:
-                    current_token.pattr = co.co_names[oparg]
-                elif op in dis.hasjrel:
-                    current_token.pattr = repr(offset + 3 + oparg)
-                elif op in dis.haslocal:
-                    current_token.pattr = co.co_varnames[oparg]
-                elif op in dis.hascompare:
-                    current_token.pattr = dis.cmp_op[oparg]
-                elif op in dis.hasfree:
-                    if free is None:
-                        free = co.co_cellvars + co.co_freevars
-                    current_token.pattr = free[oparg]
-            tokens.append(current_token)
-        return tokens, customize
+    def disassemble_cross_version(self, co, classname=None):
+        return scan.scanner32().disassemble(self, co, classname)
 
     def build_lines_data(self, code_obj):
         """

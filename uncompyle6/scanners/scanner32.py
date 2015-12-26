@@ -34,11 +34,11 @@ class Scanner32(scan.Scanner):
         tokens = self.tokenize(code_object)
         return tokens
 
-    def disassemble(self, co):
+    def disassemble(self, co, classname=None):
         """
         Convert code object <co> into a sequence of tokens.
 
-        Based on dis.disassemble() function.
+        The below is based on (an older version?) of Python dis.disassemble_bytes().
         """
         # Container for tokens
         tokens = []
@@ -47,9 +47,64 @@ class Scanner32(scan.Scanner):
         codelen = len(code)
         self.build_lines_data(co)
         self.build_prev_op()
+
         # Get jump targets
         # Format: {target offset: [jump offsets]}
         jump_targets = self.find_jump_targets()
+
+        # self.lines contains (block,addrLastInstr)
+        if classname:
+            classname = '_' + classname.lstrip('_') + '__'
+
+            def unmangle(name):
+                if name.startswith(classname) and name[-2:] != '__':
+                    return name[len(classname) - 2:]
+                return name
+
+            # free = [ unmangle(name) for name in (co.co_cellvars + co.co_freevars) ]
+            # names = [ unmangle(name) for name in co.co_names ]
+            # varnames = [ unmangle(name) for name in co.co_varnames ]
+        else:
+            # free = co.co_cellvars + co.co_freevars
+            # names = co.co_names
+            # varnames = co.co_varnames
+            pass
+
+        # Scan for assertions. Later we will
+        # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT' for those
+        # assertions
+
+        self.load_asserts = set()
+        for i in self.op_range(0, codelen):
+            if self.code[i] == POP_JUMP_IF_TRUE and self.code[i+3] == LOAD_GLOBAL:
+                if names[self.get_argument(i+3)] == 'AssertionError':
+                    self.load_asserts.add(i+3)
+
+        # FIXME: reinstate code
+        # cf = self.find_jump_targets(self.code)
+        # # contains (code, [addrRefToCode])
+        # last_stmt = self.next_stmt[0]
+        # i = self.next_stmt[last_stmt]
+        # replace = {}
+        # while i < n-1:
+        #     if self.lines[last_stmt].next > i:
+        #         if self.code[last_stmt] == PRINT_ITEM:
+        #             if self.code[i] == PRINT_ITEM:
+        #                 replace[i] = 'PRINT_ITEM_CONT'
+        #             elif self.code[i] == PRINT_NEWLINE:
+        #                 replace[i] = 'PRINT_NEWLINE_CONT'
+        #     last_stmt = i
+        #     i = self.next_stmt[i]
+
+        # imports = self.all_instr(0, n, (IMPORT_NAME, IMPORT_FROM, IMPORT_STAR))
+        # if len(imports) > 1:
+        #     last_import = imports[0]
+        #     for i in imports[1:]:
+        #         if self.lines[last_import].next > i:
+        #             if self.code[last_import] == IMPORT_NAME == self.code[i]:
+        #                 replace[i] = 'IMPORT_NAME_CONT'
+        #         last_import = i
+
         # Initialize extended arg at 0. When extended arg op is encountered,
         # variable preserved for next cycle and added as arg for next op
         extended_arg = 0
@@ -63,6 +118,8 @@ class Scanner32(scan.Scanner):
                                         offset='{}_{}'.format(offset, jump_idx)))
                     jump_idx += 1
             op = code[offset]
+            op_name = opname[op]
+
             # Create token and fill all the fields we can
             # w/o touching arguments
             current_token = Token(dis.opname[op])
@@ -97,6 +154,17 @@ class Scanner32(scan.Scanner):
                     if free is None:
                         free = co.co_cellvars + co.co_freevars
                     current_token.pattr = free[oparg]
+            if op == JUMP_ABSOLUTE:
+                current_token.pattr = current_token.attr = oparg
+                target = self.get_target(offset)
+                if target < offset:
+                    if offset in self.stmts and self.code[offset+3] not in (END_FINALLY, POP_BLOCK) \
+                     and offset not in self.not_continue:
+                        op_name = 'CONTINUE'
+                    else:
+                        op_name = 'JUMP_BACK'
+                    current_token.type = op_name
+
             tokens.append(current_token)
         return tokens, customize
 

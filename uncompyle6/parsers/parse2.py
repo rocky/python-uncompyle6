@@ -405,15 +405,15 @@ class Python2Parser(PythonParser):
 
 
         trystmt ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                try_middle COME_FROM
+                    try_middle COME_FROM
 
         # this is nested inside a trystmt
         tryfinallystmt ::= SETUP_FINALLY suite_stmts
                            POP_BLOCK LOAD_CONST
                            COME_FROM suite_stmts_opt END_FINALLY
 
-        tryelsestmt ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                        try_middle else_suite COME_FROM
+        tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                           try_middle else_suite COME_FROM
 
         tryelsestmtc ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                          try_middle else_suitec COME_FROM
