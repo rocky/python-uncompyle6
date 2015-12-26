@@ -57,6 +57,14 @@ ExtractInfo = namedtuple("ExtractInfo",
 TABLE_DIRECT_FRAGMENT = {
     'importstmt': ( '%|import %c%x\n', 2, (2, (0, 1)), ),
     'importfrom': ( '%|from %[2]{pattr}%x import %c\n', (2, (0, 1)), 3),
+    # FIXME: fix bugs below and add
+    # 'forstmt':		( '%|for %c%x in %c:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4 ),
+    # 'forelsestmt':	(
+    #     '%|for %c in %c%x:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
+    # 'forelselaststmt':	(
+    #     '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-', 3, (3, (2,)), 1, 4, -2),
+    # 'forelselaststmtl':	(
+    #     '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
     }
 
 class Traverser(pysource.Walker, object):
