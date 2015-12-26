@@ -25,14 +25,11 @@ if PYTHON3:
     intern = sys.intern
     L65536 = 65536
 
-    def cmp(a, b):
-        return (a > b) - (a < b)
-
     def long(l): l
 else:
     L65536 = long(65536) # NOQA
 
-from uncompyle6.opcodes import opcode_25, opcode_26, opcode_27, opcode_32, opcode_34
+from uncompyle6.opcodes import opcode_25, opcode_26, opcode_27, opcode_32, opcode_33, opcode_34
 
 
 class Code:
@@ -60,6 +57,8 @@ class Scanner(object):
             self.opc = opcode_25
         elif version == 3.2:
             self.opc = opcode_32
+        elif version == 3.3:
+            self.opc = opcode_33
         elif version == 3.4:
             self.opc = opcode_34
 
@@ -280,7 +279,7 @@ class Scanner(object):
         return result
 
     def restrict_to_parent(self, target, parent):
-        '''Restrict pos to parent boundaries.'''
+        """Restrict target to parent structure boundaries."""
         if not (parent['start'] < target < parent['end']):
             target = parent['end']
         return target
@@ -302,6 +301,9 @@ def get_scanner(version):
     elif version == 3.2:
         import uncompyle6.scanners.scanner32 as scan
         scanner = scan.Scanner32()
+    elif version == 3.3:
+        import uncompyle6.scanners.scanner33 as scan
+        scanner = scan.Scanner33()
     elif version == 3.4:
         import uncompyle6.scanners.scanner34 as scan
         scanner = scan.Scanner34()

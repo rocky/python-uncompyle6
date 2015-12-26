@@ -1,58 +1,49 @@
 #  Copyright (c) 2015 by Rocky Bernstein
 """
-Python 3.4 bytecode scanner/deparser
+Python 3.3 bytecode scanner/deparser
 
-This overlaps Python's 3.4's dis module, and in fact in some cases
-we just fall back to that. But the intent is that it can be run from
+This overlaps Python's 3.3's dis module, but it can be run from
 Python 2 and other versions of Python. Also, we save token information
 for later use in deparsing.
 """
 
 from __future__ import print_function
 
-import dis, inspect
+import dis, inspect, marshal
 from collections import namedtuple
 from array import array
 
-from uncompyle6 import PYTHON_VERSION
-from uncompyle6.scanner import Token
+from uncompyle6.scanner import Token, L65536
 
-import uncompyle6.opcodes.opcode_34
+
 # Get all the opcodes into globals
-JUMP_OPs = uncompyle6.opcodes.opcode_34.JUMP_OPs
 globals().update(dis.opmap)
-
-from uncompyle6.opcodes.opcode_34 import *
-
+from uncompyle6.opcodes.opcode_27 import *
 import uncompyle6.scanner as scan
-import uncompyle6.scanners.scanner33 as scan33
 
 
-class Scanner34(scan.Scanner):
+class Scanner33(scan.Scanner):
     def __init__(self):
-        scan.Scanner.__init__(self, 3.4) # check
+        scan.Scanner.__init__(self, 3.2) # check
 
-    def get_argument(self, bytecode, pos):
-        arg = bytecode[pos+1] + bytecode[pos+2] * 256
-        return arg
+    def run(self, bytecode):
+        code_object = marshal.loads(bytecode)
+        tokens = self.tokenize(code_object)
+        return tokens
 
     def disassemble(self, co, classname=None):
-        fn = self.disassemble_built_in if PYTHON_VERSION == 3.4 \
-            else self.disassemble_cross_version
-        return fn(co, classname)
+        """
+        Convert code object <co> into a sequence of tokens.
 
-    def disassemble_built_in(self, co, classname=None):
+        The below is based on (an older version?) of Python dis.disassemble_bytes().
+        """
         # Container for tokens
         tokens = []
         customize = {}
-        self.code = array('B', co.co_code)
+        self.code = code = array('B', co.co_code)
+        codelen = len(code)
         self.build_lines_data(co)
         self.build_prev_op()
-
-        # Get jump targets
-        # Format: {target offset: [jump offsets]}
-        jump_targets = self.find_jump_targets()
-        bytecode = dis.Bytecode(co)
 
         # self.lines contains (block,addrLastInstr)
         if classname:
@@ -63,115 +54,159 @@ class Scanner34(scan.Scanner):
                     return name[len(classname) - 2:]
                 return name
 
-            # free = [ unmangle(name) for name in (co.co_cellvars + co.co_freevars) ]
-            # names = [ unmangle(name) for name in co.co_names ]
-            # varnames = [ unmangle(name) for name in co.co_varnames ]
+            free = [ unmangle(name) for name in (co.co_cellvars + co.co_freevars) ]
+            names = [ unmangle(name) for name in co.co_names ]
+            varnames = [ unmangle(name) for name in co.co_varnames ]
         else:
-            # free = co.co_cellvars + co.co_freevars
-            # names = co.co_names
-            # varnames = co.co_varnames
+            free = co.co_cellvars + co.co_freevars
+            names = co.co_names
+            varnames = co.co_varnames
             pass
 
         # Scan for assertions. Later we will
         # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT' for those
         # assertions
-        self.load_asserts = set()
-        bs = list(bytecode)
-        n = len(bs)
-        for i in range(n):
-            inst = bs[i]
-            if inst.opname == 'POP_JUMP_IF_TRUE' and  i+1 < n:
-                next_inst = bs[i+1]
-                if (next_inst.opname == 'LOAD_GLOBAL' and
-                    next_inst.argval == 'AssertionError'):
-                    self.load_asserts.add(next_inst.offset)
 
-        for inst in bytecode:
-            if inst.offset in jump_targets:
+        self.load_asserts = set()
+        for i in self.op_range(0, codelen):
+            if self.code[i] == POP_JUMP_IF_TRUE and self.code[i+3] == LOAD_GLOBAL:
+                if names[self.get_argument(i+3)] == 'AssertionError':
+                    self.load_asserts.add(i+3)
+
+        # Get jump targets
+        # Format: {target offset: [jump offsets]}
+        jump_targets = self.find_jump_targets()
+
+        # contains (code, [addrRefToCode])
+        last_stmt = self.next_stmt[0]
+        i = self.next_stmt[last_stmt]
+        replace = {}
+        while i < codelen-1:
+            if self.lines[last_stmt].next > i:
+                if self.code[last_stmt] == PRINT_ITEM:
+                    if self.code[i] == PRINT_ITEM:
+                        replace[i] = 'PRINT_ITEM_CONT'
+                    elif self.code[i] == PRINT_NEWLINE:
+                        replace[i] = 'PRINT_NEWLINE_CONT'
+            last_stmt = i
+            i = self.next_stmt[i]
+
+        imports = self.all_instr(0, codelen, (IMPORT_NAME, IMPORT_FROM, IMPORT_STAR))
+        if len(imports) > 1:
+            last_import = imports[0]
+            for i in imports[1:]:
+                if self.lines[last_import].next > i:
+                    if self.code[last_import] == IMPORT_NAME == self.code[i]:
+                        replace[i] = 'IMPORT_NAME_CONT'
+                last_import = i
+
+        # Initialize extended arg at 0. When extended arg op is encountered,
+        # variable preserved for next cycle and added as arg for next op
+        extended_arg = 0
+
+        for offset in self.op_range(0, codelen):
+            # Add jump target tokens
+            if offset in jump_targets:
                 jump_idx = 0
-                for jump_offset in jump_targets[inst.offset]:
+                for jump_offset in jump_targets[offset]:
                     tokens.append(Token('COME_FROM', None, repr(jump_offset),
-                                        offset='%s_%s' % (inst.offset, jump_idx)))
+                                        offset='{}_{}'.format(offset, jump_idx)))
                     jump_idx += 1
                     pass
                 pass
 
-            pattr =  inst.argrepr
-            opname = inst.opname
+            op = code[offset]
+            op_name = opname[op]
 
-            # For constants, the pattr is the same as attr. Using pattr adds
-            # an extra level of quotes which messes other things up, like getting
-            # keyword attribute names in a call. I suspect there will be things
-            # other than LOAD_CONST, but we'll start out with just this for now.
-            if opname in ['LOAD_CONST']:
-                const = inst.argval
-                if inspect.iscode(const):
-                    if const.co_name == '<lambda>':
-                        opname = 'LOAD_LAMBDA'
-                    elif const.co_name == '<genexpr>':
-                        opname = 'LOAD_GENEXPR'
-                    elif const.co_name == '<dictcomp>':
-                        opname = 'LOAD_DICTCOMP'
-                    elif const.co_name == '<setcomp>':
-                        opname = 'LOAD_SETCOMP'
-                    elif const.co_name == '<listcomp>':
-                        opname = 'LOAD_LISTCOMP'
-                    # verify() uses 'pattr' for comparison, since 'attr'
-                    # now holds Code(const) and thus can not be used
-                    # for comparison (todo: think about changing this)
-                    # pattr = 'code_object @ 0x%x %s->%s' %\
-                    # (id(const), const.co_filename, const.co_name)
-                    pattr = '<code_object ' + const.co_name + '>'
-                else:
-                    pattr = const
-                    pass
-            elif opname in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET', 'BUILD_SLICE',
-                            'UNPACK_SEQUENCE',
-                            'MAKE_FUNCTION', 'MAKE_CLOSURE',
-                            'DUP_TOPX', 'RAISE_VARARGS'
-                            ):
-                # if opname == 'BUILD_TUPLE' and \
-                #     self.code[self.prev[offset]] == LOAD_CLOSURE:
-                #     continue
-                # else:
-                #     op_name = '%s_%d' % (op_name, oparg)
-                #     if opname != BUILD_SLICE:
-                #         customize[op_name] = oparg
-                opname = '%s_%d' % (opname, inst.argval)
-                if inst.opname != 'BUILD_SLICE':
-                    customize[opname] = inst.argval
+            oparg = None; pattr = None
 
-            elif opname == 'JUMP_ABSOLUTE':
-                pattr = inst.argval
-                target = self.get_target(inst.offset)
-                if target < inst.offset:
-                    if (inst.offset in self.stmts and
-                        self.code[inst.offset+3] not in (END_FINALLY, POP_BLOCK)
-                        and offset not in self.not_continue):
-                        opname = 'CONTINUE'
+            if op >= HAVE_ARGUMENT:
+                oparg = self.get_argument(offset) + extended_arg
+                extended_arg = 0
+                if op == EXTENDED_ARG:
+                    extended_arg = oparg * scan.L65536
+                    continue
+                if op in hasconst:
+                    const = co.co_consts[oparg]
+                    if inspect.iscode(const):
+                        oparg = const
+                        if const.co_name == '<lambda>':
+                            assert op_name == 'LOAD_CONST'
+                            op_name = 'LOAD_LAMBDA'
+                        elif const.co_name == '<genexpr>':
+                            op_name = 'LOAD_GENEXPR'
+                        elif const.co_name == '<dictcomp>':
+                            op_name = 'LOAD_DICTCOMP'
+                        elif const.co_name == '<setcomp>':
+                            op_name = 'LOAD_SETCOMP'
+                        # verify() uses 'pattr' for comparison, since 'attr'
+                        # now holds Code(const) and thus can not be used
+                        # for comparison (todo: think about changing this)
+                        # pattr = 'code_object @ 0x%x %s->%s' %\
+                        # (id(const), const.co_filename, const.co_name)
+                        pattr = '<code_object ' + const.co_name + '>'
                     else:
-                        opname = 'JUMP_BACK'
+                        pattr = const
+                elif op in hasname:
+                    pattr = names[oparg]
+                elif op in hasjrel:
+                    pattr = repr(offset + 3 + oparg)
+                elif op in hasjabs:
+                    pattr = repr(oparg)
+                elif op in haslocal:
+                    pattr = varnames[oparg]
+                elif op in hascompare:
+                    pattr = cmp_op[oparg]
+                elif op in hasfree:
+                    pattr = free[oparg]
 
-            elif inst.offset in self.load_asserts:
-                opname = 'LOAD_ASSERT'
+            if op in (BUILD_LIST, BUILD_TUPLE, BUILD_SET, BUILD_SLICE,
+                            UNPACK_SEQUENCE,
+                            MAKE_FUNCTION, CALL_FUNCTION, MAKE_CLOSURE,
+                            CALL_FUNCTION_VAR, CALL_FUNCTION_KW,
+                            CALL_FUNCTION_VAR_KW, RAISE_VARARGS
+                            ):
+                # As of Python 2.5, values loaded via LOAD_CLOSURE are packed into
+                #   a tuple before calling MAKE_CLOSURE.
+                if (op == BUILD_TUPLE and
+                    self.code[self.prev_op[offset]] == LOAD_CLOSURE):
+                    continue
+                else:
+                    # CALL_FUNCTION OP renaming is done as a custom rule in parse3
+                    if op_name not in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
+                                       'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
+                        op_name = '%s_%d' % (op_name, oparg)
+                    if op != BUILD_SLICE:
+                        customize[op_name] = oparg
+            elif op == JUMP_ABSOLUTE:
+                target = self.get_target(offset)
+                if target < offset:
+                    if (offset in self.stmts
+                        and self.code[offset+3] not in (END_FINALLY, POP_BLOCK)
+                        and offset not in self.not_continue):
+                        op_name = 'CONTINUE'
+                    else:
+                        op_name = 'JUMP_BACK'
 
-            tokens.append(
-                Token(
-                    type_ = opname,
-                    attr = inst.argval,
-                    pattr = pattr,
-                    offset = inst.offset,
-                    linestart = inst.starts_line,
-                    )
-                )
+            elif op == LOAD_GLOBAL:
+                if offset in self.load_asserts:
+                    op_name = 'LOAD_ASSERT'
+            elif op == RETURN_VALUE:
+                if offset in self.return_end_ifs:
+                    op_name = 'RETURN_END_IF'
+
+            if offset in self.linestarts:
+                linestart = self.linestarts[offset]
+            else:
+                linestart = None
+
+            if offset not in replace:
+                tokens.append(Token(op_name, oparg, pattr, offset, linestart))
+            else:
+                tokens.append(Token(replace[offset], oparg, pattr, offset, linestart))
             pass
-        return tokens, {}
+        return tokens, customize
 
-    # FIXME Create and move to scanner3
-    def disassemble_cross_version(self, co, classname=None):
-        return scan33.Scanner33().disassemble(co, classname)
-
-    # FIXME Create and move to scanner3
     def build_lines_data(self, code_obj):
         """
         Generate various line-related helper data.
@@ -203,7 +238,6 @@ class Scanner34(scan.Scanner):
             lines.append(LineTuple(prev_line_no, codelen))
             offset += 1
 
-    # FIXME Create and move to scanner3
     def build_prev_op(self):
         """
         Compose 'list-map' which allows to jump to previous
@@ -217,7 +251,6 @@ class Scanner34(scan.Scanner):
             for _ in range(self.op_size(op)):
                 self.prev_op.append(offset)
 
-    # FIXME Create and move to scanner3
     def op_size(self, op):
         """
         Return size of operator with its arguments
@@ -279,6 +312,7 @@ class Scanner34(scan.Scanner):
                 targets[label] = targets.get(label, []) + [offset]
         return targets
 
+    # FIXME Create and move to scanner3
     def build_statement_indices(self):
         code = self.code
         start = 0
@@ -388,33 +422,6 @@ class Scanner34(scan.Scanner):
             target += offset + 3
         return target
 
-    def next_except_jump(self, start):
-        """
-        Return the next jump that was generated by an except SomeException:
-        construct in a try...except...else clause or None if not found.
-        """
-
-        if self.code[start] == DUP_TOP:
-            except_match = self.first_instr(start, len(self.code), POP_JUMP_IF_FALSE)
-            if except_match:
-                jmp = self.prev_op[self.get_target(except_match)]
-                self.ignore_if.add(except_match)
-                self.not_continue.add(jmp)
-                return jmp
-
-        count_END_FINALLY = 0
-        count_SETUP_ = 0
-        for i in self.op_range(start, len(self.code)):
-            op = self.code[i]
-            if op == END_FINALLY:
-                if count_END_FINALLY == count_SETUP_:
-                    assert self.code[self.prev_op[i]] in (JUMP_ABSOLUTE, JUMP_FORWARD, RETURN_VALUE)
-                    self.not_continue.add(self.prev_op[i])
-                    return self.prev_op[i]
-                count_END_FINALLY += 1
-            elif op in (SETUP_EXCEPT, SETUP_WITH, SETUP_FINALLY):
-                count_SETUP_ += 1
-
     # FIXME Create and move to scanner3
     def detect_structure(self, offset):
         """
@@ -436,51 +443,8 @@ class Scanner34(scan.Scanner):
                 start = curent_start
                 end = curent_end
                 parent = struct
-                pass
 
-        if op == SETUP_EXCEPT:
-            start  = offset + 3
-            target = self.get_target(offset)
-            end    = self.restrict_to_parent(target, parent)
-            if target != end:
-                self.fixed_jumps[pos] = end
-                # print target, end, parent
-            # Add the try block
-            self.structs.append({'type':  'try',
-                                   'start': start,
-                                   'end':   end-4})
-            # Now isolate the except and else blocks
-            end_else = start_else = self.get_target(self.prev_op[end])
-
-            # Add the except blocks
-            i = end
-            while self.code[i] != END_FINALLY:
-                jmp = self.next_except_jump(i)
-                if self.code[jmp] == RETURN_VALUE:
-                    self.structs.append({'type':  'except',
-                                           'start': i,
-                                           'end':   jmp+1})
-                    i = jmp + 1
-                else:
-                    if self.get_target(jmp) != start_else:
-                        end_else = self.get_target(jmp)
-                    if self.code[jmp] == JUMP_FORWARD:
-                        self.fixed_jumps[jmp] = -1
-                    self.structs.append({'type':  'except',
-                                         'start': i,
-                                         'end':   jmp})
-                    i = jmp + 3
-
-            # Add the try-else block
-            if end_else != start_else:
-                r_end_else = self.restrict_to_parent(end_else, parent)
-                self.structs.append({'type':  'try-else',
-                                       'start': i+1,
-                                       'end':   r_end_else})
-                self.fixed_jumps[i] = r_end_else
-            else:
-                self.fixed_jumps[i] = i+1
-        elif op in (POP_JUMP_IF_FALSE, POP_JUMP_IF_TRUE):
+        if op in (POP_JUMP_IF_FALSE, POP_JUMP_IF_TRUE):
             start = offset + self.op_size(op)
             target = self.get_target(offset)
             rtarget = self.restrict_to_parent(target, parent)
@@ -598,6 +562,7 @@ class Scanner34(scan.Scanner):
                 else:
                     self.fixed_jumps[offset] = self.restrict_to_parent(target, parent)
 
+    # FIXME Create and move to scanner3
     def rem_or(self, start, end, instr, target=None, include_beyond_target=False):
         """
         Find offsets of all requested <instr> between <start> and <end>,
@@ -618,6 +583,7 @@ class Scanner34(scan.Scanner):
             filtered = []
         return instr_offsets
 
+    # FIXME Create and move to scanner3
     def remove_mid_line_ifs(self, ifs):
         """
         Go through passed offsets, filtering ifs
@@ -636,7 +602,7 @@ class Scanner34(scan.Scanner):
 
 if __name__ == "__main__":
     co = inspect.currentframe().f_code
-    tokens, customize = Scanner34().disassemble(co)
+    tokens, customize = Scanner33().disassemble(co)
     for t in tokens:
         print(t)
     pass

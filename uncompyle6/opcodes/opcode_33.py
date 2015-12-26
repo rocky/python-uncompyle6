@@ -69,10 +69,8 @@ def_op('BINARY_TRUE_DIVIDE', 27)
 def_op('INPLACE_FLOOR_DIVIDE', 28)
 def_op('INPLACE_TRUE_DIVIDE', 29)
 
-# Gone from Python 3 are Python2's
-# SLICE+0 .. SLICE+3
-# STORE_SLICE+0 .. STORE_SLICE+3
-# DELETE_SLICE+0 .. DELETE_SLICE+3
+# Gone from Python 3 are
+# Python 2's SLICE+0 .. SLICE+3
 
 def_op('STORE_MAP', 54)
 def_op('INPLACE_ADD', 55)
@@ -127,9 +125,6 @@ name_op('STORE_ATTR', 95)       # Index in name list
 name_op('DELETE_ATTR', 96)      # ""
 name_op('STORE_GLOBAL', 97)     # ""
 name_op('DELETE_GLOBAL', 98)    # ""
-
-# Python 2's DUP_TOPX is gone
-
 def_op('LOAD_CONST', 100)       # Index in const list
 hasconst.append(100)
 name_op('LOAD_NAME', 101)       # Index in name list

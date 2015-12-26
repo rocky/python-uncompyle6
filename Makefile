@@ -18,8 +18,17 @@ TEST_TYPES=check-long check-short check-2.7 check-3.4
 #: Default target - same as "check"
 all: check
 
-#: Run working tests
-check check-3.4 check-2.7: pytest
+# Run all tests
+check:
+	@PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2`; \
+	$(MAKE) check-$$PYTHON_VERSION
+
+#: Tests for Python 2.7, 3.3 and 3.4
+check-2.7 check-3.3 check-3.4: pytest
+	$(MAKE) -C test $@
+
+#:Tests for Python 2.6 (doesn't have pytest)
+check-2.6:
 	$(MAKE) -C test $@
 
 #: Run py.test tests

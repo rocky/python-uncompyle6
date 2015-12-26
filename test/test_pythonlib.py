@@ -67,6 +67,9 @@ test_options = {
     'bytecode-3.2':
         ['bytecode_3.2', PYC, 'bytecode_3.2', 3.2],
 
+    'bytecode-3.3':
+        ['bytecode_3.3', PYC, 'bytecode_3.3', 3.3],
+
     'bytecode-3.4':
         ['bytecode_3.4', PYC, 'bytecode_3.4', 3.4],
 

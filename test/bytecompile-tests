@@ -55,7 +55,7 @@ tests['2.3'] = tests['2.2']
 tests['2.5'] = tests['2.3']
 # tests['2.7'] = ['mine'] + tests['2.6']
 tests['2.7'] = [
-    # 'simple_source/branching/ifelse',
+     'simple_source/branching/ifelse',
     # 'simple_source/branching/if'
     'simple_source/misc/assert',
     'simple_source/misc/assign',
@@ -79,7 +79,7 @@ for root, dirs, basenames in os.walk('simple_source'):
             simple_source.append(os.path.join(root, basename)[0:-3])
     pass
 
-tests['3.4'] = simple_source
+tests['3.3'] = tests['3.4'] = simple_source
 
 total_tests = len(tests['2.7'])
 #tests['2.2'].sort(); print tests['2.2']

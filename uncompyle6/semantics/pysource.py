@@ -1664,7 +1664,7 @@ if __name__ == '__main__':
     def deparse_test(co):
         "This is a docstring"
         sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
-        deparsed = deparse_code(sys_version, co, showasm=False, showast=False)
+        deparsed = deparse_code(sys_version, co, showasm=True, showast=True)
         # deparsed = deparse_code(sys_version, co, showasm=False, showast=False,
         #                         showgrammar=True)
         print(deparsed.text)
