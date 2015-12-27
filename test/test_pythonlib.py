@@ -56,39 +56,26 @@ PYOC = ('*.pyc', '*.pyo')
 test_options = {
     # name:   (src_basedir, pattern, output_base_suffix, pythoin_version)
     'test':
-        ['test', PYC, 'test'],
-
-    'bytecode-2.5':
-        ['bytecode_2.5', PYC, 'bytecode_2.5', 2.5],
-
-    'bytecode-2.6':
-        ['bytecode_2.6', PYC, 'bytecode_2.6', 2.6],
-
-    'bytecode-2.7':
-        ['bytecode_2.7', PYC, 'bytecode_2.7', 2.7],
-
-    'bytecode-3.2':
-        ['bytecode_3.2', PYC, 'bytecode_3.2', 3.2],
-
-    'bytecode-3.3':
-        ['bytecode_3.3', PYC, 'bytecode_3.3', 3.3],
-
-    'bytecode-3.4':
-        ['bytecode_3.4', PYC, 'bytecode_3.4', 3.4],
+        ('test', PYC, 'test'),
 
     '2.7':
-        ['python2.7', PYC, 'python2.7', 2.7],
+        ('python2.7', PYC, 'python2.7', 2.7),
 
     'ok-2.6':
-        [os.path.join(src_dir, 'ok_2.6'),
-         PYC, 'ok-2.6', 2.6],
+        (os.path.join(src_dir, 'ok_2.6'),
+         PYC, 'ok-2.6', 2.6),
 
-    'ok-2.7':    [os.path.join(src_dir, 'ok_lib2.7'),
-                 PYC, 'ok-2.7', 2.7],
+    'ok-2.7':    (os.path.join(src_dir, 'ok_lib2.7'),
+                 PYC, 'ok-2.7', 2.7),
 
-    'base-2.7':  [os.path.join(src_dir, 'base_tests', 'python2.7'),
-                  PYC, 'base_2.7', 2.7],
+    'base-2.7':  (os.path.join(src_dir, 'base_tests', 'python2.7'),
+                  PYC, 'base_2.7', 2.7),
 }
+
+for  vers in (2.5, 2.6, 2.7, 3.2, 3.3, 3.4):
+    bytecode = "bytecode_%s" % vers
+    key = "bytecode-%s" % vers
+    test_options[key] =  (bytecode, PYC, bytecode, vers)
 
 #-----
 

@@ -32,7 +32,7 @@ check-3.3: check-bytecode-3.4 check-bytecode-2.7
 
 #: Run working tests from Python 3.4
 check-3.4: check-bytecode-2.7 check-bytecode-3.2
-	$(PYTHON) test_pythonlib.py --bytecode-3.4 --verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.4 --ok-2.7 --verify $(COMPILE)
 
 #: Check deparsing only, but from a different Python version
 check-disasm:
