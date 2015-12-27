@@ -82,10 +82,12 @@ def get_python_parser(version, debug_parser):
     """
     if version < 3.0:
         import uncompyle6.parsers.parse2 as parse2
-        return parse2.Python2Parser(debug_parser)
+        p = parse2.Python2Parser(debug_parser)
     else:
         import uncompyle6.parsers.parse3 as parse3
-        return parse3.Python3Parser(debug_parser)
+        p = parse3.Python3Parser(debug_parser)
+    p.version = version
+    return p
 
 def python_parser(version, co, out=sys.stdout, showasm=False,
                   parser_debug=PARSER_DEFAULT_DEBUG):
@@ -94,9 +96,9 @@ def python_parser(version, co, out=sys.stdout, showasm=False,
     from uncompyle6.scanner import get_scanner
     scanner = get_scanner(version)
     tokens, customize = scanner.disassemble(co)
-    # if showasm:
-    #     for t in tokens:
-    #         print(t)
+    if showasm:
+        for t in tokens:
+            print(t)
 
     p = get_python_parser(version, parser_debug)
     return parse(p, tokens, customize)

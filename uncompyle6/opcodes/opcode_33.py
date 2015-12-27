@@ -1,8 +1,13 @@
+"""
+CPython 3.3 bytecode opcodes
 
+This is used in scanner (bytecode disassembly) and parser (Python grammar).
+
+This is a superset of Python 3.3's opcode.py with some opcodes that simplify
+parsing and semantic interpretation.
 """
-opcode module - potentially shared between dis and other modules which
-operate on bytecodes (e.g. peephole optimizers).
-"""
+
+# Note: this should look exactly like Python 3.4's opcode.py
 
 __all__ = ["cmp_op", "hasconst", "hasname", "hasjrel", "hasjabs",
            "haslocal", "hascompare", "hasfree", "opname", "opmap",
@@ -39,6 +44,16 @@ def jrel_op(name, op):
 def jabs_op(name, op):
     def_op(name, op)
     hasjabs.append(op)
+
+def updateGlobal():
+    # JUMP_OPs are used in verification are set in the scanner
+    # and used in the parser grammar
+    globals().update({'PJIF': opmap['POP_JUMP_IF_FALSE']})
+    globals().update({'PJIT': opmap['POP_JUMP_IF_TRUE']})
+    globals().update({'JA': opmap['JUMP_ABSOLUTE']})
+    globals().update({'JF': opmap['JUMP_FORWARD']})
+    globals().update(dict([(k.replace('+', '_'), v) for (k, v) in opmap.items()]))
+    globals().update({'JUMP_OPs': map(lambda op: opname[op], hasjrel + hasjabs)})
 
 # Instruction opcodes for compiled code
 # Blank lines correspond to available opcodes
@@ -95,6 +110,7 @@ def_op('LOAD_BUILD_CLASS', 71)
 # Python3 drops/changes:
 #  def_op('PRINT_ITEM', 71)
 #  def_op('PRINT_NEWLINE', 72)
+def_op('YIELD_FROM', 72)
 #  def_op('PRINT_ITEM_TO', 73)
 #  def_op('PRINT_NEWLINE_TO', 74)
 
@@ -186,4 +202,13 @@ def_op('MAP_ADD', 147)
 def_op('EXTENDED_ARG', 144)
 EXTENDED_ARG = 144
 
+updateGlobal()
 del def_op, name_op, jrel_op, jabs_op
+
+from uncompyle6 import PYTHON_VERSION
+if PYTHON_VERSION == 3.3:
+    import dis
+    # for item in dis.opmap.items():
+    #     if item not in opmap.items():
+    #         print(item)
+    assert all(item in opmap.items() for item in dis.opmap.items())

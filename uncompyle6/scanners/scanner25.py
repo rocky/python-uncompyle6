@@ -12,7 +12,6 @@ Python 3 and other versions of Python. Also, we save token
 information for later use in deparsing.
 """
 
-import inspect
 from collections import namedtuple
 from array import array
 
@@ -151,7 +150,11 @@ class Scanner25(scan.Scanner):
                     continue
                 if op in hasconst:
                     const = co.co_consts[oparg]
-                    if inspect.iscode(const):
+                    # We can't use inspect.iscode() because we may be
+                    # using a different version of Python than the
+                    # one that this was byte-compiled on. So the code
+                    # types may mismatch.
+                    if hasattr(const, 'co_name'):
                         oparg = const
                         if const.co_name == '<lambda>':
                             assert op_name == 'LOAD_CONST'
@@ -912,6 +915,7 @@ class Scanner25(scan.Scanner):
         return targets
 
 if __name__ == "__main__":
+    import inspect
     co = inspect.currentframe().f_code
     tokens, customize = Scanner25().disassemble(co)
     for t in tokens:

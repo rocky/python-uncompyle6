@@ -1,6 +1,10 @@
 """
-opcode module - potentially shared between dis and other modules which
-operate on bytecodes (e.g. peephole optimizers).
+CPython 2.7 bytecode opcodes
+
+This is used in scanner (bytecode disassembly) and parser (Python grammar).
+
+This is a superset of Python 3.4's opcode.py with some opcodes that simplify
+parsing and semantic interpretation.
 """
 
 cmp_op = ('<', '<=', '==', '!=', '>', '>=', 'in', 'not in', 'is',
@@ -198,3 +202,8 @@ def_op('MAP_ADD', 147)
 
 updateGlobal()
 del def_op, name_op, jrel_op, jabs_op
+
+from uncompyle6 import PYTHON_VERSION
+if PYTHON_VERSION == 2.7:
+    import dis
+    assert all(item in opmap.items() for item in dis.opmap.items())

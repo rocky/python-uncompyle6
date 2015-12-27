@@ -138,7 +138,11 @@ class Scanner27(scan.Scanner):
                     continue
                 if op in hasconst:
                     const = co.co_consts[oparg]
-                    if inspect.iscode(const):
+                    # We can't use inspect.iscode() because we may be
+                    # using a different version of Python than the
+                    # one that this was byte-compiled on. So the code
+                    # types may mismatch.
+                    if hasattr(const, 'co_name'):
                         oparg = const
                         if const.co_name == '<lambda>':
                             assert op_name == 'LOAD_CONST'

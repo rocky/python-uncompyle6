@@ -67,7 +67,7 @@ from uncompyle6 import PYTHON3
 from uncompyle6.parser import get_python_parser
 from uncompyle6.parsers.astnode import AST
 from uncompyle6.parsers.spark import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from uncompyle6.scanner import Code, get_scanner
+from uncompyle6.scanner import Code, GenericPythonCode, get_scanner
 from uncompyle6.scanners.tok import Token, NoneToken
 import uncompyle6.parser as python_parser
 
@@ -920,12 +920,21 @@ class Walker(GenericASTTraversal, object):
     n_importstar = n_importfrom
 
     def n_mkfunc(self, node):
+
         if self.version >= 3.0:
             # LOAD_CONST code object ..
             # LOAD_CONST        'x0'
             # MAKE_FUNCTION ..
-            func_name =  node[-2].attr
-            code_index = -3
+            if self.version >= 3.4:
+                func_name =  node[-2].attr
+                code_index = -3
+            elif self.version == 3.3:
+                func_name = node[-2].pattr
+                code_index = -3
+            else:
+                func_name = node[-2].attr.co_name
+                code_index = -2
+            pass
         else:
             # LOAD_CONST code object ..
             # MAKE_FUNCTION ..
@@ -972,9 +981,12 @@ class Walker(GenericASTTraversal, object):
         self.prec = 27
         code = node[code_index].attr
 
+        if isinstance(code, GenericPythonCode):
+            self.write(' for i_am in ["Python 2-3 deparsing limitation"]')
+            return
+
         assert inspect.iscode(code)
         code = Code(code, self.scanner, self.currentclass)
-        # assert isinstance(code, Code)
 
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
@@ -1018,6 +1030,10 @@ class Walker(GenericASTTraversal, object):
         p = self.prec
         self.prec = 27
         code = node[code_index].attr
+
+        if isinstance(code, GenericPythonCode):
+            self.write(' for i_am in ["Python 2-3 deparsing limitation"]')
+            return
 
         assert inspect.iscode(code)
         code = Code(code, self.scanner, self.currentclass)
@@ -1437,6 +1453,10 @@ class Walker(GenericASTTraversal, object):
 
         defparams = node[:node[-1].attr]
         code = node[code_index].attr
+
+        if isinstance(code, GenericPythonCode):
+            self.write('(limitation="Cross Python 2/3 deparsing")')
+            return
 
         assert inspect.iscode(code)
         code = Code(code, self.scanner, self.currentclass)

@@ -1,3 +1,12 @@
+uncompyle6 1.0.0 2015-12-27
+
+- Python 3.x deparsing much more solid
+- Better cross-version deparsing
+
+Some bugs squashed while other run rampant. Some code cleanup while
+much more is yet needed. More tests added, but many more are needed.
+
+
 uncompyle6 1.0.0 2015-12-11
 
 Changes from uncompyle2

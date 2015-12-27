@@ -1,6 +1,10 @@
 """
-opcode module - potentially shared between dis and other modules which
-operate on bytecodes (e.g. peephole optimizers).
+CPython 2.4 bytecode opcodes
+
+This is used in scanner (bytecode disassembly) and parser (Python grammar).
+
+This is a superset of Python 2.4's opcode.py with some opcodes that simplify
+parsing and semantic interpretation.
 """
 
 __all__ = ["cmp_op", "hasconst", "hasname", "hasjrel", "hasjabs",

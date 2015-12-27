@@ -32,6 +32,14 @@ else:
 from uncompyle6.opcodes import opcode_25, opcode_26, opcode_27, opcode_32, opcode_33, opcode_34
 
 
+class GenericPythonCode:
+    '''
+    Class for representing code-like objects across different versions of
+    Python.
+    '''
+    def __init__(self):
+        return
+
 class Code:
     '''
     Class for representing code-objects.
@@ -46,9 +54,9 @@ class Code:
         self._tokens, self._customize = scanner.disassemble(co, classname)
 
 class Scanner(object):
-    opc = None # opcode module
 
     def __init__(self, version):
+        # FIXME: DRY
         if version == 2.7:
             self.opc = opcode_27
         elif version == 2.6:
@@ -61,13 +69,11 @@ class Scanner(object):
             self.opc = opcode_33
         elif version == 3.4:
             self.opc = opcode_34
+        else:
+            raise TypeError("%i is not a Python version I know about")
 
         # FIXME: This weird Python2 behavior is not Python3
         self.resetTokenClass()
-
-    def setShowAsm(self, showasm, out=None):
-        self.showasm = showasm
-        self.out = out
 
     def setTokenClass(self, tokenClass):
         # assert isinstance(tokenClass, types.ClassType)

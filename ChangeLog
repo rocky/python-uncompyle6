@@ -1,3 +1,120 @@
+2015-12-27  rocky <rb@dustyfeet.com>
+
+	* README.rst, test/bytecompile-tests, uncompyle6/opcodes/Makefile,
+	uncompyle6/opcodes/opcode_23.py, uncompyle6/opcodes/opcode_24.py,
+	uncompyle6/opcodes/opcode_25.py, uncompyle6/opcodes/opcode_26.py,
+	uncompyle6/opcodes/opcode_27.py, uncompyle6/opcodes/opcode_32.py,
+	uncompyle6/opcodes/opcode_33.py, uncompyle6/opcodes/opcode_34.py,
+	uncompyle6/parser.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanner.py, uncompyle6/scanners/scanner25.py,
+	uncompyle6/scanners/scanner26.py, uncompyle6/scanners/scanner27.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/scanners/scanner32.py,
+	uncompyle6/scanners/scanner33.py, uncompyle6/scanners/scanner34.py,
+	uncompyle6/semantics/fragments.py, uncompyle6/semantics/pysource.py: 
+	DRY Python3 scanner code. Some cross version handling fixed.  Some
+	Python 3.2 and 3.3 deparse fixes.
+
+2015-12-26  rocky <rb@dustyfeet.com>
+
+	* .travis.yml, test/Makefile, uncompyle6/verify.py: Running native
+	on Python 3.3 needs more work
+
+2015-12-26  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/test_pythonlib.py: Add ok-2.7 tests for 3.4
+	full testing
+
+2015-12-26  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/bytecompile-tests, test/test_pythonlib.py: Add
+	verify tests. Add Python 2.6 bytecode and use.
+
+2015-12-26  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Add node and template code to
+	cleanup "for" handling
+
+2015-12-26  rocky <rb@dustyfeet.com>
+
+	* .travis.yml: Try Python 2.6 testing on travis
+
+2015-12-26  rocky <rb@dustyfeet.com>
+
+	* test/Makefile: For testing we can't 3.3 bytecodes on 2.7 yet, so
+	use 3.2
+
+2015-12-26  rocky <rb@dustyfeet.com>
+
+	* .travis.yml, Makefile, requirements-dev.txt, test/Makefile,
+	test/bytecompile-tests, test/test_pythonlib.py,
+	uncompyle6/__init__.py, uncompyle6/opcodes/opcode_32.py,
+	uncompyle6/opcodes/opcode_33.py, uncompyle6/opcodes/opcode_34.py,
+	uncompyle6/scanner.py, uncompyle6/scanners/scanner32.py,
+	uncompyle6/scanners/scanner33.py, uncompyle6/scanners/scanner34.py,
+	uncompyle6/semantics/pysource.py: Fix up Python 3.2, 3.3, and 3.4
+	cross-version scanners Try travis 2.6 and 3.3
+
+2015-12-26  rocky <rb@dustyfeet.com>
+
+	* .travis.yml: Travis: try checking 3.4
+
+2015-12-26  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/exception/05_try_except.py,
+	test/simple_source/looping/10_while.py,
+	test/simple_source/looping/while.py,
+	test/simple_source/simple_stmts/00_assign.py,
+	test/simple_source/simple_stmts/00_import.py,
+	test/simple_source/simple_stmts/00_pass.py,
+	test/simple_source/simple_stmts/15_assert.py,
+	test/simple_source/stmts/00_assign.py,
+	test/simple_source/stmts/00_import.py,
+	test/simple_source/stmts/00_pass.py,
+	test/simple_source/stmts/15_assert.py,
+	test/simple_source/stmts/15_for_if.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanners/scanner32.py, uncompyle6/scanners/scanner34.py: 
+	Fix up looping by reinstating JUMP_ABSOLUTE -> JUMP_BACK or CONTINUE
+	get jump offsets into jump attributes. Fix up 3.2 scanner paritally
+	and use that in 3.4 for in cross version disassembly.
+
+2015-12-26  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/exception/01_try_except.py,
+	test/simple_source/exception/05_try_except.py, uncompyle6/main.py,
+	uncompyle6/opcodes/opcode_34.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/semantics/pysource.py: Python3 try/except handling
+	improvements. Add Walker exception and use that: fixes erroneous
+	uncompyle success message on parse error.
+
+2015-12-25  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/exception/01_try_except.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py: WIP redo
+	try/except for Python3
+
+2015-12-25  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Fix bugs in using pysource from
+	fragments.
+
+2015-12-25  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/Makefile, uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Two modes of disassembly, one
+	where we show hidden code and one where we don't.
+
+2015-12-25  rocky <rb@dustyfeet.com>
+
+	* README.rst: README.rst typos
+
+2015-12-25  rocky <rb@dustyfeet.com>
+
+	* .gitignore, ChangeLog, MANIFEST.in, NEWS, __pkginfo__.py,
+	test/Makefile: Get ready for releaes 2.0.0
+
 2015-12-25  rocky <rb@dustyfeet.com>
 
 	* pytest/test_deparse.py: Port deparse test from python-deparse to
