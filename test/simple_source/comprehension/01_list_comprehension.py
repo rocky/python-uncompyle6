@@ -12,7 +12,4 @@
 
 [ i for i in (1, 2, 3, 4) ]
 [ i+1 for i in (1, 2, 3, 4) ]
-
-# Try next:
-# [ i * i for i in range(4) ]
-# [ i * j for i in range(4) for j in range(7) ]
+[ i * i for i in range(4) ]
