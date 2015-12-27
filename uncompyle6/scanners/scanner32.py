@@ -9,19 +9,21 @@ for later use in deparsing.
 
 from __future__ import print_function
 
-import uncompyle6.scanners.scanner33 as scan33
-import uncompyle6.scanner as scan
+import uncompyle6.scanners.scanner3 as scan3
 
-class Scanner32(scan.Scanner):
-    def __init__(self):
-        scan.Scanner.__init__(self, 3.2) # check
+import uncompyle6.opcodes.opcode_34
+# verify uses JUMP_OPs from here
+JUMP_OPs = uncompyle6.opcodes.opcode_34.JUMP_OPs
+
+class Scanner32(scan3.Scanner3):
 
     def disassemble(self, co, classname=None):
-        return scan33.Scanner33().disassemble(co, classname)
+        return self.disassemble_generic(co, classname)
 
 if __name__ == "__main__":
+    import inspect
     co = inspect.currentframe().f_code
-    tokens, customize = Scanner33().disassemble(co)
+    tokens, customize = Scanner32().disassemble(co)
     for t in tokens:
         print(t)
     pass

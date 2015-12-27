@@ -445,18 +445,26 @@ class Traverser(pysource.Walker, object):
     def n_mkfunc(self, node):
         start = len(self.f.getvalue())
         old_name = self.name
-        if PYTHON3:
+        if self.version >= 3.0:
             # LOAD_CONST code object ..
-            # LOAD_CONST        'x0'
+            # LOAD_CONST        'x0'  if >= 3.3
             # MAKE_FUNCTION ..
-            self.name  = node[-2].attr
-            code_index = -3
+            if self.version >= 3.4:
+                func_name =  node[-2].attr
+                code_index = -3
+            elif self.version == 3.3:
+                func_name = node[-2].pattr
+                code_index = -3
+            else:
+                func_name = node[-2].attr.co_name
+                code_index = -2
+            pass
         else:
             # LOAD_CONST code object ..
             # MAKE_FUNCTION ..
-            self.name  = node[-2].attr.co_name
+            func_name =   node[-2].attr.co_name
             code_index = -2
-        self.write(self.name)
+        self.write(func_name)
         self.indentMore()
         self.make_function(node, isLambda=False, code_index=code_index)
         self.name = old_name

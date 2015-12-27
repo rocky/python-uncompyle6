@@ -53,12 +53,11 @@ class Python3Parser(PythonParser):
 
     def p_list_comprehension(self, args):
         '''
-        # Python3 adds LOAD_LISTCOMP and does list comprehension like
+        # Python3 scanner adds LOAD_LISTCOMP. Python3 does list comprehension like
         # other comprehensions (set, dictionary).
 
+        # listcomp is a custom rule
         expr ::= listcomp
-        listcomp ::= LOAD_LISTCOMP LOAD_CONST MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
-
 
         expr ::= list_compr
         list_compr ::= BUILD_LIST_0 list_iter
@@ -673,6 +672,14 @@ class Python3Parser(PythonParser):
         '''
 
     def custom_buildclass_rule(self, opname, i, token, tokens, customize):
+        """
+        Python >= 3.3:
+          buildclass ::= LOAD_BUILD_CLASS mkfunc LOAD_CONST LOAD_CLASSNAME CALL_FUNCTION_3
+        Python < 3.3
+          buildclass ::= LOAD_BUILD_CLASS LOAD_CONST MAKE_FUNCTION_0 LOAD_CONST
+                         CALL_FUNCTION_n
+
+        """
 
         # look for next MAKE_FUNCTION
         for i in range(i+1, len(tokens)):
@@ -680,11 +687,15 @@ class Python3Parser(PythonParser):
                 break
             pass
         assert i < len(tokens)
-        assert tokens[i+1].type == 'LOAD_CONST'
+        if self.version >= 3.3:
+            assert tokens[i+1].type == 'LOAD_CONST'
+            load_check = 'LOAD_NAME'
+        else:
+            load_check = 'LOAD_CONST'
         # find load names
         have_loadname = False
         for i in range(i+1, len(tokens)):
-            if tokens[i].type == 'LOAD_NAME':
+            if tokens[i].type == load_check:
                 tokens[i].type = 'LOAD_CLASSNAME'
                 have_loadname = True
                 break
@@ -706,9 +717,14 @@ class Python3Parser(PythonParser):
             j = 0
             load_names = ''
         # customize CALL_FUNCTION
-        call_function = 'CALL_FUNCTION_%d' % (j + 2)
-        rule = ("buildclass ::= LOAD_BUILD_CLASS mkfunc LOAD_CONST %s%s" %
-                (load_names, call_function))
+        if self.version >= 3.3:
+            call_function = 'CALL_FUNCTION_%d' % (j + 2)
+            rule = ("buildclass ::= LOAD_BUILD_CLASS mkfunc LOAD_CONST %s%s" %
+                    (load_names, call_function))
+        else:
+            call_function = 'CALL_FUNCTION_%d' % (j + 1)
+            rule = ("buildclass ::= LOAD_BUILD_CLASS mkfunc %s%s" %
+                    (load_names, call_function))
         self.add_unique_rule(rule, opname, token.attr, customize)
         return
 
@@ -716,6 +732,15 @@ class Python3Parser(PythonParser):
         """
         Special handling for opcodes that take a variable number
         of arguments -- we add a new rule for each:
+
+            Python 3.4:
+            listcomp ::= LOAD_LISTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
+                         GET_ITER CALL_FUNCTION_1
+            Python < 3.4
+            listcomp ::= LOAD_LISTCOMP MAKE_FUNCTION_0 expr
+                         GET_ITER CALL_FUNCTION_1
+
+            buildclass (see load_build_class)
 
             build_list  ::= {expr}^n BUILD_LIST_n
             build_list  ::= {expr}^n BUILD_TUPLE_n
@@ -750,6 +775,14 @@ class Python3Parser(PythonParser):
                         + ('kwarg ' * args_kw)
                         + 'expr ' * nak + token.type)
                 self.add_unique_rule(rule, token.type, args_pos, customize)
+            elif opname == 'LOAD_LISTCOMP':
+                if self.version >= 3.4:
+                    rule = ("listcomp ::= LOAD_LISTCOMP LOAD_CONST MAKE_FUNCTION_0 expr "
+                            "GET_ITER CALL_FUNCTION_1")
+                else:
+                    rule = ("listcomp ::= LOAD_LISTCOMP MAKE_FUNCTION_0 expr "
+                            "GET_ITER CALL_FUNCTION_1")
+                self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname == 'LOAD_BUILD_CLASS':
                 self.custom_buildclass_rule(opname, i, token, tokens, customize)
             elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
@@ -763,7 +796,10 @@ class Python3Parser(PythonParser):
             elif opname_base == ('MAKE_FUNCTION'):
                 self.addRule('mklambda ::= %s LOAD_LAMBDA %s' %
                       ('expr ' * token.attr, opname), nop_func)
-                rule = 'mkfunc ::= %s LOAD_CONST LOAD_CONST %s' % ('expr ' * token.attr, opname)
+                if self.version >= 3.3:
+                    rule = 'mkfunc ::= %s LOAD_CONST LOAD_CONST %s' % ('expr ' * token.attr, opname)
+                else:
+                    rule = 'mkfunc ::= %s LOAD_CONST %s' % ('expr ' * token.attr, opname)
                 self.add_unique_rule(rule, opname, token.attr, customize)
                 pass
         return

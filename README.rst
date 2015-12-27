@@ -3,7 +3,8 @@
 uncompyle6
 ==========
 
-A native Python Byte-code Disassembler, Decompiler, and byte-code library
+A native Python Byte-code Disassembler, Decompiler, Fragment Decompiler
+and byte-code library
 
 
 Introduction
@@ -11,7 +12,8 @@ Introduction
 
 *uncompyle6* translates Python byte-code back into equivalent Python
 source code. It accepts byte-codes from Python version 2.5 to 3.4 or
-so and has been tested on Python 2.6,  2.7 and Python 3.4.
+so and has been tested on Python running verfsions 2.6, 2.7, 3.3 and
+3.4.
 
 Why this?
 ---------
@@ -83,9 +85,12 @@ for usage help
 Known Bugs/Restrictions
 -----------------------
 
-Python 3 deparsing is getting there, but not solid.  Using Python 2 to
-deparse Python 3 is problematic, especilly for versions 3.4 and
-greater.
+Python 2 deparsing is probably as solid as the various versions of
+uncompyle2.  Python 3 deparsing is not as solid.  Using Python 2 to
+deparse Python 3 has severe limitations, due to byte code format
+differences and the current inablity to retrieve code object fields across
+different Python versions. (I envy the pycdc C++ code which doesn't have such
+problems because they live totally outside of Python.)
 
 See Also
 --------

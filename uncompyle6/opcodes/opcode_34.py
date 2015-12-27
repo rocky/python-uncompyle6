@@ -1,9 +1,11 @@
 """
-opcode module - potentially shared between dis and other modules which
-operate on bytecodes (e.g. peephole optimizers).
-"""
+CPython 3.4 bytecode opcodes
 
-# Note: this should look exactly like Python 3.4's opcode.py
+This is used in scanner (bytecode disassembly) and parser (Python grammar).
+
+This is a superset of Python 3.4's opcode.py with some opcodes that simplify
+parsing and semantic interpretation.
+"""
 
 __all__ = ["cmp_op", "hasconst", "hasname", "hasjrel", "hasjabs",
            "haslocal", "hascompare", "hasfree", "opname", "opmap",
@@ -43,8 +45,8 @@ def jabs_op(name, op):
     hasjabs.append(op)
 
 def updateGlobal():
-    # JUMP_OPs are used in verification and in the scanner in resolving forward/backward
-    # jumps
+    # JUMP_OPs are used in verification are set in the scanner
+    # and used in the parser grammar
     globals().update({'PJIF': opmap['POP_JUMP_IF_FALSE']})
     globals().update({'PJIT': opmap['POP_JUMP_IF_TRUE']})
     globals().update({'JA': opmap['JUMP_ABSOLUTE']})
@@ -215,3 +217,8 @@ EXTENDED_ARG = 144
 
 updateGlobal()
 del def_op, name_op, jrel_op, jabs_op
+
+from uncompyle6 import PYTHON_VERSION
+if PYTHON_VERSION == 3.4:
+    import dis
+    assert all(item in opmap.items() for item in dis.opmap.items())
