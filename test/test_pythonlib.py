@@ -44,7 +44,8 @@ src_dir = get_srcdir()
 
 #----- configure this for your needs
 
-lib_prefix = [src_dir, '/usr/lib/', '/usr/local/lib/']
+lib_prefix = '/usr/lib'
+#lib_prefix = [src_dir, '/usr/lib/', '/usr/local/lib/']
 
 target_base = tempfile.mkdtemp(prefix='py-dis-')
 
@@ -57,9 +58,6 @@ test_options = {
     # name:   (src_basedir, pattern, output_base_suffix, pythoin_version)
     'test':
         ('test', PYC, 'test'),
-
-    '2.7':
-        ('python2.7', PYC, 'python2.7', 2.7),
 
     'ok-2.6':
         (os.path.join(src_dir, 'ok_2.6'),
@@ -76,6 +74,9 @@ for  vers in (2.5, 2.6, 2.7, 3.2, 3.3, 3.4):
     bytecode = "bytecode_%s" % vers
     key = "bytecode-%s" % vers
     test_options[key] =  (bytecode, PYC, bytecode, vers)
+    key = "%s" % vers
+    pythonlib = "python%s" % vers
+    test_options[key] =  (os.path.join(lib_prefix, pythonlib), PYC, pythonlib, vers)
 
 #-----
 
@@ -83,13 +84,14 @@ def help():
     print("""Usage-Examples:
 
   # compile, decompyle and verify short tests for Python 2.7:
-  test_pythonlib.py --base-2.7 --verify --compile
+  test_pythonlib.py --bytecode-2.7 --verify --compile
+
+  # decompile all of Python's installed lib files
+  test_pythonlib.py --2.7
 
   # decompile and verify known good python 2.7
   test_pythonlib.py --ok-2.7 --verify
 
-  # decompile all of Python's installed lib files
-  test_pythonlib.py --2.7
 """)
     sys.exit(1)
 
