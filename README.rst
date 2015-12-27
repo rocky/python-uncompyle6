@@ -12,7 +12,7 @@ Introduction
 
 *uncompyle6* translates Python byte-code back into equivalent Python
 source code. It accepts byte-codes from Python version 2.5 to 3.4 or
-so and has been tested on Python running verfsions 2.6, 2.7, 3.3 and
+so and has been tested on Python running versions 2.6, 2.7, 3.3 and
 3.4.
 
 Why this?
@@ -23,7 +23,7 @@ ability to deparse just fragments and give source-code information
 around a given bytecode offset.
 
 I using this to deparse fragments of code inside my trepan_
-debuggers_. For that, I need to record text fragements for all
+debuggers_. For that, I need to record text fragments for all
 byte-code offsets (of interest). This purpose although largely
 compatible with the original intention is yet a little bit different.
 See this_ for more information.

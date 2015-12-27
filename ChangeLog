@@ -1,6 +1,12 @@
 2015-12-27  rocky <rb@dustyfeet.com>
 
-	* README.rst, test/bytecompile-tests, uncompyle6/opcodes/Makefile,
+	* ChangeLog, NEWS, README.rst, __pkginfo__.py: Get ready for release
+	2.1.1
+
+2015-12-27  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, README.rst, __pkginfo__.py,
+	test/bytecompile-tests, uncompyle6/opcodes/Makefile,
 	uncompyle6/opcodes/opcode_23.py, uncompyle6/opcodes/opcode_24.py,
 	uncompyle6/opcodes/opcode_25.py, uncompyle6/opcodes/opcode_26.py,
 	uncompyle6/opcodes/opcode_27.py, uncompyle6/opcodes/opcode_32.py,
