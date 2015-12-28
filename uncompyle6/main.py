@@ -2,7 +2,7 @@ from __future__ import print_function
 import datetime, inspect, os, sys
 
 from uncompyle6.disas import check_object_path
-from uncompyle6 import verify
+from uncompyle6 import verify, PYTHON_VERSION
 from uncompyle6.semantics import pysource
 
 from uncompyle6.load import load_module
@@ -17,7 +17,8 @@ def uncompyle(version, co, out=None, showasm=False, showast=False,
 
     # store final output stream for case of error
     real_out = out or sys.stdout
-    print('# Python %s' % version, file=real_out)
+    print('# Python %s (decompiled from Python %s)' % (version, PYTHON_VERSION),
+          file=real_out)
     if co.co_filename:
         print('# Embedded file name: %s' % co.co_filename,
               file=real_out)

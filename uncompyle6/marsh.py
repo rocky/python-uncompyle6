@@ -22,6 +22,7 @@ import uncompyle6.scanners.scanner3 as scan3
 from uncompyle6.magics import PYTHON_MAGIC_INT
 
 internStrings = []
+internObjects = []
 
 PYTHON3 = (sys.version_info >= (3, 0))
 
@@ -56,106 +57,109 @@ def load_code(fp, magic_int, code_objects={}):
     fp.seek(seek_pos)
     return load_code_internal(fp, magic_int, code_objects=code_objects)
 
-def load_code_internal(fp, magic_int, bytes_for_s=False, code_objects={}):
-    global internStrings
+def load_code_type(fp, magic_int, bytes_for_s=False, code_objects={}):
+    # Python [1.3 .. 2.3)
+    # FIXME: find out what magics were for 1.3
+    v13_to_23 = magic_int in (20121, 50428, 50823, 60202, 60717)
 
-    b1 = ord(fp.read(1))
-    if b1 & 0x80:
-        raise TypeError("Can't handle object references yet")
-        code = load_code_type(fp, magic_int, bytes_for_s, code_objects)
-        # FIXME: do something with reference?
-        return code
+    # Python [1.5 .. 2.3)
+    v15_to_23 = magic_int in (20121, 50428, 50823, 60202, 60717)
 
-    marshalType = chr(b1)
-    if marshalType == 'c':
+    if v13_to_23:
+        co_argcount = unpack('h', fp.read(2))[0]
+    else:
+        co_argcount = unpack('i', fp.read(4))[0]
+
+    if 3020 < magic_int < 20121:
+        kwonlyargcount = unpack('i', fp.read(4))[0]
+    else:
+        kwonlyargcount = 0
+
+    if v13_to_23:
+        co_nlocals = unpack('h', fp.read(2))[0]
+    else:
+        co_nlocals = unpack('i', fp.read(4))[0]
+
+    if v15_to_23:
+        co_stacksize = unpack('h', fp.read(2))[0]
+    else:
+        co_stacksize = unpack('i', fp.read(4))[0]
+
+    if v13_to_23:
+        co_flags = unpack('h', fp.read(2))[0]
+    else:
+        co_flags = unpack('i', fp.read(4))[0]
+
+    co_code = load_code_internal(fp, magic_int, bytes_for_s=True,
+                                 code_objects=code_objects)
+    co_consts = load_code_internal(fp, magic_int, code_objects=code_objects)
+    co_names = load_code_internal(fp, magic_int, code_objects=code_objects)
+    co_varnames = load_code_internal(fp, magic_int, code_objects=code_objects)
+    co_freevars = load_code_internal(fp, magic_int, code_objects=code_objects)
+    co_cellvars = load_code_internal(fp, magic_int, code_objects=code_objects)
+    co_filename = load_code_internal(fp, magic_int, code_objects=code_objects)
+    co_name = load_code_internal(fp, magic_int)
+    co_firstlineno = unpack('i', fp.read(4))[0]
+    co_lnotab = load_code_internal(fp, magic_int, code_objects=code_objects)
+
+    # The Python3 code object is different than Python2's which
+    # we are reading if we get here.
+    # Also various parameters which were strings are now
+    # bytes (which is probably more logical).
+    if PYTHON3:
         Code = types.CodeType
-
-        # Python [1.3 .. 2.3)
-        # FIXME: find out what magics were for 1.3
-        v13_to_23 = magic_int in (20121, 50428, 50823, 60202, 60717)
-
-        # Python [1.5 .. 2.3)
-        v15_to_23 = magic_int in (20121, 50428, 50823, 60202, 60717)
-
-        if v13_to_23:
-            co_argcount = unpack('h', fp.read(2))[0]
+        if PYTHON_MAGIC_INT > 3020:
+            # In later Python3 magic_ints, there is a
+            # kwonlyargcount parameter which we set to 0.
+            code = Code(co_argcount, kwonlyargcount, co_nlocals, co_stacksize, co_flags,
+                        co_code, co_consts, co_names, co_varnames, co_filename, co_name,
+                        co_firstlineno, bytes(co_lnotab, encoding='utf-8'),
+                        co_freevars, co_cellvars)
         else:
-            co_argcount = unpack('i', fp.read(4))[0]
-
-        if 3020 < magic_int < 20121:
-            kwonlyargcount = unpack('i', fp.read(4))[0]
+            code =  Code(co_argcount, kwonlyargcount, co_nlocals, co_stacksize, co_flags,
+                        co_code, co_consts, co_names, co_varnames, co_filename, co_name,
+                        co_firstlineno, bytes(co_lnotab, encoding='utf-8'),
+                        co_freevars, co_cellvars)
+    else:
+        if (3000 <= magic_int < 20121):
+            # Python 3  encodes some fields as Unicode while Python2
+            # requires the corresponding field to have string values
+            co_consts = tuple([str(s) if s else None for s in co_consts])
+            co_names  = tuple([str(s) if s else None for s in co_names])
+            co_varnames  = tuple([str(s) if s else None for s in co_varnames])
+            co_filename = str(co_filename)
+            co_name = str(co_name)
+        if 3020 < magic_int <= 20121:
+            code =  scan3.Code3(co_argcount, kwonlyargcount,
+                                co_nlocals, co_stacksize, co_flags, co_code,
+                                co_consts, co_names, co_varnames, co_filename, co_name,
+                                co_firstlineno, co_lnotab, co_freevars, co_cellvars)
         else:
-            kwonlyargcount = 0
+            Code = types.CodeType
+            code =  Code(co_argcount, co_nlocals, co_stacksize, co_flags, co_code,
+                         co_consts, co_names, co_varnames, co_filename, co_name,
+                         co_firstlineno, co_lnotab, co_freevars, co_cellvars)
+            pass
+        pass
+    code_objects[str(code)] = code
+    return code
 
-        if v13_to_23:
-            co_nlocals = unpack('h', fp.read(2))[0]
-        else:
-            co_nlocals = unpack('i', fp.read(4))[0]
+def load_code_internal(fp, magic_int, bytes_for_s=False,
+                       code_objects={}, marshalType=None):
+    global internStrings, internObjects
 
-        if v15_to_23:
-            co_stacksize = unpack('h', fp.read(2))[0]
-        else:
-            co_stacksize = unpack('i', fp.read(4))[0]
+    if marshalType is None:
+        b1 = ord(fp.read(1))
+        if b1 & 0x80:
+            b1 = b1 &0x7f
+            code = load_code_internal(fp, magic_int, bytes_for_s=False,
+                                      code_objects=code_objects,
+                                      marshalType=chr(b1))
+            internObjects.append(code)
+            return code
+        marshalType = chr(b1)
 
-        if v13_to_23:
-            co_flags = unpack('h', fp.read(2))[0]
-        else:
-            co_flags = unpack('i', fp.read(4))[0]
-
-        co_code = load_code_internal(fp, magic_int, bytes_for_s=True,
-                                     code_objects=code_objects)
-        co_consts = load_code_internal(fp, magic_int, code_objects=code_objects)
-        co_names = load_code_internal(fp, magic_int, code_objects=code_objects)
-        co_varnames = load_code_internal(fp, magic_int, code_objects=code_objects)
-        co_freevars = load_code_internal(fp, magic_int, code_objects=code_objects)
-        co_cellvars = load_code_internal(fp, magic_int, code_objects=code_objects)
-        co_filename = load_code_internal(fp, magic_int, code_objects=code_objects)
-        co_name = load_code_internal(fp, magic_int)
-        co_firstlineno = unpack('i', fp.read(4))[0]
-        co_lnotab = load_code_internal(fp, magic_int, code_objects=code_objects)
-        # The Python3 code object is different than Python2's which
-        # we are reading if we get here.
-        # Also various parameters which were strings are now
-        # bytes (which is probably more logical).
-        if PYTHON3:
-            if PYTHON_MAGIC_INT > 3020:
-                # In later Python3 magic_ints, there is a
-                # kwonlyargcount parameter which we set to 0.
-                code = Code(co_argcount, kwonlyargcount, co_nlocals, co_stacksize, co_flags,
-                            co_code, co_consts, co_names, co_varnames, co_filename, co_name,
-                            co_firstlineno, bytes(co_lnotab, encoding='utf-8'),
-                            co_freevars, co_cellvars)
-            else:
-                code =  Code(co_argcount, kwonlyargcount, co_nlocals, co_stacksize, co_flags,
-                            co_code, co_consts, co_names, co_varnames, co_filename, co_name,
-                            co_firstlineno, bytes(co_lnotab, encoding='utf-8'),
-                            co_freevars, co_cellvars)
-        else:
-            if (3000 <= magic_int < 20121):
-                # Python 3  encodes some fields as Unicode while Python2
-                # requires the corresponding field to have string values
-                co_consts = tuple([str(s) if s else None for s in co_consts])
-                co_names  = tuple([str(s) if s else None for s in co_names])
-                co_varnames  = tuple([str(s) if s else None for s in co_varnames])
-                co_filename = str(co_filename)
-                co_name = str(co_name)
-            if 3020 < magic_int <= 20121:
-                code =  scan3.Code3(co_argcount, kwonlyargcount,
-                                    co_nlocals, co_stacksize, co_flags, co_code,
-                                    co_consts, co_names, co_varnames, co_filename, co_name,
-                                    co_firstlineno, co_lnotab, co_freevars, co_cellvars)
-            else:
-                code =  Code(co_argcount, co_nlocals, co_stacksize, co_flags, co_code,
-                        co_consts, co_names, co_varnames, co_filename, co_name,
-                        co_firstlineno, co_lnotab, co_freevars, co_cellvars)
-
-        code_objects[str(code)] = code
-        return code
-
-    elif marshalType == 'C':
-        raise KeyError("New-style code not finished yet")
-    # const type
-    elif marshalType == '0':
+    if marshalType == '0':
         # Null
         return None
     elif marshalType == 'N':
@@ -221,7 +225,8 @@ def load_code_internal(fp, magic_int, bytes_for_s=False, code_objects={}):
         return internStrings[refnum]
     elif marshalType == 'r':
         # object reference - new in Python3
-        raise KeyError("reference code not finished yet")
+        refnum = unpack('i', fp.read(4))[0]
+        return internObjects[refnum-1]
     elif marshalType == '(':
         tuplesize = unpack('i', fp.read(4))[0]
         ret = tuple()
@@ -234,8 +239,9 @@ def load_code_internal(fp, magic_int, bytes_for_s=False, code_objects={}):
     elif marshalType == '{':
         # dictionary
         raise KeyError(marshalType)
-    elif marshalType == '{':
-        raise KeyError(marshalType)
+    elif marshalType == 'c':
+        return load_code_type(fp, magic_int, bytes_for_s=False,
+                              code_objects=code_objects)
     elif marshalType == 'C':
         # code type used in Python 1.0 - 1.2
         raise KeyError("C code is Python 1.0 - 1.2; can't handle yet")
@@ -260,26 +266,26 @@ def load_code_internal(fp, magic_int, bytes_for_s=False, code_objects={}):
         s = compat_str(s)
         return s
     elif marshalType == 'A':
-        # ascii interned
+        # ascii interned - since Python3
         # FIXME: check
         strsize = unpack('i', fp.read(4))[0]
         interned = compat_str(fp.read(strsize))
         internStrings.append(interned)
         return interned
     elif marshalType == ')':
-        # small tuple
+        # small tuple - since Python3
         tuplesize = unpack('B', fp.read(1))[0]
         ret = tuple()
         while tuplesize > 0:
-            ret += load_code_internal(fp, magic_int, refs, code_objects=code_objects),
+            ret += load_code_internal(fp, magic_int, code_objects=code_objects),
             tuplesize -= 1
         return ret
     elif marshalType == 'z':
-        # short ascii
+        # short ascii - since Python3
         strsize = unpack('B', fp.read(1))[0]
         return compat_str(fp.read(strsize))
     elif marshalType == 'Z':
-        # short ascii interned
+        # short ascii interned - since Python3
         # FIXME: check
         strsize = unpack('B', fp.read(1))[0]
         interned = compat_str(fp.read(strsize))
