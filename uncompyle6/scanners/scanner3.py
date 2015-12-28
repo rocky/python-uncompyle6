@@ -22,6 +22,29 @@ globals().update(dis.opmap)
 from uncompyle6.opcodes.opcode_33 import *
 import uncompyle6.scanner as scan
 
+class Code3:
+    """Class for a Python3 code object used when a Python interpreter less than 3 is
+    working on Python3 bytecode
+    """
+    def __init__(self, co_argcount, co_kwonlyargcount,co_nlocals, co_stacksize, co_flags, co_code,
+                 co_consts, co_names, co_varnames, co_filename, co_name,
+                 co_firstlineno, co_lnotab, co_freevars, co_cellvars):
+        self.co_argcount = co_argcount
+        self.co_kwonlyargcount = co_kwonlyargcount
+        self.co_nlocals = co_nlocals
+        self.co_stacksize = co_stacksize
+        self.co_flags = co_flags
+        self.co_code = co_code
+        self.co_consts = co_consts
+        self.co_names = co_names
+        self.co_varnames = co_varnames
+        self.co_filename = co_filename
+        self.co_name = co_name
+        self.co_firstlineno = co_firstlineno
+        self.co_lnotab = co_lnotab
+        self.co_freevars = co_freevars
+        self.co_cellvars = co_cellvars
+
 
 class Scanner3(scan.Scanner):
 

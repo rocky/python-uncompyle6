@@ -18,6 +18,7 @@ from __future__ import print_function
 import sys, types
 from struct import unpack
 
+import uncompyle6.scanners.scanner3 as scan3
 from uncompyle6.magics import PYTHON_MAGIC_INT
 
 internStrings = []
@@ -60,23 +61,46 @@ def load_code_internal(fp, magic_int, bytes_for_s=False, code_objects={}):
 
     b1 = ord(fp.read(1))
     if b1 & 0x80:
-        TypeError("Can't handle object references yet")
+        raise TypeError("Can't handle object references yet")
+        code = load_code_type(fp, magic_int, bytes_for_s, code_objects)
+        # FIXME: do something with reference?
+        return code
 
     marshalType = chr(b1)
     if marshalType == 'c':
         Code = types.CodeType
 
-        # FIXME If 'i' is deprecated, what would we use?
-        co_argcount = unpack('i', fp.read(4))[0]
-        co_nlocals = unpack('i', fp.read(4))[0]
-        co_stacksize = unpack('i', fp.read(4))[0]
-        co_flags = unpack('i', fp.read(4))[0]
-        # FIXME: somewhere between Python 2.7 and python 3.2 there's
-        # another 4 bytes before we get to the bytecode. What's going on?
-        # Again, because magic ints decreased between python 2.7 and 3.0 we need
-        # a range here.
-        if 3000 < magic_int < 20121:
-            fp.read(4)
+        # Python [1.3 .. 2.3)
+        # FIXME: find out what magics were for 1.3
+        v13_to_23 = magic_int in (20121, 50428, 50823, 60202, 60717)
+
+        # Python [1.5 .. 2.3)
+        v15_to_23 = magic_int in (20121, 50428, 50823, 60202, 60717)
+
+        if v13_to_23:
+            co_argcount = unpack('h', fp.read(2))[0]
+        else:
+            co_argcount = unpack('i', fp.read(4))[0]
+
+        if 3020 < magic_int < 20121:
+            kwonlyargcount = unpack('i', fp.read(4))[0]
+        else:
+            kwonlyargcount = 0
+
+        if v13_to_23:
+            co_nlocals = unpack('h', fp.read(2))[0]
+        else:
+            co_nlocals = unpack('i', fp.read(4))[0]
+
+        if v15_to_23:
+            co_stacksize = unpack('h', fp.read(2))[0]
+        else:
+            co_stacksize = unpack('i', fp.read(4))[0]
+
+        if v13_to_23:
+            co_flags = unpack('h', fp.read(2))[0]
+        else:
+            co_flags = unpack('i', fp.read(4))[0]
 
         co_code = load_code_internal(fp, magic_int, bytes_for_s=True,
                                      code_objects=code_objects)
@@ -92,24 +116,22 @@ def load_code_internal(fp, magic_int, bytes_for_s=False, code_objects={}):
         # The Python3 code object is different than Python2's which
         # we are reading if we get here.
         # Also various parameters which were strings are now
-            # bytes (which is probably more logical).
+        # bytes (which is probably more logical).
         if PYTHON3:
             if PYTHON_MAGIC_INT > 3020:
                 # In later Python3 magic_ints, there is a
                 # kwonlyargcount parameter which we set to 0.
-                code = Code(co_argcount, 0, co_nlocals, co_stacksize, co_flags,
-                            co_code,
-                            co_consts, co_names, co_varnames, co_filename, co_name,
+                code = Code(co_argcount, kwonlyargcount, co_nlocals, co_stacksize, co_flags,
+                            co_code, co_consts, co_names, co_varnames, co_filename, co_name,
                             co_firstlineno, bytes(co_lnotab, encoding='utf-8'),
                             co_freevars, co_cellvars)
             else:
-                code =  Code(co_argcount, 0, co_nlocals, co_stacksize, co_flags,
-                            co_code,
-                            co_consts, co_names, co_varnames, co_filename, co_name,
+                code =  Code(co_argcount, kwonlyargcount, co_nlocals, co_stacksize, co_flags,
+                            co_code, co_consts, co_names, co_varnames, co_filename, co_name,
                             co_firstlineno, bytes(co_lnotab, encoding='utf-8'),
                             co_freevars, co_cellvars)
         else:
-            if (3000 < magic_int < 20121):
+            if (3000 <= magic_int < 20121):
                 # Python 3  encodes some fields as Unicode while Python2
                 # requires the corresponding field to have string values
                 co_consts = tuple([str(s) if s else None for s in co_consts])
@@ -117,45 +139,57 @@ def load_code_internal(fp, magic_int, bytes_for_s=False, code_objects={}):
                 co_varnames  = tuple([str(s) if s else None for s in co_varnames])
                 co_filename = str(co_filename)
                 co_name = str(co_name)
-            code =  Code(co_argcount, co_nlocals, co_stacksize, co_flags, co_code,
+            if 3020 < magic_int <= 20121:
+                code =  scan3.Code3(co_argcount, kwonlyargcount,
+                                    co_nlocals, co_stacksize, co_flags, co_code,
+                                    co_consts, co_names, co_varnames, co_filename, co_name,
+                                    co_firstlineno, co_lnotab, co_freevars, co_cellvars)
+            else:
+                code =  Code(co_argcount, co_nlocals, co_stacksize, co_flags, co_code,
                         co_consts, co_names, co_varnames, co_filename, co_name,
                         co_firstlineno, co_lnotab, co_freevars, co_cellvars)
+
         code_objects[str(code)] = code
         return code
 
     elif marshalType == 'C':
         raise KeyError("New-style code not finished yet")
     # const type
-    elif marshalType == '.':
-        return Ellipsis
     elif marshalType == '0':
-        raise KeyError(marshalType)
+        # Null
         return None
     elif marshalType == 'N':
         return None
-    elif marshalType == 'T':
-        return True
     elif marshalType == 'F':
         return False
+    elif marshalType == 'T':
+        return True
     elif marshalType == 'S':
         return StopIteration
-    # number type
+    elif marshalType == '.':
+        return Ellipsis
+    elif marshalType == 'i':
+        # int
+        return int(unpack('i', fp.read(4))[0])
+    elif marshalType == 'I':
+        # int64
+        return unpack('q', fp.read(8))[0]
     elif marshalType == 'f':
+        # float
         n = fp.read(1)
         return float(unpack('d', fp.read(n))[0])
     elif marshalType == 'g':
+        # binary float
         return float(unpack('d', fp.read(8))[0])
-    elif marshalType == 'i':
-        return int(unpack('i', fp.read(4))[0])
-    elif marshalType == 'I':
-        return unpack('q', fp.read(8))[0]
     elif marshalType == 'x':
+        # complex
         raise KeyError(marshalType)
-        return None
     elif marshalType == 'y':
+        # binary complex
         raise KeyError(marshalType)
         return None
     elif marshalType == 'l':
+        # long
         n = unpack('i', fp.read(4))[0]
         if n == 0:
             return long(0)
@@ -167,26 +201,27 @@ def load_code_internal(fp, magic_int, bytes_for_s=False, code_objects={}):
         if n < 0:
             return long(d*-1)
         return d
-    # strings type
-    elif marshalType == 'R':
-        refnum = unpack('i', fp.read(4))[0]
-        return internStrings[refnum]
     elif marshalType == 's':
+        # string
+        # Note: could mean bytes in Python3 processing Python2 bytecode
         strsize = unpack('i', fp.read(4))[0]
         s = fp.read(strsize)
         if not bytes_for_s:
             s = compat_str(s)
         return s
     elif marshalType == 't':
+        # interned
         strsize = unpack('i', fp.read(4))[0]
         interned = compat_str(fp.read(strsize))
         internStrings.append(interned)
         return interned
-    elif marshalType == 'u':
-        strsize = unpack('i', fp.read(4))[0]
-        unicodestring = fp.read(strsize)
-        return unicodestring.decode('utf-8')
-    # collection type
+    elif marshalType == 'R':
+        # string reference
+        refnum = unpack('i', fp.read(4))[0]
+        return internStrings[refnum]
+    elif marshalType == 'r':
+        # object reference - new in Python3
+        raise KeyError("reference code not finished yet")
     elif marshalType == '(':
         tuplesize = unpack('i', fp.read(4))[0]
         ret = tuple()
@@ -196,13 +231,61 @@ def load_code_internal(fp, magic_int, bytes_for_s=False, code_objects={}):
         return ret
     elif marshalType == '[':
         raise KeyError(marshalType)
-        return None
+    elif marshalType == '{':
+        # dictionary
+        raise KeyError(marshalType)
     elif marshalType == '{':
         raise KeyError(marshalType)
-        return None
+    elif marshalType == 'C':
+        # code type used in Python 1.0 - 1.2
+        raise KeyError("C code is Python 1.0 - 1.2; can't handle yet")
+    elif marshalType == 'u':
+        strsize = unpack('i', fp.read(4))[0]
+        unicodestring = fp.read(strsize)
+        return unicodestring.decode('utf-8')
     elif marshalType in ['<', '>']:
         raise KeyError(marshalType)
+    elif marshalType == '?':
+        # unknown
+        raise KeyError(marshalType)
+    elif marshalType in ['<', '>']:
+        # set and frozenset
+        raise KeyError(marshalType)
         return None
+    elif marshalType == 'a':
+        # ascii
+        # FIXME check
+        strsize = unpack('i', fp.read(4))[0]
+        s = fp.read(strsize)
+        s = compat_str(s)
+        return s
+    elif marshalType == 'A':
+        # ascii interned
+        # FIXME: check
+        strsize = unpack('i', fp.read(4))[0]
+        interned = compat_str(fp.read(strsize))
+        internStrings.append(interned)
+        return interned
+    elif marshalType == ')':
+        # small tuple
+        tuplesize = unpack('B', fp.read(1))[0]
+        ret = tuple()
+        while tuplesize > 0:
+            ret += load_code_internal(fp, magic_int, refs, code_objects=code_objects),
+            tuplesize -= 1
+        return ret
+    elif marshalType == 'z':
+        # short ascii
+        strsize = unpack('B', fp.read(1))[0]
+        return compat_str(fp.read(strsize))
+    elif marshalType == 'Z':
+        # short ascii interned
+        # FIXME: check
+        strsize = unpack('B', fp.read(1))[0]
+        interned = compat_str(fp.read(strsize))
+        internStrings.append(interned)
+        return interned
     else:
-        sys.stderr.write("Unknown type %i (hex %x)\n" % (ord(marshalType), ord(marshalType)))
+        sys.stderr.write("Unknown type %i (hex %x) %c\n" %
+                         (ord(marshalType), ord(marshalType), ord(marshalType)))
     return

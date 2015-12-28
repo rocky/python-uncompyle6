@@ -13,7 +13,7 @@ def uncompyle(version, co, out=None, showasm=False, showast=False,
     disassembles and deparses a given code block 'co'
     """
 
-    assert inspect.iscode(co)
+    assert hasattr(co, 'co_name')
 
     # store final output stream for case of error
     real_out = out or sys.stdout
@@ -33,6 +33,7 @@ def uncompyle(version, co, out=None, showasm=False, showast=False,
         if real_out != out:
             print(e, file=real_out)
         raise
+
 
 def uncompyle_file(filename, outstream=None, showasm=False, showast=False,
                    showgrammar=False):

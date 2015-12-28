@@ -29,7 +29,7 @@ def disco(version, co, out=None):
     diassembles and deparses a given code block 'co'
     """
 
-    assert inspect.iscode(co)
+    assert hasattr(co, 'co_name')
 
     # store final output stream for case of error
     real_out = out or sys.stdout

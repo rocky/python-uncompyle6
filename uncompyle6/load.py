@@ -34,22 +34,22 @@ def check_object_path(path):
     return path
 
 def load_file(filename):
-    '''
+    """
     load a Python source file and compile it to byte-code
     _load_file(filename: string): code_object
     filename:	name of file containing Python source code
                 (normally a .py)
     code_object: code_object compiled from this source code
     This function does NOT write any file!
-    '''
-    fp = open(filename, 'rb')
-    source = fp.read().decode('utf-8') + '\n'
-    try:
-        co = compile(source, filename, 'exec', dont_inherit=True)
-    except SyntaxError:
-        print('>>Syntax error in %s\n' % filename, file= sys.stderr)
-        raise
-    fp.close()
+    """
+    with open(filename, 'rb') as fp:
+        source = fp.read().decode('utf-8') + '\n'
+        try:
+            co = compile(source, filename, 'exec', dont_inherit=True)
+        except SyntaxError:
+            print('>>Syntax error in %s\n' % filename, file= sys.stderr)
+            raise
+        pass
     return co
 
 def load_module(filename, code_objects={}):

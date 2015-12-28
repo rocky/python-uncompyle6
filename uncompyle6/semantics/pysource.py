@@ -981,7 +981,7 @@ class Walker(GenericASTTraversal, object):
         self.prec = 27
         code = node[code_index].attr
 
-        assert inspect.iscode(code)
+        assert hasattr(code, 'co_name')
         code = Code(code, self.scanner, self.currentclass)
 
         ast = self.build_ast(code._tokens, code._customize)
@@ -1027,7 +1027,7 @@ class Walker(GenericASTTraversal, object):
         self.prec = 27
         code = node[code_index].attr
 
-        assert inspect.iscode(code)
+        assert hasattr(code, 'co_name')
         code = Code(code, self.scanner, self.currentclass)
         # assert isinstance(code, Code)
 
@@ -1446,7 +1446,7 @@ class Walker(GenericASTTraversal, object):
         defparams = node[:node[-1].attr]
         code = node[code_index].attr
 
-        assert inspect.iscode(code)
+        assert hasattr(code, 'co_name')
         code = Code(code, self.scanner, self.currentclass)
         # assert isinstance(code, Code)
 
@@ -1513,7 +1513,7 @@ class Walker(GenericASTTraversal, object):
     def build_class(self, code):
         """Dump class definition, doc string and class body."""
 
-        assert inspect.iscode(code)
+        assert hasattr(code, 'co_name')
         self.classes.append(self.currentclass)
         code = Code(code, self.scanner, self.currentclass)
         # assert isinstance(code, Code)
@@ -1624,7 +1624,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
     disassembles and deparses a given code block 'co'
     """
 
-    assert inspect.iscode(co)
+    assert hasattr(co, 'co_name')
     # store final output stream for case of error
     scanner = get_scanner(version)
 

@@ -481,7 +481,7 @@ class Traverser(pysource.Walker, object):
         self.prec = 27
         code = node[-5].attr
 
-        assert inspect.iscode(code)
+        assert hasattr(co, 'co_name')
         code = Code(code, self.scanner, self.currentclass)
         # assert isinstance(code, Code)
 
@@ -524,7 +524,8 @@ class Traverser(pysource.Walker, object):
         self.prec = 27
         code = node[code_index].attr
 
-        assert inspect.iscode(code)
+        assert hasattr(code, 'co_name')
+        ## Or Code3
         code = Code(code, self.scanner, self.currentclass)
         # assert isinstance(code, Code)
 
@@ -1244,7 +1245,7 @@ class Traverser(pysource.Walker, object):
 def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
                  showgrammar=False):
 
-    assert inspect.iscode(co)
+    assert hasattr(co, 'co_name')
     # store final output stream for case of error
     scanner = get_scanner(version)
 
