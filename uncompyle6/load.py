@@ -88,15 +88,16 @@ def load_module(filename, code_objects={}):
         magic_int = magics.magic2int(magic)
         my_magic_int = magics.magic2int(imp.get_magic())
 
+        # Note: a higher magic number doesn't necessarily mean a later
+        # release.  At Python 3.0 the magic number decreased
+        # significantly. Hence the range below. Also note inclusion of
+        # the size info, occurred within a Python major/minor
+        # release. Hence the test on the magic value rather than
+        # PYTHON_VERSION, although PYTHON_VERSION would probably work.
+        if 3200 <= magic_int < 20121:
+            fp.read(4) # size mod 2**32
+
         if my_magic_int == magic_int:
-            # Note: a higher magic number necessarily mean a later
-            # release.  At Python 3.0 the magic number decreased
-            # significantly. Hence the range below. Also note
-            # inclusion of the size info, occurred within a
-            # Python magor/minor release. Hence the test on the
-            # magic value rather than PYTHON_VERSION
-            if 3200 <= magic_int < 20121:
-                fp.read(4) # size mod 2**32
             bytecode = fp.read()
             co = marshal.loads(bytecode)
         else:

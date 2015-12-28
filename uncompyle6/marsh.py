@@ -43,7 +43,13 @@ def load_code(fp, magic_int, code_objects={}):
     internStrings = []
     seek_pos = fp.tell()
     # Do a sanity check. Is this a code type?
-    if fp.read(1).decode('utf-8') != 'c':
+    b =  ord(fp.read(1))
+
+    if (b & 0x80):
+        b = b & 0x7f
+
+    c = chr(b)
+    if c != 'c':
         raise TypeError("File %s doesn't smell like Python bytecode" % fp.name)
 
     fp.seek(seek_pos)
@@ -52,8 +58,11 @@ def load_code(fp, magic_int, code_objects={}):
 def load_code_internal(fp, magic_int, bytes_for_s=False, code_objects={}):
     global internStrings
 
-    b1 = fp.read(1)
-    marshalType = b1.decode('utf-8')
+    b1 = ord(fp.read(1))
+    if b1 & 0x80:
+        TypeError("Can't handle object references yet")
+
+    marshalType = chr(b1)
     if marshalType == 'c':
         Code = types.CodeType
 
@@ -114,6 +123,8 @@ def load_code_internal(fp, magic_int, bytes_for_s=False, code_objects={}):
         code_objects[str(code)] = code
         return code
 
+    elif marshalType == 'C':
+        raise KeyError("New-style code not finished yet")
     # const type
     elif marshalType == '.':
         return Ellipsis
