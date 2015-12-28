@@ -52,7 +52,7 @@ def load_file(filename):
     fp.close()
     return co
 
-def load_module(filename):
+def load_module(filename, code_objects={}):
     """
     load a module without importing it.
     load_module(filename: string): version, magic_int, code_object
@@ -100,7 +100,7 @@ def load_module(filename):
             bytecode = fp.read()
             co = marshal.loads(bytecode)
         else:
-            co = uncompyle6.marsh.load_code(fp, magic_int)
+            co = uncompyle6.marsh.load_code(fp, magic_int, code_objects)
         pass
 
     return version, timestamp, magic_int, co

@@ -17,8 +17,8 @@ JUMP_OPs = uncompyle6.opcodes.opcode_33.JUMP_OPs
 
 class Scanner33(scan3.Scanner3):
 
-    def disassemble(self, co, classname=None):
-        return self.disassemble_generic(co, classname)
+    def disassemble(self, co, classname=None, code_objects={}):
+        return self.disassemble_generic(co, classname, code_objects=code_objects)
 
 if __name__ == "__main__":
     import inspect

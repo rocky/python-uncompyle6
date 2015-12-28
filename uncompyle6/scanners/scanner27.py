@@ -24,7 +24,7 @@ class Scanner27(scan.Scanner):
     def __init__(self):
         scan.Scanner.__init__(self, 2.7) # check
 
-    def disassemble(self, co, classname=None):
+    def disassemble(self, co, classname=None, code_objects={}):
         """
         Disassemble a code object, returning a list of 'Token'.
         The main part of this procedure is modelled after
@@ -341,7 +341,7 @@ class Scanner27(scan.Scanner):
 
     def detect_structure(self, pos, op=None):
         '''
-        Detect type of block structures and their boundaries to fix optimizied jumps
+        Detect type of block structures and their boundaries to fix optimized jumps
         in python2.3+
         '''
 

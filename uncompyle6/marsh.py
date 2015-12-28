@@ -30,7 +30,7 @@ if PYTHON3:
 def compat_str(s):
     return s.decode('utf-8', errors='ignore') if PYTHON3 else str(s)
 
-def load_code(fp, magic_int):
+def load_code(fp, magic_int, code_objects={}):
     """
     marshal.load() written in Python. When the Python bytecode magic loaded is the
     same magic for the running Python interpreter, we can simply use the
@@ -47,9 +47,9 @@ def load_code(fp, magic_int):
         raise TypeError("File %s doesn't smell like Python bytecode" % fp.name)
 
     fp.seek(seek_pos)
-    return load_code_internal(fp, magic_int)
+    return load_code_internal(fp, magic_int, code_objects=code_objects)
 
-def load_code_internal(fp, magic_int, bytes_for_s=False):
+def load_code_internal(fp, magic_int, bytes_for_s=False, code_objects={}):
     global internStrings
 
     b1 = fp.read(1)
@@ -69,16 +69,17 @@ def load_code_internal(fp, magic_int, bytes_for_s=False):
         if 3000 < magic_int < 20121:
             fp.read(4)
 
-        co_code = load_code_internal(fp, magic_int, bytes_for_s=True)
-        co_consts = load_code_internal(fp, magic_int)
-        co_names = load_code_internal(fp, magic_int)
-        co_varnames = load_code_internal(fp, magic_int)
-        co_freevars = load_code_internal(fp, magic_int)
-        co_cellvars = load_code_internal(fp, magic_int)
-        co_filename = load_code_internal(fp, magic_int)
+        co_code = load_code_internal(fp, magic_int, bytes_for_s=True,
+                                     code_objects=code_objects)
+        co_consts = load_code_internal(fp, magic_int, code_objects=code_objects)
+        co_names = load_code_internal(fp, magic_int, code_objects=code_objects)
+        co_varnames = load_code_internal(fp, magic_int, code_objects=code_objects)
+        co_freevars = load_code_internal(fp, magic_int, code_objects=code_objects)
+        co_cellvars = load_code_internal(fp, magic_int, code_objects=code_objects)
+        co_filename = load_code_internal(fp, magic_int, code_objects=code_objects)
         co_name = load_code_internal(fp, magic_int)
         co_firstlineno = unpack('i', fp.read(4))[0]
-        co_lnotab = load_code_internal(fp, magic_int)
+        co_lnotab = load_code_internal(fp, magic_int, code_objects=code_objects)
         # The Python3 code object is different than Python2's which
         # we are reading if we get here.
         # Also various parameters which were strings are now
@@ -87,13 +88,13 @@ def load_code_internal(fp, magic_int, bytes_for_s=False):
             if PYTHON_MAGIC_INT > 3020:
                 # In later Python3 magic_ints, there is a
                 # kwonlyargcount parameter which we set to 0.
-                return Code(co_argcount, 0, co_nlocals, co_stacksize, co_flags,
+                code = Code(co_argcount, 0, co_nlocals, co_stacksize, co_flags,
                             co_code,
                             co_consts, co_names, co_varnames, co_filename, co_name,
                             co_firstlineno, bytes(co_lnotab, encoding='utf-8'),
                             co_freevars, co_cellvars)
             else:
-                return Code(co_argcount, 0, co_nlocals, co_stacksize, co_flags,
+                code =  Code(co_argcount, 0, co_nlocals, co_stacksize, co_flags,
                             co_code,
                             co_consts, co_names, co_varnames, co_filename, co_name,
                             co_firstlineno, bytes(co_lnotab, encoding='utf-8'),
@@ -107,9 +108,11 @@ def load_code_internal(fp, magic_int, bytes_for_s=False):
                 co_varnames  = tuple([str(s) if s else None for s in co_varnames])
                 co_filename = str(co_filename)
                 co_name = str(co_name)
-            return Code(co_argcount, co_nlocals, co_stacksize, co_flags, co_code,
+            code =  Code(co_argcount, co_nlocals, co_stacksize, co_flags, co_code,
                         co_consts, co_names, co_varnames, co_filename, co_name,
                         co_firstlineno, co_lnotab, co_freevars, co_cellvars)
+        code_objects[str(code)] = code
+        return code
 
     # const type
     elif marshalType == '.':
@@ -177,7 +180,7 @@ def load_code_internal(fp, magic_int, bytes_for_s=False):
         tuplesize = unpack('i', fp.read(4))[0]
         ret = tuple()
         while tuplesize > 0:
-            ret += load_code_internal(fp, magic_int),
+            ret += load_code_internal(fp, magic_int, code_objects=code_objects),
             tuplesize -= 1
         return ret
     elif marshalType == '[':

@@ -32,14 +32,6 @@ else:
 from uncompyle6.opcodes import opcode_25, opcode_26, opcode_27, opcode_32, opcode_33, opcode_34
 
 
-class GenericPythonCode:
-    '''
-    Class for representing code-like objects across different versions of
-    Python.
-    '''
-    def __init__(self):
-        return
-
 class Code:
     '''
     Class for representing code-objects.
@@ -321,7 +313,7 @@ if __name__ == "__main__":
     import inspect, uncompyle6
     co = inspect.currentframe().f_code
     scanner = get_scanner(uncompyle6.PYTHON_VERSION)
-    tokens, customize = scanner.disassemble(co)
+    tokens, customize = scanner.disassemble(co, {})
     print('-' * 30)
     for t in tokens:
         print(t)

@@ -1,6 +1,6 @@
 #  Copyright (c) 2015 by Rocky Bernstein
 """
-Python 3 Generic ytecode scanner/deparser
+Python 3 Generic bytecode scanner/deparser
 
 This overlaps various Python3's dis module, but it can be run from
 Python 2 and other versions of Python. Also, we save token information
@@ -9,7 +9,7 @@ for later use in deparsing.
 
 from __future__ import print_function
 
-import dis, re
+import dis
 from collections import namedtuple
 from array import array
 
@@ -28,7 +28,7 @@ class Scanner3(scan.Scanner):
     def __init__(self):
         scan.Scanner.__init__(self, PYTHON_VERSION)
 
-    def disassemble_generic(self, co, classname=None):
+    def disassemble_generic(self, co, classname=None, code_objects={}):
         """
         Convert code object <co> into a sequence of tokens.
 
@@ -41,6 +41,7 @@ class Scanner3(scan.Scanner):
         codelen = len(code)
         self.build_lines_data(co)
         self.build_prev_op()
+        self.code_objects = code_objects
 
         # self.lines contains (block,addrLastInstr)
         if classname:
@@ -117,18 +118,12 @@ class Scanner3(scan.Scanner):
                 if op in hasconst:
                     const = co.co_consts[oparg]
                     if not PYTHON3 and isinstance(const, str):
-                        m = re.search('^<code object (.*) '
-                                      'at 0x(.*), file "(.*)", line (.*)>', const)
-                        if m:
-                            const = scan.GenericPythonCode()
-                            const.co_name = m.group(1)
-                            const.co_filenaame = m.group(3)
-                            const.co_firstlineno = m.group(4)
-                            pass
-                    # We can't use inspect.iscode() because we may be
+                        if const in code_objects:
+                            const = code_objects[const]
+                    # Not sure if'we can  inspect.iscode() because we may be
                     # using a different version of Python than the
-                    # one that this was byte-compiled on. So the code
-                    # types may mismatch.
+                    # one that this was byte-compiled on. Is probably okay,
+                    # but we'll use hasattr instead here.
                     if hasattr(const, 'co_name'):
                         oparg = const
                         if const.co_name == '<lambda>':
@@ -425,11 +420,15 @@ class Scanner3(scan.Scanner):
 
     def detect_structure(self, offset):
         """
-        Detect structures and their boundaries to fix optimizied jumps
+        Detect structures and their boundaries to fix optimized jumps
         in python2.3+
         """
+
+        # TODO: check the struct boundaries more precisely -Dan
+
         code = self.code
         op = code[offset]
+
         # Detect parent structure
         parent = self.structs[0]
         start = parent['start']

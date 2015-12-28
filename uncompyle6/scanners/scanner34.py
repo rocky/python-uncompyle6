@@ -28,12 +28,13 @@ from uncompyle6.opcodes.opcode_34 import *
 
 class Scanner34(scan3.Scanner3):
 
-    def disassemble(self, co, classname=None):
+    def disassemble(self, co, classname=None, code_objects={}):
         fn = self.disassemble_built_in if PYTHON_VERSION == 3.4 \
             else self.disassemble_generic
-        return fn(co, classname)
+        return fn(co, classname, code_objects=code_objects)
 
-    def disassemble_built_in(self, co, classname=None):
+    def disassemble_built_in(self, co, classname=None,
+                             code_objects={}):
         # Container for tokens
         tokens = []
         customize = {}

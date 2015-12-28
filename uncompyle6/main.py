@@ -8,7 +8,7 @@ from uncompyle6.semantics import pysource
 from uncompyle6.load import load_module
 
 def uncompyle(version, co, out=None, showasm=False, showast=False,
-              timestamp=None, showgrammar=False):
+              timestamp=None, showgrammar=False, code_objects={}):
     """
     disassembles and deparses a given code block 'co'
     """
@@ -26,7 +26,8 @@ def uncompyle(version, co, out=None, showasm=False, showast=False,
               file=real_out)
 
     try:
-        pysource.deparse_code(version, co, out, showasm, showast, showgrammar)
+        pysource.deparse_code(version, co, out, showasm, showast, showgrammar,
+                              code_objects=code_objects)
     except pysource.WalkerError as e:
         # deparsing failed
         if real_out != out:
@@ -40,15 +41,17 @@ def uncompyle_file(filename, outstream=None, showasm=False, showast=False,
     """
 
     filename = check_object_path(filename)
-    version, timestamp, magic_int, co = load_module(filename)
+    code_objects = {}
+    version, timestamp, magic_int, co = load_module(filename, code_objects)
+
 
     if type(co) == list:
         for con in co:
             uncompyle(version, con, outstream, showasm, showast,
-                      timestamp, showgrammar)
+                      timestamp, showgrammar, code_objects=code_objects)
     else:
         uncompyle(version, co, outstream, showasm, showast,
-                  timestamp, showgrammar)
+                  timestamp, showgrammar, code_objects=code_objects)
     co = None
 
 def main(in_base, out_base, files, codes, outfile=None,

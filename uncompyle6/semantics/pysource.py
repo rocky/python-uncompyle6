@@ -67,7 +67,7 @@ from uncompyle6 import PYTHON3
 from uncompyle6.parser import get_python_parser
 from uncompyle6.parsers.astnode import AST
 from uncompyle6.parsers.spark import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from uncompyle6.scanner import Code, GenericPythonCode, get_scanner
+from uncompyle6.scanner import Code, get_scanner
 from uncompyle6.scanners.tok import Token, NoneToken
 import uncompyle6.parser as python_parser
 
@@ -981,10 +981,6 @@ class Walker(GenericASTTraversal, object):
         self.prec = 27
         code = node[code_index].attr
 
-        if isinstance(code, GenericPythonCode):
-            self.write(' for i_am in ["Python 2-3 deparsing limitation"]')
-            return
-
         assert inspect.iscode(code)
         code = Code(code, self.scanner, self.currentclass)
 
@@ -1030,10 +1026,6 @@ class Walker(GenericASTTraversal, object):
         p = self.prec
         self.prec = 27
         code = node[code_index].attr
-
-        if isinstance(code, GenericPythonCode):
-            self.write(' for i_am in ["Python 2-3 deparsing limitation"]')
-            return
 
         assert inspect.iscode(code)
         code = Code(code, self.scanner, self.currentclass)
@@ -1454,10 +1446,6 @@ class Walker(GenericASTTraversal, object):
         defparams = node[:node[-1].attr]
         code = node[code_index].attr
 
-        if isinstance(code, GenericPythonCode):
-            self.write('(limitation="Cross Python 2/3 deparsing")')
-            return
-
         assert inspect.iscode(code)
         code = Code(code, self.scanner, self.currentclass)
         # assert isinstance(code, Code)
@@ -1631,7 +1619,7 @@ class Walker(GenericASTTraversal, object):
         return ast
 
 def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
-                 showgrammar=False):
+                 showgrammar=False, code_objects={}):
     """
     disassembles and deparses a given code block 'co'
     """
@@ -1640,7 +1628,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
     # store final output stream for case of error
     scanner = get_scanner(version)
 
-    tokens, customize = scanner.disassemble(co)
+    tokens, customize = scanner.disassemble(co, code_objects=code_objects)
     if showasm:
         for t in tokens:
             print(t)

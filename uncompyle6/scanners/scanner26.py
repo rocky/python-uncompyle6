@@ -22,7 +22,7 @@ class Scanner26(scan.Scanner):
     def __init__(self):
         scan.Scanner.__init__(self, 2.5) # check
 
-    def disassemble(self, co, classname=None):
+    def disassemble(self, co, classname=None, code_objects={}):
         '''
         Disassemble a code object, returning a list of 'Token'.
 
