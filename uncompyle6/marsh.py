@@ -41,8 +41,9 @@ def load_code(fp, magic_int, code_objects={}):
     However we need to use this when versions are different since the internal
     code structures are different. Sigh.
     """
-    global internStrings
+    global internStrings, internObjects
     internStrings = []
+    internObjects = []
     seek_pos = fp.tell()
     # Do a sanity check. Is this a code type?
     b =  ord(fp.read(1))
@@ -92,6 +93,7 @@ def load_code_type(fp, magic_int, bytes_for_s=False, code_objects={}):
 
     co_code = load_code_internal(fp, magic_int, bytes_for_s=True,
                                  code_objects=code_objects)
+
     co_consts = load_code_internal(fp, magic_int, code_objects=code_objects)
     co_names = load_code_internal(fp, magic_int, code_objects=code_objects)
     co_varnames = load_code_internal(fp, magic_int, code_objects=code_objects)
