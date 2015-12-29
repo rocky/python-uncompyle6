@@ -98,7 +98,7 @@ class Scanner34(scan3.Scanner3):
             # other than LOAD_CONST, but we'll start out with just this for now.
             if opname in ['LOAD_CONST']:
                 const = inst.argval
-                if inspect.iscode(const):
+                if hasattr(const, 'co_name')):
                     if const.co_name == '<lambda>':
                         opname = 'LOAD_LAMBDA'
                     elif const.co_name == '<genexpr>':

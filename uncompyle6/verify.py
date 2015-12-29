@@ -138,8 +138,8 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
     This is the main part of this module.
     """
     # print code_obj1, type(code_obj2)
-    assert inspect.iscode(code_obj1)
-    assert inspect.iscode(code_obj2)
+    assert code_obj1, hasattr('co_name')
+    assert code_obj2, hasattr('co_name')
     # print dir(code_obj1)
     if isinstance(code_obj1, object):
         # new style classes (Python 2.2)
@@ -307,8 +307,8 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
         elif member == 'co_consts':
             # partial optimization can make the co_consts look different,
             #   so we'll just compare the code consts
-            codes1 = ( c for c in code_obj1.co_consts if inspect.iscode(c) )
-            codes2 = ( c for c in code_obj2.co_consts if inspect.iscode(c) )
+            codes1 = ( c for c in code_obj1.co_consts if hasattr(c, 'co_consts') )
+            codes2 = ( c for c in code_obj2.co_consts if hasattr(c, 'co_consts') )
 
             for c1, c2 in zip(codes1, codes2):
                 cmp_code_objects(version, c1, c2, name=name)

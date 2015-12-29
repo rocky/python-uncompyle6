@@ -92,7 +92,7 @@ def get_python_parser(version, debug_parser):
 def python_parser(version, co, out=sys.stdout, showasm=False,
                   parser_debug=PARSER_DEFAULT_DEBUG):
     import inspect
-    assert inspect.iscode(co)
+    assert hasattr(co, 'co_name')
     from uncompyle6.scanner import get_scanner
     scanner = get_scanner(version)
     tokens, customize = scanner.disassemble(co)
