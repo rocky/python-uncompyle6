@@ -86,11 +86,7 @@ Known Bugs/Restrictions
 -----------------------
 
 Python 2 deparsing is probably as solid as the various versions of
-uncompyle2.  Python 3 deparsing is not as solid.  Using Python 2 to
-deparse Python 3 has severe limitations, due to byte code format
-differences and the current inablity to retrieve code object fields across
-different Python versions. (I envy the pycdc C++ code which doesn't have such
-problems because they live totally outside of Python.)
+uncompyle2.  Python 3 deparsing is okay but not as solid.
 
 See Also
 --------

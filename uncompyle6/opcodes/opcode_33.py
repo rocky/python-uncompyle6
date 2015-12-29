@@ -7,12 +7,6 @@ This is a superset of Python 3.3's opcode.py with some opcodes that simplify
 parsing and semantic interpretation.
 """
 
-# Note: this should look exactly like Python 3.4's opcode.py
-
-__all__ = ["cmp_op", "hasconst", "hasname", "hasjrel", "hasjabs",
-           "haslocal", "hascompare", "hasfree", "opname", "opmap",
-           "HAVE_ARGUMENT", "EXTENDED_ARG"]
-
 cmp_op = ('<', '<=', '==', '!=', '>', '>=', 'in', 'not in', 'is',
         'is not', 'exception match', 'BAD')
 

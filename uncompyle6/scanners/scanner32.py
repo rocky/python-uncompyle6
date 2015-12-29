@@ -11,9 +11,9 @@ from __future__ import print_function
 
 import uncompyle6.scanners.scanner3 as scan3
 
-import uncompyle6.opcodes.opcode_34
+import uncompyle6.opcodes.opcode_32
 # verify uses JUMP_OPs from here
-JUMP_OPs = uncompyle6.opcodes.opcode_34.JUMP_OPs
+JUMP_OPs = uncompyle6.opcodes.opcode_32.JUMP_OPs
 
 class Scanner32(scan3.Scanner3):
 

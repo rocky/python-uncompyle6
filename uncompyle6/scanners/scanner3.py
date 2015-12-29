@@ -18,8 +18,10 @@ from uncompyle6 import PYTHON_VERSION, PYTHON3
 
 
 # Get all the opcodes into globals
-globals().update(dis.opmap)
-from uncompyle6.opcodes.opcode_33 import *
+import uncompyle6.opcodes.opcode_33 as op3
+globals().update(op3.opmap)
+
+
 import uncompyle6.scanner as scan
 
 class Code3:
@@ -122,23 +124,23 @@ class Scanner3(scan.Scanner):
                 jump_idx = 0
                 for jump_offset in jump_targets[offset]:
                     tokens.append(Token('COME_FROM', None, repr(jump_offset),
-                                        offset='{}_{}'.format(offset, jump_idx)))
+                                        offset='%s_%s' % (offset, jump_idx)))
                     jump_idx += 1
                     pass
                 pass
 
             op = code[offset]
-            op_name = opname[op]
+            op_name = op3.opname[op]
 
             oparg = None; pattr = None
 
-            if op >= HAVE_ARGUMENT:
+            if op >= op3.HAVE_ARGUMENT:
                 oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
-                if op == EXTENDED_ARG:
+                if op == op3.EXTENDED_ARG:
                     extended_arg = oparg * scan.L65536
                     continue
-                if op in hasconst:
+                if op in op3.hasconst:
                     const = co.co_consts[oparg]
                     if not PYTHON3 and isinstance(const, str):
                         if const in code_objects:
@@ -168,17 +170,17 @@ class Scanner3(scan.Scanner):
                         pattr = '<code_object ' + const.co_name + '>'
                     else:
                         pattr = const
-                elif op in hasname:
+                elif op in op3.hasname:
                     pattr = names[oparg]
-                elif op in hasjrel:
+                elif op in op3.hasjrel:
                     pattr = repr(offset + 3 + oparg)
-                elif op in hasjabs:
+                elif op in op3.hasjabs:
                     pattr = repr(oparg)
-                elif op in haslocal:
+                elif op in op3.haslocal:
                     pattr = varnames[oparg]
-                elif op in hascompare:
-                    pattr = cmp_op[oparg]
-                elif op in hasfree:
+                elif op in op3.hascompare:
+                    pattr = op3.cmp_op[oparg]
+                elif op in op3.hasfree:
                     pattr = free[oparg]
 
             if op in (BUILD_LIST, BUILD_TUPLE, BUILD_SET, BUILD_SLICE,
@@ -338,7 +340,7 @@ class Scanner3(scan.Scanner):
         start = 0
         end = codelen = len(code)
 
-        statement_opcodes = {
+        statement_opcodes = set([
             SETUP_LOOP, BREAK_LOOP, CONTINUE_LOOP,
             SETUP_FINALLY, END_FINALLY, SETUP_EXCEPT, SETUP_WITH,
             POP_BLOCK, STORE_FAST, DELETE_FAST, STORE_DEREF,
@@ -346,15 +348,15 @@ class Scanner3(scan.Scanner):
             STORE_ATTR, DELETE_ATTR, STORE_SUBSCR, DELETE_SUBSCR,
             RETURN_VALUE, RAISE_VARARGS, POP_TOP, PRINT_EXPR,
             JUMP_ABSOLUTE
-        }
+        ])
 
         statement_opcode_sequences = [(POP_JUMP_IF_FALSE, JUMP_FORWARD), (POP_JUMP_IF_FALSE, JUMP_ABSOLUTE),
                                       (POP_JUMP_IF_TRUE, JUMP_FORWARD), (POP_JUMP_IF_TRUE, JUMP_ABSOLUTE)]
 
-        designator_ops = {
+        designator_ops = set([
             STORE_FAST, STORE_NAME, STORE_GLOBAL, STORE_DEREF, STORE_ATTR,
             STORE_SUBSCR, UNPACK_SEQUENCE, JUMP_ABSOLUTE
-        }
+        ])
 
         # Compose preliminary list of indices with statements,
         # using plain statement opcodes

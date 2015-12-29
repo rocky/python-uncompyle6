@@ -19,28 +19,28 @@ check:
 	@$(PYTHON) -V && PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2`; \
 	$(MAKE) check-$$PYTHON_VERSION
 
-#: Run working tests from Python 2.6
-check-2.6: check-bytecode-2.7 check-bytecode-2.5
-	$(PYTHON) test_pythonlib.py --bytecode-2.6 --verify $(COMPILE)
-
-#: Run working tests from Python 2.7
-check-2.7: check-bytecode check-2.7-ok
+#: Run working tests from Python 2.6 or 2.7
+check-2.6 check-2.7: check-bytecode-2 check-2.7-ok
 
 #: Run working tests from Python 3.3
-check-3.3: check-bytecode-3.3 check-bytecode-2.7
+check-3.3: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.3 --verify $(COMPILE)
 
 #: Run working tests from Python 3.4
-check-3.4: check-bytecode-2.7 check-bytecode-3.2
-	$(PYTHON) test_pythonlib.py --bytecode-3.4 --ok-2.7 --verify $(COMPILE)
+check-3.4: check-bytecode check-2.7-ok
 
 #: Check deparsing only, but from a different Python version
 check-disasm:
 	$(PYTHON) dis-compare.py
 
 #: Check deparsing bytecode only
+check-bytecode-2:
+	$(PYTHON) test_pythonlib.py --bytecode-2.5 --bytecode-2.6 --bytecode-2.7
+
+#: Check deparsing bytecode only
 check-bytecode:
-	$(PYTHON) test_pythonlib.py --bytecode-2.5 --bytecode-2.7 --bytecode-3.2
+	$(PYTHON) test_pythonlib.py --bytecode-2.5 --bytecode-2.6 --bytecode-2.7 \
+        --bytecode-3.2 --bytecode-3.3 --bytecode-3.4
 
 #: Check deparsing Python 2.5
 check-bytecode-2.5:
