@@ -237,7 +237,7 @@ class Scanner3(scan.Scanner):
         linestarts = list(dis.findlinestarts(code_obj))
         self.linestarts = dict(linestarts)
         # Plain set with offsets of first ops on line
-        self.linestart_offsets = {a for (a, _) in linestarts}
+        self.linestart_offsets = set(a for (a, _) in linestarts)
         # 'List-map' which shows line number of current op and offset of
         # first op on following line, given offset of op as index
         self.lines = lines = []
