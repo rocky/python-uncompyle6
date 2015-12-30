@@ -313,7 +313,8 @@ class Scanner3(scan.Scanner):
         for offset in self.op_range(0, codelen):
             op = code[offset]
 
-            # Determine structures and fix jumps for 2.3+
+            # Determine structures and fix jumps in Python versions
+            # since 2.3
             self.detect_structure(offset)
 
             if op >= op3.HAVE_ARGUMENT:
@@ -322,7 +323,7 @@ class Scanner3(scan.Scanner):
 
                 if label is None:
                     if op in op3.hasjrel and op != FOR_ITER:
-                        label = offset + 3 + oparg
+                        label = offset + self.op_size(op) + oparg
                     elif op in op3.hasjabs:
                         if op in (JUMP_IF_FALSE_OR_POP, JUMP_IF_TRUE_OR_POP):
                             if oparg > offset:

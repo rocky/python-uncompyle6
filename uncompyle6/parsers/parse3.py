@@ -228,8 +228,7 @@ class Python3Parser(PythonParser):
         '''
 
     def p_grammar(self, args):
-        '''
-        stmts ::= stmts sstmt
+        '''stmts ::= stmts sstmt
         stmts ::= sstmt
         sstmt ::= stmt
         sstmt ::= ifelsestmtr
@@ -405,6 +404,10 @@ class Python3Parser(PythonParser):
         testfalse ::= expr jmp_false
         testtrue ::= expr jmp_true
 
+        come_froms :: = COME_FROM COME_FROM
+        come_froms :: = COME_FROM
+
+
         _ifstmts_jump ::= return_if_stmts
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM _come_from
 
@@ -421,8 +424,16 @@ class Python3Parser(PythonParser):
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
 
 
+        # FIXME: this feels like a hack. Is it just 1 or two
+        # COME_FROMs?  the parsed tree for this and even with just the
+        # one COME_FROM for Python 2.7 seems to associate the
+        # COME_FROM targets from the wrong places
+
+        come_froms ::= COME_FROM COME_FROM
+        come_froms ::= COME_FROM
+
         trystmt        ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           try_middle COME_FROM
+                           try_middle come_froms
 
         # this is nested inside a trystmt
         tryfinallystmt ::= SETUP_FINALLY suite_stmts
@@ -450,6 +461,7 @@ class Python3Parser(PythonParser):
         except_stmt ::= except_cond2 except_suite
         except_stmt ::= except_cond2 except_suite_finalize
         except_stmt ::= except
+        except_stmt ::= except_pop_except
 
         # Python3 introduced POP_EXCEPT
         except_suite ::= c_stmts_opt POP_EXCEPT JUMP_FORWARD
@@ -471,10 +483,11 @@ class Python3Parser(PythonParser):
         except_cond2 ::= DUP_TOP expr COMPARE_OP
                 jmp_false POP_TOP designator POP_TOP
 
-        except  ::=  POP_TOP POP_TOP POP_TOP POP_EXCEPT c_stmts_opt JUMP_FORWARD
-        except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt JUMP_FORWARD
-        except  ::=  POP_TOP POP_TOP POP_TOP POP_EXCEPT c_stmts_opt jmp_abs
+        except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT JUMP_FORWARD
         except  ::=  POP_TOP POP_TOP POP_TOP return_stmts
+
+        except_pop_except  ::=  POP_TOP POP_TOP POP_TOP POP_EXCEPT c_stmts_opt JUMP_FORWARD
+        except_pop_except  ::=  POP_TOP POP_TOP POP_TOP POP_EXCEPT c_stmts_opt jmp_abs
 
         jmp_abs ::= JUMP_ABSOLUTE
         jmp_abs ::= JUMP_BACK

@@ -76,6 +76,8 @@ for  vers in (2.5, 2.6, 2.7, 3.2, 3.3, 3.4):
     test_options[key] =  (bytecode, PYC, bytecode, vers)
     key = "%s" % vers
     pythonlib = "python%s" % vers
+    if vers >= 3.0:
+        pythonlib = os.path.join(pythonlib, '__pycache__')
     test_options[key] =  (os.path.join(lib_prefix, pythonlib), PYC, pythonlib, vers)
 
 #-----

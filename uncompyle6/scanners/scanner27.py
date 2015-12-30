@@ -618,7 +618,8 @@ class Scanner27(scan.Scanner):
         for i in self.op_range(0, n):
             op = code[i]
 
-            # Determine structures and fix jumps for 2.3+
+            # Determine structures and fix jumps in Python versions
+            # since 2.3
             self.detect_structure(i, op)
 
             if op >= HAVE_ARGUMENT:

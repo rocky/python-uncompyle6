@@ -183,49 +183,7 @@ class Scanner34(scan3.Scanner3):
                 parent = struct
                 pass
 
-        if op == SETUP_EXCEPT:
-            start  = offset + 3
-            target = self.get_target(offset)
-            end    = self.restrict_to_parent(target, parent)
-            if target != end:
-                self.fixed_jumps[pos] = end
-                # print target, end, parent
-            # Add the try block
-            self.structs.append({'type':  'try',
-                                   'start': start,
-                                   'end':   end-4})
-            # Now isolate the except and else blocks
-            end_else = start_else = self.get_target(self.prev_op[end])
-
-            # Add the except blocks
-            i = end
-            while self.code[i] != END_FINALLY:
-                jmp = self.next_except_jump(i)
-                if self.code[jmp] == RETURN_VALUE:
-                    self.structs.append({'type':  'except',
-                                           'start': i,
-                                           'end':   jmp+1})
-                    i = jmp + 1
-                else:
-                    if self.get_target(jmp) != start_else:
-                        end_else = self.get_target(jmp)
-                    if self.code[jmp] == JUMP_FORWARD:
-                        self.fixed_jumps[jmp] = -1
-                    self.structs.append({'type':  'except',
-                                         'start': i,
-                                         'end':   jmp})
-                    i = jmp + 3
-
-            # Add the try-else block
-            if end_else != start_else:
-                r_end_else = self.restrict_to_parent(end_else, parent)
-                self.structs.append({'type':  'try-else',
-                                       'start': i+1,
-                                       'end':   r_end_else})
-                self.fixed_jumps[i] = r_end_else
-            else:
-                self.fixed_jumps[i] = i+1
-        elif op in (POP_JUMP_IF_FALSE, POP_JUMP_IF_TRUE):
+        if op in (POP_JUMP_IF_FALSE, POP_JUMP_IF_TRUE):
             start = offset + self.op_size(op)
             target = self.get_target(offset)
             rtarget = self.restrict_to_parent(target, parent)
