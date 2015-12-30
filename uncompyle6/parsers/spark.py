@@ -700,6 +700,16 @@ class GenericASTTraversal:
         raise GenericASTTraversalPruningException
 
     def preorder(self, node=None):
+        """Walk the tree. For each node with typestring name *name* if this
+        class has a method called n_*name*, call that before walking
+        children. If there is no method defined was call a "default"
+        subclasses will probably want to define.
+
+
+        If this class has a method called *name*_exit, that is called
+        after all children have been callsed.  So in this sense this
+        function is both preorder and postorder combined.
+        """
         if node is None:
             node = self.ast
 
@@ -722,4 +732,6 @@ class GenericASTTraversal:
             func(node)
 
     def default(self, node):
+        """Default acttion to take on an ASTNode. Our defualt is to do nothing.
+        Subclasses will probably want to define this for other behavior."""
         pass
