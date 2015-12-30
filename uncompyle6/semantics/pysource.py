@@ -1,10 +1,9 @@
-#  Copyright (c) 1999 John Aycock
-#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2015 by Rocky Bernstein
+#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#  Copyright (c) 1999 John Aycock
 
-"""
-Creates Python source code from an uncompyle6 abstract syntax tree.
+"""Creates Python source code from an uncompyle6 abstract syntax tree.
 
 The terminal symbols are CPython bytecode instructions. (See the
 python documentation under module "dis" for a list of instructions
@@ -13,13 +12,18 @@ and what they mean).
 Upper levels of the grammar is a more-or-less conventional grammar for
 Python.
 
-Semantic action rules for nonterminal symbols can be table driven.
-This mechanism uses a printf-like syntax to direct substitution from
-attributes of the nonterminal and its children..
+Semantic action rules for nonterminal symbols can be specified here by
+creating a method prefaced with "n_" for that nonterminal. For
+example, "n_exec_stmt" handles the semantic actions for the
+"exec_smnt" nonterminal symbol. Similarly if a method with the name
+of the nontermail is suffixed with "_exit" it will be called after
+all of its children are called.
 
-The other way to specify a semantic rule is to create a method
-prefaced with "n_" for that nonterminal. For example, "n_exec_stmt"
-handles the semantic actions for the "exec_smnt" nonterminal symbol.
+Another other way to specify a semantic rule for a nonterminal is via
+rule given in one of the tables MAP_R0, MAP_R, or MAP_DIRECT.
+
+These uses a printf-like syntax to direct substitution from attributes
+of the nonterminal and its children..
 
 The rest of the below describes how table-driven semantic actions work
 and gives a list of the format specifiers. The default() and engine()
@@ -57,7 +61,6 @@ methods implement most of the below.
 
   The '%' may optionally be followed by a number (C) in square brackets, which
   makes the engine walk down to N[C] before evaluating the escape code.
-
 """
 from __future__ import print_function
 
@@ -979,7 +982,6 @@ class SourceWalker(GenericASTTraversal, object):
 
         assert hasattr(code, 'co_name')
         code = Code(code, self.scanner, self.currentclass)
-
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
         ast = ast[0][0][0]
@@ -1244,6 +1246,11 @@ class SourceWalker(GenericASTTraversal, object):
         self.default(node)
 
     def engine(self, entry, startnode):
+        """The format template interpetation engine.  See the comment at the
+        beginning of this module for the how we interpret format specifications such as
+        %c, %C, and so on.
+        """
+
         # self.print_("-----")
         # self.print(startnode)
 

@@ -1,7 +1,8 @@
-#  Copyright (c) 1999 John Aycock
-#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2015 by Rocky Bernstein
+#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#  Copyright (c) 1999 John Aycock
+
 """
 Creates Python source code from an uncompyle6 abstract syntax tree,
 and indexes fragments which can be accessed by instruction offset
@@ -996,10 +997,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prune()
 
     def engine(self, entry, startnode):
-        '''The format template interpetation engine.  See the comment at the
+        """The format template interpetation engine.  See the comment at the
         beginning of this module for the how we interpret format specifications such as
         %c, %C, and so on.
-        '''
+        """
 
         # print("-----")
         # print(startnode)
