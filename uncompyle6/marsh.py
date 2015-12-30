@@ -126,9 +126,9 @@ def load_code_type(fp, magic_int, bytes_for_s=False, code_objects={}):
         if (3000 <= magic_int < 20121):
             # Python 3  encodes some fields as Unicode while Python2
             # requires the corresponding field to have string values
-            co_consts = tuple([str(s) if s else None for s in co_consts])
-            co_names  = tuple([str(s) if s else None for s in co_names])
-            co_varnames  = tuple([str(s) if s else None for s in co_varnames])
+            co_consts = tuple([str(s) if isinstance(s, unicode) else s for s in co_consts])
+            co_names  = tuple([str(s) if isinstance(s, unicode) else s for s in co_names])
+            co_varnames  = tuple([str(s) if isinstance(s, unicode) else s for s in co_varnames])
             co_filename = str(co_filename)
             co_name = str(co_name)
         if 3020 < magic_int <= 20121:
