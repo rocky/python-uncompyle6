@@ -472,14 +472,14 @@ def find_none(node):
             return True
     return False
 
-class WalkerError(Exception):
+class SourceWalkerError(Exception):
     def __init__(self, errmsg):
         self.errmsg = errmsg
 
     def __str__(self):
         return self.errmsg
 
-class Walker(GenericASTTraversal, object):
+class SourceWalker(GenericASTTraversal, object):
     stacked_params = ('f', 'indent', 'isLambda', '_globals')
 
     def __init__(self, version, out, scanner, showast=False,
@@ -1632,7 +1632,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
     debug_parser['reduce'] = showgrammar
 
     #  Build AST from disassembly.
-    deparsed = Walker(version, out, scanner, showast=showast, debug_parser=debug_parser)
+    deparsed = SourceWalker(version, out, scanner, showast=showast, debug_parser=debug_parser)
 
     deparsed.ast = deparsed.build_ast(tokens, customize)
 
@@ -1660,7 +1660,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
         deparsed.write('# global %s ## Warning: Unused global' % g)
 
     if deparsed.ERROR:
-        raise WalkerError("Deparsing stopped due to parse error")
+        raise SourceWalkerError("Deparsing stopped due to parse error")
     return deparsed
 
 if __name__ == '__main__':

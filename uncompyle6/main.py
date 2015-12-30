@@ -29,7 +29,7 @@ def uncompyle(version, co, out=None, showasm=False, showast=False,
     try:
         pysource.deparse_code(version, co, out, showasm, showast, showgrammar,
                               code_objects=code_objects)
-    except pysource.WalkerError as e:
+    except pysource.SourceWalkerError as e:
         # deparsing failed
         if real_out != out:
             print(e, file=real_out)

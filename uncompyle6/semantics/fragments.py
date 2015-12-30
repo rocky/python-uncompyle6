@@ -67,7 +67,7 @@ TABLE_DIRECT_FRAGMENT = {
     #     '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
     }
 
-class Traverser(pysource.Walker, object):
+class FragmentsWalker(pysource.SourceWalker, object):
     stacked_params = ('f', 'indent', 'isLambda', '_globals')
 
     def __init__(self, version, scanner, showast=False,
@@ -1260,8 +1260,8 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
     debug_parser['reduce'] = showgrammar
 
     #  Build AST from disassembly.
-    # deparsed = pysource.Walker(out, scanner, showast=showast)
-    deparsed = Traverser(version, scanner, showast=showast, debug_parser=debug_parser)
+    # deparsed = pysource.FragmentsWalker(out, scanner, showast=showast)
+    deparsed = FragmentsWalker(version, scanner, showast=showast, debug_parser=debug_parser)
 
     deparsed.ast = deparsed.build_ast(tokens, customize)
 
@@ -1336,5 +1336,5 @@ if __name__ == '__main__':
     # check_args(['3', '5'])
     deparse_test(get_code_for_fn(gcd))
     # deparse_test(get_code_for_fn(gcd))
-    # deparse_test(get_code_for_fn(Traverser.fixup_offsets))
+    # deparse_test(get_code_for_fn(FragmentsWalker.fixup_offsets))
     # deparse_test(inspect.currentframe().f_code)
