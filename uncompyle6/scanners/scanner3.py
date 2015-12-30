@@ -316,14 +316,14 @@ class Scanner3(scan.Scanner):
             # Determine structures and fix jumps for 2.3+
             self.detect_structure(offset)
 
-            if op >= dis.HAVE_ARGUMENT:
+            if op >= op3.HAVE_ARGUMENT:
                 label = self.fixed_jumps.get(offset)
                 oparg = code[offset+1] + code[offset+2] * 256
 
                 if label is None:
-                    if op in dis.hasjrel and op != FOR_ITER:
+                    if op in op3.hasjrel and op != FOR_ITER:
                         label = offset + 3 + oparg
-                    elif op in dis.hasjabs:
+                    elif op in op3.hasjabs:
                         if op in (JUMP_IF_FALSE_OR_POP, JUMP_IF_TRUE_OR_POP):
                             if oparg > offset:
                                 label = oparg
@@ -439,7 +439,7 @@ class Scanner3(scan.Scanner):
         """
         op = self.code[offset]
         target = self.code[offset+1] + self.code[offset+2] * 256
-        if op in dis.hasjrel:
+        if op in op3.hasjrel:
             target += offset + 3
         return target
 
