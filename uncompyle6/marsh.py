@@ -20,6 +20,7 @@ from struct import unpack
 
 import uncompyle6.scanners.scanner3 as scan3
 from uncompyle6.magics import PYTHON_MAGIC_INT
+from uncompyle6.code import Code3
 
 internStrings = []
 internObjects = []
@@ -132,10 +133,10 @@ def load_code_type(fp, magic_int, bytes_for_s=False, code_objects={}):
             co_filename = str(co_filename)
             co_name = str(co_name)
         if 3020 < magic_int <= 20121:
-            code =  scan3.Code3(co_argcount, kwonlyargcount,
-                                co_nlocals, co_stacksize, co_flags, co_code,
-                                co_consts, co_names, co_varnames, co_filename, co_name,
-                                co_firstlineno, co_lnotab, co_freevars, co_cellvars)
+            code =  Code3(co_argcount, kwonlyargcount,
+                          co_nlocals, co_stacksize, co_flags, co_code,
+                          co_consts, co_names, co_varnames, co_filename, co_name,
+                          co_firstlineno, co_lnotab, co_freevars, co_cellvars)
         else:
             Code = types.CodeType
             code =  Code(co_argcount, co_nlocals, co_stacksize, co_flags, co_code,

@@ -1,7 +1,7 @@
+# Copyright (c) 2015 by Rocky Bernstein
+# Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+# Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 # Copyright (c) 1999 John Aycock
-#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-#  Copyright (c) 2015 by Rocky Bernstein
 """
 Python 2.7 bytecode scanner/deparser
 
@@ -17,6 +17,7 @@ import dis, inspect
 from collections import namedtuple
 from array import array
 
+from uncompyle6.code import iscode
 from uncompyle6.opcodes.opcode_27 import * # NOQA
 import uncompyle6.scanner as scan
 
@@ -138,11 +139,7 @@ class Scanner27(scan.Scanner):
                     continue
                 if op in hasconst:
                     const = co.co_consts[oparg]
-                    # We can't use inspect.iscode() because we may be
-                    # using a different version of Python than the
-                    # one that this was byte-compiled on. So the code
-                    # types may mismatch.
-                    if hasattr(const, 'co_name'):
+                    if iscode(const):
                         oparg = const
                         if const.co_name == '<lambda>':
                             assert op_name == 'LOAD_CONST'

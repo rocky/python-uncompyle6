@@ -13,6 +13,7 @@ import dis, inspect, operator
 import uncompyle6
 import uncompyle6.scanner as scanner
 from uncompyle6 import PYTHON3
+from uncompyle6.code import iscode
 from uncompyle6.magics import PYTHON_MAGIC_INT
 from uncompyle6.load import load_file, load_module
 
@@ -138,8 +139,8 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
     This is the main part of this module.
     """
     # print code_obj1, type(code_obj2)
-    assert code_obj1, hasattr('co_name')
-    assert code_obj2, hasattr('co_name')
+    assert iscode(code_obj1)
+    assert iscode(code_obj2)
     # print dir(code_obj1)
     if isinstance(code_obj1, object):
         # new style classes (Python 2.2)

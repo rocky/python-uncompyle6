@@ -67,6 +67,7 @@ from __future__ import print_function
 import inspect, sys, re
 
 from uncompyle6 import PYTHON3
+from uncompyle6.code import iscode
 from uncompyle6.parser import get_python_parser
 from uncompyle6.parsers.astnode import AST
 from uncompyle6.parsers.spark import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -980,7 +981,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = 27
         code = node[code_index].attr
 
-        assert hasattr(code, 'co_name')
+        assert iscode(code)
         code = Code(code, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
@@ -1025,7 +1026,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = 27
         code = node[code_index].attr
 
-        assert hasattr(code, 'co_name')
+        assert iscode(code)
         code = Code(code, self.scanner, self.currentclass)
         # assert isinstance(code, Code)
 
@@ -1448,7 +1449,7 @@ class SourceWalker(GenericASTTraversal, object):
         defparams = node[:node[-1].attr]
         code = node[code_index].attr
 
-        assert hasattr(code, 'co_name')
+        assert iscode(code)
         code = Code(code, self.scanner, self.currentclass)
         # assert isinstance(code, Code)
 
@@ -1515,7 +1516,7 @@ class SourceWalker(GenericASTTraversal, object):
     def build_class(self, code):
         """Dump class definition, doc string and class body."""
 
-        assert hasattr(code, 'co_name')
+        assert iscode(code)
         self.classes.append(self.currentclass)
         code = Code(code, self.scanner, self.currentclass)
         # assert isinstance(code, Code)
@@ -1626,7 +1627,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
     disassembles and deparses a given code block 'co'
     """
 
-    assert hasattr(co, 'co_name')
+    assert iscode(co)
     # store final output stream for case of error
     scanner = get_scanner(version)
 

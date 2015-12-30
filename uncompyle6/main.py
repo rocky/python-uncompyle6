@@ -1,8 +1,9 @@
 from __future__ import print_function
 import datetime, inspect, os, sys
 
-from uncompyle6.disas import check_object_path
 from uncompyle6 import verify, PYTHON_VERSION
+from uncompyle6.code import iscode
+from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource
 
 from uncompyle6.load import load_module
@@ -13,7 +14,7 @@ def uncompyle(version, co, out=None, showasm=False, showast=False,
     disassembles and deparses a given code block 'co'
     """
 
-    assert hasattr(co, 'co_name')
+    assert iscode(co)
 
     # store final output stream for case of error
     real_out = out or sys.stdout

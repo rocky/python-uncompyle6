@@ -13,6 +13,7 @@ import dis
 from collections import namedtuple
 from array import array
 
+from uncompyle6.code import iscode
 from uncompyle6.scanner import Token
 from uncompyle6 import PYTHON_VERSION, PYTHON3
 
@@ -23,30 +24,6 @@ globals().update(op3.opmap)
 
 
 import uncompyle6.scanner as scan
-
-class Code3:
-    """Class for a Python3 code object used when a Python interpreter less than 3 is
-    working on Python3 bytecode
-    """
-    def __init__(self, co_argcount, co_kwonlyargcount,co_nlocals, co_stacksize, co_flags, co_code,
-                 co_consts, co_names, co_varnames, co_filename, co_name,
-                 co_firstlineno, co_lnotab, co_freevars, co_cellvars):
-        self.co_argcount = co_argcount
-        self.co_kwonlyargcount = co_kwonlyargcount
-        self.co_nlocals = co_nlocals
-        self.co_stacksize = co_stacksize
-        self.co_flags = co_flags
-        self.co_code = co_code
-        self.co_consts = co_consts
-        self.co_names = co_names
-        self.co_varnames = co_varnames
-        self.co_filename = co_filename
-        self.co_name = co_name
-        self.co_firstlineno = co_firstlineno
-        self.co_lnotab = co_lnotab
-        self.co_freevars = co_freevars
-        self.co_cellvars = co_cellvars
-
 
 class Scanner3(scan.Scanner):
 
@@ -145,11 +122,7 @@ class Scanner3(scan.Scanner):
                     if not PYTHON3 and isinstance(const, str):
                         if const in code_objects:
                             const = code_objects[const]
-                    # Not sure if'we can  inspect.iscode() because we may be
-                    # using a different version of Python than the
-                    # one that this was byte-compiled on. Is probably okay,
-                    # but we'll use hasattr instead here.
-                    if hasattr(const, 'co_name'):
+                    if iscode(const):
                         oparg = const
                         if const.co_name == '<lambda>':
                             assert op_name == 'LOAD_CONST'

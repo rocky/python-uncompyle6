@@ -29,6 +29,7 @@ from __future__ import print_function
 import inspect, re, sys
 
 from uncompyle6 import PYTHON3
+from uncompyle6.code import iscode
 from uncompyle6.semantics import pysource
 from uncompyle6.parser import get_python_parser
 from uncompyle6 import parser
@@ -482,7 +483,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prec = 27
         code = node[-5].attr
 
-        assert hasattr(co, 'co_name')
+        assert iscode(co)
         code = Code(code, self.scanner, self.currentclass)
         # assert isinstance(code, Code)
 
@@ -525,8 +526,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prec = 27
         code = node[code_index].attr
 
-        assert hasattr(code, 'co_name')
-        ## Or Code3
+        assert iscode(code)
+        # Or Code3
         code = Code(code, self.scanner, self.currentclass)
         # assert isinstance(code, Code)
 
@@ -1246,7 +1247,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
                  showgrammar=False):
 
-    assert hasattr(co, 'co_name')
+    assert iscode(co)
     # store final output stream for case of error
     scanner = get_scanner(version)
 

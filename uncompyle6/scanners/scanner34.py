@@ -15,6 +15,7 @@ from array import array
 import uncompyle6.scanners.scanner3 as scan3
 
 from uncompyle6 import PYTHON_VERSION
+from uncompyle6.code import iscode
 from uncompyle6.scanner import Token
 
 # Get all the opcodes into globals
@@ -92,13 +93,9 @@ class Scanner34(scan3.Scanner3):
             pattr =  inst.argrepr
             opname = inst.opname
 
-            # For constants, the pattr is the same as attr. Using pattr adds
-            # an extra level of quotes which messes other things up, like getting
-            # keyword attribute names in a call. I suspect there will be things
-            # other than LOAD_CONST, but we'll start out with just this for now.
             if opname in ['LOAD_CONST']:
                 const = inst.argval
-                if hasattr(const, 'co_name'):
+                if iscode(const):
                     if const.co_name == '<lambda>':
                         opname = 'LOAD_LAMBDA'
                     elif const.co_name == '<genexpr>':

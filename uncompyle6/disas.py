@@ -1,7 +1,7 @@
-# Copyright (c) 1999 John Aycock
-# Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-# Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 # Copyright (c) 2015 by Rocky Bernstein
+# Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+# Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+# Copyright (c) 1999 John Aycock
 
 """
 CPython magic- and version- independent disassembly routines
@@ -21,15 +21,16 @@ from __future__ import print_function
 import inspect, os, sys
 
 import uncompyle6
-from uncompyle6.scanner import get_scanner
+from uncompyle6.code import iscode
 from uncompyle6.load import check_object_path, load_module
+from uncompyle6.scanner import get_scanner
 
 def disco(version, co, out=None):
     """
     diassembles and deparses a given code block 'co'
     """
 
-    assert hasattr(co, 'co_name')
+    assert iscode(co)
 
     # store final output stream for case of error
     real_out = out or sys.stdout
