@@ -409,7 +409,7 @@ class Python3Parser(PythonParser):
 
 
         _ifstmts_jump ::= return_if_stmts
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM _come_from
+o        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from _come_from
 
         iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
 
@@ -429,11 +429,8 @@ class Python3Parser(PythonParser):
         # one COME_FROM for Python 2.7 seems to associate the
         # COME_FROM targets from the wrong places
 
-        come_froms ::= COME_FROM COME_FROM
-        come_froms ::= COME_FROM
-
         trystmt        ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           try_middle come_froms
+                           try_middle COME_FROM _come_from
 
         # this is nested inside a trystmt
         tryfinallystmt ::= SETUP_FINALLY suite_stmts
