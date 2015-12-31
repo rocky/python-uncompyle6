@@ -26,7 +26,7 @@ node 2 range information, it in %c, is copied to nodes 0 and 1.
 
 from __future__ import print_function
 
-import inspect, re, sys
+import re, sys
 
 from uncompyle6 import PYTHON3
 from uncompyle6.code import iscode
@@ -864,8 +864,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
         return self.extract_node_info(p), p
 
     def print_super_classes(self, node):
-        node[1][0].parent = node
-        node = node[1][0]
         if not (node == 'build_list'):
             return
 
