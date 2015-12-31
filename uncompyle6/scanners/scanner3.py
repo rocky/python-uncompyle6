@@ -15,7 +15,7 @@ from array import array
 
 from uncompyle6.code import iscode
 from uncompyle6.scanner import Token
-from uncompyle6 import PYTHON_VERSION, PYTHON3
+from uncompyle6 import PYTHON3
 
 
 # Get all the opcodes into globals
@@ -27,8 +27,8 @@ import uncompyle6.scanner as scan
 
 class Scanner3(scan.Scanner):
 
-    def __init__(self):
-        scan.Scanner.__init__(self, PYTHON_VERSION)
+    def __init__(self, version):
+        scan.Scanner.__init__(self, version)
 
     def disassemble_generic(self, co, classname=None, code_objects={}):
         """

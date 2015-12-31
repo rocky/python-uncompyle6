@@ -87,7 +87,7 @@ versions = {
     __build_magic(3290): '3.4',  # 3.4a4  3290 (changes to __qualname__ computation)
     __build_magic(3300): '3.4',  # 3.4a4  3300 (more changes to __qualname__ computation)
     __build_magic(3310): '3.4',  # 3.4rc2 3310 (alter __qualname__ computation)
-
+    __build_magic(3350): '3.5',  # 3.5.0
 }
 
 magics = __by_version(versions)

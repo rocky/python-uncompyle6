@@ -26,6 +26,9 @@ check-2.6 check-2.7: check-bytecode check-2.7-ok
 check-3.3: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.3 --verify $(COMPILE)
 
+#: Run working tests from Python 3.5
+check-3.5: check-bytecode
+
 #: Run working tests from Python 3.4
 check-3.4: check-bytecode check-2.7-ok
 

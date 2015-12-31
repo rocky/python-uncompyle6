@@ -24,7 +24,7 @@ check:
 	$(MAKE) check-$$PYTHON_VERSION
 
 #: Tests for Python 2.7, 3.3 and 3.4
-check-2.7 check-3.3 check-3.4: pytest
+check-2.7 check-3.3 check-3.4 check-3.5: pytest
 	$(MAKE) -C test $@
 
 #:Tests for Python 2.6 (doesn't have pytest)

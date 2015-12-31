@@ -18,7 +18,7 @@ want to run on Python 2.7.
 
 from __future__ import print_function
 
-import inspect, os, sys
+import os, sys
 
 import uncompyle6
 from uncompyle6.code import iscode

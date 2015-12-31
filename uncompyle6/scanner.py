@@ -62,7 +62,7 @@ class Scanner(object):
         elif version == 3.4:
             self.opc = opcode_34
         else:
-            raise TypeError("%i is not a Python version I know about")
+            raise TypeError("%s is not a Python version I know about" % version)
 
         # FIXME: This weird Python2 behavior is not Python3
         self.resetTokenClass()
@@ -298,13 +298,13 @@ def get_scanner(version):
         scanner = scan.Scanner25()
     elif version == 3.2:
         import uncompyle6.scanners.scanner32 as scan
-        scanner = scan.Scanner32()
+        scanner = scan.Scanner32(version)
     elif version == 3.3:
         import uncompyle6.scanners.scanner33 as scan
-        scanner = scan.Scanner33()
+        scanner = scan.Scanner33(version)
     elif version == 3.4:
         import uncompyle6.scanners.scanner34 as scan
-        scanner = scan.Scanner34()
+        scanner = scan.Scanner34(version)
     else:
         raise RuntimeError("Unsupported Python version %d" % version)
     return scanner

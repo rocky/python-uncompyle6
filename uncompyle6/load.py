@@ -77,9 +77,9 @@ def load_module(filename, code_objects={}):
             else:
                 raise ImportError("Bad magic number: '%s'" % magic)
 
-        if not (2.5 <= version <= 2.7) and not (3.2 <= version <= 3.4):
+        if not (2.5 <= version <= 2.7) and not (3.2 <= version <= 3.5):
             raise ImportError("This is a Python %s file! Only "
-                              "Python 2.5 to 2.7 and 3.2 to 3.4 files are supported."
+                              "Python 2.5 to 2.7 and 3.2 to 3.5 files are supported."
                               % version)
 
         # print version
@@ -110,7 +110,8 @@ if __name__ == '__main__':
     co = load_file(__file__)
     obj_path = check_object_path(__file__)
     version, timestamp, magic_int, co2 = load_module(obj_path)
-    print("version ", version, "magic int", magic_int)
+    print("version", version, "magic int", magic_int)
     import datetime
     print(datetime.datetime.fromtimestamp(timestamp))
-    assert co == co2
+    if version < 3.5:
+        assert co == co2
