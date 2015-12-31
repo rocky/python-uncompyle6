@@ -1,3 +1,217 @@
+2015-12-31  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py: Get ready for release 2.1.2
+
+2015-12-31  rocky <rb@dustyfeet.com>
+
+	* test/base_tests/compile_tests,
+	test/base_tests/python2.7/test_applyEquiv.py,
+	test/base_tests/python2.7/test_augmentedAssign.py,
+	test/base_tests/python2.7/test_class.py,
+	test/base_tests/python2.7/test_del.py,
+	test/base_tests/python2.7/test_divide_future.py,
+	test/base_tests/python2.7/test_divide_no_future.py,
+	test/base_tests/python2.7/test_docstring.py,
+	test/base_tests/python2.7/test_empty.py,
+	test/base_tests/python2.7/test_exceptions.py,
+	test/base_tests/python2.7/test_exec.py,
+	test/base_tests/python2.7/test_expressions.py,
+	test/base_tests/python2.7/test_extendedImport.py,
+	test/base_tests/python2.7/test_extendedPrint.py,
+	test/base_tests/python2.7/test_extendedarg.py-notyet,
+	test/base_tests/python2.7/test_functions.py,
+	test/base_tests/python2.7/test_global.py,
+	test/base_tests/python2.7/test_globals.py,
+	test/base_tests/python2.7/test_import.py,
+	test/base_tests/python2.7/test_import_as.py,
+	test/base_tests/python2.7/test_integers.py,
+	test/base_tests/python2.7/test_iterators.py,
+	test/base_tests/python2.7/test_lambda.py,
+	test/base_tests/python2.7/test_listComprehensions.py,
+	test/base_tests/python2.7/test_loops.py,
+	test/base_tests/python2.7/test_loops2.py,
+	test/base_tests/python2.7/test_mine.py,
+	test/base_tests/python2.7/test_misc.py,
+	test/base_tests/python2.7/test_nested_elif.py,
+	test/base_tests/python2.7/test_nested_scopes.py,
+	test/base_tests/python2.7/test_prettyprint.py,
+	test/base_tests/python2.7/test_print.py,
+	test/base_tests/python2.7/test_print_to.py,
+	test/base_tests/python2.7/test_single_stmt.py,
+	test/base_tests/python2.7/test_slices.py,
+	test/base_tests/python2.7/test_tuple_params.py-notyet,
+	test/base_tests/python2.7/test_tuples.py-notyet,
+	test/base_tests/python2.7/test_yield.py,
+	test/base_tests/python3.4/__init__.py: Remove tests we will never
+	use
+
+2015-12-31  rocky <rb@dustyfeet.com>
+
+	* .travis.yml, Makefile: Try travis testing on Python 3.5. Fix up
+	Makefile to avoid pytest on 3.5 for now
+
+2015-12-31  rocky <rb@dustyfeet.com>
+
+	* test/ok_lib2.7/dircache.py, test/ok_lib2.7/dis.py: Add a few tests
+	from Python 2.7 standard library
+
+2015-12-31  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/def/05_class.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/semantics/fragments.py, uncompyle6/semantics/pysource.py: 
+	Handle Python 3.3 > dotted class names
+
+2015-12-30  rocky <rb@dustyfeet.com>
+
+	* README.rst: Note Python 3.5
+
+2015-12-30  rocky <rb@dustyfeet.com>
+
+	* Makefile, test/Makefile, uncompyle6/__init__.py,
+	uncompyle6/disas.py, uncompyle6/load.py, uncompyle6/magics.py,
+	uncompyle6/scanner.py, uncompyle6/scanners/scanner3.py: Allow Python
+	3.5 to decomplyle other versions. No Python 3.5 bytecode support
+	just yet though.
+
+2015-12-30  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Show details on parsing assert
+	failures.
+
+2015-12-30  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/semantics/pysource.py: 
+	Remove accidental schmutz. Try using pattr on 3.4 to get fn names
+
+2015-12-30  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py: Parses another variation of Python3
+	try/except. Reinstate some tests
+
+2015-12-30  rocky <rb@dustyfeet.com>
+
+	* : Reinstate list comprehension test. I think we've found/fixed the
+	initialization bug.
+
+2015-12-30  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/code.py, uncompyle6/disas.py, uncompyle6/main.py,
+	uncompyle6/marsh.py, uncompyle6/scanners/scanner27.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/scanners/scanner34.py,
+	uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py, uncompyle6/verify.py: Start using
+	our replacement for inspect.iscode
+
+2015-12-30  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/spark.py, uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Doc changes.
+
+2015-12-30  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/spark.py: document GenericASTTraversal.preorder
+	and default.
+
+2015-12-30  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/main.py, uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Walker->SourceWalker
+	Traverser->FragmentsWalker
+
+2015-12-30  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py: Tidy parse3 grammer a little
+
+2015-12-30  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/exception/25_try_except.py,
+	test/test_pythonlib.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanners/scanner27.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/scanners/scanner34.py, uncompyle6/semantics/pysource.py: 
+	Towards Python3 getting try/except working more often.
+
+2015-12-29  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner3.py: Fix another cross-version bug:
+	eliminate version-specific library 'dis' and use corresponding
+	version-indepent routine instead.
+
+2015-12-29  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, uncompyle6/marsh.py: Fix Python 2 cross deparsing
+	pythond bytecode tuples co_consts, co_names, co_varnames. Reinstate
+	cross Python 2-3 uncompiling
+
+2015-12-29  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner34.py: Syntax error typo
+
+2015-12-29  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/marsh.py: Make sure internObjects is (re)initialized
+
+2015-12-29  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/scanners/scanner34.py,
+	uncompyle6/verify.py: inspect.iscode -> hasattr for now until we
+	write a cross-version iscode
+
+2015-12-29  rocky <rb@dustyfeet.com>
+
+	* README.rst, test/Makefile, uncompyle6/opcodes/opcode_32.py,
+	uncompyle6/opcodes/opcode_33.py, uncompyle6/opcodes/opcode_34.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/scanners/scanner32.py: 
+	scanner3: Python 2.6 compatibility: change set initializations. Get
+	rid of * import opcode_*: only a little of the much-needed larger
+	cleanup Makefile: remove 3.x bytecode checking from Python 2.x for
+	now. DRY Makefile a little bit (but more is needed)
+
+2015-12-28  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner3.py: Python 2.6.9 compatibility
+
+2015-12-28  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/main.py, uncompyle6/marsh.py: Marshal loading of =
+	>python 3.4 from Python < 3.4
+
+2015-12-28  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/disas.py, uncompyle6/load.py, uncompyle6/main.py,
+	uncompyle6/marsh.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/semantics/fragments.py, uncompyle6/semantics/pysource.py: 
+	Add Python3 marshal codes and start to handle cross-version Python
+	code object types, introducing scan.Code3
+
+2015-12-27  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/load.py, uncompyle6/marsh.py: Possibly closer to
+	getting 2.7 to read 3.4 bytecode
+
+2015-12-27  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/load.py, uncompyle6/main.py, uncompyle6/marsh.py,
+	uncompyle6/scanner.py, uncompyle6/scanners/scanner25.py,
+	uncompyle6/scanners/scanner26.py, uncompyle6/scanners/scanner27.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/scanners/scanner32.py,
+	uncompyle6/scanners/scanner33.py, uncompyle6/scanners/scanner34.py,
+	uncompyle6/semantics/pysource.py: Fix up Python 2.x's ability to get
+	code from Python 3.x's bytecode
+
+2015-12-27  rocky <rb@dustyfeet.com>
+
+	* test/test_pythonlib.py: defer some tests
+
+2015-12-27  rocky <rb@dustyfeet.com>
+
+	* : commit 7c5b8d803c5b76b185ebc8f6e7587fa64ef531e9 Author: rocky
+	<rb@dustyfeet.com> Date:   Sun Dec 27 16:49:37 2015 -0500
+
+2015-12-27  rocky <rb@dustyfeet.com>
+
+	* : 3.2 bytecode
+
 2015-12-27  rocky <rb@dustyfeet.com>
 
 	* ChangeLog, NEWS, README.rst, __pkginfo__.py: Get ready for release
@@ -7,6 +221,22 @@
 
 	* ChangeLog, NEWS, README.rst, __pkginfo__.py,
 	test/bytecompile-tests, uncompyle6/opcodes/Makefile,
+	uncompyle6/opcodes/opcode_23.py, uncompyle6/opcodes/opcode_24.py,
+	uncompyle6/opcodes/opcode_25.py, uncompyle6/opcodes/opcode_26.py,
+	uncompyle6/opcodes/opcode_27.py, uncompyle6/opcodes/opcode_32.py,
+	uncompyle6/opcodes/opcode_33.py, uncompyle6/opcodes/opcode_34.py,
+	uncompyle6/parser.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanner.py, uncompyle6/scanners/scanner25.py,
+	uncompyle6/scanners/scanner26.py, uncompyle6/scanners/scanner27.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/scanners/scanner32.py,
+	uncompyle6/scanners/scanner33.py, uncompyle6/scanners/scanner34.py,
+	uncompyle6/semantics/fragments.py, uncompyle6/semantics/pysource.py: 
+	DRY Python3 scanner code. Some cross version handling fixed.  Some
+	Python 3.2 and 3.3 deparse fixes.
+
+2015-12-27  rocky <rb@dustyfeet.com>
+
+	* README.rst, test/bytecompile-tests, uncompyle6/opcodes/Makefile,
 	uncompyle6/opcodes/opcode_23.py, uncompyle6/opcodes/opcode_24.py,
 	uncompyle6/opcodes/opcode_25.py, uncompyle6/opcodes/opcode_26.py,
 	uncompyle6/opcodes/opcode_27.py, uncompyle6/opcodes/opcode_32.py,

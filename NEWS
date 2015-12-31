@@ -1,3 +1,10 @@
+uncompyle6 2.1.2 2015-12-31
+
+- Fix cross-version Marshal loading
+- Handle Python 3.3 . dotted class names
+- Limited 3.5 support: allows deparsing other versions
+- Refactor code more, misc bug fixes
+
 uncompyle6 2.1.1 2015-12-27
 
 - packaging issues
