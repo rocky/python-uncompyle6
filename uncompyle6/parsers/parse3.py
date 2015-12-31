@@ -680,7 +680,11 @@ class Python3Parser(PythonParser):
     def custom_buildclass_rule(self, opname, i, token, tokens, customize):
         """
         Python >= 3.3:
-          buildclass ::= LOAD_BUILD_CLASS mkfunc LOAD_CONST LOAD_CLASSNAME CALL_FUNCTION_3
+          buildclass ::= LOAD_BUILD_CLASS mkfunc
+                         LOAD_CLASSNAME expr CALL_FUNCTION_3
+          or
+          buildclass ::= LOAD_BUILD_CLASS mkfunc
+                         LOAD_CONST CALL_FUNCTION_3
         Python < 3.3
           buildclass ::= LOAD_BUILD_CLASS LOAD_CONST MAKE_FUNCTION_0 LOAD_CONST
                          CALL_FUNCTION_n
@@ -693,28 +697,29 @@ class Python3Parser(PythonParser):
                 break
             pass
         assert i < len(tokens)
-        if self.version >= 3.3:
-            assert tokens[i+1].type == 'LOAD_CONST'
-            load_check = 'LOAD_NAME'
-        else:
-            load_check = 'LOAD_CONST'
+        assert tokens[i+1].type == 'LOAD_CONST'
         # find load names
         have_loadname = False
         for i in range(i+1, len(tokens)):
-            if tokens[i].type == load_check:
-                tokens[i].type = 'LOAD_CLASSNAME'
+            if tokens[i].type == 'LOAD_NAME':
+                if tokens[i+1].type != 'LOAD_ATTR':
+                    tokens[i].type = 'LOAD_CLASSNAME'
                 have_loadname = True
                 break
             if tokens[i].type in 'CALL_FUNCTION':
                 break
             pass
         assert i < len(tokens)
+        have_load_attr = False
         if have_loadname:
             j = 1
             for i in range(i+1, len(tokens)):
-                if tokens[i].type in 'CALL_FUNCTION':
+                if tokens[i].type in ['CALL_FUNCTION', 'LOAD_ATTR']:
+                    if tokens[i].type == 'LOAD_ATTR':
+                        have_load_attr = True
                     break
-                assert tokens[i].type == 'LOAD_NAME'
+                assert tokens[i].type == 'LOAD_NAME', \
+                  'Expecting LOAD_NAME after CALL_FUNCTION'
                 tokens[i].type = 'LOAD_CLASSNAME'
                 j += 1
                 pass
@@ -724,9 +729,13 @@ class Python3Parser(PythonParser):
             load_names = ''
         # customize CALL_FUNCTION
         if self.version >= 3.3:
-            call_function = 'CALL_FUNCTION_%d' % (j + 2)
-            rule = ("buildclass ::= LOAD_BUILD_CLASS mkfunc LOAD_CONST %s%s" %
-                    (load_names, call_function))
+            if not have_load_attr:
+                call_function = 'CALL_FUNCTION_%d' % (j + 2)
+                rule = ("buildclass ::= LOAD_BUILD_CLASS mkfunc LOAD_CONST "
+                        "%s%s" % (load_names, call_function))
+            else:
+                rule = ("buildclass ::= LOAD_BUILD_CLASS mkfunc LOAD_CONST expr "
+                        "CALL_FUNCTION_3")
         else:
             call_function = 'CALL_FUNCTION_%d' % (j + 1)
             rule = ("buildclass ::= LOAD_BUILD_CLASS mkfunc %s%s" %

@@ -588,21 +588,23 @@ class FragmentsWalker(pysource.SourceWalker, object):
         cclass = self.currentclass
 
         if self.version > 3.0:
-            buildclass = node[1]
-            build_list = node[0]
-            subclass = build_list[1][0].attr
+            currentclass = node[1][0].pattr
+            buildclass = node[0]
+            subclass = buildclass[1][0].attr
+            subclass_info = node[0]
         else:
             buildclass = node[0]
             build_list = buildclass[1][0]
             subclass = buildclass[-3][0].attr
+            currentclass = buildclass[0].pattr
 
         self.write('\n\n')
-        self.currentclass = str(buildclass[0].pattr)
+        self.currentclass = str(currentclass)
         start = len(self.f.getvalue())
         self.write(self.indent, 'class ', self.currentclass)
 
         if self.version > 3.0:
-            self.print_super_classes3(build_list)
+            self.print_super_classes3(subclass_info)
         else:
             self.print_super_classes(build_list)
         self.print_(':')
@@ -888,7 +890,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         n = len(node)-1
         assert node[n].type.startswith('CALL_FUNCTION')
         for i in range(n-1, 0, -1):
-            if node[i].type != 'LOAD_CLASSNAME':
+            if not node[i].type in ['expr', 'LOAD_CLASSNAME']:
                 break
             pass
 
