@@ -430,7 +430,7 @@ o        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from _come_from
         # COME_FROM targets from the wrong places
 
         trystmt        ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           try_middle COME_FROM _come_from
+                           try_middle _come_from _come_from
 
         # this is nested inside a trystmt
         tryfinallystmt ::= SETUP_FINALLY suite_stmts
