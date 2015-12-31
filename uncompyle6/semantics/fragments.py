@@ -643,7 +643,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             tokens.append(Token('LAMBDA_MARKER'))
             try:
                 ast = parser.parse(self.p, tokens, customize)
-            except parser.ParserError as e:
+            except (parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
             if self.showast:
                 print(repr(ast))
@@ -667,7 +667,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # Build AST from disassembly.
         try:
             ast = parser.parse(self.p, tokens, customize)
-        except parser.ParserError as e:
+        except (parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens)
 
         if self.showast:

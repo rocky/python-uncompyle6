@@ -10,6 +10,7 @@ from __future__ import print_function
 
 import sys
 
+from uncompyle6.code import iscode
 from uncompyle6.parsers.spark import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 class ParserError(Exception):
@@ -91,8 +92,7 @@ def get_python_parser(version, debug_parser):
 
 def python_parser(version, co, out=sys.stdout, showasm=False,
                   parser_debug=PARSER_DEFAULT_DEBUG):
-    import inspect
-    assert hasattr(co, 'co_name')
+    assert iscode(co)
     from uncompyle6.scanner import get_scanner
     scanner = get_scanner(version)
     tokens, customize = scanner.disassemble(co)
@@ -105,8 +105,8 @@ def python_parser(version, co, out=sys.stdout, showasm=False,
 
 if __name__ == '__main__':
     def parse_test(co):
-        sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
-        ast = python_parser(sys_version, co, showasm=True)
+        from uncompyl6e import PYTHON_VERSION
+        ast = python_parser(PYTHON_VERSION, co, showasm=True)
         print(ast)
         return
     parse_test(parse_test.__code__)

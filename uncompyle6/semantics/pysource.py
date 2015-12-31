@@ -1587,7 +1587,7 @@ class SourceWalker(GenericASTTraversal, object):
             tokens.append(Token('LAMBDA_MARKER'))
             try:
                 ast = python_parser.parse(self.p, tokens, customize)
-            except python_parser.ParserError as e:
+            except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
             if self.showast:
                 self.print_(repr(ast))
@@ -1610,7 +1610,7 @@ class SourceWalker(GenericASTTraversal, object):
         # Build AST from disassembly.
         try:
             ast = python_parser.parse(self.p, tokens, customize)
-        except python_parser.ParserError as e:
+        except (python_parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens)
 
         if self.showast:
