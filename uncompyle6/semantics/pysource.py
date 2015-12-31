@@ -925,10 +925,7 @@ class SourceWalker(GenericASTTraversal, object):
             # LOAD_CONST code object ..
             # LOAD_CONST        'x0'
             # MAKE_FUNCTION ..
-            if self.version >= 3.4:
-                func_name =  node[-2].attr
-                code_index = -3
-            elif self.version == 3.3:
+            if self.version >= 3.3:
                 func_name = node[-2].pattr
                 code_index = -3
             else:

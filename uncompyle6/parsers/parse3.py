@@ -404,12 +404,8 @@ class Python3Parser(PythonParser):
         testfalse ::= expr jmp_false
         testtrue ::= expr jmp_true
 
-        come_froms :: = COME_FROM COME_FROM
-        come_froms :: = COME_FROM
-
-
         _ifstmts_jump ::= return_if_stmts
-o        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from _come_from
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from _come_from
 
         iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
 
