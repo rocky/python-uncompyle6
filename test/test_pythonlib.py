@@ -70,6 +70,12 @@ test_options = {
                   PYC, 'base_2.7', 2.7),
 }
 
+for  vers in (2.7, 3.4):
+    pythonlib = "ok_lib%s" % vers
+    key = "ok-%s" % vers
+    test_options[key] = (os.path.join(src_dir, pythonlib), PYC, key, vers)
+    pass
+
 for  vers in (2.5, 2.6, 2.7, 3.2, 3.3, 3.4):
     bytecode = "bytecode_%s" % vers
     key = "bytecode-%s" % vers
