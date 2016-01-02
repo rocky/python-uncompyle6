@@ -887,12 +887,13 @@ class FragmentsWalker(pysource.SourceWalker, object):
         start = len(self.f.getvalue())
         n = len(node)-1
         assert node[n].type.startswith('CALL_FUNCTION')
-        for i in range(n-1, 0, -1):
+
+        for i in range(n-2, 0, -1):
             if not node[i].type in ['expr', 'LOAD_CLASSNAME']:
                 break
             pass
 
-        if i == n-1:
+        if i == n-2:
             return
         self.write('(')
         line_separator = ', '
