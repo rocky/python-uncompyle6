@@ -3,28 +3,28 @@
 uncompyle6
 ==========
 
-A native Python Byte-code Disassembler, Decompiler, Fragment Decompiler
-and byte-code library
+A native Python bytecode Disassembler, Decompiler, Fragment Decompiler
+and bytecode library
 
 
 Introduction
 ------------
 
-*uncompyle6* translates Python byte-code back into equivalent Python
-source code. It accepts byte-codes from Python version 2.5 to 3.4 or
+*uncompyle6* translates Python bytecode back into equivalent Python
+source code. It accepts bytecodes from Python version 2.5 to 3.4 or
 so and has been tested on Python running versions 2.6, 2.7, 3.3,
 3.4 and 3.5.
 
 Why this?
 ---------
 
-What makes this different other CPython byte-code decompilers?  Its
+What makes this different other CPython bytecode decompilers?  Its
 ability to deparse just fragments and give source-code information
 around a given bytecode offset.
 
 I using this to deparse fragments of code inside my trepan_
 debuggers_. For that, I need to record text fragments for all
-byte-code offsets (of interest). This purpose although largely
+bytecode offsets (of interest). This purpose although largely
 compatible with the original intention is yet a little bit different.
 See this_ for more information.
 
