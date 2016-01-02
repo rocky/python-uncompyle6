@@ -60,6 +60,11 @@ sdist:
 #: Style check. Set env var LINT to pyflakes, flake, or flake8
 lint: flake8
 
+# Check StructuredText long description formatting
+check-rst:
+	$(PYTHON) setup.py --long-description | rst2html.py > python3-trepan.html
+
+#: Lint program
 flake8:
 	$(LINT) uncompyle6
 

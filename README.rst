@@ -1,4 +1,4 @@
-|buildstatus|
+|downloads| |buildstatus|
 
 uncompyle6
 ==========
@@ -98,6 +98,7 @@ See Also
 
 The HISTORY file.
 
+.. |downloads| image:: https://img.shields.io/pypi/dd/uncompyle6.svg
 .. _trepan: https://pypi.python.org/pypi/trepan
 .. _debuggers: https://pypi.python.org/pypi/trepan3k
 .. _remake: https://bashdb.sf.net/remake
