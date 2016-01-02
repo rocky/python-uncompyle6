@@ -289,13 +289,13 @@ def get_scanner(version):
 
     if version == 2.7:
         import uncompyle6.scanners.scanner27 as scan
-        scanner = scan.Scanner27()
+        scanner = scan.Scanner27(version)
     elif version == 2.6:
         import uncompyle6.scanners.scanner26 as scan
-        scanner = scan.Scanner26()
+        scanner = scan.Scanner26(version)
     elif version == 2.5:
         import uncompyle6.scanners.scanner25 as scan
-        scanner = scan.Scanner25()
+        scanner = scan.Scanner25(version)
     elif version == 3.2:
         import uncompyle6.scanners.scanner32 as scan
         scanner = scan.Scanner32(version)

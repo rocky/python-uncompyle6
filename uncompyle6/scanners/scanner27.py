@@ -22,7 +22,7 @@ from uncompyle6.opcodes.opcode_27 import * # NOQA
 import uncompyle6.scanner as scan
 
 class Scanner27(scan.Scanner):
-    def __init__(self):
+    def __init__(self, version):
         scan.Scanner.__init__(self, 2.7) # check
 
     def disassemble(self, co, classname=None, code_objects={}):

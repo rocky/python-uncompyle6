@@ -20,7 +20,7 @@ from uncompyle6.opcodes.opcode_25 import *
 import uncompyle6.scanner as scan
 
 class Scanner25(scan.Scanner):
-    def __init__(self):
+    def __init__(self, version):
         scan.Scanner.__init__(self, 2.5) # check
 
     def disassemble(self, co, classname=None, code_objects={}):
