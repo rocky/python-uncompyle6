@@ -37,7 +37,7 @@ information.
 Other parts of the library can be used inside Python for various
 bytecode-related tasks. For example you can read in bytecode,
 i.e. perform a version-independent `marshal.loads()`, and disassemble
-the bytecode using version of Python different from the one used to
+the bytecode using a version of Python different from the one used to
 compile the bytecode.
 
 
