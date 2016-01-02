@@ -817,4 +817,26 @@ class Python3Parser(PythonParser):
                     rule = 'mkfunc ::= %s LOAD_CONST %s' % ('expr ' * token.attr, opname)
                 self.add_unique_rule(rule, opname, token.attr, customize)
                 pass
+            elif opname.startswith('MAKE_CLOSURE'):
+                self.add_unique_rule('mklambda ::= %s load_closure LOAD_LAMBDA %s' %
+                                     ('expr ' * token.attr, opname), opname, token.attr,
+                                     customize)
+                self.add_unique_rule('genexpr ::= %s load_closure LOAD_GENEXPR %s '
+                                     'expr GET_ITER CALL_FUNCTION_1' %
+                                     ('expr ' * token.attr, opname),
+                                     opname, token.attr, customize)
+                self.add_unique_rule('setcomp ::= %s load_closure LOAD_SETCOMP %s expr '
+                                     'GET_ITER CALL_FUNCTION_1' %
+                                     ('expr ' * token.attr, opname),
+                                     opname, token.attr, customize)
+                self.add_unique_rule('dictcomp ::= %s load_closure LOAD_DICTCOMP %s '
+                                     'expr GET_ITER CALL_FUNCTION_1' %
+                                     ('expr '* token.attr, opname),
+                                     opname, token.attr, customize)
+                rule = ('mkfunc ::= %s load_closure BUILD_TUPLE_1 LOAD_CONST LOAD_CONST %s'
+                        % ('expr ' * token.attr, opname))
+                self.add_unique_rule(rule, opname, token.attr, customize)
+                rule = ('mkfunc ::= %s load_closure BUILD_TUPLE_1 LOAD_GENXPR LOAD_CONST %s'
+                        % ('expr ' * token.attr, opname))
+                self.add_unique_rule(rule, opname, token.attr, customize)
         return

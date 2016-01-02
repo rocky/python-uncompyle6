@@ -64,7 +64,7 @@ methods implement most of the below.
 """
 from __future__ import print_function
 
-import inspect, sys, re
+import sys, re
 
 from uncompyle6 import PYTHON3
 from uncompyle6.code import iscode
@@ -921,22 +921,17 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_mkfunc(self, node):
 
-        if self.version >= 3.0:
+        if self.version >= 3.3:
             # LOAD_CONST code object ..
             # LOAD_CONST        'x0'
             # MAKE_FUNCTION ..
-            if self.version >= 3.3:
-                func_name = node[-2].pattr
-                code_index = -3
-            else:
-                func_name = node[-2].attr.co_name
-                code_index = -2
-            pass
+            code_index = -3
         else:
             # LOAD_CONST code object ..
             # MAKE_FUNCTION ..
-            func_name =   node[-2].attr.co_name
             code_index = -2
+        code = node[code_index]
+        func_name = code.attr.co_name
         self.write(func_name)
 
         self.indentMore()
@@ -1564,7 +1559,7 @@ class SourceWalker(GenericASTTraversal, object):
         code._tokens = None; code._customize = None # save memory
         self.classes.pop(-1)
 
-    def gen_source(self, ast, name, customize, isLambda=0, returnNone=False):
+    def gen_source(self, ast, name, customize, isLambda=False, returnNone=False):
         """convert AST to source code"""
 
         rn = self.return_none
