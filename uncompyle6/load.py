@@ -1,5 +1,5 @@
-# Copyright (c) 2000 by hartmut Goebel <h.goebel@crazy-compilers.com>
 # Copyright (c) 2015 by Rocky Bernstein
+# Copyright (c) 2000 by hartmut Goebel <h.goebel@crazy-compilers.com>
 from __future__ import print_function
 
 import imp, marshal, os, py_compile, sys, tempfile
@@ -26,7 +26,7 @@ def check_object_path(path):
         spath = path if PYTHON3 else path.decode('utf-8')
         path = tempfile.mkstemp(prefix=basename + '-',
                                 suffix='.pyc', text=False)[1]
-        py_compile.compile(spath, cfile=path)
+        py_compile.compile(spath, cfile=path, doraise=True)
 
     if not path.endswith(".pyc") and not path.endswith(".pyo"):
         raise ValueError("path %s must point to a .py or .pyc file\n" %

@@ -1118,22 +1118,20 @@ class SourceWalker(GenericASTTraversal, object):
 
     def print_super_classes3(self, node):
 
-        # FIXME: wrap superclasses onto a node
-        # as a custom rule
         n = len(node)-1
         assert node[n].type.startswith('CALL_FUNCTION')
 
-        for i in range(n-1, 0, -1):
+        for i in range(n-2, 0, -1):
             if not node[i].type in ['expr', 'LOAD_CLASSNAME']:
                 break
             pass
 
-        if i == n-1:
+        if i == n-2:
             return
         self.write('(')
         line_separator = ', '
         sep = ''
-        i += 1
+        i += 2
         while i < n:
             value = self.traverse(node[i])
             i += 1

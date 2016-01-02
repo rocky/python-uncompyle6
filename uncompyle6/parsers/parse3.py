@@ -368,9 +368,9 @@ class Python3Parser(PythonParser):
 
         kwarg   ::= LOAD_CONST expr
 
-        classdef ::= buildclass designator
+        classdef ::= build_class designator
         # Python3 introduced LOAD_BUILD_CLASS
-        # the definition of buildclass is a custom rule
+        # the definition of build_class is a custom rule
 
         stmt ::= classdefdeco
         classdefdeco ::= classdefdeco1 designator
@@ -547,6 +547,7 @@ class Python3Parser(PythonParser):
         expr ::= LOAD_GLOBAL
         expr ::= LOAD_DEREF
         expr ::= LOAD_LOCALS
+        expr ::= LOAD_CLASSNAME
         expr ::= load_attr
         expr ::= binary_expr
         expr ::= binary_expr_na
@@ -677,71 +678,60 @@ class Python3Parser(PythonParser):
         nullexprlist ::=
         '''
 
-    def custom_buildclass_rule(self, opname, i, token, tokens, customize):
-        """
-        Python >= 3.3:
-          buildclass ::= LOAD_BUILD_CLASS mkfunc
-                         LOAD_CLASSNAME expr CALL_FUNCTION_3
-          or
-          buildclass ::= LOAD_BUILD_CLASS mkfunc
-                         LOAD_CONST CALL_FUNCTION_3
-        Python < 3.3
-          buildclass ::= LOAD_BUILD_CLASS LOAD_CONST MAKE_FUNCTION_0 LOAD_CONST
-                         CALL_FUNCTION_n
+    @staticmethod
+    def call_fn_name(token):
+        """Customize CALL_FUNCTION to add the number of positional arguments"""
+        return 'CALL_FUNCTION_%i' % token.attr
 
+    def custom_build_class_rule(self, opname, i, token, tokens, customize):
         """
-
+        build_class ::= LOAD_BUILD_CLASS mkfunc
+                        LOAD_CLASSNAME {expr}^n CALL_FUNCTION_n+2
+                        LOAD_CONST CALL_FUNCTION_n
+        """
+        # FIXME: I bet this can be simplified
         # look for next MAKE_FUNCTION
         for i in range(i+1, len(tokens)):
             if tokens[i].type.startswith('MAKE_FUNCTION'):
                 break
             pass
-        assert i < len(tokens)
-        assert tokens[i+1].type == 'LOAD_CONST'
-        # find load names
-        have_loadname = False
-        for i in range(i+1, len(tokens)):
-            if tokens[i].type == 'LOAD_NAME':
-                if tokens[i+1].type != 'LOAD_ATTR':
-                    tokens[i].type = 'LOAD_CLASSNAME'
-                have_loadname = True
+        assert i < len(tokens), "build_class needs to find MAKE_FUNCTION"
+        assert tokens[i+1].type == 'LOAD_CONST', \
+          "build_class expecing CONST after MAKE_FUNCTION"
+        for i in range(i, len(tokens)):
+            if tokens[i].type == 'CALL_FUNCTION':
+                call_fn_tok = tokens[i]
                 break
-            if tokens[i].type in 'CALL_FUNCTION':
-                break
-            pass
-        assert i < len(tokens)
-        have_load_attr = False
-        if have_loadname:
-            j = 1
-            for i in range(i+1, len(tokens)):
-                if tokens[i].type in ['CALL_FUNCTION', 'LOAD_ATTR']:
-                    if tokens[i].type == 'LOAD_ATTR':
-                        have_load_attr = True
-                    break
-                assert tokens[i].type == 'LOAD_NAME', \
-                  'Expecting LOAD_NAME after CALL_FUNCTION'
-                tokens[i].type = 'LOAD_CLASSNAME'
-                j += 1
-                pass
-            load_names = 'LOAD_CLASSNAME ' * j
-        else:
-            j = 0
-            load_names = ''
+        assert call_fn_tok, "build_class custom rule needs to find CALL_FUNCTION"
+
         # customize CALL_FUNCTION
-        if self.version >= 3.3:
-            if not have_load_attr:
-                call_function = 'CALL_FUNCTION_%d' % (j + 2)
-                rule = ("buildclass ::= LOAD_BUILD_CLASS mkfunc LOAD_CONST "
-                        "%s%s" % (load_names, call_function))
-            else:
-                rule = ("buildclass ::= LOAD_BUILD_CLASS mkfunc LOAD_CONST expr "
-                        "CALL_FUNCTION_3")
-        else:
-            call_function = 'CALL_FUNCTION_%d' % (j + 1)
-            rule = ("buildclass ::= LOAD_BUILD_CLASS mkfunc %s%s" %
-                    (load_names, call_function))
+        call_function = self.call_fn_name(call_fn_tok)
+        args_pos = call_fn_tok.attr & 0xff
+        args_kw = (call_fn_tok.attr >> 8) & 0xff
+        rule = ("build_class ::= LOAD_BUILD_CLASS mkfunc %s"
+                "%s" % (('expr ' * (args_pos - 1) + ('kwarg ' * args_kw)),
+                        call_function))
         self.add_unique_rule(rule, opname, token.attr, customize)
         return
+
+    def custom_classfunc_rule(self, opname, token, customize):
+        """
+        call_function ::= expr {expr}^n CALL_FUNCTION_n
+        call_function ::= expr {expr}^n CALL_FUNCTION_VAR_n POP_TOP
+        call_function ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n POP_TOP
+        call_function ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
+        """
+        # Low byte indicates number of positional paramters,
+        # high byte number of positional parameters
+        args_pos = token.attr & 0xff
+        args_kw = (token.attr >> 8) & 0xff
+        nak = ( len(opname)-len('CALL_FUNCTION') ) // 3
+        token.type = self.call_fn_name(token)
+        rule = ('call_function ::= expr '
+                + ('expr ' * args_pos)
+                + ('kwarg ' * args_kw)
+                + 'expr ' * nak + token.type)
+        self.add_unique_rule(rule, token.type, args_pos, customize)
 
     def add_custom_rules(self, tokens, customize):
         """
@@ -755,7 +745,7 @@ class Python3Parser(PythonParser):
             listcomp ::= LOAD_LISTCOMP MAKE_FUNCTION_0 expr
                          GET_ITER CALL_FUNCTION_1
 
-            buildclass (see load_build_class)
+            build_class (see load_build_class)
 
             build_list  ::= {expr}^n BUILD_LIST_n
             build_list  ::= {expr}^n BUILD_TUPLE_n
@@ -766,10 +756,8 @@ class Python3Parser(PythonParser):
             mkfunc      ::= {expr}^n LOAD_CONST MAKE_FUNCTION_n
             mklambda    ::= {expr}^n LOAD_LAMBDA MAKE_FUNCTION_n
             mkfunc      ::= {expr}^n load_closure LOAD_CONST MAKE_FUNCTION_n
-            expr ::= expr {expr}^n CALL_FUNCTION_n
-            expr ::= expr {expr}^n CALL_FUNCTION_VAR_n POP_TOP
-            expr ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n POP_TOP
-            expr ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
+
+            call_function (see custom_classfunc_rule)
         """
         # from trepan.api import debug
         # debug(start_opts={'startup-profile': True})
@@ -779,17 +767,7 @@ class Python3Parser(PythonParser):
 
             if opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
                           'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
-                # Low byte indicates number of positional paramters,
-                # high byte number of positional parameters
-                args_pos = token.attr & 0xff
-                args_kw = (token.attr >> 8) & 0xff
-                nak = ( len(opname)-len('CALL_FUNCTION') ) // 3
-                token.type = 'CALL_FUNCTION_%i' % token.attr
-                rule = ('call_function ::= expr '
-                        + ('expr ' * args_pos)
-                        + ('kwarg ' * args_kw)
-                        + 'expr ' * nak + token.type)
-                self.add_unique_rule(rule, token.type, args_pos, customize)
+                self.custom_classfunc_rule(opname, token, customize)
             elif opname == 'LOAD_LISTCOMP':
                 if self.version >= 3.4:
                     rule = ("listcomp ::= LOAD_LISTCOMP LOAD_CONST MAKE_FUNCTION_0 expr "
@@ -799,7 +777,7 @@ class Python3Parser(PythonParser):
                             "GET_ITER CALL_FUNCTION_1")
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname == 'LOAD_BUILD_CLASS':
-                self.custom_buildclass_rule(opname, i, token, tokens, customize)
+                self.custom_build_class_rule(opname, i, token, tokens, customize)
             elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
                 rule = 'build_list ::= ' + 'expr ' * token.attr + opname
                 self.add_unique_rule(rule, opname, token.attr, customize)

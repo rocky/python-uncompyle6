@@ -1,5 +1,5 @@
 from __future__ import print_function
-import datetime, inspect, os, sys
+import datetime, os, sys
 
 from uncompyle6 import verify, PYTHON_VERSION
 from uncompyle6.code import iscode
@@ -108,7 +108,7 @@ def main(in_base, out_base, files, codes, outfile=None,
         try:
             uncompyle_file(infile, outstream, showasm, showast, showgrammar)
             tot_files += 1
-        except ValueError as e:
+        except (ValueError, SyntaxError) as e:
             sys.stderr.write("\n# %s" % e)
             failed_files += 1
         except KeyboardInterrupt:
