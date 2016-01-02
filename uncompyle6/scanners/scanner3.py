@@ -156,25 +156,20 @@ class Scanner3(scan.Scanner):
                 elif op in op3.hasfree:
                     pattr = free[oparg]
 
-            if op in (BUILD_LIST, BUILD_TUPLE, BUILD_SET, BUILD_SLICE,
-                            UNPACK_SEQUENCE,
-                            MAKE_FUNCTION, CALL_FUNCTION, MAKE_CLOSURE,
-                            CALL_FUNCTION_VAR, CALL_FUNCTION_KW,
-                            CALL_FUNCTION_VAR_KW, RAISE_VARARGS
+            if op_name in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET', 'BUILD_SLICE',
+                            'UNPACK_SEQUENCE',
+                            'MAKE_FUNCTION', 'CALL_FUNCTION', 'MAKE_CLOSURE',
+                            'CALL_FUNCTION_VAR', 'CALL_FUNCTION_KW',
+                            'CALL_FUNCTION_VAR_KW', 'RAISE_VARARGS'
                             ):
-                # As of Python 2.5, values loaded via LOAD_CLOSURE are packed into
-                #   a tuple before calling MAKE_CLOSURE.
-                if (op == BUILD_TUPLE and
-                    self.code[self.prev_op[offset]] == LOAD_CLOSURE):
-                    continue
-                else:
-                    # CALL_FUNCTION OP renaming is done as a custom rule in parse3
-                    if op_name not in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
-                                       'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
-                        op_name = '%s_%d' % (op_name, oparg)
-                    if op != BUILD_SLICE:
+                # CALL_FUNCTION OP renaming is done as a custom rule in parse3
+                if op_name not in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
+                                   'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW',
+                                   ):
+                    op_name = '%s_%d' % (op_name, oparg)
+                    if op_name != 'BUILD_SLICE':
                         customize[op_name] = oparg
-            elif op == JUMP_ABSOLUTE:
+            elif op_name == 'JUMP_ABSOLUTE':
                 target = self.get_target(offset)
                 if target < offset:
                     if (offset in self.stmts
@@ -184,10 +179,10 @@ class Scanner3(scan.Scanner):
                     else:
                         op_name = 'JUMP_BACK'
 
-            elif op == LOAD_GLOBAL:
+            elif op_name == 'LOAD_GLOBAL':
                 if offset in self.load_asserts:
                     op_name = 'LOAD_ASSERT'
-            elif op == RETURN_VALUE:
+            elif op_name == 'RETURN_VALUE':
                 if offset in self.return_end_ifs:
                     op_name = 'RETURN_END_IF'
 
