@@ -57,9 +57,10 @@ def uncompyle_file(filename, outstream=None, showasm=False, showast=False,
                   timestamp, showgrammar, code_objects=code_objects)
     co = None
 
+# FIXME: combine into an options parameter
 def main(in_base, out_base, files, codes, outfile=None,
          showasm=False, showast=False, do_verify=False,
-         showgrammar=False):
+         showgrammar=False, raise_on_error=False):
     """
     in_base	base directory for input files
     out_base	base directory for output files (ignored when
@@ -143,6 +144,8 @@ def main(in_base, out_base, files, codes, outfile=None,
                         if not outfile:
                             print("### Error Verifiying %s" % filename,  file=sys.stderr)
                             print(e, file=sys.stderr)
+                            if raise_on_error:
+                                raise
                             pass
                         pass
                 pass

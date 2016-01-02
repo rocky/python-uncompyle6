@@ -15,6 +15,5 @@
 
 def bug():
     def convert(node):
-        if node:
-           return convert(node.left)
+        return node and convert(node.left)
     return

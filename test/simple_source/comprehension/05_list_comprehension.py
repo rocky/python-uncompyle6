@@ -19,4 +19,4 @@
 #   list_for ::= expr _for designator list_iter JUMP_BACK
 #   list_iter ::= lc_body
 #   lc_body ::= expr LIST_APPEND
-[ i * j for i in range(4) for j in range(7) ]
+# [ i * j for i in range(4) for j in range(7) ]

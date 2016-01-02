@@ -93,7 +93,6 @@ def help():
 
   # decompile and verify known good python 2.7
   test_pythonlib.py --ok-2.7 --verify
-
 """)
     sys.exit(1)
 

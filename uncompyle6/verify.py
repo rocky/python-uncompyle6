@@ -139,8 +139,10 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
     This is the main part of this module.
     """
     # print code_obj1, type(code_obj2)
-    assert iscode(code_obj1)
-    assert iscode(code_obj2)
+    assert iscode(code_obj1), \
+      "cmp_code_object first object type is %s, not code" % type(code_obj1)
+    assert iscode(code_obj2), \
+      "cmp_code_object second object type is %s, not code" % type(code_obj2)
     # print dir(code_obj1)
     if isinstance(code_obj1, object):
         # new style classes (Python 2.2)
@@ -180,22 +182,22 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
         elif member == 'co_code':
             if version == 2.5:
                 import uncompyle6.scanners.scanner25 as scan
-                scanner = scan.Scanner25()
+                scanner = scan.Scanner25(version)
             elif version == 2.6:
                 import uncompyle6.scanners.scanner26 as scan
-                scanner = scan.Scanner26()
+                scanner = scan.Scanner26(version)
             elif version == 2.7:
                 import uncompyle6.scanners.scanner27 as scan
-                scanner = scan.Scanner27()
+                scanner = scan.Scanner27(version)
             elif version == 3.2:
                 import uncompyle6.scanners.scanner32 as scan
-                scanner = scan.Scanner32()
+                scanner = scan.Scanner32(version)
             elif version == 3.3:
                 import uncompyle6.scanners.scanner33 as scan
-                scanner = scan.Scanner33()
+                scanner = scan.Scanner33(version)
             elif version == 3.4:
                 import uncompyle6.scanners.scanner34 as scan
-                scanner = scan.Scanner34()
+                scanner = scan.Scanner34(version)
 
             global JUMP_OPs
             JUMP_OPs = list(scan.JUMP_OPs) + ['JUMP_BACK']
