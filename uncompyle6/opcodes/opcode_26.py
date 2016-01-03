@@ -7,6 +7,8 @@ This is a superset of Python 3.4's opcode.py with some opcodes that simplify
 parsing and semantic interpretation.
 """
 
+# FIXME: DRY this along the lines of opcode_3x.
+
 cmp_op = ('<', '<=', '==', '!=', '>', '>=', 'in', 'not in', 'is',
         'is not', 'exception match', 'BAD')
 

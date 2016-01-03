@@ -1,13 +1,7 @@
 """
-CPython 2.7 bytecode opcodes
-
-This is used in scanner (bytecode disassembly) and parser (Python grammar).
-
-This is a superset of Python 3.4's opcode.py with some opcodes that simplify
-parsing and semantic interpretation.
+CPython 3.2 bytecode opcodes to be used as a base for other opcodes including 3.2.
+If this file changes the other opcode files may have to a adjusted accordingly.
 """
-
-# FIXME: DRY this along the lines of opcode_3x.
 
 cmp_op = ('<', '<=', '==', '!=', '>', '>=', 'in', 'not in', 'is',
         'is not', 'exception match', 'BAD')
@@ -19,8 +13,7 @@ hasjabs = []
 haslocal = []
 hascompare = []
 hasfree = []
-hasArgumentExtended = []
-PJIF = PJIT = JA = JF = 0
+hasnargs = []
 
 opmap = {}
 opname = [''] * 256
@@ -30,7 +23,6 @@ del op
 def def_op(name, op):
     opname[op] = name
     opmap[name] = op
-    globals().update({name: op})
 
 def name_op(name, op):
     def_op(name, op)
@@ -44,14 +36,6 @@ def jabs_op(name, op):
     def_op(name, op)
     hasjabs.append(op)
 
-def updateGlobal():
-    globals().update({'PJIF': opmap['POP_JUMP_IF_FALSE']})
-    globals().update({'PJIT': opmap['POP_JUMP_IF_TRUE']})
-    globals().update({'JA': opmap['JUMP_ABSOLUTE']})
-    globals().update({'JF': opmap['JUMP_FORWARD']})
-    globals().update(dict([(k.replace('+', '_'), v) for (k, v) in opmap.items()]))
-    globals().update({'JUMP_OPs': map(lambda op: opname[op], hasjrel + hasjabs)})
-
 # Instruction opcodes for compiled code
 # Blank lines correspond to available opcodes
 
@@ -60,19 +44,18 @@ def_op('POP_TOP', 1)
 def_op('ROT_TWO', 2)
 def_op('ROT_THREE', 3)
 def_op('DUP_TOP', 4)
-def_op('ROT_FOUR', 5)
+def_op('DUP_TOP_TWO', 5)
 
 def_op('NOP', 9)
 def_op('UNARY_POSITIVE', 10)
 def_op('UNARY_NEGATIVE', 11)
 def_op('UNARY_NOT', 12)
-def_op('UNARY_CONVERT', 13)
 
 def_op('UNARY_INVERT', 15)
 
 def_op('BINARY_POWER', 19)
 def_op('BINARY_MULTIPLY', 20)
-def_op('BINARY_DIVIDE', 21)
+
 def_op('BINARY_MODULO', 22)
 def_op('BINARY_ADD', 23)
 def_op('BINARY_SUBTRACT', 24)
@@ -81,26 +64,17 @@ def_op('BINARY_FLOOR_DIVIDE', 26)
 def_op('BINARY_TRUE_DIVIDE', 27)
 def_op('INPLACE_FLOOR_DIVIDE', 28)
 def_op('INPLACE_TRUE_DIVIDE', 29)
-def_op('SLICE+0', 30)
-def_op('SLICE+1', 31)
-def_op('SLICE+2', 32)
-def_op('SLICE+3', 33)
 
-def_op('STORE_SLICE+0', 40)
-def_op('STORE_SLICE+1', 41)
-def_op('STORE_SLICE+2', 42)
-def_op('STORE_SLICE+3', 43)
-
-def_op('DELETE_SLICE+0', 50)
-def_op('DELETE_SLICE+1', 51)
-def_op('DELETE_SLICE+2', 52)
-def_op('DELETE_SLICE+3', 53)
+# Gone from Python 3 are Python2's
+# SLICE+0 .. SLICE+3
+# STORE_SLICE+0 .. STORE_SLICE+3
+# DELETE_SLICE+0 .. DELETE_SLICE+3
 
 def_op('STORE_MAP', 54)
 def_op('INPLACE_ADD', 55)
 def_op('INPLACE_SUBTRACT', 56)
 def_op('INPLACE_MULTIPLY', 57)
-def_op('INPLACE_DIVIDE', 58)
+
 def_op('INPLACE_MODULO', 59)
 def_op('STORE_SUBSCR', 60)
 def_op('DELETE_SUBSCR', 61)
@@ -111,12 +85,17 @@ def_op('BINARY_XOR', 65)
 def_op('BINARY_OR', 66)
 def_op('INPLACE_POWER', 67)
 def_op('GET_ITER', 68)
+def_op('STORE_LOCALS', 69)
 
 def_op('PRINT_EXPR', 70)
-def_op('PRINT_ITEM', 71)
-def_op('PRINT_NEWLINE', 72)
-def_op('PRINT_ITEM_TO', 73)
-def_op('PRINT_NEWLINE_TO', 74)
+def_op('LOAD_BUILD_CLASS', 71)
+
+# Python3 drops/changes:
+#  def_op('PRINT_ITEM', 71)
+#  def_op('PRINT_NEWLINE', 72)
+#  def_op('PRINT_ITEM_TO', 73)
+#  def_op('PRINT_NEWLINE_TO', 74)
+
 def_op('INPLACE_LSHIFT', 75)
 def_op('INPLACE_RSHIFT', 76)
 def_op('INPLACE_AND', 77)
@@ -124,14 +103,14 @@ def_op('INPLACE_XOR', 78)
 def_op('INPLACE_OR', 79)
 def_op('BREAK_LOOP', 80)
 def_op('WITH_CLEANUP', 81)
-def_op('LOAD_LOCALS', 82)
+
 def_op('RETURN_VALUE', 83)
 def_op('IMPORT_STAR', 84)
-def_op('EXEC_STMT', 85)
+
 def_op('YIELD_VALUE', 86)
 def_op('POP_BLOCK', 87)
 def_op('END_FINALLY', 88)
-def_op('BUILD_CLASS', 89)
+def_op('POP_EXCEPT', 89)
 
 HAVE_ARGUMENT = 90              # Opcodes from here have an argument:
 
@@ -139,13 +118,14 @@ name_op('STORE_NAME', 90)       # Index in name list
 name_op('DELETE_NAME', 91)      # ""
 def_op('UNPACK_SEQUENCE', 92)   # Number of tuple items
 jrel_op('FOR_ITER', 93)
-def_op('LIST_APPEND', 94)
-
+def_op('UNPACK_EX', 94)
 name_op('STORE_ATTR', 95)       # Index in name list
 name_op('DELETE_ATTR', 96)      # ""
 name_op('STORE_GLOBAL', 97)     # ""
 name_op('DELETE_GLOBAL', 98)    # ""
-def_op('DUP_TOPX', 99)          # number of items to duplicate
+
+# Python 2's DUP_TOPX is gone
+
 def_op('LOAD_CONST', 100)       # Index in const list
 hasconst.append(100)
 name_op('LOAD_NAME', 101)       # Index in name list
@@ -158,6 +138,7 @@ def_op('COMPARE_OP', 107)       # Comparison operator
 hascompare.append(107)
 name_op('IMPORT_NAME', 108)     # Index in name list
 name_op('IMPORT_FROM', 109)     # Index in name list
+
 jrel_op('JUMP_FORWARD', 110)    # Number of bytes to skip
 jabs_op('JUMP_IF_FALSE_OR_POP', 111) # Target byte offset from beginning of code
 jabs_op('JUMP_IF_TRUE_OR_POP', 112)  # ""
@@ -181,6 +162,7 @@ haslocal.append(126)
 
 def_op('RAISE_VARARGS', 130)    # Number of raise arguments (1, 2, or 3)
 def_op('CALL_FUNCTION', 131)    # #args + (#kwargs << 8)
+hasnargs.append(131)
 def_op('MAKE_FUNCTION', 132)    # Number of args with default values
 def_op('BUILD_SLICE', 133)      # Number of items
 def_op('MAKE_CLOSURE', 134)
@@ -190,22 +172,39 @@ def_op('LOAD_DEREF', 136)
 hasfree.append(136)
 def_op('STORE_DEREF', 137)
 hasfree.append(137)
+def_op('DELETE_DEREF', 138)
+hasfree.append(138)
 
 def_op('CALL_FUNCTION_VAR', 140)     # #args + (#kwargs << 8)
+hasnargs.append(140)
 def_op('CALL_FUNCTION_KW', 141)      # #args + (#kwargs << 8)
+hasnargs.append(141)
 def_op('CALL_FUNCTION_VAR_KW', 142)  # #args + (#kwargs << 8)
+hasnargs.append(142)
 
 jrel_op('SETUP_WITH', 143)
 
-def_op('EXTENDED_ARG', 145)
-EXTENDED_ARG = 145
+def_op('LIST_APPEND', 145)
 def_op('SET_ADD', 146)
 def_op('MAP_ADD', 147)
 
-updateGlobal()
-del def_op, name_op, jrel_op, jabs_op
+def_op('EXTENDED_ARG', 144)
+EXTENDED_ARG = 144
 
-from uncompyle6 import PYTHON_VERSION
-if PYTHON_VERSION == 2.7:
-    import dis
-    assert all(item in opmap.items() for item in dis.opmap.items())
+fields2copy = """cmp_op hasconst hasname hasjrel hasjabs haslocal hascompare hasfree hasnargs
+opmap opname HAVE_ARGUMENT EXTENDED_ARG""".split()
+
+def rm_op(opname, opmap, name, op):
+    # opname is an array, so we need to keep the position in there.
+    opname[op] = ''
+
+    assert opmap[name] == op
+    del opmap[name]
+
+def dump_opcodes(opmap):
+    """Utility for dumping opcodes"""
+    op2name = {}
+    for k in opmap.keys():
+        op2name[opmap[k]] = k
+    for i in sorted(op2name.keys()):
+        print("%-3s %s" % (str(i), op2name[i]))

@@ -1,8 +1,8 @@
-#  Copyright (c) 2015-2016 by Rocky Bernstein
+#  Copyright (c) 2016 by Rocky Bernstein
 """
-Python 3.4 bytecode scanner/deparser
+Python 3.5 bytecode scanner/deparser
 
-This overlaps Python's 3.4's dis module, and in fact in some cases
+This overlaps Python's 3.5's dis module, and in fact in some cases
 we just fall back to that. But the intent is that it can be run from
 Python 2 and other versions of Python. Also, we save token information
 for later use in deparsing.
@@ -21,13 +21,13 @@ from uncompyle6.scanner import Token
 # Get all the opcodes into globals
 globals().update(dis.opmap)
 
-import uncompyle6.opcodes.opcode_34
+import uncompyle6.opcodes.opcode_35
 # verify uses JUMP_OPs from here
-JUMP_OPs = uncompyle6.opcodes.opcode_34.JUMP_OPs
+JUMP_OPs = uncompyle6.opcodes.opcode_35.JUMP_OPs
 
-from uncompyle6.opcodes.opcode_34 import *
+from uncompyle6.opcodes.opcode_35 import *
 
-class Scanner34(scan3.Scanner3):
+class Scanner35(scan3.Scanner3):
 
     def disassemble(self, co, classname=None, code_objects={}):
         fn = self.disassemble_built_in if PYTHON_VERSION == 3.4 \
@@ -327,7 +327,7 @@ class Scanner34(scan3.Scanner3):
 
 if __name__ == "__main__":
     co = inspect.currentframe().f_code
-    tokens, customize = Scanner34(3.4).disassemble(co)
+    tokens, customize = Scanner35(3.5).disassemble(co)
     for t in tokens:
         print(t)
     pass

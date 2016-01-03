@@ -1,4 +1,4 @@
-#  Copyright (c) 2015 by Rocky Bernstein
+#  Copyright (c) 2015-2016 by Rocky Bernstein
 """
 Python 3.2 bytecode scanner/deparser
 
@@ -23,7 +23,7 @@ class Scanner32(scan3.Scanner3):
 if __name__ == "__main__":
     import inspect
     co = inspect.currentframe().f_code
-    tokens, customize = Scanner32().disassemble(co)
+    tokens, customize = Scanner32(3.2).disassemble(co)
     for t in tokens:
         print(t)
     pass

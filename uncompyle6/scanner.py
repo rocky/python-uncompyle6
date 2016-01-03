@@ -29,7 +29,8 @@ if PYTHON3:
 else:
     L65536 = long(65536) # NOQA
 
-from uncompyle6.opcodes import opcode_25, opcode_26, opcode_27, opcode_32, opcode_33, opcode_34
+from uncompyle6.opcodes import (opcode_25, opcode_26, opcode_27,
+                                opcode_32, opcode_33, opcode_34, opcode_35)
 
 
 class Code:
@@ -61,6 +62,8 @@ class Scanner(object):
             self.opc = opcode_33
         elif version == 3.4:
             self.opc = opcode_34
+        elif version == 3.5:
+            self.opc = opcode_35
         else:
             raise TypeError("%s is not a Python version I know about" % version)
 
@@ -305,6 +308,9 @@ def get_scanner(version):
     elif version == 3.4:
         import uncompyle6.scanners.scanner34 as scan
         scanner = scan.Scanner34(version)
+    elif version == 3.5:
+        import uncompyle6.scanners.scanner35 as scan
+        scanner = scan.Scanner35(version)
     else:
         raise RuntimeError("Unsupported Python version %d" % version)
     return scanner
