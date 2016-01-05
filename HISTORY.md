@@ -30,7 +30,7 @@ The last mention of a release of SPARK from John is around 2002.
 
 In the fall of 2000, Hartmut Goebel
 [took over maintaining the code](https://groups.google.com/forum/#!searchin/comp.lang.python/hartmut$20goebel/comp.lang.python/35s3mp4-nuY/UZALti6ujnQJ). The
-first subsequennt public release announcement that I can find is
+first subsequent public release announcement that I can find is
 ["decompyle - A byte-code-decompiler version 2.2 beta 1"](https://mail.python.org/pipermail/python-announce-list/2002-February/001272.html).
 
 From the CHANGES file found in
@@ -38,9 +38,8 @@ From the CHANGES file found in
 it appears that Hartmut did most of the work to get this code to
 accept the full Python language. He added precidence to the table
 specifiers, support for multiple versions of Python, the
-pretty-printing of docstrings, lists and hashes. He also wrote
-extensive tests and routines to the testing and verification of
-decompiled bytecode.
+pretty-printing of docstrings, lists, and hashes. He also wrote test and verification routines of
+deparsed bytecode, and used this in an extensive set of tests that he also wrote. He could verify against the entire Python library.
 
 decompyle2.2 was packaged for Debian (sarge) by
 [Ben Burton around 2002](https://packages.qa.debian.org/d/decompyle.html). As
