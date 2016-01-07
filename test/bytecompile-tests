@@ -70,7 +70,8 @@ for root, dirs, basenames in os.walk('simple_source'):
             simple_source.append(os.path.join(root, basename)[0:-3])
     pass
 
-tests['2.6'] = tests['2.7'] = tests['3.2'] = tests['3.3'] = tests['3.4'] = simple_source
+tests['2.6'] = tests['2.7'] = tests['3.2'] = \
+  tests['3.3'] = tests['3.4'] = tests['3.5'] = simple_source
 
 total_tests = len(tests['2.7'])
 #tests['2.2'].sort(); print tests['2.2']
