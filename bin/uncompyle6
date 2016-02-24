@@ -92,13 +92,13 @@ for opt, val in opts:
         options['showgrammar'] = True
     elif opt == '-o':
         outfile = val
-    elif opt == ('--timestamp', '-d'):
+    elif opt in ('--timestamp', '-d'):
         timestamp = True
     elif opt == '-c':
         codes.append(val)
     elif opt == '-p':
         numproc = int(val)
-    elif opt == ('--recurse', '-r'):
+    elif opt in ('--recurse', '-r'):
         recurse_dirs = True
     else:
         print(opt, file=sys.stderr)
