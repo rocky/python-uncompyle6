@@ -90,10 +90,6 @@ Hartmut a decade an a half ago:
     NB. This is not a masterpiece of software, but became more like a hack.
     Probably a complete rewrite would be sensefull. hG/2000-12-27
 
-One of the attempts to modernize it and make it available for Python3
-is [the one by Anton Vorobyov (DarkFenX)](https://github.com/DarkFenX/uncompyle3). I've
-followed some of the ideas there in this project.
-
 Lastly, I should mention [unpyc](https://code.google.com/p/unpyc3/)
 and most especially [pycdc](https://github.com/zrax/pycdc), largely by
 Michael Hansen and Darryl Pogue. If they supported getting source-code

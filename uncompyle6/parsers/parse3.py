@@ -631,10 +631,10 @@ class Python3Parser(PythonParser):
         ret_expr_or_cond ::= ret_cond
         ret_expr_or_cond ::= ret_cond_not
 
-        ret_and  ::= expr jmp_false ret_expr_or_cond COME_FROM
-        ret_or   ::= expr jmp_true ret_expr_or_cond COME_FROM
-        ret_cond ::= expr jmp_false expr RETURN_END_IF ret_expr_or_cond
-        ret_cond_not ::= expr jmp_true expr RETURN_END_IF ret_expr_or_cond
+        ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
+        ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
+        ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF ret_expr_or_cond
+        ret_cond_not ::= expr POP_JUMP_IF_TRUE expr RETURN_END_IF ret_expr_or_cond
 
         stmt ::= return_lambda
         stmt ::= conditional_lambda
