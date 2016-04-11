@@ -6,6 +6,7 @@
 /__pkginfo__.pyc
 /dist
 /how-to-make-a-release.txt
+/tmp
 /uncompyle6.egg-info
 __pycache__
 build
