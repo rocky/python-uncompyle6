@@ -313,7 +313,7 @@ def test_single_mode():
         'i = {}',
         'i = []',
         'while i < 1 or stop:\n    i\n',
-        'while i < 1 or stop:\n    print(i)\n',
+        'while i < 1 or stop:\n    print%s\n' % ('(i)' if PYTHON3 else ' i'),
         'for i in range(10):\n    i\n',
         'for i in range(10):\n    for j in range(10):\n        i + j\n',
         'try:\n    i\nexcept Exception:\n    j\nelse:\n    k\n'
