@@ -1,8 +1,6 @@
-#! python
+#!/usr/bin/env python
 
 """Setup script for the 'uncompyle6' distribution."""
-
-from distutils.core import setup, Extension
 
 # Get the package information used in setup().
 # from __pkginfo__ import \
