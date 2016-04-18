@@ -209,10 +209,14 @@ class Python2Parser(PythonParser):
         load_attrs ::= load_attrs LOAD_ATTR
         '''
 
-    def p_grammar(self, args):
+    def p_start(self, args):
         '''
         stmts ::= stmts sstmt
         stmts ::= sstmt
+        '''
+
+    def p_grammar(self, args):
+        '''
         sstmt ::= stmt
         sstmt ::= ifelsestmtr
         sstmt ::= return_stmt RETURN_LAST
@@ -710,3 +714,8 @@ class Python2Parser(PythonParser):
             else:
                 raise Exception('unknown customize token %s' % k)
             self.addRule(rule, nop_func)
+
+class Python2ParserSingle(Python2Parser):
+    # Add:
+    #   call_stmt ::= expr PRINT_EXPR
+    pass

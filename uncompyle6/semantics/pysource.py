@@ -487,7 +487,8 @@ class SourceWalker(GenericASTTraversal, object):
     stacked_params = ('f', 'indent', 'isLambda', '_globals')
 
     def __init__(self, version, out, scanner, showast=False,
-                 debug_parser=PARSER_DEFAULT_DEBUG):
+                 debug_parser=PARSER_DEFAULT_DEBUG,
+                 compile_mode='exec'):
         GenericASTTraversal.__init__(self, ast=None)
         self.scanner = scanner
         params = {
@@ -495,7 +496,8 @@ class SourceWalker(GenericASTTraversal, object):
             'indent': '',
             }
         self.version = version
-        self.p = get_python_parser(version, debug_parser=debug_parser)
+        self.p = get_python_parser(version, debug_parser=debug_parser,
+                                   compile_mode=compile_mode)
         self.debug_parser = dict(debug_parser)
         self.showast = showast
         self.params = params
@@ -1615,7 +1617,7 @@ class SourceWalker(GenericASTTraversal, object):
         return ast
 
 def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
-                 showgrammar=False, code_objects={}):
+                 showgrammar=False, code_objects={}, compile_mode='exec'):
     """
     disassembles and deparses a given code block 'co'
     """
@@ -1633,7 +1635,8 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
     debug_parser['reduce'] = showgrammar
 
     #  Build AST from disassembly.
-    deparsed = SourceWalker(version, out, scanner, showast=showast, debug_parser=debug_parser)
+    deparsed = SourceWalker(version, out, scanner, showast=showast,
+                            debug_parser=debug_parser, compile_mode=compile_mode)
 
     deparsed.ast = deparsed.build_ast(tokens, customize)
 

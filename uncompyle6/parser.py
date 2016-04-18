@@ -76,10 +76,13 @@ def parse(p, tokens, customize):
     return ast
 
 
-def get_python_parser(version, debug_parser):
+def get_python_parser(version, debug_parser, compile_mode='exec'):
     """
     Returns parser object for Python version 2 or 3
-    depending on the parameter passed.
+    depending on the parameter passed.  *compile_mode*
+    is either 'exec', 'eval', or 'single'. See
+    https://docs.python.org/3.6/library/functions.html#compile for an explanation
+    of the different modes.
     """
     if version < 3.0:
         import uncompyle6.parsers.parse2 as parse2

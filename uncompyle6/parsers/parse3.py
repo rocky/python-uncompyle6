@@ -818,3 +818,8 @@ class Python3Parser(PythonParser):
                         % ('expr ' * token.attr, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
         return
+
+class Python3ParserSingle(Python3Parser):
+    # Add:
+    #   call_stmt ::= expr PRINT_EXPR
+    pass
