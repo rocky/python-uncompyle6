@@ -18,7 +18,7 @@ so and has been tested on Python running versions 2.6, 2.7, 3.3,
 Why this?
 ---------
 
-What makes this different other CPython bytecode decompilers?  Its
+What makes this different from other CPython bytecode decompilers?  Its
 ability to deparse just fragments and give source-code information
 around a given bytecode offset.
 
