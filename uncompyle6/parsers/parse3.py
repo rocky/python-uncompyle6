@@ -228,8 +228,7 @@ class Python3Parser(PythonParser):
         '''
 
     def p_grammar(self, args):
-        '''stmts ::= stmts sstmt
-        stmts ::= sstmt
+        '''
         sstmt ::= stmt
         sstmt ::= ifelsestmtr
         sstmt ::= return_stmt RETURN_LAST
@@ -301,7 +300,6 @@ class Python3Parser(PythonParser):
 
         stmt ::= classdef
         stmt ::= call_stmt
-        call_stmt ::= expr POP_TOP
 
         stmt ::= return_stmt
         return_stmt ::= ret_expr RETURN_VALUE
@@ -820,6 +818,11 @@ class Python3Parser(PythonParser):
         return
 
 class Python3ParserSingle(Python3Parser):
-    # Add:
-    #   call_stmt ::= expr PRINT_EXPR
-    pass
+    def p_call_stmt(self, args):
+        '''
+        # single-mode compilation. Eval-mode interactive compilation
+        # drops the last rule.
+
+        call_stmt ::= expr POP_TOP
+        call_stmt ::= expr PRINT_EXPR
+        '''

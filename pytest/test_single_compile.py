@@ -1,7 +1,6 @@
 import pytest
 from uncompyle6 import PYTHON_VERSION, PYTHON3, deparse_code
 
-@pytest.mark.skip(reason="Reinstate when we have compiilation single")
 def test_single_mode():
     single_expressions = (
         'i = 1',

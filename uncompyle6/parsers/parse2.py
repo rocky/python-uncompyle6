@@ -209,12 +209,6 @@ class Python2Parser(PythonParser):
         load_attrs ::= load_attrs LOAD_ATTR
         '''
 
-    def p_start(self, args):
-        '''
-        stmts ::= stmts sstmt
-        stmts ::= sstmt
-        '''
-
     def p_grammar(self, args):
         '''
         sstmt ::= stmt
@@ -716,6 +710,11 @@ class Python2Parser(PythonParser):
             self.addRule(rule, nop_func)
 
 class Python2ParserSingle(Python2Parser):
-    # Add:
-    #   call_stmt ::= expr PRINT_EXPR
-    pass
+    def p_call_stmt(self, args):
+        '''
+        # single-mode compilation. eval-mode interactive compilation
+        # drops the last rule.
+
+        call_stmt ::= expr POP_TOP
+        call_stmt ::= expr PRINT_EXPR
+        '''

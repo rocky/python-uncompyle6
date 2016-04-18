@@ -69,6 +69,25 @@ class PythonParser(GenericASTBuilder):
         # print >> sys.stderr, 'resolve', str(list)
         return GenericASTBuilder.resolve(self, list)
 
+    ##############################################
+    ## Common Python 2 and Python 3 grammar rules
+    ##############################################
+    def p_start(self, args):
+        '''
+        # The start or goal symbol
+        stmts ::= stmts sstmt
+        stmts ::= sstmt
+        '''
+
+    def p_call_stmt(self, args):
+        '''
+        # eval-mode compilation.  Single-mode interactive compilation
+        # adds another rule.
+        call_stmt ::= expr POP_TOP
+        '''
+
+
+
 def parse(p, tokens, customize):
     p.add_custom_rules(tokens, customize)
     ast = p.parse(tokens)
@@ -84,12 +103,19 @@ def get_python_parser(version, debug_parser, compile_mode='exec'):
     https://docs.python.org/3.6/library/functions.html#compile for an explanation
     of the different modes.
     """
+
     if version < 3.0:
         import uncompyle6.parsers.parse2 as parse2
-        p = parse2.Python2Parser(debug_parser)
+        if compile_mode == 'exec':
+            p = parse2.Python2Parser(debug_parser)
+        else:
+            p = parse2.Python2ParserSingle(debug_parser)
     else:
         import uncompyle6.parsers.parse3 as parse3
-        p = parse3.Python3Parser(debug_parser)
+        if compile_mode == 'exec':
+            p = parse3.Python3Parser(debug_parser)
+        else:
+            p = parse3.Python3ParserSingle(debug_parser)
     p.version = version
     return p
 
