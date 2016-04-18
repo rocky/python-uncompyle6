@@ -22,7 +22,7 @@ What makes this different other CPython bytecode decompilers?  Its
 ability to deparse just fragments and give source-code information
 around a given bytecode offset.
 
-I using this to deparse fragments of code inside my trepan_
+I use this to deparse fragments of code inside my trepan_
 debuggers_. For that, I need to record text fragments for all
 bytecode offsets (of interest). This purpose although largely
 compatible with the original intention is yet a little bit different.
@@ -77,7 +77,7 @@ Run
 ::
 
      ./bin/uncompyle6 -h
-     ./bin/pydisassemble -y
+     ./bin/pydisassemble -h
 
 for usage help
 

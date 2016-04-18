@@ -69,6 +69,130 @@ class PythonParser(GenericASTBuilder):
         # print >> sys.stderr, 'resolve', str(list)
         return GenericASTBuilder.resolve(self, list)
 
+    ##############################################
+    ## Common Python 2 and Python 3 grammar rules
+    ##############################################
+    def p_start(self, args):
+        '''
+        # The start or goal symbol
+        stmts ::= stmts sstmt
+        stmts ::= sstmt
+        '''
+
+    def p_call_stmt(self, args):
+        '''
+        # eval-mode compilation.  Single-mode interactive compilation
+        # adds another rule.
+        call_stmt ::= expr POP_TOP
+        '''
+
+    def p_funcdef(self, args):
+        '''
+        stmt ::= funcdef
+        funcdef ::= mkfunc designator
+        stmt ::= funcdefdeco
+        funcdefdeco ::= mkfuncdeco designator
+        mkfuncdeco ::= expr mkfuncdeco CALL_FUNCTION_1
+        mkfuncdeco ::= expr mkfuncdeco0 CALL_FUNCTION_1
+        mkfuncdeco0 ::= mkfunc
+        load_closure ::= load_closure LOAD_CLOSURE
+        load_closure ::= LOAD_CLOSURE
+        '''
+
+    def p_genexpr(self, args):
+        '''
+        expr ::= genexpr
+
+        genexpr ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
+
+        stmt ::= genexpr_func
+
+        genexpr_func ::= LOAD_FAST FOR_ITER designator comp_iter JUMP_BACK
+        '''
+
+    def p_dictcomp(self, args):
+        '''
+        expr ::= dictcomp
+        dictcomp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
+        stmt ::= dictcomp_func
+
+        dictcomp_func ::= BUILD_MAP LOAD_FAST FOR_ITER designator
+                comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
+
+        '''
+
+    def p_augmented_assign(self, args):
+        '''
+        stmt ::= augassign1
+        stmt ::= augassign2
+        augassign1 ::= expr expr inplace_op designator
+        augassign1 ::= expr expr inplace_op ROT_THREE STORE_SUBSCR
+        augassign1 ::= expr expr inplace_op ROT_TWO   STORE_SLICE+0
+        augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+1
+        augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+2
+        augassign1 ::= expr expr inplace_op ROT_FOUR  STORE_SLICE+3
+        augassign2 ::= expr DUP_TOP LOAD_ATTR expr
+                inplace_op ROT_TWO   STORE_ATTR
+
+        inplace_op ::= INPLACE_ADD
+        inplace_op ::= INPLACE_SUBTRACT
+        inplace_op ::= INPLACE_MULTIPLY
+        inplace_op ::= INPLACE_DIVIDE
+        inplace_op ::= INPLACE_TRUE_DIVIDE
+        inplace_op ::= INPLACE_FLOOR_DIVIDE
+        inplace_op ::= INPLACE_MODULO
+        inplace_op ::= INPLACE_POWER
+        inplace_op ::= INPLACE_LSHIFT
+        inplace_op ::= INPLACE_RSHIFT
+        inplace_op ::= INPLACE_AND
+        inplace_op ::= INPLACE_XOR
+        inplace_op ::= INPLACE_OR
+        '''
+
+    def p_assign(self, args):
+        '''
+        stmt ::= assign
+        assign ::= expr DUP_TOP designList
+        assign ::= expr designator
+
+        stmt ::= assign2
+        stmt ::= assign3
+        assign2 ::= expr expr ROT_TWO designator designator
+        assign3 ::= expr expr expr ROT_THREE ROT_TWO designator designator designator
+        '''
+
+    def p_import20(self, args):
+        '''
+        stmt ::= importstmt
+        stmt ::= importfrom
+        stmt ::= importstar
+        stmt ::= importmultiple
+
+        importlist2 ::= importlist2 import_as
+        importlist2 ::= import_as
+        import_as ::= IMPORT_NAME designator
+        import_as ::= IMPORT_NAME load_attrs designator
+        import_as ::= IMPORT_FROM designator
+
+        importstmt ::= LOAD_CONST LOAD_CONST import_as
+        importstar ::= LOAD_CONST LOAD_CONST IMPORT_NAME IMPORT_STAR
+        importfrom ::= LOAD_CONST LOAD_CONST IMPORT_NAME importlist2 POP_TOP
+        importstar ::= LOAD_CONST LOAD_CONST IMPORT_NAME_CONT IMPORT_STAR
+        importfrom ::= LOAD_CONST LOAD_CONST IMPORT_NAME_CONT importlist2 POP_TOP
+        importmultiple ::= LOAD_CONST LOAD_CONST import_as imports_cont
+
+        imports_cont ::= imports_cont import_cont
+        imports_cont ::= import_cont
+        import_cont ::= LOAD_CONST LOAD_CONST import_as_cont
+        import_as_cont ::= IMPORT_NAME_CONT designator
+        import_as_cont ::= IMPORT_NAME_CONT load_attrs designator
+        import_as_cont ::= IMPORT_FROM designator
+
+        load_attrs ::= LOAD_ATTR
+        load_attrs ::= load_attrs LOAD_ATTR
+        '''
+
+
 def parse(p, tokens, customize):
     p.add_custom_rules(tokens, customize)
     ast = p.parse(tokens)
@@ -76,17 +200,27 @@ def parse(p, tokens, customize):
     return ast
 
 
-def get_python_parser(version, debug_parser):
+def get_python_parser(version, debug_parser, compile_mode='exec'):
     """
     Returns parser object for Python version 2 or 3
-    depending on the parameter passed.
+    depending on the parameter passed.  *compile_mode*
+    is either 'exec', 'eval', or 'single'. See
+    https://docs.python.org/3.6/library/functions.html#compile for an explanation
+    of the different modes.
     """
+
     if version < 3.0:
         import uncompyle6.parsers.parse2 as parse2
-        p = parse2.Python2Parser(debug_parser)
+        if compile_mode == 'exec':
+            p = parse2.Python2Parser(debug_parser)
+        else:
+            p = parse2.Python2ParserSingle(debug_parser)
     else:
         import uncompyle6.parsers.parse3 as parse3
-        p = parse3.Python3Parser(debug_parser)
+        if compile_mode == 'exec':
+            p = parse3.Python3Parser(debug_parser)
+        else:
+            p = parse3.Python3ParserSingle(debug_parser)
     p.version = version
     return p
 

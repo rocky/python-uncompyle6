@@ -38,19 +38,6 @@ class Python3Parser(PythonParser):
             pass
         return
 
-    def p_funcdef(self, args):
-        '''
-        stmt ::= funcdef
-        funcdef ::= mkfunc designator
-        stmt ::= funcdefdeco
-        funcdefdeco ::= mkfuncdeco designator
-        mkfuncdeco ::= expr mkfuncdeco CALL_FUNCTION_1
-        mkfuncdeco ::= expr mkfuncdeco0 CALL_FUNCTION_1
-        mkfuncdeco0 ::= mkfunc
-        load_closure ::= load_closure LOAD_CLOSURE
-        load_closure ::= LOAD_CLOSURE
-        '''
-
     def p_list_comprehension(self, args):
         '''
         # Python3 scanner adds LOAD_LISTCOMP. Python3 does list comprehension like
@@ -101,135 +88,13 @@ class Python3Parser(PythonParser):
 
         comp_if ::= expr jmp_false comp_iter
         comp_ifnot ::= expr jmp_true comp_iter
+
+        # This is different in python2 - should it be?
         comp_for ::= expr _for designator comp_iter JUMP_ABSOLUTE
         '''
 
-    def p_genexpr(self, args):
-        '''
-        expr ::= genexpr
-
-        genexpr ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
-
-        stmt ::= genexpr_func
-
-        genexpr_func ::= LOAD_FAST FOR_ITER designator comp_iter JUMP_BACK
-        '''
-
-    def p_dictcomp(self, args):
-        '''
-        expr ::= dictcomp
-        dictcomp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
-        stmt ::= dictcomp_func
-
-        dictcomp_func ::= BUILD_MAP LOAD_FAST FOR_ITER designator
-                comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
-
-        '''
-
-    def p_augmented_assign(self, args):
-        '''
-        stmt ::= augassign1
-        stmt ::= augassign2
-        augassign1 ::= expr expr inplace_op designator
-        augassign1 ::= expr expr inplace_op ROT_THREE STORE_SUBSCR
-        augassign1 ::= expr expr inplace_op ROT_TWO   STORE_SLICE+0
-        augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+1
-        augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+2
-        augassign1 ::= expr expr inplace_op ROT_FOUR  STORE_SLICE+3
-        augassign2 ::= expr DUP_TOP LOAD_ATTR expr
-                inplace_op ROT_TWO   STORE_ATTR
-
-        inplace_op ::= INPLACE_ADD
-        inplace_op ::= INPLACE_SUBTRACT
-        inplace_op ::= INPLACE_MULTIPLY
-        inplace_op ::= INPLACE_DIVIDE
-        inplace_op ::= INPLACE_TRUE_DIVIDE
-        inplace_op ::= INPLACE_FLOOR_DIVIDE
-        inplace_op ::= INPLACE_MODULO
-        inplace_op ::= INPLACE_POWER
-        inplace_op ::= INPLACE_LSHIFT
-        inplace_op ::= INPLACE_RSHIFT
-        inplace_op ::= INPLACE_AND
-        inplace_op ::= INPLACE_XOR
-        inplace_op ::= INPLACE_OR
-        '''
-
-    def p_assign(self, args):
-        '''
-        stmt ::= assign
-        assign ::= expr DUP_TOP designList
-        assign ::= expr designator
-
-        stmt ::= assign2
-        stmt ::= assign3
-        assign2 ::= expr expr ROT_TWO designator designator
-        assign3 ::= expr expr expr ROT_THREE ROT_TWO designator designator designator
-        '''
-
-    # Python3 doesn't have a built-in print.
-    # def p_print(self, args):
-    #     '''
-    #     stmt ::= print_items_stmt
-    #     stmt ::= print_nl
-    #     stmt ::= print_items_nl_stmt
-
-    #     print_items_stmt ::= expr PRINT_ITEM print_items_opt
-    #     print_items_nl_stmt ::= expr PRINT_ITEM print_items_opt PRINT_NEWLINE_CONT
-    #     print_items_opt ::= print_items
-    #     print_items_opt ::=
-    #     print_items ::= print_items print_item
-    #     print_items ::= print_item
-    #     print_item ::= expr PRINT_ITEM_CONT
-    #     print_nl ::= PRINT_NEWLINE
-    #     '''
-
-    # def p_print_to(self, args):
-    #     '''
-    #     stmt ::= print_to
-    #     stmt ::= print_to_nl
-    #     stmt ::= print_nl_to
-    #     print_to ::= expr print_to_items POP_TOP
-    #     print_to_nl ::= expr print_to_items PRINT_NEWLINE_TO
-    #     print_nl_to ::= expr PRINT_NEWLINE_TO
-    #     print_to_items ::= print_to_items print_to_item
-    #     print_to_items ::= print_to_item
-    #     print_to_item ::= DUP_TOP expr ROT_TWO PRINT_ITEM_TO
-    #     '''
-
-    def p_import20(self, args):
-        '''
-        stmt ::= importstmt
-        stmt ::= importfrom
-        stmt ::= importstar
-        stmt ::= importmultiple
-
-        importlist2 ::= importlist2 import_as
-        importlist2 ::= import_as
-        import_as ::= IMPORT_NAME designator
-        import_as ::= IMPORT_NAME load_attrs designator
-        import_as ::= IMPORT_FROM designator
-
-        importstmt ::= LOAD_CONST LOAD_CONST import_as
-        importstar ::= LOAD_CONST LOAD_CONST IMPORT_NAME IMPORT_STAR
-        importfrom ::= LOAD_CONST LOAD_CONST IMPORT_NAME importlist2 POP_TOP
-        importstar ::= LOAD_CONST LOAD_CONST IMPORT_NAME_CONT IMPORT_STAR
-        importfrom ::= LOAD_CONST LOAD_CONST IMPORT_NAME_CONT importlist2 POP_TOP
-        importmultiple ::= LOAD_CONST LOAD_CONST import_as imports_cont
-
-        imports_cont ::= imports_cont import_cont
-        imports_cont ::= import_cont
-        import_cont ::= LOAD_CONST LOAD_CONST import_as_cont
-        import_as_cont ::= IMPORT_NAME_CONT designator
-        import_as_cont ::= IMPORT_NAME_CONT load_attrs designator
-        import_as_cont ::= IMPORT_FROM designator
-
-        load_attrs ::= LOAD_ATTR
-        load_attrs ::= load_attrs LOAD_ATTR
-        '''
-
     def p_grammar(self, args):
-        '''stmts ::= stmts sstmt
-        stmts ::= sstmt
+        '''
         sstmt ::= stmt
         sstmt ::= ifelsestmtr
         sstmt ::= return_stmt RETURN_LAST
@@ -301,7 +166,6 @@ class Python3Parser(PythonParser):
 
         stmt ::= classdef
         stmt ::= call_stmt
-        call_stmt ::= expr POP_TOP
 
         stmt ::= return_stmt
         return_stmt ::= ret_expr RETURN_VALUE
@@ -818,3 +682,13 @@ class Python3Parser(PythonParser):
                         % ('expr ' * token.attr, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
         return
+
+class Python3ParserSingle(Python3Parser):
+    def p_call_stmt(self, args):
+        '''
+        # single-mode compilation. Eval-mode interactive compilation
+        # drops the last rule.
+
+        call_stmt ::= expr POP_TOP
+        call_stmt ::= expr PRINT_EXPR
+        '''
