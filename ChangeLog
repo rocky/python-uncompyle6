@@ -1,6 +1,77 @@
+2016-04-19  rocky <rocky@gnu.org>
+
+	* __pkginfo__.py: Get ready for release 2.2.0
+
+2016-04-18  rocky <rocky@gnu.org>
+
+	* README.rst: Another typo
+
+2016-04-18  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #7 from rocky/single-compile Support single-mode compile
+
+2016-04-18  rocky <rocky@gnu.org>
+
+	* README.rst: Doc typo
+
+2016-04-18  Thomas Grainger <tom.grainger@procensus.com>
+
+	* __pkginfo__.py, setup.cfg, setup.py: declare Python3 support in
+	wheel and trove
+
+2016-04-18  rocky <rocky@gnu.org>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py: Start to DRY Python 2 and Python 3
+	grammar code Move common code to parser.py
+
+2016-04-18  rocky <rocky@gnu.org>
+
+	* pytest/test_single_compile.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py: Add
+	simgle-mode compilation
+
+2016-04-17  rocky <rocky@gnu.org>
+
+	* pytest/test_single_compile.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/semantics/pysource.py: Towards single compilation
+
+2016-04-10  rocky <rb@dustyfeet.com>
+
+	* : Back off if_else_ternary pending Fails on Python 3.4 investigation Python 3.5 works though
+
+2016-04-10  rocky <rb@dustyfeet.com>
+
+	* .gitignore: Test administrivia
+
+2016-04-07  rocky <rb@dustyfeet.com>
+
+	* HISTORY.md, README.rst,
+	test/simple_source/branching/10_if_else_ternary.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py: Handle
+	Ternary "or". Remove mention of uncompyle3 uncompyle3 removed per Mysterie's request [Fixes Issue #5]
+
+2016-03-11  rocky <rb@dustyfeet.com>
+
+	* test/Makefile: remove uncompyle3 and make test work again * uncompyle3 removed by request * make test on python 2.7 is failing on some python3 and python3.5   bytecodes. Remove for now.
+
+2016-02-23  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #3 from lelicopter/master Bug correction (parse cmd options)
+
+2016-01-07  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/bytecompile-tests, test/test_pythonlib.py: Add
+	Python 3.5 tests that we can do.
+
+2016-01-05  R. Bernstein <rocky@users.noreply.github.com>
+
+	* HISTORY.md: Grammar fixes
+
 2016-01-02  rocky <rb@dustyfeet.com>
 
-	* __pkginfo__.py: Get ready for release 2.1.3
+	* ChangeLog, NEWS, __pkginfo__.py: Get ready for release 2.1.3
 
 2016-01-02  rocky <rb@dustyfeet.com>
 

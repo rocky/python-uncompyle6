@@ -1,3 +1,11 @@
+uncompyle6 2.2.0 2016-04-02
+
+- Support single-mode (in addtion to exec-mode) compilation
+- Start to DRY Python 2 and Python 3 grammars
+- Fix bug in if else ternary  construct
+- Fix bug in uncomplye6 -d and -r options (via lelicopter)
+
+
 uncompyle6 2.1.3 2016-01-02
 
 - Limited support for decompiling Python 3.5
