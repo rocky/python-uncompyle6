@@ -92,7 +92,6 @@ See Also
 --------
 
 * https://github.com/zrax/pycdc
-* https://github.com/Mysterie/uncompyle2
 * https://code.google.com/p/unpyc3/
 
 The HISTORY file.
