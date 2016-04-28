@@ -3,6 +3,8 @@
 /.cache
 /.eggs
 /.python-version
+/.tox
+/README
 /__pkginfo__.pyc
 /dist
 /how-to-make-a-release.txt

@@ -19,12 +19,16 @@ from __future__ import print_function
 
 from uncompyle6.parser import PythonParser, nop_func
 from uncompyle6.parsers.astnode import AST
-from uncompyle6.parsers.spark import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from spark import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from uncompyle6 import PYTHON3
 
 class Python2Parser(PythonParser):
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
-        GenericASTBuilder.__init__(self, AST, 'stmts', debug=debug_parser)
+        if PYTHON3:
+            super().__init__(AST, 'stmts', debug=debug_parser)
+        else:
+            super(Python2Parser, self).__init__(AST, 'stmts', debug=debug_parser)
         self.customized = {}
 
     def p_list_comprehension(self, args):

@@ -10,8 +10,8 @@ else:
 
 
 class AST(UserList):
-    def __init__(self, type, kids=[]):
-        self.type = intern(type)
+    def __init__(self, kind, kids=[]):
+        self.type = intern(kind)
         UserList.__init__(self, kids)
 
     def isNone(self):
