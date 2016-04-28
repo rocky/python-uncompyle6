@@ -3,7 +3,7 @@
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 """
-Common spark parser routines Python.
+Common uncompyle parser routines.
 """
 
 from __future__ import print_function
@@ -11,7 +11,7 @@ from __future__ import print_function
 import sys
 
 from uncompyle6.code import iscode
-from uncompyle6.parsers.spark import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from spark import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 class ParserError(Exception):
     def __init__(self, token, offset):
@@ -239,7 +239,7 @@ def python_parser(version, co, out=sys.stdout, showasm=False,
 
 if __name__ == '__main__':
     def parse_test(co):
-        from uncompyl6 import PYTHON_VERSION
+        from uncompyle6 import PYTHON_VERSION
         ast = python_parser(PYTHON_VERSION, co, showasm=True)
         print(ast)
         return

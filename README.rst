@@ -48,6 +48,7 @@ This uses setup.py, so it follows the standard Python routine:
 
 ::
 
+    pip install -r requirements.txt
     python setup.py install # may need sudo
     # or if you have pyenv:
     python setup.py develop
