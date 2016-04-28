@@ -46,7 +46,7 @@ else:
     from StringIO import StringIO
 
 
-from spark import GenericASTTraversal, GenericASTTraversalPruningException, \
+from spark_parser import GenericASTTraversal, GenericASTTraversalPruningException, \
      DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 from types import CodeType

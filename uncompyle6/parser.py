@@ -11,7 +11,7 @@ from __future__ import print_function
 import sys
 
 from uncompyle6.code import iscode
-from spark import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from spark_parser import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 class ParserError(Exception):
     def __init__(self, token, offset):

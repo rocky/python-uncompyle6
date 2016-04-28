@@ -70,7 +70,7 @@ from uncompyle6 import PYTHON3
 from uncompyle6.code import iscode
 from uncompyle6.parser import get_python_parser
 from uncompyle6.parsers.astnode import AST
-from spark import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from spark_parser import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.scanner import Code, get_scanner
 from uncompyle6.scanners.tok import Token, NoneToken
 import uncompyle6.parser as python_parser
