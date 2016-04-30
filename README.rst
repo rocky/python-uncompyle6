@@ -1,4 +1,4 @@
-|downloads| |buildstatus|
+|buildstatus|
 
 uncompyle6
 ==========
