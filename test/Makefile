@@ -87,7 +87,11 @@ check-native-short:
 check-2.7-ok:
 	$(PYTHON) test_pythonlib.py --ok-2.7 --verify $(COMPILE)
 
-#: Run longer Python 2.7's lib files known to be okay
+#: Run longer Python 3.2's lib files known to be okay
+check-3.2-ok:
+	$(PYTHON) test_pythonlib.py --ok-3.2 --verify $(COMPILE)
+
+#: Run longer Python 3.4's lib files known to be okay
 check-3.4-ok:
 	$(PYTHON) test_pythonlib.py --ok-3.4 --verify $(COMPILE)
 

@@ -55,25 +55,28 @@ PYO = ('*.pyo', )
 PYOC = ('*.pyc', '*.pyo')
 
 test_options = {
-    # name:   (src_basedir, pattern, output_base_suffix, pythoin_version)
+    # name:   (src_basedir, pattern, output_base_suffix, python_version)
     'test':
         ('test', PYC, 'test'),
 
     'ok-2.6':
         (os.path.join(src_dir, 'ok_2.6'),
-         PYC, 'ok-2.6', 2.6),
+         PYOC, 'ok-2.6', 2.6),
 
     'ok-2.7':    (os.path.join(src_dir, 'ok_lib2.7'),
-                 PYC, 'ok-2.7', 2.7),
+                 PYOC, 'ok-2.7', 2.7),
+
+    'ok-3.2':    (os.path.join(src_dir, 'ok_lib3.2'),
+                 PYOC, 'ok-3.2', 3.5),
 
     'base-2.7':  (os.path.join(src_dir, 'base_tests', 'python2.7'),
-                  PYC, 'base_2.7', 2.7),
+                  PYOC, 'base_2.7', 2.7),
 }
 
-for  vers in (2.7, 3.4):
+for  vers in (2.7, 3.4, 3.5):
     pythonlib = "ok_lib%s" % vers
     key = "ok-%s" % vers
-    test_options[key] = (os.path.join(src_dir, pythonlib), PYC, key, vers)
+    test_options[key] = (os.path.join(src_dir, pythonlib), PYOC, key, vers)
     pass
 
 for  vers in (2.5, 2.6, 2.7, 3.2, 3.3, 3.4, 3.5):
@@ -84,7 +87,7 @@ for  vers in (2.5, 2.6, 2.7, 3.2, 3.3, 3.4, 3.5):
     pythonlib = "python%s" % vers
     if vers >= 3.0:
         pythonlib = os.path.join(pythonlib, '__pycache__')
-    test_options[key] =  (os.path.join(lib_prefix, pythonlib), PYC, pythonlib, vers)
+    test_options[key] =  (os.path.join(lib_prefix, pythonlib), PYOC, pythonlib, vers)
 
 #-----
 
