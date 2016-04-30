@@ -1,3 +1,13 @@
+uncompyle6 2.2.1 2016-04-30
+
+- Require spark_parser  >= 1.1.0
+
+uncompyle6 2.2.0 2016-04-30
+
+- Spark is no longer here but pulled separate package spark_parse
+- Python 3 parsing fixes
+- More tests
+
 uncompyle6 2.2.0 2016-04-02
 
 - Support single-mode (in addtion to exec-mode) compilation

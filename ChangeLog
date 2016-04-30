@@ -1,6 +1,69 @@
+2016-04-30  rocky <rocky@gnu.org>
+
+	* README.rst, __pkginfo__.py: Get ready for release 2.3.0
+
+2016-04-30  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/astnode.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/semantics/pysource.py: Python 3.0..3.2 bug in
+	LOAD_FAST/STORE_LOCAL LOAD_FAST         '__locals__' STORE_LOCALS      '' Also have to adjust doc constants for this crap astnode.py: minor format change
+
+2016-04-30  rocky <rocky@gnu.org>
+
+	* test/Makefile, test/simple_source/def/06_classbug.py,
+	test/test_pythonlib.py: Test optimized Python code and Python 3.2
+
+2016-04-30  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse3.py: Pevious commit grammar change is
+	Python 3.5 and up
+
+2016-04-30  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse3.py: Python 3.5 if statments decompyle Sometimes it doesn't need JUMP_FORWARD _come_from _come_from For example: def handle2(module):     if module == 'foo':         try:             module = 1         except ImportError as exc:             module = exc     return module And: if __name__:     for i in (1, 2):         x = 3
+
+2016-04-28  rocky <rocky@gnu.org>
+
+	* requirements.txt, uncompyle6/parser.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/semantics/fragments.py, uncompyle6/semantics/pysource.py: 
+	spark -> spark_parser
+
+2016-04-28  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/spark.py: Really remove spark - Use external
+	package instead
+
+2016-04-27  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #8 from rocky/external-spark External spark
+
+2016-04-27  rocky <rocky@gnu.org>
+
+	* .travis.yml, circle.yml: Note dependencies on spark
+
+2016-04-27  rocky <rocky@gnu.org>
+
+	* .gitignore, README.rst, requirements.txt, uncompyle6/parser.py,
+	uncompyle6/parsers/astnode.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Use external spark now.
+
+2016-04-20  rocky <rocky@gnu.org>
+
+	* circle.yml: Back to 2.7.8
+
+2016-04-20  rocky <rocky@gnu.org>
+
+	* circle.yml: Try python 2.7.10
+
 2016-04-19  rocky <rocky@gnu.org>
 
-	* __pkginfo__.py: Get ready for release 2.2.0
+	* README.rst: Remove link to Mysterie uncompyle2 per request
+
+2016-04-19  rocky <rocky@gnu.org>
+
+	* ChangeLog, NEWS, __pkginfo__.py: Get ready for release 2.2.0
 
 2016-04-18  rocky <rocky@gnu.org>
 
