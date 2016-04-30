@@ -93,7 +93,6 @@ RETURN_LOCALS = AST('return_stmt',
                     [ AST('ret_expr', [AST('expr', [ Token('LOAD_LOCALS') ])]),
                       Token('RETURN_VALUE')])
 
-
 NONE = AST('expr', [ NoneToken ] )
 
 RETURN_NONE = AST('stmt',
@@ -1224,6 +1223,14 @@ class SourceWalker(GenericASTTraversal, object):
 
     n_unpack_w_parens = n_unpack
 
+    def n_assign(self, node):
+        # A horrible hack for Python 3.0 .. 3.2
+        if 3.0 <= self.version <= 3.2 and len(node) == 2:
+            if (node[0][0] == 'LOAD_FAST' and node[0][0].pattr == '__locals__' and
+                node[1][0].type == 'STORE_LOCALS'):
+                self.prune()
+        self.default(node)
+
     def n_assign2(self, node):
         for n in node[-2:]:
             if n[0] == 'unpack':
@@ -1538,12 +1545,20 @@ class SourceWalker(GenericASTTraversal, object):
             pass
 
         # if docstring exists, dump it
-        if (code.co_consts and code.co_consts[0] is not None
-            and len(ast) > 0 and ast[0][0] == ASSIGN_DOC_STRING(code.co_consts[0])):
-            if self.hide_internal:
+        if (code.co_consts and code.co_consts[0] is not None and len(ast) > 0):
+            do_doc = False
+            if (ast[0][0] == ASSIGN_DOC_STRING(code.co_consts[0])):
+                i = 0
+                do_doc = True
+            elif (len(ast) > 2 and 3.0 <= self.version <= 3.2 and
+                      ast[2][0] == ASSIGN_DOC_STRING(code.co_consts[0])):
+                i = 2
+                do_doc = True
+            if do_doc and self.hide_internal:
                 self.print_docstring(indent, code.co_consts[0])
                 self.print_()
-                del ast[0]
+                del ast[i]
+
 
         # the function defining a class normally returns locals(); we
         # don't want this to show up in the source, thus remove the node

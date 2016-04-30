@@ -19,7 +19,7 @@ from __future__ import print_function
 
 from uncompyle6.parser import PythonParser, nop_func
 from uncompyle6.parsers.astnode import AST
-from spark_parser import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6 import PYTHON3
 
 class Python3Parser(PythonParser):
@@ -153,6 +153,9 @@ class Python3Parser(PythonParser):
 
         designList ::= designator designator
         designList ::= designator DUP_TOP designList
+
+        # FIXME: Store local is only used in Python 3.2
+        designator ::= STORE_LOCALS
 
         designator ::= STORE_FAST
         designator ::= STORE_NAME

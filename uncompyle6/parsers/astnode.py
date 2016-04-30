@@ -28,7 +28,8 @@ class AST(UserList):
         else:
             return self.type == o
 
-    def __hash__(self):            return hash(self.type)
+    def __hash__(self):
+        return hash(self.type)
 
     def __repr__(self, indent=''):
         rv = str(self.type)
