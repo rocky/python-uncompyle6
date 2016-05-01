@@ -50,6 +50,9 @@ def check_python_version(program):
 
 import uncompyle6.semantics.pysource
 import uncompyle6.semantics.fragments
+import uncompyle6.load
+
+from uncompyle6.load import load_module, load_file
 
 # Conventience functions so you can say:
 # from uncompyle6 import deparse_code
