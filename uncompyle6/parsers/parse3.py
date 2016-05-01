@@ -660,6 +660,9 @@ class Python32Parser(Python3Parser):
         designator ::= STORE_LOCALS
         """
 
+class Python3ParserSingle(Python3Parser, PythonParserSingle):
+    pass
+
 class Python32ParserSingle(Python32Parser, PythonParserSingle):
     pass
 
