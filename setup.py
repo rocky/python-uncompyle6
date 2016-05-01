@@ -2,16 +2,9 @@
 
 """Setup script for the 'uncompyle6' distribution."""
 
-# Get the package information used in setup().
-# from __pkginfo__ import \
-#     author,           author_email,       classifiers,                    \
-#     install_requires, license,            long_description,               \
-#     modname,          packages,           py_modules,   \
-#     short_desc,       version,            web,              zip_safe
-
 from __pkginfo__ import \
     author,           author_email,                                  \
-    long_description,                                                \
+    license,          long_description,                              \
     modname,          packages,           py_modules,       scripts, \
     short_desc,       version,            web,              zip_safe
 
@@ -24,7 +17,7 @@ setup(
        # classifiers        = classifiers,
        description        = short_desc,
        # install_requires   = install_requires,
-       # license            = license,
+       license            = license,
        long_description   = long_description,
        py_modules         = py_modules,
        name               = modname,

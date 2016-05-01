@@ -18,7 +18,6 @@ from __future__ import print_function
 import sys, types
 from struct import unpack
 
-import uncompyle6.scanners.scanner3 as scan3
 from uncompyle6.magics import PYTHON_MAGIC_INT
 from uncompyle6.code import Code3
 

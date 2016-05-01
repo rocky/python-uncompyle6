@@ -34,7 +34,7 @@ ftp_url            = None
 install_requires   = ['python-spark >= 1.1.0']
 license            = 'GPL'
 
-# license            = 'BSDish'
+license            = 'MIT'
 mailing_list       = 'python-debugger@googlegroups.com'
 modname            = 'uncompyle6'
 packages           = ['uncompyle6', 'uncompyle6.opcodes', 'uncompyle6.semantics', 'uncompyle6.scanners', 'uncompyle6.parsers']
