@@ -17,7 +17,7 @@ that a later phase can tern into a sequence of ASCII text.
 
 from __future__ import print_function
 
-from uncompyle6.parser import PythonParser, nop_func
+from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.astnode import AST
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6 import PYTHON3
@@ -42,60 +42,26 @@ class Python3Parser(PythonParser):
             pass
         return
 
-    def p_list_comprehension(self, args):
-        '''
+    def p_list_comprehension3(self, args):
+        """
         # Python3 scanner adds LOAD_LISTCOMP. Python3 does list comprehension like
         # other comprehensions (set, dictionary).
 
-        # listcomp is a custom rule
+        # listcomp is a custom Python3 rule
         expr ::= listcomp
 
-        expr ::= list_compr
-        list_compr ::= BUILD_LIST_0 list_iter
-
-        list_iter ::= list_for
-        list_iter ::= list_if
-        list_iter ::= list_if_not
-        list_iter ::= lc_body
-
-        _come_from ::= COME_FROM
-        _come_from ::=
-
         list_for ::= expr FOR_ITER designator list_iter JUMP_BACK
-        list_if ::= expr jmp_false list_iter
-        list_if_not ::= expr jmp_true list_iter
 
-        lc_body ::= expr LIST_APPEND
-        '''
+        # See also common Python p_list_comprehension
+        """
 
-    def p_setcomp(self, args):
-        '''
-        expr ::= setcomp
-
-        setcomp ::= LOAD_SETCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
-
-        stmt ::= setcomp_func
-
-        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
-                JUMP_BACK RETURN_VALUE RETURN_LAST
-
-        comp_iter ::= comp_if
-        comp_iter ::= comp_ifnot
-        comp_iter ::= comp_for
-        comp_iter ::= comp_body
-        comp_body ::= set_comp_body
-        comp_body ::= gen_comp_body
-        comp_body ::= dict_comp_body
-        set_comp_body ::= expr SET_ADD
-        gen_comp_body ::= expr YIELD_VALUE POP_TOP
-        dict_comp_body ::= expr expr MAP_ADD
-
-        comp_if ::= expr jmp_false comp_iter
-        comp_ifnot ::= expr jmp_true comp_iter
-
-        # This is different in python2 - should it be?
+    def p_setcomp3(self, args):
+        """
+        # This is different in Python 2 - should it be?
         comp_for ::= expr _for designator comp_iter JUMP_ABSOLUTE
-        '''
+
+        # See also common Python p_setcomp
+        """
 
     def p_grammar(self, args):
         '''
@@ -153,9 +119,6 @@ class Python3Parser(PythonParser):
 
         designList ::= designator designator
         designList ::= designator DUP_TOP designList
-
-        # FIXME: Store local is only used in Python 3.2
-        designator ::= STORE_LOCALS
 
         designator ::= STORE_FAST
         designator ::= STORE_NAME
@@ -277,9 +240,6 @@ class Python3Parser(PythonParser):
 
         _ifstmts_jump ::= return_if_stmts
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from _come_from
-
-        # FIXME: this optimization is only used in Python 3.5 and beyond
-        _ifstmts_jump ::= c_stmts_opt
 
         iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
 
@@ -693,12 +653,22 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
         return
 
-class Python3ParserSingle(Python3Parser):
-    def p_call_stmt(self, args):
-        '''
-        # single-mode compilation. Eval-mode interactive compilation
-        # drops the last rule.
+class Python32Parser(Python3Parser):
+    def p_32(self, args):
+        """
+        # Store locals is only used in Python 3.2
+        designator ::= STORE_LOCALS
+        """
 
-        call_stmt ::= expr POP_TOP
-        call_stmt ::= expr PRINT_EXPR
-        '''
+class Python32ParserSingle(Python32Parser, PythonParserSingle):
+    pass
+
+class Python35onParser(Python3Parser):
+    def p_35on(self, args):
+        """
+        # this optimization is only used in Python 3.5 and beyond
+        _ifstmts_jump ::= c_stmts_opt
+        """
+
+class Python35onParserSingle(Python35onParser, PythonParserSingle):
+    pass

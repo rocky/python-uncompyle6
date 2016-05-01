@@ -17,9 +17,9 @@ that a later phase can tern into a sequence of ASCII text.
 
 from __future__ import print_function
 
-from uncompyle6.parser import PythonParser, nop_func
+from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.astnode import AST
-from spark_parser import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6 import PYTHON3
 
 class Python2Parser(PythonParser):
@@ -31,52 +31,14 @@ class Python2Parser(PythonParser):
             super(Python2Parser, self).__init__(AST, 'stmts', debug=debug_parser)
         self.customized = {}
 
-    def p_list_comprehension(self, args):
-        '''
-        expr ::= list_compr
-        list_compr ::= BUILD_LIST_0 list_iter
-
-        list_iter ::= list_for
-        list_iter ::= list_if
-        list_iter ::= list_if_not
-        list_iter ::= lc_body
-
-        _come_from ::= COME_FROM
-        _come_from ::=
-
+    def p_list_comprehension2(self, args):
+        """
         list_for ::= expr _for designator list_iter JUMP_BACK
-        list_if ::= expr jmp_false list_iter
-        list_if_not ::= expr jmp_true list_iter
+        """
 
-        lc_body ::= expr LIST_APPEND
+    def p_setcomp2(self, args):
         '''
-
-    def p_setcomp(self, args):
-        '''
-        expr ::= setcomp
-
-        setcomp ::= LOAD_SETCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
-
-        stmt ::= setcomp_func
-
-        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
-                JUMP_BACK RETURN_VALUE RETURN_LAST
-
-        comp_iter ::= comp_if
-        comp_iter ::= comp_ifnot
-        comp_iter ::= comp_for
-        comp_iter ::= comp_body
-        comp_body ::= set_comp_body
-        comp_body ::= gen_comp_body
-        comp_body ::= dict_comp_body
-        set_comp_body ::= expr SET_ADD
-        gen_comp_body ::= expr YIELD_VALUE POP_TOP
-        dict_comp_body ::= expr expr MAP_ADD
-
-        comp_if ::= expr jmp_false comp_iter
-        comp_ifnot ::= expr jmp_true comp_iter
-
-        # This is different in python3 - shout it be?
+        # This is different in python3 - should it be?
         comp_for ::= expr _for designator comp_iter JUMP_BACK
         '''
 
@@ -609,12 +571,5 @@ class Python2Parser(PythonParser):
                 raise Exception('unknown customize token %s' % k)
             self.addRule(rule, nop_func)
 
-class Python2ParserSingle(Python2Parser):
-    def p_call_stmt(self, args):
-        '''
-        # single-mode compilation. eval-mode interactive compilation
-        # drops the last rule.
-
-        call_stmt ::= expr POP_TOP
-        call_stmt ::= expr PRINT_EXPR
-        '''
+class Python2ParserSingle(Python2Parser, PythonParserSingle):
+    pass

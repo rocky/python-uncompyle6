@@ -192,6 +192,51 @@ class PythonParser(GenericASTBuilder):
         load_attrs ::= load_attrs LOAD_ATTR
         '''
 
+    def p_list_comprehension(self, args):
+        """
+        expr ::= list_compr
+        list_compr ::= BUILD_LIST_0 list_iter
+
+        list_iter ::= list_for
+        list_iter ::= list_if
+        list_iter ::= list_if_not
+        list_iter ::= lc_body
+
+        _come_from ::= COME_FROM
+        _come_from ::=
+
+        list_if ::= expr jmp_false list_iter
+        list_if_not ::= expr jmp_true list_iter
+
+        lc_body ::= expr LIST_APPEND
+        """
+
+    def p_setcomp(self, args):
+        """
+        expr ::= setcomp
+
+        setcomp ::= LOAD_SETCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
+
+        stmt ::= setcomp_func
+
+        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
+                JUMP_BACK RETURN_VALUE RETURN_LAST
+
+        comp_iter ::= comp_if
+        comp_iter ::= comp_ifnot
+        comp_iter ::= comp_for
+        comp_iter ::= comp_body
+        comp_body ::= set_comp_body
+        comp_body ::= gen_comp_body
+        comp_body ::= dict_comp_body
+        set_comp_body ::= expr SET_ADD
+        gen_comp_body ::= expr YIELD_VALUE POP_TOP
+        dict_comp_body ::= expr expr MAP_ADD
+
+        comp_if ::= expr jmp_false comp_iter
+        comp_ifnot ::= expr jmp_true comp_iter
+        """
+
 
 def parse(p, tokens, customize):
     p.add_custom_rules(tokens, customize)
@@ -201,12 +246,11 @@ def parse(p, tokens, customize):
 
 
 def get_python_parser(version, debug_parser, compile_mode='exec'):
-    """
-    Returns parser object for Python version 2 or 3
-    depending on the parameter passed.  *compile_mode*
-    is either 'exec', 'eval', or 'single'. See
-    https://docs.python.org/3.6/library/functions.html#compile for an explanation
-    of the different modes.
+    """Returns parser object for Python version 2 or 3, 3.2, 3.5on,
+    etc., depending on the parameters passed.  *compile_mode* is either
+    'exec', 'eval', or 'single'. See
+    https://docs.python.org/3.6/library/functions.html#compile for an
+    explanation of the different modes.
     """
 
     if version < 3.0:
@@ -217,12 +261,33 @@ def get_python_parser(version, debug_parser, compile_mode='exec'):
             p = parse2.Python2ParserSingle(debug_parser)
     else:
         import uncompyle6.parsers.parse3 as parse3
-        if compile_mode == 'exec':
-            p = parse3.Python3Parser(debug_parser)
+        if version == 3.2:
+            if compile_mode == 'exec':
+                p = parse3.Python32Parser(debug_parser)
+            else:
+                p = parse3.Python32ParserSingle(debug_parser)
+        elif version >= 3.5:
+            if compile_mode == 'exec':
+                p = parse3.Python35onParser(debug_parser)
+            else:
+                p = parse3.Python35onParserSingle(debug_parser)
         else:
-            p = parse3.Python3ParserSingle(debug_parser)
+            if compile_mode == 'exec':
+                p = parse3.Python3Parser(debug_parser)
+            else:
+                p = parse3.Python3ParserSingle(debug_parser)
     p.version = version
     return p
+
+class PythonParserSingle(PythonParser):
+    def p_call_stmt(self, args):
+        '''
+        # single-mode compilation. Eval-mode interactive compilation
+        # drops the last rule.
+
+        call_stmt ::= expr POP_TOP
+        call_stmt ::= expr PRINT_EXPR
+        '''
 
 def python_parser(version, co, out=sys.stdout, showasm=False,
                   parser_debug=PARSER_DEFAULT_DEBUG):
