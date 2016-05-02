@@ -4,7 +4,7 @@ uncompyle6
 ==========
 
 A native Python bytecode Disassembler, Decompiler, Fragment Decompiler
-and bytecode library
+and bytecode library. Follows in the tradition of decompyle, uncompyle, and uncompyle2.
 
 
 Introduction
@@ -12,11 +12,16 @@ Introduction
 
 *uncompyle6* translates Python bytecode back into equivalent Python
 source code. It accepts bytecodes from Python version 2.5 to 3.4 or
-so and has been tested on Python running versions 2.6, 2.7, 3.3,
+so, It has been tested on Python running versions 2.6, 2.7, 3.3,
 3.4 and 3.5.
 
 Why this?
 ---------
+
+There were a number of decompyle, uncompile, uncompyle2, uncompyle3
+forks around. All of them come basically from the same code base, and
+almost all of them not maintained very well. This code pulls these together
+and addresses a number of open issues in those.
 
 What makes this different from other CPython bytecode decompilers?  Its
 ability to deparse just fragments and give source-code information
@@ -81,20 +86,22 @@ Run
      ./bin/uncompyle6 -h
      ./bin/pydisassemble -h
 
-for usage help
+for usage help.
 
 
 Known Bugs/Restrictions
 -----------------------
 
 Python 2 deparsing is probably as solid as the various versions of
-uncompyle2.  Python 3 deparsing is okay but not as solid.
+uncompyle2.  Python 3 deparsing is okay but not as solid. Python 3.5 is missing some of new opcodes added, but still often works.
 
 See Also
 --------
 
-* https://github.com/zrax/pycdc
-* https://code.google.com/p/unpyc3/
+* https://github.com/zrax/pycdc : supports all versions of Python and is written in C++
+* https://code.google.com/archive/p/unpyc3/ : supports Python 3.2 only
+
+The above projects use a different decompiling technique what is used here.
 
 The HISTORY file.
 
