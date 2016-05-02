@@ -81,7 +81,6 @@ if PYTHON3:
     minint = -sys.maxsize-1
     maxint = sys.maxsize
 else:
-    from itertools import izip_longest as zip_longest
     from StringIO import StringIO
     minint = -sys.maxint-1
     maxint = sys.maxint
@@ -1148,29 +1147,42 @@ class SourceWalker(GenericASTTraversal, object):
         """
         p = self.prec
         self.prec = 100
-        assert node[-1] == 'kvlist'
-        node = node[-1] # goto kvlist
 
         self.indentMore(INDENT_PER_LEVEL)
         line_seperator = ',\n' + self.indent
         sep = INDENT_PER_LEVEL[:-1]
         self.write('{')
-        for kv in node:
-            assert kv in ('kv', 'kv2', 'kv3')
-            # kv ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
-            # kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
-            # kv3 ::= expr expr STORE_MAP
-            if kv == 'kv':
-                name = self.traverse(kv[-2], indent='')
-                value = self.traverse(kv[1], indent=self.indent+(len(name)+2)*' ')
-            elif kv == 'kv2':
-                name = self.traverse(kv[1], indent='')
-                value = self.traverse(kv[-3], indent=self.indent+(len(name)+2)*' ')
-            elif kv == 'kv3':
-                name = self.traverse(kv[-2], indent='')
-                value = self.traverse(kv[0], indent=self.indent+(len(name)+2)*' ')
-            self.write(sep, name, ': ', value)
-            sep = line_seperator
+
+        if node[0].type.startswith('kvlist'):
+            # Python 3.5 style key/value list in mapexpr
+            l = list(node[0])
+            i = 0
+            while i < len(l):
+                name = self.traverse(l[i], indent='')
+                value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
+                self.write(sep, name, ': ', value)
+                sep = line_seperator
+                i += 2
+        else:
+            assert node[-1] == 'kvlist'
+            node = node[-1] # goto kvlist
+
+            for kv in node:
+                assert kv in ('kv', 'kv2', 'kv3')
+                # kv ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
+                # kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
+                # kv3 ::= expr expr STORE_MAP
+                if kv == 'kv':
+                    name = self.traverse(kv[-2], indent='')
+                    value = self.traverse(kv[1], indent=self.indent+(len(name)+2)*' ')
+                elif kv == 'kv2':
+                    name = self.traverse(kv[1], indent='')
+                    value = self.traverse(kv[-3], indent=self.indent+(len(name)+2)*' ')
+                elif kv == 'kv3':
+                    name = self.traverse(kv[-2], indent='')
+                    value = self.traverse(kv[0], indent=self.indent+(len(name)+2)*' ')
+                    self.write(sep, name, ': ', value)
+                    sep = line_seperator
         self.write('}')
         self.indentLess(INDENT_PER_LEVEL)
         self.prec = p

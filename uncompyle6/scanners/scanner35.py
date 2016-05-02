@@ -14,7 +14,6 @@ import dis, inspect
 from array import array
 import uncompyle6.scanners.scanner3 as scan3
 
-from uncompyle6 import PYTHON_VERSION
 from uncompyle6.code import iscode
 from uncompyle6.scanner import Token
 
@@ -29,13 +28,10 @@ from uncompyle6.opcodes.opcode_35 import *
 
 class Scanner35(scan3.Scanner3):
 
-    def disassemble(self, co, classname=None, code_objects={}):
-        fn = self.disassemble_built_in if PYTHON_VERSION == 3.4 \
-            else self.disassemble_generic
-        return fn(co, classname, code_objects=code_objects)
-
-    def disassemble_built_in(self, co, classname=None,
-                             code_objects={}):
+    # Note: we can't use built-in disassembly routines, unless
+    # we do post-processing like we do here.
+    def disassemble(self, co, classname=None,
+                    code_objects={}):
         # Container for tokens
         tokens = []
         customize = {}
@@ -116,17 +112,11 @@ class Scanner35(scan3.Scanner3):
                     pattr = const
                     pass
             elif opname in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET', 'BUILD_SLICE',
+                            'BUILD_MAP',
                             'UNPACK_SEQUENCE',
                             'MAKE_FUNCTION', 'MAKE_CLOSURE',
                             'DUP_TOPX', 'RAISE_VARARGS'
                             ):
-                # if opname == 'BUILD_TUPLE' and \
-                #     self.code[self.prev[offset]] == LOAD_CLOSURE:
-                #     continue
-                # else:
-                #     op_name = '%s_%d' % (op_name, oparg)
-                #     if opname != BUILD_SLICE:
-                #         customize[op_name] = oparg
                 opname = '%s_%d' % (opname, inst.argval)
                 if inst.opname != 'BUILD_SLICE':
                     customize[opname] = inst.argval
