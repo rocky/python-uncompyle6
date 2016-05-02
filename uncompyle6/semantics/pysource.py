@@ -81,6 +81,7 @@ if PYTHON3:
     minint = -sys.maxsize-1
     maxint = sys.maxsize
 else:
+    from itertools import izip_longest as zip_longest
     from StringIO import StringIO
     minint = -sys.maxint-1
     maxint = sys.maxint

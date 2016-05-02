@@ -48,7 +48,7 @@ check-bytecode:
 
 #: Check deparsing bytecode only
 check-bytecode-sans-3.5:
-	$(PYTHON) test_pythonlib.py --bytecode-2.6 --bytecode-2.7 \
+	$(PYTHON) test_pythonlib.py --bytecode-2.5 --bytecode-2.6 --bytecode-2.7 \
         --bytecode-3.2 --bytecode-3.3 --bytecode-3.4
 
 #: Check deparsing Python 2.5
