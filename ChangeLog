@@ -1,6 +1,50 @@
+2016-05-02  rocky <rocky@gnu.org>
+
+	* __pkginfo__.py, bin/pydisassemble, bin/uncompyle6, setup.py,
+	uncompyle6/__init__.py, uncompyle6/version.py: Add -V | --version
+	and simplfy changing it
+
+2016-05-01  rocky <rocky@gnu.org>
+
+	* uncompyle6/__init__.py: Expose uncompyle_file
+
+2016-05-01  rocky <rocky@gnu.org>
+
+	* test/Makefile, uncompyle6/semantics/pysource.py: Bug
+
+2016-05-01  rocky <rocky@gnu.org>
+
+	* test/Makefile, test/simple_source/expression/05_const_map.py: Add
+	test for last fix.  Drop 2.5 test until we figure out what's wrong
+
+2016-05-01  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner35.py,
+	uncompyle6/semantics/pysource.py: Bug in 3.5 constant map parsing
+
+2016-05-01  rocky <rocky@gnu.org>
+
+	* uncompyle6/__init__.py: Export module load and fns load_file,
+	load_module
+
+2016-05-01  rocky <rocky@gnu.org>
+
+	* __pkginfo__.py, setup.py, uncompyle6/marsh.py: License is MIT marsh.py: remove unused import
+
+2016-05-01  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse3.py: Forgot to define Python3ParserSingle
+
+2016-05-01  rocky <rocky@gnu.org>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py: Start to DRY Python2 and Python3
+	grammars Separate out 3.2, and 3.5+ specific grammar code
+
 2016-04-30  rocky <rocky@gnu.org>
 
-	* README.rst, __pkginfo__.py: Get ready for release 2.3.0
+	* ChangeLog, NEWS, README.rst, __pkginfo__.py: Get ready for release
+	2.3.1
 
 2016-04-30  rocky <rocky@gnu.org>
 

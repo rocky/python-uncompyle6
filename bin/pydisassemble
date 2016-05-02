@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
-# Copyright (c) 2015 by Rocky Bernstein <rb@dustyfeet.com>
+# Copyright (c) 2015-2016 by Rocky Bernstein <rb@dustyfeet.com>
 #
 from __future__ import print_function
 import sys, os, getopt
@@ -9,11 +9,13 @@ import sys, os, getopt
 program =  os.path.basename(__file__)
 
 __doc__ = """
-Usage: %s [OPTIONS]... FILE
+Usage:
+  %s [OPTIONS]... FILE
+  %s [--help | -h | -V | --version]
 
 Examples:
-  %s      foo.pyc
-  %s      foo.py
+  %s foo.pyc
+  %s foo.py
   %s -o foo.pydis foo.pyc
   %s -o /tmp foo.pyc
 
@@ -24,7 +26,7 @@ Options:
                 <path>
   --help        show this message
 
-""" % ((program,) * 5)
+""" % ((program,) * 6)
 
 
 Usage_short = \
@@ -32,6 +34,7 @@ Usage_short = \
 
 from uncompyle6 import check_python_version
 from uncompyle6.disas import disassemble_files
+from uncompyle6.version import VERSION
 
 check_python_version(program)
 
@@ -40,7 +43,7 @@ out_base = None
 
 
 try:
-    opts, files = getopt.getopt(sys.argv[1:], 'ho:', ['help'])
+    opts, files = getopt.getopt(sys.argv[1:], 'hVo:', ['help', 'version'])
 except getopt.GetoptError as e:
     print('%s: %s' % (os.path.basename(sys.argv[0]), e),  file=sys.stderr)
     sys.exit(-1)
@@ -48,6 +51,9 @@ except getopt.GetoptError as e:
 for opt, val in opts:
     if opt in ('-h', '--help'):
         print(__doc__)
+        sys.exit(1)
+    elif opt in ('-V', '--version'):
+        print("%s %s" % (program, VERSION))
         sys.exit(0)
     elif opt == '-o':
         outfile = val

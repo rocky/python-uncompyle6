@@ -50,7 +50,6 @@ def get_srcdir():
     return os.path.realpath(filename)
 
 ns = {}
-version            = '2.3.1'
 web                = 'https://github.com/rocky/python-uncompyle6/'
 
 # tracebacks in zip files are funky and not debuggable

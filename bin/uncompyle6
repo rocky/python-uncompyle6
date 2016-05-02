@@ -1,16 +1,23 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
+# Copyright (c) 2015-2016 by Rocky Bernstein
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-# Copyright (c) 2015 by Rocky Bernstein
+#
+from __future__ import print_function
+import sys, os, getopt, time
 
-"""
-Usage: uncompyle6 [OPTIONS]... [ FILE | DIR]...
+program =  os.path.basename(__file__)
+
+__doc__ = """
+Usage:
+  %s [OPTIONS]... [ FILE | DIR]...
+  %s [--help | -h | --V | --version]
 
 Examples:
-  uncompyle6      foo.pyc bar.pyc       # decompile foo.pyc, bar.pyc to stdout
-  uncompyle6 -o . foo.pyc bar.pyc       # decompile to ./foo.pyc_dis and ./bar.pyc_dis
-  uncompyle6 -o /tmp /usr/lib/python1.5 # decompile whole library
+  %s      foo.pyc bar.pyc       # decompile foo.pyc, bar.pyc to stdout
+  %s -o . foo.pyc bar.pyc       # decompile to ./foo.pyc_dis and ./bar.pyc_dis
+  %s -o /tmp /usr/lib/python1.5 # decompile whole library
 
 Options:
   -o <path>     output decompiled files to this path:
@@ -34,26 +41,25 @@ Options:
 Debugging Options:
   --asm     -a  include byte-code         (disables --verify)
   --grammar -g  show matching grammar
-  --treee   -t  include syntax tree       (disables --verify)
+  --tree    -t  include syntax tree       (disables --verify)
 
 Extensions of generated files:
   '.pyc_dis' '.pyo_dis'   successfully decompiled (and verified if --verify)
     + '_unverified'       successfully decompile but --verify failed
     + '_failed'           decompile failed (contact author for enhancement)
-"""
-
-from __future__ import print_function
-import sys, os, getopt, time
+""" % ((program,) * 6
 
 program =  os.path.basename(__file__)
 
 from uncompyle6 import verify, check_python_version
 from uncompyle6.main import main, status_msg
+from uncompyle6.version import VERSION
 
 def usage():
     print("""usage:
-   %s [--help] [--verify] [--asm] [--tree] [--grammar] [-o <path>] FILE|DIR...
-"""  % program)
+   %s [--verify] [--asm] [--tree] [--grammar] [-o <path>] FILE|DIR...
+   %s [--help | -h | --version | -V]
+"""  % (program, program))
     sys.exit(1)
 
 
@@ -68,8 +74,8 @@ timestamp = False
 timestampfmt = "# %Y.%m.%d %H:%M:%S %Z"
 
 try:
-    opts, files = getopt.getopt(sys.argv[1:], 'hagtdro:c:p:',
-                                'help asm grammar recurse timestamp tree verify '
+    opts, files = getopt.getopt(sys.argv[1:], 'hagtdrVo:c:p:',
+                                'help asm grammar recurse timestamp tree verify version '
                                 'showgrammar'.split(' '))
 except getopt.GetoptError as e:
     print('%s: %s' % (os.path.basename(sys.argv[0]), e),  file=sys.stderr)
@@ -79,6 +85,9 @@ options = {}
 for opt, val in opts:
     if opt in ('-h', '--help'):
         print(__doc__)
+        sys.exit(0)
+    elif opt in ('-V', '--version'):
+        print("%s %s" % (program, VERSION))
         sys.exit(0)
     elif opt == '--verify':
         options['do_verify'] = True

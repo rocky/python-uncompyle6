@@ -6,10 +6,12 @@ from __pkginfo__ import \
     author,           author_email,                                  \
     license,          long_description,                              \
     modname,          packages,           py_modules,       scripts, \
-    short_desc,       version,            web,              zip_safe
+    short_desc,       web,                zip_safe
 
 __import__('pkg_resources')
 from setuptools import setup
+
+exec(open('uncompyle6/version.py').read())
 
 setup(
        author             = author,
@@ -26,5 +28,5 @@ setup(
        url                = web,
        setup_requires     = ['nose>=1.0'],
        scripts            = scripts,
-       version            = version,
+       version            = VERSION,
        zip_safe           = zip_safe)

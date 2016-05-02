@@ -1,4 +1,13 @@
-uncompyle6 2.2.1 2016-04-30
+uncompyle6 2.3.2 2016-05-1
+
+- Add --version option standalone scripts
+- Correct License information in package
+- expose fns uncompyle_file, load_file, and load_module
+- Start to DRY Python2 and Python3 grammars Separate out 3.2, and 3.5+
+  specific grammar code
+- Fix bug in 3.5+ constant map parsing
+
+uncompyle6 2.3.0, 2.3.1 2016-04-30
 
 - Require spark_parser  >= 1.1.0
 
