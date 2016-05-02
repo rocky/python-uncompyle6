@@ -52,7 +52,9 @@ import uncompyle6.semantics.pysource
 import uncompyle6.semantics.fragments
 import uncompyle6.load
 
+# Export some functions
 from uncompyle6.load import load_module, load_file
+from uncompyle6.main import uncompyle_file
 
 # Conventience functions so you can say:
 # from uncompyle6 import deparse_code
