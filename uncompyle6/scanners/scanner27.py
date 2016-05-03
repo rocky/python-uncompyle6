@@ -214,12 +214,6 @@ class Scanner27(scan.Scanner):
                 rv.append(Token(replace[offset], oparg, pattr, offset, linestart))
         return rv, customize
 
-    def op_size(self, op):
-        if op < self.opc.HAVE_ARGUMENT:
-            return 1
-        else:
-            return 3
-
     def build_stmt_indices(self):
         code = self.code
         start = 0
@@ -299,15 +293,6 @@ class Scanner27(scan.Scanner):
             slist += [s] * (s-i)
             i = s
         slist += [end] * (end-len(slist))
-
-    def remove_mid_line_ifs(self, ifs):
-        filtered = []
-        for i in ifs:
-            if self.lines[i].l_no == self.lines[i+3].l_no:
-                if self.code[self.prev[self.lines[i].next]] in (PJIT, PJIF):
-                    continue
-            filtered.append(i)
-        return filtered
 
     def next_except_jump(self, start):
         '''
