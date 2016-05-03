@@ -1,6 +1,7 @@
 include README.rst
-include HISTORY.md
 include ChangeLog
+include HISTORY.md
+include LICENSE
 include __pkginfo__.py
 recursive-include uncompyle6 *.py
 include bin/uncompyle6
