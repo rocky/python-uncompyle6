@@ -1,8 +1,29 @@
+2016-05-03  rocky <rocky@gnu.org>
+
+	* uncompyle6/version.py: Get ready for release 2.3.3
+
 2016-05-02  rocky <rocky@gnu.org>
 
-	* __pkginfo__.py, bin/pydisassemble, bin/uncompyle6, setup.py,
-	uncompyle6/__init__.py, uncompyle6/version.py: Add -V | --version
-	and simplfy changing it
+	* README.rst: Be more explicit that we need Python 2.6 or later
+
+2016-05-02  rocky <rocky@gnu.org>
+
+	* : commit feec241da88107b97bbdfbabeb3ae7131a7aa923 Author: rocky
+	<rocky@gnu.org> Date:   Mon May 2 21:20:17 2016 -0400
+
+2016-05-02  rocky <rb@dustyfeet.com>
+
+	* README.rst: Note relation to other uncompyle forks Add some other minor corrections and additions as well.
+
+2016-05-02  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/__init__.py: Trivial spacing change
+
+2016-05-02  rocky <rocky@gnu.org>
+
+	* ChangeLog, NEWS, __pkginfo__.py, bin/pydisassemble,
+	bin/uncompyle6, setup.py, uncompyle6/__init__.py,
+	uncompyle6/version.py: Add -V | --version and simplfy changing it
 
 2016-05-01  rocky <rocky@gnu.org>
 

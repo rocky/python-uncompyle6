@@ -1,3 +1,9 @@
+uncompyle6 2.3.3 2016-05-3
+
+- Fix bug in running uncompyle6 script on Python 3
+- Speed up performance on deparsing long lists by grouping in chunks of 32 and 256 items
+- DRY Python expressions between Python 2 and 3
+
 uncompyle6 2.3.2 2016-05-1
 
 - Add --version option standalone scripts
