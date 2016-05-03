@@ -31,7 +31,7 @@ classifiers =  ['Development Status :: 4 - Beta',
 author             = "Rocky Bernstein, Hartmut Goebel, John Aycock, and others"
 author_email       = "rb@dustyfeet.com"
 ftp_url            = None
-install_requires   = ['python-spark >= 1.1.1']
+install_requires   = ['spark-parser >= 1.1.1']
 license            = 'GPL'
 
 license            = 'MIT'
