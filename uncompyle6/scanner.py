@@ -33,7 +33,7 @@ from uncompyle6.opcodes import (opcode_25, opcode_26, opcode_27,
                                 opcode_32, opcode_33, opcode_34, opcode_35)
 
 
-class Code:
+class Code(object):
     '''
     Class for representing code-objects.
 
