@@ -12,7 +12,7 @@ copyright   = """
 Copyright (C) 2015, 2016 Rocky Bernstein <rb@dustyfeet.com>.
 """
 
-classifiers =  ['Development Status :: 3 - Alpha',
+classifiers =  ['Development Status :: 4 - Beta',
                 'Intended Audience :: Developers',
                 'Operating System :: OS Independent',
                 'Programming Language :: Python',
@@ -31,7 +31,7 @@ classifiers =  ['Development Status :: 3 - Alpha',
 author             = "Rocky Bernstein, Hartmut Goebel, John Aycock, and others"
 author_email       = "rb@dustyfeet.com"
 ftp_url            = None
-install_requires   = ['python-spark >= 1.1.0']
+install_requires   = ['python-spark >= 1.1.1']
 license            = 'GPL'
 
 license            = 'MIT'

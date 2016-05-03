@@ -3,8 +3,8 @@
 """Setup script for the 'uncompyle6' distribution."""
 
 from __pkginfo__ import \
-    author,           author_email,                                  \
-    license,          long_description,                              \
+    author,           author_email,       install_requires,          \
+    license,          long_description,   classifiers,               \
     modname,          packages,           py_modules,       scripts, \
     short_desc,       web,                zip_safe
 
@@ -16,9 +16,9 @@ exec(open('uncompyle6/version.py').read())
 setup(
        author             = author,
        author_email       = author_email,
-       # classifiers        = classifiers,
+       classifiers        = classifiers,
        description        = short_desc,
-       # install_requires   = install_requires,
+       install_requires   = install_requires,
        license            = license,
        long_description   = long_description,
        py_modules         = py_modules,
