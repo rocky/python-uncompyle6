@@ -1195,33 +1195,49 @@ class SourceWalker(GenericASTTraversal, object):
         """
         p = self.prec
         self.prec = 100
-        lastnode = node.pop().type
-        if lastnode.startswith('BUILD_LIST'):
+        lastnode = node.pop()
+        lastnodetype = lastnode.type
+        if lastnodetype.startswith('BUILD_LIST'):
             self.write('['); endchar = ']'
-        elif lastnode.startswith('BUILD_TUPLE'):
+        elif lastnodetype.startswith('BUILD_TUPLE'):
             self.write('('); endchar = ')'
-        elif lastnode.startswith('BUILD_SET'):
+        elif lastnodetype.startswith('BUILD_SET'):
             self.write('{'); endchar = '}'
-        elif lastnode.startswith('ROT_TWO'):
+        elif lastnodetype.startswith('ROT_TWO'):
             self.write('('); endchar = ')'
         else:
             raise 'Internal Error: n_build_list expects list or tuple'
 
+        flat_elems = []
+        for elem in node:
+            if elem == 'expr1024':
+                for subelem in elem:
+                        for subsubelem in subelem:
+                            flat_elems.append(subsubelem)
+            elif elem == 'expr32':
+                for subelem in elem:
+                    flat_elems.append(subelem)
+            else:
+                flat_elems.append(elem)
+
         self.indentMore(INDENT_PER_LEVEL)
-        if len(node) > 3:
+        if lastnode.attr > 3:
             line_separator = ',\n' + self.indent
         else:
             line_separator = ', '
         sep = INDENT_PER_LEVEL[:-1]
-        for elem in node:
-            if (elem == 'ROT_THREE'):
-                continue
 
+        # FIXME:
+        # if flat_elems > some_number, then group
+        # do automatic wrapping
+        for elem in flat_elems:
+            if elem == 'ROT_THREE':
+                continue
             assert elem == 'expr'
             value = self.traverse(elem)
             self.write(sep, value)
             sep = line_separator
-        if len(node) == 1 and lastnode.startswith('BUILD_TUPLE'):
+        if lastnode.attr == 1 and lastnodetype.startswith('BUILD_TUPLE'):
             self.write(',')
         self.write(endchar)
         self.indentLess(INDENT_PER_LEVEL)

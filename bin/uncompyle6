@@ -47,7 +47,7 @@ Extensions of generated files:
   '.pyc_dis' '.pyo_dis'   successfully decompiled (and verified if --verify)
     + '_unverified'       successfully decompile but --verify failed
     + '_failed'           decompile failed (contact author for enhancement)
-""" % ((program,) * 6
+""" % ((program,) * 5)
 
 program =  os.path.basename(__file__)
 

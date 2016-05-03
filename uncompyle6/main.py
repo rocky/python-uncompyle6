@@ -118,14 +118,14 @@ def main(in_base, out_base, files, codes, outfile=None,
                 os.remove(outfile)
             sys.stderr.write("\nLast file: %s   " % (infile))
             raise
-        except:
-            failed_files += 1
-            if outfile:
-                outstream.close()
-                os.rename(outfile, outfile + '_failed')
-            else:
-                sys.stderr.write("\n# %s" % sys.exc_info()[1])
-                sys.stderr.write("\n# Can't uncompile %s\n" % infile)
+        # except:
+        #     failed_files += 1
+        #     if outfile:
+        #         outstream.close()
+        #         os.rename(outfile, outfile + '_failed')
+        #     else:
+        #         sys.stderr.write("\n# %s" % sys.exc_info()[1])
+        #         sys.stderr.write("\n# Can't uncompile %s\n" % infile)
         else: # uncompile successful
             if outfile:
                 outstream.close()

@@ -237,6 +237,154 @@ class PythonParser(GenericASTBuilder):
         comp_ifnot ::= expr jmp_true comp_iter
         """
 
+    def p_expr(self, args):
+        '''
+        expr ::= _mklambda
+        expr ::= SET_LINENO
+        expr ::= LOAD_FAST
+        expr ::= LOAD_NAME
+        expr ::= LOAD_CONST
+        expr ::= LOAD_GLOBAL
+        expr ::= LOAD_DEREF
+        expr ::= load_attr
+        expr ::= binary_expr
+        expr ::= binary_expr_na
+        expr ::= build_list
+        expr ::= cmp
+        expr ::= mapexpr
+        expr ::= and
+        expr ::= and2
+        expr ::= or
+        expr ::= unary_expr
+        expr ::= call_function
+        expr ::= unary_not
+        expr ::= unary_convert
+        expr ::= binary_subscr
+        expr ::= binary_subscr2
+        expr ::= load_attr
+        expr ::= get_iter
+        expr ::= slice0
+        expr ::= slice1
+        expr ::= slice2
+        expr ::= slice3
+        expr ::= buildslice2
+        expr ::= buildslice3
+        expr ::= yield
+
+        binary_expr ::= expr expr binary_op
+        binary_op ::= BINARY_ADD
+        binary_op ::= BINARY_MULTIPLY
+        binary_op ::= BINARY_AND
+        binary_op ::= BINARY_OR
+        binary_op ::= BINARY_XOR
+        binary_op ::= BINARY_SUBTRACT
+        binary_op ::= BINARY_DIVIDE
+        binary_op ::= BINARY_TRUE_DIVIDE
+        binary_op ::= BINARY_FLOOR_DIVIDE
+        binary_op ::= BINARY_MODULO
+        binary_op ::= BINARY_LSHIFT
+        binary_op ::= BINARY_RSHIFT
+        binary_op ::= BINARY_POWER
+
+        unary_expr ::= expr unary_op
+        unary_op ::= UNARY_POSITIVE
+        unary_op ::= UNARY_NEGATIVE
+        unary_op ::= UNARY_INVERT
+
+        unary_not ::= expr UNARY_NOT
+        unary_convert ::= expr UNARY_CONVERT
+
+        binary_subscr ::= expr expr BINARY_SUBSCR
+        binary_subscr2 ::= expr expr DUP_TOPX_2 BINARY_SUBSCR
+
+        load_attr ::= expr LOAD_ATTR
+        get_iter ::= expr GET_ITER
+        slice0 ::= expr SLICE+0
+        slice0 ::= expr DUP_TOP SLICE+0
+        slice1 ::= expr expr SLICE+1
+        slice1 ::= expr expr DUP_TOPX_2 SLICE+1
+        slice2 ::= expr expr SLICE+2
+        slice2 ::= expr expr DUP_TOPX_2 SLICE+2
+        slice3 ::= expr expr expr SLICE+3
+        slice3 ::= expr expr expr DUP_TOPX_3 SLICE+3
+        buildslice3 ::= expr expr expr BUILD_SLICE_3
+        buildslice2 ::= expr expr BUILD_SLICE_2
+
+        yield ::= expr YIELD_VALUE
+
+        _mklambda ::= load_closure mklambda
+        _mklambda ::= mklambda
+
+        or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
+        or   ::= expr jmp_true expr _come_from
+        and  ::= expr jmp_false expr _come_from
+        and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
+        and2 ::= _jump jmp_false COME_FROM expr COME_FROM
+
+        expr ::= conditional
+        conditional ::= expr jmp_false expr JUMP_FORWARD expr COME_FROM
+        conditional ::= expr jmp_false expr JUMP_ABSOLUTE expr
+        expr ::= conditionalnot
+        conditionalnot ::= expr jmp_true expr _jump expr COME_FROM
+
+        ret_expr ::= expr
+        ret_expr ::= ret_and
+        ret_expr ::= ret_or
+
+        ret_expr_or_cond ::= ret_expr
+        ret_expr_or_cond ::= ret_cond
+        ret_expr_or_cond ::= ret_cond_not
+
+        ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
+        ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
+        ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF ret_expr_or_cond
+        ret_cond_not ::= expr POP_JUMP_IF_TRUE expr RETURN_END_IF ret_expr_or_cond
+
+        stmt ::= return_lambda
+        stmt ::= conditional_lambda
+
+        return_lambda ::= ret_expr RETURN_VALUE LAMBDA_MARKER
+        conditional_lambda ::= expr jmp_false return_if_stmt return_stmt LAMBDA_MARKER
+
+        cmp ::= cmp_list
+        cmp ::= compare
+        compare ::= expr expr COMPARE_OP
+        cmp_list ::= expr cmp_list1 ROT_TWO POP_TOP
+                _come_from
+        cmp_list1 ::= expr DUP_TOP ROT_THREE
+                COMPARE_OP JUMP_IF_FALSE_OR_POP
+                cmp_list1 COME_FROM
+        cmp_list1 ::= expr DUP_TOP ROT_THREE
+                COMPARE_OP jmp_false
+                cmp_list1 _come_from
+        cmp_list1 ::= expr DUP_TOP ROT_THREE
+                COMPARE_OP JUMP_IF_FALSE_OR_POP
+                cmp_list2 COME_FROM
+        cmp_list1 ::= expr DUP_TOP ROT_THREE
+                COMPARE_OP jmp_false
+                cmp_list2 _come_from
+        cmp_list2 ::= expr COMPARE_OP JUMP_FORWARD
+        cmp_list2 ::= expr COMPARE_OP RETURN_VALUE
+        mapexpr ::= BUILD_MAP kvlist
+
+        kvlist ::= kvlist kv
+        kvlist ::= kvlist kv2
+        kvlist ::= kvlist kv3
+        kvlist ::=
+
+        kv ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
+        kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
+        kv3 ::= expr expr STORE_MAP
+
+        exprlist ::= exprlist expr
+        exprlist ::= expr
+
+        nullexprlist ::=
+
+        expr32 ::= expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr
+        expr1024 ::= expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32
+        '''
+
 
 def parse(p, tokens, customize):
     p.add_custom_rules(tokens, customize)
