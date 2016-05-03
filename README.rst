@@ -12,8 +12,8 @@ Introduction
 
 *uncompyle6* translates Python bytecode back into equivalent Python
 source code. It accepts bytecodes from Python version 2.5 to 3.4 or
-so, It has been tested on Python running versions 2.6, 2.7, 3.3,
-3.4 and 3.5.
+so. The code requires Python 2.6 or later and has been tested on Python
+running versions 2.6, 2.7, 3.3, 3.4 and 3.5.
 
 Why this?
 ---------
