@@ -37,6 +37,9 @@ rm_op(opname, opmap, 'STORE_LOCALS', 69)
 def_op('YIELD_FROM', 72)
 def_op('LOAD_CLASSDEREF', 148)
 
+# These are removed since Python 3.4
+rm_op(opname, opmap, 'WITH_CLEANUP', 81)
+
 # These are new since Python 3.4
 def_op('BINARY_MATRIX_MULTIPLY', 16)
 def_op('INPLACE_MATRIX_MULTIPLY', 17)

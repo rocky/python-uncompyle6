@@ -127,7 +127,7 @@ class Scanner35(scan3.Scanner3):
                 if target < inst.offset:
                     if (inst.offset in self.stmts and
                         self.code[inst.offset+3] not in (END_FINALLY, POP_BLOCK)
-                        and offset not in self.not_continue):
+                        and inst.offset not in self.not_continue):
                         opname = 'CONTINUE'
                     else:
                         opname = 'JUMP_BACK'

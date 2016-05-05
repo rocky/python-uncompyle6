@@ -544,6 +544,15 @@ class Python35onParser(Python3Parser):
         """
         # this optimization is only used in Python 3.5 and beyond
         _ifstmts_jump ::= c_stmts_opt
+
+        # Python 3.5 has WITH_CLEANUP_START/FINISH
+        withstmt ::= expr SETUP_WITH with_setup suite_stmts_opt
+                     POP_BLOCK LOAD_CONST COME_FROM
+                     WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+
+        withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
+                POP_BLOCK LOAD_CONST COME_FROM
+                WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
         """
 
 class Python35onParserSingle(Python35onParser, PythonParserSingle):
