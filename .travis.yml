@@ -3,11 +3,11 @@ language: python
 sudo: false
 
 python:
-  - '2.6'
-  - '2.7'
-  - '3.4'
   - '3.5'
-  - 'pypy3'
+  - '2.7'
+  - '2.6'
+  - '3.4'
+  - '3.2'
 
 install:
 - pip install -r requirements.txt
