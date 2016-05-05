@@ -32,8 +32,6 @@ author             = "Rocky Bernstein, Hartmut Goebel, John Aycock, and others"
 author_email       = "rb@dustyfeet.com"
 ftp_url            = None
 install_requires   = ['spark-parser >= 1.1.1']
-license            = 'GPL'
-
 license            = 'MIT'
 mailing_list       = 'python-debugger@googlegroups.com'
 modname            = 'uncompyle6'
