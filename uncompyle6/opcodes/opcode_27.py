@@ -202,10 +202,19 @@ EXTENDED_ARG = 145
 def_op('SET_ADD', 146)
 def_op('MAP_ADD', 147)
 
+from uncompyle6 import IS_PYPY
+if IS_PYPY:
+    def_op('LOOKUP_METHOD', 201)
+    def_op('CALL_METHOD', 202)
+    def_op('BUILD_LIST_FROM_ARG', 203)
+    def_op('JUMP_IF_NOT_DEBUG', 204)
+
 updateGlobal()
 del def_op, name_op, jrel_op, jabs_op
 
 from uncompyle6 import PYTHON_VERSION
 if PYTHON_VERSION == 2.7:
     import dis
+    # print(dis.opmap.items())
+    print(set(dis.opmap.items()) - set(opmap.items()))
     assert all(item in opmap.items() for item in dis.opmap.items())
