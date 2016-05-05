@@ -10,15 +10,13 @@ for later use in deparsing.
 
 from __future__ import print_function
 
-import dis, inspect
+import inspect
 from array import array
 import uncompyle6.scanners.scanner3 as scan3
+import uncompyle6.scanners.dis35 as dis35
 
 from uncompyle6.code import iscode
 from uncompyle6.scanner import Token
-
-# Get all the opcodes into globals
-globals().update(dis.opmap)
 
 import uncompyle6.opcodes.opcode_35
 # verify uses JUMP_OPs from here
@@ -42,7 +40,7 @@ class Scanner35(scan3.Scanner3):
         # Get jump targets
         # Format: {target offset: [jump offsets]}
         jump_targets = self.find_jump_targets()
-        bytecode = dis.Bytecode(co)
+        bytecode = dis35.Bytecode(co)
 
         # self.lines contains (block,addrLastInstr)
         if classname:
