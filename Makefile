@@ -28,7 +28,7 @@ check-2.7 check-3.3 check-3.4: pytest
 	$(MAKE) -C test $@
 
 #: Tests for Python 3.5 - pytest doesn't work here
-check-3.5:
+check-3.2 check-3.5:
 	$(MAKE) -C test $@
 
 #:Tests for Python 2.6 (doesn't have pytest)

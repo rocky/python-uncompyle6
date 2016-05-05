@@ -1,4 +1,4 @@
-#  Copyright (c) 2015 by Rocky Bernstein
+#  Copyright (c) 2015, 2016 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -1558,8 +1558,13 @@ class SourceWalker(GenericASTTraversal, object):
         code._tokens = None # save memory
         assert ast == 'stmts'
 
-        if ast[0][0] == NAME_MODULE:
-            if self.hide_internal: del ast[0]
+        try:
+            if ast[0][0] == NAME_MODULE:
+                if self.hide_internal: del ast[0]
+            elif ast[1][0] == NAME_MODULE:
+                if self.hide_internal: del ast[1]
+            pass
+        except:
             pass
 
         qualname = '.'.join(self.classes)
@@ -1579,9 +1584,9 @@ class SourceWalker(GenericASTTraversal, object):
             if (ast[0][0] == ASSIGN_DOC_STRING(code.co_consts[0])):
                 i = 0
                 do_doc = True
-            elif (len(ast) > 2 and 3.0 <= self.version <= 3.2 and
-                      ast[2][0] == ASSIGN_DOC_STRING(code.co_consts[0])):
-                i = 2
+            elif (len(ast) > 1 and 3.0 <= self.version <= 3.2 and
+                      ast[1][0] == ASSIGN_DOC_STRING(code.co_consts[0])):
+                i = 1
                 do_doc = True
             if do_doc and self.hide_internal:
                 self.print_docstring(indent, code.co_consts[0])
