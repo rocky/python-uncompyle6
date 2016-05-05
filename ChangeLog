@@ -1,6 +1,77 @@
+2016-05-05  rocky <rocky@gnu.org>
+
+	* uncompyle6/version.py: Get ready for release 2.3.4
+
+2016-05-05  rocky <rocky@gnu.org>
+
+	* .travis.yml: Remove pypy3 add python 3.2 testing Reorder list for testing preference
+
+2016-05-05  rocky <rocky@gnu.org>
+
+	* .travis.yml: Remove pypy
+
+2016-05-05  rocky <rocky@gnu.org>
+
+	* Makefile, test/Makefile, uncompyle6/semantics/pysource.py: Fix up
+	3.2 tests Remove pypy
+
+2016-05-05  rocky <rocky@gnu.org>
+
+	* .travis.yml: Try pypy and pypy3
+
+2016-05-05  rocky <rocky@gnu.org>
+
+	* test/simple_source/def/05_abc_class.py,
+	test/simple_source/def/06_classbug.py, uncompyle6/parsers/parse3.py: 
+	Python 3.5 abc.py bug distilled
+
+2016-05-05  rocky <rocky@gnu.org>
+
+	* uncompyle6/scanners/dis35.py, uncompyle6/scanners/scanner35.py: 
+	Add cross-Python-protable 3.5 dis module
+
+2016-05-04  rocky <rocky@gnu.org>
+
+	* test/simple_source/stmts/05_with.py,
+	uncompyle6/opcodes/opcode_35.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner35.py: 
+	Handle 3.5 with [as] scanner35.py: Fix a small variable-name typo
+
 2016-05-03  rocky <rocky@gnu.org>
 
-	* uncompyle6/version.py: Get ready for release 2.3.3
+	* : One more test
+
+2016-05-03  rocky <rocky@gnu.org>
+
+	* uncompyle6/scanners/scanner3.py,
+	uncompyle6/scanners/scanner34.py, uncompyle6/scanners/scanner35.py: 
+	Don't repeat next_except_jump
+
+2016-05-03  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, requirements.txt: Wrong package name
+
+2016-05-03  rocky <rocky@gnu.org>
+
+	* __pkginfo__.py, requirements.txt, setup.py: More package
+	administrivia
+
+2016-05-03  rocky <rocky@gnu.org>
+
+	* uncompyle6/scanner.py: Remove one more old-style Python class
+
+2016-05-03  rocky <rocky@gnu.org>
+
+	* uncompyle6/scanners/scanner27.py: DRY Python 2.7 scanner more
+
+2016-05-03  rocky <rocky@gnu.org>
+
+	* MANIFEST.in: Include LICENSE in package
+
+2016-05-03  rocky <rocky@gnu.org>
+
+	* ChangeLog, NEWS, uncompyle6/version.py: Get ready for release
+	2.3.3
 
 2016-05-02  rocky <rocky@gnu.org>
 

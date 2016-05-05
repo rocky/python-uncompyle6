@@ -1,3 +1,10 @@
+uncompyle6 2.3.4 2016-05-5
+
+- More Python 3.5 parsing bugs addressed
+- decompiling Python 3.5 from other Python versions works
+- test from Python 3.2
+- remove "__module__ = __name__" in 3.0 <= Python 3.2
+
 uncompyle6 2.3.3 2016-05-3
 
 - Fix bug in running uncompyle6 script on Python 3
