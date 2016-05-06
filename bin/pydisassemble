@@ -41,6 +41,10 @@ check_python_version(program)
 outfile = '-'
 out_base = None
 
+if len(sys.argv) == 1:
+    print("No file(s) or directory given", file=sys.stderr)
+    print(Usage_short, file=sys.stderr)
+    sys.exit(1)
 
 try:
     opts, files = getopt.getopt(sys.argv[1:], 'hVo:', ['help', 'version'])
@@ -59,8 +63,9 @@ for opt, val in opts:
         outfile = val
     else:
         print(opt)
-        print(Usage_short)
+        print(Usage_short, file=sys.stderr)
         sys.exit(1)
+
 
 # argl, commonprefix works on strings, not on path parts,
 # thus we must handle the case with files in 'some/classes'

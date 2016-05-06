@@ -8,7 +8,6 @@ from __pkginfo__ import \
     modname,          packages,           py_modules,       scripts, \
     short_desc,       web,                zip_safe
 
-__import__('pkg_resources')
 from setuptools import setup
 
 exec(open('uncompyle6/version.py').read())
