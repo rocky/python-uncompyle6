@@ -268,7 +268,7 @@ class Python2Parser(PythonParser):
                     try_middle COME_FROM
 
         # this is nested inside a trystmt
-        tryfinallystmt ::= SETUP_FINALLY suite_stmts
+        tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
                            POP_BLOCK LOAD_CONST
                            COME_FROM suite_stmts_opt END_FINALLY
 
@@ -328,7 +328,10 @@ class Python2Parser(PythonParser):
                 return_stmts
                 POP_BLOCK COME_FROM
 
+        while1stmt_pre ::= SETUP_LOOP l_stmts JUMP_BACK
         while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK COME_FROM
+        while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK POP_BLOCK COME_FROM
+
         while1stmt ::= SETUP_LOOP return_stmts COME_FROM
         while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK else_suite COME_FROM
 

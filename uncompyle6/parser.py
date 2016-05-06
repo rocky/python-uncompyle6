@@ -448,7 +448,7 @@ def python_parser(version, co, out=sys.stdout, showasm=False,
             print(t)
 
     # For heavy grammar debugging
-    # parser_debug = {'rules': True, 'transition': True, 'reduce' : True}
+    parser_debug = {'rules': True, 'transition': True, 'reduce' : True}
     p = get_python_parser(version, parser_debug)
     return parse(p, tokens, customize)
 

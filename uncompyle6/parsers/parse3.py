@@ -263,7 +263,7 @@ class Python3Parser(PythonParser):
                            try_middle _come_from _come_from
 
         # this is nested inside a trystmt
-        tryfinallystmt ::= SETUP_FINALLY suite_stmts
+        tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
                            POP_BLOCK LOAD_CONST
                            COME_FROM suite_stmts_opt END_FINALLY
 

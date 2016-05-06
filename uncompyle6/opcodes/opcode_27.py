@@ -215,6 +215,5 @@ del def_op, name_op, jrel_op, jabs_op
 from uncompyle6 import PYTHON_VERSION
 if PYTHON_VERSION == 2.7:
     import dis
-    # print(dis.opmap.items())
-    print(set(dis.opmap.items()) - set(opmap.items()))
+    # print(set(dis.opmap.items()) - set(opmap.items()))
     assert all(item in opmap.items() for item in dis.opmap.items())
