@@ -1,4 +1,4 @@
-#  Copyright (c) 2015 by Rocky Bernstein
+#  Copyright (c) 2015, 2016 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -595,8 +595,14 @@ class FragmentsWalker(pysource.SourceWalker, object):
         else:
             buildclass = node[0]
             build_list = buildclass[1][0]
-            subclass = buildclass[-3][0].attr
-            currentclass = buildclass[0].pattr
+            if hasattr(buildclass[-3][0], 'attr'):
+                subclass = buildclass[-3][0].attr
+                currentclass = buildclass[0].pattr
+            elif hasattr(node[0][0], 'pattr'):
+                subclass = buildclass[-3][1].attr
+                currentclass = node[0][0].pattr
+            else:
+                raise 'Internal Error n_classdef: cannot find class name'
 
         self.write('\n\n')
         self.currentclass = str(currentclass)

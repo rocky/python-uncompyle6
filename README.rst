@@ -13,7 +13,7 @@ Introduction
 *uncompyle6* translates Python bytecode back into equivalent Python
 source code. It accepts bytecodes from Python version 2.5 to 3.4 or
 so. The code requires Python 2.6 or later and has been tested on Python
-running versions 2.6, 2.7, 3.3, 3.4 and 3.5.
+running versions 2.6, 2.7, 3.2, 3.3, 3.4 and 3.5.
 
 Why this?
 ---------
@@ -92,8 +92,11 @@ for usage help.
 Known Bugs/Restrictions
 -----------------------
 
-Python 2 deparsing is probably as solid as the various versions of
-uncompyle2.  Python 3 deparsing is okay but not as solid. Python 3.5 is missing some of new opcodes added, but still often works.
+Python 2 deparsing decompiles all of the Python 2.7.10 library and as
+such is probably a little better than uncompyle2.  Python 3 deparsing
+is okay, sometimes. More work is needed to decompile all of its
+library. Python 3.5 is missing some of new opcodes added, but still
+often works.
 
 See Also
 --------
