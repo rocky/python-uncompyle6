@@ -1,7 +1,7 @@
 #  Copyright (c) 1999 John Aycock
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-#  Copyright (c) 2015 Rocky Bernstein
+#  Copyright (c) 2015, 2016 Rocky Bernstein
 #
 #  See LICENSE for license
 """
@@ -368,9 +368,13 @@ class Python3Parser(PythonParser):
 
         forelselaststmtl ::= SETUP_LOOP expr _for designator
                 for_block POP_BLOCK else_suitel COME_FROM
-
         '''
 
+    def p_genexpr3(self, args):
+        '''
+        load_genexpr ::= LOAD_GENEXPR
+        load_genexpr ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_CONST
+        '''
     def p_expr3(self, args):
         '''
         expr ::= LOAD_CLASSNAME
@@ -506,7 +510,8 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule('mklambda ::= %s load_closure LOAD_LAMBDA %s' %
                                      ('expr ' * token.attr, opname), opname, token.attr,
                                      customize)
-                self.add_unique_rule('genexpr ::= %s load_closure LOAD_GENEXPR %s '
+                self.add_unique_rule('genexpr ::= %s load_closure '
+                                     'load_genexpr %s '
                                      'expr GET_ITER CALL_FUNCTION_1' %
                                      ('expr ' * token.attr, opname),
                                      opname, token.attr, customize)

@@ -478,12 +478,17 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.indentLess()
         self.prune() # stop recursing
 
-    def comprehension_walk(self, node, iter_index):
+    def comprehension_walk(self, node, iter_index, code_index=-5):
         p = self.prec
         self.prec = 27
-        code = node[-5].attr
+        if hasattr(node[code_index], 'attr'):
+            code = node[code_index].attr
+        elif hasattr(node[1][1], 'attr'):
+            code = node[1][1].attr
+        else:
+            assert False
 
-        assert iscode(co)
+        assert iscode(code)
         code = Code(code, self.scanner, self.currentclass)
         # assert isinstance(code, Code)
 

@@ -436,6 +436,13 @@ escape = re.compile(r'''
                  ( [{] (?P<expr> [^}]* ) [}] ))
         ''', re.VERBOSE)
 
+def is_docstring(node):
+    try:
+        return (node[0][0].type == 'assign' and
+            node[0][0][1][0].pattr == '__doc__')
+    except:
+        return False
+
 class ParserError(python_parser.ParserError):
     def __init__(self, error, tokens):
         self.error = error # previous exception
@@ -972,7 +979,12 @@ class SourceWalker(GenericASTTraversal, object):
     def comprehension_walk(self, node, iter_index, code_index=-5):
         p = self.prec
         self.prec = 27
-        code = node[code_index].attr
+        if hasattr(node[code_index], 'attr'):
+            code = node[code_index].attr
+        elif hasattr(node[1][1], 'attr'):
+            code = node[1][1].attr
+        else:
+            assert False
 
         assert iscode(code)
         code = Code(code, self.scanner, self.currentclass)
@@ -1587,15 +1599,18 @@ class SourceWalker(GenericASTTraversal, object):
         # if docstring exists, dump it
         if (code.co_consts and code.co_consts[0] is not None and len(ast) > 0):
             do_doc = False
-            if (ast[0][0] == ASSIGN_DOC_STRING(code.co_consts[0])):
+            if is_docstring(ast[0]):
                 i = 0
                 do_doc = True
-            elif (len(ast) > 1 and 3.0 <= self.version <= 3.2 and
-                      ast[1][0] == ASSIGN_DOC_STRING(code.co_consts[0])):
+            elif (len(ast) > 1 and is_docstring(ast[1])):
                 i = 1
                 do_doc = True
             if do_doc and self.hide_internal:
-                self.print_docstring(indent, code.co_consts[0])
+                try:
+                    docstring = ast[i][0][0][0][0].pattr
+                except:
+                    docstring = code.co_consts[0]
+                self.print_docstring(indent, docstring)
                 self.print_()
                 del ast[i]
 
