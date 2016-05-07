@@ -693,6 +693,13 @@ class SourceWalker(GenericASTTraversal, object):
             self.preorder(node[0])
         self.prune() # stop recursing
 
+    # In Python 3.3+ only
+    def n_yield_from(self, node):
+        self.write('yield from')
+        self.write(' ')
+        self.preorder(node[0][0][0][0])
+        self.prune() # stop recursing
+
     def n_buildslice3(self, node):
         p = self.prec
         self.prec = 100
@@ -1033,7 +1040,6 @@ class SourceWalker(GenericASTTraversal, object):
 
         assert iscode(code)
         code = Code(code, self.scanner, self.currentclass)
-        # assert isinstance(code, Code)
 
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
@@ -1476,11 +1482,13 @@ class SourceWalker(GenericASTTraversal, object):
                 - handle defaults
                 - handle format tuple parameters
             """
-            # if formal parameter is a tuple, the paramater name
-            # starts with a dot (eg. '.1', '.2')
-            if name.startswith('.'):
-                # replace the name with the tuple-string
-                name = self.get_tuple_parameter(ast, name)
+            if self.version < 3.0:
+                # rocky: is this still even relevant?
+                # if formal parameter is a tuple, the paramater name
+                # starts with a dot (eg. '.1', '.2')
+                if name.startswith('.'):
+                    # replace the name with the tuple-string
+                    name = self.get_tuple_parameter(ast, name)
 
             if default:
                 if self.showast:
@@ -1500,7 +1508,6 @@ class SourceWalker(GenericASTTraversal, object):
 
         assert iscode(code)
         code = Code(code, self.scanner, self.currentclass)
-        # assert isinstance(code, Code)
 
         # add defaults values to parameter names
         argc = code.co_argcount
@@ -1568,7 +1575,6 @@ class SourceWalker(GenericASTTraversal, object):
         assert iscode(code)
         self.classes.append(self.currentclass)
         code = Code(code, self.scanner, self.currentclass)
-        # assert isinstance(code, Code)
 
         indent = self.indent
         # self.print_(indent, '#flags:\t', int(code.co_flags))

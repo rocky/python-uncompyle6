@@ -375,10 +375,15 @@ class Python3Parser(PythonParser):
         load_genexpr ::= LOAD_GENEXPR
         load_genexpr ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_CONST
         '''
+
     def p_expr3(self, args):
         '''
         expr ::= LOAD_CLASSNAME
         # Python3 drops slice0..slice3
+
+        # Python 3.3+ adds yield from
+        expr ::= yield_from
+        yield_from ::= expr expr YIELD_FROM
         '''
 
     @staticmethod
@@ -497,11 +502,21 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base == 'UNPACK_LIST':
                 rule = 'unpack_list ::= ' + opname + ' designator' * token.attr
-            elif opname_base == ('MAKE_FUNCTION'):
+            elif opname_base.startswith('MAKE_FUNCTION'):
                 self.addRule('mklambda ::= %s LOAD_LAMBDA %s' %
                       ('expr ' * token.attr, opname), nop_func)
                 if self.version >= 3.3:
-                    rule = 'mkfunc ::= %s LOAD_CONST LOAD_CONST %s' % ('expr ' * token.attr, opname)
+                    if opname.startswith('MAKE_FUNCTION_N'):
+                        args_pos = token.attr & 0xff
+                        args_kw = (token.attr >> 8) & 0xff
+                        rule = ('mkfunc ::= %s %s %s %s' %
+                                ('expr ' * args_pos,
+                                'expr ' * args_kw,
+                                'LOAD_CONST ' * 3,
+                                opname))
+                        print(rule)
+                    else:
+                        rule = 'mkfunc ::= %s LOAD_CONST LOAD_CONST %s' % ('expr ' * token.attr, opname)
                 else:
                     rule = 'mkfunc ::= %s LOAD_CONST %s' % ('expr ' * token.attr, opname)
                 self.add_unique_rule(rule, opname, token.attr, customize)

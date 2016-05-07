@@ -222,6 +222,16 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune() # stop recursing
 
+    # In Python 3.3+ only
+    def n_yield_from(self, node):
+        start = len(self.f.getvalue())
+        self.write('yield from')
+        self.write(' ')
+        node[0].parent = node
+        self.preorder(node[0][0][0][0])
+        self.set_pos_info(node, start, len(self.f.getvalue()))
+        self.prune() # stop recursing
+
     def n_buildslice3(self, node):
         start = len(self.f.getvalue())
         p = self.prec
@@ -490,7 +500,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         assert iscode(code)
         code = Code(code, self.scanner, self.currentclass)
-        # assert isinstance(code, Code)
 
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
@@ -534,7 +543,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
         assert iscode(code)
         # Or Code3
         code = Code(code, self.scanner, self.currentclass)
-        # assert isinstance(code, Code)
 
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)

@@ -115,9 +115,21 @@ class Scanner35(scan3.Scanner3):
                             'MAKE_FUNCTION', 'MAKE_CLOSURE',
                             'DUP_TOPX', 'RAISE_VARARGS'
                             ):
-                opname = '%s_%d' % (opname, inst.argval)
-                if inst.opname != 'BUILD_SLICE':
-                    customize[opname] = inst.argval
+                pos_args = inst.argval
+                if inst.opname == 'MAKE_FUNCTION':
+                    argc = inst.argval
+                    pos_args = (argc & 0xFF)
+                    name_pair_args = (argc >> 8) & 0xFF
+                    if name_pair_args > 0:
+                        opname = 'MAKE_FUNCTION_N%d' % name_pair_args
+                        pass
+                    annotate_args = (argc >> 16) & 0x7FFF
+                    if annotate_args > 0:
+                        opname = '%s_A_%d' % [op_name, annotate_args]
+                        pass
+                elif inst.opname != 'BUILD_SLICE':
+                    customize[opname] = pos_args
+                opname = '%s_%d' % (opname, pos_args)
 
             elif opname == 'JUMP_ABSOLUTE':
                 pattr = inst.argval
