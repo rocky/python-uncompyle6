@@ -352,19 +352,6 @@ class Python3Parser(PythonParser):
                 else_suitec COME_FROM
         '''
 
-    def p_for3(self, args):
-        """
-        # In Python 3.2 JUMP_ABSOLUTE's (which can
-        # turn into COME_FROM's) are not optimized as
-        # they are in later Python's.
-        #
-        # So an if statement can jump to the end of a for loop
-        # which in turn jump's back to the beginning of that loop.
-        #
-        # Therefore we allow COME_FROM JUMP_BACK below.
-        for_block ::= l_stmts_opt COME_FROM JUMP_BACK
-        """
-
     def p_genexpr3(self, args):
         '''
         load_genexpr ::= LOAD_GENEXPR

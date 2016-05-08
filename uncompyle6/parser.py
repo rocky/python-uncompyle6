@@ -166,20 +166,20 @@ class PythonParser(GenericASTBuilder):
         _for ::= GET_ITER FOR_ITER
         _for ::= LOAD_CONST FOR_LOOP
 
-        for_block ::= l_stmts_opt JUMP_BACK
+        for_block ::= l_stmts_opt _come_from JUMP_BACK
         for_block ::= return_stmts _come_from
 
         forstmt ::= SETUP_LOOP expr _for designator
                 for_block POP_BLOCK _come_from
 
         forelsestmt ::= SETUP_LOOP expr _for designator
-                for_block POP_BLOCK else_suite COME_FROM
+                for_block POP_BLOCK else_suite _come_from
 
         forelselaststmt ::= SETUP_LOOP expr _for designator
-                for_block POP_BLOCK else_suitec COME_FROM
+                for_block POP_BLOCK else_suitec _come_from
 
         forelselaststmtl ::= SETUP_LOOP expr _for designator
-                for_block POP_BLOCK else_suitel COME_FROM
+                for_block POP_BLOCK else_suitel _come_from
         """
 
     def p_import20(self, args):
@@ -223,7 +223,7 @@ class PythonParser(GenericASTBuilder):
         list_iter ::= list_if_not
         list_iter ::= lc_body
 
-        _come_from ::= COME_FROM
+        _come_from ::= _come_from COME_FROM
         _come_from ::=
 
         list_if ::= expr jmp_false list_iter
