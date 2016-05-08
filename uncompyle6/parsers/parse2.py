@@ -318,30 +318,6 @@ class Python2Parser(PythonParser):
                 POP_BLOCK LOAD_CONST COME_FROM
                 WITH_CLEANUP END_FINALLY
 
-        whilestmt ::= SETUP_LOOP
-                testexpr
-                l_stmts_opt JUMP_BACK
-                POP_BLOCK COME_FROM
-
-        whilestmt ::= SETUP_LOOP
-                testexpr
-                return_stmts
-                POP_BLOCK COME_FROM
-
-        while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK COME_FROM
-        while1stmt ::= SETUP_LOOP return_stmts COME_FROM
-        while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK POP_BLOCK COME_FROM
-
-        while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK else_suite COME_FROM
-        whileelsestmt ::= SETUP_LOOP testexpr
-                l_stmts_opt JUMP_BACK
-                POP_BLOCK
-                else_suite COME_FROM
-
-        whileelselaststmt ::= SETUP_LOOP testexpr
-                l_stmts_opt JUMP_BACK
-                POP_BLOCK
-                else_suitec COME_FROM
         '''
 
     def p_expr2(self, args):
