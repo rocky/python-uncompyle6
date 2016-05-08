@@ -393,9 +393,14 @@ class Python3Parser(PythonParser):
 
     def custom_build_class_rule(self, opname, i, token, tokens, customize):
         """
+        # Should the first rule be somehow folded into the 2nd one?
         build_class ::= LOAD_BUILD_CLASS mkfunc
                         LOAD_CLASSNAME {expr}^n CALL_FUNCTION_n+2
                         LOAD_CONST CALL_FUNCTION_n
+        build_class ::= LOAD_BUILD_CLASS mkfunc
+                        expr
+                        call_function
+                        CALL_FUNCTION_3
         """
         # FIXME: I bet this can be simplified
         # look for next MAKE_FUNCTION
@@ -405,20 +410,25 @@ class Python3Parser(PythonParser):
             pass
         assert i < len(tokens), "build_class needs to find MAKE_FUNCTION"
         assert tokens[i+1].type == 'LOAD_CONST', \
-          "build_class expecing CONST after MAKE_FUNCTION"
+          "build_class expecting CONST after MAKE_FUNCTION"
         for i in range(i, len(tokens)):
             if tokens[i].type == 'CALL_FUNCTION':
                 call_fn_tok = tokens[i]
                 break
         assert call_fn_tok, "build_class custom rule needs to find CALL_FUNCTION"
 
-        # customize CALL_FUNCTION
+        # customize build_class rule
         call_function = self.call_fn_name(call_fn_tok)
         args_pos = call_fn_tok.attr & 0xff
         args_kw = (call_fn_tok.attr >> 8) & 0xff
         rule = ("build_class ::= LOAD_BUILD_CLASS mkfunc %s"
                 "%s" % (('expr ' * (args_pos - 1) + ('kwarg ' * args_kw)),
                         call_function))
+        self.add_unique_rule(rule, opname, token.attr, customize)
+
+        # Can the above build_class rule be folded into this rule?
+        rule = ("build_class ::= LOAD_BUILD_CLASS mkfunc expr call_function "
+                "CALL_FUNCTION_" + str(args_pos+1))
         self.add_unique_rule(rule, opname, token.attr, customize)
         return
 
