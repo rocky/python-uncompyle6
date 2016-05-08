@@ -60,27 +60,32 @@ the Python scanner, parser, and marshaling routines. For example I
 see a bit code to massage disassembly output to make it more amenable
 for deparsing. 2005 would put his work around the Python 2.4 releases.
 
-Next we get to
-["uncompyle" and PyPI](https://pypi.python.org/pypi/uncompyle/1.1) and
-the era of git repositories. In contrast to decompyle, this now runs
-only on Python 2.7 although it accepts bytecode back to Python
-2.5. Thomas Grainger is the package owner of this, although Hartmut is
-listed as the author.
+Next we get to ["uncompyle" and
+PyPI](https://pypi.python.org/pypi/uncompyle/1.1) and the era of
+public version control. In contrast to decompyle, uncompyle at least
+in its final versions, runs only on Python 2.7. However it accepts
+bytecode back to Python 2.5. Thomas Grainger is the package owner of
+this, although Hartmut is still listed as the author.
 
 The project exists not only on
 [github](https://github.com/gstarnberger/uncompyle) but also on
-[bitbucket](https://bitbucket.org/gstarnberger/uncompyle) where the
-git history goes back to 2009. Somewhere in there the name was changed
-from "decompyle" to "uncompyle".
+[bitbucket](https://bitbucket.org/gstarnberger/uncompyle) and later
+the defunct [google
+code](https://code.google.com/archive/p/unpyc/). The git/svn history
+goes back to 2009. Somewhere in there the name was changed from
+"decompyle" "unpyc" by Keknehv and then to "uncompyle" by Guenther Starnberger.
 
 The name Thomas Grainger isn't found in (m)any of the commits in the
-several years of active development. Guenther Starnberger, Keknehv,
-hamled, and Eike Siewertsen are principle committers here.
+several years of active development. First Keknehv worked on this up
+to Python 2.5 or so while acceping Python bytecode back to 2.0 or
+so. Then hamled made a few commits earler on while Eike Siewertsen
+made a few commits later on. But mostly wibiti, and Guenther
+Starnberger got the code to where uncompyle2 was around 2012.
 
-This project, uncompyle6, however owes its existence to uncompyle2 by
-Myst herie (Mysterie) whose first commit seems to goes back to 2012;
-it is also based on Hartmut's code. I chose this as it seems had been
-the most actively worked on most recently.
+This project, uncompyle6, however owes its existence to the fork of
+uncompyle2 by Myst herie (Mysterie) whose first commit seems to goes
+back to 2012. I chose this as it seemed to have been the most actively,
+if briefly, worked on.
 
 Over the many years, code styles and Python features have
 changed. However brilliant the code was and still is, it hasn't really
@@ -95,7 +100,7 @@ Hartmut a decade an a half ago:
     NB. This is not a masterpiece of software, but became more like a hack.
     Probably a complete rewrite would be sensefull. hG/2000-12-27
 
-Lastly, I should mention [unpyc](https://code.google.com/p/unpyc3/)
+Lastly, I should mention [unpyc3](https://code.google.com/p/unpyc3/)
 and most especially [pycdc](https://github.com/zrax/pycdc), largely by
 Michael Hansen and Darryl Pogue. If they supported getting source-code
 fragments and I could call it from Python, I'd probably ditch this and

@@ -110,7 +110,7 @@ def main(in_base, out_base, files, codes, outfile=None,
             outstream = _get_outstream(outfile)
         # print(outfile, file=sys.stderr)
 
-        # Try to uncmpile the input file
+        # Try to uncompile the input file
         try:
             uncompyle_file(infile, outstream, showasm, showast, showgrammar)
             tot_files += 1
