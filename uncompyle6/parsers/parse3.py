@@ -344,6 +344,9 @@ class Python3Parser(PythonParser):
         # Python 3.3+ adds yield from
         expr ::= yield_from
         yield_from ::= expr expr YIELD_FROM
+
+        # In Python 2, DUP_TOP_TWO is DUP_TOPX_2
+        binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
         '''
 
     @staticmethod

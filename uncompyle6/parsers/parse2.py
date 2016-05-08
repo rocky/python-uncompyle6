@@ -332,6 +332,9 @@ class Python2Parser(PythonParser):
         slice2 ::= expr expr DUP_TOPX_2 SLICE+2
         slice3 ::= expr expr expr SLICE+3
         slice3 ::= expr expr expr DUP_TOPX_3 SLICE+3
+
+        # In Python 3, DUP_TOPX_2 is DUP_TOP_TWO
+        binary_subscr2 ::= expr expr DUP_TOPX_2 BINARY_SUBSCR
         '''
 
     def add_custom_rules(self, tokens, customize):
