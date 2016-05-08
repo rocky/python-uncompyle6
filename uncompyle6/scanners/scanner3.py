@@ -1,10 +1,21 @@
-#  Copyright (c) 2015 by Rocky Bernstein
+#  Copyright (c) 2015, 2016 by Rocky Bernstein
 """
 Python 3 Generic bytecode scanner/deparser
 
 This overlaps various Python3's dis module, but it can be run from
-Python 2 and other versions of Python. Also, we save token information
-for later use in deparsing.
+Python versions other than the version running this code. Notably,
+run from Python version 2.
+
+Also we *modify* the instruction sequence to assist deparsing code.
+For example:
+ -  we add "COME_FROM" instructions to help in figuring out
+    conditional branching and looping.
+ -  LOAD_CONSTs are classified further into the type of thing
+    they load:
+      lambda's, genexpr's, {dict,set,list} comprehension's,
+ -  PARAMETER counts appended  {CALL,MAKE}_FUNCTION, BUILD_{TUPLE,SET,SLICE}
+
+Finally we save token information.
 """
 
 from __future__ import print_function
@@ -66,10 +77,10 @@ class Scanner3(scan.Scanner):
         # Scan for assertions. Later we will
         # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT' for those
         # assertions
-
         self.load_asserts = set()
         for i in self.op_range(0, codelen):
-            if self.code[i] == POP_JUMP_IF_TRUE and self.code[i+3] == LOAD_GLOBAL:
+            if (self.code[i] == POP_JUMP_IF_TRUE and
+                self.code[i+3] == LOAD_GLOBAL):
                 if names[self.get_argument(i+3)] == 'AssertionError':
                     self.load_asserts.add(i+3)
 
@@ -258,7 +269,7 @@ class Scanner3(scan.Scanner):
 
         Return the list of offsets.
 
-        This procedure is modelled after dis.findlables(), but here
+        This procedure is modelled after dis.findlabels(), but here
         for each target the number of jumps is counted.
         """
         code = self.code
@@ -448,15 +459,20 @@ class Scanner3(scan.Scanner):
                 self.fixed_jumps[offset] = rtarget
                 return
 
-            # Does this jump to right after another cond jump?
-            # If so, it's part of a larger conditional
-            if (code[prev_op[target]] in (JUMP_IF_FALSE_OR_POP, JUMP_IF_TRUE_OR_POP,
-                                          POP_JUMP_IF_FALSE, POP_JUMP_IF_TRUE)) and (target > offset):
+            # Does this jump to right after another cond jump that is
+            # not myself?  If so, it's part of a larger conditional.
+            # rocky: if we have a conditional jump to the next instruction, then
+            # possibly I am "skipping over" a "pass" or null statement.
+            if ((code[prev_op[target]] in
+                    (JUMP_IF_FALSE_OR_POP, JUMP_IF_TRUE_OR_POP,
+                     POP_JUMP_IF_FALSE, POP_JUMP_IF_TRUE)) and
+                (target > offset) and prev_op[target] != offset):
                 self.fixed_jumps[offset] = prev_op[target]
                 self.structs.append({'type': 'and/or',
                                      'start': start,
                                      'end': prev_op[target]})
                 return
+
             # Is it an and inside if block
             if op == POP_JUMP_IF_FALSE:
                 # Search for other POP_JUMP_IF_FALSE targetting the same op,

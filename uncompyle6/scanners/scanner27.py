@@ -581,7 +581,7 @@ class Scanner27(scan.Scanner):
 
         Return the list of offsets.
 
-        This procedure is modelled after dis.findlables(), but here
+        This procedure is modelled after dis.findlabels(), but here
         for each target the number of jumps are counted.
         '''
 

@@ -36,7 +36,7 @@ first subsequent public release announcement that I can find is
 From the CHANGES file found in
 [the tarball for that release](http://old-releases.ubuntu.com/ubuntu/pool/universe/d/decompyle2.2/decompyle2.2_2.2beta1.orig.tar.gz),
 it appears that Hartmut did most of the work to get this code to
-accept the full Python language. He added precidence to the table
+accept the full Python language. He added precedence to the table
 specifiers, support for multiple versions of Python, the
 pretty-printing of docstrings, lists, and hashes. He also wrote test and verification routines of
 deparsed bytecode, and used this in an extensive set of tests that he also wrote. He could verify against the entire Python library.
@@ -54,6 +54,11 @@ working on compilers. (For example, based on
 it doesn't look like he's done anything compiler-wise since SPARK). So
 I hope people will use the crazy-compilers service. I wish them the
 success that his good work deserves.
+
+Also looking at code I see Dan Pascu did a bit of work around 2005 on
+the Python scanner, parser, and marshaling routines. For example I
+see a bit code to massage disassembly output to make it more amenable
+for deparsing. 2005 would put his work around the Python 2.4 releases.
 
 Next we get to
 ["uncompyle" and PyPI](https://pypi.python.org/pypi/uncompyle/1.1) and

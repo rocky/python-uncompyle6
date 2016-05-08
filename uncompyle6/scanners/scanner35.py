@@ -37,9 +37,6 @@ class Scanner35(scan3.Scanner3):
         self.build_lines_data(co)
         self.build_prev_op()
 
-        # Get jump targets
-        # Format: {target offset: [jump offsets]}
-        jump_targets = self.find_jump_targets()
         bytecode = dis35.Bytecode(co)
 
         # self.lines contains (block,addrLastInstr)
@@ -61,11 +58,16 @@ class Scanner35(scan3.Scanner3):
         n = len(bs)
         for i in range(n):
             inst = bs[i]
-            if inst.opname == 'POP_JUMP_IF_TRUE' and  i+1 < n:
+
+            if inst.opname == 'POP_JUMP_IF_TRUE' and i+1 < n:
                 next_inst = bs[i+1]
                 if (next_inst.opname == 'LOAD_GLOBAL' and
                     next_inst.argval == 'AssertionError'):
                     self.load_asserts.add(next_inst.offset)
+
+        # Get jump targets
+        # Format: {target offset: [jump offsets]}
+        jump_targets = self.find_jump_targets()
 
         for inst in bytecode:
             if inst.offset in jump_targets:
