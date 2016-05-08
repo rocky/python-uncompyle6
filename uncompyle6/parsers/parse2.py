@@ -344,25 +344,6 @@ class Python2Parser(PythonParser):
                 l_stmts_opt JUMP_BACK
                 POP_BLOCK
                 else_suitec COME_FROM
-
-        _for ::= GET_ITER FOR_ITER
-        _for ::= LOAD_CONST FOR_LOOP
-
-        for_block ::= l_stmts_opt JUMP_BACK
-        for_block ::= return_stmts _come_from
-
-        forstmt ::= SETUP_LOOP expr _for designator
-                for_block POP_BLOCK COME_FROM
-
-        forelsestmt ::= SETUP_LOOP expr _for designator
-                for_block POP_BLOCK else_suite COME_FROM
-
-        forelselaststmt ::= SETUP_LOOP expr _for designator
-                for_block POP_BLOCK else_suitec COME_FROM
-
-        forelselaststmtl ::= SETUP_LOOP expr _for designator
-                for_block POP_BLOCK else_suitel COME_FROM
-
         '''
 
     def p_expr2(self, args):

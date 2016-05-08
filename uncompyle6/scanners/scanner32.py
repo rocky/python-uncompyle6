@@ -2,9 +2,9 @@
 """
 Python 3.2 bytecode scanner/deparser
 
-This overlaps Python's 3.2's dis module, but it can be run from
-Python 2 and other versions of Python. Also, we save token information
-for later use in deparsing.
+This overlaps various Python3.2's dis module, but it can be run from
+Python versions other than the version running this code. Notably,
+run from Python version 2. See doc comments in scanner3.py for more information.
 """
 
 from __future__ import print_function
