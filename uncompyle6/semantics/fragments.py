@@ -561,7 +561,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 designator = n[1]
 
                 n = n[2]
-            elif n == 'list_ifnot':
+            elif n == 'list_if_not':
                 # FIXME: just a guess
                 designator = n[1]
                 n = n[2]
