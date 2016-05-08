@@ -223,8 +223,15 @@ class PythonParser(GenericASTBuilder):
         list_iter ::= list_if_not
         list_iter ::= lc_body
 
+        # Zero or more COME_FROM
+        # loops can have this
         _come_from ::= _come_from COME_FROM
         _come_from ::=
+
+        # Zero or one COME_FROM
+        # And/or expressions have this
+        come_from_opt ::= COME_FROM
+        come_from_opt ::=
 
         list_if ::= expr jmp_false list_iter
         list_if_not ::= expr jmp_true list_iter
@@ -337,8 +344,8 @@ class PythonParser(GenericASTBuilder):
         _mklambda ::= mklambda
 
         or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
-        or   ::= expr jmp_true expr _come_from
-        and  ::= expr jmp_false expr _come_from
+        or   ::= expr jmp_true expr come_from_opt
+        and  ::= expr jmp_false expr come_from_opt
         and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
         and2 ::= _jump jmp_false COME_FROM expr COME_FROM
 
