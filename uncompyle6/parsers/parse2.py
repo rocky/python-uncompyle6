@@ -328,13 +328,11 @@ class Python2Parser(PythonParser):
                 return_stmts
                 POP_BLOCK COME_FROM
 
-        while1stmt_pre ::= SETUP_LOOP l_stmts JUMP_BACK
         while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK COME_FROM
+        while1stmt ::= SETUP_LOOP return_stmts COME_FROM
         while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK POP_BLOCK COME_FROM
 
-        while1stmt ::= SETUP_LOOP return_stmts COME_FROM
         while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK else_suite COME_FROM
-
         whileelsestmt ::= SETUP_LOOP testexpr
                 l_stmts_opt JUMP_BACK
                 POP_BLOCK

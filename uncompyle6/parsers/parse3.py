@@ -240,6 +240,7 @@ class Python3Parser(PythonParser):
 
         _ifstmts_jump ::= return_if_stmts
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from _come_from
+        _ifstmts_jump ::= c_stmts_opt
 
         iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
 
@@ -330,7 +331,7 @@ class Python3Parser(PythonParser):
         whilestmt ::= SETUP_LOOP
                 testexpr
                 l_stmts_opt JUMP_BACK
-                POP_BLOCK COME_FROM
+                POP_BLOCK _come_from
 
         whilestmt ::= SETUP_LOOP
                 testexpr
@@ -339,8 +340,8 @@ class Python3Parser(PythonParser):
 
         while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK COME_FROM
         while1stmt ::= SETUP_LOOP return_stmts COME_FROM
-        while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK else_suite COME_FROM
 
+        while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK else_suite COME_FROM
         whileelsestmt ::= SETUP_LOOP testexpr
                 l_stmts_opt JUMP_BACK
                 POP_BLOCK
@@ -554,9 +555,6 @@ class Python32ParserSingle(Python32Parser, PythonParserSingle):
 class Python35onParser(Python3Parser):
     def p_35on(self, args):
         """
-        # this optimization is only used in Python 3.5 and beyond
-        _ifstmts_jump ::= c_stmts_opt
-
         # Python 3.5+ has WITH_CLEANUP_START/FINISH
         withstmt ::= expr SETUP_WITH with_setup suite_stmts_opt
                      POP_BLOCK LOAD_CONST COME_FROM
