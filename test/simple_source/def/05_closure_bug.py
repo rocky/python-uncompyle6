@@ -1,0 +1,25 @@
+# Tests bug in Python 3
+
+# load_closure ::= LOAD_CLOSURE BUILD_TUPLE_1
+
+# Python 3.5
+# mkfunc ::= load_closure LOAD_CONST LOAD_CONST MAKE_CLOSURE_0
+
+# Python 3.2
+# mkfunc ::= load_closure LOAD_CONST MAKE_CLOSURE_0
+
+# mkfuncdeco0 ::= mkfunc
+# mkfuncdeco ::= expr mkfuncdeco0 CALL_FUNCTION_1
+# designator ::= STORE_FAST
+# funcdefdeco ::= mkfuncdeco designator
+# stmt ::= funcdefdeco
+
+
+
+from functools import wraps
+
+def contextmanager(func):
+    @wraps(func)
+    def helper(*args, **kwds):
+        return _GeneratorContextManager(func, *args, **kwds)
+    return helper

@@ -528,10 +528,19 @@ class Python3Parser(PythonParser):
                                      'expr GET_ITER CALL_FUNCTION_1' %
                                      ('expr '* token.attr, opname),
                                      opname, token.attr, customize)
-                rule = ('mkfunc ::= %s load_closure BUILD_TUPLE_1 LOAD_CONST LOAD_CONST %s'
+
+                rule = ('mkfunc ::= %s load_closure LOAD_CONST %s'
+                        % ('expr ' * token.attr, opname))
+
+                # Python 3.5+ instead of above?
+                rule = ('mkfunc ::= %s load_closure LOAD_CONST LOAD_CONST %s'
+                        % ('expr ' * token.attr, opname))
+
+                self.add_unique_rule(rule, opname, token.attr, customize)
+                rule = ('mkfunc ::= %s load_closure load_genexpr %s'
                         % ('expr ' * token.attr, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
-                rule = ('mkfunc ::= %s load_closure BUILD_TUPLE_1 LOAD_GENXPR LOAD_CONST %s'
+                rule = ('mkfunc ::= %s load_closure LOAD_CONST %s'
                         % ('expr ' * token.attr, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
         return
