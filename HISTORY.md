@@ -55,10 +55,12 @@ it doesn't look like he's done anything compiler-wise since SPARK). So
 I hope people will use the crazy-compilers service. I wish them the
 success that his good work deserves.
 
-Also looking at code I see Dan Pascu did a bit of work around 2005 on
-the Python scanner, parser, and marshaling routines. For example I
-see a bit code to massage disassembly output to make it more amenable
-for deparsing. 2005 would put his work around the Python 2.4 releases.
+Dan Pascu did a bit of work around 2005 on the Python get this code to
+handle Python 2.3 and 2.4 bytecodes. Because of jump optimization
+introduced in the CPython bytecode compiler at that time, various JUMP
+instructions were classifed as going forward or backwards, and COME
+FROM instructions were introduced.  See RELEASE-2.4-CHANGELOG.txt for
+more details here.
 
 Next we get to ["uncompyle" and
 PyPI](https://pypi.python.org/pypi/uncompyle/1.1) and the era of

@@ -2,6 +2,7 @@ include README.rst
 include ChangeLog
 include HISTORY.md
 include LICENSE
+include DECOMPYLE-2.4-CHANGELOG.txt
 include __pkginfo__.py
 recursive-include uncompyle6 *.py
 include bin/uncompyle6

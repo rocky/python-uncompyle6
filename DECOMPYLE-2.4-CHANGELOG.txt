@@ -1,0 +1,78 @@
+This is the changelog from *decompyle*'s release 2.4 passed on by Dan Pascu
+Yikes - uncompyle's version number should be higher so as to put this
+in the past!
+
+
+release 2.4 (Dan Pascu)
+  - Replaced the way code structures are identified by the parser.
+    Previously, the scanner introduced some COME_FROM entries in the
+    dissasembly output to mark all the destinations of jump instructions.
+    Using these COME_FROM labels the parser was then able to identify the
+    code structures (if tests, while loops, etc). Up to python-2.3 this was
+    possible because the code structures were clearly defined and jump
+    targets were always to the same points in a given strcuture making it
+    easy to identify the structure. Python 2.3 however introduced optimized
+    jumps to increase code performance. In the previous version of decompyle
+    (2.3) we used a technique to identify the code structures and then used
+    these structures to determine where the jump targets would have been if
+    not optimized. Using this information we then added COME_FROM labels at
+    the points where they would have been if not optimized, thus emulating
+    the way decompyle worked with versions before python 2.3. However with
+    the introduction of even more optimizations in python 2.4 this technique
+    no longer works. Not only the jump targets are no longer an effective
+    mean for the parser to identify the code structures, but also trying to
+    emulate the old way things were solved when it clearly no longer works
+    is not the right solution. To solve this issue, the code to identify the
+    structures that we had developed in version 2.3, was used to add real
+    start/end points for strcuture identification, instead of the COME_FROM
+    labels. Now these new start/end labels are used by the parser to more
+    precisely identify the structures and the COME_FROM labels were removed
+    completely. The scanner is responsible to identify these code structures
+    and use any knowledge of optimizations that python applies to determine
+    the start/end points of any structure and then mark them with certain
+    keywords that are understood by the parser.
+  - Correctly identify certain `while 1' structures that were not
+    recognized in the previous version.
+  - Added support for new byte code constructs used by python 2.4
+
+release 2.3.2
+  - tidied up copyright and changelog information for releases 2.3 and later
+
+release 2.3.1 (Dan Pascu)
+  - implemented a structure detection technique that fixes problems with
+    optimised jumps in Python >= 2.3. In the previous release (decompyle 2.3),
+    these problems meant that some files were incorrectly decompiled and
+    others could not be decompiled at all. With this new structure detection
+    technique, thorough testing over the standard python libraries suggests
+    that decompyle 2.3.1 can handle everything that decompyle 2.2beta1 could,
+    plus new Python 2.3 bytecodes and constructs.
+
+release 2.3 (Dan Pascu)
+  - support for Python 2.3 added
+  - use the marshal and disassembly code from their respective python
+    versions, so that decompyle can manipulate bytecode independently
+    of the interpreter that runs decompyle itself (for example it can
+    decompile python2.3 bytecode even when running under python2.2)
+
+——————————————————
+
+release 2.2beta1 (hartmut Goebel)
+  - support for Python 1.5 up to Python 2.2
+  - no longer requires to be run with the Python interpreter version
+    which generated the byte-code.
+  - requires Python 2.2
+  - pretty-prints docstrings, hashes, lists and tuples
+  - decompyle is now a script and a package
+  - added emacs mode-hint and tab-width for each file output
+  - enhanced test suite: more test patterns, .pyc/.pyo included
+  - avoids unnecessary 'global' statements
+  - still untested: EXTENDED_ARG
+
+  internal changes:
+  - major code overhoul: splitted into several modules, clean-ups
+  - use a list of valid magics instead of the single one from imp.py
+  - uses copies of 'dis.py' for every supported version. This ensures
+    correct disassemling of the byte-code.
+  - use a single Walker and a single Parser, thus saving time and memory
+  - use augmented assign and 'print >>' internally
+  - optimized 'Walker.engine', the main part of code generation
