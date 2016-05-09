@@ -83,10 +83,16 @@ made a few commits later on. But mostly wibiti, and Guenther
 Starnberger got the code to where uncompyle2 was around 2012.
 
 This project, uncompyle6, however owes its existence to the fork of
-uncompyle2 by Myst herie (Mysterie) whose first commit seems to goes
-back to 2012. I chose this since it seemed to have been at that time
-the most actively, if briefly, worked on. I also looked at Dark Fenx's
-uncompyle3 for inspiration for Python3.
+uncompyle2 by Myst herie (Mysterie) whose first commit picks up at
+2012. I chose this since it seemed to have been at that time the most
+actively, if briefly, worked on. Also starting around 2012 is Dark
+Fenx's uncompyle3 which I used for inspiration for Python3.
+
+I started working on this late 2015, mostly to add fragment support.
+In that decided to make this runnable on Python 3.2+ and Python 2.6+
+while, handling Python bytecodes from Python versions 2.5+ and
+3.2+. (I think I could go back further, but I'd consider doing that
+only after code is better cleaned up and supports Python 3 better.)
 
 Over the many years, code styles and Python features have
 changed. However brilliant the code was and still is, it hasn't really
