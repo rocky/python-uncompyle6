@@ -73,19 +73,19 @@ The project exists not only on
 the defunct [google
 code](https://code.google.com/archive/p/unpyc/). The git/svn history
 goes back to 2009. Somewhere in there the name was changed from
-"decompyle" "unpyc" by Keknehv and then to "uncompyle" by Guenther Starnberger.
+"decompyle" to "unpyc" by Keknehv, and then to "uncompyle" by Guenther Starnberger.
 
 The name Thomas Grainger isn't found in (m)any of the commits in the
 several years of active development. First Keknehv worked on this up
 to Python 2.5 or so while acceping Python bytecode back to 2.0 or
-so. Then hamled made a few commits earler on while Eike Siewertsen
+so. Then hamled made a few commits earler on, while Eike Siewertsen
 made a few commits later on. But mostly wibiti, and Guenther
 Starnberger got the code to where uncompyle2 was around 2012.
 
 This project, uncompyle6, however owes its existence to the fork of
 uncompyle2 by Myst herie (Mysterie) whose first commit seems to goes
-back to 2012. I chose this as it seemed to have been the most actively,
-if briefly, worked on.
+back to 2012. I chose this since it seemed to have been at that time
+the most actively, if briefly, worked on.
 
 Over the many years, code styles and Python features have
 changed. However brilliant the code was and still is, it hasn't really
@@ -100,12 +100,15 @@ Hartmut a decade an a half ago:
     NB. This is not a masterpiece of software, but became more like a hack.
     Probably a complete rewrite would be sensefull. hG/2000-12-27
 
-Lastly, I should mention [unpyc3](https://code.google.com/p/unpyc3/)
-and most especially [pycdc](https://github.com/zrax/pycdc), largely by
-Michael Hansen and Darryl Pogue. If they supported getting source-code
-fragments and I could call it from Python, I'd probably ditch this and
-use that. From what I've seen, the code runs blindingly fast and spans
-all versions of Python.
+This project deparses using a LR parse. However another approach is to
+do something like simulate execution symbolically and build expression
+trees off of stack results. The two important projects that work this
+way are [unpyc3](https://code.google.com/p/unpyc3/) and most
+especially [pycdc](https://github.com/zrax/pycdc) The latter project
+is largely by Michael Hansen and Darryl Pogue. If they supported
+getting source-code fragments and I could call it from Python, I'd
+probably ditch this and use that. From what I've seen, the code runs
+blindingly fast and spans all versions of Python.
 
 Tests for the project have been, or are being, culled from all of the
 projects mentioned.
