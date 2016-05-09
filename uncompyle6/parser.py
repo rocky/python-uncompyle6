@@ -484,12 +484,11 @@ def get_python_parser(version, debug_parser, compile_mode='exec'):
     return p
 
 class PythonParserSingle(PythonParser):
-    def p_call_stmt(self, args):
+    def p_call_stmt_single(self, args):
         '''
         # single-mode compilation. Eval-mode interactive compilation
         # drops the last rule.
 
-        call_stmt ::= expr POP_TOP
         call_stmt ::= expr PRINT_EXPR
         '''
 

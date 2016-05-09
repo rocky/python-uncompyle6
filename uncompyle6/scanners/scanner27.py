@@ -31,6 +31,8 @@ class Scanner27(scan.Scanner):
         The main part of this procedure is modelled after
         dis.disassemble().
         """
+
+        # dis.disassemble(co) # DEBUG
         rv = []
         customize = {}
         Token = self.Token # shortcut

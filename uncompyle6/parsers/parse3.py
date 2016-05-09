@@ -261,7 +261,7 @@ class Python3Parser(PythonParser):
         # COME_FROM targets from the wrong places
 
         trystmt        ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           try_middle _come_from _come_from
+                           try_middle _come_from
 
         # this is nested inside a trystmt
         tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt

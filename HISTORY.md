@@ -85,7 +85,8 @@ Starnberger got the code to where uncompyle2 was around 2012.
 This project, uncompyle6, however owes its existence to the fork of
 uncompyle2 by Myst herie (Mysterie) whose first commit seems to goes
 back to 2012. I chose this since it seemed to have been at that time
-the most actively, if briefly, worked on.
+the most actively, if briefly, worked on. I also looked at Dark Fenx's
+uncompyle3 for inspiration for Python3.
 
 Over the many years, code styles and Python features have
 changed. However brilliant the code was and still is, it hasn't really

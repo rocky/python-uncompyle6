@@ -144,7 +144,6 @@ class Python2Parser(PythonParser):
 
         stmt ::= classdef
         stmt ::= call_stmt
-        call_stmt ::= expr POP_TOP
 
         stmt ::= return_stmt
         return_stmt ::= ret_expr RETURN_VALUE
