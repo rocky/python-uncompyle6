@@ -333,8 +333,13 @@ class Python3Parser(PythonParser):
     def p_stmt3(self, args):
         """
         stmt ::= whileTruestmt
-        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK _come_from
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_from
+
+        # Python 3.5 may have POP_BLOCK
+        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK _come_from
+
+        # Python < 3.5 no POP BLOCK
+        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK \e__come_from
         """
 
     def p_genexpr3(self, args):
