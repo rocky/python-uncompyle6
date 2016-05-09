@@ -1,4 +1,7 @@
-# Tests bug in Python 3
+# Tests closure bug in Python 3
+
+# Note also check that *args, and **kwds are preserved
+# on the call!
 
 # load_closure ::= LOAD_CLOSURE BUILD_TUPLE_1
 

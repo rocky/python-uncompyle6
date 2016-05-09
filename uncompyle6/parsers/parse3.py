@@ -53,8 +53,6 @@ class Python3Parser(PythonParser):
         list_for ::= expr FOR_ITER designator list_iter JUMP_BACK
 
         # See also common Python p_list_comprehension
-
-        load_closure ::= LOAD_CLOSURE BUILD_TUPLE_1
         """
 
     def p_setcomp3(self, args):
@@ -432,6 +430,9 @@ class Python3Parser(PythonParser):
 
             build_list  ::= {expr}^n BUILD_LIST_n
             build_list  ::= {expr}^n BUILD_TUPLE_n
+
+            load_closure  ::= {LOAD_CLOSURE}^n BUILD_TUPLE_n
+
             unpack_list ::= UNPACK_LIST {expr}^n
             unpack      ::= UNPACK_TUPLE {expr}^n
             unpack      ::= UNPACK_SEQEUENCE {expr}^n
@@ -468,6 +469,10 @@ class Python3Parser(PythonParser):
                 rule = ('build_list ::= ' + 'expr1024 ' * int(v//1024) +
                                         'expr32 ' * int((v//32)%32) + 'expr '*(v%32) + opname)
                 self.add_unique_rule(rule, opname, token.attr, customize)
+                if opname_base == 'BUILD_TUPLE':
+                    rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
+                    self.add_unique_rule(rule, opname, token.attr, customize)
+
             elif self.version >= 3.5 and opname_base == 'BUILD_MAP':
                 kvlist_n = "kvlist_%s" % token.attr
                 rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
