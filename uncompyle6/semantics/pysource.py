@@ -1053,16 +1053,12 @@ class SourceWalker(GenericASTTraversal, object):
             if   n == 'list_for':
                 designator = n[2]
                 n = n[3]
-            elif n == 'list_if':
-                # FIXME: just a guess
-                designator = n[1]
-
-                n = n[2]
-            elif n == 'list_if_not':
+            elif n in ['list_if', 'list_if_not']:
                 # FIXME: just a guess
                 designator = n[1]
                 n = n[2]
-
+                pass
+            pass
         assert n == 'lc_body', ast
 
         self.preorder(n[0])
@@ -1070,12 +1066,59 @@ class SourceWalker(GenericASTTraversal, object):
         self.preorder(designator)
         self.write(' in ')
         self.preorder(node[-3])
-        # self.preorder(ast[iter_index])
+        self.prec = p
+
+    def listcomprehension_walk2(self, node):
+        """List comprehensions the way they are done in Python3.
+        They're more other comprehensions, e.g. set comprehensions
+        See if we can combine code.
+        """
+        p = self.prec
+        self.prec = 27
+
+        code = Code(node[1].attr, self.scanner, self.currentclass)
+        ast = self.build_ast(code._tokens, code._customize)
+        self.customize(code._customize)
+        ast = ast[0][0][0][0][0]
+
+        n = ast[1]
+        collection = node[-3]
+        list_if = None
+        assert n == 'list_iter'
+
+        # find innermost node
+        while n == 'list_iter': # list_iter
+            n = n[0] # recurse one step
+            if   n == 'list_for':
+                designator = n[2]
+                n = n[3]
+            elif n in ('list_if', 'list_if_not'):
+                # FIXME: just a guess
+                if n[0].type == 'expr':
+                    list_if = n
+                else:
+                    list_if = n[1]
+                n = n[2]
+                pass
+            pass
+
+        assert n == 'lc_body', ast
+
+        self.preorder(n[0])
+        self.write(' for ')
+        self.preorder(designator)
+        self.write(' in ')
+        self.preorder(collection)
+        if list_if:
+            self.preorder(list_if)
         self.prec = p
 
     def n_listcomp(self, node):
         self.write('[')
-        self.listcomprehension_walk3(node, iter_index=1, code_index=0)
+        if node[0].type == 'load_closure':
+            self.listcomprehension_walk2(node)
+        else:
+            self.listcomprehension_walk3(node, 1, 0)
         self.write(']')
         self.prune()
 

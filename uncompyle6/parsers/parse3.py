@@ -53,6 +53,8 @@ class Python3Parser(PythonParser):
         list_for ::= expr FOR_ITER designator list_iter JUMP_BACK
 
         # See also common Python p_list_comprehension
+
+        load_closure ::= LOAD_CLOSURE BUILD_TUPLE_1
         """
 
     def p_setcomp3(self, args):
@@ -426,7 +428,7 @@ class Python3Parser(PythonParser):
             listcomp ::= LOAD_LISTCOMP MAKE_FUNCTION_0 expr
                          GET_ITER CALL_FUNCTION_1
 
-            build_class (see load_build_class)
+            # build_class (see load_build_class)
 
             build_list  ::= {expr}^n BUILD_LIST_n
             build_list  ::= {expr}^n BUILD_TUPLE_n
@@ -438,7 +440,9 @@ class Python3Parser(PythonParser):
             mklambda    ::= {expr}^n LOAD_LAMBDA MAKE_FUNCTION_n
             mkfunc      ::= {expr}^n load_closure LOAD_CONST MAKE_FUNCTION_n
 
-            call_function (see custom_classfunc_rule)
+            listcomp ::= load_closure expr GET_ITER CALL_FUNCTION_1"
+
+            # call_function (see custom_classfunc_rule)
         """
         # from trepan.api import debug
         # debug(start_opts={'startup-profile': True})
@@ -503,6 +507,19 @@ class Python3Parser(PythonParser):
                                      'expr GET_ITER CALL_FUNCTION_1' %
                                      ('expr ' * token.attr, opname),
                                      opname, token.attr, customize)
+                if self.version >= 3.4:
+                    self.add_unique_rule('listcomp ::= %s load_closure '
+                                         'LOAD_LISTCOMP LOAD_CONST %s expr '
+                                         'GET_ITER CALL_FUNCTION_1' %
+                                         ('expr ' * token.attr, opname),
+                                         opname, token.attr, customize)
+                else:
+                    self.add_unique_rule('listcomp ::= %s load_closure '
+                                         'LOAD_LISTCOMP %s expr '
+                                         'GET_ITER CALL_FUNCTION_1' %
+                                        ('expr ' * token.attr, opname),
+                                        opname, token.attr, customize)
+
                 self.add_unique_rule('setcomp ::= %s load_closure LOAD_SETCOMP %s expr '
                                      'GET_ITER CALL_FUNCTION_1' %
                                      ('expr ' * token.attr, opname),
