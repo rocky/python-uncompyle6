@@ -302,6 +302,7 @@ TABLE_DIRECT = {
     'ifelsestmtr':	( '%|if %c:\n%+%c%-%|else:\n%+%c%-', 0, 1, 2 ),
     'elifelsestmtr':	( '%|elif %c:\n%+%c%-%|else:\n%+%c%-\n\n', 0, 1, 2 ),
 
+    'whileTruestmt':	( '%|while True:\n%+%c%-\n\n', 1 ),
     'whilestmt':	( '%|while %c:\n%+%c%-\n\n', 1, 2 ),
     'while1stmt':	( '%|while 1:\n%+%c%-\n\n', 1 ),
     'while1elsestmt':  ( '%|while 1:\n%+%c%-%|else:\n%+%c%-\n\n', 1, 3 ),

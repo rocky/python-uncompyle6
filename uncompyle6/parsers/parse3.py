@@ -330,6 +330,13 @@ class Python3Parser(PythonParser):
 
         '''
 
+    def p_stmt3(self, args):
+        """
+        stmt ::= whileTruestmt
+        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK _come_from
+        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_from
+        """
+
     def p_genexpr3(self, args):
         '''
         load_genexpr ::= LOAD_GENEXPR
