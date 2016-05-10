@@ -332,6 +332,7 @@ class Python3Parser(PythonParser):
 
     def p_stmt3(self, args):
         """
+        stmt ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
         stmt ::= whileTruestmt
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_from
 
@@ -586,9 +587,6 @@ class Python35onParser(Python3Parser):
         withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
                 POP_BLOCK LOAD_CONST COME_FROM
                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
-
-        # Python 3.5+ classes seem to end with this:
-        stmt ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
         """
 
 class Python35onParserSingle(Python35onParser, PythonParserSingle):
