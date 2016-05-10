@@ -435,6 +435,9 @@ class PythonParser(GenericASTBuilder):
         exprlist ::= exprlist expr
         exprlist ::= expr
 
+        # Positional arguments in make_function
+        pos_arg ::= expr
+
         nullexprlist ::=
 
         expr32 ::= expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr

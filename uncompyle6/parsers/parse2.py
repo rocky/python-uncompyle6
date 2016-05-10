@@ -337,7 +337,7 @@ class Python2Parser(PythonParser):
         '''
 
     def add_custom_rules(self, tokens, customize):
-        """
+        '''
         Special handling for opcodes that take a variable number
         of arguments -- we add a new rule for each:
 
@@ -354,7 +354,7 @@ class Python2Parser(PythonParser):
             expr ::= expr {expr}^n CALL_FUNCTION_VAR_n POP_TOP
             expr ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n POP_TOP
             expr ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
-        """
+        '''
         for k, v in list(customize.items()):
             # avoid adding the same rule twice to this parser
             if k in self.customized:
@@ -375,7 +375,7 @@ class Python2Parser(PythonParser):
                 # rule = 'dup_topx ::= ' + 'expr '*v + k
             elif op == 'MAKE_FUNCTION':
                 self.addRule('mklambda ::= %s LOAD_LAMBDA %s' %
-                      ('expr '*v, k), nop_func)
+                      ('pos_arg '*v, k), nop_func)
                 rule = 'mkfunc ::= %s LOAD_CONST %s' % ('expr '*v, k)
             elif op == 'MAKE_CLOSURE':
                 self.addRule('mklambda ::= %s load_closure LOAD_LAMBDA %s' %

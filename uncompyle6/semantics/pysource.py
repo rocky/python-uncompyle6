@@ -1031,7 +1031,8 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
 
     def listcomprehension_walk3(self, node, iter_index, code_index=-5):
-        """List comprehensions the way they are done in Python3.
+        """
+        List comprehensions the way they are done in Python3.
         They're more other comprehensions, e.g. set comprehensions
         See if we can combine code.
         """
@@ -1538,6 +1539,7 @@ class SourceWalker(GenericASTTraversal, object):
 
             if default:
                 if self.showast:
+                    print()
                     print('--', name)
                     print(default)
                     print('--')
@@ -1573,7 +1575,6 @@ class SourceWalker(GenericASTTraversal, object):
             return
 
         # build parameters
-
         params = [build_param(ast, name, default) for
                   name, default in zip_longest(paramnames, defparams, fillvalue=None)]
         # params = [ build_param(ast, name, default) for
