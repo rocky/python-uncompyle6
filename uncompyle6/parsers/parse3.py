@@ -500,7 +500,9 @@ class Python3Parser(PythonParser):
             elif opname_base.startswith('MAKE_FUNCTION'):
                 self.addRule('mklambda ::= %s LOAD_LAMBDA %s' %
                       ('expr ' * token.attr, opname), nop_func)
-                if self.version >= 3.3:
+                if self.version >= 3.2:
+                    rule = 'mkfunc ::= %s LOAD_CONST %s' % ('expr ' * token.attr, opname)
+                    self.add_unique_rule(rule, opname, token.attr, customize)
                     if opname.startswith('MAKE_FUNCTION_N'):
                         args_pos = token.attr & 0xff
                         args_kw = (token.attr >> 8) & 0xff
@@ -509,7 +511,6 @@ class Python3Parser(PythonParser):
                                 'expr ' * args_kw,
                                 'LOAD_CONST ' * 3,
                                 opname))
-                        print(rule)
                     else:
                         rule = 'mkfunc ::= %s LOAD_CONST LOAD_CONST %s' % ('expr ' * token.attr, opname)
                 else:
