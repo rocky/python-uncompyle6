@@ -261,6 +261,7 @@ TABLE_DIRECT = {
     'classdefdeco':  	( '%c', 0),
     'classdefdeco1':  	( '\n\n%|@%c%c', 0, 1),
     'kwarg':    	( '%[0]{pattr}=%c', 1),
+    'kwargs':    	( '%C', (0, maxint, ', ') ),
     'importlist2':	( '%C', (0, maxint, ', ') ),
 
     'assert':		( '%|assert %c\n' , 0 ),
@@ -951,7 +952,11 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(func_name)
 
         self.indentMore()
-        self.make_function(node, isLambda=False, code_index=code_index)
+        if self.version > 3.2:
+            self.make_function33(node, isLambda=False, code_index=code_index)
+        else:
+            self.make_function2(node, isLambda=False, code_index=code_index)
+
         if len(self.param_stack) > 1:
             self.write('\n\n')
         else:
@@ -1521,7 +1526,7 @@ class SourceWalker(GenericASTTraversal, object):
             # return self.traverse(node[1])
         raise Exception("Can't find tuple parameter " + name)
 
-    def make_function(self, node, isLambda, nested=1, code_index=-2):
+    def make_function2(self, node, isLambda, nested=1, code_index=-2):
         """Dump function defintion, doc string, and function body."""
 
         def build_param(ast, name, default):
@@ -1539,7 +1544,6 @@ class SourceWalker(GenericASTTraversal, object):
 
             if default:
                 if self.showast:
-                    print()
                     print('--', name)
                     print(default)
                     print('--')
@@ -1549,9 +1553,13 @@ class SourceWalker(GenericASTTraversal, object):
                 return result
             else:
                 return name
-        # node[-1] == MAKE_xxx_n
 
-        defparams = node[:node[-1].attr]
+        # node[-1] == MAKE_FUNCTION_n
+
+        if isinstance(node[-1].attr, tuple):
+            defparams = node[:node[-1].attr[0]]
+        else:
+            defparams = node[:node[-1].attr]
         code = node[code_index].attr
 
         assert iscode(code)
@@ -1575,6 +1583,7 @@ class SourceWalker(GenericASTTraversal, object):
             return
 
         # build parameters
+
         params = [build_param(ast, name, default) for
                   name, default in zip_longest(paramnames, defparams, fillvalue=None)]
         # params = [ build_param(ast, name, default) for
@@ -1601,6 +1610,76 @@ class SourceWalker(GenericASTTraversal, object):
             self.print_("(", ", ".join(params), "):")
             # self.print_(indent, '#flags:\t', int(code.co_flags))
 
+        self.make_function_tail(indent, code, ast, isLambda)
+
+    def make_function33(self, node, isLambda, nested=1, code_index=-2):
+        """Dump function defintion, doc string, and function body."""
+
+        def build_param(ast, name, default):
+            """build parameters:
+                - handle defaults
+                - handle format tuple parameters
+            """
+            if default:
+                if self.showast:
+                    print()
+                    print('--', name)
+                    print(default)
+                    print('--')
+                result = '%s = %s' % (name, self.traverse(default, indent='') )
+                if result[-2:] == '= ':	# default was 'LOAD_CONST None'
+                    result += 'None'
+                return result
+            else:
+                return name
+
+        # node[-1] == MAKE_FUNCTION_xxx
+
+        args_node = node[-1]
+        if isinstance(args_node.attr, tuple):
+            pos_args, kw_args, annotate_args  = args_node.attr
+        else:
+            pos_args = args_node.attr
+
+        code = node[code_index].attr
+
+        assert iscode(code)
+        code = Code(code, self.scanner, self.currentclass)
+
+        try:
+            ast = self.build_ast(code._tokens,
+                                 code._customize,
+                                 isLambda = isLambda,
+                                 noneInNames = ('None' in code.co_names))
+        except ParserError as p:
+            self.write( str(p))
+            self.ERROR = p
+            return
+
+        # build positional parameters
+        argc = code.co_argcount
+        params = list(code.co_varnames[:argc])
+
+        params.reverse() # back to correct order
+
+        if 4 & code.co_flags:	# flag 2 -> variable number of args
+            params.append('*%s' % code.co_varnames[argc])
+            argc += 1
+        if 8 & code.co_flags:	# flag 3 -> keyword args
+            params.append('**%s' % code.co_varnames[argc])
+            argc += 1
+
+        # dump parameter list (with default values)
+        indent = self.indent
+        if isLambda:
+            self.write("lambda ", ", ".join(params), ": ")
+        else:
+            self.print_("(", ", ".join(params), "):")
+            # self.print_(indent, '#flags:\t', int(code.co_flags))
+
+        self.make_function_tail(indent, code, ast, isLambda)
+
+    def make_function_tail(self, indent, code, ast, isLambda):
         if len(code.co_consts)>0 and code.co_consts[0] is not None and not isLambda: # ugly
             # docstring exists, dump it
             self.print_docstring(indent, code.co_consts[0])

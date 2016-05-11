@@ -30,6 +30,8 @@ class Scanner35(scan3.Scanner3):
     # we do post-processing like we do here.
     def disassemble(self, co, classname=None,
                     code_objects={}):
+
+        dis.disassemble(co) # DEBUG
         # Container for tokens
         tokens = []
         customize = {}
@@ -104,28 +106,37 @@ class Scanner35(scan3.Scanner3):
                 else:
                     pattr = const
                     pass
+            elif opname == 'MAKE_FUNCTION':
+                argc = inst.argval
+                attr = ((argc & 0xFF), (argc >> 8) & 0xFF, (argc >> 16) & 0x7FFF)
+                pos_args, name_pair_args, annotate_args = attr
+                if name_pair_args > 0:
+                    opname = 'MAKE_FUNCTION_N%d' % name_pair_args
+                    pass
+                if annotate_args > 0:
+                    opname = '%s_A_%d' % [op_name, annotate_args]
+                    pass
+                opname = '%s_%d' % (opname, pos_args)
+                pattr = ("%d positional, %d keyword pair, %d annotated" %
+                             (pos_args, name_pair_args, annotate_args))
+                tokens.append(
+                    Token(
+                        type_ = opname,
+                        attr = (pos_args, name_pair_args, annotate_args),
+                        pattr = pattr,
+                        offset = inst.offset,
+                        linestart = inst.starts_line)
+                    )
+                continue
             elif opname in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET', 'BUILD_SLICE',
-                            'BUILD_MAP',
-                            'UNPACK_SEQUENCE',
-                            'MAKE_FUNCTION', 'MAKE_CLOSURE',
-                            'DUP_TOPX', 'RAISE_VARARGS'
+                            'BUILD_MAP', 'UNPACK_SEQUENCE', 'MAKE_CLOSURE',
+                            'RAISE_VARARGS'
                             ):
                 pos_args = inst.argval
-                if inst.opname == 'MAKE_FUNCTION':
-                    argc = inst.argval
-                    pos_args = (argc & 0xFF)
-                    name_pair_args = (argc >> 8) & 0xFF
-                    if name_pair_args > 0:
-                        opname = 'MAKE_FUNCTION_N%d' % name_pair_args
-                        pass
-                    annotate_args = (argc >> 16) & 0x7FFF
-                    if annotate_args > 0:
-                        opname = '%s_A_%d' % [op_name, annotate_args]
-                        pass
-                elif inst.opname != 'BUILD_SLICE':
+                if inst.opname != 'BUILD_SLICE':
                     customize[opname] = pos_args
+                    pass
                 opname = '%s_%d' % (opname, pos_args)
-
             elif opname == 'JUMP_ABSOLUTE':
                 pattr = inst.argval
                 target = self.get_target(inst.offset)
