@@ -201,6 +201,8 @@ class Python3Parser(PythonParser):
         del_stmt ::= expr DELETE_ATTR
 
         kwarg   ::= LOAD_CONST expr
+        kwargs  ::= kwargs kwarg
+        kwargs  ::=
 
         classdef ::= build_class designator
         # Python3 introduced LOAD_BUILD_CLASS
@@ -507,21 +509,17 @@ class Python3Parser(PythonParser):
             elif opname_base == 'UNPACK_LIST':
                 rule = 'unpack_list ::= ' + opname + ' designator' * token.attr
             elif opname_base.startswith('MAKE_FUNCTION'):
-                self.addRule('mklambda ::= %s LOAD_LAMBDA %s' %
-                      ('expr ' * token.attr, opname), nop_func)
-                rule = 'mkfunc ::= %sLOAD_CONST %s' % ('expr ' * token.attr, opname)
-                self.add_unique_rule(rule, opname, token.attr, customize)
-                if opname.startswith('MAKE_FUNCTION_N'):
-                    args_pos = token.attr & 0xff
-                    args_kw = (token.attr >> 8) & 0xff
-                    rule = ('mkfunc ::= %s %s %s %s' %
+                args_pos, args_kw, annotate_args  = token.attr
+                self.addRule('mklambda ::= %sLOAD_LAMBDA %s' %
+                      ('pos_arg ' * args_pos, opname), nop_func)
+                if self.version > 3.2:
+                    rule = ('mkfunc ::= %skwargs %s %s' %
                             ('pos_arg ' * args_pos,
-                            'expr ' * args_kw,
-                            'LOAD_CONST ' * 3,
+                                 'LOAD_CONST ' * 2,
                             opname))
                 else:
-                    rule = 'mkfunc ::= %sLOAD_CONST LOAD_CONST %s' % ('pos_arg ' * token.attr, opname)
-                    pass
+                    rule = ('mkfunc ::= %sLOAD_CONST %s' %
+                            ('pos_arg ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname.startswith('MAKE_CLOSURE'):
                 self.add_unique_rule('mklambda ::= %sload_closure LOAD_LAMBDA %s' %

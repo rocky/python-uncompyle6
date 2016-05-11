@@ -167,7 +167,29 @@ class Scanner3(scan.Scanner):
                 elif op in op3.hasfree:
                     pattr = free[oparg]
 
-            if op_name in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET', 'BUILD_SLICE',
+            if op_name == 'MAKE_FUNCTION':
+                argc = oparg
+                attr = ((argc & 0xFF), (argc >> 8) & 0xFF, (argc >> 16) & 0x7FFF)
+                pos_args, name_pair_args, annotate_args = attr
+                if name_pair_args > 0:
+                    op_name = 'MAKE_FUNCTION_N%d' % name_pair_args
+                    pass
+                if annotate_args > 0:
+                    op_name = '%s_A_%d' % [op_name, annotate_args]
+                    pass
+                op_name = '%s_%d' % (op_name, pos_args)
+                pattr = ("%d positional, %d keyword pair, %d annotated" %
+                             (pos_args, name_pair_args, annotate_args))
+                tokens.append(
+                    Token(
+                        type_ = op_name,
+                        attr = (pos_args, name_pair_args, annotate_args),
+                        pattr = pattr,
+                        offset = offset,
+                        linestart = linestart)
+                    )
+                continue
+            elif op_name in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET', 'BUILD_SLICE',
                             'UNPACK_SEQUENCE',
                             'MAKE_FUNCTION', 'CALL_FUNCTION', 'MAKE_CLOSURE',
                             'CALL_FUNCTION_VAR', 'CALL_FUNCTION_KW',
