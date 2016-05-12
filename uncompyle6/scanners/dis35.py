@@ -306,7 +306,8 @@ def _get_instructions_bytes(code, varnames=None, names=None, constants=None,
             elif op in hasfree:
                 argval, argrepr = _get_name_info(arg, cells)
             elif op in hasnargs:
-                argrepr = "%d positional, %d keyword pair" % (code[i-2], code[i-1])
+                argrepr = ("%d positional, %d keyword pair, %d annotated" %
+                               (code[i-2], code[i-1], code[i]))
         yield Instruction(opname[op_num], op,
                           arg, argval, argrepr,
                           offset, starts_line, is_jump_target)

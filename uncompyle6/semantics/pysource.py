@@ -48,6 +48,9 @@ methods implement most of the below.
     %c  evaluate children N[A] recursively*
     %C  evaluate children N[A[0]]..N[A[1]-1] recursively, separate by A[2]*
     %P  same as %C but sets operator precedence
+    %D  same as %C but is for left-recursive lists like kwargs which
+        goes to epsilon at the beginning. Using %C an extra separator
+        with an epsilon appears at the beginning
     %,  print ',' if last %C only printed one item (for tuples--unused)
     %|  tab to current indentation level
     %+ increase current indentation level
@@ -261,6 +264,7 @@ TABLE_DIRECT = {
     'classdefdeco':  	( '%c', 0),
     'classdefdeco1':  	( '\n\n%|@%c%c', 0, 1),
     'kwarg':    	( '%[0]{pattr}=%c', 1),
+    'kwargs':    	( '%D', (0, maxint, ', ') ),
     'importlist2':	( '%C', (0, maxint, ', ') ),
 
     'assert':		( '%|assert %c\n' , 0 ),
@@ -597,7 +601,7 @@ class SourceWalker(GenericASTTraversal, object):
             out = out[:-self.pending_newlines]
         self.f.write(out)
 
-    def print_(self, *data):
+    def println(self, *data):
         if data and not(len(data) == 1 and data[0] ==''):
             self.write(*data)
         self.pending_newlines = max(self.pending_newlines, 1)
@@ -654,14 +658,14 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.write(quote)
         if len(trimmed) == 0:
-            self.print_(quote)
+            self.println(quote)
         elif len(trimmed) == 1:
-            self.print_(trimmed[0], quote)
+            self.println(trimmed[0], quote)
         else:
-            self.print_(trimmed[0])
+            self.println(trimmed[0])
             for line in trimmed[1:-1]:
-                self.print_( indent, line )
-            self.print_(indent, trimmed[-1], quote)
+                self.println( indent, line )
+            self.println(indent, trimmed[-1], quote)
 
     def n_return_stmt(self, node):
         if self.params['isLambda']:
@@ -672,7 +676,7 @@ class SourceWalker(GenericASTTraversal, object):
             if self.return_none or node != AST('return_stmt', [AST('ret_expr', [NONE]), Token('RETURN_VALUE')]):
                 self.write(' ')
                 self.preorder(node[0])
-            self.print_()
+            self.println()
             self.prune() # stop recursing
 
     def n_return_if_stmt(self, node):
@@ -684,7 +688,7 @@ class SourceWalker(GenericASTTraversal, object):
             if self.return_none or node != AST('return_stmt', [AST('ret_expr', [NONE]), Token('RETURN_END_IF')]):
                 self.write(' ')
                 self.preorder(node[0])
-            self.print_()
+            self.println()
             self.prune() # stop recursing
 
     def n_yield(self, node):
@@ -817,7 +821,7 @@ class SourceWalker(GenericASTTraversal, object):
             for subnode in node[1]:
                 self.write(sep); sep = ", "
                 self.preorder(subnode)
-        self.print_()
+        self.println()
         self.prune() # stop recursing
 
     def n_ifelsestmt(self, node, preprocess=0):
@@ -860,7 +864,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.write(self.indent, 'if ')
         self.preorder(node[0])
-        self.print_(':')
+        self.println(':')
         self.indentMore()
         self.preorder(node[1])
         self.indentLess()
@@ -880,12 +884,12 @@ class SourceWalker(GenericASTTraversal, object):
             else:
                 prev_stmt_is_if_ret = False
                 if not past_else and not if_ret_at_end:
-                    self.print_(self.indent, 'else:')
+                    self.println(self.indent, 'else:')
                     self.indentMore()
                     past_else = True
             self.preorder(n)
         if not past_else or if_ret_at_end:
-            self.print_(self.indent, 'else:')
+            self.println(self.indent, 'else:')
             self.indentMore()
         self.preorder(node[2][1])
         self.indentLess()
@@ -902,7 +906,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.write(self.indent, 'elif ')
         self.preorder(node[0])
-        self.print_(':')
+        self.println(':')
         self.indentMore()
         self.preorder(node[1])
         self.indentLess()
@@ -910,7 +914,7 @@ class SourceWalker(GenericASTTraversal, object):
         for n in node[2][0]:
             n[0].type = 'elifstmt'
             self.preorder(n)
-        self.print_(self.indent, 'else:')
+        self.println(self.indent, 'else:')
         self.indentMore()
         self.preorder(node[2][1])
         self.indentLess()
@@ -952,6 +956,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.indentMore()
         self.make_function(node, isLambda=False, code_index=code_index)
+
         if len(self.param_stack) > 1:
             self.write('\n\n')
         else:
@@ -1135,7 +1140,10 @@ class SourceWalker(GenericASTTraversal, object):
         if self.version > 3.0:
             currentclass = node[1][0].pattr
             buildclass = node[0]
-            subclass = buildclass[1][0].attr
+            if buildclass[1][0] == 'kwargs':
+                subclass = buildclass[1][1].attr
+            else:
+                subclass = buildclass[1][0].attr
             subclass_info = node[0]
         else:
             buildclass = node[0]
@@ -1157,7 +1165,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.print_super_classes3(subclass_info)
         else:
             self.print_super_classes(build_list)
-        self.print_(':')
+        self.println(':')
 
         # class body
         self.indentMore()
@@ -1354,7 +1362,7 @@ class SourceWalker(GenericASTTraversal, object):
         %c, %C, and so on.
         """
 
-        # self.print_("-----")
+        # self.println("-----")
         # self.print(startnode)
 
         fmt = entry[0]
@@ -1411,6 +1419,19 @@ class SourceWalker(GenericASTTraversal, object):
                     remaining -= 1
                     if remaining > 0:
                         self.write(sep)
+                arg += 1
+            elif typ == 'D':
+                low, high, sep = entry[arg]
+                remaining = len(node[low:high])
+                for subnode in node[low:high]:
+                    remaining -= 1
+                    if len(subnode) > 0:
+                        self.preorder(subnode)
+                        if remaining > 0:
+                            self.write(sep)
+                            pass
+                        pass
+                    pass
                 arg += 1
             elif typ == 'P':
                 p = self.prec
@@ -1530,12 +1551,13 @@ class SourceWalker(GenericASTTraversal, object):
                 - handle format tuple parameters
             """
             if self.version < 3.0:
-                # rocky: is this still even relevant?
                 # if formal parameter is a tuple, the paramater name
                 # starts with a dot (eg. '.1', '.2')
                 if name.startswith('.'):
                     # replace the name with the tuple-string
                     name = self.get_tuple_parameter(ast, name)
+                    pass
+                pass
 
             if default:
                 if self.showast:
@@ -1543,15 +1565,25 @@ class SourceWalker(GenericASTTraversal, object):
                     print('--', name)
                     print(default)
                     print('--')
-                result = '%s = %s' % (name, self.traverse(default, indent='') )
+                result = '%s=%s' % (name, self.traverse(default, indent='') )
                 if result[-2:] == '= ':	# default was 'LOAD_CONST None'
                     result += 'None'
                 return result
             else:
                 return name
-        # node[-1] == MAKE_xxx_n
 
-        defparams = node[:node[-1].attr]
+        # node[-1] == MAKE_FUNCTION_n
+
+        args_node = node[-1]
+        if isinstance(args_node.attr, tuple):
+            defparams = node[:args_node.attr[0]]
+            pos_args, kw_args, annotate_args  = args_node.attr
+        else:
+            defparams = node[:args_node.attr]
+            kw_args, annotate_args  = (0, 0)
+            pos_args = args_node.attr
+            pass
+
         code = node[code_index].attr
 
         assert iscode(code)
@@ -1570,19 +1602,14 @@ class SourceWalker(GenericASTTraversal, object):
                                  isLambda = isLambda,
                                  noneInNames = ('None' in code.co_names))
         except ParserError as p:
-            self.write( str(p))
+            self.write(str(p))
             self.ERROR = p
             return
 
         # build parameters
+
         params = [build_param(ast, name, default) for
                   name, default in zip_longest(paramnames, defparams, fillvalue=None)]
-        # params = [ build_param(ast, name, default) for
-        #           name, default in zip(paramnames, defparams) ]
-        # params = []
-        # for i, name in enumerate(paramnames):
-        #     default = defparams[i] if len(defparams) > i else None
-        #     params.append( build_param(ast, name, default) )
 
         params.reverse() # back to correct order
 
@@ -1596,10 +1623,27 @@ class SourceWalker(GenericASTTraversal, object):
         # dump parameter list (with default values)
         indent = self.indent
         if isLambda:
-            self.write("lambda ", ", ".join(params), ": ")
+            self.write("lambda ", ", ".join(params))
         else:
-            self.print_("(", ", ".join(params), "):")
-            # self.print_(indent, '#flags:\t', int(code.co_flags))
+            self.write("(", ", ".join(params))
+            # self.println(indent, '#flags:\t', int(code.co_flags))
+
+        if kw_args > 0:
+            if argc > 0:
+                self.write(", *, ")
+            else:
+                self.write("*, ")
+            for n in node:
+                if n == 'pos_arg':
+                    continue
+                self.preorder(n)
+                break
+            pass
+
+        if isLambda:
+            self.write(": ")
+        else:
+            self.println("):")
 
         if len(code.co_consts)>0 and code.co_consts[0] is not None and not isLambda: # ugly
             # docstring exists, dump it
@@ -1610,10 +1654,11 @@ class SourceWalker(GenericASTTraversal, object):
 
         all_globals = find_all_globals(ast, set())
         for g in ((all_globals & self.mod_globs) | find_globals(ast, set())):
-            self.print_(self.indent, 'global ', g)
+            self.println(self.indent, 'global ', g)
         self.mod_globs -= all_globals
         rn = ('None' in code.co_names) and not find_none(ast)
-        self.gen_source(ast, code.co_name, code._customize, isLambda=isLambda, returnNone=rn)
+        self.gen_source(ast, code.co_name, code._customize, isLambda=isLambda,
+                            returnNone=rn)
         code._tokens = None; code._customize = None # save memory
 
     def build_class(self, code):
@@ -1624,7 +1669,7 @@ class SourceWalker(GenericASTTraversal, object):
         code = Code(code, self.scanner, self.currentclass)
 
         indent = self.indent
-        # self.print_(indent, '#flags:\t', int(code.co_flags))
+        # self.println(indent, '#flags:\t', int(code.co_flags))
         ast = self.build_ast(code._tokens, code._customize)
         code._tokens = None # save memory
         assert ast == 'stmts'
@@ -1664,7 +1709,7 @@ class SourceWalker(GenericASTTraversal, object):
                 except:
                     docstring = code.co_consts[0]
                 self.print_docstring(indent, docstring)
-                self.print_()
+                self.println()
                 del ast[i]
 
 
@@ -1676,7 +1721,7 @@ class SourceWalker(GenericASTTraversal, object):
         #    print ast[-1][-1]
 
         for g in find_globals(ast, set()):
-            self.print_(indent, 'global ', g)
+            self.println(indent, 'global ', g)
 
         self.gen_source(ast, code.co_name, code._customize)
         code._tokens = None; code._customize = None # save memory
@@ -1690,14 +1735,14 @@ class SourceWalker(GenericASTTraversal, object):
         self.name = name
         # if code would be empty, append 'pass'
         if len(ast) == 0:
-            self.print_(self.indent, 'pass')
+            self.println(self.indent, 'pass')
         else:
             self.customize(customize)
             if isLambda:
                 self.write(self.traverse(ast, isLambda=isLambda))
             else:
                 self.text = self.traverse(ast, isLambda=isLambda)
-                self.print_(self.text)
+                self.println(self.text)
         self.return_none = rn
 
     def build_ast(self, tokens, customize, isLambda=0, noneInNames=False):
@@ -1711,7 +1756,7 @@ class SourceWalker(GenericASTTraversal, object):
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
             if self.showast:
-                self.print_(repr(ast))
+                self.println(repr(ast))
             return ast
 
         # The bytecode for the end of the main routine has a
@@ -1735,7 +1780,7 @@ class SourceWalker(GenericASTTraversal, object):
             raise ParserError(e, tokens)
 
         if self.showast:
-            self.print_(repr(ast))
+            self.println(repr(ast))
 
         return ast
 

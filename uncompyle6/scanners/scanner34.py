@@ -108,10 +108,32 @@ class Scanner34(scan3.Scanner3):
                 else:
                     pattr = const
                     pass
+            elif opname == 'MAKE_FUNCTION':
+                argc = inst.argval
+                attr = ((argc & 0xFF), (argc >> 8) & 0xFF, (argc >> 16) & 0x7FFF)
+                pos_args, name_pair_args, annotate_args = attr
+                if name_pair_args > 0:
+                    opname = 'MAKE_FUNCTION_N%d' % name_pair_args
+                    pass
+                if annotate_args > 0:
+                    opname = '%s_A_%d' % [op_name, annotate_args]
+                    pass
+                opname = '%s_%d' % (opname, pos_args)
+                pattr = ("%d positional, %d keyword pair, %d annotated" %
+                             (pos_args, name_pair_args, annotate_args))
+                tokens.append(
+                    Token(
+                        type_ = opname,
+                        attr = (pos_args, name_pair_args, annotate_args),
+                        pattr = pattr,
+                        offset = inst.offset,
+                        linestart = inst.starts_line)
+                    )
+                continue
             elif opname in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET', 'BUILD_SLICE',
                             'UNPACK_SEQUENCE',
-                            'MAKE_FUNCTION', 'MAKE_CLOSURE',
-                            'DUP_TOPX', 'RAISE_VARARGS'
+                            'MAKE_CLOSURE',
+                            'RAISE_VARARGS'
                             ):
                 # if opname == 'BUILD_TUPLE' and \
                 #     self.code[self.prev[offset]] == LOAD_CLOSURE:

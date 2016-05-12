@@ -191,7 +191,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     pass
                 pass
             self.set_pos_info(node, start, len(self.f.getvalue()))
-            self.print_()
+            self.println()
             self.prune() # stop recursing
 
     def n_return_if_stmt(self, node):
@@ -208,7 +208,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 self.preorder(node[0])
                 if hasattr(node[-1], 'offset'):
                     self.set_pos_info(node[-1], start, len(self.f.getvalue()))
-            self.print_()
+            self.println()
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune() # stop recursing
 
@@ -350,7 +350,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 self.write(sep); sep = ", "
                 self.preorder(subnode)
         self.set_pos_info(node, start, len(self.f.getvalue()))
-        self.print_()
+        self.println()
         self.prune() # stop recursing
 
     def n_ifelsestmtr(self, node):
@@ -365,7 +365,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         start = len(self.f.getvalue()) + len(self.indent)
         self.write(self.indent, 'if ')
         self.preorder(node[0])
-        self.print_(':')
+        self.println(':')
         self.indentMore()
         node[1].parent = node
         self.preorder(node[1])
@@ -387,13 +387,13 @@ class FragmentsWalker(pysource.SourceWalker, object):
             else:
                 prev_stmt_is_if_ret = False
                 if not past_else and not if_ret_at_end:
-                    self.print_(self.indent, 'else:')
+                    self.println(self.indent, 'else:')
                     self.indentMore()
                     past_else = True
             n.parent = node
             self.preorder(n)
         if not past_else or if_ret_at_end:
-            self.print_(self.indent, 'else:')
+            self.println(self.indent, 'else:')
             self.indentMore()
         node[2][1].parent = node
         self.preorder(node[2][1])
@@ -414,7 +414,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write(self.indent, 'elif ')
         node[0].parent = node
         self.preorder(node[0])
-        self.print_(':')
+        self.println(':')
         self.indentMore()
         node[1].parent = node
         self.preorder(node[1])
@@ -424,7 +424,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             n[0].type = 'elifstmt'
             n.parent = node
             self.preorder(n)
-        self.print_(self.indent, 'else:')
+        self.println(self.indent, 'else:')
         self.indentMore()
         node[2][1].parent = node
         self.preorder(node[2][1])
@@ -680,7 +680,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.print_super_classes3(subclass_info)
         else:
             self.print_super_classes(build_list)
-        self.print_(':')
+        self.println(':')
 
         # class body
         self.indentMore()
@@ -704,7 +704,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.name = name
         # if code would be empty, append 'pass'
         if len(ast) == 0:
-            self.print_(self.indent, 'pass')
+            self.println(self.indent, 'pass')
         else:
             self.customize(customize)
             self.text = self.traverse(ast, isLambda=isLambda)
@@ -1238,19 +1238,23 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 - handle defaults
                 - handle format tuple parameters
             """
-            # if formal parameter is a tuple, the paramater name
-            # starts with a dot (eg. '.1', '.2')
-            if name.startswith('.'):
-                # replace the name with the tuple-string
-                name = self.get_tuple_parameter(ast, name)
+            if self.version < 3.0:
+                # if formal parameter is a tuple, the paramater name
+                # starts with a dot (eg. '.1', '.2')
+                if name.startswith('.'):
+                    # replace the name with the tuple-string
+                    name = self.get_tuple_parameter(ast, name)
+                    pass
+                pass
 
             if default:
                 if self.showast:
+                    print()
                     print('--', name)
                     print(default)
                     print('--')
                     pass
-                result = '%s = ' % name
+                result = '%s=' % name
                 old_last_finish = self.last_finish
                 self.last_finish = len(result)
                 value = self.traverse(default, indent='')
@@ -1262,14 +1266,22 @@ class FragmentsWalker(pysource.SourceWalker, object):
             else:
                 return name
 
-        # node[-1] == MAKE_xxx_n
+        # node[-1] == MAKE_FUNCTION_n
 
-        defparams = node[:node[-1].attr]
+        args_node = node[-1]
+        if isinstance(args_node.attr, tuple):
+            defparams = node[:args_node.attr[0]]
+            pos_args, kw_args, annotate_args  = args_node.attr
+        else:
+            defparams = node[:args_node.attr]
+            kw_args, annotate_args  = (0, 0)
+            pos_args = args_node.attr
+            pass
+
         code = node[code_index].attr
 
-        assert type(code) == CodeType
+        assert iscode(code)
         code = Code(code, self.scanner, self.currentclass)
-        # assert isinstance(code, Code)
 
         # add defaults values to parameter names
         argc = code.co_argcount
@@ -1284,7 +1296,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                                  isLambda = isLambda,
                                  noneInNames = ('None' in code.co_names))
         except ParserError as p:
-            self.write( str(p))
+            self.write(str(p))
             self.ERROR = p
             return
 
@@ -1292,12 +1304,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         params = [build_param(ast, name, default) for
                   name, default in zip_longest(paramnames, defparams, fillvalue=None)]
-        # params = [ build_param(ast, name, default) for
-        #           name, default in zip(paramnames, defparams) ]
-        # params = []
-        # for i, name in enumerate(paramnames):
-        #     default = defparams[i] if len(defparams) > i else None
-        #     params.append( build_param(ast, name, default) )
 
         params.reverse() # back to correct order
 
@@ -1311,10 +1317,27 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # dump parameter list (with default values)
         indent = self.indent
         if isLambda:
-            self.write("lambda ", ", ".join(params), ": ")
+            self.write("lambda ", ", ".join(params))
         else:
-            self.print_("(", ", ".join(params), "):")
-            # self.print_(indent, '#flags:\t', int(code.co_flags))
+            self.write("(", ", ".join(params))
+            # self.println(indent, '#flags:\t', int(code.co_flags))
+
+        if kw_args > 0:
+            if argc > 0:
+                self.write(", *, ")
+            else:
+                self.write("*, ")
+            for n in node:
+                if n == 'pos_arg':
+                    continue
+                self.preorder(n)
+                break
+            pass
+
+        if isLambda:
+            self.write(": ")
+        else:
+            self.println("):")
 
         if len(code.co_consts)>0 and code.co_consts[0] is not None and not isLambda: # ugly
             # docstring exists, dump it
@@ -1325,7 +1348,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         all_globals = find_all_globals(ast, set())
         for g in ((all_globals & self.mod_globs) | find_globals(ast, set())):
-            self.print_(self.indent, 'global ', g)
+            self.println(self.indent, 'global ', g)
         self.mod_globs -= all_globals
         rn = ('None' in code.co_names) and not find_none(ast)
         self.gen_source(ast, code.co_name, code._customize, isLambda=isLambda,
