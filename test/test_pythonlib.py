@@ -174,6 +174,10 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
     except (KeyboardInterrupt, OSError):
         print()
         exit(1)
+    if test_opts['rmtree']:
+        parent_dir = os.path.dirname(target_dir)
+        print("Everything good, removing %s" % parent_dir)
+        shutil.rmtree(parent_dir)
 
 if __name__ == '__main__':
     test_dirs = []
@@ -183,7 +187,8 @@ if __name__ == '__main__':
     test_options_keys = list(test_options.keys())
     test_options_keys.sort()
     opts, args = getopt.getopt(sys.argv[1:], '',
-                               ['start-with=', 'verify', 'all', 'compile'] \
+                               ['start-with=', 'verify', 'all', 'compile',
+                                'no-rm'] \
                                + test_options_keys )
     if not opts: help()
 
@@ -191,6 +196,7 @@ if __name__ == '__main__':
         'do_compile': False,
         'do_verify': False,
         'start_with': None,
+        'rmtree' : True
         }
 
     for opt, val in opts:
@@ -200,6 +206,8 @@ if __name__ == '__main__':
             test_opts['do_compile'] = True
         elif opt == '--start-with':
             test_opts['start_with'] = val
+        elif opt == '--no-rm':
+            test_opts['rmtree'] = False
         elif opt[2:] in test_options_keys:
             test_dirs.append(test_options[opt[2:]])
         elif opt == '--all':
