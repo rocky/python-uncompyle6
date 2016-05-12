@@ -1,4 +1,4 @@
-# Copyright (c) 2015 by Rocky Bernstein
+# Copyright (c) 2015, 2016 by Rocky Bernstein
 # Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 # Copyright (c) 1999 John Aycock
@@ -32,7 +32,7 @@ class Scanner27(scan.Scanner):
         dis.disassemble().
         """
 
-        # dis.disassemble(co) # DEBUG
+        # import dis; dis.disassemble(co) # DEBUG
         rv = []
         customize = {}
         Token = self.Token # shortcut

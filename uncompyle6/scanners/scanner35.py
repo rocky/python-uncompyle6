@@ -31,9 +31,11 @@ class Scanner35(scan3.Scanner3):
     def disassemble(self, co, classname=None,
                     code_objects={}):
 
-        # dis.disassemble(co) # DEBUG
+        # imoprt dis; dis.disassemble(co) # DEBUG
+
         # Container for tokens
         tokens = []
+
         customize = {}
         self.code = array('B', co.co_code)
         self.build_lines_data(co)

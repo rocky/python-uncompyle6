@@ -1,7 +1,7 @@
-#  Copyright (c) 1999 John Aycock
-#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#  Copyright (c) 2015, 2016 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-#  Copyright (c) 2015 by Rocky Bernstein
+#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#  Copyright (c) 1999 John Aycock
 
 """
 Python 2.6 bytecode scanner
@@ -20,7 +20,7 @@ import uncompyle6.scanner as scan
 
 class Scanner26(scan.Scanner):
     def __init__(self, version):
-        scan.Scanner.__init__(self, 2.5) # check
+        scan.Scanner.__init__(self, 2.6)
 
     def disassemble(self, co, classname=None, code_objects={}):
         '''
@@ -30,7 +30,11 @@ class Scanner26(scan.Scanner):
         dis.disassemble().
         '''
 
-        rv = []
+        # import dis; dis.disassemble(co) # DEBUG
+
+        # Container for tokens
+        tokens = []
+
         customize = {}
         Token = self.Token # shortcut
         self.code = array('B', co.co_code)
@@ -38,7 +42,7 @@ class Scanner26(scan.Scanner):
             if self.code[i] in (RETURN_VALUE, END_FINALLY):
                 n = i + 1
         self.code = array('B', co.co_code[:n])
-        # linestarts contains bloc code adresse (addr,block)
+        # linestarts contains block code adresses (addr,block)
         self.linestarts = list(dis.findlinestarts(co))
         self.prev = [0]
         # class and names
@@ -132,7 +136,7 @@ class Scanner26(scan.Scanner):
             if offset in cf:
                 k = 0
                 for j in cf[offset]:
-                    rv.append(Token('COME_FROM', None, repr(j),
+                    tokens.append(Token('COME_FROM', None, repr(j),
                                     offset="%s_%d" % (offset, k) ))
                     k += 1
             if self.op_hasArgument(op):
@@ -221,11 +225,16 @@ class Scanner26(scan.Scanner):
                 linestart = None
 
             if offset not in replace:
-                rv.append(Token(op_name, oparg, pattr, offset, linestart))
+                tokens.append(Token(op_name, oparg, pattr, offset, linestart))
             else:
-                rv.append(Token(replace[offset], oparg, pattr, offset, linestart))
+                tokens.append(Token(replace[offset], oparg, pattr, offset, linestart))
+                pass
+            pass
 
-        return rv, customize
+        # Debug
+        # for t in tokens:
+        #     print t
+        return tokens, customize
 
     def getOpcodeToDel(self, i):
         '''
@@ -896,6 +905,10 @@ class Scanner26(scan.Scanner):
                 if label is None:
                     if op in hasjrel and op != FOR_ITER:
                         label = i + 3 + oparg
+                    # elif op in hasjabs:
+                    #     if op in (JUMP_IF_FALSE, JUMP_IF_TRUE):
+                    #         if (oparg > i):
+                    #             label = oparg
                 if label is not None and label != -1:
                     targets[label] = targets.get(label, []) + [i]
             elif op == END_FINALLY and i in self.fixed_jumps:
