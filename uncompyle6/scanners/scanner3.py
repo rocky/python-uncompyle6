@@ -39,6 +39,7 @@ import uncompyle6.scanner as scan
 class Scanner3(scan.Scanner):
 
     def __init__(self, version):
+        self.version = version
         scan.Scanner.__init__(self, version)
 
     def disassemble_generic(self, co, classname=None, code_objects={}):
@@ -215,17 +216,6 @@ class Scanner3(scan.Scanner):
                         op_name = 'JUMP_BACK'
                         pass
                     pass
-                elif target > offset:
-                    # Python 3.5 will use JUMP_FORWARD where 3.2 may
-                    # use JUMP_ABSOLUTE. Which direction we move
-                    # simplifies grammar rules working with both 3.2
-                    # and 3.5. So optimize the way Python 3.5 does it.
-                    #
-                    # We may however want to consider whether we do
-                    # this in 3.5 or not.
-                    op_name = 'JUMP_FORWARD'
-                    oparg -= offset
-                    pass
                 pass
             elif op_name == 'JUMP_FORWARD':
                 # Python 3.5 will optimize out a JUMP_FORWARD to the
@@ -235,7 +225,8 @@ class Scanner3(scan.Scanner):
                 #
                 # We may however want to consider whether we do
                 # this in 3.5 or not.
-                if oparg == 0:
+                if oparg == 0 and self.version != 3.4:
+                    tokens.append(Token('NOP', oparg, pattr, offset, linestart))
                     continue
             elif op_name == 'LOAD_GLOBAL':
                 if offset in self.load_asserts:

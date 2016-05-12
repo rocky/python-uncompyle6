@@ -5,6 +5,7 @@ from uncompyle6 import verify, PYTHON_VERSION
 from uncompyle6.code import iscode
 from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource
+from uncompyle6.parser import ParserError
 
 from uncompyle6.load import load_module
 
@@ -114,8 +115,8 @@ def main(in_base, out_base, files, codes, outfile=None,
         try:
             uncompyle_file(infile, outstream, showasm, showast, showgrammar)
             tot_files += 1
-        except (ValueError, SyntaxError) as e:
-            sys.stderr.write("\n# %s" % e)
+        except (ValueError, SyntaxError, ParserError) as e:
+            sys.stderr.write("\n# file %s\n# %s" % (infile, e))
             failed_files += 1
         except KeyboardInterrupt:
             if outfile:

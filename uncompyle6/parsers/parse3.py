@@ -143,7 +143,7 @@ class Python3Parser(PythonParser):
         return_stmts ::= return_stmt
         return_stmts ::= _stmts return_stmt
 
-        return_if_stmts ::= return_if_stmt
+        return_if_stmts ::= return_if_stmt come_from_opt
         return_if_stmts ::= _stmts return_if_stmt
         return_if_stmt ::= ret_expr RETURN_VALUE
 
@@ -333,17 +333,25 @@ class Python3Parser(PythonParser):
 
         '''
 
+    def p_misc(self, args):
+        """
+        _jump ::= NOP
+        try_middle ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY NOP COME_FROM
+        """
+
     def p_stmt3(self, args):
         """
         stmt ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
         stmt ::= whileTruestmt
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_from
 
-        # Python 3.5 may have POP_BLOCK
+        forstmt ::= SETUP_LOOP expr _for designator for_block POP_BLOCK NOP _come_from
         whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK _come_from
+        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP _come_from
 
         # Python < 3.5 no POP BLOCK
-        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK \e__come_from
+        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK _come_from
+        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP _come_from
         """
 
     def p_genexpr3(self, args):
