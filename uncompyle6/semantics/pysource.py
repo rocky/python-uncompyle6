@@ -1800,7 +1800,9 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
             print(t)
 
     debug_parser = dict(PARSER_DEFAULT_DEBUG)
-    debug_parser['reduce'] = showgrammar
+    if showgrammar:
+        debug_parser['reduce'] = showgrammar
+        debug_parser['errorstack'] = True
 
     #  Build AST from disassembly.
     deparsed = SourceWalker(version, out, scanner, showast=showast,

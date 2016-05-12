@@ -1372,7 +1372,9 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
             print(t)
 
     debug_parser = dict(PARSER_DEFAULT_DEBUG)
-    debug_parser['reduce'] = showgrammar
+    if showgrammar:
+        debug_parser['reduce'] = showgrammar
+        debug_parser['errorstack'] = True
 
     #  Build AST from disassembly.
     # deparsed = pysource.FragmentsWalker(out, scanner, showast=showast)

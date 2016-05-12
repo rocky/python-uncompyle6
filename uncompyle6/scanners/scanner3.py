@@ -47,6 +47,8 @@ class Scanner3(scan.Scanner):
 
         The below is based on (an older version?) of Python dis.disassemble_bytes().
         """
+
+        # dis.disassemble(co) # DEBUG
         # Container for tokens
         tokens = []
         customize = {}
@@ -211,13 +213,33 @@ class Scanner3(scan.Scanner):
                         op_name = 'CONTINUE'
                     else:
                         op_name = 'JUMP_BACK'
-
+                        pass
+                    pass
+                elif target > offset:
+                    # Python 3.5 will use JUMP_FORWARD where 3.2 may
+                    # use JUMP_ABSOLUTE. Which direction we move
+                    # simplifies grammar rules working with both 3.2
+                    # and 3.5. So optimize the way Python 3.5 does it.
+                    #
+                    # We may however want to consider whether we do
+                    # this in 3.5 or not.
+                    op_name = 'JUMP_FORWARD'
+                    oparg -= offset
+                    pass
+                pass
+            elif op_name == 'JUMP_FORWARD':
+                # Python 3.5 will optimize out a JUMP_FORWARD to the
+                # next instruction while Python 3.2 won't. Smplify
+                # grammar rules working with both 3.2 and 3.5,
+                # by optimizing the way Python 3.5 does it.
+                #
+                # We may however want to consider whether we do
+                # this in 3.5 or not.
+                if oparg == 0:
+                    continue
             elif op_name == 'LOAD_GLOBAL':
                 if offset in self.load_asserts:
                     op_name = 'LOAD_ASSERT'
-            elif op_name == 'RETURN_VALUE':
-                if offset in self.return_end_ifs:
-                    op_name = 'RETURN_END_IF'
 
             if offset in self.linestarts:
                 linestart = self.linestarts[offset]
@@ -229,6 +251,10 @@ class Scanner3(scan.Scanner):
             else:
                 tokens.append(Token(replace[offset], oparg, pattr, offset, linestart))
             pass
+
+        # debug:
+        # for t in tokens:
+        #   print(t)
         return tokens, customize
 
     def build_lines_data(self, code_obj):

@@ -76,6 +76,7 @@ class Python3Parser(PythonParser):
         _stmts ::= _stmts stmt
         _stmts ::= stmt
 
+        # statements with continue
         c_stmts ::= _stmts
         c_stmts ::= _stmts lastc_stmt
         c_stmts ::= lastc_stmt
@@ -144,7 +145,7 @@ class Python3Parser(PythonParser):
 
         return_if_stmts ::= return_if_stmt
         return_if_stmts ::= _stmts return_if_stmt
-        return_if_stmt ::= ret_expr RETURN_END_IF
+        return_if_stmt ::= ret_expr RETURN_VALUE
 
         stmt ::= break_stmt
         break_stmt ::= BREAK_LOOP
@@ -241,7 +242,7 @@ class Python3Parser(PythonParser):
         testtrue ::= expr jmp_true
 
         _ifstmts_jump ::= return_if_stmts
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from _come_from
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM
         _ifstmts_jump ::= c_stmts_opt
 
         iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
