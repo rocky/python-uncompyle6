@@ -261,8 +261,8 @@ TABLE_DIRECT = {
     'funcdefdeco':  	( '\n\n%c', 0),
     'mkfuncdeco':  	( '%|@%c\n%c', 0, 1),
     'mkfuncdeco0':  	( '%|def %c\n', 0),
-    'classdefdeco':  	( '%c', 0),
-    'classdefdeco1':  	( '\n\n%|@%c%c', 0, 1),
+    'classdefdeco':  	( '\n\n%c', 0),
+    'classdefdeco1':  	( '%|@%c\n%c', 0, 1),
     'kwarg':    	( '%[0]{pattr}=%c', 1),
     'kwargs':    	( '%D', (0, maxint, ', ') ),
     'importlist2':	( '%C', (0, maxint, ', ') ),
@@ -1146,7 +1146,7 @@ class SourceWalker(GenericASTTraversal, object):
                 subclass = buildclass[1][0].attr
             subclass_info = node[0]
         else:
-            buildclass = node[0]
+            buildclass = node if (node == 'classdefdeco2') else node[0]
             build_list = buildclass[1][0]
             if hasattr(buildclass[-3][0], 'attr'):
                 subclass = buildclass[-3][0].attr
@@ -1157,7 +1157,11 @@ class SourceWalker(GenericASTTraversal, object):
             else:
                 raise 'Internal Error n_classdef: cannot find class name'
 
-        self.write('\n\n')
+        if (node == 'classdefdeco2'):
+            self.write('\n')
+        else:
+            self.write('\n\n')
+
         self.currentclass = str(currentclass)
         self.write(self.indent, 'class ', self.currentclass)
 
