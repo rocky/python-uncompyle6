@@ -83,8 +83,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.version = version
         self.p = get_python_parser(version, dict(debug_parser))
         self.showast = showast
-        self.__params = params
-        self.__param_stack = []
+        self.params = params
+        self.param_stack = []
         self.ERROR = None
         self.prec = 100
         self.return_none = False
@@ -100,24 +100,24 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # Customize with our more-pervisive rules
         TABLE_DIRECT.update(TABLE_DIRECT_FRAGMENT)
 
-    f = property(lambda s: s.__params['f'],
-                 lambda s, x: s.__params.__setitem__('f', x),
-                 lambda s: s.__params.__delitem__('f'),
+    f = property(lambda s: s.params['f'],
+                 lambda s, x: s.params.__setitem__('f', x),
+                 lambda s: s.params.__delitem__('f'),
                  None)
 
-    indent = property(lambda s: s.__params['indent'],
-                 lambda s, x: s.__params.__setitem__('indent', x),
-                 lambda s: s.__params.__delitem__('indent'),
+    indent = property(lambda s: s.params['indent'],
+                 lambda s, x: s.params.__setitem__('indent', x),
+                 lambda s: s.params.__delitem__('indent'),
                  None)
 
-    isLambda = property(lambda s: s.__params['isLambda'],
-                 lambda s, x: s.__params.__setitem__('isLambda', x),
-                 lambda s: s.__params.__delitem__('isLambda'),
+    isLambda = property(lambda s: s.params['isLambda'],
+                 lambda s, x: s.params.__setitem__('isLambda', x),
+                 lambda s: s.params.__delitem__('isLambda'),
                  None)
 
-    _globals = property(lambda s: s.__params['_globals'],
-                 lambda s, x: s.__params.__setitem__('_globals', x),
-                 lambda s: s.__params.__delitem__('_globals'),
+    _globals = property(lambda s: s.params['_globals'],
+                 lambda s, x: s.params.__setitem__('_globals', x),
+                 lambda s: s.params.__delitem__('_globals'),
                  None)
 
     def set_pos_info(self, node, start, finish):
@@ -168,7 +168,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def n_return_stmt(self, node):
         start = len(self.f.getvalue()) + len(self.indent)
-        if self.__params['isLambda']:
+        if self.params['isLambda']:
             self.preorder(node[0])
             if hasattr(node[-1], 'offset'):
                 self.set_pos_info(node[-1], start,
@@ -197,7 +197,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def n_return_if_stmt(self, node):
 
         start = len(self.f.getvalue()) + len(self.indent)
-        if self.__params['isLambda']:
+        if self.params['isLambda']:
             node[0].parent = node
             self.preorder(node[0])
         else:
@@ -481,7 +481,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.make_function(node, isLambda=False, code_index=code_index)
         self.name = old_name
         self.set_pos_info(node, start, len(self.f.getvalue()))
-        if len(self.__param_stack) > 1:
+        if len(self.param_stack) > 1:
             self.write('\n\n')
         else:
             self.write('\n\n\n')
@@ -692,7 +692,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         self.currentclass = cclass
         self.set_pos_info(node, start, len(self.f.getvalue()))
-        if len(self.__param_stack) > 1:
+        if len(self.param_stack) > 1:
             self.write('\n\n')
         else:
             self.write('\n\n\n')
@@ -815,16 +815,16 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write(node_text)
         self.last_finish = len(self.f.getvalue())
 
-    # FIXME: duplicated from pysource, since we don't find self.__params
+    # FIXME: duplicated from pysource, since we don't find self.params
     def traverse(self, node, indent=None, isLambda=0):
         '''Buulds up fragment which can be used inside a larger
         block of code'''
 
-        self.__param_stack.append(self.__params)
+        self.param_stack.append(self.params)
         if indent is None: indent = self.indent
         p = self.pending_newlines
         self.pending_newlines = 0
-        self.__params = {
+        self.params = {
             '_globals': {},
             'f': StringIO(),
             'indent': indent,
@@ -836,7 +836,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         text = self.f.getvalue()
         self.last_finish = len(text)
 
-        self.__params = self.__param_stack.pop()
+        self.params = self.param_stack.pop()
         self.pending_newlines = p
 
         return text
