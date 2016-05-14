@@ -12,8 +12,9 @@ from __future__ import print_function
 
 import inspect
 from array import array
+import uncompyle6.scanners.dis3 as dis3
 import uncompyle6.scanners.scanner3 as scan3
-import uncompyle6.scanners.dis35 as dis35
+from uncompyle6.opcodes.opcode_35 import opname as opnames
 
 from uncompyle6.code import iscode
 from uncompyle6.scanner import Token
@@ -26,12 +27,12 @@ from uncompyle6.opcodes.opcode_35 import *
 
 class Scanner35(scan3.Scanner3):
 
+    ## FIXME: DRY with scanner34.py
     # Note: we can't use built-in disassembly routines, unless
     # we do post-processing like we do here.
-    def disassemble(self, co, classname=None,
-                    code_objects={}):
+    def disassemble(self, co, classname=None, code_objects={}):
 
-        # imoprt dis; dis.disassemble(co) # DEBUG
+        # import dis; dis.disassemble(co) # DEBUG
 
         # Container for tokens
         tokens = []
@@ -41,7 +42,7 @@ class Scanner35(scan3.Scanner3):
         self.build_lines_data(co)
         self.build_prev_op()
 
-        bytecode = dis35.Bytecode(co)
+        bytecode = dis3.Bytecode(co, opnames)
 
         # self.lines contains (block,addrLastInstr)
         if classname:

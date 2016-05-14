@@ -12,7 +12,9 @@ from __future__ import print_function
 
 import dis, inspect
 from array import array
+import uncompyle6.scanners.dis3 as dis3
 import uncompyle6.scanners.scanner3 as scan3
+from uncompyle6.opcodes.opcode_34 import opname as opnames
 
 from uncompyle6 import PYTHON_VERSION
 from uncompyle6.code import iscode
@@ -29,24 +31,22 @@ from uncompyle6.opcodes.opcode_34 import *
 
 class Scanner34(scan3.Scanner3):
 
+    ## FIXME: DRY with scanner35.py
+    # Note: we can't use built-in disassembly routines, unless
+    # we do post-processing like we do here.
     def disassemble(self, co, classname=None, code_objects={}):
-        fn = self.disassemble_built_in if PYTHON_VERSION == 3.4 \
-            else self.disassemble_generic
-        return fn(co, classname, code_objects=code_objects)
 
-    def disassemble_built_in(self, co, classname=None,
-                             code_objects={}):
+        # import dis; dis.disassemble(co) # DEBUG
+
         # Container for tokens
         tokens = []
+
         customize = {}
         self.code = array('B', co.co_code)
         self.build_lines_data(co)
         self.build_prev_op()
 
-        # Get jump targets
-        # Format: {target offset: [jump offsets]}
-        jump_targets = self.find_jump_targets()
-        bytecode = dis.Bytecode(co)
+        bytecode = dis3.Bytecode(co, opnames)
 
         # self.lines contains (block,addrLastInstr)
         if classname:
@@ -67,11 +67,16 @@ class Scanner34(scan3.Scanner3):
         n = len(bs)
         for i in range(n):
             inst = bs[i]
-            if inst.opname == 'POP_JUMP_IF_TRUE' and  i+1 < n:
+
+            if inst.opname == 'POP_JUMP_IF_TRUE' and i+1 < n:
                 next_inst = bs[i+1]
                 if (next_inst.opname == 'LOAD_GLOBAL' and
                     next_inst.argval == 'AssertionError'):
                     self.load_asserts.add(next_inst.offset)
+
+        # Get jump targets
+        # Format: {target offset: [jump offsets]}
+        jump_targets = self.find_jump_targets()
 
         for inst in bytecode:
             if inst.offset in jump_targets:
@@ -130,29 +135,27 @@ class Scanner34(scan3.Scanner3):
                         linestart = inst.starts_line)
                     )
                 continue
+            # Note: care is needed in merging this with python3.5
+            # and  BUILD_MAP and parse3 custom rules.
+            # BUILD_MAP in 3.4 comes at the beginning and each tuple has STORE_MAP
+            # in 3.5 it comes at the end and STORE_MAP
+            # see parse3.py
             elif opname in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET', 'BUILD_SLICE',
-                            'UNPACK_SEQUENCE',
-                            'MAKE_CLOSURE',
+                            'UNPACK_SEQUENCE', 'MAKE_CLOSURE',
                             'RAISE_VARARGS'
                             ):
-                # if opname == 'BUILD_TUPLE' and \
-                #     self.code[self.prev[offset]] == LOAD_CLOSURE:
-                #     continue
-                # else:
-                #     op_name = '%s_%d' % (op_name, oparg)
-                #     if opname != BUILD_SLICE:
-                #         customize[op_name] = oparg
-                opname = '%s_%d' % (opname, inst.argval)
+                pos_args = inst.argval
                 if inst.opname != 'BUILD_SLICE':
-                    customize[opname] = inst.argval
-
+                    customize[opname] = pos_args
+                    pass
+                opname = '%s_%d' % (opname, pos_args)
             elif opname == 'JUMP_ABSOLUTE':
                 pattr = inst.argval
                 target = self.get_target(inst.offset)
                 if target < inst.offset:
                     if (inst.offset in self.stmts and
                         self.code[inst.offset+3] not in (END_FINALLY, POP_BLOCK)
-                        and offset not in self.not_continue):
+                        and inst.offset not in self.not_continue):
                         opname = 'CONTINUE'
                     else:
                         opname = 'JUMP_BACK'
