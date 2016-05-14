@@ -1,1 +1,1 @@
-spark-parser >= 1.1.1
+spark-parser >= 1.2.1

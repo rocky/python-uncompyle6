@@ -36,7 +36,7 @@ entry_points={
         'pydisassemble=uncompyle6.bin.pydisassemble:main',
     ]}
 ftp_url            = None
-install_requires   = ['spark-parser >= 1.1.1']
+install_requires   = ['spark-parser >= 1.2.1']
 license            = 'MIT'
 mailing_list       = 'python-debugger@googlegroups.com'
 modname            = 'uncompyle6'
@@ -49,7 +49,15 @@ zip_safe = True
 
 
 import os.path
-def read(*rnames):
-    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
+def get_srcdir():
+    filename = os.path.normcase(os.path.dirname(os.path.abspath(__file__)))
+    return os.path.realpath(filename)
 
+srcdir = get_srcdir()
+
+def read(*rnames):
+    return open(os.path.join(srcdir, *rnames)).read()
+
+# Get info from files; set: long_description and VERSION
 long_description   = ( read("README.rst") + '\n' )
+exec(read('uncompyle6/version.py'))

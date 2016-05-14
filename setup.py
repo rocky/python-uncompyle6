@@ -6,12 +6,10 @@ from __pkginfo__ import \
     author,           author_email,       install_requires,          \
     license,          long_description,   classifiers,               \
     entry_points,     modname,            py_modules,                \
-    short_desc,       web,                zip_safe
+    short_desc,       VERSION,            web,                       \
+    zip_safe
 
 from setuptools import setup, find_packages
-
-exec(open('uncompyle6/version.py').read())
-
 setup(
        author             = author,
        author_email       = author_email,
