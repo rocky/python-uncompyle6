@@ -1,6 +1,12 @@
 2016-05-14  rocky <rocky@gnu.org>
 
-	* uncompyle6/version.py: Get ready for release 2.3.5
+	* __pkginfo__.py, uncompyle6/version.py: Fix botched entry point
+	names Get ready for relase 2.3.6
+
+2016-05-14  rocky <rocky@gnu.org>
+
+	* ChangeLog, NEWS, uncompyle6/version.py: Get ready for release
+	2.3.5
 
 2016-05-13  rocky <rocky@gnu.org>
 
