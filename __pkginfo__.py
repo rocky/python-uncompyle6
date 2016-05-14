@@ -30,30 +30,27 @@ classifiers =  ['Development Status :: 4 - Beta',
 # The rest in alphabetic order
 author             = "Rocky Bernstein, Hartmut Goebel, John Aycock, and others"
 author_email       = "rb@dustyfeet.com"
+entry_points={
+    'console_scripts': [
+        'uncompyle6=bin.uncompile6:main',
+        'pydisassemble=bin.pydisassemble:main',
+    ]}
 ftp_url            = None
 install_requires   = ['spark-parser >= 1.1.1']
 license            = 'MIT'
 mailing_list       = 'python-debugger@googlegroups.com'
 modname            = 'uncompyle6'
-packages           = ['uncompyle6', 'uncompyle6.opcodes', 'uncompyle6.semantics', 'uncompyle6.scanners', 'uncompyle6.parsers']
+packages           = ['uncompyle6', 'uncompyle6.opcodes', 'uncompyle6.semantics', 'uncompyle6.scanners',
+                      'uncompyle6.parsers']
 py_modules         = None
 short_desc         = 'Python byte-code disassembler and source-code converter'
-scripts            = ['bin/uncompyle6', 'bin/pydisassemble']
-
-import os.path
-
-
-def get_srcdir():
-    filename = os.path.normcase(os.path.dirname(os.path.abspath(__file__)))
-    return os.path.realpath(filename)
-
-ns = {}
 web                = 'https://github.com/rocky/python-uncompyle6/'
 
 # tracebacks in zip files are funky and not debuggable
 zip_safe = True
 
 
+import os.path
 def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
 
