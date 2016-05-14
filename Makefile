@@ -44,9 +44,9 @@ clean: clean_pyc
 	$(PYTHON) ./setup.py $@
 	(cd test && $(MAKE) clean)
 
-#: Create source (tarball) and binary (egg) distribution
+#: Create source (tarball) and wheel distribution
 dist:
-	$(PYTHON) ./setup.py sdist bdist_egg
+	$(PYTHON) ./setup.py sdist bdist_wheel
 
 #: Remove .pyc files
 clean_pyc:
@@ -71,6 +71,11 @@ flake8:
 #: Create binary egg distribution
 bdist_egg:
 	$(PYTHON) ./setup.py bdist_egg
+
+
+#: Create binary wheel distribution
+bdist_wheel:
+	$(PYTHON) ./setup.py bdist_wheel
 
 
 # It is too much work to figure out how to add a new command to distutils

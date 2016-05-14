@@ -5,10 +5,10 @@
 from __pkginfo__ import \
     author,           author_email,       install_requires,          \
     license,          long_description,   classifiers,               \
-    modname,          packages,           py_modules,  entry_points, \
+    entry_points,     modname,            py_modules,                \
     short_desc,       web,                zip_safe
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 exec(open('uncompyle6/version.py').read())
 
@@ -21,9 +21,9 @@ setup(
        install_requires   = install_requires,
        license            = license,
        long_description   = long_description,
-       py_modules         = py_modules,
        name               = modname,
-       packages           = packages,
+       packages           = find_packages(),
+       py_modules         = py_modules,
        test_suite         = 'nose.collector',
        url                = web,
        setup_requires     = ['nose>=1.0'],

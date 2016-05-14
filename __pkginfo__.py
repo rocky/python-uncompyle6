@@ -40,8 +40,6 @@ install_requires   = ['spark-parser >= 1.1.1']
 license            = 'MIT'
 mailing_list       = 'python-debugger@googlegroups.com'
 modname            = 'uncompyle6'
-packages           = ['uncompyle6', 'uncompyle6.opcodes', 'uncompyle6.semantics', 'uncompyle6.scanners',
-                      'uncompyle6.parsers']
 py_modules         = None
 short_desc         = 'Python byte-code disassembler and source-code converter'
 web                = 'https://github.com/rocky/python-uncompyle6/'

@@ -657,7 +657,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
         if self.version > 3.0:
             currentclass = node[1][0].pattr
             buildclass = node[0]
-            subclass = buildclass[1][0].attr
+            if buildclass[1][0] == 'kwargs':
+                subclass = buildclass[1][1].attr
+            else:
+                subclass = buildclass[1][0].attr
             subclass_info = node[0]
         else:
             buildclass = node[0]

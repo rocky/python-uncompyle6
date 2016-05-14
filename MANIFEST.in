@@ -7,5 +7,5 @@ include __pkginfo__.py
 recursive-include uncompyle6 *.py
 include bin/uncompyle6
 include bin/pydisassemble
-recursive-include test *.py
+recursive-include test *.py *.pyc
 recursive-include pytest *.py
