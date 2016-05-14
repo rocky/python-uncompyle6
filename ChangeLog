@@ -1,6 +1,257 @@
+2016-05-14  rocky <rocky@gnu.org>
+
+	* uncompyle6/version.py: Get ready for release 2.3.5
+
+2016-05-13  rocky <rocky@gnu.org>
+
+	* uncompyle6/semantics/fragments.py: More fragment bugs
+
+2016-05-13  rocky <rocky@gnu.org>
+
+	* MANIFEST.in, Makefile, __pkginfo__.py, setup.py,
+	uncompyle6/semantics/fragments.py: More packaging crap.  Did I tell you how much I hate python packaging? fragments.py: track recent change in class decorators.
+
+2016-05-13  rocky <rocky@gnu.org>
+
+	* __pkginfo__.py, bin/pydisassemble, bin/uncompyle6, setup.py,
+	test/simple_source/bug26/05-ret-or.py,
+	test/simple_source/def/03_star_arg.py, uncompyle6/bin/__init__.py,
+	uncompyle6/bin/pydisassemble.py, uncompyle6/bin/uncompile.py: Python
+	packaging - yet again.  Did I ever mention how much Python sucks at packaging?
+
+2016-05-13  rocky <rocky@gnu.org>
+
+	* test/simple_source/def/10_classdec.py: Test for class decorator See https://github.com/rocky/python-uncompyle6/pull/15
+
+2016-05-13  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #15 from Tey/master Fix for class decorators
+
+2016-05-12  rocky <rocky@gnu.org>
+
+	* __pkginfo__.py: Back off spark 1.2.0 for now
+
+2016-05-12  rocky <rocky@gnu.org>
+
+	* uncompyle6/scanners/scanner26.py,
+	uncompyle6/scanners/scanner27.py, uncompyle6/scanners/scanner35.py: 
+	More small changes
+
+2016-05-12  rocky <rocky@gnu.org>
+
+	* test/test_pythonlib.py: Clean up test byte-compile directory
+
+2016-05-12  rocky <rocky@gnu.org>
+
+	* test/simple_source/stmts/15_for_if.py, uncompyle6/main.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner3.py: Misc
+	changes Back off of some validation tests for now.
+
+2016-05-12  rocky <rocky@gnu.org>
+
+	* __pkginfo__.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/semantics/fragments.py, uncompyle6/semantics/pysource.py: 
+	Misc fixups/cleanups * parse3.py Had botched if-for-else test by grammar addition * semantics/*.py: Show errorstack in failed parse when -g (requires
+	sparck 1.2.0) * some optimization in scanner3
+
+2016-05-12  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #14 from rocky/make-function-rewrite Make function rewrite
+
+2016-05-11  rocky <rocky@gnu.org>
+
+	* test/simple_source/def/03_py3_def.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/dis35.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/scanners/scanner34.py,
+	uncompyle6/scanners/scanner35.py,
+	uncompyle6/semantics/fragments.py, uncompyle6/semantics/pysource.py: 
+	Redo make_function for *, arg main(*, file='foo') and things like that now work
+
+2016-05-11  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/scanners/dis35.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/scanners/scanner35.py,
+	uncompyle6/semantics/pysource.py: WIP Make function redo
+
+2016-05-10  rocky <rocky@gnu.org>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/semantics/pysource.py: add
+	pos_arg ::= expr to make params of fns clear
+
+2016-05-09  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse3.py: * call WIP
+
+2016-05-09  rocky <rocky@gnu.org>
+
+	* test/simple_source/def/11_classbug.py,
+	uncompyle6/parsers/parse3.py: 3.2 class bug
+
+2016-05-09  rocky <rocky@gnu.org>
+
+	* test/simple_source/looping/09_if_whiletrue_bug.py,
+	uncompyle6/parsers/parse3.py: 3.2 WhileTrue grammar bug
+
+2016-05-09  rocky <rocky@gnu.org>
+
+	* test/simple_source/stmts/09_whiletrue_bug.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/semantics/pysource.py: 
+	Python 3 "while True" bug
+
+2016-05-09  rocky <rocky@gnu.org>
+
+	* DECOMPYLE-2.4-CHANGELOG.txt, HISTORY.md, MANIFEST.in: Dan Pascu's
+	contribution via Dan
+
+2016-05-09  rocky <rocky@gnu.org>
+
+	* HISTORY.md: Another history tweak
+
+2016-05-09  rocky <rocky@gnu.org>
+
+	* HISTORY.md, uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner27.py: Some
+	grammar cleanup
+
+2016-05-09  rocky <rocky@gnu.org>
+
+	* test/simple_source/def/05_closure_bug.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Track recent lc changes in
+	fragment semantics
+
+2016-05-09  rocky <rocky@gnu.org>
+
+	* test/simple_source/def/07_closure_bug2.py: Another closure
+	wrapping bug
+
+2016-05-09  rocky <rocky@gnu.org>
+
+	* test/simple_source/def/05_closure_bug.py,
+	uncompyle6/parsers/parse3.py: Another Python 3 closure grammar bug
+
+2016-05-09  rocky <rocky@gnu.org>
+
+	* HISTORY.md: More small history tweaks
+
+2016-05-09  rocky <rocky@gnu.org>
+
+	* test/simple_source/comprehension/11-list-if.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/semantics/pysource.py: Fix
+	Python 3 list comprehansion closure bug
+
+2016-05-08  rocky <rocky@gnu.org>
+
+	* test/simple_source/operation_logic/05_dup_top_two.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py: Python 3
+	DUP_TOP_TWO bug
+
+2016-05-08  rocky <rocky@gnu.org>
+
+	* test/simple_source/looping/11_if_while_bug.py,
+	uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py: DRY parse{2,3} code Add test for last bug.
+
+2016-05-08  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py: Fix
+	another if/loop parse bug
+
+2016-05-08  rocky <rocky@gnu.org>
+
+	* HISTORY.md, uncompyle6/main.py: Go over history yet again.
+
+2016-05-08  rocky <rocky@gnu.org>
+
+	* test/simple_source/comprehension/10-list-ifnot.py,
+	uncompyle6/main.py, uncompyle6/parser.py: come_from_opt handles
+	and/or precidence properly main.py: give a better error message when file is not found.
+
+2016-05-08  rocky <rocky@gnu.org>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Semantic routine nonterminal typo
+
+2016-05-08  rocky <rocky@gnu.org>
+
+	* test/simple_source/looping/11_for_if_loopback2.py,
+	uncompyle6/parser.py, uncompyle6/parsers/parse3.py: Yet another
+	Python 3.x COME_FROM grammar problem
+
+2016-05-08  rocky <rocky@gnu.org>
+
+	* test/simple_source/looping/10_for_if_loopback.py,
+	uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner32.py: Fix
+	3.2 for/if loopback bug problem was handling in Python 3.2  for ...      if ...      else:       ....        jump for     come from if     jump for In later Python 3's a "come from" is removed.  Also, start to DRY parser{,2,3} grammar rules.
+
+2016-05-08  rocky <rocky@gnu.org>
+
+	* HISTORY.md, test/simple_source/branching/10_if_pass.py,
+	uncompyle6/scanners/scanner26.py, uncompyle6/scanners/scanner27.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/scanners/scanner35.py: 
+	Fix 3.5 if..pass bug Update HISTORY.MD to include Dan Pascu. Some minor doc corrections
+
+2016-05-08  rocky <rocky@gnu.org>
+
+	* uncompyle6/scanners/scanner34.py,
+	uncompyle6/scanners/scanner35.py: DRY scanner 3.{4,5} code
+
+2016-05-07  rocky <rocky@gnu.org>
+
+	* test/simple_source/def/07_classparam.py,
+	uncompyle6/parsers/parse3.py: Python 3 build class parsing
+
+2016-05-07  rocky <rocky@gnu.org>
+
+	* test/simple_source/expression/05_yield_from.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner35.py,
+	uncompyle6/semantics/fragments.py, uncompyle6/semantics/pysource.py: 
+	Handle Python 3 yield from Start dealing with MAKE_FUNCTION flags - not done yet.
+
+2016-05-06  rocky <rocky@gnu.org>
+
+	* test/simple_source/comprehension/10-genexpr.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: More Python3 deparsing - grammar rule genexpr - More Python3 docstring formatted
+
+2016-05-06  rocky <rocky@gnu.org>
+
+	* bin/pydisassemble, setup.py: Administrivia setup.py:   don't need to import pkg_resources pydisassemble:   give an error is no file or directory is given   usage should go to stderr, not stdout
+
 2016-05-05  rocky <rocky@gnu.org>
 
-	* uncompyle6/version.py: Get ready for release 2.3.4
+	* README.rst, uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Minor tweaks
+
+2016-05-05  rocky <rocky@gnu.org>
+
+	* uncompyle6/semantics/pysource.py: All Python 2.7 lib files
+	decompile
+
+2016-05-05  rocky <rocky@gnu.org>
+
+	* test/simple_source/stmts/05_try_finally_pass.py,
+	test/simple_source/stmts/10_if_break_finally.py,
+	uncompyle6/opcodes/opcode_27.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py: More
+	Python 2 and 3 deparsing bugs fixed * while + if break * try + finall /pass
+
+2016-05-05  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py: Again, not GPL3 but MIT
+
+2016-05-05  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/__init__.py, uncompyle6/opcodes/opcode_27.py: Start
+	PYPY 2.7 tolerance
+
+2016-05-05  rocky <rocky@gnu.org>
+
+	* ChangeLog, NEWS, uncompyle6/version.py: Get ready for release
+	2.3.4
 
 2016-05-05  rocky <rocky@gnu.org>
 

@@ -1,3 +1,15 @@
+uncompyle6 2.3.5 2016-05-14
+
+- Python 2 class decorator fix (thanks to Tey)
+- Fix fragment parsing bugs
+- Fix some Python 3 parsing bugs:
+  * Handling single in * parameter
+  * "while True"
+  * escape from for inside if
+  * yield expressions
+- Correct history based on info from Dan Pascu
+- Fix up pip packaging, ugh.
+
 uncompyle6 2.3.4 2016-05-5
 
 - More Python 3.5 parsing bugs addressed
