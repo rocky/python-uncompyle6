@@ -7,7 +7,7 @@
 from __future__ import print_function
 import sys, os, getopt, time
 
-program =  os.path.basename(__file__)
+program, ext = os.path.splitext(os.path.basename(__file__))
 
 __doc__ = """
 Usage:
@@ -49,7 +49,7 @@ Extensions of generated files:
     + '_failed'           decompile failed (contact author for enhancement)
 """ % ((program,) * 5)
 
-program =  os.path.basename(__file__)
+program = 'uncompyle6'
 
 from uncompyle6 import verify, check_python_version
 from uncompyle6.main import main, status_msg

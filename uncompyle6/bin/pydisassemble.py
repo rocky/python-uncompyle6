@@ -6,7 +6,7 @@
 from __future__ import print_function
 import sys, os, getopt
 
-program =  os.path.basename(__file__)
+program = os.path.splitext(os.path.basename(__file__))
 
 __doc__ = """
 Usage:
