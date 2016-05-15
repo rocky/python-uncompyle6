@@ -1,5 +1,7 @@
-# This is taken from the python 3.x dis module
-"""Disassembler of Python byte code into mnemonics."""
+"""Disassembler of Python byte code into mnemonics.
+Extracted from Python 3 dis module but generalized to
+allow running on Python 2.
+"""
 
 # This part is modified for cross Python compatability
 from uncompyle6.opcodes.opcode_3x import *
@@ -294,6 +296,7 @@ def _get_const_info(const_index, const_list):
     argval = const_index
     if const_list is not None:
         argval = const_list[const_index]
+
     return argval, repr(argval)
 
 def _get_name_info(name_index, name_list):
@@ -311,6 +314,10 @@ def _get_name_info(name_index, name_list):
         argrepr = repr(argval)
     return argval, argrepr
 
+
+def code2num(code, i):
+    op = code[i]
+    return ord(op) if isinstance(op, str) else op
 
 def _get_instructions_bytes(code, opnames, varnames=None, names=None, constants=None,
                       cells=None, linestarts=None, line_offset=0):
@@ -330,12 +337,7 @@ def _get_instructions_bytes(code, opnames, varnames=None, names=None, constants=
     n = len(code)
     i = 0
     while i < n:
-        op = code[i]
-        if isinstance(op, str):
-            op_num = ord(op)
-        else:
-            op_num = op
-
+        op = code2num(code, i)
         offset = i
         if linestarts is not None:
             starts_line = linestarts.get(i, None)
@@ -347,10 +349,7 @@ def _get_instructions_bytes(code, opnames, varnames=None, names=None, constants=
         argval = None
         argrepr = ''
         if op >= HAVE_ARGUMENT:
-            if isinstance(code[i], str):
-                arg = op_num + ord(code[i+1])*256 + extended_arg
-            else:
-                arg = code[i] + code[i+1]*256 + extended_arg
+            arg = code2num(code, i) + code2num(code, i+1)*256 + extended_arg
             extended_arg = 0
             i = i+2
             if op == EXTENDED_ARG:
@@ -375,9 +374,9 @@ def _get_instructions_bytes(code, opnames, varnames=None, names=None, constants=
             elif op in hasfree:
                 argval, argrepr = _get_name_info(arg, cells)
             elif op in hasnargs:
-                argrepr = ("%d positional, %d keyword pair, %d annotated" %
-                               (code[i-2], code[i-1], code[i]))
-        opname = opnames[op_num]
+                argrepr = ("%d positional, %d keyword pair" %
+                               (code2num(code, i-2), code2num(code, i-1)))
+        opname = opnames[op]
         yield Instruction3(opname, op,
                           arg, argval, argrepr,
                           offset, starts_line, is_jump_target)
@@ -394,10 +393,10 @@ def findlabels(code):
     n = len(code)
     i = 0
     while i < n:
-        op = code[i]
+        op = code2num(code, i)
         i = i+1
         if op >= HAVE_ARGUMENT:
-            arg = code[i] + code[i+1]*256
+            arg = code2num(code, i) + code2num(code, i+1)*256
             i = i+2
             label = -1
             if op in hasjrel:
