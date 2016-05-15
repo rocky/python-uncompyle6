@@ -992,33 +992,63 @@ class FragmentsWalker(pysource.SourceWalker, object):
         """
         p = self.prec
         self.prec = 100
-        assert node[-1] == 'kvlist'
-        kv_node = node[-1] # goto kvlist
 
         self.indentMore(INDENT_PER_LEVEL)
         line_seperator = ',\n' + self.indent
         sep = INDENT_PER_LEVEL[:-1]
         start = len(self.f.getvalue())
         self.write('{')
-        for kv in kv_node:
-            assert kv in ('kv', 'kv2', 'kv3')
-            # kv ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
-            # kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
-            # kv3 ::= expr expr STORE_MAP
-            if kv == 'kv':
-                name = self.traverse(kv[-2], indent='')
-                kv[1].parent = kv_node
-                value = self.traverse(kv[1], indent=self.indent+(len(name)+2)*' ')
-            elif kv == 'kv2':
-                name = self.traverse(kv[1], indent='')
-                kv[-3].parent = kv_node
-                value = self.traverse(kv[-3], indent=self.indent+(len(name)+2)*' ')
-            elif kv == 'kv3':
-                name = self.traverse(kv[-2], indent='')
-                kv[0].parent = kv_node
-                value = self.traverse(kv[0], indent=self.indent+(len(name)+2)*' ')
-            self.write(sep, name, ': ', value)
-            sep = line_seperator
+
+        if node[0].type.startswith('kvlist'):
+            # Python 3.5+ style key/value list in mapexpr
+            kv_node = node[0]
+            l = list(kv_node)
+            i = 0
+            while i < len(l):
+                l[1].parent = kv_node
+                l[i+1].parent = kv_node
+                name = self.traverse(l[i], indent='')
+                value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
+                self.write(sep, name, ': ', value)
+                sep = line_seperator
+                i += 2
+        elif node[1].type.startswith('kvlist'):
+            # Python 3.0..3.4 style key/value list in mapexpr
+            kv_node = node[1]
+            l = list(kv_node)
+            i = 0
+            while i < len(l):
+                l[1].parent = kv_node
+                l[i+1].parent = kv_node
+                name = self.traverse(l[i+1], indent='')
+                value = self.traverse(l[i], indent=self.indent+(len(name)+2)*' ')
+                self.write(sep, name, ': ', value)
+                sep = line_seperator
+                i += 3
+        else:
+            # Python 2 style kvlist
+            assert node[-1] == 'kvlist'
+            kv_node = node[-1] # goto kvlist
+
+            for kv in kv_node:
+                assert kv in ('kv', 'kv2', 'kv3')
+                # kv ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
+                # kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
+                # kv3 ::= expr expr STORE_MAP
+                if kv == 'kv':
+                    name = self.traverse(kv[-2], indent='')
+                    kv[1].parent = kv_node
+                    value = self.traverse(kv[1], indent=self.indent+(len(name)+2)*' ')
+                elif kv == 'kv2':
+                    name = self.traverse(kv[1], indent='')
+                    kv[-3].parent = kv_node
+                    value = self.traverse(kv[-3], indent=self.indent+(len(name)+2)*' ')
+                elif kv == 'kv3':
+                    name = self.traverse(kv[-2], indent='')
+                    kv[0].parent = kv_node
+                    value = self.traverse(kv[0], indent=self.indent+(len(name)+2)*' ')
+                self.write(sep, name, ': ', value)
+                sep = line_seperator
         self.write('}')
         finish = len(self.f.getvalue())
         for n in node:

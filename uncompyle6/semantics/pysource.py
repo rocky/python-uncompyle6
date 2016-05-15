@@ -1238,7 +1238,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write('{')
 
         if node[0].type.startswith('kvlist'):
-            # Python 3.5 style key/value list in mapexpr
+            # Python 3.5+ style key/value list in mapexpr
             l = list(node[0])
             i = 0
             while i < len(l):
@@ -1247,11 +1247,22 @@ class SourceWalker(GenericASTTraversal, object):
                 self.write(sep, name, ': ', value)
                 sep = line_seperator
                 i += 2
+        elif node[1].type.startswith('kvlist'):
+            # Python 3.0..3.4 style key/value list in mapexpr
+            l = list(node[1])
+            i = 0
+            while i < len(l):
+                name = self.traverse(l[i+1], indent='')
+                value = self.traverse(l[i], indent=self.indent+(len(name)+2)*' ')
+                self.write(sep, name, ': ', value)
+                sep = line_seperator
+                i += 3
         else:
+            # Python 2 style kvlist
             assert node[-1] == 'kvlist'
-            node = node[-1] # goto kvlist
+            kv_node = node[-1] # goto kvlist
 
-            for kv in node:
+            for kv in kv_node:
                 assert kv in ('kv', 'kv2', 'kv3')
                 # kv ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
                 # kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR

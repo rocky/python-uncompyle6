@@ -36,6 +36,7 @@ class Python3Parser(PythonParser):
         """Add rule to grammar, but only if it hasn't been added previously
         """
         if rule not in self.new_rules:
+            # print("XXX ", rule) # debug
             self.new_rules.add(rule)
             self.addRule(rule, nop_func)
             customize[opname] = count
@@ -506,11 +507,16 @@ class Python3Parser(PythonParser):
                     rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
 
-            elif self.version >= 3.5 and opname_base == 'BUILD_MAP':
+            elif opname_base == 'BUILD_MAP':
                 kvlist_n = "kvlist_%s" % token.attr
-                rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
-                self.add_unique_rule(rule, opname, token.attr, customize)
-                rule = "mapexpr ::=  %s %s" % (kvlist_n, opname)
+                if self.version >= 3.5:
+                    rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
+                    self.add_unique_rule(rule, opname, token.attr, customize)
+                    rule = "mapexpr ::=  %s %s" % (kvlist_n, opname)
+                else:
+                    rule = kvlist_n + ' ::= ' + 'expr expr STORE_MAP ' * token.attr
+                    self.add_unique_rule(rule, opname, token.attr, customize)
+                    rule = "mapexpr ::=  %s %s" % (opname, kvlist_n)
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
                 rule = 'unpack ::= ' + opname + ' designator' * token.attr
