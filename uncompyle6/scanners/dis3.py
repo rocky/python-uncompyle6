@@ -11,6 +11,15 @@ import types
 import collections
 import io
 
+from uncompyle6 import PYTHON3
+
+if PYTHON3:
+    def code2num(code, i):
+        return code[i]
+else:
+    def code2num(code, i):
+        return ord(code[i])
+
 _have_code = (types.MethodType, types.FunctionType, types.CodeType, type)
 
 def _try_compile(source, name):
@@ -313,11 +322,6 @@ def _get_name_info(name_index, name_list):
     else:
         argrepr = repr(argval)
     return argval, argrepr
-
-
-def code2num(code, i):
-    op = code[i]
-    return ord(op) if isinstance(op, str) else op
 
 def _get_instructions_bytes(code, opnames, varnames=None, names=None, constants=None,
                       cells=None, linestarts=None, line_offset=0):
