@@ -637,7 +637,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def n_genexpr(self, node):
         start = len(self.f.getvalue())
         self.write('(')
-        self.comprehension_walk(node, 3)
+        code_index = -6 if self.version > 3.0 else -5
+        self.comprehension_walk(node, iter_index=3, code_index=code_index)
         self.write(')')
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune()

@@ -360,6 +360,11 @@ class Python3Parser(PythonParser):
         load_genexpr ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_CONST
         '''
 
+    def p_genexpr2(self, args):
+        '''
+        genexpr ::= LOAD_GENEXPR LOAD_CONST MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
+        '''
+
     def p_expr3(self, args):
         '''
         expr ::= LOAD_CLASSNAME
@@ -473,6 +478,7 @@ class Python3Parser(PythonParser):
             mkfunc      ::= {pos_arg}^n LOAD_CONST MAKE_FUNCTION_n
             mklambda    ::= {pos_arg}^n LOAD_LAMBDA MAKE_FUNCTION_n
             mkfunc      ::= {pos_arg}^n load_closure LOAD_CONST MAKE_FUNCTION_n
+            genexpr     ::= {pos_arg}^n LOAD_GENEXPR MAKE_FUNCTION_n
 
             listcomp ::= load_closure expr GET_ITER CALL_FUNCTION_1
 

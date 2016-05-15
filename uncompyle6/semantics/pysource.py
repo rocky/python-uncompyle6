@@ -1025,7 +1025,8 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_genexpr(self, node):
         self.write('(')
-        self.comprehension_walk(node, iter_index=3)
+        code_index = -6 if self.version > 3.0 else -5
+        self.comprehension_walk(node, iter_index=3, code_index=code_index)
         self.write(')')
         self.prune()
 

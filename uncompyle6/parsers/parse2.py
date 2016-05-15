@@ -320,6 +320,11 @@ class Python2Parser(PythonParser):
 
         '''
 
+    def p_genexpr2(self, args):
+        '''
+        genexpr ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
+        '''
+
     def p_expr2(self, args):
         '''
         expr ::= LOAD_LOCALS

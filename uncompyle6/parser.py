@@ -102,9 +102,6 @@ class PythonParser(GenericASTBuilder):
     def p_genexpr(self, args):
         '''
         expr ::= genexpr
-
-        genexpr ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
-
         stmt ::= genexpr_func
 
         genexpr_func ::= LOAD_FAST FOR_ITER designator comp_iter JUMP_BACK
