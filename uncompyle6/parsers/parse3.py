@@ -243,7 +243,6 @@ class Python3Parser(PythonParser):
         testtrue ::= expr jmp_true
 
         _ifstmts_jump ::= return_if_stmts
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from
         _ifstmts_jump ::= c_stmts_opt
 
         iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
@@ -588,12 +587,22 @@ class Python32Parser(Python3Parser):
         """
         # Store locals is only used in Python 3.2
         designator ::= STORE_LOCALS
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM
+        """
+
+class Python34Parser(Python3Parser):
+    def p_34(self, args):
+        """
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from
         """
 
 class Python3ParserSingle(Python3Parser, PythonParserSingle):
     pass
 
 class Python32ParserSingle(Python32Parser, PythonParserSingle):
+    pass
+
+class Python34ParserSingle(Python34Parser, PythonParserSingle):
     pass
 
 class Python35onParser(Python3Parser):

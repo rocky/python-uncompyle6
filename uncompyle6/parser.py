@@ -460,6 +460,7 @@ def get_python_parser(version, debug_parser, compile_mode='exec'):
     explanation of the different modes.
     """
 
+    # FIXME: there has to be a better way...
     if version < 3.0:
         import uncompyle6.parsers.parse2 as parse2
         if compile_mode == 'exec':
@@ -473,6 +474,11 @@ def get_python_parser(version, debug_parser, compile_mode='exec'):
                 p = parse3.Python32Parser(debug_parser)
             else:
                 p = parse3.Python32ParserSingle(debug_parser)
+        elif version == 3.4:
+            if compile_mode == 'exec':
+                p = parse3.Python34Parser(debug_parser)
+            else:
+                p = parse3.Python34ParserSingle(debug_parser)
         elif version >= 3.5:
             if compile_mode == 'exec':
                 p = parse3.Python35onParser(debug_parser)
@@ -484,6 +490,7 @@ def get_python_parser(version, debug_parser, compile_mode='exec'):
             else:
                 p = parse3.Python3ParserSingle(debug_parser)
     p.version = version
+    # p.dumpGrammar() # debug
     return p
 
 class PythonParserSingle(PythonParser):
