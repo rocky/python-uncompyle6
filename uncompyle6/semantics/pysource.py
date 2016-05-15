@@ -1237,26 +1237,32 @@ class SourceWalker(GenericASTTraversal, object):
         sep = INDENT_PER_LEVEL[:-1]
         self.write('{')
 
-        if node[0].type.startswith('kvlist'):
-            # Python 3.5+ style key/value list in mapexpr
-            l = list(node[0])
-            i = 0
-            while i < len(l):
-                name = self.traverse(l[i], indent='')
-                value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
-                self.write(sep, name, ': ', value)
-                sep = line_seperator
-                i += 2
-        elif node[1].type.startswith('kvlist'):
-            # Python 3.0..3.4 style key/value list in mapexpr
-            l = list(node[1])
-            i = 0
-            while i < len(l):
-                name = self.traverse(l[i+1], indent='')
-                value = self.traverse(l[i], indent=self.indent+(len(name)+2)*' ')
-                self.write(sep, name, ': ', value)
-                sep = line_seperator
-                i += 3
+        if self.version > 3.0:
+            if node[0].type.startswith('kvlist'):
+                # Python 3.5+ style key/value list in mapexpr
+                l = list(node[0])
+                i = 0
+                while i < len(l):
+                    name = self.traverse(l[i], indent='')
+                    value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
+                    self.write(sep, name, ': ', value)
+                    sep = line_seperator
+                    i += 2
+                    pass
+                pass
+            elif node[1].type.startswith('kvlist'):
+                # Python 3.0..3.4 style key/value list in mapexpr
+                l = list(node[1])
+                i = 0
+                while i < len(l):
+                    name = self.traverse(l[i+1], indent='')
+                    value = self.traverse(l[i], indent=self.indent+(len(name)+2)*' ')
+                    self.write(sep, name, ': ', value)
+                    sep = line_seperator
+                    i += 3
+                    pass
+                pass
+            pass
         else:
             # Python 2 style kvlist
             assert node[-1] == 'kvlist'

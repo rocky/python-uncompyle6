@@ -999,32 +999,38 @@ class FragmentsWalker(pysource.SourceWalker, object):
         start = len(self.f.getvalue())
         self.write('{')
 
-        if node[0].type.startswith('kvlist'):
-            # Python 3.5+ style key/value list in mapexpr
-            kv_node = node[0]
-            l = list(kv_node)
-            i = 0
-            while i < len(l):
-                l[1].parent = kv_node
-                l[i+1].parent = kv_node
-                name = self.traverse(l[i], indent='')
-                value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
-                self.write(sep, name, ': ', value)
-                sep = line_seperator
-                i += 2
-        elif node[1].type.startswith('kvlist'):
-            # Python 3.0..3.4 style key/value list in mapexpr
-            kv_node = node[1]
-            l = list(kv_node)
-            i = 0
-            while i < len(l):
-                l[1].parent = kv_node
-                l[i+1].parent = kv_node
-                name = self.traverse(l[i+1], indent='')
-                value = self.traverse(l[i], indent=self.indent+(len(name)+2)*' ')
-                self.write(sep, name, ': ', value)
-                sep = line_seperator
-                i += 3
+        if self.version > 3.0:
+            if node[0].type.startswith('kvlist'):
+                # Python 3.5+ style key/value list in mapexpr
+                kv_node = node[0]
+                l = list(kv_node)
+                i = 0
+                while i < len(l):
+                    l[1].parent = kv_node
+                    l[i+1].parent = kv_node
+                    name = self.traverse(l[i], indent='')
+                    value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
+                    self.write(sep, name, ': ', value)
+                    sep = line_seperator
+                    i += 2
+                    pass
+                pass
+            elif node[1].type.startswith('kvlist'):
+                # Python 3.0..3.4 style key/value list in mapexpr
+                kv_node = node[1]
+                l = list(kv_node)
+                i = 0
+                while i < len(l):
+                    l[1].parent = kv_node
+                    l[i+1].parent = kv_node
+                    name = self.traverse(l[i+1], indent='')
+                    value = self.traverse(l[i], indent=self.indent+(len(name)+2)*' ')
+                    self.write(sep, name, ': ', value)
+                    sep = line_seperator
+                    i += 3
+                    pass
+                pass
+            pass
         else:
             # Python 2 style kvlist
             assert node[-1] == 'kvlist'
