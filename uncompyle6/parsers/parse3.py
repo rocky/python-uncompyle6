@@ -243,7 +243,7 @@ class Python3Parser(PythonParser):
         testtrue ::= expr jmp_true
 
         _ifstmts_jump ::= return_if_stmts
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from
         _ifstmts_jump ::= c_stmts_opt
 
         iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
