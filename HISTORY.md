@@ -109,15 +109,20 @@ Hartmut a decade an a half ago:
     NB. This is not a masterpiece of software, but became more like a hack.
     Probably a complete rewrite would be sensefull. hG/2000-12-27
 
-This project deparses using a LR parse. However another approach is to
-do something like simulate execution symbolically and build expression
-trees off of stack results. The two important projects that work this
-way are [unpyc3](https://code.google.com/p/unpyc3/) and most
-especially [pycdc](https://github.com/zrax/pycdc) The latter project
-is largely by Michael Hansen and Darryl Pogue. If they supported
-getting source-code fragments and I could call it from Python, I'd
-probably ditch this and use that. From what I've seen, the code runs
-blindingly fast and spans all versions of Python.
+This project deparses using a Early-algorithm parse with lots of
+massaging of tokens and the grammar in the scanner
+phase. Early-algorithm parsers are context free and tend to be linear
+if the grammar is LR or left recursive.
+
+Another approach that doesn't use grammars is to do something like
+simulate execution symbolically and build expression trees off of
+stack results. The two important projects that work this way are
+[unpyc3](https://code.google.com/p/unpyc3/) and most especially
+[pycdc](https://github.com/zrax/pycdc) The latter project is largely
+by Michael Hansen and Darryl Pogue. If they supported getting
+source-code fragments and I could call it from Python, I'd probably
+ditch this and use that. From what I've seen, the code runs blindingly
+fast and spans all versions of Python.
 
 Tests for the project have been, or are being, culled from all of the
 projects mentioned.
