@@ -43,11 +43,14 @@ class Scanner3(scan.Scanner):
     ## FIXME opnames should be passed in here
     def __init__(self, version):
         self.version = version
+        self.opnames = {} # will eventually get passed in
         scan.Scanner.__init__(self, version)
 
 
     ## FIXME opnames should be moved to init
     def disassemble3(self, co, opnames, classname=None, code_objects={}):
+
+        self.opnames = opnames # will eventually disasppear
 
         # import dis; dis.disassemble(co) # DEBUG
 
@@ -829,7 +832,9 @@ class Scanner3(scan.Scanner):
 if __name__ == "__main__":
     import inspect
     co = inspect.currentframe().f_code
-    tokens, customize = Scanner3().disassemble_generic(co)
+    from uncompyle6 import PYTHON_VERSION
+    from opcode import opname
+    tokens, customize = Scanner3(PYTHON_VERSION).disassemble3(co, opname)
     for t in tokens:
         print(t)
     pass

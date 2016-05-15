@@ -524,8 +524,9 @@ class Python3Parser(PythonParser):
                 rule = 'unpack_list ::= ' + opname + ' designator' * token.attr
             elif opname_base.startswith('MAKE_FUNCTION'):
                 args_pos, args_kw, annotate_args  = token.attr
-                self.addRule('mklambda ::= %sLOAD_LAMBDA %s' %
-                      ('pos_arg ' * args_pos, opname), nop_func)
+                rule = ('mklambda ::= %sLOAD_LAMBDA LOAD_CONST %s' %
+                        ('pos_arg '* args_pos, opname))
+                self.add_unique_rule(rule, opname, token.attr, customize)
                 if self.version > 3.2:
                     rule = ('mkfunc ::= %skwargs %s %s' %
                             ('pos_arg ' * args_pos,

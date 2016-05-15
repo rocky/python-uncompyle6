@@ -1605,7 +1605,10 @@ class SourceWalker(GenericASTTraversal, object):
             pos_args = args_node.attr
             pass
 
-        code = node[code_index].attr
+        if self.version > 3.0 and isLambda and iscode(node[-3].attr):
+            code = node[-3].attr
+        else:
+            code = node[code_index].attr
 
         assert iscode(code)
         code = Code(code, self.scanner, self.currentclass)

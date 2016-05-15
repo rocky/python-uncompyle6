@@ -5,10 +5,10 @@ test_pyenvlib -- uncompyle and verify Python libraries
 
 Usage-Examples:
 
-  test_pyenvlib --all		# decompile all tests (suite + libs)
-  test_pyenvlib --all --verify	# decomyile all tests and verify results
-  test_pyenvlib --test		# decompile only the testsuite
-  test_pyenvlib --2.2 --verify	# decompile and verify python lib 2.2
+  test_pyenvlib.py --all		# decompile all tests (suite + libs)
+  test_pyenvlib.py --all --verify	# decomyile all tests and verify results
+  test_pyenvlib.py --test		# decompile only the testsuite
+  test_pyenvlib.py --2.7.11 --verify	# decompile and verify python lib 2.7.11
 
 Adding own test-trees:
 
