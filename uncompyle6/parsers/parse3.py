@@ -582,6 +582,7 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
         return
 
+
 class Python32Parser(Python3Parser):
     def p_32(self, args):
         """
@@ -596,15 +597,6 @@ class Python34Parser(Python3Parser):
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from
         """
 
-class Python3ParserSingle(Python3Parser, PythonParserSingle):
-    pass
-
-class Python32ParserSingle(Python32Parser, PythonParserSingle):
-    pass
-
-class Python34ParserSingle(Python34Parser, PythonParserSingle):
-    pass
-
 class Python35onParser(Python3Parser):
     def p_35on(self, args):
         """
@@ -617,6 +609,18 @@ class Python35onParser(Python3Parser):
                 POP_BLOCK LOAD_CONST COME_FROM
                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
         """
+
+class Python3ParserSingle(Python3Parser, PythonParserSingle):
+    pass
+
+
+class Python32ParserSingle(Python32Parser, PythonParserSingle):
+    pass
+
+
+class Python34ParserSingle(Python34Parser, PythonParserSingle):
+    pass
+
 
 class Python35onParserSingle(Python35onParser, PythonParserSingle):
     pass

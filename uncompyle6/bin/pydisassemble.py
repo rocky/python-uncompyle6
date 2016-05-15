@@ -6,6 +6,10 @@
 from __future__ import print_function
 import sys, os, getopt
 
+from uncompyle6 import check_python_version
+from uncompyle6.disas import disassemble_files
+from uncompyle6.version import VERSION
+
 program, ext = os.path.splitext(os.path.basename(__file__))
 
 __doc__ = """
@@ -31,10 +35,6 @@ Options:
 def main():
     Usage_short = \
     "%s [--help] [--verify] [--showasm] [--showast] [-o <path>] FILE|DIR..." % program
-
-    from uncompyle6 import check_python_version
-    from uncompyle6.disas import disassemble_files
-    from uncompyle6.version import VERSION
 
     check_python_version(program)
 
@@ -85,7 +85,7 @@ def main():
     elif outfile and len(files) > 1:
         out_base = outfile; outfile = None
 
-    disassemble_files(src_base, out_base, files, outfile)
+    disassemble_files(src_base, out_base, files, outfile, True)
     return
 
 if __name__ == '__main__':

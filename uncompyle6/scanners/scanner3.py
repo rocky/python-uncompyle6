@@ -40,10 +40,13 @@ import uncompyle6.scanner as scan
 
 class Scanner3(scan.Scanner):
 
+    ## FIXME opnames should be passed in here
     def __init__(self, version):
         self.version = version
         scan.Scanner.__init__(self, version)
 
+
+    ## FIXME opnames should be moved to init
     def disassemble3(self, co, opnames, classname=None, code_objects={}):
 
         # import dis; dis.disassemble(co) # DEBUG
@@ -51,23 +54,11 @@ class Scanner3(scan.Scanner):
         # Container for tokens
         tokens = []
 
-        customize = {}
         self.code = array('B', co.co_code)
         self.build_lines_data(co)
         self.build_prev_op()
 
         bytecode = dis3.Bytecode(co, opnames)
-
-        # self.lines contains (block,addrLastInstr)
-        if classname:
-            classname = '_' + classname.lstrip('_') + '__'
-
-            def unmangle(name):
-                if name.startswith(classname) and name[-2:] != '__':
-                    return name[len(classname) - 2:]
-                return name
-        else:
-            pass
 
         # Scan for assertions. Later we will
         # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT' for those
@@ -131,7 +122,7 @@ class Scanner3(scan.Scanner):
                     opname = 'MAKE_FUNCTION_N%d' % name_pair_args
                     pass
                 if annotate_args > 0:
-                    opname = '%s_A_%d' % [op_name, annotate_args]
+                    opname = '%s_A_%d' % [opname, annotate_args]
                     pass
                 opname = '%s_%d' % (opname, pos_args)
                 pattr = ("%d positional, %d keyword pair, %d annotated" %
@@ -150,16 +141,14 @@ class Scanner3(scan.Scanner):
                             'RAISE_VARARGS'
                             ):
                 pos_args = inst.argval
-                if inst.opname != 'BUILD_SLICE':
-                    customize[opname] = pos_args
-                    pass
                 opname = '%s_%d' % (opname, pos_args)
             elif opname == 'JUMP_ABSOLUTE':
                 pattr = inst.argval
                 target = self.get_target(inst.offset)
                 if target < inst.offset:
+                    next_opname = opnames[self.code[inst.offset+3]]
                     if (inst.offset in self.stmts and
-                        self.code[inst.offset+3] not in (END_FINALLY, POP_BLOCK)
+                        next_opname not in ('END_FINALLY', 'POP_BLOCK')
                         and inst.offset not in self.not_continue):
                         opname = 'CONTINUE'
                     else:
@@ -168,6 +157,32 @@ class Scanner3(scan.Scanner):
             elif inst.offset in self.load_asserts:
                 opname = 'LOAD_ASSERT'
 
+            tokens.append(
+                Token(
+                    type_ = opname,
+                    attr = inst.argval,
+                    pattr = pattr,
+                    offset = inst.offset,
+                    linestart = inst.starts_line,
+                    )
+                )
+            pass
+        return tokens, {}
+
+    def disassemble3_native(self, co, opnames, classname=None, code_objects={}):
+        """
+        Like disassemble3 but doesn't try to adjust any opcodes.
+        """
+        # Container for tokens
+        tokens = []
+
+        self.code = array('B', co.co_code)
+
+        bytecode = dis3.Bytecode(co, opnames)
+
+        for inst in bytecode:
+            pattr =  inst.argrepr
+            opname = inst.opname
             tokens.append(
                 Token(
                     type_ = opname,

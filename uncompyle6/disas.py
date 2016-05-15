@@ -25,7 +25,7 @@ from uncompyle6.code import iscode
 from uncompyle6.load import check_object_path, load_module
 from uncompyle6.scanner import get_scanner
 
-def disco(version, co, out=None):
+def disco(version, co, out=None, native=False):
     """
     diassembles and deparses a given code block 'co'
     """
@@ -40,14 +40,17 @@ def disco(version, co, out=None):
               file=real_out)
 
     scanner = get_scanner(version)
-    tokens, customize = scanner.disassemble(co)
+    if native and hasattr(scanner, 'disassemble_native'):
+        tokens, customize = scanner.disassemble_native(co, True)
+    else:
+        tokens, customize = scanner.disassemble(co)
 
     for t in tokens:
         print(t, file=real_out)
     print(file=out)
 
 
-def disassemble_file(filename, outstream=None):
+def disassemble_file(filename, outstream=None, native=False):
     """
     disassemble Python byte-code file (.pyc)
 
@@ -58,12 +61,13 @@ def disassemble_file(filename, outstream=None):
     version, timestamp, magic_int, co = load_module(filename)
     if type(co) == list:
         for con in co:
-            disco(version, con, outstream)
+            disco(version, con, outstream, native)
     else:
-        disco(version, co, outstream)
+        disco(version, co, outstream, native)
     co = None
 
-def disassemble_files(in_base, out_base, files, outfile=None):
+def disassemble_files(in_base, out_base, files, outfile=None,
+                      native=False):
     """
     in_base	base directory for input files
     out_base	base directory for output files (ignored when
@@ -110,7 +114,7 @@ def disassemble_files(in_base, out_base, files, outfile=None):
 
         # try to decomyple the input file
         try:
-            disassemble_file(infile, outstream)
+            disassemble_file(infile, outstream, native)
         except KeyboardInterrupt:
             if outfile:
                 outstream.close()
@@ -146,7 +150,7 @@ def _test():
             sys.exit(2)
     else:
         fn = sys.argv[1]
-    disassemble_file(fn)
+    disassemble_file(fn, native=True)
 
 if __name__ == "__main__":
     _test()

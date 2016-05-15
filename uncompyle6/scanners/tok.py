@@ -37,10 +37,9 @@ class Token:
 
     def __str__(self):
         pattr = self.pattr if self.pattr is not None else ''
-        if self.linestart:
-            return '\n%4d  %6s\t%-17s %r' % (self.linestart, self.offset, self.type, pattr)
-        else:
-            return '      %6s\t%-17s %r' % (self.offset, self.type, pattr)
+        prefix = '\n%4d  ' % self.linestart if self.linestart else (' ' * 6)
+        return (prefix +
+                ('%6s\t%-17s %r' % (self.offset, self.type, pattr)))
 
     def __hash__(self):
         return hash(self.type)

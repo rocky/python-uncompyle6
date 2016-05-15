@@ -8,15 +8,18 @@ scanner routine for Python 3.
 
 from __future__ import print_function
 
-import uncompyle6.scanners.scanner3 as scan3
+from uncompyle6.scanners.scanner3 import Scanner3
 from uncompyle6.opcodes.opcode_35 import opname as opnames
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from uncompyle6.opcodes.opcode_35 import JUMP_OPs
 
-class Scanner35(scan3.Scanner3):
+class Scanner35(Scanner3):
     def disassemble(self, co, classname=None, code_objects={}):
         return self.disassemble3(co, opnames, classname, code_objects)
+
+    def disassemble_native(self, co, classname=None, code_objects={}):
+        return self.disassemble3_native(co, opnames, classname, code_objects)
 
 if __name__ == "__main__":
     import inspect
