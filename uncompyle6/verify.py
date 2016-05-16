@@ -203,8 +203,8 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
             JUMP_OPs = list(scan.JUMP_OPs) + ['JUMP_BACK']
 
             # use changed Token class
-            #   we (re)set this here to save exception handling,
-            #   which would get 'unubersichtlich'
+            #   We (re)set this here to save exception handling,
+            #   which would get confusing.
             scanner.setTokenClass(Token)
             try:
                 # disassemble both code-objects

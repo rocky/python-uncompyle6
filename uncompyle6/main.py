@@ -33,9 +33,11 @@ def uncompyle(version, co, out=None, showasm=False, showast=False,
                               code_objects=code_objects)
     except pysource.SourceWalkerError as e:
         # deparsing failed
+        print("\n")
         if real_out != out:
+            print("\n", file=real_out)
             print(e, file=real_out)
-        raise
+
 
 
 def uncompyle_file(filename, outstream=None, showasm=False, showast=False,

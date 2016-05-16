@@ -23,8 +23,10 @@ working on his thesis, John realized SPARK could be used to deparse
 Python bytecode. In the fall of 1999, he started writing the Python
 program, "decompyle", to do this.
 
-This code introduced another clever idea: using table-driven
-semantics routines, using format specifiers.
+To help with control structure deparsing the instruction sequence was
+augmented with pseudo instruction COME_FROM. This code introduced
+another clever idea: using table-driven semantics routines, using
+format specifiers.
 
 The last mention of a release of SPARK from John is around 2002.
 
@@ -55,19 +57,24 @@ it doesn't look like he's done anything compiler-wise since SPARK). So
 I hope people will use the crazy-compilers service. I wish them the
 success that his good work deserves.
 
-Dan Pascu did a bit of work around 2005 on the Python get this code to
-handle Python 2.3 and 2.4 bytecodes. Because of jump optimization
-introduced in the CPython bytecode compiler at that time, various JUMP
-instructions were classifed as going forward or backwards, and COME
-FROM instructions were introduced.  See RELEASE-2.4-CHANGELOG.txt for
-more details here.
+Dan Pascu did a bit of work from late 2004 to early 2006 to get this
+code to handle first Python 2.3 and then 2.4 bytecodes. Because of
+jump optimization introduced in the CPython bytecode compiler at that
+time, various JUMP instructions were classifed as going backwards, and
+COME FROM instructions were reintroduced.  See
+RELEASE-2.4-CHANGELOG.txt for more details here. There wasn't a public
+release of RELEASE-2.4 and bytecodes other than Python 2.4 weren't
+supported.
 
 Next we get to ["uncompyle" and
 PyPI](https://pypi.python.org/pypi/uncompyle/1.1) and the era of
-public version control. In contrast to decompyle, uncompyle at least
-in its final versions, runs only on Python 2.7. However it accepts
-bytecode back to Python 2.5. Thomas Grainger is the package owner of
-this, although Hartmut is still listed as the author.
+public version control. (Dan's code although not public used
+[darcs](http://darcs.net/) for version control.
+
+In contrast to _decompyle_, _uncompyle_ at least in its final versions,
+runs only on Python 2.7. However it accepts bytecode back to Python
+2.5. Thomas Grainger is the package owner of this, although Hartmut is
+still listed as the author.
 
 The project exists not only on
 [github](https://github.com/gstarnberger/uncompyle) but also on

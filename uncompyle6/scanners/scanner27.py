@@ -27,13 +27,21 @@ class Scanner27(scan.Scanner):
 
     def disassemble(self, co, classname=None, code_objects={}):
         """
-        Disassemble a code object, returning a list of 'Token'.
+        Disassemble a Python 3 ode object, returning a list of 'Token'.
+        Various tranformations are made to assist the deparsing grammar.
+        For example:
+           -  various types of LOAD_CONST's are categorized in terms of what they load
+           -  COME_FROM instructions are added to assist parsing control structures
+           -  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional aruments
         The main part of this procedure is modelled after
         dis.disassemble().
         """
 
         # import dis; dis.disassemble(co) # DEBUG
-        rv = []
+
+        # Container for tokens
+        tokens = []
+
         customize = {}
         Token = self.Token # shortcut
         self.code = array('B', co.co_code)
@@ -125,7 +133,7 @@ class Scanner27(scan.Scanner):
             if offset in cf:
                 k = 0
                 for j in cf[offset]:
-                    rv.append(Token('COME_FROM', None, repr(j),
+                    tokens.append(Token('COME_FROM', None, repr(j),
                                     offset="%s_%d" % (offset, k)))
                     k += 1
 
@@ -211,10 +219,10 @@ class Scanner27(scan.Scanner):
                 linestart = None
 
             if offset not in replace:
-                rv.append(Token(op_name, oparg, pattr, offset, linestart))
+                tokens.append(Token(op_name, oparg, pattr, offset, linestart))
             else:
-                rv.append(Token(replace[offset], oparg, pattr, offset, linestart))
-        return rv, customize
+                tokens.append(Token(replace[offset], oparg, pattr, offset, linestart))
+        return tokens, customize
 
     def build_stmt_indices(self):
         code = self.code

@@ -1,4 +1,7 @@
 #  Copyright (c) 2015, 2016 by Rocky Bernstein
+#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#  Copyright (c) 1999 John Aycock
 """
 Python 3 Generic bytecode scanner/deparser
 
@@ -49,6 +52,16 @@ class Scanner3(scan.Scanner):
 
     ## FIXME opnames should be moved to init
     def disassemble3(self, co, opnames, classname=None, code_objects={}):
+        """
+        Disassemble a Python 3 ode object, returning a list of 'Token'.
+        Various tranformations are made to assist the deparsing grammar.
+        For example:
+           -  various types of LOAD_CONST's are categorized in terms of what they load
+           -  COME_FROM instructions are added to assist parsing control structures
+           -  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional aruments
+        The main part of this procedure is modelled after
+        dis.disassemble().
+        """
 
         self.opnames = opnames # will eventually disasppear
 
