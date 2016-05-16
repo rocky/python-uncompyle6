@@ -542,7 +542,7 @@ class Python3Parser(PythonParser):
                             ('pos_arg ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname.startswith('MAKE_CLOSURE'):
-                self.add_unique_rule('mklambda ::= %sload_closure LOAD_LAMBDA %s' %
+                self.add_unique_rule('mklambda ::= %sload_closure LOAD_LAMBDA LOAD_CONST %s' %
                                      ('pos_arg ' * token.attr, opname), opname, token.attr,
                                      customize)
                 self.add_unique_rule('genexpr ::= %sload_closure '
