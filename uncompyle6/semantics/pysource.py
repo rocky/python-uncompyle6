@@ -993,11 +993,17 @@ class SourceWalker(GenericASTTraversal, object):
         p = self.prec
         self.prec = 27
         if hasattr(node[code_index], 'attr'):
+            # Python 2.5+ (and earlier?) does this
             code = node[code_index].attr
-        elif hasattr(node[1][1], 'attr'):
-            code = node[1][1].attr
         else:
-            assert False
+            if len(node[1]) > 1 and hasattr(node[1][1], 'attr'):
+                # Python 3.3+ does this
+                code = node[1][1].attr
+            elif hasattr(node[1][0], 'attr'):
+                # Python 3.2 does this
+                code = node[1][0].attr
+            else:
+                assert False, "Can't find code for comprehension"
 
         assert iscode(code)
         code = Code(code, self.scanner, self.currentclass)
@@ -1241,7 +1247,8 @@ class SourceWalker(GenericASTTraversal, object):
         if self.version > 3.0:
             if node[0].type.startswith('kvlist'):
                 # Python 3.5+ style key/value list in mapexpr
-                l = list(node[0])
+                kv_node = node[0]
+                l = list(kv_node)
                 i = 0
                 while i < len(l):
                     name = self.traverse(l[i], indent='')
@@ -1253,10 +1260,18 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             elif node[1].type.startswith('kvlist'):
                 # Python 3.0..3.4 style key/value list in mapexpr
-                l = list(node[1])
+                kv_node = node[1]
+                l = list(kv_node)
+                if len(l) > 0 and l[0].type == 'kv3':
+                    # Python 3.2 does this
+                    kv_node = node[1][0]
+                    l = list(kv_node)
                 i = 0
                 while i < len(l):
-                    name = self.traverse(l[i+1], indent='')
+                    try:
+                        name = self.traverse(l[i+1], indent='')
+                    except:
+                        from trepan.api import debug; debug()
                     value = self.traverse(l[i], indent=self.indent+(len(name)+2)*' ')
                     self.write(sep, name, ': ', value)
                     sep = line_seperator
