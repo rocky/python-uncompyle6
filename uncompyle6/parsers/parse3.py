@@ -358,11 +358,10 @@ class Python3Parser(PythonParser):
         '''
         load_genexpr ::= LOAD_GENEXPR
         load_genexpr ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_CONST
-        '''
 
-    def p_genexpr2(self, args):
-        '''
+        # Is there something general going on here?
         genexpr ::= LOAD_GENEXPR LOAD_CONST MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
+        genexpr ::= load_closure LOAD_GENEXPR LOAD_CONST MAKE_CLOSURE_0 expr GET_ITER CALL_FUNCTION_1
         '''
 
     def p_expr3(self, args):
