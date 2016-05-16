@@ -44,43 +44,11 @@ class Scanner27(scan.Scanner):
 
         customize = {}
         Token = self.Token # shortcut
-        self.code = array('B', co.co_code)
 
-        for i in self.op_range(0, len(self.code)):
-            if self.code[i] in (RETURN_VALUE, END_FINALLY):
-                n = i + 1
-        self.code = array('B', co.co_code[:n])
+        n = self.setup_code(co)
+        self.build_lines_data(co, n)
+        self.build_prev_op(n)
 
-        self.prev = [0]
-        # mapping addresses of instruction & argument
-        for i in self.op_range(0, n):
-            op = self.code[i]
-            self.prev.append(i)
-            if op >= HAVE_ARGUMENT:
-                self.prev.append(i)
-                self.prev.append(i)
-
-        self.lines = []
-        linetuple = namedtuple('linetuple', ['l_no', 'next'])
-
-        j = 0
-
-        # linestarts is a tuple of (offset, line number).
-        # Turn that in a has that we can index
-        linestarts = list(dis.findlinestarts(co))
-        linestartoffsets = {}
-        for offset, lineno in linestarts:
-            linestartoffsets[offset] = lineno
-
-        (prev_start_byte, prev_line_no) = linestarts[0]
-        for (start_byte, line_no) in linestarts[1:]:
-            while j < start_byte:
-                self.lines.append(linetuple(prev_line_no, start_byte))
-                j += 1
-            prev_line_no = start_byte
-        while j < n:
-            self.lines.append(linetuple(prev_line_no, n))
-            j+=1
         # self.lines contains (block,addrLastInstr)
         if classname:
             classname = '_' + classname.lstrip('_') + '__'
@@ -104,7 +72,7 @@ class Scanner27(scan.Scanner):
                 if names[self.get_argument(i+3)] == 'AssertionError':
                     self.load_asserts.add(i+3)
 
-        cf = self.find_jump_targets(self.code)
+        cf = self.find_jump_targets()
         # contains (code, [addrRefToCode])
         last_stmt = self.next_stmt[0]
         i = self.next_stmt[last_stmt]
@@ -213,8 +181,8 @@ class Scanner27(scan.Scanner):
                 if offset in self.return_end_ifs:
                     op_name = 'RETURN_END_IF'
 
-            if offset in linestartoffsets:
-                linestart = linestartoffsets[offset]
+            if offset in self.linestartoffsets:
+                linestart = self.linestartoffsets[offset]
             else:
                 linestart = None
 
@@ -223,6 +191,63 @@ class Scanner27(scan.Scanner):
             else:
                 tokens.append(Token(replace[offset], oparg, pattr, offset, linestart))
         return tokens, customize
+
+    def setup_code(self, co):
+        """
+        Creates Python-independent bytecode structure (byte array) in
+        self.code and records previous instruction in self.prev
+        The size of self.code is returned
+        """
+        self.code = array('B', co.co_code)
+
+        n = -1
+        for i in self.op_range(0, len(self.code)):
+            if self.code[i] in (RETURN_VALUE, END_FINALLY):
+                n = i + 1
+                pass
+            pass
+        assert n > -1, "Didn't find RETURN_VALUE or END_FINALLY FINALLY"
+        self.code = array('B', co.co_code[:n])
+
+        return n
+
+    def build_prev_op(self, n):
+        self.prev = [0]
+        # mapping addresses of instruction & argument
+        for i in self.op_range(0, n):
+            op = self.code[i]
+            self.prev.append(i)
+            if op >= HAVE_ARGUMENT:
+                self.prev.append(i)
+                self.prev.append(i)
+                pass
+            pass
+
+    def build_lines_data(self, co, n):
+        """
+        Initializes self.lines and self.linesstartoffsets
+        """
+        self.lines = []
+        linetuple = namedtuple('linetuple', ['l_no', 'next'])
+
+        # linestarts is a tuple of (offset, line number).
+        # Turn that in a has that we can index
+        linestarts = list(dis.findlinestarts(co))
+        self.linestartoffsets = {}
+        for offset, lineno in linestarts:
+            self.linestartoffsets[offset] = lineno
+
+        j = 0
+        (prev_start_byte, prev_line_no) = linestarts[0]
+        for (start_byte, line_no) in linestarts[1:]:
+            while j < start_byte:
+                self.lines.append(linetuple(prev_line_no, start_byte))
+                j += 1
+            prev_line_no = start_byte
+        while j < n:
+            self.lines.append(linetuple(prev_line_no, n))
+            j+=1
+        return
 
     def build_stmt_indices(self):
         code = self.code
@@ -585,7 +610,7 @@ class Scanner27(scan.Scanner):
             target = self.get_target(pos, op)
             self.fixed_jumps[pos] = self.restrict_to_parent(target, parent)
 
-    def find_jump_targets(self, code):
+    def find_jump_targets(self):
         '''
         Detect all offsets in a byte code which are jump targets.
 
@@ -595,7 +620,7 @@ class Scanner27(scan.Scanner):
         for each target the number of jumps are counted.
         '''
 
-        n = len(code)
+        n = len(self.code)
         self.structs = [{'type':  'root',
                            'start': 0,
                            'end':   n-1}]
@@ -603,12 +628,14 @@ class Scanner27(scan.Scanner):
         self.fixed_jumps = {} # Map fixed jumps to their real destination
         self.ignore_if = set()
         self.build_stmt_indices()
+
+        # Containers filled by detect_structure()
         self.not_continue = set()
         self.return_end_ifs = set()
 
         targets = {}
         for i in self.op_range(0, n):
-            op = code[i]
+            op = self.code[i]
 
             # Determine structures and fix jumps in Python versions
             # since 2.3
@@ -616,7 +643,7 @@ class Scanner27(scan.Scanner):
 
             if op >= HAVE_ARGUMENT:
                 label = self.fixed_jumps.get(i)
-                oparg = code[i+1] + code[i+2] * 256
+                oparg = self.code[i+1] + self.code[i+2] * 256
                 if label is None:
                     if op in hasjrel and op != FOR_ITER:
                         label = i + 3 + oparg
@@ -634,7 +661,8 @@ class Scanner27(scan.Scanner):
 
 if __name__ == "__main__":
     co = inspect.currentframe().f_code
-    tokens, customize = Scanner27().disassemble(co)
+    from uncompyle6 import PYTHON_VERSION
+    tokens, customize = Scanner27(PYTHON_VERSION).disassemble(co)
     for t in tokens:
         print(t)
     pass

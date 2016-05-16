@@ -394,7 +394,7 @@ class Scanner3(scan.Scanner):
                 #
                 # We may however want to consider whether we do
                 # this in 3.5 or not.
-                if oparg == 0 and self.version != 3.4:
+                if oparg == 0 and self.version >= 3.5:
                     tokens.append(Token('NOP', oparg, pattr, offset, linestart))
                     continue
             elif op_name == 'LOAD_GLOBAL':
@@ -481,23 +481,25 @@ class Scanner3(scan.Scanner):
         for each target the number of jumps is counted.
         """
         code = self.code
-        codelen = len(code)
+        n = len(code)
         self.structs = [{'type':  'root',
                          'start': 0,
-                         'end':   codelen-1}]
+                         'end':   n-1}]
 
         # All loop entry points
-        # self.loops = []
+        self.loops = []
+
         # Map fixed jumps to their real destination
         self.fixed_jumps = {}
         self.ignore_if = set()
         self.build_statement_indices()
+
         # Containers filled by detect_structure()
         self.not_continue = set()
         self.return_end_ifs = set()
 
         targets = {}
-        for offset in self.op_range(0, codelen):
+        for offset in self.op_range(0, n):
             op = code[offset]
 
             # Determine structures and fix jumps in Python versions
@@ -656,7 +658,67 @@ class Scanner3(scan.Scanner):
                 end = curent_end
                 parent = struct
 
-        if op in (POP_JUMP_IF_FALSE, POP_JUMP_IF_TRUE):
+        if op == SETUP_LOOP:
+            start = offset+3
+            target = self.get_target(offset)
+            end    = self.restrict_to_parent(target, parent)
+
+            if target != end:
+                self.fixed_jumps[offset] = end
+            (line_no, next_line_byte) = self.lines[offset]
+            jump_back = self.last_instr(start, end, JUMP_ABSOLUTE,
+                                          next_line_byte, False)
+
+            if jump_back and jump_back != self.prev_op[end] and code[jump_back+3] in (JUMP_ABSOLUTE, JUMP_FORWARD):
+                if code[self.prev_op[end]] == RETURN_VALUE or \
+                    (code[self.prev_op[end]] == POP_BLOCK and code[self.prev_op[self.prev_op[end]]] == RETURN_VALUE):
+                    jump_back = None
+            if not jump_back: # loop suite ends in return. wtf right?
+                jump_back = self.last_instr(start, end, RETURN_VALUE) + 1
+                if not jump_back:
+                    return
+                if code[self.prev_op[next_line_byte]] not in (PJIF, PJIT):
+                    loop_type = 'for'
+                else:
+                    loop_type = 'while'
+                    self.ignore_if.add(self.prev_op[next_line_byte])
+                target = next_line_byte
+                end = jump_back + 3
+            else:
+                if self.get_target(jump_back) >= next_line_byte:
+                    jump_back = self.last_instr(start, end, JUMP_ABSOLUTE, start, False)
+                if end > jump_back+4 and code[end] in (JUMP_FORWARD, JUMP_ABSOLUTE):
+                    if code[jump_back+4] in (JUMP_ABSOLUTE, JUMP_FORWARD):
+                        if self.get_target(jump_back+4) == self.get_target(end):
+                            self.fixed_jumps[offset] = jump_back+4
+                            end = jump_back+4
+                elif target < offset:
+                    self.fixed_jumps[offset] = jump_back+4
+                    end = jump_back+4
+                target = self.get_target(jump_back)
+
+                if code[target] in (FOR_ITER, GET_ITER):
+                    loop_type = 'for'
+                else:
+                    loop_type = 'while'
+                    test = self.prev_op[next_line_byte]
+                    if test == offset:
+                        loop_type = 'while 1'
+                    elif self.code[test] in op3.hasjabs+op3.hasjrel:
+                        self.ignore_if.add(test)
+                        test_target = self.get_target(test)
+                        if test_target > (jump_back+3):
+                            jump_back = test_target
+                self.not_continue.add(jump_back)
+            self.loops.append(target)
+            self.structs.append({'type': loop_type + '-loop',
+                                   'start': target,
+                                   'end':   jump_back})
+            if jump_back+3 != end:
+                self.structs.append({'type': loop_type + '-else',
+                                       'start': jump_back+3,
+                                       'end':   end})
+        elif op in (POP_JUMP_IF_FALSE, POP_JUMP_IF_TRUE):
             start = offset + self.op_size(op)
             target = self.get_target(offset)
             rtarget = self.restrict_to_parent(target, parent)

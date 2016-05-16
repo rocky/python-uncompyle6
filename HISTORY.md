@@ -69,7 +69,7 @@ supported.
 Next we get to ["uncompyle" and
 PyPI](https://pypi.python.org/pypi/uncompyle/1.1) and the era of
 public version control. (Dan's code although not public used
-[darcs](http://darcs.net/) for version control.
+[darcs](http://darcs.net/) for version control.)
 
 In contrast to _decompyle_, _uncompyle_ at least in its final versions,
 runs only on Python 2.7. However it accepts bytecode back to Python
@@ -98,7 +98,7 @@ actively, if briefly, worked on. Also starting around 2012 is Dark
 Fenx's uncompyle3 which I used for inspiration for Python3.
 
 I started working on this late 2015, mostly to add fragment support.
-In that decided to make this runnable on Python 3.2+ and Python 2.6+
+In that, I decided to make this runnable on Python 3.2+ and Python 2.6+
 while, handling Python bytecodes from Python versions 2.5+ and
 3.2+. (I think I could go back further, but I'd consider doing that
 only after code is better cleaned up and supports Python 3 better.)
@@ -116,7 +116,7 @@ Hartmut a decade an a half ago:
     NB. This is not a masterpiece of software, but became more like a hack.
     Probably a complete rewrite would be sensefull. hG/2000-12-27
 
-This project deparses using a Early-algorithm parse with lots of
+This project deparses using an Early-algorithm parse with lots of
 massaging of tokens and the grammar in the scanner
 phase. Early-algorithm parsers are context free and tend to be linear
 if the grammar is LR or left recursive.

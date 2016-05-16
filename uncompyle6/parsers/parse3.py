@@ -243,7 +243,7 @@ class Python3Parser(PythonParser):
         testtrue ::= expr jmp_true
 
         _ifstmts_jump ::= return_if_stmts
-        _ifstmts_jump ::= c_stmts_opt
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM
 
         iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
 
@@ -594,7 +594,6 @@ class Python32Parser(Python3Parser):
         """
         # Store locals is only used in Python 3.2
         designator ::= STORE_LOCALS
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM
         """
 
 class Python34Parser(Python3Parser):
@@ -614,6 +613,11 @@ class Python35onParser(Python3Parser):
         withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
                 POP_BLOCK LOAD_CONST COME_FROM
                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+
+        # Python 3.5 has more loop optimization that removes
+        # JUMP_FORWARD in some cases, and hence we also don't
+        # see COME_FROM
+        _ifstmts_jump ::= c_stmts_opt
         """
 
 class Python3ParserSingle(Python3Parser, PythonParserSingle):

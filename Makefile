@@ -23,12 +23,12 @@ check:
 	@PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2`; \
 	$(MAKE) check-$$PYTHON_VERSION
 
-#: Tests for Python 2.7, 3.3 and 3.4
-check-2.7 check-3.3 check-3.4: pytest
+#: Tests for Python 2.7, 3.3, 3.4 and 3.5
+check-2.7 check-3.3 check-3.4 check-3.5: pytest
 	$(MAKE) -C test $@
 
-#: Tests for Python 3.5 - pytest doesn't work here
-check-3.2 check-3.5:
+#: Tests for Python 3.2 - pytest doesn't work here
+check-3.2:
 	$(MAKE) -C test $@
 
 #:Tests for Python 2.6 (doesn't have pytest)
