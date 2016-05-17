@@ -161,6 +161,7 @@ def load_code_internal(fp, magic_int, bytes_for_s=False,
             return code
         marshalType = chr(b1)
 
+    # print(marshalType) # debug
     if marshalType == '0':
         # Null
         return None
@@ -192,8 +193,9 @@ def load_code_internal(fp, magic_int, bytes_for_s=False,
         raise KeyError(marshalType)
     elif marshalType == 'y':
         # binary complex
-        raise KeyError(marshalType)
-        return None
+        real = unpack('d', fp.read(8))[0]
+        imag = unpack('d', fp.read(8))[0]
+        return complex(real, imag)
     elif marshalType == 'l':
         # long
         n = unpack('i', fp.read(4))[0]
