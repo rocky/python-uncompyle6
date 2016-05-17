@@ -251,8 +251,6 @@ def load_code_internal(fp, magic_int, bytes_for_s=False,
         strsize = unpack('i', fp.read(4))[0]
         unicodestring = fp.read(strsize)
         return unicodestring.decode('utf-8')
-    elif marshalType in ['<', '>']:
-        raise KeyError(marshalType)
     elif marshalType == '?':
         # unknown
         raise KeyError(marshalType)

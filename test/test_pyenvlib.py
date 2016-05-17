@@ -19,7 +19,9 @@ Step 2: Run the test:
 	  test_pyenvlib --mylib --verify # decompile verify 'mylib'
 """
 
-from uncompyle6 import main, verify
+from __future__ import print_function
+
+from uncompyle6 import main, verify, PYTHON3
 import os, time, shutil
 from fnmatch import fnmatch
 import glob
@@ -44,12 +46,13 @@ test_options = {
     '2.5': (os.path.join(lib_prefix, 'python2.5'), PYC, 'python-lib2.5'),
     '2.6.9': (os.path.join(lib_prefix, '2.6.9', 'python2.6'), PYC, 'python-lib2.6'),
     '2.7.10': (os.path.join(lib_prefix, '2.7.10', 'lib', 'python2.7'), PYC, 'python-lib2.7'),
-    '2.7.11': (os.path.join(lib_prefix, '2.7.11', 'lib', 'python2.7'), PYC, 'python-lib2.7')
+    '2.7.11': (os.path.join(lib_prefix, '2.7.11', 'lib', 'python2.7'), PYC, 'python-lib2.7'),
+    '3.4.2': (os.path.join(lib_prefix, '3.4.2', 'lib', 'python3.4'), PYC, 'python-lib3.4')
     }
 
 #-----
 
-def do_tests(src_dir, patterns, target_dir, start_with=None, do_verify=0):
+def do_tests(src_dir, patterns, target_dir, start_with=None, do_verify=False):
 
     def visitor(files, dirname, names):
         files.extend(
@@ -61,7 +64,17 @@ def do_tests(src_dir, patterns, target_dir, start_with=None, do_verify=0):
     files = []
     cwd = os.getcwd()
     os.chdir(src_dir)
-    os.path.walk(os.curdir, visitor, files)
+    if PYTHON3:
+        for root, dirname, names in os.walk(os.curdir):
+            files.extend(
+                [os.path.normpath(os.path.join(root, n))
+                     for n in names
+                        for pat in patterns
+                            if fnmatch(n, pat)])
+            pass
+        pass
+    else:
+        os.path.walk(os.curdir, visitor, files)
     os.chdir(cwd)
     files.sort()
 
@@ -69,13 +82,13 @@ def do_tests(src_dir, patterns, target_dir, start_with=None, do_verify=0):
         try:
             start_with = files.index(start_with)
             files = files[start_with:]
-            print '>>> starting with file', files[0]
+            print('>>> starting with file', files[0])
         except ValueError:
             pass
 
-    print time.ctime()
+    print(time.ctime())
     main.main(src_dir, target_dir, files, [], do_verify=do_verify)
-    print time.ctime()
+    print(time.ctime())
 
 if __name__ == '__main__':
     import getopt, sys
@@ -84,7 +97,8 @@ if __name__ == '__main__':
     test_dirs = []
     start_with = None
 
-    test_options_keys = test_options.keys(); test_options_keys.sort()
+    test_options_keys = list(test_options.keys())
+    test_options_keys.sort()
     opts, args = getopt.getopt(sys.argv[1:], '',
                                ['start-with=', 'verify', 'all', ] \
                                + test_options_keys )
@@ -106,7 +120,7 @@ if __name__ == '__main__':
                 shutil.rmtree(target_dir, ignore_errors=1)
             do_tests(src_dir, pattern, target_dir, start_with, do_verify)
         else:
-            print '### skipping', src_dir
+            print('### skipping', src_dir)
 
 # python 1.5:
 

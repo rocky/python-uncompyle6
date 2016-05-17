@@ -36,8 +36,10 @@ from uncompyle6 import PYTHON3
 
 # Get all the opcodes into globals
 import uncompyle6.opcodes.opcode_33 as op3
+
 globals().update(op3.opmap)
 
+POP_JUMP_TF = (POP_JUMP_IF_TRUE, POP_JUMP_IF_FALSE)
 
 import uncompyle6.scanner as scan
 
@@ -677,7 +679,7 @@ class Scanner3(scan.Scanner):
                 jump_back = self.last_instr(start, end, RETURN_VALUE) + 1
                 if not jump_back:
                     return
-                if code[self.prev_op[next_line_byte]] not in (PJIF, PJIT):
+                if code[self.prev_op[next_line_byte]] not in POP_JUMP_TF:
                     loop_type = 'for'
                 else:
                     loop_type = 'while'
@@ -718,7 +720,7 @@ class Scanner3(scan.Scanner):
                 self.structs.append({'type': loop_type + '-else',
                                        'start': jump_back+3,
                                        'end':   end})
-        elif op in (POP_JUMP_IF_FALSE, POP_JUMP_IF_TRUE):
+        elif op in POP_JUMP_TF:
             start = offset + self.op_size(op)
             target = self.get_target(offset)
             rtarget = self.restrict_to_parent(target, parent)
@@ -757,11 +759,11 @@ class Scanner3(scan.Scanner):
                         if (code[prev_op[prev_op[rtarget]]] == JUMP_ABSOLUTE and self.remove_mid_line_ifs([offset]) and
                             target == self.get_target(prev_op[prev_op[rtarget]]) and
                             (prev_op[prev_op[rtarget]] not in self.stmts or self.get_target(prev_op[prev_op[rtarget]]) > prev_op[prev_op[rtarget]]) and
-                            1 == len(self.remove_mid_line_ifs(self.rem_or(start, prev_op[prev_op[rtarget]], (POP_JUMP_IF_FALSE, POP_JUMP_IF_TRUE), target)))):
+                            1 == len(self.remove_mid_line_ifs(self.rem_or(start, prev_op[prev_op[rtarget]], POP_JUMP_TF, target)))):
                             pass
                         elif (code[prev_op[prev_op[rtarget]]] == RETURN_VALUE and self.remove_mid_line_ifs([offset]) and
                               1 == (len(set(self.remove_mid_line_ifs(self.rem_or(start, prev_op[prev_op[rtarget]],
-                                                                                 (POP_JUMP_IF_FALSE, POP_JUMP_IF_TRUE), target))) |
+                                                                                 POP_JUMP_TF, target))) |
                                     set(self.remove_mid_line_ifs(self.rem_or(start, prev_op[prev_op[rtarget]],
                                                                              (POP_JUMP_IF_FALSE, POP_JUMP_IF_TRUE, JUMP_ABSOLUTE),
                                                                              prev_op[rtarget], True)))))):
@@ -898,8 +900,8 @@ class Scanner3(scan.Scanner):
             # For each offset, if line number of current and next op
             # is the same
             if self.lines[if_].l_no == self.lines[if_+3].l_no:
-                # Check if last op on line is PJIT or PJIF, and if it is - skip it
-                if self.code[self.prev_op[self.lines[if_].next]] in (POP_JUMP_IF_TRUE, POP_JUMP_IF_FALSE):
+                # Skip last op on line if it is some sort of POP_JUMP.
+                if self.code[self.prev_op[self.lines[if_].next]] in POP_JUMP_TF:
                     continue
             filtered.append(if_)
         return filtered
