@@ -380,7 +380,7 @@ class Python3Parser(PythonParser):
     @staticmethod
     def call_fn_name(token):
         """Customize CALL_FUNCTION to add the number of positional arguments"""
-        return 'CALL_FUNCTION_%i' % token.attr
+        return '%s_%i' % (token.type, token.attr)
 
     def custom_build_class_rule(self, opname, i, token, tokens, customize):
         '''
