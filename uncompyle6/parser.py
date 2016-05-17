@@ -471,6 +471,11 @@ def get_python_parser(version, debug_parser, compile_mode='exec'):
                 p = parse3.Python32Parser(debug_parser)
             else:
                 p = parse3.Python32ParserSingle(debug_parser)
+        elif version == 3.3:
+            if compile_mode == 'exec':
+                p = parse3.Python33Parser(debug_parser)
+            else:
+                p = parse3.Python33ParserSingle(debug_parser)
         elif version == 3.4:
             if compile_mode == 'exec':
                 p = parse3.Python34Parser(debug_parser)

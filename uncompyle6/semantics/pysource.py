@@ -1141,7 +1141,6 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_classdef(self, node):
         # class definition ('class X(A,B,C):')
-
         cclass = self.currentclass
 
         if self.version > 3.0:
@@ -1149,9 +1148,29 @@ class SourceWalker(GenericASTTraversal, object):
             buildclass = node[0]
             if buildclass[1][0] == 'kwargs':
                 subclass = buildclass[1][1].attr
+                subclass_info = node[0]
+            elif buildclass[1][0] == 'load_closure':
+                # Python 3 with closures not functions
+                load_closure = buildclass[1]
+                if hasattr(load_closure[-3], 'attr'):
+                    # Python 3.3 classes with closures work like this.
+                    # Note have to test before 3.2 case because
+                    # index -2 also has an attr.
+                    subclass = load_closure[-3].attr
+                elif hasattr(load_closure[-2], 'attr'):
+                    # Python 3.2 works like this
+                    subclass = load_closure[-2].attr
+                else:
+                    raise 'Internal Error n_classdef: cannot find class body'
+                if hasattr(buildclass[3], '__len__'):
+                    subclass_info = buildclass[3]
+                elif hasattr(buildclass[2], '__len__'):
+                    subclass_info = buildclass[2]
+                else:
+                    raise 'Internal Error n_classdef: cannot superclass name'
             else:
                 subclass = buildclass[1][0].attr
-            subclass_info = node[0]
+                subclass_info = node[0]
         else:
             buildclass = node if (node == 'classdefdeco2') else node[0]
             build_list = buildclass[1][0]
@@ -1208,26 +1227,32 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(')')
 
     def print_super_classes3(self, node):
-
         n = len(node)-1
-        assert node[n].type.startswith('CALL_FUNCTION')
+        if node.type != 'expr':
+            assert node[n].type.startswith('CALL_FUNCTION')
+            for i in range(n-2, 0, -1):
+                if not node[i].type in ['expr', 'LOAD_CLASSNAME']:
+                    break
+                pass
 
-        for i in range(n-2, 0, -1):
-            if not node[i].type in ['expr', 'LOAD_CLASSNAME']:
-                break
+            if i == n-2:
+                return
+            line_separator = ', '
+            sep = ''
+            self.write('(')
+            i += 2
+            while i < n:
+                value = self.traverse(node[i])
+                i += 1
+                self.write(sep, value)
+                sep = line_separator
+                pass
             pass
-
-        if i == n-2:
-            return
-        self.write('(')
-        line_separator = ', '
-        sep = ''
-        i += 2
-        while i < n:
-            value = self.traverse(node[i])
-            i += 1
-            self.write(sep, value)
-            sep = line_separator
+        else:
+            self.write('(')
+            value = self.traverse(node[0])
+            self.write(value)
+            pass
 
         self.write(')')
 

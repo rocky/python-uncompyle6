@@ -398,6 +398,8 @@ class Python3Parser(PythonParser):
         for i in range(i+1, len(tokens)):
             if tokens[i].type.startswith('MAKE_FUNCTION'):
                 break
+            elif tokens[i].type.startswith('MAKE_CLOSURE'):
+                break
             pass
         assert i < len(tokens), "build_class needs to find MAKE_FUNCTION"
         assert tokens[i+1].type == 'LOAD_CONST', \
@@ -592,7 +594,14 @@ class Python3Parser(PythonParser):
 class Python32Parser(Python3Parser):
     def p_32(self, args):
         """
-        # Store locals is only used in Python 3.2
+        # Store locals is only in Python 3.2 and 3.3
+        designator ::= STORE_LOCALS
+        """
+
+class Python33Parser(Python3Parser):
+    def p_33(self, args):
+        """
+        # Store locals is only in Python 3.2 and 3.3
         designator ::= STORE_LOCALS
         """
 
@@ -627,6 +636,9 @@ class Python3ParserSingle(Python3Parser, PythonParserSingle):
 class Python32ParserSingle(Python32Parser, PythonParserSingle):
     pass
 
+
+class Python33ParserSingle(Python33Parser, PythonParserSingle):
+    pass
 
 class Python34ParserSingle(Python34Parser, PythonParserSingle):
     pass
