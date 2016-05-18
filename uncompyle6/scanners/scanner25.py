@@ -1,8 +1,7 @@
-
-#  Copyright (c) 1999 John Aycock
-#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#  Copyright (c) 2015-2016 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-#  Copyright (c) 2015 by Rocky Bernstein
+#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#  Copyright (c) 1999 John Aycock
 #
 """
 Python 2.5 bytecode scanner/deparser
@@ -20,8 +19,8 @@ from uncompyle6.opcodes.opcode_25 import *
 import uncompyle6.scanner as scan
 
 class Scanner25(scan.Scanner):
-    def __init__(self, version):
-        scan.Scanner.__init__(self, 2.5) # check
+    def __init__(self):
+        scan.Scanner.__init__(self, 2.5)
 
     def disassemble(self, co, classname=None, code_objects={}):
         '''
@@ -132,7 +131,7 @@ class Scanner25(scan.Scanner):
         extended_arg = 0
         for offset in self.op_range(0, codelen):
             op = self.code[offset]
-            op_name = opname[op]
+            op_name = self.opname[op]
             oparg = None; pattr = None
 
             if offset in cf:
@@ -913,10 +912,4 @@ class Scanner25(scan.Scanner):
                 label = self.fixed_jumps[i]
                 targets[label] = targets.get(label, []) + [i]
         return targets
-
-if __name__ == "__main__":
-    import inspect
-    co = inspect.currentframe().f_code
-    tokens, customize = Scanner25().disassemble(co)
-    for t in tokens:
-        print(t)
+    pass

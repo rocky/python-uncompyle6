@@ -50,6 +50,7 @@ class Code(object):
 class Scanner(object):
 
     def __init__(self, version):
+        self.version = version
         # FIXME: DRY
         if version == 2.7:
             self.opc = opcode_27
@@ -68,6 +69,7 @@ class Scanner(object):
         else:
             raise TypeError("%s is not a Python version I know about" % version)
 
+        self.opname = self.opc.opname
         # FIXME: This weird Python2 behavior is not Python3
         self.resetTokenClass()
 
@@ -96,9 +98,9 @@ class Scanner(object):
             op = self.code[i]
             if op in self.opc.hasjabs+self.opc.hasjrel:
                 dest = self.get_target(i, op)
-                print('%i\t%s\t%i' % (i, self.opc.opname[op], dest))
+                print('%i\t%s\t%i' % (i, self.opname[op], dest))
             else:
-                print('%i\t%s\t' % (i, self.opc.opname[op]))
+                print('%i\t%s\t' % (i, self.opname[op]))
 
     def first_instr(self, start, end, instr, target=None, exact=True):
         """
@@ -291,27 +293,28 @@ def get_scanner(version):
     # from trepan.api import debug;
     # debug(start_opts={'startup-profile': True})
 
+    # FIXME: see if we can do better
     if version == 2.7:
         import uncompyle6.scanners.scanner27 as scan
-        scanner = scan.Scanner27(version)
+        scanner = scan.Scanner27()
     elif version == 2.6:
         import uncompyle6.scanners.scanner26 as scan
-        scanner = scan.Scanner26(version)
+        scanner = scan.Scanner26()
     elif version == 2.5:
         import uncompyle6.scanners.scanner25 as scan
-        scanner = scan.Scanner25(version)
+        scanner = scan.Scanner25()
     elif version == 3.2:
         import uncompyle6.scanners.scanner32 as scan
-        scanner = scan.Scanner32(version)
+        scanner = scan.Scanner32()
     elif version == 3.3:
         import uncompyle6.scanners.scanner33 as scan
-        scanner = scan.Scanner33(version)
+        scanner = scan.Scanner33()
     elif version == 3.4:
         import uncompyle6.scanners.scanner34 as scan
-        scanner = scan.Scanner34(version)
+        scanner = scan.Scanner34()
     elif version == 3.5:
         import uncompyle6.scanners.scanner35 as scan
-        scanner = scan.Scanner35(version)
+        scanner = scan.Scanner35()
     else:
         raise RuntimeError("Unsupported Python version %d" % version)
     return scanner

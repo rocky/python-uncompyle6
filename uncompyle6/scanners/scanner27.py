@@ -22,8 +22,8 @@ from uncompyle6.opcodes.opcode_27 import * # NOQA
 import uncompyle6.scanner as scan
 
 class Scanner27(scan.Scanner):
-    def __init__(self, version):
-        scan.Scanner.__init__(self, 2.7) # check
+    def __init__(self):
+        scan.Scanner.__init__(self, 2.7)
 
     def disassemble(self, co, classname=None, code_objects={}):
         """
@@ -192,7 +192,7 @@ class Scanner27(scan.Scanner):
                 tokens.append(Token(replace[offset], oparg, pattr, offset, linestart))
         return tokens, customize
 
-    def disassemble_native(self, co, opnames, classname=None, code_objects={}):
+    def disassemble_native(self, co, classname=None, code_objects={}):
         """
         Like disassemble3 but doesn't try to adjust any opcodes.
         """
@@ -728,8 +728,7 @@ class Scanner27(scan.Scanner):
 
 if __name__ == "__main__":
     co = inspect.currentframe().f_code
-    from uncompyle6 import PYTHON_VERSION
-    tokens, customize = Scanner27(PYTHON_VERSION).disassemble(co)
+    tokens, customize = Scanner27().disassemble(co)
     for t in tokens:
         print(t)
     pass

@@ -45,17 +45,15 @@ import uncompyle6.scanner as scan
 
 class Scanner3(scan.Scanner):
 
-    ## FIXME opnames should be passed in here
     def __init__(self, version):
-        self.version = version
-        self.opnames = {} # will eventually get passed in
-        scan.Scanner.__init__(self, version)
+        if PYTHON3:
+            super().__init__(version)
+        else:
+            super(Scanner3, self).__init__(version)
 
-
-    ## FIXME opnames should be moved to init
-    def disassemble3(self, co, opnames, classname=None, code_objects={}):
+    def disassemble3(self, co, classname=None, code_objects={}):
         """
-        Disassemble a Python 3 ode object, returning a list of 'Token'.
+        Disassemble a Python 3 code object, returning a list of 'Token'.
         Various tranformations are made to assist the deparsing grammar.
         For example:
            -  various types of LOAD_CONST's are categorized in terms of what they load
@@ -64,8 +62,6 @@ class Scanner3(scan.Scanner):
         The main part of this procedure is modelled after
         dis.disassemble().
         """
-
-        self.opnames = opnames # will eventually disasppear
 
         # import dis; dis.disassemble(co) # DEBUG
 
@@ -76,7 +72,7 @@ class Scanner3(scan.Scanner):
         self.build_lines_data(co)
         self.build_prev_op()
 
-        bytecode = dis3.Bytecode(co, opnames)
+        bytecode = dis3.Bytecode(co, self.opname)
 
         # Scan for assertions. Later we will
         # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT' for those
@@ -164,7 +160,7 @@ class Scanner3(scan.Scanner):
                 pattr = inst.argval
                 target = self.get_target(inst.offset)
                 if target < inst.offset:
-                    next_opname = opnames[self.code[inst.offset+3]]
+                    next_opname = self.opname[self.code[inst.offset+3]]
                     if (inst.offset in self.stmts and
                         next_opname not in ('END_FINALLY', 'POP_BLOCK')
                         and inst.offset not in self.not_continue):
@@ -187,7 +183,7 @@ class Scanner3(scan.Scanner):
             pass
         return tokens, {}
 
-    def disassemble3_native(self, co, opnames, classname=None, code_objects={}):
+    def disassemble3_native(self, co, classname=None, code_objects={}):
         """
         Like disassemble3 but doesn't try to adjust any opcodes.
         """
@@ -196,7 +192,7 @@ class Scanner3(scan.Scanner):
 
         self.code = array('B', co.co_code)
 
-        bytecode = dis3.Bytecode(co, opnames)
+        bytecode = dis3.Bytecode(co, self.opname)
 
         for inst in bytecode:
             pattr =  inst.argrepr
@@ -292,7 +288,7 @@ class Scanner3(scan.Scanner):
                 pass
 
             op = code[offset]
-            op_name = op3.opname[op]
+            op_name = self.opname[op]
 
             oparg = None; pattr = None
 
@@ -907,11 +903,15 @@ class Scanner3(scan.Scanner):
         return filtered
 
 if __name__ == "__main__":
-    import inspect
-    co = inspect.currentframe().f_code
     from uncompyle6 import PYTHON_VERSION
-    from opcode import opname
-    tokens, customize = Scanner3(PYTHON_VERSION).disassemble3(co, opname)
-    for t in tokens:
-        print(t)
+    if PYTHON_VERSION >= 3.2:
+        import inspect
+        co = inspect.currentframe().f_code
+        from uncompyle6 import PYTHON_VERSION
+        tokens, customize = Scanner3(PYTHON_VERSION).disassemble3(co)
+        for t in tokens:
+            print(t.format())
+    else:
+        print("Need to be Python 3.2 or greater to demo; I am %s." %
+              PYTHON_VERSION)
     pass

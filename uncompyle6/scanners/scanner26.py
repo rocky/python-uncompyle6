@@ -19,7 +19,7 @@ import dis
 import uncompyle6.scanner as scan
 
 class Scanner26(scan.Scanner):
-    def __init__(self, version):
+    def __init__(self):
         scan.Scanner.__init__(self, 2.6)
 
     def disassemble(self, co, classname=None, code_objects={}):
@@ -130,7 +130,7 @@ class Scanner26(scan.Scanner):
         extended_arg = 0
         for offset in self.op_range(0, codelen):
             op = self.code[offset]
-            op_name = opname[op]
+            op_name = self.opname[op]
             oparg = None; pattr = None
 
             if offset in cf:
@@ -180,7 +180,10 @@ class Scanner26(scan.Scanner):
                 elif op in haslocal:
                     pattr = varnames[oparg]
                 elif op in hascompare:
-                    pattr = cmp_op[oparg]
+                    try:
+                        pattr = cmp_op[oparg]
+                    except:
+                        from trepan.api import debug; debug()
                 elif op in hasfree:
                     pattr = free[oparg]
             if offset in self.toChange:
@@ -917,8 +920,13 @@ class Scanner26(scan.Scanner):
         return targets
 
 if __name__ == "__main__":
-    import inspect
-    co = inspect.currentframe().f_code
-    tokens, customize = Scanner26().disassemble(co)
-    for t in tokens:
-        print(t)
+    from uncompyle6 import PYTHON_VERSION
+    if PYTHON_VERSION == 2.6:
+        import inspect
+        co = inspect.currentframe().f_code
+        tokens, customize = Scanner26().disassemble(co)
+        for t in tokens:
+            print(t.format())
+    else:
+        print("Need to be Python 2.6 to demo; I am %s." %
+              PYTHON_VERSION)

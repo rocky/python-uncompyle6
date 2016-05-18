@@ -1,3 +1,7 @@
+#  Copyright (c) 2016 by Rocky Bernstein
+#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#  Copyright (c) 1999 John Aycock
+
 import sys
 from uncompyle6 import PYTHON3
 
@@ -6,9 +10,9 @@ if PYTHON3:
 
 class Token:
     """
-    Class representing a byte-code token.
+    Class representing a byte-code instruction.
 
-    A byte-code token is equivalent to Python 3's  dis.instruction or
+    A byte-code token is equivalent to Python 3's dis.instruction or
     the contents of one line as output by dis.dis().
     """
     # FIXME: match Python 3.4's terms:

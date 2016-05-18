@@ -19,6 +19,7 @@ want to run on Python 2.7.
 from __future__ import print_function
 
 import os, sys
+from collections import deque
 
 import uncompyle6
 from uncompyle6.code import iscode
@@ -40,17 +41,29 @@ def disco(version, co, out=None, use_uncompyle6_format=False):
               file=real_out)
 
     scanner = get_scanner(version)
-    if (not use_uncompyle6_format) and hasattr(scanner, 'disassemble_native'):
-        tokens, customize = scanner.disassemble_native(co, True)
-    else:
-        tokens, customize = scanner.disassemble(co)
 
-    # FIXME: This should go in another routine and
-    # a queue should be kept of code to disassemble.
-    for t in tokens:
-        print(t.format(), file=real_out)
-    print(file=out)
+    disasm = scanner.disassemble_native \
+      if (not use_uncompyle6_format) and hasattr(scanner, 'disassemble_native') \
+      else scanner.disassemble
 
+    queue = deque([co])
+    disco_loop(disasm, queue, real_out, use_uncompyle6_format)
+
+
+def disco_loop(disasm, queue, real_out, use_uncompyle6_format):
+    while len(queue) > 0:
+        co = queue.popleft()
+        if co.co_name != '<module>':
+            print('\n# %s line %d of %s' %
+                      (co.co_name, co.co_firstlineno, co.co_filename),
+                      file=real_out)
+        tokens, customize = disasm(co, use_uncompyle6_format)
+        for t in tokens:
+            if iscode(t.pattr):
+                queue.append(t.pattr)
+            print(t.format(), file=real_out)
+            pass
+        pass
 
 def disassemble_file(filename, outstream=None, native=False):
     """
