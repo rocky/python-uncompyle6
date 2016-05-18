@@ -18,3 +18,11 @@ def test_load_module():
     version, timestamp, magic_int, co = load_module(mod_file)
     assert version == 2.5, "Should have picked up Python version properly"
     assert co.co_consts == (5j, None), "Code should have a complex constant"
+
+    mod_file = os.path.join(get_srcdir(), '..', 'test', 'bytecode_3.3',
+                        '06_frozenset.pyc')
+    version, timestamp, magic_int, co = load_module(mod_file)
+    print(co.co_consts)
+    expect = (0, None, 'attlist', 'linktype', 'link', 'element', 'Yep',
+                  frozenset({'linktype', 'attlist', 'element', 'link'}))
+    assert co.co_consts == expect, "Should handle frozenset"

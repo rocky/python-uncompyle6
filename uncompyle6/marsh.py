@@ -258,8 +258,15 @@ def load_code_internal(fp, magic_int, bytes_for_s=False,
         raise KeyError(marshalType)
     elif marshalType in ['<', '>']:
         # set and frozenset
-        raise KeyError(marshalType)
-        return None
+        setsize = unpack('i', fp.read(4))[0]
+        ret = tuple()
+        while setsize > 0:
+            ret += load_code_internal(fp, magic_int, code_objects=code_objects),
+            setsize -= 1
+        if marshalType == '>':
+            return frozenset(ret)
+        else:
+            return set(ret)
     elif marshalType == 'a':
         # ascii
         # FIXME check
