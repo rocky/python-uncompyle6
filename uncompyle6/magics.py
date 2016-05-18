@@ -53,6 +53,7 @@ versions = {
     __build_magic(62191): '2.7', # 2.7a0 (introduce SETUP_WITH)
     __build_magic(62201): '2.7', # 2.7a0 (introduce BUILD_SET)
     __build_magic(62211): '2.7', # 2.7a0 (introduce MAP_ADD and SET_ADD)
+    __build_magic(62218): '2.7', # 2.7 pypy?
     __build_magic(3000): '3.0',  # 3.000
     __build_magic(3010): '3.0',  # 3.000 (removed UNARY_CONVERT)
     __build_magic(3020): '3.0',  # 3.000 (added BUILD_SET)
