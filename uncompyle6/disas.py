@@ -1,4 +1,4 @@
-# Copyright (c) 2015 by Rocky Bernstein
+# Copyright (c) 2015-2016 by Rocky Bernstein
 # Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 # Copyright (c) 1999 John Aycock
@@ -25,7 +25,7 @@ from uncompyle6.code import iscode
 from uncompyle6.load import check_object_path, load_module
 from uncompyle6.scanner import get_scanner
 
-def disco(version, co, out=None, native=False):
+def disco(version, co, out=None, use_uncompyle6_format=False):
     """
     diassembles and deparses a given code block 'co'
     """
@@ -40,13 +40,15 @@ def disco(version, co, out=None, native=False):
               file=real_out)
 
     scanner = get_scanner(version)
-    if native and hasattr(scanner, 'disassemble_native'):
+    if (not use_uncompyle6_format) and hasattr(scanner, 'disassemble_native'):
         tokens, customize = scanner.disassemble_native(co, True)
     else:
         tokens, customize = scanner.disassemble(co)
 
+    # FIXME: This should go in another routine and
+    # a queue should be kept of code to disassemble.
     for t in tokens:
-        print(t, file=real_out)
+        print(t.format(), file=real_out)
     print(file=out)
 
 
@@ -112,7 +114,7 @@ def disassemble_files(in_base, out_base, files, outfile=None,
             # print(outfile, file=sys.stderr)
             pass
 
-        # try to decomyple the input file
+        # try to disassemble the input file
         try:
             disassemble_file(infile, outstream, native)
         except KeyboardInterrupt:

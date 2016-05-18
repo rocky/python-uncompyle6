@@ -192,6 +192,73 @@ class Scanner27(scan.Scanner):
                 tokens.append(Token(replace[offset], oparg, pattr, offset, linestart))
         return tokens, customize
 
+    def disassemble_native(self, co, opnames, classname=None, code_objects={}):
+        """
+        Like disassemble3 but doesn't try to adjust any opcodes.
+        """
+
+        # Container for tokens
+        tokens = []
+
+        customize = {}
+        Token = self.Token # shortcut
+
+        n = self.setup_code(co)
+        self.build_lines_data(co, n)
+
+        # self.lines contains (block,addrLastInstr)
+        if classname:
+            classname = '_' + classname.lstrip('_') + '__'
+
+            def unmangle(name):
+                if name.startswith(classname) and name[-2:] != '__':
+                    return name[len(classname) - 2:]
+                return name
+
+            free = [ unmangle(name) for name in (co.co_cellvars + co.co_freevars) ]
+            names = [ unmangle(name) for name in co.co_names ]
+            varnames = [ unmangle(name) for name in co.co_varnames ]
+        else:
+            free = co.co_cellvars + co.co_freevars
+            names = co.co_names
+            varnames = co.co_varnames
+
+        extended_arg = 0
+        for offset in self.op_range(0, n):
+            op = self.code[offset]
+            op_name = opname[op]
+
+            oparg = None; pattr = None
+            if op >= HAVE_ARGUMENT:
+                oparg = self.get_argument(offset) + extended_arg
+                extended_arg = 0
+                if op == EXTENDED_ARG:
+                    extended_arg = oparg * scan.L65536
+                    continue
+                if op in hasconst:
+                    pattr = co.co_consts[oparg]
+                elif op in hasname:
+                    pattr = names[oparg]
+                elif op in hasjrel:
+                    pattr = repr(offset + 3 + oparg)
+                elif op in hasjabs:
+                    pattr = repr(oparg)
+                elif op in haslocal:
+                    pattr = varnames[oparg]
+                elif op in hascompare:
+                    pattr = cmp_op[oparg]
+                elif op in hasfree:
+                    pattr = free[oparg]
+
+            if offset in self.linestartoffsets:
+                linestart = self.linestartoffsets[offset]
+            else:
+                linestart = None
+
+            tokens.append(Token(op_name, oparg, pattr, offset, linestart))
+            pass
+        return tokens, customize
+
     def setup_code(self, co):
         """
         Creates Python-independent bytecode structure (byte array) in

@@ -7,7 +7,7 @@ from __future__ import print_function
 import sys, os, getopt
 
 from uncompyle6 import check_python_version
-from uncompyle6.disas import disassemble_files
+from uncompyle6.disas import disassemble_file
 from uncompyle6.version import VERSION
 
 program, ext = os.path.splitext(os.path.basename(__file__))
@@ -18,36 +18,37 @@ Usage:
   %s [--help | -h | -V | --version]
 
 Examples:
-  %s foo.pyc
-  %s foo.py
-  %s -o foo.pydis foo.pyc
-  %s -o /tmp foo.pyc
+  {0} foo.pyc
+  {0} foo.py    # same thing as above but find the file
+  {0} foo.pyc bar.pyc  # disassemble foo.pyc and bar.pyc
 
 Options:
-  -o <path>     output decompiled files to this path:
-                if multiple input files are decompiled, the common prefix
-                is stripped from these names and the remainder appended to
-                <path>
-  --help        show this message
+  -U | --uncompyle6  show instructions with uncompyle6 mangling
+  -V | --version     show version and stop
+  -h | --help        show this message
 
-""" % ((program,) * 6)
+""".format(program)
+
+PATTERNS = ('*.pyc', '*.pyo')
 
 def main():
-    Usage_short = \
-    "%s [--help] [--verify] [--showasm] [--showast] [-o <path>] FILE|DIR..." % program
+    Usage_short = """usage: %s FILE...
+Type -h for for full help.""" % program
 
     check_python_version(program)
 
     outfile = '-'
     out_base = None
+    use_uncompyle6_format = False
 
     if len(sys.argv) == 1:
-        print("No file(s) or directory given", file=sys.stderr)
+        print("No file(s) given", file=sys.stderr)
         print(Usage_short, file=sys.stderr)
         sys.exit(1)
 
     try:
-        opts, files = getopt.getopt(sys.argv[1:], 'hVo:', ['help', 'version'])
+        opts, files = getopt.getopt(sys.argv[1:], 'hVU',
+                                    ['help', 'version', 'uncompyle6'])
     except getopt.GetoptError as e:
         print('%s: %s' % (os.path.basename(sys.argv[0]), e),  file=sys.stderr)
         sys.exit(-1)
@@ -59,33 +60,22 @@ def main():
         elif opt in ('-V', '--version'):
             print("%s %s" % (program, VERSION))
             sys.exit(0)
-        elif opt == '-o':
-            outfile = val
+        elif opt in ('-U', '--uncompyle6'):
+            use_uncompyle6_format = True
         else:
             print(opt)
             print(Usage_short, file=sys.stderr)
             sys.exit(1)
 
 
-    # argl, commonprefix works on strings, not on path parts,
-    # thus we must handle the case with files in 'some/classes'
-    # and 'some/cmds'
-    src_base = os.path.commonprefix(files)
-    if src_base[-1:] != os.sep:
-        src_base = os.path.dirname(src_base)
-    if src_base:
-        sb_len = len( os.path.join(src_base, '') )
-        files = [f[sb_len:] for f in files]
-        del sb_len
-
-    if outfile == '-':
-        outfile = None # use stdout
-    elif outfile and os.path.isdir(outfile):
-        out_base = outfile; outfile = None
-    elif outfile and len(files) > 1:
-        out_base = outfile; outfile = None
-
-    disassemble_files(src_base, out_base, files, outfile, True)
+    for file in files:
+        if os.path.exists(files[0]):
+            disassemble_file(file, sys.stdout, use_uncompyle6_format)
+        else:
+            print("Can't read %s - skipping" % files[0],
+                  file=sys.stderr)
+            pass
+        pass
     return
 
 if __name__ == '__main__':
