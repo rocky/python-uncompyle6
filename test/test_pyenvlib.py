@@ -44,9 +44,11 @@ test_options = {
     '2.1': (os.path.join(lib_prefix, 'python2.1'), PYC, 'python-lib2.1'),
     '2.2': (os.path.join(lib_prefix, 'python2.2'), PYC, 'python-lib2.2'),
     '2.5': (os.path.join(lib_prefix, 'python2.5'), PYC, 'python-lib2.5'),
-    '2.6.9': (os.path.join(lib_prefix, '2.6.9', 'python2.6'), PYC, 'python-lib2.6'),
+    '2.6.9': (os.path.join(lib_prefix, '2.6.9', 'lib', 'python2.6'), PYC, 'python-lib2.6'),
     '2.7.10': (os.path.join(lib_prefix, '2.7.10', 'lib', 'python2.7'), PYC, 'python-lib2.7'),
     '2.7.11': (os.path.join(lib_prefix, '2.7.11', 'lib', 'python2.7'), PYC, 'python-lib2.7'),
+    '3.2.6': (os.path.join(lib_prefix, '3.2.6', 'lib', 'python3.2'), PYC, 'python-lib3.2'),
+    '3.3.5': (os.path.join(lib_prefix, '3.3.5', 'lib', 'python3.3'), PYC, 'python-lib3.3'),
     '3.4.2': (os.path.join(lib_prefix, '3.4.2', 'lib', 'python3.4'), PYC, 'python-lib3.4')
     }
 
@@ -86,6 +88,12 @@ def do_tests(src_dir, patterns, target_dir, start_with=None, do_verify=False):
         except ValueError:
             pass
 
+    if len(files) > 200:
+        files = [file for file in files if not 'site-packages' in file]
+        files = [file for file in files if not 'test' in file]
+        if len(files) > 200:
+            files = files[:200]
+
     print(time.ctime())
     main.main(src_dir, target_dir, files, [], do_verify=do_verify)
     print(time.ctime())
@@ -120,7 +128,7 @@ if __name__ == '__main__':
                 shutil.rmtree(target_dir, ignore_errors=1)
             do_tests(src_dir, pattern, target_dir, start_with, do_verify)
         else:
-            print('### skipping', src_dir)
+            print("### Path %s doesn't exist; skipping" % src_dir)
 
 # python 1.5:
 

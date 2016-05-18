@@ -1,7 +1,192 @@
+2016-05-18  rocky <rocky@gnu.org>
+
+	* DECOMPYLE-2.4-CHANGELOG.txt, HISTORY.md, uncompyle6/version.py: 
+	Get ready for release 2.4.0
+
+2016-05-18  rocky <rocky@gnu.org>
+
+	* uncompyle6/verify.py: Add 3.5 to verify
+
+2016-05-18  rocky <rocky@gnu.org>
+
+	* pytest/test_load.py, pytest/testdata/if-2.7.right,
+	pytest/testdata/ifelse-2.7.right, uncompyle6/disas.py,
+	uncompyle6/scanner.py, uncompyle6/scanners/scanner25.py,
+	uncompyle6/scanners/scanner26.py, uncompyle6/scanners/scanner27.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/scanners/scanner32.py,
+	uncompyle6/scanners/scanner33.py, uncompyle6/scanners/scanner34.py,
+	uncompyle6/scanners/scanner35.py, uncompyle6/scanners/tok.py,
+	uncompyle6/verify.py: pydisassemble improvements; DRY scannners disas.py:  - disassembles *all* code objects found scanner*.py:  - no longer need to pass in version numbers; this    is obtained from the class name  - no longer pass in opcodes; this is done at    initialization from the scanner name  - all Pythoin 3 scanners support native disassembly
+
+2016-05-17  rocky <rocky@gnu.org>
+
+	* pytest/testdata/if-2.7.right, pytest/testdata/ifelse-2.7.right,
+	uncompyle6/bin/pydisassemble.py, uncompyle6/disas.py,
+	uncompyle6/scanners/scanner27.py, uncompyle6/scanners/tok.py: Go
+	over disassembly routine...  * tok.py:   - add arg value when it is an integer * pydisassemble.py:   - add option -U --uncomplyle for which flavor of disassembly   - remove -o option * scanner27.py:   - allow for native (non-uncompyle6) output
+
+2016-05-17  rocky <rocky@gnu.org>
+
+	* pytest/test_marsh.py,
+	test/simple_source/expression/02_complex.py, uncompyle6/marsh.py: 
+	Fix marshal bug in handling complex numbers
+
+2016-05-17  rocky <rocky@gnu.org>
+
+	* Makefile, test/simple_source/def/09_class_closure.py,
+	uncompyle6/parser.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/semantics/fragments.py, uncompyle6/semantics/pysource.py: 
+	Fix Python 3.x bugs * class definitions made via closures * Add "make check-short" to top-level * parse3.py: Python 3.3 uses STORE_LOGALS
+
+2016-05-16  rocky <rocky@gnu.org>
+
+	* test/test_pyenvlib.py, uncompyle6/marsh.py,
+	uncompyle6/scanners/scanner3.py: Fix a number of small bugs...  test_peynv.py: make Python3 compatible marsh.py: remove duplicate
+	test scanner3.py: fix opcode typo
+
+2016-05-16  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse3.py: Fix Python 3.x bug in function VAR
+	and KW args
+
+2016-05-16  rocky <rocky@gnu.org>
+
+	* : Readd some 3.x loop tests
+
+2016-05-16  rocky <rocky@gnu.org>
+
+	* pytest/test_fjt.py: pytest for last commit
+
+2016-05-16  rocky <rocky@gnu.org>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Correct bugs in Python 3.2 source
+	generation
+
+2016-05-16  rocky <rocky@gnu.org>
+
+	* Makefile: Travis can't handle pytest on Python 3.5
+
+2016-05-16  rocky <rocky@gnu.org>
+
+	* HISTORY.md, Makefile, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanner.py, uncompyle6/scanners/scanner27.py,
+	uncompyle6/scanners/scanner3.py: Python 2 loop scanner detection in
+	Python 3 scanner*.py: Make scanner27 and scanner3 more aligned Makefile: we
+	can run py.test on Python 3.5 HISTORY.md: grammar changes
+
+2016-05-16  rocky <rocky@gnu.org>
+
+	* HISTORY.md, uncompyle6/main.py, uncompyle6/scanners/scanner27.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/verify.py: Misc small
+	changes Go over history yet again code cleanups.
+
+2016-05-15  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse3.py: Python3 mklambda bug
+
+2016-05-15  rocky <rocky@gnu.org>
+
+	* test/simple_source/expression/08_genexpr.py,
+	test/simple_source/expression/10_genexpr.py,
+	uncompyle6/parsers/parse3.py: Python 3 genexpr bug
+
+2016-05-15  rocky <rocky@gnu.org>
+
+	* HISTORY.md: Correct info on parser
+
+2016-05-15  rocky <rocky@gnu.org>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Bug in Python 3.x genexpr
+
+2016-05-15  rocky <rocky@gnu.org>
+
+	* test/simple_source/expression/05_lambda.py,
+	test/test_pyenvlib.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/semantics/pysource.py: 
+	Fix bug in Python 3 lambda expression handling Some other small cleanup changes
+
+2016-05-15  rocky <rocky@gnu.org>
+
+	* uncompyle6/bin/pydisassemble.py, uncompyle6/disas.py,
+	uncompyle6/parser.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/scanners/scanner34.py,
+	uncompyle6/scanners/scanner35.py, uncompyle6/scanners/tok.py: 
+	pydisassemble disassemble without grammar mangling Some other small cleanups as well
+
+2016-05-15  rocky <rocky@gnu.org>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse3.py: Fix verify bug
+	in 3.2
+
+2016-05-15  rocky <rocky@gnu.org>
+
+	* test/simple_source/looping/12_if_while_bug.py,
+	uncompyle6/parsers/parse3.py: 3.4 if/while bug
+
+2016-05-15  rocky <rocky@gnu.org>
+
+	* .travis.yml: force Travis 2.7.11 for Python 2.7
+
+2016-05-15  rocky <rocky@gnu.org>
+
+	* test/ok_lib2.7/aifc.py, test/ok_lib2.7/antigravity.py,
+	test/ok_lib2.7/anydbm.py, test/ok_lib2.7/asynchat.py,
+	test/ok_lib2.7/atexit.py, test/ok_lib2.7/audiodev.py,
+	test/ok_lib2.7/base64.py, test/ok_lib2.7/binhex.py,
+	test/ok_lib2.7/bisect.py, test/ok_lib2.7/calendar.py,
+	test/ok_lib2.7/cgitb.py, test/ok_lib2.7/chunk.py,
+	test/ok_lib2.7/codeop.py, test/ok_lib2.7/colorsys.py,
+	test/ok_lib2.7/commands.py, test/ok_lib2.7/compileall.py,
+	test/ok_lib2.7/dircache.py, test/ok_lib2.7/dis.py,
+	test/test_pyenvlib.py: Add more Python 2.7 verify tests
+
+2016-05-15  rocky <rocky@gnu.org>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Fix bug in kvlist handling on
+	Python 2.7 Created from previous DRY code in Python 3
+
+2016-05-15  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/scanners/scanner34.py, uncompyle6/scanners/scanner35.py,
+	uncompyle6/semantics/fragments.py, uncompyle6/semantics/pysource.py: 
+	DRY scanner34 and scanner35 handle 3.0..3.4 build maps as key/value pairs
+
+2016-05-15  rocky <rocky@gnu.org>
+
+	* uncompyle6/scanners/dis3.py: Optimize Python 2/3 code2num
+
 2016-05-14  rocky <rocky@gnu.org>
 
-	* __pkginfo__.py, uncompyle6/version.py: Fix botched entry point
-	names Get ready for relase 2.3.6
+	* test/Makefile, uncompyle6/scanners/dis3.py: Python2 comptability
+	in using Python 3 disassembly Also fixes ablility to run bytecode 3.5 tests from 2.x now For Python 2 reading python3 bytstrings, we need to make sure we
+	confer the character to a number.
+
+2016-05-14  rocky <rocky@gnu.org>
+
+	* uncompyle6/bin/pydisassemble.py, uncompyle6/scanners/dis3.py,
+	uncompyle6/scanners/dis35.py, uncompyle6/scanners/scanner34.py,
+	uncompyle6/scanners/scanner35.py: Start to DRY Python 3.4 and 3.5
+	scanners
+
+2016-05-14  rocky <rocky@gnu.org>
+
+	* __pkginfo__.py, requirements.txt, setup.py: See if travis will
+	take spark 1.2.1
+
+2016-05-14  rocky <rocky@gnu.org>
+
+	* uncompyle6/bin/pydisassemble.py, uncompyle6/bin/uncompile.py: Fix
+	names for <program> -V
+
+2016-05-14  rocky <rocky@gnu.org>
+
+	* ChangeLog, __pkginfo__.py, uncompyle6/version.py: Fix botched
+	entry point names Get ready for relase 2.3.6
 
 2016-05-14  rocky <rocky@gnu.org>
 

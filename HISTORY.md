@@ -4,7 +4,8 @@ There have been a number of people who have worked on this. I am awed
 by the amount of work, number of people who have contributed to this,
 and the cleverness in the code.
 
-The below is an annotated history from my reading of the sources cited.
+The below is an annotated history from talking to participants
+involved and my reading of the code and sources cited.
 
 In 1998, John Aycock first wrote a grammar parser in Python,
 eventually called SPARK, that was usable inside a Python program. This
@@ -64,7 +65,8 @@ time, various JUMP instructions were classifed as going backwards, and
 COME FROM instructions were reintroduced.  See
 RELEASE-2.4-CHANGELOG.txt for more details here. There wasn't a public
 release of RELEASE-2.4 and bytecodes other than Python 2.4 weren't
-supported.
+supported. Dan says the Python 2.3 version could verify the entire
+python library.
 
 Next we get to ["uncompyle" and
 PyPI](https://pypi.python.org/pypi/uncompyle/1.1) and the era of
@@ -95,7 +97,7 @@ This project, uncompyle6, however owes its existence to the fork of
 uncompyle2 by Myst herie (Mysterie) whose first commit picks up at
 2012. I chose this since it seemed to have been at that time the most
 actively, if briefly, worked on. Also starting around 2012 is Dark
-Fenx's uncompyle3 which I used for inspiration for Python3.
+Fenx's uncompyle3 which I used for inspiration for Python3 support.
 
 I started working on this late 2015, mostly to add fragment support.
 In that, I decided to make this runnable on Python 3.2+ and Python 2.6+

@@ -1,6 +1,4 @@
 This is the changelog from *decompyle*'s release 2.4 passed on by Dan Pascu
-Yikes - uncompyle's version number should be higher so as to put this
-in the past!
 
 
 release 2.4 (Dan Pascu)

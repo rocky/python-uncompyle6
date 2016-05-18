@@ -1,4 +1,19 @@
-uncompyle6 2.3.5 2016-05-14
+uncompyle6 2.4.0 2016-05-18
+
+- Many Python 3 bugs fixed:
+  * Python 3.2 to 3.5 libaries largely
+    uncompyle and most verify
+- pydisassembler:
+  * disassembles all code objects in a file
+  * can select showing bytecode before
+    or after uncompyle mangling, option -U
+- DRY scanner code (but more is desired)
+- Some code cleanup (but more is desired)
+- Misc Bugs fixed:
+  * handle complex number unmarshaling
+  * Running on Python 2 to works on Python 3.5 bytecodes now
+
+uncompyle6 2.3.5 and 2.3.6 2016-05-14
 
 - Python 2 class decorator fix (thanks to Tey)
 - Fix fragment parsing bugs
