@@ -1,10 +1,9 @@
 #  Copyright (c) 2015-2016 by Rocky Bernstein
 """
-Python 3 bytecode scanner/deparser
+Python 3.3 bytecode scanner/deparser
 
-This overlaps Python's 3.3's dis module, but it can be run from
-Python 2 and other versions of Python. Also, we save token information
-for later use in deparsing.
+This sets up opcodes Python's 3.3 and calls a generalized
+scanner routine for Python 3.
 """
 
 from __future__ import print_function

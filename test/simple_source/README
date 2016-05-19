@@ -1,11 +1,8 @@
-Files in this directory contain very simnple constructs that work
-across all versions of Python.
+Files in this directory contain very simple constructs.
+Some of these don't work across across all versions of Python.
 
 Their simplicity is to try to make it easier to debug scanner, grammar
 and semantic-action routines.
-
-We also try to make the code here runnable by Python and when run should
-not produce an error.
 
 The numbers in the filenames are to assist running the programs from
 the simplest to more complex. For example, many tests have assignment

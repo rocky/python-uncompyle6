@@ -30,7 +30,7 @@ if __name__ == "__main__":
     if PYTHON_VERSION >= 3.2:
         import inspect
         co = inspect.currentframe().f_code
-        tokens, customize = Scanner34(3.4).disassemble(co)
+        tokens, customize = Scanner34().disassemble(co)
         for t in tokens:
             print(t)
         pass

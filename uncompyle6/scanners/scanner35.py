@@ -29,10 +29,10 @@ if __name__ == "__main__":
     if PYTHON_VERSION == 3.5:
         import inspect
         co = inspect.currentframe().f_code
-        tokens, customize = Scanner35(3.5).disassemble(co)
+        tokens, customize = Scanner35().disassemble(co)
         for t in tokens:
             print(t.format())
         pass
     else:
-        print("Need to be Python 3.5to demo; I am %s." %
+        print("Need to be Python 3.5 to demo; I am %s." %
               PYTHON_VERSION)

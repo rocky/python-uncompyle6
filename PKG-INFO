@@ -5,6 +5,6 @@ Summary: Python byte-code to source-code converter
 Home-page: http://github.com/rocky/python-uncompyle6
 Author: Rocky
 Author-email: rb@dustyfeet.com
-License: GPLv3
+License: MIT
 Description: UNKNOWN
 Platform: UNKNOWN
