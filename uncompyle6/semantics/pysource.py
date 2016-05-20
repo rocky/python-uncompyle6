@@ -1495,6 +1495,10 @@ class SourceWalker(GenericASTTraversal, object):
                         pass
                     pass
                 arg += 1
+            elif typ == 'x':
+                # This code is only used in fragments
+                assert isinstance(entry[arg], tuple)
+                arg += 1
             elif typ == 'P':
                 p = self.prec
                 low, high, sep, self.prec = entry[arg]

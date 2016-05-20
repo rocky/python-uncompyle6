@@ -59,14 +59,14 @@ ExtractInfo = namedtuple("ExtractInfo",
 TABLE_DIRECT_FRAGMENT = {
     'importstmt': ( '%|import %c%x\n', 2, (2, (0, 1)), ),
     'importfrom': ( '%|from %[2]{pattr}%x import %c\n', (2, (0, 1)), 3),
-    # FIXME: fix bugs below and add
-    # 'forstmt':		( '%|for %c%x in %c:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4 ),
-    # 'forelsestmt':	(
-    #     '%|for %c in %c%x:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
-    # 'forelselaststmt':	(
-    #     '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-', 3, (3, (2,)), 1, 4, -2),
-    # 'forelselaststmtl':	(
-    #     '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
+    'list_for':	  (' for %c%x in %c%c', 2, (2,(1,)), 0, 3 ),
+    'forstmt':	  ( '%|for %c%x in %c:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4 ),
+    'forelsestmt': (
+        '%|for %c in %c%x:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
+    'forelselaststmt':	(
+        '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-', 3, (3, (2,)), 1, 4, -2),
+    'forelselaststmtl':	(
+        '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
     }
 
 class FragmentsWalker(pysource.SourceWalker, object):
@@ -1240,11 +1240,29 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
                 self.set_pos_info(node, start, len(self.f.getvalue()))
                 arg += 1
+            elif typ == 'D':
+                low, high, sep = entry[arg]
+                lastC = remaining = len(node[low:high])
+                for subnode in node[low:high]:
+                    remaining -= 1
+                    if len(subnode) > 0:
+                        self.preorder(subnode)
+                        if remaining > 0:
+                            self.write(sep)
+                            pass
+                        pass
+                    pass
+                arg += 1
             elif typ == 'x':
                 assert isinstance(entry[arg], tuple)
                 src, dest = entry[arg]
-                for n in dest:
-                    self.set_pos_info(node[n], node[src].start, node[src].finish)
+                for d in dest:
+                    for n in node[d]:
+                        if hasattr(n, 'offset'):
+                            self.set_pos_info(n, node[src].start, node[src].finish)
+                            pass
+                        pass
+                    pass
                 arg += 1
             elif typ == 'P':
                 p = self.prec
