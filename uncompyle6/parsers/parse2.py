@@ -36,12 +36,6 @@ class Python2Parser(PythonParser):
         list_for ::= expr _for designator list_iter JUMP_BACK
         """
 
-    def p_setcomp2(self, args):
-        '''
-        # This is different in python3 - should it be?
-        comp_for ::= expr _for designator comp_iter JUMP_BACK
-        '''
-
     def p_print(self, args):
         '''
         stmt ::= print_items_stmt
