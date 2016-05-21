@@ -19,7 +19,7 @@ def uncompyle(version, co, out=None, showasm=False, showast=False,
 
     # store final output stream for case of error
     real_out = out or sys.stdout
-    print('# Python %s (decompiled from Python %s)' % (version, PYTHON_VERSION),
+    print('# Python bytecode %s (decompiled from Python %s)' % (version, PYTHON_VERSION),
           file=real_out)
     if co.co_filename:
         print('# Embedded file name: %s' % co.co_filename,

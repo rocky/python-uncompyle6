@@ -27,6 +27,8 @@ from fnmatch import fnmatch
 
 #----- configure this for your needs
 
+TEST_VERSIONS=('2.6.9', '2.7.10', '2.7.11', '3.2.6', '3.3.5', '3.4.2')
+
 target_base = '/tmp/py-dis/'
 lib_prefix = os.path.join(os.environ['HOME'], '.pyenv/versions')
 
@@ -34,24 +36,17 @@ PYC = ('*.pyc', )
 PYO = ('*.pyo', )
 PYOC = ('*.pyc', '*.pyo')
 
+#-----
+
 test_options = {
     # name: (src_basedir, pattern, output_base_suffix)
     'test': ('./test', PYOC, 'test'),
-    '1.5': (os.path.join(lib_prefix, 'python1.5'), PYC, 'python-lib1.5'),
-    '1.6': (os.path.join(lib_prefix, 'python1.6'), PYC, 'python-lib1.6'),
-    '2.0': (os.path.join(lib_prefix, 'python2.0'), PYC, 'python-lib2.0'),
-    '2.1': (os.path.join(lib_prefix, 'python2.1'), PYC, 'python-lib2.1'),
-    '2.2': (os.path.join(lib_prefix, 'python2.2'), PYC, 'python-lib2.2'),
-    '2.5': (os.path.join(lib_prefix, 'python2.5'), PYC, 'python-lib2.5'),
-    '2.6.9': (os.path.join(lib_prefix, '2.6.9', 'lib', 'python2.6'), PYC, 'python-lib2.6'),
-    '2.7.10': (os.path.join(lib_prefix, '2.7.10', 'lib', 'python2.7'), PYC, 'python-lib2.7'),
-    '2.7.11': (os.path.join(lib_prefix, '2.7.11', 'lib', 'python2.7'), PYC, 'python-lib2.7'),
-    '3.2.6': (os.path.join(lib_prefix, '3.2.6', 'lib', 'python3.2'), PYC, 'python-lib3.2'),
-    '3.3.5': (os.path.join(lib_prefix, '3.3.5', 'lib', 'python3.3'), PYC, 'python-lib3.3'),
-    '3.4.2': (os.path.join(lib_prefix, '3.4.2', 'lib', 'python3.4'), PYC, 'python-lib3.4')
     }
 
-#-----
+for vers in TEST_VERSIONS:
+    short_vers = vers[:3]
+    test_options[vers] = (os.path.join(lib_prefix, vers, 'lib', 'python'+short_vers),
+                          PYC, 'python-lib'+short_vers)
 
 def do_tests(src_dir, patterns, target_dir, start_with=None, do_verify=False):
 
