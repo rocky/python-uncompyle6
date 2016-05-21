@@ -56,13 +56,6 @@ class Python3Parser(PythonParser):
         # See also common Python p_list_comprehension
         """
 
-    def p_setcomp3(self, args):
-        """
-        # Does this also happen in Python 2?
-        # If so, adjust p_setcomp in parser.py
-        comp_for ::= expr _for designator comp_iter JUMP_BACK
-        """
-
     def p_grammar(self, args):
         '''
         sstmt ::= stmt
