@@ -20,3 +20,4 @@ script:
 branches:
   except:
     - data-driven-pytest
+    
