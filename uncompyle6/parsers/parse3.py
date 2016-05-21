@@ -58,10 +58,9 @@ class Python3Parser(PythonParser):
 
     def p_setcomp3(self, args):
         """
-        # This is different in Python 2 - should it be?
-        comp_for ::= expr _for designator comp_iter JUMP_ABSOLUTE
-
-        # See also common Python p_setcomp
+        # Does this also happen in Python 2?
+        # If so, adjust p_setcomp in parser.py
+        comp_for ::= expr _for designator comp_iter JUMP_BACK
         """
 
     def p_grammar(self, args):

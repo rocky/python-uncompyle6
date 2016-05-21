@@ -288,6 +288,8 @@ class PythonParser(GenericASTBuilder):
 
         comp_if ::= expr jmp_false comp_iter
         comp_ifnot ::= expr jmp_true comp_iter
+
+        comp_for ::= expr _for designator comp_iter JUMP_BACK
         """
 
     def p_expr(self, args):
