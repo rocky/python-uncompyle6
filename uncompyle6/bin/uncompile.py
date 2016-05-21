@@ -51,7 +51,7 @@ Extensions of generated files:
 
 program = 'uncompyle6'
 
-from uncompyle6 import verify, check_python_version
+from uncompyle6 import verify
 from uncompyle6.main import main, status_msg
 from uncompyle6.version import VERSION
 
@@ -64,9 +64,12 @@ def usage():
 
 
 def main_bin():
-    check_python_version(program)
+    if not (sys.version_info[0:2] in ((2, 6), (2, 7), (3, 2), (3, 3), (3, 4), (3, 5))):
+        print('Error: %s requires Python 2.6, 2.7, 3.2, 3.3, 3.4 or 3.5' % program,
+              file=sys.stderr)
+        sys.exit(-1)
 
-    showast = do_verify = recurse_dirs = False
+    do_verify = recurse_dirs = False
     numproc = 0
     outfile = '-'
     out_base = None
