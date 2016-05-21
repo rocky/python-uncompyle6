@@ -15,3 +15,8 @@ install:
 
 script:
 - python ./setup.py develop && COMPILE='--compile' make check
+
+# blacklist
+branches:
+  except:
+    - data-driven-pytest
