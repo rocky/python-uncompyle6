@@ -26,8 +26,6 @@
   Probably a complete rewrite would be sensefull. hG/2000-12-27
 """
 
-from __future__ import print_function
-
 import sys
 
 __docformat__ = 'restructuredtext'
@@ -44,13 +42,6 @@ PYTHON_VERSION_STR  = "%s.%s" % (sys.version_info[0], sys.version_info[1])
 IS_PYPY = '__pypy__' in sys.builtin_module_names
 
 sys.setrecursionlimit(5000)
-
-def check_python_version(program):
-    if not (sys.version_info[0:2] in ((2, 6), (2, 7), (3, 2), (3, 3), (3, 4), (3, 5))):
-        print('Error: %s requires Python 2.6, 2.7, 3.2, 3.3, 3.4 or 3.5' % program,
-              file=sys.stderr)
-        sys.exit(-1)
-    return
 
 import uncompyle6.semantics.pysource
 import uncompyle6.semantics.fragments

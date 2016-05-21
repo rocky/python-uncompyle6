@@ -37,8 +37,6 @@ Type -h for for full help.""" % program
 
     check_python_version(program)
 
-    outfile = '-'
-    out_base = None
     use_uncompyle6_format = False
 
     if len(sys.argv) == 1:

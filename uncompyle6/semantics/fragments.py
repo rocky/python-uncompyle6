@@ -49,8 +49,6 @@ else:
 from spark_parser import GenericASTTraversal, GenericASTTraversalPruningException, \
      DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
-from types import CodeType
-
 from collections import namedtuple
 NodeInfo = namedtuple("NodeInfo", "node start finish")
 ExtractInfo = namedtuple("ExtractInfo",
@@ -1359,11 +1357,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
         args_node = node[-1]
         if isinstance(args_node.attr, tuple):
             defparams = node[:args_node.attr[0]]
-            pos_args, kw_args, annotate_args  = args_node.attr
+            kw_args, annotate_args  = args_node.attr
         else:
             defparams = node[:args_node.attr]
-            kw_args, annotate_args  = (0, 0)
-            pos_args = args_node.attr
+            kw_args  = (0, 0)
             pass
 
         code = node[code_index].attr
@@ -1527,7 +1524,6 @@ if __name__ == '__main__':
         return fn.__code__
 
     def gcd(a, b):
-        from os import path
         if a > b:
             (a, b) = (b, a)
             pass

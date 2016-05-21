@@ -66,7 +66,7 @@ def usage():
 def main_bin():
     check_python_version(program)
 
-    showasm = showast = do_verify = recurse_dirs = False
+    showast = do_verify = recurse_dirs = False
     numproc = 0
     outfile = '-'
     out_base = None

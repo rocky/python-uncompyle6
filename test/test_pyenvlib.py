@@ -21,10 +21,9 @@ Step 2: Run the test:
 
 from __future__ import print_function
 
-from uncompyle6 import main, verify, PYTHON3
+from uncompyle6 import main, PYTHON3
 import os, time, shutil
 from fnmatch import fnmatch
-import glob
 
 #----- configure this for your needs
 
@@ -101,7 +100,7 @@ def do_tests(src_dir, patterns, target_dir, start_with=None, do_verify=False):
 if __name__ == '__main__':
     import getopt, sys
 
-    do_verify = 0
+    do_verify = False
     test_dirs = []
     start_with = None
 
@@ -112,7 +111,7 @@ if __name__ == '__main__':
                                + test_options_keys )
     for opt, val in opts:
         if opt == '--verify':
-            do_verify = 1
+            do_verify = True
         elif opt == '--start-with':
             start_with = val
         elif opt[2:] in test_options_keys:

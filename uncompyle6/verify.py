@@ -8,7 +8,7 @@ byte-code verification
 
 from __future__ import print_function
 
-import dis, inspect, operator
+import dis, operator
 
 import uncompyle6
 import uncompyle6.scanner as scanner
