@@ -724,7 +724,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         self.prune()
 
-    def gen_source(self, ast, name, customize, isLambda=0, returnNone=False):
+    def gen_source(self, ast, name, customize, isLambda=False, returnNone=False):
         """convert AST to source code"""
 
         rn = self.return_none
@@ -738,7 +738,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.text = self.traverse(ast, isLambda=isLambda)
         self.return_none = rn
 
-    def build_ast(self, tokens, customize, isLambda=0, noneInNames=False):
+    def build_ast(self, tokens, customize, isLambda=False, noneInNames=False):
         # assert type(tokens) == ListType
         # assert isinstance(tokens[0], Token)
 
@@ -758,7 +758,9 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # return statement instructions before parsing.
         # But here we want to keep these instructions at the expense of
         # a fully runnable Python program because we
-        # my be queried about the role of one of those instructuions
+        # my be queried about the role of one of those instructions.
+        #
+        # NOTE: this differs from behavior in pysource.py
 
         if len(tokens) >= 2 and not noneInNames:
             if tokens[-1].type == 'RETURN_VALUE':
@@ -841,7 +843,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.last_finish = len(self.f.getvalue())
 
     # FIXME: duplicated from pysource, since we don't find self.params
-    def traverse(self, node, indent=None, isLambda=0):
+    def traverse(self, node, indent=None, isLambda=False):
         '''Buulds up fragment which can be used inside a larger
         block of code'''
 
