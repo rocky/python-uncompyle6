@@ -550,7 +550,7 @@ class SourceWalker(GenericASTTraversal, object):
     def indentLess(self, indent=TAB):
         self.indent = self.indent[:-len(indent)]
 
-    def traverse(self, node, indent=None, isLambda=0):
+    def traverse(self, node, indent=None, isLambda=False):
         self.param_stack.append(self.params)
         if indent is None: indent = self.indent
         p = self.pending_newlines
@@ -1059,7 +1059,10 @@ class SourceWalker(GenericASTTraversal, object):
         self.customize(code._customize)
         ast = ast[0][0][0][0][0]
 
-        n = ast[iter_index]
+        try:
+            n = ast[iter_index]
+        except:
+            from trepan.api import debug; debug()
         assert n == 'list_iter'
 
         # find innermost node
@@ -1814,7 +1817,8 @@ class SourceWalker(GenericASTTraversal, object):
                 self.println(self.text)
         self.return_none = rn
 
-    def build_ast(self, tokens, customize, isLambda=0, noneInNames=False):
+    def build_ast(self, tokens, customize, isLambda=False,
+                  noneInNames=False, isTopLevel=False):
 
         # assert isinstance(tokens[0], Token)
 
@@ -1835,8 +1839,12 @@ class SourceWalker(GenericASTTraversal, object):
         if self.hide_internal:
             if len(tokens) >= 2 and not noneInNames:
                 if tokens[-1].type == 'RETURN_VALUE':
+                    # Should we also check for returning None?
                     if tokens[-2].type == 'LOAD_CONST':
-                        del tokens[-2:]
+                        if True or isTopLevel:
+                            del tokens[-2:]
+                        else:
+                            tokens.append(Token('RETURN_LAST'))
                     else:
                         tokens.append(Token('RETURN_LAST'))
             if len(tokens) == 0:
@@ -1877,7 +1885,8 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
     deparsed = SourceWalker(version, out, scanner, showast=showast,
                             debug_parser=debug_parser, compile_mode=compile_mode)
 
-    deparsed.ast = deparsed.build_ast(tokens, customize)
+    isTopLevel = co.co_name == '<module>'
+    deparsed.ast = deparsed.build_ast(tokens, customize, isTopLevel=isTopLevel)
 
     assert deparsed.ast == 'stmts', 'Should have parsed grammar start'
 
