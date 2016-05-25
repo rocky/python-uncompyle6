@@ -21,8 +21,9 @@ import uncompyle6.scanner as scan
 class Scanner25(scan.Scanner):
     def __init__(self):
         scan.Scanner.__init__(self, 2.5)
+        self.showast = False
 
-    def disassemble(self, co, classname=None, code_objects={}):
+    def disassemble(self, co, classname=None, code_objects={}, showast=False):
         '''
         Disassemble a code object, returning a list of 'Token'.
 
