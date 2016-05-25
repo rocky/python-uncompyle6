@@ -9,6 +9,14 @@ from uncompyle6.parser import ParserError
 
 from uncompyle6.load import load_module
 
+class ExtError(Exception):
+    def __init__(self, error, info):
+        self.error = error # previous exception
+        self.info = info
+
+    def __str__(self):
+        return str(self.error)
+
 def uncompyle(version, co, out=None, showasm=False, showast=False,
               timestamp=None, showgrammar=False, code_objects={}):
     """
@@ -31,13 +39,19 @@ def uncompyle(version, co, out=None, showasm=False, showast=False,
     try:
         pysource.deparse_code(version, co, out, showasm, showast, showgrammar,
                               code_objects=code_objects)
-    except pysource.SourceWalkerError as e:
-        # deparsing failed
-        print("\n")
-        if real_out != out:
-            print("\n", file=real_out)
-            print(e, file=real_out)
-
+    except Exception as e:
+        #import traceback
+        #traceback.print_exc() 
+        #deparsing failed   
+        #if real_out != out:
+        #    print(e, file=real_out)
+        if not e.message:
+            if hasattr(e,'tokens'):
+                raise ExtError('Decompiling stopped due to %s' % type(e), str(e))
+            else:
+                raise Exception('Decompiling stopped due to %s' % type(e))
+        else:
+            raise
 
 
 def uncompyle_file(filename, outstream=None, showasm=False, showast=False,
@@ -49,16 +63,19 @@ def uncompyle_file(filename, outstream=None, showasm=False, showast=False,
     filename = check_object_path(filename)
     code_objects = {}
     version, timestamp, magic_int, co = load_module(filename, code_objects)
-
-
-    if type(co) == list:
-        for con in co:
-            uncompyle(version, con, outstream, showasm, showast,
+    
+    try:
+        if type(co) == list:
+            for con in co:
+                uncompyle(version, con, outstream, showasm, showast,
+                          timestamp, showgrammar, code_objects=code_objects)
+            return ''
+        else:
+            uncompyle(version, co, outstream, showasm, showast,
                       timestamp, showgrammar, code_objects=code_objects)
-    else:
-        uncompyle(version, co, outstream, showasm, showast,
-                  timestamp, showgrammar, code_objects=code_objects)
-    co = None
+            return co.co_filename
+    finally:
+        co = None
 
 # FIXME: combine into an options parameter
 def main(in_base, out_base, files, codes, outfile=None,

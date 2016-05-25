@@ -232,17 +232,19 @@ class Scanner(object):
         while start < end:
             yield start
             start += self.op_size(self.code[start])
-
+    
     def remove_mid_line_ifs(self, ifs):
         filtered = []
         for i in ifs:
-            if self.lines[i].l_no == self.lines[i+3].l_no:
-                if self.code[self.prev[self.lines[i].next]] in (self.opc.PJIT, self.opc.PJIF):
+            if self.lines[i].l_no == self.lines[i+3].l_no: #PJx in mid
+                #l_no - inst pos of beginning line number
+                #next - inst pos for next line number
+                if self.code[self.prev[self.lines[i].next]] in (self.opc.PJIT, self.opc.PJIF): #PJx is not last
                     continue
             filtered.append(i)
         return filtered
 
-    def rem_or(self, start, end, instr, target=None, include_beyond_target=False):
+    def rem_or(self, start, end, instr, target=None, include_beyond_target=False, break_if_not_target=True):
         """
         Find all <instr> in the block from start to end.
         <instr> is any python bytecode instruction or a list of opcodes
@@ -270,6 +272,8 @@ class Scanner(object):
                         result.append(i)
                     elif t == target:
                         result.append(i)
+                    elif break_if_not_target:
+                        break
 
         pjits = self.all_instr(start, end, self.opc.PJIT)
         filtered = []

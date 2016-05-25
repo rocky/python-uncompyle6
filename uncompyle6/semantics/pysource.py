@@ -187,7 +187,7 @@ TABLE_DIRECT = {
     'unary_expr':   ( '%c%c', 1, 0),
 
     'unary_not':	( 'not %c', 0 ),
-    'unary_convert':	( '`%c`', 0 ),
+    'unary_convert':	( "'%c'", 0 ),
     'get_iter':	( 'iter(%c)', 0 ),
     'slice0':		( '%c[:]', 0 ),
     'slice1':		( '%c[%p:]', 0, (1, 100) ),
@@ -309,8 +309,8 @@ TABLE_DIRECT = {
     'whileTruestmt':	( '%|while True:\n%+%c%-\n\n', 1 ),
     'whilestmt':	( '%|while %c:\n%+%c%-\n\n', 1, 2 ),
     'while1stmt':	( '%|while 1:\n%+%c%-\n\n', 1 ),
-    'while1elsestmt':  ( '%|while 1:\n%+%c%-%|else:\n%+%c%-\n\n', 1, 3 ),
-    'whileelsestmt':	( '%|while %c:\n%+%c%-%|else:\n%+%c%-\n\n', 1, 2, -2 ),
+    'whileelsestmt':   ( '%|while %c:\n%+%c%-%|else:\n%+%c%-\n\n', 1, 2, -2 ),
+    'while1elsestmt':  ( '%|while 1:\n%+%c%-%|else:\n%+%c%-\n\n', 1, -2 ),
     'whileelselaststmt':	( '%|while %c:\n%+%c%-%|else:\n%+%c%-', 1, 2, -2 ),
     'forstmt':		( '%|for %c in %c:\n%+%c%-\n\n', 3, 1, 4 ),
     'forelsestmt':	(
@@ -1175,16 +1175,22 @@ class SourceWalker(GenericASTTraversal, object):
                 subclass = buildclass[1][0].attr
                 subclass_info = node[0]
         else:
-            buildclass = node if (node == 'classdefdeco2') else node[0]
-            build_list = buildclass[1][0]
-            if hasattr(buildclass[-3][0], 'attr'):
-                subclass = buildclass[-3][0].attr
+            if len(node) == 2:
+                buildclass = node[0]
+                build_list = buildclass[1][0]
+                if buildclass[-3][0].type == 'load_closure':
+                    subclass = buildclass[-3][1].attr
+                else:
+                    subclass = buildclass[-3][0].attr
                 currentclass = buildclass[0].pattr
-            elif hasattr(node[0][0], 'pattr'):
-                subclass = buildclass[-3][1].attr
-                currentclass = node[0][0].pattr
             else:
-                raise 'Internal Error n_classdef: cannot find class name'
+                buildclass = node[0]
+                build_list = node[1][0]
+                if node[-3][0].type == 'load_closure':
+                    subclass = node[-3][1].attr
+                else:
+                    subclass = node[-3][0].attr
+                currentclass = node[0].pattr
 
         if (node == 'classdefdeco2'):
             self.write('\n')
@@ -1858,6 +1864,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         if self.showast:
             self.println(repr(ast))
+            print('\n')
 
         return ast
 
@@ -1871,10 +1878,12 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
     # store final output stream for case of error
     scanner = get_scanner(version)
 
-    tokens, customize = scanner.disassemble(co, code_objects=code_objects)
+    tokens, customize = scanner.disassemble(co, code_objects=code_objects, showast=showast)
     if showasm:
+        print('\n--- Disassembled and modified code: ---\n')
         for t in tokens:
             print(t)
+        print('\n')
 
     debug_parser = dict(PARSER_DEFAULT_DEBUG)
     if showgrammar:

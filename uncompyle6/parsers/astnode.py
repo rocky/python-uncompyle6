@@ -8,6 +8,8 @@ if PYTHON3:
 else:
     from UserList import UserList
 
+indent_symbols = ['\xb7','|','*','+',':','!']
+current_indsym = indent_symbols[:]
 
 class AST(UserList):
     def __init__(self, kind, kids=[]):
@@ -19,7 +21,8 @@ class AST(UserList):
         because AST token offsets might be different"""
         return len(self.data) == 1 and NoneToken == self.data[0]
 
-    def __getslice__(self, low, high):    return self.data[low:high]
+    def __getslice__(self, low, high):
+        return self.data[low:high]
 
     def __eq__(self, o):
         if isinstance(o, AST):
@@ -32,7 +35,11 @@ class AST(UserList):
         return hash(self.type)
 
     def __repr__(self, indent=''):
+        global current_indsym
         rv = str(self.type)
+        if not current_indsym:
+            current_indsym = indent_symbols[:]
+        indsym = current_indsym.pop(0)
         for k in self:
-            rv = rv + '\n' + str(k).replace('\n', '\n   ')
+            rv = rv + '\n' + str(k).lstrip(' \t').replace('\n', '\n%s   ' % indsym)
         return rv

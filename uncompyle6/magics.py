@@ -53,7 +53,6 @@ versions = {
     __build_magic(62191): '2.7', # 2.7a0 (introduce SETUP_WITH)
     __build_magic(62201): '2.7', # 2.7a0 (introduce BUILD_SET)
     __build_magic(62211): '2.7', # 2.7a0 (introduce MAP_ADD and SET_ADD)
-    __build_magic(62218): '2.7', # 2.7 pypy?
     __build_magic(3000): '3.0',  # 3.000
     __build_magic(3010): '3.0',  # 3.000 (removed UNARY_CONVERT)
     __build_magic(3020): '3.0',  # 3.000 (added BUILD_SET)
@@ -75,7 +74,7 @@ versions = {
     __build_magic(3170): '3.2',  # 3.2a1 (add DUP_TOP_TWO, remove DUP_TOPX and ROT_FOUR)
     __build_magic(3180): '3.2',  # 3.2a2 (add DELETE_DEREF)
     __build_magic(3190): '3.3',  # 3.3a0  3190 __class__ super closure changed
-    __build_magic(3100): '3.3',  # 3.3a0  3200 (__qualname__ added)
+    __build_magic(3200): '3.3',  # 3.3a0  3200 (__qualname__ added)
     __build_magic(3210): '3.3',  # 3210 (added size modulo 2**32 to the pyc header)
     __build_magic(3220): '3.3',  # 3.3a1  3220 (changed PEP 380 implementation)
     __build_magic(3230): '3.3',  # 3.3a4  3230 (revert changes to implicit __class__ closure)
@@ -88,6 +87,9 @@ versions = {
     __build_magic(3290): '3.4',  # 3.4a4  3290 (changes to __qualname__ computation)
     __build_magic(3300): '3.4',  # 3.4a4  3300 (more changes to __qualname__ computation)
     __build_magic(3310): '3.4',  # 3.4rc2 3310 (alter __qualname__ computation)
+    __build_magic(3320): '3.5',  # 3.5a0  3320 (matrix multiplication operator)
+    __build_magic(3330): '3.5',  # 3.5b1  3330 (PEP 448: Additional Unpacking Generalizations)
+    __build_magic(3340): '3.5',  # 3.5b2  3340 (fix dictionary display evaluation order #11205)
     __build_magic(3350): '3.5',  # 3.5.0
 }
 
