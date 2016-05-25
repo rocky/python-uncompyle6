@@ -1,0 +1,1 @@
+while (a and b) or (c and d) or (f and g):pass

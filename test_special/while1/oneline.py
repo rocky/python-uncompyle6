@@ -1,0 +1,1 @@
+while 123:print 1
