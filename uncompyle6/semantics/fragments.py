@@ -36,7 +36,7 @@ from uncompyle6 import parser
 from uncompyle6.scanner import Token, Code, get_scanner
 
 from uncompyle6.semantics.pysource import AST, INDENT_PER_LEVEL, NONE, PRECEDENCE, \
-     ParserError, TABLE_DIRECT, escape, find_all_globals, find_globals, find_none, minint
+     ParserError, TABLE_DIRECT, escape, find_all_globals, find_globals, find_none, minint, MAP
 
 if PYTHON3:
     from itertools import zip_longest
@@ -67,7 +67,12 @@ TABLE_DIRECT_FRAGMENT = {
         '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
     }
 
+
+MAP_DIRECT_FRAGMENT = dict(TABLE_DIRECT, **TABLE_DIRECT_FRAGMENT),
+
+
 class FragmentsWalker(pysource.SourceWalker, object):
+
     stacked_params = ('f', 'indent', 'isLambda', '_globals')
 
     def __init__(self, version, scanner, showast=False,
@@ -94,9 +99,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         self.offsets = {}
         self.last_finish = -1
-
-        # Customize with our more-pervisive rules
-        TABLE_DIRECT.update(TABLE_DIRECT_FRAGMENT)
 
     f = property(lambda s: s.params['f'],
                  lambda s, x: s.params.__setitem__('f', x),
@@ -1441,6 +1443,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.gen_source(ast, code.co_name, code._customize, isLambda=isLambda,
                           returnNone=rn)
         code._tokens = None; code._customize = None # save memory
+
+    @classmethod
+    def _get_mapping(cls, node):
+        return MAP.get(node, MAP_DIRECT_FRAGMENT)
 
     pass
 
