@@ -24,6 +24,7 @@ import uncompyle6.scanner as scan
 class Scanner27(scan.Scanner):
     def __init__(self):
         scan.Scanner.__init__(self, 2.7)
+        self.showast = False
 
     def disassemble(self, co, classname=None, code_objects={}, showast=False):
         """
