@@ -18,8 +18,9 @@ class Scanner33(Scanner3):
 
     def __init__(self):
         super(Scanner3, self).__init__(3.3)
+        self.showast = False
 
-    def disassemble(self, co, classname=None, code_objects={}):
+    def disassemble(self, co, classname=None, code_objects={}, showast=False):
         return self.disassemble_generic(co, classname, code_objects=code_objects)
 
     def disassemble_native(self, co, classname=None, code_objects={}):
