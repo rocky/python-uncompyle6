@@ -316,7 +316,7 @@ def get_scanner(version):
         import uncompyle6.scanners.scanner35 as scan
         scanner = scan.Scanner35()
     else:
-        raise RuntimeError("Unsupported Python version %d" % version)
+        raise RuntimeError("Unsupported Python version %s" % version)
     return scanner
 
 if __name__ == "__main__":

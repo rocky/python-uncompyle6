@@ -17,7 +17,7 @@ import dis, inspect
 from collections import namedtuple
 from array import array
 
-from uncompyle6.code import iscode
+from xdis.code import iscode
 from uncompyle6.opcodes.opcode_27 import * # NOQA
 import uncompyle6.scanner as scan
 

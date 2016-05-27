@@ -18,7 +18,6 @@ def test_if_in_for():
         scan.build_prev_op(n)
         fjt = scan.find_jump_targets()
         assert {15: [3], 69: [66], 63: [18]} == fjt
-        print(scan.structs)
         assert scan.structs == \
           [{'start': 0, 'end': 72, 'type': 'root'},
            {'start': 18, 'end': 66, 'type': 'if-then'},

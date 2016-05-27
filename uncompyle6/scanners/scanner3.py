@@ -29,7 +29,7 @@ import uncompyle6.scanners.dis3 as dis3
 from collections import namedtuple
 from array import array
 
-from uncompyle6.code import iscode
+from xdis.code import iscode
 from uncompyle6.scanner import Token
 from uncompyle6 import PYTHON3
 

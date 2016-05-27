@@ -6,7 +6,6 @@
 from __future__ import print_function
 import sys, os, getopt
 
-from uncompyle6 import check_python_version
 from uncompyle6.disas import disassemble_file
 from uncompyle6.version import VERSION
 
@@ -34,8 +33,6 @@ PATTERNS = ('*.pyc', '*.pyo')
 def main():
     Usage_short = """usage: %s FILE...
 Type -h for for full help.""" % program
-
-    check_python_version(program)
 
     use_uncompyle6_format = False
 
