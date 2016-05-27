@@ -4,10 +4,11 @@ sudo: false
 
 python:
   - '3.5'
+  - '3.2.6'
   - '2.7.11'
+  - '3.3.5'
   - '2.6'
   - '3.4'
-  - '3.2'
 
 install:
 - pip install -r requirements.txt
@@ -20,4 +21,3 @@ script:
 branches:
   except:
     - data-driven-pytest
-    
