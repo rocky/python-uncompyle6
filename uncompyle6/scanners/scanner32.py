@@ -18,12 +18,8 @@ class Scanner32(Scanner3):
 
     def __init__(self):
         super(Scanner3, self).__init__(3.2)
-
-    def disassemble(self, co, classname=None, code_objects={}):
-        return self.disassemble_generic(co, classname, code_objects=code_objects)
-
-    def disassemble_native(self, co, classname=None, code_objects={}):
-        return self.disassemble3_native(co, classname, code_objects)
+        return
+    pass
 
 if __name__ == "__main__":
     from uncompyle6 import PYTHON_VERSION

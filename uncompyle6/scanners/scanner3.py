@@ -46,7 +46,7 @@ class Scanner3(scan.Scanner):
     def __init__(self, version):
         super(Scanner3, self).__init__(version)
 
-    def disassemble3(self, co, classname=None, code_objects={}):
+    def disassemble(self, co, classname=None, code_objects={}):
         """
         Disassemble a Python 3 code object, returning a list of 'Token'.
         Various tranformations are made to assist the deparsing grammar.
@@ -179,7 +179,7 @@ class Scanner3(scan.Scanner):
             pass
         return tokens, {}
 
-    def disassemble3_native(self, co, classname=None, code_objects={}):
+    def disassemble_native(self, co, classname=None, code_objects={}):
         """
         Like disassemble3 but doesn't try to adjust any opcodes.
         """
