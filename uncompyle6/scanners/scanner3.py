@@ -35,7 +35,7 @@ from uncompyle6 import PYTHON3
 
 
 # Get all the opcodes into globals
-import uncompyle6.opcodes.opcode_33 as op3
+import xdis.opcodes.opcode_33 as op3
 
 globals().update(op3.opmap)
 
