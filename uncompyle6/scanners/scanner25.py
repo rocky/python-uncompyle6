@@ -16,11 +16,11 @@ from array import array
 
 import dis
 from uncompyle6.opcodes.opcode_25 import *
-import uncompyle6.scanner as scan
+import uncompyle6.scanners.scanner2 as scan
 
-class Scanner25(scan.Scanner):
+class Scanner25(scan.Scanner2):
     def __init__(self):
-        scan.Scanner.__init__(self, 2.5)
+        super(Scanner25, self).__init__(2.5)
 
     def disassemble(self, co, classname=None, code_objects={}):
         '''

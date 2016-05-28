@@ -30,9 +30,10 @@ if PYTHON3:
 else:
     L65536 = long(65536) # NOQA
 
-from uncompyle6.opcodes import (opcode_25, opcode_26, opcode_27)
+from uncompyle6.opcodes import (opcode_25, opcode_26)
 
-from xdis.opcodes import (opcode_32, opcode_33, opcode_34, opcode_35)
+from xdis.opcodes import (opcode_27,
+                          opcode_32, opcode_33, opcode_34, opcode_35)
 
 
 class Code(object):
@@ -211,16 +212,6 @@ class Scanner(object):
                     elif t == target:
                         result.append(offset)
         return result
-
-    def op_size(self, op):
-        """
-        Return size of operator with its arguments
-        for given opcode <op>.
-        """
-        if op < self.opc.HAVE_ARGUMENT and op not in self.opc.hasArgumentExtended:
-            return 1
-        else:
-            return 3
 
     def op_hasArgument(self, op):
         return self.op_size(op) > 1
