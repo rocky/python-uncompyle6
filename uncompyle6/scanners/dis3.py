@@ -4,7 +4,7 @@ allow running on Python 2.
 """
 
 # This part is modified for cross Python compatability
-from uncompyle6.opcodes.opcode_3x import *
+from xdis.opcodes.opcode_3x import *
 
 from dis import findlinestarts
 import types
