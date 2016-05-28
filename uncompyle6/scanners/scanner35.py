@@ -12,11 +12,13 @@ from uncompyle6.scanners.scanner3 import Scanner3
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes.opcode_35 import JUMP_OPs
+import xdis
 
 class Scanner35(Scanner3):
 
     def __init__(self):
-        super(Scanner3, self).__init__(3.5)
+        super(Scanner35, self).__init__(3.5)
+        self.opc = xdis.opcodes.opcode_35
 
     def disassemble(self, co, classname=None, code_objects={}):
         return self.disassemble3(co, classname, code_objects)

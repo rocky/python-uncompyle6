@@ -23,13 +23,11 @@ Finally we save token information.
 
 from __future__ import print_function
 
-import dis
-import uncompyle6.scanners.dis3 as dis3
-
 from collections import namedtuple
 from array import array
 
 from xdis.code import iscode
+from xdis.bytecode import Bytecode, findlinestarts
 from uncompyle6.scanner import Token
 from uncompyle6 import PYTHON3
 
@@ -46,10 +44,7 @@ import uncompyle6.scanner as scan
 class Scanner3(scan.Scanner):
 
     def __init__(self, version):
-        if PYTHON3:
-            super().__init__(version)
-        else:
-            super(Scanner3, self).__init__(version)
+        super(Scanner3, self).__init__(version)
 
     def disassemble3(self, co, classname=None, code_objects={}):
         """
@@ -72,7 +67,7 @@ class Scanner3(scan.Scanner):
         self.build_lines_data(co)
         self.build_prev_op()
 
-        bytecode = dis3.Bytecode(co, self.opname)
+        bytecode = Bytecode(co, self.opc)
 
         # Scan for assertions. Later we will
         # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT' for those
@@ -94,6 +89,7 @@ class Scanner3(scan.Scanner):
         jump_targets = self.find_jump_targets()
 
         for inst in bytecode:
+
             if inst.offset in jump_targets:
                 jump_idx = 0
                 for jump_offset in jump_targets[inst.offset]:
@@ -192,7 +188,7 @@ class Scanner3(scan.Scanner):
 
         self.code = array('B', co.co_code)
 
-        bytecode = dis3.Bytecode(co, self.opname)
+        bytecode = Bytecode(co, self.opc)
 
         for inst in bytecode:
             pattr =  inst.argrepr
@@ -277,6 +273,7 @@ class Scanner3(scan.Scanner):
         extended_arg = 0
 
         for offset in self.op_range(0, codelen):
+
             # Add jump target tokens
             if offset in jump_targets:
                 jump_idx = 0
@@ -421,7 +418,7 @@ class Scanner3(scan.Scanner):
         """
         # Offset: lineno pairs, only for offsets which start line.
         # Locally we use list for more convenient iteration using indices
-        linestarts = list(dis.findlinestarts(code_obj))
+        linestarts = list(findlinestarts(code_obj))
         self.linestarts = dict(linestarts)
         # Plain set with offsets of first ops on line
         self.linestart_offsets = set(a for (a, _) in linestarts)
@@ -464,7 +461,7 @@ class Scanner3(scan.Scanner):
         Return size of operator with its arguments
         for given opcode <op>.
         """
-        if op < dis.HAVE_ARGUMENT:
+        if op < self.opc.HAVE_ARGUMENT:
             return 1
         else:
             return 3
