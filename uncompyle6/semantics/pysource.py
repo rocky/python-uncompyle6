@@ -975,7 +975,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = 27
         n = node[-1]
         assert n == 'list_iter'
-        # find innerst node
+        # find innermost node
         while n == 'list_iter':
             n = n[0] # recurse one step
             if   n == 'list_for':	n = n[3]
@@ -1059,31 +1059,38 @@ class SourceWalker(GenericASTTraversal, object):
         self.customize(code._customize)
         ast = ast[0][0][0][0][0]
 
-        try:
-            n = ast[iter_index]
-        except:
-            from trepan.api import debug; debug()
+        n = ast[iter_index]
         assert n == 'list_iter'
 
+        ## FIXME: I'm not totally sure this is right.
+
         # find innermost node
+        designator = None
+        list_if_node = None
         while n == 'list_iter':
             n = n[0] # recurse one step
             if   n == 'list_for':
-                designator = n[2]
+                if n[2] == 'designator':
+                    designator = n[2]
                 n = n[3]
             elif n in ['list_if', 'list_if_not']:
-                # FIXME: just a guess
-                designator = n[1]
+                list_if_node = n[0]
+                if n[1] == 'designator':
+                    designator = n[1]
                 n = n[2]
                 pass
             pass
         assert n == 'lc_body', ast
+        assert designator, "Couldn't find designator in list comprehension"
 
         self.preorder(n[0])
         self.write(' for ')
         self.preorder(designator)
         self.write(' in ')
         self.preorder(node[-3])
+        if list_if_node:
+            self.write(' if ')
+            self.preorder(list_if_node)
         self.prec = p
 
     def listcomprehension_walk2(self, node):
