@@ -31,7 +31,9 @@ else:
     L65536 = long(65536) # NOQA
 
 from uncompyle6.opcodes import (opcode_25, opcode_26, opcode_27,
-                                opcode_32, opcode_33, opcode_34, opcode_35)
+                                opcode_32, opcode_33, opcode_34)
+
+from xdis.opcodes import opcode_35
 
 
 class Code(object):
