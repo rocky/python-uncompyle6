@@ -30,14 +30,12 @@ from array import array
 from xdis.code import iscode
 from xdis.bytecode import findlinestarts
 
-# FIXME: remove
-# from xdis.opcodes.opcode_27 import * # NOQA
-
 import uncompyle6.scanner as scan
 
 class Scanner2(scan.Scanner):
     def __init__(self, version):
         scan.Scanner.__init__(self, version)
+        self.pop_jump_if = frozenset([self.opc.PJIF, self.opc.PJIT])
 
     def disassemble(self, co, classname=None, code_objects={}):
         """
@@ -50,6 +48,8 @@ class Scanner2(scan.Scanner):
         The main part of this procedure is modelled after
         dis.disassemble().
         """
+
+        ## FIXME: DRY with disassemble_native
 
         # import dis; dis.disassemble(co) # DEBUG
 
@@ -214,6 +214,8 @@ class Scanner2(scan.Scanner):
         Like disassemble3 but doesn't try to adjust any opcodes.
         """
 
+        ## FIXME: DRY with disassemble
+
         # Container for tokens
         tokens = []
 
@@ -348,41 +350,12 @@ class Scanner2(scan.Scanner):
         start = 0
         end = len(code)
 
-        stmt_opcodes = set([
-            self.opc.SETUP_LOOP,       self.opc.BREAK_LOOP, self.opc.CONTINUE_LOOP,
-            self.opc.SETUP_FINALLY,    self.opc.END_FINALLY,
-            self.opc.SETUP_EXCEPT,     self.opc.SETUP_WITH,
-            self.opc.POP_BLOCK,        self.opc.STORE_FAST, self.opc.DELETE_FAST,
-            self.opc.STORE_DEREF,      self.opc.STORE_GLOBAL,
-            self.opc.DELETE_GLOBAL,    self.opc.STORE_NAME,
-            self.opc.DELETE_NAME,      self.opc.STORE_ATTR,
-            self.opc.DELETE_ATTR,      self.opc.STORE_SUBSCR,
-            self.opc.DELETE_SUBSCR,    self.opc.RETURN_VALUE,
-            self.opc. RAISE_VARARGS,   self.opc.POP_TOP,
-            self.opc.PRINT_EXPR,       self.opc.PRINT_ITEM,
-            self.opc.PRINT_NEWLINE,    self.opc.PRINT_ITEM_TO,
-            self.opc.PRINT_NEWLINE_TO, self.opc.STORE_SLICE_0,
-            self.opc.STORE_SLICE_1,    self.opc.STORE_SLICE_2,
-            self.opc.STORE_SLICE_3,    self.opc.DELETE_SLICE_0,
-            self.opc.DELETE_SLICE_1,   self.opc.DELETE_SLICE_2,
-            self.opc.DELETE_SLICE_3,   self.opc.JUMP_ABSOLUTE,
-            self.opc.EXEC_STMT,
-        ])
+        stmt_opcode_seqs = frozenset([(self.opc.PJIF, self.opc.JF),
+                                      (self.opc.PJIF, self.opc.JA),
+                                      (self.opc.PJIT, self.opc.JF),
+                                      (self.opc.PJIT, self.opc.JA)])
 
-        stmt_opcode_seqs = [(self.opc.PJIF, self.opc.JF),
-                            (self.opc.PJIF, self.opc.JA),
-                            (self.opc.PJIT, self.opc.JF),
-                            (self.opc.PJIT, self.opc.JA)]
-
-        designator_ops = set([
-            self.opc.STORE_FAST,    self.opc.STORE_NAME,
-            self.opc.STORE_GLOBAL,  self.opc.STORE_DEREF,   self.opc.STORE_ATTR,
-            self.opc.STORE_SLICE_0, self.opc.STORE_SLICE_1, self.opc.STORE_SLICE_2,
-            self.opc.STORE_SLICE_3, self.opc.STORE_SUBSCR,  self.opc.UNPACK_SEQUENCE,
-            self.opc.JA
-        ])
-
-        prelim = self.all_instr(start, end, stmt_opcodes)
+        prelim = self.all_instr(start, end, self.stmt_opcodes)
 
         stmts = self.stmts = set(prelim)
         pass_stmts = set()
@@ -424,9 +397,9 @@ class Scanner2(scan.Scanner):
             elif code[s] == self.opc.POP_TOP and code[self.prev[s]] == self.opc.ROT_TWO:
                 stmts.remove(s)
                 continue
-            elif code[s] in designator_ops:
+            elif code[s] in self.designator_ops:
                 j = self.prev[s]
-                while code[j] in designator_ops:
+                while code[j] in self.designator_ops:
                     j = self.prev[j]
                 if code[j] == self.opc.FOR_ITER:
                     stmts.remove(s)
@@ -443,7 +416,7 @@ class Scanner2(scan.Scanner):
         '''
 
         if self.code[start] == self.opc.DUP_TOP:
-            except_match = self.first_instr(start, len(self.code), self.opc.POP_JUMP_IF_FALSE)
+            except_match = self.first_instr(start, len(self.code), self.opc.PJIF)
             if except_match:
                 jmp = self.prev[self.get_target(except_match)]
                 self.ignore_if.add(except_match)
@@ -460,7 +433,7 @@ class Scanner2(scan.Scanner):
                     self.not_continue.add(self.prev[i])
                     return self.prev[i]
                 count_END_FINALLY += 1
-            elif op in (self.opc.SETUP_EXCEPT, self.opc.SETUP_WITH, self.opc.SETUP_FINALLY):
+            elif op in self.setup_ops:
                 count_SETUP_ += 1
 
     def detect_structure(self, pos, op=None):
@@ -507,7 +480,7 @@ class Scanner2(scan.Scanner):
                 jump_back = self.last_instr(start, end, self.opc.RETURN_VALUE) + 1
                 if not jump_back:
                     return
-                if code[self.prev[next_line_byte]] not in (self.opc.PJIF, self.opc.PJIT):
+                if code[self.prev[next_line_byte]] not in self.pop_jump_if:
                     loop_type = 'for'
                 else:
                     loop_type = 'while'
@@ -591,7 +564,7 @@ class Scanner2(scan.Scanner):
             else:
                 self.fixed_jumps[i] = i+1
 
-        elif op in (self.opc.PJIF, self.opc.PJIT):
+        elif op in self.pop_jump_if:
             start = pos+3
             target = self.get_target(pos, op)
             rtarget = self.restrict_to_parent(target, parent)
@@ -624,13 +597,13 @@ class Scanner2(scan.Scanner):
                                 and self.remove_mid_line_ifs([pos]) \
                                 and target == self.get_target(pre[pre[rtarget]]) \
                                 and (pre[pre[rtarget]] not in self.stmts or self.get_target(pre[pre[rtarget]]) > pre[pre[rtarget]])\
-                                and 1 == len(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]], (self.opc.PJIF, self.opc.PJIT), target))):
+                                and 1 == len(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]], self.pop_jump_if, target))):
                             pass
                         elif code[pre[pre[rtarget]]] == self.opc.RETURN_VALUE \
                                 and self.remove_mid_line_ifs([pos]) \
                                 and 1 == (len(set(self.remove_mid_line_ifs(self.rem_or(start,
                                                                                        pre[pre[rtarget]],
-                                                                                       (self.opc.PJIF, self.opc.PJIT), target)))
+                                                                                       self.pop_jump_if, target)))
                                               | set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]],
                                                             (self.opc.PJIF, self.opc.PJIT, self.opc.JA), pre[rtarget], True))))):
                             pass
@@ -751,11 +724,11 @@ class Scanner2(scan.Scanner):
 
             if op >= self.opc.HAVE_ARGUMENT:
                 label = self.fixed_jumps.get(i)
-                oparg = self.code[i+1] + self.code[i+2] * 256
+                oparg = self.get_argument(i)
                 if label is None:
                     if op in self.opc.hasjrel and op != self.opc.FOR_ITER:
                         label = i + 3 + oparg
-                    elif op in self.opc.hasjabs:
+                    elif self.version == 2.7 and op in self.opc.hasjabs:
                         if op in (self.opc.JUMP_IF_FALSE_OR_POP, self.opc.JUMP_IF_TRUE_OR_POP):
                             if (oparg > i):
                                 label = oparg

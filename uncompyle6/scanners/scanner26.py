@@ -21,6 +21,39 @@ import uncompyle6.scanners.scanner2 as scan
 class Scanner26(scan.Scanner2):
     def __init__(self):
         super(Scanner26, self).__init__(2.6)
+        self.stmt_opcodes = frozenset([
+            self.opc.SETUP_LOOP,       self.opc.BREAK_LOOP,
+            self.opc.SETUP_FINALLY,    self.opc.END_FINALLY,
+            self.opc.SETUP_EXCEPT,     self.opc.POP_BLOCK,
+            self.opc.STORE_FAST,       self.opc.DELETE_FAST,
+            self.opc.STORE_DEREF,      self.opc.STORE_GLOBAL,
+            self.opc.DELETE_GLOBAL,    self.opc.STORE_NAME,
+            self.opc.DELETE_NAME,      self.opc.STORE_ATTR,
+            self.opc.DELETE_ATTR,      self.opc.STORE_SUBSCR,
+            self.opc.DELETE_SUBSCR,    self.opc.RETURN_VALUE,
+            self.opc.RAISE_VARARGS,    self.opc.POP_TOP,
+            self.opc.PRINT_EXPR,       self.opc.PRINT_ITEM,
+            self.opc.PRINT_NEWLINE,    self.opc.PRINT_ITEM_TO,
+            self.opc.PRINT_NEWLINE_TO, self.opc.CONTINUE_LOOP,
+            self.opc.JUMP_ABSOLUTE,    self.opc.EXEC_STMT,
+        ])
+
+        # "setup" opcodes
+        self.setup_ops = frozenset([
+            self.opc.SETUP_EXCEPT, self.opc.SETUP_FINALLY,
+            ])
+
+        # opcodes that store values into a variable
+        self.designator_ops = frozenset([
+            self.opc.STORE_FAST,    self.opc.STORE_NAME,
+            self.opc.STORE_GLOBAL,  self.opc.STORE_DEREF,   self.opc.STORE_ATTR,
+            self.opc.STORE_SLICE_0, self.opc.STORE_SLICE_1, self.opc.STORE_SLICE_2,
+            self.opc.STORE_SLICE_3, self.opc.STORE_SUBSCR,  self.opc.UNPACK_SEQUENCE,
+            self.opc.JA
+        ])
+
+        return
+
 
     def disassemble(self, co, classname=None, code_objects={}):
         '''
@@ -102,7 +135,7 @@ class Scanner26(scan.Scanner2):
                 if names[self.get_argument(i+3)] == 'AssertionError':
                     self.load_asserts.add(i+3)
 
-        cf = self.find_jump_targets(self.code)
+        cf = self.find_jump_targets()
         # contains (code, [addrRefToCode])
 
         last_stmt = self.next_stmt[0]
@@ -519,114 +552,6 @@ class Scanner26(scan.Scanner2):
         self.code[pos+2] = (target >> 8) & 0xFF
         self.code[pos+1] = target & 0xFF
 
-    def build_stmt_indices(self):
-        code = self.code
-        start = 0
-        end = len(code)
-
-        stmt_opcodes = set([
-            SETUP_LOOP, BREAK_LOOP, CONTINUE_LOOP,
-            SETUP_FINALLY, END_FINALLY, SETUP_EXCEPT,
-            POP_BLOCK, STORE_FAST, DELETE_FAST, STORE_DEREF,
-            STORE_GLOBAL, DELETE_GLOBAL, STORE_NAME, DELETE_NAME,
-            STORE_ATTR, DELETE_ATTR, STORE_SUBSCR, DELETE_SUBSCR,
-            RETURN_VALUE, RAISE_VARARGS, POP_TOP,
-            PRINT_EXPR, PRINT_ITEM, PRINT_NEWLINE, PRINT_ITEM_TO, PRINT_NEWLINE_TO,
-            JUMP_ABSOLUTE, EXEC_STMT,
-        ])
-
-        stmt_opcode_seqs = [(PJIF, JF), (PJIF, JA), (PJIT, JF), (PJIT, JA)]
-
-        designator_ops = set([
-            STORE_FAST, STORE_NAME, STORE_GLOBAL, STORE_DEREF, STORE_ATTR,
-            STORE_SLICE_0, STORE_SLICE_1, STORE_SLICE_2, STORE_SLICE_3,
-            STORE_SUBSCR, UNPACK_SEQUENCE, JA
-        ])
-
-        prelim = self.all_instr(start, end, stmt_opcodes)
-
-        stmts = self.stmts = set(prelim)
-        pass_stmts = set()
-        for seq in stmt_opcode_seqs:
-            for i in self.op_range(start, end-(len(seq)+1)):
-                match = True
-                for elem in seq:
-                    if elem != code[i]:
-                        match = False
-                        break
-                    i += self.op_size(code[i])
-
-                if match:
-                    i = self.prev[i]
-                    stmts.add(i)
-                    pass_stmts.add(i)
-
-        if pass_stmts:
-            stmt_list = list(stmts)
-            stmt_list.sort()
-        else:
-            stmt_list = prelim
-        last_stmt = -1
-        self.next_stmt = []
-        slist = self.next_stmt = []
-        i = 0
-        for s in stmt_list:
-            if code[s] == JA and s not in pass_stmts:
-                target = self.get_target(s)
-                if target > s or self.lines[last_stmt].l_no == self.lines[s].l_no:
-                    stmts.remove(s)
-                    continue
-                j = self.prev[s]
-                while code[j] == JA:
-                    j = self.prev[j]
-                if code[j] == LIST_APPEND: # list comprehension
-                    stmts.remove(s)
-                    continue
-            elif code[s] == POP_TOP and code[self.prev[s]] == ROT_TWO:
-                stmts.remove(s)
-                continue
-            elif code[s] in designator_ops:
-                j = self.prev[s]
-                while code[j] in designator_ops:
-                    j = self.prev[j]
-                if code[j] == FOR_ITER:
-                    stmts.remove(s)
-                    continue
-            last_stmt = s
-            slist += [s] * (s-i)
-            i = s
-        slist += [end] * (end-len(slist))
-
-    def next_except_jump(self, start):
-        '''
-        Return the next jump that was generated by an except SomeException:
-        construct in a try...except...else clause or None if not found.
-        '''
-
-        if self.code[start] == DUP_TOP:
-            except_match = self.first_instr(start, len(self.code), (PJIF))
-            if except_match:
-                jmp = self.prev[self.get_target(except_match)]
-                self.ignore_if.add(except_match)
-                self.not_continue.add(jmp)
-                return jmp
-
-        count_END_FINALLY = 0
-        count_SETUP_ = 0
-        for i in self.op_range(start, len(self.code)):
-            op = self.code[i]
-            if op == END_FINALLY:
-                if count_END_FINALLY == count_SETUP_:
-                    if self.code[self.prev[i]] == NOP:
-                        i = self.prev[i]
-                    assert self.code[self.prev[i]] in (JA, JF, RETURN_VALUE)
-                    self.not_continue.add(self.prev[i])
-                    return self.prev[i]
-                count_END_FINALLY += 1
-            elif op in (SETUP_EXCEPT, SETUP_FINALLY):
-                count_SETUP_ += 1
-        # return self.lines[start].next
-
     def detect_structure(self, pos, op=None):
         '''
         Detect type of block structures and their boundaries to fix optimizied jumps
@@ -873,51 +798,10 @@ class Scanner26(scan.Scanner2):
                                        'start': start,
                                        'end':   rtarget})
                 self.return_end_ifs.add(pre[rtarget])
-
-    def find_jump_targets(self, code):
-        '''
-        Detect all offsets in a byte code which are jump targets.
-
-        Return the list of offsets.
-
-        This procedure is modelled after dis.findlabels(), but here
-        for each target the number of jumps are counted.
-        '''
-
-        n = len(code)
-        self.structs = [{'type':  'root',
-                           'start': 0,
-                           'end':   n-1}]
-        self.loops = []  # All loop entry points
-        self.fixed_jumps = {} # Map fixed jumps to their real destination
-        self.ignore_if = set()
-        self.build_stmt_indices()
-        self.not_continue = set()
-        self.return_end_ifs = set()
-
-        targets = {}
-        for i in self.op_range(0, n):
-            op = code[i]
-
-            # Determine structures and fix jumps for 2.3+
-            self.detect_structure(i, op)
-
-            if self.op_hasArgument(op):
-                label = self.fixed_jumps.get(i)
-                oparg = self.get_argument(i)
-                if label is None:
-                    if op in hasjrel and op != FOR_ITER:
-                        label = i + 3 + oparg
-                    # elif op in hasjabs:
-                    #     if op in (JUMP_IF_FALSE, JUMP_IF_TRUE):
-                    #         if (oparg > i):
-                    #             label = oparg
-                if label is not None and label != -1:
-                    targets[label] = targets.get(label, []) + [i]
-            elif op == END_FINALLY and i in self.fixed_jumps:
-                label = self.fixed_jumps[i]
-                targets[label] = targets.get(label, []) + [i]
-        return targets
+                pass
+            pass
+        return
+    pass
 
 if __name__ == "__main__":
     from uncompyle6 import PYTHON_VERSION
