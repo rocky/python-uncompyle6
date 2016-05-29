@@ -35,6 +35,7 @@ class Scanner2(scan.Scanner):
     def __init__(self, version):
         scan.Scanner.__init__(self, version)
         self.pop_jump_if = frozenset([self.opc.PJIF, self.opc.PJIT])
+        self.jump_forward = frozenset([self.opc.JA, self.opc.JF])
 
     def disassemble(self, co, classname=None, code_objects={}):
         """
@@ -465,7 +466,7 @@ class Scanner2(scan.Scanner):
             jump_back = self.last_instr(start, end, self.opc.JA,
                                           next_line_byte, False)
 
-            if jump_back and jump_back != self.prev[end] and code[jump_back+3] in (self.opc.JA, self.opc.JF):
+            if jump_back and jump_back != self.prev[end] and code[jump_back+3] in self.jump_forward:
                 if code[self.prev[end]] == self.opc.RETURN_VALUE or \
                     (code[self.prev[end]] == self.opc.POP_BLOCK and code[self.prev[self.prev[end]]] == self.opc.RETURN_VALUE):
                     jump_back = None
@@ -483,8 +484,8 @@ class Scanner2(scan.Scanner):
             else:
                 if self.get_target(jump_back) >= next_line_byte:
                     jump_back = self.last_instr(start, end, self.opc.JA, start, False)
-                if end > jump_back+4 and code[end] in (self.opc.JF, self.opc.JA):
-                    if code[jump_back+4] in (self.opc.JA, self.opc.JF):
+                if end > jump_back+4 and code[end] in self.jump_forward:
+                    if code[jump_back+4] in self.jump_forward:
                         if self.get_target(jump_back+4) == self.get_target(end):
                             self.fixed_jumps[pos] = jump_back+4
                             end = jump_back+4
@@ -583,7 +584,7 @@ class Scanner2(scan.Scanner):
                 match = self.remove_mid_line_ifs(match)
 
                 if match:
-                    if code[pre[rtarget]] in (self.opc.JF, self.opc.JA) \
+                    if code[pre[rtarget]] in self.jump_forward \
                             and pre[rtarget] not in self.stmts \
                             and self.restrict_to_parent(self.get_target(pre[rtarget]), parent) == rtarget:
                         if code[pre[pre[rtarget]]] == self.opc.JA \
@@ -625,17 +626,17 @@ class Scanner2(scan.Scanner):
                 next = self.next_stmt[pos]
                 if pre[next] == pos:
                     pass
-                elif code[next] in (self.opc.JF, self.opc.JA) and target == self.get_target(next):
+                elif code[next] in self.jump_forward and target == self.get_target(next):
                     if code[pre[next]] == self.opc.PJIF:
                         if code[next] == self.opc.JF or target != rtarget or code[pre[pre[rtarget]]] not in (self.opc.JA, self.opc.RETURN_VALUE):
                             self.fixed_jumps[pos] = pre[next]
                             return
-                elif code[next] == self.opc.JA and code[target] in (self.opc.JA, self.opc.JF):
+                elif code[next] == self.opc.JA and code[target] in self.jump_forward:
                     next_target = self.get_target(next)
                     if self.get_target(target) == next_target:
                         self.fixed_jumps[pos] = pre[next]
                         return
-                    elif code[next_target] in (self.opc.JA, self.opc.JF) and self.get_target(next_target) == self.get_target(target):
+                    elif code[next_target] in self.jump_forward and self.get_target(next_target) == self.get_target(target):
                         self.fixed_jumps[pos] = pre[next]
                         return
 
@@ -655,7 +656,7 @@ class Scanner2(scan.Scanner):
                 else:
                     rtarget = pre[rtarget]
             # does the if jump just beyond a jump op, then this is probably an if statement
-            if code[pre[rtarget]] in (self.opc.JA, self.opc.JF):
+            if code[pre[rtarget]] in self.jump_forward:
                 if_end = self.get_target(pre[rtarget])
 
                 # is this a loop not an if?

@@ -1,7 +1,7 @@
 #  Copyright (c) 2015-2016 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-#
+#  Copyright (c) 1999 John Aycock
 """
 Python 2.5 bytecode scanner/deparser
 
@@ -10,11 +10,8 @@ Python 3 and other versions of Python. Also, we save token
 information for later use in deparsing.
 """
 
-from collections import namedtuple
-from array import array
-
-import dis
 from uncompyle6.opcodes.opcode_25 import *
+from xdis.bytecode import findlinestarts
 import uncompyle6.scanners.scanner2 as scan
 
 class Scanner25(scan.Scanner2):
@@ -28,23 +25,19 @@ class Scanner25(scan.Scanner2):
         The main part of this procedure is modelled after
         dis.disassemble().
         '''
-        rv = []
+
+        # import dis; dis.disassemble(co) # DEBUG
+
+        # Container for tokens
+        tokens = []
         customize = {}
         Token = self.Token # shortcut
-        self.code = array('B', co.co_code)
-        for i in self.op_range(0, len(self.code)):
-            if self.code[i] in (RETURN_VALUE, END_FINALLY):
-                n = i + 1
-        self.code = array('B', co.co_code[:n])
 
-        # linestarts is a tuple of (offset, line number.
-        # Turn that in a has that we can index
-        self.linestarts = list(dis.findlinestarts(co))
-        linestartoffsets = {}
-        for offset, lineno in self.linestarts:
-            linestartoffsets[offset] = lineno
+        n = self.setup_code(co)
+        self.build_lines_data(co, n)
 
-        self.prev = [0]
+        # linestarts contains block code adresses (addr,block)
+        self.linestarts = list(findlinestarts(co))
 
         # class and names
         if classname:
@@ -68,42 +61,25 @@ class Scanner25(scan.Scanner2):
         self.toChange = []
         self.restructBytecode()
         codelen = len(self.code)
-        # mapping adresses of prev instru
+
+        # mapping adresses of previous instruction
+        self.prev = [0]
         for i in self.op_range(0, codelen):
             op = self.code[i]
             self.prev.append(i)
             if self.op_hasArgument(op):
                 self.prev.append(i)
                 self.prev.append(i)
-        j = 0
-        linestarts = self.linestarts
-        self.lines = []
-        linetuple = namedtuple('linetuple', ['l_no', 'next'])
-
-        # linestarts is a tuple of (offset, line number).
-        # Turn that in a has that we can index
-        linestartoffsets = {}
-        for offset, lineno in linestarts:
-            linestartoffsets[offset] = lineno
-
-        (prev_start_byte, prev_line_no) = linestarts[0]
-        for (start_byte, line_no) in linestarts[1:]:
-            while j < start_byte:
-                self.lines.append(linetuple(prev_line_no, start_byte))
-                j += 1
-            prev_line_no = start_byte
-        while j < codelen:
-            self.lines.append(linetuple(prev_line_no, codelen))
-            j+=1
 
         self.load_asserts = set()
         for i in self.op_range(0, codelen):
-            if self.code[i] == PJIT and self.code[i+3] == LOAD_GLOBAL:
+            if self.code[i] == self.opc.PJIT and self.code[i + 3] == self.opc.LOAD_GLOBAL:
                 if names[self.get_argument(i+3)] == 'AssertionError':
                     self.load_asserts.add(i+3)
 
         # self.lines contains (block,addrLastInstr)
-        cf = self.find_jump_targets(self.code)
+        cf = self.find_jump_targets()
+
         # contains (code, [addrRefToCode])
         last_stmt = self.next_stmt[0]
         i = self.next_stmt[last_stmt]
@@ -136,7 +112,7 @@ class Scanner25(scan.Scanner2):
             if offset in cf:
                 k = 0
                 for j in cf[offset]:
-                    rv.append(Token('COME_FROM', None, repr(j),
+                    tokens.append(Token('COME_FROM', None, repr(j),
                                     offset="%s_%d" % (offset, k) ))
                     k += 1
             if self.op_hasArgument(op):
@@ -219,17 +195,17 @@ class Scanner25(scan.Scanner2):
                 if offset in self.return_end_ifs:
                     op_name = 'RETURN_END_IF'
 
-            if offset in linestartoffsets:
-                linestart = linestartoffsets[offset]
+            if offset in self.linestartoffsets:
+                linestart = self.linestartoffsets[offset]
             else:
                 linestart = None
 
             if offset not in replace:
-                rv.append(Token(op_name, oparg, pattr, offset, linestart))
+                tokens.append(Token(op_name, oparg, pattr, offset, linestart))
             else:
-                rv.append(Token(replace[offset], oparg, pattr, offset, linestart))
+                tokens.append(Token(replace[offset], oparg, pattr, offset, linestart))
 
-        return rv, customize
+        return tokens, customize
 
     def getOpcodeToDel(self, i):
         '''
@@ -866,49 +842,7 @@ class Scanner25(scan.Scanner2):
                                        'start': start,
                                        'end':   rtarget})
                 self.return_end_ifs.add(pre[rtarget])
-
-    def find_jump_targets(self, code):
-        '''
-        Detect all offsets in a byte code which are jump targets.
-
-        Return the list of offsets.
-
-        This procedure is modelled after dis.findlables(), but here
-        for each target the number of jumps are counted.
-        '''
-
-        n = len(code)
-        self.structs = [{'type':  'root',
-                           'start': 0,
-                           'end':   n-1}]
-        self.loops = []  # All loop entry points
-        self.fixed_jumps = {} # Map fixed jumps to their real destination
-        self.ignore_if = set()
-        self.build_stmt_indices()
-        self.not_continue = set()
-        self.return_end_ifs = set()
-
-        targets = {}
-        for i in self.op_range(0, n):
-            op = code[i]
-
-            # Determine structures and fix jumps for 2.3+
-            self.detect_structure(i, op)
-
-            if self.op_hasArgument(op):
-                label = self.fixed_jumps.get(i)
-                oparg = self.get_argument(i)
-                if label is None:
-                    if op in hasjrel and op != FOR_ITER:
-                        label = i + 3 + oparg
-                    # elif op in hasjabs: Pas de gestion des jump abslt
-                        # if op in (PJIF, PJIT): Or pop a faire
-                            # if (oparg > i):
-                                # label = oparg
-                if label is not None and label != -1:
-                    targets[label] = targets.get(label, []) + [i]
-            elif op == END_FINALLY and i in self.fixed_jumps:
-                label = self.fixed_jumps[i]
-                targets[label] = targets.get(label, []) + [i]
-        return targets
+                pass
+            pass
+        return
     pass
