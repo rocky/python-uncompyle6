@@ -44,6 +44,19 @@ class Scanner27(Scanner2):
             self.opc.DELETE_SLICE_2,   self.opc.DELETE_SLICE_3,
         ])
 
+        # opcodes with expect a variable number pushed values whose
+        # count is in the opcode. For parsing we generally change the
+        # opcode name to include that number.
+        self.varargs_ops = frozenset([
+            self.opc.BUILD_LIST,           self.opc.BUILD_TUPLE,
+            self.opc.BUILD_SLICE,          self.opc.UNPACK_SEQUENCE,
+            self.opc.MAKE_FUNCTION,        self.opc.CALL_FUNCTION,
+            self.opc.MAKE_CLOSURE,         self.opc.CALL_FUNCTION_VAR,
+            self.opc.CALL_FUNCTION_KW,     self.opc.CALL_FUNCTION_VAR_KW,
+            self.opc.DUP_TOPX,             self.opc.RAISE_VARARGS,
+            # New in Python 2.7
+            self.opc.BUILD_SET])
+
         # "setup" opcodes
         self.setup_ops = frozenset([
             self.opc.SETUP_EXCEPT, self.opc.SETUP_FINALLY,

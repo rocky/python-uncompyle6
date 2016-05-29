@@ -20,7 +20,6 @@ For example:
 Finally we save token information.
 """
 
-
 from __future__ import print_function
 
 import inspect
@@ -79,6 +78,7 @@ class Scanner2(scan.Scanner):
             free = co.co_cellvars + co.co_freevars
             names = co.co_names
             varnames = co.co_varnames
+        self.names = names
 
         self.load_asserts = set()
         for i in self.op_range(0, n):
@@ -164,14 +164,7 @@ class Scanner2(scan.Scanner):
                 elif op in self.opc.hasfree:
                     pattr = free[oparg]
 
-            if op in (self.opc.BUILD_LIST,           self.opc.BUILD_TUPLE,
-                      self.opc.BUILD_SET,            self.opc.BUILD_SLICE,
-                      self.opc.UNPACK_SEQUENCE,      self.opc.MAKE_FUNCTION,
-                      self.opc.CALL_FUNCTION,        self.opc.MAKE_CLOSURE,
-                      self.opc.CALL_FUNCTION_VAR,    self.opc.CALL_FUNCTION_KW,
-                      self.opc.CALL_FUNCTION_VAR_KW, self.opc.DUP_TOPX,
-                      self.opc.RAISE_VARARGS
-                            ):
+            if op in self.varargs_ops:
                 # CE - Hack for >= 2.5
                 #      Now all values loaded via LOAD_CLOSURE are packed into
                 #      a tuple before calling MAKE_CLOSURE.
@@ -328,14 +321,14 @@ class Scanner2(scan.Scanner):
 
         # linestarts is a tuple of (offset, line number).
         # Turn that in a has that we can index
-        linestarts = list(findlinestarts(co))
+        self.linestarts = list(findlinestarts(co))
         self.linestartoffsets = {}
-        for offset, lineno in linestarts:
+        for offset, lineno in self.linestarts:
             self.linestartoffsets[offset] = lineno
 
         j = 0
-        (prev_start_byte, prev_line_no) = linestarts[0]
-        for (start_byte, line_no) in linestarts[1:]:
+        (prev_start_byte, prev_line_no) = self.linestarts[0]
+        for (start_byte, line_no) in self.linestarts[1:]:
             while j < start_byte:
                 self.lines.append(linetuple(prev_line_no, start_byte))
                 j += 1

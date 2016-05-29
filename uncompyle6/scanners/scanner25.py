@@ -1,7 +1,6 @@
 #  Copyright (c) 2015-2016 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-#  Copyright (c) 1999 John Aycock
 #
 """
 Python 2.5 bytecode scanner/deparser
