@@ -7,7 +7,6 @@ python:
   - '2.7.11'
   - '2.6'
   - '3.4'
-  - '3.2'
 
 install:
 - pip install -r requirements.txt
@@ -20,4 +19,3 @@ script:
 branches:
   except:
     - data-driven-pytest
-    

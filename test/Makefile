@@ -102,6 +102,6 @@ clean-dis:
 clean-unverified:
 	find . -name '*_unverified' -exec rm -v '{}' ';'
 
-#: Clean temporary compile/decompile/verify direcotries in /tmp
+#: Clean temporary compile/decompile/verify directories in /tmp
 clean-py-dis:
 	rm -fr /tmp/py-dis-* || true

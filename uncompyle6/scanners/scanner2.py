@@ -1,34 +1,54 @@
-#  Copyright (c) 2015, 2016 by Rocky Bernstein
-#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-#  Copyright (c) 1999 John Aycock
-
+# Copyright (c) 2015, 2016 by Rocky Bernstein
+# Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+# Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 """
-Python 2.6 bytecode scanner
+Python 2 Generic bytecode scanner/deparser
 
-This overlaps Python's 2.6's dis module, but it can be run from Python 3 and
-other versions of Python. Also, we save token information for later
-use in deparsing.
+This overlaps various Python3's dis module, but it can be run from
+Python versions other than the version running this code. Notably,
+run from Python version 2.
+
+Also we *modify* the instruction sequence to assist deparsing code.
+For example:
+ -  we add "COME_FROM" instructions to help in figuring out
+    conditional branching and looping.
+ -  LOAD_CONSTs are classified further into the type of thing
+    they load:
+      lambda's, genexpr's, {dict,set,list} comprehension's,
+ -  PARAMETER counts appended  {CALL,MAKE}_FUNCTION, BUILD_{TUPLE,SET,SLICE}
+
+Finally we save token information.
 """
 
+
+from __future__ import print_function
+
+import dis, inspect
 from collections import namedtuple
 from array import array
 
-from uncompyle6.opcodes.opcode_26 import *
-import dis
-import uncompyle6.scanners.scanner2 as scan
+from xdis.code import iscode
 
-class Scanner26(scan.Scanner2):
-    def __init__(self):
-        super(Scanner26, self).__init__(2.6)
+# FIXME: remove
+from xdis.opcodes.opcode_27 import * # NOQA
+
+import uncompyle6.scanner as scan
+
+class Scanner2(scan.Scanner):
+    def __init__(self, version):
+        scan.Scanner.__init__(self, version)
 
     def disassemble(self, co, classname=None, code_objects={}):
-        '''
-        Disassemble a code object, returning a list of 'Token'.
-
+        """
+        Disassemble a Python 2 code object, returning a list of 'Token'.
+        Various tranformations are made to assist the deparsing grammar.
+        For example:
+           -  various types of LOAD_CONST's are categorized in terms of what they load
+           -  COME_FROM instructions are added to assist parsing control structures
+           -  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional aruments
         The main part of this procedure is modelled after
         dis.disassemble().
-        '''
+        """
 
         # import dis; dis.disassemble(co) # DEBUG
 
@@ -37,15 +57,12 @@ class Scanner26(scan.Scanner2):
 
         customize = {}
         Token = self.Token # shortcut
-        self.code = array('B', co.co_code)
-        for i in self.op_range(0, len(self.code)):
-            if self.code[i] in (RETURN_VALUE, END_FINALLY):
-                n = i + 1
-        self.code = array('B', co.co_code[:n])
-        # linestarts contains block code adresses (addr,block)
-        self.linestarts = list(dis.findlinestarts(co))
-        self.prev = [0]
-        # class and names
+
+        n = self.setup_code(co)
+        self.build_lines_data(co, n)
+        self.build_prev_op(n)
+
+        # self.lines contains (block,addrLastInstr)
         if classname:
             classname = '_' + classname.lstrip('_') + '__'
 
@@ -61,98 +78,60 @@ class Scanner26(scan.Scanner2):
             free = co.co_cellvars + co.co_freevars
             names = co.co_names
             varnames = co.co_varnames
-        self.names = names
-
-        # list of instruction to remove/add or change to match with bytecode 2.7
-        self.toChange = []
-        self.restructBytecode()
-        codelen = len(self.code)
-        # mapping adresses of prev instru
-        for i in self.op_range(0, codelen):
-            op = self.code[i]
-            self.prev.append(i)
-            if self.op_hasArgument(op):
-                self.prev.append(i)
-                self.prev.append(i)
-        j = 0
-        linestarts = self.linestarts
-        self.lines = []
-        linetuple = namedtuple('linetuple', ['l_no', 'next'])
-
-        # linestarts is a tuple of (offset, line number).
-        # Turn that in a has that we can index
-        linestartoffsets = {}
-        for offset, lineno in linestarts:
-            linestartoffsets[offset] = lineno
-
-        (prev_start_byte, prev_line_no) = linestarts[0]
-        for (start_byte, line_no) in linestarts[1:]:
-            while j < start_byte:
-                self.lines.append(linetuple(prev_line_no, start_byte))
-                j += 1
-            prev_line_no = line_no
-        while j < codelen:
-            self.lines.append(linetuple(prev_line_no, codelen))
-            j+=1
-        # self.lines contains (block,addrLastInstr)
 
         self.load_asserts = set()
-        for i in self.op_range(0, codelen):
-            if self.code[i] == PJIT and self.code[i+3] == LOAD_GLOBAL:
+        for i in self.op_range(0, n):
+            if self.code[i] == self.opc.PJIT and self.code[i+3] == self.opc.LOAD_GLOBAL:
                 if names[self.get_argument(i+3)] == 'AssertionError':
                     self.load_asserts.add(i+3)
 
-        cf = self.find_jump_targets(self.code)
+        cf = self.find_jump_targets()
         # contains (code, [addrRefToCode])
-
         last_stmt = self.next_stmt[0]
         i = self.next_stmt[last_stmt]
         replace = {}
-        while i < codelen-1:
+        while i < n-1:
             if self.lines[last_stmt].next > i:
-                if self.code[last_stmt] == PRINT_ITEM:
-                    if self.code[i] == PRINT_ITEM:
+                if self.code[last_stmt] == self.opc.PRINT_ITEM:
+                    if self.code[i] == self.opc.PRINT_ITEM:
                         replace[i] = 'PRINT_ITEM_CONT'
-                    elif self.code[i] == PRINT_NEWLINE:
+                    elif self.code[i] == self.opc.PRINT_NEWLINE:
                         replace[i] = 'PRINT_NEWLINE_CONT'
             last_stmt = i
             i = self.next_stmt[i]
 
-        imports = self.all_instr(0, codelen, (IMPORT_NAME, IMPORT_FROM, IMPORT_STAR))
+        imports = self.all_instr(0, n, (self.opc.IMPORT_NAME, self.opc.IMPORT_FROM,
+                                        self.opc.IMPORT_STAR))
         if len(imports) > 1:
             last_import = imports[0]
             for i in imports[1:]:
                 if self.lines[last_import].next > i:
-                    if self.code[last_import] == IMPORT_NAME == self.code[i]:
+                    if self.code[last_import] == self.opc.IMPORT_NAME == self.code[i]:
                         replace[i] = 'IMPORT_NAME_CONT'
                 last_import = i
 
         extended_arg = 0
-        for offset in self.op_range(0, codelen):
-            op = self.code[offset]
-            op_name = self.opname[op]
-            oparg = None; pattr = None
-
+        for offset in self.op_range(0, n):
             if offset in cf:
                 k = 0
                 for j in cf[offset]:
                     tokens.append(Token('COME_FROM', None, repr(j),
-                                    offset="%s_%d" % (offset, k) ))
+                                    offset="%s_%d" % (offset, k)))
                     k += 1
-            if self.op_hasArgument(op):
+
+            op = self.code[offset]
+            op_name = self.opc.opname[op]
+
+            oparg = None; pattr = None
+            if op >= self.opc.HAVE_ARGUMENT:
                 oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
-                if op == EXTENDED_ARG:
-                    raise NotImplementedError
+                if op == self.opc.EXTENDED_ARG:
                     extended_arg = oparg * scan.L65536
                     continue
-                if op in hasconst:
+                if op in self.opc.hasconst:
                     const = co.co_consts[oparg]
-                    # We can't use inspect.iscode() because we may be
-                    # using a different version of Python than the
-                    # one that this was byte-compiled on. So the code
-                    # types may mismatch.
-                    if hasattr(const, 'co_name'):
+                    if iscode(const):
                         oparg = const
                         if const.co_name == '<lambda>':
                             assert op_name == 'LOAD_CONST'
@@ -163,7 +142,7 @@ class Scanner26(scan.Scanner2):
                             op_name = 'LOAD_DICTCOMP'
                         elif const.co_name == '<setcomp>':
                             op_name = 'LOAD_SETCOMP'
-                        # verify uses 'pattr' for comparison, since 'attr'
+                        # verify() uses 'pattr' for comparison, since 'attr'
                         # now holds Code(const) and thus can not be used
                         # for comparison (todo: think about changing this)
                         # pattr = 'code_object @ 0x%x %s->%s' %\
@@ -171,26 +150,20 @@ class Scanner26(scan.Scanner2):
                         pattr = '<code_object ' + const.co_name + '>'
                     else:
                         pattr = const
-                elif op in hasname:
+                elif op in self.opc.hasname:
                     pattr = names[oparg]
-                elif op in hasjrel:
+                elif op in self.opc.hasjrel:
                     pattr = repr(offset + 3 + oparg)
-                elif op in hasjabs:
+                elif op in self.opc.hasjabs:
                     pattr = repr(oparg)
-                elif op in haslocal:
+                elif op in self.opc.haslocal:
                     pattr = varnames[oparg]
-                elif op in hascompare:
-                    try:
-                        pattr = cmp_op[oparg]
-                    except:
-                        from trepan.api import debug; debug()
-                elif op in hasfree:
+                elif op in self.opc.hascompare:
+                    pattr = self.opc.cmp_op[oparg]
+                elif op in self.opc.hasfree:
                     pattr = free[oparg]
-            if offset in self.toChange:
-                if self.code[offset] == JA and self.code[oparg] == WITH_CLEANUP:
-                    op_name = 'SETUP_WITH'
-                    cf[oparg] = cf.get(oparg, []) + [offset]
-            if op in (BUILD_LIST, BUILD_TUPLE, BUILD_SLICE,
+
+            if op in (BUILD_LIST, BUILD_TUPLE, BUILD_SET, BUILD_SLICE,
                             UNPACK_SEQUENCE,
                             MAKE_FUNCTION, CALL_FUNCTION, MAKE_CLOSURE,
                             CALL_FUNCTION_VAR, CALL_FUNCTION_KW,
@@ -222,8 +195,8 @@ class Scanner26(scan.Scanner2):
                 if offset in self.return_end_ifs:
                     op_name = 'RETURN_END_IF'
 
-            if offset in linestartoffsets:
-                linestart = linestartoffsets[offset]
+            if offset in self.linestartoffsets:
+                linestart = self.linestartoffsets[offset]
             else:
                 linestart = None
 
@@ -231,293 +204,141 @@ class Scanner26(scan.Scanner2):
                 tokens.append(Token(op_name, oparg, pattr, offset, linestart))
             else:
                 tokens.append(Token(replace[offset], oparg, pattr, offset, linestart))
+        return tokens, customize
+
+    def disassemble_native(self, co, classname=None, code_objects={}):
+        """
+        Like disassemble3 but doesn't try to adjust any opcodes.
+        """
+
+        # Container for tokens
+        tokens = []
+
+        customize = {}
+        Token = self.Token # shortcut
+
+        n = self.setup_code(co)
+        self.build_lines_data(co, n)
+
+        # self.lines contains (block,addrLastInstr)
+        if classname:
+            classname = '_' + classname.lstrip('_') + '__'
+
+            def unmangle(name):
+                if name.startswith(classname) and name[-2:] != '__':
+                    return name[len(classname) - 2:]
+                return name
+
+            free = [ unmangle(name) for name in (co.co_cellvars + co.co_freevars) ]
+            names = [ unmangle(name) for name in co.co_names ]
+            varnames = [ unmangle(name) for name in co.co_varnames ]
+        else:
+            free = co.co_cellvars + co.co_freevars
+            names = co.co_names
+            varnames = co.co_varnames
+
+        extended_arg = 0
+        for offset in self.op_range(0, n):
+            op = self.code[offset]
+            op_name = self.opc.opname[op]
+
+            oparg = None; pattr = None
+            if op >= HAVE_ARGUMENT:
+                oparg = self.get_argument(offset) + extended_arg
+                extended_arg = 0
+                if op == EXTENDED_ARG:
+                    extended_arg = oparg * scan.L65536
+                    continue
+                if op in hasconst:
+                    pattr = co.co_consts[oparg]
+                elif op in hasname:
+                    pattr = names[oparg]
+                elif op in hasjrel:
+                    pattr = repr(offset + 3 + oparg)
+                elif op in hasjabs:
+                    pattr = repr(oparg)
+                elif op in haslocal:
+                    pattr = varnames[oparg]
+                elif op in hascompare:
+                    pattr = cmp_op[oparg]
+                elif op in hasfree:
+                    pattr = free[oparg]
+
+            if offset in self.linestartoffsets:
+                linestart = self.linestartoffsets[offset]
+            else:
+                linestart = None
+
+            tokens.append(Token(op_name, oparg, pattr, offset, linestart))
+            pass
+        return tokens, customize
+
+    def op_size(self, op):
+        """
+        Return size of operator with its arguments
+        for given opcode <op>.
+        """
+        if op < self.opc.HAVE_ARGUMENT and op not in self.opc.hasArgumentExtended:
+            return 1
+        else:
+            return 3
+
+    def setup_code(self, co):
+        """
+        Creates Python-independent bytecode structure (byte array) in
+        self.code and records previous instruction in self.prev
+        The size of self.code is returned
+        """
+        self.code = array('B', co.co_code)
+
+        n = -1
+        for i in self.op_range(0, len(self.code)):
+            if self.code[i] in (self.opc.RETURN_VALUE, self.opc.END_FINALLY):
+                n = i + 1
+                pass
+            pass
+        assert n > -1, "Didn't find RETURN_VALUE or END_FINALLY FINALLY"
+        self.code = array('B', co.co_code[:n])
+
+        return n
+
+    def build_prev_op(self, n):
+        self.prev = [0]
+        # mapping addresses of instruction & argument
+        for i in self.op_range(0, n):
+            op = self.code[i]
+            self.prev.append(i)
+            if op >= HAVE_ARGUMENT:
+                self.prev.append(i)
+                self.prev.append(i)
                 pass
             pass
 
-        # Debug
-        # for t in tokens:
-        #     print t
-        return tokens, customize
+    def build_lines_data(self, co, n):
+        """
+        Initializes self.lines and self.linesstartoffsets
+        """
+        self.lines = []
+        linetuple = namedtuple('linetuple', ['l_no', 'next'])
 
-    def getOpcodeToDel(self, i):
-        '''
-        check validity of the opcode at position I and return a list of opcode to delete
-        '''
-        opcode = self.code[i]
-        opsize = self.op_size(opcode)
+        # linestarts is a tuple of (offset, line number).
+        # Turn that in a has that we can index
+        linestarts = list(dis.findlinestarts(co))
+        self.linestartoffsets = {}
+        for offset, lineno in linestarts:
+            self.linestartoffsets[offset] = lineno
 
-        if i+opsize >= len(self.code):
-            return None
-
-        if opcode == EXTENDED_ARG:
-            raise NotImplementedError
-        # modification of some jump structure
-        if opcode in (PJIF, PJIT, JA, JF, RETURN_VALUE):
-            toDel = []
-            # del POP_TOP
-            if self.code[i+opsize] == POP_TOP:
-                if self.code[i+opsize] == self.code[i+opsize+1] and self.code[i+opsize] == self.code[i+opsize+2] \
-                and opcode in (JF, JA) and self.code[i+opsize] != self.code[i+opsize+3]:
-                    pass
-                else:
-                    toDel += [i+opsize]
-            # conditional tuple (not optimal at all, no good solution...)
-            if self.code[i] == JA and self.code[i+opsize] == POP_TOP \
-                and self.code[i+opsize+1] == JA and self.code[i+opsize+4] == POP_BLOCK:
-                jmpabs1target = self.get_target(i)
-                jmpabs2target = self.get_target(i+opsize+1)
-                if jmpabs1target == jmpabs2target and self.code[jmpabs1target] == FOR_ITER \
-                and self.code[jmpabs1target-1] != GET_ITER:
-                    destFor = self.get_target(jmpabs1target)
-                    if destFor == i+opsize+4:
-                        setupLoop = self.last_instr(0, jmpabs1target, SETUP_LOOP)
-                        standarFor =  self.last_instr(setupLoop, jmpabs1target, GET_ITER)
-                        if standarFor is None:
-                            self.restructJump(jmpabs1target, destFor+self.op_size(POP_BLOCK))
-                            toDel += [setupLoop, i+opsize+1, i+opsize+4]
-
-            if len(toDel) > 0:
-                return toDel
-            return None
-        # raise_varags not realy handle for the moment
-        if opcode == RAISE_VARARGS:
-            if self.code[i+opsize] == POP_TOP:
-                return [i+opsize]
-        # modification of list structure
-        if opcode == BUILD_LIST:
-            if (self.code[i+opsize] == DUP_TOP and
-                self.code[i+opsize+1] in (STORE_NAME, STORE_FAST)):
-                # del DUP/STORE_NAME x
-                toDel = [i+opsize, i+opsize+1]
-                nameDel = self.get_argument(i+opsize+1)
-                start = i+opsize+1
-                end = start
-                # del LOAD_NAME x
-                while end < len(self.code):
-                    end = self.first_instr(end, len(self.code), (LOAD_NAME, LOAD_FAST))
-                    if nameDel == self.get_argument(end):
-                        toDel += [end]
-                        break
-                    if self.code[end] == LOAD_NAME:
-                        end += self.op_size(LOAD_NAME)
-                    else:
-                        end += self.op_size(LOAD_FAST)
-                # log JA/POP_TOP to del and update PJIF
-                while start < end:
-                    start = self.first_instr(start, end, (PJIF, PJIT))
-                    if start is None: break
-                    target = self.get_target(start)
-                    if self.code[target] == POP_TOP and self.code[target-3] == JA:
-                        toDel += [target, target-3]
-                        # update PJIF
-                        target = self.get_target(target-3)
-                        self.restructJump(start, target)
-                    start += self.op_size(PJIF)
-                # del DELETE_NAME x
-                start = end
-                while end < len(self.code):
-                    end = self.first_instr(end, len(self.code),
-                                           (DELETE_NAME, DELETE_FAST))
-                    if nameDel == self.get_argument(end):
-                        toDel += [end]
-                        break
-                    if self.code[end] == DELETE_NAME:
-                        end += self.op_size(DELETE_NAME)
-                    else:
-                        end += self.op_size(DELETE_FAST)
-                return toDel
-        # for / while struct
-        if opcode == SETUP_LOOP:
-            # change join(for..) struct
-            if self.code[i+3] == LOAD_FAST and self.code[i+6] == FOR_ITER:
-                end = self.first_instr(i, len(self.code), RETURN_VALUE)
-                end = self.first_instr(i, end, YIELD_VALUE)
-                if end and self.code[end+1] == POP_TOP and self.code[end+2] == JA and self.code[end+5] == POP_BLOCK:
-                    return [i, end+5]
-        # with stmt
-        if opcode == WITH_CLEANUP:
-            allRot = self.all_instr(0, i, (ROT_TWO))
-            chckRot = -1
-            for rot in allRot:
-                if self.code[rot+1] == LOAD_ATTR and self.code[rot-3] == LOAD_ATTR \
-                    and self.code[rot-4] == DUP_TOP:
-                    chckRot = rot
-            assert chckRot > 0
-            toDel = [chckRot-4, chckRot-3, chckRot]
-            chckStp = -1
-            allSetup = self.all_instr(chckRot+1, i, (SETUP_FINALLY))
-            for stp in allSetup:
-                if i == self.get_target(stp):
-                    chckStp = stp
-            assert chckStp > 0
-            toDel += [chckStp]
-            chckDel = chckRot+1+self.op_size(self.code[chckRot+1])
-            while chckDel < chckStp-3:
-                toDel += [chckDel]
-                chckDel += self.op_size(self.code[chckDel])
-            if (self.code[chckStp-3] in (STORE_NAME, STORE_FAST) and
-                self.code[chckStp+3] in (LOAD_NAME, LOAD_FAST)
-                and self.code[chckStp+6] in (DELETE_NAME, DELETE_FAST)):
-                toDel += [chckStp-3, chckStp+3, chckStp+6]
-            # SETUP_WITH opcode dosen't exist in 2.6 but is necessary for the grammar
-            self.code[chckRot+1] = JUMP_ABSOLUTE # ugly hack
-            self.restructJump(chckRot+1, i)
-            self.toChange.append(chckRot+1)
-            return toDel
-        if opcode == NOP:
-            return [i]
-        return None
-
-    def getOpcodeToExp(self):
-        # we handle listExp, if opcode have to be resized
-        listExp = []
-        i=0
-        while i < len(self.code): # we can't use op_range for the moment
-            op = self.code[i]
-            if op in self.opc.hasArgumentExtended:
-                listExp += [i]
-            elif self.op_hasArgument(op):
-                i+=2
-            i+=1
-        return listExp
-
-    def restructCode(self, listDel, listExp):
-        '''
-        restruct linestarts and jump destination after converting bytecode
-        '''
-        # restruct linestarts with deleted / modificated opcode
-        result = list()
-        for block in self.linestarts:
-            startBlock = 0
-            for toDel in listDel:
-                if toDel < block[0]:
-                    startBlock -= self.op_size(self.code[toDel])
-            for toExp in listExp:
-                if toExp < block[0]:
-                    startBlock += 2
-            result.append((block[0]+startBlock, block[1]))
-        self.linestarts = result
-        # handle opcodeToChange deplacement
-        for index in range(len(self.toChange)):
-            change = self.toChange[index]
-            delta = 0
-            for toDel in listDel:
-                if change > toDel:
-                    delta -= self.op_size(self.code[toDel])
-            for toExp in listExp:
-                if change > toExp:
-                    delta += 2
-            self.toChange[index] += delta
-        # restruct jmp opcode
-        if listDel:
-            for jmp in self.op_range(0, len(self.code)):
-                op = self.code[jmp]
-                if op in hasjrel+hasjabs:
-                    offset = 0
-                    jmpTarget = self.get_target(jmp)
-                    for toDel in listDel:
-                        if toDel < jmpTarget:
-                            if op in hasjabs or jmp < toDel:
-                                offset-=self.op_size(self.code[toDel])
-                    self.restructJump(jmp, jmpTarget+offset)
-        if listExp:
-            jmp = 0
-            while jmp < len(self.code): # we can't use op_range for the moment
-                op = self.code[jmp]
-                if op in hasjrel+hasjabs:
-                    offset = 0
-                    jmpTarget = self.get_target(jmp)
-                    for toExp in listExp:
-                        if toExp < jmpTarget:
-                            if op in hasjabs or jmp < toExp:
-                                offset+=2
-                    self.restructJump(jmp, jmpTarget+offset)
-                if self.op_hasArgument(op) and op not in self.opc.hasArgumentExtended:
-                    jmp += 3
-                else: jmp += 1
-
-    def restructBytecode(self):
-        '''
-        add/change/delete bytecode for suiting bytecode 2.7
-        '''
-        # we can't use op_range for the moment
-        # convert jump opcode to 2.7
-        self.restructRelativeJump()
-
-        listExp = self.getOpcodeToExp()
-        # change code structure
-        if listExp:
-            listExp = sorted(list(set(listExp)))
-            self.restructCode([], listExp)
-            # we add arg to expended opcode
-            offset=0
-            for toExp in listExp:
-                self.code.insert(toExp+offset+1, 0)
-                self.code.insert(toExp+offset+1, 0)
-                offset+=2
-        # op_range is now ok :)
-        # add instruction to change in "toChange" list + MAJ toDel
-        listDel = []
-        for i in self.op_range(0, len(self.code)):
-            ret = self.getOpcodeToDel(i)
-            if ret is not None:
-                listDel += ret
-
-        # change code structure after deleting byte
-        if listDel:
-            listDel = sorted(list(set(listDel)))
-            self.restructCode(listDel, [])
-            # finaly we delete useless opcode
-            delta = 0
-            for x in listDel:
-                if self.op_hasArgument(self.code[x-delta]):
-                    self.code.pop(x-delta)
-                    self.code.pop(x-delta)
-                    self.code.pop(x-delta)
-                    delta += 3
-                else:
-                    self.code.pop(x-delta)
-                    delta += 1
-
-    def restructRelativeJump(self):
-        '''
-        change relative JUMP_IF_FALSE/TRUE to absolut jump
-        and remap the target of PJIF/PJIT
-        '''
-        i=0
-        while i < len(self.code): # we can't use op_range for the moment
-            op = self.code[i]
-            if(op in (PJIF, PJIT)):
-                target = self.get_argument(i)
-                target += i + 3
-                self.restructJump(i, target)
-            if self.op_hasArgument(op) and op not in self.opc.hasArgumentExtended:
-                i += 3
-            else: i += 1
-
-        i=0
-        while i < len(self.code): # we can't use op_range for the moment
-            op = self.code[i]
-            if(op in (PJIF, PJIT)):
-                target = self.get_target(i)
-                if self.code[target] == JA:
-                    target = self.get_target(target)
-                    self.restructJump(i, target)
-            if self.op_hasArgument(op) and op not in self.opc.hasArgumentExtended:
-                i += 3
-            else: i += 1
-
-    def restructJump(self, pos, newTarget):
-        if not (self.code[pos] in hasjabs+hasjrel):
-            raise 'Can t change this argument. Opcode is not a jump'
-        if newTarget > 0xFFFF:
-            raise NotImplementedError
-        offset = newTarget-self.get_target(pos)
-        target = self.get_argument(pos)+offset
-        if target < 0 or target > 0xFFFF:
-            raise NotImplementedError
-        self.code[pos+2] = (target >> 8) & 0xFF
-        self.code[pos+1] = target & 0xFF
+        j = 0
+        (prev_start_byte, prev_line_no) = linestarts[0]
+        for (start_byte, line_no) in linestarts[1:]:
+            while j < start_byte:
+                self.lines.append(linetuple(prev_line_no, start_byte))
+                j += 1
+            prev_line_no = start_byte
+        while j < n:
+            self.lines.append(linetuple(prev_line_no, n))
+            j+=1
+        return
 
     def build_stmt_indices(self):
         code = self.code
@@ -525,20 +346,30 @@ class Scanner26(scan.Scanner2):
         end = len(code)
 
         stmt_opcodes = set([
-            SETUP_LOOP, BREAK_LOOP, CONTINUE_LOOP,
-            SETUP_FINALLY, END_FINALLY, SETUP_EXCEPT,
-            POP_BLOCK, STORE_FAST, DELETE_FAST, STORE_DEREF,
-            STORE_GLOBAL, DELETE_GLOBAL, STORE_NAME, DELETE_NAME,
-            STORE_ATTR, DELETE_ATTR, STORE_SUBSCR, DELETE_SUBSCR,
+            self.opc.SETUP_LOOP, self.opc.BREAK_LOOP, self.opc.CONTINUE_LOOP,
+            self.opc.SETUP_FINALLY, self.opc.END_FINALLY,
+            self.opc.SETUP_EXCEPT, self.opc.SETUP_WITH,
+            self.opc.POP_BLOCK, self.opc.STORE_FAST, self.opc.DELETE_FAST,
+            self.opc.STORE_DEREF, self.opc.STORE_GLOBAL,
+            self.opc.DELETE_GLOBAL, self.opc.STORE_NAME,
+            self.opc.DELETE_NAME, self.opc.STORE_ATTR,
+            self.opc.DELETE_ATTR,
+            ## FIXME keep going.
+            STORE_SUBSCR, DELETE_SUBSCR,
             RETURN_VALUE, RAISE_VARARGS, POP_TOP,
             PRINT_EXPR, PRINT_ITEM, PRINT_NEWLINE, PRINT_ITEM_TO, PRINT_NEWLINE_TO,
+            STORE_SLICE_0, STORE_SLICE_1, STORE_SLICE_2, STORE_SLICE_3,
+            DELETE_SLICE_0, DELETE_SLICE_1, DELETE_SLICE_2, DELETE_SLICE_3,
             JUMP_ABSOLUTE, EXEC_STMT,
         ])
 
-        stmt_opcode_seqs = [(PJIF, JF), (PJIF, JA), (PJIT, JF), (PJIT, JA)]
+        stmt_opcode_seqs = [(self.opc.PJIF, self.opc.JF),
+                            (self.opc.PJIF, self.opc.JA),
+                            (self.opc.PJIT, self.opc.JF),
+                            (self.opc.PJIT, self.opc.JA)]
 
         designator_ops = set([
-            STORE_FAST, STORE_NAME, STORE_GLOBAL, STORE_DEREF, STORE_ATTR,
+            self.opc.STORE_FAST, STORE_NAME, STORE_GLOBAL, STORE_DEREF, STORE_ATTR,
             STORE_SLICE_0, STORE_SLICE_1, STORE_SLICE_2, STORE_SLICE_3,
             STORE_SUBSCR, UNPACK_SEQUENCE, JA
         ])
@@ -579,17 +410,17 @@ class Scanner26(scan.Scanner2):
                 j = self.prev[s]
                 while code[j] == JA:
                     j = self.prev[j]
-                if code[j] == LIST_APPEND: # list comprehension
+                if code[j] == self.opc.LIST_APPEND: # list comprehension
                     stmts.remove(s)
                     continue
-            elif code[s] == POP_TOP and code[self.prev[s]] == ROT_TWO:
+            elif code[s] == self.opc.POP_TOP and code[self.prev[s]] == self.opc.ROT_TWO:
                 stmts.remove(s)
                 continue
             elif code[s] in designator_ops:
                 j = self.prev[s]
                 while code[j] in designator_ops:
                     j = self.prev[j]
-                if code[j] == FOR_ITER:
+                if code[j] == self.opc.FOR_ITER:
                     stmts.remove(s)
                     continue
             last_stmt = s
@@ -604,7 +435,7 @@ class Scanner26(scan.Scanner2):
         '''
 
         if self.code[start] == DUP_TOP:
-            except_match = self.first_instr(start, len(self.code), (PJIF))
+            except_match = self.first_instr(start, len(self.code), POP_JUMP_IF_FALSE)
             if except_match:
                 jmp = self.prev[self.get_target(except_match)]
                 self.ignore_if.add(except_match)
@@ -617,19 +448,16 @@ class Scanner26(scan.Scanner2):
             op = self.code[i]
             if op == END_FINALLY:
                 if count_END_FINALLY == count_SETUP_:
-                    if self.code[self.prev[i]] == NOP:
-                        i = self.prev[i]
                     assert self.code[self.prev[i]] in (JA, JF, RETURN_VALUE)
                     self.not_continue.add(self.prev[i])
                     return self.prev[i]
                 count_END_FINALLY += 1
-            elif op in (SETUP_EXCEPT, SETUP_FINALLY):
+            elif op in (SETUP_EXCEPT, SETUP_WITH, SETUP_FINALLY):
                 count_SETUP_ += 1
-        # return self.lines[start].next
 
     def detect_structure(self, pos, op=None):
         '''
-        Detect type of block structures and their boundaries to fix optimizied jumps
+        Detect type of block structures and their boundaries to fix optimized jumps
         in python2.3+
         '''
 
@@ -659,19 +487,18 @@ class Scanner26(scan.Scanner2):
 
             if target != end:
                 self.fixed_jumps[pos] = end
-
             (line_no, next_line_byte) = self.lines[pos]
             jump_back = self.last_instr(start, end, JA,
                                           next_line_byte, False)
+
             if jump_back and jump_back != self.prev[end] and code[jump_back+3] in (JA, JF):
                 if code[self.prev[end]] == RETURN_VALUE or \
                     (code[self.prev[end]] == POP_BLOCK and code[self.prev[self.prev[end]]] == RETURN_VALUE):
                     jump_back = None
             if not jump_back: # loop suite ends in return. wtf right?
-                jump_back = self.last_instr(start, end, RETURN_VALUE)
+                jump_back = self.last_instr(start, end, RETURN_VALUE) + 1
                 if not jump_back:
                     return
-                jump_back += 1
                 if code[self.prev[next_line_byte]] not in (PJIF, PJIT):
                     loop_type = 'for'
                 else:
@@ -681,8 +508,7 @@ class Scanner26(scan.Scanner2):
                 end = jump_back + 3
             else:
                 if self.get_target(jump_back) >= next_line_byte:
-                    jump_back = self.last_instr(start, end, JA,
-                                              start, False)
+                    jump_back = self.last_instr(start, end, JA, start, False)
                 if end > jump_back+4 and code[end] in (JF, JA):
                     if code[jump_back+4] in (JA, JF):
                         if self.get_target(jump_back+4) == self.get_target(end):
@@ -691,7 +517,6 @@ class Scanner26(scan.Scanner2):
                 elif target < pos:
                     self.fixed_jumps[pos] = jump_back+4
                     end = jump_back+4
-
                 target = self.get_target(jump_back, JA)
 
                 if code[target] in (FOR_ITER, GET_ITER):
@@ -731,11 +556,8 @@ class Scanner26(scan.Scanner2):
 
             # Add the except blocks
             i = end
-            while i < len(self.code) and self.code[i] != END_FINALLY:
+            while self.code[i] != END_FINALLY:
                 jmp = self.next_except_jump(i)
-                if jmp is None: # check
-                    i = self.next_stmt[i]
-                    continue
                 if self.code[jmp] == RETURN_VALUE:
                     self.structs.append({'type':  'except',
                                            'start': i,
@@ -755,7 +577,7 @@ class Scanner26(scan.Scanner2):
             if end_else != start_else:
                 r_end_else = self.restrict_to_parent(end_else, parent)
                 self.structs.append({'type':  'try-else',
-                                       'start': i+2, # check
+                                       'start': i+1,
                                        'end':   r_end_else})
                 self.fixed_jumps[i] = r_end_else
             else:
@@ -772,7 +594,8 @@ class Scanner26(scan.Scanner2):
                 return
             # does this jump to right after another cond jump?
             # if so, it's part of a larger conditional
-            if (code[pre[target]] in (PJIF, PJIT)) and (target > pos):
+            if (code[pre[target]] in (JUMP_IF_FALSE_OR_POP, JUMP_IF_TRUE_OR_POP,
+                    PJIF, PJIT)) and (target > pos):
                 self.fixed_jumps[pos] = pre[target]
                 self.structs.append({'type':  'and/or',
                                        'start': start,
@@ -783,6 +606,7 @@ class Scanner26(scan.Scanner2):
             if op == PJIF:
                 match = self.rem_or(start, self.next_stmt[pos], PJIF, target)
                 match = self.remove_mid_line_ifs(match)
+
                 if match:
                     if code[pre[rtarget]] in (JF, JA) \
                             and pre[rtarget] not in self.stmts \
@@ -795,10 +619,11 @@ class Scanner26(scan.Scanner2):
                             pass
                         elif code[pre[pre[rtarget]]] == RETURN_VALUE \
                                 and self.remove_mid_line_ifs([pos]) \
-                                and 1 == (len(set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]],
-                                                             (PJIF, PJIT), target)))
+                                and 1 == (len(set(self.remove_mid_line_ifs(self.rem_or(start,
+                                                                                       pre[pre[rtarget]],
+                                                                                       (PJIF, PJIT), target)))
                                               | set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]],
-                                                           (PJIF, PJIT, JA), pre[rtarget], True))))):
+                                                            (PJIF, PJIT, JA), pre[rtarget], True))))):
                             pass
                         else:
                             fix = None
@@ -813,9 +638,6 @@ class Scanner26(scan.Scanner2):
                                     last_jump_good = False
                             self.fixed_jumps[pos] = fix or match[-1]
                             return
-                    elif pos < rtarget and code[target] == ROT_TWO:
-                        self.fixed_jumps[pos] = target
-                        return
                     else:
                         self.fixed_jumps[pos] = match[-1]
                         return
@@ -833,18 +655,30 @@ class Scanner26(scan.Scanner2):
                         if code[next] == JF or target != rtarget or code[pre[pre[rtarget]]] not in (JA, RETURN_VALUE):
                             self.fixed_jumps[pos] = pre[next]
                             return
-                elif code[next] == JA and code[target] in (JA, JF) \
-                      and self.get_target(target) == self.get_target(next):
-                    self.fixed_jumps[pos] = pre[next]
-                    return
+                elif code[next] == JA and code[target] in (JA, JF):
+                    next_target = self.get_target(next)
+                    if self.get_target(target) == next_target:
+                        self.fixed_jumps[pos] = pre[next]
+                        return
+                    elif code[next_target] in (JA, JF) and self.get_target(next_target) == self.get_target(target):
+                        self.fixed_jumps[pos] = pre[next]
+                        return
+
             # don't add a struct for a while test, it's already taken care of
             if pos in self.ignore_if:
                 return
 
             if code[pre[rtarget]] == JA and pre[rtarget] in self.stmts \
-                    and pre[rtarget] != pos and pre[pre[rtarget]] != pos \
-                    and not (code[rtarget] == JA and code[rtarget+3] == POP_BLOCK and code[pre[pre[rtarget]]] != JA):
-                rtarget = pre[rtarget]
+                    and pre[rtarget] != pos and pre[pre[rtarget]] != pos:
+                if code[rtarget] == JA and code[rtarget+3] == POP_BLOCK:
+                    if code[pre[pre[rtarget]]] != JA:
+                        pass
+                    elif self.get_target(pre[pre[rtarget]]) != target:
+                        pass
+                    else:
+                        rtarget = pre[rtarget]
+                else:
+                    rtarget = pre[rtarget]
             # does the if jump just beyond a jump op, then this is probably an if statement
             if code[pre[rtarget]] in (JA, JF):
                 if_end = self.get_target(pre[rtarget])
@@ -866,15 +700,16 @@ class Scanner26(scan.Scanner2):
                                        'start': rtarget,
                                        'end':   end})
             elif code[pre[rtarget]] == RETURN_VALUE:
-                # if it's an old JUMP_IF_FALSE_OR_POP, JUMP_IF_TRUE_OR_POP (return 1<2<3 case)
-                if pos < rtarget and code[rtarget] == ROT_TWO:
-                    return
                 self.structs.append({'type':  'if-then',
                                        'start': start,
                                        'end':   rtarget})
                 self.return_end_ifs.add(pre[rtarget])
 
-    def find_jump_targets(self, code):
+        elif op in (JUMP_IF_FALSE_OR_POP, JUMP_IF_TRUE_OR_POP):
+            target = self.get_target(pos, op)
+            self.fixed_jumps[pos] = self.restrict_to_parent(target, parent)
+
+    def find_jump_targets(self):
         '''
         Detect all offsets in a byte code which are jump targets.
 
@@ -884,7 +719,7 @@ class Scanner26(scan.Scanner2):
         for each target the number of jumps are counted.
         '''
 
-        n = len(code)
+        n = len(self.code)
         self.structs = [{'type':  'root',
                            'start': 0,
                            'end':   n-1}]
@@ -892,26 +727,30 @@ class Scanner26(scan.Scanner2):
         self.fixed_jumps = {} # Map fixed jumps to their real destination
         self.ignore_if = set()
         self.build_stmt_indices()
+
+        # Containers filled by detect_structure()
         self.not_continue = set()
         self.return_end_ifs = set()
 
         targets = {}
         for i in self.op_range(0, n):
-            op = code[i]
+            op = self.code[i]
 
-            # Determine structures and fix jumps for 2.3+
+            # Determine structures and fix jumps in Python versions
+            # since 2.3
             self.detect_structure(i, op)
 
-            if self.op_hasArgument(op):
+            if op >= HAVE_ARGUMENT:
                 label = self.fixed_jumps.get(i)
-                oparg = self.get_argument(i)
+                oparg = self.code[i+1] + self.code[i+2] * 256
                 if label is None:
                     if op in hasjrel and op != FOR_ITER:
                         label = i + 3 + oparg
-                    # elif op in hasjabs:
-                    #     if op in (JUMP_IF_FALSE, JUMP_IF_TRUE):
-                    #         if (oparg > i):
-                    #             label = oparg
+                    elif op in hasjabs:
+                        if op in (JUMP_IF_FALSE_OR_POP, JUMP_IF_TRUE_OR_POP):
+                            if (oparg > i):
+                                label = oparg
+
                 if label is not None and label != -1:
                     targets[label] = targets.get(label, []) + [i]
             elif op == END_FINALLY and i in self.fixed_jumps:
@@ -921,12 +760,13 @@ class Scanner26(scan.Scanner2):
 
 if __name__ == "__main__":
     from uncompyle6 import PYTHON_VERSION
-    if PYTHON_VERSION == 2.6:
-        import inspect
+    if PYTHON_VERSION >= 2.3:
         co = inspect.currentframe().f_code
-        tokens, customize = Scanner26().disassemble(co)
+        from uncompyle6 import PYTHON_VERSION
+        tokens, customize = Scanner2(PYTHON_VERSION).disassemble(co)
         for t in tokens:
             print(t.format())
     else:
-        print("Need to be Python 2.6 to demo; I am %s." %
+        print("Need to be Python 3.2 or greater to demo; I am %s." %
               PYTHON_VERSION)
+    pass

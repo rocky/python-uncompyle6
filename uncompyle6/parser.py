@@ -10,7 +10,7 @@ from __future__ import print_function
 
 import sys
 
-from uncompyle6.code import iscode
+from xdis.code import iscode
 from spark_parser import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 class ParserError(Exception):

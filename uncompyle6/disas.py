@@ -22,8 +22,8 @@ import os, sys
 from collections import deque
 
 import uncompyle6
-from uncompyle6.code import iscode
-from uncompyle6.load import check_object_path, load_module
+from xdis.code import iscode
+from xdis.load import check_object_path, load_module
 from uncompyle6.scanner import get_scanner
 
 def disco(version, co, out=None, use_uncompyle6_format=False):
@@ -57,7 +57,7 @@ def disco_loop(disasm, queue, real_out, use_uncompyle6_format):
             print('\n# %s line %d of %s' %
                       (co.co_name, co.co_firstlineno, co.co_filename),
                       file=real_out)
-        tokens, customize = disasm(co, use_uncompyle6_format)
+        tokens, customize = disasm(co)
         for t in tokens:
             if iscode(t.pattr):
                 queue.append(t.pattr)
