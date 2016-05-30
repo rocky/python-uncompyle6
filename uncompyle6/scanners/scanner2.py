@@ -307,7 +307,7 @@ class Scanner2(scan.Scanner):
         for i in self.op_range(0, n):
             op = self.code[i]
             self.prev.append(i)
-            if op >= self.opc.HAVE_ARGUMENT:
+            if self.op_hasArgument(op):
                 self.prev.append(i)
                 self.prev.append(i)
                 pass

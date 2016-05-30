@@ -13,6 +13,10 @@ use in deparsing.
 from xdis.bytecode import findlinestarts
 import uncompyle6.scanners.scanner2 as scan
 
+# bytecode verification, verify(), uses JUMP_OPs from here
+from xdis.opcodes import opcode_26
+JUMP_OPs = opcode_26.JUMP_OPs
+
 class Scanner26(scan.Scanner2):
     def __init__(self):
         super(Scanner26, self).__init__(2.6)
@@ -106,14 +110,7 @@ class Scanner26(scan.Scanner2):
         self.restructBytecode()
         codelen = len(self.code)
 
-        # mapping adresses of prev instruction
-        self.prev = [0]
-        for i in self.op_range(0, codelen):
-            op = self.code[i]
-            self.prev.append(i)
-            if self.op_hasArgument(op):
-                self.prev.append(i)
-                self.prev.append(i)
+        self.build_prev_op(codelen)
 
         self.load_asserts = set()
         for i in self.op_range(0, codelen):
@@ -187,7 +184,7 @@ class Scanner26(scan.Scanner2):
                         # verify uses 'pattr' for comparison, since 'attr'
                         # now holds Code(const) and thus can not be used
                         # for comparison (todo: think about changing this)
-                        # pattr = 'code_object @ 0x%x %s->%s' %\
+                        # pattr = 'code_object @ 0x%x %s->%s' % \
                         # (id(const), const.co_filename, const.co_name)
                         pattr = '<code_object ' + const.co_name + '>'
                     else:
@@ -268,7 +265,7 @@ class Scanner26(scan.Scanner2):
         if opcode == self.opc.EXTENDED_ARG:
             raise NotImplementedError
 
-        # modification of some jump structure
+        # modification of some jump structures
         if opcode in (self.opc.PJIF,
                      self.opc.PJIT,
                      self.opc.JA,
@@ -300,10 +297,11 @@ class Scanner26(scan.Scanner2):
             if len(toDel) > 0:
                 return toDel
             return None
-        # raise_varags not realy handle for the moment
+        # raise_varagsis  not really handled for the moment
         if opcode == self.opc.RAISE_VARARGS:
             if self.code[i+opsize] == self.opc.POP_TOP:
                 return [i+opsize]
+
         # modification of list structure
         if opcode == self.opc.BUILD_LIST:
             if (self.code[i+opsize] == self.opc.DUP_TOP and
