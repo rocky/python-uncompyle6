@@ -7,5 +7,6 @@
    7      6	LOAD_NAME             1  'False'
           9	STORE_NAME            2  'b'
          12	JUMP_FORWARD          0  '15'
+       15_0	COME_FROM                '12'
          15	LOAD_CONST            0  ''
          18	RETURN_VALUE             ''

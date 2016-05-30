@@ -18,36 +18,26 @@ want to run on Python 2.7.
 
 from __future__ import print_function
 
-import datetime, sys
+import os, sys
 from collections import deque
 
 import uncompyle6
 
 from xdis.main import disassemble_file as xdisassemble_file
-from xdis.util import format_code_info
 from xdis.code import iscode
 from xdis.load import check_object_path, load_module
-from uncompyle6 import PYTHON_VERSION
 from uncompyle6.scanner import get_scanner
 
-
-def disco(version, co, timestamp, out=None):
+def disco(version, co, out=None):
     """
     diassembles and deparses a given code block 'co'
     """
 
     assert iscode(co)
 
-    out.write('# Python bytecode %s (disassembled from Python %s)\n' %
-              (version, PYTHON_VERSION))
-    if timestamp > 0:
-        value = datetime.datetime.fromtimestamp(timestamp)
-        out.write(value.strftime('# Timestamp in code: '
-                                 '%Y-%m-%d %H:%M:%S\n'))
-
     # store final output stream for case of error
     real_out = out or sys.stdout
-
+    print('# Python %s' % version, file=real_out)
     if co.co_filename:
         print('# Embedded file name: %s' % co.co_filename,
               file=real_out)
@@ -55,15 +45,16 @@ def disco(version, co, timestamp, out=None):
     scanner = get_scanner(version)
 
     queue = deque([co])
-    disco_loop(scanner.disassemble, version, queue, real_out)
+    disco_loop(scanner.disassemble, queue, real_out)
 
 
-def disco_loop(disasm, version, queue, real_out):
+def disco_loop(disasm, queue, real_out):
     while len(queue) > 0:
         co = queue.popleft()
-
-        print(format_code_info(co, version), file=real_out)
-
+        if co.co_name != '<module>':
+            print('\n# %s line %d of %s' %
+                      (co.co_name, co.co_firstlineno, co.co_filename),
+                      file=real_out)
         tokens, customize = disasm(co)
         for t in tokens:
             if iscode(t.pattr):
@@ -81,17 +72,17 @@ def disassemble_file(filename, outstream=None, native=False):
     If given a Python source file (".py") file, we'll
     try to find the corresponding compiled object.
     """
-
     if native:
         xdisassemble_file(filename, outstream)
         return
+
     filename = check_object_path(filename)
     version, timestamp, magic_int, co = load_module(filename)
     if type(co) == list:
         for con in co:
-            disco(version, con, outstream, native)
+            disco(version, con, outstream)
     else:
-        disco(version, co, timestamp, outstream)
+        disco(version, co, outstream)
     co = None
 
 def _test():
