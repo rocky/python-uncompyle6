@@ -10,8 +10,7 @@ Python 3 and other versions of Python. Also, we save token
 information for later use in deparsing.
 """
 
-from uncompyle6.opcodes.opcode_25 import *
-
+from xdis.opcodes.opcode_25 import *
 import uncompyle6.scanners.scanner26 as scan
 import uncompyle6.scanners.scanner2 as scan2
 
@@ -99,24 +98,24 @@ class Scanner25(scan.Scanner26):
         if listDel:
             for jmp in self.op_range(0, len(self.code)):
                 op = self.code[jmp]
-                if op in hasjrel+hasjabs:
+                if op in self.opc.hasjrel + self.opc.hasjabs:
                     offset = 0
                     jmpTarget = self.get_target(jmp)
                     for toDel in listDel:
                         if toDel < jmpTarget:
-                            if op in hasjabs or jmp < toDel:
-                                offset-=self.op_size(self.code[toDel])
+                            if op in self.opc.hasjabs or jmp < toDel:
+                                 offset-=self.op_size(self.code[toDel])
                     self.restructJump(jmp, jmpTarget+offset)
         if listExp:
             jmp = 0
             while jmp < len(self.code): # we can't use op_range for the moment
                 op = self.code[jmp]
-                if op in hasjrel+hasjabs:
+                if op in self.opc.hasjrel + self.opc.hasjabs:
                     offset = 0
                     jmpTarget = self.get_target(jmp)
                     for toExp in listExp:
                         if toExp < jmpTarget:
-                            if op in hasjabs or jmp < toExp:
+                            if op in self.opc.hasjabs or jmp < toExp:
                                 offset+=2
                     self.restructJump(jmp, jmpTarget+offset)
                 if self.op_hasArgument(op) and op not in self.opc.hasArgumentExtended:
@@ -166,46 +165,6 @@ class Scanner25(scan.Scanner26):
                     self.code.pop(x-delta)
                     delta += 1
 
-    def restructRelativeJump(self):
-        '''
-        change relative JUMP_IF_FALSE/TRUE to absolut jump
-        and remap the target of PJIF/PJIT
-        '''
-        i=0
-        while i < len(self.code): # we can't use op_range for the moment
-            op = self.code[i]
-            if(op in (PJIF, PJIT)):
-                target = self.get_argument(i)
-                target += i + 3
-                self.restructJump(i, target)
-            if self.op_hasArgument(op) and op not in self.opc.hasArgumentExtended:
-                i += 3
-            else: i += 1
-
-        i=0
-        while i < len(self.code): # we can't use op_range for the moment
-            op = self.code[i]
-            if(op in (PJIF, PJIT)):
-                target = self.get_target(i)
-                if self.code[target] == JA:
-                    target = self.get_target(target)
-                    self.restructJump(i, target)
-            if self.op_hasArgument(op) and op not in self.opc.hasArgumentExtended:
-                i += 3
-            else: i += 1
-
-    def restructJump(self, pos, newTarget):
-        if not (self.code[pos] in hasjabs+hasjrel):
-            raise 'Can t change this argument. Opcode is not a jump'
-        if newTarget > 0xFFFF:
-            raise NotImplementedError
-        offset = newTarget-self.get_target(pos)
-        target = self.get_argument(pos)+offset
-        if target < 0 or target > 0xFFFF:
-            raise NotImplementedError
-        self.code[pos+2] = (target >> 8) & 0xFF
-        self.code[pos+1] = target & 0xFF
-
     def detect_structure(self, pos, op=None):
         '''
         Detect type of block structures and their boundaries to fix optimizied jumps
@@ -230,7 +189,8 @@ class Scanner25(scan.Scanner26):
                 parent = s
         # We need to know how many new structures were added in this run
 
-        if op == SETUP_LOOP:
+
+        if op == self.opc.SETUP_LOOP:
             start = pos+3
             target = self.get_target(pos, op)
             end    = self.restrict_to_parent(target, parent)
@@ -239,8 +199,7 @@ class Scanner25(scan.Scanner26):
                 self.fixed_jumps[pos] = end
 
             (line_no, next_line_byte) = self.lines[pos]
-            jump_back = self.last_instr(start, end, JA,
-                                          next_line_byte, False)
+            jump_back = self.last_instr(start, end, self.opc.JA, next_line_byte, False)
             if jump_back and jump_back != self.prev[end] and code[jump_back+3] in (JA, JF):
                 if code[self.prev[end]] == RETURN_VALUE or \
                     (code[self.prev[end]] == POP_BLOCK and code[self.prev[self.prev[end]]] == RETURN_VALUE):
@@ -250,7 +209,7 @@ class Scanner25(scan.Scanner26):
                 if not jump_back:
                     return
                 jump_back += 1
-                if code[self.prev[next_line_byte]] not in (PJIF, PJIT):
+                if code[self.prev[next_line_byte]] not in self.pop_jump_if:
                     loop_type = 'for'
                 else:
                     loop_type = 'while'
@@ -270,16 +229,16 @@ class Scanner25(scan.Scanner26):
                     self.fixed_jumps[pos] = jump_back+4
                     end = jump_back+4
 
-                target = self.get_target(jump_back, JA)
+                target = self.get_target(jump_back, self.opc.JA)
 
-                if code[target] in (FOR_ITER, GET_ITER):
+                if code[target] in (self.opc.FOR_ITER, self.opc.GET_ITER):
                     loop_type = 'for'
                 else:
                     loop_type = 'while'
                     test = self.prev[next_line_byte]
                     if test == pos:
                         loop_type = 'while 1'
-                    elif self.code[test] in hasjabs+hasjrel:
+                    elif self.code[test] in self.opc.hasjabs + self.opc.hasjrel:
                         self.ignore_if.add(test)
                         test_target = self.get_target(test)
                         if test_target > (jump_back+3):
@@ -293,7 +252,7 @@ class Scanner25(scan.Scanner26):
                 self.structs.append({'type': loop_type + '-else',
                                        'start': jump_back+3,
                                        'end':   end})
-        elif op == SETUP_EXCEPT:
+        elif op == self.opc.SETUP_EXCEPT:
             start  = pos+3
             target = self.get_target(pos, op)
             end    = self.restrict_to_parent(target, parent)
@@ -308,20 +267,20 @@ class Scanner25(scan.Scanner26):
 
             # Add the except blocks
             i = end
-            while i < len(self.code) and self.code[i] != END_FINALLY:
-                jmp = self.next_except_jump(i)
-                if jmp is None: # check
+            while i < len(self.code) and self.code[i] != self.opc.END_FINALLY:
+                 jmp = self.next_except_jump(i)
+                 if jmp is None: # check
                     i = self.next_stmt[i]
                     continue
-                if self.code[jmp] == RETURN_VALUE:
-                    self.structs.append({'type':  'except',
+                 if self.code[jmp] == self.opc.RETURN_VALUE:
+                     self.structs.append({'type':  'except',
                                            'start': i,
                                            'end':   jmp+1})
-                    i = jmp + 1
-                else:
+                     i = jmp + 1
+                 else:
                     if self.get_target(jmp) != start_else:
                         end_else = self.get_target(jmp)
-                    if self.code[jmp] == JF:
+                    if self.code[jmp] == self.opc.JF:
                         self.fixed_jumps[jmp] = -1
                     self.structs.append({'type':  'except',
                                    'start': i,
@@ -338,7 +297,7 @@ class Scanner25(scan.Scanner26):
             else:
                 self.fixed_jumps[i] = i+1
 
-        elif op in (PJIF, PJIT):
+        elif op in self.pop_jump_if:
             start = pos+3
             target = self.get_target(pos, op)
             rtarget = self.restrict_to_parent(target, parent)
@@ -390,7 +349,7 @@ class Scanner25(scan.Scanner26):
                                     last_jump_good = False
                             self.fixed_jumps[pos] = fix or match[-1]
                             return
-                    elif pos < rtarget and code[target] == ROT_TWO:
+                    elif pos < rtarget and code[target] == self.opc.ROT_TWO:
                         self.fixed_jumps[pos] = target
                         return
                     else:
@@ -398,7 +357,7 @@ class Scanner25(scan.Scanner26):
                         return
             else: # op == PJIT
                 if (pos+3) in self.load_asserts:
-                    if code[pre[rtarget]] == RAISE_VARARGS:
+                    if code[pre[rtarget]] == self.opc.RAISE_VARARGS:
                         return
                     self.load_asserts.remove(pos+3)
 
@@ -427,8 +386,8 @@ class Scanner25(scan.Scanner26):
                 if_end = self.get_target(pre[rtarget])
 
                 # is this a loop not an if?
-                if (if_end < pre[rtarget]) and (code[pre[if_end]] == SETUP_LOOP):
-                    if(if_end > start):
+                if (if_end < pre[rtarget]) and (code[pre[if_end]] == self.opc.SETUP_LOOP):
+                     if(if_end > start):
                         return
 
                 end = self.restrict_to_parent(if_end, parent)
@@ -442,9 +401,9 @@ class Scanner25(scan.Scanner26):
                     self.structs.append({'type':  'if-else',
                                        'start': rtarget,
                                        'end':   end})
-            elif code[pre[rtarget]] == RETURN_VALUE:
+            elif code[pre[rtarget]] == self.opc.RETURN_VALUE:
                 # if it's an old JUMP_IF_FALSE_OR_POP, JUMP_IF_TRUE_OR_POP (return 1<2<3 case)
-                if pos < rtarget and code[rtarget] == ROT_TWO:
+                if pos < rtarget and code[rtarget] == self.opc.ROT_TWO:
                     return
                 self.structs.append({'type':  'if-then',
                                        'start': start,

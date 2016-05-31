@@ -8,10 +8,10 @@ scanner routine for Python 3.
 
 from __future__ import print_function
 
-import xdis
+# import xdis
 
 # bytecode verification, verify(), uses JUMP_OPs from here
-JUMP_OPs = xdis.opcodes.opcode_34.JUMP_OPs
+# JUMP_OPs = xdis.opcodes.opcode_34.JUMP_OPs
 
 from uncompyle6.scanners.scanner3 import Scanner3
 class Scanner34(Scanner3):
