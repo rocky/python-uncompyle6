@@ -34,5 +34,9 @@ class AST(UserList):
     def __repr__(self, indent=''):
         rv = str(self.type)
         for k in self:
-            rv = rv + '\n' + str(k).replace('\n', '\n   ')
+            child_text = str(k).replace('\n', '\n   ')
+            if hasattr(k, '__len__'):
+                rv += '\n(%d)  %s' % (len(k), child_text)
+            else:
+                rv += '\n' + child_text
         return rv
