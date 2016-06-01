@@ -3,8 +3,8 @@
 uncompyle6
 ==========
 
-A native Python bytecode Disassembler, Decompiler, Fragment Decompiler
-and bytecode library. Follows in the tradition of decompyle, uncompyle, and uncompyle2.
+A native Python cross-version Decompiler and Fragment Decompiler.
+Follows in the tradition of decompyle, uncompyle, and uncompyle2.
 
 
 Introduction
@@ -38,13 +38,6 @@ be used in showing stack traces or any program that wants to show a
 location in more detail than just a line number.  It can be also used
 when source-code information does not exist and there is just bytecode
 information.
-
-Other parts of the library can be used inside Python for various
-bytecode-related tasks. For example you can read in bytecode,
-i.e. perform a version-independent `marshal.loads()`, and disassemble
-the bytecode using a version of Python different from the one used to
-compile the bytecode.
-
 
 Installation
 ------------
