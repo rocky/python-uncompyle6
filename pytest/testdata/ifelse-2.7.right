@@ -10,5 +10,6 @@
 
    6     15	LOAD_CONST            1  2
          18	STORE_NAME            2  'd'
+       21_0	COME_FROM                '12'
          21	LOAD_CONST            2  ''
          24	RETURN_VALUE             ''

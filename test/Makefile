@@ -82,6 +82,10 @@ check-bytecode-3.5:
 check-native-short:
 	$(PYTHON) test_pythonlib.py --bytecode-$(PYTHON_VERSION) --verify $(COMPILE)
 
+#: Run longer Python 2.6's lib files known to be okay
+check-2.6-ok:
+	$(PYTHON) test_pythonlib.py --ok-2.6 --verify $(COMPILE)
+
 #: Run longer Python 2.7's lib files known to be okay
 check-2.7-ok:
 	$(PYTHON) test_pythonlib.py --ok-2.7 --verify $(COMPILE)
@@ -102,6 +106,6 @@ clean-dis:
 clean-unverified:
 	find . -name '*_unverified' -exec rm -v '{}' ';'
 
-#: Clean temporary compile/decompile/verify direcotries in /tmp
+#: Clean temporary compile/decompile/verify directories in /tmp
 clean-py-dis:
 	rm -fr /tmp/py-dis-* || true

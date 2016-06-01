@@ -59,9 +59,8 @@ test_options = {
     'test':
         ('test', PYC, 'test'),
 
-    'ok-2.6':
-        (os.path.join(src_dir, 'ok_2.6'),
-         PYOC, 'ok-2.6', 2.6),
+    'ok-2.6':    (os.path.join(src_dir, 'ok_lib2.6'),
+                 PYOC, 'ok-2.6', 2.6),
 
     'ok-2.7':    (os.path.join(src_dir, 'ok_lib2.7'),
                  PYOC, 'ok-2.7', 2.7),

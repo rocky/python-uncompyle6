@@ -30,10 +30,6 @@ if PYTHON3:
 else:
     L65536 = long(65536) # NOQA
 
-from uncompyle6.opcodes import (opcode_25, opcode_26, opcode_27,
-                                opcode_32, opcode_33, opcode_34, opcode_35)
-
-
 class Code(object):
     '''
     Class for representing code-objects.
@@ -53,18 +49,25 @@ class Scanner(object):
         self.version = version
         # FIXME: DRY
         if version == 2.7:
+            from xdis.opcodes import opcode_27
             self.opc = opcode_27
         elif version == 2.6:
+            from xdis.opcodes import opcode_26
             self.opc = opcode_26
         elif version == 2.5:
+            from xdis.opcodes import opcode_25
             self.opc = opcode_25
         elif version == 3.2:
+            from xdis.opcodes import opcode_32
             self.opc = opcode_32
         elif version == 3.3:
+            from xdis.opcodes import opcode_33
             self.opc = opcode_33
         elif version == 3.4:
+            from xdis.opcodes import opcode_34
             self.opc = opcode_34
         elif version == 3.5:
+            from xdis.opcodes import opcode_35
             self.opc = opcode_35
         else:
             raise TypeError("%s is not a Python version I know about" % version)
@@ -211,16 +214,6 @@ class Scanner(object):
                         result.append(offset)
         return result
 
-    def op_size(self, op):
-        """
-        Return size of operator with its arguments
-        for given opcode <op>.
-        """
-        if op < self.opc.HAVE_ARGUMENT and op not in self.opc.hasArgumentExtended:
-            return 1
-        else:
-            return 3
-
     def op_hasArgument(self, op):
         return self.op_size(op) > 1
 
@@ -316,7 +309,7 @@ def get_scanner(version):
         import uncompyle6.scanners.scanner35 as scan
         scanner = scan.Scanner35()
     else:
-        raise RuntimeError("Unsupported Python version %d" % version)
+        raise RuntimeError("Unsupported Python version %s" % version)
     return scanner
 
 if __name__ == "__main__":

@@ -24,7 +24,7 @@ os.chdir(src_dir)
 def test_funcoutput(capfd, test_tuple, function_to_test):
 
     in_file , filename_expected = test_tuple
-    function_to_test(in_file)
+    function_to_test(in_file, native=False)
     resout, reserr = capfd.readouterr()
     expected = open(filename_expected, "r").read()
     if resout != expected:

@@ -6,7 +6,6 @@
 from __future__ import print_function
 import sys, os, getopt
 
-from uncompyle6 import check_python_version
 from uncompyle6.disas import disassemble_file
 from uncompyle6.version import VERSION
 
@@ -35,9 +34,7 @@ def main():
     Usage_short = """usage: %s FILE...
 Type -h for for full help.""" % program
 
-    check_python_version(program)
-
-    use_uncompyle6_format = False
+    native = True
 
     if len(sys.argv) == 1:
         print("No file(s) given", file=sys.stderr)
@@ -59,7 +56,7 @@ Type -h for for full help.""" % program
             print("%s %s" % (program, VERSION))
             sys.exit(0)
         elif opt in ('-U', '--uncompyle6'):
-            use_uncompyle6_format = True
+            native = False
         else:
             print(opt)
             print(Usage_short, file=sys.stderr)
@@ -68,7 +65,7 @@ Type -h for for full help.""" % program
 
     for file in files:
         if os.path.exists(files[0]):
-            disassemble_file(file, sys.stdout, use_uncompyle6_format)
+            disassemble_file(file, sys.stdout, native)
         else:
             print("Can't read %s - skipping" % files[0],
                   file=sys.stderr)

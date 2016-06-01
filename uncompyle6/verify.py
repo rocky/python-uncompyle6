@@ -13,9 +13,9 @@ import dis, operator
 import uncompyle6
 import uncompyle6.scanner as scanner
 from uncompyle6 import PYTHON3
-from uncompyle6.code import iscode
-from uncompyle6.magics import PYTHON_MAGIC_INT
-from uncompyle6.load import load_file, load_module
+from xdis.code import iscode
+from xdis.magics import PYTHON_MAGIC_INT
+from xdis.load import load_file, load_module
 
 # FIXME: DRY
 if PYTHON3:
