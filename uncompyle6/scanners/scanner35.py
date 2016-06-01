@@ -8,12 +8,12 @@ scanner routine for Python 3.
 
 from __future__ import print_function
 
-# import xdis
+from xdis.opcodes import opcode_35 as opc
 
 from uncompyle6.scanners.scanner3 import Scanner3
 
 # bytecode verification, verify(), uses JUMP_OPs from here
-# JUMP_OPs = xdis.opcodes.opcode_35.JUMP_OPs
+JUMP_OPs = map(lambda op: opc.opname[op], opc.hasjrel + opc.hasjabs)
 
 class Scanner35(Scanner3):
 
