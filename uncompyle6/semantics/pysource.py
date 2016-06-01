@@ -77,6 +77,11 @@ from spark_parser import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DE
 from uncompyle6.scanner import Code, get_scanner
 from uncompyle6.scanners.tok import Token, NoneToken
 import uncompyle6.parser as python_parser
+from uncompyle6.show import (
+    maybe_show_asm,
+    maybe_show_ast,
+    maybe_show_ast_param_default,
+)
 
 if PYTHON3:
     from itertools import zip_longest
@@ -1636,11 +1641,7 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
 
             if default:
-                if self.showast:
-                    print()
-                    print('--', name)
-                    print(default)
-                    print('--')
+                maybe_show_ast_param_default(self.showast, name, default)
                 result = '%s=%s' % (name, self.traverse(default, indent='') )
                 if result[-2:] == '= ':	# default was 'LOAD_CONST None'
                     result += 'None'
@@ -1835,8 +1836,7 @@ class SourceWalker(GenericASTTraversal, object):
                 ast = python_parser.parse(self.p, tokens, customize)
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
-            if self.showast:
-                self.println(repr(ast))
+            maybe_show_ast(self.showast, ast)
             return ast
 
         # The bytecode for the end of the main routine has a
@@ -1863,8 +1863,7 @@ class SourceWalker(GenericASTTraversal, object):
         except (python_parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens)
 
-        if self.showast:
-            self.println(repr(ast))
+        maybe_show_ast(self.showast, ast)
 
         return ast
 
@@ -1884,9 +1883,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
     scanner = get_scanner(version)
 
     tokens, customize = scanner.disassemble(co, code_objects=code_objects)
-    if showasm:
-        for t in tokens:
-            print(t)
+    maybe_show_asm(showasm, tokens)
 
     debug_parser = dict(PARSER_DEFAULT_DEBUG)
     if showgrammar:

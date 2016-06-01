@@ -34,6 +34,11 @@ from uncompyle6.semantics import pysource
 from uncompyle6.parser import get_python_parser
 from uncompyle6 import parser
 from uncompyle6.scanner import Token, Code, get_scanner
+from uncompyle6.show import (
+    maybe_show_asm,
+    maybe_show_ast,
+    maybe_show_ast_param_default,
+)
 
 from uncompyle6.semantics.pysource import AST, INDENT_PER_LEVEL, NONE, PRECEDENCE, \
      ParserError, TABLE_DIRECT, escape, find_all_globals, find_globals, find_none, minint, MAP
@@ -750,8 +755,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 ast = parser.parse(self.p, tokens, customize)
             except (parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
-            if self.showast:
-                print(repr(ast))
+            maybe_show_ast(self.showast, ast)
             return ast
 
         # The bytecode for the end of the main routine has a
@@ -777,8 +781,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         except (parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens)
 
-        if self.showast:
-            print(repr(ast))
+        maybe_show_ast(self.showast, ast)
 
         return ast
 
@@ -1338,12 +1341,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 pass
 
             if default:
-                if self.showast:
-                    print()
-                    print('--', name)
-                    print(default)
-                    print('--')
-                    pass
+                maybe_show_ast_param_default(self.showast, name, default)
                 result = '%s=' % name
                 old_last_finish = self.last_finish
                 self.last_finish = len(result)
@@ -1452,6 +1450,28 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
 def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
                  showgrammar=False):
+    """
+    Convert the code object co into a python source fragment.
+
+    :param version:         The python version this code is from as a float, for
+                            example 2.6, 2.7, 3.2, 3.3, 3.4, 3.5 etc.
+    :param co:              The code object to parse.
+    :param out:             File like object to write the output to.
+    :param showasm:         Flag which determines whether the disassembled code
+                            is written to sys.stdout or not. (It is also to
+                            pass a file like object, into which the asm will be
+                            written).
+    :param showast:         Flag which determines whether the constructed
+                            abstract syntax tree is written to sys.stdout or
+                            not. (It is also to pass a file like object, into
+                            which the ast will be written).
+    :param showgrammar:     Flag which determines whether the grammar
+                            is written to sys.stdout or not. (It is also to
+                            pass a file like object, into which the grammer
+                            will be written).
+
+    :return: The deparsed source fragment.
+    """
 
     assert iscode(co)
     # store final output stream for case of error
@@ -1460,9 +1480,7 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
     tokens, customize = scanner.disassemble(co)
 
     tokens, customize = scanner.disassemble(co)
-    if showasm:
-        for t in tokens:
-            print(t)
+    maybe_show_asm(showasm, tokens)
 
     debug_parser = dict(PARSER_DEFAULT_DEBUG)
     if showgrammar:
