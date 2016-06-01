@@ -14,7 +14,7 @@ def maybe_show_asm(showasm, tokens):
     if showasm:
         stream = showasm if hasattr(showasm, 'write') else sys.stdout
         for t in tokens:
-            stream.write(t)
+            stream.write(t.format())
             stream.write('\n')
 
 
