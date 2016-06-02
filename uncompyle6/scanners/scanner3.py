@@ -176,32 +176,6 @@ class Scanner3(scan.Scanner):
             pass
         return tokens, {}
 
-    def disassemble_native(self, co, classname=None, code_objects={}):
-        """
-        Like disassemble3 but doesn't try to adjust any opcodes.
-        """
-        # Container for tokens
-        tokens = []
-
-        self.code = array('B', co.co_code)
-
-        bytecode = Bytecode(co, self.opc)
-
-        for inst in bytecode:
-            pattr =  inst.argrepr
-            opname = inst.opname
-            tokens.append(
-                Token(
-                    type_ = opname,
-                    attr = inst.argval,
-                    pattr = pattr,
-                    offset = inst.offset,
-                    linestart = inst.starts_line,
-                    )
-                )
-            pass
-        return tokens, {}
-
     def build_lines_data(self, code_obj):
         """
         Generate various line-related helper data.

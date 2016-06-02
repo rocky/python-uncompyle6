@@ -1,9 +1,6 @@
-#  Copyright (c) 1999 John Aycock
-#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2015 Rocky Bernstein
-#
-#  See LICENSE for license
+#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#  Copyright (c) 1999 John Aycock
 """
 A spark grammar for Python 2.x.
 
@@ -20,15 +17,11 @@ from __future__ import print_function
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.astnode import AST
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from uncompyle6 import PYTHON3
 
 class Python2Parser(PythonParser):
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
-        if PYTHON3:
-            super().__init__(AST, 'stmts', debug=debug_parser)
-        else:
-            super(Python2Parser, self).__init__(AST, 'stmts', debug=debug_parser)
+        super(Python2Parser, self).__init__(AST, 'stmts', debug=debug_parser)
         self.customized = {}
 
     def p_list_comprehension2(self, args):

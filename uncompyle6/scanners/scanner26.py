@@ -73,7 +73,10 @@ class Scanner26(scan.Scanner2):
         dis.disassemble().
         '''
 
-        # import dis; dis.disassemble(co) # DEBUG
+        # from xdis.bytecode import Bytecode
+        # bytecode = Bytecode(co, self.opc)
+        # for instr in bytecode.get_instructions(co):
+        #     print(instr._disassemble())
 
         # Container for tokens
         tokens = []
@@ -82,7 +85,8 @@ class Scanner26(scan.Scanner2):
         Token = self.Token # shortcut
 
         n = self.setup_code(co)
-        self.build_lines_data(co, n)
+
+        self.build_lines_data(co, n-1)
 
         # linestarts contains block code adresses (addr,block)
         self.linestarts = list(findlinestarts(co))
