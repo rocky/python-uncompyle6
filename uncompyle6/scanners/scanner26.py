@@ -513,11 +513,8 @@ class Scanner26(scan.Scanner2):
             if op in self.pop_jump_if:
                 target = self.get_argument(i)
                 target += i + 3
-
                 self.restructJump(i, target)
-            if self.op_hasArgument(op) and op not in self.opc.hasArgumentExtended:
-                i += 3
-            else: i += 1
+            i += self.op_size(op)
 
         i=0
         while i < len(self.code): # we can't use op_range for the moment
@@ -527,9 +524,17 @@ class Scanner26(scan.Scanner2):
                 if self.code[target] == self.opc.JA:
                     target = self.get_target(target)
                     self.restructJump(i, target)
-            if self.op_hasArgument(op) and op not in self.opc.hasArgumentExtended:
-                i += 3
-            else: i += 1
+            i += self.op_size(op)
+        i=0
+        # while i < len(self.code): # we can't use op_range for the moment
+        #     op = self.code[i]
+        #     name = self.opc.opname[op]
+        #     if self.op_hasArgument(op):
+        #         oparg = self.get_argument(i)
+        #         print("%d %s %d" % (i, name, oparg))
+        #     else:
+        #         print("%d %s" % (i, name))
+        #     i += self.op_size(op)
 
     def restructJump(self, pos, newTarget):
         if self.code[pos] not in self.opc.hasjabs + self.opc.hasjrel:
@@ -698,7 +703,9 @@ class Scanner26(scan.Scanner2):
             # is this an if and
             if op == self.opc.PJIF:
                 match = self.rem_or(start, self.next_stmt[pos], self.opc.PJIF, target)
-                match = self.remove_mid_line_ifs(match)
+                ## We can't remove mid-line ifs because line structures have changed
+                ## from restructBytecode().
+                ##  match = self.remove_mid_line_ifs(match)
                 if match:
                     if (code[pre[rtarget]] in (self.opc.JF, self.opc.JA)
                         and pre[rtarget] not in self.stmts
