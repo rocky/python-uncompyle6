@@ -16,7 +16,7 @@ JUMP_OPs = map(lambda op: opc.opname[op], opc.hasjrel + opc.hasjabs)
 
 class Scanner35(Scanner3):
 
-    def __init__(self, show_asm=False):
+    def __init__(self, show_asm=None):
         super(Scanner35, self).__init__(3.5, show_asm)
         return
     pass

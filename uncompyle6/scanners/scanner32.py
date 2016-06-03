@@ -15,7 +15,7 @@ JUMP_OPs = map(lambda op: opc.opname[op], opc.hasjrel + opc.hasjabs)
 from uncompyle6.scanners.scanner3 import Scanner3
 class Scanner32(Scanner3):
 
-    def __init__(self, show_asm=False):
+    def __init__(self, show_asm=None):
         super(Scanner3, self).__init__(3.2, show_asm)
         return
     pass

@@ -353,7 +353,7 @@ TABLE_DIRECT = {
     'importstmt20': ( '%|import %c\n', 1),
     'importstar20':	( '%|from %[1]{pattr} import *\n', ),
     'importfrom20':	( '%|from %[1]{pattr} import %c\n', 2 ),
-    'importlist20':	( '%C', (0, sys.maxint, ', ') ),
+    'importlist20':	( '%C', (0, maxint, ', ') ),
 
     #######################
     # Python 2.5 Additions

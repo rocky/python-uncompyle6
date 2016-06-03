@@ -65,13 +65,20 @@ class Scanner26(scan.Scanner2):
         return
 
 
-    def disassemble(self, co, classname=None, code_objects={}):
+    def disassemble(self, co, classname=None, code_objects={}, show_asm=None):
         '''
         Disassemble a code object, returning a list of 'Token'.
 
         The main part of this procedure is modelled after
         dis.disassemble().
         '''
+
+        show_asm = self.show_asm if not show_asm else show_asm
+        if self.show_asm in ('both', 'before'):
+            from xdis.bytecode import Bytecode
+            bytecode = Bytecode(co, self.opc)
+            for instr in bytecode.get_instructions(co):
+                print(instr._disassemble())
 
         # from xdis.bytecode import Bytecode
         # bytecode = Bytecode(co, self.opc)

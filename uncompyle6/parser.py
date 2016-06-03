@@ -463,7 +463,13 @@ def get_python_parser(version, debug_parser, compile_mode='exec'):
 
     # FIXME: there has to be a better way...
     if version < 3.0:
-        if version == 2.6:
+        if version == 2.3:
+            import uncompyle6.parsers.parse23 as parse23
+            if compile_mode == 'exec':
+                p = parse23.Python23Parser(debug_parser)
+            else:
+                p = parse23.Python23ParserSingle(debug_parser)
+        elif version == 2.6:
             import uncompyle6.parsers.parse26 as parse26
             if compile_mode == 'exec':
                 p = parse26.Python26Parser(debug_parser)

@@ -32,12 +32,12 @@ from xdis.bytecode import findlinestarts
 import uncompyle6.scanner as scan
 
 class Scanner2(scan.Scanner):
-    def __init__(self, version, show_asm=False):
+    def __init__(self, version, show_asm=None):
         scan.Scanner.__init__(self, version, show_asm)
         self.pop_jump_if = frozenset([self.opc.PJIF, self.opc.PJIT])
         self.jump_forward = frozenset([self.opc.JA, self.opc.JF])
 
-    def disassemble(self, co, classname=None, code_objects={}):
+    def disassemble(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Disassemble a Python 2 code object, returning a list of 'Token'.
         Various tranformations are made to assist the deparsing grammar.
@@ -49,11 +49,12 @@ class Scanner2(scan.Scanner):
         dis.disassemble().
         """
 
-        # DEBUG
-        # from xdis.bytecode import Bytecode
-        # bytecode = Bytecode(co, self.opc)
-        # for instr in bytecode.get_instructions(co):
-        #     print(instr._disassemble())
+        show_asm = self.show_asm if not show_asm else show_asm
+        if self.show_asm in ('both', 'before'):
+            from xdis.bytecode import Bytecode
+            bytecode = Bytecode(co, self.opc)
+            for instr in bytecode.get_instructions(co):
+                print(instr._disassemble())
 
         # Container for tokens
         tokens = []
@@ -207,7 +208,7 @@ class Scanner2(scan.Scanner):
                 pass
             pass
 
-        if self.show_asm:
+        if self.show_asm in ('both', 'after'):
             for t in tokens:
                 print(t)
             print()
