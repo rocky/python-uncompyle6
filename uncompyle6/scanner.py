@@ -22,7 +22,11 @@ from uncompyle6 import PYTHON3
 from uncompyle6.scanners.tok import Token
 
 # The byte code versions we support
-PYTHON_VERSIONS = (2.3, 2.4, 2.5, 2.6, 2.7, 3.2, 3.3, 3.4, 3.5)
+if PYTHON3:
+    # Need to work out Python 2.3. ord's in PYTHON3
+    PYTHON_VERSIONS = (2.5, 2.6, 2.7, 3.2, 3.3, 3.4, 3.5)
+else:
+    PYTHON_VERSIONS = (2.3, 2.5, 2.6, 2.7, 3.2, 3.3, 3.4, 3.5)
 
 # FIXME: DRY
 if PYTHON3:
@@ -268,12 +272,18 @@ class Scanner(object):
             target = parent['end']
         return target
 
-def get_scanner(version, show_asm=False):
+def get_scanner(version, show_asm=None):
     # Pick up appropriate scanner
     if version in PYTHON_VERSIONS:
         v_str = "%s" % (int(version * 10))
         exec("import uncompyle6.scanners.scanner%s as scan" % v_str)
-        exec("scanner = scan.Scanner%s(show_asm=show_asm)" % v_str)
+        if PYTHON3:
+            import importlib
+            scan = importlib.import_module("uncompyle6.scanners.scanner%s" % v_str)
+            if False: print(scan)  # Avoid unused scan
+        else:
+            exec("import uncompyle6.scanners.scanner%s as scan" % v_str)
+        scanner = eval("scan.Scanner%s(show_asm=show_asm)" % v_str)
     else:
         raise RuntimeError("Unsupported Python version %s" % version)
     return scanner

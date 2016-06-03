@@ -10,6 +10,7 @@ use in deparsing.
 """
 
 from uncompyle6.scanners.scanner2 import Scanner2
+from uncompyle6.scanner import L65536
 
 class Scanner23(Scanner2):
     def __init__(self, show_asm=None):
@@ -60,7 +61,7 @@ class Scanner23(Scanner2):
                 extended_arg = 0
                 i += 2
                 if op == self.opc.EXTENDED_ARG:
-                    extended_arg = oparg * 65536L
+                    extended_arg = oparg * L65536
                 if op in self.opc.hasconst:
                     const = co.co_consts[oparg]
                     # We can't use inspect.iscode() because we may be
