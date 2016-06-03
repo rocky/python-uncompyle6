@@ -84,15 +84,18 @@ for usage help.
 Known Bugs/Restrictions
 -----------------------
 
-Python 2 deparsing decompiles each and all the Python 2.7.10 and 2.7.11 installed packages
-I have on my system. All but less that 10%
-verify. Some of thse failures may be bugs in the verification process.
-So as such, it is probably a little better than uncompyle2.
-Other Python 2 versions do worse.
+Python 2 deparsing decompiles each and all the Python 2.7.10 and
+2.7.11 installed packages I have on my system. more than 90% verify
+ok. Some of thse failures may be bugs in the verification process.  So
+as such, it is probably a little better than uncompyle2.  Other Python
+2 versions do worse.
 
-Python 3 deparsing before 3.5 is okay, but even there, more work is needed to
-decompile all of its library. Python 3.5 is missing some of new
-opcodes and idioms added, but it still often works.
+More than 90% the Python 3.3, and 3.4 Python packages that I have
+installed on my system deparse. Python 3.2 fares at a little less than
+90%. (Each Python version has about 200 byteocde files). All of the
+bytecode deparses also verify. Python is more problematic and is
+missing some of new opcodes and idioms added. But it still often
+works.
 
 There is lots to do, so please dig in and help.
 
