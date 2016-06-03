@@ -17,8 +17,8 @@ from xdis.opcodes import opcode_27
 JUMP_OPs = opcode_27.JUMP_OPs
 
 class Scanner27(Scanner2):
-    def __init__(self):
-        super(Scanner27, self).__init__(2.7)
+    def __init__(self, show_asm=False):
+        super(Scanner27, self).__init__(2.7, show_asm)
 
         # opcodes that start statements
         self.stmt_opcodes = frozenset([

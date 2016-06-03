@@ -40,10 +40,10 @@ import uncompyle6.scanner as scan
 
 class Scanner3(scan.Scanner):
 
-    def __init__(self, version):
-        super(Scanner3, self).__init__(version)
+    def __init__(self, version, show_asm=None):
+        super(Scanner3, self).__init__(version, show_asm)
 
-    def disassemble(self, co, classname=None, code_objects={}):
+    def disassemble(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Disassemble a Python 3 code object, returning a list of 'Token'.
         Various tranformations are made to assist the deparsing grammar.
@@ -55,7 +55,11 @@ class Scanner3(scan.Scanner):
         dis.disassemble().
         """
 
-        # import dis; dis.disassemble(co) # DEBUG
+        show_asm = self.show_asm if not show_asm else show_asm
+        if self.show_asm in ('both', 'before'):
+            bytecode = Bytecode(co, self.opc)
+            for instr in bytecode.get_instructions(co):
+                print(instr._disassemble())
 
         # Container for tokens
         tokens = []
@@ -164,32 +168,6 @@ class Scanner3(scan.Scanner):
             elif inst.offset in self.load_asserts:
                 opname = 'LOAD_ASSERT'
 
-            tokens.append(
-                Token(
-                    type_ = opname,
-                    attr = inst.argval,
-                    pattr = pattr,
-                    offset = inst.offset,
-                    linestart = inst.starts_line,
-                    )
-                )
-            pass
-        return tokens, {}
-
-    def disassemble_native(self, co, classname=None, code_objects={}):
-        """
-        Like disassemble3 but doesn't try to adjust any opcodes.
-        """
-        # Container for tokens
-        tokens = []
-
-        self.code = array('B', co.co_code)
-
-        bytecode = Bytecode(co, self.opc)
-
-        for inst in bytecode:
-            pattr =  inst.argrepr
-            opname = inst.opname
             tokens.append(
                 Token(
                     type_ = opname,

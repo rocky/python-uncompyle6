@@ -21,6 +21,13 @@ import sys
 from uncompyle6 import PYTHON3
 from uncompyle6.scanners.tok import Token
 
+# The byte code versions we support
+if PYTHON3:
+    # Need to work out Python 2.3. ord's in PYTHON3
+    PYTHON_VERSIONS = (2.5, 2.6, 2.7, 3.2, 3.3, 3.4, 3.5)
+else:
+    PYTHON_VERSIONS = (2.3, 2.5, 2.6, 2.7, 3.2, 3.3, 3.4, 3.5)
+
 # FIXME: DRY
 if PYTHON3:
     intern = sys.intern
@@ -45,30 +52,14 @@ class Code(object):
 
 class Scanner(object):
 
-    def __init__(self, version):
+    def __init__(self, version, show_asm=None):
         self.version = version
-        # FIXME: DRY
-        if version == 2.7:
-            from xdis.opcodes import opcode_27
-            self.opc = opcode_27
-        elif version == 2.6:
-            from xdis.opcodes import opcode_26
-            self.opc = opcode_26
-        elif version == 2.5:
-            from xdis.opcodes import opcode_25
-            self.opc = opcode_25
-        elif version == 3.2:
-            from xdis.opcodes import opcode_32
-            self.opc = opcode_32
-        elif version == 3.3:
-            from xdis.opcodes import opcode_33
-            self.opc = opcode_33
-        elif version == 3.4:
-            from xdis.opcodes import opcode_34
-            self.opc = opcode_34
-        elif version == 3.5:
-            from xdis.opcodes import opcode_35
-            self.opc = opcode_35
+        self.show_asm = show_asm
+
+        if version in PYTHON_VERSIONS:
+            v_str = "opcode_%s" % (int(version * 10))
+            exec("from xdis.opcodes import %s" % v_str)
+            exec("self.opc = %s" % v_str)
         else:
             raise TypeError("%s is not a Python version I know about" % version)
 
@@ -281,33 +272,18 @@ class Scanner(object):
             target = parent['end']
         return target
 
-def get_scanner(version):
+def get_scanner(version, show_asm=None):
     # Pick up appropriate scanner
-    # from trepan.api import debug;
-    # debug(start_opts={'startup-profile': True})
-
-    # FIXME: see if we can do better
-    if version == 2.7:
-        import uncompyle6.scanners.scanner27 as scan
-        scanner = scan.Scanner27()
-    elif version == 2.6:
-        import uncompyle6.scanners.scanner26 as scan
-        scanner = scan.Scanner26()
-    elif version == 2.5:
-        import uncompyle6.scanners.scanner25 as scan
-        scanner = scan.Scanner25()
-    elif version == 3.2:
-        import uncompyle6.scanners.scanner32 as scan
-        scanner = scan.Scanner32()
-    elif version == 3.3:
-        import uncompyle6.scanners.scanner33 as scan
-        scanner = scan.Scanner33()
-    elif version == 3.4:
-        import uncompyle6.scanners.scanner34 as scan
-        scanner = scan.Scanner34()
-    elif version == 3.5:
-        import uncompyle6.scanners.scanner35 as scan
-        scanner = scan.Scanner35()
+    if version in PYTHON_VERSIONS:
+        v_str = "%s" % (int(version * 10))
+        exec("import uncompyle6.scanners.scanner%s as scan" % v_str)
+        if PYTHON3:
+            import importlib
+            scan = importlib.import_module("uncompyle6.scanners.scanner%s" % v_str)
+            if False: print(scan)  # Avoid unused scan
+        else:
+            exec("import uncompyle6.scanners.scanner%s as scan" % v_str)
+        scanner = eval("scan.Scanner%s(show_asm=show_asm)" % v_str)
     else:
         raise RuntimeError("Unsupported Python version %s" % version)
     return scanner
@@ -315,9 +291,5 @@ def get_scanner(version):
 if __name__ == "__main__":
     import inspect, uncompyle6
     co = inspect.currentframe().f_code
-    scanner = get_scanner(uncompyle6.PYTHON_VERSION)
+    scanner = get_scanner(uncompyle6.PYTHON_VERSION, True)
     tokens, customize = scanner.disassemble(co, {})
-    print('-' * 30)
-    for t in tokens:
-        print(t)
-    pass

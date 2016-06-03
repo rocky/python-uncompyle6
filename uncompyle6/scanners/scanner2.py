@@ -32,12 +32,12 @@ from xdis.bytecode import findlinestarts
 import uncompyle6.scanner as scan
 
 class Scanner2(scan.Scanner):
-    def __init__(self, version):
-        scan.Scanner.__init__(self, version)
+    def __init__(self, version, show_asm=None):
+        scan.Scanner.__init__(self, version, show_asm)
         self.pop_jump_if = frozenset([self.opc.PJIF, self.opc.PJIT])
         self.jump_forward = frozenset([self.opc.JA, self.opc.JF])
 
-    def disassemble(self, co, classname=None, code_objects={}):
+    def disassemble(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Disassemble a Python 2 code object, returning a list of 'Token'.
         Various tranformations are made to assist the deparsing grammar.
@@ -49,9 +49,12 @@ class Scanner2(scan.Scanner):
         dis.disassemble().
         """
 
-        ## FIXME: DRY with disassemble_native
-
-        # import dis; dis.disassemble(co) # DEBUG
+        show_asm = self.show_asm if not show_asm else show_asm
+        if self.show_asm in ('both', 'before'):
+            from xdis.bytecode import Bytecode
+            bytecode = Bytecode(co, self.opc)
+            for instr in bytecode.get_instructions(co):
+                print(instr._disassemble())
 
         # Container for tokens
         tokens = []
@@ -60,6 +63,7 @@ class Scanner2(scan.Scanner):
         Token = self.Token # shortcut
 
         n = self.setup_code(co)
+
         self.build_lines_data(co, n)
         self.build_prev_op(n)
 
@@ -201,75 +205,13 @@ class Scanner2(scan.Scanner):
                 tokens.append(Token(op_name, oparg, pattr, offset, linestart))
             else:
                 tokens.append(Token(replace[offset], oparg, pattr, offset, linestart))
-        return tokens, customize
-
-    def disassemble_native(self, co, classname=None, code_objects={}):
-        """
-        Like disassemble3 but doesn't try to adjust any opcodes.
-        """
-
-        ## FIXME: DRY with disassemble
-
-        # Container for tokens
-        tokens = []
-
-        customize = {}
-        Token = self.Token # shortcut
-
-        n = self.setup_code(co)
-        self.build_lines_data(co, n)
-
-        # self.lines contains (block,addrLastInstr)
-        if classname:
-            classname = '_' + classname.lstrip('_') + '__'
-
-            def unmangle(name):
-                if name.startswith(classname) and name[-2:] != '__':
-                    return name[len(classname) - 2:]
-                return name
-
-            free = [ unmangle(name) for name in (co.co_cellvars + co.co_freevars) ]
-            names = [ unmangle(name) for name in co.co_names ]
-            varnames = [ unmangle(name) for name in co.co_varnames ]
-        else:
-            free = co.co_cellvars + co.co_freevars
-            names = co.co_names
-            varnames = co.co_varnames
-
-        extended_arg = 0
-        for offset in self.op_range(0, n):
-            op = self.code[offset]
-            op_name = self.opc.opname[op]
-
-            oparg = None; pattr = None
-            if op >= self.opc.HAVE_ARGUMENT:
-                oparg = self.get_argument(offset) + extended_arg
-                extended_arg = 0
-                if op == self.opc.EXTENDED_ARG:
-                    extended_arg = oparg * scan.L65536
-                    continue
-                if op in self.opc.hasconst:
-                    pattr = co.co_consts[oparg]
-                elif op in self.opc.hasname:
-                    pattr = names[oparg]
-                elif op in self.opc.hasjrel:
-                    pattr = repr(offset + 3 + oparg)
-                elif op in self.opc.hasjabs:
-                    pattr = repr(oparg)
-                elif op in self.opc.haslocal:
-                    pattr = varnames[oparg]
-                elif op in self.opc.hascompare:
-                    pattr = self.opc.cmp_op[oparg]
-                elif op in self.opc.hasfree:
-                    pattr = free[oparg]
-
-            if offset in self.linestartoffsets:
-                linestart = self.linestartoffsets[offset]
-            else:
-                linestart = None
-
-            tokens.append(Token(op_name, oparg, pattr, offset, linestart))
+                pass
             pass
+
+        if self.show_asm in ('both', 'after'):
+            for t in tokens:
+                print(t)
+            print()
         return tokens, customize
 
     def op_size(self, op):

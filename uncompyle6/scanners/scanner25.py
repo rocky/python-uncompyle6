@@ -23,8 +23,8 @@ JUMP_OPs = opcode_25.JUMP_OPs
 # The history is that 2.7 support is the cleanest,
 # then from that we got 2.6 and so on.
 class Scanner25(scan.Scanner26):
-    def __init__(self):
-        scan2.Scanner2.__init__(self, 2.5)
+    def __init__(self, show_asm):
+        scan2.Scanner2.__init__(self, 2.5, show_asm)
         self.stmt_opcodes = frozenset([
             self.opc.SETUP_LOOP,       self.opc.BREAK_LOOP,
             self.opc.SETUP_FINALLY,    self.opc.END_FINALLY,

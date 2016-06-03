@@ -1,3 +1,4 @@
+*.pyc
 *_dis
 *~
 *.pyc
@@ -9,6 +10,7 @@
 /__pkginfo__.pyc
 /dist
 /how-to-make-a-release.txt
+/nose-*.egg
 /tmp
 /uncompyle6.egg-info
 __pycache__

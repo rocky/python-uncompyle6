@@ -18,8 +18,8 @@ from xdis.opcodes import opcode_26
 JUMP_OPs = opcode_26.JUMP_OPs
 
 class Scanner26(scan.Scanner2):
-    def __init__(self):
-        super(Scanner26, self).__init__(2.6)
+    def __init__(self, show_asm=False):
+        super(Scanner26, self).__init__(2.6, show_asm)
         self.stmt_opcodes = frozenset([
             self.opc.SETUP_LOOP,       self.opc.BREAK_LOOP,
             self.opc.SETUP_FINALLY,    self.opc.END_FINALLY,
@@ -65,7 +65,7 @@ class Scanner26(scan.Scanner2):
         return
 
 
-    def disassemble(self, co, classname=None, code_objects={}):
+    def disassemble(self, co, classname=None, code_objects={}, show_asm=None):
         '''
         Disassemble a code object, returning a list of 'Token'.
 
@@ -73,7 +73,17 @@ class Scanner26(scan.Scanner2):
         dis.disassemble().
         '''
 
-        # import dis; dis.disassemble(co) # DEBUG
+        show_asm = self.show_asm if not show_asm else show_asm
+        if self.show_asm in ('both', 'before'):
+            from xdis.bytecode import Bytecode
+            bytecode = Bytecode(co, self.opc)
+            for instr in bytecode.get_instructions(co):
+                print(instr._disassemble())
+
+        # from xdis.bytecode import Bytecode
+        # bytecode = Bytecode(co, self.opc)
+        # for instr in bytecode.get_instructions(co):
+        #     print(instr._disassemble())
 
         # Container for tokens
         tokens = []
@@ -82,7 +92,8 @@ class Scanner26(scan.Scanner2):
         Token = self.Token # shortcut
 
         n = self.setup_code(co)
-        self.build_lines_data(co, n)
+
+        self.build_lines_data(co, n-1)
 
         # linestarts contains block code adresses (addr,block)
         self.linestarts = list(findlinestarts(co))
@@ -247,9 +258,10 @@ class Scanner26(scan.Scanner2):
                 pass
             pass
 
-        # Debug
-        # for t in tokens:
-        #     print t
+        if self.show_asm:
+            for t in tokens:
+                print(t)
+            print()
         return tokens, customize
 
     def getOpcodeToDel(self, i):
@@ -509,11 +521,8 @@ class Scanner26(scan.Scanner2):
             if op in self.pop_jump_if:
                 target = self.get_argument(i)
                 target += i + 3
-
                 self.restructJump(i, target)
-            if self.op_hasArgument(op) and op not in self.opc.hasArgumentExtended:
-                i += 3
-            else: i += 1
+            i += self.op_size(op)
 
         i=0
         while i < len(self.code): # we can't use op_range for the moment
@@ -523,9 +532,17 @@ class Scanner26(scan.Scanner2):
                 if self.code[target] == self.opc.JA:
                     target = self.get_target(target)
                     self.restructJump(i, target)
-            if self.op_hasArgument(op) and op not in self.opc.hasArgumentExtended:
-                i += 3
-            else: i += 1
+            i += self.op_size(op)
+        i=0
+        # while i < len(self.code): # we can't use op_range for the moment
+        #     op = self.code[i]
+        #     name = self.opc.opname[op]
+        #     if self.op_hasArgument(op):
+        #         oparg = self.get_argument(i)
+        #         print("%d %s %d" % (i, name, oparg))
+        #     else:
+        #         print("%d %s" % (i, name))
+        #     i += self.op_size(op)
 
     def restructJump(self, pos, newTarget):
         if self.code[pos] not in self.opc.hasjabs + self.opc.hasjrel:
@@ -577,8 +594,8 @@ class Scanner26(scan.Scanner2):
             if (jump_back and jump_back != self.prev[end]
                 and code[jump_back + 3] in self.jump_forward):
                 if (code[self.prev[end]] == self.opc.RETURN_VALUE
-                    or code[self.prev[end]] == self.opc.POP_BLOCK
-                    and code[self.prev[self.prev[end]]] == self.opc.RETURN_VALUE):
+                    or (code[self.prev[end]] == self.opc.POP_BLOCK
+                    and code[self.prev[self.prev[end]]] == self.opc.RETURN_VALUE)):
                     jump_back = None
             if not jump_back: # loop suite ends in return. wtf right?
                 jump_back = self.last_instr(start, end, self.opc.JA, start, False)
@@ -595,7 +612,7 @@ class Scanner26(scan.Scanner2):
             else:
                 if self.get_target(jump_back) >= next_line_byte:
                     jump_back = self.last_instr(start, end, self.opc.JA, start, False)
-                if end > jump_back + 4 and code[end] in (self.opc.JF, self.opc.JA):
+                if end > jump_back + 4 and code[end] in self.jump_forward:
                     if code[jump_back + 4] in (self.opc.JA, self.opc.JF):
                         if self.get_target(jump_back+4) == self.get_target(end):
                             self.fixed_jumps[pos] = jump_back+4
@@ -694,7 +711,9 @@ class Scanner26(scan.Scanner2):
             # is this an if and
             if op == self.opc.PJIF:
                 match = self.rem_or(start, self.next_stmt[pos], self.opc.PJIF, target)
-                match = self.remove_mid_line_ifs(match)
+                ## We can't remove mid-line ifs because line structures have changed
+                ## from restructBytecode().
+                ##  match = self.remove_mid_line_ifs(match)
                 if match:
                     if (code[pre[rtarget]] in (self.opc.JF, self.opc.JA)
                         and pre[rtarget] not in self.stmts
@@ -796,9 +815,7 @@ if __name__ == "__main__":
     if PYTHON_VERSION == 2.6:
         import inspect
         co = inspect.currentframe().f_code
-        tokens, customize = Scanner26().disassemble(co)
-        for t in tokens:
-            print(t.format())
+        tokens, customize = Scanner26(show_asm=True).disassemble(co)
     else:
         print("Need to be Python 2.6 to demo; I am %s." %
               PYTHON_VERSION)
