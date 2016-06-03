@@ -85,8 +85,8 @@ Known Bugs/Restrictions
 -----------------------
 
 Python 2 deparsing decompiles each and all the Python 2.7.10 and
-2.7.11 installed packages I have on my system. more than 90% verify
-ok. Some of thse failures may be bugs in the verification process.  So
+2.7.11 installed packages I have on my system, more than 90% verify
+ok. Some of these failures may be bugs in the verification process.  So
 as such, it is probably a little better than uncompyle2.  Other Python
 2 versions do worse.
 
