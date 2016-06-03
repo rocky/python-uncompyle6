@@ -32,8 +32,8 @@ from xdis.bytecode import findlinestarts
 import uncompyle6.scanner as scan
 
 class Scanner2(scan.Scanner):
-    def __init__(self, version):
-        scan.Scanner.__init__(self, version)
+    def __init__(self, version, show_asm=False):
+        scan.Scanner.__init__(self, version, show_asm)
         self.pop_jump_if = frozenset([self.opc.PJIF, self.opc.PJIT])
         self.jump_forward = frozenset([self.opc.JA, self.opc.JF])
 
@@ -204,6 +204,13 @@ class Scanner2(scan.Scanner):
                 tokens.append(Token(op_name, oparg, pattr, offset, linestart))
             else:
                 tokens.append(Token(replace[offset], oparg, pattr, offset, linestart))
+                pass
+            pass
+
+        if self.show_asm:
+            for t in tokens:
+                print(t)
+            print()
         return tokens, customize
 
     def op_size(self, op):

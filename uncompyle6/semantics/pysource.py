@@ -346,6 +346,16 @@ TABLE_DIRECT = {
     'mapexpr':		( '{%[1]C}', (0, maxint, ', ') ),
 
     #######################
+    # Python 2.3 Additions
+    #######################
+
+    # Import style for 2.0-2.3
+    'importstmt20': ( '%|import %c\n', 1),
+    'importstar20':	( '%|from %[1]{pattr} import *\n', ),
+    'importfrom20':	( '%|from %[1]{pattr} import %c\n', 2 ),
+    'importlist20':	( '%C', (0, sys.maxint, ', ') ),
+
+    #######################
     # Python 2.5 Additions
     #######################
 
@@ -526,7 +536,11 @@ class SourceWalker(GenericASTTraversal, object):
         self.classes = []
         self.pending_newlines = 0
         self.hide_internal = True
+        self.version = version
 
+        if 2.0 <= version <= 2.3:
+                TABLE_DIRECT['tryfinallystmt'] = (
+                        '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 4 )
         return
 
     f = property(lambda s: s.params['f'],
@@ -1658,7 +1672,6 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             defparams = node[:args_node.attr]
             kw_args, annotate_args  = (0, 0)
-            pos_args = args_node.attr
             pass
 
         if self.version > 3.0 and isLambda and iscode(node[-3].attr):

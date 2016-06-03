@@ -18,8 +18,8 @@ from xdis.opcodes import opcode_26
 JUMP_OPs = opcode_26.JUMP_OPs
 
 class Scanner26(scan.Scanner2):
-    def __init__(self):
-        super(Scanner26, self).__init__(2.6)
+    def __init__(self, show_asm=False):
+        super(Scanner26, self).__init__(2.6, show_asm)
         self.stmt_opcodes = frozenset([
             self.opc.SETUP_LOOP,       self.opc.BREAK_LOOP,
             self.opc.SETUP_FINALLY,    self.opc.END_FINALLY,
@@ -251,9 +251,10 @@ class Scanner26(scan.Scanner2):
                 pass
             pass
 
-        # Debug
-        # for t in tokens:
-        #     print t
+        if self.show_asm:
+            for t in tokens:
+                print(t)
+            print()
         return tokens, customize
 
     def getOpcodeToDel(self, i):
@@ -586,8 +587,8 @@ class Scanner26(scan.Scanner2):
             if (jump_back and jump_back != self.prev[end]
                 and code[jump_back + 3] in self.jump_forward):
                 if (code[self.prev[end]] == self.opc.RETURN_VALUE
-                    or code[self.prev[end]] == self.opc.POP_BLOCK
-                    and code[self.prev[self.prev[end]]] == self.opc.RETURN_VALUE):
+                    or (code[self.prev[end]] == self.opc.POP_BLOCK
+                    and code[self.prev[self.prev[end]]] == self.opc.RETURN_VALUE)):
                     jump_back = None
             if not jump_back: # loop suite ends in return. wtf right?
                 jump_back = self.last_instr(start, end, self.opc.JA, start, False)
@@ -604,7 +605,7 @@ class Scanner26(scan.Scanner2):
             else:
                 if self.get_target(jump_back) >= next_line_byte:
                     jump_back = self.last_instr(start, end, self.opc.JA, start, False)
-                if end > jump_back + 4 and code[end] in (self.opc.JF, self.opc.JA):
+                if end > jump_back + 4 and code[end] in self.jump_forward:
                     if code[jump_back + 4] in (self.opc.JA, self.opc.JF):
                         if self.get_target(jump_back+4) == self.get_target(end):
                             self.fixed_jumps[pos] = jump_back+4
@@ -807,9 +808,7 @@ if __name__ == "__main__":
     if PYTHON_VERSION == 2.6:
         import inspect
         co = inspect.currentframe().f_code
-        tokens, customize = Scanner26().disassemble(co)
-        for t in tokens:
-            print(t.format())
+        tokens, customize = Scanner26(show_asm=True).disassemble(co)
     else:
         print("Need to be Python 2.6 to demo; I am %s." %
               PYTHON_VERSION)

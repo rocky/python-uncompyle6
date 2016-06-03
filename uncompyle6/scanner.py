@@ -45,12 +45,17 @@ class Code(object):
 
 class Scanner(object):
 
-    def __init__(self, version):
+    def __init__(self, version, show_asm=False):
         self.version = version
+        self.show_asm = show_asm
+
         # FIXME: DRY
         if version == 2.7:
             from xdis.opcodes import opcode_27
             self.opc = opcode_27
+        elif version == 2.3:
+            from xdis.opcodes import opcode_23
+            self.opc = opcode_23
         elif version == 2.6:
             from xdis.opcodes import opcode_26
             self.opc = opcode_26
@@ -281,7 +286,7 @@ class Scanner(object):
             target = parent['end']
         return target
 
-def get_scanner(version):
+def get_scanner(version, show_asm=False):
     # Pick up appropriate scanner
     # from trepan.api import debug;
     # debug(start_opts={'startup-profile': True})
@@ -289,25 +294,28 @@ def get_scanner(version):
     # FIXME: see if we can do better
     if version == 2.7:
         import uncompyle6.scanners.scanner27 as scan
-        scanner = scan.Scanner27()
+        scanner = scan.Scanner27(show_asm=show_asm)
+    elif version == 2.3:
+        import uncompyle6.scanners.scanner23 as scan
+        scanner = scan.Scanner23(show_asm)
     elif version == 2.6:
         import uncompyle6.scanners.scanner26 as scan
-        scanner = scan.Scanner26()
+        scanner = scan.Scanner26(show_asm)
     elif version == 2.5:
         import uncompyle6.scanners.scanner25 as scan
-        scanner = scan.Scanner25()
+        scanner = scan.Scanner25(show_asm)
     elif version == 3.2:
         import uncompyle6.scanners.scanner32 as scan
-        scanner = scan.Scanner32()
+        scanner = scan.Scanner32(show_asm)
     elif version == 3.3:
         import uncompyle6.scanners.scanner33 as scan
-        scanner = scan.Scanner33()
+        scanner = scan.Scanner33(show_asm)
     elif version == 3.4:
         import uncompyle6.scanners.scanner34 as scan
-        scanner = scan.Scanner34()
+        scanner = scan.Scanner34(show_asm)
     elif version == 3.5:
         import uncompyle6.scanners.scanner35 as scan
-        scanner = scan.Scanner35()
+        scanner = scan.Scanner35(show_asm)
     else:
         raise RuntimeError("Unsupported Python version %s" % version)
     return scanner
@@ -315,9 +323,5 @@ def get_scanner(version):
 if __name__ == "__main__":
     import inspect, uncompyle6
     co = inspect.currentframe().f_code
-    scanner = get_scanner(uncompyle6.PYTHON_VERSION)
+    scanner = get_scanner(uncompyle6.PYTHON_VERSION, True)
     tokens, customize = scanner.disassemble(co, {})
-    print('-' * 30)
-    for t in tokens:
-        print(t)
-    pass
