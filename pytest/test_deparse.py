@@ -20,6 +20,14 @@ def for_range_stmt():
     for i in range(2):
         i+1
 
+# FIXME: add this test
+def set_comp():
+    {y for y in range(3)}
+
+# FIXME: add this test
+def list_comp():
+    [y for y in range(3)]
+
 def get_parsed_for_fn(fn):
     code = fn.__code__ if PYTHON3 else fn.func_code
     return deparse(PYTHON_VERSION, code)

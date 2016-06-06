@@ -50,7 +50,9 @@ class PythonParser(GenericASTBuilder):
 
         if nt in collect and len(args) > 1:
             #
-            #  Collect iterated thingies together.
+            #  Collect iterated thingies together. That is rather than
+            #  stmts -> stmts stmt -> stmts stmt -> ...
+            #  stmms -> stmt stmt ...
             #
             rv = args[0]
             rv.append(args[1])

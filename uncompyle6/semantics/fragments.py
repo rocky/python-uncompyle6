@@ -580,27 +580,43 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
-        ast = ast[0][0][0][0][0]
+        # skip over stmts sstmt smt
+        ast = ast[0][0][0]
 
-        n = ast[iter_index]
-        assert n == 'list_iter'
+        if ast == 'setcomp_func':
+            for k in ast:
+                if k == 'comp_iter':
+                    n = k
+                elif k == 'designator':
+                    designator = k
+                    pass
+                pass
+            pass
+        else:
+            ast = ast[0][0]
+            n = ast[iter_index]
+            assert n == 'list_iter'
+
+        ## FIXME: I'm not totally sure this is right.
 
         # find innermost node
-        while n == 'list_iter':
+        list_if_node = None
+        while n in ('list_iter', 'comp_iter'):
             n = n[0] # recurse one step
             if   n == 'list_for':
-                designator = n[2]
+                if n[2] == 'designator':
+                    designator = n[2]
                 n = n[3]
-            elif n == 'list_if':
-                # FIXME: just a guess
-                designator = n[1]
+            elif n in ['list_if', 'list_if_not']:
+                list_if_node = n[0]
+                if n[1] == 'designator':
+                    designator = n[1]
+                n = n[2]
+                pass
+            pass
 
-                n = n[2]
-            elif n == 'list_if_not':
-                # FIXME: just a guess
-                designator = n[1]
-                n = n[2]
-        assert n == 'lc_body', ast
+        assert n.type in ('lc_body', 'comp_body'), ast
+        assert designator, "Couldn't find designator in list/set comprehension"
 
         self.preorder(n[0])
         self.write(' for ')
@@ -612,7 +628,9 @@ class FragmentsWalker(pysource.SourceWalker, object):
         node[-3].parent = node
         self.preorder(node[-3])
         self.set_pos_info(node[-3], start, len(self.f.getvalue()))
-        # self.preorder(ast[iter_index])
+        if list_if_node:
+            self.write(' if ')
+            self.preorder(list_if_node)
         self.prec = p
 
     def listcomprehension_walk2(self, node):
@@ -680,7 +698,12 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def n_setcomp(self, node):
         start = len(self.f.getvalue())
         self.write('{')
-        self.comprehension_walk(node, 4)
+        if node[0] == 'LOAD_SETCOMP':
+            start = len(self.f.getvalue())
+            self.set_pos_info(node[0], start-1, start)
+            self.listcomprehension_walk3(node, 1, 0)
+        else:
+            self.comprehension_walk(node, iter_index=4)
         self.write('}')
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune()
@@ -767,7 +790,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prune()
 
     def gen_source(self, ast, name, customize, isLambda=False, returnNone=False):
-        """convert AST to source code"""
+        """convert AST to Python source code"""
 
         rn = self.return_none
         self.return_none = returnNone
@@ -1585,7 +1608,7 @@ if __name__ == '__main__':
         return fn.__code__
 
     def test():
-        [x for x in range(3)]
+        {x for x in range(3)}
 
     def gcd(a, b):
         if a > b:
