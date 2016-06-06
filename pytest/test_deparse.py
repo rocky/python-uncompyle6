@@ -20,9 +20,9 @@ def for_range_stmt():
     for i in range(2):
         i+1
 
-# FIXME: add this test
-def set_comp():
-    {y for y in range(3)}
+# # FIXME: add this test - but for Python 2.7+ only
+# def set_comp():
+#     {y for y in range(3)}
 
 # FIXME: add this test
 def list_comp():

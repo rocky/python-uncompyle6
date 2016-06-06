@@ -1612,7 +1612,7 @@ if __name__ == '__main__':
         return fn.__code__
 
     def test():
-        {x for x in range(3)}
+        [x for x in range(3)]
 
     def gcd(a, b):
         if a > b:
