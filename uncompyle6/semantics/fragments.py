@@ -493,6 +493,29 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.indentLess()
         self.prune() # stop recursing
 
+    def n_list_compr(self, node):
+        """List comprehensions the way they are done in Python 2."""
+        p = self.prec
+        self.prec = 27
+        n = node[-1]
+        assert n == 'list_iter'
+        # find innermost node
+        while n == 'list_iter':
+            n = n[0] # recurse one step
+            if   n == 'list_for':	n = n[3]
+            elif n == 'list_if':	n = n[2]
+            elif n == 'list_if_not': n= n[2]
+        assert n == 'lc_body'
+        if node[0].type.startswith('BUILD_LIST'):
+            start = len(self.f.getvalue())
+            self.set_pos_info(node[0], start, start+1)
+        self.write( '[ ')
+        self.preorder(n[0]) # lc_body
+        self.preorder(node[-1]) # for/if parts
+        self.write( ' ]')
+        self.prec = p
+        self.prune() # stop recursing
+
     def comprehension_walk(self, node, iter_index, code_index=-5):
         p = self.prec
         self.prec = 27
@@ -660,6 +683,18 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.comprehension_walk(node, 4)
         self.write('}')
         self.set_pos_info(node, start, len(self.f.getvalue()))
+        self.prune()
+
+    def n_listcomp(self, node):
+        self.write('[')
+        if node[0].type == 'load_closure':
+            self.listcomprehension_walk2(node)
+        else:
+            if node[0] == 'LOAD_LISTCOMP':
+                start = len(self.f.getvalue())
+                self.set_pos_info(node[0], start-1, start)
+            self.listcomprehension_walk3(node, 1, 0)
+        self.write(']')
         self.prune()
 
     def n_classdef(self, node):
@@ -1549,6 +1584,9 @@ if __name__ == '__main__':
     def get_code_for_fn(fn):
         return fn.__code__
 
+    def test():
+        [x for x in range(3)]
+
     def gcd(a, b):
         if a > b:
             (a, b) = (b, a)
@@ -1561,7 +1599,7 @@ if __name__ == '__main__':
         return gcd(b-a, a)
 
     # check_args(['3', '5'])
-    deparse_test(get_code_for_fn(gcd))
     # deparse_test(get_code_for_fn(gcd))
+    deparse_test(get_code_for_fn(test))
     # deparse_test(get_code_for_fn(FragmentsWalker.fixup_offsets))
     # deparse_test(inspect.currentframe().f_code)

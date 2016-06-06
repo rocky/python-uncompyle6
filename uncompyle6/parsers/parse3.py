@@ -494,6 +494,15 @@ class Python3Parser(PythonParser):
                     rule = ("listcomp ::= LOAD_LISTCOMP MAKE_FUNCTION_0 expr "
                             "GET_ITER CALL_FUNCTION_1")
                 self.add_unique_rule(rule, opname, token.attr, customize)
+            # FIXME: add in after fixing bug in semantics
+            # elif opname == 'LOAD_SETCOMP':
+            #     if self.version >= 3.4:
+            #         rule = ("setcomp ::= LOAD_SETCOMP LOAD_CONST MAKE_FUNCTION_0 expr "
+            #                 "GET_ITER CALL_FUNCTION_1")
+            #     else:
+            #         rule = ("setcomp ::= LOAD_SETCOMP MAKE_FUNCTION_0 expr "
+            #                 "GET_ITER CALL_FUNCTION_1")
+            #     self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname == 'LOAD_BUILD_CLASS':
                 self.custom_build_class_rule(opname, i, token, tokens, customize)
             elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
