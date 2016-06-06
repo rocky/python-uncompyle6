@@ -590,7 +590,6 @@ class SourceWalker(GenericASTTraversal, object):
     def write(self, *data):
         if (len(data) == 0) or (len(data) == 1 and data[0] == ''):
             return
-#        import pdb; pdb.set_trace()
         out = ''.join((str(j) for j in data))
         n = 0
         for i in out:
@@ -812,10 +811,6 @@ class SourceWalker(GenericASTTraversal, object):
             if node[-2][0][-1] != 'BUILD_TUPLE_0':
                 node[-2][0].type = 'build_tuple2'
         self.default(node)
-#        maybe_tuple = node[-2][-1]
-#        if maybe_tuple.type.startswith('BUILD_TUPLE'):
-#            maybe_tuple.type = 'build_tuple2'
-#        self.default(node)
 
     n_store_subscr = n_binary_subscr = n_delete_subscr
 
@@ -988,7 +983,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune() # stop recursing
 
     def n_list_compr(self, node):
-        """List comprehensions the way they are done in Python2.
+        """List comprehensions the way they are done in Python 2.
         """
         p = self.prec
         self.prec = 27
@@ -1322,10 +1317,7 @@ class SourceWalker(GenericASTTraversal, object):
                     l = list(kv_node)
                 i = 0
                 while i < len(l):
-                    try:
-                        name = self.traverse(l[i+1], indent='')
-                    except:
-                        from trepan.api import debug; debug()
+                    name = self.traverse(l[i+1], indent='')
                     value = self.traverse(l[i], indent=self.indent+(len(name)+2)*' ')
                     self.write(sep, name, ': ', value)
                     sep = line_seperator
@@ -1504,7 +1496,6 @@ class SourceWalker(GenericASTTraversal, object):
             elif typ == 'C':
                 low, high, sep = entry[arg]
                 remaining = len(node[low:high])
-                # remaining = len(node[low:high])
                 for subnode in node[low:high]:
                     self.preorder(subnode)
                     remaining -= 1
@@ -1821,7 +1812,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.classes.pop(-1)
 
     def gen_source(self, ast, name, customize, isLambda=False, returnNone=False):
-        """convert AST to source code"""
+        """convert AST to Python source code"""
 
         rn = self.return_none
         self.return_none = returnNone

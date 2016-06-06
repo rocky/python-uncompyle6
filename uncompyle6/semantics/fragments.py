@@ -732,7 +732,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prune()
 
     def gen_source(self, ast, name, customize, isLambda=False, returnNone=False):
-        """convert AST to source code"""
+        """convert AST to Python source code"""
 
         rn = self.return_none
         self.return_none = returnNone

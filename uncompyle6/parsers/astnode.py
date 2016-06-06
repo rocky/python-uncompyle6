@@ -35,7 +35,7 @@ class AST(UserList):
         rv = str(self.type)
         for k in self:
             child_text = str(k).replace('\n', '\n   ')
-            if hasattr(k, '__len__'):
+            if hasattr(k, '__len__') and len(k) > 1:
                 rv += '\n(%d)  %s' % (len(k), child_text)
             else:
                 rv += '\n' + child_text
