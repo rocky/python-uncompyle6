@@ -101,6 +101,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.classes = []
         self.pending_newlines = 0
         self.hide_internal = False
+        self.name = None
 
         self.offsets = {}
         self.last_finish = -1
@@ -285,11 +286,17 @@ class FragmentsWalker(pysource.SourceWalker, object):
             node[0].parent = node
             self.last_finish = len(self.f.getvalue())
             self.preorder(node[0])
+            finish = len(self.f.getvalue())
+            if hasattr(node[0], 'offset'):
+                self.set_pos_info(node[0], self.last_finish, )
             self.write(')')
-            self.last_finish = len(self.f.getvalue())
+            self.last_finish = finish + 1
         else:
             node[0].parent = node
+            start = len(self.f.getvalue())
             self.preorder(node[0])
+            if hasattr(node[0], 'offset'):
+                self.set_pos_info(node[0], start, len(self.f.getvalue()))
         self.prec = p
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune()
@@ -461,7 +468,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def n_mkfunc(self, node):
         start = len(self.f.getvalue())
-        old_name = self.name
         if self.version >= 3.0:
             # LOAD_CONST code object ..
             # LOAD_CONST        'x0'  if >= 3.3
@@ -484,7 +490,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write(func_name)
         self.indentMore()
         self.make_function(node, isLambda=False, code_index=code_index)
-        self.name = old_name
         self.set_pos_info(node, start, len(self.f.getvalue()))
         if len(self.param_stack) > 1:
             self.write('\n\n')
@@ -798,6 +803,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         rn = self.return_none
         self.return_none = returnNone
+        old_name = self.name
         self.name = name
         # if code would be empty, append 'pass'
         if len(ast) == 0:
@@ -805,6 +811,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         else:
             self.customize(customize)
             self.text = self.traverse(ast, isLambda=isLambda)
+        self.name = old_name
         self.return_none = rn
 
     def build_ast(self, tokens, customize, isLambda=False, noneInNames=False):

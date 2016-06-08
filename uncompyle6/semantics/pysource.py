@@ -536,6 +536,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.classes = []
         self.pending_newlines = 0
         self.hide_internal = True
+        self.name = None
         self.version = version
 
         if 2.0 <= version <= 2.3:
@@ -1821,7 +1822,9 @@ class SourceWalker(GenericASTTraversal, object):
         for g in find_globals(ast, set()):
             self.println(indent, 'global ', g)
 
+        old_name = self.name
         self.gen_source(ast, code.co_name, code._customize)
+        self.name = old_name
         code._tokens = None; code._customize = None # save memory
         self.classes.pop(-1)
 
@@ -1830,6 +1833,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         rn = self.return_none
         self.return_none = returnNone
+        old_name = self.name
         self.name = name
         # if code would be empty, append 'pass'
         if len(ast) == 0:
@@ -1841,6 +1845,7 @@ class SourceWalker(GenericASTTraversal, object):
             else:
                 self.text = self.traverse(ast, isLambda=isLambda)
                 self.println(self.text)
+        self.name = old_name
         self.return_none = rn
 
     def build_ast(self, tokens, customize, isLambda=False,
