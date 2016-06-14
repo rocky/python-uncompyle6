@@ -1374,8 +1374,15 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = 100
         lastnode = node.pop()
         lastnodetype = lastnode.type
+        have_star = False
         if lastnodetype.startswith('BUILD_LIST'):
-            self.write('['); endchar = ']'
+            # 3.5+ has BUILD_LIST_UNPACK
+            if lastnodetype == 'BUILD_LIST_UNPACK':
+                # FIXME: need to handle range of BUILD_LIST_UNPACK
+                have_star = True
+                endchar = ''
+            else:
+                self.write('['); endchar = ']'
         elif lastnodetype.startswith('BUILD_TUPLE'):
             self.write('('); endchar = ')'
         elif lastnodetype.startswith('BUILD_SET'):
@@ -1414,6 +1421,8 @@ class SourceWalker(GenericASTTraversal, object):
             value = self.traverse(elem)
             self.write(sep, value)
             sep = line_separator
+            if have_star:
+                sep += '*'
         if lastnode.attr == 1 and lastnodetype.startswith('BUILD_TUPLE'):
             self.write(',')
         self.write(endchar)
