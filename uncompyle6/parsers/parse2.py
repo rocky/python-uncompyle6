@@ -1,4 +1,4 @@
-#  Copyright (c) 2015 Rocky Bernstein
+#  Copyright (c) 2015-2016 Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 """
@@ -64,8 +64,6 @@ class Python2Parser(PythonParser):
         sstmt ::= ifelsestmtr
         sstmt ::= return_stmt RETURN_LAST
 
-        stmts_opt ::= stmts
-        stmts_opt ::= passstmt
         passstmt ::=
 
         _stmts ::= _stmts stmt
@@ -113,23 +111,6 @@ class Python2Parser(PythonParser):
         else_suitec ::= c_stmts
         else_suitec ::= return_stmts
 
-        designList ::= designator designator
-        designList ::= designator DUP_TOP designList
-
-        designator ::= STORE_FAST
-        designator ::= STORE_NAME
-        designator ::= STORE_GLOBAL
-        designator ::= STORE_DEREF
-        designator ::= expr STORE_ATTR
-        designator ::= expr STORE_SLICE+0
-        designator ::= expr expr STORE_SLICE+1
-        designator ::= expr expr STORE_SLICE+2
-        designator ::= expr expr expr STORE_SLICE+3
-        designator ::= store_subscr
-        store_subscr ::= expr expr STORE_SUBSCR
-        designator ::= unpack
-        designator ::= unpack_list
-
         stmt ::= classdef
         stmt ::= call_stmt
 
@@ -172,7 +153,6 @@ class Python2Parser(PythonParser):
         stmt ::= ifelsestmt
 
         stmt ::= whilestmt
-        stmt ::= whilenotstmt
         stmt ::= while1stmt
         stmt ::= whileelsestmt
         stmt ::= while1elsestmt
@@ -395,3 +375,8 @@ class Python2Parser(PythonParser):
 
 class Python2ParserSingle(Python2Parser, PythonParserSingle):
     pass
+
+if __name__ == '__main__':
+    # Check grammar
+    p = Python2Parser()
+    p.checkGrammar()

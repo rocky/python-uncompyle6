@@ -6,29 +6,16 @@
 import string
 from spark_parser import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parsers.astnode import AST
-from uncompyle6.parser import PythonParserSingle, ParserError, nop_func
+from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 
-class Python23Parser(GenericASTBuilder):
+class Python23Parser(PythonParser):
+
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
-        GenericASTBuilder.__init__(self, AST, 'stmts', debug=debug_parser)
+        super(Python23Parser, self).__init__(AST, 'stmts', debug=debug_parser)
         self.customized = {}
 
-    def cleanup(self):
-        """
-        Remove recursive references to allow garbage
-        collector to collect this object.
-        """
-        for dict in (self.rule2func, self.rules, self.rule2name, self.first):
-            for i in dict.keys():
-                dict[i] = None
-        for i in dir(self):
-            setattr(self, i, None)
-
-    def error(self, token):
-            raise ParserError(token, token.offset)
-
-    def typestring(self, token):
-        return token.type
+    # FIXME: A lot of the functions below overwrite what is in parse.py which
+    # have more rules. Probly that should be stripped down more instead.
 
     def p_funcdef(self, args):
         '''
@@ -171,23 +158,6 @@ class Python23Parser(GenericASTBuilder):
         stmts_opt ::= passstmt
         passstmt ::=
 
-        designList ::= designator designator
-        designList ::= designator DUP_TOP designList
-
-        designator ::= STORE_FAST
-        designator ::= STORE_NAME
-        designator ::= STORE_GLOBAL
-        designator ::= STORE_DEREF
-        designator ::= expr STORE_ATTR
-        designator ::= expr STORE_SLICE+0
-        designator ::= expr expr STORE_SLICE+1
-        designator ::= expr expr STORE_SLICE+2
-        designator ::= expr expr expr STORE_SLICE+3
-        designator ::= store_subscr
-        store_subscr ::= expr expr STORE_SUBSCR
-        designator ::= unpack
-        designator ::= unpack_list
-
         stmt ::= classdef
         stmt ::= call_stmt
         call_stmt ::= expr POP_TOP
@@ -208,7 +178,7 @@ class Python23Parser(GenericASTBuilder):
 
         stmt ::= raise_stmt
         raise_stmt ::= exprlist RAISE_VARARGS
-        raise_stmt ::= nullexprlist RAISE_VARARGS
+        raise_stmt ::= RAISE_VARARGS
 
         stmt ::= exec_stmt
         exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
@@ -285,12 +255,12 @@ class Python23Parser(GenericASTBuilder):
         try_end  ::= except_else
         except_else ::= END_FINALLY TRY_ELSE_START stmts TRY_ELSE_END
 
-        except_stmt ::= except_cond except_stmt
+        except_stmt ::= except_stmt except_cond
         except_stmt ::= except_conds try_end
         except_stmt ::= except try_end
         except_stmt ::= try_end
 
-        except_conds ::= except_cond except_conds
+        except_conds ::= except_conds except_cond
         except_conds ::=
 
         except_cond ::= except_cond1
@@ -440,8 +410,6 @@ class Python23Parser(GenericASTBuilder):
 
         exprlist ::= exprlist expr
         exprlist ::= expr
-
-        nullexprlist ::=
         '''
 
     def nonterminal(self, nt, args):
@@ -531,6 +499,11 @@ class Python23Parser(GenericASTBuilder):
 
 class Python23ParserSingle(Python23Parser, PythonParserSingle):
     pass
+
+if __name__ == '__main__':
+    # Check grammar
+    p = Python23Parser()
+    p.checkGrammar()
 
 # local variables:
 # tab-width: 4

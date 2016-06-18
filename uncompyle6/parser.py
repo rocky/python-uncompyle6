@@ -307,7 +307,6 @@ class PythonParser(GenericASTBuilder):
         expr ::= LOAD_DEREF
         expr ::= load_attr
         expr ::= binary_expr
-        expr ::= binary_expr_na
         expr ::= build_list
         expr ::= cmp
         expr ::= mapexpr
@@ -441,10 +440,36 @@ class PythonParser(GenericASTBuilder):
         # Positional arguments in make_function
         pos_arg ::= expr
 
-        nullexprlist ::=
-
         expr32 ::= expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr
         expr1024 ::= expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32
+        '''
+
+    def p_designator(self, args):
+        '''
+        # Note. The below is right-recursive:
+        designList ::= designator designator
+        designList ::= designator DUP_TOP designList
+
+        ## Can we replace with left-recursive, and redo with:
+        ##
+        ##   designList  ::= designLists designator designator
+        ##   designLists ::= designLists designator DUP_TOP
+        ##   designLists ::=
+        ## Will need to redo semantic actiion
+
+        designator ::= STORE_FAST
+        designator ::= STORE_NAME
+        designator ::= STORE_GLOBAL
+        designator ::= STORE_DEREF
+        designator ::= expr STORE_ATTR
+        designator ::= expr STORE_SLICE+0
+        designator ::= expr expr STORE_SLICE+1
+        designator ::= expr expr STORE_SLICE+2
+        designator ::= expr expr expr STORE_SLICE+3
+        designator ::= store_subscr
+        store_subscr ::= expr expr STORE_SUBSCR
+        designator ::= unpack
+        designator ::= unpack_list
         '''
 
 

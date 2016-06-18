@@ -21,3 +21,8 @@ class Python26Parser(Python2Parser):
 
 class Python26ParserSingle(Python2Parser, PythonParserSingle):
     pass
+
+if __name__ == '__main__':
+    # Check grammar
+    p = Python26Parser()
+    p.checkGrammar()
