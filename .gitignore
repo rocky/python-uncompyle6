@@ -1,6 +1,7 @@
 *.pyc
 *_dis
 *~
+*.pyc
 /.cache
 /.eggs
 /.python-version
