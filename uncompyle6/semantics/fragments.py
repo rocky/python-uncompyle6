@@ -906,6 +906,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
             if hasattr(n, 'offset'):
                 self.set_pos_info(n, start, finish)
             else:
+                n.start = start
+                n.finish = finish
                 self.set_pos_info_recurse(n, start, finish)
         return
 
@@ -1331,9 +1333,13 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 assert isinstance(entry[arg], tuple)
                 src, dest = entry[arg]
                 for d in dest:
-                    for n in node[d]:
-                        if hasattr(n, 'offset'):
-                            self.set_pos_info(n, node[src].start, node[src].finish)
+                    if hasattr(node[d], 'offset'):
+                        self.set_pos_info(node[d], node[src].start, node[src].finish)
+                    else:
+                        for n in node[d]:
+                            if hasattr(n, 'offset'):
+                                self.set_pos_info(n, node[src].start, node[src].finish)
+                                pass
                             pass
                         pass
                     pass
