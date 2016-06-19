@@ -530,7 +530,14 @@ class Python3Parser(PythonParser):
                 rule = ('mklambda ::= %sLOAD_LAMBDA LOAD_CONST %s' %
                         ('pos_arg '* args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
-                if self.version > 3.2:
+                if self.version == 3.3:
+                    # positional args cafter keyword args
+                    rule = ('mkfunc ::= kwargs %s%s %s' %
+                            ('pos_arg ' * args_pos,
+                                 'LOAD_CONST ' * 2,
+                            opname))
+                elif self.version > 3.3:
+                    # positional args before keyword args
                     rule = ('mkfunc ::= %skwargs %s %s' %
                             ('pos_arg ' * args_pos,
                                  'LOAD_CONST ' * 2,

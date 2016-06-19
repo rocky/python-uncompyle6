@@ -1688,8 +1688,9 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
 
             if default:
-                maybe_show_ast_param_default(self.showast, name, default)
-                result = '%s=%s' % (name, self.traverse(default, indent='') )
+                value = self.traverse(default, indent='')
+                maybe_show_ast_param_default(self.showast, name, value)
+                result = '%s=%s' % (name,  value)
                 if result[-2:] == '= ':	# default was 'LOAD_CONST None'
                     result += 'None'
                 return result
