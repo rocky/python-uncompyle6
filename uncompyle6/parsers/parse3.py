@@ -428,30 +428,6 @@ class Python3Parser(PythonParser):
         Special handling for opcodes that take a variable number
         of arguments -- we add a new rule for each:
 
-            Python 3.4+:
-            listcomp ::= LOAD_LISTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
-                         GET_ITER CALL_FUNCTION_1
-            listcomp ::= {expr}^n LOAD_LISTCOMP MAKE_CLOSURE
-                         GET_ITER CALL_FUNCTION_1
-
-            dictcomp ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
-                         GET_ITER CALL_FUNCTION_1
-
-            Python < 3.4
-            listcomp ::= LOAD_LISTCOMP MAKE_FUNCTION_0 expr
-                         GET_ITER CALL_FUNCTION_1
-
-
-            setcomp ::= {expr}^n LOAD_SETCOMP MAKE_CLOSURE
-                        GET_ITER CALL_FUNCTION_1
-
-            # build_class (see load_build_class)
-
-            build_list  ::= {expr}^n BUILD_LIST_n
-            build_list  ::= {expr}^n BUILD_TUPLE_n
-
-            load_closure  ::= {LOAD_CLOSURE}^n BUILD_TUPLE_n
-
             unpack_list ::= UNPACK_LIST_n {expr}^n
             unpack      ::= UNPACK_TUPLE_n {expr}^n
             unpack      ::= UNPACK_SEQEUENCE_n {expr}^n
@@ -464,10 +440,32 @@ class Python3Parser(PythonParser):
 
             listcomp ::= load_closure expr GET_ITER CALL_FUNCTION_1
 
+            # build_class (see load_build_class)
+
+            build_list  ::= {expr}^n BUILD_LIST_n
+            build_list  ::= {expr}^n BUILD_TUPLE_n
+
+            load_closure  ::= {LOAD_CLOSURE}^n BUILD_TUPLE_n
             # call_function (see custom_classfunc_rule)
+
+            Python 3.3+:
+            listcomp ::= LOAD_LISTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
+                         GET_ITER CALL_FUNCTION_1
+            listcomp ::= {expr}^n LOAD_LISTCOMP MAKE_CLOSURE
+                         GET_ITER CALL_FUNCTION_1
+
+            dictcomp ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
+                         GET_ITER CALL_FUNCTION_1
+
+            Python < 3.3
+            listcomp ::= LOAD_LISTCOMP MAKE_FUNCTION_0 expr
+                         GET_ITER CALL_FUNCTION_1
+
+
+            setcomp ::= {expr}^n LOAD_SETCOMP MAKE_CLOSURE
+                        GET_ITER CALL_FUNCTION_1
+
         """
-        # from trepan.api import debug
-        # debug(start_opts={'startup-profile': True})
         for i, token in enumerate(tokens):
             opname = token.type
             opname_base = opname[:opname.rfind('_')]
@@ -476,7 +474,7 @@ class Python3Parser(PythonParser):
                           'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
                 self.custom_classfunc_rule(opname, token, customize)
             elif opname == 'LOAD_LISTCOMP':
-                if self.version >= 3.4:
+                if self.version >= 3.3:
                     rule = ("listcomp ::= LOAD_LISTCOMP LOAD_CONST MAKE_FUNCTION_0 expr "
                             "GET_ITER CALL_FUNCTION_1")
                 else:
@@ -484,7 +482,7 @@ class Python3Parser(PythonParser):
                             "GET_ITER CALL_FUNCTION_1")
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname == 'LOAD_DICTCOMP':
-                if self.version >= 3.4:
+                if self.version >= 3.3:
                     rule = ("dictcomp ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr "
                             "GET_ITER CALL_FUNCTION_1")
                 else:
@@ -492,7 +490,7 @@ class Python3Parser(PythonParser):
                             "GET_ITER CALL_FUNCTION_1")
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname == 'LOAD_SETCOMP':
-                if self.version >= 3.4:
+                if self.version >= 3.3:
                     rule = ("setcomp ::= LOAD_SETCOMP LOAD_CONST MAKE_FUNCTION_0 expr "
                             "GET_ITER CALL_FUNCTION_1")
                 else:
@@ -553,7 +551,7 @@ class Python3Parser(PythonParser):
                                      'expr GET_ITER CALL_FUNCTION_1' %
                                      ('pos_arg ' * token.attr, opname),
                                      opname, token.attr, customize)
-                if self.version >= 3.4:
+                if self.version >= 3.3:
                     self.add_unique_rule('listcomp ::= %sload_closure '
                                          'LOAD_LISTCOMP LOAD_CONST %s expr '
                                          'GET_ITER CALL_FUNCTION_1' %
