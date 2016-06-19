@@ -588,7 +588,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # skip over stmts sstmt smt
         ast = ast[0][0][0]
 
-        if ast == 'setcomp_func':
+        if ast in ['setcomp_func', 'dictcomp_func']:
             for k in ast:
                 if k == 'comp_iter':
                     n = k
@@ -605,15 +605,15 @@ class FragmentsWalker(pysource.SourceWalker, object):
         ## FIXME: I'm not totally sure this is right.
 
         # find innermost node
-        list_if_node = None
+        if_node = None
         while n in ('list_iter', 'comp_iter'):
             n = n[0] # recurse one step
             if   n == 'list_for':
                 if n[2] == 'designator':
                     designator = n[2]
                 n = n[3]
-            elif n in ['list_if', 'list_if_not']:
-                list_if_node = n[0]
+            elif n in ['list_if', 'list_if_not', 'comp_if']:
+                if_node = n[0]
                 if n[1] == 'designator':
                     designator = n[1]
                 n = n[2]
@@ -633,9 +633,9 @@ class FragmentsWalker(pysource.SourceWalker, object):
         node[-3].parent = node
         self.preorder(node[-3])
         self.set_pos_info(node[-3], start, len(self.f.getvalue()))
-        if list_if_node:
+        if if_node:
             self.write(' if ')
-            self.preorder(list_if_node)
+            self.preorder(if_node)
         self.prec = p
 
     def listcomprehension_walk2(self, node):
@@ -703,7 +703,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def n_setcomp(self, node):
         start = len(self.f.getvalue())
         self.write('{')
-        if node[0] == 'LOAD_SETCOMP':
+        if node[0] in ['LOAD_SETCOMP', 'LOAD_DICTCOMP']:
             start = len(self.f.getvalue())
             self.set_pos_info(node[0], start-1, start)
             self.listcomprehension_walk3(node, 1, 0)

@@ -287,6 +287,11 @@ class Python2Parser(PythonParser):
 
         '''
 
+    def p_dictcomp2(self, args):
+        """"
+        dictcomp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
+        """
+
     def p_genexpr2(self, args):
         '''
         genexpr ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1

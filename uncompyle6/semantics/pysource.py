@@ -1053,7 +1053,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_setcomp(self, node):
         self.write('{')
-        if node[0] == 'LOAD_SETCOMP':
+        if node[0] in ['LOAD_SETCOMP', 'LOAD_DICTCOMP']:
             self.listcomprehension_walk3(node, 1, 0)
         else:
             self.comprehension_walk(node, iter_index=4)
@@ -1078,7 +1078,7 @@ class SourceWalker(GenericASTTraversal, object):
         # skip over stmts sstmt smt
         ast = ast[0][0][0]
         designator = None
-        if ast == 'setcomp_func':
+        if ast in ['setcomp_func', 'dictcomp_func']:
             for k in ast:
                 if k == 'comp_iter':
                     n = k

@@ -121,12 +121,9 @@ class PythonParser(GenericASTBuilder):
     def p_dictcomp(self, args):
         '''
         expr ::= dictcomp
-        dictcomp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
         stmt ::= dictcomp_func
-
-        dictcomp_func ::= BUILD_MAP LOAD_FAST FOR_ITER designator
+        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER designator
                 comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
-
         '''
 
     def p_augmented_assign(self, args):

@@ -56,6 +56,11 @@ class Python3Parser(PythonParser):
         # See also common Python p_list_comprehension
         """
 
+    def p_dictcomp3(self, args):
+        """"
+        dictcomp ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
+        """
+
     def p_grammar(self, args):
         '''
         sstmt ::= stmt
@@ -428,6 +433,10 @@ class Python3Parser(PythonParser):
                          GET_ITER CALL_FUNCTION_1
             listcomp ::= {expr}^n LOAD_LISTCOMP MAKE_CLOSURE
                          GET_ITER CALL_FUNCTION_1
+
+            dictcomp ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
+                         GET_ITER CALL_FUNCTION_1
+
             Python < 3.4
             listcomp ::= LOAD_LISTCOMP MAKE_FUNCTION_0 expr
                          GET_ITER CALL_FUNCTION_1
@@ -438,6 +447,7 @@ class Python3Parser(PythonParser):
 
             dictcomp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr
                          GET_ITER CALL_FUNCTION_1
+
 
             # build_class (see load_build_class)
 
@@ -474,6 +484,14 @@ class Python3Parser(PythonParser):
                             "GET_ITER CALL_FUNCTION_1")
                 else:
                     rule = ("listcomp ::= LOAD_LISTCOMP MAKE_FUNCTION_0 expr "
+                            "GET_ITER CALL_FUNCTION_1")
+                self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname == 'LOAD_DICTCOMP':
+                if self.version >= 3.4:
+                    rule = ("dictcomp ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr "
+                            "GET_ITER CALL_FUNCTION_1")
+                else:
+                    rule = ("dictcomp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr "
                             "GET_ITER CALL_FUNCTION_1")
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname == 'LOAD_SETCOMP':
