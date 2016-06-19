@@ -39,8 +39,15 @@ class PythonParser(GenericASTBuilder):
         for i in dir(self):
             setattr(self, i, None)
 
-    def error(self, token):
-            raise ParserError(token, token.offset)
+    def error(self, tokens, index):
+        start = index - 2 if index - 2 > 0 else 0
+        finish = index +2 if index + 2 < len(tokens) else len(tokens)
+        err_token = tokens[index]
+        print("Token context:")
+        for i in range(start, finish):
+            indent = '   ' if i != index else '-> '
+            print("%s%s" % (indent, tokens[i]))
+        raise ParserError(err_token, err_token.offset)
 
     def typestring(self, token):
         return token.type
