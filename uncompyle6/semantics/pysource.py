@@ -1432,6 +1432,20 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
 
     def n_unpack(self, node):
+        if node[0].type.startswith('UNPACK_EX'):
+            # Python 3+
+            before_count, after_count = node[0].attr
+            for i in range(before_count+1):
+                self.preorder(node[i])
+                if i != 0:
+                    self.write(', ')
+            self.write('*')
+            for i in range(1, after_count+2):
+                self.preorder(node[before_count+i])
+                if i != after_count + 1:
+                    self.write(', ')
+            self.prune()
+            return
         for n in node[1:]:
             if n[0].type == 'unpack':
                 n[0].type = 'unpack_w_parens'

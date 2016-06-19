@@ -91,6 +91,7 @@ class Scanner3(scan.Scanner):
 
         for inst in bytecode:
 
+            argval = inst.argval
             if inst.offset in jump_targets:
                 jump_idx = 0
                 for jump_offset in jump_targets[inst.offset]:
@@ -153,6 +154,14 @@ class Scanner3(scan.Scanner):
                             ):
                 pos_args = inst.argval
                 opname = '%s_%d' % (opname, pos_args)
+            elif opname == 'UNPACK_EX':
+                # FIXME: try with scanner and parser by
+                # changing inst.argval
+                before_args = inst.argval & 0xFF
+                after_args = (inst.argval >> 8) & 0xff
+                pattr = "%d before vararg, %d after" % (before_args, after_args)
+                argval = (before_args, after_args)
+                opname = '%s_%d+%d' % (opname, before_args, after_args)
             elif opname == 'JUMP_ABSOLUTE':
                 pattr = inst.argval
                 target = self.get_target(inst.offset)
@@ -171,7 +180,7 @@ class Scanner3(scan.Scanner):
             tokens.append(
                 Token(
                     type_ = opname,
-                    attr = inst.argval,
+                    attr = argval,
                     pattr = pattr,
                     offset = inst.offset,
                     linestart = inst.starts_line,
@@ -308,7 +317,7 @@ class Scanner3(scan.Scanner):
 
         designator_ops = set([
             STORE_FAST, STORE_NAME, STORE_GLOBAL, STORE_DEREF, STORE_ATTR,
-            STORE_SUBSCR, UNPACK_SEQUENCE, JUMP_ABSOLUTE
+            STORE_SUBSCR, UNPACK_SEQUENCE, JUMP_ABSOLUTE, UNPACK_EX
         ])
 
         # Compose preliminary list of indices with statements,
