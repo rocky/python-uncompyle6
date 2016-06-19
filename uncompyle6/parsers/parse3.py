@@ -195,15 +195,6 @@ class Python3Parser(PythonParser):
         classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
         classdefdeco2 ::= LOAD_CONST expr mkfunc CALL_FUNCTION_0 BUILD_CLASS
 
-        _jump ::= JUMP_ABSOLUTE
-        _jump ::= JUMP_FORWARD
-        _jump ::= JUMP_BACK
-
-        jmp_false   ::= POP_JUMP_IF_FALSE
-        jmp_false   ::= JUMP_IF_FALSE
-        jmp_true    ::= POP_JUMP_IF_TRUE
-        jmp_true    ::= JUMP_IF_TRUE
-
         assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
         assert2 ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
         assert2 ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_2
@@ -293,14 +284,13 @@ class Python3Parser(PythonParser):
         except_cond2 ::= DUP_TOP expr COMPARE_OP
                 jmp_false POP_TOP designator POP_TOP
 
-        except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT JUMP_FORWARD
+        except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT _jump
         except  ::=  POP_TOP POP_TOP POP_TOP return_stmts
 
-        except_pop_except  ::=  POP_TOP POP_TOP POP_TOP POP_EXCEPT c_stmts_opt JUMP_FORWARD
-        except_pop_except  ::=  POP_TOP POP_TOP POP_TOP POP_EXCEPT c_stmts_opt jmp_abs
 
         jmp_abs ::= JUMP_ABSOLUTE
         jmp_abs ::= JUMP_BACK
+
 
         withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
                 POP_BLOCK LOAD_CONST COME_FROM
@@ -314,7 +304,6 @@ class Python3Parser(PythonParser):
 
     def p_misc(self, args):
         """
-        _jump ::= NOP
         try_middle ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY NOP COME_FROM
         """
 

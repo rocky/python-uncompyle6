@@ -40,8 +40,13 @@ class PythonParser(GenericASTBuilder):
             setattr(self, i, None)
 
     def error(self, tokens, index):
-        start = index - 2 if index - 2 > 0 else 0
-        finish = index +2 if index + 2 < len(tokens) else len(tokens)
+        # Find the last line boundary
+        for start in range(index, -1, -1):
+            if tokens[start].linestart:  break
+            pass
+        for finish in range(index+1, len(tokens)):
+            if tokens[finish].linestart:  break
+            pass
         err_token = tokens[index]
         print("Token context:")
         for i in range(start, finish):
@@ -117,6 +122,19 @@ class PythonParser(GenericASTBuilder):
 
         genexpr_func ::= LOAD_FAST FOR_ITER designator comp_iter JUMP_BACK
         '''
+
+    def p_jump(self, args):
+        """
+        _jump ::= JUMP_ABSOLUTE
+        _jump ::= JUMP_FORWARD
+        _jump ::= JUMP_BACK
+
+        # Note: Python < 2.7 doesn't have POP_JUMP_IF ...
+        jmp_false ::= POP_JUMP_IF_FALSE
+        jmp_false ::= JUMP_IF_FALSE
+        jmp_true  ::= POP_JUMP_IF_TRUE
+        jmp_true  ::= JUMP_IF_TRUE
+        """
 
     def p_dictcomp(self, args):
         '''
