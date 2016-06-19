@@ -445,10 +445,6 @@ class Python3Parser(PythonParser):
             setcomp ::= {expr}^n LOAD_SETCOMP MAKE_CLOSURE
                         GET_ITER CALL_FUNCTION_1
 
-            dictcomp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr
-                         GET_ITER CALL_FUNCTION_1
-
-
             # build_class (see load_build_class)
 
             build_list  ::= {expr}^n BUILD_LIST_n
@@ -456,9 +452,10 @@ class Python3Parser(PythonParser):
 
             load_closure  ::= {LOAD_CLOSURE}^n BUILD_TUPLE_n
 
-            unpack_list ::= UNPACK_LIST {expr}^n
-            unpack      ::= UNPACK_TUPLE {expr}^n
-            unpack      ::= UNPACK_SEQEUENCE {expr}^n
+            unpack_list ::= UNPACK_LIST_n {expr}^n
+            unpack      ::= UNPACK_TUPLE_n {expr}^n
+            unpack      ::= UNPACK_SEQEUENCE_n {expr}^n
+            unpack_ex ::=   UNPACK_EX_b_a {expr}^(a+b)
 
             mkfunc      ::= {pos_arg}^n LOAD_CONST MAKE_FUNCTION_n
             mklambda    ::= {pos_arg}^n LOAD_LAMBDA MAKE_FUNCTION_n
@@ -523,6 +520,10 @@ class Python3Parser(PythonParser):
                     rule = kvlist_n + ' ::= ' + 'expr expr STORE_MAP ' * token.attr
                     self.add_unique_rule(rule, opname, token.attr, customize)
                     rule = "mapexpr ::=  %s %s" % (opname, kvlist_n)
+                self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname_base in ('UNPACK_EX'):
+                before_count, after_count = token.attr
+                rule = 'unpack ::= ' + opname + ' designator' * (before_count + after_count + 1)
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
                 rule = 'unpack ::= ' + opname + ' designator' * token.attr
