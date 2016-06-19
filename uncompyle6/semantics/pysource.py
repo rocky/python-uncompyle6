@@ -536,6 +536,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.classes = []
         self.pending_newlines = 0
         self.hide_internal = True
+        self.name = None
         self.version = version
 
         if 2.0 <= version <= 2.3:
@@ -1052,7 +1053,10 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_setcomp(self, node):
         self.write('{')
-        self.comprehension_walk(node, iter_index=4)
+        if node[0] in ['LOAD_SETCOMP', 'LOAD_DICTCOMP']:
+            self.listcomprehension_walk3(node, 1, 0)
+        else:
+            self.comprehension_walk(node, iter_index=4)
         self.write('}')
         self.prune()
 
@@ -1071,40 +1075,52 @@ class SourceWalker(GenericASTTraversal, object):
 
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
-        ast = ast[0][0][0][0][0]
-
-        n = ast[iter_index]
-        assert n == 'list_iter'
+        # skip over stmts sstmt smt
+        ast = ast[0][0][0]
+        designator = None
+        if ast in ['setcomp_func', 'dictcomp_func']:
+            for k in ast:
+                if k == 'comp_iter':
+                    n = k
+                elif k == 'designator':
+                    designator = k
+                    pass
+                pass
+            pass
+        else:
+            ast = ast[0][0]
+            n = ast[iter_index]
+            assert n == 'list_iter'
 
         ## FIXME: I'm not totally sure this is right.
 
         # find innermost node
-        designator = None
-        list_if_node = None
-        while n == 'list_iter':
+        if_node = None
+        while n in ('list_iter', 'comp_iter'):
             n = n[0] # recurse one step
-            if   n == 'list_for':
+            if n == 'list_for':
                 if n[2] == 'designator':
                     designator = n[2]
                 n = n[3]
-            elif n in ['list_if', 'list_if_not']:
-                list_if_node = n[0]
+            elif n in ['list_if', 'list_if_not', 'comp_if']:
+                if_node = n[0]
                 if n[1] == 'designator':
                     designator = n[1]
                 n = n[2]
                 pass
             pass
-        assert n == 'lc_body', ast
-        assert designator, "Couldn't find designator in list comprehension"
+
+        assert n.type in ('lc_body', 'comp_body'), ast
+        assert designator, "Couldn't find designator in list/set comprehension"
 
         self.preorder(n[0])
         self.write(' for ')
         self.preorder(designator)
         self.write(' in ')
         self.preorder(node[-3])
-        if list_if_node:
+        if if_node:
             self.write(' if ')
-            self.preorder(list_if_node)
+            self.preorder(if_node)
         self.prec = p
 
     def listcomprehension_walk2(self, node):
@@ -1359,8 +1375,15 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = 100
         lastnode = node.pop()
         lastnodetype = lastnode.type
+        have_star = False
         if lastnodetype.startswith('BUILD_LIST'):
-            self.write('['); endchar = ']'
+            # 3.5+ has BUILD_LIST_UNPACK
+            if lastnodetype == 'BUILD_LIST_UNPACK':
+                # FIXME: need to handle range of BUILD_LIST_UNPACK
+                have_star = True
+                endchar = ''
+            else:
+                self.write('['); endchar = ']'
         elif lastnodetype.startswith('BUILD_TUPLE'):
             self.write('('); endchar = ')'
         elif lastnodetype.startswith('BUILD_SET'):
@@ -1399,6 +1422,8 @@ class SourceWalker(GenericASTTraversal, object):
             value = self.traverse(elem)
             self.write(sep, value)
             sep = line_separator
+            if have_star:
+                sep += '*'
         if lastnode.attr == 1 and lastnodetype.startswith('BUILD_TUPLE'):
             self.write(',')
         self.write(endchar)
@@ -1807,7 +1832,9 @@ class SourceWalker(GenericASTTraversal, object):
         for g in find_globals(ast, set()):
             self.println(indent, 'global ', g)
 
+        old_name = self.name
         self.gen_source(ast, code.co_name, code._customize)
+        self.name = old_name
         code._tokens = None; code._customize = None # save memory
         self.classes.pop(-1)
 
@@ -1816,6 +1843,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         rn = self.return_none
         self.return_none = returnNone
+        old_name = self.name
         self.name = name
         # if code would be empty, append 'pass'
         if len(ast) == 0:
@@ -1827,6 +1855,7 @@ class SourceWalker(GenericASTTraversal, object):
             else:
                 self.text = self.traverse(ast, isLambda=isLambda)
                 self.println(self.text)
+        self.name = old_name
         self.return_none = rn
 
     def build_ast(self, tokens, customize, isLambda=False,

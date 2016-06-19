@@ -39,8 +39,15 @@ class PythonParser(GenericASTBuilder):
         for i in dir(self):
             setattr(self, i, None)
 
-    def error(self, token):
-            raise ParserError(token, token.offset)
+    def error(self, tokens, index):
+        start = index - 2 if index - 2 > 0 else 0
+        finish = index +2 if index + 2 < len(tokens) else len(tokens)
+        err_token = tokens[index]
+        print("Token context:")
+        for i in range(start, finish):
+            indent = '   ' if i != index else '-> '
+            print("%s%s" % (indent, tokens[i]))
+        raise ParserError(err_token, err_token.offset)
 
     def typestring(self, token):
         return token.type
@@ -114,12 +121,9 @@ class PythonParser(GenericASTBuilder):
     def p_dictcomp(self, args):
         '''
         expr ::= dictcomp
-        dictcomp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
         stmt ::= dictcomp_func
-
-        dictcomp_func ::= BUILD_MAP LOAD_FAST FOR_ITER designator
+        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER designator
                 comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
-
         '''
 
     def p_augmented_assign(self, args):
@@ -307,7 +311,6 @@ class PythonParser(GenericASTBuilder):
         expr ::= LOAD_DEREF
         expr ::= load_attr
         expr ::= binary_expr
-        expr ::= binary_expr_na
         expr ::= build_list
         expr ::= cmp
         expr ::= mapexpr
@@ -441,10 +444,36 @@ class PythonParser(GenericASTBuilder):
         # Positional arguments in make_function
         pos_arg ::= expr
 
-        nullexprlist ::=
-
         expr32 ::= expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr
         expr1024 ::= expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32
+        '''
+
+    def p_designator(self, args):
+        '''
+        # Note. The below is right-recursive:
+        designList ::= designator designator
+        designList ::= designator DUP_TOP designList
+
+        ## Can we replace with left-recursive, and redo with:
+        ##
+        ##   designList  ::= designLists designator designator
+        ##   designLists ::= designLists designator DUP_TOP
+        ##   designLists ::=
+        ## Will need to redo semantic actiion
+
+        designator ::= STORE_FAST
+        designator ::= STORE_NAME
+        designator ::= STORE_GLOBAL
+        designator ::= STORE_DEREF
+        designator ::= expr STORE_ATTR
+        designator ::= expr STORE_SLICE+0
+        designator ::= expr expr STORE_SLICE+1
+        designator ::= expr expr STORE_SLICE+2
+        designator ::= expr expr expr STORE_SLICE+3
+        designator ::= store_subscr
+        store_subscr ::= expr expr STORE_SUBSCR
+        designator ::= unpack
+        designator ::= unpack_list
         '''
 
 

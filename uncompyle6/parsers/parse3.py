@@ -1,7 +1,7 @@
-#  Copyright (c) 1999 John Aycock
-#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2015, 2016 Rocky Bernstein
+#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#  Copyright (c) 1999 John Aycock
 #
 #  See LICENSE for license
 """
@@ -54,6 +54,11 @@ class Python3Parser(PythonParser):
         list_for ::= expr FOR_ITER designator list_iter JUMP_BACK
 
         # See also common Python p_list_comprehension
+        """
+
+    def p_dictcomp3(self, args):
+        """"
+        dictcomp ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
         """
 
     def p_grammar(self, args):
@@ -111,23 +116,6 @@ class Python3Parser(PythonParser):
         else_suitec ::= c_stmts
         else_suitec ::= return_stmts
 
-        designList ::= designator designator
-        designList ::= designator DUP_TOP designList
-
-        designator ::= STORE_FAST
-        designator ::= STORE_NAME
-        designator ::= STORE_GLOBAL
-        designator ::= STORE_DEREF
-        designator ::= expr STORE_ATTR
-        designator ::= expr STORE_SLICE+0
-        designator ::= expr expr STORE_SLICE+1
-        designator ::= expr expr STORE_SLICE+2
-        designator ::= expr expr expr STORE_SLICE+3
-        designator ::= store_subscr
-        store_subscr ::= expr expr STORE_SUBSCR
-        designator ::= unpack
-        designator ::= unpack_list
-
         stmt ::= classdef
         stmt ::= call_stmt
 
@@ -170,7 +158,6 @@ class Python3Parser(PythonParser):
         stmt ::= ifelsestmt
 
         stmt ::= whilestmt
-        stmt ::= whilenotstmt
         stmt ::= while1stmt
         stmt ::= whileelsestmt
         stmt ::= while1elsestmt
@@ -446,6 +433,10 @@ class Python3Parser(PythonParser):
                          GET_ITER CALL_FUNCTION_1
             listcomp ::= {expr}^n LOAD_LISTCOMP MAKE_CLOSURE
                          GET_ITER CALL_FUNCTION_1
+
+            dictcomp ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
+                         GET_ITER CALL_FUNCTION_1
+
             Python < 3.4
             listcomp ::= LOAD_LISTCOMP MAKE_FUNCTION_0 expr
                          GET_ITER CALL_FUNCTION_1
@@ -456,6 +447,7 @@ class Python3Parser(PythonParser):
 
             dictcomp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr
                          GET_ITER CALL_FUNCTION_1
+
 
             # build_class (see load_build_class)
 
@@ -492,6 +484,22 @@ class Python3Parser(PythonParser):
                             "GET_ITER CALL_FUNCTION_1")
                 else:
                     rule = ("listcomp ::= LOAD_LISTCOMP MAKE_FUNCTION_0 expr "
+                            "GET_ITER CALL_FUNCTION_1")
+                self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname == 'LOAD_DICTCOMP':
+                if self.version >= 3.4:
+                    rule = ("dictcomp ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr "
+                            "GET_ITER CALL_FUNCTION_1")
+                else:
+                    rule = ("dictcomp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr "
+                            "GET_ITER CALL_FUNCTION_1")
+                self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname == 'LOAD_SETCOMP':
+                if self.version >= 3.4:
+                    rule = ("setcomp ::= LOAD_SETCOMP LOAD_CONST MAKE_FUNCTION_0 expr "
+                            "GET_ITER CALL_FUNCTION_1")
+                else:
+                    rule = ("setcomp ::= LOAD_SETCOMP MAKE_FUNCTION_0 expr "
                             "GET_ITER CALL_FUNCTION_1")
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname == 'LOAD_BUILD_CLASS':
@@ -638,3 +646,8 @@ class Python34ParserSingle(Python34Parser, PythonParserSingle):
 
 class Python35onParserSingle(Python35onParser, PythonParserSingle):
     pass
+
+if __name__ == '__main__':
+    # Check grammar
+    p = Python3Parser()
+    p.checkGrammar()

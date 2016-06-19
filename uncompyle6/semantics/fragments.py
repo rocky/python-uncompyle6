@@ -101,6 +101,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.classes = []
         self.pending_newlines = 0
         self.hide_internal = False
+        self.name = None
 
         self.offsets = {}
         self.last_finish = -1
@@ -285,11 +286,17 @@ class FragmentsWalker(pysource.SourceWalker, object):
             node[0].parent = node
             self.last_finish = len(self.f.getvalue())
             self.preorder(node[0])
+            finish = len(self.f.getvalue())
+            if hasattr(node[0], 'offset'):
+                self.set_pos_info(node[0], self.last_finish, )
             self.write(')')
-            self.last_finish = len(self.f.getvalue())
+            self.last_finish = finish + 1
         else:
             node[0].parent = node
+            start = len(self.f.getvalue())
             self.preorder(node[0])
+            if hasattr(node[0], 'offset'):
+                self.set_pos_info(node[0], start, len(self.f.getvalue()))
         self.prec = p
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune()
@@ -461,7 +468,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def n_mkfunc(self, node):
         start = len(self.f.getvalue())
-        old_name = self.name
         if self.version >= 3.0:
             # LOAD_CONST code object ..
             # LOAD_CONST        'x0'  if >= 3.3
@@ -484,13 +490,35 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write(func_name)
         self.indentMore()
         self.make_function(node, isLambda=False, code_index=code_index)
-        self.name = old_name
         self.set_pos_info(node, start, len(self.f.getvalue()))
         if len(self.param_stack) > 1:
             self.write('\n\n')
         else:
             self.write('\n\n\n')
         self.indentLess()
+        self.prune() # stop recursing
+
+    def n_list_compr(self, node):
+        """List comprehensions the way they are done in Python 2."""
+        p = self.prec
+        self.prec = 27
+        n = node[-1]
+        assert n == 'list_iter'
+        # find innermost node
+        while n == 'list_iter':
+            n = n[0] # recurse one step
+            if   n == 'list_for':	n = n[3]
+            elif n == 'list_if':	n = n[2]
+            elif n == 'list_if_not': n= n[2]
+        assert n == 'lc_body'
+        if node[0].type.startswith('BUILD_LIST'):
+            start = len(self.f.getvalue())
+            self.set_pos_info(node[0], start, start+1)
+        self.write( '[ ')
+        self.preorder(n[0]) # lc_body
+        self.preorder(node[-1]) # for/if parts
+        self.write( ' ]')
+        self.prec = p
         self.prune() # stop recursing
 
     def comprehension_walk(self, node, iter_index, code_index=-5):
@@ -557,27 +585,43 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
-        ast = ast[0][0][0][0][0]
+        # skip over stmts sstmt smt
+        ast = ast[0][0][0]
 
-        n = ast[iter_index]
-        assert n == 'list_iter'
+        if ast in ['setcomp_func', 'dictcomp_func']:
+            for k in ast:
+                if k == 'comp_iter':
+                    n = k
+                elif k == 'designator':
+                    designator = k
+                    pass
+                pass
+            pass
+        else:
+            ast = ast[0][0]
+            n = ast[iter_index]
+            assert n == 'list_iter'
+
+        ## FIXME: I'm not totally sure this is right.
 
         # find innermost node
-        while n == 'list_iter':
+        if_node = None
+        while n in ('list_iter', 'comp_iter'):
             n = n[0] # recurse one step
             if   n == 'list_for':
-                designator = n[2]
+                if n[2] == 'designator':
+                    designator = n[2]
                 n = n[3]
-            elif n == 'list_if':
-                # FIXME: just a guess
-                designator = n[1]
+            elif n in ['list_if', 'list_if_not', 'comp_if']:
+                if_node = n[0]
+                if n[1] == 'designator':
+                    designator = n[1]
+                n = n[2]
+                pass
+            pass
 
-                n = n[2]
-            elif n == 'list_if_not':
-                # FIXME: just a guess
-                designator = n[1]
-                n = n[2]
-        assert n == 'lc_body', ast
+        assert n.type in ('lc_body', 'comp_body'), ast
+        assert designator, "Couldn't find designator in list/set comprehension"
 
         self.preorder(n[0])
         self.write(' for ')
@@ -589,7 +633,9 @@ class FragmentsWalker(pysource.SourceWalker, object):
         node[-3].parent = node
         self.preorder(node[-3])
         self.set_pos_info(node[-3], start, len(self.f.getvalue()))
-        # self.preorder(ast[iter_index])
+        if if_node:
+            self.write(' if ')
+            self.preorder(if_node)
         self.prec = p
 
     def listcomprehension_walk2(self, node):
@@ -657,9 +703,26 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def n_setcomp(self, node):
         start = len(self.f.getvalue())
         self.write('{')
-        self.comprehension_walk(node, 4)
+        if node[0] in ['LOAD_SETCOMP', 'LOAD_DICTCOMP']:
+            start = len(self.f.getvalue())
+            self.set_pos_info(node[0], start-1, start)
+            self.listcomprehension_walk3(node, 1, 0)
+        else:
+            self.comprehension_walk(node, iter_index=4)
         self.write('}')
         self.set_pos_info(node, start, len(self.f.getvalue()))
+        self.prune()
+
+    def n_listcomp(self, node):
+        self.write('[')
+        if node[0].type == 'load_closure':
+            self.listcomprehension_walk2(node)
+        else:
+            if node[0] == 'LOAD_LISTCOMP':
+                start = len(self.f.getvalue())
+                self.set_pos_info(node[0], start-1, start)
+            self.listcomprehension_walk3(node, 1, 0)
+        self.write(']')
         self.prune()
 
     def n_classdef(self, node):
@@ -669,6 +732,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
         if self.version > 3.0:
             currentclass = node[1][0].pattr
             buildclass = node[0]
+            if buildclass[0] == 'LOAD_BUILD_CLASS':
+                start = len(self.f.getvalue())
+                self.set_pos_info(buildclass[0], start, start + len('class')+2)
+
             if buildclass[1][0] == 'kwargs':
                 subclass = buildclass[1][1].attr
                 subclass_info = node[0]
@@ -736,6 +803,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         rn = self.return_none
         self.return_none = returnNone
+        old_name = self.name
         self.name = name
         # if code would be empty, append 'pass'
         if len(ast) == 0:
@@ -743,6 +811,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         else:
             self.customize(customize)
             self.text = self.traverse(ast, isLambda=isLambda)
+        self.name = old_name
         self.return_none = rn
 
     def build_ast(self, tokens, customize, isLambda=False, noneInNames=False):
@@ -1549,6 +1618,9 @@ if __name__ == '__main__':
     def get_code_for_fn(fn):
         return fn.__code__
 
+    def test():
+        [x for x in range(3)]
+
     def gcd(a, b):
         if a > b:
             (a, b) = (b, a)
@@ -1561,7 +1633,7 @@ if __name__ == '__main__':
         return gcd(b-a, a)
 
     # check_args(['3', '5'])
-    deparse_test(get_code_for_fn(gcd))
     # deparse_test(get_code_for_fn(gcd))
+    deparse_test(get_code_for_fn(test))
     # deparse_test(get_code_for_fn(FragmentsWalker.fixup_offsets))
     # deparse_test(inspect.currentframe().f_code)
