@@ -24,6 +24,10 @@ class Python2Parser(PythonParser):
         super(Python2Parser, self).__init__(AST, 'stmts', debug=debug_parser)
         self.customized = {}
 
+        # FIXME: redo with parse3's add_unique_rule.
+        self.seen32 = False
+        self.seen1024 = False
+
     def p_list_comprehension2(self, args):
         """
         list_for ::= expr _for designator list_iter JUMP_BACK
@@ -331,8 +335,23 @@ class Python2Parser(PythonParser):
 
             op = k[:k.rfind('_')]
             if op in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
-                rule = ('build_list ::= ' + 'expr1024 '*(v//1024) +
-                                        'expr32 '*((v//32)%32) + 'expr '*(v%32) + k)
+                thousands = (v//1024)
+                thirty32s = ((v//32)%32)
+                if thirty32s > 0 and not self.seen32:
+                    rule = "expr32 ::=%s" % (' expr' * 32)
+                    self.addRule(rule, nop_func)
+                    self.seen32 = True
+                if thousands > 0 and not self.seen1025:
+                    self.addRule("expr1024 ::=%s" % (' expr32' * 32), nop_func)
+                    self.seen1024 = True
+                rule = ('build_list ::= ' + 'expr1024 '*thousands +
+                                        'expr32 '*thirty32s + 'expr '*(v%32) + k)
+            elif op == 'BUILD_MAP':
+                kvlist_n = "kvlist_%s" % v
+                rule = kvlist_n + ' ::= ' + ' kv3' * v
+                self.addRule(rule, nop_func)
+                rule = "mapexpr ::=  %s %s" % (k, kvlist_n)
+                self.addRule(rule, nop_func)
             elif op in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
                 rule = 'unpack ::= ' + k + ' designator'*v
             elif op == 'UNPACK_LIST':

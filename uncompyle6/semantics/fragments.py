@@ -1140,7 +1140,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             pass
         else:
             # Python 2 style kvlist
-            assert node[-1] == 'kvlist'
+            assert node[-1].type.startswith('kvlist')
             kv_node = node[-1] # goto kvlist
 
             for kv in kv_node:

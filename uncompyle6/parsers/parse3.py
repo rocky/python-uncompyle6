@@ -336,11 +336,13 @@ class Python3Parser(PythonParser):
         # Is there something general going on here?
         genexpr ::= LOAD_GENEXPR LOAD_CONST MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
         genexpr ::= load_closure LOAD_GENEXPR LOAD_CONST MAKE_CLOSURE_0 expr GET_ITER CALL_FUNCTION_1
+        dictcomp ::= load_closure LOAD_DICTCOMP LOAD_CONST MAKE_CLOSURE_0 expr GET_ITER CALL_FUNCTION_1
         '''
 
     def p_expr3(self, args):
         '''
         expr ::= LOAD_CLASSNAME
+        expr ::= LOAD_ASSERT
         # Python3 drops slice0..slice3
 
         # Python 3.3+ adds yield from
@@ -502,7 +504,6 @@ class Python3Parser(PythonParser):
                 if opname_base == 'BUILD_TUPLE':
                     rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
-
             elif opname_base == 'BUILD_MAP':
                 kvlist_n = "kvlist_%s" % token.attr
                 if self.version >= 3.5:

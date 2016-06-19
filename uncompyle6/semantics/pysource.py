@@ -1006,21 +1006,25 @@ class SourceWalker(GenericASTTraversal, object):
     def comprehension_walk(self, node, iter_index, code_index=-5):
         p = self.prec
         self.prec = 27
-        if hasattr(node[code_index], 'attr'):
+
+        # FIXME: clean this up
+        if self.version > 3.0 and node == 'dictcomp':
+            cn = node[1]
+        elif hasattr(node[code_index], 'attr'):
             # Python 2.5+ (and earlier?) does this
-            code = node[code_index].attr
+            cn = node[code_index]
         else:
             if len(node[1]) > 1 and hasattr(node[1][1], 'attr'):
                 # Python 3.3+ does this
-                code = node[1][1].attr
+                cn = node[1][1]
             elif hasattr(node[1][0], 'attr'):
                 # Python 3.2 does this
-                code = node[1][0].attr
+                cn = node[1][0]
             else:
                 assert False, "Can't find code for comprehension"
 
-        assert iscode(code)
-        code = Code(code, self.scanner, self.currentclass)
+        assert iscode(cn.attr)
+        code = Code(cn.attr, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
         ast = ast[0][0][0]
@@ -1308,7 +1312,7 @@ class SourceWalker(GenericASTTraversal, object):
         sep = INDENT_PER_LEVEL[:-1]
         self.write('{')
 
-        if self.version > 3.0:
+        if self.version >= 3.0:
             if node[0].type.startswith('kvlist'):
                 # Python 3.5+ style key/value list in mapexpr
                 kv_node = node[0]
@@ -1342,7 +1346,7 @@ class SourceWalker(GenericASTTraversal, object):
             pass
         else:
             # Python 2 style kvlist
-            assert node[-1] == 'kvlist'
+            assert node[-1].type.startswith('kvlist')
             kv_node = node[-1] # goto kvlist
 
             for kv in kv_node:

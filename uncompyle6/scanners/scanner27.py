@@ -55,7 +55,7 @@ class Scanner27(Scanner2):
             self.opc.CALL_FUNCTION_KW,     self.opc.CALL_FUNCTION_VAR_KW,
             self.opc.DUP_TOPX,             self.opc.RAISE_VARARGS,
             # New in Python 2.7
-            self.opc.BUILD_SET])
+            self.opc.BUILD_SET,            self.opc.BUILD_MAP])
 
         # "setup" opcodes
         self.setup_ops = frozenset([
