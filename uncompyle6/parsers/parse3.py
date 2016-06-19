@@ -265,8 +265,11 @@ class Python3Parser(PythonParser):
         except_stmt ::= except_pop_except
 
         # Python3 introduced POP_EXCEPT
-        except_suite ::= c_stmts_opt POP_EXCEPT JUMP_FORWARD
-        except_suite ::= c_stmts_opt POP_EXCEPT jmp_abs
+        except_suite ::= c_stmts_opt POP_EXCEPT jump_except
+        jump_except ::= JUMP_ABSOLUTE
+        jump_except ::= JUMP_BACK
+        jump_except ::= JUMP_FORWARD
+        jump_except ::= CONTINUE
 
         # This is used in Python 3 in
         # "except ... as e" to remove 'e' after the c_stmts_opt finishes
@@ -287,10 +290,8 @@ class Python3Parser(PythonParser):
         except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT _jump
         except  ::=  POP_TOP POP_TOP POP_TOP return_stmts
 
-
         jmp_abs ::= JUMP_ABSOLUTE
         jmp_abs ::= JUMP_BACK
-
 
         withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
                 POP_BLOCK LOAD_CONST COME_FROM
