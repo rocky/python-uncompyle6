@@ -1,6 +1,7 @@
 import sys
 from uncompyle6 import PYTHON3
 from uncompyle6.scanners.tok import NoneToken
+from spark_parser.ast import AST as spark_AST
 
 if PYTHON3:
     intern = sys.intern
@@ -9,34 +10,42 @@ else:
     from UserList import UserList
 
 
-class AST(UserList):
-    def __init__(self, kind, kids=[]):
-        self.type = intern(kind)
-        UserList.__init__(self, kids)
-
+class AST(spark_AST):
     def isNone(self):
         """An AST None token. We can't use regular list comparisons
         because AST token offsets might be different"""
         return len(self.data) == 1 and NoneToken == self.data[0]
 
-    def __getslice__(self, low, high):    return self.data[low:high]
+    def __repr__(self):
+        return self.__repr1__('', None)
 
-    def __eq__(self, o):
-        if isinstance(o, AST):
-            return self.type == o.type \
-                   and UserList.__eq__(self, o)
-        else:
-            return self.type == o
-
-    def __hash__(self):
-        return hash(self.type)
-
-    def __repr__(self, indent=''):
+    def __repr1__(self, indent, sibNum=None):
         rv = str(self.type)
-        for k in self:
-            child_text = str(k).replace('\n', '\n   ')
-            if hasattr(k, '__len__') and len(k) > 1:
-                rv += '\n(%d)  %s' % (len(k), child_text)
+        if sibNum is not None:
+            rv = "%2d. %s" % (sibNum, rv)
+        enumerate_children = False
+        if len(self) > 1:
+            rv += " (%d)" % (len(self))
+            enumerate_children = True
+        rv = indent + rv
+        indent += '    '
+        i = 0
+        for node in self:
+            if hasattr(node, '__repr1__'):
+               if enumerate_children:
+                    child =  node.__repr1__(indent, i)
+               else:
+                    child = node.__repr1__(indent, None)
             else:
-                rv += '\n' + child_text
+                inst = str(node)
+                if inst.startswith("\n"):
+                    # Nuke leading \n
+                    inst = inst[1:]
+                if enumerate_children:
+                    child = indent + "%2d. %s" % (i, inst)
+                else:
+                    child = indent + inst
+                pass
+            rv += "\n" + child
+            i += 1
         return rv
