@@ -134,6 +134,16 @@ class PythonParser(GenericASTBuilder):
         jmp_false ::= JUMP_IF_FALSE
         jmp_true  ::= POP_JUMP_IF_TRUE
         jmp_true  ::= JUMP_IF_TRUE
+
+        # Zero or more COME_FROM
+        # loops can have this
+        _come_from ::= _come_from COME_FROM
+        _come_from ::=
+
+        # Zero or one COME_FROM
+        # And/or expressions have this
+        come_from_opt ::= COME_FROM
+        come_from_opt ::=
         """
 
     def p_dictcomp(self, args):
@@ -273,16 +283,6 @@ class PythonParser(GenericASTBuilder):
         list_iter ::= list_if
         list_iter ::= list_if_not
         list_iter ::= lc_body
-
-        # Zero or more COME_FROM
-        # loops can have this
-        _come_from ::= _come_from COME_FROM
-        _come_from ::=
-
-        # Zero or one COME_FROM
-        # And/or expressions have this
-        come_from_opt ::= COME_FROM
-        come_from_opt ::=
 
         list_if ::= expr jmp_false list_iter
         list_if_not ::= expr jmp_true list_iter

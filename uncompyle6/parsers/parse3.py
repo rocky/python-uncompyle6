@@ -242,7 +242,7 @@ class Python3Parser(PythonParser):
                            COME_FROM suite_stmts_opt END_FINALLY
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           try_middle else_suite COME_FROM
+                           try_middle else_suite come_froms
 
         tryelsestmtc ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                          try_middle else_suitec COME_FROM
@@ -305,6 +305,12 @@ class Python3Parser(PythonParser):
     def p_misc(self, args):
         """
         try_middle ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY NOP COME_FROM
+        """
+
+    def p_jump3(self, args):
+        """
+        come_froms ::= come_froms COME_FROM
+        come_froms ::= COME_FROM
         """
 
     def p_stmt3(self, args):
