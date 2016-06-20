@@ -1429,18 +1429,27 @@ class FragmentsWalker(pysource.SourceWalker, object):
             else:
                 return name
 
-        # node[-1] == MAKE_FUNCTION_n
+        # MAKE_FUNCTION_... or MAKE_CLOSURE_...
+        assert node[-1].type.startswith('MAKE_')
 
         args_node = node[-1]
         if isinstance(args_node.attr, tuple):
-            defparams = node[:args_node.attr[0]]
-            kw_args, annotate_args  = args_node.attr
+            if self.version == 3.3:
+                # positional args are after kwargs
+                defparams = node[1:args_node.attr[0]+1]
+            else:
+                # positional args are before kwargs
+                defparams = node[:args_node.attr[0]]
+            pos_aargs, kw_args, annotate_args  = args_node.attr
         else:
             defparams = node[:args_node.attr]
-            kw_args  = (0, 0)
+            kw_args, annotate_args  = (0, 0)
             pass
 
-        code = node[code_index].attr
+        if self.version > 3.0 and isLambda and iscode(node[-3].attr):
+            code = node[-3].attr
+        else:
+            code = node[code_index].attr
 
         assert iscode(code)
         code = Code(code, self.scanner, self.currentclass)

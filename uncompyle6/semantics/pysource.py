@@ -1697,11 +1697,17 @@ class SourceWalker(GenericASTTraversal, object):
             else:
                 return name
 
-        # node[-1] == MAKE_FUNCTION_n
+        # MAKE_FUNCTION_... or MAKE_CLOSURE_...
+        assert node[-1].type.startswith('MAKE_')
 
         args_node = node[-1]
         if isinstance(args_node.attr, tuple):
-            defparams = node[:args_node.attr[0]]
+            if self.version == 3.3:
+                # positional args are after kwargs
+                defparams = node[1:args_node.attr[0]+1]
+            else:
+                # positional args are before kwargs
+                defparams = node[:args_node.attr[0]]
             pos_args, kw_args, annotate_args  = args_node.attr
         else:
             defparams = node[:args_node.attr]
@@ -1785,7 +1791,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.mod_globs -= all_globals
         rn = ('None' in code.co_names) and not find_none(ast)
         self.gen_source(ast, code.co_name, code._customize, isLambda=isLambda,
-                            returnNone=rn)
+                        returnNone=rn)
         code._tokens = None; code._customize = None # save memory
 
     def build_class(self, code):
