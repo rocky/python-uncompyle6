@@ -17,7 +17,7 @@ that a later phase can tern into a sequence of ASCII text.
 
 from __future__ import print_function
 
-from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
+from uncompyle6.parser import PythonParser, PythonParserSingle
 from uncompyle6.parsers.astnode import AST
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6 import PYTHON3
@@ -31,17 +31,6 @@ class Python3Parser(PythonParser):
         else:
             super(Python3Parser, self).__init__(AST, 'stmts', debug=debug_parser)
         self.new_rules = set()
-
-    def add_unique_rule(self, rule, opname, count, customize):
-        """Add rule to grammar, but only if it hasn't been added previously
-        """
-        if rule not in self.new_rules:
-            # print("XXX ", rule) # debug
-            self.new_rules.add(rule)
-            self.addRule(rule, nop_func)
-            customize[opname] = count
-            pass
-        return
 
     def p_list_comprehension3(self, args):
         """

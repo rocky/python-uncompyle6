@@ -28,6 +28,17 @@ nop_func = lambda self, args: None
 
 class PythonParser(GenericASTBuilder):
 
+    def add_unique_rule(self, rule, opname, count, customize):
+        """Add rule to grammar, but only if it hasn't been added previously
+        """
+        if rule not in self.new_rules:
+            # print("XXX ", rule) # debug
+            self.new_rules.add(rule)
+            self.addRule(rule, nop_func)
+            customize[opname] = count
+            pass
+        return
+
     def cleanup(self):
         """
         Remove recursive references to allow garbage

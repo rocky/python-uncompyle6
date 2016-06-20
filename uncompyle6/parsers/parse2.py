@@ -22,11 +22,7 @@ class Python2Parser(PythonParser):
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
         super(Python2Parser, self).__init__(AST, 'stmts', debug=debug_parser)
-        self.customized = {}
-
-        # FIXME: redo with parse3's add_unique_rule.
-        self.seen32 = False
-        self.seen1024 = False
+        self.new_rules = set()
 
     def p_list_comprehension2(self, args):
         """
@@ -328,30 +324,27 @@ class Python2Parser(PythonParser):
             expr ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
         '''
         for k, v in list(customize.items()):
-            # avoid adding the same rule twice to this parser
-            if k in self.customized:
-                continue
-            self.customized[k] = None
 
             op = k[:k.rfind('_')]
             if op in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
                 thousands = (v//1024)
                 thirty32s = ((v//32)%32)
-                if thirty32s > 0 and not self.seen32:
+                if thirty32s > 0:
                     rule = "expr32 ::=%s" % (' expr' * 32)
-                    self.addRule(rule, nop_func)
+                    self.add_unique_rule(rule, op, v, customize)
                     self.seen32 = True
-                if thousands > 0 and not self.seen1025:
-                    self.addRule("expr1024 ::=%s" % (' expr32' * 32), nop_func)
+                if thousands > 0:
+                    self.add_unique_rule("expr1024 ::=%s" % (' expr32' * 32),
+                                         op, v, customize)
                     self.seen1024 = True
                 rule = ('build_list ::= ' + 'expr1024 '*thousands +
                                         'expr32 '*thirty32s + 'expr '*(v%32) + k)
             elif op == 'BUILD_MAP':
                 kvlist_n = "kvlist_%s" % v
                 rule = kvlist_n + ' ::= ' + ' kv3' * v
-                self.addRule(rule, nop_func)
+                self.add_unique_rule(rule, op, v, customize)
                 rule = "mapexpr ::=  %s %s" % (k, kvlist_n)
-                self.addRule(rule, nop_func)
+                self.add_unique_rule(rule, op, v, customize)
             elif op in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
                 rule = 'unpack ::= ' + k + ' designator'*v
             elif op == 'UNPACK_LIST':
@@ -385,7 +378,7 @@ class Python2Parser(PythonParser):
                        + 'expr ' * nak + k
             else:
                 raise Exception('unknown customize token %s' % k)
-            self.addRule(rule, nop_func)
+            self.add_unique_rule(rule, op, v, customize)
 
 class Python2ParserSingle(Python2Parser, PythonParserSingle):
     pass
