@@ -126,12 +126,12 @@ class Scanner3(scan.Scanner):
                 else:
                     pattr = const
                     pass
-            elif opname == 'MAKE_FUNCTION':
+            elif opname in ('MAKE_FUNCTION', 'MAKE_CLOSURE'):
                 argc = inst.argval
                 attr = ((argc & 0xFF), (argc >> 8) & 0xFF, (argc >> 16) & 0x7FFF)
                 pos_args, name_pair_args, annotate_args = attr
                 if name_pair_args > 0:
-                    opname = 'MAKE_FUNCTION_N%d' % name_pair_args
+                    opname = '%s_N%d' % (opname, name_pair_args)
                     pass
                 if annotate_args > 0:
                     opname = '%s_A_%d' % [opname, annotate_args]
@@ -149,7 +149,7 @@ class Scanner3(scan.Scanner):
                     )
                 continue
             elif opname in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET', 'BUILD_SLICE',
-                            'BUILD_MAP', 'UNPACK_SEQUENCE', 'MAKE_CLOSURE',
+                            'BUILD_MAP', 'UNPACK_SEQUENCE',
                             'RAISE_VARARGS'
                             ):
                 pos_args = inst.argval

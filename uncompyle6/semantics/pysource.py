@@ -955,9 +955,9 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_mkfunc(self, node):
 
-        if self.version >= 3.3:
+        if self.version >= 3.3 or node[-2] == 'kwargs':
             # LOAD_CONST code object ..
-            # LOAD_CONST        'x0'
+            # LOAD_CONST        'x0'  if >= 3.3
             # MAKE_FUNCTION ..
             code_index = -3
         else:
@@ -1194,8 +1194,14 @@ class SourceWalker(GenericASTTraversal, object):
                 currentclass = node[1][0].pattr
                 buildclass = node[0]
 
-            if buildclass[1][0] == 'kwargs':
-                subclass = buildclass[1][1].attr
+            assert 'mkfunc' == buildclass[1]
+            mkfunc = buildclass[1]
+            if mkfunc[0] == 'kwargs':
+                for n in mkfunc:
+                    if hasattr(n, 'attr') and iscode(n.attr):
+                        subclass = n.attr
+                        break
+                    pass
                 subclass_info = node if node == 'classdefdeco2' else node[0]
             elif buildclass[1][0] == 'load_closure':
                 # Python 3 with closures not functions

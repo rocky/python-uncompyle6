@@ -378,9 +378,9 @@ class Python3Parser(PythonParser):
             elif tokens[i].type.startswith('MAKE_CLOSURE'):
                 break
             pass
-        assert i < len(tokens), "build_class needs to find MAKE_FUNCTION"
+        assert i < len(tokens), "build_class needs to find MAKE_FUNCTION or MAKE_CLOSURE"
         assert tokens[i+1].type == 'LOAD_CONST', \
-          "build_class expecting CONST after MAKE_FUNCTION"
+          "build_class expecting CONST after MAKE_FUNCTION/MAKE_CLOSURE"
         for i in range(i, len(tokens)):
             if tokens[i].type == 'CALL_FUNCTION':
                 call_fn_tok = tokens[i]
@@ -434,6 +434,7 @@ class Python3Parser(PythonParser):
             mkfunc      ::= {pos_arg}^n LOAD_CONST MAKE_FUNCTION_n
             mklambda    ::= {pos_arg}^n LOAD_LAMBDA MAKE_FUNCTION_n
             mkfunc      ::= {pos_arg}^n load_closure LOAD_CONST MAKE_FUNCTION_n
+            mkfunc      ::= {pos_arg}^n load_closure LOAD_CONST MAKE_CLOSURE_n
             genexpr     ::= {pos_arg}^n LOAD_GENEXPR MAKE_FUNCTION_n
 
             listcomp ::= load_closure expr GET_ITER CALL_FUNCTION_1
@@ -526,12 +527,13 @@ class Python3Parser(PythonParser):
             elif opname_base == 'UNPACK_LIST':
                 rule = 'unpack_list ::= ' + opname + ' designator' * token.attr
             elif opname_base.startswith('MAKE_FUNCTION'):
+                # DRY with MAKE_CLOSURE
                 args_pos, args_kw, annotate_args  = token.attr
                 rule = ('mklambda ::= %sLOAD_LAMBDA LOAD_CONST %s' %
                         ('pos_arg '* args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
                 if self.version == 3.3:
-                    # positional args cafter keyword args
+                    # positional args after keyword args
                     rule = ('mkfunc ::= kwargs %s%s %s' %
                             ('pos_arg ' * args_pos,
                                  'LOAD_CONST ' * 2,
@@ -547,49 +549,45 @@ class Python3Parser(PythonParser):
                             ('pos_arg ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname.startswith('MAKE_CLOSURE'):
-                self.add_unique_rule('mklambda ::= %sload_closure LOAD_LAMBDA LOAD_CONST %s' %
-                                     ('pos_arg ' * token.attr, opname), opname, token.attr,
-                                     customize)
+                # DRY with MAKE_FUNCTION
+                # Note: this probably doesn't handle kwargs proprerly
+                args_pos, args_kw, annotate_args  = token.attr
+                rule = ('mklambda ::= %sload_closure LOAD_LAMBDA LOAD_CONST %s' %
+                        ('pos_arg '* args_pos, opname))
+                self.add_unique_rule(rule, opname, token.attr, customize)
                 self.add_unique_rule('genexpr ::= %sload_closure '
                                      'load_genexpr %s '
                                      'expr GET_ITER CALL_FUNCTION_1' %
-                                     ('pos_arg ' * token.attr, opname),
+                                     ('pos_arg ' * args_pos, opname),
                                      opname, token.attr, customize)
-                if self.version >= 3.3:
-                    self.add_unique_rule('listcomp ::= %sload_closure '
-                                         'LOAD_LISTCOMP LOAD_CONST %s expr '
-                                         'GET_ITER CALL_FUNCTION_1' %
-                                         ('expr ' * token.attr, opname),
-                                         opname, token.attr, customize)
+                if self.version >= 3.4:
+                    rule = ('listcomp ::= %sload_closure LOAD_LISTCOMP LOAD_CONST %s expr '
+                            'GET_ITER CALL_FUNCTION_1' % ('expr ' * args_pos, opname))
                 else:
-                    self.add_unique_rule('listcomp ::= %sload_closure '
-                                         'LOAD_LISTCOMP %s expr '
-                                         'GET_ITER CALL_FUNCTION_1' %
-                                        ('expr ' * token.attr, opname),
-                                        opname, token.attr, customize)
+                    rule = ('listcomp ::= %sload_closure LOAD_LISTCOMP %s expr '
+                            'GET_ITER CALL_FUNCTION_1' % ('expr ' * args_pos, opname))
+                self.add_unique_rule(rule, opname, token.attr, customize)
 
-                self.add_unique_rule('setcomp ::= %sload_closure LOAD_SETCOMP %s expr '
-                                     'GET_ITER CALL_FUNCTION_1' %
-                                     ('expr ' * token.attr, opname),
-                                     opname, token.attr, customize)
                 self.add_unique_rule('dictcomp ::= %sload_closure LOAD_DICTCOMP %s '
                                      'expr GET_ITER CALL_FUNCTION_1' %
-                                     ('pos_arg '* token.attr, opname),
+                                     ('pos_arg '* args_pos, opname),
                                      opname, token.attr, customize)
 
-                rule = ('mkfunc ::= %s load_closure LOAD_CONST %s'
-                        % ('expr ' * token.attr, opname))
-
-                # Python 3.5+ instead of above?
-                rule = ('mkfunc ::= %s load_closure LOAD_CONST LOAD_CONST %s'
-                        % ('expr ' * token.attr, opname))
+                # FIXME: kwarg processing is missing here.
+                # Note order of kwargs and pos args changed between 3.3-3.4
+                if self.version <= 3.2:
+                    rule = ('mkfunc ::= %sload_closure LOAD_CONST kwargs %s'
+                            % ('expr ' * args_pos, opname))
+                elif self.version >= 3.3:
+                    rule = ('mkfunc ::= kwargs %sload_closure LOAD_CONST LOAD_CONST %s'
+                            % ('expr ' * args_pos, opname))
 
                 self.add_unique_rule(rule, opname, token.attr, customize)
-                rule = ('mkfunc ::= %s load_closure load_genexpr %s'
-                        % ('pos_arg ' * token.attr, opname))
+                rule = ('mkfunc ::= %sload_closure load_genexpr %s'
+                        % ('pos_arg ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
-                rule = ('mkfunc ::= %s load_closure LOAD_CONST %s'
-                        % ('expr ' * token.attr, opname))
+                rule = ('mkfunc ::= %sload_closure LOAD_CONST %s'
+                        % ('expr ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
         return
 

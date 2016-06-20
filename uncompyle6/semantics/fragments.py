@@ -468,29 +468,25 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def n_mkfunc(self, node):
         start = len(self.f.getvalue())
-        if self.version >= 3.0:
+
+        if self.version >= 3.3 or node[-2] == 'kwargs':
             # LOAD_CONST code object ..
             # LOAD_CONST        'x0'  if >= 3.3
             # MAKE_FUNCTION ..
-            if self.version >= 3.4:
-                func_name =  node[-2].attr
-                code_index = -3
-            elif self.version == 3.3:
-                func_name = node[-2].pattr
-                code_index = -3
-            else:
-                func_name = node[-2].attr.co_name
-                code_index = -2
-            pass
+            code_index = -3
         else:
             # LOAD_CONST code object ..
             # MAKE_FUNCTION ..
-            func_name =   node[-2].attr.co_name
             code_index = -2
+        code = node[code_index]
+        func_name = code.attr.co_name
         self.write(func_name)
+
         self.indentMore()
         self.make_function(node, isLambda=False, code_index=code_index)
+
         self.set_pos_info(node, start, len(self.f.getvalue()))
+
         if len(self.param_stack) > 1:
             self.write('\n\n')
         else:
@@ -741,8 +737,14 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 start = len(self.f.getvalue())
                 self.set_pos_info(buildclass[0], start, start + len('class')+2)
 
-            if buildclass[1][0] == 'kwargs':
-                subclass = buildclass[1][1].attr
+            assert 'mkfunc' == buildclass[1]
+            mkfunc = buildclass[1]
+            if mkfunc[0] == 'kwargs':
+                for n in mkfunc:
+                    if hasattr(n, 'attr') and iscode(n.attr):
+                        subclass = n.attr
+                        break
+                    pass
                 subclass_info = node if node == 'classdefdeco2' else node[0]
             elif buildclass[1][0] == 'load_closure':
                 # Python 3 with closures not functions
