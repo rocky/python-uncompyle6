@@ -1028,7 +1028,10 @@ class SourceWalker(GenericASTTraversal, object):
             else:
                 assert False, "Can't find code for comprehension"
 
-        assert iscode(cn.attr)
+        try:
+            assert iscode(cn.attr)
+        except:
+            from trepan.api import debug; debug()
         code = Code(cn.attr, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
@@ -1063,6 +1066,8 @@ class SourceWalker(GenericASTTraversal, object):
         self.write('{')
         if node[0] in ['LOAD_SETCOMP', 'LOAD_DICTCOMP']:
             self.listcomprehension_walk3(node, 1, 0)
+        elif node[0].type == 'load_closure':
+            self.setcomprehension_walk3(node, collection_index=4)
         else:
             self.comprehension_walk(node, iter_index=4)
         self.write('}')
@@ -1132,7 +1137,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = p
 
     def listcomprehension_walk2(self, node):
-        """List comprehensions the way they are done in Python3.
+        """List comprehensions the way they are done in Python 2.
         They're more other comprehensions, e.g. set comprehensions
         See if we can combine code.
         """
@@ -1142,7 +1147,10 @@ class SourceWalker(GenericASTTraversal, object):
         code = Code(node[1].attr, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
-        ast = ast[0][0][0][0][0]
+        if node == 'setcomp':
+            ast = ast[0][0][0]
+        else:
+            ast = ast[0][0][0][0][0]
 
         n = ast[1]
         collection = node[-3]
@@ -1152,7 +1160,7 @@ class SourceWalker(GenericASTTraversal, object):
         # find innermost node
         while n == 'list_iter':
             n = n[0] # recurse one step
-            if   n == 'list_for':
+            if n == 'list_for':
                 designator = n[2]
                 n = n[3]
             elif n in ('list_if', 'list_if_not'):
@@ -1186,6 +1194,53 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
 
     n_dictcomp = n_setcomp
+
+    def setcomprehension_walk3(self, node, collection_index):
+        """List comprehensions the way they are done in Python3.
+        They're more other comprehensions, e.g. set comprehensions
+        See if we can combine code.
+        """
+        p = self.prec
+        self.prec = 27
+
+        code = Code(node[1].attr, self.scanner, self.currentclass)
+        ast = self.build_ast(code._tokens, code._customize)
+        self.customize(code._customize)
+        ast = ast[0][0][0]
+        designator = ast[3]
+        collection = node[collection_index]
+
+        n = ast[4]
+        list_if = None
+        assert n == 'comp_iter'
+
+        # find innermost node
+        while n == 'comp_iter':
+            n = n[0] # recurse one step
+            # FIXME: adjust for set comprehension
+            if n == 'list_for':
+                designator = n[2]
+                n = n[3]
+            elif n in ('list_if', 'list_if_not'):
+                # FIXME: just a guess
+                if n[0].type == 'expr':
+                    list_if = n
+                else:
+                    list_if = n[1]
+                n = n[2]
+                pass
+            pass
+
+        assert n == 'comp_body', ast
+
+        self.preorder(n[0])
+        self.write(' for ')
+        self.preorder(designator)
+        self.write(' in ')
+        self.preorder(collection)
+        if list_if:
+            self.preorder(list_if)
+        self.prec = p
 
     def n_classdef(self, node):
         # class definition ('class X(A,B,C):')

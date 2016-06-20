@@ -703,6 +703,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
             start = len(self.f.getvalue())
             self.set_pos_info(node[0], start-1, start)
             self.listcomprehension_walk3(node, 1, 0)
+        elif node[0].type == 'load_closure':
+            self.setcomprehension_walk3(node, collection_index=4)
         else:
             self.comprehension_walk(node, iter_index=4)
         self.write('}')
@@ -720,6 +722,59 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.listcomprehension_walk3(node, 1, 0)
         self.write(']')
         self.prune()
+
+    def setcomprehension_walk3(self, node, collection_index):
+        """List comprehensions the way they are done in Python3.
+        They're more other comprehensions, e.g. set comprehensions
+        See if we can combine code.
+        """
+        p = self.prec
+        self.prec = 27
+
+        code = Code(node[1].attr, self.scanner, self.currentclass)
+        ast = self.build_ast(code._tokens, code._customize)
+        self.customize(code._customize)
+        ast = ast[0][0][0]
+        designator = ast[3]
+        collection = node[collection_index]
+
+        n = ast[4]
+        list_if = None
+        assert n == 'comp_iter'
+
+        # find innermost node
+        while n == 'comp_iter':
+            n = n[0] # recurse one step
+            # FIXME: adjust for set comprehension
+            if n == 'list_for':
+                designator = n[2]
+                n = n[3]
+            elif n in ('list_if', 'list_if_not'):
+                # FIXME: just a guess
+                if n[0].type == 'expr':
+                    list_if = n
+                else:
+                    list_if = n[1]
+                n = n[2]
+                pass
+            pass
+
+        assert n == 'comp_body', ast
+
+        self.preorder(n[0])
+        self.write(' for ')
+        start = len(self.f.getvalue())
+        self.preorder(designator)
+        self.set_pos_info(designator, start, len(self.f.getvalue()))
+        self.write(' in ')
+        start = len(self.f.getvalue())
+        self.preorder(collection)
+        self.set_pos_info(collection, start, len(self.f.getvalue()))
+        if list_if:
+            start = len(self.f.getvalue())
+            self.preorder(list_if)
+            self.set_pos_info(list_if, start, len(self.f.getvalue()))
+        self.prec = p
 
     def n_classdef(self, node):
         # class definition ('class X(A,B,C):')

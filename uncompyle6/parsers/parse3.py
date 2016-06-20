@@ -186,8 +186,10 @@ class Python3Parser(PythonParser):
         kwargs  ::=
 
         classdef ::= build_class designator
+
         # Python3 introduced LOAD_BUILD_CLASS
-        # the definition of build_class is a custom rule
+        # Other definitions are in a custom rule
+        build_class ::= LOAD_BUILD_CLASS mkfunc expr call_function CALL_FUNCTION_3
 
         stmt ::= classdefdeco
         classdefdeco ::= classdefdeco1 designator
@@ -392,19 +394,15 @@ class Python3Parser(PythonParser):
         assert call_fn_tok, "build_class custom rule needs to find CALL_FUNCTION"
 
         # customize build_class rule
+        # FIXME: What's the deal with the two rules? Different Python versions?
+        # Different situations? Note that the above rule is based on the CALL_FUNCTION
+        # token found, while this one doesn't.
         call_function = self.call_fn_name(call_fn_tok)
         args_pos = call_fn_tok.attr & 0xff
         args_kw = (call_fn_tok.attr >> 8) & 0xff
         rule = ("build_class ::= LOAD_BUILD_CLASS mkfunc %s"
                 "%s" % (('expr ' * (args_pos - 1) + ('kwarg ' * args_kw)),
                         call_function))
-        self.add_unique_rule(rule, opname, token.attr, customize)
-
-        # FIXME: What's the deal with the two rules? Different Python versions?
-        # Different situations? Note that the above rule is based on the CALL_FUNCTION
-        # token found, while this one doesn't.
-        rule = ("build_class ::= LOAD_BUILD_CLASS mkfunc expr call_function "
-                "CALL_FUNCTION_3")
         self.add_unique_rule(rule, opname, token.attr, customize)
         return
 
@@ -567,12 +565,17 @@ class Python3Parser(PythonParser):
                                      ('pos_arg ' * args_pos, opname),
                                      opname, token.attr, customize)
                 if self.version >= 3.4:
-                    rule = ('listcomp ::= %sload_closure LOAD_LISTCOMP LOAD_CONST %s expr '
+                    rule1 = ('listcomp ::= %sload_closure LOAD_LISTCOMP LOAD_CONST %s expr '
+                            'GET_ITER CALL_FUNCTION_1' % ('expr ' * args_pos, opname))
+                    rule2 = ('setcomp ::= %sload_closure LOAD_SETCOMP LOAD_CONST %s expr '
                             'GET_ITER CALL_FUNCTION_1' % ('expr ' * args_pos, opname))
                 else:
-                    rule = ('listcomp ::= %sload_closure LOAD_LISTCOMP %s expr '
+                    rule1 = ('listcomp ::= %sload_closure LOAD_LISTCOMP %s expr '
                             'GET_ITER CALL_FUNCTION_1' % ('expr ' * args_pos, opname))
-                self.add_unique_rule(rule, opname, token.attr, customize)
+                    rule2 = ('setcomp ::= %sload_closure LOAD_SETCOMP %s expr '
+                            'GET_ITER CALL_FUNCTION_1' % ('expr ' * args_pos, opname))
+                self.add_unique_rule(rule1, opname, token.attr, customize)
+                self.add_unique_rule(rule2, opname, token.attr, customize)
 
                 self.add_unique_rule('dictcomp ::= %sload_closure LOAD_DICTCOMP %s '
                                      'expr GET_ITER CALL_FUNCTION_1' %

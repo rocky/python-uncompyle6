@@ -8,3 +8,7 @@ b = {v: k for k, v in enumerate(b3)}
 def __new__(classdict):
     members = {k: classdict[k] for k in classdict._member_names}
     return members
+
+# Bug from Python 3.4 asyncio/tasks.py
+def as_completed(fs, *, loop=None):
+    todo = {async(f, loop=loop) for f in set(fs)}
