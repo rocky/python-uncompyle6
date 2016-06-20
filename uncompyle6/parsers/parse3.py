@@ -400,9 +400,11 @@ class Python3Parser(PythonParser):
                         call_function))
         self.add_unique_rule(rule, opname, token.attr, customize)
 
-        # Can the above build_class rule be folded into this rule?
+        # FIXME: What's the deal with the two rules? Different Python versions?
+        # Different situations? Note that the above rule is based on the CALL_FUNCTION
+        # token found, while this one doesn't.
         rule = ("build_class ::= LOAD_BUILD_CLASS mkfunc expr call_function "
-                "CALL_FUNCTION_" + str(args_pos+1))
+                "CALL_FUNCTION_3")
         self.add_unique_rule(rule, opname, token.attr, customize)
         return
 
