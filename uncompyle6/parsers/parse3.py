@@ -193,7 +193,7 @@ class Python3Parser(PythonParser):
         classdefdeco ::= classdefdeco1 designator
         classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
         classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
-        classdefdeco2 ::= LOAD_CONST expr mkfunc CALL_FUNCTION_0 BUILD_CLASS
+        classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc LOAD_CONST CALL_FUNCTION_2
 
         assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
         assert2 ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1

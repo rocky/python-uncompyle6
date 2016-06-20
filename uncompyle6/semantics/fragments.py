@@ -730,15 +730,20 @@ class FragmentsWalker(pysource.SourceWalker, object):
         cclass = self.currentclass
 
         if self.version > 3.0:
-            currentclass = node[1][0].pattr
-            buildclass = node[0]
+            if node == 'classdefdeco2':
+                currentclass = node[1][2].pattr
+                buildclass = node
+            else:
+                currentclass = node[1][0].pattr
+                buildclass = node[0]
+
             if buildclass[0] == 'LOAD_BUILD_CLASS':
                 start = len(self.f.getvalue())
                 self.set_pos_info(buildclass[0], start, start + len('class')+2)
 
             if buildclass[1][0] == 'kwargs':
                 subclass = buildclass[1][1].attr
-                subclass_info = node[0]
+                subclass_info = node if node == 'classdefdeco2' else node[0]
             elif buildclass[1][0] == 'load_closure':
                 # Python 3 with closures not functions
                 load_closure = buildclass[1]
@@ -762,7 +767,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 subclass = buildclass[1][0].attr
                 subclass_info = node[0]
         else:
-            buildclass = node[0]
+            buildclass = node if (node == 'classdefdeco2') else node[0]
             build_list = buildclass[1][0]
             if hasattr(buildclass[-3][0], 'attr'):
                 subclass = buildclass[-3][0].attr
@@ -773,7 +778,11 @@ class FragmentsWalker(pysource.SourceWalker, object):
             else:
                 raise 'Internal Error n_classdef: cannot find class name'
 
-        self.write('\n\n')
+        if (node == 'classdefdeco2'):
+            self.write('\n')
+        else:
+            self.write('\n\n')
+
         self.currentclass = str(currentclass)
         start = len(self.f.getvalue())
         self.write(self.indent, 'class ', self.currentclass)
@@ -797,6 +806,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.write('\n\n\n')
 
         self.prune()
+
+    n_classdefdeco2 = n_classdef
 
     def gen_source(self, ast, name, customize, isLambda=False, returnNone=False):
         """convert AST to Python source code"""
