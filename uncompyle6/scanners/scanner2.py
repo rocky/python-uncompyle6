@@ -50,7 +50,8 @@ class Scanner2(scan.Scanner):
         """
 
         show_asm = self.show_asm if not show_asm else show_asm
-        if self.show_asm in ('both', 'before'):
+        # show_asm = 'before'
+        if show_asm in ('both', 'before'):
             from xdis.bytecode import Bytecode
             bytecode = Bytecode(co, self.opc)
             for instr in bytecode.get_instructions(co):

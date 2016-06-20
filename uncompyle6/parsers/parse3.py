@@ -344,6 +344,10 @@ class Python3Parser(PythonParser):
         '''
         expr ::= LOAD_CLASSNAME
         expr ::= LOAD_ASSERT
+
+        # Python 3.4+
+        expr ::= LOAD_CLASSDEREF
+
         # Python3 drops slice0..slice3
 
         # Python 3.3+ adds yield from

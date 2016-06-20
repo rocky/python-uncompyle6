@@ -344,6 +344,10 @@ TABLE_DIRECT = {
     'kv2':		( '%c: %c', 1, 2 ),
     'mapexpr':		( '{%[1]C}', (0, maxint, ', ') ),
 
+    # CE - Fixes for tuples
+    'assign2':     ( '%|%c, %c = %c, %c\n', 3, 4, 0, 1 ),
+    'assign3':     ( '%|%c, %c, %c = %c, %c, %c\n', 5, 6, 7, 0, 1, 2 ),
+
     #######################
     # Python 2.3 Additions
     #######################
@@ -365,9 +369,10 @@ TABLE_DIRECT = {
     'importmultiple': ( '%|import %c%c\n', 2, 3 ),
     'import_cont'   : ( ', %c', 2 ),
 
-    # CE - Fixes for tuples
-    'assign2':     ( '%|%c, %c = %c, %c\n', 3, 4, 0, 1 ),
-    'assign3':     ( '%|%c, %c, %c = %c, %c, %c\n', 5, 6, 7, 0, 1, 2 ),
+    ########################
+    # Python 3.4+ Additions
+    #######################
+    'LOAD_CLASSDEREF':	( '%{pattr}', ),
 
 }
 
