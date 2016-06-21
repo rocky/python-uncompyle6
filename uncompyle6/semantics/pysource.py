@@ -964,17 +964,19 @@ class SourceWalker(GenericASTTraversal, object):
             # LOAD_CONST code object ..
             # LOAD_CONST        'x0'  if >= 3.3
             # MAKE_FUNCTION ..
-            code_index = -3
+            code = node[-3]
+        elif node[-2] == 'expr':
+            code = node[-2][0]
         else:
             # LOAD_CONST code object ..
             # MAKE_FUNCTION ..
-            code_index = -2
-        code = node[code_index]
+            code = node[-2]
+
         func_name = code.attr.co_name
         self.write(func_name)
 
         self.indentMore()
-        self.make_function(node, isLambda=False, code_index=code_index)
+        self.make_function(node, isLambda=False, code=code)
 
         if len(self.param_stack) > 1:
             self.write('\n\n')
@@ -984,7 +986,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune() # stop recursing
 
     def n_mklambda(self, node):
-        self.make_function(node, isLambda=True)
+        self.make_function(node, isLambda=True, code=node[-2])
         self.prune() # stop recursing
 
     def n_list_compr(self, node):
@@ -1028,10 +1030,8 @@ class SourceWalker(GenericASTTraversal, object):
             else:
                 assert False, "Can't find code for comprehension"
 
-        try:
-            assert iscode(cn.attr)
-        except:
-            from trepan.api import debug; debug()
+        assert iscode(cn.attr)
+
         code = Code(cn.attr, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
@@ -1257,10 +1257,21 @@ class SourceWalker(GenericASTTraversal, object):
             assert 'mkfunc' == buildclass[1]
             mkfunc = buildclass[1]
             if mkfunc[0] == 'kwargs':
-                for n in mkfunc:
-                    if hasattr(n, 'attr') and iscode(n.attr):
-                        subclass = n.attr
-                        break
+                if 3.0 <= self.version <= 3.2:
+                    for n in mkfunc:
+                        if hasattr(n, 'attr') and iscode(n.attr):
+                            subclass = n.attr
+                            break
+                        elif n == 'expr':
+                            subclass = n[0].attr
+                        pass
+                    pass
+                else:
+                    for n in mkfunc:
+                        if hasattr(n, 'attr') and iscode(n.attr):
+                            subclass = n.attr
+                            break
+                        pass
                     pass
                 subclass_info = node if node == 'classdefdeco2' else node[0]
             elif buildclass[1][0] == 'load_closure':
@@ -1741,7 +1752,7 @@ class SourceWalker(GenericASTTraversal, object):
             # return self.traverse(node[1])
         raise Exception("Can't find tuple parameter " + name)
 
-    def make_function(self, node, isLambda, nested=1, code_index=-2):
+    def make_function(self, node, isLambda, nested=1, code=None):
         """Dump function defintion, doc string, and function body."""
 
         def build_param(ast, name, default):
@@ -1788,7 +1799,7 @@ class SourceWalker(GenericASTTraversal, object):
         if self.version > 3.0 and isLambda and iscode(node[-3].attr):
             code = node[-3].attr
         else:
-            code = node[code_index].attr
+            code = code.attr
 
         assert iscode(code)
         code = Code(code, self.scanner, self.currentclass)

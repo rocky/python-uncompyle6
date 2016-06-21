@@ -542,7 +542,7 @@ class Python3Parser(PythonParser):
                                  'LOAD_CONST ' * 2,
                             opname))
                 else:
-                    rule = ('mkfunc ::= %sLOAD_CONST %s' %
+                    rule = ('mkfunc ::= kwargs %sexpr %s' %
                             ('pos_arg ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname.startswith('MAKE_CLOSURE'):
