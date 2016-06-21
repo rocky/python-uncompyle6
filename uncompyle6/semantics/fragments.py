@@ -967,16 +967,19 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 self.fixup_offsets(new_start, n)
         return
 
-    def set_pos_info_recurse(self, node, start, finish):
+    def set_pos_info_recurse(self, node, start, finish, parent=None):
         """Set positions under node"""
         self.set_pos_info(node, start, finish)
+        if parent is None:
+            parent = node
         for n in node:
+            n.parent = parent
             if hasattr(n, 'offset'):
                 self.set_pos_info(n, start, finish)
             else:
                 n.start = start
                 n.finish = finish
-                self.set_pos_info_recurse(n, start, finish)
+                self.set_pos_info_recurse(n, start, finish, parent)
         return
 
     def node_append(self, before_str, node_text, node):
@@ -1177,7 +1180,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 l = list(kv_node)
                 i = 0
                 while i < len(l):
-                    l[1].parent = kv_node
+                    l[i].parent = kv_node
                     l[i+1].parent = kv_node
                     name = self.traverse(l[i], indent='')
                     value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
@@ -1196,11 +1199,16 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     l = list(kv_node)
                 i = 0
                 while i < len(l):
-                    l[1].parent = kv_node
+                    l[i].parent = kv_node
                     l[i+1].parent = kv_node
+                    key_start = len(self.f.getvalue()) + len(sep)
                     name = self.traverse(l[i+1], indent='')
+                    key_finish = key_start + len(name)
+                    val_start = key_finish + 2
                     value = self.traverse(l[i], indent=self.indent+(len(name)+2)*' ')
                     self.write(sep, name, ': ', value)
+                    self.set_pos_info_recurse(l[i+1], key_start, key_finish)
+                    self.set_pos_info_recurse(l[i], val_start, val_start + len(value))
                     sep = line_seperator
                     i += 3
                     pass
