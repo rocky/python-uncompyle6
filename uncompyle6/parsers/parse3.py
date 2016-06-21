@@ -184,7 +184,6 @@ class Python3Parser(PythonParser):
         classdefdeco ::= classdefdeco1 designator
         classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
         classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
-        classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc LOAD_CONST CALL_FUNCTION_2
 
         assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
         assert2 ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
@@ -358,13 +357,13 @@ class Python3Parser(PythonParser):
         '''
         # Should the first rule be somehow folded into the 2nd one?
         build_class ::= LOAD_BUILD_CLASS mkfunc
-                        LOAD_CLASSNAME {expr}^n CALL_FUNCTION_n+2
+                        LOAD_CLASSNAME {expr}^n-1 CALL_FUNCTION_n
                         LOAD_CONST CALL_FUNCTION_n
         build_class ::= LOAD_BUILD_CLASS mkfunc
                         expr
                         call_function
                         CALL_FUNCTION_3
-        '''
+         '''
         # FIXME: I bet this can be simplified
         # look for next MAKE_FUNCTION
         for i in range(i+1, len(tokens)):
@@ -401,7 +400,9 @@ class Python3Parser(PythonParser):
         call_function ::= expr {expr}^n CALL_FUNCTION_VAR_n POP_TOP
         call_function ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n POP_TOP
         call_function ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
-        """
+
+        classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc {expr}^n-1 CALL_FUNCTION_n
+       """
         # Low byte indicates number of positional paramters,
         # high byte number of positional parameters
         args_pos = token.attr & 0xff
@@ -412,6 +413,9 @@ class Python3Parser(PythonParser):
                 + ('pos_arg ' * args_pos)
                 + ('kwarg ' * args_kw)
                 + 'expr ' * nak + token.type)
+        self.add_unique_rule(rule, token.type, args_pos, customize)
+        rule = ('classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d'
+                %  (('expr ' * (args_pos-1)), opname, args_pos))
         self.add_unique_rule(rule, token.type, args_pos, customize)
 
     def add_custom_rules(self, tokens, customize):
@@ -553,7 +557,7 @@ class Python3Parser(PythonParser):
                                      'expr GET_ITER CALL_FUNCTION_1' %
                                      ('pos_arg ' * args_pos, opname),
                                      opname, token.attr, customize)
-                if self.version >= 3.4:
+                if self.version >= 3.3:
                     rule1 = ('listcomp ::= %sload_closure LOAD_LISTCOMP LOAD_CONST %s expr '
                             'GET_ITER CALL_FUNCTION_1' % ('expr ' * args_pos, opname))
                     rule2 = ('setcomp ::= %sload_closure LOAD_SETCOMP LOAD_CONST %s expr '

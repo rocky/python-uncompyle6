@@ -34,6 +34,7 @@ import xdis.opcodes.opcode_33 as op3
 
 globals().update(op3.opmap)
 
+# POP_JUMP_IF is used by verify
 POP_JUMP_TF = (POP_JUMP_IF_TRUE, POP_JUMP_IF_FALSE)
 
 import uncompyle6.scanner as scan
@@ -56,7 +57,8 @@ class Scanner3(scan.Scanner):
         """
 
         show_asm = self.show_asm if not show_asm else show_asm
-        if self.show_asm in ('both', 'before'):
+        # show_asm = 'both'
+        if show_asm in ('both', 'before'):
             bytecode = Bytecode(co, self.opc)
             for instr in bytecode.get_instructions(co):
                 print(instr._disassemble())
