@@ -127,7 +127,7 @@ class Scanner2(scan.Scanner):
                     k += 1
 
             op = self.code[offset]
-            op_name = self.opc.opname[op]
+            opname = self.opc.opname[op]
 
             oparg = None; pattr = None
             if op >= self.opc.HAVE_ARGUMENT:
@@ -141,14 +141,14 @@ class Scanner2(scan.Scanner):
                     if iscode(const):
                         oparg = const
                         if const.co_name == '<lambda>':
-                            assert op_name == 'LOAD_CONST'
-                            op_name = 'LOAD_LAMBDA'
+                            assert opname == 'LOAD_CONST'
+                            opname = 'LOAD_LAMBDA'
                         elif const.co_name == '<genexpr>':
-                            op_name = 'LOAD_GENEXPR'
+                            opname = 'LOAD_GENEXPR'
                         elif const.co_name == '<dictcomp>':
-                            op_name = 'LOAD_DICTCOMP'
+                            opname = 'LOAD_DICTCOMP'
                         elif const.co_name == '<setcomp>':
-                            op_name = 'LOAD_SETCOMP'
+                            opname = 'LOAD_SETCOMP'
                         # verify() uses 'pattr' for comparison, since 'attr'
                         # now holds Code(const) and thus can not be used
                         # for comparison (todo: think about changing this)
@@ -178,24 +178,24 @@ class Scanner2(scan.Scanner):
                     self.code[self.prev[offset]] == self.opc.LOAD_CLOSURE:
                     continue
                 else:
-                    op_name = '%s_%d' % (op_name, oparg)
+                    opname = '%s_%d' % (opname, oparg)
                     if op != self.opc.BUILD_SLICE:
-                        customize[op_name] = oparg
+                        customize[opname] = oparg
             elif op == self.opc.JA:
                 target = self.get_target(offset)
                 if target < offset:
                     if offset in self.stmts and self.code[offset+3] not in (self.opc.END_FINALLY, self.opc.POP_BLOCK) \
                      and offset not in self.not_continue:
-                        op_name = 'CONTINUE'
+                        opname = 'CONTINUE'
                     else:
-                        op_name = 'JUMP_BACK'
+                        opname = 'JUMP_BACK'
 
             elif op == self.opc.LOAD_GLOBAL:
                 if offset in self.load_asserts:
-                    op_name = 'LOAD_ASSERT'
+                    opname = 'LOAD_ASSERT'
             elif op == self.opc.RETURN_VALUE:
                 if offset in self.return_end_ifs:
-                    op_name = 'RETURN_END_IF'
+                    opname = 'RETURN_END_IF'
 
             if offset in self.linestartoffsets:
                 linestart = self.linestartoffsets[offset]
@@ -203,7 +203,7 @@ class Scanner2(scan.Scanner):
                 linestart = None
 
             if offset not in replace:
-                tokens.append(Token(op_name, oparg, pattr, offset, linestart))
+                tokens.append(Token(opname, oparg, pattr, offset, linestart))
             else:
                 tokens.append(Token(replace[offset], oparg, pattr, offset, linestart))
                 pass
@@ -507,11 +507,15 @@ class Scanner2(scan.Scanner):
             rtarget = self.restrict_to_parent(target, parent)
             pre = self.prev
 
+            # Do not let jump to go out of parent struct bounds
             if target != rtarget and parent['type'] == 'and/or':
                 self.fixed_jumps[pos] = rtarget
                 return
-            # does this jump to right after another cond jump?
-            # if so, it's part of a larger conditional
+
+            # Does this jump to right after another cond jump that is
+            # not myself?  If so, it's part of a larger conditional.
+            # rocky: if we have a conditional jump to the next instruction, then
+            # possibly I am "skipping over" a "pass" or null statement.
             if (code[pre[target]] in (self.opc.JUMP_IF_FALSE_OR_POP,
                                       self.opc.JUMP_IF_TRUE_OR_POP,
                                       self.opc.PJIF, self.opc.PJIT)) and (target > pos):
@@ -521,11 +525,15 @@ class Scanner2(scan.Scanner):
                                        'end':   pre[target]})
                 return
 
-            # is this an if and
+            # Is it an "and" inside an "if" block
             if op == self.opc.PJIF:
+                # Search for other POP_JUMP_IF_FALSE targetting the same op,
+                # in current statement, starting from current offset, and filter
+                # everything inside inner 'or' jumps and midline ifs
                 match = self.rem_or(start, self.next_stmt[pos], self.opc.PJIF, target)
                 match = self.remove_mid_line_ifs(match)
 
+                # If we still have any offsets in set, start working on it
                 if match:
                     if code[pre[rtarget]] in self.jump_forward \
                             and pre[rtarget] not in self.stmts \
@@ -598,11 +606,12 @@ class Scanner2(scan.Scanner):
                         rtarget = pre[rtarget]
                 else:
                     rtarget = pre[rtarget]
-            # does the if jump just beyond a jump op, then this is probably an if statement
+
+            # Does the "if" jump just beyond a jump op, then this is probably an if statement
             if code[pre[rtarget]] in self.jump_forward:
                 if_end = self.get_target(pre[rtarget])
 
-                # is this a loop not an if?
+                # Is this a loop and not an "if" statment?
                 if (if_end < pre[rtarget]) and (code[pre[if_end]] == self.opc.SETUP_LOOP):
                     if(if_end > start):
                         return

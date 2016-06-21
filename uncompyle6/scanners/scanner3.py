@@ -27,7 +27,7 @@ from array import array
 
 from xdis.code import iscode
 from xdis.bytecode import Bytecode, findlinestarts
-from uncompyle6.scanner import Token
+from uncompyle6.scanner import Token, parse_fn_counts
 
 # Get all the opcodes into globals
 import xdis.opcodes.opcode_33 as op3
@@ -129,9 +129,7 @@ class Scanner3(scan.Scanner):
                     pattr = const
                     pass
             elif opname in ('MAKE_FUNCTION', 'MAKE_CLOSURE'):
-                argc = inst.argval
-                attr = ((argc & 0xFF), (argc >> 8) & 0xFF, (argc >> 16) & 0x7FFF)
-                pos_args, name_pair_args, annotate_args = attr
+                pos_args, name_pair_args, annotate_args = parse_fn_counts(inst.argval)
                 if name_pair_args > 0:
                     opname = '%s_N%d' % (opname, name_pair_args)
                     pass
@@ -176,6 +174,9 @@ class Scanner3(scan.Scanner):
                     else:
                         opname = 'JUMP_BACK'
 
+            elif opname == 'RETURN_VALUE':
+                if inst.offset in self.return_end_ifs:
+                    opname = 'RETURN_END_IF'
             elif inst.offset in self.load_asserts:
                 opname = 'LOAD_ASSERT'
 
@@ -517,13 +518,14 @@ class Scanner3(scan.Scanner):
                                      'end': prev_op[target]})
                 return
 
-            # Is it an and inside if block
+            # Is it an "and" inside an "if" block
             if op == POP_JUMP_IF_FALSE:
                 # Search for other POP_JUMP_IF_FALSE targetting the same op,
                 # in current statement, starting from current offset, and filter
                 # everything inside inner 'or' jumps and midline ifs
                 match = self.rem_or(start, self.next_stmt[offset], POP_JUMP_IF_FALSE, target)
                 match = self.remove_mid_line_ifs(match)
+
                 # If we still have any offsets in set, start working on it
                 if match:
                     if (code[prev_op[rtarget]] in (JUMP_FORWARD, JUMP_ABSOLUTE) and prev_op[rtarget] not in self.stmts and
@@ -580,11 +582,11 @@ class Scanner3(scan.Scanner):
                 not (code[rtarget] == JUMP_ABSOLUTE and code[rtarget+3] == POP_BLOCK and code[prev_op[prev_op[rtarget]]] != JUMP_ABSOLUTE)):
                 rtarget = prev_op[rtarget]
 
-            # Does the if jump just beyond a jump op, then this is probably an if statement
+            # Does the "if" jump just beyond a jump op, then this is probably an if statement
             if code[prev_op[rtarget]] in (JUMP_ABSOLUTE, JUMP_FORWARD):
                 if_end = self.get_target(prev_op[rtarget])
 
-                # Is this a loop not an if?
+                # Is this a loop and not an "if" statement?
                 if (if_end < prev_op[rtarget]) and (code[prev_op[if_end]] == SETUP_LOOP):
                     if(if_end > start):
                         return

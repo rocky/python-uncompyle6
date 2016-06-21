@@ -272,6 +272,9 @@ class Scanner(object):
             target = parent['end']
         return target
 
+def parse_fn_counts(argc):
+    return ((argc & 0xFF), (argc >> 8) & 0xFF, (argc >> 16) & 0x7FFF)
+
 def get_scanner(version, show_asm=None):
     # Pick up appropriate scanner
     if version in PYTHON_VERSIONS:
