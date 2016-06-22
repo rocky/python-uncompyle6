@@ -71,6 +71,10 @@ class Scanner27(Scanner2):
             self.opc.STORE_SLICE_3, self.opc.STORE_SUBSCR,  self.opc.UNPACK_SEQUENCE,
             self.opc.JA
         ])
+
+        self.pop_jump_if_or_pop = frozenset([self.opc.JUMP_IF_FALSE_OR_POP,
+                                             self.opc.JUMP_IF_TRUE_OR_POP])
+
         return
     pass
 

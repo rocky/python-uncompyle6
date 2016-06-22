@@ -66,6 +66,10 @@ class Scanner25(scan.Scanner26):
             self.opc.STORE_SLICE_3, self.opc.STORE_SUBSCR,  self.opc.UNPACK_SEQUENCE,
             self.opc.JA
         ])
+        # Python 2.7 has POP_JUMP_IF_{TRUE,FALSE}_OR_POP but < 2.7 doesn't
+        # Add an empty set make processing more uniform.
+        self.pop_jump_if_or_pop = frozenset([])
+        return
 
     def restructCode(self, listDel, listExp):
         '''

@@ -575,6 +575,7 @@ class Python35onParser(Python3Parser):
     def p_35on(self, args):
         """
         # Python 3.5+ has WITH_CLEANUP_START/FINISH
+
         withstmt ::= expr SETUP_WITH with_setup suite_stmts_opt
                      POP_BLOCK LOAD_CONST COME_FROM
                      WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
@@ -583,10 +584,16 @@ class Python35onParser(Python3Parser):
                 POP_BLOCK LOAD_CONST COME_FROM
                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
+
+        # Python 3.5+ also has yeild from
+
+        yield_from ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
+
         # Python 3.5 has more loop optimization that removes
         # JUMP_FORWARD in some cases, and hence we also don't
         # see COME_FROM
         _ifstmts_jump ::= c_stmts_opt
+
         """
 
 class Python3ParserSingle(Python3Parser, PythonParserSingle):

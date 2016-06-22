@@ -78,6 +78,7 @@ ExtractInfo = namedtuple("ExtractInfo",
 TABLE_DIRECT_FRAGMENT = {
     'break_stmt':	( '%|%rbreak\n', ),
     'continue_stmt':	( '%|%rcontinue\n', ),
+    'passstmt':		( '%|%rpass\n', ),
     'raise_stmt0':	( '%|%rraise\n', ),
     'importstmt':	( '%|import %c%x\n', 2, (2, (0, 1)), ),
     'importfrom':	( '%|from %[2]{pattr}%x import %c\n', (2, (0, 1)), 3),
@@ -255,7 +256,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write('yield from')
         self.write(' ')
         node[0].parent = node
-        self.preorder(node[0][0][0][0])
+        self.preorder(node[0])
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune() # stop recursing
 
@@ -801,6 +802,13 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.listcomprehension_walk3(node, 1, 0)
         self.write(']')
         self.prune()
+
+    def n__ifstmts_jump_exit(self, node):
+        if len(node) > 1:
+            if (node[0] == 'c_stmts_opt' and
+                node[0][0] == 'passstmt' and
+                node[1].type.startswith('JUMP_FORWARD')):
+                self.set_pos_info(node[1], node[0][0].start, node[0][0].finish)
 
     def setcomprehension_walk3(self, node, collection_index):
         """List comprehensions the way they are done in Python3.

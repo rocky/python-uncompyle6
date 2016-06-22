@@ -15,6 +15,9 @@ from uncompyle6.scanner import L65536
 class Scanner23(Scanner2):
     def __init__(self, show_asm=None):
         super(Scanner23, self).__init__(2.3, show_asm)
+        # Python 2.7 has POP_JUMP_IF_{TRUE,FALSE}_OR_POP but < 2.7 doesn't
+        # Add an empty set make processing more uniform.
+        self.pop_jump_if_or_pop = frozenset([])
 
     def disassemble(self, co, code_objects={}, show_asm=None):
         """

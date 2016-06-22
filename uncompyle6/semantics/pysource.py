@@ -447,7 +447,8 @@ PRECEDENCE = {
     'ret_cond_not':         28,
 
     '_mklambda':            30,
-    'yield':                101
+    'yield':                101,
+    'yield_from':           101
 }
 
 ASSIGN_TUPLE_PARAM = lambda param_name: \
@@ -725,7 +726,7 @@ class SourceWalker(GenericASTTraversal, object):
     def n_yield_from(self, node):
         self.write('yield from')
         self.write(' ')
-        self.preorder(node[0][0][0][0])
+        self.preorder(node[0])
         self.prune() # stop recursing
 
     def n_buildslice3(self, node):

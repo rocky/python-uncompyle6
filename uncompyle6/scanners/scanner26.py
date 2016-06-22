@@ -62,8 +62,10 @@ class Scanner26(scan.Scanner2):
             self.opc.JA
         ])
 
+        # Python 2.7 has POP_JUMP_IF_{TRUE,FALSE}_OR_POP but < 2.7 doesn't
+        # Add an empty set make processing more uniform.
+        self.pop_jump_if_or_pop = frozenset([])
         return
-
 
     def disassemble(self, co, classname=None, code_objects={}, show_asm=None):
         '''
@@ -349,13 +351,14 @@ class Scanner26(scan.Scanner2):
                 while end < len(self.code):
                     end = self.first_instr(end, len(self.code),
                                            (self.opc.DELETE_NAME, self.opc.DELETE_FAST))
-                    if nameDel == self.get_argument(end):
-                        toDel += [end]
-                        break
-                    if self.code[end] == self.opc.DELETE_NAME:
-                        end += self.op_size(self.opc.DELETE_NAME)
-                    else:
-                        end += self.op_size(self.opc.DELETE_FAST)
+                    if end:
+                        if nameDel == self.get_argument(end):
+                            toDel += [end]
+                            break
+                        if self.code[end] == self.opc.DELETE_NAME:
+                            end += self.op_size(self.opc.DELETE_NAME)
+                        else:
+                            end += self.op_size(self.opc.DELETE_FAST)
                 return toDel
         # for / while struct
         if opcode == self.opc.SETUP_LOOP:
@@ -558,7 +561,7 @@ class Scanner26(scan.Scanner2):
 
     def detect_structure(self, pos, op=None):
         '''
-        Detect type of block structures and their boundaries to fix optimizied jumps
+        Detect type of block structures and their boundaries to fix optimized jumps
         in python2.3+
         '''
 
