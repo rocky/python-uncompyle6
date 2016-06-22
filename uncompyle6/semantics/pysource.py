@@ -1057,7 +1057,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_genexpr(self, node):
         self.write('(')
-        code_index = -6 if self.version > 3.0 else -5
+        code_index = -6 if self.version > 3.2 else -5
         self.comprehension_walk(node, iter_index=3, code_index=code_index)
         self.write(')')
         self.prune()
@@ -1796,8 +1796,16 @@ class SourceWalker(GenericASTTraversal, object):
             kw_args, annotate_args  = (0, 0)
             pass
 
-        if self.version > 3.0 and isLambda and iscode(node[-3].attr):
-            code = node[-3].attr
+        if 3.0 <= self.version <= 3.2:
+            lambda_index = -2
+        elif 3.03<= self.version:
+            lambda_index = -3
+        else:
+            lambda_index = None
+
+        if lambda_index and isLambda and iscode(node[lambda_index].attr):
+            assert node[lambda_index].type == 'LOAD_LAMBDA'
+            code = node[lambda_index].attr
         else:
             code = code.attr
 

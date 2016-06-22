@@ -325,7 +325,6 @@ class Python3Parser(PythonParser):
         load_genexpr ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_CONST
 
         # Is there something general going on here?
-        genexpr ::= LOAD_GENEXPR LOAD_CONST MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
         genexpr ::= load_closure LOAD_GENEXPR LOAD_CONST MAKE_CLOSURE_0 expr GET_ITER CALL_FUNCTION_1
         dictcomp ::= load_closure LOAD_DICTCOMP LOAD_CONST MAKE_CLOSURE_0 expr GET_ITER CALL_FUNCTION_1
         '''
@@ -418,6 +417,13 @@ class Python3Parser(PythonParser):
                 %  (('expr ' * (args_pos-1)), opname, args_pos))
         self.add_unique_rule(rule, token.type, args_pos, customize)
 
+    def add_make_function_rule(self, rule, opname, attr, customize):
+        """Python 3.3 added a an addtional LOAD_CONST before MAKE_FUNCTION and
+        this has an effect on many rules.
+        """
+        new_rule = rule % (('LOAD_CONST ') * (1 if  self.version >= 3.3 else 0))
+        self.add_unique_rule(new_rule, opname, attr, customize)
+
     def add_custom_rules(self, tokens, customize):
         """
         Special handling for opcodes that take a variable number
@@ -444,7 +450,9 @@ class Python3Parser(PythonParser):
             load_closure  ::= {LOAD_CLOSURE}^n BUILD_TUPLE_n
             # call_function (see custom_classfunc_rule)
 
+            ------------
             Python 3.3+:
+            ------------
             listcomp ::= LOAD_LISTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
                          GET_ITER CALL_FUNCTION_1
             listcomp ::= {expr}^n LOAD_LISTCOMP MAKE_CLOSURE
@@ -452,12 +460,14 @@ class Python3Parser(PythonParser):
 
             dictcomp ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
                          GET_ITER CALL_FUNCTION_1
+            genexpr ::= LOAD_GENEXPR LOAD_CONST MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
 
+            ------------
             Python < 3.3
+            ------------
             listcomp ::= LOAD_LISTCOMP MAKE_FUNCTION_0 expr
                          GET_ITER CALL_FUNCTION_1
-
-
+            genexpr ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
             setcomp ::= {expr}^n LOAD_SETCOMP MAKE_CLOSURE
                         GET_ITER CALL_FUNCTION_1
 
@@ -485,6 +495,9 @@ class Python3Parser(PythonParser):
                     rule = ("dictcomp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr "
                             "GET_ITER CALL_FUNCTION_1")
                 self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname == 'LOAD_GENEXPR':
+                rule_pat = "genexpr ::= LOAD_GENEXPR %sMAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1"
+                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
             elif opname == 'LOAD_SETCOMP':
                 if self.version >= 3.3:
                     rule = ("setcomp ::= LOAD_SETCOMP LOAD_CONST MAKE_FUNCTION_0 expr "
@@ -526,9 +539,8 @@ class Python3Parser(PythonParser):
             elif opname_base.startswith('MAKE_FUNCTION'):
                 # DRY with MAKE_CLOSURE
                 args_pos, args_kw, annotate_args  = token.attr
-                rule = ('mklambda ::= %sLOAD_LAMBDA LOAD_CONST %s' %
-                        ('pos_arg '* args_pos, opname))
-                self.add_unique_rule(rule, opname, token.attr, customize)
+                rule_pat = ('mklambda ::= %sLOAD_LAMBDA %%s%s' % ('pos_arg '* args_pos, opname))
+                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                 if self.version == 3.3:
                     # positional args after keyword args
                     rule = ('mkfunc ::= kwargs %s%s %s' %
@@ -549,14 +561,9 @@ class Python3Parser(PythonParser):
                 # DRY with MAKE_FUNCTION
                 # Note: this probably doesn't handle kwargs proprerly
                 args_pos, args_kw, annotate_args  = token.attr
-                rule = ('mklambda ::= %sload_closure LOAD_LAMBDA LOAD_CONST %s' %
+                rule_pat = ('mklambda ::= %sload_closure LOAD_LAMBDA %%s%s' %
                         ('pos_arg '* args_pos, opname))
-                self.add_unique_rule(rule, opname, token.attr, customize)
-                self.add_unique_rule('genexpr ::= %sload_closure '
-                                     'load_genexpr %s '
-                                     'expr GET_ITER CALL_FUNCTION_1' %
-                                     ('pos_arg ' * args_pos, opname),
-                                     opname, token.attr, customize)
+                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                 if self.version >= 3.3:
                     rule1 = ('listcomp ::= %sload_closure LOAD_LISTCOMP LOAD_CONST %s expr '
                             'GET_ITER CALL_FUNCTION_1' % ('expr ' * args_pos, opname))
