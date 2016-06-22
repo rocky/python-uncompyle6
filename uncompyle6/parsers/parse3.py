@@ -56,9 +56,6 @@ class Python3Parser(PythonParser):
         sstmt ::= ifelsestmtr
         sstmt ::= return_stmt RETURN_LAST
 
-        stmts_opt ::= stmts
-        stmts_opt ::= passstmt
-
         return_if_stmts ::= return_if_stmt come_from_opt
         return_if_stmts ::= _stmts return_if_stmt
         return_if_stmt ::= ret_expr RETURN_END_IF
@@ -198,6 +195,8 @@ class Python3Parser(PythonParser):
         except_stmt ::= except_cond2 except_suite
         except_stmt ::= except_cond2 except_suite_finalize
         except_stmt ::= except
+
+        ## FIXME: what's except_pop_except?
         except_stmt ::= except_pop_except
 
         # Python3 introduced POP_EXCEPT
@@ -283,10 +282,6 @@ class Python3Parser(PythonParser):
         expr ::= LOAD_CLASSDEREF
 
         # Python3 drops slice0..slice3
-
-        # Python 3.3+ adds yield from
-        expr ::= yield_from
-        yield_from ::= expr expr YIELD_FROM
 
         # In Python 2, DUP_TOP_TWO is DUP_TOPX_2
         binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
@@ -563,12 +558,22 @@ class Python33Parser(Python3Parser):
         """
         # Store locals is only in Python 3.2 and 3.3
         designator ::= STORE_LOCALS
+
+        # Python 3.3 adds yield from.
+        expr ::= yield_from
+        yield_from ::= expr expr YIELD_FROM
         """
 
 class Python34Parser(Python3Parser):
     def p_34(self, args):
         """
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from
+
+        # Python 3.3 added yield from. Do it the same way as in
+        # 3.3
+
+        expr ::= yield_from
+        yield_from ::= expr expr YIELD_FROM
         """
 
 class Python35onParser(Python3Parser):
@@ -576,7 +581,7 @@ class Python35onParser(Python3Parser):
         """
         # Python 3.5+ has WITH_CLEANUP_START/FINISH
 
-        withstmt ::= expr SETUP_WITH with_setup suite_stmts_opt
+        withstmt ::= expr SETUP_WITH exprlist suite_stmts_opt
                      POP_BLOCK LOAD_CONST COME_FROM
                      WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
@@ -585,8 +590,10 @@ class Python35onParser(Python3Parser):
                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
 
-        # Python 3.5+ also has yeild from
+        # Python 3.3+ also has yield from. 3.5 does it
+        # differently than 3.3, 3.4
 
+        expr ::= yield_from
         yield_from ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
 
         # Python 3.5 has more loop optimization that removes
@@ -614,7 +621,24 @@ class Python34ParserSingle(Python34Parser, PythonParserSingle):
 class Python35onParserSingle(Python35onParser, PythonParserSingle):
     pass
 
-if __name__ == '__main__':
+def info(args):
     # Check grammar
+    # Should also add a way to dump grammar
+    import sys
     p = Python3Parser()
+    if len(args) > 0:
+        arg = args[0]
+        if arg == '3.5':
+            p = Python35onParser()
+        elif arg == '3.4':
+            p = Python34Parser()
+        elif arg == '3.3':
+            p = Python33Parser()
+        elif arg == '3.2':
+            p = Python32Parser()
     p.checkGrammar()
+
+
+if __name__ == '__main__':
+    import sys
+    info(sys.argv)

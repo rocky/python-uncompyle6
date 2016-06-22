@@ -726,7 +726,12 @@ class SourceWalker(GenericASTTraversal, object):
     def n_yield_from(self, node):
         self.write('yield from')
         self.write(' ')
-        self.preorder(node[0])
+        if 3.3 <= self.version <= 3.4:
+            self.preorder(node[0][0][0][0])
+        elif self.version >= 3.5:
+            self.preorder(node[0])
+        else:
+            assert False, "dunno about this python version"
         self.prune() # stop recursing
 
     def n_buildslice3(self, node):
