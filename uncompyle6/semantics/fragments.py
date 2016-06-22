@@ -11,15 +11,31 @@ address.
 See the comments in pysource for information on the abstract sytax tree
 and how semantic actions are written.
 
-We add a format specifier here not used in pysource
+We add some format specifiers here not used in pysource
+
+1. %x
+-----
 
    %x takes an argument (src, (dest...)) and copies all of the range attributes
-from src to dest. For example in:
+from src to dest.
 
-
+For example in:
     'importstmt': ( '%|import %c%x\n', 2, (2,(0,1)), ),
 
 node 2 range information, it in %c, is copied to nodes 0 and 1.
+
+2. %r
+-----
+
+   %n associates recursively location information for the string that follows
+
+For example in:
+   'break_stmt':	( '%|%nbreak\n', ),
+
+The node will be associated with the text break, excluding the trailing newline.
+
+Note we assocate the accumulated text with the node normally, but we just don't
+do it recursively which is where offsets are probably located.
 """
 
 # FIXME: DRY code with pysource
@@ -60,16 +76,20 @@ ExtractInfo = namedtuple("ExtractInfo",
                          "lineNo lineStartOffset markerLine selectedLine selectedText")
 
 TABLE_DIRECT_FRAGMENT = {
-    'importstmt': ( '%|import %c%x\n', 2, (2, (0, 1)), ),
-    'importfrom': ( '%|from %[2]{pattr}%x import %c\n', (2, (0, 1)), 3),
-    'list_for':	  (' for %c%x in %c%c', 2, (2,(1,)), 0, 3 ),
-    'forstmt':	  ( '%|for %c%x in %c:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4 ),
-    'forelsestmt': (
+    'break_stmt':	( '%|%rbreak\n', ),
+    'continue_stmt':	( '%|%rcontinue\n', ),
+    'raise_stmt0':	( '%|%rraise\n', ),
+    'importstmt':	( '%|import %c%x\n', 2, (2, (0, 1)), ),
+    'importfrom':	( '%|from %[2]{pattr}%x import %c\n', (2, (0, 1)), 3),
+    'list_for':	  	(' for %c%x in %c%c', 2, (2,(1,)), 0, 3 ),
+    'forstmt':	  	( '%|for %c%x in %c:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4 ),
+    'forelsestmt': 	(
         '%|for %c in %c%x:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
     'forelselaststmt':	(
         '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-', 3, (3, (2,)), 1, 4, -2),
     'forelselaststmtl':	(
         '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
+
     }
 
 
@@ -126,9 +146,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
                  lambda s: s.params.__delitem__('_globals'),
                  None)
 
-    def set_pos_info(self, node, start, finish):
+    def set_pos_info(self, node, start, finish, name=None):
+        if name == None: name = self.name
         if hasattr(node, 'offset'):
-            self.offsets[self.name, node.offset] = \
+            self.offsets[name, node.offset] = \
               NodeInfo(node = node, start = start, finish = finish)
 
         if hasattr(node, 'parent'):
@@ -567,7 +588,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prec = p
 
     def listcomprehension_walk3(self, node, iter_index, code_index=-5):
-        """List comprehensions the way they are done in Python3.
+        """
+        List comprehensions the way they are done in Python3.
         They're more other comprehensions, e.g. set comprehensions
         See if we can combine code.
         """
@@ -576,15 +598,18 @@ class FragmentsWalker(pysource.SourceWalker, object):
         code = node[code_index].attr
 
         assert iscode(code)
-        # Or Code3
+        code_name = code.co_name
         code = Code(code, self.scanner, self.currentclass)
 
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
         # skip over stmts sstmt smt
         ast = ast[0][0][0]
-
+        designator = None
         if ast in ['setcomp_func', 'dictcomp_func']:
+            # Offset 0: BUILD_SET should have the span
+            # of '{'
+            self.gen_source(ast, code_name, {})
             for k in ast:
                 if k == 'comp_iter':
                     n = k
@@ -604,7 +629,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         if_node = None
         while n in ('list_iter', 'comp_iter'):
             n = n[0] # recurse one step
-            if   n == 'list_for':
+            if n == 'list_for':
                 if n[2] == 'designator':
                     designator = n[2]
                 n = n[3]
@@ -619,7 +644,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
         assert n.type in ('lc_body', 'comp_body'), ast
         assert designator, "Couldn't find designator in list/set comprehension"
 
+        old_name = self.name
+        self.name = code_name
         self.preorder(n[0])
+        gen_start = len(self.f.getvalue()) + 1
         self.write(' for ')
         start = len(self.f.getvalue())
         self.preorder(designator)
@@ -628,11 +656,15 @@ class FragmentsWalker(pysource.SourceWalker, object):
         start = len(self.f.getvalue())
         node[-3].parent = node
         self.preorder(node[-3])
-        self.set_pos_info(node[-3], start, len(self.f.getvalue()))
+        fin = len(self.f.getvalue())
+        self.set_pos_info(node[-3], start, fin, old_name)
         if if_node:
             self.write(' if ')
             self.preorder(if_node)
         self.prec = p
+        self.name = old_name
+        if node[-1].type.startswith('CALL_FUNCTION'):
+            self.set_pos_info(node[-1], gen_start, len(self.f.getvalue()))
 
     def listcomprehension_walk2(self, node):
         """List comprehensions the way they are done in Python3.
@@ -709,6 +741,43 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.comprehension_walk(node, iter_index=4)
         self.write('}')
         self.set_pos_info(node, start, len(self.f.getvalue()))
+        self.prune()
+
+    # FIXME: Not sure if below is general. Also, add dictcomp_func.
+    # 'setcomp_func': ("%|lambda %c: {%c for %c in %c%c}\n", 1, 3, 3, 1, 4)
+    def n_setcomp_func(self, node):
+        setcomp_start = len(self.f.getvalue())
+        self.write(self.indent, "lambda ")
+        param_node = node[1]
+        start = len(self.f.getvalue())
+        self.preorder(param_node)
+        self.set_pos_info(node[0], start, len(self.f.getvalue()))
+        self.write(': {')
+        start = len(self.f.getvalue())
+        assert node[0].type.startswith('BUILD_SET')
+        self.set_pos_info(node[0], start-1, start)
+        designator = node[3]
+        assert designator == 'designator'
+        start = len(self.f.getvalue())
+        self.preorder(designator)
+        fin = len(self.f.getvalue())
+        self.set_pos_info(designator, start, fin)
+        for_iter_node = node[2]
+        assert for_iter_node.type == 'FOR_ITER'
+        self.set_pos_info(for_iter_node, start, fin)
+        self.write(" for ")
+        self.preorder(designator)
+        self.write(" in ")
+        self.preorder(param_node)
+        start = len(self.f.getvalue())
+        self.preorder(node[4])
+        self.set_pos_info(node[4], start, len(self.f.getvalue()))
+        self.write("}")
+        fin = len(self.f.getvalue())
+        self.set_pos_info(node, setcomp_start, fin)
+        if node[-2] == 'RETURN_VALUE':
+            self.set_pos_info(node[-2], setcomp_start, fin)
+
         self.prune()
 
     def n_listcomp(self, node):
@@ -1326,6 +1395,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         arg = 1
         i = 0
         lastC = -1
+        recurse_node = False
 
         m = escape.search(fmt)
         while m:
@@ -1351,6 +1421,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             elif typ == '-': self.indentLess()
             elif typ == '|': self.write(self.indent)
             # no longer used, since BUILD_TUPLE_n is pretty printed:
+            elif typ == 'r': recurse_node = True
             elif typ == ',':
                 if lastC == 1:
                     self.write(',')
@@ -1450,7 +1521,11 @@ class FragmentsWalker(pysource.SourceWalker, object):
             pass
 
         self.write(fmt[i:])
-        self.set_pos_info(startnode, startnode_start, len(self.f.getvalue()))
+        fin = len(self.f.getvalue())
+        if recurse_node:
+            self.set_pos_info_recurse(startnode, startnode_start, fin)
+        else:
+            self.set_pos_info(startnode, startnode_start, fin)
 
         # FIXME rocky: figure out how to get these casess to be table driven.
         #
@@ -1710,7 +1785,7 @@ if __name__ == '__main__':
         return fn.__code__
 
     def test():
-        [x for x in range(3)]
+        {x for x in range(3) if x % 2 == 0}
 
     def gcd(a, b):
         if a > b:
