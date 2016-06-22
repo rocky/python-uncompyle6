@@ -582,6 +582,10 @@ class Python35onParser(Python3Parser):
         # Python 3.5+ has WITH_CLEANUP_START/FINISH
 
         withstmt ::= expr SETUP_WITH exprlist suite_stmts_opt
+                    POP_BLOCK LOAD_CONST COME_FROM
+                    WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+
+        withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
                      POP_BLOCK LOAD_CONST COME_FROM
                      WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
