@@ -1045,7 +1045,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         n = ast[iter_index]
         assert n == 'comp_iter'
-        # find innerst node
+        # find innermost node
         while n == 'comp_iter': # list_iter
             n = n[0] # recurse one step
             if   n == 'comp_for':	n = n[3]
@@ -1227,7 +1227,7 @@ class SourceWalker(GenericASTTraversal, object):
             if n == 'list_for':
                 designator = n[2]
                 n = n[3]
-            elif n in ('list_if', 'list_if_not'):
+            elif n in ('list_if', 'list_if_not', 'comp_if', 'comp_if_not'):
                 # FIXME: just a guess
                 if n[0].type == 'expr':
                     list_if = n

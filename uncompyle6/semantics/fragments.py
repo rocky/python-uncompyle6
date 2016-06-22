@@ -541,22 +541,32 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def comprehension_walk(self, node, iter_index, code_index=-5):
         p = self.prec
         self.prec = 27
-        if hasattr(node[code_index], 'attr'):
+
+        # FIXME: clean this up
+        if self.version > 3.0 and node == 'dictcomp':
+            cn = node[1]
+        elif self.version > 3.0 and node == 'genexpr':
+            if node[0] == 'load_genexpr':
+                load_genexpr = node[0]
+            elif node[1] == 'load_genexpr':
+                load_genexpr = node[1]
+            cn = load_genexpr[0]
+        elif hasattr(node[code_index], 'attr'):
             # Python 2.5+ (and earlier?) does this
-            code = node[code_index].attr
+            cn = node[code_index]
         else:
             if len(node[1]) > 1 and hasattr(node[1][1], 'attr'):
                 # Python 3.3+ does this
-                code = node[1][1].attr
+                cn = node[1][1]
             elif hasattr(node[1][0], 'attr'):
                 # Python 3.2 does this
-                code = node[1][0].attr
+                cn = node[1][0]
             else:
                 assert False, "Can't find code for comprehension"
 
-        assert iscode(code)
-        code = Code(code, self.scanner, self.currentclass)
+        assert iscode(cn.attr)
 
+        code = Code(cn.attr, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
         ast = ast[0][0][0]
@@ -722,7 +732,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def n_genexpr(self, node):
         start = len(self.f.getvalue())
         self.write('(')
-        code_index = -6 if self.version > 3.0 else -5
+        code_index = -6 if self.version > 3.2 else -5
         self.comprehension_walk(node, iter_index=3, code_index=code_index)
         self.write(')')
         self.set_pos_info(node, start, len(self.f.getvalue()))
@@ -818,7 +828,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             if n == 'list_for':
                 designator = n[2]
                 n = n[3]
-            elif n in ('list_if', 'list_if_not'):
+            elif n in ('list_if', 'list_if_not', 'comp_if', 'comp_if_not'):
                 # FIXME: just a guess
                 if n[0].type == 'expr':
                     list_if = n

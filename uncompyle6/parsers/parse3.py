@@ -379,8 +379,6 @@ class Python3Parser(PythonParser):
             unpack      ::= UNPACK_SEQEUENCE_n {expr}^n
             unpack_ex ::=   UNPACK_EX_b_a {expr}^(a+b)
 
-            listcomp ::= load_closure expr GET_ITER CALL_FUNCTION_1
-
             # build_class (see load_build_class)
 
             build_list  ::= {expr}^n BUILD_LIST_n
@@ -389,27 +387,36 @@ class Python3Parser(PythonParser):
             load_closure  ::= {LOAD_CLOSURE}^n BUILD_TUPLE_n
             # call_function (see custom_classfunc_rule)
 
-            listcomp ::= {expr}^n LOAD_LISTCOMP MAKE_CLOSURE
-                         GET_ITER CALL_FUNCTION_1
-
-            setcomp ::= {expr}^n LOAD_SETCOMP MAKE_CLOSURE
-                        GET_ITER CALL_FUNCTION_1
-
             # ------------
             # Python <= 3.2 omits LOAD_CONST before MAKE_
             # Note: are the below specific instances of a more general case?
             # ------------
 
+            # Is there something more general than this? adding pos_arg?
+            # Is there something corresponding using MAKE_CLOSURE?
             dictcomp ::= LOAD_DICTCOMP [LOAD_CONST] MAKE_FUNCTION_0 expr
                            GET_ITER CALL_FUNCTION_1
+
             genexpr  ::= {pos_arg}^n load_genexpr [LOAD_CONST] MAKE_FUNCTION_n expr
                            GET_ITER CALL_FUNCTION_1
-            genexpr  ::= load_closure LOAD_GENEXPR [LOAD_CONST] MAKE_CLOSURE_0
-                           expr GET_ITER CALL_FUNCTION_1
-            listcomp ::= {expr}^n LOAD_LISTCOMP [LOAD_CONST] MAKE_CLOSURE_0 expr
+            genexpr  ::= {expr}^n load_closure LOAD_GENEXPR [LOAD_CONST]
+                          MAKE_CLOSURE_n expr GET_ITER CALL_FUNCTION_1
+            listcomp ::= {pos_arg}^n LOAD_LISTCOMP [LOAD_CONST] MAKE_CLOSURE_n expr
                            GET_ITER CALL_FUNCTION_1
+            listcomp ::= {pos_arg}^n load_closure LOAD_LISTCOMP [LOAD_CONST]
+                           MAKE_CLOSURE_n expr GET_ITER CALL_FUNCTION_1
+
+            # Is there something more general than this? adding pos_arg?
+            # Is there something corresponding using MAKE_CLOSURE?
+            For example:
+            # setcomp ::= {pos_arg}^n LOAD_SETCOMP [LOAD_CONST] MAKE_CLOSURE_n
+                        GET_ITER CALL_FUNCTION_1
+
             setcomp  ::= LOAD_SETCOMP [LOAD_CONST] MAKE_FUNCTION_0 expr
                            GET_ITER CALL_FUNCTION_1
+            setcomp  ::= {pos_arg}^n load_closure LOAD_SETCOMP [LOAD_CONST]
+                           MAKE_CLOSURE_n expr GET_ITER CALL_FUNCTION_1
+
             mkfunc   ::= {pos_arg}^n load_closure [LOAD_CONST] MAKE_FUNCTION_n
             mkfunc   ::= {pos_arg}^n load_closure [LOAD_CONST] MAKE_CLOSURE_n
             mkfunc   ::= {pos_arg}^n [LOAD_CONST] MAKE_FUNCTION_n
@@ -427,6 +434,8 @@ class Python3Parser(PythonParser):
                 rule_pat = ("dictcomp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 expr "
                             "GET_ITER CALL_FUNCTION_1")
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+            ## Custom rules which are handled now by the more generic rule in
+            ## either MAKE_FUNCTION or MAKE_CLOSURE
             # elif opname == 'LOAD_GENEXPR':
             #     rule_pat = ("genexpr ::= LOAD_GENEXPR %sMAKE_FUNCTION_0 expr "
             #                 "GET_ITER CALL_FUNCTION_1")
@@ -439,6 +448,7 @@ class Python3Parser(PythonParser):
             #                 "GET_ITER CALL_FUNCTION_1")
             #     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
             elif opname == 'LOAD_SETCOMP':
+                # Should this be generalized and put under MAKE_FUNCTION?
                 rule_pat = ("setcomp ::= LOAD_SETCOMP %sMAKE_FUNCTION_0 expr "
                             "GET_ITER CALL_FUNCTION_1")
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
@@ -488,15 +498,13 @@ class Python3Parser(PythonParser):
                 if self.version == 3.3:
                     # positional args after keyword args
                     rule = ('mkfunc ::= kwargs %s%s %s' %
-                            ('pos_arg ' * args_pos,
-                                 'LOAD_CONST ' * 2,
-                            opname))
+                            ('pos_arg ' * args_pos, 'LOAD_CONST '*2,
+                             opname))
                 elif self.version > 3.3:
                     # positional args before keyword args
                     rule = ('mkfunc ::= %skwargs %s %s' %
-                            ('pos_arg ' * args_pos,
-                                 'LOAD_CONST ' * 2,
-                            opname))
+                            ('pos_arg ' * args_pos, 'LOAD_CONST '*2,
+                             opname))
                 else:
                     rule = ('mkfunc ::= kwargs %sexpr %s' %
                             ('pos_arg ' * args_pos, opname))
@@ -510,13 +518,13 @@ class Python3Parser(PythonParser):
                             "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                 rule_pat = ('mklambda ::= %sload_closure LOAD_LAMBDA %%s%s' %
-                        ('pos_arg '* args_pos, opname))
+                            ('pos_arg '* args_pos, opname))
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                 rule_pat = ('listcomp ::= %sload_closure LOAD_LISTCOMP %%s%s expr '
-                            'GET_ITER CALL_FUNCTION_1' % ('expr ' * args_pos, opname))
+                            'GET_ITER CALL_FUNCTION_1' % ('pos_arg ' * args_pos, opname))
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                 rule_pat = ('setcomp ::= %sload_closure LOAD_SETCOMP %%s%s expr '
-                            'GET_ITER CALL_FUNCTION_1' % ('expr ' * args_pos, opname))
+                            'GET_ITER CALL_FUNCTION_1' % ('pos_arg ' * args_pos, opname))
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
                 self.add_unique_rule('dictcomp ::= %sload_closure LOAD_DICTCOMP %s '
