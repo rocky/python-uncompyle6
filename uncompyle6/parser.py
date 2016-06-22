@@ -113,6 +113,65 @@ class PythonParser(GenericASTBuilder):
         call_stmt ::= expr POP_TOP
         '''
 
+    def p_stmt(self, args):
+        """
+        passstmt ::=
+
+        _stmts ::= _stmts stmt
+        _stmts ::= stmt
+
+        # statements with continue
+        c_stmts ::= _stmts
+        c_stmts ::= _stmts lastc_stmt
+        c_stmts ::= lastc_stmt
+        c_stmts ::= continue_stmts
+
+        lastc_stmt ::= iflaststmt
+        lastc_stmt ::= whileelselaststmt
+        lastc_stmt ::= forelselaststmt
+        lastc_stmt ::= ifelsestmtr
+        lastc_stmt ::= ifelsestmtc
+        lastc_stmt ::= tryelsestmtc
+
+        c_stmts_opt ::= c_stmts
+        c_stmts_opt ::= passstmt
+
+        l_stmts ::= _stmts
+        l_stmts ::= return_stmts
+        l_stmts ::= continue_stmts
+        l_stmts ::= _stmts lastl_stmt
+        l_stmts ::= lastl_stmt
+
+        lastl_stmt ::= iflaststmtl
+        lastl_stmt ::= ifelsestmtl
+        lastl_stmt ::= forelselaststmtl
+        lastl_stmt ::= tryelsestmtl
+
+        l_stmts_opt ::= l_stmts
+        l_stmts_opt ::= passstmt
+
+        suite_stmts ::= _stmts
+        suite_stmts ::= return_stmts
+        suite_stmts ::= continue_stmts
+
+        suite_stmts_opt ::= suite_stmts
+        suite_stmts_opt ::= passstmt
+
+        else_suite ::= suite_stmts
+        else_suitel ::= l_stmts
+        else_suitec ::= c_stmts
+        else_suitec ::= return_stmts
+
+        stmt ::= classdef
+        stmt ::= call_stmt
+
+        stmt ::= return_stmt
+        return_stmt ::= ret_expr RETURN_VALUE
+        return_stmts ::= return_stmt
+        return_stmts ::= _stmts return_stmt
+        """
+        pass
+
     def p_funcdef(self, args):
         '''
         stmt ::= funcdef

@@ -58,60 +58,6 @@ class Python3Parser(PythonParser):
 
         stmts_opt ::= stmts
         stmts_opt ::= passstmt
-        passstmt ::=
-
-        _stmts ::= _stmts stmt
-        _stmts ::= stmt
-
-        # statements with continue
-        c_stmts ::= _stmts
-        c_stmts ::= _stmts lastc_stmt
-        c_stmts ::= lastc_stmt
-        c_stmts ::= continue_stmts
-
-        lastc_stmt ::= iflaststmt
-        lastc_stmt ::= whileelselaststmt
-        lastc_stmt ::= forelselaststmt
-        lastc_stmt ::= ifelsestmtr
-        lastc_stmt ::= ifelsestmtc
-        lastc_stmt ::= tryelsestmtc
-
-        c_stmts_opt ::= c_stmts
-        c_stmts_opt ::= passstmt
-
-        l_stmts ::= _stmts
-        l_stmts ::= return_stmts
-        l_stmts ::= continue_stmts
-        l_stmts ::= _stmts lastl_stmt
-        l_stmts ::= lastl_stmt
-
-        lastl_stmt ::= iflaststmtl
-        lastl_stmt ::= ifelsestmtl
-        lastl_stmt ::= forelselaststmtl
-        lastl_stmt ::= tryelsestmtl
-
-        l_stmts_opt ::= l_stmts
-        l_stmts_opt ::= passstmt
-
-        suite_stmts ::= _stmts
-        suite_stmts ::= return_stmts
-        suite_stmts ::= continue_stmts
-
-        suite_stmts_opt ::= suite_stmts
-        suite_stmts_opt ::= passstmt
-
-        else_suite ::= suite_stmts
-        else_suitel ::= l_stmts
-        else_suitec ::= c_stmts
-        else_suitec ::= return_stmts
-
-        stmt ::= classdef
-        stmt ::= call_stmt
-
-        stmt ::= return_stmt
-        return_stmt ::= ret_expr RETURN_VALUE
-        return_stmts ::= return_stmt
-        return_stmts ::= _stmts return_stmt
 
         return_if_stmts ::= return_if_stmt come_from_opt
         return_if_stmts ::= _stmts return_if_stmt
@@ -325,7 +271,6 @@ class Python3Parser(PythonParser):
         load_genexpr ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_CONST
 
         # Is there something general going on here?
-        genexpr ::= load_closure LOAD_GENEXPR LOAD_CONST MAKE_CLOSURE_0 expr GET_ITER CALL_FUNCTION_1
         dictcomp ::= load_closure LOAD_DICTCOMP LOAD_CONST MAKE_CLOSURE_0 expr GET_ITER CALL_FUNCTION_1
         '''
 
@@ -450,26 +395,24 @@ class Python3Parser(PythonParser):
             load_closure  ::= {LOAD_CLOSURE}^n BUILD_TUPLE_n
             # call_function (see custom_classfunc_rule)
 
-            ------------
-            Python 3.3+:
-            ------------
-            listcomp ::= LOAD_LISTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
-                         GET_ITER CALL_FUNCTION_1
             listcomp ::= {expr}^n LOAD_LISTCOMP MAKE_CLOSURE
                          GET_ITER CALL_FUNCTION_1
 
-            dictcomp ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
-                         GET_ITER CALL_FUNCTION_1
-            genexpr ::= LOAD_GENEXPR LOAD_CONST MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
-
-            ------------
-            Python < 3.3
-            ------------
-            listcomp ::= LOAD_LISTCOMP MAKE_FUNCTION_0 expr
-                         GET_ITER CALL_FUNCTION_1
-            genexpr ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
             setcomp ::= {expr}^n LOAD_SETCOMP MAKE_CLOSURE
                         GET_ITER CALL_FUNCTION_1
+
+            ------------
+            Python <= 3.2 omits LOAD_CONST before MAKE_
+            ------------
+            dictcomp ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
+                         GET_ITER CALL_FUNCTION_1
+            listcomp ::= LOAD_LISTCOMP [LOAD_CONST] MAKE_FUNCTION_0 expr
+                         GET_ITER CALL_FUNCTION_1
+            genexpr ::= LOAD_GENEXPR [LOAD_CONST] MAKE_FUNCTION_0 expr
+                        GET_ITER CALL_FUNCTION_1
+            genexpr ::= load_closure LOAD_GENEXPR [LOAD_CONST] MAKE_CLOSURE_0
+                        expr GET_ITER CALL_FUNCTION_1
+
 
         """
         for i, token in enumerate(tokens):
@@ -497,6 +440,8 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname == 'LOAD_GENEXPR':
                 rule_pat = "genexpr ::= LOAD_GENEXPR %sMAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1"
+                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                rule_pat = "genexpr ::= load_closure LOAD_GENEXPR %sMAKE_CLOSURE_0 expr GET_ITER CALL_FUNCTION_1"
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
             elif opname == 'LOAD_SETCOMP':
                 if self.version >= 3.3:
