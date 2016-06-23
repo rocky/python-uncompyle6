@@ -594,6 +594,11 @@ class Python35onParser(Python3Parser):
                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
 
+        # Python 3.5+_ does jump optimization that scanner3.py's detect
+        # structure can't fully work out. So for now let's allow
+        # RETURN_END_IF the same as RETURN_VAL
+        return_stmt ::= ret_expr RETURN_END_IF
+
         # Python 3.3+ also has yield from. 3.5 does it
         # differently than 3.3, 3.4
 
