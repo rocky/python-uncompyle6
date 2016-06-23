@@ -1077,7 +1077,7 @@ class SourceWalker(GenericASTTraversal, object):
     def n_setcomp(self, node):
         self.write('{')
         if node[0] in ['LOAD_SETCOMP', 'LOAD_DICTCOMP']:
-            self.listcomprehension_walk3(node, 1, 0)
+            self.comprehension_walk3(node, 1, 0)
         elif node[0].type == 'load_closure':
             self.setcomprehension_walk3(node, collection_index=4)
         else:
@@ -1085,7 +1085,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write('}')
         self.prune()
 
-    def listcomprehension_walk3(self, node, iter_index, code_index=-5):
+    def comprehension_walk3(self, node, iter_index, code_index=-5):
         """
         List comprehensions the way they are done in Python3.
         They're more other comprehensions, e.g. set comprehensions
@@ -1135,7 +1135,8 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
 
-        assert n.type in ('lc_body', 'comp_body'), ast
+        # Python 3.5+ starts including setcomp_func
+        assert n.type in ('lc_body', 'comp_body', 'setcomp_func'), ast
         assert designator, "Couldn't find designator in list/set comprehension"
 
         self.preorder(n[0])
@@ -1201,7 +1202,7 @@ class SourceWalker(GenericASTTraversal, object):
         if node[0].type == 'load_closure':
             self.listcomprehension_walk2(node)
         else:
-            self.listcomprehension_walk3(node, 1, 0)
+            self.comprehension_walk3(node, 1, 0)
         self.write(']')
         self.prune()
 

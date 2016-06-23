@@ -598,7 +598,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.set_pos_info(iter_index, start, len(self.f.getvalue()))
         self.prec = p
 
-    def listcomprehension_walk3(self, node, iter_index, code_index=-5):
+    def comprehension_walk3(self, node, iter_index, code_index=-5):
         """
         List comprehensions the way they are done in Python3.
         They're more other comprehensions, e.g. set comprehensions
@@ -652,7 +652,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 pass
             pass
 
-        assert n.type in ('lc_body', 'comp_body'), ast
+        # Python 3.5+ starts including setcomp_func
+        assert n.type in ('lc_body', 'comp_body', 'setcomp_func'), ast
         assert designator, "Couldn't find designator in list/set comprehension"
 
         old_name = self.name
@@ -745,7 +746,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         if node[0] in ['LOAD_SETCOMP', 'LOAD_DICTCOMP']:
             start = len(self.f.getvalue())
             self.set_pos_info(node[0], start-1, start)
-            self.listcomprehension_walk3(node, 1, 0)
+            self.comprehension_walk3(node, 1, 0)
         elif node[0].type == 'load_closure':
             self.setcomprehension_walk3(node, collection_index=4)
         else:
@@ -799,7 +800,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             if node[0] == 'LOAD_LISTCOMP':
                 start = len(self.f.getvalue())
                 self.set_pos_info(node[0], start-1, start)
-            self.listcomprehension_walk3(node, 1, 0)
+            self.comprehension_walk3(node, 1, 0)
         self.write(']')
         self.prune()
 
