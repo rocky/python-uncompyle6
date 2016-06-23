@@ -1,3 +1,12 @@
+uncompyle6 2.5.0 2016-06-22  Summer Solstace
+
+- Much better Python 3.2-3.5 coverage.
+  3.4.6 is probably the best;3.2 and 3.5 are weaker
+- Better AST printing with -t
+- Better error reporting
+- Better fragment offset tracking
+- Some (much-needed) code refactoring
+
 uncompyle6 2.4.0 2016-05-18 (in memory of Lewis Bernstein)
 
 - Many Python 3 bugs fixed:
