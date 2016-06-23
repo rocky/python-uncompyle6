@@ -42,7 +42,7 @@ license            = 'MIT'
 mailing_list       = 'python-debugger@googlegroups.com'
 modname            = 'uncompyle6'
 py_modules         = None
-short_desc         = 'Python byte-code disassembler and source-code converter'
+short_desc         = 'Python cross-version byte-code deparser'
 web                = 'https://github.com/rocky/python-uncompyle6/'
 
 # tracebacks in zip files are funky and not debuggable

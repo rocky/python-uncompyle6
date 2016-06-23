@@ -90,9 +90,9 @@ ok. Some of these failures may be bugs in the verification process.  So
 as such, it is probably a little better than uncompyle2.  Other Python
 2 versions do worse.
 
-ALl of the Python 3.2-3.5.4 Python standard lib packages that I have
+All of the Python 3.2-3.5.4 Python standard lib packages that I have
 installed on my system deparse. Each Python version has about 200
-byteocde files). I'm not sure how well these verify though.
+bytecode files. I'm not sure how well these verify though.
 
 There are a few constructs that still need to be added to Python 3.5
 Python 3.6 changes things drastically by using word codes rather than
