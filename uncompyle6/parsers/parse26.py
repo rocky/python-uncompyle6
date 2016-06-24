@@ -16,16 +16,42 @@ class Python26Parser(Python2Parser):
 
     def p_try_except26(self, args):
         """
-        # FIXME: move parse2's corresponding rules to 2.7
-
         except_cond1 ::= DUP_TOP expr COMPARE_OP
                          JUMP_IF_FALSE POP_TOP POP_TOP POP_TOP POP_TOP
         except_cond2 ::= DUP_TOP expr COMPARE_OP
                          JUMP_IF_FALSE POP_TOP POP_TOP designator POP_TOP
         try_middle   ::= JUMP_FORWARD COME_FROM except_stmts
-                         POP_TOP END_FINALLY COME_FROM
+                         POP_TOP END_FINALLY come_froms
+        try_middle   ::= JUMP_FORWARD COME_FROM except_stmts
+                         END_FINALLY come_froms
+        try_middle   ::= jmp_abs COME_FROM except_stmts
+                         POP_TOP END_FINALLY
+
+        trystmt      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                         try_middle
+
+        except_suite ::= c_stmts_opt JUMP_FORWARD POP_TOP
+
+        # Python 3 also has this.
+        come_froms ::= come_froms COME_FROM
+        come_froms ::= COME_FROM
+
         """
 
+    def p_misc26(self, args):
+        """
+        jmp_true     ::=  JUMP_IF_TRUE POP_TOP
+        jmp_false    ::=  JUMP_IF_FALSE POP_TOP
+        jf_pop       ::=  JUMP_FORWARD POP_TOP
+
+        _ifstmts_jump ::= c_stmts_opt jf_pop COME_FROM
+        """
+
+    def p_stmt26(self, args):
+        """
+        assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 POP_TOP
+        ifelsestmt ::= testexpr c_stmts_opt jf_pop else_suite COME_FROM
+        """
 
     def p_comp26(self, args):
         '''
@@ -33,8 +59,6 @@ class Python26Parser(Python2Parser):
 	list_compr ::= BUILD_LIST_0 DUP_TOP
 		       designator list_iter del_stmt
 	lc_body    ::= LOAD_NAME expr LIST_APPEND
-
-
         '''
 
 class Python26ParserSingle(Python2Parser, PythonParserSingle):

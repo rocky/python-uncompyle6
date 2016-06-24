@@ -134,7 +134,6 @@ class Python2Parser(PythonParser):
         classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
         classdefdeco2 ::= LOAD_CONST expr mkfunc CALL_FUNCTION_0 BUILD_CLASS
 
-        assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
         assert2 ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
         assert2 ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_2
 
@@ -152,7 +151,6 @@ class Python2Parser(PythonParser):
         testtrue ::= expr jmp_true
 
         _ifstmts_jump ::= return_if_stmts
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM
 
         iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
 
@@ -166,9 +164,6 @@ class Python2Parser(PythonParser):
 
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
 
-
-        trystmt ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                    try_middle COME_FROM
 
         # this is nested inside a trystmt
         tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
@@ -184,13 +179,6 @@ class Python2Parser(PythonParser):
         tryelsestmtl ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                          try_middle else_suitel COME_FROM
 
-        try_middle ::= jmp_abs COME_FROM except_stmts
-                       END_FINALLY
-
-        ## FIXME: this might be a 2.7+ thing only
-        try_middle ::= JUMP_FORWARD COME_FROM except_stmts
-                       END_FINALLY COME_FROM
-
         except_stmts ::= except_stmts except_stmt
         except_stmts ::= except_stmt
 
@@ -201,14 +189,6 @@ class Python2Parser(PythonParser):
         except_suite ::= c_stmts_opt JUMP_FORWARD
         except_suite ::= c_stmts_opt jmp_abs
         except_suite ::= return_stmts
-
-        ## FIXME: this might be a 2.7+ thing only
-        except_cond1 ::= DUP_TOP expr COMPARE_OP
-                jmp_false POP_TOP POP_TOP POP_TOP
-
-        ## FIXME: this might be a 2.7+ thing only
-        except_cond2 ::= DUP_TOP expr COMPARE_OP
-                jmp_false POP_TOP designator POP_TOP
 
         except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt _jump
         except  ::=  POP_TOP POP_TOP POP_TOP return_stmts

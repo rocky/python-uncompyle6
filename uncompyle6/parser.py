@@ -594,6 +594,12 @@ def get_python_parser(version, debug_parser, compile_mode='exec'):
                 p = parse26.Python26Parser(debug_parser)
             else:
                 p = parse26.Python26ParserSingle(debug_parser)
+        elif version == 2.7:
+            import uncompyle6.parsers.parse27 as parse27
+            if compile_mode == 'exec':
+                p = parse27.Python27Parser(debug_parser)
+            else:
+                p = parse27.Python27ParserSingle(debug_parser)
         else:
             import uncompyle6.parsers.parse2 as parse2
             if compile_mode == 'exec':

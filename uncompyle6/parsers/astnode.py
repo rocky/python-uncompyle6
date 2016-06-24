@@ -6,7 +6,6 @@ from spark_parser.ast import AST as spark_AST
 if PYTHON3:
     intern = sys.intern
 
-
 class AST(spark_AST):
     def isNone(self):
         """An AST None token. We can't use regular list comparisons

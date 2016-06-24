@@ -359,6 +359,12 @@ class Scanner2(scan.Scanner):
             except_match = self.first_instr(start, len(self.code), self.opc.PJIF)
             if except_match:
                 jmp = self.prev[self.get_target(except_match)]
+
+                # In Python <= 2.6 we may have jumps to jumps
+                if self.version <= 2.6 and self.code[jmp] in self.jump_forward:
+                    self.not_continue.add(jmp)
+                    jmp = self.get_target(jmp)
+
                 self.ignore_if.add(except_match)
                 self.not_continue.add(jmp)
                 return jmp
@@ -370,7 +376,8 @@ class Scanner2(scan.Scanner):
             if op == self.opc.END_FINALLY:
                 if count_END_FINALLY == count_SETUP_:
                     if self.version == 2.7:
-                        assert self.code[self.prev[i]] in (self.opc.JA, self.opc.JF, self.opc.RETURN_VALUE)
+                        assert self.code[self.prev[i]] in \
+                            self.jump_forward | frozenset([self.opc.RETURN_VALUE])
                     self.not_continue.add(self.prev[i])
                     return self.prev[i]
                 count_END_FINALLY += 1
@@ -474,6 +481,7 @@ class Scanner2(scan.Scanner):
             target = self.get_target(pos, op)
             end    = self.restrict_to_parent(target, parent)
             if target != end:
+                print("XXXX", pos, end)
                 self.fixed_jumps[pos] = end
                 # print target, end, parent
             # Add the try block
@@ -508,10 +516,12 @@ class Scanner2(scan.Scanner):
             # Add the try-else block
             if end_else != start_else:
                 r_end_else = self.restrict_to_parent(end_else, parent)
-                self.structs.append({'type':  'try-else',
-                                       'start': i+1,
-                                       'end':   r_end_else})
-                self.fixed_jumps[i] = r_end_else
+                # May be able to drop the 2.7 test.
+                if self.version == 2.7 and i > r_end_else:
+                    self.structs.append({'type':  'try-else',
+                                           'start': i+1,
+                                           'end':   r_end_else})
+                    self.fixed_jumps[i] = r_end_else
             else:
                 self.fixed_jumps[i] = i+1
 
