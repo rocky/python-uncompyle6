@@ -370,7 +370,7 @@ class Scanner2(scan.Scanner):
                 if count_END_FINALLY == count_SETUP_:
                     if self.version == 2.7:
                         assert self.code[self.prev[i]] in \
-                            self.jump_forward | {self.opc.RETURN_VALUE}
+                            self.jump_forward | frozenset([self.opc.RETURN_VALUE])
                     self.not_continue.add(self.prev[i])
                     return self.prev[i]
                 count_END_FINALLY += 1
