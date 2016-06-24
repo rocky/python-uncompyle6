@@ -211,7 +211,7 @@ class Scanner2(scan.Scanner):
                 pass
             pass
 
-        if self.show_asm in ('both', 'after'):
+        if show_asm in ('both', 'after'):
             for t in tokens:
                 print(t)
             print()

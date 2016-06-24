@@ -76,7 +76,7 @@ class Scanner26(scan.Scanner2):
         '''
 
         show_asm = self.show_asm if not show_asm else show_asm
-        if self.show_asm in ('both', 'before'):
+        if show_asm in ('both', 'before'):
             from xdis.bytecode import Bytecode
             bytecode = Bytecode(co, self.opc)
             for instr in bytecode.get_instructions(co):
@@ -260,7 +260,7 @@ class Scanner26(scan.Scanner2):
                 pass
             pass
 
-        if self.show_asm:
+        if show_asm:
             for t in tokens:
                 print(t)
             print()
