@@ -37,7 +37,7 @@ entry_points={
     ]}
 ftp_url            = None
 install_requires   = ['spark-parser >= 1.4.0',
-                      'xdis >= 1.1.1']
+                      'xdis >= 1.1.2']
 license            = 'MIT'
 mailing_list       = 'python-debugger@googlegroups.com'
 modname            = 'uncompyle6'

@@ -76,11 +76,12 @@ class Scanner26(scan.Scanner2):
         '''
 
         show_asm = self.show_asm if not show_asm else show_asm
-        if self.show_asm in ('both', 'before'):
+        if show_asm in ('both', 'before'):
             from xdis.bytecode import Bytecode
             bytecode = Bytecode(co, self.opc)
             for instr in bytecode.get_instructions(co):
                 print(instr._disassemble())
+        show_asm = 'both'
 
         # from xdis.bytecode import Bytecode
         # bytecode = Bytecode(co, self.opc)
@@ -120,7 +121,9 @@ class Scanner26(scan.Scanner2):
 
         # list of instruction to remove/add or change to match with bytecode 2.7
         self.toChange = []
-        self.restructBytecode()
+        # Rocky: the restructure code isn't adjusting linestarts
+        # and this causes problems
+        # self.restructBytecode()
         codelen = len(self.code)
 
         self.build_prev_op(codelen)
@@ -170,6 +173,7 @@ class Scanner26(scan.Scanner2):
                     tokens.append(Token('COME_FROM', None, repr(j),
                                     offset="%s_%d" % (offset, k) ))
                     k += 1
+
             if self.op_hasArgument(op):
                 oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
@@ -234,7 +238,7 @@ class Scanner26(scan.Scanner2):
                 target = self.get_target(offset)
                 if target < offset:
                     if (offset in self.stmts
-                        and self.code[offset + 3] not in (self.opc.END_FINALLY,
+                        and self.code[offset+3] not in (self.opc.END_FINALLY,
                                                           self.opc.POP_BLOCK)
                         and offset not in self.not_continue):
                         op_name = 'CONTINUE'
@@ -260,7 +264,7 @@ class Scanner26(scan.Scanner2):
                 pass
             pass
 
-        if self.show_asm:
+        if show_asm:
             for t in tokens:
                 print(t)
             print()
@@ -470,94 +474,94 @@ class Scanner26(scan.Scanner2):
                     jmp += 3
                 else: jmp += 1
 
-    def restructBytecode(self):
-        '''
-        add/change/delete bytecode for suiting bytecode 2.7
-        '''
-        # we can't use op_range for the moment
-        # convert jump opcode to 2.7
-        self.restructRelativeJump()
+    # def restructBytecode(self):
+    #     '''
+    #     add/change/delete bytecode for suiting bytecode 2.7
+    #     '''
+    #     # we can't use op_range for the moment
+    #     # convert jump opcode to 2.7
+    #     self.restructRelativeJump()
 
-        listExp = self.getOpcodeToExp()
-        # change code structure
-        if listExp:
-            listExp = sorted(list(set(listExp)))
-            self.restructCode([], listExp)
-            # we add arg to expended opcode
-            offset=0
-            for toExp in listExp:
-                self.code.insert(toExp+offset+1, 0)
-                self.code.insert(toExp+offset+1, 0)
-                offset+=2
-        # op_range is now ok :)
-        # add instruction to change in "toChange" list + MAJ toDel
-        listDel = []
-        for i in self.op_range(0, len(self.code)):
-            ret = self.getOpcodeToDel(i)
-            if ret is not None:
-                listDel += ret
+    #     listExp = self.getOpcodeToExp()
+    #     # change code structure
+    #     if listExp:
+    #         listExp = sorted(list(set(listExp)))
+    #         self.restructCode([], listExp)
+    #         # we add arg to expended opcode
+    #         offset=0
+    #         for toExp in listExp:
+    #             self.code.insert(toExp+offset+1, 0)
+    #             self.code.insert(toExp+offset+1, 0)
+    #             offset+=2
+    #     # op_range is now ok :)
+    #     # add instruction to change in "toChange" list + MAJ toDel
+    #     listDel = []
+    #     for i in self.op_range(0, len(self.code)):
+    #         ret = self.getOpcodeToDel(i)
+    #         if ret is not None:
+    #             listDel += ret
 
-        # change code structure after deleting byte
-        if listDel:
-            listDel = sorted(list(set(listDel)))
-            self.restructCode(listDel, [])
-            # finaly we delete useless opcode
-            delta = 0
-            for x in listDel:
-                if self.op_hasArgument(self.code[x-delta]):
-                    self.code.pop(x-delta)
-                    self.code.pop(x-delta)
-                    self.code.pop(x-delta)
-                    delta += 3
-                else:
-                    self.code.pop(x-delta)
-                    delta += 1
+    #     # change code structure after deleting byte
+    #     if listDel:
+    #         listDel = sorted(list(set(listDel)))
+    #         self.restructCode(listDel, [])
+    #         # finaly we delete useless opcode
+    #         delta = 0
+    #         for x in listDel:
+    #             if self.op_hasArgument(self.code[x-delta]):
+    #                 self.code.pop(x-delta)
+    #                 self.code.pop(x-delta)
+    #                 self.code.pop(x-delta)
+    #                 delta += 3
+    #             else:
+    #                 self.code.pop(x-delta)
+    #                 delta += 1
 
-    def restructRelativeJump(self):
-        '''
-        change relative JUMP_IF_FALSE/TRUE to absolut jump
-        and remap the target of PJIF/PJIT
-        '''
-        i=0
-        while i < len(self.code): # we can't use op_range for the moment
-            op = self.code[i]
-            if op in self.pop_jump_if:
-                target = self.get_argument(i)
-                target += i + 3
-                self.restructJump(i, target)
-            i += self.op_size(op)
+    # def restructRelativeJump(self):
+    #     '''
+    #     change relative JUMP_IF_FALSE/TRUE to absolut jump
+    #     and remap the target of PJIF/PJIT
+    #     '''
+    #     i=0
+    #     while i < len(self.code): # we can't use op_range for the moment
+    #         op = self.code[i]
+    #         if op in self.pop_jump_if:
+    #             target = self.get_argument(i)
+    #             target += i + 3
+    #             self.restructJump(i, target)
+    #         i += self.op_size(op)
 
-        i=0
-        while i < len(self.code): # we can't use op_range for the moment
-            op = self.code[i]
-            if op in self.pop_jump_if:
-                target = self.get_target(i)
-                if self.code[target] == self.opc.JA:
-                    target = self.get_target(target)
-                    self.restructJump(i, target)
-            i += self.op_size(op)
-        i=0
-        # while i < len(self.code): # we can't use op_range for the moment
-        #     op = self.code[i]
-        #     name = self.opc.opname[op]
-        #     if self.op_hasArgument(op):
-        #         oparg = self.get_argument(i)
-        #         print("%d %s %d" % (i, name, oparg))
-        #     else:
-        #         print("%d %s" % (i, name))
-        #     i += self.op_size(op)
+    #     i=0
+    #     while i < len(self.code): # we can't use op_range for the moment
+    #         op = self.code[i]
+    #         if op in self.pop_jump_if:
+    #             target = self.get_target(i)
+    #             if self.code[target] == self.opc.JA:
+    #                 target = self.get_target(target)
+    #                 self.restructJump(i, target)
+    #         i += self.op_size(op)
+    #     i=0
+    #     # while i < len(self.code): # we can't use op_range for the moment
+    #     #     op = self.code[i]
+    #     #     name = self.opc.opname[op]
+    #     #     if self.op_hasArgument(op):
+    #     #         oparg = self.get_argument(i)
+    #     #         print("%d %s %d" % (i, name, oparg))
+    #     #     else:
+    #     #         print("%d %s" % (i, name))
+    #     #     i += self.op_size(op)
 
-    def restructJump(self, pos, newTarget):
-        if self.code[pos] not in self.opc.hasjabs + self.opc.hasjrel:
-            raise 'Can t change this argument. Opcode is not a jump'
-        if newTarget > 0xFFFF:
-            raise NotImplementedError
-        offset = newTarget-self.get_target(pos)
-        target = self.get_argument(pos)+offset
-        if target < 0 or target > 0xFFFF:
-            raise NotImplementedError
-        self.code[pos+2] = (target >> 8) & 0xFF
-        self.code[pos+1] = target & 0xFF
+    # def restructJump(self, pos, newTarget):
+    #     if self.code[pos] not in self.opc.hasjabs + self.opc.hasjrel:
+    #         raise 'Can t change this argument. Opcode is not a jump'
+    #     if newTarget > 0xFFFF:
+    #         raise NotImplementedError
+    #     offset = newTarget-self.get_target(pos)
+    #     target = self.get_argument(pos)+offset
+    #     if target < 0 or target > 0xFFFF:
+    #         raise NotImplementedError
+    #     self.code[pos+2] = (target >> 8) & 0xFF
+    #     self.code[pos+1] = target & 0xFF
 
     def detect_structure(self, pos, op=None):
         '''

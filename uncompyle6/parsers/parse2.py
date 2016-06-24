@@ -186,6 +186,8 @@ class Python2Parser(PythonParser):
 
         try_middle ::= jmp_abs COME_FROM except_stmts
                        END_FINALLY
+
+        ## FIXME: this might be a 2.7+ thing only
         try_middle ::= JUMP_FORWARD COME_FROM except_stmts
                        END_FINALLY COME_FROM
 
@@ -200,9 +202,11 @@ class Python2Parser(PythonParser):
         except_suite ::= c_stmts_opt jmp_abs
         except_suite ::= return_stmts
 
+        ## FIXME: this might be a 2.7+ thing only
         except_cond1 ::= DUP_TOP expr COMPARE_OP
                 jmp_false POP_TOP POP_TOP POP_TOP
 
+        ## FIXME: this might be a 2.7+ thing only
         except_cond2 ::= DUP_TOP expr COMPARE_OP
                 jmp_false POP_TOP designator POP_TOP
 

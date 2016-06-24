@@ -184,8 +184,11 @@ class Scanner2(scan.Scanner):
             elif op == self.opc.JA:
                 target = self.get_target(offset)
                 if target < offset:
-                    if offset in self.stmts and self.code[offset+3] not in (self.opc.END_FINALLY, self.opc.POP_BLOCK) \
-                     and offset not in self.not_continue:
+                    if (offset in self.stmts
+                        and self.code[offset+3] not in (self.opc.END_FINALLY,
+                                                        self.opc.POP_BLOCK)
+                        and offset not in self.not_continue):
+                        print("WOOT", target, offset, self.stmts)
                         opname = 'CONTINUE'
                     else:
                         opname = 'JUMP_BACK'
@@ -366,7 +369,8 @@ class Scanner2(scan.Scanner):
             op = self.code[i]
             if op == self.opc.END_FINALLY:
                 if count_END_FINALLY == count_SETUP_:
-                    assert self.code[self.prev[i]] in (self.opc.JA, self.opc.JF, self.opc.RETURN_VALUE)
+                    if self.version == 2.7:
+                        assert self.code[self.prev[i]] in (self.opc.JA, self.opc.JF, self.opc.RETURN_VALUE)
                     self.not_continue.add(self.prev[i])
                     return self.prev[i]
                 count_END_FINALLY += 1

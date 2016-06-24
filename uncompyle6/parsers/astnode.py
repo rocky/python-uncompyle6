@@ -5,9 +5,6 @@ from spark_parser.ast import AST as spark_AST
 
 if PYTHON3:
     intern = sys.intern
-    from collections import UserList
-else:
-    from UserList import UserList
 
 
 class AST(spark_AST):
