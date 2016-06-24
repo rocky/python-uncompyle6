@@ -52,7 +52,7 @@ def maybe_show_ast_param_default(showast, name, default):
         stream.write('\n')
         stream.write('--' + name)
         stream.write('\n')
-        stream.write(default)
+        stream.write(str(default))
         stream.write('\n')
         stream.write('--')
         stream.write('\n')
