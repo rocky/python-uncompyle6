@@ -38,11 +38,21 @@ class Python26Parser(Python2Parser):
 
         """
 
+    def p_whilestmt(self, args):
+        """
+        whilestmt ::= SETUP_LOOP
+                testexpr
+                l_stmts_opt jb_pop
+                POP_BLOCK _come_from
+
+        """
+
     def p_misc26(self, args):
         """
         jmp_true     ::=  JUMP_IF_TRUE POP_TOP
         jmp_false    ::=  JUMP_IF_FALSE POP_TOP
         jf_pop       ::=  JUMP_FORWARD POP_TOP
+        jb_pop       ::=  JUMP_BACK POP_TOP
 
         _ifstmts_jump ::= c_stmts_opt jf_pop COME_FROM
         """

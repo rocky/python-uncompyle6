@@ -704,6 +704,10 @@ class Scanner2(scan.Scanner):
                         if op in (self.opc.JUMP_IF_FALSE_OR_POP, self.opc.JUMP_IF_TRUE_OR_POP):
                             if (oparg > i):
                                 label = oparg
+                    elif self.version < 2.7 and op in self.opc.hasjabs:
+                        if op in (self.opc.JUMP_IF_FALSE, self.opc.JUMP_IF_TRUE):
+                            if (oparg > i):
+                                label = oparg
 
                 if label is not None and label != -1:
                     targets[label] = targets.get(label, []) + [i]

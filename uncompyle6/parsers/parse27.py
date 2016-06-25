@@ -10,9 +10,6 @@ class Python27Parser(Python2Parser):
 
     def p_try27(self, args):
         """
-        trystmt      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                         try_middle COME_FROM
-
         try_middle   ::= JUMP_FORWARD COME_FROM except_stmts
                          END_FINALLY COME_FROM
         try_middle   ::= jmp_abs COME_FROM except_stmts

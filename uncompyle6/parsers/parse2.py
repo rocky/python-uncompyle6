@@ -179,6 +179,9 @@ class Python2Parser(PythonParser):
         tryelsestmtl ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                          try_middle else_suitel COME_FROM
 
+        trystmt      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                         try_middle COME_FROM
+
         except_stmts ::= except_stmts except_stmt
         except_stmts ::= except_stmt
 
