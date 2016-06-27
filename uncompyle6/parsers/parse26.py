@@ -51,8 +51,8 @@ class Python26Parser(Python2Parser):
         """
         jmp_true     ::=  JUMP_IF_TRUE POP_TOP
         jmp_false    ::=  JUMP_IF_FALSE POP_TOP
-        jf_pop       ::=  JUMP_FORWARD POP_TOP
-        jb_pop       ::=  JUMP_BACK POP_TOP
+        jf_pop       ::=  JUMP_FORWARD COME_FROM POP_TOP
+        jb_pop       ::=  JUMP_BACK COME_FROM POP_TOP
 
         _ifstmts_jump ::= c_stmts_opt jf_pop COME_FROM
         """
