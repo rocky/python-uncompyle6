@@ -23,6 +23,8 @@ class Python26Parser(Python2Parser):
         try_middle   ::= JUMP_FORWARD COME_FROM except_stmts
                          POP_TOP END_FINALLY come_froms
         try_middle   ::= JUMP_FORWARD COME_FROM except_stmts
+                         COME_FROM POP_TOP END_FINALLY come_froms
+        try_middle   ::= JUMP_FORWARD COME_FROM except_stmts
                          END_FINALLY come_froms
         try_middle   ::= jmp_abs COME_FROM except_stmts
                          POP_TOP END_FINALLY
@@ -70,6 +72,13 @@ class Python26Parser(Python2Parser):
 		       designator list_iter del_stmt
 	lc_body    ::= LOAD_NAME expr LIST_APPEND
         '''
+
+    def p_ret26(self, args):
+        '''
+        ret_cond ::= expr jmp_false expr RETURN_END_IF COME_FROM POP_TOP ret_expr_or_cond
+        ret_or ::= expr jmp_true ret_expr_or_cond COME_FROM
+        '''
+
 
 class Python26ParserSingle(Python2Parser, PythonParserSingle):
     pass

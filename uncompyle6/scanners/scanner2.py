@@ -701,11 +701,8 @@ class Scanner2(scan.Scanner):
                     if op in self.opc.hasjrel and op != self.opc.FOR_ITER:
                         label = i + 3 + oparg
                     elif self.version == 2.7 and op in self.opc.hasjabs:
-                        if op in (self.opc.JUMP_IF_FALSE_OR_POP, self.opc.JUMP_IF_TRUE_OR_POP):
-                            if (oparg > i):
-                                label = oparg
-                    elif self.version < 2.7 and op in self.opc.hasjabs:
-                        if op in (self.opc.JUMP_IF_FALSE, self.opc.JUMP_IF_TRUE):
+                        if op in (self.opc.JUMP_IF_FALSE_OR_POP,
+                                  self.opc.JUMP_IF_TRUE_OR_POP):
                             if (oparg > i):
                                 label = oparg
 
