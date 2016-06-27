@@ -67,10 +67,15 @@ class Python26Parser(Python2Parser):
 
     def p_comp26(self, args):
         '''
+        list_for ::= expr _for designator list_iter JUMP_BACK come_froms POP_TOP
+
         list_iter  ::= list_if JUMP_BACK
 	list_compr ::= BUILD_LIST_0 DUP_TOP
 		       designator list_iter del_stmt
+	list_compr ::= BUILD_LIST_0 DUP_TOP
+		       designator list_iter JUMP_BACK del_stmt
 	lc_body    ::= LOAD_NAME expr LIST_APPEND
+	lc_body    ::= LOAD_FAST expr LIST_APPEND
         '''
 
     def p_ret26(self, args):

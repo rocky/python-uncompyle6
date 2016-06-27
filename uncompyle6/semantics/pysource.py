@@ -1003,7 +1003,7 @@ class SourceWalker(GenericASTTraversal, object):
         if self.version >= 2.7:
             n = node[-1]
         elif node[-1] == 'del_stmt':
-            n = node[-2]
+            n = node[-3] if node[-2] == 'JUMP_BACK' else node[-2]
 
         assert n == 'list_iter'
 
@@ -1021,10 +1021,11 @@ class SourceWalker(GenericASTTraversal, object):
             list_iter = node[-1]
         else:
             expr = n[1]
-            list_iter = node[-2]
+            list_iter = node[-3] if node[-2] == 'JUMP_BACK' else node[-2]
 
         assert expr == 'expr'
         assert list_iter == 'list_iter'
+
         self.preorder(expr)
         self.preorder(list_iter)
         self.write( ' ]')
