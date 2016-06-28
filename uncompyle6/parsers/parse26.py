@@ -85,6 +85,15 @@ class Python26Parser(Python2Parser):
         """
         assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 come_from_pop
         ifelsestmt ::= testexpr c_stmts_opt jf_pop else_suite COME_FROM
+
+        # This rule is contorted a little to make sutie_stmts_opt be the
+        # forth argument for the semantic routines.
+        withstmt ::= expr setupwith SETUP_FINALLY suite_stmts_opt
+                     POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
+
+        # This is truly weird. 2.7 does this (not including POP_TOP) with
+        # opcode SETUP_WITH
+        setupwith ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 POP_TOP
         """
 
     def p_comp26(self, args):
