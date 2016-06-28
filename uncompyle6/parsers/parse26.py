@@ -107,12 +107,22 @@ class Python26Parser(Python2Parser):
         ret_cond ::= expr jmp_false expr RETURN_END_IF come_from_pop ret_expr_or_cond
         ret_cond ::= expr jmp_false expr ret_expr_or_cond
         ret_cond_not ::= expr jmp_true expr RETURN_END_IF come_from_pop ret_expr_or_cond
+
+        # FIXME: split into Python 2.5
+        ret_cond ::= expr jmp_false expr JUMP_RETURN come_from_pop ret_expr_or_cond
+        ret_or   ::= expr jmp_true ret_expr_or_cond come_froms
         '''
 
     def p_except26(self, args):
         '''
         except_suite ::= c_stmts_opt jmp_abs new_block
         '''
+
+    def p_jump26(self, args):
+        """
+        jmp_false ::= JUMP_IF_FALSE
+        jmp_true  ::= JUMP_IF_TRUE
+        """
 
 
 class Python26ParserSingle(Python2Parser, PythonParserSingle):

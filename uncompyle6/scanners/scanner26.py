@@ -212,6 +212,12 @@ class Scanner26(scan.Scanner2):
                     pattr = names[oparg]
                 elif op in self.opc.hasjrel:
                     pattr = repr(offset + 3 + oparg)
+                    if op == self.opc.JUMP_FORWARD:
+                        target = self.get_target(offset)
+                        if target > offset and self.code[target] == self.opc.RETURN_VALUE:
+                            # Python 2.5 sometimes has this
+                            op_name = 'JUMP_RETURN'
+
                 elif op in self.opc.hasjabs:
                     pattr = repr(oparg)
                 elif op in self.opc.haslocal:

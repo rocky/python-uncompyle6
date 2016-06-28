@@ -188,7 +188,6 @@ class Scanner2(scan.Scanner):
                         and self.code[offset+3] not in (self.opc.END_FINALLY,
                                                         self.opc.POP_BLOCK)
                         and offset not in self.not_continue):
-                        print("WOOT", target, offset, self.stmts)
                         opname = 'CONTINUE'
                     else:
                         opname = 'JUMP_BACK'
@@ -481,7 +480,6 @@ class Scanner2(scan.Scanner):
             target = self.get_target(pos, op)
             end    = self.restrict_to_parent(target, parent)
             if target != end:
-                print("XXXX", pos, end)
                 self.fixed_jumps[pos] = end
                 # print target, end, parent
             # Add the try block
@@ -517,7 +515,7 @@ class Scanner2(scan.Scanner):
             if end_else != start_else:
                 r_end_else = self.restrict_to_parent(end_else, parent)
                 # May be able to drop the 2.7 test.
-                if self.version == 2.7 and i > r_end_else:
+                if self.version == 2.7:
                     self.structs.append({'type':  'try-else',
                                            'start': i+1,
                                            'end':   r_end_else})

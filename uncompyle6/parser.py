@@ -200,10 +200,10 @@ class PythonParser(GenericASTBuilder):
         _jump ::= JUMP_BACK
 
         # Note: Python < 2.7 doesn't have POP_JUMP_IF ...
+        # FIXME: segregate 2.7+
+
         jmp_false ::= POP_JUMP_IF_FALSE
-        jmp_false ::= JUMP_IF_FALSE
         jmp_true  ::= POP_JUMP_IF_TRUE
-        jmp_true  ::= JUMP_IF_TRUE
 
         # Zero or more COME_FROM
         # loops can have this
@@ -465,10 +465,14 @@ class PythonParser(GenericASTBuilder):
         _mklambda ::= load_closure mklambda
         _mklambda ::= mklambda
 
+        # Note: Python < 2.7 doesn't have *POP* or this. Remove from here?
+        # FIXME: segregate 2.7+
+
         or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
+        and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
+
         or   ::= expr jmp_true expr come_from_opt
         and  ::= expr jmp_false expr come_from_opt
-        and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
         and2 ::= _jump jmp_false COME_FROM expr COME_FROM
 
         expr ::= conditional
@@ -485,7 +489,9 @@ class PythonParser(GenericASTBuilder):
         ret_expr_or_cond ::= ret_cond
         ret_expr_or_cond ::= ret_cond_not
 
-        # Note: Python < 2.7 doesn't use this. Remove from here?
+        # Note: Python < 2.7 doesn't have *POP* or this. Remove from here?
+        # FIXME: segregate 2.7+
+
         ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
         ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
         ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF ret_expr_or_cond
@@ -589,6 +595,13 @@ def get_python_parser(version, debug_parser, compile_mode='exec'):
                 p = parse23.Python23Parser(debug_parser)
             else:
                 p = parse23.Python23ParserSingle(debug_parser)
+        elif version == 2.5:
+            # For now, we'll consider 2.5 exactly like 2.6
+            import uncompyle6.parsers.parse26 as parse25
+            if compile_mode == 'exec':
+                p = parse25.Python26Parser(debug_parser)
+            else:
+                p = parse25.Python26ParserSingle(debug_parser)
         elif version == 2.6:
             import uncompyle6.parsers.parse26 as parse26
             if compile_mode == 'exec':

@@ -28,7 +28,7 @@ class Python27Parser(Python2Parser):
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM
         """
 
-class Python26ParserSingle(Python2Parser, PythonParserSingle):
+class Python27ParserSingle(Python27Parser, PythonParserSingle):
     pass
 
 if __name__ == '__main__':
