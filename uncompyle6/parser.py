@@ -485,6 +485,7 @@ class PythonParser(GenericASTBuilder):
         ret_expr_or_cond ::= ret_cond
         ret_expr_or_cond ::= ret_cond_not
 
+        # Note: Python < 2.7 doesn't use this. Remove from here?
         ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
         ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
         ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF ret_expr_or_cond
