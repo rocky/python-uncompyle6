@@ -1067,6 +1067,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         n = ast[iter_index]
         assert n == 'comp_iter'
+
         # find innermost node
         while n == 'comp_iter': # list_iter
             n = n[0] # recurse one step

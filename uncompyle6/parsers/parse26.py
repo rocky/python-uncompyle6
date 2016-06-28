@@ -70,6 +70,7 @@ class Python26Parser(Python2Parser):
         come_from_pop   ::=  COME_FROM POP_TOP
 
         _ifstmts_jump ::= c_stmts_opt jf_pop COME_FROM
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM come_from_pop
         """
 
     def p_stmt26(self, args):
@@ -92,7 +93,6 @@ class Python26Parser(Python2Parser):
                 POP_BLOCK _come_from
 
         return_if_stmt ::= ret_expr RETURN_END_IF come_from_pop
-
         """
 
     def p_comp26(self, args):
@@ -106,6 +106,10 @@ class Python26Parser(Python2Parser):
 		       designator list_iter JUMP_BACK del_stmt
 	lc_body    ::= LOAD_NAME expr LIST_APPEND
 	lc_body    ::= LOAD_FAST expr LIST_APPEND
+
+        # Make sure we keep indices the same as 2.7
+        setup_loop_lf ::= SETUP_LOOP LOAD_FAST
+        genexpr_func ::= setup_loop_lf FOR_ITER designator comp_iter JUMP_BACK POP_BLOCK COME_FROM
         '''
 
     def p_ret26(self, args):
