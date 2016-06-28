@@ -57,15 +57,6 @@ class Python26Parser(Python2Parser):
 
         """
 
-    def p_whilestmt(self, args):
-        """
-        whilestmt ::= SETUP_LOOP
-                testexpr
-                l_stmts_opt jb_pop
-                POP_BLOCK _come_from
-
-        """
-
     def p_misc26(self, args):
         """
         jmp_true     ::=  JUMP_IF_TRUE POP_TOP
@@ -94,6 +85,14 @@ class Python26Parser(Python2Parser):
         # This is truly weird. 2.7 does this (not including POP_TOP) with
         # opcode SETUP_WITH
         setupwith ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 POP_TOP
+
+        whilestmt ::= SETUP_LOOP
+                testexpr
+                l_stmts_opt jb_pop
+                POP_BLOCK _come_from
+
+        return_if_stmt ::= ret_expr RETURN_END_IF come_from_pop
+
         """
 
     def p_comp26(self, args):
