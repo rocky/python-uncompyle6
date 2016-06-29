@@ -57,29 +57,47 @@ class Python26Parser(Python2Parser):
 
         """
 
-    def p_misc26(self, args):
+    # In contrast to Python 2.7, Python 2.6 has a lot of
+    # POP_TOP's which come right after various jumps.
+    # The COME_FROM instructions our scanner adds, here it is to assist
+    # distinguishing the extraneous POP_TOPs from those that start
+    # after one of these jumps
+    def p_jumps26(self, args):
         """
+        jmp_false    ::= JUMP_IF_FALSE
+        jmp_true     ::= JUMP_IF_TRUE
         jmp_true     ::=  JUMP_IF_TRUE POP_TOP
         jmp_false    ::=  JUMP_IF_FALSE POP_TOP
         jf_pop       ::=  JUMP_FORWARD come_from_pop
         jb_pop       ::=  JUMP_BACK come_from_pop
 
+        jb_cf_pop ::= JUMP_BACK come_froms POP_TOP
+        ja_cf_pop ::= JUMP_ABSOLUTE come_from_pop
+
+        _ifstmts_jump ::= c_stmts_opt jf_pop COME_FROM
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM come_from_pop
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD come_froms POP_TOP COME_FROM
+
         # This is what happens after a jump where
         # we start a new block. For reasons I don't fully
         # understand, there is also a value on the top of the stack
         come_from_pop   ::=  COME_FROM POP_TOP
-
-        _ifstmts_jump ::= c_stmts_opt jf_pop COME_FROM
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM come_from_pop
         """
 
     def p_stmt26(self, args):
         """
         assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 come_from_pop
-        ifelsestmt ::= testexpr c_stmts_opt jf_pop else_suite COME_FROM
 
-        # This rule is contorted a little to make sutie_stmts_opt be the
-        # forth argument for the semantic routines.
+        ifelsestmt  ::= testexpr c_stmts_opt jf_pop else_suite COME_FROM
+        ifelsestmt  ::= testexpr c_stmts_opt else_suitel come_froms POP_TOP
+
+        # Semantic actions want else_suitel to be at index 2 or 3
+        ifelsestmtl ::= testexpr c_stmts_opt jb_cf_pop else_suitel
+        ifelsestmtc ::= testexpr c_stmts_opt ja_cf_pop else_suitec
+
+        iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE come_froms POP_TOP
+
+        # Semantic actions want suite_stmts_opt to be at index 3
         withstmt ::= expr setupwith SETUP_FINALLY suite_stmts_opt
                      POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
 
@@ -87,12 +105,14 @@ class Python26Parser(Python2Parser):
         # opcode SETUP_WITH
         setupwith ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 POP_TOP
 
-        whilestmt ::= SETUP_LOOP
-                testexpr
-                l_stmts_opt jb_pop
-                POP_BLOCK _come_from
+        whilestmt ::= SETUP_LOOP testexpr l_stmts_opt jb_pop POP_BLOCK _come_from
+
+        whilestmt ::= SETUP_LOOP testexpr l_stmts_opt jb_cf_pop POP_BLOCK COME_FROM
 
         return_if_stmt ::= ret_expr RETURN_END_IF come_from_pop
+
+        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK come_from_pop
+        iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE come_from_pop
         """
 
     def p_comp26(self, args):
@@ -130,11 +150,6 @@ class Python26Parser(Python2Parser):
         except_suite ::= c_stmts_opt jmp_abs new_block
         '''
 
-    def p_jump26(self, args):
-        """
-        jmp_false ::= JUMP_IF_FALSE
-        jmp_true  ::= JUMP_IF_TRUE
-        """
 
 
 class Python26ParserSingle(Python2Parser, PythonParserSingle):

@@ -10,6 +10,11 @@ other versions of Python. Also, we save token information for later
 use in deparsing.
 """
 
+import sys
+from uncompyle6 import PYTHON3
+if PYTHON3:
+    intern = sys.intern
+
 from xdis.bytecode import findlinestarts
 import uncompyle6.scanners.scanner2 as scan
 
@@ -217,6 +222,11 @@ class Scanner26(scan.Scanner2):
                         if target > offset and self.code[target] == self.opc.RETURN_VALUE:
                             # Python 2.5 sometimes has this
                             op_name = 'JUMP_RETURN'
+                        # FIXME: this is a hack to catch stuff like:
+                        #   if x: continue
+                        # the "continue" is not on a new line.
+                        if tokens[-1].type == 'JUMP_BACK':
+                            tokens[-1].type = intern('CONTINUE')
 
                 elif op in self.opc.hasjabs:
                     pattr = repr(oparg)
@@ -252,6 +262,11 @@ class Scanner26(scan.Scanner2):
                         op_name = 'CONTINUE'
                     else:
                         op_name = 'JUMP_BACK'
+                        # FIXME: this is a hack to catch stuff like:
+                        #   if x: continue
+                        # the "continue" is not on a new line.
+                        if tokens[-1].type == 'JUMP_BACK':
+                            tokens[-1].type = intern('CONTINUE')
 
             elif op == self.opc.LOAD_GLOBAL:
                 if offset in self.load_asserts:

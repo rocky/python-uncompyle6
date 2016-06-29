@@ -849,8 +849,14 @@ class SourceWalker(GenericASTTraversal, object):
         self.println()
         self.prune() # stop recursing
 
-    def n_ifelsestmt(self, node, preprocess=0):
-        n = node[3][0]
+    def n_ifelsestmt(self, node, preprocess=False):
+        if node[2].type.startswith('else_suite'):
+            else_suite = node[2]
+        elif node[3].type.startswith('else_suite'):
+            else_suite = node[3]
+
+        n = else_suite[0]
+
         if len(n) == 1 == len(n[0]) and n[0] == '_stmts':
             n = n[0][0][0]
         elif n[0].type in ('lastc_stmt', 'lastl_stmt'):
@@ -868,7 +874,7 @@ class SourceWalker(GenericASTTraversal, object):
             n.type = 'elifelsestmtr'
         elif n.type in ('ifelsestmt', 'ifelsestmtc', 'ifelsestmtl'):
             node.type = 'ifelifstmt'
-            self.n_ifelsestmt(n, preprocess=1)
+            self.n_ifelsestmt(n, preprocess=True)
             if n == 'ifelifstmt':
                 n.type = 'elifelifstmt'
             elif n.type in ('ifelsestmt', 'ifelsestmtc', 'ifelsestmtl'):
