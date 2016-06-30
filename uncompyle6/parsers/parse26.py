@@ -66,11 +66,14 @@ class Python26Parser(Python2Parser):
         """
         jmp_false    ::= JUMP_IF_FALSE
         jmp_true     ::= JUMP_IF_TRUE
-        jmp_true     ::=  JUMP_IF_TRUE POP_TOP
-        jmp_false    ::=  JUMP_IF_FALSE POP_TOP
-        jf_pop       ::=  JUMP_FORWARD come_from_pop
-        jf_pop       ::=  JUMP_ABSOLUTE come_from_pop
-        jb_pop       ::=  JUMP_BACK come_from_pop
+        jmp_true     ::= JUMP_IF_TRUE POP_TOP
+        jmp_false    ::= JUMP_IF_FALSE POP_TOP
+        jf_pop       ::= JUMP_FORWARD come_from_pop
+        jf_pop       ::= JUMP_ABSOLUTE come_from_pop
+        jb_pop       ::= JUMP_BACK come_from_pop
+
+        jb_cont      ::= JUMP_BACK
+        jb_cont      ::= CONTINUE
 
         jb_cf_pop ::= JUMP_BACK come_froms POP_TOP
         ja_cf_pop ::= JUMP_ABSOLUTE come_from_pop
@@ -121,6 +124,7 @@ class Python26Parser(Python2Parser):
     def p_comp26(self, args):
         '''
         list_for ::= expr _for designator list_iter JUMP_BACK come_froms POP_TOP
+        list_for ::= expr _for designator list_iter jb_cont
 
         list_iter  ::= list_if JUMP_BACK
 	list_compr ::= BUILD_LIST_0 DUP_TOP

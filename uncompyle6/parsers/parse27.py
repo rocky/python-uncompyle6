@@ -8,6 +8,11 @@ class Python27Parser(Python2Parser):
         super(Python27Parser, self).__init__(debug_parser)
         self.customized = {}
 
+    def p_list_comprehension27(self, args):
+        """
+        list_for ::= expr _for designator list_iter JUMP_BACK
+        """
+
     def p_try27(self, args):
         """
         try_middle   ::= JUMP_FORWARD COME_FROM except_stmts

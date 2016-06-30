@@ -24,11 +24,6 @@ class Python2Parser(PythonParser):
         super(Python2Parser, self).__init__(AST, 'stmts', debug=debug_parser)
         self.new_rules = set()
 
-    def p_list_comprehension2(self, args):
-        """
-        list_for ::= expr _for designator list_iter JUMP_BACK
-        """
-
     def p_print(self, args):
         '''
         stmt ::= print_items_stmt
