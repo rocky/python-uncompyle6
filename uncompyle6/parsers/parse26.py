@@ -130,6 +130,7 @@ class Python26Parser(Python2Parser):
         # Make sure we keep indices the same as 2.7
         setup_loop_lf ::= SETUP_LOOP LOAD_FAST
         genexpr_func ::= setup_loop_lf FOR_ITER designator comp_iter JUMP_BACK POP_BLOCK COME_FROM
+        genexpr_func ::= setup_loop_lf FOR_ITER designator comp_iter JUMP_BACK come_from_pop JUMP_BACK POP_BLOCK COME_FROM
         '''
 
     def p_ret26(self, args):
