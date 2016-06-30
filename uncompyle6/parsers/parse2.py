@@ -135,7 +135,6 @@ class Python2Parser(PythonParser):
         classdefdeco2 ::= LOAD_CONST expr mkfunc CALL_FUNCTION_0 BUILD_CLASS
 
         assert2 ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
-        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_2
 
         assert_expr ::= expr
         assert_expr ::= assert_expr_or

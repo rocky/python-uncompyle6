@@ -69,6 +69,7 @@ class Python26Parser(Python2Parser):
         jmp_true     ::=  JUMP_IF_TRUE POP_TOP
         jmp_false    ::=  JUMP_IF_FALSE POP_TOP
         jf_pop       ::=  JUMP_FORWARD come_from_pop
+        jf_pop       ::=  JUMP_ABSOLUTE come_from_pop
         jb_pop       ::=  JUMP_BACK come_from_pop
 
         jb_cf_pop ::= JUMP_BACK come_froms POP_TOP
@@ -87,6 +88,7 @@ class Python26Parser(Python2Parser):
     def p_stmt26(self, args):
         """
         assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 come_from_pop
+        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_2 come_from_pop
 
         ifelsestmt  ::= testexpr c_stmts_opt jf_pop else_suite COME_FROM
         ifelsestmt  ::= testexpr c_stmts_opt else_suitel come_froms POP_TOP

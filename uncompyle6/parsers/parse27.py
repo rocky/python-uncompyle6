@@ -25,6 +25,8 @@ class Python27Parser(Python2Parser):
     def p_misc27(self, args):
         """
         assert        ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
+        assert2       ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_2
+
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM
         """
 
