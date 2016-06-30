@@ -27,10 +27,10 @@ node 2 range information, it in %c, is copied to nodes 0 and 1.
 2. %r
 -----
 
-   %n associates recursively location information for the string that follows
+   %r associates recursively location information for the string that follows
 
 For example in:
-   'break_stmt':	( '%|%nbreak\n', ),
+   'break_stmt':	( '%|%rbreak\n', ),
 
 The node will be associated with the text break, excluding the trailing newline.
 

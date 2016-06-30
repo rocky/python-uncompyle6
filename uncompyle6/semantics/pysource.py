@@ -849,8 +849,14 @@ class SourceWalker(GenericASTTraversal, object):
         self.println()
         self.prune() # stop recursing
 
-    def n_ifelsestmt(self, node, preprocess=0):
-        n = node[3][0]
+    def n_ifelsestmt(self, node, preprocess=False):
+        if node[2].type.startswith('else_suite'):
+            else_suite = node[2]
+        elif node[3].type.startswith('else_suite'):
+            else_suite = node[3]
+
+        n = else_suite[0]
+
         if len(n) == 1 == len(n[0]) and n[0] == '_stmts':
             n = n[0][0][0]
         elif n[0].type in ('lastc_stmt', 'lastl_stmt'):
@@ -868,7 +874,7 @@ class SourceWalker(GenericASTTraversal, object):
             n.type = 'elifelsestmtr'
         elif n.type in ('ifelsestmt', 'ifelsestmtc', 'ifelsestmtl'):
             node.type = 'ifelifstmt'
-            self.n_ifelsestmt(n, preprocess=1)
+            self.n_ifelsestmt(n, preprocess=True)
             if n == 'ifelifstmt':
                 n.type = 'elifelifstmt'
             elif n.type in ('ifelsestmt', 'ifelsestmtc', 'ifelsestmtl'):
@@ -1000,8 +1006,13 @@ class SourceWalker(GenericASTTraversal, object):
         """
         p = self.prec
         self.prec = 27
-        n = node[-1]
+        if self.version >= 2.7:
+            n = node[-1]
+        elif node[-1] == 'del_stmt':
+            n = node[-3] if node[-2] == 'JUMP_BACK' else node[-2]
+
         assert n == 'list_iter'
+
         # find innermost node
         while n == 'list_iter':
             n = n[0] # recurse one step
@@ -1010,8 +1021,19 @@ class SourceWalker(GenericASTTraversal, object):
             elif n == 'list_if_not': n= n[2]
         assert n == 'lc_body'
         self.write( '[ ')
-        self.preorder(n[0]) # lc_body
-        self.preorder(node[-1]) # for/if parts
+
+        if self.version >= 2.7:
+            expr = n[0]
+            list_iter = node[-1]
+        else:
+            expr = n[1]
+            list_iter = node[-3] if node[-2] == 'JUMP_BACK' else node[-2]
+
+        assert expr == 'expr'
+        assert list_iter == 'list_iter'
+
+        self.preorder(expr)
+        self.preorder(list_iter)
         self.write( ' ]')
         self.prec = p
         self.prune() # stop recursing
@@ -1051,6 +1073,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         n = ast[iter_index]
         assert n == 'comp_iter'
+
         # find innermost node
         while n == 'comp_iter': # list_iter
             n = n[0] # recurse one step
@@ -1572,8 +1595,8 @@ class SourceWalker(GenericASTTraversal, object):
         self.default(node)
 
     def n_except_cond2(self, node):
-        if node[5][0] == 'unpack':
-            node[5][0].type = 'unpack_w_parens'
+        if node[-2][0] == 'unpack':
+            node[-2][0].type = 'unpack_w_parens'
         self.default(node)
 
     def engine(self, entry, startnode):
