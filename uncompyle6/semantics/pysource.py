@@ -1084,9 +1084,14 @@ class SourceWalker(GenericASTTraversal, object):
         while n == 'comp_iter': # list_iter
             n = n[0] # recurse one step
             if n == 'comp_for':
-	        n = n[4] if n[0] == 'SETUP_LOOP' else n[3]
-            elif n == 'comp_if':	n = n[2]
-            elif n == 'comp_ifnot': n = n[2]
+                if n[0] == 'SETUP_LOOP':
+                    n = n[4]
+                else:
+                    n = n[3]
+            elif n == 'comp_if':
+                n = n[2]
+            elif n == 'comp_ifnot':
+                n = n[2]
 
         assert n == 'comp_body', n
 
