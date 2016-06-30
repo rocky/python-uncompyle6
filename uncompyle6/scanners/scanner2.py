@@ -502,10 +502,14 @@ class Scanner2(scan.Scanner):
                                            'end':   jmp+1})
                     i = jmp + 1
                 else:
-                    if self.get_target(jmp) != start_else:
+                    target = self.get_target(jmp)
+                    if target != start_else:
                         end_else = self.get_target(jmp)
                     if self.code[jmp] == self.opc.JF:
-                        self.fixed_jumps[jmp] = -1
+                        if self.version <= 2.6:
+                            self.fixed_jumps[jmp] = target
+                        else:
+                            self.fixed_jumps[jmp] = -1
                     self.structs.append({'type':  'except',
                                    'start': i,
                                    'end':   jmp})
