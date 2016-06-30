@@ -153,7 +153,7 @@ class Python26Parser(Python2Parser):
 
     def p_except26(self, args):
         '''
-        except_suite ::= c_stmts_opt jmp_abs new_block
+        except_suite ::= c_stmts_opt jmp_abs come_from_pop
         '''
 
     def p_misc(self, args):
