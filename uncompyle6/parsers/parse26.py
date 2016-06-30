@@ -74,6 +74,7 @@ class Python26Parser(Python2Parser):
 
         jb_cf_pop ::= JUMP_BACK come_froms POP_TOP
         ja_cf_pop ::= JUMP_ABSOLUTE come_from_pop
+        jf_cf_pop ::= JUMP_FORWARD come_from_pop
 
         _ifstmts_jump ::= c_stmts_opt jf_pop COME_FROM
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM come_from_pop
@@ -133,6 +134,8 @@ class Python26Parser(Python2Parser):
         setup_loop_lf ::= SETUP_LOOP LOAD_FAST
         genexpr_func ::= setup_loop_lf FOR_ITER designator comp_iter JUMP_BACK POP_BLOCK COME_FROM
         genexpr_func ::= setup_loop_lf FOR_ITER designator comp_iter JUMP_BACK come_from_pop JUMP_BACK POP_BLOCK COME_FROM
+        genexpr ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1 COME_FROM
+
         '''
 
     def p_ret26(self, args):
@@ -153,7 +156,10 @@ class Python26Parser(Python2Parser):
         except_suite ::= c_stmts_opt jmp_abs new_block
         '''
 
-
+    def p_misc(self, args):
+        '''
+        conditional  ::= expr jmp_false expr jf_cf_pop expr
+        '''
 
 class Python26ParserSingle(Python2Parser, PythonParserSingle):
     pass

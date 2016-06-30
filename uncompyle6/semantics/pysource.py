@@ -1045,6 +1045,12 @@ class SourceWalker(GenericASTTraversal, object):
         # FIXME: clean this up
         if self.version > 3.0 and node == 'dictcomp':
             cn = node[1]
+        elif self.version < 2.7 and node == 'genexpr':
+            if node[0] == 'LOAD_GENEXPR':
+                cn = node[0]
+            elif node[0] == 'load_closure':
+                cn = node[1]
+
         elif self.version > 3.0 and node == 'genexpr':
             if node[0] == 'load_genexpr':
                 load_genexpr = node[0]
