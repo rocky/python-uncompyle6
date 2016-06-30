@@ -9,7 +9,12 @@
 #   list_iter ::= lc_body
 #   lc_body ::= expr LIST_APPEND
 
-[b for b in (0,1,2,3)] if __name__ == '__main__' else 5
+# Use line breaks so we can see what's going on in assembly
+[b
+ for b in
+ (0,1,2,3)
+] if (__name__ == '__main__'
+      ) else 5
 
 # Python2:
 #   list_compr ::= BUILD_LIST_0 list_iter

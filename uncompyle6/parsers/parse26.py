@@ -165,7 +165,7 @@ class Python26Parser(Python2Parser):
 
     def p_misc(self, args):
         '''
-        conditional  ::= expr jmp_false expr jf_cf_pop expr
+        conditional  ::= expr jmp_false expr jf_cf_pop expr come_from_opt
         '''
 
 class Python26ParserSingle(Python2Parser, PythonParserSingle):
