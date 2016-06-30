@@ -1078,15 +1078,17 @@ class SourceWalker(GenericASTTraversal, object):
         ast = ast[0][0][0]
 
         n = ast[iter_index]
-        assert n == 'comp_iter'
+        assert n == 'comp_iter', n
 
         # find innermost node
         while n == 'comp_iter': # list_iter
             n = n[0] # recurse one step
-            if   n == 'comp_for':	n = n[3]
+            if n == 'comp_for':
+	        n = n[4] if n[0] == 'SETUP_LOOP' else n[3]
             elif n == 'comp_if':	n = n[2]
             elif n == 'comp_ifnot': n = n[2]
-        assert n == 'comp_body', ast
+
+        assert n == 'comp_body', n
 
         self.preorder(n[0])
         self.write(' for ')
@@ -1124,7 +1126,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = 27
         code = node[code_index].attr
 
-        assert iscode(code)
+        assert iscode(code), node[code_index]
         code = Code(code, self.scanner, self.currentclass)
 
         ast = self.build_ast(code._tokens, code._customize)
@@ -1144,7 +1146,7 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             ast = ast[0][0]
             n = ast[iter_index]
-            assert n == 'list_iter'
+            assert n == 'list_iter', n
 
         ## FIXME: I'm not totally sure this is right.
 

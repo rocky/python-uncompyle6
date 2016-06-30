@@ -134,6 +134,9 @@ class Python26Parser(Python2Parser):
 	lc_body    ::= LOAD_NAME expr LIST_APPEND
 	lc_body    ::= LOAD_FAST expr LIST_APPEND
 
+        comp_for ::= SETUP_LOOP expr _for designator comp_iter JUMP_BACK POP_BLOCK COME_FROM
+
+
         # Make sure we keep indices the same as 2.7
         setup_loop_lf ::= SETUP_LOOP LOAD_FAST
         genexpr_func ::= setup_loop_lf FOR_ITER designator comp_iter JUMP_BACK POP_BLOCK COME_FROM
