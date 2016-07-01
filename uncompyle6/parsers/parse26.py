@@ -77,7 +77,7 @@ class Python26Parser(Python2Parser):
 
         jb_cf_pop ::= JUMP_BACK come_froms POP_TOP
         ja_cf_pop ::= JUMP_ABSOLUTE come_from_pop
-        jf_cf_pop ::= JUMP_FORWARD come_from_pop
+        jf_cf_pop ::= JUMP_FORWARD come_froms POP_TOP
 
         jb_bp_come_from ::= JUMP_BACK POP_BLOCK COME_FROM
 
@@ -104,7 +104,7 @@ class Python26Parser(Python2Parser):
         break_stmt ::= BREAK_LOOP JUMP_BACK
 
         # Semantic actions want the else to be at position 3
-        ifelsestmt  ::= testexpr c_stmts_opt jf_pop else_suite COME_FROM
+        ifelsestmt  ::= testexpr c_stmts_opt jf_cf_pop else_suite COME_FROM
         ifelsestmt  ::= testexpr c_stmts_opt filler else_suitel come_froms POP_TOP
 
         # Semantic actions want else_suitel to be at index 3
