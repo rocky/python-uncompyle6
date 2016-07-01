@@ -299,6 +299,8 @@ class PythonParser(GenericASTBuilder):
 
         while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK COME_FROM
         while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK POP_BLOCK COME_FROM
+
+        # This is Python 2.7+; segregate
         while1stmt ::= SETUP_LOOP return_stmts COME_FROM
 
         while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK else_suite COME_FROM

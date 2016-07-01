@@ -123,11 +123,13 @@ class Python26Parser(Python2Parser):
 
         whilestmt ::= SETUP_LOOP testexpr l_stmts_opt jb_cf_pop POP_BLOCK COME_FROM
 
+        while1stmt ::= SETUP_LOOP return_stmts POP_BLOCK COME_FROM
+
+        return_stmt ::= ret_expr RETURN_END_IF come_from_pop
         return_if_stmt ::= ret_expr RETURN_END_IF come_from_pop
 
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK come_from_pop
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE come_from_pop
-
         """
 
     def p_comp26(self, args):
