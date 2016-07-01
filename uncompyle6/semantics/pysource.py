@@ -850,10 +850,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune() # stop recursing
 
     def n_ifelsestmt(self, node, preprocess=False):
-        if node[2].type.startswith('else_suite'):
-            else_suite = node[2]
-        elif node[3].type.startswith('else_suite'):
-            else_suite = node[3]
+        else_suite = node[3]
 
         n = else_suite[0]
 

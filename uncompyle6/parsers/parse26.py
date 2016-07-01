@@ -91,13 +91,21 @@ class Python26Parser(Python2Parser):
 
     def p_stmt26(self, args):
         """
+        # We use filler as a placeholder to keep nonterminal positions
+        # the same across different grammars so that the same semantic actions
+        # can be used
+        filler ::=
+
         assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 come_from_pop
         assert2 ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_2 come_from_pop
 
-        ifelsestmt  ::= testexpr c_stmts_opt jf_pop else_suite COME_FROM
-        ifelsestmt  ::= testexpr c_stmts_opt else_suitel come_froms POP_TOP
+        break_stmt ::= BREAK_LOOP JUMP_BACK
 
-        # Semantic actions want else_suitel to be at index 2 or 3
+        # Semantic actions want the else to be at position 3
+        ifelsestmt  ::= testexpr c_stmts_opt jf_pop else_suite COME_FROM
+        ifelsestmt  ::= testexpr c_stmts_opt filler else_suitel come_froms POP_TOP
+
+        # Semantic actions want else_suitel to be at index 3
         ifelsestmtl ::= testexpr c_stmts_opt jb_cf_pop else_suitel
         ifelsestmtc ::= testexpr c_stmts_opt ja_cf_pop else_suitec
 
@@ -119,6 +127,7 @@ class Python26Parser(Python2Parser):
 
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK come_from_pop
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE come_from_pop
+
         """
 
     def p_comp26(self, args):
