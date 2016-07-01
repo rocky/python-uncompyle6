@@ -79,6 +79,8 @@ class Python26Parser(Python2Parser):
         ja_cf_pop ::= JUMP_ABSOLUTE come_from_pop
         jf_cf_pop ::= JUMP_FORWARD come_from_pop
 
+        jb_bp_come_from ::= JUMP_BACK POP_BLOCK COME_FROM
+
         _ifstmts_jump ::= c_stmts_opt jf_pop COME_FROM
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM come_from_pop
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD come_froms POP_TOP COME_FROM
@@ -126,6 +128,7 @@ class Python26Parser(Python2Parser):
         while1stmt ::= SETUP_LOOP return_stmts POP_BLOCK COME_FROM
 
         return_stmt ::= ret_expr RETURN_END_IF come_from_pop
+        return_stmt ::= ret_expr RETURN_VALUE come_from_pop
         return_if_stmt ::= ret_expr RETURN_END_IF come_from_pop
 
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK come_from_pop
@@ -145,13 +148,13 @@ class Python26Parser(Python2Parser):
 	lc_body    ::= LOAD_NAME expr LIST_APPEND
 	lc_body    ::= LOAD_FAST expr LIST_APPEND
 
-        comp_for ::= SETUP_LOOP expr _for designator comp_iter JUMP_BACK POP_BLOCK COME_FROM
+        comp_for ::= SETUP_LOOP expr _for designator comp_iter jb_bp_come_from
 
 
         # Make sure we keep indices the same as 2.7
         setup_loop_lf ::= SETUP_LOOP LOAD_FAST
-        genexpr_func ::= setup_loop_lf FOR_ITER designator comp_iter JUMP_BACK POP_BLOCK COME_FROM
-        genexpr_func ::= setup_loop_lf FOR_ITER designator comp_iter JUMP_BACK come_from_pop JUMP_BACK POP_BLOCK COME_FROM
+        genexpr_func ::= setup_loop_lf FOR_ITER designator comp_iter jb_bp_come_from
+        genexpr_func ::= setup_loop_lf FOR_ITER designator comp_iter JUMP_BACK come_from_pop jb_bp_come_from
         genexpr ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1 COME_FROM
 
         '''
