@@ -20,6 +20,9 @@ class Python27Parser(Python2Parser):
         try_middle   ::= jmp_abs COME_FROM except_stmts
                          END_FINALLY
 
+        tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                           try_middle else_suite COME_FROM
+
         except_cond1 ::= DUP_TOP expr COMPARE_OP
                          jmp_false POP_TOP POP_TOP POP_TOP
 

@@ -164,9 +164,7 @@ class Python2Parser(PythonParser):
                            POP_BLOCK LOAD_CONST
                            COME_FROM suite_stmts_opt END_FINALLY
 
-        tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           try_middle else_suite COME_FROM
-
+        # Move to 2.7? 2.6 may use come_froms
         tryelsestmtc ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                          try_middle else_suitec COME_FROM
 
