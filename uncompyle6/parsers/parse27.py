@@ -30,9 +30,11 @@ class Python27Parser(Python2Parser):
                          jmp_false POP_TOP designator POP_TOP
         """
 
-    def p_misc27(self, args):
+    def p_jump27(self, args):
         """
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM
+        jmp_false ::= POP_JUMP_IF_FALSE
+        jmp_true  ::= POP_JUMP_IF_TRUE
         """
 
 

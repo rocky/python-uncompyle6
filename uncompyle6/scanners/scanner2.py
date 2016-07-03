@@ -542,6 +542,8 @@ class Scanner2(scan.Scanner):
             # not myself?  If so, it's part of a larger conditional.
             # rocky: if we have a conditional jump to the next instruction, then
             # possibly I am "skipping over" a "pass" or null statement.
+
+            ## FIXME: need to handle <2.7 which has this as two instructions.
             if ( code[pre[target]] in
                  (self.pop_jump_if_or_pop | self.pop_jump_if)
                  and (target > pos) ):
