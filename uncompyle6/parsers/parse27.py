@@ -29,11 +29,24 @@ class Python27Parser(Python2Parser):
 
     def p_misc27(self, args):
         """
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM
+        """
+
+
+    def p_stmt27(self, args):
+        """
         assert        ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
         assert2       ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_2
 
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM
+        withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
+                POP_BLOCK LOAD_CONST COME_FROM
+                WITH_CLEANUP END_FINALLY
+
+        withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
+                POP_BLOCK LOAD_CONST COME_FROM
+                WITH_CLEANUP END_FINALLY
         """
+
 
 class Python27ParserSingle(Python27Parser, PythonParserSingle):
     pass

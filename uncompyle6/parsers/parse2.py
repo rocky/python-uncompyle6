@@ -192,15 +192,6 @@ class Python2Parser(PythonParser):
 
         jmp_abs ::= JUMP_ABSOLUTE
         jmp_abs ::= JUMP_BACK
-
-        withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
-                POP_BLOCK LOAD_CONST COME_FROM
-                WITH_CLEANUP END_FINALLY
-
-        withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
-                POP_BLOCK LOAD_CONST COME_FROM
-                WITH_CLEANUP END_FINALLY
-
         '''
 
     def p_dictcomp2(self, args):
