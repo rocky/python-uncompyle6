@@ -58,6 +58,8 @@ class Python26Parser(Python2Parser):
         come_froms ::= come_froms COME_FROM
         come_froms ::= COME_FROM
 
+        come_froms_pop ::= come_froms POP_TOP
+
         """
 
     # In contrast to Python 2.7, Python 2.6 has a lot of
@@ -134,6 +136,7 @@ class Python26Parser(Python2Parser):
         whilestmt ::= SETUP_LOOP testexpr l_stmts_opt jb_pop POP_BLOCK _come_from
 
         whilestmt ::= SETUP_LOOP testexpr l_stmts_opt jb_cf_pop POP_BLOCK COME_FROM
+        whilestmt ::= SETUP_LOOP testexpr return_stmts come_froms POP_TOP POP_BLOCK COME_FROM
 
         while1stmt ::= SETUP_LOOP return_stmts POP_BLOCK COME_FROM
 
@@ -190,6 +193,8 @@ class Python26Parser(Python2Parser):
     def p_misc(self, args):
         '''
         conditional  ::= expr jmp_false expr jf_cf_pop expr come_from_opt
+        and  ::= expr JUMP_IF_FALSE POP_TOP expr JUMP_IF_FALSE POP_TOP
+
         '''
 
 class Python26ParserSingle(Python2Parser, PythonParserSingle):

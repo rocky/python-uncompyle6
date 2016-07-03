@@ -432,12 +432,27 @@ class Scanner2(scan.Scanner):
                 jump_back = self.last_instr(start, end, self.opc.RETURN_VALUE) + 1
                 if not jump_back:
                     return
-                # scanner26 jump_back += 1
-                if code[self.prev[next_line_byte]] not in self.pop_jump_if:
-                    loop_type = 'for'
-                else:
+
+                if_offset = None
+                if self.version < 2.7:
+                    # Look for JUMP_IF... POP_TOP
+                    if (code[self.prev[next_line_byte]] == self.opc.POP_TOP
+                        and (code[self.prev[self.prev[next_line_byte]]]
+                             in self.pop_jump_if)):
+                        if_offset = self.prev[self.prev[next_line_byte]]
+                elif code[self.prev[next_line_byte]] in self.pop_jump_if:
+                    # Look for POP_JUMP_IF ...
+                    if_offset = self.prev[next_line_byte]
+                if if_offset:
                     loop_type = 'while'
-                    self.ignore_if.add(self.prev[next_line_byte])
+                    self.ignore_if.add(if_offset)
+                    if self.version < 2.7 and (
+                            code[self.prev[jump_back]] == self.opc.RETURN_VALUE):
+                        self.ignore_if.add(self.prev[jump_back])
+                        pass
+                    pass
+                else:
+                    loop_type = 'for'
                 target = next_line_byte
                 end = jump_back + 3
             else:
@@ -636,11 +651,13 @@ class Scanner2(scan.Scanner):
                     rtarget = pre[rtarget]
 
             # Does the "if" jump just beyond a jump op, then this is probably an if statement
-            if code[pre[rtarget]] in self.jump_forward:
-                if_end = self.get_target(pre[rtarget])
+            pre_rtarget = pre[rtarget]
+            code_pre_rtarget = code[pre_rtarget]
+            if code_pre_rtarget in self.jump_forward:
+                if_end = self.get_target(pre_rtarget)
 
                 # Is this a loop and not an "if" statment?
-                if (if_end < pre[rtarget]) and (code[pre[if_end]] == self.opc.SETUP_LOOP):
+                if (if_end < pre_rtarget) and (code[pre[if_end]] == self.opc.SETUP_LOOP):
                     if(if_end > start):
                         return
 
@@ -648,18 +665,19 @@ class Scanner2(scan.Scanner):
 
                 self.structs.append({'type':  'if-then',
                                        'start': start,
-                                       'end':   pre[rtarget]})
-                self.not_continue.add(pre[rtarget])
+                                       'end':   pre_rtarget})
+                self.not_continue.add(pre_rtarget)
 
                 if rtarget < end:
                     self.structs.append({'type':  'if-else',
                                        'start': rtarget,
                                        'end':   end})
-            elif code[pre[rtarget]] == self.opc.RETURN_VALUE:
-                self.structs.append({'type':  'if-then',
-                                       'start': start,
-                                       'end':   rtarget})
-                self.return_end_ifs.add(pre[rtarget])
+            elif code_pre_rtarget == self.opc.RETURN_VALUE:
+                if self.version == 2.7 or pre_rtarget not in self.ignore_if:
+                    self.structs.append({'type':  'if-then',
+                                           'start': start,
+                                           'end':   rtarget})
+                    self.return_end_ifs.add(pre_rtarget)
 
         elif op in self.pop_jump_if_or_pop:
             target = self.get_target(pos, op)
