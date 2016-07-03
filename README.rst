@@ -86,11 +86,12 @@ Known Bugs/Restrictions
 
 Python 2 deparsing decompiles each and all the Python 2.7.10 and
 2.7.11 installed packages I have on my system, more than 90% verify
-ok. Some of these failures may be bugs in the verification process.  So
-as such, it is probably a little better than uncompyle2.  Other Python
-2 versions do worse.
+ok. Some of these failures may be bugs in the verification process.
+So as such, it is probably a little better than uncompyle2. Python 2.6
+is catching up the versions of uncompyle2 that support 2.6 but is
+currently worse. Even less good is Python 2.5 bytecodes.
 
-All of the Python 3.2-3.5.4 Python standard lib packages that I have
+All of the Python 3.2-3.5 Python standard lib packages that I have
 installed on my system deparse. Each Python version has about 200
 bytecode files. I'm not sure how well these verify though.
 

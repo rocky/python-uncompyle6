@@ -93,8 +93,18 @@ so. Then hamled made a few commits earler on, while Eike Siewertsen
 made a few commits later on. But mostly wibiti, and Guenther
 Starnberger got the code to where uncompyle2 was around 2012.
 
-This project, uncompyle6, however owes its existence to the fork of
-uncompyle2 by Myst herie (Mysterie) whose first commit picks up at
+In uncompyle2 decompilation of python bytecode 2.5 & 2.6 is done by
+transforming the byte code into a a pseudo 2.7 python bytecode and is
+based on code from Eloi Vanderbeken.
+
+This project, uncompyle6, abandons that approach for various
+reasons. However the main reason is that we need offsets in fragment
+deparsing to be exactly the same, and the transformation process can
+remove instructions.  Adding instructions with psuedo_offsets is
+however okay.
+
+Uncompyle6, however owes its existence to the fork of uncompyle2 by
+Myst herie (Mysterie) whose first commit picks up at
 2012. I chose this since it seemed to have been at that time the most
 actively, if briefly, worked on. Also starting around 2012 is Dark
 Fenx's uncompyle3 which I used for inspiration for Python3 support.
