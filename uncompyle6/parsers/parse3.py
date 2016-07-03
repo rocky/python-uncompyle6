@@ -247,6 +247,8 @@ class Python3Parser(PythonParser):
         """
         come_froms ::= come_froms COME_FROM
         come_froms ::= COME_FROM
+        jmp_false ::= POP_JUMP_IF_FALSE
+        jmp_true  ::= POP_JUMP_IF_TRUE
         """
 
     def p_stmt3(self, args):

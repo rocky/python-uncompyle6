@@ -69,8 +69,6 @@ class Python26Parser(Python2Parser):
     # after one of these jumps
     def p_jumps26(self, args):
         """
-        jmp_false    ::= JUMP_IF_FALSE
-        jmp_true     ::= JUMP_IF_TRUE
         jmp_true     ::= JUMP_IF_TRUE POP_TOP
         jmp_false    ::= JUMP_IF_FALSE POP_TOP
         jf_pop       ::= JUMP_FORWARD come_from_pop
@@ -84,7 +82,8 @@ class Python26Parser(Python2Parser):
         ja_cf_pop ::= JUMP_ABSOLUTE come_from_pop
         jf_cf_pop ::= JUMP_FORWARD come_froms POP_TOP
 
-        jb_bp_come_from ::= JUMP_BACK POP_BLOCK COME_FROM
+        bp_come_from    ::= POP_BLOCK COME_FROM
+        jb_bp_come_from ::= JUMP_BACK bp_come_from
 
         _ifstmts_jump ::= c_stmts_opt jf_pop COME_FROM
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM come_from_pop
@@ -94,6 +93,7 @@ class Python26Parser(Python2Parser):
         # we start a new block. For reasons I don't fully
         # understand, there is also a value on the top of the stack
         come_from_pop   ::=  COME_FROM POP_TOP
+
         """
 
     def p_stmt26(self, args):
@@ -134,11 +134,10 @@ class Python26Parser(Python2Parser):
                         SETUP_FINALLY LOAD_FAST DELETE_FAST
 
         whilestmt ::= SETUP_LOOP testexpr l_stmts_opt jb_pop POP_BLOCK _come_from
+        whilestmt ::= SETUP_LOOP testexpr l_stmts_opt jb_cf_pop bp_come_from
+        whilestmt ::= SETUP_LOOP testexpr return_stmts come_froms POP_TOP bp_come_from
 
-        whilestmt ::= SETUP_LOOP testexpr l_stmts_opt jb_cf_pop POP_BLOCK COME_FROM
-        whilestmt ::= SETUP_LOOP testexpr return_stmts come_froms POP_TOP POP_BLOCK COME_FROM
-
-        while1stmt ::= SETUP_LOOP return_stmts POP_BLOCK COME_FROM
+        while1stmt ::= SETUP_LOOP return_stmts bp_come_from
 
         return_stmt ::= ret_expr RETURN_END_IF come_from_pop
         return_stmt ::= ret_expr RETURN_VALUE come_from_pop

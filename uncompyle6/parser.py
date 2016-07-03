@@ -199,13 +199,7 @@ class PythonParser(GenericASTBuilder):
         _jump ::= JUMP_FORWARD
         _jump ::= JUMP_BACK
 
-        # Note: Python < 2.7 doesn't have POP_JUMP_IF ...
-        # FIXME: segregate 2.7+
-
-        jmp_false ::= POP_JUMP_IF_FALSE
-        jmp_true  ::= POP_JUMP_IF_TRUE
-
-        # Zero or more COME_FROM
+        # Zero or more COME_FROMs
         # loops can have this
         _come_from ::= _come_from COME_FROM
         _come_from ::=
