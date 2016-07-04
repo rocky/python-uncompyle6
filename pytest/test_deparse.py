@@ -33,7 +33,7 @@ def get_parsed_for_fn(fn):
     return deparse(PYTHON_VERSION, code)
 
 def check_expect(expect, parsed):
-    debug = True
+    debug = False
     i = 2
     max_expect = len(expect)
     for name, offset in sorted(parsed.offsets.keys()):
@@ -168,7 +168,7 @@ return (x, y)
 -------------
 """.split("\n")
     check_expect(expect, parsed)
-#     ########################################################
+    ########################################################
 #     # try
 
 #     expect = """
@@ -299,6 +299,12 @@ return
 Contained in...
     i + 1
     -----
+31
+return
+------
+Contained in...
+for i in range(2): ...
+------------------ ...
 34
 return
 ------
