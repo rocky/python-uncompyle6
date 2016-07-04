@@ -36,6 +36,17 @@ The node will be associated with the text break, excluding the trailing newline.
 
 Note we assocate the accumulated text with the node normally, but we just don't
 do it recursively which is where offsets are probably located.
+
+2. %b
+-----
+
+   %b associates the text from the previous start node up to what we have now
+
+For example in:
+  'importmultiple':   ( '%|import%b %c%c\n', 0, 2, 3 ),
+
+The node position 0 will be associated with "import".
+
 """
 
 # FIXME: DRY code with pysource
@@ -82,8 +93,9 @@ TABLE_DIRECT_FRAGMENT = {
     'raise_stmt0':	( '%|%rraise\n', ),
     'importstmt':	( '%|import %c%x\n', 2, (2, (0, 1)), ),
     'importfrom':	( '%|from %[2]{pattr}%x import %c\n', (2, (0, 1)), 3),
+    'importmultiple':   ( '%|import%b %c%c\n', 0, 2, 3 ),
     'list_for':	  	(' for %c%x in %c%c', 2, (2,(1,)), 0, 3 ),
-    'forstmt':	  	( '%|for %c%x in %c:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4 ),
+    'forstmt':	  	( '%|for%b %c%x in %c:\n%+%c%-\n\n', 0, 3, (3, (2,)), 1, 4 ),
     'forelsestmt': 	(
         '%|for %c in %c%x:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
     'forelselaststmt':	(
@@ -91,6 +103,10 @@ TABLE_DIRECT_FRAGMENT = {
     'forelselaststmtl':	(
         '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
 
+    'whilestmt':	( '%|while%b %c:\n%+%c%-\n\n', 0, 1, 2 ),
+    'whileelsestmt':	( '%|while%b %c:\n%+%c%-%|else:\n%+%c%-\n\n', 0, 1, 2, -2 ),
+    'whileelselaststmt':	( '%|while%b %c:\n%+%c%-%|else:\n%+%c%-', 0, 1, 2, -2 ),
+    'forstmt':		( '%|for%b %c in %c:\n%+%c%-\n\n', 0, 3, 1, 4 ),
     }
 
 
@@ -215,7 +231,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 pass
             else:
                 for n in node:
-                    self.set_pos_info(n, start, len(self.f.getvalue()))
+                    self.set_pos_info_recurse(n, start, len(self.f.getvalue()))
                     pass
                 pass
             self.set_pos_info(node, start, len(self.f.getvalue()))
@@ -1409,6 +1425,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # print('======')
 
         startnode_start = len(self.f.getvalue())
+        start = startnode_start
 
         fmt = entry[0]
         arg = 1
@@ -1444,6 +1461,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
             elif typ == ',':
                 if lastC == 1:
                     self.write(',')
+            elif typ == 'b':
+                finish = len(self.f.getvalue())
+                self.set_pos_info(node[entry[arg]], start, finish)
+                arg += 1
             elif typ == 'c':
                 start = len(self.f.getvalue())
                 self.preorder(node[entry[arg]])
@@ -1534,9 +1555,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     print(node)
                     raise
             m = escape.search(fmt, i)
-            if hasattr(node, 'offset') and (self.name, node.offset) not in self.offsets:
-                print("Type %s of node %s has an offset %d" % (typ, node, node.offset))
-                pass
             pass
 
         self.write(fmt[i:])
@@ -1804,7 +1822,7 @@ if __name__ == '__main__':
         return fn.__code__
 
     def test():
-        [x for x in range(3) if x % 2 == 0]
+        import os, sys
 
     def gcd(a, b):
         if a > b:

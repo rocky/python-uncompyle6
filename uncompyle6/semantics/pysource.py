@@ -362,7 +362,7 @@ TABLE_DIRECT = {
     # Python 2.5 Additions
     #######################
 
-    # Import style for 2.5
+    # Import style for 2.5+
     'importstmt': ( '%|import %c\n', 2),
     'importstar': ( '%|from %[2]{pattr} import *\n', ),
     'importfrom': ( '%|from %[2]{pattr} import %c\n', 3 ),
