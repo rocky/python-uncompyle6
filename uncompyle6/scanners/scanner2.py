@@ -553,14 +553,18 @@ class Scanner2(scan.Scanner):
                 self.fixed_jumps[pos] = rtarget
                 return
 
-            # Does this jump to right after another cond jump that is
+            # Does this jump to right after another conditional jump that is
             # not myself?  If so, it's part of a larger conditional.
             # rocky: if we have a conditional jump to the next instruction, then
             # possibly I am "skipping over" a "pass" or null statement.
 
-            ## FIXME: need to handle <2.7 which has this as two instructions.
-            if ( code[pre[target]] in
-                 (self.pop_jump_if_or_pop | self.pop_jump_if)
+            if self.version < 2.7:
+                op_testset = set([self.opc.POP_TOP,
+                                   self.opc.JUMP_IF_TRUE, self.opc.JUMP_IF_FALSE])
+            else:
+                op_testset = self.pop_jump_if_or_pop | self.pop_jump_if
+
+            if ( code[pre[target]] in op_testset
                  and (target > pos) ):
                 self.fixed_jumps[pos] = pre[target]
                 self.structs.append({'type':  'and/or',
@@ -614,10 +618,14 @@ class Scanner2(scan.Scanner):
                         self.fixed_jumps[pos] = match[-1]
                         return
             else: # op == self.opc.PJIT
-                if (pos+3) in self.load_asserts:
+                if self.version < 2.7 and code[pos+3] == self.opc.POP_TOP:
+                    assert_pos = pos + 4
+                else:
+                    assert_pos = pos + 3
+                if (assert_pos) in self.load_asserts:
                     if code[pre[rtarget]] == self.opc.RAISE_VARARGS:
                         return
-                    self.load_asserts.remove(pos+3)
+                    self.load_asserts.remove(assert_pos)
 
                 next = self.next_stmt[pos]
                 if pre[next] == pos:
