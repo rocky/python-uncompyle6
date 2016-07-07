@@ -423,11 +423,19 @@ class Scanner2(scan.Scanner):
             jump_back = self.last_instr(start, end, self.opc.JA,
                                           next_line_byte, False)
 
+            if jump_back:
+                if self.version < 2.7:
+                    jump_forward_offset = jump_back+4
+                    return_val_offset1 = self.prev[self.prev[self.prev[end]]]
+                else:
+                    jump_forward_offset = jump_back+3
+                    return_val_offset1 = self.prev[self.prev[end]]
+
             if (jump_back and jump_back != self.prev[end]
-                and code[jump_back+3] in self.jump_forward):
+                and code[jump_forward_offset] in self.jump_forward):
                 if (code[self.prev[end]] == self.opc.RETURN_VALUE or
                     (code[self.prev[end]] == self.opc.POP_BLOCK
-                     and code[self.prev[self.prev[end]]] == self.opc.RETURN_VALUE)):
+                     and code[return_val_offset1] == self.opc.RETURN_VALUE)):
                     jump_back = None
             if not jump_back: # loop suite ends in return. wtf right?
                 # scanner26 has:
