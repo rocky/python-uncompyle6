@@ -27,7 +27,7 @@ from fnmatch import fnmatch
 
 #----- configure this for your needs
 
-TEST_VERSIONS=('2.3.7', '2.6.9', '2.7.10', '2.7.11', '3.2.6', '3.3.5', '3.4.2', '3.5.1')
+TEST_VERSIONS=('2.3.7', '2.5.6', '2.6.9', '2.7.10', '2.7.11', '3.2.6', '3.3.5', '3.4.2', '3.5.1')
 
 target_base = '/tmp/py-dis/'
 lib_prefix = os.path.join(os.environ['HOME'], '.pyenv/versions')

@@ -438,7 +438,7 @@ class Scanner2(scan.Scanner):
 
                 if_offset = None
                 if self.version < 2.7:
-                    # Look for JUMP_IF... POP_TOP
+                    # Look for JUMP_IF POP_TOP ...
                     if (code[self.prev[next_line_byte]] == self.opc.POP_TOP
                         and (code[self.prev[self.prev[next_line_byte]]]
                              in self.pop_jump_if)):
@@ -476,7 +476,12 @@ class Scanner2(scan.Scanner):
                     loop_type = 'for'
                 else:
                     loop_type = 'while'
-                    test = self.prev[next_line_byte]
+                    if (self.version < 2.7
+                        and self.code[self.prev[next_line_byte]] == self.opc.POP_TOP):
+                        test = self.prev[self.prev[next_line_byte]]
+                    else:
+                        test = self.prev[next_line_byte]
+
                     if test == pos:
                         loop_type = 'while 1'
                     elif self.code[test] in self.opc.hasjabs + self.opc.hasjrel:

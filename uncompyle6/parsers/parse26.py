@@ -69,8 +69,12 @@ class Python26Parser(Python2Parser):
     # after one of these jumps
     def p_jumps26(self, args):
         """
+
+        # The are the equivalents of Python 2.7+'s
+        # POP_JUMP_IF_TRUE and POP_JUMP_IF_FALSE
         jmp_true     ::= JUMP_IF_TRUE POP_TOP
         jmp_false    ::= JUMP_IF_FALSE POP_TOP
+
         jf_pop       ::= JUMP_FORWARD come_from_pop
         jf_pop       ::= JUMP_ABSOLUTE come_from_pop
         jb_pop       ::= JUMP_BACK come_from_pop
@@ -194,7 +198,7 @@ class Python26Parser(Python2Parser):
         '''
         conditional  ::= expr jmp_false expr jf_cf_pop expr come_from_opt
         and  ::= expr JUMP_IF_FALSE POP_TOP expr JUMP_IF_FALSE POP_TOP
-
+        cmp_list ::= expr cmp_list1 ROT_TWO COME_FROM POP_TOP _come_from
         '''
 
 class Python26ParserSingle(Python2Parser, PythonParserSingle):
