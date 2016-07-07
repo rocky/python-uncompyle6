@@ -272,8 +272,6 @@ class Scanner26(scan.Scanner2):
                 if offset in self.load_asserts:
                     op_name = 'LOAD_ASSERT'
             elif op == self.opc.RETURN_VALUE:
-                # FIXME: return_end_ifs calculation is off.
-                # not taking into account "and" expressions
                 if offset in self.return_end_ifs:
                     op_name = 'RETURN_END_IF'
 

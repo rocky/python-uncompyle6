@@ -412,6 +412,12 @@ class Scanner2(scan.Scanner):
                 parent = s
 
         if op == self.opc.SETUP_LOOP:
+
+            # We categorize loop types: 'for', 'while', 'while 1' with
+            # possibly suffices '-loop' and '-else'
+            # Try to find the jump_back instruction of the loop.
+            # It could be a return instruction.
+
             start = pos+3
             target = self.get_target(pos, op)
             end    = self.restrict_to_parent(target, parent)
@@ -421,12 +427,21 @@ class Scanner2(scan.Scanner):
 
             (line_no, next_line_byte) = self.lines[pos]
             jump_back = self.last_instr(start, end, self.opc.JA,
-                                          next_line_byte, False)
+                                        next_line_byte, False)
 
             if jump_back:
+                # Account for the fact that < 2.7 has an explicit
+                # POP_TOP instruction in the equivalate POP_JUMP_IF
+                # construct
                 if self.version < 2.7:
                     jump_forward_offset = jump_back+4
                     return_val_offset1 = self.prev[self.prev[self.prev[end]]]
+                    # Is jump back really "back"?
+                    jump_target = self.get_target(jump_back, code[jump_back])
+                    if (jump_target > jump_back or
+                        code[jump_back+3] == self.opc.JUMP_FORWARD):
+                        jump_back = None
+                        pass
                 else:
                     jump_forward_offset = jump_back+3
                     return_val_offset1 = self.prev[self.prev[end]]
@@ -437,12 +452,14 @@ class Scanner2(scan.Scanner):
                     (code[self.prev[end]] == self.opc.POP_BLOCK
                      and code[return_val_offset1] == self.opc.RETURN_VALUE)):
                     jump_back = None
-            if not jump_back: # loop suite ends in return. wtf right?
-                # scanner26 has:
+            if not jump_back:
+                # loop suite ends in return
+                # scanner26 of wbiti had:
                 # jump_back = self.last_instr(start, end, self.opc.JA, start, False)
-                jump_back = self.last_instr(start, end, self.opc.RETURN_VALUE) + 1
+                jump_back = self.last_instr(start, end, self.opc.RETURN_VALUE)
                 if not jump_back:
                     return
+                jump_back += 1
 
                 if_offset = None
                 if self.version < 2.7:
