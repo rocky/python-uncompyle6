@@ -93,6 +93,7 @@ class Python26Parser(Python2Parser):
         # we start a new block. For reasons I don't fully
         # understand, there is also a value on the top of the stack
         come_from_pop   ::=  COME_FROM POP_TOP
+        come_froms_pop  ::=  come_froms POP_TOP
 
         """
 
@@ -103,8 +104,8 @@ class Python26Parser(Python2Parser):
         # can be used
         filler ::=
 
-        assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 come_from_pop
-        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_2 come_from_pop
+        assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 come_froms_pop
+        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_2 come_froms_pop
 
         break_stmt ::= BREAK_LOOP JUMP_BACK
 
@@ -143,7 +144,6 @@ class Python26Parser(Python2Parser):
         return_stmt ::= ret_expr RETURN_VALUE come_from_pop
         return_if_stmt ::= ret_expr RETURN_END_IF come_from_pop
 
-        iflaststmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec COME_FROM
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK come_from_pop
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE come_from_pop
         """
