@@ -1,3 +1,12 @@
+uncompyle6 2.6.0 2016-07-07
+
+- Improve Python 2.6 bytecode deparsing:
+  stdlib now will deparse something
+- Better <2.6 vs. 2.7 grammar separation
+- Fix some 2.7 deparsing bugs
+- Fix bug in installing uncompyle6 script
+- Doc improvments
+
 uncompyle6 2.5.0 2016-06-22  Summer Solstace
 
 - Much better Python 3.2-3.5 coverage.

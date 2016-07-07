@@ -1,6 +1,270 @@
+2016-07-07  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse26.py: <2.7 add a rare kind of list_for
+
+2016-07-07  rocky <rocky@gnu.org>
+
+	* : Remove 2.7 asynchat verifcation for now
+
+2016-07-07  rocky <rocky@gnu.org>
+
+	* test/simple_source/looping/08_while1_if_continue.py,
+	uncompyle6/parsers/parse26.py, uncompyle6/parsers/parse27.py,
+	uncompyle6/scanners/scanner2.py: while1 bug in 2.6 and 2.7
+
+2016-07-07  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse26.py: <2.7 whileelse rule
+
+2016-07-07  rocky <rocky@gnu.org>
+
+	* uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner26.py: 
+	<2.6 make sure jump back on loops is really "back"
+
+2016-07-07  rocky <rocky@gnu.org>
+
+	* uncompyle6/scanners/scanner2.py: <2.7 lack of POP_IF_ adjustment
+	in detect_structure
+
+2016-07-07  rocky <rocky@gnu.org>
+
+	* test/test_pyenvlib.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/scanners/scanner2.py: 2.6 POP_TOP and POP_JUMP_IF bugs
+
+2016-07-06  rocky <rocky@gnu.org>
+
+	* uncompyle6/scanners/scanner2.py: 2.6 bug in handling jumps to
+	jumps
+
+2016-07-06  rocky <rocky@gnu.org>
+
+	* test/simple_source/stmts/03_if_elif.py,
+	uncompyle6/parsers/parse26.py: 2.6.9 bug: multiple COME_FROMs via
+	"or"/"assert"
+
+2016-07-06  rocky <rocky@gnu.org>
+
+	* test/simple_source/stmts/03_if_elif.py,
+	uncompyle6/parsers/parse26.py: 2.6.9 elif with multiple COME_FROMs
+
+2016-07-06  rocky <rocky@gnu.org>
+
+	* test/simple_source/stmts/04_raise.py,
+	uncompyle6/scanners/scanner2.py: < 2.7 bug in not distinguishing
+	raise from assert
+
+2016-07-04  rocky <rocky@gnu.org>
+
+	* : Add 10_if_else_ternary.pyc for 2.5
+
+2016-07-03  rocky <rocky@gnu.org>
+
+	* pytest/test_deparse.py: fragment test update for expanded offsets
+
+2016-07-03  rocky <rocky@gnu.org>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: More offsets captrued Add %b
+	specifer %b - associate text before specifier pysource.py: small doc
+	correction
+
+2016-07-03  rocky <rocky@gnu.org>
+
+	* : commit 04698f45cc4246b95b3bb8c22f61e0398614b344 Author: rocky
+	<rb@dustyfeet.com> Date:   Sun Jul 3 11:32:20 2016 -0400
+
+2016-07-03  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/parsers/parse27.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner26.py: 
+	Another 2.6 while stmt. Clean up grammar a little
+
+2016-07-03  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse26.py, uncompyle6/scanners/scanner2.py: 
+	2.6 improper tagging of RETURN_END_IF
+
+2016-07-02  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/parsers/parse27.py: 2.6.9 tryelsestmt
+
+2016-07-02  rocky <rocky@gnu.org>
+
+	* test/simple_source/stmts/04_withas.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/parsers/parse27.py: Python 2.6 with as stmt
+
+2016-07-01  rocky <rocky@gnu.org>
+
+	* test/simple_source/stmts/06_return_if.py,
+	uncompyle6/parsers/parse26.py: 2.6 ifelsestmt
+
+2016-07-01  rocky <rocky@gnu.org>
+
+	* test/simple_source/looping/07_return_end_if.py,
+	uncompyle6/parsers/parse26.py: Another 2.6 return_stmt bug
+
+2016-07-01  rocky <rocky@gnu.org>
+
+	* test/simple_source/looping/07_return_end_if.py,
+	uncompyle6/parser.py, uncompyle6/parsers/parse26.py: 2.6 return_stmt
+	bug
+
+2016-06-30  rocky <rocky@gnu.org>
+
+	* __pkginfo__.py: Fix import name in setup entry_points.  Fixes issue #34
+
+2016-06-30  rocky <rocky@gnu.org>
+
+	* test/simple_source/stmts/06_for_break.py,
+	uncompyle6/parsers/parse26.py, uncompyle6/semantics/pysource.py: 
+	More 2.6.9 bugs fixed * break loop parsing bug * ifelsestmt semantic-action bug in handling else
+
+2016-06-30  rocky <rocky@gnu.org>
+
+	* test/simple_source/comprehension/05_list_comprehension.py,
+	uncompyle6/parsers/parse26.py: 2.6 conditional in list comprehension
+	bug
+
+2016-06-30  rocky <rocky@gnu.org>
+
+	* uncompyle6/semantics/pysource.py: Oh Python and your f*'d notions
+	of spacing
+
+2016-06-30  rocky <rocky@gnu.org>
+
+	* test/simple_source/comprehension/05_for_for.py,
+	uncompyle6/parsers/parse26.py, uncompyle6/semantics/pysource.py: 
+	2.6.9 list comprehension
+
+2016-06-30  rocky <rocky@gnu.org>
+
+	* test/simple_source/exception/07_try_pass.py,
+	uncompyle6/scanners/scanner2.py: <= 2.6 weird jump out of try block Allow COME_FROMs to appare via JUMP_FORWARD in tey/except blocks
+
+2016-06-30  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/parsers/parse27.py: CONTINUE handling in 2.6.9
+
+2016-06-30  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse26.py: 2.6 except_suite bug
+
+2016-06-29  rocky <rocky@gnu.org>
+
+	* test/simple_source/comprehension/08_for_if_for.py,
+	uncompyle6/parsers/parse26.py, uncompyle6/semantics/pysource.py: 2.6
+	genexpr. Some not quite right.
+
+2016-06-29  rocky <rocky@gnu.org>
+
+	* test/simple_source/stmts/15_assert.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/parsers/parse27.py: 2.6.9 assert 2-arg bug
+
+2016-06-29  rocky <rocky@gnu.org>
+
+	* test/simple_source/bug26/06_setif_comprehension.py,
+	test/simple_source/bug27+/06_setif_comprehension.py,
+	test/simple_source/comprehension/06_setif_comprehension.py,
+	uncompyle6/parsers/parse26.py: A 2.6 comprehension bug
+
+2016-06-29  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #33 from rocky/python-2.6 Python 2.6
+
+2016-06-28  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse26.py, uncompyle6/semantics/pysource.py: 
+	Weird 2.6.9 list comprehension
+
+2016-06-28  rocky <rocky@gnu.org>
+
+	* test/simple_source/stmts/06_return_if.py,
+	uncompyle6/parsers/parse26.py: Add more come_from_pops
+
+2016-06-28  rocky <rocky@gnu.org>
+
+	* test/simple_source/stmts/07_withstmt_fn.py,
+	uncompyle6/parsers/parse26.py: 2.6. with fn()
+
+2016-06-27  rocky <rocky@gnu.org>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/parsers/parse27.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner25.py, uncompyle6/scanners/scanner26.py: 
+	Base 2.5 off of 2.6. Some other small bugs.
+
+2016-06-27  rocky <rocky@gnu.org>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse26.py: 2.6 try
+	except hadnling works now
+
+2016-06-27  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse26.py, uncompyle6/semantics/pysource.py: 
+	2.6 list comprehensions
+
+2016-06-27  rocky <rocky@gnu.org>
+
+	* __pkginfo__.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/scanners/scanner2.py: JUMP_IF_{TRUE,FALSE}_OR_OP fixes
+
+2016-06-27  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse26.py: WIP 2.6 j{f,b}_pop fix
+
+2016-06-24  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/parsers/parse27.py, uncompyle6/scanners/scanner2.py: WIP
+	deal with JUMP_IF_{TRUE,FALSE} vs with POP version
+
+2016-06-24  rocky <rocky@gnu.org>
+
+	* : WIP Python-2.6 but don't remove opcodes The scheme for turning 2.6 bytecode into 2.7 psuedo bytecode I think
+	is a lose.  I won't work for fragment handling.  Instead, change the grammar and syntax rules This also has the benefits: * We see how code generation changed over releases   by looking at grammar and semantic rules rather   than arbitrary code * We can better assocate with what's running   (in a sense this is a restatement of broken fragment    handling) * With the right structure in place we are in a better position to   handle 2.5, 2.4, etc. That is, after a while, the incremental
+	  changes to get say from python 2.3 bytecode to python 2.7 are
+	great.  Conflicts: 	uncompyle6/parsers/astnode.py
+
+2016-06-24  rocky <rocky@gnu.org>
+
+	* uncompyle6/scanners/scanner2.py: 2.6 compatibility
+
+2016-06-24  rocky <rocky@gnu.org>
+
+	* uncompyle6/scanners/scanner2.py: Small formating changes ...  and premonition of 2.6 byteocde work
+
+2016-06-24  rocky <rocky@gnu.org>
+
+	* : commit 7a4e3a05ff88e8a02b08eafc3e9f862d1e206c7f Author: rocky
+	<rocky@gnu.org> Date:   Fri Jun 24 09:28:50 2016 -0400
+
+2016-06-24  rocky <rocky@gnu.org>
+
+	* __pkginfo__.py, uncompyle6/parsers/astnode.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner26.py,
+	uncompyle6/semantics/pysource.py: WIP 2.6 redo bytecode handling Don't try to convert 2.6 bytecode to 2.7 psuedo bytecode.  Instead
+	adjust grammar and semantic actions.  Down the line we should to segregate version changes in semantic
+	code better.
+
+2016-06-24  Daniel Bradburn <moagstar@gmail.com>
+
+	* uncompyle6/show.py: fixed bug in maybe_show_ast_param_default, if
+	default was not a str a TypeError would occur
+
 2016-06-22  rocky <rocky@gnu.org>
 
-	* __pkginfo__.py, uncompyle6/version.py: Get ready for release 2.5.0
+	* README.rst, __pkginfo__.py: Doc fixes
+
+2016-06-22  rocky <rocky@gnu.org>
+
+	* ChangeLog, NEWS, __pkginfo__.py, uncompyle6/version.py: Get ready
+	for release 2.5.0
 
 2016-06-22  rocky <rocky@gnu.org>
 
