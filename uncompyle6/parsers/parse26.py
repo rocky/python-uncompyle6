@@ -158,6 +158,12 @@ class Python26Parser(Python2Parser):
     def p_comp26(self, args):
         '''
         list_for ::= expr _for designator list_iter JUMP_BACK come_froms POP_TOP
+
+        # The JUMP FORWARD below jumps to the JUMP BACK. It seems to happen
+        # in rare cases that may have to with length of code
+        list_for ::= expr _for designator list_iter JUMP_FORWARD come_froms POP_TOP
+                     COME_FROM JUMP_BACK
+
         list_for ::= expr _for designator list_iter jb_cont
 
         list_iter  ::= list_if JUMP_BACK
