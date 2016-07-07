@@ -363,6 +363,9 @@ class Scanner2(scan.Scanner):
                 if self.version <= 2.6 and self.code[jmp] in self.jump_forward:
                     self.not_continue.add(jmp)
                     jmp = self.get_target(jmp)
+                    if jmp not in self.pop_jump_if | self.jump_forward:
+                        self.ignore_if.add(except_match)
+                        return None
 
                 self.ignore_if.add(except_match)
                 self.not_continue.add(jmp)
