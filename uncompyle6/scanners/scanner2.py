@@ -439,7 +439,7 @@ class Scanner2(scan.Scanner):
                     # Is jump back really "back"?
                     jump_target = self.get_target(jump_back, code[jump_back])
                     if (jump_target > jump_back or
-                        code[jump_back+3] == self.opc.JUMP_FORWARD):
+                        code[jump_back+3] in [self.opc.JUMP_FORWARD, self.opc.JUMP_ABSOLUTE]):
                         jump_back = None
                         pass
                 else:

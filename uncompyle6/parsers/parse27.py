@@ -50,6 +50,8 @@ class Python27Parser(Python2Parser):
         withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
                 POP_BLOCK LOAD_CONST COME_FROM
                 WITH_CLEANUP END_FINALLY
+
+        while1stmt ::= SETUP_LOOP l_stmts POP_BLOCK COME_FROM
         """
 
 
