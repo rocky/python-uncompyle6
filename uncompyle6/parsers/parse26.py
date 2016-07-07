@@ -79,7 +79,7 @@ class Python26Parser(Python2Parser):
         jb_cont      ::= CONTINUE
 
         jb_cf_pop ::= JUMP_BACK come_froms POP_TOP
-        ja_cf_pop ::= JUMP_ABSOLUTE come_from_pop
+        ja_cf_pop ::= JUMP_ABSOLUTE come_froms POP_TOP
         jf_cf_pop ::= JUMP_FORWARD come_froms POP_TOP
 
         bp_come_from    ::= POP_BLOCK COME_FROM
@@ -143,6 +143,7 @@ class Python26Parser(Python2Parser):
         return_stmt ::= ret_expr RETURN_VALUE come_from_pop
         return_if_stmt ::= ret_expr RETURN_END_IF come_from_pop
 
+        iflaststmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec COME_FROM
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK come_from_pop
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE come_from_pop
         """
