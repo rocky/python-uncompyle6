@@ -12,7 +12,7 @@ class Python25Parser(Python26Parser):
         super(Python25Parser, self).__init__(debug_parser)
         self.customized = {}
 
-    def p_misc(self, args):
+    def p_misc25(self, args):
         '''
 
         # If "return_if_stmt" is in a loop, a JUMP_BACK can be emitted. In 2.6 the

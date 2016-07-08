@@ -208,7 +208,7 @@ class Python26Parser(Python2Parser):
         except_suite ::= c_stmts_opt jmp_abs come_from_pop
         '''
 
-    def p_misc(self, args):
+    def p_misc26(self, args):
         '''
         conditional  ::= expr jmp_false expr jf_cf_pop expr come_from_opt
         and  ::= expr JUMP_IF_FALSE POP_TOP expr JUMP_IF_FALSE POP_TOP
