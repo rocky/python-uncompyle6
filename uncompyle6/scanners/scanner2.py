@@ -330,9 +330,12 @@ class Scanner2(scan.Scanner):
                 j = self.prev[s]
                 while code[j] == self.opc.JA:
                     j = self.prev[j]
-                if code[j] == self.opc.LIST_APPEND: # list comprehension
-                    stmts.remove(s)
-                    continue
+                try:
+                    if code[j] == self.opc.LIST_APPEND: # list comprehension
+                        stmts.remove(s)
+                        continue
+                except:
+                    from trepan.api import debug; debug()
             elif code[s] == self.opc.POP_TOP and code[self.prev[s]] == self.opc.ROT_TWO:
                 stmts.remove(s)
                 continue

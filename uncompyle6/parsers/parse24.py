@@ -15,8 +15,18 @@ class Python24Parser(Python25Parser):
     def p_misc24(self, args):
         '''
         # 2.5+ has two LOAD_CONSTs, one for the number '.'s in a relative import
-        importstmt ::= LOAD_CONST filler import_as
-        importfrom ::= LOAD_CONST filler IMPORT_NAME importlist2 POP_TOP
+        # keep positions similar to simplify semantic actions
+
+        importstmt ::= filler LOAD_CONST import_as
+        importfrom ::= filler LOAD_CONST IMPORT_NAME importlist2 POP_TOP
+
+        importmultiple ::= filler LOAD_CONST import_as imports_cont
+        import_cont    ::= filler LOAD_CONST import_as_cont
+
+        # Python 2.5+ omits POP_TOP POP_BLOCK
+        while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK POP_TOP POP_BLOCK COME_FROM
+
+        call_stmt ::= yield
         '''
 
 class Python24ParserSingle(Python25Parser, PythonParserSingle):
