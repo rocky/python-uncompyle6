@@ -1,3 +1,37 @@
+2016-07-08  rocky <rocky@gnu.org>
+
+	* README.rst, uncompyle6/version.py: Get ready for release 2.6.1
+
+2016-07-08  rocky <rocky@gnu.org>
+
+	* test/simple_source/stmts/11_return_val.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner26.py: 
+	2.5/2.6 RETURN_VALUE bug
+
+2016-07-08  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse25.py, uncompyle6/parsers/parse26.py: 
+	2.5/2.6 fn name clash fixes list conprehension problem
+
+2016-07-08  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse25.py: Python 2.5 with statement
+
+2016-07-08  rocky <rocky@gnu.org>
+
+	* README.rst: Revise decompilation quality estimate
+
+2016-07-08  rocky <rocky@gnu.org>
+
+	* test/add-test.py, test/simple_source/stmts/05_with.py,
+	uncompyle6/parser.py, uncompyle6/parsers/parse25.py,
+	uncompyle6/parsers/parse26.py: Start going over Python 2.5 bytecode Fix 2.6 with bug
+
+2016-07-07  rocky <rocky@gnu.org>
+
+	* ChangeLog, NEWS, __pkginfo__.py, uncompyle6/version.py: Get ready
+	for release 2.6.0
+
 2016-07-07  rocky <rocky@gnu.org>
 
 	* uncompyle6/parsers/parse26.py: <2.7 add a rare kind of list_for
