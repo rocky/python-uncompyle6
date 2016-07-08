@@ -27,6 +27,9 @@ class Python24Parser(Python25Parser):
         while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK POP_TOP POP_BLOCK COME_FROM
 
         call_stmt ::= yield
+
+        # Python 2.5+ adds POP_TOP
+        gen_comp_body ::= expr YIELD_VALUE
         '''
 
 class Python24ParserSingle(Python25Parser, PythonParserSingle):

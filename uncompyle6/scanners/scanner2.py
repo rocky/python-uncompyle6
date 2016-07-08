@@ -36,6 +36,9 @@ class Scanner2(scan.Scanner):
         scan.Scanner.__init__(self, version, show_asm)
         self.pop_jump_if = frozenset([self.opc.PJIF, self.opc.PJIT])
         self.jump_forward = frozenset([self.opc.JA, self.opc.JF])
+        # This is the 2.5+ default
+        # For <2.5 it is <generator expression>
+        self.genexpr_name = '<genexpr>';
 
     def disassemble(self, co, classname=None, code_objects={}, show_asm=None):
         """
@@ -143,7 +146,7 @@ class Scanner2(scan.Scanner):
                         if const.co_name == '<lambda>':
                             assert opname == 'LOAD_CONST'
                             opname = 'LOAD_LAMBDA'
-                        elif const.co_name == '<genexpr>':
+                        elif const.co_name == self.genexpr_name:
                             opname = 'LOAD_GENEXPR'
                         elif const.co_name == '<dictcomp>':
                             opname = 'LOAD_DICTCOMP'

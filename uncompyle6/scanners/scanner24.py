@@ -65,4 +65,5 @@ class Scanner24(scan.Scanner25):
         # Python 2.7 has POP_JUMP_IF_{TRUE,FALSE}_OR_POP but < 2.7 doesn't
         # Add an empty set make processing more uniform.
         self.pop_jump_if_or_pop = frozenset([])
+        self.genexpr_name = '<generator expression>';
         return

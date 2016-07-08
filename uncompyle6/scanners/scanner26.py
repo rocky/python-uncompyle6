@@ -199,7 +199,7 @@ class Scanner26(scan.Scanner2):
                         if const.co_name == '<lambda>':
                             assert op_name == 'LOAD_CONST'
                             op_name = 'LOAD_LAMBDA'
-                        elif const.co_name == '<genexpr>':
+                        elif const.co_name == self.genexpr_name:
                             op_name = 'LOAD_GENEXPR'
                         elif const.co_name == '<dictcomp>':
                             op_name = 'LOAD_DICTCOMP'
