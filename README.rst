@@ -87,9 +87,14 @@ Known Bugs/Restrictions
 Python 2 deparsing decompiles each and all the Python 2.7.10 and
 2.7.11 installed packages I have on my system, more than 90% verify
 ok. Some of these failures may be bugs in the verification process.
-So as such, it is probably a little better than uncompyle2. Python 2.6
-is catching up the versions of uncompyle2 that support 2.6 but is
-currently worse. Even less good is Python 2.5 bytecodes.
+At this point, 2.7 decompilation is better than uncompyle2. A number
+of bugs have been fixed over what was in uncompyle2.
+
+Python 2.6 installed library routines decompile; it is probably the
+same as uncompyle2, although some 2.6 bugs from uncompyle2 have been
+fixed.  We handle 2.6 bytecode a little bit differently than the way
+uncompyle2 does so it is harder to assess quality.  Python 2.5
+bytecode may not be as good as uncompyle2, but is catching up.
 
 All of the Python 3.2-3.5 Python standard lib packages that I have
 installed on my system deparse. Each Python version has about 200
