@@ -592,12 +592,11 @@ def get_python_parser(version, debug_parser, compile_mode='exec'):
             else:
                 p = parse23.Python23ParserSingle(debug_parser)
         elif version == 2.5:
-            # For now, we'll consider 2.5 exactly like 2.6
-            import uncompyle6.parsers.parse26 as parse25
+            import uncompyle6.parsers.parse25 as parse25
             if compile_mode == 'exec':
-                p = parse25.Python26Parser(debug_parser)
+                p = parse25.Python25Parser(debug_parser)
             else:
-                p = parse25.Python26ParserSingle(debug_parser)
+                p = parse25.Python25ParserSingle(debug_parser)
         elif version == 2.6:
             import uncompyle6.parsers.parse26 as parse26
             if compile_mode == 'exec':

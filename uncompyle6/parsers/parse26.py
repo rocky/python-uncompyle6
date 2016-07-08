@@ -128,6 +128,7 @@ class Python26Parser(Python2Parser):
                      POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
 
         # Semantic actions want designator to be at index 2
+        # Rule is possibly 2.6 only
         withasstmt ::= expr setupwithas designator suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
 
@@ -135,8 +136,12 @@ class Python26Parser(Python2Parser):
         # opcode SETUP_WITH
         setupwith ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 POP_TOP
 
-        setupwithas ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 STORE_FAST
-                        SETUP_FINALLY LOAD_FAST DELETE_FAST
+        # Possibly 2.6 only
+        setupwithas ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 setup_finally
+
+        setup_finally ::= STORE_FAST SETUP_FINALLY LOAD_FAST DELETE_FAST
+        setup_finally ::= STORE_NAME SETUP_FINALLY LOAD_NAME DELETE_NAME
+
 
         whilestmt ::= SETUP_LOOP testexpr l_stmts_opt jb_pop POP_BLOCK _come_from
         whilestmt ::= SETUP_LOOP testexpr l_stmts_opt jb_cf_pop bp_come_from

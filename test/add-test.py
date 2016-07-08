@@ -9,4 +9,5 @@ version = sys.version[0:3]
 cfile =  "bytecode_%s/%s" % (version, short) + 'c'
 print("byte-compiling %s to %s" % (path, cfile))
 py_compile.compile(path, cfile)
-os.system("../bin/uncompyle6 -a -t %s" % cfile)
+if sys.version >= (2, 6, 0):
+    os.system("../bin/uncompyle6 -a -t %s" % cfile)
