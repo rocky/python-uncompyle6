@@ -1,26 +1,26 @@
-#  Copyright (c) 2015-2016 by Rocky Bernstein
+#  Copyright (c) 2016 by Rocky Bernstein
 """
-Python 2.5 bytecode scanner/deparser
+Python 2.4 bytecode scanner/deparser
 
-This overlaps Python's 2.5's dis module, but it can be run from
+This overlaps Python's 2.4's dis module, but it can be run from
 Python 3 and other versions of Python. Also, we save token
 information for later use in deparsing.
 """
 
-import uncompyle6.scanners.scanner26 as scan
+import uncompyle6.scanners.scanner25 as scan
 import uncompyle6.scanners.scanner2 as scan2
 
 # bytecode verification, verify(), uses JUMP_OPs from here
-from xdis.opcodes import opcode_25
-JUMP_OPs = opcode_25.JUMP_OPs
+from xdis.opcodes import opcode_24
+JUMP_OPs = opcode_24.JUMP_OPs
 
 # We base this off of 2.6 instead of the other way around
 # because we cleaned things up this way.
 # The history is that 2.7 support is the cleanest,
 # then from that we got 2.6 and so on.
-class Scanner25(scan.Scanner26):
+class Scanner24(scan.Scanner25):
     def __init__(self, show_asm):
-        scan2.Scanner2.__init__(self, 2.5, show_asm)
+        scan2.Scanner2.__init__(self, 2.4, show_asm)
         self.stmt_opcodes = frozenset([
             self.opc.SETUP_LOOP,       self.opc.BREAK_LOOP,
             self.opc.SETUP_FINALLY,    self.opc.END_FINALLY,

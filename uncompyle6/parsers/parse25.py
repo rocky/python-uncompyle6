@@ -1,6 +1,6 @@
 #  Copyright (c) 2016 Rocky Bernstein
 """
-spark grammar differences over Python2.6 for Python 2.6.
+spark grammar differences over Python2.6 for Python 2.5.
 """
 
 from uncompyle6.parser import PythonParserSingle
@@ -41,5 +41,5 @@ class Python25ParserSingle(Python26Parser, PythonParserSingle):
 
 if __name__ == '__main__':
     # Check grammar
-    p = Python26Parser()
+    p = Python25Parser()
     p.checkGrammar()

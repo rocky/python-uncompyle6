@@ -1,0 +1,28 @@
+#  Copyright (c) 2016 Rocky Bernstein
+"""
+spark grammar differences over Python2.5 for Python 2.4.
+"""
+
+from uncompyle6.parser import PythonParserSingle
+from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from uncompyle6.parsers.parse25 import Python25Parser
+
+class Python24Parser(Python25Parser):
+    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
+        super(Python24Parser, self).__init__(debug_parser)
+        self.customized = {}
+
+    def p_misc24(self, args):
+        '''
+        # 2.5+ has two LOAD_CONSTs, one for the number '.'s in a relative import
+        importstmt ::= LOAD_CONST filler import_as
+        importfrom ::= LOAD_CONST filler IMPORT_NAME importlist2 POP_TOP
+        '''
+
+class Python24ParserSingle(Python25Parser, PythonParserSingle):
+    pass
+
+if __name__ == '__main__':
+    # Check grammar
+    p = Python24Parser()
+    p.checkGrammar()

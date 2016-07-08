@@ -26,7 +26,7 @@ if PYTHON3:
     # Need to work out Python 2.3. ord's in PYTHON3
     PYTHON_VERSIONS = (2.5, 2.6, 2.7, 3.2, 3.3, 3.4, 3.5)
 else:
-    PYTHON_VERSIONS = (2.3, 2.5, 2.6, 2.7, 3.2, 3.3, 3.4, 3.5)
+    PYTHON_VERSIONS = (2.3, 2.4, 2.5, 2.6, 2.7, 3.2, 3.3, 3.4, 3.5)
 
 # FIXME: DRY
 if PYTHON3:
