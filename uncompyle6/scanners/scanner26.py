@@ -219,9 +219,6 @@ class Scanner26(scan.Scanner2):
                     pattr = repr(offset + 3 + oparg)
                     if op == self.opc.JUMP_FORWARD:
                         target = self.get_target(offset)
-                        if target > offset and self.code[target] == self.opc.RETURN_VALUE:
-                            # Python 2.5 sometimes has this
-                            op_name = 'JUMP_RETURN'
                         # FIXME: this is a hack to catch stuff like:
                         #   if x: continue
                         # the "continue" is not on a new line.

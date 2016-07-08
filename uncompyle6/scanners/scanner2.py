@@ -720,7 +720,8 @@ class Scanner2(scan.Scanner):
                     self.structs.append({'type':  'if-then',
                                            'start': start,
                                            'end':   rtarget})
-                    self.return_end_ifs.add(pre_rtarget)
+                    if self.version == 2.7 or code[pre_rtarget+1] != self.opc.JUMP_FORWARD:
+                        self.return_end_ifs.add(pre_rtarget)
 
         elif op in self.pop_jump_if_or_pop:
             target = self.get_target(pos, op)
