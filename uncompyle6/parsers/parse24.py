@@ -19,6 +19,7 @@ class Python24Parser(Python25Parser):
 
         importstmt ::= filler LOAD_CONST import_as
         importfrom ::= filler LOAD_CONST IMPORT_NAME importlist2 POP_TOP
+        importstar ::= filler LOAD_CONST IMPORT_NAME IMPORT_STAR
 
         importmultiple ::= filler LOAD_CONST import_as imports_cont
         import_cont    ::= filler LOAD_CONST import_as_cont
@@ -26,9 +27,12 @@ class Python24Parser(Python25Parser):
         # Python 2.5+ omits POP_TOP POP_BLOCK
         while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK POP_TOP POP_BLOCK COME_FROM
 
+        # Python 2.5+:
+        #  call_stmt ::= expr POP_TOP
+        #  expr      ::= yield
         call_stmt ::= yield
 
-        # Python 2.5+ adds POP_TOP
+        # Python 2.5+ adds POP_TOP at the end
         gen_comp_body ::= expr YIELD_VALUE
         '''
 
