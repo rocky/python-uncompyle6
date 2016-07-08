@@ -20,17 +20,20 @@ class Python25Parser(Python26Parser):
 
         return_if_stmt ::= ret_expr  RETURN_END_IF JUMP_BACK
 
-        # Pyython 2.6 uses ROT_TWO instead of the STORE_FAST
-        setupwithas ::= DUP_TOP LOAD_ATTR STORE_FAST LOAD_ATTR CALL_FUNCTION_0 STORE_FAST
-                        SETUP_FINALLY LOAD_FAST DELETE_FAST
+        # Pyython 2.6 uses ROT_TWO instead of the STORE_xxx
+        setupwithas ::= DUP_TOP LOAD_ATTR store LOAD_ATTR CALL_FUNCTION_0
+                        setup_finally
+
+        store ::= STORE_FAST
+        store ::= STORE_NAME
 
         # Python 2.6 omits ths LOAD_FAST DELETE_FAST below
         withasstmt ::= expr setupwithas designator suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM
-                       LOAD_FAST DELETE_FAST
-                       WITH_CLEANUP END_FINALLY
+                       with_cleanup
 
-
+        with_cleanup ::= LOAD_FAST DELETE_FAST WITH_CLEANUP END_FINALLY
+        with_cleanup ::= LOAD_NAME DELETE_NAME WITH_CLEANUP END_FINALLY
         '''
 
 class Python25ParserSingle(Python26Parser, PythonParserSingle):
