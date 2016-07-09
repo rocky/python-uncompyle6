@@ -51,7 +51,7 @@ check-bytecode-3:
 
 #: Check deparsing bytecode that works running Python 2 and Python 3
 check-bytecode: check-bytecode-3
-	$(PYTHON) test_pythonlib.py --bytecode-2.5 --bytecode-2.6 --bytecode-2.7
+	$(PYTHON) test_pythonlib.py --bytecode-2.4 --bytecode-2.5 --bytecode-2.6 --bytecode-2.7
 
 #: Check deparsing Python 2.3
 check-bytecode-2.3:

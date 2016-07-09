@@ -1,7 +1,6 @@
 #  Copyright (c) 2015, 2016 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-#  Copyright (c) 1999 John Aycock
 """
 Python 2.6 bytecode scanner
 
@@ -100,7 +99,8 @@ class Scanner26(scan.Scanner2):
 
         n = self.setup_code(co)
 
-        self.build_lines_data(co, n-1)
+        self.build_lines_data(co, n)
+        self.build_prev_op(n)
 
         # linestarts contains block code adresses (addr,block)
         self.linestarts = list(findlinestarts(co))
@@ -123,17 +123,10 @@ class Scanner26(scan.Scanner2):
             varnames = co.co_varnames
         self.names = names
 
-        # list of instruction to remove/add or change to match with bytecode 2.7
-        self.toChange = []
-        # Rocky: the restructure code isn't adjusting linestarts
-        # and this causes problems
-        # self.restructBytecode()
         codelen = len(self.code)
 
-        self.build_prev_op(codelen)
-
         self.load_asserts = set()
-        for i in self.op_range(0, codelen):
+        for i in self.op_range(0, n):
             if (self.code[i] == self.opc.JUMP_IF_TRUE and
                 i + 4 < codelen and
                 self.code[i+3] == self.opc.POP_TOP and
@@ -233,11 +226,6 @@ class Scanner26(scan.Scanner2):
                     pattr = self.opc.cmp_op[oparg]
                 elif op in self.opc.hasfree:
                     pattr = free[oparg]
-            if offset in self.toChange:
-                if (self.code[offset] == self.opc.JA and
-                    self.code[oparg] == self.opc.WITH_CLEANUP):
-                    op_name = 'SETUP_WITH'
-                    cf[oparg] = cf.get(oparg, []) + [offset]
             if op in self.varargs_ops:
                 # CE - Hack for >= 2.5
                 #      Now all values loaded via LOAD_CLOSURE are packed into
