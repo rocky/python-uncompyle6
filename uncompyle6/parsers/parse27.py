@@ -1,5 +1,9 @@
-from uncompyle6.parser import PythonParserSingle
+#  Copyright (c) 2016 Rocky Bernstein
+#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+#  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
+
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from uncompyle6.parser import PythonParserSingle
 from uncompyle6.parsers.parse2 import Python2Parser
 
 class Python27Parser(Python2Parser):

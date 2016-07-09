@@ -24,7 +24,7 @@ class Python2Parser(PythonParser):
         super(Python2Parser, self).__init__(AST, 'stmts', debug=debug_parser)
         self.new_rules = set()
 
-    def p_print(self, args):
+    def p_print2(self, args):
         '''
         stmt ::= print_items_stmt
         stmt ::= print_nl
