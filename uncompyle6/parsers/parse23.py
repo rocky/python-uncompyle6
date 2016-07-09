@@ -1,12 +1,10 @@
 #  Copyright (c) 2016 Rocky Bernstein
-#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 #  Copyright (c) 1999 John Aycock
 
-import string
-from spark_parser import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from uncompyle6.parsers.astnode import AST
-from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
+from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from uncompyle6.parser import PythonParserSingle
+from uncompyle6.parsers.parse2 import Python2Parser
 
 class Python23Parser(PythonParser):
 
