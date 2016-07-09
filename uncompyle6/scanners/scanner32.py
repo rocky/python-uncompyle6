@@ -16,7 +16,7 @@ from uncompyle6.scanners.scanner3 import Scanner3
 class Scanner32(Scanner3):
 
     def __init__(self, show_asm=None):
-        super(Scanner3, self).__init__(3.2, show_asm)
+        Scanner3.__init__(self, 3.2, show_asm)
         return
     pass
 

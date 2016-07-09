@@ -44,6 +44,38 @@ class Scanner3(scan.Scanner):
     def __init__(self, version, show_asm=None):
         super(Scanner3, self).__init__(version, show_asm)
 
+        # Above initializes self.opc
+        self.statement_opcodes = frozenset([
+            self.opc.SETUP_LOOP,    self.opc.BREAK_LOOP, self.opc.CONTINUE_LOOP,
+            self.opc.SETUP_FINALLY, self.opc.END_FINALLY, self.opc.SETUP_EXCEPT,
+            self.opc.SETUP_WITH,
+            self.opc.POP_BLOCK,     self.opc.STORE_FAST, self.opc.DELETE_FAST,
+            self.opc.STORE_DEREF,
+
+            self.opc.STORE_GLOBAL, self.opc.DELETE_GLOBAL, self.opc.STORE_NAME,
+            self.opc.DELETE_NAME,
+
+            self.opc.STORE_ATTR, self.opc.DELETE_ATTR, self.opc.STORE_SUBSCR,
+            self.opc.DELETE_SUBSCR,
+
+            self.opc.RETURN_VALUE, self.opc.RAISE_VARARGS, self.opc.POP_TOP,
+            self.opc.PRINT_EXPR,   self.opc.JUMP_ABSOLUTE
+        ])
+
+        self.statement_opcode_sequences = [
+            (self.opc.POP_JUMP_IF_FALSE, self.opc.JUMP_FORWARD),
+            (self.opc.POP_JUMP_IF_FALSE, self.opc.JUMP_ABSOLUTE),
+            (self.opc.POP_JUMP_IF_TRUE,  self.opc.JUMP_FORWARD),
+            (self.opc.POP_JUMP_IF_TRUE,  self.opc.JUMP_ABSOLUTE)]
+
+        self.designator_ops = frozenset([
+            self.opc.STORE_FAST,    self.opc.STORE_NAME, self.opc.STORE_GLOBAL,
+            self.opc.STORE_DEREF,   self.opc.STORE_ATTR,
+            self.opc.STORE_SUBSCR,  self.opc.UNPACK_SEQUENCE,
+            self.opc.JUMP_ABSOLUTE, self.opc.UNPACK_EX
+        ])
+
+
     def disassemble(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Disassemble a Python 3 code object, returning a list of 'Token'.
@@ -286,16 +318,17 @@ class Scanner3(scan.Scanner):
                 oparg = code[offset+1] + code[offset+2] * 256
 
                 if label is None:
-                    if op in op3.hasjrel and op != FOR_ITER:
+                    if op in op3.hasjrel and op != self.opc.FOR_ITER:
                         label = offset + self.op_size(op) + oparg
                     elif op in op3.hasjabs:
-                        if op in (JUMP_IF_FALSE_OR_POP, JUMP_IF_TRUE_OR_POP):
+                        if op in (self.opc.JUMP_IF_FALSE_OR_POP,
+                                  self.opc.JUMP_IF_TRUE_OR_POP):
                             if oparg > offset:
                                 label = oparg
 
                 if label is not None and label != -1:
                     targets[label] = targets.get(label, []) + [offset]
-            elif op == END_FINALLY and offset in self.fixed_jumps:
+            elif op == self.opc.END_FINALLY and offset in self.fixed_jumps:
                 label = self.fixed_jumps[offset]
                 targets[label] = targets.get(label, []) + [offset]
         return targets
@@ -305,27 +338,9 @@ class Scanner3(scan.Scanner):
         start = 0
         end = codelen = len(code)
 
-        statement_opcodes = set([
-            SETUP_LOOP, BREAK_LOOP, CONTINUE_LOOP,
-            SETUP_FINALLY, END_FINALLY, SETUP_EXCEPT, SETUP_WITH,
-            POP_BLOCK, STORE_FAST, DELETE_FAST, STORE_DEREF,
-            STORE_GLOBAL, DELETE_GLOBAL, STORE_NAME, DELETE_NAME,
-            STORE_ATTR, DELETE_ATTR, STORE_SUBSCR, DELETE_SUBSCR,
-            RETURN_VALUE, RAISE_VARARGS, POP_TOP, PRINT_EXPR,
-            JUMP_ABSOLUTE
-        ])
-
-        statement_opcode_sequences = [(POP_JUMP_IF_FALSE, JUMP_FORWARD), (POP_JUMP_IF_FALSE, JUMP_ABSOLUTE),
-                                      (POP_JUMP_IF_TRUE, JUMP_FORWARD), (POP_JUMP_IF_TRUE, JUMP_ABSOLUTE)]
-
-        designator_ops = set([
-            STORE_FAST, STORE_NAME, STORE_GLOBAL, STORE_DEREF, STORE_ATTR,
-            STORE_SUBSCR, UNPACK_SEQUENCE, JUMP_ABSOLUTE, UNPACK_EX
-        ])
-
         # Compose preliminary list of indices with statements,
         # using plain statement opcodes
-        prelim = self.all_instr(start, end, statement_opcodes)
+        prelim = self.all_instr(start, end, self.statement_opcodes)
 
         # Initialize final container with statements with
         # preliminnary data
@@ -333,7 +348,7 @@ class Scanner3(scan.Scanner):
 
         # Same for opcode sequences
         pass_stmts = set()
-        for sequence in statement_opcode_sequences:
+        for sequence in self.statement_opcode_sequences:
             for i in self.op_range(start, end-(len(sequence)+1)):
                 match = True
                 for elem in sequence:
@@ -362,7 +377,8 @@ class Scanner3(scan.Scanner):
         for stmt_offset in stmt_offset_list:
             # Process absolute jumps, but do not remove 'pass' statements
             # from the set
-            if code[stmt_offset] == JUMP_ABSOLUTE and stmt_offset not in pass_stmts:
+            if (code[stmt_offset] == self.opc.JUMP_ABSOLUTE
+                and stmt_offset not in pass_stmts):
                 # If absolute jump occurs in forward direction or it takes off from the
                 # same line as previous statement, this is not a statement
                 target = self.get_target(stmt_offset)
@@ -371,23 +387,24 @@ class Scanner3(scan.Scanner):
                     continue
                 # Rewing ops till we encounter non-JA one
                 j = self.prev_op[stmt_offset]
-                while code[j] == JUMP_ABSOLUTE:
+                while code[j] == self.opc.JUMP_ABSOLUTE:
                     j = self.prev_op[j]
                 # If we got here, then it's list comprehension which
                 # is not a statement too
-                if code[j] == LIST_APPEND:
+                if code[j] == self.opc.LIST_APPEND:
                     stmts.remove(stmt_offset)
                     continue
             # Exclude ROT_TWO + POP_TOP
-            elif code[stmt_offset] == POP_TOP and code[self.prev_op[stmt_offset]] == ROT_TWO:
+            elif (code[stmt_offset] == self.opc.POP_TOP
+                  and code[self.prev_op[stmt_offset]] == self.opc.ROT_TWO):
                 stmts.remove(stmt_offset)
                 continue
             # Exclude FOR_ITER + designators
-            elif code[stmt_offset] in designator_ops:
+            elif code[stmt_offset] in self.designator_ops:
                 j = self.prev_op[stmt_offset]
-                while code[j] in designator_ops:
+                while code[j] in self.designator_ops:
                     j = self.prev_op[j]
-                if code[j] == FOR_ITER:
+                if code[j] == self.opc.FOR_ITER:
                     stmts.remove(stmt_offset)
                     continue
             # Add to list another list with offset of current statement,
@@ -433,7 +450,7 @@ class Scanner3(scan.Scanner):
                 end = curent_end
                 parent = struct
 
-        if op == SETUP_LOOP:
+        if op == self.opc.SETUP_LOOP:
             start = offset+3
             target = self.get_target(offset)
             end    = self.restrict_to_parent(target, parent)
@@ -441,7 +458,7 @@ class Scanner3(scan.Scanner):
             if target != end:
                 self.fixed_jumps[offset] = end
             (line_no, next_line_byte) = self.lines[offset]
-            jump_back = self.last_instr(start, end, JUMP_ABSOLUTE,
+            jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE,
                                           next_line_byte, False)
 
             if jump_back and jump_back != self.prev_op[end] and code[jump_back+3] in (JUMP_ABSOLUTE, JUMP_FORWARD):
@@ -623,7 +640,7 @@ class Scanner3(scan.Scanner):
         construct in a try...except...else clause or None if not found.
         """
 
-        if self.code[start] == DUP_TOP:
+        if self.code[start] == self.opc.DUP_TOP:
             except_match = self.first_instr(start, len(self.code), POP_JUMP_IF_FALSE)
             if except_match:
                 jmp = self.prev_op[self.get_target(except_match)]
@@ -635,13 +652,13 @@ class Scanner3(scan.Scanner):
         count_SETUP_ = 0
         for i in self.op_range(start, len(self.code)):
             op = self.code[i]
-            if op == END_FINALLY:
+            if op == self.opc.END_FINALLY:
                 if count_END_FINALLY == count_SETUP_:
                     assert self.code[self.prev_op[i]] in (JUMP_ABSOLUTE, JUMP_FORWARD, RETURN_VALUE)
                     self.not_continue.add(self.prev_op[i])
                     return self.prev_op[i]
                 count_END_FINALLY += 1
-            elif op in (SETUP_EXCEPT, SETUP_WITH, SETUP_FINALLY):
+            elif op in (self.opc.SETUP_EXCEPT, self.opc.SETUP_WITH, self.opc.SETUP_FINALLY):
                 count_SETUP_ += 1
 
     def rem_or(self, start, end, instr, target=None, include_beyond_target=False):
@@ -653,7 +670,7 @@ class Scanner3(scan.Scanner):
         # Find all offsets of requested instructions
         instr_offsets = self.all_instr(start, end, instr, target, include_beyond_target)
         # Get all POP_JUMP_IF_TRUE (or) offsets
-        pjit_offsets = self.all_instr(start, end, POP_JUMP_IF_TRUE)
+        pjit_offsets = self.all_instr(start, end, self.opc.POP_JUMP_IF_TRUE)
         filtered = []
         for pjit_offset in pjit_offsets:
             pjit_tgt = self.get_target(pjit_offset) - 3
