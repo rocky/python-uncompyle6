@@ -36,7 +36,7 @@ class Python24Parser(Python25Parser):
         gen_comp_body ::= expr YIELD_VALUE
         '''
 
-class Python24ParserSingle(Python25Parser, PythonParserSingle):
+class Python24ParserSingle(Python24Parser, PythonParserSingle):
     pass
 
 if __name__ == '__main__':
