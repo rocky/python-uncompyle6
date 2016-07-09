@@ -16,7 +16,10 @@ class Python23Parser(Python24Parser):
         '''
         _while1test ::= JUMP_FORWARD JUMP_IF_FALSE POP_TOP COME_FROM
 
-        while1stmt ::= SETUP_LOOP _while1test l_stmts JUMP_BACK COME_FROM POP_TOP POP_BLOCK COME_FROM
+        while1stmt ::= SETUP_LOOP _while1test l_stmts JUMP_BACK
+                       COME_FROM POP_TOP POP_BLOCK COME_FROM
+
+        list_compr ::= BUILD_LIST_0 DUP_TOP LOAD_ATTR designator list_iter del_stmt
         '''
 
 class Python23ParserSingle(Python23Parser, PythonParserSingle):

@@ -20,7 +20,7 @@ class Python25Parser(Python26Parser):
 
         return_if_stmt ::= ret_expr  RETURN_END_IF JUMP_BACK
 
-        # Pyython 2.6 uses ROT_TWO instead of the STORE_xxx
+        # Python 2.6 uses ROT_TWO instead of the STORE_xxx
         setupwithas ::= DUP_TOP LOAD_ATTR store LOAD_ATTR CALL_FUNCTION_0
                         setup_finally
 

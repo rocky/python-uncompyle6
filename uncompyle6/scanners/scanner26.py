@@ -215,7 +215,7 @@ class Scanner26(scan.Scanner2):
                         # FIXME: this is a hack to catch stuff like:
                         #   if x: continue
                         # the "continue" is not on a new line.
-                        if tokens[-1].type == 'JUMP_BACK':
+                        if len(tokens) and tokens[-1].type == 'JUMP_BACK':
                             tokens[-1].type = intern('CONTINUE')
 
                 elif op in self.opc.hasjabs:

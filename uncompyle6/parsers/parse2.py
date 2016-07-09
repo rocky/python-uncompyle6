@@ -239,7 +239,6 @@ class Python2Parser(PythonParser):
             expr ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
         '''
         for k, v in list(customize.items()):
-
             op = k[:k.rfind('_')]
             if op in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
                 thousands = (v//1024)
