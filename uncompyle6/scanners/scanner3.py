@@ -235,7 +235,7 @@ class Scanner3(scan.Scanner):
                 # rule for that.
                 pattr = inst.argval
                 target = self.get_target(inst.offset)
-                if target < inst.offset:
+                if target <= inst.offset:
                     next_opname = self.opname[self.code[inst.offset+3]]
                     if (inst.offset in self.stmts and
                         next_opname not in ('END_FINALLY', 'POP_BLOCK')
@@ -487,11 +487,12 @@ class Scanner3(scan.Scanner):
 
         # Pick inner-most parent for our offset
         for struct in self.structs:
-            curent_start = struct['start']
-            curent_end   = struct['end']
-            if (curent_start <= offset < curent_end) and (curent_start >= start and curent_end <= end):
-                start = curent_start
-                end = curent_end
+            current_start = struct['start']
+            current_end   = struct['end']
+            if ((current_start <= offset < current_end)
+                and (current_start >= start and current_end <= end)):
+                start = current_start
+                end = current_end
                 parent = struct
 
         if op == self.opc.SETUP_LOOP:
@@ -566,10 +567,11 @@ class Scanner3(scan.Scanner):
                 self.fixed_jumps[offset] = rtarget
                 return
 
-            # Does this jump to right after another cond jump that is
+            # Does this jump to right after another conditional jump that is
             # not myself?  If so, it's part of a larger conditional.
             # rocky: if we have a conditional jump to the next instruction, then
             # possibly I am "skipping over" a "pass" or null statement.
+
             if ((code[prev_op[target]] in self.pop_jump_if_pop) and
                 (target > offset) and prev_op[target] != offset):
                 self.fixed_jumps[offset] = prev_op[target]
@@ -585,7 +587,9 @@ class Scanner3(scan.Scanner):
                 # everything inside inner 'or' jumps and midline ifs
                 match = self.rem_or(start, self.next_stmt[offset],
                                     self.opc.POP_JUMP_IF_FALSE, target)
-                match = self.remove_mid_line_ifs(match)
+                ## We can't remove mid-line ifs because line structures have changed
+                ## from restructBytecode().
+                ##  match = self.remove_mid_line_ifs(match)
 
                 # If we still have any offsets in set, start working on it
                 if match:

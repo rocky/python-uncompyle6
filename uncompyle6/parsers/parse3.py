@@ -40,13 +40,16 @@ class Python3Parser(PythonParser):
         # listcomp is a custom Python3 rule
         expr ::= listcomp
 
-        list_for ::= expr FOR_ITER designator list_iter JUMP_BACK
-
         # Our "continue" heuristic -  in two successive JUMP_BACKS, the first
         # one may be a continue - sometimes classifies a JUMP_BACK
         # as a CONTINUE. The two are kind of the same in a comprehension.
 
         comp_for ::= expr _for designator comp_iter CONTINUE
+
+        list_for ::= expr FOR_ITER designator list_iter jb_or_c
+
+        jb_or_c ::= JUMP_BACK
+        jb_or_c ::= CONTINUE
 
         # See also common Python p_list_comprehension
         """
@@ -576,18 +579,6 @@ class Python33Parser(Python3Parser):
         designator ::= STORE_LOCALS
 
         # Python 3.3 adds yield from.
-        expr ::= yield_from
-        yield_from ::= expr expr YIELD_FROM
-        """
-
-class Python34Parser(Python3Parser):
-    def p_34(self, args):
-        """
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from
-
-        # Python 3.3 added yield from. Do it the same way as in
-        # 3.3
-
         expr ::= yield_from
         yield_from ::= expr expr YIELD_FROM
         """

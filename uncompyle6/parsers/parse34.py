@@ -21,11 +21,21 @@ class Python34Parser(Python3Parser):
 
         iflaststmtl ::= testexpr c_stmts_opt
 
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from
 
         # We do the grammar hackery below for semantics
         # actions that want c_stmts_opt at index 1
         iflaststmt    ::= testexpr c_stmts_opt34
         c_stmts_opt34 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
+
+        # Python 3.3 added "yield from." Do it the same way as in
+        # 3.3
+
+        expr ::= yield_from
+        yield_from ::= expr expr YIELD_FROM
+
+        # Is this 3.4 only?
+        yield_from ::= expr GET_ITER LOAD_CONST YIELD_FROM
 
         """
 class Python34ParserSingle(Python34Parser, PythonParserSingle):

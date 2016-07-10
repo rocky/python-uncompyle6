@@ -247,7 +247,7 @@ class Scanner26(scan.Scanner2):
                 # into a "pass" statement because JUMPs are sometimes
                 # ignored in rules as just boundary overhead.
                 target = self.get_target(offset)
-                if target < offset:
+                if target <= offset:
                     if (offset in self.stmts
                         and self.code[offset+3] not in (self.opc.END_FINALLY,
                                                           self.opc.POP_BLOCK)
