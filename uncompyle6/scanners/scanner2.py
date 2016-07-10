@@ -35,7 +35,7 @@ class Scanner2(scan.Scanner):
     def __init__(self, version, show_asm=None):
         scan.Scanner.__init__(self, version, show_asm)
         self.pop_jump_if = frozenset([self.opc.PJIF, self.opc.PJIT])
-        self.jump_forward = frozenset([self.opc.JUMP_ABSOLUTE, self.opc.JF])
+        self.jump_forward = frozenset([self.opc.JUMP_ABSOLUTE, self.opc.JUMP_FORWARD])
         # This is the 2.5+ default
         # For <2.5 it is <generator expression>
         self.genexpr_name = '<genexpr>';
@@ -300,9 +300,9 @@ class Scanner2(scan.Scanner):
         start = 0
         end = len(code)
 
-        stmt_opcode_seqs = frozenset([(self.opc.PJIF, self.opc.JF),
+        stmt_opcode_seqs = frozenset([(self.opc.PJIF, self.opc.JUMP_FORWARD),
                                       (self.opc.PJIF, self.opc.JUMP_ABSOLUTE),
-                                      (self.opc.PJIT, self.opc.JF),
+                                      (self.opc.PJIT, self.opc.JUMP_FORWARD),
                                       (self.opc.PJIT, self.opc.JUMP_ABSOLUTE)])
 
         prelim = self.all_instr(start, end, self.stmt_opcodes)
@@ -567,7 +567,7 @@ class Scanner2(scan.Scanner):
                     target = self.get_target(jmp)
                     if target != start_else:
                         end_else = self.get_target(jmp)
-                    if self.code[jmp] == self.opc.JF:
+                    if self.code[jmp] == self.opc.JUMP_FORWARD:
                         if self.version <= 2.6:
                             self.fixed_jumps[jmp] = target
                         else:
@@ -679,7 +679,7 @@ class Scanner2(scan.Scanner):
                     pass
                 elif code[next] in self.jump_forward and target == self.get_target(next):
                     if code[pre[next]] == self.opc.PJIF:
-                        if code[next] == self.opc.JF or target != rtarget or code[pre[pre[rtarget]]] not in (self.opc.JUMP_ABSOLUTE, self.opc.RETURN_VALUE):
+                        if code[next] == self.opc.JUMP_FORWARD or target != rtarget or code[pre[pre[rtarget]]] not in (self.opc.JUMP_ABSOLUTE, self.opc.RETURN_VALUE):
                             self.fixed_jumps[pos] = pre[next]
                             return
                 elif code[next] == self.opc.JUMP_ABSOLUTE and code[target] in self.jump_forward:
@@ -790,6 +790,47 @@ class Scanner2(scan.Scanner):
                 label = self.fixed_jumps[i]
                 targets[label] = targets.get(label, []) + [i]
         return targets
+
+    # FIXME: combine with scanner3.py code and put into scanner.py
+    def rem_or(self, start, end, instr, target=None, include_beyond_target=False):
+        """
+        Find all <instr> in the block from start to end.
+        <instr> is any python bytecode instruction or a list of opcodes
+        If <instr> is an opcode with a target (like a jump), a target
+        destination can be specified which must match precisely.
+
+        Return a list with indexes to them or [] if none found.
+        """
+
+        assert(start>=0 and end<=len(self.code) and start <= end)
+
+        try:    None in instr
+        except: instr = [instr]
+
+        instr_offsets = []
+        for i in self.op_range(start, end):
+            op = self.code[i]
+            if op in instr:
+                if target is None:
+                    instr_offsets.append(i)
+                else:
+                    t = self.get_target(i, op)
+                    if include_beyond_target and t >= target:
+                        instr_offsets.append(i)
+                    elif t == target:
+                        instr_offsets.append(i)
+
+        pjits = self.all_instr(start, end, self.opc.PJIT)
+        filtered = []
+        for pjit in pjits:
+            tgt = self.get_target(pjit)-3
+            for i in instr_offsets:
+                if i <= pjit or i >= tgt:
+                    filtered.append(i)
+            instr_offsets = filtered
+            filtered = []
+        return instr_offsets
+
 
 if __name__ == "__main__":
     from uncompyle6 import PYTHON_VERSION

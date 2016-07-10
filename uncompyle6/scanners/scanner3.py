@@ -694,18 +694,6 @@ class Scanner3(scan.Scanner):
                 else:
                     self.fixed_jumps[offset] = self.restrict_to_parent(target, parent)
 
-    def is_jump_forward(self, offset):
-        """
-        Return True if the code at offset is some sort of jump forward.
-        That is, it is ether "JUMP_FORWARD" or an absolute jump that
-        goes forward.
-        """
-        if self.code[offset] == self.opc.JUMP_FORWARD:
-            return True
-        if self.code[offset] != self.opc.JUMP_ABSOLUTE:
-            return False
-        return offset < self.get_target(offset)
-
 
     def next_except_jump(self, start):
         """
@@ -740,6 +728,8 @@ class Scanner3(scan.Scanner):
         optionally <target>ing specified offset, and return list found
         <instr> offsets which are not within any POP_JUMP_IF_TRUE jumps.
         """
+        assert(start>=0 and end<=len(self.code) and start <= end)
+
         # Find all offsets of requested instructions
         instr_offsets = self.all_instr(start, end, instr, target, include_beyond_target)
         # Get all POP_JUMP_IF_TRUE (or) offsets
@@ -753,22 +743,6 @@ class Scanner3(scan.Scanner):
             instr_offsets = filtered
             filtered = []
         return instr_offsets
-
-    def remove_mid_line_ifs(self, ifs):
-        """
-        Go through passed offsets, filtering ifs
-        located somewhere mid-line.
-        """
-        filtered = []
-        for if_ in ifs:
-            # For each offset, if line number of current and next op
-            # is the same
-            if self.lines[if_].l_no == self.lines[if_+3].l_no:
-                # Skip last op on line if it is some sort of POP_JUMP.
-                if self.code[self.prev_op[self.lines[if_].next]] in POP_JUMP_TF:
-                    continue
-            filtered.append(if_)
-        return filtered
 
 if __name__ == "__main__":
     from uncompyle6 import PYTHON_VERSION

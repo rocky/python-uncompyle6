@@ -63,13 +63,17 @@ class Scanner(object):
         # FIXME: This weird Python2 behavior is not Python3
         self.resetTokenClass()
 
-    def setTokenClass(self, tokenClass):
-        # assert isinstance(tokenClass, types.ClassType)
-        self.Token = tokenClass
-        return self.Token
-
-    def resetTokenClass(self):
-        return self.setTokenClass(Token)
+    def is_jump_forward(self, offset):
+        """
+        Return True if the code at offset is some sort of jump forward.
+        That is, it is ether "JUMP_FORWARD" or an absolute jump that
+        goes forward.
+        """
+        if self.code[offset] == self.opc.JUMP_FORWARD:
+            return True
+        if self.code[offset] != self.opc.JUMP_ABSOLUTE:
+            return False
+        return offset < self.get_target(offset)
 
     def get_target(self, pos, op=None):
         if op is None:
@@ -214,59 +218,35 @@ class Scanner(object):
             start += self.op_size(self.code[start])
 
     def remove_mid_line_ifs(self, ifs):
+        """
+        Go through passed offsets, filtering ifs
+        located somewhere mid-line.
+        """
         filtered = []
         for i in ifs:
+            # For each offset, if line number of current and next op
+            # is the same
             if self.lines[i].l_no == self.lines[i+3].l_no:
+                # Skip last op on line if it is some sort of POP_JUMP.
                 if self.code[self.prev[self.lines[i].next]] in (self.opc.PJIT, self.opc.PJIF):
                     continue
             filtered.append(i)
         return filtered
 
-    def rem_or(self, start, end, instr, target=None, include_beyond_target=False):
-        """
-        Find all <instr> in the block from start to end.
-        <instr> is any python bytecode instruction or a list of opcodes
-        If <instr> is an opcode with a target (like a jump), a target
-        destination can be specified which must match precisely.
-
-        Return a list with indexes to them or [] if none found.
-        """
-
-        code = self.code
-        assert(start>=0 and end<=len(code))
-
-        try:    None in instr
-        except: instr = [instr]
-
-        result = []
-        for i in self.op_range(start, end):
-            op = code[i]
-            if op in instr:
-                if target is None:
-                    result.append(i)
-                else:
-                    t = self.get_target(i, op)
-                    if include_beyond_target and t >= target:
-                        result.append(i)
-                    elif t == target:
-                        result.append(i)
-
-        pjits = self.all_instr(start, end, self.opc.PJIT)
-        filtered = []
-        for pjit in pjits:
-            tgt = self.get_target(pjit)-3
-            for i in result:
-                if i <= pjit or i >= tgt:
-                    filtered.append(i)
-            result = filtered
-            filtered = []
-        return result
+    def resetTokenClass(self):
+        return self.setTokenClass(Token)
 
     def restrict_to_parent(self, target, parent):
         """Restrict target to parent structure boundaries."""
         if not (parent['start'] < target < parent['end']):
             target = parent['end']
         return target
+
+    def setTokenClass(self, tokenClass):
+        # assert isinstance(tokenClass, types.ClassType)
+        self.Token = tokenClass
+        return self.Token
+
 
 def parse_fn_counts(argc):
     return ((argc & 0xFF), (argc >> 8) & 0xFF, (argc >> 16) & 0x7FFF)
