@@ -16,9 +16,18 @@ class Python34Parser(Python3Parser):
     def p_misc34(self, args):
         """
         # Python 3.5+ optimizes the trailing two JUMPS away
-        for_block ::= l_stmts_opt JUMP_ABSOLUTE
-        """
 
+        for_block ::= l_stmts
+
+        iflaststmtl ::= testexpr c_stmts_opt
+
+
+        # We do the grammar hackery below for semantics
+        # actions that want c_stmts_opt at index 1
+        iflaststmt    ::= testexpr c_stmts_opt34
+        c_stmts_opt34 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
+
+        """
 class Python34ParserSingle(Python34Parser, PythonParserSingle):
     pass
 
