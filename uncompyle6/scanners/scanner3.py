@@ -32,6 +32,11 @@ from uncompyle6.scanner import Token, parse_fn_counts
 # Get all the opcodes into globals
 import xdis.opcodes.opcode_33 as op3
 
+import sys
+from uncompyle6 import PYTHON3
+if PYTHON3:
+    intern = sys.intern
+
 globals().update(op3.opmap)
 
 # POP_JUMP_IF is used by verify
