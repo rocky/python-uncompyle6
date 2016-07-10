@@ -625,10 +625,6 @@ class Python32ParserSingle(Python32Parser, PythonParserSingle):
 class Python33ParserSingle(Python33Parser, PythonParserSingle):
     pass
 
-class Python34ParserSingle(Python34Parser, PythonParserSingle):
-    pass
-
-
 class Python35onParserSingle(Python35onParser, PythonParserSingle):
     pass
 
@@ -641,8 +637,6 @@ def info(args):
         arg = args[0]
         if arg == '3.5':
             p = Python35onParser()
-        elif arg == '3.4':
-            p = Python34Parser()
         elif arg == '3.3':
             p = Python33Parser()
         elif arg == '3.2':

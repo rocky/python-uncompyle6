@@ -637,10 +637,11 @@ def get_python_parser(version, debug_parser, compile_mode='exec'):
             else:
                 p = parse3.Python33ParserSingle(debug_parser)
         elif version == 3.4:
+            import uncompyle6.parsers.parse34 as parse34
             if compile_mode == 'exec':
-                p = parse3.Python34Parser(debug_parser)
+                p = parse34.Python34Parser(debug_parser)
             else:
-                p = parse3.Python34ParserSingle(debug_parser)
+                p = parse34.Python34ParserSingle(debug_parser)
         elif version >= 3.5:
             if compile_mode == 'exec':
                 p = parse3.Python35onParser(debug_parser)
