@@ -295,6 +295,14 @@ class Python3Parser(PythonParser):
         binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
         '''
 
+    def p_misc3(self, args):
+        '''
+        for_block ::= l_stmts
+        iflaststmtl ::= testexpr c_stmts_opt
+        iflaststmt    ::= testexpr c_stmts_opt34
+        c_stmts_opt34 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
+        '''
+
     @staticmethod
     def call_fn_name(token):
         """Customize CALL_FUNCTION to add the number of positional arguments"""

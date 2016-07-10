@@ -44,7 +44,10 @@ class Scanner3(scan.Scanner):
     def __init__(self, version, show_asm=None):
         super(Scanner3, self).__init__(version, show_asm)
 
-        # Above initializes self.opc
+        # Create opcode classification sets
+        # Note: super initilization above initializes self.opc
+
+        # Opcodes that can start a statement.
         self.statement_opcodes = frozenset([
             self.opc.SETUP_LOOP,    self.opc.BREAK_LOOP, self.opc.CONTINUE_LOOP,
             self.opc.SETUP_FINALLY, self.opc.END_FINALLY, self.opc.SETUP_EXCEPT,
@@ -62,21 +65,14 @@ class Scanner3(scan.Scanner):
             self.opc.PRINT_EXPR,   self.opc.JUMP_ABSOLUTE
         ])
 
-        self.statement_opcode_sequences = [
-            (self.opc.POP_JUMP_IF_FALSE, self.opc.JUMP_FORWARD),
-            (self.opc.POP_JUMP_IF_FALSE, self.opc.JUMP_ABSOLUTE),
-            (self.opc.POP_JUMP_IF_TRUE,  self.opc.JUMP_FORWARD),
-            (self.opc.POP_JUMP_IF_TRUE,  self.opc.JUMP_ABSOLUTE)]
-
+        # Opcodes that can start a designator non-terminal.
+        # FIXME: JUMP_ABSOLUTE is weird. What's up with that?
         self.designator_ops = frozenset([
             self.opc.STORE_FAST,    self.opc.STORE_NAME, self.opc.STORE_GLOBAL,
             self.opc.STORE_DEREF,   self.opc.STORE_ATTR,
             self.opc.STORE_SUBSCR,  self.opc.UNPACK_SEQUENCE,
             self.opc.JUMP_ABSOLUTE, self.opc.UNPACK_EX
         ])
-
-        self.jump_forward = frozenset([self.opc.JUMP_ABSOLUTE,
-                                       self.opc.JUMP_FORWARD])
 
         self.jump_if_pop = frozenset([self.opc.JUMP_IF_FALSE_OR_POP,
                                       self.opc.JUMP_IF_TRUE_OR_POP])
@@ -86,6 +82,8 @@ class Scanner3(scan.Scanner):
                                           self.opc.POP_JUMP_IF_TRUE,
                                           self.opc.POP_JUMP_IF_FALSE])
 
+        # Opcodes that take a variable number of arguments
+        # (expr's)
         self.varargs = frozenset([self.opc.BUILD_LIST,
                                   self.opc.BUILD_TUPLE,
                                   self.opc.BUILD_SET,
@@ -93,6 +91,14 @@ class Scanner3(scan.Scanner):
                                   self.opc.BUILD_MAP,
                                   self.opc.UNPACK_SEQUENCE,
                                   self.opc.RAISE_VARARGS])
+
+        # Not really a set, but still clasification-like
+        self.statement_opcode_sequences = [
+            (self.opc.POP_JUMP_IF_FALSE, self.opc.JUMP_FORWARD),
+            (self.opc.POP_JUMP_IF_FALSE, self.opc.JUMP_ABSOLUTE),
+            (self.opc.POP_JUMP_IF_TRUE,  self.opc.JUMP_FORWARD),
+            (self.opc.POP_JUMP_IF_TRUE,  self.opc.JUMP_ABSOLUTE)]
+
 
     def disassemble(self, co, classname=None, code_objects={}, show_asm=None):
         """
@@ -494,7 +500,7 @@ class Scanner3(scan.Scanner):
             jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE,
                                           next_line_byte, False)
 
-            if jump_back and jump_back != self.prev_op[end] and code[jump_back+3] in self.jump_forward:
+            if jump_back and jump_back != self.prev_op[end] and self.is_jump_forward(jump_back+3):
                 if (code[self.prev_op[end]] == self.opc.RETURN_VALUE
                     or (code[self.prev_op[end]] == self.opc.POP_BLOCK
                          and code[self.prev_op[self.prev_op[end]]] == self.opc.RETURN_VALUE)):
@@ -513,8 +519,8 @@ class Scanner3(scan.Scanner):
             else:
                 if self.get_target(jump_back) >= next_line_byte:
                     jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE, start, False)
-                if end > jump_back+4 and code[end] in self.jump_forward:
-                    if code[jump_back+4] in self.jump_forward:
+                if end > jump_back+4 and self.is_jump_forward(end):
+                    if self.is_jump_forward(jump_back+4):
                         if self.get_target(jump_back+4) == self.get_target(end):
                             self.fixed_jumps[offset] = jump_back+4
                             end = jump_back+4
@@ -569,7 +575,7 @@ class Scanner3(scan.Scanner):
 
             # Is it an "and" inside an "if" block
             if op == self.opc.POP_JUMP_IF_FALSE:
-                # Search for other POP_JUMP_IF_FALSE targetting the same op,
+                # Search for another POP_JUMP_IF_FALSE targetting the same op,
                 # in current statement, starting from current offset, and filter
                 # everything inside inner 'or' jumps and midline ifs
                 match = self.rem_or(start, self.next_stmt[offset],
@@ -578,7 +584,8 @@ class Scanner3(scan.Scanner):
 
                 # If we still have any offsets in set, start working on it
                 if match:
-                    if (code[prev_op[rtarget]] in self.jump_forward and prev_op[rtarget] not in self.stmts and
+                    is_jump_forward = self.is_jump_forward(prev_op[rtarget])
+                    if (is_jump_forward and prev_op[rtarget] not in self.stmts and
                         self.restrict_to_parent(self.get_target(prev_op[rtarget]), parent) == rtarget):
                         if (code[prev_op[prev_op[rtarget]]] == self.opc.JUMP_ABSOLUTE
                             and self.remove_mid_line_ifs([offset]) and
@@ -612,14 +619,15 @@ class Scanner3(scan.Scanner):
                             self.fixed_jumps[offset] = fix or match[-1]
                             return
                     else:
-                        self.fixed_jumps[offset] = match[-1]
+                        if is_jump_forward:
+                            self.fixed_jumps[offset] = match[-1]
                         return
             # op == POP_JUMP_IF_TRUE
             else:
                 next = self.next_stmt[offset]
                 if prev_op[next] == offset:
                     pass
-                elif code[next] in self.jump_forward and target == self.get_target(next):
+                elif self.is_jump_forward(next) and target == self.get_target(next):
                     if code[prev_op[next]] == self.opc.POP_JUMP_IF_FALSE:
                         if (code[next] == self.opc.JUMP_FORWARD
                             or target != rtarget
@@ -627,7 +635,7 @@ class Scanner3(scan.Scanner):
                             (self.opc.JUMP_ABSOLUTE, self.opc.RETURN_VALUE)):
                             self.fixed_jumps[offset] = prev_op[next]
                             return
-                elif (code[next] == self.opc.JUMP_ABSOLUTE and code[target] in self.jump_forward and
+                elif (code[next] == self.opc.JUMP_ABSOLUTE and self.is_jump_forward(target) and
                       self.get_target(target) == self.get_target(next)):
                     self.fixed_jumps[offset] = prev_op[next]
                     return
@@ -646,7 +654,7 @@ class Scanner3(scan.Scanner):
                 rtarget = prev_op[rtarget]
 
             # Does the "if" jump just beyond a jump op, then this is probably an if statement
-            if code[prev_op[rtarget]] in self.jump_forward:
+            if self.is_jump_forward(prev_op[rtarget]):
                 if_end = self.get_target(prev_op[rtarget])
 
                 # Is this a loop and not an "if" statement?
@@ -680,6 +688,19 @@ class Scanner3(scan.Scanner):
                     self.fixed_jumps[offset] = unop_target
                 else:
                     self.fixed_jumps[offset] = self.restrict_to_parent(target, parent)
+
+    def is_jump_forward(self, offset):
+        """
+        Return True if the code at offset is some sort of jump forward.
+        That is, it is ether "JUMP_FORWARD" or an absolute jump that
+        goes forward.
+        """
+        if self.code[offset] == self.opc.JUMP_FORWARD:
+            return True
+        if self.code[offset] != self.opc.JUMP_ABSOLUTE:
+            return False
+        return offset < self.get_target(offset)
+
 
     def next_except_jump(self, start):
         """
