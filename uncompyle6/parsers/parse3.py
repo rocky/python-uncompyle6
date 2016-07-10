@@ -42,6 +42,12 @@ class Python3Parser(PythonParser):
 
         list_for ::= expr FOR_ITER designator list_iter JUMP_BACK
 
+        # Our "continue" heuristic -  in two successive JUMP_BACKS, the first
+        # one may be a continue - sometimes classifies a JUMP_BACK
+        # as a CONTINUE. The two are kind of the same in a comprehension.
+
+        comp_for ::= expr _for designator comp_iter CONTINUE
+
         # See also common Python p_list_comprehension
         """
 

@@ -184,7 +184,15 @@ class Scanner2(scan.Scanner):
                     opname = '%s_%d' % (opname, oparg)
                     if op != self.opc.BUILD_SLICE:
                         customize[opname] = oparg
-            elif op == self.opc.JA:
+            elif op == self.opc.JUMP_ABSOLUTE:
+                # Further classifhy JUMP_ABSOLUTE into backward jumps
+                # which are used in loops, and "CONTINUE" jumps which
+                # may appear in a "continue" statement.  The loop-type
+                # and continue-type jumps will help us classify loop
+                # boundaries The continue-type jumps help us get
+                # "continue" statements with would otherwise be turned
+                # into a "pass" statement because JUMPs are sometimes
+                # ignored in rules as just boundary overhead.
                 target = self.get_target(offset)
                 if target < offset:
                     if (offset in self.stmts
