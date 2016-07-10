@@ -429,7 +429,7 @@ class Scanner3(scan.Scanner):
                 if target > stmt_offset or self.lines[last_stmt_offset].l_no == self.lines[stmt_offset].l_no:
                     stmts.remove(stmt_offset)
                     continue
-                # Rewing ops till we encounter non-JA one
+                # Rewing ops till we encounter non-JUMP_ABSOLUTE one
                 j = self.prev_op[stmt_offset]
                 while code[j] == self.opc.JUMP_ABSOLUTE:
                     j = self.prev_op[j]

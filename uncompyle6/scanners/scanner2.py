@@ -35,7 +35,7 @@ class Scanner2(scan.Scanner):
     def __init__(self, version, show_asm=None):
         scan.Scanner.__init__(self, version, show_asm)
         self.pop_jump_if = frozenset([self.opc.PJIF, self.opc.PJIT])
-        self.jump_forward = frozenset([self.opc.JA, self.opc.JF])
+        self.jump_forward = frozenset([self.opc.JUMP_ABSOLUTE, self.opc.JF])
         # This is the 2.5+ default
         # For <2.5 it is <generator expression>
         self.genexpr_name = '<genexpr>';
@@ -301,9 +301,9 @@ class Scanner2(scan.Scanner):
         end = len(code)
 
         stmt_opcode_seqs = frozenset([(self.opc.PJIF, self.opc.JF),
-                                      (self.opc.PJIF, self.opc.JA),
+                                      (self.opc.PJIF, self.opc.JUMP_ABSOLUTE),
                                       (self.opc.PJIT, self.opc.JF),
-                                      (self.opc.PJIT, self.opc.JA)])
+                                      (self.opc.PJIT, self.opc.JUMP_ABSOLUTE)])
 
         prelim = self.all_instr(start, end, self.stmt_opcodes)
 
@@ -333,13 +333,13 @@ class Scanner2(scan.Scanner):
         slist = self.next_stmt = []
         i = 0
         for s in stmt_list:
-            if code[s] == self.opc.JA and s not in pass_stmts:
+            if code[s] == self.opc.JUMP_ABSOLUTE and s not in pass_stmts:
                 target = self.get_target(s)
                 if target > s or self.lines[last_stmt].l_no == self.lines[s].l_no:
                     stmts.remove(s)
                     continue
                 j = self.prev[s]
-                while code[j] == self.opc.JA:
+                while code[j] == self.opc.JUMP_ABSOLUTE:
                     j = self.prev[j]
                 try:
                     if code[j] == self.opc.LIST_APPEND: # list comprehension
@@ -440,7 +440,7 @@ class Scanner2(scan.Scanner):
                 self.fixed_jumps[pos] = end
 
             (line_no, next_line_byte) = self.lines[pos]
-            jump_back = self.last_instr(start, end, self.opc.JA,
+            jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE,
                                         next_line_byte, False)
 
             if jump_back:
@@ -469,7 +469,7 @@ class Scanner2(scan.Scanner):
             if not jump_back:
                 # loop suite ends in return
                 # scanner26 of wbiti had:
-                # jump_back = self.last_instr(start, end, self.opc.JA, start, False)
+                # jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE, start, False)
                 jump_back = self.last_instr(start, end, self.opc.RETURN_VALUE)
                 if not jump_back:
                     return
@@ -499,7 +499,7 @@ class Scanner2(scan.Scanner):
                 end = jump_back + 3
             else:
                 if self.get_target(jump_back) >= next_line_byte:
-                    jump_back = self.last_instr(start, end, self.opc.JA, start, False)
+                    jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE, start, False)
                 if end > jump_back+4 and code[end] in self.jump_forward:
                     if code[jump_back+4] in self.jump_forward:
                         if self.get_target(jump_back+4) == self.get_target(end):
@@ -509,7 +509,7 @@ class Scanner2(scan.Scanner):
                     self.fixed_jumps[pos] = jump_back+4
                     end = jump_back+4
 
-                target = self.get_target(jump_back, self.opc.JA)
+                target = self.get_target(jump_back, self.opc.JUMP_ABSOLUTE)
 
                 if code[target] in (self.opc.FOR_ITER, self.opc.GET_ITER):
                     loop_type = 'for'
@@ -634,7 +634,7 @@ class Scanner2(scan.Scanner):
                     if code[pre[rtarget]] in self.jump_forward \
                             and pre[rtarget] not in self.stmts \
                             and self.restrict_to_parent(self.get_target(pre[rtarget]), parent) == rtarget:
-                        if code[pre[pre[rtarget]]] == self.opc.JA \
+                        if code[pre[pre[rtarget]]] == self.opc.JUMP_ABSOLUTE \
                                 and self.remove_mid_line_ifs([pos]) \
                                 and target == self.get_target(pre[pre[rtarget]]) \
                                 and (pre[pre[rtarget]] not in self.stmts or self.get_target(pre[pre[rtarget]]) > pre[pre[rtarget]])\
@@ -646,7 +646,7 @@ class Scanner2(scan.Scanner):
                                                                                        pre[pre[rtarget]],
                                                                                        self.pop_jump_if, target)))
                                               | set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]],
-                                                            (self.opc.PJIF, self.opc.PJIT, self.opc.JA), pre[rtarget], True))))):
+                                                            (self.opc.PJIF, self.opc.PJIT, self.opc.JUMP_ABSOLUTE), pre[rtarget], True))))):
                             pass
                         else:
                             fix = None
@@ -679,10 +679,10 @@ class Scanner2(scan.Scanner):
                     pass
                 elif code[next] in self.jump_forward and target == self.get_target(next):
                     if code[pre[next]] == self.opc.PJIF:
-                        if code[next] == self.opc.JF or target != rtarget or code[pre[pre[rtarget]]] not in (self.opc.JA, self.opc.RETURN_VALUE):
+                        if code[next] == self.opc.JF or target != rtarget or code[pre[pre[rtarget]]] not in (self.opc.JUMP_ABSOLUTE, self.opc.RETURN_VALUE):
                             self.fixed_jumps[pos] = pre[next]
                             return
-                elif code[next] == self.opc.JA and code[target] in self.jump_forward:
+                elif code[next] == self.opc.JUMP_ABSOLUTE and code[target] in self.jump_forward:
                     next_target = self.get_target(next)
                     if self.get_target(target) == next_target:
                         self.fixed_jumps[pos] = pre[next]
@@ -695,10 +695,10 @@ class Scanner2(scan.Scanner):
             if pos in self.ignore_if:
                 return
 
-            if code[pre[rtarget]] == self.opc.JA and pre[rtarget] in self.stmts \
+            if code[pre[rtarget]] == self.opc.JUMP_ABSOLUTE and pre[rtarget] in self.stmts \
                     and pre[rtarget] != pos and pre[pre[rtarget]] != pos:
-                if code[rtarget] == self.opc.JA and code[rtarget+3] == self.opc.POP_BLOCK:
-                    if code[pre[pre[rtarget]]] != self.opc.JA:
+                if code[rtarget] == self.opc.JUMP_ABSOLUTE and code[rtarget+3] == self.opc.POP_BLOCK:
+                    if code[pre[pre[rtarget]]] != self.opc.JUMP_ABSOLUTE:
                         pass
                     elif self.get_target(pre[pre[rtarget]]) != target:
                         pass
