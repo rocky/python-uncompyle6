@@ -146,7 +146,7 @@ class Scanner2(scan.Scanner):
                         if const.co_name == '<lambda>':
                             assert opname == 'LOAD_CONST'
                             opname = 'LOAD_LAMBDA'
-                        elif const.co_name == self.genexpr_name:
+                        elif const.co_name == '<genexpr>':
                             opname = 'LOAD_GENEXPR'
                         elif const.co_name == '<dictcomp>':
                             opname = 'LOAD_DICTCOMP'
@@ -185,16 +185,8 @@ class Scanner2(scan.Scanner):
                     if op != self.opc.BUILD_SLICE:
                         customize[opname] = oparg
             elif op == self.opc.JUMP_ABSOLUTE:
-                # Further classifhy JUMP_ABSOLUTE into backward jumps
-                # which are used in loops, and "CONTINUE" jumps which
-                # may appear in a "continue" statement.  The loop-type
-                # and continue-type jumps will help us classify loop
-                # boundaries The continue-type jumps help us get
-                # "continue" statements with would otherwise be turned
-                # into a "pass" statement because JUMPs are sometimes
-                # ignored in rules as just boundary overhead.
                 target = self.get_target(offset)
-                if target <= offset:
+                if target < offset:
                     if (offset in self.stmts
                         and self.code[offset+3] not in (self.opc.END_FINALLY,
                                                         self.opc.POP_BLOCK)
@@ -341,12 +333,9 @@ class Scanner2(scan.Scanner):
                 j = self.prev[s]
                 while code[j] == self.opc.JUMP_ABSOLUTE:
                     j = self.prev[j]
-                try:
-                    if code[j] == self.opc.LIST_APPEND: # list comprehension
-                        stmts.remove(s)
-                        continue
-                except:
-                    from trepan.api import debug; debug()
+                if code[j] == self.opc.LIST_APPEND: # list comprehension
+                    stmts.remove(s)
+                    continue
             elif code[s] == self.opc.POP_TOP and code[self.prev[s]] == self.opc.ROT_TWO:
                 stmts.remove(s)
                 continue
@@ -374,7 +363,7 @@ class Scanner2(scan.Scanner):
                 jmp = self.prev[self.get_target(except_match)]
 
                 # In Python <= 2.6 we may have jumps to jumps
-                if self.version <= 2.6 and self.is_jump_forward(jmp):
+                if self.version <= 2.6 and self.code[jmp] in self.jump_forward:
                     self.not_continue.add(jmp)
                     jmp = self.get_target(jmp)
                     if jmp not in self.pop_jump_if | self.jump_forward:
@@ -421,14 +410,6 @@ class Scanner2(scan.Scanner):
             _start = s['start']
             _end   = s['end']
             if (_start <= pos < _end) and (_start >= start and _end <= end):
-
-                # # Rocky: The SETUP_LOOP gives its boundary. So respect that as well.
-                # # Without this we can associate a COME_FROM incorrectly
-                # if op == self.opc.SETUP_LOOP:
-                #     target = self.get_target(pos, op)
-                #     if _end < target:
-                #         continue
-
                 start  = _start
                 end    = _end
                 parent = s
@@ -469,7 +450,7 @@ class Scanner2(scan.Scanner):
                     return_val_offset1 = self.prev[self.prev[end]]
 
             if (jump_back and jump_back != self.prev[end]
-                and self.is_jump_forward(jump_forward_offset)):
+                and code[jump_forward_offset] in self.jump_forward):
                 if (code[self.prev[end]] == self.opc.RETURN_VALUE or
                     (code[self.prev[end]] == self.opc.POP_BLOCK
                      and code[return_val_offset1] == self.opc.RETURN_VALUE)):
@@ -508,8 +489,8 @@ class Scanner2(scan.Scanner):
             else:
                 if self.get_target(jump_back) >= next_line_byte:
                     jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE, start, False)
-                if end > jump_back+4 and self.is_jump_forward(end):
-                    if self.is_jump_forward(jump_back+4):
+                if end > jump_back+4 and code[end] in self.jump_forward:
+                    if code[jump_back+4] in self.jump_forward:
                         if self.get_target(jump_back+4) == self.get_target(end):
                             self.fixed_jumps[pos] = jump_back+4
                             end = jump_back+4
@@ -629,7 +610,7 @@ class Scanner2(scan.Scanner):
 
             # Is it an "and" inside an "if" block
             if op == self.opc.PJIF:
-                # Search for other PJIF targetting the same op,
+                # Search for other POP_JUMP_IF_FALSE targetting the same op,
                 # in current statement, starting from current offset, and filter
                 # everything inside inner 'or' jumps and midline ifs
                 match = self.rem_or(start, self.next_stmt[pos], self.opc.PJIF, target)
@@ -639,14 +620,14 @@ class Scanner2(scan.Scanner):
 
                 # If we still have any offsets in set, start working on it
                 if match:
-                    is_jump_forward = self.is_jump_forward(pre[rtarget])
-                    if (is_jump_forward and pre[rtarget] not in self.stmts and
-                        self.restrict_to_parent(self.get_target(pre[rtarget]), parent) == rtarget):
-                        if (code[pre[pre[rtarget]]] == self.opc.JUMP_ABSOLUTE
-                            and self.remove_mid_line_ifs([pos])
-                            and target == self.get_target(pre[pre[rtarget]])
-                            and (pre[pre[rtarget]] not in self.stmts or self.get_target(pre[pre[rtarget]]) > pre[pre[rtarget]])
-                                and 1 == len(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]], self.pop_jump_if, target)))):
+                    if code[pre[rtarget]] in self.jump_forward \
+                            and pre[rtarget] not in self.stmts \
+                            and self.restrict_to_parent(self.get_target(pre[rtarget]), parent) == rtarget:
+                        if code[pre[pre[rtarget]]] == self.opc.JUMP_ABSOLUTE \
+                                and self.remove_mid_line_ifs([pos]) \
+                                and target == self.get_target(pre[pre[rtarget]]) \
+                                and (pre[pre[rtarget]] not in self.stmts or self.get_target(pre[pre[rtarget]]) > pre[pre[rtarget]])\
+                                and 1 == len(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]], self.pop_jump_if, target))):
                             pass
                         elif code[pre[pre[rtarget]]] == self.opc.RETURN_VALUE \
                                 and self.remove_mid_line_ifs([pos]) \
@@ -670,8 +651,7 @@ class Scanner2(scan.Scanner):
                             self.fixed_jumps[pos] = fix or match[-1]
                             return
                     else:
-                        if is_jump_forward:
-                            self.fixed_jumps[pos] = match[-1]
+                        self.fixed_jumps[pos] = match[-1]
                         return
             else: # op == self.opc.PJIT
                 if self.version < 2.7 and code[pos+3] == self.opc.POP_TOP:
@@ -686,17 +666,17 @@ class Scanner2(scan.Scanner):
                 next = self.next_stmt[pos]
                 if pre[next] == pos:
                     pass
-                elif self.is_jump_forward(next) and target == self.get_target(next):
+                elif code[next] in self.jump_forward and target == self.get_target(next):
                     if code[pre[next]] == self.opc.PJIF:
                         if code[next] == self.opc.JUMP_FORWARD or target != rtarget or code[pre[pre[rtarget]]] not in (self.opc.JUMP_ABSOLUTE, self.opc.RETURN_VALUE):
                             self.fixed_jumps[pos] = pre[next]
                             return
-                    elif code[next] == self.opc.JUMP_ABSOLUTE and self.is_jump_forward(target):
-                        next_target = self.get_target(next)
+                elif code[next] == self.opc.JUMP_ABSOLUTE and code[target] in self.jump_forward:
+                    next_target = self.get_target(next)
                     if self.get_target(target) == next_target:
                         self.fixed_jumps[pos] = pre[next]
                         return
-                    elif self.is_jump_forward(next_target) and self.get_target(next_target) == self.get_target(target):
+                    elif code[next_target] in self.jump_forward and self.get_target(next_target) == self.get_target(target):
                         self.fixed_jumps[pos] = pre[next]
                         return
 
@@ -719,7 +699,7 @@ class Scanner2(scan.Scanner):
             # Does the "if" jump just beyond a jump op, then this is probably an if statement
             pre_rtarget = pre[rtarget]
             code_pre_rtarget = code[pre_rtarget]
-            if self.is_jump_forward(pre_rtarget):
+            if code_pre_rtarget in self.jump_forward:
                 if_end = self.get_target(pre_rtarget)
 
                 # Is this a loop and not an "if" statment?
@@ -795,7 +775,6 @@ class Scanner2(scan.Scanner):
 
                 if label is not None and label != -1:
                     targets[label] = targets.get(label, []) + [i]
-
             elif op == self.opc.END_FINALLY and i in self.fixed_jumps:
                 label = self.fixed_jumps[i]
                 targets[label] = targets.get(label, []) + [i]
