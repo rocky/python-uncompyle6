@@ -1,6 +1,190 @@
+2016-07-11  rocky <rb@dustyfeet.com>
+
+	* test/add-test.py,
+	test/simple_source/comprehension/05_set_comprehension.py,
+	uncompyle6/semantics/pysource.py: Fix some Python set comprehension
+	bugs
+
+2016-07-11  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/def/05_static_method.py: Add missing a test
+	source file
+
+2016-07-11  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/parsers/parse27.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanners/scanner3.py: Python 3.(4?) while1 bug Clean up while1 grammar a tad
+
+2016-07-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner2.py: Revert recent 2.x code which fail
+	verification
+
+2016-07-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/parsers/parse34.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner26.py,
+	uncompyle6/scanners/scanner3.py: Structure detection bugs + Had borked 3.4 grammar rules in previous refactor
+
+2016-07-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanner.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner3.py: DRY and clean up code a little
+
+2016-07-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner26.py, uncompyle6/scanners/scanner27.py,
+	uncompyle6/scanners/scanner3.py: Remove JA. Use standard
+	JUMP_ABSOLUTE instead
+
+2016-07-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner3.py: Python 2/3 compatibility bug
+
+2016-07-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner3.py: 
+	Bugs caused by 3.x jump_forward misclasification
+
+2016-07-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner26.py, uncompyle6/scanners/scanner3.py: 
+	Python 3 better CONTINUE op classification Also document what's up with JUMP_ABSOLUTE classification
+
+2016-07-09  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse34.py: 3.4 continue handling. More work is
+	needed
+
+2016-07-09  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py: Need xdis 2.4 bugfix
+
+2016-07-09  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse34.py: Start splitting off 3.4 grammar from
+	rest
+
+2016-07-09  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/comprehension/01_list_comprehension.py,
+	uncompyle6/parsers/parse23.py: Python 2.3 list comprehensions
+
+2016-07-09  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/comprehension/01_list_comprehension.py,
+	test/simple_source/operation_binary/add.py,
+	test/simple_source/operation_binary/and.py,
+	test/simple_source/operation_binary/divide_floor.py,
+	test/simple_source/operation_binary/divide_true.py,
+	test/simple_source/operation_binary/modulo.py,
+	test/simple_source/operation_binary/multiply.py,
+	test/simple_source/operation_binary/or.py,
+	test/simple_source/operation_binary/power.py,
+	test/simple_source/operation_binary/shift_left.py,
+	test/simple_source/operation_binary/shift_right.py,
+	test/simple_source/operation_binary/subscription.py,
+	test/simple_source/operation_binary/subtract.py,
+	test/simple_source/operation_binary/xor.py,
+	test/simple_source/operation_comparison/equal.py,
+	test/simple_source/operation_comparison/greater.py,
+	test/simple_source/operation_comparison/greater_equal.py,
+	test/simple_source/operation_comparison/less.py,
+	test/simple_source/operation_comparison/less_equal.py,
+	test/simple_source/operation_comparison/notequal.py,
+	test/simple_source/operation_inplace/add.py,
+	test/simple_source/operation_inplace/and.py,
+	test/simple_source/operation_inplace/divide_floor.py,
+	test/simple_source/operation_inplace/divide_true.py,
+	test/simple_source/operation_inplace/modulo.py,
+	test/simple_source/operation_inplace/multiply.py,
+	test/simple_source/operation_inplace/or.py,
+	test/simple_source/operation_inplace/power.py,
+	test/simple_source/operation_inplace/shift_left.py,
+	test/simple_source/operation_inplace/shift_right.py,
+	test/simple_source/operation_inplace/subtract.py,
+	test/simple_source/operation_inplace/xor.py,
+	test/simple_source/operation_unary/invert.py,
+	test/simple_source/operation_unary/iter.py,
+	test/simple_source/operation_unary/negative.py,
+	test/simple_source/operation_unary/not.py,
+	test/simple_source/operation_unary/positive.py,
+	test/simple_source/precedence/left.py,
+	test/simple_source/precedence/right.py,
+	test/simple_source/precedence/structure.py,
+	test/simple_source/stmts/00_import.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse23.py,
+	uncompyle6/parsers/parse25.py, uncompyle6/scanners/scanner26.py: Fix
+	some 2.3 bugs; add more 2.3-6. tests
+
+2016-07-09  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse23.py: 2.3 while1stmt bug
+
+2016-07-09  rocky <rb@dustyfeet.com>
+
+	* : commit ac45e5757c8c57af2c918c79ff4f6195268afec1 Author: rocky
+	<rocky@gnu.org> Date:   Sat Jul 9 05:59:02 2016 -0400
+
+2016-07-09  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse23.py: Merge conflict
+
+2016-07-09  rocky <rocky@gnu.org>
+
+	* uncompyle6/scanners/scanner3.py: Python3 scanner code cleanup
+
 2016-07-08  rocky <rocky@gnu.org>
 
-	* README.rst, uncompyle6/version.py: Get ready for release 2.6.1
+	* uncompyle6/scanners/scanner3.py,
+	uncompyle6/scanners/scanner32.py, uncompyle6/scanners/scanner33.py,
+	uncompyle6/scanners/scanner34.py, uncompyle6/scanners/scanner35.py: 
+	Python 3 code cleanup
+
+2016-07-08  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner24.py, uncompyle6/scanners/scanner25.py,
+	uncompyle6/scanners/scanner26.py: DRY scanner code. Allow 2.4
+	decompile from 3.x
+
+2016-07-08  rocky <rocky@gnu.org>
+
+	* : Add more 2.4 and 2.6 tests
+
+2016-07-08  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse24.py: 2.4 "import *" grammar rule
+
+2016-07-08  rocky <rocky@gnu.org>
+
+	* uncompyle6/parsers/parse24.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner24.py, uncompyle6/scanners/scanner26.py: 
+	Python 2.4 generator expressions and gen_comp_body
+
+2016-07-08  rocky <rocky@gnu.org>
+
+	* __pkginfo__.py, uncompyle6/parsers/parse24.py,
+	uncompyle6/scanners/scanner2.py: <2.5 grammar customizations for
+	imports and loops
+
+2016-07-08  rocky <rocky@gnu.org>
+
+	* __pkginfo__.py, test/Makefile, test/add-test.py,
+	test/test_pyenvlib.py, test/test_pythonlib.py,
+	uncompyle6/parser.py, uncompyle6/parsers/parse24.py,
+	uncompyle6/parsers/parse25.py, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner24.py, uncompyle6/scanners/scanner25.py,
+	uncompyle6/semantics/pysource.py: Start handling Pyton 2.4 bytecodes
+
+2016-07-08  rocky <rocky@gnu.org>
+
+	* ChangeLog, NEWS, README.rst, uncompyle6/version.py: Get ready for
+	release 2.6.1
 
 2016-07-08  rocky <rocky@gnu.org>
 

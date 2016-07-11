@@ -11,9 +11,9 @@ Introduction
 ------------
 
 *uncompyle6* translates Python bytecode back into equivalent Python
-source code. It accepts bytecodes from Python version 2.5 to 3.5 or
+source code. It accepts bytecodes from Python version 2.3 to 3.5 or
 so. The code requires Python 2.6 or later and has been tested on Python
-running versions 2.6, 2.7, 3.2, 3.3, 3.4 and 3.5.
+running versions 2.3-2.7, and 3.2-3.5.
 
 Why this?
 ---------
@@ -84,25 +84,21 @@ for usage help.
 Known Bugs/Restrictions
 -----------------------
 
-Python 2 deparsing decompiles each and all the Python 2.7.10 and
-2.7.11 installed packages I have on my system, more than 90% verify
-ok. Some of these failures may be bugs in the verification process.
-At this point, 2.7 decompilation is better than uncompyle2. A number
-of bugs have been fixed over what was in uncompyle2.
+Python 2 deparsing decompiles each and all the Python 2.3 to 2.7.10
+installed packages I have on my system. Later distributions average
+about 200 files.
 
-All of the Python 3.2-3.5 Python standard lib packages that I have
-installed on my system deparse. Each Python version has about 200
-bytecode files. I'm not sure how well these verify though.
+More than 90% of the 2.7 files verify ok Some of these failures may be
+bugs in the verification process.  At this point, 2.7 decompilation is
+better than uncompyle2. A number of bugs have been fixed over what was
+in uncompyle2.
 
-There are a few constructs that still need to be added to Python 3.5
+That said, I'd like the decompilation process still feels a little bit
+hacky in certain places and we still get parse errors too often.
+
+There are a few constructs that still need to be added to Python 3.5.
 Python 3.6 changes things drastically by using word codes rather than
-byte codes. So that will be yet another challenge
-
-Python 2.5 and 2.6 installed library routines also decompile; it is
-probably the same as uncompyle2, although some 2.6 bugs from
-uncompyle2 have been fixed.  We handle 2.5 and 2.6 bytecode a little
-bit differently than the way uncompyle2 does so it is harder to assess
-quality.
+byte codes. So that will be yet another challenge.
 
 There is lots to do, so please dig in and help.
 

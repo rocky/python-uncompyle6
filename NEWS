@@ -1,3 +1,12 @@
+uncompyle6 2.6.2 2016-07-11 Manhattenhenge
+
+- Extend bytecodes back to 2.3
+- Fix bugs:
+  * 3.x and 2.7 set comprehensions,
+  * while1 loops
+  * continue statements
+- DRY and segregate grammar more
+
 uncompyle6 2.6.1 2016-07-08
 
 - Go over Python 2.5 bytecode deparsing
