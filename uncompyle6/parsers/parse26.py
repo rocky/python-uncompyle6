@@ -150,14 +150,16 @@ class Python26Parser(Python2Parser):
         whileelsestmt ::= SETUP_LOOP testexpr l_stmts_opt jb_pop POP_BLOCK
                           else_suite COME_FROM
 
-        while1stmt ::= SETUP_LOOP return_stmts bp_come_from
-
         return_stmt ::= ret_expr RETURN_END_IF come_from_pop
         return_stmt ::= ret_expr RETURN_VALUE come_from_pop
         return_if_stmt ::= ret_expr RETURN_END_IF come_from_pop
 
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK come_from_pop
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE come_from_pop
+
+        # Common with 2.7
+        while1stmt ::= SETUP_LOOP return_stmts bp_come_from
+        while1stmt ::= SETUP_LOOP return_stmts COME_FROM
         """
 
     def p_comp26(self, args):

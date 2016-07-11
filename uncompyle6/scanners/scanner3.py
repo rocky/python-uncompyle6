@@ -307,7 +307,9 @@ class Scanner3(scan.Scanner):
         """
         code = self.code
         codelen = len(code)
-        self.prev_op = [0]
+        # 2.x uses prev 3.x uses prev_op. Sigh
+        # Until we get this sorted out.
+        self.prev = self.prev_op = [0]
         for offset in self.op_range(0, codelen):
             op = code[offset]
             for _ in range(self.op_size(op)):

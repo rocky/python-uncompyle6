@@ -39,6 +39,7 @@ class Python27Parser(Python2Parser):
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM
         jmp_false ::= POP_JUMP_IF_FALSE
         jmp_true  ::= POP_JUMP_IF_TRUE
+        bp_come_from    ::= POP_BLOCK COME_FROM
         """
 
 
@@ -55,7 +56,9 @@ class Python27Parser(Python2Parser):
                 POP_BLOCK LOAD_CONST COME_FROM
                 WITH_CLEANUP END_FINALLY
 
-        while1stmt ::= SETUP_LOOP l_stmts POP_BLOCK COME_FROM
+        # Common with 2.6
+        while1stmt ::= SETUP_LOOP return_stmts bp_come_from
+        while1stmt ::= SETUP_LOOP return_stmts COME_FROM
         """
 
 

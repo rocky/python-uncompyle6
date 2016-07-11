@@ -273,6 +273,7 @@ class Python3Parser(PythonParser):
         # Python < 3.5 no POP BLOCK
         whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK _come_from
         whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP _come_from
+        while1stmt ::= SETUP_LOOP l_stmts _come_from JUMP_BACK _come_from
         """
 
     def p_genexpr3(self, args):
