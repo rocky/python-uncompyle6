@@ -9,5 +9,5 @@ for path in sys.argv[1:]:
     cfile =  "bytecode_%s/%s" % (version, short) + 'c'
     print("byte-compiling %s to %s" % (path, cfile))
     py_compile.compile(path, cfile)
-    if sys.version >= (2, 6, 0):
+    if isinstance(version, str) or version >= (2, 6, 0):
         os.system("../bin/uncompyle6 -a -t %s" % cfile)

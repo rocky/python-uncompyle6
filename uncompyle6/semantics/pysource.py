@@ -1155,13 +1155,19 @@ class SourceWalker(GenericASTTraversal, object):
 
         # find innermost node
         if_node = None
+        comp_for = None
+        comp_designator = None
+        if n == 'comp_iter':
+            comp_for = n
+            comp_designator = ast[3]
+
         while n in ('list_iter', 'comp_iter'):
             n = n[0] # recurse one step
-            if n == 'list_for':
+            if n in ('list_for', 'comp_for'):
                 if n[2] == 'designator':
                     designator = n[2]
                 n = n[3]
-            elif n in ['list_if', 'list_if_not', 'comp_if']:
+            elif n in ('list_if', 'list_if_not', 'comp_if'):
                 if_node = n[0]
                 if n[1] == 'designator':
                     designator = n[1]
@@ -1169,16 +1175,23 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
 
+        # Python 2.7+ starts including set_comp_body
         # Python 3.5+ starts including setcomp_func
-        assert n.type in ('lc_body', 'comp_body', 'setcomp_func'), ast
+        assert n.type in ('lc_body', 'comp_body', 'setcomp_func', 'set_comp_body'), ast
         assert designator, "Couldn't find designator in list/set comprehension"
 
         self.preorder(n[0])
         self.write(' for ')
-        self.preorder(designator)
+        if comp_designator:
+            self.preorder(comp_designator)
+        else:
+            self.preorder(designator)
+
         self.write(' in ')
         self.preorder(node[-3])
-        if if_node:
+        if comp_designator:
+            self.preorder(comp_for)
+        elif if_node:
             self.write(' if ')
             self.preorder(if_node)
         self.prec = p

@@ -9,6 +9,5 @@ def __new__(classdict):
     members = {k: classdict[k] for k in classdict._member_names}
     return members
 
-# Bug from Python 3.4 asyncio/tasks.py
-def as_completed(fs, *, loop=None):
-    todo = {async(f, loop=loop) for f in set(fs)}
+# Bug from 3.5.1 enum.py in 2.7, and 3.x
+{a for b in bases for a in b.__dict__}
