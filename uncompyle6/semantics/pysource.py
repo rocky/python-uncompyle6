@@ -1962,11 +1962,16 @@ class SourceWalker(GenericASTTraversal, object):
         code._tokens = None # save memory
         assert ast == 'stmts'
 
+        if 3.0 <= self.version <= 3.3:
+            try:
+                if ast[0][0][0] == 'store_locals':
+                    if self.hide_internal: del ast[0]
+            except:
+                pass
+
         try:
             if ast[0][0] == NAME_MODULE:
                 if self.hide_internal: del ast[0]
-            elif ast[1][0] == NAME_MODULE:
-                if self.hide_internal: del ast[1]
             pass
         except:
             pass
