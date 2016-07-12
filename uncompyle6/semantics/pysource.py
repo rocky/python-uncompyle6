@@ -370,6 +370,11 @@ TABLE_DIRECT = {
     'import_cont'   : ( ', %c', 2 ),
 
     ########################
+    # Python 3.2 and 3.3 only
+    #######################
+    'store_locals': ( '%|# inspect.currentframe().f_locals = __locals__\n', ),
+
+    ########################
     # Python 3.4+ Additions
     #######################
     'LOAD_CLASSDEREF':	( '%{pattr}', ),

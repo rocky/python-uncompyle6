@@ -570,14 +570,16 @@ class Python32Parser(Python3Parser):
     def p_32(self, args):
         """
         # Store locals is only in Python 3.2 and 3.3
-        designator ::= STORE_LOCALS
+        stmt ::= store_locals
+        store_locals ::= LOAD_FAST STORE_LOCALS
         """
 
 class Python33Parser(Python3Parser):
     def p_33(self, args):
         """
         # Store locals is only in Python 3.2 and 3.3
-        designator ::= STORE_LOCALS
+        stmt ::= store_locals
+        store_locals ::= LOAD_FAST STORE_LOCALS
 
         # Python 3.3 adds yield from.
         expr ::= yield_from
