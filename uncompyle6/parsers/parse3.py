@@ -569,7 +569,7 @@ class Python3Parser(PythonParser):
 class Python32Parser(Python3Parser):
     def p_32(self, args):
         """
-        # Store locals is only in Python 3.2 and 3.3
+        # Store locals is only in Python 3.0 to 3.3
         stmt ::= store_locals
         store_locals ::= LOAD_FAST STORE_LOCALS
         """
@@ -577,7 +577,7 @@ class Python32Parser(Python3Parser):
 class Python33Parser(Python3Parser):
     def p_33(self, args):
         """
-        # Store locals is only in Python 3.2 and 3.3
+        # Store locals is only in Python 3.0 to 3.3
         stmt ::= store_locals
         store_locals ::= LOAD_FAST STORE_LOCALS
 

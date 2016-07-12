@@ -545,6 +545,11 @@ class SourceWalker(GenericASTTraversal, object):
         self.currentclass = None
         self.classes = []
         self.pending_newlines = 0
+
+        # hide_internal suppresses displaying the additional instructions that sometimes
+        # exist in code but but were not written in the source code.
+        # An example is:
+        # __module__ = __name__
         self.hide_internal = True
         self.name = None
         self.version = version

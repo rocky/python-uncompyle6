@@ -137,7 +137,16 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.currentclass = None
         self.classes = []
         self.pending_newlines = 0
+
+        # hide_internal suppresses displaying the additional instructions that sometimes
+        # exist in code but but were not written in the source code.
+        # An example is:
+        # __module__ = __name__
+        # If showing source code we generally don't want to show this. However in fragment
+        # deparsing we generally do need to see these instructions since we may be stopped
+        # at one. So here we do not want to suppress showing such instructions.
         self.hide_internal = False
+
         self.name = None
 
         self.offsets = {}
@@ -654,6 +663,12 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         # find innermost node
         if_node = None
+        comp_for = None
+        comp_designator = None
+        if n == 'comp_iter':
+            comp_for = n
+            comp_designator = ast[3]
+
         while n in ('list_iter', 'comp_iter'):
             n = n[0] # recurse one step
             if n == 'list_for':
@@ -668,8 +683,9 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 pass
             pass
 
+        # Python 2.7+ starts including set_comp_body
         # Python 3.5+ starts including setcomp_func
-        assert n.type in ('lc_body', 'comp_body', 'setcomp_func'), ast
+        assert n.type in ('lc_body', 'comp_body', 'setcomp_func', 'set_comp_body'), ast
         assert designator, "Couldn't find designator in list/set comprehension"
 
         old_name = self.name
@@ -686,7 +702,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.preorder(node[-3])
         fin = len(self.f.getvalue())
         self.set_pos_info(node[-3], start, fin, old_name)
-        if if_node:
+
+        if comp_designator:
+            self.preorder(comp_for)
+        elif if_node:
             self.write(' if ')
             self.preorder(if_node)
         self.prec = p
