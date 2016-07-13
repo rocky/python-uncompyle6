@@ -88,7 +88,8 @@ def main(in_base, out_base, files, codes, outfile=None,
         return open(outfile, 'w')
 
     of = outfile
-    tot_files = okay_files = failed_files = verify_failed_files = 0
+    tot_files = okay_files = failed_files = 0
+    verify_failed_files = []
 
     # for code in codes:
     #    version = sys.version[:3] # "2.5"
@@ -148,10 +149,12 @@ def main(in_base, out_base, files, codes, outfile=None,
                             else:
                                 print('\n# %s\n\t%s', infile, msg)
                     except verify.VerifyCmpError as e:
-                        verify_failed_files += 1
+
+                        verify_failed_files.append(filename)
                         os.rename(outfile, outfile + '_unverified')
                         if not outfile:
-                            print("### Error Verifiying %s" % filename,  file=sys.stderr)
+                            print("### Error Verifiying %s" % filename,
+                                  file=sys.stderr)
                             print(e, file=sys.stderr)
                             if raise_on_error:
                                 raise
@@ -170,7 +173,10 @@ def main(in_base, out_base, files, codes, outfile=None,
                     print(mess, infile)
         if outfile:
             sys.stdout.write("%s\r" %
-                             status_msg(do_verify, tot_files, okay_files, failed_files, verify_failed_files))
+                             status_msg(do_verify, tot_files, okay_files,
+                                        failed_files, len(verify_failed_files)))
+            if len(verify_failed_files):
+                print("\n\t".join(verify_failed_files))
             sys.stdout.flush()
     if outfile:
         sys.stdout.write("\n")
