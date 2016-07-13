@@ -11,3 +11,8 @@ def _formatparam(param, value=None, quote=True):
             return '%s=%s' % (param, value)
     else:
         return param
+
+# python 2.7 SimpleXMLRPCServer.py
+# Bug was turning return into "pass"
+def system_methodSignature(seflf, method_name):
+    return 'signatures not supported'
