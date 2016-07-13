@@ -2068,9 +2068,10 @@ class SourceWalker(GenericASTTraversal, object):
         if self.hide_internal:
             if len(tokens) >= 2 and not noneInNames:
                 if tokens[-1].type == 'RETURN_VALUE':
-                    # Should we also check for returning None?
+                    # Python 3.4's classes can add a "return None" which is
+                    # invalid syntax.
                     if tokens[-2].type == 'LOAD_CONST':
-                        if isTopLevel:
+                        if isTopLevel or tokens[-2].pattr is None:
                             del tokens[-2:]
                         else:
                             tokens.append(Token('RETURN_LAST'))
