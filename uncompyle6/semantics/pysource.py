@@ -2070,7 +2070,7 @@ class SourceWalker(GenericASTTraversal, object):
                 if tokens[-1].type == 'RETURN_VALUE':
                     # Should we also check for returning None?
                     if tokens[-2].type == 'LOAD_CONST':
-                        if True or isTopLevel:
+                        if isTopLevel:
                             del tokens[-2:]
                         else:
                             tokens.append(Token('RETURN_LAST'))
