@@ -133,6 +133,7 @@ class Scanner3(scan.Scanner):
 
         bytecode = Bytecode(co, self.opc)
 
+        # FIXME: put as its own method?
         # Scan for assertions. Later we will
         # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT'.
         # 'LOAD_ASSERT' is used in assert statements.
@@ -143,13 +144,23 @@ class Scanner3(scan.Scanner):
             inst = bs[i]
 
             # We need to detect the difference between
-            # "raise AssertionError" and
-            # "assert"
-            if inst.opname == 'POP_JUMP_IF_TRUE' and i+3 < n:
-                next_inst = bs[i+3]
+            # "raise AssertionError" and "assert"
+            # If we have a JUMP_FORWARD after the
+            # RAISE_VARARGS then we have a "raise" statement
+            # else we have an "assert" statement.
+            if inst.opname == 'POP_JUMP_IF_TRUE' and i+1 < n:
+                next_inst = bs[i+1]
                 if (next_inst.opname == 'LOAD_GLOBAL' and
                     next_inst.argval == 'AssertionError'):
-                    self.load_asserts.add(next_inst.offset)
+                    for j in range(i+2, n):
+                        raise_inst = bs[j]
+                        if raise_inst.opname.startswith('RAISE_VARARGS'):
+                            if j+1 >= n or bs[j+1].opname != 'JUMP_FORWARD':
+                                self.load_asserts.add(next_inst.offset)
+                                pass
+                            break
+                    pass
+                pass
 
         # Get jump targets
         # Format: {target offset: [jump offsets]}
