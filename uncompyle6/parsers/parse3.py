@@ -247,7 +247,7 @@ class Python3Parser(PythonParser):
 
         '''
 
-    def p_misc(self, args):
+    def p_misc3(self, args):
         """
         try_middle ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY NOP COME_FROM
         """
@@ -288,7 +288,6 @@ class Python3Parser(PythonParser):
     def p_expr3(self, args):
         '''
         expr ::= LOAD_CLASSNAME
-        expr ::= LOAD_ASSERT
 
         # Python 3.4+
         expr ::= LOAD_CLASSDEREF
@@ -615,7 +614,7 @@ class Python35onParser(Python3Parser):
         expr ::= yield_from
         yield_from ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
 
-        # Python 3.5 has more loop optimization that removes
+        # Python 3.4+ has more loop optimization that removes
         # JUMP_FORWARD in some cases, and hence we also don't
         # see COME_FROM
         _ifstmts_jump ::= c_stmts_opt

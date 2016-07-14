@@ -37,6 +37,10 @@ class Python34Parser(Python3Parser):
         # Is this 3.4 only?
         yield_from ::= expr GET_ITER LOAD_CONST YIELD_FROM
 
+        # Python 3.4+ has more loop optimization that removes
+        # JUMP_FORWARD in some cases, and hence we also don't
+        # see COME_FROM
+        _ifstmts_jump ::= c_stmts_opt
         """
 class Python34ParserSingle(Python34Parser, PythonParserSingle):
     pass

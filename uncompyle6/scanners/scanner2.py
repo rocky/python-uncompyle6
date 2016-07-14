@@ -89,8 +89,14 @@ class Scanner2(scan.Scanner):
             varnames = co.co_varnames
         self.names = names
 
+        # Scan for assertions. Later we will
+        # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT'.
+        # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
         for i in self.op_range(0, n):
+            # We need to detect the difference between
+            # "raise AssertionError" and
+            # "assert"
             if self.code[i] == self.opc.PJIT and self.code[i+3] == self.opc.LOAD_GLOBAL:
                 if names[self.get_argument(i+3)] == 'AssertionError':
                     self.load_asserts.add(i+3)

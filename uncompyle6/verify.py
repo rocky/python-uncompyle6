@@ -180,7 +180,13 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
         if member in __IGNORE_CODE_MEMBERS__:
             pass
         elif member == 'co_code':
-            if version == 2.5:
+            if version == 2.3:
+                import uncompyle6.scanners.scanner23 as scan
+                scanner = scan.Scanner26()
+            elif version == 2.4:
+                import uncompyle6.scanners.scanner24 as scan
+                scanner = scan.Scanner25()
+            elif version == 2.5:
                 import uncompyle6.scanners.scanner25 as scan
                 scanner = scan.Scanner25()
             elif version == 2.6:
@@ -206,8 +212,8 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
             JUMP_OPs = list(scan.JUMP_OPs) + ['JUMP_BACK']
 
             # use changed Token class
-            #   We (re)set this here to save exception handling,
-            #   which would get confusing.
+            # We (re)set this here to save exception handling,
+            # which would get confusing.
             scanner.setTokenClass(Token)
             try:
                 # disassemble both code-objects

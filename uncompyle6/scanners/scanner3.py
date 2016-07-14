@@ -134,16 +134,19 @@ class Scanner3(scan.Scanner):
         bytecode = Bytecode(co, self.opc)
 
         # Scan for assertions. Later we will
-        # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT' for those
-        # assertions
+        # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT'.
+        # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
         bs = list(bytecode)
         n = len(bs)
         for i in range(n):
             inst = bs[i]
 
-            if inst.opname == 'POP_JUMP_IF_TRUE' and i+1 < n:
-                next_inst = bs[i+1]
+            # We need to detect the difference between
+            # "raise AssertionError" and
+            # "assert"
+            if inst.opname == 'POP_JUMP_IF_TRUE' and i+3 < n:
+                next_inst = bs[i+3]
                 if (next_inst.opname == 'LOAD_GLOBAL' and
                     next_inst.argval == 'AssertionError'):
                     self.load_asserts.add(next_inst.offset)

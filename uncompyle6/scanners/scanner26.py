@@ -125,8 +125,14 @@ class Scanner26(scan.Scanner2):
 
         codelen = len(self.code)
 
+        # Scan for assertions. Later we will
+        # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT'.
+        # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
         for i in self.op_range(0, n):
+            # We need to detect the difference between
+            # "raise AssertionError" and
+            # "assert"
             if (self.code[i] == self.opc.JUMP_IF_TRUE and
                 i + 4 < codelen and
                 self.code[i+3] == self.opc.POP_TOP and
