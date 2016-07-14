@@ -669,6 +669,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             comp_for = n
             comp_designator = ast[3]
 
+        have_not = False
         while n in ('list_iter', 'comp_iter'):
             n = n[0] # recurse one step
             if n == 'list_for':
@@ -676,6 +677,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     designator = n[2]
                 n = n[3]
             elif n in ['list_if', 'list_if_not', 'comp_if']:
+                have_not = n in ('list_if_not', 'comp_ifnot')
                 if_node = n[0]
                 if n[1] == 'designator':
                     designator = n[1]
@@ -707,6 +709,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.preorder(comp_for)
         elif if_node:
             self.write(' if ')
+            if have_not:
+                self.write('not ')
             self.preorder(if_node)
         self.prec = p
         self.name = old_name
