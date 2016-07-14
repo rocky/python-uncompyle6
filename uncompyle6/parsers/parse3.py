@@ -603,10 +603,15 @@ class Python35onParser(Python3Parser):
                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
 
-        # Python 3.5+_ does jump optimization that scanner3.py's detect
-        # structure can't fully work out. So for now let's allow
-        # RETURN_END_IF the same as RETURN_VAL
+        # Python 3.5+ does jump optimization
+        # In <.3.5 the below is a JUMP_FORWARD to a JUMP_ABSOLUTE.
+        # in return_stmt, we will need the semantic actions in pysource.py
+        # to work out whether to dedent or not based on the presence of
+        # RETURN_END_IF vs RETURN_VALUE
+
+        ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
         return_stmt ::= ret_expr RETURN_END_IF
+
 
         # Python 3.3+ also has yield from. 3.5 does it
         # differently than 3.3, 3.4

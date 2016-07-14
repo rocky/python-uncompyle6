@@ -710,6 +710,11 @@ class SourceWalker(GenericASTTraversal, object):
             if self.return_none or node != AST('return_stmt', [AST('ret_expr', [NONE]), Token('RETURN_VALUE')]):
                 self.write(' ')
                 self.preorder(node[0])
+            # 3.5 does jump optimization. The RETURN_END_IF in the return
+            # statement means to dedent. Earlier versions will just have
+            # RETURN_VALUE
+            if self.version >= 3.5 and node[-1] == 'RETURN_END_IF':
+                self.indentLess()
             self.println()
             self.prune() # stop recursing
 
