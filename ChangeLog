@@ -1,3 +1,95 @@
+2016-07-15  rocky <rb@dustyfeet.com>
+
+	* README.rst, uncompyle6/version.py: Get ready for release 2.7.0
+
+2016-07-14  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner26.py,
+	uncompyle6/semantics/pysource.py: Isolate pseudo op IMPORT_NAME_CONT I think this is a holdover from pre 2.3 days. Possibly it can be
+	dropped altogether.
+
+2016-07-14  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/semantics/pysource.py: 
+	Attempt to get 3.5 RETURN_END_IF working This feels hacky and I'm not sure is quite right.  Untili we
+	understand better what to do though, we'll go with it.
+
+2016-07-14  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, uncompyle6/semantics/pysource.py: 3.x __qualname__
+	= supression Class names have become more complicated so the pattern test needs
+	to be more complex as well. Sigh
+
+2016-07-14  rocky <rb@dustyfeet.com>
+
+	* README.rst, uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: 3.x list comprehenions
+	list_if_not, comp_ifnot bug Saw only list_if_not bug, but might also be applicable to comp_ifnot
+
+2016-07-14  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/stmts/15_assert.py,
+	uncompyle6/scanners/scanner3.py: 3.x ""raise AssertionError" vs
+	"assert" Not sure this is totally correct yet.
+
+2016-07-14  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/main.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse34.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner26.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/verify.py: Python 3.4 assertion handling. Improve verify 3.4 has jump optimization like 3.5.  verify.py: show mismatch on
+	verification mismatch
+
+2016-07-13  rocky <rb@dustyfeet.com>
+
+	* : Reinstate some code for verification
+
+2016-07-13  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/main.py: Back off showing verification errors Pending why this failing in make.
+
+2016-07-13  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py: "return None" -> "pass" Python 3.4 classes have what looks like a return None, but this is
+	invalid syntax. So for now we'll remove all "return None"s.  There may be a "pass" in there instead.
+
+2016-07-13  rocky <rb@dustyfeet.com>
+
+	* : commit fd0d8d25672b9450bafc1d5c6781bedd7ec8bd1d Author: rocky
+	<rb@dustyfeet.com> Date:   Wed Jul 13 13:00:03 2016 -0400
+
+2016-07-13  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/stmts/11_return_val.py,
+	uncompyle6/semantics/pysource.py: Debugging smutz caused verify
+	failures
+
+2016-07-12  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Document/correct hide_internal and
+	store_locals
+
+2016-07-12  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug33/05_store_locals.py,
+	test/simple_source/bug33/05_store_name.py,
+	uncompyle6/semantics/pysource.py: Better 3.2/33 store_locals
+	handling
+
+2016-07-11  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug33/05_store_name.py,
+	test/simple_source/comprehension/05_3x_set_comphension.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/semantics/pysource.py: 
+	Python 3.2 & 3.3 handle STORE_NAME better
+
+2016-07-11  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, README.rst, uncompyle6/version.py: Get ready for
+	release 2.6.2
+
 2016-07-11  rocky <rb@dustyfeet.com>
 
 	* test/add-test.py,

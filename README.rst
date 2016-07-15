@@ -84,14 +84,21 @@ for usage help.
 Known Bugs/Restrictions
 -----------------------
 
-Python 2 deparsing decompiles and verifies each and all the Python 2.6.9
-to 2.7.11 installed packages I have on my system. Later distributions
-average about 200 files. At this point, 2.7 decompilation is
-better than uncompyle2. A number of bugs have been fixed.
+Python 2 deparsing decompiles and verifies from Python 2.3.7 to Python
+3.5.1 on the standard library packages I have on my system.
 
-For Python 3.4.2 bytecode, there is one verification error that needs
-addressing.  There are still a couple of parse errors on 2.3.7 and
-2.4.6.  Removing 3.5 verification errors still remains.
+(Verification is the process of decompiling bytecode, compiling with a
+Python for that byecode version, and then comparing the byetcode
+produced by the decompiled/compiled program. Some allowance is made
+for inessential differences.)
+
+Later distributions average about 200 files. At this point, 2.7
+decompilation is better than uncompyle2. A number of bugs have been
+fixed.
+
+That said, I'm sure down the line more problems will turn up. The
+decompilation process uses a number of heuristics that may prove
+faulty.
 
 There are a few constructs that still need to be added to Python 3.5.
 Python 3.6 changes things drastically by using word codes rather than

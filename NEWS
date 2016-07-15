@@ -1,3 +1,10 @@
+uncompyle6 2.7.0 2016-07-15
+
+- Many Syntax and verifification bugs removed
+  tested on standard libraries from 2.3.7 to 3.5.1
+  and they all decompile and verify fine.
+  I'm sure there are more bugs though.
+
 uncompyle6 2.6.2 2016-07-11 Manhattenhenge
 
 - Extend bytecodes back to 2.3
