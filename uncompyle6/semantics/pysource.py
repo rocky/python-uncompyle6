@@ -712,7 +712,7 @@ class SourceWalker(GenericASTTraversal, object):
                 self.preorder(node[0])
             # 3.5 does jump optimization. The RETURN_END_IF in the return
             # statement means to dedent. Earlier versions will just have
-            # RETURN_VALUE
+            # RETURN_VALUE it is done by a nonterminal in the grammar.
             if self.version >= 3.5 and node[-1] == 'RETURN_END_IF':
                 self.indentLess()
             self.println()

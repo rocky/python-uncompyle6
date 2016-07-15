@@ -116,16 +116,6 @@ class Scanner2(scan.Scanner):
             last_stmt = i
             i = self.next_stmt[i]
 
-        imports = self.all_instr(0, n, (self.opc.IMPORT_NAME, self.opc.IMPORT_FROM,
-                                        self.opc.IMPORT_STAR))
-        if len(imports) > 1:
-            last_import = imports[0]
-            for i in imports[1:]:
-                if self.lines[last_import].next > i:
-                    if self.code[last_import] == self.opc.IMPORT_NAME == self.code[i]:
-                        replace[i] = 'IMPORT_NAME_CONT'
-                last_import = i
-
         extended_arg = 0
         for offset in self.op_range(0, n):
             if offset in cf:

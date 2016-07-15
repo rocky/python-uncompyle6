@@ -202,6 +202,15 @@ class Python2Parser(PythonParser):
         genexpr ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
         '''
 
+    def p_import2(self, args):
+        '''
+        # These might be relevant for only Python 2.0 or so.
+        # Not relevant for Python 3.
+        importstar ::= LOAD_CONST LOAD_CONST IMPORT_NAME_CONT IMPORT_STAR
+        importfrom ::= LOAD_CONST LOAD_CONST IMPORT_NAME_CONT importlist2 POP_TOP
+        '''
+
+
     def p_expr2(self, args):
         '''
         expr ::= LOAD_LOCALS

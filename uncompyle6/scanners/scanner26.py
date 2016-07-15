@@ -159,7 +159,9 @@ class Scanner26(scan.Scanner2):
         imports = self.all_instr(0, codelen,
                                 (self.opc.IMPORT_NAME, self.opc.IMPORT_FROM,
                                  self.opc.IMPORT_STAR))
-        if len(imports) > 1:
+        # Changes IMPORT_NAME to IMPORT_NAME_CONT.
+        # Possibly a Python 2.0 hangover
+        if len(imports) > 1 and self.version < 2.3:
             last_import = imports[0]
             for i in imports[1:]:
                 if self.lines[last_import].next > i:
