@@ -20,8 +20,10 @@ Why this?
 
 There were a number of decompyle, uncompile, uncompyle2, uncompyle3
 forks around. All of them come basically from the same code base, and
-almost all of them not maintained very well. This code pulls these together
-and addresses a number of open issues in those.
+almost all of them no longer maintained or worked on. Only one handled
+Python 3, and even there, only 3.2. This code pulls these together,
+handles a wide range of bytecodes and addresses a number of open
+issues in previous forks.
 
 What makes this different from other CPython bytecode decompilers?  Its
 ability to deparse just fragments and give source-code information
@@ -85,7 +87,7 @@ Known Bugs/Restrictions
 -----------------------
 
 Python 2 deparsing decompiles and verifies from Python 2.3.7 to Python
-3.5.1 on the standard library packages I have on my system.
+3.4.2 on the standard library packages I have on my system.
 
 (Verification is the process of decompiling bytecode, compiling with a
 Python for that byecode version, and then comparing the byetcode
@@ -96,13 +98,9 @@ Later distributions average about 200 files. At this point, 2.7
 decompilation is better than uncompyle2. A number of bugs have been
 fixed.
 
-That said, I'm sure down the line more problems will turn up. The
-decompilation process uses a number of heuristics that may prove
-faulty.
-
-There are a few constructs that still need to be added to Python 3.5.
+Python 3.5 largely works, but still has some bugs in it.
 Python 3.6 changes things drastically by using word codes rather than
-byte codes. So that will be yet another challenge.
+byte codes, and that needs to be addressed.
 
 There is lots to do, so please dig in and help.
 

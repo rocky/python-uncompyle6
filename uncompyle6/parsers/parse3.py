@@ -602,6 +602,8 @@ class Python35onParser(Python3Parser):
                 POP_BLOCK LOAD_CONST COME_FROM
                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
+        inplace_op ::= INPLACE_MATRIX_MULTIPLY
+        binary_op  ::= BINARY_MATRIX_MULTIPLY
 
         # Python 3.5+ does jump optimization
         # In <.3.5 the below is a JUMP_FORWARD to a JUMP_ABSOLUTE.
