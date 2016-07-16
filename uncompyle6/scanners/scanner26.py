@@ -179,10 +179,12 @@ class Scanner26(scan.Scanner2):
                 k = 0
                 for j in cf[offset]:
                     tokens.append(Token('COME_FROM', None, repr(j),
-                                    offset="%s_%d" % (offset, k) ))
+                                        offset="%s_%d" % (offset, k),
+                                        has_arg = True))
                     k += 1
 
-            if self.op_hasArgument(op):
+            has_arg = (op >= self.opc.HAVE_ARGUMENT)
+            if has_arg:
                 oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
                 if op == self.opc.EXTENDED_ARG:
@@ -282,9 +284,11 @@ class Scanner26(scan.Scanner2):
                 linestart = None
 
             if offset not in replace:
-                tokens.append(Token(op_name, oparg, pattr, offset, linestart))
+                tokens.append(Token(
+                    op_name, oparg, pattr, offset, linestart, op, has_arg))
             else:
-                tokens.append(Token(replace[offset], oparg, pattr, offset, linestart))
+                tokens.append(Token(
+                    replace[offset], oparg, pattr, offset, linestart, op, has_arg))
                 pass
             pass
 

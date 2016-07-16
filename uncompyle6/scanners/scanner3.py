@@ -173,7 +173,8 @@ class Scanner3(scan.Scanner):
                 jump_idx = 0
                 for jump_offset in jump_targets[inst.offset]:
                     tokens.append(Token('COME_FROM', None, repr(jump_offset),
-                                        offset='%s_%s' % (inst.offset, jump_idx)))
+                                        offset='%s_%s' % (inst.offset, jump_idx),
+                                        has_arg = True))
                     jump_idx += 1
                     pass
                 pass
@@ -221,8 +222,11 @@ class Scanner3(scan.Scanner):
                         attr = (pos_args, name_pair_args, annotate_args),
                         pattr = pattr,
                         offset = inst.offset,
-                        linestart = inst.starts_line)
+                        linestart = inst.starts_line,
+                        op = op,
+                        has_arg = (op >= op3.HAVE_ARGUMENT)
                     )
+                )
                 continue
             elif op in self.varargs:
                 pos_args = inst.argval
@@ -278,6 +282,8 @@ class Scanner3(scan.Scanner):
                     pattr = pattr,
                     offset = inst.offset,
                     linestart = inst.starts_line,
+                    op = op,
+                    has_arg = (op >= op3.HAVE_ARGUMENT)
                     )
                 )
             pass
@@ -374,7 +380,8 @@ class Scanner3(scan.Scanner):
             # since 2.3
             self.detect_structure(offset)
 
-            if op >= op3.HAVE_ARGUMENT:
+            has_arg = (op >= op3.HAVE_ARGUMENT)
+            if has_arg:
                 label = self.fixed_jumps.get(offset)
                 oparg = code[offset+1] + code[offset+2] * 256
 
