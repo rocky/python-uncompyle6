@@ -78,9 +78,13 @@ Run
 
 ::
 
-     ./bin/uncompyle6 -h
+$ uncompyle6 *compiled-python-file-pyc-or-pyo*
 
-for usage help.
+For usage help:
+
+::
+
+   $ uncompyle6 -h
 
 
 Known Bugs/Restrictions
