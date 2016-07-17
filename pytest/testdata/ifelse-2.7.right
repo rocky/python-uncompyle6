@@ -12,4 +12,4 @@
           18  STORE_NAME            2  'd'
         21_0  COME_FROM                '12'
           21  LOAD_CONST            2  ''
-          24  RETURN_VALUE             ''
+          24  RETURN_VALUE     
