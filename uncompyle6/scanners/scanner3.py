@@ -287,6 +287,11 @@ class Scanner3(scan.Scanner):
                     )
                 )
             pass
+
+        if show_asm in ('both', 'after'):
+            for t in tokens:
+                print(t.format())
+            print()
         return tokens, {}
 
     def build_lines_data(self, code_obj):
