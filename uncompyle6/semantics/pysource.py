@@ -482,7 +482,7 @@ class ParserError(python_parser.ParserError):
 
     def __str__(self):
         lines = ['--- This code section failed: ---']
-        lines.extend( list(map(str, self.tokens)) )
+        lines.extend([i.format() for i in self.tokens])
         lines.extend( ['', str(self.error)] )
         return '\n'.join(lines)
 

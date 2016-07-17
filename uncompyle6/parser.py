@@ -21,7 +21,7 @@ class ParserError(Exception):
         self.offset = offset
 
     def __str__(self):
-        return "Syntax error at or near `%r' token at offset %s\n" % \
+        return "Parse error at or near `%r' instruction at offset %s\n" % \
                (self.token, self.offset)
 
 nop_func = lambda self, args: None
@@ -50,19 +50,19 @@ class PythonParser(GenericASTBuilder):
         for i in dir(self):
             setattr(self, i, None)
 
-    def error(self, tokens, index):
+    def error(self, instructions, index):
         # Find the last line boundary
         for start in range(index, -1, -1):
-            if tokens[start].linestart:  break
+            if instructions[start].linestart:  break
             pass
-        for finish in range(index+1, len(tokens)):
-            if tokens[finish].linestart:  break
+        for finish in range(index+1, len(instructions)):
+            if instructions[finish].linestart:  break
             pass
-        err_token = tokens[index]
-        print("Token context:")
+        err_token = instructions[index]
+        print("Instruction context:")
         for i in range(start, finish):
             indent = '   ' if i != index else '-> '
-            print("%s%s" % (indent, tokens[i]))
+            print("%s%s" % (indent, instructions[i].format()))
         raise ParserError(err_token, err_token.offset)
 
     def typestring(self, token):
