@@ -118,7 +118,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
     stacked_params = ('f', 'indent', 'isLambda', '_globals')
 
     def __init__(self, version, scanner, showast=False,
-                 debug_parser=PARSER_DEFAULT_DEBUG):
+                 debug_parser=PARSER_DEFAULT_DEBUG,
+                 compile_mode='exec', is_pypy=False):
         GenericASTTraversal.__init__(self, ast=None)
         self.scanner = scanner
         params = {
@@ -126,7 +127,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
             'indent': '',
             }
         self.version = version
-        self.p = get_python_parser(version, dict(debug_parser))
+        self.p = get_python_parser(
+            version, dict(debug_parser),
+            compile_mode=compile_mode, is_pypy=is_pypy
+        )
         self.showast = showast
         self.params = params
         self.param_stack = []

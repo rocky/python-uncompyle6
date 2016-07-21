@@ -32,8 +32,8 @@ from xdis.bytecode import findlinestarts
 import uncompyle6.scanner as scan
 
 class Scanner2(scan.Scanner):
-    def __init__(self, version, show_asm=None):
-        scan.Scanner.__init__(self, version, show_asm)
+    def __init__(self, version, show_asm=None, is_pypy=False):
+        scan.Scanner.__init__(self, version, show_asm, is_pypy)
         self.pop_jump_if = frozenset([self.opc.PJIF, self.opc.PJIT])
         self.jump_forward = frozenset([self.opc.JUMP_ABSOLUTE, self.opc.JUMP_FORWARD])
         # This is the 2.5+ default

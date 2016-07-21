@@ -1,7 +1,7 @@
 from __future__ import print_function
 import datetime, os, sys
 
-from uncompyle6 import verify, PYTHON_VERSION
+from uncompyle6 import verify, PYTHON_VERSION, IS_PYPY
 from xdis.code import iscode
 from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource
@@ -9,8 +9,10 @@ from uncompyle6.parser import ParserError
 
 from xdis.load import load_module
 
-def uncompyle(version, co, out=None, showasm=False, showast=False,
-              timestamp=None, showgrammar=False, code_objects={}):
+def uncompyle(
+        version, co, out=None, showasm=False, showast=False,
+        timestamp=None, showgrammar=False, code_objects={},
+        is_pypy=False):
     """
     disassembles and deparses a given code block 'co'
     """
@@ -19,7 +21,10 @@ def uncompyle(version, co, out=None, showasm=False, showast=False,
 
     # store final output stream for case of error
     real_out = out or sys.stdout
-    print('# Python bytecode %s (decompiled from Python %s)' % (version, PYTHON_VERSION),
+    co_pypy_str = 'PyPy ' if is_pypy else ''
+    run_pypy_str = 'PyPy ' if IS_PYPY else ''
+    print('# %sPython bytecode %s (disassembled from %sPython %s)\n' %
+              (co_pypy_str, version, run_pypy_str, PYTHON_VERSION),
           file=real_out)
     if co.co_filename:
         print('# Embedded file name: %s' % co.co_filename,
@@ -30,7 +35,7 @@ def uncompyle(version, co, out=None, showasm=False, showast=False,
 
     try:
         pysource.deparse_code(version, co, out, showasm, showast, showgrammar,
-                              code_objects=code_objects)
+                              code_objects=code_objects, is_pypy=is_pypy)
     except pysource.SourceWalkerError as e:
         # deparsing failed
         print("\n")
@@ -49,16 +54,18 @@ def uncompyle_file(filename, outstream=None, showasm=False, showast=False,
 
     filename = check_object_path(filename)
     code_objects = {}
-    version, timestamp, magic_int, co = load_module(filename, code_objects)
+    version, timestamp, magic_int, co, is_pypy = load_module(filename, code_objects)
 
 
     if type(co) == list:
         for con in co:
             uncompyle(version, con, outstream, showasm, showast,
-                      timestamp, showgrammar, code_objects=code_objects)
+                      timestamp, showgrammar, code_objects=code_objects,
+                      is_pypy=is_pypy)
     else:
         uncompyle(version, co, outstream, showasm, showast,
-                  timestamp, showgrammar, code_objects=code_objects)
+                  timestamp, showgrammar, code_objects=code_objects,
+                  is_pypy=is_pypy)
     co = None
 
 # FIXME: combine into an options parameter
