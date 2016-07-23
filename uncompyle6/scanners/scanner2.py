@@ -22,7 +22,7 @@ Finally we save token information.
 
 from __future__ import print_function
 
-import inspect
+import inspect, sys
 from collections import namedtuple
 from array import array
 
@@ -30,9 +30,13 @@ from xdis.code import iscode
 from xdis.bytecode import findlinestarts
 
 import uncompyle6.scanner as scan
+from uncompyle6 import PYTHON3
+
+if PYTHON3:
+    intern = sys.intern
 
 class Scanner2(scan.Scanner):
-    def __init__(self, version, show_asm=None):
+    def __init__(self, version, show_asm=None, is_pypy=False):
         scan.Scanner.__init__(self, version, show_asm)
         self.pop_jump_if = frozenset([self.opc.PJIF, self.opc.PJIT])
         self.jump_forward = frozenset([self.opc.JUMP_ABSOLUTE, self.opc.JUMP_FORWARD])
@@ -164,6 +168,18 @@ class Scanner2(scan.Scanner):
                 elif op in self.opc.hasjrel:
                     pattr = repr(offset + 3 + oparg)
                 elif op in self.opc.hasjabs:
+                    if self.version == 2.7 and op == self.opc.JUMP_ABSOLUTE:
+                        target = self.get_target(offset)
+                        # FIXME: this is a hack to catch stuff like:
+                        #   for ...
+                        #     try: ...
+                        #     except: continue
+                        # the "continue" is not on a new line.
+                        n = len(tokens)
+                        if (n > 2 and
+                            tokens[-1].type == 'JUMP_BACK' and
+                            self.code[offset+3] == self.opc.END_FINALLY):
+                            tokens[-1].type = intern('CONTINUE')
                     pattr = repr(oparg)
                 elif op in self.opc.haslocal:
                     pattr = varnames[oparg]
