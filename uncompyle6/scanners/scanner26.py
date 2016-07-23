@@ -14,7 +14,6 @@ from uncompyle6 import PYTHON3
 if PYTHON3:
     intern = sys.intern
 
-from xdis.bytecode import findlinestarts
 import uncompyle6.scanners.scanner2 as scan
 
 # bytecode verification, verify(), uses JUMP_OPs from here
@@ -103,7 +102,7 @@ class Scanner26(scan.Scanner2):
         self.build_prev_op(n)
 
         # linestarts contains block code adresses (addr,block)
-        self.linestarts = list(findlinestarts(co))
+        self.linestarts = list(self.opc.findlinestarts(co))
 
         # class and names
         if classname:

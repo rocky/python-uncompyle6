@@ -26,7 +26,7 @@ from collections import namedtuple
 from array import array
 
 from xdis.code import iscode
-from xdis.bytecode import Bytecode, findlinestarts
+from xdis.bytecode import Bytecode
 from uncompyle6.scanner import Token, parse_fn_counts
 
 # Get all the opcodes into globals
@@ -300,7 +300,7 @@ class Scanner3(scan.Scanner):
         """
         # Offset: lineno pairs, only for offsets which start line.
         # Locally we use list for more convenient iteration using indices
-        linestarts = list(findlinestarts(code_obj))
+        linestarts = list(self.opc.findlinestarts(code_obj))
         self.linestarts = dict(linestarts)
         # Plain set with offsets of first ops on line
         self.linestart_offsets = set(a for (a, _) in linestarts)
