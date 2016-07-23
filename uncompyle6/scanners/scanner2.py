@@ -161,20 +161,14 @@ class Scanner2(scan.Scanner):
                 elif op in self.opc.hasname:
                     pattr = names[oparg]
                 elif op in self.opc.hasjrel:
+                    #  use instead: hasattr(self, 'patch_continue'): ?
+                    if self.version == 2.7:
+                        self.patch_continue(tokens, offset, op)
                     pattr = repr(offset + 3 + oparg)
                 elif op in self.opc.hasjabs:
-                    if self.version == 2.7 and op == self.opc.JUMP_ABSOLUTE:
-                        target = self.get_target(offset)
-                        # FIXME: this is a hack to catch stuff like:
-                        #   for ...
-                        #     try: ...
-                        #     except: continue
-                        # the "continue" is not on a new line.
-                        n = len(tokens)
-                        if (n > 2 and
-                            tokens[-1].type == 'JUMP_BACK' and
-                            self.code[offset+3] == self.opc.END_FINALLY):
-                            tokens[-1].type = intern('CONTINUE')
+                    # use instead: hasattr(self, 'patch_continue'): ?
+                    if self.version == 2.7:
+                        self.patch_continue(tokens, offset, op)
                     pattr = repr(oparg)
                 elif op in self.opc.haslocal:
                     pattr = varnames[oparg]

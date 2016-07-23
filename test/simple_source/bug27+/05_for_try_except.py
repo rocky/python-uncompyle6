@@ -9,3 +9,10 @@
 for a in [__name__]:
     try:len(a)
     except:continue
+
+# The above has JUMP_ABSOLUTE in it.
+#  This has JUMP_FORWARD instead.
+for a in [__name__]:
+    try:len(a)
+    except:continue
+    y = 2
