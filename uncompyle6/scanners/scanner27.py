@@ -12,6 +12,11 @@ from __future__ import print_function
 
 from uncompyle6.scanners.scanner2 import Scanner2
 
+from uncompyle6 import PYTHON3
+if PYTHON3:
+    import sys
+    intern = sys.intern
+
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_27
 JUMP_OPs = opcode_27.JUMP_OPs
@@ -76,6 +81,20 @@ class Scanner27(Scanner2):
                                              self.opc.JUMP_IF_TRUE_OR_POP])
 
         return
+
+    def patch_continue(self, tokens, offset, op):
+        if op in (self.opc.JUMP_FORWARD, self.opc.JUMP_ABSOLUTE):
+            # FIXME: this is a hack to catch stuff like:
+            #   for ...
+            #     try: ...
+            #     except: continue
+            # the "continue" is not on a new line.
+            n = len(tokens)
+            if (n > 2 and
+                tokens[-1].type == 'JUMP_BACK' and
+                self.code[offset+3] == self.opc.END_FINALLY):
+                tokens[-1].type = intern('CONTINUE')
+
     pass
 
 if __name__ == "__main__":
