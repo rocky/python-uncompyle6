@@ -15,6 +15,8 @@ class Python27Parser(Python2Parser):
     def p_list_comprehension27(self, args):
         """
         list_for ::= expr _for designator list_iter JUMP_BACK
+
+        list_compr ::= expr  BUILD_LIST_FROM_ARG _for designator list_iter JUMP_BACK
         """
 
     def p_try27(self, args):

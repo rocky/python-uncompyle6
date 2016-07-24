@@ -364,7 +364,7 @@ class Token(scanner.Token):
 
 def compare_code_with_srcfile(pyc_filename, src_filename):
     """Compare a .pyc with a source code file."""
-    version, timestamp, magic_int, code_obj1 = load_module(pyc_filename)
+    version, timestamp, magic_int, code_obj1, is_pypy = load_module(pyc_filename)
     if magic_int != PYTHON_MAGIC_INT:
         msg = ("Can't compare code - Python is running with magic %s, but code is magic %s "
                % (PYTHON_MAGIC_INT, magic_int))
@@ -375,8 +375,8 @@ def compare_code_with_srcfile(pyc_filename, src_filename):
 
 def compare_files(pyc_filename1, pyc_filename2):
     """Compare two .pyc files."""
-    version, timestamp, magic_int1, code_obj1 = uncompyle6.load_module(pyc_filename1)
-    version, timestamp, magic_int2, code_obj2 = uncompyle6.load_module(pyc_filename2)
+    version, timestamp, magic_int1, code_obj1, is_pypy = uncompyle6.load_module(pyc_filename1)
+    version, timestamp, magic_int2, code_obj2, is_pypy = uncompyle6.load_module(pyc_filename2)
     cmp_code_objects(version, code_obj1, code_obj2)
 
 if __name__ == '__main__':
