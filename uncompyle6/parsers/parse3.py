@@ -385,7 +385,7 @@ class Python3Parser(PythonParser):
 
     def add_custom_rules(self, tokens, customize):
         """
-        Special handling for opcodes that take a variable number
+        Special handling for opcodes such as those that take a variable number
         of arguments -- we add a new rule for each:
 
             unpack_list ::= UNPACK_LIST_n {expr}^n
@@ -436,7 +436,10 @@ class Python3Parser(PythonParser):
             mkfunc   ::= {pos_arg}^n [LOAD_CONST] MAKE_FUNCTION_n
             mklambda ::= {pos_arg}^n LOAD_LAMBDA [LOAD_CONST] MAKE_FUNCTION_n
 
-        """
+        For PYPY:
+            load_attr ::= LOAD_FAST LOOKUP_METHOD
+            call_function ::= expr CALL_METHOD
+       """
         for i, token in enumerate(tokens):
             opname = token.type
             opname_base = opname[:opname.rfind('_')]
@@ -448,19 +451,6 @@ class Python3Parser(PythonParser):
                 rule_pat = ("dictcomp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 expr "
                             "GET_ITER CALL_FUNCTION_1")
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-            ## Custom rules which are handled now by the more generic rule in
-            ## either MAKE_FUNCTION or MAKE_CLOSURE
-            # elif opname == 'LOAD_GENEXPR':
-            #     rule_pat = ("genexpr ::= LOAD_GENEXPR %sMAKE_FUNCTION_0 expr "
-            #                 "GET_ITER CALL_FUNCTION_1")
-            #     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-            #     rule_pat = ("genexpr ::= load_closure LOAD_GENEXPR %sMAKE_CLOSURE_0 expr "
-            #                 "GET_ITER CALL_FUNCTION_1")
-            #     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-            # elif opname == 'LOAD_LISTCOMP':
-            #     rule_pat  = ("listcomp ::= LOAD_LISTCOMP %sMAKE_FUNCTION_0 expr "
-            #                 "GET_ITER CALL_FUNCTION_1")
-            #     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
             elif opname == 'LOAD_SETCOMP':
                 # Should this be generalized and put under MAKE_FUNCTION?
                 rule_pat = ("setcomp ::= LOAD_SETCOMP %sMAKE_FUNCTION_0 expr "
@@ -476,6 +466,13 @@ class Python3Parser(PythonParser):
                 if opname_base == 'BUILD_TUPLE':
                     rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname == 'CALL_METHOD':
+                # A PyPy speciality
+                self.add_unique_rule("load_attr ::= LOAD_FAST LOOKUP_METHOD",
+                                     opname, token.attr, customize)
+                self.add_unique_rule("call_function ::= expr CALL_METHOD",
+                                     opname, token.attr, customize)
+                continue
             elif opname_base == 'BUILD_MAP':
                 kvlist_n = "kvlist_%s" % token.attr
                 if self.version >= 3.5:

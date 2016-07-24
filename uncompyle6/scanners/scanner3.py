@@ -107,14 +107,18 @@ class Scanner3(scan.Scanner):
 
     def disassemble(self, co, classname=None, code_objects={}, show_asm=None):
         """
-        Disassemble a Python 3 code object, returning a list of 'Token'.
-        Various tranformations are made to assist the deparsing grammar.
-        For example:
+        Pick out tokens from an uncompyle6 code object, and transform them,
+        returning a list of uncompyle6 'Token's.
+
+        The tranformations are made to assist the deparsing grammar.
+        Specificially:
            -  various types of LOAD_CONST's are categorized in terms of what they load
            -  COME_FROM instructions are added to assist parsing control structures
-           -  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional aruments
-        The main part of this procedure is modelled after
-        dis.disassemble().
+           -  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional arguments
+
+        Also, when we encounter certain tokens, we add them to a set which will cause custom
+        grammar rules. Specifically, variable arg tokens like MAKE_FUNCTION or BUILD_LIST
+        cause specific rules for the specific number of arguments they take.
         """
 
         show_asm = self.show_asm if not show_asm else show_asm

@@ -230,7 +230,7 @@ class Python2Parser(PythonParser):
 
     def add_custom_rules(self, tokens, customize):
         '''
-        Special handling for opcodes that take a variable number
+        Special handling for opcodes such as those that take a variable number
         of arguments -- we add a new rule for each:
 
             build_list  ::= {expr}^n BUILD_LIST_n
@@ -246,6 +246,10 @@ class Python2Parser(PythonParser):
             expr ::= expr {expr}^n CALL_FUNCTION_VAR_n POP_TOP
             expr ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n POP_TOP
             expr ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
+
+        For PYPY:
+            load_attr ::= LOAD_FAST LOOKUP_METHOD
+            call_function ::= expr CALL_METHOD
         '''
         for k, v in list(customize.items()):
             op = k[:k.rfind('_')]
@@ -262,6 +266,13 @@ class Python2Parser(PythonParser):
                     self.seen1024 = True
                 rule = ('build_list ::= ' + 'expr1024 '*thousands +
                                         'expr32 '*thirty32s + 'expr '*(v%32) + k)
+            elif k == 'CALL_METHOD':
+                # A PyPy speciality
+                self.add_unique_rule("load_attr ::= LOAD_FAST LOOKUP_METHOD",
+                                     op, v, customize)
+                self.add_unique_rule("call_function ::= expr CALL_METHOD",
+                                     op, v, customize)
+                continue
             elif op == 'BUILD_MAP':
                 kvlist_n = "kvlist_%s" % v
                 rule = kvlist_n + ' ::= ' + ' kv3' * v

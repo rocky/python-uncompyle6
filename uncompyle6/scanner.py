@@ -51,9 +51,10 @@ class Scanner(object):
     def __init__(self, version, show_asm=None, is_pypy=False):
         self.version = version
         self.show_asm = show_asm
+        self.is_pypy = is_pypy
 
         if version in PYTHON_VERSIONS:
-            if is_pypy and version != 3.2:
+            if is_pypy:
                 v_str = "opcode_pypy%s" % (int(version * 10))
             else:
                 v_str = "opcode_%s" % (int(version * 10))

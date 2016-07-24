@@ -1802,13 +1802,18 @@ class SourceWalker(GenericASTTraversal, object):
 
     def customize(self, customize):
         """
-        Special handling for opcodes that take a variable number
+        Special handling for opcodes, such as those that take a variable number
         of arguments -- we add a new entry for each in TABLE_R.
         """
         for k, v in list(customize.items()):
             if k in TABLE_R:
                 continue
             op = k[ :k.rfind('_') ]
+
+            if k == 'CALL_METHOD':
+                # This happens in PyPy only
+                TABLE_R[k] = ('%c(%P)', 0, (1, -1, ', ', 100))
+
             if op == 'CALL_FUNCTION':
                 TABLE_R[k] = ('%c(%P)', 0, (1, -1, ', ', 100))
             elif op in ('CALL_FUNCTION_VAR',

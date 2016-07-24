@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from uncompyle6 import PYTHON_VERSION
+from uncompyle6 import PYTHON_VERSION, IS_PYPY
 from uncompyle6.scanner import get_scanner
 from array import array
 def bug(state, slotstate):
@@ -12,7 +12,7 @@ def test_if_in_for():
     code = bug.__code__
     scan = get_scanner(PYTHON_VERSION)
     print(PYTHON_VERSION)
-    if 2.7 <= PYTHON_VERSION <= 3.0:
+    if 2.7 <= PYTHON_VERSION <= 3.0 and not IS_PYPY:
         n = scan.setup_code(code)
         scan.build_lines_data(code, n)
         scan.build_prev_op(n)
