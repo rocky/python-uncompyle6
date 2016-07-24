@@ -20,8 +20,11 @@ class Token:
     #    linestart = starts_line
     #    attr = argval
     #    pattr = argrepr
-    def __init__(self, type_, attr=None, pattr=None, offset=-1, linestart=None):
+    def __init__(self, type_, attr=None, pattr=None, offset=-1,
+                 linestart=None, op=None, has_arg=None):
         self.type = intern(type_)
+        self.op = op
+        self.has_arg = has_arg
         self.attr = attr
         self.pattr = pattr
         self.offset = offset
@@ -41,16 +44,18 @@ class Token:
 
     def __str__(self):
         pattr = self.pattr if self.pattr is not None else ''
-        prefix = '\n%4d  ' % self.linestart if self.linestart else (' ' * 6)
+        prefix = '\n%3d   ' % self.linestart if self.linestart else (' ' * 6)
         return (prefix +
-                ('%6s  %-17s %r' % (self.offset, self.type, pattr)))
+                ('%9s  %-18s %r' % (self.offset, self.type, pattr)))
 
     def format(self):
-        prefix = '\n%4d  ' % self.linestart if self.linestart else (' ' * 6)
-        offset_opname = '%6s  %-17s' % (self.offset, self.type)
+        prefix = '\n%3d   ' % self.linestart if self.linestart else (' ' * 6)
+        offset_opname = '%9s  %-18s' % (self.offset, self.type)
         argstr = "%6d " % self.attr if isinstance(self.attr, int) else (' '*7)
-        pattr = self.pattr if self.pattr is not None else ''
-        return "%s%s%s %r" % (prefix, offset_opname,  argstr, pattr)
+        if self.has_arg:
+            return "%s%s%s %r" % (prefix, offset_opname,  argstr, self.pattr)
+        else:
+            return "%s%s" % (prefix, offset_opname)
 
     def __hash__(self):
         return hash(self.type)

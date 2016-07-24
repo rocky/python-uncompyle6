@@ -27,13 +27,12 @@ from collections import namedtuple
 from array import array
 
 from xdis.code import iscode
-from xdis.bytecode import findlinestarts
 
 import uncompyle6.scanner as scan
 
 class Scanner2(scan.Scanner):
-    def __init__(self, version, show_asm=None):
-        scan.Scanner.__init__(self, version, show_asm)
+    def __init__(self, version, show_asm=None, is_pypy=False):
+        scan.Scanner.__init__(self, version, show_asm, is_pypy)
         self.pop_jump_if = frozenset([self.opc.PJIF, self.opc.PJIT])
         self.jump_forward = frozenset([self.opc.JUMP_ABSOLUTE, self.opc.JUMP_FORWARD])
         # This is the 2.5+ default
@@ -121,15 +120,18 @@ class Scanner2(scan.Scanner):
             if offset in cf:
                 k = 0
                 for j in cf[offset]:
-                    tokens.append(Token('COME_FROM', None, repr(j),
-                                    offset="%s_%d" % (offset, k)))
+                    tokens.append(Token(
+                        'COME_FROM', None, repr(j),
+                        offset="%s_%d" % (offset, k),
+                        has_arg = True))
                     k += 1
 
             op = self.code[offset]
             opname = self.opc.opname[op]
 
             oparg = None; pattr = None
-            if op >= self.opc.HAVE_ARGUMENT:
+            has_arg = (op >= self.opc.HAVE_ARGUMENT)
+            if has_arg:
                 oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
                 if op == self.opc.EXTENDED_ARG:
@@ -159,8 +161,14 @@ class Scanner2(scan.Scanner):
                 elif op in self.opc.hasname:
                     pattr = names[oparg]
                 elif op in self.opc.hasjrel:
+                    #  use instead: hasattr(self, 'patch_continue'): ?
+                    if self.version == 2.7:
+                        self.patch_continue(tokens, offset, op)
                     pattr = repr(offset + 3 + oparg)
                 elif op in self.opc.hasjabs:
+                    # use instead: hasattr(self, 'patch_continue'): ?
+                    if self.version == 2.7:
+                        self.patch_continue(tokens, offset, op)
                     pattr = repr(oparg)
                 elif op in self.opc.haslocal:
                     pattr = varnames[oparg]
@@ -204,15 +212,17 @@ class Scanner2(scan.Scanner):
                 linestart = None
 
             if offset not in replace:
-                tokens.append(Token(opname, oparg, pattr, offset, linestart))
+                tokens.append(Token(
+                    opname, oparg, pattr, offset, linestart, op, has_arg))
             else:
-                tokens.append(Token(replace[offset], oparg, pattr, offset, linestart))
+                tokens.append(Token(
+                    replace[offset], oparg, pattr, offset, linestart, op, has_arg))
                 pass
             pass
 
         if show_asm in ('both', 'after'):
             for t in tokens:
-                print(t)
+                print(t.format())
             print()
         return tokens, customize
 
@@ -266,7 +276,7 @@ class Scanner2(scan.Scanner):
 
         # linestarts is a tuple of (offset, line number).
         # Turn that in a has that we can index
-        self.linestarts = list(findlinestarts(co))
+        self.linestarts = list(self.opc.findlinestarts(co))
         self.linestartoffsets = {}
         for offset, lineno in self.linestarts:
             self.linestartoffsets[offset] = lineno

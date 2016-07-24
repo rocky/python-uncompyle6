@@ -112,14 +112,12 @@ See Also
 --------
 
 * https://github.com/zrax/pycdc : supports all versions of Python and is written in C++
-* https://code.google.com/archive/p/unpyc3/ : supports Python 3.2 only
-
-The above projects use a different decompiling technique what is used here.
-
-The HISTORY file.
+* https://code.google.com/archive/p/unpyc3/ : supports Python 3.2 only. The above projects use a different decompiling technique what is used here.
+* The HISTORY_ file.
 
 .. |downloads| image:: https://img.shields.io/pypi/dd/uncompyle6.svg
 .. _trepan: https://pypi.python.org/pypi/trepan
+.. _HISTORY: https://github.com/rocky/python-uncompyle6/blob/master/HISTORY.md
 .. _debuggers: https://pypi.python.org/pypi/trepan3k
 .. _remake: https://bashdb.sf.net/remake
 .. _pycdc: https://github.com/zrax/pycdc

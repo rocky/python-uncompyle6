@@ -112,8 +112,7 @@ Fenx's uncompyle3 which I used for inspiration for Python3 support.
 I started working on this late 2015, mostly to add fragment support.
 In that, I decided to make this runnable on Python 3.2+ and Python 2.6+
 while, handling Python bytecodes from Python versions 2.5+ and
-3.2+. (I think I could go back further, but I'd consider doing that
-only after code is better cleaned up and supports Python 3 better.)
+3.2+.
 
 Over the many years, code styles and Python features have
 changed. However brilliant the code was and still is, it hasn't really

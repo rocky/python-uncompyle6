@@ -21,7 +21,7 @@ class ParserError(Exception):
         self.offset = offset
 
     def __str__(self):
-        return "Syntax error at or near `%r' token at offset %s\n" % \
+        return "Parse error at or near `%r' instruction at offset %s\n" % \
                (self.token, self.offset)
 
 nop_func = lambda self, args: None
@@ -50,19 +50,19 @@ class PythonParser(GenericASTBuilder):
         for i in dir(self):
             setattr(self, i, None)
 
-    def error(self, tokens, index):
+    def error(self, instructions, index):
         # Find the last line boundary
         for start in range(index, -1, -1):
-            if tokens[start].linestart:  break
+            if instructions[start].linestart:  break
             pass
-        for finish in range(index+1, len(tokens)):
-            if tokens[finish].linestart:  break
+        for finish in range(index+1, len(instructions)):
+            if instructions[finish].linestart:  break
             pass
-        err_token = tokens[index]
-        print("Token context:")
+        err_token = instructions[index]
+        print("Instruction context:")
         for i in range(start, finish):
             indent = '   ' if i != index else '-> '
-            print("%s%s" % (indent, tokens[i]))
+            print("%s%s" % (indent, instructions[i].format()))
         raise ParserError(err_token, err_token.offset)
 
     def typestring(self, token):
@@ -570,7 +570,9 @@ def parse(p, tokens, customize):
     return ast
 
 
-def get_python_parser(version, debug_parser, compile_mode='exec'):
+def get_python_parser(
+        version, debug_parser, compile_mode='exec',
+        is_pypy = False):
     """Returns parser object for Python version 2 or 3, 3.2, 3.5on,
     etc., depending on the parameters passed.  *compile_mode* is either
     'exec', 'eval', or 'single'. See
@@ -662,7 +664,7 @@ class PythonParserSingle(PythonParser):
 
 
 def python_parser(version, co, out=sys.stdout, showasm=False,
-                  parser_debug=PARSER_DEFAULT_DEBUG):
+                  parser_debug=PARSER_DEFAULT_DEBUG, is_pypy=False):
     """
     Parse a code object to an abstract syntax tree representation.
 
@@ -681,7 +683,7 @@ def python_parser(version, co, out=sys.stdout, showasm=False,
 
     assert iscode(co)
     from uncompyle6.scanner import get_scanner
-    scanner = get_scanner(version)
+    scanner = get_scanner(version, is_pypy)
     tokens, customize = scanner.disassemble(co)
     maybe_show_asm(showasm, tokens)
 
@@ -693,8 +695,8 @@ def python_parser(version, co, out=sys.stdout, showasm=False,
 
 if __name__ == '__main__':
     def parse_test(co):
-        from uncompyle6 import PYTHON_VERSION
-        ast = python_parser(PYTHON_VERSION, co, showasm=True)
+        from uncompyle6 import PYTHON_VERSION, IS_PYPY
+        ast = python_parser(PYTHON_VERSION, co, showasm=True, is_pypy=IS_PYPY)
         print(ast)
         return
     parse_test(parse_test.__code__)

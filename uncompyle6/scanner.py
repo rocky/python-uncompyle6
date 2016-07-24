@@ -48,12 +48,15 @@ class Code(object):
 
 class Scanner(object):
 
-    def __init__(self, version, show_asm=None):
+    def __init__(self, version, show_asm=None, is_pypy=False):
         self.version = version
         self.show_asm = show_asm
 
         if version in PYTHON_VERSIONS:
-            v_str = "opcode_%s" % (int(version * 10))
+            if is_pypy and version != 3.2:
+                v_str = "opcode_pypy%s" % (int(version * 10))
+            else:
+                v_str = "opcode_%s" % (int(version * 10))
             exec("from xdis.opcodes import %s" % v_str)
             exec("self.opc = %s" % v_str)
         else:
@@ -251,18 +254,26 @@ class Scanner(object):
 def parse_fn_counts(argc):
     return ((argc & 0xFF), (argc >> 8) & 0xFF, (argc >> 16) & 0x7FFF)
 
-def get_scanner(version, show_asm=None):
+def get_scanner(version, show_asm=None, is_pypy=False):
     # Pick up appropriate scanner
     if version in PYTHON_VERSIONS:
         v_str = "%s" % (int(version * 10))
-        exec("import uncompyle6.scanners.scanner%s as scan" % v_str)
         if PYTHON3:
             import importlib
-            scan = importlib.import_module("uncompyle6.scanners.scanner%s" % v_str)
+            if is_pypy:
+                scan = importlib.import_module("uncompyle6.scanners.pypy%s" % v_str)
+            else:
+                scan = importlib.import_module("uncompyle6.scanners.scanner%s" % v_str)
             if False: print(scan)  # Avoid unused scan
         else:
-            exec("import uncompyle6.scanners.scanner%s as scan" % v_str)
-        scanner = eval("scan.Scanner%s(show_asm=show_asm)" % v_str)
+            if is_pypy:
+                exec("import uncompyle6.scanners.pypy%s as scan" % v_str)
+            else:
+                exec("import uncompyle6.scanners.scanner%s as scan" % v_str)
+        if is_pypy:
+            scanner = eval("scan.ScannerPyPy%s(show_asm=show_asm)" % v_str)
+        else:
+            scanner = eval("scan.Scanner%s(show_asm=show_asm)" % v_str)
     else:
         raise RuntimeError("Unsupported Python version %s" % version)
     return scanner

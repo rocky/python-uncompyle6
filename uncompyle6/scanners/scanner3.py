@@ -26,7 +26,7 @@ from collections import namedtuple
 from array import array
 
 from xdis.code import iscode
-from xdis.bytecode import Bytecode, findlinestarts
+from xdis.bytecode import Bytecode
 from uncompyle6.scanner import Token, parse_fn_counts
 
 # Get all the opcodes into globals
@@ -46,8 +46,8 @@ import uncompyle6.scanner as scan
 
 class Scanner3(scan.Scanner):
 
-    def __init__(self, version, show_asm=None):
-        super(Scanner3, self).__init__(version, show_asm)
+    def __init__(self, version, show_asm=None, is_pypy=False):
+        super(Scanner3, self).__init__(version, show_asm, is_pypy)
 
         # Create opcode classification sets
         # Note: super initilization above initializes self.opc
@@ -173,7 +173,8 @@ class Scanner3(scan.Scanner):
                 jump_idx = 0
                 for jump_offset in jump_targets[inst.offset]:
                     tokens.append(Token('COME_FROM', None, repr(jump_offset),
-                                        offset='%s_%s' % (inst.offset, jump_idx)))
+                                        offset='%s_%s' % (inst.offset, jump_idx),
+                                        has_arg = True))
                     jump_idx += 1
                     pass
                 pass
@@ -221,8 +222,11 @@ class Scanner3(scan.Scanner):
                         attr = (pos_args, name_pair_args, annotate_args),
                         pattr = pattr,
                         offset = inst.offset,
-                        linestart = inst.starts_line)
+                        linestart = inst.starts_line,
+                        op = op,
+                        has_arg = (op >= op3.HAVE_ARGUMENT)
                     )
+                )
                 continue
             elif op in self.varargs:
                 pos_args = inst.argval
@@ -278,9 +282,16 @@ class Scanner3(scan.Scanner):
                     pattr = pattr,
                     offset = inst.offset,
                     linestart = inst.starts_line,
+                    op = op,
+                    has_arg = (op >= op3.HAVE_ARGUMENT)
                     )
                 )
             pass
+
+        if show_asm in ('both', 'after'):
+            for t in tokens:
+                print(t.format())
+            print()
         return tokens, {}
 
     def build_lines_data(self, code_obj):
@@ -289,7 +300,7 @@ class Scanner3(scan.Scanner):
         """
         # Offset: lineno pairs, only for offsets which start line.
         # Locally we use list for more convenient iteration using indices
-        linestarts = list(findlinestarts(code_obj))
+        linestarts = list(self.opc.findlinestarts(code_obj))
         self.linestarts = dict(linestarts)
         # Plain set with offsets of first ops on line
         self.linestart_offsets = set(a for (a, _) in linestarts)
@@ -374,7 +385,8 @@ class Scanner3(scan.Scanner):
             # since 2.3
             self.detect_structure(offset)
 
-            if op >= op3.HAVE_ARGUMENT:
+            has_arg = (op >= op3.HAVE_ARGUMENT)
+            if has_arg:
                 label = self.fixed_jumps.get(offset)
                 oparg = code[offset+1] + code[offset+2] * 256
 

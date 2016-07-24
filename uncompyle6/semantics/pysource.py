@@ -482,7 +482,7 @@ class ParserError(python_parser.ParserError):
 
     def __str__(self):
         lines = ['--- This code section failed: ---']
-        lines.extend( list(map(str, self.tokens)) )
+        lines.extend([i.format() for i in self.tokens])
         lines.extend( ['', str(self.error)] )
         return '\n'.join(lines)
 
@@ -526,7 +526,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def __init__(self, version, out, scanner, showast=False,
                  debug_parser=PARSER_DEFAULT_DEBUG,
-                 compile_mode='exec'):
+                 compile_mode='exec', is_pypy=False):
         GenericASTTraversal.__init__(self, ast=None)
         self.scanner = scanner
         params = {
@@ -555,6 +555,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.hide_internal = True
         self.name = None
         self.version = version
+        self.is_pypy = is_pypy
 
         if 2.0 <= version <= 2.3:
                 TABLE_DIRECT['tryfinallystmt'] = (
@@ -1022,6 +1023,9 @@ class SourceWalker(GenericASTTraversal, object):
         p = self.prec
         self.prec = 27
         if self.version >= 2.7:
+            if self.is_pypy:
+                self.n_list_compr_pypy27(node)
+                return
             n = node[-1]
         elif node[-1] == 'del_stmt':
             n = node[-3] if node[-2] == 'JUMP_BACK' else node[-2]
@@ -1049,6 +1053,42 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.preorder(expr)
         self.preorder(list_iter)
+        self.write( ' ]')
+        self.prec = p
+        self.prune() # stop recursing
+
+    def n_list_compr_pypy27(self, node):
+        """List comprehensions the way they are done in PYPY Python 2.7.
+        """
+        p = self.prec
+        self.prec = 27
+        n = node[-2] if self.is_pypy and node[-1] == 'JUMP_BACK' else node[-1]
+        list_expr = node[0]
+        designator = node[3]
+
+        assert n == 'list_iter'
+        assert designator == 'designator'
+
+        # find innermost node
+        while n == 'list_iter':
+            n = n[0] # recurse one step
+            if   n == 'list_for':	n = n[3]
+            elif n == 'list_if':	n = n[2]
+            elif n == 'list_if_not': n= n[2]
+        assert n == 'lc_body'
+        self.write( '[ ')
+
+        expr = n[0]
+        list_iter = node[-2] if self.is_pypy and node[-1] == 'JUMP_BACK' else node[-1]
+
+        assert expr == 'expr'
+        assert list_iter == 'list_iter'
+
+        self.preorder(expr)
+        self.write( ' for ')
+        self.preorder(designator)
+        self.write( ' in ')
+        self.preorder(list_expr)
         self.write( ' ]')
         self.prec = p
         self.prune() # stop recursing
@@ -2127,14 +2167,14 @@ class SourceWalker(GenericASTTraversal, object):
 
 
 def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
-                 showgrammar=False, code_objects={}, compile_mode='exec'):
+                 showgrammar=False, code_objects={}, compile_mode='exec', is_pypy=False):
     """
     disassembles and deparses a given code block 'co'
     """
 
     assert iscode(co)
     # store final output stream for case of error
-    scanner = get_scanner(version)
+    scanner = get_scanner(version, is_pypy=is_pypy)
 
     tokens, customize = scanner.disassemble(co, code_objects=code_objects)
     maybe_show_asm(showasm, tokens)
@@ -2146,7 +2186,8 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
 
     #  Build AST from disassembly.
     deparsed = SourceWalker(version, out, scanner, showast=showast,
-                            debug_parser=debug_parser, compile_mode=compile_mode)
+                            debug_parser=debug_parser, compile_mode=compile_mode,
+                            is_pypy = is_pypy)
 
     isTopLevel = co.co_name == '<module>'
     deparsed.ast = deparsed.build_ast(tokens, customize, isTopLevel=isTopLevel)

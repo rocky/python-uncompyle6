@@ -14,7 +14,6 @@ from uncompyle6 import PYTHON3
 if PYTHON3:
     intern = sys.intern
 
-from xdis.bytecode import findlinestarts
 import uncompyle6.scanners.scanner2 as scan
 
 # bytecode verification, verify(), uses JUMP_OPs from here
@@ -103,7 +102,7 @@ class Scanner26(scan.Scanner2):
         self.build_prev_op(n)
 
         # linestarts contains block code adresses (addr,block)
-        self.linestarts = list(findlinestarts(co))
+        self.linestarts = list(self.opc.findlinestarts(co))
 
         # class and names
         if classname:
@@ -179,10 +178,12 @@ class Scanner26(scan.Scanner2):
                 k = 0
                 for j in cf[offset]:
                     tokens.append(Token('COME_FROM', None, repr(j),
-                                    offset="%s_%d" % (offset, k) ))
+                                        offset="%s_%d" % (offset, k),
+                                        has_arg = True))
                     k += 1
 
-            if self.op_hasArgument(op):
+            has_arg = (op >= self.opc.HAVE_ARGUMENT)
+            if has_arg:
                 oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
                 if op == self.opc.EXTENDED_ARG:
@@ -282,9 +283,11 @@ class Scanner26(scan.Scanner2):
                 linestart = None
 
             if offset not in replace:
-                tokens.append(Token(op_name, oparg, pattr, offset, linestart))
+                tokens.append(Token(
+                    op_name, oparg, pattr, offset, linestart, op, has_arg))
             else:
-                tokens.append(Token(replace[offset], oparg, pattr, offset, linestart))
+                tokens.append(Token(
+                    replace[offset], oparg, pattr, offset, linestart, op, has_arg))
                 pass
             pass
 
