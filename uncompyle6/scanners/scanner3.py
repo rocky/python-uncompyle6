@@ -46,8 +46,8 @@ import uncompyle6.scanner as scan
 
 class Scanner3(scan.Scanner):
 
-    def __init__(self, version, show_asm=None):
-        super(Scanner3, self).__init__(version, show_asm)
+    def __init__(self, version, show_asm=None, is_pypy=False):
+        super(Scanner3, self).__init__(version, show_asm, is_pypy)
 
         # Create opcode classification sets
         # Note: super initilization above initializes self.opc

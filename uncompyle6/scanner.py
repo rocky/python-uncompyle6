@@ -53,7 +53,7 @@ class Scanner(object):
         self.show_asm = show_asm
 
         if version in PYTHON_VERSIONS:
-            if is_pypy:
+            if is_pypy and version != 3.2:
                 v_str = "opcode_pypy%s" % (int(version * 10))
             else:
                 v_str = "opcode_%s" % (int(version * 10))
