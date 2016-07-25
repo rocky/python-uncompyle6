@@ -44,7 +44,8 @@ check-disasm:
 
 #: Check deparsing bytecode 2.x only
 check-bytecode-2:
-	$(PYTHON) test_pythonlib.py --bytecode-2.3 --bytecode-2.4 --bytecode-2.5 --bytecode-2.6 --bytecode-2.7
+	$(PYTHON) test_pythonlib.py --bytecode-2.3 --bytecode-2.4 \
+        --bytecode-2.5 --bytecode-2.6 --bytecode-2.7 --bytecode-pypy2.7
 
 #: Check deparsing bytecode 3.x only
 check-bytecode-3:
@@ -114,12 +115,12 @@ check-3.4-ok:
 # Skip for now
 2.6:
 
-#: PyPy 5.0.x with ...
-5.0:
+#: PyPy 5.0.x with Python 2.7 ...
+pypy-2.7 5.0:
 	$(PYTHON) test_pythonlib.py --bytecode-pypy2.7 --verify
 
-#: PyPy 2.4.x with ...
-2.4:
+#: PyPy 2.4.x with Python 3.2 ...
+pypy-3.2 2.4:
 	$(PYTHON) test_pythonlib.py --bytecode-pypy3.2 --verify
 
 clean: clean-py-dis clean-dis clean-unverified
