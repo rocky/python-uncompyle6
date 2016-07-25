@@ -248,7 +248,7 @@ class Python2Parser(PythonParser):
             expr ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
 
         For PYPY:
-            load_attr ::= LOAD_FAST LOOKUP_METHOD
+            load_attr ::= expr LOOKUP_METHOD
             call_function ::= expr CALL_METHOD
         '''
         for opname, v in list(customize.items()):
@@ -268,9 +268,7 @@ class Python2Parser(PythonParser):
                                         'expr32 '*thirty32s + 'expr '*(v%32) + opname)
             elif opname == 'LOOKUP_METHOD':
                 # A PyPy speciality - DRY with parse3
-                self.add_unique_rule("load_attr ::= LOAD_FAST LOOKUP_METHOD",
-                                     opname, v, customize)
-                self.add_unique_rule("load_attr ::= LOAD_NAME LOOKUP_METHOD",
+                self.add_unique_rule("load_attr ::= expr LOOKUP_METHOD",
                                      opname, v, customize)
                 continue
             elif opname == 'JUMP_IF_NOT_DEBUG':

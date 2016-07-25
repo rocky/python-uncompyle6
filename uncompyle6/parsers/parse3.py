@@ -433,7 +433,7 @@ class Python3Parser(PythonParser):
             mklambda ::= {pos_arg}^n LOAD_LAMBDA [LOAD_CONST] MAKE_FUNCTION_n
 
         For PYPY:
-            load_attr ::= LOAD_FAST LOOKUP_METHOD
+            load_attr ::= expr LOOKUP_METHOD
             call_function ::= expr CALL_METHOD
        """
         for i, token in enumerate(tokens):
@@ -464,9 +464,7 @@ class Python3Parser(PythonParser):
                     self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname == 'LOOKUP_METHOD':
                 # A PyPy speciality - DRY with parse2
-                self.add_unique_rule("load_attr ::= LOAD_FAST LOOKUP_METHOD",
-                                     opname, token.attr, customize)
-                self.add_unique_rule("load_attr ::= LOAD_NAME LOOKUP_METHOD",
+                self.add_unique_rule("load_attr ::= expr LOOKUP_METHOD",
                                      opname, token.attr, customize)
                 continue
             elif opname == 'JUMP_IF_NOT_DEBUG':
