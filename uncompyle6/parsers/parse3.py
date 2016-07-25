@@ -470,6 +470,8 @@ class Python3Parser(PythonParser):
                 # A PyPy speciality
                 self.add_unique_rule("load_attr ::= LOAD_FAST LOOKUP_METHOD",
                                      opname, token.attr, customize)
+                self.add_unique_rule("load_attr ::= LOAD_NAME LOOKUP_METHOD",
+                                     opname, token.attr, customize)
                 self.add_unique_rule("call_function ::= expr CALL_METHOD",
                                      opname, token.attr, customize)
                 continue

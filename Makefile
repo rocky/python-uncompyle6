@@ -42,7 +42,7 @@ check-2.6:
 
 #:PyPy of some sort. E.g. [PyPy 5.0.1 with GCC 4.8.4]
 # Skip for now
-2.6 5.0:
+2.4 2.6 5.0:
 
 #: Run py.test tests
 pytest:

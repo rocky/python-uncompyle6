@@ -128,6 +128,7 @@ class Scanner3(scan.Scanner):
             for instr in bytecode.get_instructions(co):
                 print(instr._disassemble())
 
+        customize = {}
         # Container for tokens
         tokens = []
 
@@ -235,6 +236,8 @@ class Scanner3(scan.Scanner):
             elif op in self.varargs:
                 pos_args = inst.argval
                 opname = '%s_%d' % (opname, pos_args)
+            elif self.is_pypy and opname == 'CALL_METHOD':
+                customize['CALL_METHOD'] = argval
             elif opname == 'UNPACK_EX':
                 # FIXME: try with scanner and parser by
                 # changing inst.argval
@@ -296,7 +299,7 @@ class Scanner3(scan.Scanner):
             for t in tokens:
                 print(t.format())
             print()
-        return tokens, {}
+        return tokens, customize
 
     def build_lines_data(self, code_obj):
         """
