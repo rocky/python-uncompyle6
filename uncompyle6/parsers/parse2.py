@@ -266,14 +266,12 @@ class Python2Parser(PythonParser):
                     self.seen1024 = True
                 rule = ('build_list ::= ' + 'expr1024 '*thousands +
                                         'expr32 '*thirty32s + 'expr '*(v%32) + opname)
-            elif opname == 'CALL_METHOD':
-                # A PyPy speciality
+            elif opname == 'LOOKUP_METHOD':
+                # A PyPy speciality - DRY with parse3
                 self.add_unique_rule("load_attr ::= LOAD_FAST LOOKUP_METHOD",
-                                     opname_base, v, customize)
+                                     opname, v, customize)
                 self.add_unique_rule("load_attr ::= LOAD_NAME LOOKUP_METHOD",
-                                     opname_base, v, customize)
-                self.add_unique_rule("call_function ::= expr CALL_METHOD",
-                                     opname_base, v, customize)
+                                     opname, v, customize)
                 continue
             elif opname == 'JUMP_IF_NOT_DEBUG':
                 self.add_unique_rule(
@@ -313,12 +311,20 @@ class Python2Parser(PythonParser):
                 rule = 'mkfunc ::= %s load_closure LOAD_CONST %s' % ('expr '*v, opname)
                 # rule = 'mkfunc ::= %s closure_list LOAD_CONST %s' % ('expr '*v, opname)
             elif opname_base in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
-                    'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
-                na = (v & 0xff)           # positional parameters
-                nk = (v >> 8) & 0xff      # keyword parameters
+                                 'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
+                args_pos = (v & 0xff)          # positional parameters
+                args_kw = (v >> 8) & 0xff      # keyword parameters
                 # number of apply equiv arguments:
                 nak = ( len(opname_base)-len('CALL_FUNCTION') ) // 3
-                rule = 'call_function ::= expr ' + 'expr '*na + 'kwarg '*nk \
+                rule = 'call_function ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
+                       + 'expr ' * nak + opname
+            elif opname_base == 'CALL_METHOD':
+                # PyPy only - DRY with parse3
+                args_pos = (v & 0xff)           # positional parameters
+                args_kw = (v >> 8) & 0xff      # keyword parameters
+                # number of apply equiv arguments:
+                nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
+                rule = 'call_function ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
                        + 'expr ' * nak + opname
             else:
                 raise Exception('unknown customize token %s' % opname)

@@ -462,13 +462,11 @@ class Python3Parser(PythonParser):
                 if opname_base == 'BUILD_TUPLE':
                     rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
-            elif opname == 'CALL_METHOD':
-                # A PyPy speciality
+            elif opname == 'LOOKUP_METHOD':
+                # A PyPy speciality - DRY with parse2
                 self.add_unique_rule("load_attr ::= LOAD_FAST LOOKUP_METHOD",
                                      opname, token.attr, customize)
                 self.add_unique_rule("load_attr ::= LOAD_NAME LOOKUP_METHOD",
-                                     opname, token.attr, customize)
-                self.add_unique_rule("call_function ::= expr CALL_METHOD",
                                      opname, token.attr, customize)
                 continue
             elif opname == 'JUMP_IF_NOT_DEBUG':
@@ -525,6 +523,17 @@ class Python3Parser(PythonParser):
                 else:
                     rule = ('mkfunc ::= kwargs %sexpr %s' %
                             ('pos_arg ' * args_pos, opname))
+                self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname_base == 'CALL_METHOD':
+                # PyPy only - DRY with parse2
+                args_pos = (token.attr & 0xff)          # positional parameters
+                args_kw = (token.attr >> 8) & 0xff      # keyword parameters
+                # number of apply equiv arguments:
+                nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
+                rule = ('call_function ::= expr '
+                        + ('pos_arg ' * args_pos)
+                        + ('kwarg ' * args_kw)
+                        + 'expr ' * nak + token.type)
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname.startswith('MAKE_CLOSURE'):
                 # DRY with MAKE_FUNCTION

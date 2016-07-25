@@ -89,13 +89,15 @@ class Scanner3(scan.Scanner):
 
         # Opcodes that take a variable number of arguments
         # (expr's)
-        self.varargs = frozenset([self.opc.BUILD_LIST,
-                                  self.opc.BUILD_TUPLE,
-                                  self.opc.BUILD_SET,
-                                  self.opc.BUILD_SLICE,
-                                  self.opc.BUILD_MAP,
-                                  self.opc.UNPACK_SEQUENCE,
-                                  self.opc.RAISE_VARARGS])
+        varargs_ops = set([
+            self.opc.BUILD_LIST,        self.opc.BUILD_TUPLE,
+             self.opc.BUILD_SET,        self.opc.BUILD_SLICE,
+             self.opc.BUILD_MAP,        self.opc.UNPACK_SEQUENCE,
+             self.opc.RAISE_VARARGS])
+
+        if is_pypy:
+            varargs_ops.add(self.opc.CALL_METHOD)
+        self.varargs_ops = frozenset(varargs_ops)
 
         # Not really a set, but still clasification-like
         self.statement_opcode_sequences = [
@@ -234,7 +236,7 @@ class Scanner3(scan.Scanner):
                     )
                 )
                 continue
-            elif op in self.varargs:
+            elif op in self.varargs_ops:
                 pos_args = inst.argval
                 opname = '%s_%d' % (opname, pos_args)
             elif self.is_pypy and opname in ('CALL_METHOD', 'JUMP_IF_NOT_DEBUG'):

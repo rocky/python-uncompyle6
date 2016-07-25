@@ -110,9 +110,17 @@ check-3.2-ok:
 check-3.4-ok:
 	$(PYTHON) test_pythonlib.py --ok-3.4 --verify $(COMPILE)
 
-#:PyPy of some sort. E.g. [PyPy 5.0.1 with GCC 4.8.4]
+#: PyPy of some sort. E.g. [PyPy 5.0.1 with GCC 4.8.4]
 # Skip for now
-2.4 2.6 5.0:
+2.6:
+
+#: PyPy 5.0.x with ...
+5.0:
+	$(PYTHON) test_pythonlib.py --bytecode-pypy2.7 --verify
+
+#: PyPy 2.4.x with ...
+2.4:
+	$(PYTHON) test_pythonlib.py --bytecode-pypy3.2 --verify
 
 clean: clean-py-dis clean-dis clean-unverified
 
