@@ -280,9 +280,17 @@ class Python2Parser(PythonParser):
                     opname_base, v, customize)
                 continue
             elif opname_base == 'BUILD_MAP':
-                kvlist_n = "kvlist_%s" % v
-                rule = kvlist_n + ' ::= ' + ' kv3' * v
-                self.add_unique_rule(rule, opname_base, v, customize)
+                if v == 0: #  and self.is_pypy:
+                    # PyPy sometimes has no count. Sigh.
+                    kvlist_n = 'kvlist_n'
+                    rule = 'kvlist_n ::=  kvlist_n kv3'
+                    self.add_unique_rule(rule, opname_base, v, customize)
+                    rule = 'kvlist_n ::='
+                    self.add_unique_rule(rule, opname_base, v, customize)
+                else:
+                    kvlist_n = "kvlist_%s" % v
+                    rule = kvlist_n + ' ::= ' + ' kv3' * v
+                    self.add_unique_rule(rule, opname_base, v, customize)
                 rule = "mapexpr ::=  %s %s" % (opname, kvlist_n)
                 self.add_unique_rule(rule, opname_base, v, customize)
             elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):

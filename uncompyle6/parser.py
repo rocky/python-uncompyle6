@@ -69,7 +69,9 @@ class PythonParser(GenericASTBuilder):
         return token.type
 
     def nonterminal(self, nt, args):
-        collect = ('stmts', 'exprlist', 'kvlist', '_stmts', 'print_items', 'kwargs')
+        collect = ('stmts', 'exprlist', 'kvlist', '_stmts', 'print_items', 'kwargs',
+                   # PYPY:
+                   'kvlist_n')
 
         if nt in collect and len(args) > 1:
             #
