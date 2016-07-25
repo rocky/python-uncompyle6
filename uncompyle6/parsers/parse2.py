@@ -251,78 +251,78 @@ class Python2Parser(PythonParser):
             load_attr ::= LOAD_FAST LOOKUP_METHOD
             call_function ::= expr CALL_METHOD
         '''
-        for k, v in list(customize.items()):
-            op = k[:k.rfind('_')]
-            if op in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
+        for opname, v in list(customize.items()):
+            opname_base = opname[:opname.rfind('_')]
+            if opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
                 thousands = (v//1024)
                 thirty32s = ((v//32)%32)
                 if thirty32s > 0:
                     rule = "expr32 ::=%s" % (' expr' * 32)
-                    self.add_unique_rule(rule, op, v, customize)
+                    self.add_unique_rule(rule, opname_base, v, customize)
                     self.seen32 = True
                 if thousands > 0:
                     self.add_unique_rule("expr1024 ::=%s" % (' expr32' * 32),
-                                         op, v, customize)
+                                         opname_base, v, customize)
                     self.seen1024 = True
                 rule = ('build_list ::= ' + 'expr1024 '*thousands +
-                                        'expr32 '*thirty32s + 'expr '*(v%32) + k)
-            elif k == 'CALL_METHOD':
+                                        'expr32 '*thirty32s + 'expr '*(v%32) + opname)
+            elif opname == 'CALL_METHOD':
                 # A PyPy speciality
                 self.add_unique_rule("load_attr ::= LOAD_FAST LOOKUP_METHOD",
-                                     op, v, customize)
+                                     opname_base, v, customize)
                 self.add_unique_rule("load_attr ::= LOAD_NAME LOOKUP_METHOD",
-                                     op, v, customize)
+                                     opname_base, v, customize)
                 self.add_unique_rule("call_function ::= expr CALL_METHOD",
-                                     op, v, customize)
+                                     opname_base, v, customize)
                 continue
-            elif k == 'JUMP_IF_NOT_DEBUG':
+            elif opname == 'JUMP_IF_NOT_DEBUG':
                 self.add_unique_rule(
-                    "stmt ::= assert_pypy", op, v, customize)
+                    "stmt ::= assert_pypy", opname_base, v, customize)
                 self.add_unique_rule(
                     "assert_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true "
                     "LOAD_ASSERT RAISE_VARARGS_1 COME_FROM",
-                    op, v, customize)
+                    opname_base, v, customize)
                 continue
-            elif op == 'BUILD_MAP':
+            elif opname_base == 'BUILD_MAP':
                 kvlist_n = "kvlist_%s" % v
                 rule = kvlist_n + ' ::= ' + ' kv3' * v
-                self.add_unique_rule(rule, op, v, customize)
-                rule = "mapexpr ::=  %s %s" % (k, kvlist_n)
-                self.add_unique_rule(rule, op, v, customize)
-            elif op in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
-                rule = 'unpack ::= ' + k + ' designator'*v
-            elif op == 'UNPACK_LIST':
-                rule = 'unpack_list ::= ' + k + ' designator'*v
-            elif op in ('DUP_TOPX', 'RAISE_VARARGS'):
+                self.add_unique_rule(rule, opname_base, v, customize)
+                rule = "mapexpr ::=  %s %s" % (opname, kvlist_n)
+                self.add_unique_rule(rule, opname_base, v, customize)
+            elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
+                rule = 'unpack ::= ' + opname + ' designator'*v
+            elif opname_base == 'UNPACK_LIST':
+                rule = 'unpack_list ::= ' + opname + ' designator'*v
+            elif opname_base in ('DUP_TOPX', 'RAISE_VARARGS'):
                 # no need to add a rule
                 continue
-                # rule = 'dup_topx ::= ' + 'expr '*v + k
-            elif op == 'MAKE_FUNCTION':
+                # rule = 'dup_topx ::= ' + 'expr '*v + opname
+            elif opname_base == 'MAKE_FUNCTION':
                 self.addRule('mklambda ::= %s LOAD_LAMBDA %s' %
-                      ('pos_arg '*v, k), nop_func)
-                rule = 'mkfunc ::= %s LOAD_CONST %s' % ('expr '*v, k)
-            elif op == 'MAKE_CLOSURE':
+                      ('pos_arg '*v, opname), nop_func)
+                rule = 'mkfunc ::= %s LOAD_CONST %s' % ('expr '*v, opname)
+            elif opname_base == 'MAKE_CLOSURE':
                 self.addRule('mklambda ::= %s load_closure LOAD_LAMBDA %s' %
-                      ('expr '*v, k), nop_func)
+                      ('expr '*v, opname), nop_func)
                 self.addRule('genexpr ::= %s load_closure LOAD_GENEXPR %s expr GET_ITER CALL_FUNCTION_1' %
-                      ('expr '*v, k), nop_func)
+                      ('expr '*v, opname), nop_func)
                 self.addRule('setcomp ::= %s load_closure LOAD_SETCOMP %s expr GET_ITER CALL_FUNCTION_1' %
-                      ('expr '*v, k), nop_func)
+                      ('expr '*v, opname), nop_func)
                 self.addRule('dictcomp ::= %s load_closure LOAD_DICTCOMP %s expr GET_ITER CALL_FUNCTION_1' %
-                      ('expr '*v, k), nop_func)
-                rule = 'mkfunc ::= %s load_closure LOAD_CONST %s' % ('expr '*v, k)
-                # rule = 'mkfunc ::= %s closure_list LOAD_CONST %s' % ('expr '*v, k)
-            elif op in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
+                      ('expr '*v, opname), nop_func)
+                rule = 'mkfunc ::= %s load_closure LOAD_CONST %s' % ('expr '*v, opname)
+                # rule = 'mkfunc ::= %s closure_list LOAD_CONST %s' % ('expr '*v, opname)
+            elif opname_base in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
                     'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
                 na = (v & 0xff)           # positional parameters
                 nk = (v >> 8) & 0xff      # keyword parameters
                 # number of apply equiv arguments:
-                nak = ( len(op)-len('CALL_FUNCTION') ) // 3
+                nak = ( len(opname_base)-len('CALL_FUNCTION') ) // 3
                 rule = 'call_function ::= expr ' + 'expr '*na + 'kwarg '*nk \
-                       + 'expr ' * nak + k
+                       + 'expr ' * nak + opname
             else:
-                raise Exception('unknown customize token %s' % k)
-            self.add_unique_rule(rule, op, v, customize)
+                raise Exception('unknown customize token %s' % opname)
+            self.add_unique_rule(rule, opname_base, v, customize)
 
 class Python2ParserSingle(Python2Parser, PythonParserSingle):
     pass
