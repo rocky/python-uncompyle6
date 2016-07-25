@@ -237,7 +237,7 @@ class Scanner3(scan.Scanner):
             elif op in self.varargs:
                 pos_args = inst.argval
                 opname = '%s_%d' % (opname, pos_args)
-            elif self.is_pypy and opname == 'CALL_METHOD':
+            elif self.is_pypy and opname in ('CALL_METHOD', 'JUMP_IF_NOT_DEBUG'):
                 customize['CALL_METHOD'] = argval
             elif opname == 'UNPACK_EX':
                 # FIXME: try with scanner and parser by

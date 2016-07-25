@@ -381,6 +381,10 @@ TABLE_DIRECT = {
     #######################
     'LOAD_CLASSDEREF':	( '%{pattr}', ),
 
+    ########################
+    # PyPy Additions
+    #######################
+    'assert_pypy':	( '%|assert %c\n' , 1 ),
 }
 
 

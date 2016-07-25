@@ -47,7 +47,10 @@ class Python27Parser(Python2Parser):
 
     def p_stmt27(self, args):
         """
+        # assert condition
         assert        ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
+
+        # assert condition, expr
         assert2       ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_2
 
         withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt

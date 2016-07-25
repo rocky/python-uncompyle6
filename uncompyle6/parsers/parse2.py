@@ -275,6 +275,14 @@ class Python2Parser(PythonParser):
                 self.add_unique_rule("call_function ::= expr CALL_METHOD",
                                      op, v, customize)
                 continue
+            elif k == 'JUMP_IF_NOT_DEBUG':
+                self.add_unique_rule(
+                    "stmt ::= assert_pypy", op, v, customize)
+                self.add_unique_rule(
+                    "assert_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true "
+                    "LOAD_ASSERT RAISE_VARARGS_1 COME_FROM",
+                    op, v, customize)
+                continue
             elif op == 'BUILD_MAP':
                 kvlist_n = "kvlist_%s" % v
                 rule = kvlist_n + ' ::= ' + ' kv3' * v

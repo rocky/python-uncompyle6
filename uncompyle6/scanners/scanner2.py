@@ -192,7 +192,7 @@ class Scanner2(scan.Scanner):
                     opname = '%s_%d' % (opname, oparg)
                     if op != self.opc.BUILD_SLICE:
                         customize[opname] = oparg
-            elif self.is_pypy and opname == 'CALL_METHOD':
+            elif self.is_pypy and opname in ('CALL_METHOD', 'JUMP_IF_NOT_DEBUG'):
                 customize[opname] = oparg
             elif op == self.opc.JUMP_ABSOLUTE:
                 target = self.get_target(offset)

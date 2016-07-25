@@ -250,6 +250,10 @@ class Python3Parser(PythonParser):
     def p_misc3(self, args):
         """
         try_middle ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY NOP COME_FROM
+        for_block ::= l_stmts
+        iflaststmtl ::= testexpr c_stmts_opt
+        iflaststmt    ::= testexpr c_stmts_opt34
+        c_stmts_opt34 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
         """
 
     def p_jump3(self, args):
@@ -296,14 +300,6 @@ class Python3Parser(PythonParser):
 
         # In Python 2, DUP_TOP_TWO is DUP_TOPX_2
         binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
-        '''
-
-    def p_misc3(self, args):
-        '''
-        for_block ::= l_stmts
-        iflaststmtl ::= testexpr c_stmts_opt
-        iflaststmt    ::= testexpr c_stmts_opt34
-        c_stmts_opt34 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
         '''
 
     @staticmethod
@@ -474,6 +470,14 @@ class Python3Parser(PythonParser):
                                      opname, token.attr, customize)
                 self.add_unique_rule("call_function ::= expr CALL_METHOD",
                                      opname, token.attr, customize)
+                continue
+            elif opname == 'JUMP_IF_NOT_DEBUG':
+                self.add_unique_rule(
+                    "stmt ::= assert_pypy", opname, v, customize)
+                self.add_unique_rule(
+                    "assert_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true "
+                    "LOAD_ASSERT RAISE_VARARGS_1 COME_FROM",
+                    opname, token.attr, customize)
                 continue
             elif opname_base == 'BUILD_MAP':
                 kvlist_n = "kvlist_%s" % token.attr
