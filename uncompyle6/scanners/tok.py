@@ -21,7 +21,7 @@ class Token:
     #    attr = argval
     #    pattr = argrepr
     def __init__(self, type_, attr=None, pattr=None, offset=-1,
-                 linestart=None, op=None, has_arg=None):
+                 linestart=None, op=None, has_arg=None, opc=None):
         self.type = intern(type_)
         self.op = op
         self.has_arg = has_arg
@@ -29,6 +29,7 @@ class Token:
         self.pattr = pattr
         self.offset = offset
         self.linestart = linestart
+        self.opc = opc
 
     def __eq__(self, o):
         """ '==', but it's okay if offsets and linestarts are different"""
@@ -49,13 +50,22 @@ class Token:
                 ('%9s  %-18s %r' % (self.offset, self.type, pattr)))
 
     def format(self):
-        prefix = '\n%3d   ' % self.linestart if self.linestart else (' ' * 6)
-        offset_opname = '%9s  %-18s' % (self.offset, self.type)
+        prefix = '\n%4d  ' % self.linestart if self.linestart else (' ' * 6)
+        offset_opname = '%6s  %-17s' % (self.offset, self.type)
         argstr = "%6d " % self.attr if isinstance(self.attr, int) else (' '*7)
-        if self.has_arg:
-            return "%s%s%s %r" % (prefix, offset_opname,  argstr, self.pattr)
+        if self.pattr:
+            pattr = self.pattr
+            if self.opc:
+                if self.op in self.opc.hasjrel:
+                    pattr = "to " + self.pattr
+                elif self.op in self.opc.hasjabs:
+                    pattr = "to " + self.pattr
+                    pass
+                # And so on. See xdis/bytecode.py
+                pass
         else:
-            return "%s%s" % (prefix, offset_opname)
+            pattr = ''
+        return "%s%s%s %r" % (prefix, offset_opname,  argstr, pattr)
 
     def __hash__(self):
         return hash(self.type)

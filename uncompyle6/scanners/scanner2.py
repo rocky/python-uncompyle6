@@ -219,10 +219,12 @@ class Scanner2(scan.Scanner):
 
             if offset not in replace:
                 tokens.append(Token(
-                    opname, oparg, pattr, offset, linestart, op, has_arg))
+                    opname, oparg, pattr, offset, linestart, op,
+                    has_arg, self.opc))
             else:
                 tokens.append(Token(
-                    replace[offset], oparg, pattr, offset, linestart, op, has_arg))
+                    replace[offset], oparg, pattr, offset, linestart,
+                    op, has_arg, self.opc))
                 pass
             pass
 

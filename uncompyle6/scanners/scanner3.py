@@ -179,7 +179,7 @@ class Scanner3(scan.Scanner):
                 for jump_offset in jump_targets[inst.offset]:
                     tokens.append(Token('COME_FROM', None, repr(jump_offset),
                                         offset='%s_%s' % (inst.offset, jump_idx),
-                                        has_arg = True))
+                                        has_arg = True, opc=self.opc))
                     jump_idx += 1
                     pass
                 pass
@@ -229,7 +229,8 @@ class Scanner3(scan.Scanner):
                         offset = inst.offset,
                         linestart = inst.starts_line,
                         op = op,
-                        has_arg = (op >= op3.HAVE_ARGUMENT)
+                        has_arg = (op >= op3.HAVE_ARGUMENT),
+                        opc = self.opc
                     )
                 )
                 continue
@@ -290,7 +291,8 @@ class Scanner3(scan.Scanner):
                     offset = inst.offset,
                     linestart = inst.starts_line,
                     op = op,
-                    has_arg = (op >= op3.HAVE_ARGUMENT)
+                    has_arg = (op >= op3.HAVE_ARGUMENT),
+                    opc = self.opc
                     )
                 )
             pass
