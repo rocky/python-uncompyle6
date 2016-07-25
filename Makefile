@@ -40,9 +40,13 @@ check-3.2 check-3.5:
 check-2.6:
 	$(MAKE) -C test $@
 
-#:PyPy of some sort. E.g. [PyPy 5.0.1 with GCC 4.8.4]
+#:PyPy 2.6.1 or PyPy 5.0.1
 # Skip for now
-2.4 2.6 5.0:
+2.6 5.0:
+
+#:PyPy pypy3-2.4.0 Python 3:
+pypy-3.2 2.4:
+	$(MAKE) -C test $@
 
 #: Run py.test tests
 pytest:
