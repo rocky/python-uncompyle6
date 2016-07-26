@@ -383,10 +383,15 @@ TABLE_DIRECT = {
 
     ########################
     # PyPy Additions
+    # FIXME: we could remove the corresponding
+    # rules without _pypy if we have pypy
     #######################
     'assert_pypy':	( '%|assert %c\n' , 1 ),
     'assert2_pypy':	( '%|assert %c, %c\n' , 1, 4 ),
     'trystmt_pypy':	( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
+    'tryfinallystmt_pypy': ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 3 ),
+    'assign3_pypy':     ( '%|%c, %c, %c = %c, %c, %c\n', 5, 4, 3, 0, 1, 2 ),
+    'assign2_pypy':     ( '%|%c, %c = %c, %c\n', 3, 2, 0, 1),
 }
 
 

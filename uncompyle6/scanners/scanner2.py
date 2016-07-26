@@ -67,6 +67,9 @@ class Scanner2(scan.Scanner):
         tokens = []
 
         customize = {}
+        if self.is_pypy:
+            customize['PyPy'] = 1;
+
         Token = self.Token # shortcut
 
         n = self.setup_code(co)
@@ -208,7 +211,8 @@ class Scanner2(scan.Scanner):
                         customize[opname] = oparg
             elif self.is_pypy and opname in ('LOOKUP_METHOD',
                                              'JUMP_IF_NOT_DEBUG',
-                                             'SETUP_EXCEPT'):
+                                             'SETUP_EXCEPT',
+                                             'SETUP_FINALLY'):
                 # The value in the dict is in special cases in semantic actions, such
                 # as CALL_FUNCTION. The value is not used in these cases, so we put
                 # in arbitrary value 0.

@@ -251,7 +251,15 @@ class Python2Parser(PythonParser):
         '''
         for opname, v in list(customize.items()):
             opname_base = opname[:opname.rfind('_')]
-            if opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
+            if opname == 'PyPy':
+                self.add_unique_rules([
+                    'stmt ::= assign3_pypy',
+                    'stmt ::= assign2_pypy',
+                    'assign3_pypy ::= expr expr expr designator designator designator',
+                    'assign2_pypy ::= expr expr designator designator'
+                    ], customize)
+                continue
+            elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
                 thousands = (v//1024)
                 thirty32s = ((v//32)%32)
                 if thirty32s > 0:
@@ -308,6 +316,16 @@ class Python2Parser(PythonParser):
                     "try_middle_pypy ::= COME_FROM except_stmts END_FINALLY COME_FROM"
                     ], customize)
                 continue
+            elif opname == 'SETUP_FINALLY':
+                # FIXME: have a way here to detect PyPy. Right now we
+                # only have SETUP_EXCEPT customization for PyPy, but that might not
+                # always be the case.
+                self.add_unique_rules([
+                    "stmt ::= tryfinallystmt_pypy",
+                    "tryfinallystmt_pypy ::= SETUP_FINALLY suite_stmts_opt COME_FROM "
+                        "suite_stmts_opt END_FINALLY"
+                ], customize)
+                continue
             elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
                 rule = 'unpack ::= ' + opname + ' designator'*v
             elif opname_base == 'UNPACK_LIST':
@@ -321,7 +339,7 @@ class Python2Parser(PythonParser):
                       ('pos_arg '*v, opname), nop_func)
                 rule = 'mkfunc ::= %s LOAD_CONST %s' % ('expr '*v, opname)
             elif opname_base == 'MAKE_CLOSURE':
-                # FIXME: use add_uniqe_rules to tidy this up.
+                # FIXME: use add_unique_rules to tidy this up.
                 self.addRule('mklambda ::= %s load_closure LOAD_LAMBDA %s' %
                       ('expr '*v, opname), nop_func)
                 self.addRule('genexpr ::= %s load_closure LOAD_GENEXPR %s expr GET_ITER CALL_FUNCTION_1' %

@@ -16,7 +16,6 @@ def uncompyle(
     """
     disassembles and deparses a given code block 'co'
     """
-
     assert iscode(co)
 
     # store final output stream for case of error

@@ -7,3 +7,10 @@ def call(self, string):
         return open(string, self, self._bufsize)
     except IOError:
         pass
+
+# From PyPy 2.6.1 function.py
+def _call_funcptr(self, funcptr, *newargs):
+    try:
+        return self._build_result(self._restype_, result)
+    finally:
+        funcptr.free_temp_buffers()
