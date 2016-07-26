@@ -247,9 +247,7 @@ class Python2Parser(PythonParser):
             expr ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n POP_TOP
             expr ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
 
-        For PYPY:
-            load_attr ::= expr LOOKUP_METHOD
-            call_function ::= expr CALL_METHOD
+        PyPy adds custom rules here as well
         '''
         for opname, v in list(customize.items()):
             opname_base = opname[:opname.rfind('_')]
@@ -272,37 +270,44 @@ class Python2Parser(PythonParser):
                                      opname, v, customize)
                 continue
             elif opname == 'JUMP_IF_NOT_DEBUG':
-                self.add_unique_rule(
-                    "stmt ::= assert_pypy", opname_base, v, customize)
-                self.add_unique_rule(
-                    "stmt ::= assert2_pypy", opname_base, v, customize)
-                self.add_unique_rule(
-                    "assert_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true "
-                    "LOAD_ASSERT RAISE_VARARGS_1 COME_FROM",
-                    opname_base, v, customize)
-                self.add_unique_rule(
-                    "assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true "
-                    "LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1 COME_FROM",
-                    opname_base, v, customize)
+                self.add_unique_rules([
+                    'jmp_true_false ::= POP_JUMP_IF_TRUE',
+                    'jmp_true_false ::= POP_JUMP_IF_FALSE',
+                    "stmt ::= assert_pypy",
+                    "stmt ::= assert2_pypy",
+                    "assert_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true_false "
+                       "LOAD_ASSERT RAISE_VARARGS_1 COME_FROM",
+                    "assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true_false "
+                       "LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1 COME_FROM",
+                    ], customize)
                 continue
             elif opname_base == 'BUILD_MAP':
                 if opname == 'BUILD_MAP_n':
                     # PyPy sometimes has no count. Sigh.
-                    rule = ('dictcomp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER designator '
-                            'comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST')
-                    self.add_unique_rule(rule, 'dictomp_func', 1, customize)
-
-                    kvlist_n = 'kvlist_n'
-                    rule = 'kvlist_n ::=  kvlist_n kv3'
-                    self.add_unique_rule(rule, 'kvlist_n', 0, customize)
-                    rule = 'kvlist_n ::='
-                    self.add_unique_rule(rule, 'kvlist_n', 1, customize)
+                    self.add_unique_rules([
+                        'dictcomp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER designator '
+                            'comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST',
+                        'kvlist_n ::=  kvlist_n kv3',
+                        'kvlist_n ::=',
+                        'mapexpr ::= BUILD_MAP_n kvlist_n',
+                    ], customize)
                 else:
                     kvlist_n = "kvlist_%s" % v
-                    rule = kvlist_n + ' ::= ' + ' kv3' * v
-                    self.add_unique_rule(rule, opname_base, v, customize)
-                rule = "mapexpr ::=  %s %s" % (opname, kvlist_n)
-                self.add_unique_rule(rule, opname_base, v, customize)
+                    self.add_unique_rules([
+                        (kvlist_n + " ::=" + ' kv3' * v),
+                        "mapexpr ::= %s %s" % (opname, kvlist_n)
+                    ], customize)
+                continue
+            elif opname == 'SETUP_EXCEPT':
+                # FIXME: have a way here to detect PyPy. Right now we
+                # only have SETUP_EXCEPT customization for PyPy, but that might not
+                # always be the case.
+                self.add_unique_rules([
+                    "stmt ::= trystmt_pypy",
+                    "trystmt_pypy ::= SETUP_EXCEPT suite_stmts_opt try_middle_pypy",
+                    "try_middle_pypy ::= COME_FROM except_stmts END_FINALLY COME_FROM"
+                    ], customize)
+                continue
             elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
                 rule = 'unpack ::= ' + opname + ' designator'*v
             elif opname_base == 'UNPACK_LIST':
@@ -316,6 +321,7 @@ class Python2Parser(PythonParser):
                       ('pos_arg '*v, opname), nop_func)
                 rule = 'mkfunc ::= %s LOAD_CONST %s' % ('expr '*v, opname)
             elif opname_base == 'MAKE_CLOSURE':
+                # FIXME: use add_uniqe_rules to tidy this up.
                 self.addRule('mklambda ::= %s load_closure LOAD_LAMBDA %s' %
                       ('expr '*v, opname), nop_func)
                 self.addRule('genexpr ::= %s load_closure LOAD_GENEXPR %s expr GET_ITER CALL_FUNCTION_1' %

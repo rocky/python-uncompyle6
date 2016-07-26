@@ -97,10 +97,21 @@ class Scanner2(scan.Scanner):
         # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
         for i in self.op_range(0, n):
-            # We need to detect the difference between
-            # "raise AssertionError" and
-            # "assert"
-            if self.code[i] == self.opc.PJIT and self.code[i+3] == self.opc.LOAD_GLOBAL:
+            # We need to detect the difference between:
+            #   raise AssertionError
+            #  and
+            #   assert ...
+            # Below we use the heuristic that it is preceded by a POP_JUMP.
+            # however we could also use followed by RAISE_VARARGS
+            # or for PyPy there may be a JUMP_IF_NOT_DEBUG before.
+            # FIXME: remove uses of PJIF, and PJIT
+            if self.is_pypy:
+                have_pop_jump = self.code[i] in (self.opc.PJIF,
+                                                 self.opc.PJIT)
+            else:
+                have_pop_jump = self.code[i] == self.opc.PJIT
+
+            if have_pop_jump and self.code[i+3] == self.opc.LOAD_GLOBAL:
                 if names[self.get_argument(i+3)] == 'AssertionError':
                     self.load_asserts.add(i+3)
 
@@ -195,10 +206,12 @@ class Scanner2(scan.Scanner):
                         opname = '%s_%d' % (opname, oparg)
                     if op != self.opc.BUILD_SLICE:
                         customize[opname] = oparg
-            elif self.is_pypy and opname in ('LOOKUP_METHOD', 'JUMP_IF_NOT_DEBUG'):
-                # The value in the dict is used in rule uniquness key.
-                # These ops need only be done once. Hence we use arbitrary constant
-                # 0.
+            elif self.is_pypy and opname in ('LOOKUP_METHOD',
+                                             'JUMP_IF_NOT_DEBUG',
+                                             'SETUP_EXCEPT'):
+                # The value in the dict is in special cases in semantic actions, such
+                # as CALL_FUNCTION. The value is not used in these cases, so we put
+                # in arbitrary value 0.
                 customize[opname] = 0
             elif op == self.opc.JUMP_ABSOLUTE:
                 target = self.get_target(offset)

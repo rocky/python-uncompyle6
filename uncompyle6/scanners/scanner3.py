@@ -243,7 +243,10 @@ class Scanner3(scan.Scanner):
                 else:
                     opname = '%s_%d' % (opname, pos_args)
             elif self.is_pypy and opname in ('CALL_METHOD', 'JUMP_IF_NOT_DEBUG'):
-                customize['CALL_METHOD'] = argval
+                # The value in the dict is in special cases in semantic actions, such
+                # as CALL_FUNCTION. The value is not used in these cases, so we put
+                # in arbitrary value 0.
+                customize[opname] = 0
             elif opname == 'UNPACK_EX':
                 # FIXME: try with scanner and parser by
                 # changing inst.argval

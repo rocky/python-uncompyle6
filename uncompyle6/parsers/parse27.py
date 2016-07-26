@@ -66,7 +66,6 @@ class Python27Parser(Python2Parser):
         while1stmt ::= SETUP_LOOP return_stmts COME_FROM
         """
 
-
 class Python27ParserSingle(Python27Parser, PythonParserSingle):
     pass
 

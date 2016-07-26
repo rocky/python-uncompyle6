@@ -385,7 +385,8 @@ TABLE_DIRECT = {
     # PyPy Additions
     #######################
     'assert_pypy':	( '%|assert %c\n' , 1 ),
-    'assert2_pypy':	( '%|assert %c, %c\n' , 1, 4 )
+    'assert2_pypy':	( '%|assert %c, %c\n' , 1, 4 ),
+    'trystmt_pypy':	( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
 }
 
 
@@ -1743,7 +1744,7 @@ class SourceWalker(GenericASTTraversal, object):
                 # Is there some sort of invalid bounds access going on?
                 if isinstance(entry[arg], int):
                     self.preorder(node[entry[arg]])
-                arg += 1
+                    arg += 1
             elif typ == 'p':
                 p = self.prec
                 (index, self.prec) = entry[arg]

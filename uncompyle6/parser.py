@@ -30,6 +30,8 @@ class PythonParser(GenericASTBuilder):
 
     def add_unique_rule(self, rule, opname, count, customize):
         """Add rule to grammar, but only if it hasn't been added previously
+           opname and count are used in the customize() semantic the actions
+           to add the semantic action rule. Often, count is not used.
         """
         if rule not in self.new_rules:
             # print("XXX ", rule) # debug
@@ -37,6 +39,14 @@ class PythonParser(GenericASTBuilder):
             self.addRule(rule, nop_func)
             customize[opname] = count
             pass
+        return
+
+    def add_unique_rules(self, rules, customize):
+        """Add rules to grammar
+        """
+        for rule in rules:
+            opname = rule.split('::=')[0].strip()
+            self.add_unique_rule(rule, opname, 0, customize)
         return
 
     def cleanup(self):
