@@ -52,6 +52,8 @@ class Token:
     def format(self):
         prefix = '\n%4d  ' % self.linestart if self.linestart else (' ' * 6)
         offset_opname = '%6s  %-17s' % (self.offset, self.type)
+        if not self.has_arg:
+            return "%s%s" % (prefix, offset_opname)
         argstr = "%6d " % self.attr if isinstance(self.attr, int) else (' '*7)
         if self.pattr:
             pattr = self.pattr
@@ -63,7 +65,9 @@ class Token:
                     if not self.pattr.startswith('to '):
                         pattr = "to " + str(self.pattr)
                     pass
-                # And so on. See xdis/bytecode.py
+                elif self.op in self.opc.hascompare:
+                    pattr = self.opc.cmp_op[self.attr]
+                # And so on. See xdis/bytecode.py get_instructions_bytes
                 pass
         else:
             pattr = ''
