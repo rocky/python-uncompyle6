@@ -43,7 +43,7 @@ information.
 Requirements
 ------------
 
-This project requires Python 2.6 or later, PyPy 3-2.40, or PyPy-5.0.1.
+This project requires Python 2.6 or later, PyPy 3-2.4, or PyPy-5.0.1.
 The bytecode files it can read has been tested on Python bytecodes from
 versions 2.3-2.7, and 3.2-3.5 and the above-mentioned PyPy versions.
 
@@ -96,7 +96,7 @@ For usage help:
 Known Bugs/Restrictions
 -----------------------
 
-Python 2 deparsing decompiles and verifies from Python 2.3.7 to Python
+Python 2 deparsing decompiles and about 90% verifies from Python 2.3.7 to Python
 3.4.2 on the standard library packages I have on my system.
 
 (Verification is the process of decompiling bytecode, compiling with a

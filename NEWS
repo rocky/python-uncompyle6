@@ -1,3 +1,9 @@
+uncompyle6 2.7.1 2016-07-26
+
+- PyPy bytecodes for 2.7 and 3.2 added
+- Instruction formatting improved slightly
+- 2.7 bytecode "continue" bug fixed
+
 uncompyle6 2.7.0 2016-07-15
 
 - Many Syntax and verifification bugs removed
