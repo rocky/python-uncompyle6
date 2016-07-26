@@ -385,6 +385,7 @@ TABLE_DIRECT = {
     # PyPy Additions
     #######################
     'assert_pypy':	( '%|assert %c\n' , 1 ),
+    'assert2_pypy':	( '%|assert %c, %c\n' , 1, 4 )
 }
 
 
@@ -1066,9 +1067,16 @@ class SourceWalker(GenericASTTraversal, object):
         """
         p = self.prec
         self.prec = 27
-        n = node[-2] if self.is_pypy and node[-1] == 'JUMP_BACK' else node[-1]
+        if node[-1].type == 'list_iter':
+            n = node[-1]
+        elif self.is_pypy and node[-1] == 'JUMP_BACK':
+            n = node[-2]
         list_expr = node[0]
-        designator = node[3]
+
+        if len(node) >= 3:
+            designator = node[3]
+        elif self.is_pypy and n[0] == 'list_for':
+            designator = n[0][2]
 
         assert n == 'list_iter'
         assert designator == 'designator'

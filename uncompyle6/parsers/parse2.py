@@ -275,8 +275,14 @@ class Python2Parser(PythonParser):
                 self.add_unique_rule(
                     "stmt ::= assert_pypy", opname_base, v, customize)
                 self.add_unique_rule(
+                    "stmt ::= assert2_pypy", opname_base, v, customize)
+                self.add_unique_rule(
                     "assert_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true "
                     "LOAD_ASSERT RAISE_VARARGS_1 COME_FROM",
+                    opname_base, v, customize)
+                self.add_unique_rule(
+                    "assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true "
+                    "LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1 COME_FROM",
                     opname_base, v, customize)
                 continue
             elif opname_base == 'BUILD_MAP':
