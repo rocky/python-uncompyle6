@@ -238,7 +238,10 @@ class Scanner3(scan.Scanner):
                 continue
             elif op in self.varargs_ops:
                 pos_args = inst.argval
-                opname = '%s_%d' % (opname, pos_args)
+                if self.is_pypy and not pos_args and opname == 'BUILD_MAP':
+                    opname = 'BUILD_MAP_n'
+                else:
+                    opname = '%s_%d' % (opname, pos_args)
             elif self.is_pypy and opname in ('CALL_METHOD', 'JUMP_IF_NOT_DEBUG'):
                 customize['CALL_METHOD'] = argval
             elif opname == 'UNPACK_EX':

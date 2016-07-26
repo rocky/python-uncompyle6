@@ -280,13 +280,17 @@ class Python2Parser(PythonParser):
                     opname_base, v, customize)
                 continue
             elif opname_base == 'BUILD_MAP':
-                if v == 0: #  and self.is_pypy:
+                if opname == 'BUILD_MAP_n':
                     # PyPy sometimes has no count. Sigh.
+                    rule = ('dictcomp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER designator '
+                            'comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST')
+                    self.add_unique_rule(rule, 'dictomp_func', 1, customize)
+
                     kvlist_n = 'kvlist_n'
                     rule = 'kvlist_n ::=  kvlist_n kv3'
-                    self.add_unique_rule(rule, opname_base, v, customize)
+                    self.add_unique_rule(rule, 'kvlist_n', 0, customize)
                     rule = 'kvlist_n ::='
-                    self.add_unique_rule(rule, opname_base, v, customize)
+                    self.add_unique_rule(rule, 'kvlist_n', 1, customize)
                 else:
                     kvlist_n = "kvlist_%s" % v
                     rule = kvlist_n + ' ::= ' + ' kv3' * v

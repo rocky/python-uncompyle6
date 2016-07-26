@@ -1519,7 +1519,7 @@ class SourceWalker(GenericASTTraversal, object):
         sep = INDENT_PER_LEVEL[:-1]
         self.write('{')
 
-        if self.version >= 3.0:
+        if self.version >= 3.0 and not self.is_pypy:
             if node[0].type.startswith('kvlist'):
                 # Python 3.5+ style key/value list in mapexpr
                 kv_node = node[0]

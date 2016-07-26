@@ -59,7 +59,9 @@ class Token:
                 if self.op in self.opc.hasjrel:
                     pattr = "to " + self.pattr
                 elif self.op in self.opc.hasjabs:
-                    pattr = "to " + self.pattr
+                    self.pattr= str(self.pattr)
+                    if not self.pattr.startswith('to '):
+                        pattr = "to " + str(self.pattr)
                     pass
                 # And so on. See xdis/bytecode.py
                 pass

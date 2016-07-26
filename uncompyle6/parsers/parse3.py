@@ -477,7 +477,19 @@ class Python3Parser(PythonParser):
                 continue
             elif opname_base == 'BUILD_MAP':
                 kvlist_n = "kvlist_%s" % token.attr
-                if self.version >= 3.5:
+                if opname == 'BUILD_MAP_n':
+                    # PyPy sometimes has no count. Sigh.
+                    rule = ('dictcomp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER designator '
+                            'comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST')
+                    self.add_unique_rule(rule, 'dictomp_func', 1, customize)
+
+                    kvlist_n = 'kvlist_n'
+                    rule = 'kvlist_n ::=  kvlist_n kv3'
+                    self.add_unique_rule(rule, 'kvlist_n', 0, customize)
+                    rule = 'kvlist_n ::='
+                    self.add_unique_rule(rule, 'kvlist_n', 1, customize)
+                    rule = "mapexpr ::=  BUILD_MAP_n kvlist_n"
+                elif self.version >= 3.5:
                     rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
                     self.add_unique_rule(rule, opname, token.attr, customize)
                     rule = "mapexpr ::=  %s %s" % (kvlist_n, opname)

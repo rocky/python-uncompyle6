@@ -189,7 +189,10 @@ class Scanner2(scan.Scanner):
                     self.code[self.prev[offset]] == self.opc.LOAD_CLOSURE:
                     continue
                 else:
-                    opname = '%s_%d' % (opname, oparg)
+                    if self.is_pypy and not oparg and opname == 'BUILD_MAP':
+                        opname = 'BUILD_MAP_n'
+                    else:
+                        opname = '%s_%d' % (opname, oparg)
                     if op != self.opc.BUILD_SLICE:
                         customize[opname] = oparg
             elif self.is_pypy and opname in ('LOOKUP_METHOD', 'JUMP_IF_NOT_DEBUG'):
