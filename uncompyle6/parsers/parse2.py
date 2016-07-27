@@ -43,6 +43,9 @@ class Python2Parser(PythonParser):
     def p_stmt2(self, args):
         """
         while1stmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM
+        exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
+        exec_stmt ::= expr exprlist EXEC_STMT
+
         """
 
     def p_print_to(self, args):
@@ -89,8 +92,6 @@ class Python2Parser(PythonParser):
         raise_stmt3 ::= expr expr expr RAISE_VARARGS_3
 
         stmt ::= exec_stmt
-        exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
-        exec_stmt ::= expr exprlist EXEC_STMT
 
         stmt ::= assert
         stmt ::= assert2
@@ -218,8 +219,13 @@ class Python2Parser(PythonParser):
 
 
     def p_expr2(self, args):
-        '''
+        """
         expr ::= LOAD_LOCALS
+        expr ::= slice0
+        expr ::= slice1
+        expr ::= slice2
+        expr ::= slice3
+        expr ::= unary_convert
 
         slice0 ::= expr SLICE+0
         slice0 ::= expr DUP_TOP SLICE+0
@@ -229,10 +235,38 @@ class Python2Parser(PythonParser):
         slice2 ::= expr expr DUP_TOPX_2 SLICE+2
         slice3 ::= expr expr expr SLICE+3
         slice3 ::= expr expr expr DUP_TOPX_3 SLICE+3
+        unary_convert ::= expr UNARY_CONVERT
 
         # In Python 3, DUP_TOPX_2 is DUP_TOP_TWO
         binary_subscr2 ::= expr expr DUP_TOPX_2 BINARY_SUBSCR
-        '''
+        """
+
+    def p_slice2(self, args):
+        """
+        designator ::= expr STORE_SLICE+0
+        designator ::= expr expr STORE_SLICE+1
+        designator ::= expr expr STORE_SLICE+2
+        designator ::= expr expr expr STORE_SLICE+3
+        augassign1 ::= expr expr inplace_op ROT_TWO   STORE_SLICE+0
+        augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+1
+        augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+2
+        augassign1 ::= expr expr inplace_op ROT_FOUR  STORE_SLICE+3
+        slice0 ::= expr SLICE+0
+        slice0 ::= expr DUP_TOP SLICE+0
+        slice1 ::= expr expr SLICE+1
+        slice1 ::= expr expr DUP_TOPX_2 SLICE+1
+        slice2 ::= expr expr SLICE+2
+        slice2 ::= expr expr DUP_TOPX_2 SLICE+2
+        slice3 ::= expr expr expr SLICE+3
+        slice3 ::= expr expr expr DUP_TOPX_3 SLICE+3
+        """
+
+    def p_op2(self, args):
+        """
+        inplace_op ::= INPLACE_DIVIDE
+        binary_op  ::= BINARY_DIVIDE
+        binary_subscr2 ::= expr expr DUP_TOPX_2 BINARY_SUBSCR
+        """
 
     def add_custom_rules(self, tokens, customize):
         '''

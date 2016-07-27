@@ -236,17 +236,12 @@ class PythonParser(GenericASTBuilder):
         stmt ::= augassign2
         augassign1 ::= expr expr inplace_op designator
         augassign1 ::= expr expr inplace_op ROT_THREE STORE_SUBSCR
-        augassign1 ::= expr expr inplace_op ROT_TWO   STORE_SLICE+0
-        augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+1
-        augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+2
-        augassign1 ::= expr expr inplace_op ROT_FOUR  STORE_SLICE+3
         augassign2 ::= expr DUP_TOP LOAD_ATTR expr
                 inplace_op ROT_TWO   STORE_ATTR
 
         inplace_op ::= INPLACE_ADD
         inplace_op ::= INPLACE_SUBTRACT
         inplace_op ::= INPLACE_MULTIPLY
-        inplace_op ::= INPLACE_DIVIDE
         inplace_op ::= INPLACE_TRUE_DIVIDE
         inplace_op ::= INPLACE_FLOOR_DIVIDE
         inplace_op ::= INPLACE_MODULO
@@ -405,15 +400,10 @@ class PythonParser(GenericASTBuilder):
         expr ::= unary_expr
         expr ::= call_function
         expr ::= unary_not
-        expr ::= unary_convert
         expr ::= binary_subscr
         expr ::= binary_subscr2
         expr ::= load_attr
         expr ::= get_iter
-        expr ::= slice0
-        expr ::= slice1
-        expr ::= slice2
-        expr ::= slice3
         expr ::= buildslice2
         expr ::= buildslice3
         expr ::= yield
@@ -428,7 +418,6 @@ class PythonParser(GenericASTBuilder):
         binary_op ::= BINARY_OR
         binary_op ::= BINARY_XOR
         binary_op ::= BINARY_SUBTRACT
-        binary_op ::= BINARY_DIVIDE
         binary_op ::= BINARY_TRUE_DIVIDE
         binary_op ::= BINARY_FLOOR_DIVIDE
         binary_op ::= BINARY_MODULO
@@ -442,21 +431,11 @@ class PythonParser(GenericASTBuilder):
         unary_op ::= UNARY_INVERT
 
         unary_not ::= expr UNARY_NOT
-        unary_convert ::= expr UNARY_CONVERT
 
         binary_subscr ::= expr expr BINARY_SUBSCR
-        binary_subscr2 ::= expr expr DUP_TOPX_2 BINARY_SUBSCR
 
         load_attr ::= expr LOAD_ATTR
         get_iter ::= expr GET_ITER
-        slice0 ::= expr SLICE+0
-        slice0 ::= expr DUP_TOP SLICE+0
-        slice1 ::= expr expr SLICE+1
-        slice1 ::= expr expr DUP_TOPX_2 SLICE+1
-        slice2 ::= expr expr SLICE+2
-        slice2 ::= expr expr DUP_TOPX_2 SLICE+2
-        slice3 ::= expr expr expr SLICE+3
-        slice3 ::= expr expr expr DUP_TOPX_3 SLICE+3
         buildslice3 ::= expr expr expr BUILD_SLICE_3
         buildslice2 ::= expr expr BUILD_SLICE_2
 
@@ -464,12 +443,6 @@ class PythonParser(GenericASTBuilder):
 
         _mklambda ::= load_closure mklambda
         _mklambda ::= mklambda
-
-        # Note: Python < 2.7 doesn't have *POP* or this. Remove from here?
-        # FIXME: segregate 2.7+
-
-        or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
-        and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
 
         or   ::= expr jmp_true expr come_from_opt
         and  ::= expr jmp_false expr come_from_opt
@@ -489,14 +462,6 @@ class PythonParser(GenericASTBuilder):
         ret_expr_or_cond ::= ret_cond
         ret_expr_or_cond ::= ret_cond_not
 
-        # Note: Python < 2.7 doesn't have *POP* or this. Remove from here?
-        # FIXME: segregate 2.7+
-
-        ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
-        ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
-        ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF ret_expr_or_cond
-        ret_cond_not ::= expr POP_JUMP_IF_TRUE expr RETURN_END_IF ret_expr_or_cond
-
         stmt ::= return_lambda
         stmt ::= conditional_lambda
 
@@ -509,14 +474,8 @@ class PythonParser(GenericASTBuilder):
         cmp_list ::= expr cmp_list1 ROT_TWO POP_TOP
                 _come_from
         cmp_list1 ::= expr DUP_TOP ROT_THREE
-                COMPARE_OP JUMP_IF_FALSE_OR_POP
-                cmp_list1 COME_FROM
-        cmp_list1 ::= expr DUP_TOP ROT_THREE
                 COMPARE_OP jmp_false
                 cmp_list1 _come_from
-        cmp_list1 ::= expr DUP_TOP ROT_THREE
-                COMPARE_OP JUMP_IF_FALSE_OR_POP
-                cmp_list2 COME_FROM
         cmp_list1 ::= expr DUP_TOP ROT_THREE
                 COMPARE_OP jmp_false
                 cmp_list2 _come_from
@@ -561,10 +520,6 @@ class PythonParser(GenericASTBuilder):
         designator ::= STORE_GLOBAL
         designator ::= STORE_DEREF
         designator ::= expr STORE_ATTR
-        designator ::= expr STORE_SLICE+0
-        designator ::= expr expr STORE_SLICE+1
-        designator ::= expr expr STORE_SLICE+2
-        designator ::= expr expr expr STORE_SLICE+3
         designator ::= store_subscr
         store_subscr ::= expr expr STORE_SUBSCR
         designator ::= unpack

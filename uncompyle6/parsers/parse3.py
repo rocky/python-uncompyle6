@@ -90,10 +90,6 @@ class Python3Parser(PythonParser):
         raise_stmt2 ::= expr expr RAISE_VARARGS_2
         raise_stmt3 ::= expr expr expr RAISE_VARARGS_3
 
-        stmt ::= exec_stmt
-        exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
-        exec_stmt ::= expr exprlist EXEC_STMT
-
         stmt ::= assert
         stmt ::= assert2
         stmt ::= ifstmt
@@ -115,10 +111,6 @@ class Python3Parser(PythonParser):
         del_stmt ::= DELETE_FAST
         del_stmt ::= DELETE_NAME
         del_stmt ::= DELETE_GLOBAL
-        del_stmt ::= expr DELETE_SLICE+0
-        del_stmt ::= expr expr DELETE_SLICE+1
-        del_stmt ::= expr expr DELETE_SLICE+2
-        del_stmt ::= expr expr expr DELETE_SLICE+3
         del_stmt ::= delete_subscr
         delete_subscr ::= expr expr DELETE_SUBSCR
         del_stmt ::= expr DELETE_ATTR
