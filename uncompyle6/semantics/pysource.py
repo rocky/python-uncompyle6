@@ -1202,7 +1202,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write('{')
         if node[0] in ['LOAD_SETCOMP', 'LOAD_DICTCOMP']:
             self.comprehension_walk3(node, 1, 0)
-        elif node[0].type == 'load_closure':
+        elif node[0].type == 'load_closure' and self.version >= 3.0:
             self.setcomprehension_walk3(node, collection_index=4)
         else:
             self.comprehension_walk(node, iter_index=4)
