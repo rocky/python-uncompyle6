@@ -72,7 +72,7 @@ class PythonParser(GenericASTBuilder):
         print("Instruction context:")
         for i in range(start, finish):
             indent = '   ' if i != index else '-> '
-            print("%s%s" % (indent, instructions[i].format()))
+            print("%s%s" % (indent, instructions[i]))
         raise ParserError(err_token, err_token.offset)
 
     def typestring(self, token):

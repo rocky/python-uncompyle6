@@ -218,8 +218,19 @@ class Scanner2(scan.Scanner):
                 # in arbitrary value 0.
                 customize[opname] = 0
             elif op == self.opc.JUMP_ABSOLUTE:
+                # Further classify JUMP_ABSOLUTE into backward jumps
+                # which are used in loops, and "CONTINUE" jumps which
+                # may appear in a "continue" statement.  The loop-type
+                # and continue-type jumps will help us classify loop
+                # boundaries The continue-type jumps help us get
+                # "continue" statements with would otherwise be turned
+                # into a "pass" statement because JUMPs are sometimes
+                # ignored in rules as just boundary overhead. In
+                # comprehensions we might sometimes classify JUMP_BACK
+                # as CONTINUE, but that's okay since we add a grammar
+                # rule for that.
                 target = self.get_target(offset)
-                if target < offset:
+                if target <= offset:
                     if (offset in self.stmts
                         and self.code[offset+3] not in (self.opc.END_FINALLY,
                                                         self.opc.POP_BLOCK)

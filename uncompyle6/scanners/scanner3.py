@@ -259,7 +259,7 @@ class Scanner3(scan.Scanner):
                 argval = (before_args, after_args)
                 opname = '%s_%d+%d' % (opname, before_args, after_args)
             elif op == self.opc.JUMP_ABSOLUTE:
-                # Further classifhy JUMP_ABSOLUTE into backward jumps
+                # Further classify JUMP_ABSOLUTE into backward jumps
                 # which are used in loops, and "CONTINUE" jumps which
                 # may appear in a "continue" statement.  The loop-type
                 # and continue-type jumps will help us classify loop

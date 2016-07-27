@@ -40,6 +40,11 @@ class Python2Parser(PythonParser):
         print_nl ::= PRINT_NEWLINE
         '''
 
+    def p_stmt2(self, args):
+        """
+        while1stmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM
+        """
+
     def p_print_to(self, args):
         '''
         stmt ::= print_to
