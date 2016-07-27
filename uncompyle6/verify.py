@@ -132,7 +132,7 @@ class CmpErrorMember(VerifyCmpError):
 # these members are ignored
 __IGNORE_CODE_MEMBERS__ = ['co_filename', 'co_firstlineno', 'co_lnotab', 'co_stacksize', 'co_names']
 
-def cmp_code_objects(version, code_obj1, code_obj2, name=''):
+def cmp_code_objects(version, code_obj1, code_obj2, name='', is_pypy=False):
     """
     Compare two code-objects.
 
@@ -193,11 +193,19 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
                 import uncompyle6.scanners.scanner26 as scan
                 scanner = scan.Scanner26()
             elif version == 2.7:
-                import uncompyle6.scanners.scanner27 as scan
-                scanner = scan.Scanner27()
+                if is_pypy:
+                    import uncompyle6.scanners.pypy27 as scan
+                    scanner = scan.ScannerPyPy27()
+                else:
+                    import uncompyle6.scanners.scanner27 as scan
+                    scanner = scan.Scanner27()
             elif version == 3.2:
-                import uncompyle6.scanners.scanner32 as scan
-                scanner = scan.Scanner32()
+                if is_pypy:
+                    import uncompyle6.scanners.pypy32 as scan
+                    scanner = scan.ScannerPyPy32()
+                else:
+                    import uncompyle6.scanners.scanner32 as scan
+                    scanner = scan.Scanner32()
             elif version == 3.3:
                 import uncompyle6.scanners.scanner33 as scan
                 scanner = scan.Scanner33()
@@ -333,13 +341,8 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
 
 class Token(scanner.Token):
     """Token class with changed semantics for 'cmp()'."""
-
     def __cmp__(self, o):
         t = self.type # shortcut
-        loads = ('LOAD_NAME', 'LOAD_GLOBAL', 'LOAD_CONST')
-        if t in loads and o.type in loads:
-            if self.pattr == 'None' and o.pattr is None:
-                return 0
         if t == 'BUILD_TUPLE_0' and o.type == 'LOAD_CONST' and o.pattr == ():
             return 0
         if t == 'COME_FROM' == o.type:

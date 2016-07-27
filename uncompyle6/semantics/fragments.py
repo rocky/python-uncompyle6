@@ -339,7 +339,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.preorder(node[0])
             finish = len(self.f.getvalue())
             if hasattr(node[0], 'offset'):
-                self.set_pos_info(node[0], self.last_finish, )
+                self.set_pos_info(node[0], start, len(self.f.getvalue()))
             self.write(')')
             self.last_finish = finish + 1
         else:
@@ -534,7 +534,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write(func_name)
 
         self.indentMore()
-        self.make_function(node, isLambda=False, code_index=code_index)
+        self.make_function(node, isLambda=False, code=code)
 
         self.set_pos_info(node, start, len(self.f.getvalue()))
 
@@ -1613,7 +1613,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 self.set_pos_info(last_node, startnode_start, self.last_finish)
         return
 
-    def make_function(self, node, isLambda, nested=1, code_index=-2):
+    def make_function(self, node, isLambda, nested=1, code=None):
         """Dump function defintion, doc string, and function body."""
 
         def build_param(ast, name, default):
@@ -1664,7 +1664,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         if self.version > 3.0 and isLambda and iscode(node[-3].attr):
             code = node[-3].attr
         else:
-            code = node[code_index].attr
+            code = code.attr
 
         assert iscode(code)
         code = Code(code, self.scanner, self.currentclass)

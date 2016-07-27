@@ -29,6 +29,9 @@ class Token:
         self.pattr = pattr
         self.offset = offset
         self.linestart = linestart
+        if has_arg == False:
+            self.attr = None
+            self.pattr = None
         self.opc = opc
 
     def __eq__(self, o):
@@ -43,11 +46,11 @@ class Token:
     def __repr__(self):
         return str(self.type)
 
-    def __str__(self):
-        pattr = self.pattr if self.pattr is not None else ''
-        prefix = '\n%3d   ' % self.linestart if self.linestart else (' ' * 6)
-        return (prefix +
-                ('%9s  %-18s %r' % (self.offset, self.type, pattr)))
+    # def __str__(self):
+    #     pattr = self.pattr if self.pattr is not None else ''
+    #     prefix = '\n%3d   ' % self.linestart if self.linestart else (' ' * 6)
+    #     return (prefix +
+    #             ('%9s  %-18s %r' % (self.offset, self.type, pattr)))
 
     def format(self):
         prefix = '\n%4d  ' % self.linestart if self.linestart else (' ' * 6)
@@ -72,6 +75,8 @@ class Token:
         else:
             pattr = ''
         return "%s%s%s %r" % (prefix, offset_opname,  argstr, pattr)
+
+    __str__ = format
 
     def __hash__(self):
         return hash(self.type)
