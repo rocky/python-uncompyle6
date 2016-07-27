@@ -273,7 +273,9 @@ class PythonParser(GenericASTBuilder):
     def p_forstmt(self, args):
         """
         _for ::= GET_ITER FOR_ITER
-        _for ::= LOAD_CONST FOR_LOOP
+
+        # Possibly before Python 2.3
+        # _for ::= LOAD_CONST FOR_LOOP
 
         for_block ::= l_stmts_opt _come_from JUMP_BACK
         for_block ::= return_stmts _come_from
@@ -339,8 +341,6 @@ class PythonParser(GenericASTBuilder):
         imports_cont ::= imports_cont import_cont
         imports_cont ::= import_cont
         import_cont ::= LOAD_CONST LOAD_CONST import_as_cont
-        import_as_cont ::= IMPORT_NAME_CONT designator
-        import_as_cont ::= IMPORT_NAME_CONT load_attrs designator
         import_as_cont ::= IMPORT_FROM designator
 
         load_attrs ::= LOAD_ATTR
@@ -371,9 +371,6 @@ class PythonParser(GenericASTBuilder):
 
         stmt ::= setcomp_func
 
-        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
-                JUMP_BACK RETURN_VALUE RETURN_LAST
-
         comp_iter ::= comp_if
         comp_iter ::= comp_ifnot
         comp_iter ::= comp_for
@@ -381,9 +378,7 @@ class PythonParser(GenericASTBuilder):
         comp_body ::= set_comp_body
         comp_body ::= gen_comp_body
         comp_body ::= dict_comp_body
-        set_comp_body ::= expr SET_ADD
         gen_comp_body ::= expr YIELD_VALUE POP_TOP
-        dict_comp_body ::= expr expr MAP_ADD
 
         comp_if ::= expr jmp_false comp_iter
         comp_ifnot ::= expr jmp_true comp_iter
@@ -394,7 +389,6 @@ class PythonParser(GenericASTBuilder):
     def p_expr(self, args):
         '''
         expr ::= _mklambda
-        expr ::= SET_LINENO
         expr ::= LOAD_FAST
         expr ::= LOAD_NAME
         expr ::= LOAD_CONST
@@ -423,6 +417,9 @@ class PythonParser(GenericASTBuilder):
         expr ::= buildslice2
         expr ::= buildslice3
         expr ::= yield
+
+        # Possibly Python < 2.3
+        # expr ::= SET_LINENO
 
         binary_expr ::= expr expr binary_op
         binary_op ::= BINARY_ADD

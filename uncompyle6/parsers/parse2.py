@@ -207,13 +207,14 @@ class Python2Parser(PythonParser):
         genexpr ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
         '''
 
-    def p_import2(self, args):
-        '''
-        # These might be relevant for only Python 2.0 or so.
-        # Not relevant for Python 3.
-        importstar ::= LOAD_CONST LOAD_CONST IMPORT_NAME_CONT IMPORT_STAR
-        importfrom ::= LOAD_CONST LOAD_CONST IMPORT_NAME_CONT importlist2 POP_TOP
-        '''
+    # def p_import2(self, args):
+    #     '''
+    #     # These might be relevant for only Python 2.0 or so.
+    #     importstar ::= LOAD_CONST LOAD_CONST IMPORT_NAME_CONT IMPORT_STAR
+    #     importfrom ::= LOAD_CONST LOAD_CONST IMPORT_NAME_CONT importlist2 POP_TOP
+    #     import_as_cont ::= IMPORT_NAME_CONT designator
+    #     import_as_cont ::= IMPORT_NAME_CONT load_attrs designator
+    #     '''
 
 
     def p_expr2(self, args):
@@ -262,6 +263,8 @@ class Python2Parser(PythonParser):
                     stmt ::= assign2_pypy
                     assign3_pypy ::= expr expr expr designator designator designator
                     assign2_pypy ::= expr expr designator designator
+                    list_compr ::= expr  BUILD_LIST_FROM_ARG _for designator list_iter
+                                         JUMP_BACK
                 """, nop_func)
                 continue
             elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):

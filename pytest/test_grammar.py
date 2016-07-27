@@ -1,6 +1,7 @@
 import pytest
 from uncompyle6 import PYTHON_VERSION, PYTHON3, IS_PYPY # , PYTHON_VERSION
 from uncompyle6.parser import get_python_parser
+from uncompyle6.scanner import get_scanner
 
 def test_grammar():
     p = get_python_parser(PYTHON_VERSION, is_pypy=IS_PYPY)
@@ -19,6 +20,17 @@ def test_grammar():
     assert expect_lhs == set(lhs)
     assert unused_rhs == set(rhs)
     assert expect_right_recursive == right_recursive
-    expect_tokens =
-    # FIXME: check that tokens are in list of opcodes
-    # print(tokens)
+    s = get_scanner(PYTHON_VERSION, IS_PYPY)
+    if PYTHON_VERSION == 2.7:
+        opcode_set = set(s.opc.opname).union(set(
+            """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+               LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP
+               LAMBDA_MARKER RETURN_LAST
+            """.split()))
+        remain_tokens = set(tokens) - opcode_set
+        import re
+        remain_tokens = set([re.sub('_\d+$','', t) for t in remain_tokens])
+        remain_tokens = set([re.sub('_CONT$','', t) for t in remain_tokens])
+        remain_tokens = set(remain_tokens) - opcode_set
+        assert remain_tokens == set([]), \
+            "Remaining tokens %s\n====\n%s" % (remain_tokens, p.dumpGrammar())

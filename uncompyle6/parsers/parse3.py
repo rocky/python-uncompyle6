@@ -28,7 +28,7 @@ class Python3Parser(PythonParser):
         super(Python3Parser, self).__init__(AST, 'stmts', debug=debug_parser)
         self.new_rules = set()
 
-    def p_list_comprehension3(self, args):
+    def p_comprehension3(self, args):
         """
         # Python3 scanner adds LOAD_LISTCOMP. Python3 does list comprehension like
         # other comprehensions (set, dictionary).
@@ -46,6 +46,11 @@ class Python3Parser(PythonParser):
 
         jb_or_c ::= JUMP_BACK
         jb_or_c ::= CONTINUE
+
+        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
+                JUMP_BACK RETURN_VALUE RETURN_LAST
+        dict_comp_body ::= expr expr MAP_ADD
+        set_comp_body ::= expr SET_ADD
 
         # See also common Python p_list_comprehension
         """
