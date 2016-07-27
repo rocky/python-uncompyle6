@@ -12,7 +12,7 @@ from xdis.load import load_module
 def uncompyle(
         version, co, out=None, showasm=False, showast=False,
         timestamp=None, showgrammar=False, code_objects={},
-        is_pypy=False):
+        is_pypy=False, magic_int=None):
     """
     disassembles and deparses a given code block 'co'
     """
@@ -22,8 +22,10 @@ def uncompyle(
     real_out = out or sys.stdout
     co_pypy_str = 'PyPy ' if is_pypy else ''
     run_pypy_str = 'PyPy ' if IS_PYPY else ''
-    print('# %sPython bytecode %s (disassembled from %sPython %s)\n' %
-              (co_pypy_str, version, run_pypy_str, PYTHON_VERSION),
+    print('# %sPython bytecode %s%s disassembled from %sPython %s' %
+          (co_pypy_str, version,
+           " (%d)" % magic_int if magic_int else "",
+           run_pypy_str, PYTHON_VERSION),
           file=real_out)
     if co.co_filename:
         print('# Embedded file name: %s' % co.co_filename,
@@ -60,11 +62,11 @@ def uncompyle_file(filename, outstream=None, showasm=False, showast=False,
         for con in co:
             uncompyle(version, con, outstream, showasm, showast,
                       timestamp, showgrammar, code_objects=code_objects,
-                      is_pypy=is_pypy)
+                      is_pypy=is_pypy, magic_int=magic_int)
     else:
         uncompyle(version, co, outstream, showasm, showast,
                   timestamp, showgrammar, code_objects=code_objects,
-                  is_pypy=is_pypy)
+                  is_pypy=is_pypy, magic_int=magic_int)
     co = None
 
 # FIXME: combine into an options parameter
