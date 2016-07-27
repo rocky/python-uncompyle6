@@ -20,16 +20,12 @@ from __future__ import print_function
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.astnode import AST
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from uncompyle6 import PYTHON3
 
 class Python3Parser(PythonParser):
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
         self.added_rules = set()
-        if PYTHON3:
-            super().__init__(AST, 'stmts', debug=debug_parser)
-        else:
-            super(Python3Parser, self).__init__(AST, 'stmts', debug=debug_parser)
+        super(Python3Parser, self).__init__(AST, 'stmts', debug=debug_parser)
         self.new_rules = set()
 
     def p_list_comprehension3(self, args):
@@ -602,6 +598,7 @@ class Python3Parser(PythonParser):
 
 
 class Python32Parser(Python3Parser):
+
     def p_32(self, args):
         """
         # Store locals is only in Python 3.0 to 3.3
