@@ -61,7 +61,7 @@ def disco_loop(disasm, queue, real_out):
                 queue.append(t.pattr)
             elif iscode(t.attr):
                 queue.append(t.attr)
-            print(t.format(), file=real_out)
+            print(t, file=real_out)
             pass
         pass
 

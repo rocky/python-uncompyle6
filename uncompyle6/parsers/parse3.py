@@ -17,7 +17,7 @@ that a later phase can turn into a sequence of ASCII text.
 
 from __future__ import print_function
 
-from uncompyle6.parser import PythonParser, PythonParserSingle
+from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.astnode import AST
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6 import PYTHON3
@@ -440,7 +440,15 @@ class Python3Parser(PythonParser):
             opname = token.type
             opname_base = opname[:opname.rfind('_')]
 
-            if opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
+            if opname == 'PyPy':
+                self.addRule("""
+                    stmt ::= assign3_pypy
+                    stmt ::= assign2_pypy
+                    assign3_pypy ::= expr expr expr designator designator designator
+                    assign2_pypy ::= expr expr designator designator
+                """, nop_func)
+                continue
+            elif opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
                           'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
                 self.custom_classfunc_rule(opname, token, customize)
             elif opname == 'LOAD_DICTCOMP':

@@ -252,12 +252,12 @@ class Python2Parser(PythonParser):
         for opname, v in list(customize.items()):
             opname_base = opname[:opname.rfind('_')]
             if opname == 'PyPy':
-                self.add_unique_rules([
-                    'stmt ::= assign3_pypy',
-                    'stmt ::= assign2_pypy',
-                    'assign3_pypy ::= expr expr expr designator designator designator',
-                    'assign2_pypy ::= expr expr designator designator'
-                    ], customize)
+                self.addRule("""
+                    stmt ::= assign3_pypy
+                    stmt ::= assign2_pypy
+                    assign3_pypy ::= expr expr expr designator designator designator
+                    assign2_pypy ::= expr expr designator designator
+                """, nop_func)
                 continue
             elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
                 thousands = (v//1024)

@@ -52,7 +52,7 @@ class Token:
     #     return (prefix +
     #             ('%9s  %-18s %r' % (self.offset, self.type, pattr)))
 
-    def format(self):
+    def __str__(self):
         prefix = '\n%4d  ' % self.linestart if self.linestart else (' ' * 6)
         offset_opname = '%6s  %-17s' % (self.offset, self.type)
         if not self.has_arg:
@@ -75,8 +75,6 @@ class Token:
         else:
             pattr = ''
         return "%s%s%s %r" % (prefix, offset_opname,  argstr, pattr)
-
-    __str__ = format
 
     def __hash__(self):
         return hash(self.type)

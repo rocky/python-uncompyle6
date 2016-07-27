@@ -28,7 +28,7 @@ if __name__ == "__main__":
         co = inspect.currentframe().f_code
         tokens, customize = Scanner35().disassemble(co)
         for t in tokens:
-            print(t.format())
+            print(t)
         pass
     else:
         print("Need to be Python 3.5 to demo; I am %s." %

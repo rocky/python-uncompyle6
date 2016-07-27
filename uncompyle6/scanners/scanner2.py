@@ -253,7 +253,7 @@ class Scanner2(scan.Scanner):
 
         if show_asm in ('both', 'after'):
             for t in tokens:
-                print(t.format())
+                print(t)
             print()
         return tokens, customize
 
@@ -865,7 +865,7 @@ if __name__ == "__main__":
         from uncompyle6 import PYTHON_VERSION
         tokens, customize = Scanner2(PYTHON_VERSION).disassemble(co)
         for t in tokens:
-            print(t.format())
+            print(t)
     else:
         print("Need to be Python 3.2 or greater to demo; I am %s." %
               PYTHON_VERSION)
