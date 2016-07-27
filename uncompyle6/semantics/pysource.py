@@ -140,18 +140,6 @@ TABLE_R = {
 #   'EXEC_STMT':	( '%|exec %c in %[1]C\n', 0, (0,maxint,', ') ),
 }
 
-if not PYTHON3:
-    TABLE_R.update({
-    'STORE_SLICE+0':	( '%c[:]', 0 ),
-    'STORE_SLICE+1':	( '%c[%p:]', 0, (1, 100) ),
-    'STORE_SLICE+2':	( '%c[:%p]', 0, (1, 100) ),
-    'STORE_SLICE+3':	( '%c[%p:%p]', 0, (1, 100), (2, 100) ),
-    'DELETE_SLICE+0':	( '%|del %c[:]\n', 0 ),
-    'DELETE_SLICE+1':	( '%|del %c[%c:]\n', 0, 1 ),
-    'DELETE_SLICE+2':	( '%|del %c[:%c]\n', 0, 1 ),
-    'DELETE_SLICE+3':	( '%|del %c[%c:%c]\n', 0, 1, 2 ),
-        })
-
 TABLE_R0 = {
 #    'BUILD_LIST':	( '[%C]',      (0,-1,', ') ),
 #    'BUILD_TUPLE':	( '(%C)',      (0,-1,', ') ),
@@ -273,8 +261,6 @@ TABLE_DIRECT = {
     'kwargs':    	( '%D', (0, maxint, ', ') ),
     'importlist2':	( '%C', (0, maxint, ', ') ),
 
-    'assert':		( '%|assert %c\n' , 0 ),
-    'assert2':		( '%|assert %c, %c\n' , 0, 3 ),
     'assert_expr_or': ( '%c or %c', 0, 2 ),
     'assert_expr_and':    ( '%c and %c', 0, 2 ),
     'print_items_stmt': ( '%|print %c%c,\n', 0, 2),
@@ -336,7 +322,6 @@ TABLE_DIRECT = {
     'except_cond2':	( '%|except %c as %c:\n', 1, 5 ),
     'except_suite':     ( '%+%c%-%C', 0, (1, maxint, '') ),
     'except_suite_finalize':     ( '%+%c%-%C', 1, (3, maxint, '') ),
-    'tryfinallystmt':	( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 5 ),
     'withstmt':     ( '%|with %c:\n%+%c%-', 0, 3),
     'withasstmt':   ( '%|with %c as %c:\n%+%c%-', 0, 2, 3),
     'passstmt':		( '%|pass\n', ),
@@ -344,10 +329,6 @@ TABLE_DIRECT = {
     'kv':		( '%c: %c', 3, 1 ),
     'kv2':		( '%c: %c', 1, 2 ),
     'mapexpr':		( '{%[1]C}', (0, maxint, ', ') ),
-
-    # CE - Fixes for tuples
-    'assign2':     ( '%|%c, %c = %c, %c\n', 3, 4, 0, 1 ),
-    'assign3':     ( '%|%c, %c, %c = %c, %c, %c\n', 5, 6, 7, 0, 1, 2 ),
 
     #######################
     # Python 2.3 Additions
@@ -380,17 +361,6 @@ TABLE_DIRECT = {
     #######################
     'LOAD_CLASSDEREF':	( '%{pattr}', ),
 
-    ########################
-    # PyPy Additions
-    # FIXME: we could remove the corresponding
-    # rules without _pypy if we have pypy
-    #######################
-    'assert_pypy':	( '%|assert %c\n' , 1 ),
-    'assert2_pypy':	( '%|assert %c, %c\n' , 1, 4 ),
-    'trystmt_pypy':	( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
-    'tryfinallystmt_pypy': ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 3 ),
-    'assign3_pypy':     ( '%|%c, %c, %c = %c, %c, %c\n', 5, 4, 3, 0, 1, 2 ),
-    'assign2_pypy':     ( '%|%c, %c = %c, %c\n', 3, 2, 0, 1),
 }
 
 
@@ -544,8 +514,8 @@ class SourceWalker(GenericASTTraversal, object):
             'indent': '',
             }
         self.version = version
-        self.p = get_python_parser(version, debug_parser=debug_parser,
-                                   compile_mode=compile_mode)
+        self.p = get_python_parser(version, debug_parser=dict(debug_parser),
+                                   compile_mode=compile_mode, is_pypy=is_pypy)
         self.debug_parser = dict(debug_parser)
         self.showast = showast
         self.params = params
@@ -570,7 +540,48 @@ class SourceWalker(GenericASTTraversal, object):
         if 2.0 <= version <= 2.3:
                 TABLE_DIRECT['tryfinallystmt'] = (
                         '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 4 )
+        if version < 3.0:
+            TABLE_R.update({
+                'STORE_SLICE+0':	( '%c[:]', 0 ),
+                'STORE_SLICE+1':	( '%c[%p:]', 0, (1, 100) ),
+                'STORE_SLICE+2':	( '%c[:%p]', 0, (1, 100) ),
+                'STORE_SLICE+3':	( '%c[%p:%p]', 0, (1, 100), (2, 100) ),
+                'DELETE_SLICE+0':	( '%|del %c[:]\n', 0 ),
+                'DELETE_SLICE+1':	( '%|del %c[%c:]\n', 0, 1 ),
+                'DELETE_SLICE+2':	( '%|del %c[:%c]\n', 0, 1 ),
+                'DELETE_SLICE+3':	( '%|del %c[%c:%c]\n', 0, 1, 2 ),
+        })
+
+        self.customize_pypy(is_pypy)
         return
+
+    @staticmethod
+    def customize_pypy(is_pypy):
+        if is_pypy:
+            ########################
+            # PyPy changes
+            #######################
+            TABLE_DIRECT.update({
+                'assert_pypy':	( '%|assert %c\n' , 1 ),
+                'assert2_pypy':	( '%|assert %c, %c\n' , 1, 4 ),
+                'trystmt_pypy':	( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
+                'tryfinallystmt_pypy': ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 3 ),
+                'assign3_pypy':     ( '%|%c, %c, %c = %c, %c, %c\n', 5, 4, 3, 0, 1, 2 ),
+                'assign2_pypy':     ( '%|%c, %c = %c, %c\n', 3, 2, 0, 1),
+                })
+        else:
+            ########################
+            # Without PyPy
+            #######################
+            TABLE_DIRECT.update({
+                'assert':		( '%|assert %c\n' , 0 ),
+                'assert2':		( '%|assert %c, %c\n' , 0, 3 ),
+                'trystmt':		( '%|try:\n%+%c%-%c\n\n', 1, 3 ),
+                'tryfinallystmt':	( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 5 ),
+                'assign2':     ( '%|%c, %c = %c, %c\n', 3, 4, 0, 1 ),
+                'assign3':     ( '%|%c, %c, %c = %c, %c, %c\n', 5, 6, 7, 0, 1, 2 ),
+                })
+
 
     f = property(lambda s: s.params['f'],
                  lambda s, x: s.params.__setitem__('f', x),

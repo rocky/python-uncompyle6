@@ -58,7 +58,6 @@ import re, sys
 from uncompyle6 import PYTHON3
 from xdis.code import iscode
 from uncompyle6.semantics import pysource
-from uncompyle6.parser import get_python_parser
 from uncompyle6 import parser
 from uncompyle6.scanner import Token, Code, get_scanner
 from uncompyle6.show import (
@@ -78,7 +77,7 @@ else:
     from StringIO import StringIO
 
 
-from spark_parser import GenericASTTraversal, GenericASTTraversalPruningException, \
+from spark_parser import GenericASTTraversalPruningException, \
      DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 from collections import namedtuple
@@ -110,37 +109,19 @@ TABLE_DIRECT_FRAGMENT = {
     }
 
 
-MAP_DIRECT_FRAGMENT = dict(TABLE_DIRECT, **TABLE_DIRECT_FRAGMENT),
-
-
 class FragmentsWalker(pysource.SourceWalker, object):
+
+    MAP_DIRECT_FRAGMENT = ()
 
     stacked_params = ('f', 'indent', 'isLambda', '_globals')
 
     def __init__(self, version, scanner, showast=False,
                  debug_parser=PARSER_DEFAULT_DEBUG,
                  compile_mode='exec', is_pypy=False):
-        GenericASTTraversal.__init__(self, ast=None)
-        self.scanner = scanner
-        params = {
-            'f': StringIO(),
-            'indent': '',
-            }
-        self.version = version
-        self.p = get_python_parser(
-            version, dict(debug_parser),
-            compile_mode=compile_mode, is_pypy=is_pypy
-        )
-        self.showast = showast
-        self.params = params
-        self.param_stack = []
-        self.ERROR = None
-        self.prec = 100
-        self.return_none = False
-        self.mod_globs = set()
-        self.currentclass = None
-        self.classes = []
-        self.pending_newlines = 0
+        pysource.SourceWalker.__init__(self, version=version, out=StringIO(),
+                                       scanner=scanner,
+                                       showast=showast, debug_parser=debug_parser,
+                                       compile_mode=compile_mode, is_pypy=is_pypy)
 
         # hide_internal suppresses displaying the additional instructions that sometimes
         # exist in code but but were not written in the source code.
@@ -150,11 +131,12 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # deparsing we generally do need to see these instructions since we may be stopped
         # at one. So here we do not want to suppress showing such instructions.
         self.hide_internal = False
-
-        self.name = None
-
         self.offsets = {}
         self.last_finish = -1
+
+        # FIXME: is there a better way?
+        global MAP_DIRECT_FRAGMENT
+        MAP_DIRECT_FRAGMENT = dict(TABLE_DIRECT, **TABLE_DIRECT_FRAGMENT),
 
     f = property(lambda s: s.params['f'],
                  lambda s, x: s.params.__setitem__('f', x),
