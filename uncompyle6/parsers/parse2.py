@@ -331,25 +331,31 @@ class Python2Parser(PythonParser):
             elif opname_base == 'UNPACK_LIST':
                 rule = 'unpack_list ::= ' + opname + ' designator'*v
             elif opname_base in ('DUP_TOPX', 'RAISE_VARARGS'):
-                # no need to add a rule
+                # FIXME: remove these conditions if they are not needed.
+                # no longer need to add a rule
                 continue
-                # rule = 'dup_topx ::= ' + 'expr '*v + opname
             elif opname_base == 'MAKE_FUNCTION':
                 self.addRule('mklambda ::= %s LOAD_LAMBDA %s' %
                       ('pos_arg '*v, opname), nop_func)
                 rule = 'mkfunc ::= %s LOAD_CONST %s' % ('expr '*v, opname)
             elif opname_base == 'MAKE_CLOSURE':
                 # FIXME: use add_unique_rules to tidy this up.
-                self.addRule('mklambda ::= %s load_closure LOAD_LAMBDA %s' %
-                      ('expr '*v, opname), nop_func)
-                self.addRule('genexpr ::= %s load_closure LOAD_GENEXPR %s expr GET_ITER CALL_FUNCTION_1' %
-                      ('expr '*v, opname), nop_func)
-                self.addRule('setcomp ::= %s load_closure LOAD_SETCOMP %s expr GET_ITER CALL_FUNCTION_1' %
-                      ('expr '*v, opname), nop_func)
-                self.addRule('dictcomp ::= %s load_closure LOAD_DICTCOMP %s expr GET_ITER CALL_FUNCTION_1' %
-                      ('expr '*v, opname), nop_func)
-                rule = 'mkfunc ::= %s load_closure LOAD_CONST %s' % ('expr '*v, opname)
-                # rule = 'mkfunc ::= %s closure_list LOAD_CONST %s' % ('expr '*v, opname)
+                self.add_unique_rules([
+                    ('mklambda ::= %s load_closure LOAD_LAMBDA %s' %
+                     ('expr '*v, opname)),
+                    ('genexpr ::= %s load_closure LOAD_GENEXPR %s expr'
+                     ' GET_ITER CALL_FUNCTION_1' %
+                     ('expr '*v, opname)),
+                    ('setcomp ::= %s load_closure LOAD_SETCOMP %s expr'
+                     ' GET_ITER CALL_FUNCTION_1' %
+                      ('expr '*v, opname)),
+                    ('dictcomp ::= %s load_closure LOAD_DICTCOMP %s expr'
+                     ' GET_ITER CALL_FUNCTION_1' %
+                      ('expr '*v, opname)),
+                    ('mkfunc ::= %s load_closure LOAD_CONST %s' %
+                     ('expr '*v, opname))],
+                    customize)
+                continue
             elif opname_base in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
                                  'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
                 args_pos = (v & 0xff)          # positional parameters

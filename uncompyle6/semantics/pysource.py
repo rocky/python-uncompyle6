@@ -246,7 +246,6 @@ TABLE_DIRECT = {
     'assign':		( '%|%c = %p\n', -1, (0, 200) ),
     'augassign1':	( '%|%c %c %c\n', 0, 2, 1),
     'augassign2':	( '%|%c.%[2]{pattr} %c %c\n', 0, -3, -4),
-#   'dup_topx':		( '%c', 0),
     'designList':	( '%c = %c', 0, -1 ),
     'and':          	( '%c and %c', 0, 2 ),
     'ret_and':        	( '%c and %c', 0, 2 ),
