@@ -263,6 +263,22 @@ class Python3Parser(PythonParser):
         come_froms ::= COME_FROM
         jmp_false ::= POP_JUMP_IF_FALSE
         jmp_true  ::= POP_JUMP_IF_TRUE
+
+        # FIXME: Common with 2.7
+        ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
+        ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
+        ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF ret_expr_or_cond
+        ret_cond_not ::= expr POP_JUMP_IF_TRUE expr RETURN_END_IF ret_expr_or_cond
+
+        or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
+        and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
+
+        cmp_list1 ::= expr DUP_TOP ROT_THREE
+                COMPARE_OP JUMP_IF_FALSE_OR_POP
+                cmp_list1 COME_FROM
+        cmp_list1 ::= expr DUP_TOP ROT_THREE
+                COMPARE_OP JUMP_IF_FALSE_OR_POP
+                cmp_list2 COME_FROM
         """
 
     def p_stmt3(self, args):
