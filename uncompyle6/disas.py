@@ -28,7 +28,7 @@ from xdis.code import iscode
 from xdis.load import check_object_path, load_module
 from uncompyle6.scanner import get_scanner
 
-def disco(version, co, out=None):
+def disco(version, co, out=None, is_pypy=False):
     """
     diassembles and deparses a given code block 'co'
     """
@@ -42,7 +42,7 @@ def disco(version, co, out=None):
         print('# Embedded file name: %s' % co.co_filename,
               file=real_out)
 
-    scanner = get_scanner(version)
+    scanner = get_scanner(version, is_pypy=is_pypy)
 
     queue = deque([co])
     disco_loop(scanner.disassemble, queue, real_out)
@@ -82,7 +82,7 @@ def disassemble_file(filename, outstream=None, native=False):
         for con in co:
             disco(version, con, outstream)
     else:
-        disco(version, co, outstream)
+        disco(version, co, outstream, is_pypy=is_pypy)
     co = None
 
 def _test():

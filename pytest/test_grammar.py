@@ -1,9 +1,9 @@
 import pytest
-from uncompyle6 import PYTHON_VERSION, PYTHON3 # , PYTHON_VERSION
+from uncompyle6 import PYTHON_VERSION, PYTHON3, IS_PYPY # , PYTHON_VERSION
 from uncompyle6.parser import get_python_parser
 
 def test_grammar():
-    p = get_python_parser(PYTHON_VERSION)
+    p = get_python_parser(PYTHON_VERSION, is_pypy=IS_PYPY)
     lhs, rhs, tokens, right_recursive = p.checkSets()
     expect_lhs = set(['expr1024', 'pos_arg'])
     unused_rhs = set(['build_list', 'call_function', 'mkfunc', 'mklambda',
@@ -19,5 +19,6 @@ def test_grammar():
     assert expect_lhs == set(lhs)
     assert unused_rhs == set(rhs)
     assert expect_right_recursive == right_recursive
+    expect_tokens =
     # FIXME: check that tokens are in list of opcodes
     # print(tokens)

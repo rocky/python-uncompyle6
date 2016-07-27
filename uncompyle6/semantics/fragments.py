@@ -55,7 +55,7 @@ from __future__ import print_function
 
 import re, sys
 
-from uncompyle6 import PYTHON3
+from uncompyle6 import PYTHON3, IS_PYPY
 from xdis.code import iscode
 from uncompyle6.semantics import pysource
 from uncompyle6 import parser
@@ -1730,7 +1730,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     pass
 
 def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
-                 showgrammar=False):
+                 showgrammar=False, is_pypy=False):
     """
     Convert the code object co into a python source fragment.
 
@@ -1756,7 +1756,7 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
 
     assert iscode(co)
     # store final output stream for case of error
-    scanner = get_scanner(version)
+    scanner = get_scanner(version, is_pypy=is_pypy)
 
     tokens, customize = scanner.disassemble(co)
 
@@ -1798,10 +1798,10 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
 
 if __name__ == '__main__':
 
-    def deparse_test(co):
+    def deparse_test(co, is_pypy=IS_PYPY):
         sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
         walk = deparse_code(sys_version, co, showasm=False, showast=False,
-                            showgrammar=False)
+                            showgrammar=False, is_pypy=IS_PYPY)
         print("deparsed source")
         print(walk.text, "\n")
         print('------------------------')

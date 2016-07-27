@@ -18,7 +18,7 @@ from __future__ import print_function
 
 import sys
 
-from uncompyle6 import PYTHON3
+from uncompyle6 import PYTHON3, IS_PYPY
 from uncompyle6.scanners.tok import Token
 
 # The byte code versions we support
@@ -255,7 +255,7 @@ class Scanner(object):
 def parse_fn_counts(argc):
     return ((argc & 0xFF), (argc >> 8) & 0xFF, (argc >> 16) & 0x7FFF)
 
-def get_scanner(version, show_asm=None, is_pypy=False):
+def get_scanner(version, is_pypy=False, show_asm=None):
     # Pick up appropriate scanner
     if version in PYTHON_VERSIONS:
         v_str = "%s" % (int(version * 10))
@@ -282,5 +282,5 @@ def get_scanner(version, show_asm=None, is_pypy=False):
 if __name__ == "__main__":
     import inspect, uncompyle6
     co = inspect.currentframe().f_code
-    scanner = get_scanner(uncompyle6.PYTHON_VERSION, True)
+    scanner = get_scanner(uncompyle6.PYTHON_VERSION, IS_PYPY, True)
     tokens, customize = scanner.disassemble(co, {})
