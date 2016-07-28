@@ -43,6 +43,7 @@ class Python2Parser(PythonParser):
     def p_stmt2(self, args):
         """
         while1stmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM
+
         exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
         exec_stmt ::= expr exprlist EXEC_STMT
 

@@ -14,9 +14,11 @@ class Python23Parser(Python24Parser):
 
     def p_misc23(self, args):
         '''
-        _while1test ::= JUMP_FORWARD JUMP_IF_FALSE POP_TOP COME_FROM
+        # Used to keep semantic positions the same across later versions
+        # of Python
+        _while1test ::= SETUP_LOOP JUMP_FORWARD JUMP_IF_FALSE POP_TOP COME_FROM
 
-        while1stmt ::= SETUP_LOOP _while1test l_stmts JUMP_BACK
+        while1stmt ::= _while1test l_stmts_opt JUMP_BACK
                        COME_FROM POP_TOP POP_BLOCK COME_FROM
 
         list_compr ::= BUILD_LIST_0 DUP_TOP LOAD_ATTR designator list_iter del_stmt
