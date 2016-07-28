@@ -735,6 +735,10 @@ class Scanner3(scan.Scanner):
                 self.structs.append({'type': 'if-then',
                                      'start': start,
                                      'end': rtarget})
+                jump_prev = prev_op[offset]
+                if self.is_pypy and code[jump_prev] == self.opc.COMPARE_OP:
+                    if self.opc.cmp_op[code[jump_prev+1]] == 'exception match':
+                        return
                 self.return_end_ifs.add(prev_op[rtarget])
 
         elif op in self.jump_if_pop:

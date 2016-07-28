@@ -69,8 +69,9 @@ class Token:
                         pattr = "to " + str(self.pattr)
                     pass
                 elif self.op in self.opc.hascompare:
-                    pattr = self.opc.cmp_op[self.attr]
-                # And so on. See xdis/bytecode.py get_instructions_bytes
+                    if isinstance(self.attr, int):
+                        pattr = self.opc.cmp_op[self.attr]
+                    # And so on. See xdis/bytecode.py get_instructions_bytes
                 pass
         else:
             pattr = ''
