@@ -207,6 +207,9 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
             elif version == 3.5:
                 import uncompyle6.scanners.scanner35 as scan
                 scanner = scan.Scanner35()
+            elif version == 3.6:
+                import uncompyle6.scanners.scanner36 as scan
+                scanner = scan.Scanner36()
 
             global JUMP_OPs
             JUMP_OPs = list(scan.JUMP_OPs) + ['JUMP_BACK']

@@ -38,6 +38,10 @@ check-3.4: check-bytecode check-3.4-ok check-2.7-ok
 check-3.5: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.5 --verify $(COMPILE)
 
+#: Run working tests from Python 3.6
+check-3.6: check-bytecode
+	$(PYTHON) test_pythonlib.py --bytecode-3.6 --verify $(COMPILE)
+
 #: Check deparsing only, but from a different Python version
 check-disasm:
 	$(PYTHON) dis-compare.py
@@ -48,7 +52,7 @@ check-bytecode-2:
 
 #: Check deparsing bytecode 3.x only
 check-bytecode-3:
-	$(PYTHON) test_pythonlib.py --bytecode-3.2 --bytecode-3.3 --bytecode-3.4 --bytecode-3.5
+	$(PYTHON) test_pythonlib.py --bytecode-3.2 --bytecode-3.3 --bytecode-3.4 --bytecode-3.5 --bytecode-3.6
 
 #: Check deparsing bytecode that works running Python 2 and Python 3
 check-bytecode: check-bytecode-3
@@ -89,6 +93,10 @@ check-bytecode-3.4:
 #: Check deparsing Python 3.5
 check-bytecode-3.5:
 	$(PYTHON) test_pythonlib.py --bytecode-3.5
+
+#: Check deparsing Python 3.6
+check-bytecode-3.6:
+	$(PYTHON) test_pythonlib.py --bytecode-3.6
 
 #: short tests for bytecodes only for this version of Python
 check-native-short:

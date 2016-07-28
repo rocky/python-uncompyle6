@@ -380,7 +380,6 @@ TABLE_DIRECT = {
     # Python 3.4+ Additions
     #######################
     'LOAD_CLASSDEREF':	( '%{pattr}', ),
-
 }
 
 

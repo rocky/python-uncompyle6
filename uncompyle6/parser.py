@@ -644,6 +644,11 @@ def get_python_parser(
                 p = parse3.Python35onParser(debug_parser)
             else:
                 p = parse3.Python35onParserSingle(debug_parser)
+        elif version >= 3.6:
+            if compile_mode == 'exec':
+                p = parse3.Python36Parser(debug_parser)
+            else:
+                p = parse3.Python36ParserSingle(debug_parser)
         else:
             if compile_mode == 'exec':
                 p = parse3.Python3Parser(debug_parser)

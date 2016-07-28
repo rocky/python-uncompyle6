@@ -628,6 +628,52 @@ class Python35onParser(Python3Parser):
 
         """
 
+
+class Python36Parser(Python3Parser):
+
+    def p_36(self, args):
+        """
+
+        # Python 3.5+ has WITH_CLEANUP_START/FINISH
+
+        withstmt ::= expr SETUP_WITH exprlist suite_stmts_opt
+                    POP_BLOCK LOAD_CONST COME_FROM
+                    WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+
+        withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
+                     POP_BLOCK LOAD_CONST COME_FROM
+                     WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+
+        withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
+                POP_BLOCK LOAD_CONST COME_FROM
+                WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+
+        inplace_op ::= INPLACE_MATRIX_MULTIPLY
+        binary_op  ::= BINARY_MATRIX_MULTIPLY
+
+        # Python 3.5+ does jump optimization
+        # In <.3.5 the below is a JUMP_FORWARD to a JUMP_ABSOLUTE.
+        # in return_stmt, we will need the semantic actions in pysource.py
+        # to work out whether to dedent or not based on the presence of
+        # RETURN_END_IF vs RETURN_VALUE
+
+        ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
+        return_stmt ::= ret_expr RETURN_END_IF
+
+
+        # Python 3.3+ also has yield from. 3.5 does it
+        # differently than 3.3, 3.4
+
+        expr ::= yield_from
+        yield_from ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
+
+        # Python 3.4+ has more loop optimization that removes
+        # JUMP_FORWARD in some cases, and hence we also don't
+        # see COME_FROM
+        _ifstmts_jump ::= c_stmts_opt
+        """
+
+
 class Python3ParserSingle(Python3Parser, PythonParserSingle):
     pass
 
@@ -640,6 +686,9 @@ class Python33ParserSingle(Python33Parser, PythonParserSingle):
     pass
 
 class Python35onParserSingle(Python35onParser, PythonParserSingle):
+    pass
+
+class Python36ParserSingle(Python36Parser, PythonParserSingle):
     pass
 
 def info(args):
