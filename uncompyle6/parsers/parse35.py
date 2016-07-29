@@ -40,8 +40,6 @@ class Python35Parser(Python3Parser):
         # RETURN_END_IF vs RETURN_VALUE
 
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
-        return_stmt ::= ret_expr RETURN_END_IF
-
 
         # Python 3.3+ also has yield from. 3.5 does it
         # differently than 3.3, 3.4

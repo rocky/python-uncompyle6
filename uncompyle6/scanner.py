@@ -251,6 +251,8 @@ class Scanner(object):
         self.Token = tokenClass
         return self.Token
 
+def op_has_argument(op, opc):
+    return op >= opc.HAVE_ARGUMENT
 
 def parse_fn_counts(argc):
     return ((argc & 0xFF), (argc >> 8) & 0xFF, (argc >> 16) & 0x7FFF)

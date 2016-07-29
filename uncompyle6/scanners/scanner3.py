@@ -25,6 +25,7 @@ from __future__ import print_function
 from collections import namedtuple
 from array import array
 
+from uncompyle6.scanner import Scanner, op_has_argument
 from xdis.code import iscode
 from xdis.bytecode import Bytecode
 from uncompyle6.scanner import Token, parse_fn_counts
@@ -42,9 +43,7 @@ globals().update(op3.opmap)
 # POP_JUMP_IF is used by verify
 POP_JUMP_TF = (POP_JUMP_IF_TRUE, POP_JUMP_IF_FALSE)
 
-import uncompyle6.scanner as scan
-
-class Scanner3(scan.Scanner):
+class Scanner3(Scanner):
 
     def __init__(self, version, show_asm=None, is_pypy=False):
         super(Scanner3, self).__init__(version, show_asm, is_pypy)
@@ -234,7 +233,7 @@ class Scanner3(scan.Scanner):
                         offset = inst.offset,
                         linestart = inst.starts_line,
                         op = op,
-                        has_arg = (op >= op3.HAVE_ARGUMENT),
+                        has_arg = op_has_argument(op, op3),
                         opc = self.opc
                     )
                 )
@@ -403,7 +402,7 @@ class Scanner3(scan.Scanner):
 
             # Determine structures and fix jumps in Python versions
             # since 2.3
-            self.detect_structure(offset)
+            self.detect_structure(offset, targets)
 
             has_arg = (op >= op3.HAVE_ARGUMENT)
             if has_arg:
@@ -517,7 +516,7 @@ class Scanner3(scan.Scanner):
             target += offset + 3
         return target
 
-    def detect_structure(self, offset):
+    def detect_structure(self, offset, targets):
         """
         Detect structures and their boundaries to fix optimized jumps
         in python2.3+
@@ -735,10 +734,33 @@ class Scanner3(scan.Scanner):
                 self.structs.append({'type': 'if-then',
                                      'start': start,
                                      'end': rtarget})
+                # It is important to distingish if this return is inside some sort
+                # except block return
                 jump_prev = prev_op[offset]
                 if self.is_pypy and code[jump_prev] == self.opc.COMPARE_OP:
                     if self.opc.cmp_op[code[jump_prev+1]] == 'exception match':
                         return
+                if self.version >= 3.5:
+                    # Python 3.5 may remove as dead code a JUMP
+                    # instruction after a RETURN_VALUE. So we check
+                    # based on seeing SETUP_EXCEPT various places.
+                    if code[rtarget] == self.opc.SETUP_EXCEPT:
+                        return
+                    # Check that next instruction after pops and jump is
+                    # not from SETUP_EXCEPT
+                    next_op = rtarget
+                    if code[next_op] == self.opc.POP_BLOCK:
+                        next_op += self.op_size(self.code[next_op])
+                    if code[next_op] == self.opc.JUMP_ABSOLUTE:
+                        next_op += self.op_size(self.code[next_op])
+                    if next_op in targets:
+                        for try_op in targets[next_op]:
+                            come_from_op = code[try_op]
+                            if come_from_op == self.opc.SETUP_EXCEPT:
+                                return
+                            pass
+                        pass
+                    pass
                 self.return_end_ifs.add(prev_op[rtarget])
 
         elif op in self.jump_if_pop:
