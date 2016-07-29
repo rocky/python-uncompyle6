@@ -34,7 +34,7 @@ For example in:
 
 The node will be associated with the text break, excluding the trailing newline.
 
-Note we assocate the accumulated text with the node normally, but we just don't
+Note we associate the accumulated text with the node normally, but we just don't
 do it recursively which is where offsets are probably located.
 
 2. %b

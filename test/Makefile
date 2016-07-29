@@ -118,7 +118,7 @@ check-3.4-ok:
 2.6:
 
 #: PyPy 5.0.x with Python 2.7 ...
-pypy-2.7 5.0:
+pypy-2.7 5.0 5.3:
 	$(PYTHON) test_pythonlib.py --bytecode-pypy2.7 --verify
 
 #: PyPy 2.4.x with Python 3.2 ...
