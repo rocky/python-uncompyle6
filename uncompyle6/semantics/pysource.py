@@ -586,6 +586,14 @@ class SourceWalker(GenericASTTraversal, object):
             TABLE_DIRECT.update({
                 'LOAD_CLASSDEREF':	( '%{pattr}', ),
                 })
+            if version >= 3.6:
+                ########################
+                # Python 3.6+ Additions
+                #######################
+                TABLE_DIRECT.update({
+                    'formatted_value': ( '{%c}', 0),
+                    'joined_str':  ( "f'%c'", 2),
+                })
         return
 
     f = property(lambda s: s.params['f'],
@@ -834,6 +842,10 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec -= 1
         self.preorder(node[1])
         self.prec += 1
+        self.prune()
+
+    def n_str(self, node):
+        self.write(node[0].pattr)
         self.prune()
 
     def n_LOAD_CONST(self, node):

@@ -365,7 +365,7 @@ class Python3Parser(PythonParser):
         call_function ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
 
         classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc {expr}^n-1 CALL_FUNCTION_n
-       """
+        """
         # Low byte indicates number of positional paramters,
         # high byte number of positional parameters
         args_pos = token.attr & 0xff
@@ -444,7 +444,8 @@ class Python3Parser(PythonParser):
         For PYPY:
             load_attr ::= expr LOOKUP_METHOD
             call_function ::= expr CALL_METHOD
-       """
+        """
+        saw_format_value = False
         for i, token in enumerate(tokens):
             opname = token.type
             opname_base = opname[:opname.rfind('_')]
@@ -457,8 +458,19 @@ class Python3Parser(PythonParser):
                     assign2_pypy ::= expr expr designator designator
                 """, nop_func)
                 continue
+            elif opname == 'FORMAT_VALUE':
+                # Python 3.6+
+                self.addRule("""
+                formatted_value ::= LOAD_FAST FORMAT_VALUE
+                formatted_value ::= LOAD_NAME FORMAT_VALUE
+                str ::= LOAD_CONST
+                formatted_value_or_str ::= formatted_value
+                formatted_value_or_str ::= str
+                """, nop_func)
+                saw_format_value = True
+
             elif opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
-                          'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
+                            'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
                 self.custom_classfunc_rule(opname, token, customize)
             elif opname == 'LOAD_DICTCOMP':
                 rule_pat = ("dictcomp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 expr "
@@ -479,6 +491,15 @@ class Python3Parser(PythonParser):
                 if opname_base == 'BUILD_TUPLE':
                     rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
+                if opname_base == 'BUILD_LIST' and saw_format_value:
+                    format_or_str_n = "formatted_value_or_str_%s" % v
+                    self.addRule("""
+                    expr ::= joined_str
+                    joined_str ::=  LOAD_CONST LOAD_ATTR %s CALL_FUNCTION_1
+                    %s ::= %s%s
+                    """ % (format_or_str_n, format_or_str_n, ("formatted_value_or_str " *v), opname),
+                                 nop_func)
+
             elif opname == 'LOOKUP_METHOD':
                 # A PyPy speciality - DRY with parse2
                 self.add_unique_rule("load_attr ::= expr LOOKUP_METHOD",
