@@ -33,7 +33,7 @@ check-2.7 check-3.3 check-3.4: pytest
 
 #: Tests for Python 3.2 and 3.5 - pytest doesn't work here
 # Or rather 3.5 doesn't work not on Travis
-check-3.2 check-3.5:
+check-3.2 check-3.5 check-3.6:
 	$(MAKE) -C test $@
 
 #:Tests for Python 2.6 (doesn't have pytest)
