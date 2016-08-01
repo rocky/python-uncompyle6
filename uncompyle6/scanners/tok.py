@@ -2,7 +2,7 @@
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 
-import sys
+import re, sys
 from uncompyle6 import PYTHON3
 
 if PYTHON3:
@@ -71,8 +71,10 @@ class Token:
                 elif self.op in self.opc.hascompare:
                     if isinstance(self.attr, int):
                         pattr = self.opc.cmp_op[self.attr]
-                    # And so on. See xdis/bytecode.py get_instructions_bytes
+                # And so on. See xdis/bytecode.py get_instructions_bytes
                 pass
+        elif re.search('_\d+$', self.type):
+            return "%s%s%s" % (prefix, offset_opname,  argstr)
         else:
             pattr = ''
         return "%s%s%s %r" % (prefix, offset_opname,  argstr, pattr)
