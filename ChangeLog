@@ -1,6 +1,114 @@
+2016-08-03  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/version.py: Get ready for release 2.8.0
+
+2016-07-29  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, uncompyle6/semantics/fragments.py: Small changes
+
+2016-07-29  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse35.py, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/semantics/pysource.py: 
+	Fix 3.5 misclassifying RETURN_VALUE We use location of SETUP_EXCEPT instructions to disambiguate.
+
+2016-07-28  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse23.py,
+	uncompyle6/parsers/parse24.py: while1 bug applied to Python 2.3 and
+	2.4
+
+2016-07-28  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner3.py, uncompyle6/scanners/tok.py: PyPy
+	3.2 bug confusing RETURN_END_IF for except Also fix a instruction formatting bug
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse35.py: Split out 3.5 parser
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse34.py: Add python 3.4 grammar checking DRY grammar testing
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse25.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/parsers/parse27.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse34.py: Clean and check Python 2.6 grammar
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/parsers/parse27.py, uncompyle6/parsers/parse3.py: Start
+	to segregate and clean up grammar
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/disas.py,
+	uncompyle6/scanner.py, uncompyle6/semantics/fragments.py: Add
+	is_pypy parameter to places that need it
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/stmts/09_whiletrue_bug.py,
+	uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse26.py, uncompyle6/parsers/parse27.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/semantics/pysource.py: 2.6 and 2.7 while1 grammar rule Fixes issue #40
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse3.py: Start grammar checker
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/main.py, uncompyle6/show.py: Show magic number in
+	output Fix bugs due to removal of token.format()
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/disas.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner27.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/scanners/scanner35.py, uncompyle6/scanners/tok.py,
+	uncompyle6/show.py: tok.format -> tok.__str__; simplify pypy code
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py, uncompyle6/verify.py: Python 2.7
+	set comprehension bug
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py: separate semantic action version
+	differences Added customize_for_version which uses is_pypy and version to adjust
+	tables
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Customize tables better for
+	specific Python versions
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/semantics/pysource.py: 
+	Small code clean up
+
 2016-07-26  rocky <rb@dustyfeet.com>
 
-	* README.rst, __pkginfo__.py, requirements.txt,
+	* uncompyle6/scanners/tok.py, uncompyle6/semantics/fragments.py,
+	uncompyle6/verify.py: Usuability fixes * try using format for __str__ * Explicitly nuke self.attr and self.pattr when no arg * Sync pysource and format wrt make_function
+
+2016-07-26  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, README.rst, __pkginfo__.py, requirements.txt,
 	test/test_pyenvlib.py, uncompyle6/version.py: Get ready for release
 	2.7.1
 
