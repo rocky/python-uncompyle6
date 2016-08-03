@@ -1,2 +1,2 @@
 spark-parser >= 1.2.1
-xdis >= 2.0.3
+xdis >= 2.1.0
