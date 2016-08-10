@@ -98,6 +98,7 @@ def fstrings(draw):
 
     return f"{prefix}{raw}'{content}'"
 
+
 @hypothesis.given(format_specifiers())
 def test_format_specifiers(format_specifier):
     """Verify that format_specifiers generates valid specifiers"""
