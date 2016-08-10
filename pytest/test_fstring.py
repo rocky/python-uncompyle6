@@ -1,5 +1,8 @@
+# test
 import hypothesis
 from hypothesis import strategies as st
+# uncompyle6
+from uncompyle6 import PYTHON_VERSION, deparse_code
 
 
 @st.composite
@@ -12,6 +15,12 @@ def expressions(draw):
         'len(items)',
         'x + 1',
         'lineno',
+        'container',
+        'self.attribute',
+        'self.method()',
+        'sorted(items, key=lambda x: x.name)',
+        'func(*args, **kwargs)',
+        'text or default',
     )))
 
 
@@ -68,30 +77,26 @@ def format_specifiers(draw):
 @st.composite
 def fstrings(draw):
     """
-    Generate a valid fstring.
+    Generate a valid f-string.
     See https://www.python.org/dev/peps/pep-0498/#specification
 
     :param draw: Let hypothsis draw from other strategies.
 
-    :return: A valid f string.
+    :return: A valid f-string.
     """
-
     prefix = draw(st.sampled_from('fF'))
-    raw = draw(st.sampled_from(('', 'rR',)))
-    quote_char = draw(st.sampled_from(("'", '"', "'''", '"""',)))
-
+    raw = draw(st.sampled_from(list('rR') + ['']))
     integer_strategy = st.integers(min_value=0, max_value=3)
     expression_count = draw(integer_strategy)
     content = []
     for _ in range(expression_count):
         expression = draw(expressions())
-        conversion = draw(st.sampled_from(('', '!s', '!r', '!a',)))
-        specifier = draw(format_specifiers())
-        content.append(f'{expression}{specifier}{conversion}')
+        #conversion = draw(st.sampled_from(('', '!s', '!r', '!a',)))
+        #specifier = draw(st.sampled_from(format_specifiers(), st.just('')))
+        content.append(f'{{{expression}}}')
     content = ''.join(content)
 
-    return f'{prefix}{raw}{quote_char}{content}{quote_char}'
-
+    return f"{prefix}{raw}'{content}'"
 
 @hypothesis.given(format_specifiers())
 def test_format_specifiers(format_specifier):
@@ -105,5 +110,8 @@ def test_format_specifiers(format_specifier):
 
 @hypothesis.given(fstrings())
 def test_uncompyle_fstring(fstring):
-    """Verify uncompyle fstring bytecode"""
-    assert not fstring
+    """Verify uncompyling fstring bytecode"""
+    hypothesis.assume('{' in fstring)  # ignore fstring with no expressions
+    expr = f'{fstring}\n'
+    code = compile(expr, '<string>', 'single')
+    assert deparse_code(PYTHON_VERSION, code, compile_mode='single').text == expr
