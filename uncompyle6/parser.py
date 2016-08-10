@@ -30,6 +30,8 @@ class PythonParser(GenericASTBuilder):
 
     def add_unique_rule(self, rule, opname, count, customize):
         """Add rule to grammar, but only if it hasn't been added previously
+           opname and count are used in the customize() semantic the actions
+           to add the semantic action rule. Often, count is not used.
         """
         if rule not in self.new_rules:
             # print("XXX ", rule) # debug
@@ -37,6 +39,14 @@ class PythonParser(GenericASTBuilder):
             self.addRule(rule, nop_func)
             customize[opname] = count
             pass
+        return
+
+    def add_unique_rules(self, rules, customize):
+        """Add rules to grammar
+        """
+        for rule in rules:
+            opname = rule.split('::=')[0].strip()
+            self.add_unique_rule(rule, opname, 0, customize)
         return
 
     def cleanup(self):
@@ -62,14 +72,16 @@ class PythonParser(GenericASTBuilder):
         print("Instruction context:")
         for i in range(start, finish):
             indent = '   ' if i != index else '-> '
-            print("%s%s" % (indent, instructions[i].format()))
+            print("%s%s" % (indent, instructions[i]))
         raise ParserError(err_token, err_token.offset)
 
     def typestring(self, token):
         return token.type
 
     def nonterminal(self, nt, args):
-        collect = ('stmts', 'exprlist', 'kvlist', '_stmts', 'print_items', 'kwargs')
+        collect = ('stmts', 'exprlist', 'kvlist', '_stmts', 'print_items', 'kwargs',
+                   # PYPY:
+                   'kvlist_n')
 
         if nt in collect and len(args) > 1:
             #
@@ -224,17 +236,12 @@ class PythonParser(GenericASTBuilder):
         stmt ::= augassign2
         augassign1 ::= expr expr inplace_op designator
         augassign1 ::= expr expr inplace_op ROT_THREE STORE_SUBSCR
-        augassign1 ::= expr expr inplace_op ROT_TWO   STORE_SLICE+0
-        augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+1
-        augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+2
-        augassign1 ::= expr expr inplace_op ROT_FOUR  STORE_SLICE+3
         augassign2 ::= expr DUP_TOP LOAD_ATTR expr
                 inplace_op ROT_TWO   STORE_ATTR
 
         inplace_op ::= INPLACE_ADD
         inplace_op ::= INPLACE_SUBTRACT
         inplace_op ::= INPLACE_MULTIPLY
-        inplace_op ::= INPLACE_DIVIDE
         inplace_op ::= INPLACE_TRUE_DIVIDE
         inplace_op ::= INPLACE_FLOOR_DIVIDE
         inplace_op ::= INPLACE_MODULO
@@ -261,7 +268,9 @@ class PythonParser(GenericASTBuilder):
     def p_forstmt(self, args):
         """
         _for ::= GET_ITER FOR_ITER
-        _for ::= LOAD_CONST FOR_LOOP
+
+        # Possibly before Python 2.3
+        # _for ::= LOAD_CONST FOR_LOOP
 
         for_block ::= l_stmts_opt _come_from JUMP_BACK
         for_block ::= return_stmts _come_from
@@ -327,8 +336,6 @@ class PythonParser(GenericASTBuilder):
         imports_cont ::= imports_cont import_cont
         imports_cont ::= import_cont
         import_cont ::= LOAD_CONST LOAD_CONST import_as_cont
-        import_as_cont ::= IMPORT_NAME_CONT designator
-        import_as_cont ::= IMPORT_NAME_CONT load_attrs designator
         import_as_cont ::= IMPORT_FROM designator
 
         load_attrs ::= LOAD_ATTR
@@ -359,9 +366,6 @@ class PythonParser(GenericASTBuilder):
 
         stmt ::= setcomp_func
 
-        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
-                JUMP_BACK RETURN_VALUE RETURN_LAST
-
         comp_iter ::= comp_if
         comp_iter ::= comp_ifnot
         comp_iter ::= comp_for
@@ -369,9 +373,7 @@ class PythonParser(GenericASTBuilder):
         comp_body ::= set_comp_body
         comp_body ::= gen_comp_body
         comp_body ::= dict_comp_body
-        set_comp_body ::= expr SET_ADD
         gen_comp_body ::= expr YIELD_VALUE POP_TOP
-        dict_comp_body ::= expr expr MAP_ADD
 
         comp_if ::= expr jmp_false comp_iter
         comp_ifnot ::= expr jmp_true comp_iter
@@ -382,7 +384,6 @@ class PythonParser(GenericASTBuilder):
     def p_expr(self, args):
         '''
         expr ::= _mklambda
-        expr ::= SET_LINENO
         expr ::= LOAD_FAST
         expr ::= LOAD_NAME
         expr ::= LOAD_CONST
@@ -399,18 +400,16 @@ class PythonParser(GenericASTBuilder):
         expr ::= unary_expr
         expr ::= call_function
         expr ::= unary_not
-        expr ::= unary_convert
         expr ::= binary_subscr
         expr ::= binary_subscr2
         expr ::= load_attr
         expr ::= get_iter
-        expr ::= slice0
-        expr ::= slice1
-        expr ::= slice2
-        expr ::= slice3
         expr ::= buildslice2
         expr ::= buildslice3
         expr ::= yield
+
+        # Possibly Python < 2.3
+        # expr ::= SET_LINENO
 
         binary_expr ::= expr expr binary_op
         binary_op ::= BINARY_ADD
@@ -419,7 +418,6 @@ class PythonParser(GenericASTBuilder):
         binary_op ::= BINARY_OR
         binary_op ::= BINARY_XOR
         binary_op ::= BINARY_SUBTRACT
-        binary_op ::= BINARY_DIVIDE
         binary_op ::= BINARY_TRUE_DIVIDE
         binary_op ::= BINARY_FLOOR_DIVIDE
         binary_op ::= BINARY_MODULO
@@ -433,21 +431,11 @@ class PythonParser(GenericASTBuilder):
         unary_op ::= UNARY_INVERT
 
         unary_not ::= expr UNARY_NOT
-        unary_convert ::= expr UNARY_CONVERT
 
         binary_subscr ::= expr expr BINARY_SUBSCR
-        binary_subscr2 ::= expr expr DUP_TOPX_2 BINARY_SUBSCR
 
         load_attr ::= expr LOAD_ATTR
         get_iter ::= expr GET_ITER
-        slice0 ::= expr SLICE+0
-        slice0 ::= expr DUP_TOP SLICE+0
-        slice1 ::= expr expr SLICE+1
-        slice1 ::= expr expr DUP_TOPX_2 SLICE+1
-        slice2 ::= expr expr SLICE+2
-        slice2 ::= expr expr DUP_TOPX_2 SLICE+2
-        slice3 ::= expr expr expr SLICE+3
-        slice3 ::= expr expr expr DUP_TOPX_3 SLICE+3
         buildslice3 ::= expr expr expr BUILD_SLICE_3
         buildslice2 ::= expr expr BUILD_SLICE_2
 
@@ -455,12 +443,6 @@ class PythonParser(GenericASTBuilder):
 
         _mklambda ::= load_closure mklambda
         _mklambda ::= mklambda
-
-        # Note: Python < 2.7 doesn't have *POP* or this. Remove from here?
-        # FIXME: segregate 2.7+
-
-        or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
-        and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
 
         or   ::= expr jmp_true expr come_from_opt
         and  ::= expr jmp_false expr come_from_opt
@@ -480,14 +462,6 @@ class PythonParser(GenericASTBuilder):
         ret_expr_or_cond ::= ret_cond
         ret_expr_or_cond ::= ret_cond_not
 
-        # Note: Python < 2.7 doesn't have *POP* or this. Remove from here?
-        # FIXME: segregate 2.7+
-
-        ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
-        ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
-        ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF ret_expr_or_cond
-        ret_cond_not ::= expr POP_JUMP_IF_TRUE expr RETURN_END_IF ret_expr_or_cond
-
         stmt ::= return_lambda
         stmt ::= conditional_lambda
 
@@ -500,14 +474,8 @@ class PythonParser(GenericASTBuilder):
         cmp_list ::= expr cmp_list1 ROT_TWO POP_TOP
                 _come_from
         cmp_list1 ::= expr DUP_TOP ROT_THREE
-                COMPARE_OP JUMP_IF_FALSE_OR_POP
-                cmp_list1 COME_FROM
-        cmp_list1 ::= expr DUP_TOP ROT_THREE
                 COMPARE_OP jmp_false
                 cmp_list1 _come_from
-        cmp_list1 ::= expr DUP_TOP ROT_THREE
-                COMPARE_OP JUMP_IF_FALSE_OR_POP
-                cmp_list2 COME_FROM
         cmp_list1 ::= expr DUP_TOP ROT_THREE
                 COMPARE_OP jmp_false
                 cmp_list2 _come_from
@@ -552,10 +520,6 @@ class PythonParser(GenericASTBuilder):
         designator ::= STORE_GLOBAL
         designator ::= STORE_DEREF
         designator ::= expr STORE_ATTR
-        designator ::= expr STORE_SLICE+0
-        designator ::= expr expr STORE_SLICE+1
-        designator ::= expr expr STORE_SLICE+2
-        designator ::= expr expr expr STORE_SLICE+3
         designator ::= store_subscr
         store_subscr ::= expr expr STORE_SUBSCR
         designator ::= unpack
@@ -571,7 +535,7 @@ def parse(p, tokens, customize):
 
 
 def get_python_parser(
-        version, debug_parser, compile_mode='exec',
+        version, debug_parser={}, compile_mode='exec',
         is_pypy = False):
     """Returns parser object for Python version 2 or 3, 3.2, 3.5on,
     etc., depending on the parameters passed.  *compile_mode* is either
@@ -639,16 +603,12 @@ def get_python_parser(
                 p = parse34.Python34Parser(debug_parser)
             else:
                 p = parse34.Python34ParserSingle(debug_parser)
-        elif version >= 3.5:
+        elif version == 3.5:
+            import uncompyle6.parsers.parse35 as parse35
             if compile_mode == 'exec':
-                p = parse3.Python35onParser(debug_parser)
+                p = parse35.Python35Parser(debug_parser)
             else:
-                p = parse3.Python35onParserSingle(debug_parser)
-        elif version >= 3.6:
-            if compile_mode == 'exec':
-                p = parse3.Python36Parser(debug_parser)
-            else:
-                p = parse3.Python36ParserSingle(debug_parser)
+                p = parse35.Python35ParserSingle(debug_parser)
         else:
             if compile_mode == 'exec':
                 p = parse3.Python3Parser(debug_parser)

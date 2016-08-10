@@ -14,7 +14,7 @@ def maybe_show_asm(showasm, tokens):
     if showasm:
         stream = showasm if hasattr(showasm, 'write') else sys.stdout
         for t in tokens:
-            stream.write(t.format())
+            stream.write(str(t))
             stream.write('\n')
 
 
@@ -30,7 +30,7 @@ def maybe_show_ast(showast, ast):
     """
     if showast:
         stream = showast if hasattr(showast, 'write') else sys.stdout
-        stream.write(repr(ast))
+        stream.write(str(ast))
         stream.write('\n')
 
 

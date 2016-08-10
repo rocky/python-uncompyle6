@@ -157,6 +157,8 @@ class Python26Parser(Python2Parser):
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK come_from_pop
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE come_from_pop
 
+        while1stmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM
+
         # Common with 2.7
         while1stmt ::= SETUP_LOOP return_stmts bp_come_from
         while1stmt ::= SETUP_LOOP return_stmts COME_FROM
@@ -201,7 +203,6 @@ class Python26Parser(Python2Parser):
         ret_cond_not ::= expr jmp_true expr RETURN_END_IF come_from_pop ret_expr_or_cond
 
         # FIXME: split into Python 2.5
-        ret_cond ::= expr jmp_false expr JUMP_RETURN come_from_pop ret_expr_or_cond
         ret_or   ::= expr jmp_true ret_expr_or_cond come_froms
         '''
 
@@ -224,3 +225,20 @@ if __name__ == '__main__':
     # Check grammar
     p = Python26Parser()
     p.checkGrammar()
+    from uncompyle6 import PYTHON_VERSION, IS_PYPY
+    if PYTHON_VERSION == 2.6:
+        lhs, rhs, tokens, right_recursive = p.checkSets()
+        from uncompyle6.scanner import get_scanner
+        s = get_scanner(PYTHON_VERSION, IS_PYPY)
+        opcode_set = set(s.opc.opname).union(set(
+            """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+               LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP
+               LAMBDA_MARKER RETURN_LAST
+            """.split()))
+        remain_tokens = set(tokens) - opcode_set
+        import re
+        remain_tokens = set([re.sub('_\d+$','', t) for t in remain_tokens])
+        remain_tokens = set([re.sub('_CONT$','', t) for t in remain_tokens])
+        remain_tokens = set(remain_tokens) - opcode_set
+        print(remain_tokens)
+        # print(sorted(p.rule2name.items()))

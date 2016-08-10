@@ -1,6 +1,320 @@
+2016-08-03  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/version.py: Get ready for release 2.8.0
+
+2016-07-29  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, uncompyle6/semantics/fragments.py: Small changes
+
+2016-07-29  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse35.py, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/semantics/pysource.py: 
+	Fix 3.5 misclassifying RETURN_VALUE We use location of SETUP_EXCEPT instructions to disambiguate.
+
+2016-07-28  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse23.py,
+	uncompyle6/parsers/parse24.py: while1 bug applied to Python 2.3 and
+	2.4
+
+2016-07-28  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner3.py, uncompyle6/scanners/tok.py: PyPy
+	3.2 bug confusing RETURN_END_IF for except Also fix a instruction formatting bug
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse35.py: Split out 3.5 parser
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse34.py: Add python 3.4 grammar checking DRY grammar testing
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse25.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/parsers/parse27.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse34.py: Clean and check Python 2.6 grammar
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/parsers/parse27.py, uncompyle6/parsers/parse3.py: Start
+	to segregate and clean up grammar
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/disas.py,
+	uncompyle6/scanner.py, uncompyle6/semantics/fragments.py: Add
+	is_pypy parameter to places that need it
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/stmts/09_whiletrue_bug.py,
+	uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse26.py, uncompyle6/parsers/parse27.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/semantics/pysource.py: 2.6 and 2.7 while1 grammar rule Fixes issue #40
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse3.py: Start grammar checker
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/main.py, uncompyle6/show.py: Show magic number in
+	output Fix bugs due to removal of token.format()
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/disas.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner27.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/scanners/scanner35.py, uncompyle6/scanners/tok.py,
+	uncompyle6/show.py: tok.format -> tok.__str__; simplify pypy code
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py, uncompyle6/verify.py: Python 2.7
+	set comprehension bug
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py: separate semantic action version
+	differences Added customize_for_version which uses is_pypy and version to adjust
+	tables
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Customize tables better for
+	specific Python versions
+
+2016-07-27  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/semantics/pysource.py: 
+	Small code clean up
+
+2016-07-26  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/tok.py, uncompyle6/semantics/fragments.py,
+	uncompyle6/verify.py: Usuability fixes * try using format for __str__ * Explicitly nuke self.attr and self.pattr when no arg * Sync pysource and format wrt make_function
+
+2016-07-26  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, README.rst, __pkginfo__.py, requirements.txt,
+	test/test_pyenvlib.py, uncompyle6/version.py: Get ready for release
+	2.7.1
+
+2016-07-26  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug_pypy27/00_assign_pypy.py,
+	test/simple_source/bug_pypy27/03_try_return.py, uncompyle6/main.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/semantics/pysource.py: Custom PyPy rules for
+	tryfinallysmt, assign{2,3}
+
+2016-07-26  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug_pypy27/01_assert2.py,
+	test/simple_source/bug_pypy27/03_try_return.py,
+	uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse27.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/semantics/pysource.py: 
+	More PyPy grammar rules * assert one and two-arg form * trystmt Simplify adding multiple grammar rules
+
+2016-07-25  rocky <rb@dustyfeet.com>
+
+	* pytest/testdata/if-2.7.right, pytest/testdata/ifelse-2.7.right,
+	uncompyle6/scanners/tok.py: Instruction formatting - yet again
+
+2016-07-25  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/semantics/pysource.py: Add grammar for PyPy 2-arg assert
+
+2016-07-25  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/scanners/tok.py, uncompyle6/semantics/pysource.py: PyPy
+	BUILD_MAP_n. Reinstate bytecode tests
+
+2016-07-25  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse2.py: Handle PyPy
+	BUILD_MAP_0 where actual kw_args > 0
+
+2016-07-25  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py: Clean
+	up PyPy load_attr grammar rules
+
+2016-07-25  rocky <rb@dustyfeet.com>
+
+	* Makefile: Enable more PyPy testing
+
+2016-07-25  rocky <rb@dustyfeet.com>
+
+	* test/Makefile: Start checking PyPy bytecodes
+
+2016-07-25  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, uncompyle6/scanners/pypy27.py,
+	uncompyle6/scanners/pypy32.py: Add pypy scanners
+
+2016-07-25  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, requirements.txt, test/Makefile,
+	test/simple_source/bug27+/05_setattr.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner27.py,
+	uncompyle6/scanners/scanner3.py: Handle PyPy CALL_METHOD op more
+	correctly Start testing pypy2.7 and 3.2 bytecodes
+
+2016-07-25  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py: add_custom_rules() in 2.x and 3.x
+	are more alike
+
+2016-07-25  rocky <rb@dustyfeet.com>
+
+	* README.rst, test/simple_source/stmts/03_if_elif.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse27.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/semantics/pysource.py: 
+	Handle PyPy JUMP_IF_NOT_DEBUG Update README.rst to note PyPY and reorganize a little
+
+2016-07-25  rocky <rb@dustyfeet.com>
+
+	* pytest/testdata/if-2.7.right, pytest/testdata/ifelse-2.7.right,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner26.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/scanners/tok.py: Better
+	assembly formatting of jump instructions
+
+2016-07-24  rocky <rb@dustyfeet.com>
+
+	* Makefile, test/Makefile, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner3.py: More
+	PyPy LOOKUP_METHOD rules
+
+2016-07-24  rocky <rb@dustyfeet.com>
+
+	* Makefile, __pkginfo__.py, pytest/test_fjt.py, requirements.txt,
+	test/Makefile, test/test_pythonlib.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanner.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/semantics/pysource.py: 
+	PyPy support * Use proper PYPY 32 opcodes * handle opcodes LOOKUP_METHOD and CALL_METHOD * Administrative stuff for PyPy
+
+2016-07-24  rocky <rb@dustyfeet.com>
+
+	* test/add-test.py: add-test: Make sure PyPy bytecode is separated
+
+2016-07-24  rocky <rb@dustyfeet.com>
+
+	* : commit 21683719e1a07d51095d32200ec294d659746474 Author: rocky
+	<rb@dustyfeet.com> Date:   Sun Jul 24 04:16:54 2016 -0400
+
+2016-07-24  rocky <rb@dustyfeet.com>
+
+	* : commit 7e8173b07620c344a73660b354f05a61c4723d18 Author: rocky
+	<rb@dustyfeet.com> Date:   Sun Jul 24 03:44:26 2016 -0400
+
+2016-07-23  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug27+/05_for_try_except.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner27.py: 
+	Another 2.7 'continue' detection bug
+
+2016-07-23  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug27+/05_for_try_except.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner27.py: 
+	Another 2.7 'continue' detection bug
+
+2016-07-23  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug27+/05_for_try_except.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner27.py: 
+	Another 2.7 'continue' detection bug
+
+2016-07-23  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug27+/05_for_try_except.py,
+	uncompyle6/scanners/scanner2.py: 2.7: Detect "continue" inside
+	except Fixes issue #38.  This is a bit hacky. We need a more general "continue" detection.
+
+2016-07-23  rocky <rb@dustyfeet.com>
+
+	* : commit a5f45f232decad2e74bfdf476255604273fd95fd Author: rocky
+	<rb@dustyfeet.com> Date:   Sat Jul 23 10:37:41 2016 -0400
+
+2016-07-21  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, test/test_pyenvlib.py, uncompyle6/disas.py,
+	uncompyle6/main.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse27.py, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner27.py,
+	uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py, uncompyle6/verify.py: Start
+	handling pypy 2.7 Need to understand whether we care compiling pypy.  Pypy 2.7 list
+	comprehensions are different and use its own opcode.
+
+2016-07-20  rocky <rb@dustyfeet.com>
+
+	* HISTORY.md, README.rst: Update HISTORY and add link to it in
+	README.md
+
+2016-07-17  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/semantics/pysource.py: Better
+	parse error formatting Start to move away for compiler-oriented terminology:    Favor "instructions" over "tokens".  Syntax error -> Parse error.
+
+2016-07-17  rocky <rb@dustyfeet.com>
+
+	* pytest/testdata/if-2.7.right, pytest/testdata/ifelse-2.7.right,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/tok.py: Align
+	disassembly output with xdis align number of offset fields with xdis.  Show None type when we
+	mean None, not ''
+
+2016-07-17  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner3.py: Respect after/both option in
+	scanner3
+
+2016-07-17  rocky <rb@dustyfeet.com>
+
+	* pytest/testdata/if-2.7.right, pytest/testdata/ifelse-2.7.right: 
+	Adjust test data for changed disasm output
+
+2016-07-16  rocky <rb@dustyfeet.com>
+
+	* : commit 942b15e3c62963b32aaba877fd451ffe304c07a9 Author: rocky
+	<rb@dustyfeet.com> Date:   Sat Jul 16 14:12:31 2016 -0400
+
+2016-07-16  rocky <rb@dustyfeet.com>
+
+	* README.rst: More explicit usage info
+
 2016-07-15  rocky <rb@dustyfeet.com>
 
-	* README.rst, uncompyle6/version.py: Get ready for release 2.7.0
+	* README.rst, test/Makefile,
+	test/simple_source/bug35/01_matrix_multiply.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/semantics/pysource.py: Add
+	3.5 matrix mult ops We now run 3.5 verifycation so we need to remove some of the tests
+	that fail to verify pending fixing.
+
+2016-07-15  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, README.rst, uncompyle6/version.py: Get ready for
+	release 2.7.0
 
 2016-07-14  rocky <rb@dustyfeet.com>
 

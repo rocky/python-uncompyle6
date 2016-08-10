@@ -140,18 +140,6 @@ TABLE_R = {
 #   'EXEC_STMT':	( '%|exec %c in %[1]C\n', 0, (0,maxint,', ') ),
 }
 
-if not PYTHON3:
-    TABLE_R.update({
-    'STORE_SLICE+0':	( '%c[:]', 0 ),
-    'STORE_SLICE+1':	( '%c[%p:]', 0, (1, 100) ),
-    'STORE_SLICE+2':	( '%c[:%p]', 0, (1, 100) ),
-    'STORE_SLICE+3':	( '%c[%p:%p]', 0, (1, 100), (2, 100) ),
-    'DELETE_SLICE+0':	( '%|del %c[:]\n', 0 ),
-    'DELETE_SLICE+1':	( '%|del %c[%c:]\n', 0, 1 ),
-    'DELETE_SLICE+2':	( '%|del %c[:%c]\n', 0, 1 ),
-    'DELETE_SLICE+3':	( '%|del %c[%c:%c]\n', 0, 1, 2 ),
-        })
-
 TABLE_R0 = {
 #    'BUILD_LIST':	( '[%C]',      (0,-1,', ') ),
 #    'BUILD_TUPLE':	( '(%C)',      (0,-1,', ') ),
@@ -246,7 +234,6 @@ TABLE_DIRECT = {
     'assign':		( '%|%c = %p\n', -1, (0, 200) ),
     'augassign1':	( '%|%c %c %c\n', 0, 2, 1),
     'augassign2':	( '%|%c.%[2]{pattr} %c %c\n', 0, -3, -4),
-#   'dup_topx':		( '%c', 0),
     'designList':	( '%c = %c', 0, -1 ),
     'and':          	( '%c and %c', 0, 2 ),
     'ret_and':        	( '%c and %c', 0, 2 ),
@@ -274,8 +261,6 @@ TABLE_DIRECT = {
     'kwargs':    	( '%D', (0, maxint, ', ') ),
     'importlist2':	( '%C', (0, maxint, ', ') ),
 
-    'assert':		( '%|assert %c\n' , 0 ),
-    'assert2':		( '%|assert %c, %c\n' , 0, 3 ),
     'assert_expr_or': ( '%c or %c', 0, 2 ),
     'assert_expr_and':    ( '%c and %c', 0, 2 ),
     'print_items_stmt': ( '%|print %c%c,\n', 0, 2),
@@ -337,7 +322,6 @@ TABLE_DIRECT = {
     'except_cond2':	( '%|except %c as %c:\n', 1, 5 ),
     'except_suite':     ( '%+%c%-%C', 0, (1, maxint, '') ),
     'except_suite_finalize':     ( '%+%c%-%C', 1, (3, maxint, '') ),
-    'tryfinallystmt':	( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 5 ),
     'withstmt':     ( '%|with %c:\n%+%c%-', 0, 3),
     'withasstmt':   ( '%|with %c as %c:\n%+%c%-', 0, 2, 3),
     'passstmt':		( '%|pass\n', ),
@@ -346,40 +330,6 @@ TABLE_DIRECT = {
     'kv2':		( '%c: %c', 1, 2 ),
     'mapexpr':		( '{%[1]C}', (0, maxint, ', ') ),
 
-    # CE - Fixes for tuples
-    'assign2':     ( '%|%c, %c = %c, %c\n', 3, 4, 0, 1 ),
-    'assign3':     ( '%|%c, %c, %c = %c, %c, %c\n', 5, 6, 7, 0, 1, 2 ),
-
-    #######################
-    # Python 2.3 Additions
-    #######################
-
-    # Import style for 2.0-2.3
-    'importstmt20': ( '%|import %c\n', 1),
-    'importstar20':	( '%|from %[1]{pattr} import *\n', ),
-    'importfrom20':	( '%|from %[1]{pattr} import %c\n', 2 ),
-    'importlist20':	( '%C', (0, maxint, ', ') ),
-
-    #######################
-    # Python 2.5 Additions
-    #######################
-
-    # Import style for 2.5+
-    'importstmt': ( '%|import %c\n', 2),
-    'importstar': ( '%|from %[2]{pattr} import *\n', ),
-    'importfrom': ( '%|from %[2]{pattr} import %c\n', 3 ),
-    'importmultiple': ( '%|import %c%c\n', 2, 3 ),
-    'import_cont'   : ( ', %c', 2 ),
-
-    ########################
-    # Python 3.2 and 3.3 only
-    #######################
-    'store_locals': ( '%|# inspect.currentframe().f_locals = __locals__\n', ),
-
-    ########################
-    # Python 3.4+ Additions
-    #######################
-    'LOAD_CLASSDEREF':	( '%{pattr}', ),
 }
 
 
@@ -481,7 +431,7 @@ class ParserError(python_parser.ParserError):
 
     def __str__(self):
         lines = ['--- This code section failed: ---']
-        lines.extend([i.format() for i in self.tokens])
+        lines.extend([str(i) for i in self.tokens])
         lines.extend( ['', str(self.error)] )
         return '\n'.join(lines)
 
@@ -533,8 +483,8 @@ class SourceWalker(GenericASTTraversal, object):
             'indent': '',
             }
         self.version = version
-        self.p = get_python_parser(version, debug_parser=debug_parser,
-                                   compile_mode=compile_mode)
+        self.p = get_python_parser(version, debug_parser=dict(debug_parser),
+                                   compile_mode=compile_mode, is_pypy=is_pypy)
         self.debug_parser = dict(debug_parser)
         self.showast = showast
         self.params = params
@@ -556,9 +506,94 @@ class SourceWalker(GenericASTTraversal, object):
         self.version = version
         self.is_pypy = is_pypy
 
+        self.customize_for_version(is_pypy, version)
+        return
+
+    @staticmethod
+    def customize_for_version(is_pypy, version):
+        if is_pypy:
+            ########################
+            # PyPy changes
+            #######################
+            TABLE_DIRECT.update({
+                'assert_pypy':	( '%|assert %c\n' , 1 ),
+                'assert2_pypy':	( '%|assert %c, %c\n' , 1, 4 ),
+                'trystmt_pypy':	( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
+                'tryfinallystmt_pypy': ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 3 ),
+                'assign3_pypy':     ( '%|%c, %c, %c = %c, %c, %c\n', 5, 4, 3, 0, 1, 2 ),
+                'assign2_pypy':     ( '%|%c, %c = %c, %c\n', 3, 2, 0, 1),
+                })
+        else:
+            ########################
+            # Without PyPy
+            #######################
+            TABLE_DIRECT.update({
+                'assert':		( '%|assert %c\n' , 0 ),
+                'assert2':		( '%|assert %c, %c\n' , 0, 3 ),
+                'trystmt':		( '%|try:\n%+%c%-%c\n\n', 1, 3 ),
+                'tryfinallystmt':	( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 5 ),
+                'assign2':     ( '%|%c, %c = %c, %c\n', 3, 4, 0, 1 ),
+                'assign3':     ( '%|%c, %c, %c = %c, %c, %c\n', 5, 6, 7, 0, 1, 2 ),
+                })
+        if version < 3.0:
+            TABLE_R.update({
+                'STORE_SLICE+0':	( '%c[:]', 0 ),
+                'STORE_SLICE+1':	( '%c[%p:]', 0, (1, 100) ),
+                'STORE_SLICE+2':	( '%c[:%p]', 0, (1, 100) ),
+                'STORE_SLICE+3':	( '%c[%p:%p]', 0, (1, 100), (2, 100) ),
+                'DELETE_SLICE+0':	( '%|del %c[:]\n', 0 ),
+                'DELETE_SLICE+1':	( '%|del %c[%c:]\n', 0, 1 ),
+                'DELETE_SLICE+2':	( '%|del %c[:%c]\n', 0, 1 ),
+                'DELETE_SLICE+3':	( '%|del %c[%c:%c]\n', 0, 1, 2 ),
+        })
+
         if 2.0 <= version <= 2.3:
-                TABLE_DIRECT['tryfinallystmt'] = (
-                        '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 4 )
+            TABLE_DIRECT.update({
+                'tryfinallystmt': ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 4 )
+                })
+            ###########################
+            # Import style for 2.0-2.3
+            ###########################
+            TABLE_DIRECT.update({
+                'importstmt20': ( '%|import %c\n', 1),
+                'importstar20':	( '%|from %[1]{pattr} import *\n', ),
+                'importfrom20':	( '%|from %[1]{pattr} import %c\n', 2 ),
+                'importlist20':	( '%C', (0, maxint, ', ') ),
+                })
+        elif version >= 2.5:
+            ########################
+            # Import style for 2.5+
+            ########################
+            TABLE_DIRECT.update({
+                'importstmt': ( '%|import %c\n', 2),
+                'importstar': ( '%|from %[2]{pattr} import *\n', ),
+                'importfrom': ( '%|from %[2]{pattr} import %c\n', 3 ),
+                'importmultiple': ( '%|import %c%c\n', 2, 3 ),
+                'import_cont'   : ( ', %c', 2 ),
+            })
+
+        ##########################
+        # Python 3.2 and 3.3 only
+        ##########################
+        if 3.2 <= version <= 3.3:
+            TABLE_DIRECT.update({
+                'store_locals': ( '%|# inspect.currentframe().f_locals = __locals__\n', ),
+                })
+        elif version >= 3.4:
+            ########################
+            # Python 3.4+ Additions
+            #######################
+            TABLE_DIRECT.update({
+                'LOAD_CLASSDEREF':	( '%{pattr}', ),
+                })
+            if version >= 3.6:
+                ########################
+                # Python 3.6+ Additions
+                #######################
+                TABLE_DIRECT.update({
+                    'formatted_value': ( '{%c}', 0),
+                    'joined_str':  ( "f'%c'", 2),
+                })
         return
 
     f = property(lambda s: s.params['f'],
@@ -712,11 +747,6 @@ class SourceWalker(GenericASTTraversal, object):
             if self.return_none or node != AST('return_stmt', [AST('ret_expr', [NONE]), Token('RETURN_VALUE')]):
                 self.write(' ')
                 self.preorder(node[0])
-            # 3.5 does jump optimization. The RETURN_END_IF in the return
-            # statement means to dedent. Earlier versions will just have
-            # RETURN_VALUE it is done by a nonterminal in the grammar.
-            if self.version >= 3.5 and node[-1] == 'RETURN_END_IF':
-                self.indentLess()
             self.println()
             self.prune() # stop recursing
 
@@ -812,6 +842,10 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec -= 1
         self.preorder(node[1])
         self.prec += 1
+        self.prune()
+
+    def n_str(self, node):
+        self.write(node[0].pattr)
         self.prune()
 
     def n_LOAD_CONST(self, node):
@@ -1003,7 +1037,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(func_name)
 
         self.indentMore()
-        self.make_function(node, isLambda=False, code=code)
+        self.make_function(node, isLambda=False, codeNode=code)
 
         if len(self.param_stack) > 1:
             self.write('\n\n')
@@ -1013,7 +1047,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune() # stop recursing
 
     def n_mklambda(self, node):
-        self.make_function(node, isLambda=True, code=node[-2])
+        self.make_function(node, isLambda=True, codeNode=node[-2])
         self.prune() # stop recursing
 
     def n_list_compr(self, node):
@@ -1061,9 +1095,16 @@ class SourceWalker(GenericASTTraversal, object):
         """
         p = self.prec
         self.prec = 27
-        n = node[-2] if self.is_pypy and node[-1] == 'JUMP_BACK' else node[-1]
+        if node[-1].type == 'list_iter':
+            n = node[-1]
+        elif self.is_pypy and node[-1] == 'JUMP_BACK':
+            n = node[-2]
         list_expr = node[0]
-        designator = node[3]
+
+        if len(node) >= 3:
+            designator = node[3]
+        elif self.is_pypy and n[0] == 'list_for':
+            designator = n[0][2]
 
         assert n == 'list_iter'
         assert designator == 'designator'
@@ -1168,7 +1209,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write('{')
         if node[0] in ['LOAD_SETCOMP', 'LOAD_DICTCOMP']:
             self.comprehension_walk3(node, 1, 0)
-        elif node[0].type == 'load_closure':
+        elif node[0].type == 'load_closure' and self.version >= 3.0:
             self.setcomprehension_walk3(node, collection_index=4)
         else:
             self.comprehension_walk(node, iter_index=4)
@@ -1514,7 +1555,7 @@ class SourceWalker(GenericASTTraversal, object):
         sep = INDENT_PER_LEVEL[:-1]
         self.write('{')
 
-        if self.version >= 3.0:
+        if self.version >= 3.0 and not self.is_pypy:
             if node[0].type.startswith('kvlist'):
                 # Python 3.5+ style key/value list in mapexpr
                 kv_node = node[0]
@@ -1730,7 +1771,7 @@ class SourceWalker(GenericASTTraversal, object):
                 # Is there some sort of invalid bounds access going on?
                 if isinstance(entry[arg], int):
                     self.preorder(node[entry[arg]])
-                arg += 1
+                    arg += 1
             elif typ == 'p':
                 p = self.prec
                 (index, self.prec) = entry[arg]
@@ -1801,13 +1842,18 @@ class SourceWalker(GenericASTTraversal, object):
 
     def customize(self, customize):
         """
-        Special handling for opcodes that take a variable number
+        Special handling for opcodes, such as those that take a variable number
         of arguments -- we add a new entry for each in TABLE_R.
         """
         for k, v in list(customize.items()):
             if k in TABLE_R:
                 continue
             op = k[ :k.rfind('_') ]
+
+            if k == 'CALL_METHOD':
+                # This happens in PyPy only
+                TABLE_R[k] = ('%c(%P)', 0, (1, -1, ', ', 100))
+
             if op == 'CALL_FUNCTION':
                 TABLE_R[k] = ('%c(%P)', 0, (1, -1, ', ', 100))
             elif op in ('CALL_FUNCTION_VAR',
@@ -1872,7 +1918,7 @@ class SourceWalker(GenericASTTraversal, object):
             # return self.traverse(node[1])
         raise Exception("Can't find tuple parameter " + name)
 
-    def make_function(self, node, isLambda, nested=1, code=None):
+    def make_function(self, node, isLambda, nested=1, codeNode=None):
         """Dump function defintion, doc string, and function body."""
 
         def build_param(ast, name, default):
@@ -1913,12 +1959,12 @@ class SourceWalker(GenericASTTraversal, object):
             pos_args, kw_args, annotate_args  = args_node.attr
         else:
             defparams = node[:args_node.attr]
-            kw_args, annotate_args  = (0, 0)
+            kw_args  = 0
             pass
 
         if 3.0 <= self.version <= 3.2:
             lambda_index = -2
-        elif 3.03<= self.version:
+        elif 3.03 <= self.version:
             lambda_index = -3
         else:
             lambda_index = None
@@ -1927,7 +1973,7 @@ class SourceWalker(GenericASTTraversal, object):
             assert node[lambda_index].type == 'LOAD_LAMBDA'
             code = node[lambda_index].attr
         else:
-            code = code.attr
+            code = codeNode.attr
 
         assert iscode(code)
         code = Code(code, self.scanner, self.currentclass)

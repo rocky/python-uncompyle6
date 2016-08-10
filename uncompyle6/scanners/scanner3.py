@@ -25,6 +25,7 @@ from __future__ import print_function
 from collections import namedtuple
 from array import array
 
+from uncompyle6.scanner import Scanner, op_has_argument
 from xdis.code import iscode
 from xdis.bytecode import Bytecode
 from uncompyle6.scanner import Token, parse_fn_counts
@@ -42,9 +43,7 @@ globals().update(op3.opmap)
 # POP_JUMP_IF is used by verify
 POP_JUMP_TF = (POP_JUMP_IF_TRUE, POP_JUMP_IF_FALSE)
 
-import uncompyle6.scanner as scan
-
-class Scanner3(scan.Scanner):
+class Scanner3(Scanner):
 
     def __init__(self, version, show_asm=None, is_pypy=False):
         super(Scanner3, self).__init__(version, show_asm, is_pypy)
@@ -89,13 +88,15 @@ class Scanner3(scan.Scanner):
 
         # Opcodes that take a variable number of arguments
         # (expr's)
-        self.varargs = frozenset([self.opc.BUILD_LIST,
-                                  self.opc.BUILD_TUPLE,
-                                  self.opc.BUILD_SET,
-                                  self.opc.BUILD_SLICE,
-                                  self.opc.BUILD_MAP,
-                                  self.opc.UNPACK_SEQUENCE,
-                                  self.opc.RAISE_VARARGS])
+        varargs_ops = set([
+            self.opc.BUILD_LIST,        self.opc.BUILD_TUPLE,
+             self.opc.BUILD_SET,        self.opc.BUILD_SLICE,
+             self.opc.BUILD_MAP,        self.opc.UNPACK_SEQUENCE,
+             self.opc.RAISE_VARARGS])
+
+        if is_pypy:
+            varargs_ops.add(self.opc.CALL_METHOD)
+        self.varargs_ops = frozenset(varargs_ops)
 
         # Not really a set, but still clasification-like
         self.statement_opcode_sequences = [
@@ -107,14 +108,18 @@ class Scanner3(scan.Scanner):
 
     def disassemble(self, co, classname=None, code_objects={}, show_asm=None):
         """
-        Disassemble a Python 3 code object, returning a list of 'Token'.
-        Various tranformations are made to assist the deparsing grammar.
-        For example:
+        Pick out tokens from an uncompyle6 code object, and transform them,
+        returning a list of uncompyle6 'Token's.
+
+        The tranformations are made to assist the deparsing grammar.
+        Specificially:
            -  various types of LOAD_CONST's are categorized in terms of what they load
            -  COME_FROM instructions are added to assist parsing control structures
-           -  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional aruments
-        The main part of this procedure is modelled after
-        dis.disassemble().
+           -  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional arguments
+
+        Also, when we encounter certain tokens, we add them to a set which will cause custom
+        grammar rules. Specifically, variable arg tokens like MAKE_FUNCTION or BUILD_LIST
+        cause specific rules for the specific number of arguments they take.
         """
 
         show_asm = self.show_asm if not show_asm else show_asm
@@ -126,6 +131,10 @@ class Scanner3(scan.Scanner):
 
         # Container for tokens
         tokens = []
+
+        customize = {}
+        if self.is_pypy:
+            customize['PyPy'] = 1;
 
         self.code = array('B', co.co_code)
         self.build_lines_data(co)
@@ -174,7 +183,7 @@ class Scanner3(scan.Scanner):
                 for jump_offset in jump_targets[inst.offset]:
                     tokens.append(Token('COME_FROM', None, repr(jump_offset),
                                         offset='%s_%s' % (inst.offset, jump_idx),
-                                        has_arg = True))
+                                        has_arg = True, opc=self.opc))
                     jump_idx += 1
                     pass
                 pass
@@ -224,13 +233,22 @@ class Scanner3(scan.Scanner):
                         offset = inst.offset,
                         linestart = inst.starts_line,
                         op = op,
-                        has_arg = (op >= op3.HAVE_ARGUMENT)
+                        has_arg = op_has_argument(op, op3),
+                        opc = self.opc
                     )
                 )
                 continue
-            elif op in self.varargs:
+            elif op in self.varargs_ops:
                 pos_args = inst.argval
-                opname = '%s_%d' % (opname, pos_args)
+                if self.is_pypy and not pos_args and opname == 'BUILD_MAP':
+                    opname = 'BUILD_MAP_n'
+                else:
+                    opname = '%s_%d' % (opname, pos_args)
+            elif self.is_pypy and opname in ('CALL_METHOD', 'JUMP_IF_NOT_DEBUG'):
+                # The value in the dict is in special cases in semantic actions, such
+                # as CALL_FUNCTION. The value is not used in these cases, so we put
+                # in arbitrary value 0.
+                customize[opname] = 0
             elif opname == 'UNPACK_EX':
                 # FIXME: try with scanner and parser by
                 # changing inst.argval
@@ -240,7 +258,7 @@ class Scanner3(scan.Scanner):
                 argval = (before_args, after_args)
                 opname = '%s_%d+%d' % (opname, before_args, after_args)
             elif op == self.opc.JUMP_ABSOLUTE:
-                # Further classifhy JUMP_ABSOLUTE into backward jumps
+                # Further classify JUMP_ABSOLUTE into backward jumps
                 # which are used in loops, and "CONTINUE" jumps which
                 # may appear in a "continue" statement.  The loop-type
                 # and continue-type jumps will help us classify loop
@@ -283,16 +301,17 @@ class Scanner3(scan.Scanner):
                     offset = inst.offset,
                     linestart = inst.starts_line,
                     op = op,
-                    has_arg = (op >= op3.HAVE_ARGUMENT)
+                    has_arg = (op >= op3.HAVE_ARGUMENT),
+                    opc = self.opc
                     )
                 )
             pass
 
         if show_asm in ('both', 'after'):
             for t in tokens:
-                print(t.format())
+                print(t)
             print()
-        return tokens, {}
+        return tokens, customize
 
     def build_lines_data(self, code_obj):
         """
@@ -383,7 +402,7 @@ class Scanner3(scan.Scanner):
 
             # Determine structures and fix jumps in Python versions
             # since 2.3
-            self.detect_structure(offset)
+            self.detect_structure(offset, targets)
 
             has_arg = (op >= op3.HAVE_ARGUMENT)
             if has_arg:
@@ -497,7 +516,7 @@ class Scanner3(scan.Scanner):
             target += offset + 3
         return target
 
-    def detect_structure(self, offset):
+    def detect_structure(self, offset, targets):
         """
         Detect structures and their boundaries to fix optimized jumps
         in python2.3+
@@ -715,6 +734,33 @@ class Scanner3(scan.Scanner):
                 self.structs.append({'type': 'if-then',
                                      'start': start,
                                      'end': rtarget})
+                # It is important to distingish if this return is inside some sort
+                # except block return
+                jump_prev = prev_op[offset]
+                if self.is_pypy and code[jump_prev] == self.opc.COMPARE_OP:
+                    if self.opc.cmp_op[code[jump_prev+1]] == 'exception match':
+                        return
+                if self.version >= 3.5:
+                    # Python 3.5 may remove as dead code a JUMP
+                    # instruction after a RETURN_VALUE. So we check
+                    # based on seeing SETUP_EXCEPT various places.
+                    if code[rtarget] == self.opc.SETUP_EXCEPT:
+                        return
+                    # Check that next instruction after pops and jump is
+                    # not from SETUP_EXCEPT
+                    next_op = rtarget
+                    if code[next_op] == self.opc.POP_BLOCK:
+                        next_op += self.op_size(self.code[next_op])
+                    if code[next_op] == self.opc.JUMP_ABSOLUTE:
+                        next_op += self.op_size(self.code[next_op])
+                    if next_op in targets:
+                        for try_op in targets[next_op]:
+                            come_from_op = code[try_op]
+                            if come_from_op == self.opc.SETUP_EXCEPT:
+                                return
+                            pass
+                        pass
+                    pass
                 self.return_end_ifs.add(prev_op[rtarget])
 
         elif op in self.jump_if_pop:
@@ -784,7 +830,7 @@ if __name__ == "__main__":
         from uncompyle6 import PYTHON_VERSION
         tokens, customize = Scanner3(PYTHON_VERSION).disassemble(co)
         for t in tokens:
-            print(t.format())
+            print(t)
     else:
         print("Need to be Python 3.2 or greater to demo; I am %s." %
               PYTHON_VERSION)

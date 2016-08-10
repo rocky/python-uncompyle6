@@ -2,7 +2,7 @@
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 
-import sys
+import re, sys
 from uncompyle6 import PYTHON3
 
 if PYTHON3:
@@ -21,7 +21,7 @@ class Token:
     #    attr = argval
     #    pattr = argrepr
     def __init__(self, type_, attr=None, pattr=None, offset=-1,
-                 linestart=None, op=None, has_arg=None):
+                 linestart=None, op=None, has_arg=None, opc=None):
         self.type = intern(type_)
         self.op = op
         self.has_arg = has_arg
@@ -29,6 +29,10 @@ class Token:
         self.pattr = pattr
         self.offset = offset
         self.linestart = linestart
+        if has_arg == False:
+            self.attr = None
+            self.pattr = None
+        self.opc = opc
 
     def __eq__(self, o):
         """ '==', but it's okay if offsets and linestarts are different"""
@@ -42,20 +46,38 @@ class Token:
     def __repr__(self):
         return str(self.type)
 
-    def __str__(self):
-        pattr = self.pattr if self.pattr is not None else ''
-        prefix = '\n%3d   ' % self.linestart if self.linestart else (' ' * 6)
-        return (prefix +
-                ('%9s  %-18s %r' % (self.offset, self.type, pattr)))
+    # def __str__(self):
+    #     pattr = self.pattr if self.pattr is not None else ''
+    #     prefix = '\n%3d   ' % self.linestart if self.linestart else (' ' * 6)
+    #     return (prefix +
+    #             ('%9s  %-18s %r' % (self.offset, self.type, pattr)))
 
-    def format(self):
-        prefix = '\n%3d   ' % self.linestart if self.linestart else (' ' * 6)
-        offset_opname = '%9s  %-18s' % (self.offset, self.type)
-        argstr = "%6d " % self.attr if isinstance(self.attr, int) else (' '*7)
-        if self.has_arg:
-            return "%s%s%s %r" % (prefix, offset_opname,  argstr, self.pattr)
-        else:
+    def __str__(self):
+        prefix = '\n%4d  ' % self.linestart if self.linestart else (' ' * 6)
+        offset_opname = '%6s  %-17s' % (self.offset, self.type)
+        if not self.has_arg:
             return "%s%s" % (prefix, offset_opname)
+        argstr = "%6d " % self.attr if isinstance(self.attr, int) else (' '*7)
+        if self.pattr:
+            pattr = self.pattr
+            if self.opc:
+                if self.op in self.opc.hasjrel:
+                    pattr = "to " + self.pattr
+                elif self.op in self.opc.hasjabs:
+                    self.pattr= str(self.pattr)
+                    if not self.pattr.startswith('to '):
+                        pattr = "to " + str(self.pattr)
+                    pass
+                elif self.op in self.opc.hascompare:
+                    if isinstance(self.attr, int):
+                        pattr = self.opc.cmp_op[self.attr]
+                # And so on. See xdis/bytecode.py get_instructions_bytes
+                pass
+        elif re.search('_\d+$', self.type):
+            return "%s%s%s" % (prefix, offset_opname,  argstr)
+        else:
+            pattr = ''
+        return "%s%s%s %r" % (prefix, offset_opname,  argstr, pattr)
 
     def __hash__(self):
         return hash(self.type)

@@ -41,14 +41,18 @@ class Scanner2(scan.Scanner):
 
     def disassemble(self, co, classname=None, code_objects={}, show_asm=None):
         """
-        Disassemble a Python 2 code object, returning a list of 'Token'.
-        Various tranformations are made to assist the deparsing grammar.
-        For example:
+        Pick out tokens from an uncompyle6 code object, and transform them,
+        returning a list of uncompyle6 'Token's.
+
+        The tranformations are made to assist the deparsing grammar.
+        Specificially:
            -  various types of LOAD_CONST's are categorized in terms of what they load
            -  COME_FROM instructions are added to assist parsing control structures
-           -  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional aruments
-        The main part of this procedure is modelled after
-        dis.disassemble().
+           -  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional arguments
+
+        Also, when we encounter certain tokens, we add them to a set which will cause custom
+        grammar rules. Specifically, variable arg tokens like MAKE_FUNCTION or BUILD_LIST
+        cause specific rules for the specific number of arguments they take.
         """
 
         show_asm = self.show_asm if not show_asm else show_asm
@@ -63,6 +67,9 @@ class Scanner2(scan.Scanner):
         tokens = []
 
         customize = {}
+        if self.is_pypy:
+            customize['PyPy'] = 1;
+
         Token = self.Token # shortcut
 
         n = self.setup_code(co)
@@ -93,10 +100,21 @@ class Scanner2(scan.Scanner):
         # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
         for i in self.op_range(0, n):
-            # We need to detect the difference between
-            # "raise AssertionError" and
-            # "assert"
-            if self.code[i] == self.opc.PJIT and self.code[i+3] == self.opc.LOAD_GLOBAL:
+            # We need to detect the difference between:
+            #   raise AssertionError
+            #  and
+            #   assert ...
+            # Below we use the heuristic that it is preceded by a POP_JUMP.
+            # however we could also use followed by RAISE_VARARGS
+            # or for PyPy there may be a JUMP_IF_NOT_DEBUG before.
+            # FIXME: remove uses of PJIF, and PJIT
+            if self.is_pypy:
+                have_pop_jump = self.code[i] in (self.opc.PJIF,
+                                                 self.opc.PJIT)
+            else:
+                have_pop_jump = self.code[i] == self.opc.PJIT
+
+            if have_pop_jump and self.code[i+3] == self.opc.LOAD_GLOBAL:
                 if names[self.get_argument(i+3)] == 'AssertionError':
                     self.load_asserts.add(i+3)
 
@@ -185,12 +203,34 @@ class Scanner2(scan.Scanner):
                     self.code[self.prev[offset]] == self.opc.LOAD_CLOSURE:
                     continue
                 else:
-                    opname = '%s_%d' % (opname, oparg)
+                    if self.is_pypy and not oparg and opname == 'BUILD_MAP':
+                        opname = 'BUILD_MAP_n'
+                    else:
+                        opname = '%s_%d' % (opname, oparg)
                     if op != self.opc.BUILD_SLICE:
                         customize[opname] = oparg
+            elif self.is_pypy and opname in ('LOOKUP_METHOD',
+                                             'JUMP_IF_NOT_DEBUG',
+                                             'SETUP_EXCEPT',
+                                             'SETUP_FINALLY'):
+                # The value in the dict is in special cases in semantic actions, such
+                # as CALL_FUNCTION. The value is not used in these cases, so we put
+                # in arbitrary value 0.
+                customize[opname] = 0
             elif op == self.opc.JUMP_ABSOLUTE:
+                # Further classify JUMP_ABSOLUTE into backward jumps
+                # which are used in loops, and "CONTINUE" jumps which
+                # may appear in a "continue" statement.  The loop-type
+                # and continue-type jumps will help us classify loop
+                # boundaries The continue-type jumps help us get
+                # "continue" statements with would otherwise be turned
+                # into a "pass" statement because JUMPs are sometimes
+                # ignored in rules as just boundary overhead. In
+                # comprehensions we might sometimes classify JUMP_BACK
+                # as CONTINUE, but that's okay since we add a grammar
+                # rule for that.
                 target = self.get_target(offset)
-                if target < offset:
+                if target <= offset:
                     if (offset in self.stmts
                         and self.code[offset+3] not in (self.opc.END_FINALLY,
                                                         self.opc.POP_BLOCK)
@@ -213,16 +253,18 @@ class Scanner2(scan.Scanner):
 
             if offset not in replace:
                 tokens.append(Token(
-                    opname, oparg, pattr, offset, linestart, op, has_arg))
+                    opname, oparg, pattr, offset, linestart, op,
+                    has_arg, self.opc))
             else:
                 tokens.append(Token(
-                    replace[offset], oparg, pattr, offset, linestart, op, has_arg))
+                    replace[offset], oparg, pattr, offset, linestart,
+                    op, has_arg, self.opc))
                 pass
             pass
 
         if show_asm in ('both', 'after'):
             for t in tokens:
-                print(t.format())
+                print(t)
             print()
         return tokens, customize
 
@@ -834,7 +876,7 @@ if __name__ == "__main__":
         from uncompyle6 import PYTHON_VERSION
         tokens, customize = Scanner2(PYTHON_VERSION).disassemble(co)
         for t in tokens:
-            print(t.format())
+            print(t)
     else:
         print("Need to be Python 3.2 or greater to demo; I am %s." %
               PYTHON_VERSION)

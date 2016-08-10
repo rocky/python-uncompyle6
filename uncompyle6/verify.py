@@ -1,6 +1,6 @@
 #
 # (C) Copyright 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-# (C) Copyright 2015 by Rocky Bernstein
+# (C) Copyright 2015-2016 by Rocky Bernstein
 #
 """
 byte-code verification
@@ -132,7 +132,7 @@ class CmpErrorMember(VerifyCmpError):
 # these members are ignored
 __IGNORE_CODE_MEMBERS__ = ['co_filename', 'co_firstlineno', 'co_lnotab', 'co_stacksize', 'co_names']
 
-def cmp_code_objects(version, code_obj1, code_obj2, name=''):
+def cmp_code_objects(version, is_pypy, code_obj1, code_obj2, name=''):
     """
     Compare two code-objects.
 
@@ -193,11 +193,19 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
                 import uncompyle6.scanners.scanner26 as scan
                 scanner = scan.Scanner26()
             elif version == 2.7:
-                import uncompyle6.scanners.scanner27 as scan
-                scanner = scan.Scanner27()
+                if is_pypy:
+                    import uncompyle6.scanners.pypy27 as scan
+                    scanner = scan.ScannerPyPy27(show_asm=False)
+                else:
+                    import uncompyle6.scanners.scanner27 as scan
+                    scanner = scan.Scanner27()
             elif version == 3.2:
-                import uncompyle6.scanners.scanner32 as scan
-                scanner = scan.Scanner32()
+                if is_pypy:
+                    import uncompyle6.scanners.pypy32 as scan
+                    scanner = scan.ScannerPyPy32()
+                else:
+                    import uncompyle6.scanners.scanner32 as scan
+                    scanner = scan.Scanner32()
             elif version == 3.3:
                 import uncompyle6.scanners.scanner33 as scan
                 scanner = scan.Scanner33()
@@ -326,7 +334,7 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
             codes2 = ( c for c in code_obj2.co_consts if hasattr(c, 'co_consts') )
 
             for c1, c2 in zip(codes1, codes2):
-                cmp_code_objects(version, c1, c2, name=name)
+                cmp_code_objects(version, is_pypy, c1, c2, name=name)
         else:
             # all other members must be equal
             if getattr(code_obj1, member) != getattr(code_obj2, member):
@@ -336,13 +344,8 @@ def cmp_code_objects(version, code_obj1, code_obj2, name=''):
 
 class Token(scanner.Token):
     """Token class with changed semantics for 'cmp()'."""
-
     def __cmp__(self, o):
         t = self.type # shortcut
-        loads = ('LOAD_NAME', 'LOAD_GLOBAL', 'LOAD_CONST')
-        if t in loads and o.type in loads:
-            if self.pattr == 'None' and o.pattr is None:
-                return 0
         if t == 'BUILD_TUPLE_0' and o.type == 'LOAD_CONST' and o.pattr == ():
             return 0
         if t == 'COME_FROM' == o.type:
@@ -373,14 +376,14 @@ def compare_code_with_srcfile(pyc_filename, src_filename):
                % (PYTHON_MAGIC_INT, magic_int))
         return msg
     code_obj2 = load_file(src_filename)
-    cmp_code_objects(version, code_obj1, code_obj2)
+    cmp_code_objects(version, is_pypy, code_obj1, code_obj2)
     return None
 
 def compare_files(pyc_filename1, pyc_filename2):
     """Compare two .pyc files."""
     version, timestamp, magic_int1, code_obj1, is_pypy = uncompyle6.load_module(pyc_filename1)
     version, timestamp, magic_int2, code_obj2, is_pypy = uncompyle6.load_module(pyc_filename2)
-    cmp_code_objects(version, code_obj1, code_obj2)
+    cmp_code_objects(version, is_pypy, code_obj1, code_obj2)
 
 if __name__ == '__main__':
     t1 = Token('LOAD_CONST', None, 'code_object _expandLang', 52)

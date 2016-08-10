@@ -12,20 +12,19 @@ Introduction
 
 *uncompyle6* translates Python bytecode back into equivalent Python
 source code. It accepts bytecodes from Python version 2.3 to 3.6 or
-so. The code requires Python 2.6 or later and has been tested on Python
-running versions 2.3-2.7, and 3.2-3.6.
+so, including PyPy bytecode.
 
 Why this?
 ---------
 
 There were a number of decompyle, uncompile, uncompyle2, uncompyle3
-forks around. All of them come basically from the same code base, and
-almost all of them no longer maintained or worked on. Only one handled
-Python 3, and even there, only 3.2. This code pulls these together,
-handles a wide range of bytecodes and addresses a number of open
-issues in previous forks.
+forks around. All of them came basically from the same code base, and
+almost all of them no were no longer actively maintained. Only one
+handled Python 3, and even there, only 3.2. This code pulls these
+together and moves forward. It also addresses a number of open issues
+in the previous forks.
 
-What makes this different from other CPython bytecode decompilers?  Its
+What makes this different from other CPython bytecode decompilers?: its
 ability to deparse just fragments and give source-code information
 around a given bytecode offset.
 
@@ -40,6 +39,13 @@ be used in showing stack traces or any program that wants to show a
 location in more detail than just a line number.  It can be also used
 when source-code information does not exist and there is just bytecode
 information.
+
+Requirements
+------------
+
+This project requires Python 2.6 or later, PyPy 3-2.4, or PyPy-5.0.1.
+The bytecode files it can read has been tested on Python bytecodes from
+versions 2.3-2.7, and 3.2-3.6 and the above-mentioned PyPy versions.
 
 Installation
 ------------
@@ -90,7 +96,7 @@ For usage help:
 Known Bugs/Restrictions
 -----------------------
 
-Python 2 deparsing decompiles and verifies from Python 2.3.7 to Python
+Python 2 deparsing decompiles and about 90% verifies from Python 2.3.7 to Python
 3.4.2 on the standard library packages I have on my system.
 
 (Verification is the process of decompiling bytecode, compiling with a

@@ -12,11 +12,17 @@ class Python27Parser(Python2Parser):
         super(Python27Parser, self).__init__(debug_parser)
         self.customized = {}
 
-    def p_list_comprehension27(self, args):
+    def p_comprehension27(self, args):
         """
         list_for ::= expr _for designator list_iter JUMP_BACK
 
-        list_compr ::= expr  BUILD_LIST_FROM_ARG _for designator list_iter JUMP_BACK
+        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
+                JUMP_BACK RETURN_VALUE RETURN_LAST
+
+        dict_comp_body ::= expr expr MAP_ADD
+        set_comp_body ::= expr SET_ADD
+
+        # See also common Python p_list_comprehension
         """
 
     def p_try27(self, args):
@@ -39,15 +45,34 @@ class Python27Parser(Python2Parser):
     def p_jump27(self, args):
         """
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM
+        bp_come_from    ::= POP_BLOCK COME_FROM
+
+        # FIXME: Common with 3.0+
         jmp_false ::= POP_JUMP_IF_FALSE
         jmp_true  ::= POP_JUMP_IF_TRUE
-        bp_come_from    ::= POP_BLOCK COME_FROM
-        """
 
+        ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
+        ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
+        ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF ret_expr_or_cond
+        ret_cond_not ::= expr POP_JUMP_IF_TRUE expr RETURN_END_IF ret_expr_or_cond
+
+        or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
+        and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
+
+        cmp_list1 ::= expr DUP_TOP ROT_THREE
+                COMPARE_OP JUMP_IF_FALSE_OR_POP
+                cmp_list1 COME_FROM
+        cmp_list1 ::= expr DUP_TOP ROT_THREE
+                COMPARE_OP JUMP_IF_FALSE_OR_POP
+                cmp_list2 COME_FROM
+        """
 
     def p_stmt27(self, args):
         """
+        # assert condition
         assert        ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
+
+        # assert condition, expr
         assert2       ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_2
 
         withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
@@ -58,11 +83,12 @@ class Python27Parser(Python2Parser):
                 POP_BLOCK LOAD_CONST COME_FROM
                 WITH_CLEANUP END_FINALLY
 
+        while1stmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM
+
         # Common with 2.6
         while1stmt ::= SETUP_LOOP return_stmts bp_come_from
         while1stmt ::= SETUP_LOOP return_stmts COME_FROM
         """
-
 
 class Python27ParserSingle(Python27Parser, PythonParserSingle):
     pass
@@ -71,3 +97,20 @@ if __name__ == '__main__':
     # Check grammar
     p = Python27Parser()
     p.checkGrammar()
+    from uncompyle6 import PYTHON_VERSION, IS_PYPY
+    if PYTHON_VERSION == 2.7:
+        lhs, rhs, tokens, right_recursive = p.checkSets()
+        from uncompyle6.scanner import get_scanner
+        s = get_scanner(PYTHON_VERSION, IS_PYPY)
+        opcode_set = set(s.opc.opname).union(set(
+            """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+               LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP
+               LAMBDA_MARKER RETURN_LAST
+            """.split()))
+        remain_tokens = set(tokens) - opcode_set
+        import re
+        remain_tokens = set([re.sub('_\d+$','', t) for t in remain_tokens])
+        remain_tokens = set([re.sub('_CONT$','', t) for t in remain_tokens])
+        remain_tokens = set(remain_tokens) - opcode_set
+        print(remain_tokens)
+        # p.dumpGrammar()

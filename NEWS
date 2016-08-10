@@ -1,3 +1,20 @@
+uncompyle6 2.8.0 2016-08-03
+
+- Start Python 3.6 support (moagstar)
+  more work on PEP 498 needed
+- tidy bytecode/word output
+- numerous decompiling bugs fixed
+- grammar testing started
+- show magic number in deparsed output
+- better grammar and semantic action segregation based
+  on python bytecode version
+
+uncompyle6 2.7.1 2016-07-26
+
+- PyPy bytecodes for 2.7 and 3.2 added
+- Instruction formatting improved slightly
+- 2.7 bytecode "continue" bug fixed
+
 uncompyle6 2.7.0 2016-07-15
 
 - Many Syntax and verifification bugs removed

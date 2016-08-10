@@ -34,7 +34,7 @@ For example in:
 
 The node will be associated with the text break, excluding the trailing newline.
 
-Note we assocate the accumulated text with the node normally, but we just don't
+Note we associate the accumulated text with the node normally, but we just don't
 do it recursively which is where offsets are probably located.
 
 2. %b
@@ -55,10 +55,9 @@ from __future__ import print_function
 
 import re, sys
 
-from uncompyle6 import PYTHON3
+from uncompyle6 import PYTHON3, IS_PYPY
 from xdis.code import iscode
 from uncompyle6.semantics import pysource
-from uncompyle6.parser import get_python_parser
 from uncompyle6 import parser
 from uncompyle6.scanner import Token, Code, get_scanner
 from uncompyle6.show import (
@@ -78,7 +77,7 @@ else:
     from StringIO import StringIO
 
 
-from spark_parser import GenericASTTraversal, GenericASTTraversalPruningException, \
+from spark_parser import GenericASTTraversalPruningException, \
      DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 from collections import namedtuple
@@ -110,37 +109,19 @@ TABLE_DIRECT_FRAGMENT = {
     }
 
 
-MAP_DIRECT_FRAGMENT = dict(TABLE_DIRECT, **TABLE_DIRECT_FRAGMENT),
-
-
 class FragmentsWalker(pysource.SourceWalker, object):
+
+    MAP_DIRECT_FRAGMENT = ()
 
     stacked_params = ('f', 'indent', 'isLambda', '_globals')
 
     def __init__(self, version, scanner, showast=False,
                  debug_parser=PARSER_DEFAULT_DEBUG,
                  compile_mode='exec', is_pypy=False):
-        GenericASTTraversal.__init__(self, ast=None)
-        self.scanner = scanner
-        params = {
-            'f': StringIO(),
-            'indent': '',
-            }
-        self.version = version
-        self.p = get_python_parser(
-            version, dict(debug_parser),
-            compile_mode=compile_mode, is_pypy=is_pypy
-        )
-        self.showast = showast
-        self.params = params
-        self.param_stack = []
-        self.ERROR = None
-        self.prec = 100
-        self.return_none = False
-        self.mod_globs = set()
-        self.currentclass = None
-        self.classes = []
-        self.pending_newlines = 0
+        pysource.SourceWalker.__init__(self, version=version, out=StringIO(),
+                                       scanner=scanner,
+                                       showast=showast, debug_parser=debug_parser,
+                                       compile_mode=compile_mode, is_pypy=is_pypy)
 
         # hide_internal suppresses displaying the additional instructions that sometimes
         # exist in code but but were not written in the source code.
@@ -150,11 +131,12 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # deparsing we generally do need to see these instructions since we may be stopped
         # at one. So here we do not want to suppress showing such instructions.
         self.hide_internal = False
-
-        self.name = None
-
         self.offsets = {}
         self.last_finish = -1
+
+        # FIXME: is there a better way?
+        global MAP_DIRECT_FRAGMENT
+        MAP_DIRECT_FRAGMENT = dict(TABLE_DIRECT, **TABLE_DIRECT_FRAGMENT),
 
     f = property(lambda s: s.params['f'],
                  lambda s, x: s.params.__setitem__('f', x),
@@ -339,7 +321,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.preorder(node[0])
             finish = len(self.f.getvalue())
             if hasattr(node[0], 'offset'):
-                self.set_pos_info(node[0], self.last_finish, )
+                self.set_pos_info(node[0], start, len(self.f.getvalue()))
             self.write(')')
             self.last_finish = finish + 1
         else:
@@ -534,7 +516,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write(func_name)
 
         self.indentMore()
-        self.make_function(node, isLambda=False, code_index=code_index)
+        self.make_function(node, isLambda=False, code=code)
 
         self.set_pos_info(node, start, len(self.f.getvalue()))
 
@@ -1613,7 +1595,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 self.set_pos_info(last_node, startnode_start, self.last_finish)
         return
 
-    def make_function(self, node, isLambda, nested=1, code_index=-2):
+    def make_function(self, node, isLambda, nested=1, code=None):
         """Dump function defintion, doc string, and function body."""
 
         def build_param(ast, name, default):
@@ -1664,7 +1646,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         if self.version > 3.0 and isLambda and iscode(node[-3].attr):
             code = node[-3].attr
         else:
-            code = node[code_index].attr
+            code = code.attr
 
         assert iscode(code)
         code = Code(code, self.scanner, self.currentclass)
@@ -1748,7 +1730,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     pass
 
 def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
-                 showgrammar=False):
+                 showgrammar=False, is_pypy=False):
     """
     Convert the code object co into a python source fragment.
 
@@ -1774,7 +1756,7 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
 
     assert iscode(co)
     # store final output stream for case of error
-    scanner = get_scanner(version)
+    scanner = get_scanner(version, is_pypy=is_pypy)
 
     tokens, customize = scanner.disassemble(co)
 
@@ -1816,10 +1798,10 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
 
 if __name__ == '__main__':
 
-    def deparse_test(co):
+    def deparse_test(co, is_pypy=IS_PYPY):
         sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
         walk = deparse_code(sys_version, co, showasm=False, showast=False,
-                            showgrammar=False)
+                            showgrammar=False, is_pypy=IS_PYPY)
         print("deparsed source")
         print(walk.text, "\n")
         print('------------------------')

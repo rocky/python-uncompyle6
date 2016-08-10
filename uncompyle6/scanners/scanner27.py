@@ -52,7 +52,7 @@ class Scanner27(Scanner2):
         # opcodes with expect a variable number pushed values whose
         # count is in the opcode. For parsing we generally change the
         # opcode name to include that number.
-        self.varargs_ops = frozenset([
+        varargs_ops = set([
             self.opc.BUILD_LIST,           self.opc.BUILD_TUPLE,
             self.opc.BUILD_SLICE,          self.opc.UNPACK_SEQUENCE,
             self.opc.MAKE_FUNCTION,        self.opc.CALL_FUNCTION,
@@ -61,6 +61,10 @@ class Scanner27(Scanner2):
             self.opc.DUP_TOPX,             self.opc.RAISE_VARARGS,
             # New in Python 2.7
             self.opc.BUILD_SET,            self.opc.BUILD_MAP])
+
+        if is_pypy:
+            varargs_ops.add(self.opc.CALL_METHOD)
+        self.varargs_ops = frozenset(varargs_ops)
 
         # "setup" opcodes
         self.setup_ops = frozenset([
@@ -104,7 +108,7 @@ if __name__ == "__main__":
         co = inspect.currentframe().f_code
         tokens, customize = Scanner27().disassemble(co)
         for t in tokens:
-            print(t.format())
+            print(t)
         pass
     else:
         print("Need to be Python 2.7 to demo; I am %s." %

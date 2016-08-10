@@ -65,7 +65,7 @@ def usage():
 
 def main_bin():
     if not (sys.version_info[0:2] in ((2, 6), (2, 7), (3, 2), (3, 3), (3, 4), (3, 5), (3, 6))):
-        print('Error: %s requires Python 2.6, 2.7, 3.2, 3.3, 3.4 or 3.5' % program,
+        print('Error: %s requires Python 2.6, 2.7, 3.2, 3.3, 3.4, 3.5, or 3.6' % program,
               file=sys.stderr)
         sys.exit(-1)
 

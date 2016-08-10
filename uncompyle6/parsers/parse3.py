@@ -17,22 +17,18 @@ that a later phase can turn into a sequence of ASCII text.
 
 from __future__ import print_function
 
-from uncompyle6.parser import PythonParser, PythonParserSingle
+from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.astnode import AST
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from uncompyle6 import PYTHON3
 
 class Python3Parser(PythonParser):
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
         self.added_rules = set()
-        if PYTHON3:
-            super().__init__(AST, 'stmts', debug=debug_parser)
-        else:
-            super(Python3Parser, self).__init__(AST, 'stmts', debug=debug_parser)
+        super(Python3Parser, self).__init__(AST, 'stmts', debug=debug_parser)
         self.new_rules = set()
 
-    def p_list_comprehension3(self, args):
+    def p_comprehension3(self, args):
         """
         # Python3 scanner adds LOAD_LISTCOMP. Python3 does list comprehension like
         # other comprehensions (set, dictionary).
@@ -50,6 +46,11 @@ class Python3Parser(PythonParser):
 
         jb_or_c ::= JUMP_BACK
         jb_or_c ::= CONTINUE
+
+        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
+                JUMP_BACK RETURN_VALUE RETURN_LAST
+        dict_comp_body ::= expr expr MAP_ADD
+        set_comp_body ::= expr SET_ADD
 
         # See also common Python p_list_comprehension
         """
@@ -89,10 +90,6 @@ class Python3Parser(PythonParser):
         raise_stmt2 ::= expr expr RAISE_VARARGS_2
         raise_stmt3 ::= expr expr expr RAISE_VARARGS_3
 
-        stmt ::= exec_stmt
-        exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
-        exec_stmt ::= expr exprlist EXEC_STMT
-
         stmt ::= assert
         stmt ::= assert2
         stmt ::= ifstmt
@@ -114,10 +111,6 @@ class Python3Parser(PythonParser):
         del_stmt ::= DELETE_FAST
         del_stmt ::= DELETE_NAME
         del_stmt ::= DELETE_GLOBAL
-        del_stmt ::= expr DELETE_SLICE+0
-        del_stmt ::= expr expr DELETE_SLICE+1
-        del_stmt ::= expr expr DELETE_SLICE+2
-        del_stmt ::= expr expr expr DELETE_SLICE+3
         del_stmt ::= delete_subscr
         delete_subscr ::= expr expr DELETE_SUBSCR
         del_stmt ::= expr DELETE_ATTR
@@ -250,6 +243,10 @@ class Python3Parser(PythonParser):
     def p_misc3(self, args):
         """
         try_middle ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY NOP COME_FROM
+        for_block ::= l_stmts
+        iflaststmtl ::= testexpr c_stmts_opt
+        iflaststmt    ::= testexpr c_stmts_opt34
+        c_stmts_opt34 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
         """
 
     def p_jump3(self, args):
@@ -258,6 +255,22 @@ class Python3Parser(PythonParser):
         come_froms ::= COME_FROM
         jmp_false ::= POP_JUMP_IF_FALSE
         jmp_true  ::= POP_JUMP_IF_TRUE
+
+        # FIXME: Common with 2.7
+        ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
+        ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
+        ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF ret_expr_or_cond
+        ret_cond_not ::= expr POP_JUMP_IF_TRUE expr RETURN_END_IF ret_expr_or_cond
+
+        or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
+        and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
+
+        cmp_list1 ::= expr DUP_TOP ROT_THREE
+                COMPARE_OP JUMP_IF_FALSE_OR_POP
+                cmp_list1 COME_FROM
+        cmp_list1 ::= expr DUP_TOP ROT_THREE
+                COMPARE_OP JUMP_IF_FALSE_OR_POP
+                cmp_list2 COME_FROM
         """
 
     def p_stmt3(self, args):
@@ -296,14 +309,6 @@ class Python3Parser(PythonParser):
 
         # In Python 2, DUP_TOP_TWO is DUP_TOPX_2
         binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
-        '''
-
-    def p_misc3(self, args):
-        '''
-        for_block ::= l_stmts
-        iflaststmtl ::= testexpr c_stmts_opt
-        iflaststmt    ::= testexpr c_stmts_opt34
-        c_stmts_opt34 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
         '''
 
     @staticmethod
@@ -360,7 +365,7 @@ class Python3Parser(PythonParser):
         call_function ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
 
         classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc {expr}^n-1 CALL_FUNCTION_n
-       """
+        """
         # Low byte indicates number of positional paramters,
         # high byte number of positional parameters
         args_pos = token.attr & 0xff
@@ -385,7 +390,7 @@ class Python3Parser(PythonParser):
 
     def add_custom_rules(self, tokens, customize):
         """
-        Special handling for opcodes that take a variable number
+        Special handling for opcodes such as those that take a variable number
         of arguments -- we add a new rule for each:
 
             unpack_list ::= UNPACK_LIST_n {expr}^n
@@ -436,31 +441,41 @@ class Python3Parser(PythonParser):
             mkfunc   ::= {pos_arg}^n [LOAD_CONST] MAKE_FUNCTION_n
             mklambda ::= {pos_arg}^n LOAD_LAMBDA [LOAD_CONST] MAKE_FUNCTION_n
 
+        For PYPY:
+            load_attr ::= expr LOOKUP_METHOD
+            call_function ::= expr CALL_METHOD
         """
+        saw_format_value = False
         for i, token in enumerate(tokens):
             opname = token.type
             opname_base = opname[:opname.rfind('_')]
 
-            if opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
-                          'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
+            if opname == 'PyPy':
+                self.addRule("""
+                    stmt ::= assign3_pypy
+                    stmt ::= assign2_pypy
+                    assign3_pypy ::= expr expr expr designator designator designator
+                    assign2_pypy ::= expr expr designator designator
+                """, nop_func)
+                continue
+            elif opname == 'FORMAT_VALUE':
+                # Python 3.6+
+                self.addRule("""
+                formatted_value ::= LOAD_FAST FORMAT_VALUE
+                formatted_value ::= LOAD_NAME FORMAT_VALUE
+                str ::= LOAD_CONST
+                formatted_value_or_str ::= formatted_value
+                formatted_value_or_str ::= str
+                """, nop_func)
+                saw_format_value = True
+
+            elif opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
+                            'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
                 self.custom_classfunc_rule(opname, token, customize)
             elif opname == 'LOAD_DICTCOMP':
                 rule_pat = ("dictcomp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 expr "
                             "GET_ITER CALL_FUNCTION_1")
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-            ## Custom rules which are handled now by the more generic rule in
-            ## either MAKE_FUNCTION or MAKE_CLOSURE
-            # elif opname == 'LOAD_GENEXPR':
-            #     rule_pat = ("genexpr ::= LOAD_GENEXPR %sMAKE_FUNCTION_0 expr "
-            #                 "GET_ITER CALL_FUNCTION_1")
-            #     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-            #     rule_pat = ("genexpr ::= load_closure LOAD_GENEXPR %sMAKE_CLOSURE_0 expr "
-            #                 "GET_ITER CALL_FUNCTION_1")
-            #     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-            # elif opname == 'LOAD_LISTCOMP':
-            #     rule_pat  = ("listcomp ::= LOAD_LISTCOMP %sMAKE_FUNCTION_0 expr "
-            #                 "GET_ITER CALL_FUNCTION_1")
-            #     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
             elif opname == 'LOAD_SETCOMP':
                 # Should this be generalized and put under MAKE_FUNCTION?
                 rule_pat = ("setcomp ::= LOAD_SETCOMP %sMAKE_FUNCTION_0 expr "
@@ -476,9 +491,49 @@ class Python3Parser(PythonParser):
                 if opname_base == 'BUILD_TUPLE':
                     rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
+                if opname_base == 'BUILD_LIST' and saw_format_value:
+                    format_or_str_n = "formatted_value_or_str_%s" % v
+                    self.addRule("""
+                    expr ::= joined_str
+                    joined_str ::=  LOAD_CONST LOAD_ATTR %s CALL_FUNCTION_1
+                    %s ::= %s%s
+                    """ % (format_or_str_n, format_or_str_n, ("formatted_value_or_str " *v), opname),
+                                 nop_func)
+
+            elif opname == 'LOOKUP_METHOD':
+                # A PyPy speciality - DRY with parse2
+                self.add_unique_rule("load_attr ::= expr LOOKUP_METHOD",
+                                     opname, token.attr, customize)
+                continue
+            elif opname == 'JUMP_IF_NOT_DEBUG':
+                self.add_unique_rule(
+                    "stmt ::= assert_pypy", opname, v, customize)
+                self.add_unique_rule(
+                    "stmt ::= assert2_pypy", opname_base, v, customize)
+                self.add_unique_rule(
+                    "assert_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true "
+                    "LOAD_ASSERT RAISE_VARARGS_1 COME_FROM",
+                    opname, token.attr, customize)
+                self.add_unique_rule(
+                    "assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true "
+                    "LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1 COME_FROM",
+                    opname_base, v, customize)
+                continue
             elif opname_base == 'BUILD_MAP':
                 kvlist_n = "kvlist_%s" % token.attr
-                if self.version >= 3.5:
+                if opname == 'BUILD_MAP_n':
+                    # PyPy sometimes has no count. Sigh.
+                    rule = ('dictcomp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER designator '
+                            'comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST')
+                    self.add_unique_rule(rule, 'dictomp_func', 1, customize)
+
+                    kvlist_n = 'kvlist_n'
+                    rule = 'kvlist_n ::=  kvlist_n kv3'
+                    self.add_unique_rule(rule, 'kvlist_n', 0, customize)
+                    rule = 'kvlist_n ::='
+                    self.add_unique_rule(rule, 'kvlist_n', 1, customize)
+                    rule = "mapexpr ::=  BUILD_MAP_n kvlist_n"
+                elif self.version >= 3.5:
                     rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
                     self.add_unique_rule(rule, opname, token.attr, customize)
                     rule = "mapexpr ::=  %s %s" % (kvlist_n, opname)
@@ -523,6 +578,17 @@ class Python3Parser(PythonParser):
                     rule = ('mkfunc ::= kwargs %sexpr %s' %
                             ('pos_arg ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname_base == 'CALL_METHOD':
+                # PyPy only - DRY with parse2
+                args_pos = (token.attr & 0xff)          # positional parameters
+                args_kw = (token.attr >> 8) & 0xff      # keyword parameters
+                # number of apply equiv arguments:
+                nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
+                rule = ('call_function ::= expr '
+                        + ('pos_arg ' * args_pos)
+                        + ('kwarg ' * args_kw)
+                        + 'expr ' * nak + token.type)
+                self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname.startswith('MAKE_CLOSURE'):
                 # DRY with MAKE_FUNCTION
                 # Note: this probably doesn't handle kwargs proprerly
@@ -566,6 +632,7 @@ class Python3Parser(PythonParser):
 
 
 class Python32Parser(Python3Parser):
+
     def p_32(self, args):
         """
         # Store locals is only in Python 3.0 to 3.3
@@ -585,95 +652,6 @@ class Python33Parser(Python3Parser):
         yield_from ::= expr expr YIELD_FROM
         """
 
-class Python35onParser(Python3Parser):
-    def p_35on(self, args):
-        """
-        # Python 3.5+ has WITH_CLEANUP_START/FINISH
-
-        withstmt ::= expr SETUP_WITH exprlist suite_stmts_opt
-                    POP_BLOCK LOAD_CONST COME_FROM
-                    WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
-
-        withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
-                     POP_BLOCK LOAD_CONST COME_FROM
-                     WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
-
-        withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
-                POP_BLOCK LOAD_CONST COME_FROM
-                WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
-
-        inplace_op ::= INPLACE_MATRIX_MULTIPLY
-        binary_op  ::= BINARY_MATRIX_MULTIPLY
-
-        # Python 3.5+ does jump optimization
-        # In <.3.5 the below is a JUMP_FORWARD to a JUMP_ABSOLUTE.
-        # in return_stmt, we will need the semantic actions in pysource.py
-        # to work out whether to dedent or not based on the presence of
-        # RETURN_END_IF vs RETURN_VALUE
-
-        ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
-        return_stmt ::= ret_expr RETURN_END_IF
-
-
-        # Python 3.3+ also has yield from. 3.5 does it
-        # differently than 3.3, 3.4
-
-        expr ::= yield_from
-        yield_from ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
-
-        # Python 3.4+ has more loop optimization that removes
-        # JUMP_FORWARD in some cases, and hence we also don't
-        # see COME_FROM
-        _ifstmts_jump ::= c_stmts_opt
-
-        """
-
-
-class Python36Parser(Python3Parser):
-
-    def p_36(self, args):
-        """
-
-        # Python 3.5+ has WITH_CLEANUP_START/FINISH
-
-        withstmt ::= expr SETUP_WITH exprlist suite_stmts_opt
-                    POP_BLOCK LOAD_CONST COME_FROM
-                    WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
-
-        withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
-                     POP_BLOCK LOAD_CONST COME_FROM
-                     WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
-
-        withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
-                POP_BLOCK LOAD_CONST COME_FROM
-                WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
-
-        inplace_op ::= INPLACE_MATRIX_MULTIPLY
-        binary_op  ::= BINARY_MATRIX_MULTIPLY
-
-        # Python 3.5+ does jump optimization
-        # In <.3.5 the below is a JUMP_FORWARD to a JUMP_ABSOLUTE.
-        # in return_stmt, we will need the semantic actions in pysource.py
-        # to work out whether to dedent or not based on the presence of
-        # RETURN_END_IF vs RETURN_VALUE
-
-        ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
-        return_stmt ::= ret_expr RETURN_END_IF
-
-
-        # Python 3.3+ also has yield from. 3.5 does it
-        # differently than 3.3, 3.4
-
-        expr ::= yield_from
-        yield_from ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
-
-        # Python 3.4+ has more loop optimization that removes
-        # JUMP_FORWARD in some cases, and hence we also don't
-        # see COME_FROM
-        _ifstmts_jump ::= c_stmts_opt
-        """
-
-
 class Python3ParserSingle(Python3Parser, PythonParserSingle):
     pass
 
@@ -685,21 +663,15 @@ class Python32ParserSingle(Python32Parser, PythonParserSingle):
 class Python33ParserSingle(Python33Parser, PythonParserSingle):
     pass
 
-class Python35onParserSingle(Python35onParser, PythonParserSingle):
-    pass
-
-class Python36ParserSingle(Python36Parser, PythonParserSingle):
-    pass
-
 def info(args):
     # Check grammar
     # Should also add a way to dump grammar
-    import sys
     p = Python3Parser()
     if len(args) > 0:
         arg = args[0]
         if arg == '3.5':
-            p = Python35onParser()
+            from uncompyle6.parser.parse35 import Python35Parser
+            p = Python35Parser()
         elif arg == '3.3':
             p = Python33Parser()
         elif arg == '3.2':

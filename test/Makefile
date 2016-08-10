@@ -48,15 +48,18 @@ check-disasm:
 
 #: Check deparsing bytecode 2.x only
 check-bytecode-2:
-	$(PYTHON) test_pythonlib.py --bytecode-2.3 --bytecode-2.4 --bytecode-2.5 --bytecode-2.6 --bytecode-2.7
+	$(PYTHON) test_pythonlib.py --bytecode-2.3 --bytecode-2.4 \
+        --bytecode-2.5 --bytecode-2.6 --bytecode-2.7 --bytecode-pypy2.7
 
 #: Check deparsing bytecode 3.x only
 check-bytecode-3:
-	$(PYTHON) test_pythonlib.py --bytecode-3.2 --bytecode-3.3 --bytecode-3.4 --bytecode-3.5 --bytecode-3.6
+	$(PYTHON) test_pythonlib.py --bytecode-3.2 --bytecode-3.3 \
+       --bytecode-3.4 --bytecode-3.5 --bytecode-3.6 --bytecode-pypy3.2
 
 #: Check deparsing bytecode that works running Python 2 and Python 3
 check-bytecode: check-bytecode-3
-	$(PYTHON) test_pythonlib.py --bytecode-2.3 --bytecode-2.4 --bytecode-2.5 --bytecode-2.6 --bytecode-2.7
+	$(PYTHON) test_pythonlib.py --bytecode-2.3 --bytecode-2.4 \
+        --bytecode-2.5 --bytecode-2.6 --bytecode-2.7 --bytecode-pypy2.7
 
 #: Check deparsing Python 2.3
 check-bytecode-2.3:
@@ -117,6 +120,18 @@ check-3.2-ok:
 #: Run longer Python 3.4's lib files known to be okay
 check-3.4-ok:
 	$(PYTHON) test_pythonlib.py --ok-3.4 --verify $(COMPILE)
+
+#: PyPy of some sort. E.g. [PyPy 5.0.1 with GCC 4.8.4]
+# Skip for now
+2.6:
+
+#: PyPy 5.0.x with Python 2.7 ...
+pypy-2.7 5.0 5.3:
+	$(PYTHON) test_pythonlib.py --bytecode-pypy2.7 --verify
+
+#: PyPy 2.4.x with Python 3.2 ...
+pypy-3.2 2.4:
+	$(PYTHON) test_pythonlib.py --bytecode-pypy3.2 --verify
 
 clean: clean-py-dis clean-dis clean-unverified
 
