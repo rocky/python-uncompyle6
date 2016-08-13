@@ -21,6 +21,8 @@ class Scanner25(scan.Scanner26):
     def __init__(self, show_asm):
         # There are no differences in initialization between
         # 2.5 and 2.6
+        self.opc = opcode_25
+        self.opname = opcode_25.opname
         scan.Scanner26.__init__(self, show_asm)
         self.version = 2.5
         return

@@ -22,6 +22,8 @@ class Scanner24(scan.Scanner25):
         scan.Scanner25.__init__(self, show_asm)
         # These are the only differences in initialization between
         # 2.4, 2.5 and 2.6
+        self.opc = opcode_24
+        self.opname = opcode_24.opname
         self.version = 2.4
         self.genexpr_name = '<generator expression>';
         return

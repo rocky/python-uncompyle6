@@ -1,8 +1,8 @@
 #  Copyright (c) 2016 by Rocky Bernstein
 """
-Python 2.4 bytecode scanner/deparser
+Python 2.3 bytecode scanner/deparser
 
-This overlaps Python's 2.4's dis module, but it can be run from
+This overlaps Python's 2.3's dis module, but it can be run from
 Python 3 and other versions of Python. Also, we save token
 information for later use in deparsing.
 """
@@ -20,6 +20,8 @@ JUMP_OPs = opcode_23.JUMP_OPs
 class Scanner23(scan.Scanner24):
     def __init__(self, show_asm):
         scan.Scanner24.__init__(self, show_asm)
+        self.opc = opcode_23
+        self.opname = opcode_23.opname
         # These are the only differences in initialization between
         # 2.3-2.6
         self.version = 2.3

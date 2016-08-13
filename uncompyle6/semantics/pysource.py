@@ -329,7 +329,9 @@ TABLE_DIRECT = {
     'kv':		( '%c: %c', 3, 1 ),
     'kv2':		( '%c: %c', 1, 2 ),
     'mapexpr':		( '{%[1]C}', (0, maxint, ', ') ),
-
+    'importstmt': ( '%|import %c\n', 2),
+    'importfrom': ( '%|from %[2]{pattr} import %c\n', 3 ),
+    'importstar': ( '%|from %[2]{pattr} import *\n', ),
 }
 
 
@@ -560,14 +562,12 @@ class SourceWalker(GenericASTTraversal, object):
                 'importfrom20':	( '%|from %[1]{pattr} import %c\n', 2 ),
                 'importlist20':	( '%C', (0, maxint, ', ') ),
                 })
+
         elif version >= 2.5:
             ########################
             # Import style for 2.5+
             ########################
             TABLE_DIRECT.update({
-                'importstmt': ( '%|import %c\n', 2),
-                'importstar': ( '%|from %[2]{pattr} import *\n', ),
-                'importfrom': ( '%|from %[2]{pattr} import %c\n', 3 ),
                 'importmultiple': ( '%|import %c%c\n', 2, 3 ),
                 'import_cont'   : ( ', %c', 2 ),
             })

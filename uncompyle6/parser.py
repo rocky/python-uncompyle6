@@ -269,9 +269,6 @@ class PythonParser(GenericASTBuilder):
         """
         _for ::= GET_ITER FOR_ITER
 
-        # Possibly before Python 2.3
-        # _for ::= LOAD_CONST FOR_LOOP
-
         for_block ::= l_stmts_opt _come_from JUMP_BACK
         for_block ::= return_stmts _come_from
 
@@ -546,7 +543,13 @@ def get_python_parser(
 
     # FIXME: there has to be a better way...
     if version < 3.0:
-        if version == 2.3:
+        if version == 2.2:
+            import uncompyle6.parsers.parse22 as parse22
+            if compile_mode == 'exec':
+                p = parse22.Python22Parser(debug_parser)
+            else:
+                p = parse22.Python22ParserSingle(debug_parser)
+        elif version == 2.3:
             import uncompyle6.parsers.parse23 as parse23
             if compile_mode == 'exec':
                 p = parse23.Python23Parser(debug_parser)
