@@ -1,4 +1,5 @@
 # test
+import pytest
 import hypothesis
 from hypothesis import strategies as st
 # uncompyle6
@@ -84,8 +85,8 @@ def fstrings(draw):
 
     :return: A valid f-string.
     """
-    prefix = draw(st.sampled_from('fF'))
-    raw = draw(st.sampled_from(list('rR') + ['']))
+    prefix = draw(st.sampled_from('f'))
+    raw = draw(st.sampled_from(list('r') + ['']))
     integer_strategy = st.integers(min_value=0, max_value=3)
     expression_count = draw(integer_strategy)
     content = []
@@ -93,10 +94,10 @@ def fstrings(draw):
         expression = draw(expressions())
         #conversion = draw(st.sampled_from(('', '!s', '!r', '!a',)))
         #specifier = draw(st.sampled_from(format_specifiers(), st.just('')))
-        content.append(f'{{{expression}}}')
+        content.append('{{{}}}'.format(expression))
     content = ''.join(content)
 
-    return f"{prefix}{raw}'{content}'"
+    return "{}{}'{}'".format(prefix, raw, content)
 
 
 @hypothesis.given(format_specifiers())
@@ -109,10 +110,20 @@ def test_format_specifiers(format_specifier):
             raise
 
 
+@pytest.mark.skipif(PYTHON_VERSION < 3.6, reason="requires python3.6")
 @hypothesis.given(fstrings())
+@hypothesis.example("f'{abc}'")                # BUG: strings with a single expression do not uncompyle correctly.
+@hypothesis.example("fr'{abc}{xyz}'")          # BUG: no support for raw f strings.
+@hypothesis.example("f'{len(items)}{abc}'")    # BUG: more complicated expressions than LOAD_NAME don't work
 def test_uncompyle_fstring(fstring):
     """Verify uncompyling fstring bytecode"""
-    hypothesis.assume('{' in fstring)  # ignore fstring with no expressions
-    expr = f'{fstring}\n'
+
+    # ignore fstring with no expressions an fsring with
+    # no expressions just gets compiled to a normal string.
+    hypothesis.assume('{' in fstring)
+
+    expr = fstring + '\n'
     code = compile(expr, '<string>', 'single')
-    assert deparse_code(PYTHON_VERSION, code, compile_mode='single').text == expr
+    deparsed = deparse_code(PYTHON_VERSION, code, compile_mode='single')
+
+    assert deparsed.text == expr
