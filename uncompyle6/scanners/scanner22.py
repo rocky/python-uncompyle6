@@ -8,6 +8,7 @@ information for later use in deparsing.
 """
 
 import uncompyle6.scanners.scanner23 as scan
+# from uncompyle6.scanners.scanner26 import disassemble as  disassemble26
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_22
@@ -24,4 +25,11 @@ class Scanner22(scan.Scanner23):
         self.opname = opcode_22.opname
         self.version = 2.2
         self.genexpr_name = '<generator expression>';
+        self.parent_injest = self.disassemble
+        self.disassemble = self.disassemble22
         return
+
+    def disassemble22(self, co, classname=None, code_objects={}, show_asm=None):
+        tokens, customize = self.parent_injest(co, classname, code_objects, show_asm)
+        tokens = [t for t in tokens if t.type != 'SET_LINENO']
+        return tokens, customize

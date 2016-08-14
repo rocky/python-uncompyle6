@@ -13,7 +13,6 @@ class Python22Parser(Python23Parser):
 
     def p_misc22(self, args):
         '''
-	stmt ::= SET_LINENO
         _for ::= LOAD_CONST FOR_LOOP
         '''
 

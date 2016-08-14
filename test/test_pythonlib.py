@@ -78,7 +78,8 @@ for  vers in (2.7, 3.4, 3.5, 3.6):
     test_options[key] = (os.path.join(src_dir, pythonlib), PYOC, key, vers)
     pass
 
-for  vers in (2.3, 2.4, 2.5, 2.6, 2.7, 3.2, 3.3, 3.4, 3.5, 3.6, 'pypy3.2', 'pypy2.7'):
+for  vers in (2.2, 2.3, 2.4, 2.5, 2.6, 2.7,
+              3.2, 3.3, 3.4, 3.5, 3.6, 'pypy3.2', 'pypy2.7'):
     bytecode = "bytecode_%s" % vers
     key = "bytecode-%s" % vers
     test_options[key] =  (bytecode, PYC, bytecode, vers)
