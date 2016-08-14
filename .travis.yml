@@ -1,6 +1,7 @@
 language: python
 
 sudo: false
+cache: pip
 
 python:
   - '3.5'
