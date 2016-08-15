@@ -1730,8 +1730,7 @@ class SourceWalker(GenericASTTraversal, object):
         %c, %C, and so on.
         """
 
-        # self.println("-----")
-        # self.print(startnode)
+        # self.println("----> ", startnode.type)
 
         fmt = entry[0]
         arg = 1
@@ -1850,11 +1849,10 @@ class SourceWalker(GenericASTTraversal, object):
                 continue
             op = k[ :k.rfind('_') ]
 
-            if k == 'CALL_METHOD':
+            if k.startswith('CALL_METHOD'):
                 # This happens in PyPy only
                 TABLE_R[k] = ('%c(%P)', 0, (1, -1, ', ', 100))
-
-            if op == 'CALL_FUNCTION':
+            elif op == 'CALL_FUNCTION':
                 TABLE_R[k] = ('%c(%P)', 0, (1, -1, ', ', 100))
             elif op in ('CALL_FUNCTION_VAR',
                         'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
