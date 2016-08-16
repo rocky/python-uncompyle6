@@ -409,7 +409,7 @@ class Python2Parser(PythonParser):
                        + 'expr ' * nak + opname
             elif opname_base == 'CALL_METHOD':
                 # PyPy only - DRY with parse3
-                args_pos = (v & 0xff)           # positional parameters
+                args_pos = (v & 0xff)          # positional parameters
                 args_kw = (v >> 8) & 0xff      # keyword parameters
                 # number of apply equiv arguments:
                 nak = ( len(opname_base)-len('CALL_METHOD') ) // 3

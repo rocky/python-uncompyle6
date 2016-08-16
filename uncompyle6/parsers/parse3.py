@@ -581,14 +581,17 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base == 'CALL_METHOD':
                 # PyPy only - DRY with parse2
+
+                # FIXME: The below argument parsing will be wrong when PyPy gets to 3.6
                 args_pos = (token.attr & 0xff)          # positional parameters
                 args_kw = (token.attr >> 8) & 0xff      # keyword parameters
+
                 # number of apply equiv arguments:
                 nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
                 rule = ('call_function ::= expr '
                         + ('pos_arg ' * args_pos)
                         + ('kwarg ' * args_kw)
-                        + 'expr ' * nak + token.type)
+                        + 'expr ' * nak + opname)
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname.startswith('MAKE_CLOSURE'):
                 # DRY with MAKE_FUNCTION
