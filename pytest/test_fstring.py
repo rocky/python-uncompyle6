@@ -103,6 +103,7 @@ def fstrings(draw):
     return "f{}'{}'".format('r' if is_raw else '', content)
 
 
+@pytest.mark.skipif(PYTHON_VERSION < 3.6, reason='need at least python 3.6')
 @hypothesis.given(format_specifiers())
 def test_format_specifiers(format_specifier):
     """Verify that format_specifiers generates valid specifiers"""
