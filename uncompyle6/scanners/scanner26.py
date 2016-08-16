@@ -79,6 +79,7 @@ class Scanner26(scan.Scanner2):
         '''
 
         show_asm = self.show_asm if not show_asm else show_asm
+        # show_asm = 'both'
         if show_asm in ('both', 'before'):
             from xdis.bytecode import Bytecode
             bytecode = Bytecode(co, self.opc)
@@ -160,7 +161,8 @@ class Scanner26(scan.Scanner2):
                                  self.opc.IMPORT_STAR))
         # Changes IMPORT_NAME to IMPORT_NAME_CONT.
         # Possibly a Python 2.0 hangover
-        if len(imports) > 1 and self.version < 2.3:
+        # FIXME: Move into a < 2.2 scanner.
+        if len(imports) > 1 and self.version < 2.2:
             last_import = imports[0]
             for i in imports[1:]:
                 if self.lines[last_import].next > i:
