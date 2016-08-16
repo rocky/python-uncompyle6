@@ -381,7 +381,8 @@ class Scanner2(scan.Scanner):
                 j = self.prev[s]
                 while code[j] == self.opc.JUMP_ABSOLUTE:
                     j = self.prev[j]
-                if code[j] == self.opc.LIST_APPEND: # list comprehension
+                if (self.version >= 2.3 and
+                    code[j] == self.opc.LIST_APPEND): # list comprehension
                     stmts.remove(s)
                     continue
             elif code[s] == self.opc.POP_TOP and code[self.prev[s]] == self.opc.ROT_TWO:
