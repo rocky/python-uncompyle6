@@ -461,8 +461,8 @@ class Python3Parser(PythonParser):
             elif opname == 'FORMAT_VALUE':
                 # Python 3.6+
                 self.addRule("""
-                formatted_value ::= LOAD_FAST FORMAT_VALUE
-                formatted_value ::= LOAD_NAME FORMAT_VALUE
+                formatted_value ::= expr FORMAT_VALUE
+                formatted_value ::= expr FORMAT_VALUE
                 str ::= LOAD_CONST
                 formatted_value_or_str ::= formatted_value
                 formatted_value_or_str ::= str
@@ -492,6 +492,7 @@ class Python3Parser(PythonParser):
                     rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
                 if opname_base == 'BUILD_LIST' and saw_format_value:
+                    saw_format_value = False
                     format_or_str_n = "formatted_value_or_str_%s" % v
                     self.addRule("""
                     expr ::= joined_str
