@@ -1,0 +1,136 @@
+# std
+import os
+# test
+import pytest
+import hypothesis
+from hypothesis import strategies as st
+# uncompyle6
+from uncompyle6 import PYTHON_VERSION, deparse_code
+
+
+@st.composite
+def expressions(draw):
+    # todo : would be nice to generate expressions using hypothesis however
+    # this is pretty involved so for now just use a corpus of expressions
+    # from which to select.
+    return draw(st.sampled_from((
+        'abc',
+        'len(items)',
+        'x + 1',
+        'lineno',
+        'container',
+        'self.attribute',
+        'self.method()',
+        'sorted(items, key=lambda x: x.name)',
+        'func(*args, **kwargs)',
+        'text or default',
+    )))
+
+
+@st.composite
+def format_specifiers(draw):
+    """
+    Generate a valid format specifier using the rules:
+
+    format_spec ::=  [[fill]align][sign][#][0][width][,][.precision][type]
+    fill        ::=  <any character>
+    align       ::=  "<" | ">" | "=" | "^"
+    sign        ::=  "+" | "-" | " "
+    width       ::=  integer
+    precision   ::=  integer
+    type        ::=  "b" | "c" | "d" | "e" | "E" | "f" | "F" | "g" | "G" | "n" | "o" | "s" | "x" | "X" | "%"
+
+    See https://docs.python.org/2/library/string.html
+
+    :param draw: Let hypothesis draw from other strategies.
+
+    :return: An example format_specifier.
+    """
+    alphabet_strategy = st.characters(min_codepoint=ord('a'), max_codepoint=ord('z'))
+    fill = draw(st.one_of(alphabet_strategy, st.none()))
+    align = draw(st.sampled_from(list('<>=^')))
+    fill_align = (fill + align or '') if fill else ''
+
+    type_ = draw(st.sampled_from('bcdeEfFgGnosxX%'))
+    can_have_sign = type_ in 'deEfFgGnoxX%'
+    can_have_comma = type_ in 'deEfFgG%'
+    can_have_precision = type_ in 'fFgG'
+    can_have_pound = type_ in 'boxX%'
+    can_have_zero = type_ in 'oxX'
+
+    sign = draw(st.sampled_from(list('+- ') + [''])) if can_have_sign else ''
+    pound = draw(st.sampled_from(('#', '',))) if can_have_pound else ''
+    zero = draw(st.sampled_from(('0', '',))) if can_have_zero else ''
+
+    int_strategy = st.integers(min_value=1, max_value=1000)
+
+    width = draw(st.one_of(int_strategy, st.none()))
+    width = str(width) if width is not None else ''
+
+    comma = draw(st.sampled_from((',', '',))) if can_have_comma else ''
+    if can_have_precision:
+        precision = draw(st.one_of(int_strategy, st.none()))
+        precision = '.' + str(precision) if precision else ''
+    else:
+        precision = ''
+
+    return ''.join((fill_align, sign, pound, zero, width, comma, precision, type_,))
+
+
+@st.composite
+def fstrings(draw):
+    """
+    Generate a valid f-string.
+    See https://www.python.org/dev/peps/pep-0498/#specification
+
+    :param draw: Let hypothsis draw from other strategies.
+
+    :return: A valid f-string.
+    """
+    is_raw = draw(st.booleans())
+    integer_strategy = st.integers(min_value=0, max_value=3)
+    expression_count = draw(integer_strategy)
+    content = []
+    for _ in range(expression_count):
+        expression = draw(expressions())
+        # not yet : conversion not supported
+        conversion = ''#draw(st.sampled_from(('', '!s', '!r', '!a',)))
+        has_specifier = draw(st.booleans())
+        specifier = ':' + draw(format_specifiers()) if has_specifier else ''
+        content.append('{{{}{}}}'.format(expression, conversion, specifier))
+    content = ''.join(content)
+
+    return "f{}'{}'".format('r' if is_raw else '', content)
+
+
+@pytest.mark.skipif(PYTHON_VERSION < 3.6, reason='need at least python 3.6')
+@hypothesis.given(format_specifiers())
+def test_format_specifiers(format_specifier):
+    """Verify that format_specifiers generates valid specifiers"""
+    try:
+        exec('"{:' + format_specifier + '}".format(0)')
+    except ValueError as e:
+        if 'Unknown format code' not in str(e):
+            raise
+
+
+@pytest.mark.skipif(PYTHON_VERSION < 3.6, reason='need at least python 3.6')
+@hypothesis.given(fstrings())
+def test_uncompyle_fstring(fstring):
+    """Verify uncompyling fstring bytecode"""
+
+    # ignore fstring with no expressions an fsring with
+    # no expressions just gets compiled to a normal string.
+    hypothesis.assume('{' in fstring)
+
+    # BUG : At the moment a single expression is not supported
+    # for example f'{abc}'.
+    hypothesis.assume(fstring.count('{') > 1)
+
+    expr = fstring + '\n'
+    code = compile(expr, '<string>', 'single')
+    deparsed = deparse_code(PYTHON_VERSION, code, compile_mode='single')
+    recompiled = compile(deparsed.text, '<string>', 'single')
+
+    if recompiled != code:
+        assert deparsed.text == expr
