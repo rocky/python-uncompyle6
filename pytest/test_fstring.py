@@ -94,7 +94,7 @@ def fstrings(draw):
     for _ in range(expression_count):
         expression = draw(expressions())
         # not yet : conversion not supported
-        conversion = ''#draw(st.sampled_from(('', '!s', '!r', '!a',)))
+        conversion = draw(st.sampled_from(('', '!s', '!r', '!a',)))
         has_specifier = draw(st.booleans())
         specifier = ':' + draw(format_specifiers()) if has_specifier else ''
         content.append('{{{}{}}}'.format(expression, conversion, specifier))

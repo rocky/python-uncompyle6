@@ -445,7 +445,7 @@ class Python3Parser(PythonParser):
             load_attr ::= expr LOOKUP_METHOD
             call_function ::= expr CALL_METHOD
         """
-        saw_format_value = False
+        formatted_value_or_strs = ''
         for i, token in enumerate(tokens):
             opname = token.type
             opname_base = opname[:opname.rfind('_')]
@@ -460,13 +460,16 @@ class Python3Parser(PythonParser):
                 continue
             elif opname == 'FORMAT_VALUE':
                 # Python 3.6+
-                self.addRule("""
-                formatted_value ::= expr FORMAT_VALUE
-                str ::= LOAD_CONST
-                formatted_value_or_str ::= formatted_value
-                formatted_value_or_str ::= str
-                """, nop_func)
-                saw_format_value = True
+                conversion = {1: '_s', 2: '_r', 3: '_a'}.get(token.attr, '')
+                formatted_value = 'formatted_value%s' % conversion
+                formatted_value_or_str = 'formatted_value_or_str%s' % conversion
+                formatted_value_or_strs += formatted_value_or_str + ' '
+                rule = """
+                    %s ::= expr FORMAT_VALUE
+                    str ::= LOAD_CONST
+                    %s ::= %s
+                """ % (formatted_value, formatted_value_or_str, formatted_value)
+                self.addRule(rule, nop_func)
 
             elif opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
                             'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
@@ -490,14 +493,15 @@ class Python3Parser(PythonParser):
                 if opname_base == 'BUILD_TUPLE':
                     rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
-                if opname_base == 'BUILD_LIST' and saw_format_value:
+                if opname_base == 'BUILD_LIST' and formatted_value_or_strs:
                     format_or_str_n = "formatted_value_or_str_%s" % v
                     self.addRule("""
                     expr ::= joined_str
                     joined_str ::=  LOAD_CONST LOAD_ATTR %s CALL_FUNCTION_1
                     %s ::= %s%s
-                    """ % (format_or_str_n, format_or_str_n, ("formatted_value_or_str " *v), opname),
+                    """ % (format_or_str_n, format_or_str_n, formatted_value_or_strs, opname),
                                  nop_func)
+                    formatted_value_or_strs = ''
 
             elif opname == 'LOOKUP_METHOD':
                 # A PyPy speciality - DRY with parse2
