@@ -1,6 +1,147 @@
+2016-08-20  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/version.py: Get ready for release 2.8.1
+
+2016-08-16  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug22/05_test_yield.py,
+	uncompyle6/scanners/scanner2.py: Python 2.2 doesn't have opcode
+	LIST_APPEND
+
+2016-08-16  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner26.py: Python 2.2 scanner bug: don't
+	mung IMPORT_NAME op
+
+2016-08-16  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug_pypy27/02_call_method.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py: Small
+	pypy LOOKUP_METHOD cleanups
+
+2016-08-16  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #49 from moagstar/master Fixed a bug with FORMAT_VALUE with sub expressions.
+
+2016-08-16  DanielBradburn <moagstar@gmail.com>
+
+	* pytest/test_fstring.py, uncompyle6/parsers/parse3.py: Fixed bug
+	with FORMAT_VALUE where a sub expression would not be correctly
+	interpreted
+
+2016-08-14  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py: xdis 2.1.1 removes some bugs encountered here
+
+2016-08-14  rocky <rb@dustyfeet.com>
+
+	* : commit a65443ee0225933367be9c7640629298882532c9 Author: rocky
+	<rb@dustyfeet.com> Date:   Sun Aug 14 22:59:34 2016 -0400
+
+2016-08-14  DanielBradburn <moagstar@gmail.com>
+
+	* pytest/test_fstring.py: added examples for known failures
+
+2016-08-14  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #45 from rocky/revert-43-patch-1 Revert "Cache pip installation in travis"
+
+2016-08-14  R. Bernstein <rocky@users.noreply.github.com>
+
+	* .travis.yml: Revert "Test with latest PyPy in Travis"
+
+2016-08-14  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #44 from thedrow/patch-2 Test with latest PyPy in Travis
+
+2016-08-14  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #43 from thedrow/patch-1 Cache pip installation in travis
+
+2016-08-13  rocky <rb@dustyfeet.com>
+
+	* test/Makefile: Back off of 3.6 testing for now
+
+2016-08-13  rocky <rb@dustyfeet.com>
+
+	* : commit 7ccbd419c6b26e8ae9d0929f1bfddedebce6bbaf Author: rocky
+	<rb@dustyfeet.com> Date:   Sat Aug 13 20:25:19 2016 -0400
+
+2016-08-13  rocky <rb@dustyfeet.com>
+
+	* test/Makefile: I said - we test 2.2 now.
+
+2016-08-13  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/simple_source/stmts/00_import.py,
+	test/test_pythonlib.py: Include Python 2.2 in testing
+
+2016-08-13  rocky <rb@dustyfeet.com>
+
+	* README.rst, uncompyle6/parser.py, uncompyle6/parsers/parse22.py,
+	uncompyle6/scanner.py, uncompyle6/scanners/scanner22.py,
+	uncompyle6/scanners/scanner23.py, uncompyle6/scanners/scanner24.py,
+	uncompyle6/scanners/scanner25.py, uncompyle6/semantics/pysource.py: 
+	Start handling Python 2.2 bytecode and...  Fix some bugs in Python 2.3-2.5 bytecode handling
+
+2016-08-11  Omer Katz <omer.drow@gmail.com>
+
+	* .travis.yml: Test with latest PyPy.
+
+2016-08-11  Omer Katz <omer.drow@gmail.com>
+
+	* .travis.yml: Cache pip installation
+
+2016-08-10  DanielBradburn <moagstar@gmail.com>
+
+	* pytest/test_fstring.py: small formatting change
+
+2016-08-10  DanielBradburn <moagstar@gmail.com>
+
+	* pytest/test_fstring.py, requirements-dev.txt: added hypothesis to
+	requirements-dev
+
+2016-08-10  DanielBradburn <moagstar@gmail.com>
+
+	* pytest/test_fstring.py: added hypothesis test (currently failing
+	due to limited support) for testing fstring uncompyling
+
+2016-08-10  Daniel Bradburn <moagstar@gmail.com>
+
+	* : Merge pull request #2 from rocky/master Merging pypy and cpython 3.6 from rocky
+
 2016-08-03  rocky <rb@dustyfeet.com>
 
-	* uncompyle6/version.py: Get ready for release 2.8.0
+	* : commit 109e813058380630bda82014eee94a9089cc4666 Author: rocky
+	<rb@dustyfeet.com> Date:   Wed Aug 3 08:07:47 2016 -0400
+
+2016-08-01  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, requirements.txt: Need recent xdis fix for 3.6
+	wordcode
+
+2016-08-01  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug36/01_fstring.py: Add Python 3.6
+	formatted_str test
+
+2016-08-01  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #41 from rocky/3.6 Move forward on moagstar's Python 3.6 support
+
+2016-08-01  rocky <rb@dustyfeet.com>
+
+	* Makefile, README.rst, test/Makefile, test/test_pythonlib.py,
+	uncompyle6/bin/uncompile.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse36.py, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner36.py, uncompyle6/semantics/aligner.py,
+	uncompyle6/semantics/pysource.py, uncompyle6/verify.py: Moagstar's
+	3.6 wordcode + formattedValue rules
+
+2016-07-30  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/aligner.py: WIP try to keep line numbers the
+	same
 
 2016-07-29  rocky <rb@dustyfeet.com>
 
@@ -11,6 +152,16 @@
 	* uncompyle6/parsers/parse35.py, uncompyle6/scanner.py,
 	uncompyle6/scanners/scanner3.py, uncompyle6/semantics/pysource.py: 
 	Fix 3.5 misclassifying RETURN_VALUE We use location of SETUP_EXCEPT instructions to disambiguate.
+
+2016-07-28  Daniel Bradburn <moagstar@gmail.com>
+
+	* README.rst, test/Makefile, test/bytecode_3.6/fstring.py,
+	test/bytecode_3.6/fstring_single.py, test/test_pythonlib.py,
+	uncompyle6/bin/uncompile.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner36.py, uncompyle6/semantics/pysource.py,
+	uncompyle6/verify.py: Starting adding python 3.6 support to
+	uncompyle
 
 2016-07-28  rocky <rb@dustyfeet.com>
 
@@ -213,9 +364,9 @@
 	uncompyle6/scanners/scanner3.py, uncompyle6/semantics/pysource.py: 
 	PyPy support * Use proper PYPY 32 opcodes * handle opcodes LOOKUP_METHOD and CALL_METHOD * Administrative stuff for PyPy
 
-2016-07-24  rocky <rb@dustyfeet.com>
+2016-07-24  Daniel Bradburn <moagstar@gmail.com>
 
-	* test/add-test.py: add-test: Make sure PyPy bytecode is separated
+	* : Merge pull request #1 from rocky/master Syncing with rocky
 
 2016-07-24  rocky <rb@dustyfeet.com>
 

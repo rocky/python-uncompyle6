@@ -1,3 +1,11 @@
+uncompyle6 2.8.1 2016-08-20
+
+- Add Python 2.2 decompilation
+
+- Fix bugs
+ * PyPy LOOKUP_METHOD bug
+ * Python 3.6 FORMAT_VALUE handles expressions now
+
 uncompyle6 2.8.0 2016-08-03
 
 - Start Python 3.6 support (moagstar)
