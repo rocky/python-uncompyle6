@@ -52,10 +52,9 @@ class Scanner3(Scanner):
         # Note: super initilization above initializes self.opc
 
         # Opcodes that can start a statement.
-        self.statement_opcodes = frozenset([
+        statement_opcodes = [
             self.opc.SETUP_LOOP,    self.opc.BREAK_LOOP, self.opc.CONTINUE_LOOP,
             self.opc.SETUP_FINALLY, self.opc.END_FINALLY, self.opc.SETUP_EXCEPT,
-            self.opc.SETUP_WITH,
             self.opc.POP_BLOCK,     self.opc.STORE_FAST, self.opc.DELETE_FAST,
             self.opc.STORE_DEREF,
 
@@ -67,7 +66,12 @@ class Scanner3(Scanner):
 
             self.opc.RETURN_VALUE, self.opc.RAISE_VARARGS, self.opc.POP_TOP,
             self.opc.PRINT_EXPR,   self.opc.JUMP_ABSOLUTE
-        ])
+        ]
+
+        if version >= 3.2:
+            statement_opcodes.append(self.opc.SETUP_WITH)
+
+        self.statement_opcodes = frozenset(statement_opcodes)
 
         # Opcodes that can start a designator non-terminal.
         # FIXME: JUMP_ABSOLUTE is weird. What's up with that?

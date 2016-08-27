@@ -635,6 +635,15 @@ class Python3Parser(PythonParser):
         return
 
 
+class Python31Parser(Python3Parser):
+
+    def p_31(self, args):
+        """
+        # Store locals is only in Python 3.0 to 3.3
+        stmt ::= store_locals
+        store_locals ::= LOAD_FAST STORE_LOCALS
+        """
+
 class Python32Parser(Python3Parser):
 
     def p_32(self, args):
@@ -659,6 +668,9 @@ class Python33Parser(Python3Parser):
 class Python3ParserSingle(Python3Parser, PythonParserSingle):
     pass
 
+
+class Python31ParserSingle(Python31Parser, PythonParserSingle):
+    pass
 
 class Python32ParserSingle(Python32Parser, PythonParserSingle):
     pass
