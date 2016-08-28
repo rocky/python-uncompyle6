@@ -337,9 +337,11 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2, name=''):
             for c1, c2 in zip(codes1, codes2):
                 cmp_code_objects(version, is_pypy, c1, c2, name=name)
         elif member == 'co_flags':
-            # For PYPY for now we don't care about PYPY_SOURCE_IS_UTF8:
-            flags1 = code_obj1.co_flags | 0x0100  # PYPY_SOURCE_IS_UTF8
+            flags1 = code_obj1.co_flags
             flags2 = code_obj2.co_flags
+            if is_pypy:
+                # For PYPY for now we don't care about PYPY_SOURCE_IS_UTF8:
+                flags2 &= ~0x0100  # PYPY_SOURCE_IS_UTF8
             if flags1 != flags2:
                 raise CmpErrorMember(name, 'co_flags',
                                      pretty_flags(flags1),
