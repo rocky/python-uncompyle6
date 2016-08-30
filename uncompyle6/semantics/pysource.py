@@ -278,7 +278,6 @@ TABLE_DIRECT = {
 
     'raise_stmt0':	( '%|raise\n', ),
     'raise_stmt1':	( '%|raise %c\n', 0),
-    'raise_stmt2':	( '%|raise %c, %c\n', 0, 1),
     'raise_stmt3':	( '%|raise %c, %c, %c\n', 0, 1, 2),
 #    'yield':	( 'yield %c', 0),
 #    'return_stmt':	( '%|return %c\n', 0),
@@ -547,7 +546,16 @@ class SourceWalker(GenericASTTraversal, object):
                 'DELETE_SLICE+1':	( '%|del %c[%c:]\n', 0, 1 ),
                 'DELETE_SLICE+2':	( '%|del %c[:%c]\n', 0, 1 ),
                 'DELETE_SLICE+3':	( '%|del %c[%c:%c]\n', 0, 1, 2 ),
-        })
+            })
+            TABLE_DIRECT.update({
+                'raise_stmt2':	( '%|raise %c, %c\n', 0, 1),
+            })
+        else:
+            # Gotta love Python for its futzing around with syntax like this
+            TABLE_DIRECT.update({
+                'raise_stmt2':	( '%|raise %c from %c\n', 0, 1),
+            })
+
 
         if 2.0 <= version <= 2.3:
             TABLE_DIRECT.update({

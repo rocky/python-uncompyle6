@@ -1,3 +1,10 @@
+uncompyle6 2.8.2 2016-08-29
+
+- Handle Python 3.6 format string conversions !r, !s, !a
+- Start to handle 3.1 bytecode
+- Fix some PyPy translation bugs
+- We now only handle 3.6.0a3+ since that is incompatible with 3.6 before that
+
 uncompyle6 2.8.1 2016-08-20
 
 - Add Python 2.2 decompilation
