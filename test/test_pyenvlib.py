@@ -111,11 +111,13 @@ if __name__ == '__main__':
     test_options_keys = list(test_options.keys())
     test_options_keys.sort()
     opts, args = getopt.getopt(sys.argv[1:], '',
-                               ['start-with=', 'verify', 'all', ] \
+                               ['start-with=', 'verify', 'weak-verify', 'all', ] \
                                + test_options_keys )
     for opt, val in opts:
         if opt == '--verify':
             do_verify = True
+        if opt == '--weak-verify':
+            do_verify = 'weak'
         elif opt == '--start-with':
             start_with = val
         elif opt[2:] in test_options_keys:

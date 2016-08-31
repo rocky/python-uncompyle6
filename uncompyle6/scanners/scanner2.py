@@ -438,7 +438,7 @@ class Scanner2(scan.Scanner):
             elif op in self.setup_ops:
                 count_SETUP_ += 1
 
-    def detect_structure(self, pos, op=None):
+    def detect_structure(self, pos, op):
         '''
         Detect type of block structures and their boundaries to fix optimized jumps
         in python2.3+
@@ -447,26 +447,23 @@ class Scanner2(scan.Scanner):
         # TODO: check the struct boundaries more precisely -Dan
 
         code = self.code
-        # Ev remove this test and make op a mandatory argument -Dan
-        if op is None:
-            op = code[pos]
 
         # Detect parent structure
         parent = self.structs[0]
         start  = parent['start']
         end    = parent['end']
-        for s in self.structs:
-            _start = s['start']
-            _end   = s['end']
+        for struct in self.structs:
+            _start = struct['start']
+            _end   = struct['end']
             if (_start <= pos < _end) and (_start >= start and _end <= end):
                 start  = _start
                 end    = _end
-                parent = s
+                parent = struct
 
         if op == self.opc.SETUP_LOOP:
 
             # We categorize loop types: 'for', 'while', 'while 1' with
-            # possibly suffices '-loop' and '-else'
+            # possibly suffixes '-loop' and '-else'
             # Try to find the jump_back instruction of the loop.
             # It could be a return instruction.
 
@@ -803,30 +800,31 @@ class Scanner2(scan.Scanner):
         self.return_end_ifs = set()
 
         targets = {}
-        for i in self.op_range(0, n):
-            op = self.code[i]
+        for offset in self.op_range(0, n):
+            op = self.code[offset]
 
             # Determine structures and fix jumps in Python versions
             # since 2.3
-            self.detect_structure(i, op)
+            self.detect_structure(offset, op)
 
             if op >= self.opc.HAVE_ARGUMENT:
-                label = self.fixed_jumps.get(i)
-                oparg = self.get_argument(i)
+                label = self.fixed_jumps.get(offset)
+                oparg = self.get_argument(offset)
+
                 if label is None:
                     if op in self.opc.hasjrel and op != self.opc.FOR_ITER:
-                        label = i + 3 + oparg
+                        label = offset + 3 + oparg
                     elif self.version == 2.7 and op in self.opc.hasjabs:
                         if op in (self.opc.JUMP_IF_FALSE_OR_POP,
                                   self.opc.JUMP_IF_TRUE_OR_POP):
-                            if (oparg > i):
+                            if (oparg > offset):
                                 label = oparg
 
                 if label is not None and label != -1:
-                    targets[label] = targets.get(label, []) + [i]
-            elif op == self.opc.END_FINALLY and i in self.fixed_jumps:
-                label = self.fixed_jumps[i]
-                targets[label] = targets.get(label, []) + [i]
+                    targets[label] = targets.get(label, []) + [offset]
+            elif op == self.opc.END_FINALLY and offset in self.fixed_jumps:
+                label = self.fixed_jumps[offset]
+                targets[label] = targets.get(label, []) + [offset]
         return targets
 
     # FIXME: combine with scanner3.py code and put into scanner.py

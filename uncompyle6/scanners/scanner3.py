@@ -415,7 +415,7 @@ class Scanner3(Scanner):
 
                 if label is None:
                     if op in op3.hasjrel and op != self.opc.FOR_ITER:
-                        label = offset + self.op_size(op) + oparg
+                        label = offset + 3 + oparg
                     elif op in op3.hasjabs:
                         if op in self.jump_if_pop:
                             if oparg > offset:
@@ -547,6 +547,12 @@ class Scanner3(Scanner):
                 parent = struct
 
         if op == self.opc.SETUP_LOOP:
+
+            # We categorize loop types: 'for', 'while', 'while 1' with
+            # possibly suffixes '-loop' and '-else'
+            # Try to find the jump_back instruction of the loop.
+            # It could be a return instruction.
+
             start = offset+3
             target = self.get_target(offset)
             end    = self.restrict_to_parent(target, parent)
@@ -679,8 +685,7 @@ class Scanner3(Scanner):
                             self.fixed_jumps[offset] = fix or match[-1]
                             return
                     else:
-                        if is_jump_forward:
-                            self.fixed_jumps[offset] = match[-1]
+                        self.fixed_jumps[offset] = match[-1]
                         return
             # op == POP_JUMP_IF_TRUE
             else:

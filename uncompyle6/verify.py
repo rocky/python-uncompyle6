@@ -133,7 +133,8 @@ class CmpErrorMember(VerifyCmpError):
 # these members are ignored
 __IGNORE_CODE_MEMBERS__ = ['co_filename', 'co_firstlineno', 'co_lnotab', 'co_stacksize', 'co_names']
 
-def cmp_code_objects(version, is_pypy, code_obj1, code_obj2, name=''):
+def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
+                     name='', ignore_code=False):
     """
     Compare two code-objects.
 
@@ -178,9 +179,9 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2, name=''):
 
     tokens1 = None
     for member in members:
-        if member in __IGNORE_CODE_MEMBERS__:
+        if member in __IGNORE_CODE_MEMBERS__ or ignore_code:
             pass
-        elif member == 'co_code':
+        elif member == 'co_code' and not ignore_code:
             if version == 2.3:
                 import uncompyle6.scanners.scanner23 as scan
                 scanner = scan.Scanner26()
@@ -379,7 +380,7 @@ class Token(scanner.Token):
     def __str__(self):
         return '%s\t%-17s %r' % (self.offset, self.type, self.pattr)
 
-def compare_code_with_srcfile(pyc_filename, src_filename):
+def compare_code_with_srcfile(pyc_filename, src_filename, weak_verify=False):
     """Compare a .pyc with a source code file."""
     version, timestamp, magic_int, code_obj1, is_pypy = load_module(pyc_filename)
     if magic_int != PYTHON_MAGIC_INT:
@@ -387,14 +388,14 @@ def compare_code_with_srcfile(pyc_filename, src_filename):
                % (PYTHON_MAGIC_INT, magic_int))
         return msg
     code_obj2 = load_file(src_filename)
-    cmp_code_objects(version, is_pypy, code_obj1, code_obj2)
+    cmp_code_objects(version, is_pypy, code_obj1, code_obj2, ignore_code=weak_verify)
     return None
 
-def compare_files(pyc_filename1, pyc_filename2):
+def compare_files(pyc_filename1, pyc_filename2, weak_verify=False):
     """Compare two .pyc files."""
     version, timestamp, magic_int1, code_obj1, is_pypy = uncompyle6.load_module(pyc_filename1)
     version, timestamp, magic_int2, code_obj2, is_pypy = uncompyle6.load_module(pyc_filename2)
-    cmp_code_objects(version, is_pypy, code_obj1, code_obj2)
+    cmp_code_objects(version, is_pypy, code_obj1, code_obj2, ignore_code=weak_verify)
 
 if __name__ == '__main__':
     t1 = Token('LOAD_CONST', None, 'code_object _expandLang', 52)

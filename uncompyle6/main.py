@@ -147,8 +147,9 @@ def main(in_base, out_base, files, codes, outfile=None,
             if outfile:
                 outstream.close()
                 if do_verify:
+                    weak_verify = do_verify == 'weak'
                     try:
-                        msg = verify.compare_code_with_srcfile(infile, outfile)
+                        msg = verify.compare_code_with_srcfile(infile, outfile, weak_verify=weak_verify)
                         if not outfile:
                             if not msg:
                                 print('\n# okay decompiling %s' % infile)
