@@ -2010,8 +2010,12 @@ class SourceWalker(GenericASTTraversal, object):
         params.reverse() # back to correct order
 
         if 4 & code.co_flags:	# flag 2 -> variable number of args
-            params.append('*%s' % code.co_varnames[argc])
+            if self.version > 3.0:
+                params.append('*%s' % code.co_varnames[argc + args_node.attr[1]])
+            else:
+                params.append('*%s' % code.co_varnames[argc])
             argc += 1
+
         if 8 & code.co_flags:	# flag 3 -> keyword args
             params.append('**%s' % code.co_varnames[argc])
             argc += 1
@@ -2025,10 +2029,15 @@ class SourceWalker(GenericASTTraversal, object):
             # self.println(indent, '#flags:\t', int(code.co_flags))
 
         if kw_args > 0:
-            if argc > 0:
-                self.write(", *, ")
+            if not (4 & code.co_flags):
+                if argc > 0:
+                    self.write(", *, ")
+                else:
+                    self.write("*, ")
+                pass
             else:
-                self.write("*, ")
+                self.write(", ")
+
             for n in node:
                 if n == 'pos_arg':
                     continue
