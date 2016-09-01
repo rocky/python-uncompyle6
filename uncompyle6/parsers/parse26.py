@@ -16,9 +16,10 @@ class Python26Parser(Python2Parser):
 
     def p_try_except26(self, args):
         """
+        except_stmt  ::= except_cond3 except_suite
         except_cond1 ::= DUP_TOP expr COMPARE_OP
                          JUMP_IF_FALSE POP_TOP POP_TOP POP_TOP POP_TOP
-        except_cond2 ::= DUP_TOP expr COMPARE_OP
+        except_cond3 ::= DUP_TOP expr COMPARE_OP
                          JUMP_IF_FALSE POP_TOP POP_TOP designator POP_TOP
 
         # Might be a bug from when COME_FROM wasn't properly handled

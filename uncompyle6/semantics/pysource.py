@@ -319,7 +319,6 @@ TABLE_DIRECT = {
     'tryfinallystmt':	( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 5 ),
     'except':           ( '%|except:\n%+%c%-', 3 ),
     'except_cond1':	( '%|except %c:\n', 1 ),
-    'except_cond2':	( '%|except %c as %c:\n', 1, 5 ),
     'except_suite':     ( '%+%c%-%C', 0, (1, maxint, '') ),
     'except_suite_finalize':     ( '%+%c%-%C', 1, (3, maxint, '') ),
     'withstmt':     ( '%|with %c:\n%+%c%-', 0, 3),
@@ -579,6 +578,25 @@ class SourceWalker(GenericASTTraversal, object):
                 'importmultiple': ( '%|import %c%c\n', 2, 3 ),
                 'import_cont'   : ( ', %c', 2 ),
             })
+
+        ########################################
+        # Python 2.6+
+        #    except <condition> as <var>
+        # vs. older:
+        #    except <condition> , <var>
+        #
+        # For 2.6 we use the older syntax which
+        # matches how we parse this in bytecode
+        ########################################
+        if version > 2.6:
+            TABLE_DIRECT.update({
+                'except_cond2':	( '%|except %c as %c:\n', 1, 5 ),
+            })
+        else:
+            TABLE_DIRECT.update({
+                'except_cond3':	( '%|except %c, %c:\n', 1, 6 ),
+            })
+
 
         ##########################
         # Python 3.2 and 3.3 only
