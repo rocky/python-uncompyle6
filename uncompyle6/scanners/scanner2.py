@@ -56,12 +56,17 @@ class Scanner2(scan.Scanner):
         """
 
         show_asm = self.show_asm if not show_asm else show_asm
-        # show_asm = 'before'
+        # show_asm = 'both'
         if show_asm in ('both', 'before'):
             from xdis.bytecode import Bytecode
             bytecode = Bytecode(co, self.opc)
             for instr in bytecode.get_instructions(co):
                 print(instr._disassemble())
+
+        # from xdis.bytecode import Bytecode
+        # bytecode = Bytecode(co, self.opc)
+        # for instr in bytecode.get_instructions(co):
+        #     print(instr._disassemble())
 
         # Container for tokens
         tokens = []
@@ -77,7 +82,7 @@ class Scanner2(scan.Scanner):
         self.build_lines_data(co, n)
         self.build_prev_op(n)
 
-        # self.lines contains (block,addrLastInstr)
+        # class and names
         if classname:
             classname = '_' + classname.lstrip('_') + '__'
 
@@ -120,6 +125,7 @@ class Scanner2(scan.Scanner):
 
         cf = self.find_jump_targets()
         # contains (code, [addrRefToCode])
+
         last_stmt = self.next_stmt[0]
         i = self.next_stmt[last_stmt]
         replace = {}
@@ -316,7 +322,7 @@ class Scanner2(scan.Scanner):
         self.lines = []
         linetuple = namedtuple('linetuple', ['l_no', 'next'])
 
-        # linestarts is a tuple of (offset, line number).
+        # self.linestarts is a tuple of (offset, line number).
         # Turn that in a has that we can index
         self.linestarts = list(self.opc.findlinestarts(co))
         self.linestartoffsets = {}
@@ -382,12 +388,15 @@ class Scanner2(scan.Scanner):
                 while code[j] == self.opc.JUMP_ABSOLUTE:
                     j = self.prev[j]
                 if (self.version >= 2.3 and
-                    code[j] == self.opc.LIST_APPEND): # list comprehension
+                    self.opc.opname[code[j]] == 'LIST_APPEND'): # list comprehension
                     stmts.remove(s)
                     continue
-            elif code[s] == self.opc.POP_TOP and code[self.prev[s]] == self.opc.ROT_TWO:
-                stmts.remove(s)
-                continue
+            elif code[s] == self.opc.POP_TOP:
+                prev = code[self.prev[s]]
+                if (prev == self.opc.ROT_TWO or
+                    self.version <= 2.6 and prev == self.opc.JUMP_IF_FALSE):
+                    stmts.remove(s)
+                    continue
             elif code[s] in self.designator_ops:
                 j = self.prev[s]
                 while code[j] in self.designator_ops:
@@ -654,7 +663,7 @@ class Scanner2(scan.Scanner):
                                        'end':   pre[target]})
                 return
 
-            # Is it an "and" inside an "if" block
+            # Is it an "and" inside an "if" or "while" block
             if op == self.opc.PJIF:
                 # Search for other POP_JUMP_IF_FALSE targetting the same op,
                 # in current statement, starting from current offset, and filter
