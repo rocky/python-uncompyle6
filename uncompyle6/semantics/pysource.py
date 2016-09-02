@@ -2021,21 +2021,19 @@ class SourceWalker(GenericASTTraversal, object):
             return
 
         # build parameters
-
         params = [build_param(ast, name, default) for
                   name, default in zip_longest(paramnames, defparams, fillvalue=None)]
 
         params.reverse() # back to correct order
 
+        kw_pairs = 0
+
         if 4 & code.co_flags:	# flag 2 -> variable number of args
             if self.version > 3.0:
-                params.append('*%s' % code.co_varnames[argc + args_node.attr[1]])
+                kw_pairs = args_node.attr[1]
+                params.append('*%s' % code.co_varnames[argc + kw_pairs])
             else:
                 params.append('*%s' % code.co_varnames[argc])
-            argc += 1
-
-        if 8 & code.co_flags:	# flag 3 -> keyword args
-            params.append('**%s' % code.co_varnames[argc])
             argc += 1
 
         # dump parameter list (with default values)
@@ -2062,6 +2060,11 @@ class SourceWalker(GenericASTTraversal, object):
                 self.preorder(n)
                 break
             pass
+
+        if 8 & code.co_flags:	# flag 3 -> keyword args
+            if argc > 0:
+                self.write(', ')
+            self.write('**%s' % code.co_varnames[argc + kw_pairs])
 
         if isLambda:
             self.write(": ")

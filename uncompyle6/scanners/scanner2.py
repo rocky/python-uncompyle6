@@ -392,9 +392,15 @@ class Scanner2(scan.Scanner):
                     stmts.remove(s)
                     continue
             elif code[s] == self.opc.POP_TOP:
+                # The POP_TOP in:
+                #   ROT_TWO, POP_TOP or
+                #   JUMP_IF_{FALSE,TRUE}, POP_TOP
+                # is part of the previous instruction and not the
+                # beginning of a new statement
                 prev = code[self.prev[s]]
                 if (prev == self.opc.ROT_TWO or
-                    self.version <= 2.6 and prev == self.opc.JUMP_IF_FALSE):
+                    self.version <= 2.6 and prev in
+                    (self.opc.JUMP_IF_FALSE, self.opc.JUMP_IF_TRUE)):
                     stmts.remove(s)
                     continue
             elif code[s] in self.designator_ops:
