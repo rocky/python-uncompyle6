@@ -1,4 +1,5 @@
-This is the changelog from *decompyle*'s release 2.4 passed on by Dan Pascu
+This is the changelog from *decompyle*'s release 2.4 and before
+passed on by Dan Pascu
 
 
 release 2.4 (Dan Pascu)
@@ -74,3 +75,57 @@ release 2.2beta1 (hartmut Goebel)
   - use a single Walker and a single Parser, thus saving time and memory
   - use augmented assign and 'print >>' internally
   - optimized 'Walker.engine', the main part of code generation
+release 0.6.0: (hartmut Goebel)
+  - extended print (Python 2.0)
+  - extended import (Python 2.0) (may not cover all cases)
+  - augmented assign (Python 2.0) (may not cover all cases)
+  - list comprehensions (Python 2.0)
+  - equivalent for 'apply' (Python 1.6)
+  - if .. elif .. else are now nested as expected
+  - assert test, data
+  - unpack list corrected (was the same as unpack tuple)
+  - fixed unpack tuple (trailing semicolon was missing)
+  - major speed up :-)
+  - reduced memory usage (pre-alpha-0.5 has increased it a lot)
+  - still missing: EXTENDED_ARG
+
+pre-alpha-0.5: (hartmut Goebel)
+  - *args, **kwargs
+  - global
+  - formal tuple parameters (eg. def a(self, (x,y,z)) )
+  - actual lambda parameters (eg.  X(lambda z: z**2) )
+  - remove last 'return None' in procedures
+  - remove last 'return locals()' in class definitions
+  - docstrings
+
+pre-alpha-0.4: (hartmut Goebel)
+  - assert
+  - try/except/finally
+  - parentheses in expressions
+  - nested expressions
+  - extracted dissassemble() from module dis and
+    removed ugly redirect of stdout, thus saved a lot of
+    ugly code and a lot of memory
+
+pre-alpha-0.3: (hartmut Goebel)
+  - keyword arguments
+  - some boolean expressions
+  - and/or
+  - complex conditions in if/while
+  - read byte-code from .pyc without importing
+  - access to the body of classes and modules
+  - class and function definitions
+  - a = b = c = xxx
+
+pre-alpha-0.1 -> pre-alpha-0.2:
+  -  SET_LINENO filtered out in lexer now
+  -  added support for subscripts (just for Christian Tismer :-)
+  -  fixed bug with handling of BUILD_{LIST,TUPLE} & CALL_FUNCTION
+  -  dict-building support
+  -  comparison support
+  -  exec support
+  -  del support
+  -  pass support
+  -  slice support
+  -  no more extraneous (albeit legal) commas
+  -  finally, it excepts try [sic] but not all 42 variations of it
