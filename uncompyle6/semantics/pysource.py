@@ -456,7 +456,7 @@ def find_all_globals(node, globs):
 def find_none(node):
     for n in node:
         if isinstance(n, AST):
-            if not (n == 'return_stmt' or n == 'return_if_stmt'):
+            if not n in ('return_stmt', 'return_if_stmt'):
                 if find_none(n):
                     return True
         elif n.type == 'LOAD_CONST' and n.pattr is None:
@@ -772,13 +772,30 @@ class SourceWalker(GenericASTTraversal, object):
                 self.println( indent, line )
             self.println(indent, trimmed[-1], quote)
 
+    def is_return_none(self, node):
+        # Is there a better way?
+        if self.version <= 2.6:
+            return (node == 'return_stmt'
+                    and node[0] == 'ret_expr'
+                    and node[0][0] == 'expr'
+                    and node[0][0][0] == 'LOAD_CONST'
+                    and node[0][0][0].pattr is None)
+        else:
+            # FIXME: should the AST expression be folded into
+            # the global RETURN_NONE constant?
+            node == AST('return_stmt',
+                        [AST('ret_expr', [NONE]), Token('RETURN_VALUE')])
+
     def n_return_stmt(self, node):
         if self.params['isLambda']:
             self.preorder(node[0])
             self.prune()
         else:
             self.write(self.indent, 'return')
-            if self.return_none or node != AST('return_stmt', [AST('ret_expr', [NONE]), Token('RETURN_VALUE')]):
+            # One reason we worry over whether we use "return None" or "return"
+            # is that inside a generator, "return None" is illegal.
+            # Thank you, Python!
+            if (self.return_none or not self.is_return_none(node)):
                 self.write(' ')
                 self.preorder(node[0])
             self.println()
@@ -2089,7 +2106,8 @@ class SourceWalker(GenericASTTraversal, object):
         for g in ((all_globals & self.mod_globs) | find_globals(ast, set())):
             self.println(self.indent, 'global ', g)
         self.mod_globs -= all_globals
-        rn = ('None' in code.co_names) and not find_none(ast)
+        has_none = 'None' in code.co_names
+        rn = has_none and not find_none(ast)
         self.gen_source(ast, code.co_name, code._customize, isLambda=isLambda,
                         returnNone=rn)
         code._tokens = None; code._customize = None # save memory
