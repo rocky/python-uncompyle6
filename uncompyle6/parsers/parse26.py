@@ -199,9 +199,12 @@ class Python26Parser(Python2Parser):
         '''
         ret_and  ::= expr jmp_false ret_expr_or_cond COME_FROM
         ret_or   ::= expr jmp_true ret_expr_or_cond COME_FROM
-        ret_cond ::= expr jmp_false expr RETURN_END_IF come_from_pop ret_expr_or_cond
+        ret_cond ::= expr jmp_false expr RETURN_END_IF POP_TOP ret_expr_or_cond
         ret_cond ::= expr jmp_false expr ret_expr_or_cond
-        ret_cond_not ::= expr jmp_true expr RETURN_END_IF come_from_pop ret_expr_or_cond
+        ret_cond_not ::= expr jmp_true expr RETURN_END_IF POP_TOP ret_expr_or_cond
+
+        return_if_stmt ::= ret_expr RETURN_END_IF POP_TOP
+        return_stmt ::= ret_expr RETURN_VALUE POP_TOP
 
         # FIXME: split into Python 2.5
         ret_or   ::= expr jmp_true ret_expr_or_cond come_froms

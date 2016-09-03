@@ -393,14 +393,16 @@ class Scanner2(scan.Scanner):
                     continue
             elif code[s] == self.opc.POP_TOP:
                 # The POP_TOP in:
-                #   ROT_TWO, POP_TOP or
-                #   JUMP_IF_{FALSE,TRUE}, POP_TOP
+                #   ROT_TWO, POP_TOP,
+                #   RETURN_xxx, POP_TOP (in 2.6-), or
+                #   JUMP_IF_{FALSE,TRUE}, POP_TOP  (in 2.6-)
                 # is part of the previous instruction and not the
                 # beginning of a new statement
                 prev = code[self.prev[s]]
                 if (prev == self.opc.ROT_TWO or
                     self.version <= 2.6 and prev in
-                    (self.opc.JUMP_IF_FALSE, self.opc.JUMP_IF_TRUE)):
+                    (self.opc.JUMP_IF_FALSE, self.opc.JUMP_IF_TRUE,
+                     self.opc.RETURN_VALUE)):
                     stmts.remove(s)
                     continue
             elif code[s] in self.designator_ops:
@@ -793,12 +795,11 @@ class Scanner2(scan.Scanner):
 
     def find_jump_targets(self):
         '''
-        Detect all offsets in a byte code which are jump targets.
+        Detect all offsets in a byte code which are jump targets
+        where we might insert a COME_FROM instruction.
 
-        Return the list of offsets.
-
-        This procedure is modelled after dis.findlabels(), but here
-        for each target the number of jumps are counted.
+        Return the list of offsets. An instruction can be jumped
+        to in from multiple instructions.
         '''
 
         n = len(self.code)
@@ -836,7 +837,14 @@ class Scanner2(scan.Scanner):
                                 label = oparg
 
                 if label is not None and label != -1:
-                    targets[label] = targets.get(label, []) + [offset]
+                    # In Python <= 2.6, the POP_TOP in:
+                    #   RETURN_VALUE, POP_TOP
+                    # does now start a new statement
+                    # Otherwise, we have want to add a "COME_FROM"
+                    if not (self.version <= 2.6 and
+                            self.code[label] == self.opc.POP_TOP and
+                            self.code[self.prev[label]] == self.opc.RETURN_VALUE):
+                        targets[label] = targets.get(label, []) + [offset]
             elif op == self.opc.END_FINALLY and offset in self.fixed_jumps:
                 label = self.fixed_jumps[offset]
                 targets[label] = targets.get(label, []) + [offset]
