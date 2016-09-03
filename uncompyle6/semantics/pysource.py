@@ -774,17 +774,19 @@ class SourceWalker(GenericASTTraversal, object):
 
     def is_return_none(self, node):
         # Is there a better way?
+        ret = (node == 'return_stmt'
+               and node[0] == 'ret_expr'
+               and node[0][0] == 'expr'
+               and node[0][0][0] == 'LOAD_CONST'
+               and node[0][0][0].pattr is None)
         if self.version <= 2.6:
-            return (node == 'return_stmt'
-                    and node[0] == 'ret_expr'
-                    and node[0][0] == 'expr'
-                    and node[0][0][0] == 'LOAD_CONST'
-                    and node[0][0][0].pattr is None)
+            return ret
         else:
             # FIXME: should the AST expression be folded into
             # the global RETURN_NONE constant?
-            node == AST('return_stmt',
-                        [AST('ret_expr', [NONE]), Token('RETURN_VALUE')])
+            return (ret or
+                    node == AST('return_stmt',
+                                [AST('ret_expr', [NONE]), Token('RETURN_VALUE')]))
 
     def n_return_stmt(self, node):
         if self.params['isLambda']:
