@@ -642,15 +642,16 @@ class Scanner2(scan.Scanner):
                 self.fixed_jumps[i] = i+1
 
         elif op in self.pop_jump_if:
-            start = pos+3
             target = self.get_target(pos, op)
             rtarget = self.restrict_to_parent(target, parent)
-            pre = self.prev
 
             # Do not let jump to go out of parent struct bounds
             if target != rtarget and parent['type'] == 'and/or':
                 self.fixed_jumps[pos] = rtarget
                 return
+
+            start = pos+3
+            pre = self.prev
 
             # Does this jump to right after another conditional jump that is
             # not myself?  If so, it's part of a larger conditional.
@@ -673,13 +674,11 @@ class Scanner2(scan.Scanner):
 
             # Is it an "and" inside an "if" or "while" block
             if op == self.opc.PJIF:
+
                 # Search for other POP_JUMP_IF_FALSE targetting the same op,
                 # in current statement, starting from current offset, and filter
                 # everything inside inner 'or' jumps and midline ifs
                 match = self.rem_or(start, self.next_stmt[pos], self.opc.PJIF, target)
-                ## We can't remove mid-line ifs because line structures have changed
-                ## from restructBytecode().
-                ##  match = self.remove_mid_line_ifs(match)
 
                 # If we still have any offsets in set, start working on it
                 if match:
@@ -714,9 +713,12 @@ class Scanner2(scan.Scanner):
                             self.fixed_jumps[pos] = fix or match[-1]
                             return
                     else:
-                        self.fixed_jumps[pos] = match[-1]
+                        if self.version < 2.7 and parent['type'] == 'root':
+                            self.fixed_jumps[pos] = rtarget
+                        else:
+                            self.fixed_jumps[pos] = match[-1]
                         return
-            else: # op == self.opc.PJIT
+            else: # op != self.opc.PJIT
                 if self.version < 2.7 and code[pos+3] == self.opc.POP_TOP:
                     assert_pos = pos + 4
                 else:
@@ -835,6 +837,8 @@ class Scanner2(scan.Scanner):
                                   self.opc.JUMP_IF_TRUE_OR_POP):
                             if (oparg > offset):
                                 label = oparg
+                                pass
+                            pass
 
                 if label is not None and label != -1:
                     # In Python <= 2.6, the POP_TOP in:
