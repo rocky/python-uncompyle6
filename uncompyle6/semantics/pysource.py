@@ -223,7 +223,6 @@ TABLE_DIRECT = {
     'lc_body':		( '', ),	# ignore when recusing
 
     'comp_iter':	( '%c', 0),
-    'comp_for':		( ' for %c in %c%c', 2, 0, 3 ),
     'comp_if':		( ' if %c%c', 0, 2 ),
     'comp_ifnot':	( ' if not %p%c', (0, 22), 2 ),
     'comp_body':	( '', ),	# ignore when recusing
@@ -595,6 +594,14 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             TABLE_DIRECT.update({
                 'except_cond3':	( '%|except %c, %c:\n', 1, 6 ),
+            })
+        if 2.4 <= version <= 2.6:
+            TABLE_DIRECT.update({
+                'comp_for':	( ' for %c in %c', 3, 1 ),
+            })
+        else:
+            TABLE_DIRECT.update({
+                'comp_for':	( ' for %c in %c%c', 2, 0, 3 ),
             })
 
 
