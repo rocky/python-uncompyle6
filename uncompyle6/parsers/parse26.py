@@ -115,7 +115,7 @@ class Python26Parser(Python2Parser):
         break_stmt ::= BREAK_LOOP JUMP_BACK
 
         # Semantic actions want the else to be at position 3
-        ifelsestmt  ::= testexpr c_stmts_opt jf_cf_pop else_suite COME_FROM
+        ifelsestmt  ::= testexpr c_stmts_opt jf_cf_pop else_suite come_froms
         ifelsestmt  ::= testexpr c_stmts_opt filler else_suitel come_froms POP_TOP
 
         # Semantic actions want else_suitel to be at index 3
