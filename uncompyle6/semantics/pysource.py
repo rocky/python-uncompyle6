@@ -1247,7 +1247,9 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(' for ')
         self.preorder(ast[iter_index-1])
         self.write(' in ')
-        self.preorder(node[-3])
+        iter_expr = node[2] if node[2] == 'expr' else node[-3]
+        assert iter_expr == 'expr'
+        self.preorder(iter_expr)
         self.preorder(ast[iter_index])
         self.prec = p
 
