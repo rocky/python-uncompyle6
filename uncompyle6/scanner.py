@@ -6,12 +6,8 @@
 #  See LICENSE
 #
 """
-scanner/disassembler module. From here we call various version-specific
+scanner/ingestion module. From here we call various version-specific
 scanners, e.g. for Python 2.7 or 3.4.
-
-This overlaps Python's dis module, but it can be run from Python 2 or
-Python 3 and other versions of Python. Also, we save token information
-for later use in deparsing.
 """
 
 from __future__ import print_function
@@ -45,7 +41,7 @@ class Code(object):
         for i in dir(co):
             if i.startswith('co_'):
                 setattr(self, i, getattr(co, i))
-        self._tokens, self._customize = scanner.disassemble(co, classname)
+        self._tokens, self._customize = scanner.ingest(co, classname)
 
 class Scanner(object):
 
@@ -286,4 +282,4 @@ if __name__ == "__main__":
     import inspect, uncompyle6
     co = inspect.currentframe().f_code
     scanner = get_scanner(uncompyle6.PYTHON_VERSION, IS_PYPY, True)
-    tokens, customize = scanner.disassemble(co, {})
+    tokens, customize = scanner.ingest(co, {})

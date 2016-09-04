@@ -14,7 +14,7 @@ def uncompyle(
         timestamp=None, showgrammar=False, code_objects={},
         is_pypy=False, magic_int=None):
     """
-    disassembles and deparses a given code block 'co'
+    ingests and deparses a given code block 'co'
     """
     assert iscode(co)
 

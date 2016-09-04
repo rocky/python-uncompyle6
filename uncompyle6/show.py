@@ -6,7 +6,7 @@ def maybe_show_asm(showasm, tokens):
     Show the asm based on the showasm flag (or file object), writing to the
     appropriate stream depending on the type of the flag.
 
-    :param showasm: Flag which determines whether the disassembled code is
+    :param showasm: Flag which determines whether the ingested code is
                     written to sys.stdout or not. (It is also to pass a file
                     like object, into which the asm will be written).
     :param tokens:  The asm tokens to show.

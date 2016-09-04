@@ -70,7 +70,7 @@ class Scanner26(scan.Scanner2):
         self.pop_jump_if_or_pop = frozenset([])
         return
 
-    def disassemble(self, co, classname=None, code_objects={}, show_asm=None):
+    def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Pick out tokens from an uncompyle6 code object, and transform them,
         returning a list of uncompyle6 'Token's.
@@ -311,7 +311,7 @@ if __name__ == "__main__":
     if PYTHON_VERSION == 2.6:
         import inspect
         co = inspect.currentframe().f_code
-        tokens, customize = Scanner26(show_asm=True).disassemble(co)
+        tokens, customize = Scanner26(show_asm=True).ingest(co)
     else:
         print("Need to be Python 2.6 to demo; I am %s." %
               PYTHON_VERSION)

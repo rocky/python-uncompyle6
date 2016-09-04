@@ -229,10 +229,10 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
             # which would get confusing.
             scanner.setTokenClass(Token)
             try:
-                # disassemble both code-objects
-                tokens1, customize = scanner.disassemble(code_obj1)
+                # ingest both code-objects
+                tokens1, customize = scanner.ingest(code_obj1)
                 del customize # save memory
-                tokens2, customize = scanner.disassemble(code_obj2)
+                tokens2, customize = scanner.ingest(code_obj2)
                 del customize # save memory
             finally:
                 scanner.resetTokenClass() # restore Token class

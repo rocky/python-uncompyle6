@@ -2279,14 +2279,14 @@ class SourceWalker(GenericASTTraversal, object):
 def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
                  showgrammar=False, code_objects={}, compile_mode='exec', is_pypy=False):
     """
-    disassembles and deparses a given code block 'co'
+    ingests and deparses a given code block 'co'
     """
 
     assert iscode(co)
     # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy)
 
-    tokens, customize = scanner.disassemble(co, code_objects=code_objects)
+    tokens, customize = scanner.ingest(co, code_objects=code_objects)
     maybe_show_asm(showasm, tokens)
 
     debug_parser = dict(PARSER_DEFAULT_DEBUG)

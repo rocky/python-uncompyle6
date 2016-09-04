@@ -39,7 +39,7 @@ class Scanner2(scan.Scanner):
         # For <2.5 it is <generator expression>
         self.genexpr_name = '<genexpr>';
 
-    def disassemble(self, co, classname=None, code_objects={}, show_asm=None):
+    def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Pick out tokens from an uncompyle6 code object, and transform them,
         returning a list of uncompyle6 'Token's.
@@ -906,7 +906,7 @@ if __name__ == "__main__":
     if PYTHON_VERSION >= 2.3:
         co = inspect.currentframe().f_code
         from uncompyle6 import PYTHON_VERSION
-        tokens, customize = Scanner2(PYTHON_VERSION).disassemble(co)
+        tokens, customize = Scanner2(PYTHON_VERSION).ingest(co)
         for t in tokens:
             print(t)
     else:

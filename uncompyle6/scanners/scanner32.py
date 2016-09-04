@@ -25,7 +25,7 @@ if __name__ == "__main__":
     if PYTHON_VERSION == 3.2:
         import inspect
         co = inspect.currentframe().f_code
-        tokens, customize = Scanner32().disassemble(co)
+        tokens, customize = Scanner32().ingest(co)
         for t in tokens:
             print(t)
         pass

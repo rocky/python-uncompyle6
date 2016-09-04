@@ -645,10 +645,8 @@ def python_parser(version, co, out=sys.stdout, showasm=False,
                             example 2.6, 2.7, 3.2, 3.3, 3.4, 3.5 etc.
     :param co:              The code object to parse.
     :param out:             File like object to write the output to.
-    :param showasm:         Flag which determines whether the disassembled code
-                            is written to sys.stdout or not. (It is also to
-                            pass a file like object, into which the asm will be
-                            written).
+    :param showasm:         Flag which determines whether the disassembled and
+                            ingested code is written to sys.stdout or not.
     :param parser_debug:    dict containing debug flags for the spark parser.
 
     :return: Abstract syntax tree representation of the code object.
@@ -657,7 +655,7 @@ def python_parser(version, co, out=sys.stdout, showasm=False,
     assert iscode(co)
     from uncompyle6.scanner import get_scanner
     scanner = get_scanner(version, is_pypy)
-    tokens, customize = scanner.disassemble(co)
+    tokens, customize = scanner.ingest(co)
     maybe_show_asm(showasm, tokens)
 
     # For heavy grammar debugging

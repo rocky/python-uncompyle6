@@ -1738,7 +1738,7 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
                             example 2.6, 2.7, 3.2, 3.3, 3.4, 3.5 etc.
     :param co:              The code object to parse.
     :param out:             File like object to write the output to.
-    :param showasm:         Flag which determines whether the disassembled code
+    :param showasm:         Flag which determines whether the ingestd code
                             is written to sys.stdout or not. (It is also to
                             pass a file like object, into which the asm will be
                             written).
@@ -1758,9 +1758,9 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
     # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy)
 
-    tokens, customize = scanner.disassemble(co)
+    tokens, customize = scanner.ingest(co)
 
-    tokens, customize = scanner.disassemble(co)
+    tokens, customize = scanner.ingest(co)
     maybe_show_asm(showasm, tokens)
 
     debug_parser = dict(PARSER_DEFAULT_DEBUG)

@@ -18,7 +18,7 @@ want to run on Python 2.7.
 
 from __future__ import print_function
 
-import os, sys
+import sys
 from collections import deque
 
 import uncompyle6
@@ -45,7 +45,7 @@ def disco(version, co, out=None, is_pypy=False):
     scanner = get_scanner(version, is_pypy=is_pypy)
 
     queue = deque([co])
-    disco_loop(scanner.disassemble, queue, real_out)
+    disco_loop(scanner.ingest, queue, real_out)
 
 
 def disco_loop(disasm, queue, real_out):

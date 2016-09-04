@@ -110,7 +110,7 @@ class Scanner3(Scanner):
             (self.opc.POP_JUMP_IF_TRUE,  self.opc.JUMP_ABSOLUTE)]
 
 
-    def disassemble(self, co, classname=None, code_objects={}, show_asm=None):
+    def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Pick out tokens from an uncompyle6 code object, and transform them,
         returning a list of uncompyle6 'Token's.
@@ -837,7 +837,7 @@ if __name__ == "__main__":
         import inspect
         co = inspect.currentframe().f_code
         from uncompyle6 import PYTHON_VERSION
-        tokens, customize = Scanner3(PYTHON_VERSION).disassemble(co)
+        tokens, customize = Scanner3(PYTHON_VERSION).ingest(co)
         for t in tokens:
             print(t)
     else:
