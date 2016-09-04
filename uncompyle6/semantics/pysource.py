@@ -774,7 +774,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def is_return_none(self, node):
         # Is there a better way?
-        ret = (node == 'return_stmt'
+        ret = (node in ('return_stmt', 'return_if_stmt')
                and node[0] == 'ret_expr'
                and node[0][0] == 'expr'
                and node[0][0][0] == 'LOAD_CONST'
@@ -809,7 +809,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.prune()
         else:
             self.write(self.indent, 'return')
-            if self.return_none or node != AST('return_stmt', [AST('ret_expr', [NONE]), Token('RETURN_END_IF')]):
+            if self.return_none or not self.is_return_none(node):
                 self.write(' ')
                 self.preorder(node[0])
             self.println()

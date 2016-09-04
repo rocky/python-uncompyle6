@@ -713,9 +713,15 @@ class Scanner2(scan.Scanner):
                             self.fixed_jumps[pos] = fix or match[-1]
                             return
                     else:
-                        if self.version < 2.7 and parent['type'] == 'root':
+                        if (self.version < 2.7
+                            and parent['type'] in ('root', 'for-loop', 'if-then',
+                                                   'if-else', 'try')):
                             self.fixed_jumps[pos] = rtarget
                         else:
+                            # note test for < 2.7 might be superflous although informative
+                            # for 2.7 a different branch is taken and the below code is handled
+                            # under: elif op in self.pop_jump_if_or_pop
+                            # below
                             self.fixed_jumps[pos] = match[-1]
                         return
             else: # op != self.opc.PJIT
