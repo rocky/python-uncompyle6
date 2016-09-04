@@ -774,8 +774,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def is_return_none(self, node):
         # Is there a better way?
-        ret = (node in ('return_stmt', 'return_if_stmt')
-               and node[0] == 'ret_expr'
+        ret = (node[0] == 'ret_expr'
                and node[0][0] == 'expr'
                and node[0][0][0] == 'LOAD_CONST'
                and node[0][0][0].pattr is None)
