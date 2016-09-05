@@ -75,7 +75,7 @@ class Scanner26(scan.Scanner2):
         Pick out tokens from an uncompyle6 code object, and transform them,
         returning a list of uncompyle6 'Token's.
 
-        The tranformations are made to assist the deparsing grammar.
+        The transformations are made to assist the deparsing grammar.
         Specificially:
            -  various types of LOAD_CONST's are categorized in terms of what they load
            -  COME_FROM instructions are added to assist parsing control structures
@@ -87,7 +87,7 @@ class Scanner26(scan.Scanner2):
         """
 
         show_asm = self.show_asm if not show_asm else show_asm
-        # show_asm = 'both'
+        # show_asm = 'after'
         if show_asm in ('both', 'before'):
             from xdis.bytecode import Bytecode
             bytecode = Bytecode(co, self.opc)

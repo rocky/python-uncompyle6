@@ -27,20 +27,13 @@ class Python26Parser(Python2Parser):
                          POP_TOP END_FINALLY come_froms
 
         try_middle   ::= JUMP_FORWARD COME_FROM except_stmts
-                         END_FINALLY come_froms
-        try_middle   ::= JUMP_FORWARD COME_FROM except_stmts
-                         come_from_pop END_FINALLY come_froms
-        try_middle   ::= JUMP_FORWARD COME_FROM except_stmts
-                         END_FINALLY come_froms
+                         come_from_pop END_FINALLY COME_FROM
 
         try_middle   ::= jmp_abs COME_FROM except_stmts
                          POP_TOP END_FINALLY
 
         try_middle   ::= jmp_abs COME_FROM except_stmts
                          come_from_pop END_FINALLY
-
-        try_middle   ::= jmp_abs COME_FROM except_stmts
-                         END_FINALLY
 
         trystmt      ::= SETUP_EXCEPT suite_stmts_opt come_from_pop
                          try_middle

@@ -44,7 +44,7 @@ class Scanner2(scan.Scanner):
         Pick out tokens from an uncompyle6 code object, and transform them,
         returning a list of uncompyle6 'Token's.
 
-        The tranformations are made to assist the deparsing grammar.
+        The transformations are made to assist the deparsing grammar.
         Specificially:
            -  various types of LOAD_CONST's are categorized in terms of what they load
            -  COME_FROM instructions are added to assist parsing control structures
@@ -56,7 +56,7 @@ class Scanner2(scan.Scanner):
         """
 
         show_asm = self.show_asm if not show_asm else show_asm
-        # show_asm = 'both'
+        # show_asm = 'after'
         if show_asm in ('both', 'before'):
             from xdis.bytecode import Bytecode
             bytecode = Bytecode(co, self.opc)
@@ -846,6 +846,8 @@ class Scanner2(scan.Scanner):
                                 pass
                             pass
 
+
+                # FIXME: All the <2.6 conditions are is horrible. We need a better way.
                 if label is not None and label != -1:
                     # In Python <= 2.6, the POP_TOP in:
                     #   RETURN_VALUE, POP_TOP
@@ -854,8 +856,19 @@ class Scanner2(scan.Scanner):
                     if not (self.version <= 2.6 and
                             self.code[label] == self.opc.POP_TOP and
                             self.code[self.prev[label]] == self.opc.RETURN_VALUE):
-                        targets[label] = targets.get(label, []) + [offset]
-            elif op == self.opc.END_FINALLY and offset in self.fixed_jumps:
+                        # In Python <= 2.6, don't add a COME_FROM, for:
+                        #     JUMP_FORWARD, END_FINALLY
+                        # or:
+                        #     JUMP_FORWARD, POP_TOP, END_FINALLY
+                        if not (self.version <= 2.6 and op == self.opc.JUMP_FORWARD
+                                and ((self.code[offset+3] == self.opc.END_FINALLY)
+                                     or (self.code[offset+3] == self.opc.POP_TOP
+                                         and self.code[offset+4] == self.opc.END_FINALLY))):
+                            targets[label] = targets.get(label, []) + [offset]
+                            pass
+                        pass
+                    pass
+            elif op == self.opc.END_FINALLY and offset in self.fixed_jumps and self.version == 2.7:
                 label = self.fixed_jumps[offset]
                 targets[label] = targets.get(label, []) + [offset]
         return targets

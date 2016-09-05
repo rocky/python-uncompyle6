@@ -115,7 +115,7 @@ class Scanner3(Scanner):
         Pick out tokens from an uncompyle6 code object, and transform them,
         returning a list of uncompyle6 'Token's.
 
-        The tranformations are made to assist the deparsing grammar.
+        The transformations are made to assist the deparsing grammar.
         Specificially:
            -  various types of LOAD_CONST's are categorized in terms of what they load
            -  COME_FROM instructions are added to assist parsing control structures
