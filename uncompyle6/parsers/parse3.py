@@ -621,8 +621,11 @@ class Python3Parser(PythonParser):
                 if self.version <= 3.2:
                     rule = ('mkfunc ::= %sload_closure LOAD_CONST kwargs %s'
                             % ('expr ' * args_pos, opname))
-                elif self.version >= 3.3:
+                elif self.version == 3.3:
                     rule = ('mkfunc ::= kwargs %sload_closure LOAD_CONST LOAD_CONST %s'
+                            % ('expr ' * args_pos, opname))
+                elif self.version >= 3.4:
+                    rule = ('mkfunc ::= %skwargs load_closure LOAD_CONST LOAD_CONST %s'
                             % ('expr ' * args_pos, opname))
 
                 self.add_unique_rule(rule, opname, token.attr, customize)

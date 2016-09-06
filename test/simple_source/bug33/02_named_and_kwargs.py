@@ -10,3 +10,10 @@ def subprocess_shell(self, protocol_factory, cmd, *, stdin=subprocess.PIPE,
                      universal_newlines=False, shell=True, bufsize=0,
                      **kwargs):
     return
+
+# From 3.4 asyncio/locks.py
+# Bug was handling" "value=1, *"
+
+class BoundedSemaphore(Semaphore):
+    def __init__(self, value=1, *, loop=None):
+        super().__init__(value, loop=loop)

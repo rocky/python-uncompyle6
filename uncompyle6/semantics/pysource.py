@@ -2053,11 +2053,10 @@ class SourceWalker(GenericASTTraversal, object):
 
         params.reverse() # back to correct order
 
-        kw_pairs = 0
+        kw_pairs = args_node.attr[1] if self.version >= 3.0 else 0
 
         if 4 & code.co_flags:	# flag 2 -> variable number of args
             if self.version > 3.0:
-                kw_pairs = args_node.attr[1]
                 params.append('*%s' % code.co_varnames[argc + kw_pairs])
             else:
                 params.append('*%s' % code.co_varnames[argc])
@@ -2084,7 +2083,10 @@ class SourceWalker(GenericASTTraversal, object):
             for n in node:
                 if n == 'pos_arg':
                     continue
-                self.preorder(n)
+                elif self.version >= 3.4 and n.type != 'kwargs':
+                    continue
+                else:
+                    self.preorder(n)
                 break
             pass
 
