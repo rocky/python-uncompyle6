@@ -779,21 +779,33 @@ class Scanner3(Scanner):
                     self.fixed_jumps[offset] = unop_target
                 else:
                     self.fixed_jumps[offset] = self.restrict_to_parent(target, parent)
-        elif op == self.opc.JUMP_FORWARD and self.version >= 3.5:
-            # If we have:
-            #   JUMP_FORWARD x, [non-jump, insns], RETURN_VALUE, x:
-            # then RETURN_VALUE is probably not RETURN_END_IF
-            rtarget = self.get_target(offset)
-            rtarget_prev = self.prev[rtarget]
-            if (code[rtarget_prev] == self.opc.RETURN_VALUE and
-                rtarget_prev in self.return_end_ifs):
-                i = rtarget_prev
-                while i != offset:
-                    if code[i] in [op3.JUMP_FORWARD, op3.JUMP_ABSOLUTE]:
-                        return
-                    i = self.prev[i]
-                self.return_end_ifs.remove(rtarget_prev)
-            pass
+                    pass
+                pass
+        elif self.version >= 3.5:
+            # 3.5+ has Jump optimization which too often causes RETURN_VALUE to get
+            # misclassified as RETURN_END_IF. Handle that here.
+            # In RETURN_VALUE, JUMP_ABSOLUTE, RETURN_VALUE is never RETURN_END_IF
+            if op == self.opc.RETURN_VALUE:
+                if (offset+1 < len(code) and code[offset+1] == self.opc.JUMP_ABSOLUTE and
+                    offset in self.return_end_ifs):
+                    self.return_end_ifs.remove(offset)
+                    pass
+                pass
+            elif op == self.opc.JUMP_FORWARD:
+                # If we have:
+                #   JUMP_FORWARD x, [non-jump, insns], RETURN_VALUE, x:
+                # then RETURN_VALUE is not RETURN_END_IF
+                rtarget = self.get_target(offset)
+                rtarget_prev = self.prev[rtarget]
+                if (code[rtarget_prev] == self.opc.RETURN_VALUE and
+                    rtarget_prev in self.return_end_ifs):
+                    i = rtarget_prev
+                    while i != offset:
+                        if code[i] in [op3.JUMP_FORWARD, op3.JUMP_ABSOLUTE]:
+                            return
+                        i = self.prev[i]
+                    self.return_end_ifs.remove(rtarget_prev)
+                pass
         return
 
     def next_except_jump(self, start):

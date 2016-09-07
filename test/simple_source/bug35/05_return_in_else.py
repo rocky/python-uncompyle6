@@ -10,3 +10,15 @@ def parseline(self, line):
         else:
             return 3 if line[3] else 4
     return 6
+
+# From 3.5 gettext.py
+# In the below code, the "return" was erroneously
+# classifying RETURN_END_IF instead of RETURN_VALUE
+def find(domain):
+    for lang in domain:
+        if lang:
+            if all:
+                domain.append(5)
+            else:
+                return lang
+    return domain
