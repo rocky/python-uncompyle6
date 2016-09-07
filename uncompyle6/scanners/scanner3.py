@@ -768,7 +768,6 @@ class Scanner3(Scanner):
                             if come_from_op == self.opc.SETUP_EXCEPT:
                                 return
                             pass
-                        pass
                     pass
                 self.return_end_ifs.add(prev_op[rtarget])
 
@@ -780,7 +779,22 @@ class Scanner3(Scanner):
                     self.fixed_jumps[offset] = unop_target
                 else:
                     self.fixed_jumps[offset] = self.restrict_to_parent(target, parent)
-
+        elif op == self.opc.JUMP_FORWARD and self.version >= 3.5:
+            # If we have:
+            #   JUMP_FORWARD x, [non-jump, insns], RETURN_VALUE, x:
+            # then RETURN_VALUE is probably not RETURN_END_IF
+            rtarget = self.get_target(offset)
+            rtarget_prev = self.prev[rtarget]
+            if (code[rtarget_prev] == self.opc.RETURN_VALUE and
+                rtarget_prev in self.return_end_ifs):
+                i = rtarget_prev
+                while i != offset:
+                    if code[i] in [op3.JUMP_FORWARD, op3.JUMP_ABSOLUTE]:
+                        return
+                    i = self.prev[i]
+                self.return_end_ifs.remove(rtarget_prev)
+            pass
+        return
 
     def next_except_jump(self, start):
         """
