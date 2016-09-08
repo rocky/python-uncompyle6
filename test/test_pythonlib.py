@@ -187,7 +187,7 @@ if __name__ == '__main__':
     test_options_keys = list(test_options.keys())
     test_options_keys.sort()
     opts, args = getopt.getopt(sys.argv[1:], '',
-                               ['start-with=', 'verify', 'all', 'compile',
+                               ['start-with=', 'verify', 'weak-verify', 'all', 'compile',
                                 'no-rm'] \
                                + test_options_keys )
     if not opts: help()
@@ -202,6 +202,8 @@ if __name__ == '__main__':
     for opt, val in opts:
         if opt == '--verify':
             test_opts['do_verify'] = True
+        elif opt == '--weak-verify':
+            test_opts['do_verify'] = 'weak'
         elif opt == '--compile':
             test_opts['do_compile'] = True
         elif opt == '--start-with':
