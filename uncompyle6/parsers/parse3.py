@@ -619,7 +619,7 @@ class Python3Parser(PythonParser):
                 # FIXME: kwarg processing is missing here.
                 # Note order of kwargs and pos args changed between 3.3-3.4
                 if self.version <= 3.2:
-                    rule = ('mkfunc ::= %sload_closure LOAD_CONST kwargs %s'
+                    rule = ('mkfunc ::= kwargs %sload_closure LOAD_CONST kwargs %s'
                             % ('expr ' * args_pos, opname))
                 elif self.version == 3.3:
                     rule = ('mkfunc ::= kwargs %sload_closure LOAD_CONST LOAD_CONST %s'

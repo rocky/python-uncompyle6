@@ -2002,7 +2002,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         args_node = node[-1]
         if isinstance(args_node.attr, tuple):
-            if self.version == 3.3:
+            if self.version <= 3.3:
                 # positional args are after kwargs
                 defparams = node[1:args_node.attr[0]+1]
             else:
@@ -2049,6 +2049,7 @@ class SourceWalker(GenericASTTraversal, object):
             return
 
         kw_pairs = args_node.attr[1] if self.version >= 3.0 else 0
+        indent = self.indent
 
         # build parameters
         if not 3.0 <= self.version <= 3.2:
@@ -2064,8 +2065,6 @@ class SourceWalker(GenericASTTraversal, object):
                 argc += 1
 
             # dump parameter list (with default values)
-            indent = self.indent
-
             if isLambda:
                 self.write("lambda ", ", ".join(params))
             else:
@@ -2077,6 +2076,11 @@ class SourceWalker(GenericASTTraversal, object):
                 self.write("lambda ")
             else:
                 self.write("(")
+
+            if 4 & code.co_flags:	# flag 2 -> variable number of args
+                self.write('*%s' % code.co_varnames[argc + kw_pairs])
+                argc += 1
+
             i = len(paramnames) - len(defparams)
             self.write(",".join(paramnames[:i]))
             suffix = ', ' if i > 0 else ''
