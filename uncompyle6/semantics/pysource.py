@@ -2035,7 +2035,8 @@ class SourceWalker(GenericASTTraversal, object):
         paramnames = list(code.co_varnames[:argc])
 
         # defaults are for last n parameters, thus reverse
-        paramnames.reverse(); defparams.reverse()
+        if not 3.0 <= self.version <= 3.2:
+            paramnames.reverse(); defparams.reverse()
 
         try:
             ast = self.build_ast(code._tokens,
@@ -2047,28 +2048,45 @@ class SourceWalker(GenericASTTraversal, object):
             self.ERROR = p
             return
 
-        # build parameters
-        params = [build_param(ast, name, default) for
-                  name, default in zip_longest(paramnames, defparams, fillvalue=None)]
-
-        params.reverse() # back to correct order
-
         kw_pairs = args_node.attr[1] if self.version >= 3.0 else 0
 
-        if 4 & code.co_flags:	# flag 2 -> variable number of args
-            if self.version > 3.0:
-                params.append('*%s' % code.co_varnames[argc + kw_pairs])
-            else:
-                params.append('*%s' % code.co_varnames[argc])
-            argc += 1
+        # build parameters
+        if not 3.0 <= self.version <= 3.2:
+            params = [build_param(ast, name, default) for
+                      name, default in zip_longest(paramnames, defparams, fillvalue=None)]
+            params.reverse() # back to correct order
 
-        # dump parameter list (with default values)
-        indent = self.indent
-        if isLambda:
-            self.write("lambda ", ", ".join(params))
-        else:
-            self.write("(", ", ".join(params))
+            if 4 & code.co_flags:	# flag 2 -> variable number of args
+                if self.version > 3.0:
+                    params.append('*%s' % code.co_varnames[argc + kw_pairs])
+                else:
+                    params.append('*%s' % code.co_varnames[argc])
+                argc += 1
+
+            # dump parameter list (with default values)
+            indent = self.indent
+
+            if isLambda:
+                self.write("lambda ", ", ".join(params))
+            else:
+                self.write("(", ", ".join(params))
             # self.println(indent, '#flags:\t', int(code.co_flags))
+
+        else:
+            if isLambda:
+                self.write("lambda ")
+            else:
+                self.write("(")
+            i = len(paramnames) - len(defparams)
+            self.write(",".join(paramnames[:i]))
+            suffix = ', ' if i > 0 else ''
+            for n in node:
+                if n == 'pos_arg':
+                    self.write(suffix)
+                    self.write(paramnames[i] + '=')
+                    i += 1
+                    self.preorder(n)
+                    suffix = ', '
 
         if kw_args > 0:
             if not (4 & code.co_flags):
@@ -2080,14 +2098,29 @@ class SourceWalker(GenericASTTraversal, object):
             else:
                 self.write(", ")
 
-            for n in node:
-                if n == 'pos_arg':
-                    continue
-                elif self.version >= 3.4 and n.type != 'kwargs':
-                    continue
-                else:
-                    self.preorder(n)
-                break
+            if not 3.0 <= self.version <= 3.2:
+                for n in node:
+                    if n == 'pos_arg':
+                        continue
+                    elif self.version >= 3.4 and n.type != 'kwargs':
+                        continue
+                    else:
+                        self.preorder(n)
+                    break
+            else:
+                kwargs = node[0]
+                last = len(kwargs)-1
+                i = 0
+                for n in node[0]:
+                    if n == 'kwarg':
+                        self.write('%s=' % n[0].pattr)
+                        self.preorder(n[1])
+                        if i < last:
+                            self.write(', ')
+                        i += 1
+                        pass
+                    pass
+                pass
             pass
 
         if 8 & code.co_flags:	# flag 3 -> keyword args
