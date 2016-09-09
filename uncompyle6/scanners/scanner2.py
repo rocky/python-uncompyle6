@@ -400,7 +400,7 @@ class Scanner2(scan.Scanner):
                 # beginning of a new statement
                 prev = code[self.prev[s]]
                 if (prev == self.opc.ROT_TWO or
-                    self.version <= 2.6 and prev in
+                    self.version < 2.7 and prev in
                     (self.opc.JUMP_IF_FALSE, self.opc.JUMP_IF_TRUE,
                      self.opc.RETURN_VALUE)):
                     stmts.remove(s)
@@ -428,8 +428,8 @@ class Scanner2(scan.Scanner):
             if except_match:
                 jmp = self.prev[self.get_target(except_match)]
 
-                # In Python <= 2.6 we may have jumps to jumps
-                if self.version <= 2.6 and self.code[jmp] in self.jump_forward:
+                # In Python < 2.7 we may have jumps to jumps
+                if self.version < 2.7 and self.code[jmp] in self.jump_forward:
                     self.not_continue.add(jmp)
                     jmp = self.get_target(jmp)
                     if jmp not in self.pop_jump_if | self.jump_forward:
@@ -847,20 +847,20 @@ class Scanner2(scan.Scanner):
                             pass
 
 
-                # FIXME: All the <2.6 conditions are is horrible. We need a better way.
+                # FIXME: All the < 2.7 conditions are is horrible. We need a better way.
                 if label is not None and label != -1:
-                    # In Python <= 2.6, the POP_TOP in:
+                    # In Python < 2.7, the POP_TOP in:
                     #   RETURN_VALUE, POP_TOP
                     # does now start a new statement
                     # Otherwise, we have want to add a "COME_FROM"
-                    if not (self.version <= 2.6 and
+                    if not (self.version < 2.7 and
                             self.code[label] == self.opc.POP_TOP and
                             self.code[self.prev[label]] == self.opc.RETURN_VALUE):
-                        # In Python <= 2.6, don't add a COME_FROM, for:
+                        # In Python < 2.7, don't add a COME_FROM, for:
                         #     JUMP_FORWARD, END_FINALLY
                         # or:
                         #     JUMP_FORWARD, POP_TOP, END_FINALLY
-                        if not (self.version <= 2.6 and op == self.opc.JUMP_FORWARD
+                        if not (self.version < 2.7 and op == self.opc.JUMP_FORWARD
                                 and ((self.code[offset+3] == self.opc.END_FINALLY)
                                      or (self.code[offset+3] == self.opc.POP_TOP
                                          and self.code[offset+4] == self.opc.END_FINALLY))):
