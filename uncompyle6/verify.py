@@ -201,6 +201,13 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
                 else:
                     import uncompyle6.scanners.scanner27 as scan
                     scanner = scan.Scanner27()
+            elif version == 3.1:
+                if is_pypy:
+                    import uncompyle6.scanners.pypy31 as scan
+                    scanner = scan.ScannerPyPy31()
+                else:
+                    import uncompyle6.scanners.scanner32 as scan
+                    scanner = scan.Scanner32()
             elif version == 3.2:
                 if is_pypy:
                     import uncompyle6.scanners.pypy32 as scan
