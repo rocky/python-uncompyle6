@@ -1,3 +1,207 @@
+2016-09-11  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, uncompyle6/version.py: Get ready for release 2.8.3
+
+2016-09-11  rocky <rb@dustyfeet.com>
+
+	* test/bytecode_3.6/fstring.py,
+	test/bytecode_3.6/fstring_single.py, uncompyle6/parsers/parse35.py: 
+	Tidy a bit
+
+2016-09-09  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/looping/10_while.py,
+	uncompyle6/parsers/parse3.py: 3.0 .. 3.4 bug in whileTrue
+
+2016-09-09  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner31.py: 3.1 scanner small fixes
+
+2016-09-09  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner2.py, uncompyle6/semantics/pysource.py: 
+	ret_cond adjustment for < 2.7 and ...  "<= 2.6" -> "< 2.7" since python 2.6's version is 2.6000001
+
+2016-09-09  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/test_pyenvlib.py, test/test_pythonlib.py,
+	uncompyle6/scanners/scanner31.py, uncompyle6/verify.py: Start
+	accepting Python 3.1 bytecode
+
+2016-09-08  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py: Add 3.6 parser
+
+2016-09-08  rocky <rb@dustyfeet.com>
+
+	* .travis.yml, test/Makefile,
+	test/simple_source/expression/06_frozenset.py,
+	test/test_pythonlib.py: More testing - travis:    * 2.7.12 - bump from 2.7.11    * 3.3.6 test_pyenvlib: add --weak-verify to Makefile: check-3.2.6 needs
+	--weak-verify
+
+2016-09-08  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/semantics/pysource.py: 
+	Python 3.0-3.2 *args processing
+
+2016-09-08  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug32/01_named_and_kwargs.py,
+	uncompyle6/semantics/pysource.py: 3.2 (and down to 3.0?) bug in fn
+	name and kwargs
+
+2016-09-07  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug35/05_return_in_else.py,
+	uncompyle6/scanners/scanner3.py: Another 3.5+ erroneous
+	RETURN_END_IF misclassify
+
+2016-09-07  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug35/05_return_in_else.py,
+	uncompyle6/scanners/scanner3.py: But in Python 3.5+ erroneosly
+	adding RETURN_END_IF
+
+2016-09-05  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug33/02_named_and_kwargs.py,
+	test/test_pyenvlib.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/semantics/pysource.py: Fix 3.3 named bug and ...  Parse 3.4 parameters correctly.  Allow test_pyenvlib to do 3.3.6
+
+2016-09-05  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug33/02_named_and_kwargs.py: Python 3.x bug in
+	getting parameter of ** argument
+
+2016-09-05  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/parsers/parse27.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner26.py, uncompyle6/scanners/scanner3.py: 
+	Python 2.6- try/except control flow detection
+
+2016-09-04  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/disas.py, uncompyle6/main.py, uncompyle6/parser.py,
+	uncompyle6/scanner.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner22.py, uncompyle6/scanners/scanner26.py,
+	uncompyle6/scanners/scanner27.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/scanners/scanner32.py, uncompyle6/scanners/scanner33.py,
+	uncompyle6/scanners/scanner34.py, uncompyle6/scanners/scanner35.py,
+	uncompyle6/scanners/scanner36.py, uncompyle6/semantics/aligner.py,
+	uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py, uncompyle6/show.py,
+	uncompyle6/verify.py: disassemble -> ingest where appropriate As part of tokenization for (de)parsing, we need to do something
+	like a disassembly, but is is really a little different.  Disassembly, strictly speaking, is done by the xdis module now.
+	What "ingestion" does is massage the instruction tokens to a form
+	that is more amenable for parsing.  In sum, ingestion is different than disassembly, although
+	disassembly is generally the first part of ingestion.
+
+2016-09-04  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py: Small cleanup/code optimization
+
+2016-09-04  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse26.py: Python 2.3--2.6 bug in parsing
+	try-middle Note: it looks like COME_FROMs need to be classified better with
+	respect to whether they are from an except or not we are getting
+	if/else vs except nesting errors.
+
+2016-09-04  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug26/07_generator_return.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/semantics/pysource.py: A
+	couple more 2.6 (and below) bugs fixed * Detect "return None" inside if statement * another case of triple ==, ==, ==      scanner2.py: detect_structure: descriminate more on parent type
+
+2016-09-03  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug26/05_generator.py,
+	uncompyle6/semantics/pysource.py: Python 2.5-2.6 generator bug Adjust for variable position of list iteration node in a genexpr
+	node
+
+2016-09-03  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py: Python 2.7 "return None" bug Same as 2.3-2.6 "return None".
+
+2016-09-03  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug26/08_triple_equals.py,
+	uncompyle6/scanners/scanner2.py: Python 2.2..2.6 bug in a == b == c
+	== d Fix was to remove some come froms. Feels a little hacky though.
+
+2016-09-03  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug26/07_generator_return.py,
+	uncompyle6/semantics/pysource.py: Python 2.3..2.6 "return" bug In Python 2.6 and possibly down to 2.3 we need to issue "return" not
+	"return None" inside a generator. So check for that "return None"
+	inside n_return and issue "return" for that.
+
+2016-09-03  rocky <rb@dustyfeet.com>
+
+	* DECOMPYLE-2.4-CHANGELOG.txt: Add hartmut Goebel's changes before
+	2.4
+
+2016-09-03  rocky <rb@dustyfeet.com>
+
+	* Makefile, test/simple_source/bug26/04_comp_for.py,
+	uncompyle6/semantics/pysource.py: Fix Python 2.4-2.6 comp_for text
+	generation...  Makefile: tolerate pypy 5.3.x Rest: fix semantic action rule for
+	comp_for and test this
+
+2016-09-02  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug26/06_return_pop.py,
+	uncompyle6/parsers/parse26.py, uncompyle6/scanners/scanner2.py: 
+	Python 2.6- bug: RETURN_ENDIF, POP_TOP ..  POP_TOP should be excluded as a potentional statement beginning
+
+2016-09-02  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug33/02_named_and_kwargs.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/semantics/pysource.py: 
+	Fix Python 3.x named param and kwargs bug
+
+2016-09-01  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug26/04_while_and_stmt_one_line.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner26.py: 
+	2.6- bug: while..and: stmt - on one line If 2.6 or before POP_BLOCK after a JUMP_IF_FALSE does not constitute
+	a new statement. The POP_BLOCK is really part of the JUMP_IF_FALSE.
+	In Python 2.7+ it's a single op.
+
+2016-09-01  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug26/02_except_as.py,
+	uncompyle6/parsers/parse26.py, uncompyle6/semantics/pysource.py: 
+	Handle Python 2.6 and below "except <cond>, <var>"
+
+2016-08-31  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug35/02_fn_varargs.py,
+	uncompyle6/semantics/pysource.py: Python 3.x bug in handling var
+	number of args
+
+2016-08-31  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug33/04_aug_assign.py, test/test_pyenvlib.py,
+	uncompyle6/main.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/verify.py: Bug in 3.x
+	detecting "if" structure and ...  scanner3.py: bug in 3.x detecting "if" structure Make scanner2.py
+	look more like scanner3.py verify.py: add weak-verify which tests
+	Pytyon syntax, but not code
+
+2016-08-30  rocky <rb@dustyfeet.com>
+
+	* NEWS, test/simple_source/bug26/03_raise_from.py,
+	test/simple_source/bug33/03_raise_from.py,
+	uncompyle6/semantics/pysource.py: Handle Python 2 vs 3 raise syntax
+	change    raise_stmt ::=  "raise" expression "," expression becomes:    raise_stmt ::=  "raise" expression from expression raise expr, expr -> raise
+
+2016-08-29  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, __pkginfo__.py, uncompyle6/version.py: Get ready for
+	release 2.8.2
+
 2016-08-27  rocky <rb@dustyfeet.com>
 
 	* test/test_pyenvlib.py, uncompyle6/verify.py: Correct PYPY bit

@@ -1,3 +1,31 @@
+uncompyle6 2.832 2016-09-11 live from NYC!
+
+NOTE: this is possibly the last release before a major reworking of
+control-flow structure detection is done.
+
+- Lots of bug fixes decompilations:
+  * 3.0 .. 3.4 whileTrue bug
+  * 3.x function declaration deparsing:
+    . 3.0 .. 3.2 *args processing
+    . 3.0 .. 3.2 call name and kwargs bug
+    . 3.0 .. getting parameter of *
+    . 3.0 .. handling varible number of args
+    . 3.0 .. "if" structure bugs
+  * 3.5+ if/else bugs
+  * 2.2-2.6 bugs
+    . try/except control flow
+    . a == b == c -like detection
+    . generator detection
+    . "while .. and" statement bugs
+    . handle "except <cond>, <var>"
+    . use older raise format in 2.x
+- scanner "disassemble" is now "ingest". True disassembly is done by xdis
+- Start accepting Python 3.1 bytecode
+- Add --weak-verify option on test_pyenvlib and test_pythonlib. This
+  catches more bugs more easily
+- bump xdis requirement so we can deparse dropbox 2.5 code
+- Added H. Goebel's changes before 2.4 in DECOMPYLE-2.4-CHANGELOG.txt
+
 uncompyle6 2.8.2 2016-08-29
 
 - Handle Python 3.6 format string conversions !r, !s, !a
