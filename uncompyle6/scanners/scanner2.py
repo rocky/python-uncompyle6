@@ -131,6 +131,7 @@ class Scanner2(scan.Scanner):
         replace = {}
         while i < n-1:
             if self.lines[last_stmt].next > i:
+                # Distinguish "print ..." from "print ...,"
                 if self.code[last_stmt] == self.opc.PRINT_ITEM:
                     if self.code[i] == self.opc.PRINT_ITEM:
                         replace[i] = 'PRINT_ITEM_CONT'
