@@ -87,19 +87,23 @@ def fstrings(draw):
 
     :return: A valid f-string.
     """
+    character_strategy = st.characters(
+        blacklist_characters='\r\n\'\\s{}',
+        min_codepoint=1,
+        max_codepoint=1000,
+    )
     is_raw = draw(st.booleans())
     integer_strategy = st.integers(min_value=0, max_value=3)
     expression_count = draw(integer_strategy)
     content = []
     for _ in range(expression_count):
         expression = draw(expressions())
-        # not yet : conversion not supported
         conversion = draw(st.sampled_from(('', '!s', '!r', '!a',)))
         has_specifier = draw(st.booleans())
         specifier = ':' + draw(format_specifiers()) if has_specifier else ''
         content.append('{{{}{}}}'.format(expression, conversion, specifier))
+        content.append(draw(st.text(character_strategy)))
     content = ''.join(content)
-
     return "f{}'{}'".format('r' if is_raw else '', content)
 
 
@@ -114,23 +118,26 @@ def test_format_specifiers(format_specifier):
             raise
 
 
+def run_test(text):
+    expr = text + '\n'
+    code = compile(expr, '<string>', 'single')
+    deparsed = deparse_code(PYTHON_VERSION, code, compile_mode='single')
+    recompiled = compile(deparsed.text, '<string>', 'single')
+    if recompiled != code:
+        assert 'dis(' + deparsed.text.strip('\n') + ')' == 'dis(' + expr.strip('\n') + ')'
+
+
 @pytest.mark.skipif(PYTHON_VERSION < 3.6, reason='need at least python 3.6')
 @hypothesis.given(fstrings())
 def test_uncompyle_fstring(fstring):
     """Verify uncompyling fstring bytecode"""
+    run_test(fstring)
 
-    # ignore fstring with no expressions an fsring with
-    # no expressions just gets compiled to a normal string.
-    hypothesis.assume('{' in fstring)
 
-    # BUG : At the moment a single expression is not supported
-    # for example f'{abc}'.
-    hypothesis.assume(fstring.count('{') > 1)
-
-    expr = fstring + '\n'
-    code = compile(expr, '<string>', 'single')
-    deparsed = deparse_code(PYTHON_VERSION, code, compile_mode='single')
-    recompiled = compile(deparsed.text, '<string>', 'single')
-
-    if recompiled != code:
-        assert deparsed.text == expr
+@pytest.mark.parametrize('fstring', [
+    #"f'{abc}{abc!s}'",
+    "f'{abc!s}'",
+])
+def test_uncompyle_direct(fstring):
+    """useful for debugging"""
+    run_test(fstring)

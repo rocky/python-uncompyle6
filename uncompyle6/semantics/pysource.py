@@ -591,11 +591,7 @@ class SourceWalker(GenericASTTraversal, object):
                 # Python 3.6+ Additions
                 #######################
                 TABLE_DIRECT.update({
-                    'formatted_value': ( '{%c}', 0),
-                    'formatted_value_s': ( '{%c!s}', 0),
-                    'formatted_value_r': ( '{%c!r}', 0),
-                    'formatted_value_a': ( '{%c!a}', 0),
-                    'joined_str':  ( "f'%c'", 2),
+                    'fstring_expr': ( "f'{%c}'", 0),
                 })
         return
 
