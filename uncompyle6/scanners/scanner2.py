@@ -123,7 +123,7 @@ class Scanner2(scan.Scanner):
                 if names[self.get_argument(i+3)] == 'AssertionError':
                     self.load_asserts.add(i+3)
 
-        cf = self.find_jump_targets()
+        jump_targets = self.find_jump_targets()
         # contains (code, [addrRefToCode])
 
         last_stmt = self.next_stmt[0]
@@ -142,9 +142,9 @@ class Scanner2(scan.Scanner):
 
         extended_arg = 0
         for offset in self.op_range(0, n):
-            if offset in cf:
+            if offset in jump_targets:
                 k = 0
-                for j in cf[offset]:
+                for j in jump_targets[offset]:
                     tokens.append(Token(
                         'COME_FROM', None, repr(j),
                         offset="%s_%d" % (offset, k),
