@@ -3,7 +3,7 @@ uncompyle6 2.832 2016-09-11 live from NYC!
 NOTE: this is possibly the last release before a major reworking of
 control-flow structure detection is done.
 
-- Lots of bug fixes decompilations:
+- Lots of bug fixes in decompilation:
   * 3.0 .. 3.4 whileTrue bug
   * 3.x function declaration deparsing:
     . 3.0 .. 3.2 *args processing
