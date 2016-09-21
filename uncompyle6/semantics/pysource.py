@@ -1776,7 +1776,7 @@ class SourceWalker(GenericASTTraversal, object):
             node[-2][0].type = 'unpack_w_parens'
         self.default(node)
 
-    FSTRING_CONVERSION_MAP = {i+1: '!'+x for i, x in enumerate('sra')}
+    FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
 
     def n_fstring_expr(self, node):
         node.conversion = self.FSTRING_CONVERSION_MAP.get(node.data[1].attr, '')
