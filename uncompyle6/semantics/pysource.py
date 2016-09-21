@@ -591,7 +591,7 @@ class SourceWalker(GenericASTTraversal, object):
                 # Python 3.6+ Additions
                 #######################
                 TABLE_DIRECT.update({
-                    'fstring_expr': ( "f'{%c}'", 0),
+                    'fstring_expr': ( "f'{%c%{conversion}}'", 0),
                 })
         return
 
@@ -1721,6 +1721,12 @@ class SourceWalker(GenericASTTraversal, object):
     def n_except_cond2(self, node):
         if node[-2][0] == 'unpack':
             node[-2][0].type = 'unpack_w_parens'
+        self.default(node)
+
+    FSTRING_CONVERSION_MAP = {i+1: '!'+x for i, x in enumerate('sra')}
+
+    def n_fstring_expr(self, node):
+        node.conversion = self.FSTRING_CONVERSION_MAP.get(node.data[1].attr, '')
         self.default(node)
 
     def engine(self, entry, startnode):
