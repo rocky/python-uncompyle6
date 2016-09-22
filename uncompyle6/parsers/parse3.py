@@ -47,8 +47,13 @@ class Python3Parser(PythonParser):
         jb_or_c ::= JUMP_BACK
         jb_or_c ::= CONTINUE
 
+        stmt ::= setcomp_func
+
         setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
                 JUMP_BACK RETURN_VALUE RETURN_LAST
+
+        comp_body ::= dict_comp_body
+        comp_body ::= set_comp_body
         dict_comp_body ::= expr expr MAP_ADD
         set_comp_body ::= expr SET_ADD
 

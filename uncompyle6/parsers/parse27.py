@@ -16,9 +16,13 @@ class Python27Parser(Python2Parser):
         """
         list_for ::= expr _for designator list_iter JUMP_BACK
 
+        stmt ::= setcomp_func
+
         setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
                 JUMP_BACK RETURN_VALUE RETURN_LAST
 
+        comp_body ::= dict_comp_body
+        comp_body ::= set_comp_body
         dict_comp_body ::= expr expr MAP_ADD
         set_comp_body ::= expr SET_ADD
 
@@ -29,6 +33,8 @@ class Python27Parser(Python2Parser):
         """
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            try_middle else_suite COME_FROM
+
+        except_stmt ::= except_cond2 except_suite
 
         except_cond1 ::= DUP_TOP expr COMPARE_OP
                          jmp_false POP_TOP POP_TOP POP_TOP
