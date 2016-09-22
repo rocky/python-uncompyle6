@@ -61,14 +61,7 @@ class Token:
         if self.pattr:
             pattr = self.pattr
             if self.opc:
-                if self.op in self.opc.hasjrel:
-                    pattr = "to " + self.pattr
-                elif self.op in self.opc.hasjabs:
-                    self.pattr= str(self.pattr)
-                    if not self.pattr.startswith('to '):
-                        pattr = "to " + str(self.pattr)
-                    pass
-                elif self.op in self.opc.hascompare:
+                if self.op in self.opc.hascompare:
                     if isinstance(self.attr, int):
                         pattr = self.opc.cmp_op[self.attr]
                 # And so on. See xdis/bytecode.py get_instructions_bytes

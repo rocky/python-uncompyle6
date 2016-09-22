@@ -29,6 +29,7 @@ from uncompyle6.scanner import Scanner, op_has_argument
 from xdis.code import iscode
 from xdis.bytecode import Bytecode
 from uncompyle6.scanner import Token, parse_fn_counts
+from uncompyle6.scanners.controlflow import ControlFlow
 
 # Get all the opcodes into globals
 import xdis.opcodes.opcode_33 as op3
@@ -102,6 +103,11 @@ class Scanner3(Scanner):
             varargs_ops.add(self.opc.CALL_METHOD)
         self.varargs_ops = frozenset(varargs_ops)
 
+        self.setup_ops = frozenset([
+            self.opc.SETUP_LOOP,
+            self.opc.SETUP_EXCEPT, self.opc.SETUP_FINALLY,
+            self.opc.SETUP_WITH])
+
         # Not really a set, but still clasification-like
         self.statement_opcode_sequences = [
             (self.opc.POP_JUMP_IF_FALSE, self.opc.JUMP_FORWARD),
@@ -127,7 +133,7 @@ class Scanner3(Scanner):
         """
 
         show_asm = self.show_asm if not show_asm else show_asm
-        # show_asm = 'both'
+        # show_asm = 'after'
         if show_asm in ('both', 'before'):
             bytecode = Bytecode(co, self.opc)
             for instr in bytecode.get_instructions(co):
@@ -179,13 +185,24 @@ class Scanner3(Scanner):
         # Format: {target offset: [jump offsets]}
         jump_targets = self.find_jump_targets()
 
+        offset_action = ControlFlow(self).detect_control_flow(co)
         for inst in bytecode:
 
             argval = inst.argval
             if inst.offset in jump_targets:
                 jump_idx = 0
                 for jump_offset in jump_targets[inst.offset]:
-                    tokens.append(Token('COME_FROM', None, repr(jump_offset),
+                    come_from_name = 'COME_FROM'
+                    if (inst.offset in offset_action
+                        and offset_action[inst.offset].type == 'end'
+                        # Adjust the grammar and remove the below
+                        and offset_action[inst.offset].name in ['EXCEPT']
+                    ):
+                        come_from_name = '%s_%s' % (
+                            (come_from_name, offset_action[inst.offset].name))
+                        pass
+                    tokens.append(Token(come_from_name,
+                                        None, repr(jump_offset),
                                         offset='%s_%s' % (inst.offset, jump_idx),
                                         has_arg = True, opc=self.opc))
                     jump_idx += 1

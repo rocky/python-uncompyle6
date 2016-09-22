@@ -169,7 +169,7 @@ class Python3Parser(PythonParser):
         # COME_FROM targets from the wrong places
 
         trystmt        ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           try_middle _come_from
+                           try_middle opt_come_from_except
 
         # this is nested inside a trystmt
         tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
@@ -187,8 +187,14 @@ class Python3Parser(PythonParser):
 
         try_middle ::= jmp_abs COME_FROM except_stmts
                        END_FINALLY
+        try_middle ::= jmp_abs COME_FROM_EXCEPT except_stmts
+                       END_FINALLY
+
+        # FIXME: remove this
         try_middle ::= JUMP_FORWARD COME_FROM except_stmts
                        END_FINALLY COME_FROM
+        try_middle ::= JUMP_FORWARD COME_FROM except_stmts
+                       END_FINALLY COME_FROM_EXCEPT
 
         except_stmts ::= except_stmts except_stmt
         except_stmts ::= except_stmt
@@ -242,17 +248,25 @@ class Python3Parser(PythonParser):
 
     def p_misc3(self, args):
         """
-        try_middle ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY NOP COME_FROM
+        try_middle ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts END_FINALLY COME_FROM
+
         for_block ::= l_stmts
         iflaststmtl ::= testexpr c_stmts_opt
         iflaststmt    ::= testexpr c_stmts_opt34
         c_stmts_opt34 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
         """
 
+    def p_come_from3(self, args):
+        """
+        opt_come_from_except ::= COME_FROM_EXCEPT
+        opt_come_from_except ::= come_froms
+
+        come_froms ::= come_froms COME_FROM
+        come_froms ::=
+        """
+
     def p_jump3(self, args):
         """
-        come_froms ::= come_froms COME_FROM
-        come_froms ::= COME_FROM
         jmp_false ::= POP_JUMP_IF_FALSE
         jmp_true  ::= POP_JUMP_IF_TRUE
 

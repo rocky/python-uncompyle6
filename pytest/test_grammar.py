@@ -31,7 +31,7 @@ def test_grammar():
     assert expect_right_recursive == right_recursive
     s = get_scanner(PYTHON_VERSION, IS_PYPY)
     ignore_set = set(
-            """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+            """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM COME_FROM_EXCEPT
                LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP
                LAMBDA_MARKER RETURN_LAST
             """.split())
