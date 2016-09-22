@@ -255,6 +255,7 @@ class Python3Parser(PythonParser):
         """
         try_middle ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts END_FINALLY COME_FROM
 
+        for_block ::= l_stmts_opt opt_come_from_loop JUMP_BACK
         for_block ::= l_stmts
         iflaststmtl ::= testexpr c_stmts_opt
         iflaststmt    ::= testexpr c_stmts_opt34
@@ -268,6 +269,9 @@ class Python3Parser(PythonParser):
 
         come_froms ::= come_froms COME_FROM
         come_froms ::=
+
+        opt_come_from_loop ::= _come_from COME_FROM_LOOP
+        opt_come_from_loop ::=
         """
 
     def p_jump3(self, args):
@@ -298,15 +302,16 @@ class Python3Parser(PythonParser):
         stmt ::= whileTruestmt
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_from
 
-        forstmt ::= SETUP_LOOP expr _for designator for_block POP_BLOCK NOP _come_from
-        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK _come_from
-        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP _come_from
+        forstmt ::= SETUP_LOOP expr _for designator for_block POP_BLOCK opt_come_from_loop
+        forstmt ::= SETUP_LOOP expr _for designator for_block POP_BLOCK NOP opt_come_from_loop
+        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK opt_come_from_loop
+        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP opt_come_from_loop
 
         # Python < 3.5 no POP BLOCK
-        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK _come_from
-        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP _come_from
-        whileTruestmt ::= SETUP_LOOP return_stmts _come_from
-        while1stmt ::= SETUP_LOOP l_stmts _come_from JUMP_BACK _come_from
+        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK opt_come_from_loop
+        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP opt_come_from_loop
+        whileTruestmt ::= SETUP_LOOP return_stmts opt_come_from_loop
+        while1stmt ::= SETUP_LOOP l_stmts _come_from JUMP_BACK opt_come_from_loop
         """
 
     def p_genexpr3(self, args):

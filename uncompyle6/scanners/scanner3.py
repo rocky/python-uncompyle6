@@ -103,10 +103,12 @@ class Scanner3(Scanner):
             varargs_ops.add(self.opc.CALL_METHOD)
         self.varargs_ops = frozenset(varargs_ops)
 
-        self.setup_ops = frozenset([
-            self.opc.SETUP_LOOP,
-            self.opc.SETUP_EXCEPT, self.opc.SETUP_FINALLY,
-            self.opc.SETUP_WITH])
+        setup_ops = [self.opc.SETUP_LOOP, self.opc.SETUP_EXCEPT,
+                      self.opc.SETUP_FINALLY]
+
+        if self.version > 3.1:
+            setup_ops.append(self.opc.SETUP_WITH)
+        self.setup_ops = frozenset(setup_ops)
 
         # Not really a set, but still clasification-like
         self.statement_opcode_sequences = [
@@ -115,6 +117,9 @@ class Scanner3(Scanner):
             (self.opc.POP_JUMP_IF_TRUE,  self.opc.JUMP_FORWARD),
             (self.opc.POP_JUMP_IF_TRUE,  self.opc.JUMP_ABSOLUTE)]
 
+
+    def opName(self, offset):
+        return self.opc.opname[self.code[offset]]
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
@@ -193,13 +198,16 @@ class Scanner3(Scanner):
                 jump_idx = 0
                 for jump_offset in jump_targets[inst.offset]:
                     come_from_name = 'COME_FROM'
-                    if (inst.offset in offset_action
-                        and offset_action[inst.offset].type == 'end'
-                        # Adjust the grammar and remove the below
-                        and offset_action[inst.offset].name in ['EXCEPT']
-                    ):
-                        come_from_name = '%s_%s' % (
-                            (come_from_name, offset_action[inst.offset].name))
+                    if (inst.offset in offset_action):
+                        action = offset_action[inst.offset]
+                        if  (action.type == 'end'
+                            # Adjust the grammar and remove the below
+                            and (self.opName(jump_offset)[len('SETUP_'):]
+                                 == action.name)
+                            and action.name in ['EXCEPT', 'LOOP']):
+                            come_from_name = '%s_%s' % (
+                                (come_from_name, action.name))
+                            pass
                         pass
                     tokens.append(Token(come_from_name,
                                         None, repr(jump_offset),
