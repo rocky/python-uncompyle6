@@ -190,7 +190,6 @@ class Python2Parser(PythonParser):
         except_stmts ::= except_stmt
 
         except_stmt ::= except_cond1 except_suite
-        except_stmt ::= except_cond2 except_suite
         except_stmt ::= except
 
         except_suite ::= c_stmts_opt JUMP_FORWARD

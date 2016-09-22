@@ -361,15 +361,11 @@ class PythonParser(GenericASTBuilder):
 
         setcomp ::= LOAD_SETCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
 
-        stmt ::= setcomp_func
-
         comp_iter ::= comp_if
         comp_iter ::= comp_ifnot
         comp_iter ::= comp_for
         comp_iter ::= comp_body
-        comp_body ::= set_comp_body
         comp_body ::= gen_comp_body
-        comp_body ::= dict_comp_body
         gen_comp_body ::= expr YIELD_VALUE POP_TOP
 
         comp_if ::= expr jmp_false comp_iter

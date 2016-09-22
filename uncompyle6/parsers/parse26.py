@@ -179,6 +179,7 @@ class Python26Parser(Python2Parser):
 
         comp_for ::= SETUP_LOOP expr _for designator comp_iter jb_bp_come_from
 
+        comp_body ::= gen_comp_body
 
         # Make sure we keep indices the same as 2.7
         setup_loop_lf ::= SETUP_LOOP LOAD_FAST
