@@ -51,27 +51,36 @@ class Scanner3(Scanner):
         # Create opcode classification sets
         # Note: super initilization above initializes self.opc
 
+        # Ops that start SETUP_ ... We will COME_FROM with these names
+        # Some blocks and END_ statements. And they can start
+        # a new statement
+        setup_ops = [self.opc.SETUP_LOOP, self.opc.SETUP_EXCEPT,
+                      self.opc.SETUP_FINALLY]
+
+        if self.version >= 3.2:
+            setup_ops.append(self.opc.SETUP_WITH)
+        self.setup_ops = frozenset(setup_ops)
+
+        self.setup_ops_no_loop = frozenset(setup_ops) - frozenset([self.opc.SETUP_LOOP])
+
         # Opcodes that can start a statement.
         statement_opcodes = [
-            self.opc.SETUP_LOOP,    self.opc.BREAK_LOOP, self.opc.CONTINUE_LOOP,
-            self.opc.SETUP_FINALLY, self.opc.END_FINALLY, self.opc.SETUP_EXCEPT,
-            self.opc.POP_BLOCK,     self.opc.STORE_FAST, self.opc.DELETE_FAST,
-            self.opc.STORE_DEREF,
+            self.opc.BREAK_LOOP,    self.opc.CONTINUE_LOOP,
+            self.opc.POP_BLOCK,     self.opc.STORE_FAST,
+            self.opc.DELETE_FAST,   self.opc.STORE_DEREF,
 
-            self.opc.STORE_GLOBAL, self.opc.DELETE_GLOBAL, self.opc.STORE_NAME,
-            self.opc.DELETE_NAME,
+            self.opc.STORE_GLOBAL,  self.opc.DELETE_GLOBAL,
+            self.opc.STORE_NAME,    self.opc.DELETE_NAME,
 
-            self.opc.STORE_ATTR, self.opc.DELETE_ATTR, self.opc.STORE_SUBSCR,
-            self.opc.DELETE_SUBSCR,
+            self.opc.STORE_ATTR,    self.opc.DELETE_ATTR,
+            self.opc.STORE_SUBSCR,  self.opc.POP_TOP,
+            self.opc.DELETE_SUBSCR, self.opc.END_FINALLY,
 
-            self.opc.RETURN_VALUE, self.opc.RAISE_VARARGS, self.opc.POP_TOP,
+            self.opc.RETURN_VALUE, self.opc.RAISE_VARARGS,
             self.opc.PRINT_EXPR,   self.opc.JUMP_ABSOLUTE
         ]
 
-        if version >= 3.2:
-            statement_opcodes.append(self.opc.SETUP_WITH)
-
-        self.statement_opcodes = frozenset(statement_opcodes)
+        self.statement_opcodes = frozenset(statement_opcodes) | self.setup_ops_no_loop
 
         # Opcodes that can start a designator non-terminal.
         # FIXME: JUMP_ABSOLUTE is weird. What's up with that?
@@ -832,7 +841,7 @@ class Scanner3(Scanner):
                     self.not_continue.add(self.prev_op[i])
                     return self.prev_op[i]
                 count_END_FINALLY += 1
-            elif op in (self.opc.SETUP_EXCEPT, self.opc.SETUP_WITH, self.opc.SETUP_FINALLY):
+            elif op in self.setup_opts_no_loop:
                 count_SETUP_ += 1
 
     def rem_or(self, start, end, instr, target=None, include_beyond_target=False):
