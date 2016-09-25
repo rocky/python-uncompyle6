@@ -32,19 +32,19 @@ check-3.2: check-bytecode
 
 #: Run working tests from Python 3.3
 check-3.3: check-bytecode
-	$(PYTHON) test_pythonlib.py --bytecode-3.3 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.3 --verify $(COMPILE)
 
 #: Run working tests from Python 3.4
 check-3.4: check-bytecode check-3.4-ok check-2.7-ok
-	$(PYTHON) test_pythonlib.py --bytecode-3.4 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.4 --verify $(COMPILE)
 
 #: Run working tests from Python 3.5
 check-3.5: check-bytecode
-	$(PYTHON) test_pythonlib.py --bytecode-3.5 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.5 --verify $(COMPILE)
 
 #: Run working tests from Python 3.6
 check-3.6: check-bytecode
-	$(PYTHON) test_pythonlib.py --bytecode-3.6 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.6 --verify $(COMPILE)
 
 #: Check deparsing only, but from a different Python version
 check-disasm:
