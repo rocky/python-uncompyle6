@@ -133,7 +133,7 @@ check-3.2-ok:
 
 #: Run longer Python 3.4's lib files known to be okay
 check-3.4-ok:
-	$(PYTHON) test_pythonlib.py --ok-3.4 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --ok-3.4 --verify $(COMPILE)
 
 #: PyPy of some sort. E.g. [PyPy 5.0.1 with GCC 4.8.4]
 # Skip for now

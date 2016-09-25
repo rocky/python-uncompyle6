@@ -302,16 +302,19 @@ class Python3Parser(PythonParser):
         stmt ::= whileTruestmt
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_from
 
-        forstmt ::= SETUP_LOOP expr _for designator for_block POP_BLOCK opt_come_from_loop
-        forstmt ::= SETUP_LOOP expr _for designator for_block POP_BLOCK NOP opt_come_from_loop
-        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK opt_come_from_loop
-        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP opt_come_from_loop
+        forstmt       ::= SETUP_LOOP expr _for designator for_block POP_BLOCK opt_come_from_loop
+        whilestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK opt_come_from_loop
+        whileTruestmt ::= SETUP_LOOP l_stmts_opt          JUMP_BACK POP_BLOCK opt_come_from_loop
 
         # Python < 3.5 no POP BLOCK
         whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK opt_come_from_loop
-        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP opt_come_from_loop
         whileTruestmt ::= SETUP_LOOP return_stmts opt_come_from_loop
         while1stmt ::= SETUP_LOOP l_stmts _come_from JUMP_BACK opt_come_from_loop
+
+        # FIXME: investigate - can code really produce a NOP?
+        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP opt_come_from_loop
+        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP opt_come_from_loop
+        forstmt ::= SETUP_LOOP expr _for designator for_block POP_BLOCK NOP opt_come_from_loop
         """
 
     def p_genexpr3(self, args):
