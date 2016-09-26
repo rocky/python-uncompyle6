@@ -198,14 +198,21 @@ class Scanner3(Scanner):
             argval = inst.argval
             if inst.offset in jump_targets:
                 jump_idx = 0
-                for jump_offset in jump_targets[inst.offset]:
+                # We want to process COME_FROMs to the same offset to be in *descending*
+                # offset order so we have the larger range or biggest instruction interval
+                # last. (I think they are sorted in increasing order, but for safety
+                # we sort them). That way, specific COME_FROM tags will match up
+                # properly. For example, a "loop" with an "if" nested in it should have the
+                # "loop" tag last so the grammar rule matches that properly.
+                for jump_offset in sorted(jump_targets[inst.offset], reverse=True):
                     come_from_name = 'COME_FROM'
                     if (inst.offset in offset_action):
                         action = offset_action[inst.offset]
                         if  (action.type == 'end'
-                            # Adjust the grammar and remove the below
                             and (self.opName(jump_offset)[len('SETUP_'):]
                                  == action.name)
+                            # After the grammar is fully adjusted, remove the below
+                            # test
                             and action.name in ['EXCEPT', 'LOOP', 'WITH']):
                             come_from_name = '%s_%s' % (
                                 (come_from_name, action.name))

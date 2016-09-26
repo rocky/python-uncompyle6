@@ -29,7 +29,9 @@ augmented with pseudo instruction COME_FROM. This code introduced
 another clever idea: using table-driven semantics routines, using
 format specifiers.
 
-The last mention of a release of SPARK from John is around 2002.
+The last mention of a release of SPARK from John is around 2002. As
+released, although the Early Algorithm parser was in good shape, this
+code was woefully lacking as serious Python deparser.
 
 In the fall of 2000, Hartmut Goebel
 [took over maintaining the code](https://groups.google.com/forum/#!searchin/comp.lang.python/hartmut$20goebel/comp.lang.python/35s3mp4-nuY/UZALti6ujnQJ). The
@@ -112,12 +114,18 @@ Fenx's uncompyle3 which I used for inspiration for Python3 support.
 I started working on this late 2015, mostly to add fragment support.
 In that, I decided to make this runnable on Python 3.2+ and Python 2.6+
 while, handling Python bytecodes from Python versions 2.5+ and
-3.2+.
+3.2+. In doing so, it has been expedient to separate this into three
+projects: load loading and disassembly (xdis), parsing and tree
+building (spark_parser), and grammar and semantic actions for
+decompiling (uncompyle6).
+
 
 Over the many years, code styles and Python features have
 changed. However brilliant the code was and still is, it hasn't really
 had a single public active maintainer. And there have been many forks
-of the code.
+of the code.  I have spent a great deal of time trying to organize and
+modularize the code so that it can handle more Python versions more
+gracefully (with still only moderate success).
 
 That it has been in need of an overhaul has been recognized by the
 Hartmut a decade an a half ago:

@@ -94,27 +94,6 @@ class Python2Parser(PythonParser):
 
         stmt ::= exec_stmt
 
-        stmt ::= assert
-        stmt ::= assert2
-        stmt ::= ifstmt
-        stmt ::= ifelsestmt
-
-        stmt ::= whilestmt
-        stmt ::= while1stmt
-        stmt ::= whileelsestmt
-        stmt ::= while1elsestmt
-        stmt ::= forstmt
-        stmt ::= forelsestmt
-        stmt ::= trystmt
-        stmt ::= tryelsestmt
-        stmt ::= tryfinallystmt
-        stmt ::= withstmt
-        stmt ::= withasstmt
-
-        stmt ::= del_stmt
-        del_stmt ::= DELETE_FAST
-        del_stmt ::= DELETE_NAME
-        del_stmt ::= DELETE_GLOBAL
         del_stmt ::= expr DELETE_SLICE+0
         del_stmt ::= expr expr DELETE_SLICE+1
         del_stmt ::= expr expr DELETE_SLICE+2
