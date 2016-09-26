@@ -33,7 +33,7 @@ def test_grammar():
     ignore_set = set(
             """
             JUMP_BACK CONTINUE RETURN_END_IF
-            COME_FROM COME_FROM_EXCEPT COME_FROM_LOOP
+            COME_FROM COME_FROM_EXCEPT COME_FROM_LOOP COME_FROM_WITH
             LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP
             LAMBDA_MARKER RETURN_LAST
             """.split())

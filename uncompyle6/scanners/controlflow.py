@@ -9,8 +9,6 @@ from xdis.bytecode import Bytecode
 
 control_flow_start = namedtuple('control_flow_start', ['name', 'type', 'offset'])
 control_flow_end = namedtuple('control_flow_end', ['name', 'type', 'offset'])
-control_flow_pair = namedtuple('control_flow_pair', ['name', 'start_offset', 'end_offset'])
-
 
 class ControlFlow():
     def __init__(self, scanner):

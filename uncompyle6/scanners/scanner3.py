@@ -206,7 +206,7 @@ class Scanner3(Scanner):
                             # Adjust the grammar and remove the below
                             and (self.opName(jump_offset)[len('SETUP_'):]
                                  == action.name)
-                            and action.name in ['EXCEPT', 'LOOP']):
+                            and action.name in ['EXCEPT', 'LOOP', 'WITH']):
                             come_from_name = '%s_%s' % (
                                 (come_from_name, action.name))
                             pass
