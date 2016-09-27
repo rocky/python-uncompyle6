@@ -208,12 +208,9 @@ class Scanner3(Scanner):
                     come_from_name = 'COME_FROM'
                     if (inst.offset in offset_action):
                         action = offset_action[inst.offset]
-                        if  (action.type == 'end'
+                        if (action.type == 'end'
                             and (self.opName(jump_offset)[len('SETUP_'):]
-                                 == action.name)
-                            # After the grammar is fully adjusted, remove the below
-                            # test
-                            and action.name in ['EXCEPT', 'LOOP', 'WITH']):
+                                 == action.name)):
                             come_from_name = '%s_%s' % (
                                 (come_from_name, action.name))
                             pass

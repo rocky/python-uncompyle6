@@ -158,7 +158,7 @@ class Python3Parser(PythonParser):
         # this is nested inside a trystmt
         tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
                            POP_BLOCK LOAD_CONST
-                           COME_FROM suite_stmts_opt END_FINALLY
+                           come_from_or_finally suite_stmts_opt END_FINALLY
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            try_middle else_suite come_froms
@@ -203,8 +203,8 @@ class Python3Parser(PythonParser):
         except_suite_finalize ::= SETUP_FINALLY c_stmts_opt except_var_finalize
                                   END_FINALLY _jump
 
-        except_var_finalize ::= POP_BLOCK POP_EXCEPT LOAD_CONST COME_FROM LOAD_CONST
-                                designator del_stmt
+        except_var_finalize ::= POP_BLOCK POP_EXCEPT LOAD_CONST come_from_or_finally
+                                LOAD_CONST designator del_stmt
 
         except_suite ::= return_stmts
 
@@ -249,8 +249,12 @@ class Python3Parser(PythonParser):
         come_froms ::= come_froms COME_FROM
         come_froms ::=
 
-        opt_come_from_loop ::= _come_from COME_FROM_LOOP
+        opt_come_from_loop ::= opt_come_from_loop COME_FROM_LOOP
         opt_come_from_loop ::=
+
+        come_from_or_finally  ::= COME_FROM_FINALLY
+        come_from_or_finally  ::= COME_FROM
+
         """
 
     def p_jump3(self, args):
@@ -294,8 +298,12 @@ class Python3Parser(PythonParser):
 
         forelselaststmtl  ::= SETUP_LOOP expr _for designator for_block POP_BLOCK else_suitel
                               COME_FROM_LOOP
+
         whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
+        whilestmt         ::= SETUP_LOOP testexpr return_stmts          POP_BLOCK
+                              COME_FROM_LOOP
+
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suite COME_FROM_LOOP
         whileelselaststmt ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
