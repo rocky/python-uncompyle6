@@ -206,14 +206,10 @@ class Scanner3(Scanner):
                 # "loop" tag last so the grammar rule matches that properly.
                 for jump_offset in sorted(jump_targets[inst.offset], reverse=True):
                     come_from_name = 'COME_FROM'
-                    if (inst.offset in offset_action):
-                        action = offset_action[inst.offset]
-                        if (action.type == 'end'
-                            and (self.opName(jump_offset)[len('SETUP_'):]
-                                 == action.name)):
-                            come_from_name = '%s_%s' % (
-                                (come_from_name, action.name))
-                            pass
+                    opname = self.opName(jump_offset)
+                    if opname.startswith('SETUP_'):
+                        come_from_type = opname[len('SETUP_'):]
+                        come_from_name = 'COME_FROM_%s' % come_from_type
                         pass
                     tokens.append(Token(come_from_name,
                                         None, repr(jump_offset),

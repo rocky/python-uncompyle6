@@ -306,15 +306,21 @@ class Python3Parser(PythonParser):
 
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suite COME_FROM_LOOP
+        while1elsestmt    ::= SETUP_LOOP          l_stmts     JUMP_BACK
+                              else_suite COME_FROM_LOOP
+
         whileelselaststmt ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suitec COME_FROM_LOOP
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt          JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
         # Python < 3.5 no POP BLOCK
-        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM_LOOP
-        whileTruestmt ::= SETUP_LOOP return_stmts COME_FROM_LOOP
-        while1stmt ::= SETUP_LOOP l_stmts _come_from JUMP_BACK COME_FROM_LOOP
+        whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK
+                              COME_FROM_LOOP
+        whileTruestmt     ::= SETUP_LOOP return_stmts
+                              COME_FROM_LOOP
+
+        while1stmt        ::= SETUP_LOOP l_stmts     JUMP_BACK COME_FROM_LOOP
 
         # FIXME: investigate - can code really produce a NOP?
         whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP
