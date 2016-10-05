@@ -727,7 +727,8 @@ class Scanner3(Scanner):
                      code[prev_op[prev_op[rtarget]]] != self.opc.JUMP_ABSOLUTE)):
                 rtarget = prev_op[rtarget]
 
-            # Does the "if" jump just beyond a jump op, then this is probably an if statement
+            # Does the "if" jump just beyond a jump op, then this can be
+            # a block inside an "if" statement
             if self.is_jump_forward(prev_op[rtarget]):
                 if_end = self.get_target(prev_op[rtarget])
 
