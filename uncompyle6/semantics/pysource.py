@@ -51,7 +51,9 @@ methods implement most of the below.
     %D  same as %C but is for left-recursive lists like kwargs which
         goes to epsilon at the beginning. Using %C an extra separator
         with an epsilon appears at the beginning
-    %,  print ',' if last %C only printed one item (for tuples--unused)
+    %,  print ',' if last %C only printed one item. This is mostly for tuples
+        on the LHS of an assignment statement since BUILD_TUPLE_n pretty-prints
+        other tuples.
     %|  tab to current indentation level
     %+ increase current indentation level
     %- decrease current indentation level
@@ -211,7 +213,10 @@ TABLE_DIRECT = {
     'STORE_GLOBAL':	( '%{pattr}', ),
     'STORE_DEREF':	( '%{pattr}', ),
     'unpack':		( '%C%,', (1, maxint, ', ') ),
-    'unpack_w_parens':		( '(%C%,)', (1, maxint, ', ') ),
+
+    # This nonterminal we create on the fly in semantic routines
+    'unpack_w_parens':	( '(%C%,)', (1, maxint, ', ') ),
+
     'unpack_list':	( '[%C]', (1, maxint, ', ') ),
     'build_tuple2':	( '%P', (0, -1, ', ', 100) ),
 
@@ -1812,9 +1817,12 @@ class SourceWalker(GenericASTTraversal, object):
             elif typ == '+':	self.indentMore()
             elif typ == '-':	self.indentLess()
             elif typ == '|':	self.write(self.indent)
-            # no longer used, since BUILD_TUPLE_n is pretty printed:
+            # Used mostly on the LHS of an assignment
+            # BUILD_TUPLE_n is pretty printed and may take care of other uses.
             elif typ == ',':
-                pass
+                if (node.type in ('unpack', 'unpack_w_parens') and
+                    node[0].attr == 1):
+                    self.write(',')
             elif typ == 'c':
                 # FIXME: In Python3 sometimes like from
                 # importfrom
