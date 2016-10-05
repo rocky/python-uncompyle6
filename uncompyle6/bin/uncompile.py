@@ -5,7 +5,7 @@
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 from __future__ import print_function
-import sys, os, getopt, time
+import sys, os, getopt, tempfile, time
 
 program, ext = os.path.splitext(os.path.basename(__file__))
 
@@ -143,9 +143,12 @@ def main_bin():
         print("No files given", file=sys.stderr)
         usage()
 
-
     if outfile == '-':
-        outfile = None # use stdout
+        if 'do_verify' in options and len(files) == 1:
+            junk, outfile = tempfile.mkstemp(suffix=".pyc",
+                                             prefix=files[0][0:-4]+'-')
+        else:
+            outfile = None # use stdout
     elif outfile and os.path.isdir(outfile):
         out_base = outfile; outfile = None
     elif outfile and len(files) > 1:
