@@ -454,7 +454,6 @@ class PythonParser(GenericASTBuilder):
         _mklambda ::= mklambda
 
         or   ::= expr jmp_true expr come_from_opt
-        and  ::= expr jmp_false expr come_from_opt
         and2 ::= _jump jmp_false COME_FROM expr COME_FROM
 
         expr ::= conditional

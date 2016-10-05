@@ -231,6 +231,7 @@ class Python3Parser(PythonParser):
                 POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP END_FINALLY
 
+        and ::= expr jmp_false expr COME_FROM
         '''
 
     def p_misc3(self, args):
