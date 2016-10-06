@@ -232,6 +232,7 @@ class Python3Parser(PythonParser):
                 WITH_CLEANUP END_FINALLY
 
         and ::= expr jmp_false expr COME_FROM
+        or  ::= expr jmp_true  expr COME_FROM
         '''
 
     def p_misc3(self, args):

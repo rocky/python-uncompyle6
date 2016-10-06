@@ -453,7 +453,6 @@ class PythonParser(GenericASTBuilder):
         _mklambda ::= load_closure mklambda
         _mklambda ::= mklambda
 
-        or   ::= expr jmp_true expr come_from_opt
         and2 ::= _jump jmp_false COME_FROM expr COME_FROM
 
         expr ::= conditional
