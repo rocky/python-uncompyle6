@@ -174,8 +174,32 @@ class PythonParser(GenericASTBuilder):
         else_suitec ::= c_stmts
         else_suitec ::= return_stmts
 
+        stmt ::= assert
+        stmt ::= assert2
+
         stmt ::= classdef
         stmt ::= call_stmt
+
+        stmt ::= ifstmt
+        stmt ::= ifelsestmt
+
+        stmt ::= whilestmt
+        stmt ::= while1stmt
+        stmt ::= whileelsestmt
+        stmt ::= while1elsestmt
+        stmt ::= forstmt
+        stmt ::= forelsestmt
+        stmt ::= trystmt
+        stmt ::= tryelsestmt
+        stmt ::= tryfinallystmt
+        stmt ::= withstmt
+        stmt ::= withasstmt
+
+        stmt ::= del_stmt
+        del_stmt ::= DELETE_FAST
+        del_stmt ::= DELETE_NAME
+        del_stmt ::= DELETE_GLOBAL
+
 
         stmt ::= return_stmt
         return_stmt ::= ret_expr RETURN_VALUE
@@ -287,20 +311,12 @@ class PythonParser(GenericASTBuilder):
 
     def p_whilestmt(self, args):
         """
-        whilestmt ::= SETUP_LOOP
-                testexpr
-                l_stmts_opt JUMP_BACK
-                POP_BLOCK _come_from
+        whilestmt  ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK
+                       POP_BLOCK _come_from
 
-        whilestmt ::= SETUP_LOOP
-                testexpr
-                return_stmts
-                POP_BLOCK COME_FROM
+        whilestmt  ::= SETUP_LOOP testexpr return_stmts
+                       POP_BLOCK COME_FROM
 
-        while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK COME_FROM
-        while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK POP_BLOCK COME_FROM
-
-        while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK else_suite COME_FROM
         whileelsestmt ::= SETUP_LOOP testexpr
                 l_stmts_opt JUMP_BACK
                 POP_BLOCK

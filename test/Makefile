@@ -24,7 +24,7 @@ check-2.6 check-2.7: check-bytecode-2 check-bytecode-3  check-2.7-ok
 
 #: Run working tests from Python 3.1
 check-3.1: check-bytecode
-	$(PYTHON) test_pythonlib.py --bytecode-3.1 --verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.1 --weak-verify $(COMPILE)
 
 #: Run working tests from Python 3.2
 check-3.2: check-bytecode
@@ -32,11 +32,11 @@ check-3.2: check-bytecode
 
 #: Run working tests from Python 3.3
 check-3.3: check-bytecode
-	$(PYTHON) test_pythonlib.py --bytecode-3.3 --verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.3 --weak-verify $(COMPILE)
 
 #: Run working tests from Python 3.4
 check-3.4: check-bytecode check-3.4-ok check-2.7-ok
-	$(PYTHON) test_pythonlib.py --bytecode-3.4 --verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.4 --weak-verify $(COMPILE)
 
 #: Run working tests from Python 3.5
 check-3.5: check-bytecode

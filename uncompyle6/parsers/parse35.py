@@ -19,15 +19,15 @@ class Python35Parser(Python3Parser):
         # Python 3.5+ has WITH_CLEANUP_START/FINISH
 
         withstmt ::= expr SETUP_WITH exprlist suite_stmts_opt
-                    POP_BLOCK LOAD_CONST COME_FROM
+                    POP_BLOCK LOAD_CONST COME_FROM_WITH
                     WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
         withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
-                     POP_BLOCK LOAD_CONST COME_FROM
+                     POP_BLOCK LOAD_CONST COME_FROM_WITH
                      WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
         withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
-                POP_BLOCK LOAD_CONST COME_FROM
+                POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
         inplace_op ::= INPLACE_MATRIX_MULTIPLY

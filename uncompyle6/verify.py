@@ -400,9 +400,10 @@ def compare_code_with_srcfile(pyc_filename, src_filename, weak_verify=False):
 
 def compare_files(pyc_filename1, pyc_filename2, weak_verify=False):
     """Compare two .pyc files."""
-    version, timestamp, magic_int1, code_obj1, is_pypy = uncompyle6.load_module(pyc_filename1)
-    version, timestamp, magic_int2, code_obj2, is_pypy = uncompyle6.load_module(pyc_filename2)
-    cmp_code_objects(version, is_pypy, code_obj1, code_obj2, ignore_code=weak_verify)
+    version1, timestamp, magic_int1, code_obj1, is_pypy = uncompyle6.load_module(pyc_filename1)
+    version2, timestamp, magic_int2, code_obj2, is_pypy = uncompyle6.load_module(pyc_filename2)
+    weak_verify = weak_verify or (magic_int1 != magic_int2)
+    cmp_code_objects(version1, is_pypy, code_obj1, code_obj2, ignore_code=weak_verify)
 
 if __name__ == '__main__':
     t1 = Token('LOAD_CONST', None, 'code_object _expandLang', 52)

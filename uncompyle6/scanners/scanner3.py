@@ -29,6 +29,7 @@ from uncompyle6.scanner import Scanner, op_has_argument
 from xdis.code import iscode
 from xdis.bytecode import Bytecode
 from uncompyle6.scanner import Token, parse_fn_counts
+from uncompyle6.scanners.controlflow import ControlFlow
 
 # Get all the opcodes into globals
 import xdis.opcodes.opcode_33 as op3
@@ -119,6 +120,9 @@ class Scanner3(Scanner):
             (self.opc.POP_JUMP_IF_TRUE,  self.opc.JUMP_ABSOLUTE)]
 
 
+    def opName(self, offset):
+        return self.opc.opname[self.code[offset]]
+
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Pick out tokens from an uncompyle6 code object, and transform them,
@@ -136,7 +140,7 @@ class Scanner3(Scanner):
         """
 
         show_asm = self.show_asm if not show_asm else show_asm
-        # show_asm = 'both'
+        # show_asm = 'after'
         if show_asm in ('both', 'before'):
             bytecode = Bytecode(co, self.opc)
             for instr in bytecode.get_instructions(co):
@@ -188,13 +192,27 @@ class Scanner3(Scanner):
         # Format: {target offset: [jump offsets]}
         jump_targets = self.find_jump_targets()
 
+        offset_action = ControlFlow(self).detect_control_flow(co)
         for inst in bytecode:
 
             argval = inst.argval
             if inst.offset in jump_targets:
                 jump_idx = 0
-                for jump_offset in jump_targets[inst.offset]:
-                    tokens.append(Token('COME_FROM', None, repr(jump_offset),
+                # We want to process COME_FROMs to the same offset to be in *descending*
+                # offset order so we have the larger range or biggest instruction interval
+                # last. (I think they are sorted in increasing order, but for safety
+                # we sort them). That way, specific COME_FROM tags will match up
+                # properly. For example, a "loop" with an "if" nested in it should have the
+                # "loop" tag last so the grammar rule matches that properly.
+                for jump_offset in sorted(jump_targets[inst.offset], reverse=True):
+                    come_from_name = 'COME_FROM'
+                    opname = self.opName(jump_offset)
+                    if opname.startswith('SETUP_'):
+                        come_from_type = opname[len('SETUP_'):]
+                        come_from_name = 'COME_FROM_%s' % come_from_type
+                        pass
+                    tokens.append(Token(come_from_name,
+                                        None, repr(jump_offset),
                                         offset='%s_%s' % (inst.offset, jump_idx),
                                         has_arg = True, opc=self.opc))
                     jump_idx += 1

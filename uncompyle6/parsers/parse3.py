@@ -95,27 +95,6 @@ class Python3Parser(PythonParser):
         raise_stmt2 ::= expr expr RAISE_VARARGS_2
         raise_stmt3 ::= expr expr expr RAISE_VARARGS_3
 
-        stmt ::= assert
-        stmt ::= assert2
-        stmt ::= ifstmt
-        stmt ::= ifelsestmt
-
-        stmt ::= whilestmt
-        stmt ::= while1stmt
-        stmt ::= whileelsestmt
-        stmt ::= while1elsestmt
-        stmt ::= forstmt
-        stmt ::= forelsestmt
-        stmt ::= trystmt
-        stmt ::= tryelsestmt
-        stmt ::= tryfinallystmt
-        stmt ::= withstmt
-        stmt ::= withasstmt
-
-        stmt ::= del_stmt
-        del_stmt ::= DELETE_FAST
-        del_stmt ::= DELETE_NAME
-        del_stmt ::= DELETE_GLOBAL
         del_stmt ::= delete_subscr
         delete_subscr ::= expr expr DELETE_SUBSCR
         del_stmt ::= expr DELETE_ATTR
@@ -158,6 +137,7 @@ class Python3Parser(PythonParser):
         iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
 
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
+        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK COME_FROM_LOOP
 
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite COME_FROM
 
@@ -166,6 +146,8 @@ class Python3Parser(PythonParser):
         ifelsestmtr ::= testexpr return_if_stmts return_stmts
 
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
+        ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel JUMP_BACK COME_FROM_LOOP
+        ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel COME_FROM_LOOP
 
 
         # FIXME: this feels like a hack. Is it just 1 or two
@@ -174,12 +156,12 @@ class Python3Parser(PythonParser):
         # COME_FROM targets from the wrong places
 
         trystmt        ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           try_middle _come_from
+                           try_middle opt_come_from_except
 
         # this is nested inside a trystmt
         tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
                            POP_BLOCK LOAD_CONST
-                           COME_FROM suite_stmts_opt END_FINALLY
+                           come_from_or_finally suite_stmts_opt END_FINALLY
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            try_middle else_suite come_froms
@@ -192,8 +174,14 @@ class Python3Parser(PythonParser):
 
         try_middle ::= jmp_abs COME_FROM except_stmts
                        END_FINALLY
+        try_middle ::= jmp_abs COME_FROM_EXCEPT except_stmts
+                       END_FINALLY
+
+        # FIXME: remove this
         try_middle ::= JUMP_FORWARD COME_FROM except_stmts
                        END_FINALLY COME_FROM
+        try_middle ::= JUMP_FORWARD COME_FROM except_stmts
+                       END_FINALLY COME_FROM_EXCEPT
 
         except_stmts ::= except_stmts except_stmt
         except_stmts ::= except_stmt
@@ -218,8 +206,8 @@ class Python3Parser(PythonParser):
         except_suite_finalize ::= SETUP_FINALLY c_stmts_opt except_var_finalize
                                   END_FINALLY _jump
 
-        except_var_finalize ::= POP_BLOCK POP_EXCEPT LOAD_CONST COME_FROM LOAD_CONST
-                                designator del_stmt
+        except_var_finalize ::= POP_BLOCK POP_EXCEPT LOAD_CONST come_from_or_finally
+                                LOAD_CONST designator del_stmt
 
         except_suite ::= return_stmts
 
@@ -236,11 +224,11 @@ class Python3Parser(PythonParser):
         jmp_abs ::= JUMP_BACK
 
         withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
-                POP_BLOCK LOAD_CONST COME_FROM
+                POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP END_FINALLY
 
         withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
-                POP_BLOCK LOAD_CONST COME_FROM
+                POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP END_FINALLY
 
         and ::= expr jmp_false expr COME_FROM
@@ -249,17 +237,33 @@ class Python3Parser(PythonParser):
 
     def p_misc3(self, args):
         """
-        try_middle ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY NOP COME_FROM
+        try_middle ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts END_FINALLY COME_FROM
+
+        for_block ::= l_stmts_opt opt_come_from_loop JUMP_BACK
         for_block ::= l_stmts
         iflaststmtl ::= testexpr c_stmts_opt
         iflaststmt    ::= testexpr c_stmts_opt34
         c_stmts_opt34 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
         """
 
+    def p_come_from3(self, args):
+        """
+        opt_come_from_except ::= COME_FROM_EXCEPT
+        opt_come_from_except ::= come_froms
+
+        come_froms ::= come_froms COME_FROM
+        come_froms ::=
+
+        opt_come_from_loop ::= opt_come_from_loop COME_FROM_LOOP
+        opt_come_from_loop ::=
+
+        come_from_or_finally  ::= COME_FROM_FINALLY
+        come_from_or_finally  ::= COME_FROM
+
+        """
+
     def p_jump3(self, args):
         """
-        come_froms ::= come_froms COME_FROM
-        come_froms ::= COME_FROM
         jmp_false ::= POP_JUMP_IF_FALSE
         jmp_true  ::= POP_JUMP_IF_TRUE
 
@@ -285,16 +289,59 @@ class Python3Parser(PythonParser):
         stmt ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
         stmt ::= whileTruestmt
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_from
+        """
 
-        forstmt ::= SETUP_LOOP expr _for designator for_block POP_BLOCK NOP _come_from
-        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK _come_from
-        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP _come_from
+    def p_loop_stmt3(self, args):
+        """
+        forstmt           ::= SETUP_LOOP expr _for designator for_block POP_BLOCK
+                              opt_come_from_loop
+        forelsestmt       ::= SETUP_LOOP expr _for designator for_block POP_BLOCK else_suite
+                              COME_FROM_LOOP
+
+        forelselaststmt   ::= SETUP_LOOP expr _for designator for_block POP_BLOCK else_suitec
+                              COME_FROM_LOOP
+
+        forelselaststmtl  ::= SETUP_LOOP expr _for designator for_block POP_BLOCK else_suitel
+                              COME_FROM_LOOP
+
+        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+                              COME_FROM_LOOP
+
+        # The JUMP_ABSOLUTE below comes from escaping an "if" block which surrounds
+        # the while. This is messy
+        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+                              JUMP_ABSOLUTE COME_FROM_LOOP
+
+        whilestmt         ::= SETUP_LOOP testexpr return_stmts          POP_BLOCK
+                              COME_FROM_LOOP
+
+        whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+                              else_suite COME_FROM_LOOP
+        while1elsestmt    ::= SETUP_LOOP          l_stmts     JUMP_BACK
+                              else_suite COME_FROM_LOOP
+
+        whileelselaststmt ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+                              else_suitec COME_FROM_LOOP
+        whileTruestmt     ::= SETUP_LOOP l_stmts_opt          JUMP_BACK POP_BLOCK
+                              COME_FROM_LOOP
+
+        while1stmt        ::= SETUP_LOOP l_stmts
 
         # Python < 3.5 no POP BLOCK
-        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK _come_from
-        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP _come_from
-        whileTruestmt ::= SETUP_LOOP return_stmts _come_from
-        while1stmt ::= SETUP_LOOP l_stmts _come_from JUMP_BACK _come_from
+        whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK
+                              COME_FROM_LOOP
+        whileTruestmt     ::= SETUP_LOOP return_stmts
+                              COME_FROM_LOOP
+
+        # FIXME: investigate - can code really produce a NOP?
+        whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP
+                              COME_FROM_LOOP
+        whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP
+                              COME_FROM_LOOP
+        whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP
+                              COME_FROM_LOOP
+        forstmt           ::= SETUP_LOOP expr _for designator for_block POP_BLOCK NOP
+                              COME_FROM_LOOP
         """
 
     def p_genexpr3(self, args):
