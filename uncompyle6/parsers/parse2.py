@@ -233,6 +233,7 @@ class Python2Parser(PythonParser):
         expr ::= unary_convert
 
         and  ::= expr jmp_false expr come_from_opt
+        or   ::= expr jmp_true  expr come_from_opt
 
         slice0 ::= expr SLICE+0
         slice0 ::= expr DUP_TOP SLICE+0
