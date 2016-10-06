@@ -29,7 +29,6 @@ from uncompyle6.scanner import Scanner, op_has_argument
 from xdis.code import iscode
 from xdis.bytecode import Bytecode
 from uncompyle6.scanner import Token, parse_fn_counts
-from uncompyle6.scanners.controlflow import ControlFlow
 
 # Get all the opcodes into globals
 import xdis.opcodes.opcode_33 as op3
@@ -192,7 +191,6 @@ class Scanner3(Scanner):
         # Format: {target offset: [jump offsets]}
         jump_targets = self.find_jump_targets()
 
-        offset_action = ControlFlow(self).detect_control_flow(co)
         for inst in bytecode:
 
             argval = inst.argval
