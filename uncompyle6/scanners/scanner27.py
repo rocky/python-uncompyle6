@@ -1,10 +1,9 @@
 # Copyright (c) 2015, 2016 by Rocky Bernstein
 """
-Python 2.7 bytecode scanner/deparser
+Python 2.7 bytecode ingester.
 
-This overlaps Python's 2.7's dis module, but it can be run from
-Python 3 and other versions of Python. Also, we save token information
-for later use in deparsing.
+This massages tokenized 2.7 bytecode to make it more amenable for
+grammar parsing.
 """
 
 
