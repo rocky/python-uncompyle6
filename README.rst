@@ -11,8 +11,8 @@ Introduction
 ------------
 
 *uncompyle6* translates Python bytecode back into equivalent Python
-source code. It accepts bytecodes from Python version 2.2 to 3.6 or
-so, including PyPy bytecode.
+source code. It accepts bytecodes from Python version 2.1 to 3.6 or
+so, including PyPy bytecode and Dropbox's Python 2.5 bytecode.
 
 Why this?
 ---------
@@ -45,7 +45,7 @@ Requirements
 
 This project requires Python 2.6 or later, PyPy 3-2.4, or PyPy-5.0.1.
 The bytecode files it can read has been tested on Python bytecodes from
-versions 2.2-2.7, and 3.2-3.6 and the above-mentioned PyPy versions.
+versions 2.1-2.7, and 3.2-3.6 and the above-mentioned PyPy versions.
 
 Installation
 ------------

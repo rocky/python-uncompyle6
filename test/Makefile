@@ -53,7 +53,7 @@ check-disasm:
 #: Check deparsing bytecode 2.x only
 check-bytecode-2:
 	$(PYTHON) test_pythonlib.py \
-	--bytecode-2.2 --bytecode-2.3 --bytecode-2.4 \
+	--bytecode-2.1 --bytecode-2.2 --bytecode-2.3 --bytecode-2.4 \
         --bytecode-2.5 --bytecode-2.6 --bytecode-2.7 --bytecode-pypy2.7
 
 #: Check deparsing bytecode 3.x only
@@ -64,11 +64,15 @@ check-bytecode-3:
 #: Check deparsing bytecode that works running Python 2 and Python 3
 check-bytecode: check-bytecode-3
 	$(PYTHON) test_pythonlib.py \
-	--bytecode-2.2 --bytecode-2.3 --bytecode-2.4 \
+	--bytecode-2.1 --bytecode-2.2 --bytecode-2.3 --bytecode-2.4 \
         --bytecode-2.5 --bytecode-2.6 --bytecode-2.7 --bytecode-pypy2.7
 
+#: Check deparsing Python 2.1
+check-bytecode-2.1:
+	$(PYTHON) test_pythonlib.py --bytecode-2.1
+
 #: Check deparsing Python 2.2
-check-bytecode-2.3:
+check-bytecode-2.2:
 	$(PYTHON) test_pythonlib.py --bytecode-2.2
 
 #: Check deparsing Python 2.3
