@@ -1,4 +1,12 @@
-uncompyle6 2.832 2016-09-11 live from NYC!
+uncompyle6 2.8.4 2016-10-08
+
+- Python 3 disassembly bug fixes
+- Python 3.6 fstring bug fixes (from moagstar)
+- Python 2.1 disassembly
+- COME_FROM suffixes added in Python3
+- use .py extension in verification disassembly
+
+uncompyle6 2.8.3 2016-09-11 live from NYC!
 
 NOTE: this is possibly the last release before a major reworking of
 control-flow structure detection is done.

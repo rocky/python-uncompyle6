@@ -1,6 +1,209 @@
+2016-10-08  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/version.py: Get ready for release 2.8.4
+
+2016-10-08  rocky <rb@dustyfeet.com>
+
+	* README.rst, test/Makefile, test/decompyle/README.md,
+	test/decompyle/test_applyEquiv.py,
+	test/decompyle/test_augmentedAssign.py,
+	test/decompyle/test_class.py, test/decompyle/test_del.py,
+	test/decompyle/test_divide_future.py,
+	test/decompyle/test_divide_no_future.py,
+	test/decompyle/test_docstring.py, test/decompyle/test_empty.py,
+	test/decompyle/test_exceptions.py, test/decompyle/test_exec.py,
+	test/decompyle/test_expressions.py,
+	test/decompyle/test_extendedImport.py,
+	test/decompyle/test_extendedPrint.py,
+	test/decompyle/test_extendedarg.py,
+	test/decompyle/test_functions.py, test/decompyle/test_global.py,
+	test/decompyle/test_globals.py, test/decompyle/test_import.py,
+	test/decompyle/test_import_as.py, test/decompyle/test_integers.py,
+	test/decompyle/test_iterators.py, test/decompyle/test_lambda.py,
+	test/decompyle/test_listComprehensions.py,
+	test/decompyle/test_loops.py, test/decompyle/test_loops2.py,
+	test/decompyle/test_misc.py, test/decompyle/test_nested_elif.py,
+	test/decompyle/test_nested_scopes.py,
+	test/decompyle/test_prettyprint.py, test/decompyle/test_print.py,
+	test/decompyle/test_print_to.py,
+	test/decompyle/test_single_stmt.py, test/decompyle/test_slices.py,
+	test/decompyle/test_tuple_params.py, test/decompyle/test_tuples.py,
+	test/decompyle/test_yield.py, test/ok_lib2.7/compiler/syntax.py: Add
+	decompyle's 2.1 tests Update README.rst to note new pythons supported since last update
+
+2016-10-07  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, test/test_pythonlib.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse21.py,
+	uncompyle6/scanner.py, uncompyle6/scanners/scanner21.py,
+	uncompyle6/scanners/scanner22.py, uncompyle6/scanners/scanner27.py,
+	uncompyle6/semantics/pysource.py: Start Python 2.1 bytecode
+	decompile
+
+2016-10-06  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/main.py: Use .py extension in disassembled files more
+	often
+
+2016-10-06  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/controlflow.py,
+	uncompyle6/scanners/scanner3.py: Merge in COME_FROM disambiguation
+	...  from controlflowbranch. Should probably expand to Python2 parsers as
+	well
+
+2016-10-06  rocky <rb@dustyfeet.com>
+
+	* : commit a4dd6e980566a83270b9b9d47fb7f3cb3e5e385a Author: rocky
+	<rb@dustyfeet.com> Date:   Wed Oct 5 22:56:48 2016 -0400
+
+2016-10-05  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py: Python 3: "or" doesn't have optional
+	come_from
+
+2016-10-05  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner3.py: 
+	Python 3: "and" doesn't have optional come_from
+
+2016-10-05  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner3.py: 
+	Python 3: "and" doesn't have optional come_from
+
+2016-10-05  rocky <rb@dustyfeet.com>
+
+	* : commit d2b477ae7d5a4c081262cabdccdb314d90b39255 Author: rocky
+	<rb@dustyfeet.com> Date:   Tue Oct 4 23:58:35 2016 -0400
+
+2016-09-27  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/looping/04_while1_while1.py,
+	uncompyle6/parsers/parse3.py: Python 3 while1 grammar rules with
+	COME_FROM_LOOP
+
+2016-09-27  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/simple_source/looping/04_while1_while1.py,
+	uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner3.py: PY3
+	COME_FROM_LOOP bug There are still more in sre...
+
+2016-09-27  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanners/scanner3.py: PY3: COME_FROM -> COME_FROM_FINALLY
+	as appropriate We now have all WITH_ op jumps associated in the grammar Also, some COME_FROM_LOOP grammar fixes
+
+2016-09-26  rocky <rb@dustyfeet.com>
+
+	* HISTORY.md, uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner3.py: 
+	Interval order COME_FROMs in Python3 This bug had possibly caused lots of grammar pollution which may
+	need addressing.  We want to process COME_FROMs to the same offset to be in
+	*descending* order so we have the larger range or biggest
+	instruction interval last. (I think they are sorted in increasing
+	order, but for safety we sort them). That way, specific COME_FROM
+	tags will match up properly. For example, a "loop" with an "if"
+	nested in it should have the "loop" tag last so the grammar rule
+	matches that properly Adjust Python 3 grammar for more COME_FROM -> COME_FROM_LOOP. And
+	remove optional COME_FROM_LOOP where possible. Previously, the
+	optional-ness was a result of inner nestings gobbling up the
+	COME_FROM.  We'll probably want to go back and fix this up in Python2.
+
+2016-09-26  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse35.py, uncompyle6/scanners/controlflow.py,
+	uncompyle6/scanners/scanner3.py: Python 3 COME_FROM ->
+	COME_FROM_WITH appropriately
+
+2016-09-25  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, uncompyle6/verify.py: Try stronger verification verify.py: add check in verification that magic is the same.
+	Otherwise we go for weak verification.
+
+2016-09-25  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, uncompyle6/parsers/parse3.py: Address whileTrue if
+	cond .. -> while cond ..  bug Reinstate Python standard library bisect test
+
+2016-09-23  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner3.py: Tidy use of SETUP_ ops Also possibly remove a bug in decompiling Python 3.0 .. 3.2 which
+	doesn't have SETUP_WITH
+
+2016-09-23  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner3.py: Tidy use of SETUP_ ops Also possibly remove a bug in decompiling Python 3.0 .. 3.2 which
+	doesn't have SETUP_WITH
+
+2016-09-23  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/ok_lib3.4/bisect.py: Weaken testing for
+	controlfow branch We have more equivalent programs now
+
+2016-09-22  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, pytest/test_single_compile.py,
+	test/Makefile, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanners/scanner3.py: Add COME_FROM_LOOP Note: we have regressed in --verify and some tests, but I believe
+	that's because we are producing more equivalant (if uglier)
+	programs. That's a separate problem though.
+
+2016-09-22  rocky <rb@dustyfeet.com>
+
+	* : commit d271e886d9e818a871f15d8876d6eb9d1ed452a4 Author: rocky
+	<rb@dustyfeet.com> Date:   Thu Sep 22 01:32:00 2016 -0400
+
+2016-09-22  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse26.py, uncompyle6/parsers/parse27.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/tok.py: Fix some
+	Test failures Fix py.test pytest/test_grammar.py - Comprehension sorts of things removed from parser that don't exist
+	in earlier pythons scanners/tok.py Add back in "to" when needed
+
+2016-09-21  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanners/controlflow.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/scanners/tok.py: First
+	step towards managing control flow decoding
+
+2016-09-21  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #56 from rocky/fstring merge fstring changes from moagstar
+
+2016-09-21  moagstar <moagstar@gmail.com>
+
+	* pytest/test_fstring.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/semantics/pysource.py: merge fstring changes from
+	moagstar
+
+2016-09-21  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner26.py: 
+	Python 2 & 3 scanner code ever so slightly closer
+
+2016-09-21  rocky <rb@dustyfeet.com>
+
+	* NEWS: Small NEWS doc typo
+
+2016-09-18  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner26.py, uncompyle6/semantics/pysource.py: 
+	Small changes
+
 2016-09-11  rocky <rb@dustyfeet.com>
 
-	* __pkginfo__.py, uncompyle6/version.py: Get ready for release 2.8.3
+	* ChangeLog, NEWS, __pkginfo__.py, uncompyle6/version.py: Get ready
+	for release 2.8.3
 
 2016-09-11  rocky <rb@dustyfeet.com>
 
