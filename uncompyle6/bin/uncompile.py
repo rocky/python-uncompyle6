@@ -144,7 +144,7 @@ def main_bin():
         usage()
 
     if outfile == '-':
-        if 'do_verify' in options and len(files) == 1:
+        if 'do_verify' in options and options['do_verify'] and len(files) == 1:
             junk, outfile = tempfile.mkstemp(suffix=".pyc",
                                              prefix=files[0][0:-4]+'-')
         else:

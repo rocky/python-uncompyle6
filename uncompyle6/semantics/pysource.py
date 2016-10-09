@@ -564,19 +564,6 @@ class SourceWalker(GenericASTTraversal, object):
             TABLE_DIRECT.update({
                 'tryfinallystmt': ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 4 )
                 })
-            if version == 2.1:
-                ###########################
-                # Import style for 2.0-2.3
-                ###########################
-                TABLE_DIRECT.update({
-                    'importstmt2': ( '%|import %c\n', 1),
-                    'import_as_cont': ( '%|import %c as %c\n', 1, 2),
-                    'importstar2':	( '%|from %[1]{pattr} import *\n', ),
-                    'importfrom2':	( '%|from %[1]{pattr} import %c\n', 2 ),
-                    'importlist2':	( '%C', (0, maxint, ', ') ),
-                    'IMPORT_NAME':	( '%{pattr}', ),
-                    'IMPORT_NAME_CONT':	( '%{pattr}', ),
-                })
 
         elif version >= 2.5:
             ########################
@@ -1059,17 +1046,14 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
 
     def n_import_as(self, node):
-        if self.version == 2.1 and node == 'import_as_cont':
-            self.write("\n", self.indent, "import ")
-        iname = node[1].pattr if node[0] == 'LOAD_CONST' else node[0].pattr
-        assert node[-1][-1].type.startswith('STORE_')
-        sname = node[-1][-1].pattr # assume one of STORE_.... here
+        store_node = node[-1][-1]
+        assert store_node.type.startswith('STORE_')
+        iname = node[0].pattr  # import name
+        sname = store_node.pattr # store_name
         if iname and iname == sname or iname.startswith(sname + '.'):
             self.write(iname)
         else:
             self.write(iname, ' as ', sname)
-        if self.version == 2.1 and node == 'import_as_cont':
-            self.write("\n")
         self.prune() # stop recursing
 
     n_import_as_cont = n_import_as
