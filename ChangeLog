@@ -1,7 +1,18 @@
 2016-10-10  rocky <rb@dustyfeet.com>
 
-	* __pkginfo__.py, requirements.txt, uncompyle6/disas.py,
-	uncompyle6/main.py, uncompyle6/parser.py,
+	* README.rst, __pkginfo__.py, requirements.txt,
+	uncompyle6/version.py: Get ready for release 2.9.1
+
+2016-10-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse15.py, uncompyle6/scanners/scanner15.py,
+	uncompyle6/semantics/pysource.py: Python 1.5 scanner and parser and
+	..  .. slightly improved Forgot to check in files before.  Handle Python pre 2.2. classes
+
+2016-10-10  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, __pkginfo__.py, requirements.txt,
+	uncompyle6/disas.py, uncompyle6/main.py, uncompyle6/parser.py,
 	uncompyle6/parsers/parse2.py, uncompyle6/scanner.py,
 	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner26.py,
 	uncompyle6/verify.py, uncompyle6/version.py: Get ready for release

@@ -96,21 +96,34 @@ For usage help:
 Known Bugs/Restrictions
 -----------------------
 
-Python 2 deparsing decompiles and about 90% verifies from Python 2.3.7 to Python
+About 90% of the decompilation verifies from Python 2.3.7 to Python
 3.4.2 on the standard library packages I have on my system.
 
 (Verification is the process of decompiling bytecode, compiling with a
 Python for that byecode version, and then comparing the byetcode
 produced by the decompiled/compiled program. Some allowance is made
-for inessential differences.)
+for inessential differences, but other semantically equivalent
+differences are not caught.)
 
 Later distributions average about 200 files. At this point, 2.7
-decompilation is better than uncompyle2. A number of bugs have been
-fixed.
+decompilation is definitely better than uncompyle2. A number of bugs
+have been fixed. We now handle more Python bytecodes than the old
+decompyle program that handled Python bytecodes ranging from 1.5 to
+2.4.  There is some work do do on the lower end which is more
+difficult for us since we don't have a Python interpreter for versions
+1.5, 1.6 or 2.0.
 
 Python 3.5 largely works, but still has some bugs in it.
 Python 3.6 changes things drastically by using word codes rather than
 byte codes, and that needs to be addressed.
+
+Currently not all Python magic numbers are supported. Specifically in
+some versions of Python, notably Python 3.6, the magic number has
+changes several times within a version. We support only the released
+magic. There are also customized Python interpreters, notably Dropbox,
+which use their own magic and encrypt bytcode. With the exception of
+the Dropbox's old Python 2.5 interpreter this kind of thing is not
+handled.
 
 There is lots to do, so please dig in and help.
 

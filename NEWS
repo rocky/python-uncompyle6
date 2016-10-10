@@ -1,3 +1,8 @@
+uncompyle6 2.9.1 2016-10-09
+
+- Improved Python 1.5 decompiling
+- Handle old-style pre Python 2.2 classes
+
 uncompyle6 2.9.0 2016-10-09
 
 - Use xdis 3.0.0 protocol load_module.
