@@ -16,7 +16,7 @@ Semantic action rules for nonterminal symbols can be specified here by
 creating a method prefaced with "n_" for that nonterminal. For
 example, "n_exec_stmt" handles the semantic actions for the
 "exec_smnt" nonterminal symbol. Similarly if a method with the name
-of the nontermail is suffixed with "_exit" it will be called after
+of the nonterminal is suffixed with "_exit" it will be called after
 all of its children are called.
 
 Another other way to specify a semantic rule for a nonterminal is via
@@ -479,7 +479,8 @@ class SourceWalker(GenericASTTraversal, object):
 
     def __init__(self, version, out, scanner, showast=False,
                  debug_parser=PARSER_DEFAULT_DEBUG,
-                 compile_mode='exec', is_pypy=False):
+                 compile_mode='exec', is_pypy=False,
+                 linestarts={}):
         GenericASTTraversal.__init__(self, ast=None)
         self.scanner = scanner
         params = {
@@ -500,6 +501,8 @@ class SourceWalker(GenericASTTraversal, object):
         self.currentclass = None
         self.classes = []
         self.pending_newlines = 0
+        self.linestarts = linestarts
+        self.line_number = 0
 
         # hide_internal suppresses displaying the additional instructions that sometimes
         # exist in code but but were not written in the source code.
@@ -650,6 +653,15 @@ class SourceWalker(GenericASTTraversal, object):
                  lambda s, x: s.params.__setitem__('_globals', x),
                  lambda s: s.params.__delitem__('_globals'),
                  None)
+
+    def set_pos_info(self, node):
+        if hasattr(node, 'offset'):
+            if node.offset in self.linestarts:
+                self.line_number = self.linestarts[node.offset]
+
+    def preorder(self, node=None):
+        super().preorder(node)
+        self.set_pos_info(node)
 
     def indentMore(self, indent=TAB):
         self.indent += indent
@@ -1623,11 +1635,20 @@ class SourceWalker(GenericASTTraversal, object):
                 kv_node = node[0]
                 l = list(kv_node)
                 i = 0
+                line_number = self.line_number
+                # Respect line breaks from source
                 while i < len(l):
+                    self.write(sep)
                     name = self.traverse(l[i], indent='')
+                    self.write(name, ': ')
                     value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
-                    self.write(sep, name, ': ', value)
-                    sep = line_seperator
+                    self.write(value)
+                    sep = ","
+                    if line_number != self.line_number:
+                        sep += "\n" + self.indent
+                        line_number = self.line_number
+                    else:
+                        sep += " "
                     i += 2
                     pass
                 pass
@@ -2350,9 +2371,11 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
         debug_parser['errorstack'] = True
 
     #  Build AST from disassembly.
+    linestarts = dict(scanner.opc.findlinestarts(co))
     deparsed = SourceWalker(version, out, scanner, showast=showast,
                             debug_parser=debug_parser, compile_mode=compile_mode,
-                            is_pypy = is_pypy)
+                            is_pypy=is_pypy,
+                            linestarts=linestarts)
 
     isTopLevel = co.co_name == '<module>'
     deparsed.ast = deparsed.build_ast(tokens, customize, isTopLevel=isTopLevel)
