@@ -77,7 +77,8 @@ def disassemble_file(filename, outstream=None, native=False):
         return
 
     filename = check_object_path(filename)
-    version, timestamp, magic_int, co, is_pypy = load_module(filename)
+    (version, timestamp, magic_int, co, is_pypy,
+     source_size) = load_module(filename)
     if type(co) == list:
         for con in co:
             disco(version, con, outstream)

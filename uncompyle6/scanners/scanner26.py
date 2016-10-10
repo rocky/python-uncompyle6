@@ -162,20 +162,6 @@ class Scanner26(scan.Scanner2):
             last_stmt = i
             i = self.next_stmt[i]
 
-        imports = self.all_instr(0, codelen,
-                                (self.opc.IMPORT_NAME, self.opc.IMPORT_FROM,
-                                 self.opc.IMPORT_STAR))
-        # Changes IMPORT_NAME to IMPORT_NAME_CONT.
-        # Possibly a Python 2.0 hangover
-        # FIXME: Move into a < 2.2 scanner.
-        if len(imports) > 1 and self.version < 2.2:
-            last_import = imports[0]
-            for i in imports[1:]:
-                if self.lines[last_import].next > i:
-                    if self.code[last_import] == self.opc.IMPORT_NAME == self.code[i]:
-                        replace[i] = 'IMPORT_NAME_CONT'
-                last_import = i
-
         extended_arg = 0
         for offset in self.op_range(0, codelen):
             op = self.code[offset]
@@ -238,7 +224,11 @@ class Scanner26(scan.Scanner2):
                 elif op in self.opc.hasjabs:
                     pattr = repr(oparg)
                 elif op in self.opc.haslocal:
-                    pattr = varnames[oparg]
+                    if self.version >= 2.0:
+                        pattr = varnames[oparg]
+                    elif self.version < 2.0:
+                        if oparg < len(names):
+                            pattr = names[oparg]
                 elif op in self.opc.hascompare:
                     pattr = self.opc.cmp_op[oparg]
                 elif op in self.opc.hasfree:
@@ -247,7 +237,7 @@ class Scanner26(scan.Scanner2):
                 # CE - Hack for >= 2.5
                 #      Now all values loaded via LOAD_CLOSURE are packed into
                 #      a tuple before calling MAKE_CLOSURE.
-                if (op == self.opc.BUILD_TUPLE and
+                if (self.version >= 2.5 and op == self.opc.BUILD_TUPLE and
                     self.code[self.prev[offset]] == self.opc.LOAD_CLOSURE):
                     continue
                 else:

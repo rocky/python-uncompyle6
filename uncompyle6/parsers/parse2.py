@@ -76,6 +76,8 @@ class Python2Parser(PythonParser):
         return_if_stmts ::= _stmts return_if_stmt
         return_if_stmt ::= ret_expr RETURN_END_IF
 
+        stmt ::= importstmt
+
         stmt ::= break_stmt
         break_stmt ::= BREAK_LOOP
 
@@ -196,18 +198,6 @@ class Python2Parser(PythonParser):
         genexpr ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
         '''
 
-    def p_import15(self, args):
-        '''
-        stmt ::= importstmt
-        stmt ::= importfrom
-
-        importstmt ::= IMPORT_NAME STORE_FAST
-        importstmt ::= IMPORT_NAME STORE_NAME
-
-        importfrom ::= IMPORT_NAME importlist
-        importlist ::= importlist IMPORT_FROM
-        importlist ::= IMPORT_FROM
-        '''
     def p_expr2(self, args):
         """
         expr ::= LOAD_LOCALS

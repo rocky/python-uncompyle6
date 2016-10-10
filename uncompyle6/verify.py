@@ -389,7 +389,8 @@ class Token(scanner.Token):
 
 def compare_code_with_srcfile(pyc_filename, src_filename, weak_verify=False):
     """Compare a .pyc with a source code file."""
-    version, timestamp, magic_int, code_obj1, is_pypy = load_module(pyc_filename)
+    (version, timestamp, magic_int, code_obj1, is_pypy,
+     source_size) = load_module(pyc_filename)
     if magic_int != PYTHON_MAGIC_INT:
         msg = ("Can't compare code - Python is running with magic %s, but code is magic %s "
                % (PYTHON_MAGIC_INT, magic_int))
@@ -400,8 +401,10 @@ def compare_code_with_srcfile(pyc_filename, src_filename, weak_verify=False):
 
 def compare_files(pyc_filename1, pyc_filename2, weak_verify=False):
     """Compare two .pyc files."""
-    version1, timestamp, magic_int1, code_obj1, is_pypy = uncompyle6.load_module(pyc_filename1)
-    version2, timestamp, magic_int2, code_obj2, is_pypy = uncompyle6.load_module(pyc_filename2)
+    (version1, timestamp, magic_int1, code_obj1, is_pypy,
+     source_size) = uncompyle6.load_module(pyc_filename1)
+    (version2, timestamp, magic_int2, code_obj2, is_pypy,
+     source_size) = uncompyle6.load_module(pyc_filename2)
     weak_verify = weak_verify or (magic_int1 != magic_int2)
     cmp_code_objects(version1, is_pypy, code_obj1, code_obj2, ignore_code=weak_verify)
 

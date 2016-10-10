@@ -329,7 +329,7 @@ class PythonParser(GenericASTBuilder):
         """
 
     def p_import20(self, args):
-        '''
+        """
         stmt ::= importstmt
         stmt ::= importfrom
         stmt ::= importstar
@@ -353,7 +353,7 @@ class PythonParser(GenericASTBuilder):
 
         load_attrs ::= LOAD_ATTR
         load_attrs ::= load_attrs LOAD_ATTR
-        '''
+        """
 
     def p_list_comprehension(self, args):
         """
@@ -553,7 +553,13 @@ def get_python_parser(
 
     # FIXME: there has to be a better way...
     if version < 3.0:
-        if version == 2.1:
+        if version == 1.5:
+            import uncompyle6.parsers.parse15 as parse15
+            if compile_mode == 'exec':
+                p = parse15.Python15Parser(debug_parser)
+            else:
+                p = parse15.Python15ParserSingle(debug_parser)
+        elif version == 2.1:
             import uncompyle6.parsers.parse21 as parse21
             if compile_mode == 'exec':
                 p = parse21.Python21Parser(debug_parser)

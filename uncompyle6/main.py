@@ -55,7 +55,8 @@ def uncompyle_file(filename, outstream=None, showasm=False, showast=False,
 
     filename = check_object_path(filename)
     code_objects = {}
-    version, timestamp, magic_int, co, is_pypy = load_module(filename, code_objects)
+    (version, timestamp, magic_int, co, is_pypy,
+     source_size) = load_module(filename, code_objects)
 
 
     if type(co) == list:

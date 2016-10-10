@@ -1,6 +1,34 @@
+2016-10-10  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, requirements.txt, uncompyle6/disas.py,
+	uncompyle6/main.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner26.py,
+	uncompyle6/verify.py, uncompyle6/version.py: Get ready for release
+	2.9.0 ...  - Use xdis 3.0.0 protocol load_module. Needs bump in
+	  requirements.txt and _pkg_info_.py - Start Python 1.5 decompiling - another round of work is needed to
+	  remove bugs - small cleanups
+
+2016-10-09  rocky <rb@dustyfeet.com>
+
+	* : Reinstate some tests
+
 2016-10-08  rocky <rb@dustyfeet.com>
 
-	* uncompyle6/version.py: Get ready for release 2.8.4
+	* uncompyle6/bin/uncompile.py, uncompyle6/parsers/parse21.py,
+	uncompyle6/semantics/pysource.py: Simpify python 2.1 grammar Fix bug
+	with -t ...  Wasn't showing source text when -t option was given
+
+2016-10-08  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug22/06_list_comprehension_x2_if.py,
+	uncompyle6/parsers/parse22.py, uncompyle6/parsers/parse26.py: Python
+	2.1-2.6 bug in list comprehension
+
+2016-10-08  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, uncompyle6/version.py: Get ready for release
+	2.8.4
 
 2016-10-08  rocky <rb@dustyfeet.com>
 
