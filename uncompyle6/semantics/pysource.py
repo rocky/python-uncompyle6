@@ -263,7 +263,6 @@ TABLE_DIRECT = {
     'classdefdeco1':  	( '%|@%c\n%c', 0, 1),
     'kwarg':    	( '%[0]{pattr}=%c', 1),
     'kwargs':    	( '%D', (0, maxint, ', ') ),
-    'importlist2':	( '%C', (0, maxint, ', ') ),
 
     'assert_expr_or': ( '%c or %c', 0, 2 ),
     'assert_expr_and':    ( '%c and %c', 0, 2 ),
@@ -560,19 +559,27 @@ class SourceWalker(GenericASTTraversal, object):
             })
 
 
-        if 2.0 <= version <= 2.3:
+        if version < 2.0:
             TABLE_DIRECT.update({
-                'tryfinallystmt': ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 4 )
+                'importlist':	( '%C', (0, maxint, ', ') ),
+                })
+        else:
+            TABLE_DIRECT.update({
+                'importlist2':	( '%C', (0, maxint, ', ') ),
+                })
+            if version <= 2.3:
+                TABLE_DIRECT.update({
+                    'tryfinallystmt': ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 4 )
                 })
 
-        elif version >= 2.5:
-            ########################
-            # Import style for 2.5+
-            ########################
-            TABLE_DIRECT.update({
-                'importmultiple': ( '%|import %c%c\n', 2, 3 ),
-                'import_cont'   : ( ', %c', 2 ),
-            })
+            elif version >= 2.5:
+                ########################
+                # Import style for 2.5+
+                ########################
+                TABLE_DIRECT.update({
+                    'importmultiple': ( '%|import %c%c\n', 2, 3 ),
+                    'import_cont'   : ( ', %c', 2 ),
+                })
 
         ########################################
         # Python 2.6+
@@ -1551,7 +1558,11 @@ class SourceWalker(GenericASTTraversal, object):
         if not (node == 'build_list'):
             return
 
-        self.write('(')
+        n_subclasses = len(node[:-1])
+        if n_subclasses > 0 or self.version > 2.1:
+            # Not an old-style pre-2.2 class
+            self.write('(')
+
         line_separator = ', '
         sep = ''
         for elem in node[:-1]:
@@ -1559,7 +1570,9 @@ class SourceWalker(GenericASTTraversal, object):
             self.write(sep, value)
             sep = line_separator
 
-        self.write(')')
+        if n_subclasses > 0 or self.version > 2.1:
+            # Not an old-style pre-2.2 class
+            self.write(')')
 
     def print_super_classes3(self, node):
         n = len(node)-1
