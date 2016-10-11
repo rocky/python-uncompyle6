@@ -20,7 +20,7 @@ check:
 	$(MAKE) check-$$PYTHON_VERSION
 
 #: Run working tests from Python 2.6 or 2.7
-check-2.6 check-2.7: check-bytecode-2 check-bytecode-3  check-2.7-ok
+check-2.6 check-2.7: check-bytecode-2 check-bytecode-3 check-bytecode-1  check-2.7-ok
 
 #: Run working tests from Python 3.1
 check-3.1: check-bytecode
@@ -50,6 +50,10 @@ check-3.6: check-bytecode
 check-disasm:
 	$(PYTHON) dis-compare.py
 
+#: Check deparsing bytecode 1.x only
+check-bytecode-1:
+	$(PYTHON) test_pythonlib.py --bytecode-1.5
+
 #: Check deparsing bytecode 2.x only
 check-bytecode-2:
 	$(PYTHON) test_pythonlib.py \
@@ -65,7 +69,9 @@ check-bytecode-3:
 check-bytecode: check-bytecode-3
 	$(PYTHON) test_pythonlib.py \
 	--bytecode-2.1 --bytecode-2.2 --bytecode-2.3 --bytecode-2.4 \
-        --bytecode-2.5 --bytecode-2.6 --bytecode-2.7 --bytecode-pypy2.7
+        --bytecode-2.5 --bytecode-2.6 --bytecode-2.7 \
+        --bytecode-pypy2.7 --bytecode-1
+
 
 #: Check deparsing Python 2.1
 check-bytecode-2.1:
