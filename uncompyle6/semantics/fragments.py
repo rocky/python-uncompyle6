@@ -173,7 +173,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def preorder(self, node=None):
         start = len(self.f.getvalue())
-        super().preorder(node)
+        super(pysource.SourceWalker, self).preorder(node)
         self.set_pos_info(node, start, len(self.f.getvalue()))
 
         return

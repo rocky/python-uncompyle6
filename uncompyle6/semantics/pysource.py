@@ -660,7 +660,7 @@ class SourceWalker(GenericASTTraversal, object):
                 self.line_number = self.linestarts[node.offset]
 
     def preorder(self, node=None):
-        super().preorder(node)
+        super(SourceWalker, self).preorder(node)
         self.set_pos_info(node)
 
     def indentMore(self, indent=TAB):
@@ -1619,7 +1619,8 @@ class SourceWalker(GenericASTTraversal, object):
     def n_mapexpr(self, node):
         """
         prettyprint a mapexpr
-        'mapexpr' is something like k = {'a': 1, 'b': 42 }"
+        'mapexpr' is something like k = {'a': 1, 'b': 42}"
+        We will source-code use line breaks to guide us when to break.
         """
         p = self.prec
         self.prec = 100
@@ -1628,6 +1629,7 @@ class SourceWalker(GenericASTTraversal, object):
         line_seperator = ',\n' + self.indent
         sep = INDENT_PER_LEVEL[:-1]
         self.write('{')
+        line_number = self.line_number
 
         if self.version >= 3.0 and not self.is_pypy:
             if node[0].type.startswith('kvlist'):
@@ -1635,20 +1637,23 @@ class SourceWalker(GenericASTTraversal, object):
                 kv_node = node[0]
                 l = list(kv_node)
                 i = 0
-                line_number = self.line_number
                 # Respect line breaks from source
                 while i < len(l):
                     self.write(sep)
                     name = self.traverse(l[i], indent='')
+                    if i > 0:
+                        if (line_number != self.line_number):
+                            self.write("\n" + self.indent + "  ")
+                            pass
+                        pass
+                    line_number = self.line_number
                     self.write(name, ': ')
                     value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
                     self.write(value)
                     sep = ","
                     if line_number != self.line_number:
-                        sep += "\n" + self.indent
+                        sep += "\n" + self.indent + "  "
                         line_number = self.line_number
-                    else:
-                        sep += " "
                     i += 2
                     pass
                 pass
@@ -1662,10 +1667,23 @@ class SourceWalker(GenericASTTraversal, object):
                     l = list(kv_node)
                 i = 0
                 while i < len(l):
+                    self.write(sep)
                     name = self.traverse(l[i+1], indent='')
+                    if i > 0:
+                        if (line_number != self.line_number):
+                            self.write("\n" + self.indent + "  ")
+                            pass
+                        pass
+                    line_number = self.line_number
+                    self.write(name, ': ')
                     value = self.traverse(l[i], indent=self.indent+(len(name)+2)*' ')
-                    self.write(sep, name, ': ', value)
-                    sep = line_seperator
+                    self.write(value)
+                    sep = ","
+                    if line_number != self.line_number:
+                        sep += "\n" + self.indent + "  "
+                        line_number = self.line_number
+                    else:
+                        sep += " "
                     i += 3
                     pass
                 pass
@@ -1691,6 +1709,8 @@ class SourceWalker(GenericASTTraversal, object):
                     value = self.traverse(kv[0], indent=self.indent+(len(name)+2)*' ')
                     self.write(sep, name, ': ', value)
                     sep = line_seperator
+        if sep.startswith(",\n"):
+            self.write(sep[1:])
         self.write('}')
         self.indentLess(INDENT_PER_LEVEL)
         self.prec = p
