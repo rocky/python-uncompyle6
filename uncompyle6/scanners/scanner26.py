@@ -224,11 +224,7 @@ class Scanner26(scan.Scanner2):
                 elif op in self.opc.hasjabs:
                     pattr = repr(oparg)
                 elif op in self.opc.haslocal:
-                    if self.version >= 2.0:
-                        pattr = varnames[oparg]
-                    elif self.version < 2.0:
-                        if oparg < len(names):
-                            pattr = names[oparg]
+                    pattr = varnames[oparg]
                 elif op in self.opc.hascompare:
                     pattr = self.opc.cmp_op[oparg]
                 elif op in self.opc.hasfree:
