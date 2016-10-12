@@ -172,35 +172,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.last_finish = finish
 
     def preorder(self, node=None):
-
-        if node is None:
-            node = self.ast
-
         start = len(self.f.getvalue())
-
-        try:
-            name = 'n_' + self.typestring(node)
-            if hasattr(self, name):
-                func = getattr(self, name)
-                func(node)
-            else:
-                self.default(node)
-        except GenericASTTraversalPruningException:
-            # All leaf nodes, those with the offset method among others
-            # seems to fit under this exception. If this is not true
-            # we would need to dupllicate the below code before the
-            # return outside of this block
-            self.set_pos_info(node, start, len(self.f.getvalue()))
-            # print self.f.getvalue()[start:]
-            return
-
-        for kid in node:
-            self.preorder(kid)
-
-        name = name + '_exit'
-        if hasattr(self, name):
-            func = getattr(self, name)
-            func(node)
+        super(pysource.SourceWalker, self).preorder(node)
         self.set_pos_info(node, start, len(self.f.getvalue()))
 
         return

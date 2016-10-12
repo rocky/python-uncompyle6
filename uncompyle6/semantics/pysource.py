@@ -16,7 +16,7 @@ Semantic action rules for nonterminal symbols can be specified here by
 creating a method prefaced with "n_" for that nonterminal. For
 example, "n_exec_stmt" handles the semantic actions for the
 "exec_smnt" nonterminal symbol. Similarly if a method with the name
-of the nontermail is suffixed with "_exit" it will be called after
+of the nonterminal is suffixed with "_exit" it will be called after
 all of its children are called.
 
 Another other way to specify a semantic rule for a nonterminal is via
