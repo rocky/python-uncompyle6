@@ -1626,7 +1626,6 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = 100
 
         self.indentMore(INDENT_PER_LEVEL)
-        line_seperator = ',\n' + self.indent
         sep = INDENT_PER_LEVEL[:-1]
         self.write('{')
         line_number = self.line_number
@@ -1643,16 +1642,15 @@ class SourceWalker(GenericASTTraversal, object):
                     name = self.traverse(l[i], indent='')
                     if i > 0:
                         if (line_number != self.line_number):
-                            self.write("\n" + self.indent + "  ")
+                            self.write("\n" + self.indent + INDENT_PER_LEVEL[:-1])
                             pass
-                        pass
                     line_number = self.line_number
                     self.write(name, ': ')
                     value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
                     self.write(value)
                     sep = ","
                     if line_number != self.line_number:
-                        sep += "\n" + self.indent + "  "
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
                         line_number = self.line_number
                     i += 2
                     pass
@@ -1671,7 +1669,7 @@ class SourceWalker(GenericASTTraversal, object):
                     name = self.traverse(l[i+1], indent='')
                     if i > 0:
                         if (line_number != self.line_number):
-                            self.write("\n" + self.indent + "  ")
+                            self.write("\n" + self.indent + INDENT_PER_LEVEL[:-1])
                             pass
                         pass
                     line_number = self.line_number
@@ -1680,7 +1678,7 @@ class SourceWalker(GenericASTTraversal, object):
                     self.write(value)
                     sep = ","
                     if line_number != self.line_number:
-                        sep += "\n" + self.indent + "  "
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
                         line_number = self.line_number
                     else:
                         sep += " "
@@ -1693,22 +1691,57 @@ class SourceWalker(GenericASTTraversal, object):
             assert node[-1].type.startswith('kvlist')
             kv_node = node[-1] # goto kvlist
 
+            first_time = True
             for kv in kv_node:
                 assert kv in ('kv', 'kv2', 'kv3')
                 # kv ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
                 # kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
                 # kv3 ::= expr expr STORE_MAP
+
+                # FIXME: DRY this and the above
                 if kv == 'kv':
+                    self.write(sep)
                     name = self.traverse(kv[-2], indent='')
+                    if first_time:
+                        if (line_number != self.line_number):
+                            self.write("\n" + self.indent + "  ")
+                            pass
+                        first_time = False
+                        pass
+                    line_number = self.line_number
+                    self.write(name, ': ')
                     value = self.traverse(kv[1], indent=self.indent+(len(name)+2)*' ')
                 elif kv == 'kv2':
+                    self.write(sep)
                     name = self.traverse(kv[1], indent='')
+                    if first_time:
+                        if (line_number != self.line_number):
+                            self.write("\n" + self.indent + "  ")
+                            pass
+                        first_time = False
+                        pass
+                    line_number = self.line_number
+                    self.write(name, ': ')
                     value = self.traverse(kv[-3], indent=self.indent+(len(name)+2)*' ')
                 elif kv == 'kv3':
+                    self.write(sep)
                     name = self.traverse(kv[-2], indent='')
+                    if first_time:
+                        if (line_number != self.line_number):
+                            self.write("\n" + self.indent + "  ")
+                            pass
+                        first_time = False
+                        pass
+                    line_number = self.line_number
+                    self.write(name, ': ')
+                    line_number = self.line_number
                     value = self.traverse(kv[0], indent=self.indent+(len(name)+2)*' ')
-                    self.write(sep, name, ': ', value)
-                    sep = line_seperator
+                    pass
+                self.write(value)
+                sep = ","
+                if line_number != self.line_number:
+                    sep += "\n" + self.indent + "  "
+                    line_number = self.line_number
         if sep.startswith(",\n"):
             self.write(sep[1:])
         self.write('}')
@@ -1755,24 +1788,22 @@ class SourceWalker(GenericASTTraversal, object):
                 flat_elems.append(elem)
 
         self.indentMore(INDENT_PER_LEVEL)
-        if lastnode.attr > 3:
-            line_separator = ',\n' + self.indent
-        else:
-            line_separator = ', '
-        sep = INDENT_PER_LEVEL[:-1]
+        sep = ''
 
-        # FIXME:
-        # if flat_elems > some_number, then group
-        # do automatic wrapping
         for elem in flat_elems:
             if elem == 'ROT_THREE':
                 continue
             assert elem == 'expr'
+            line_number = self.line_number
             value = self.traverse(elem)
-            self.write(sep, value)
-            sep = line_separator
+            if line_number != self.line_number:
+                sep += '\n' + self.indent + INDENT_PER_LEVEL[:-1]
+            else:
+                if sep != '': sep += ' '
             if have_star:
                 sep += '*'
+            self.write(sep, value)
+            sep = ','
         if lastnode.attr == 1 and lastnodetype.startswith('BUILD_TUPLE'):
             self.write(',')
         self.write(endchar)
@@ -1859,9 +1890,15 @@ class SourceWalker(GenericASTTraversal, object):
                 raise
 
             if   typ == '%':	self.write('%')
-            elif typ == '+':	self.indentMore()
-            elif typ == '-':	self.indentLess()
-            elif typ == '|':	self.write(self.indent)
+            elif typ == '+':
+                self.line_number += 1
+                self.indentMore()
+            elif typ == '-':
+                self.line_number += 1
+                self.indentLess()
+            elif typ == '|':
+                self.line_number += 1
+                self.write(self.indent)
             # Used mostly on the LHS of an assignment
             # BUILD_TUPLE_n is pretty printed and may take care of other uses.
             elif typ == ',':
