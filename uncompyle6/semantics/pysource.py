@@ -1668,8 +1668,9 @@ class SourceWalker(GenericASTTraversal, object):
                 elif kv == 'kv3':
                     name = self.traverse(kv[-2], indent='')
                     value = self.traverse(kv[0], indent=self.indent+(len(name)+2)*' ')
-                    self.write(sep, name, ': ', value)
-                    sep = line_seperator
+                    pass
+                self.write(sep, name, ': ', value)
+                sep = line_seperator
         self.write('}')
         self.indentLess(INDENT_PER_LEVEL)
         self.prec = p
