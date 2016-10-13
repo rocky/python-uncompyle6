@@ -143,13 +143,19 @@ class Scanner2(scan.Scanner):
         extended_arg = 0
         for offset in self.op_range(0, n):
             if offset in jump_targets:
-                k = 0
-                for j in jump_targets[offset]:
+                jump_idx = 0
+                # We want to process COME_FROMs to the same offset to be in *descending*
+                # offset order so we have the larger range or biggest instruction interval
+                # last. (I think they are sorted in increasing order, but for safety
+                # we sort them). That way, specific COME_FROM tags will match up
+                # properly. For example, a "loop" with an "if" nested in it should have the
+                # "loop" tag last so the grammar rule matches that properly.
+                for jump_offset  in sorted(jump_targets[offset], reverse=True):
                     tokens.append(Token(
-                        'COME_FROM', None, repr(j),
-                        offset="%s_%d" % (offset, k),
+                        'COME_FROM', None, repr(jump_offset),
+                        offset="%s_%d" % (offset, jump_idx),
                         has_arg = True))
-                    k += 1
+                    jump_idx += 1
 
             op = self.code[offset]
             opname = self.opc.opname[op]
