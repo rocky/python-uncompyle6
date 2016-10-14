@@ -96,6 +96,8 @@ else:
     minint = -sys.maxint-1
     maxint = sys.maxint
 
+LINE_LENGTH = 80
+
 # Some ASTs used for comparing code fragments (like 'return None' at
 # the end of functions).
 
@@ -913,6 +915,30 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(node[0].pattr)
         self.prune()
 
+    def pp_tuple(self, tup):
+        """Pretty print a tuple"""
+        last_line = self.f.getvalue().split("\n")[-1]
+        l = len(last_line)+1
+        indent = ' ' * l
+        self.write('(')
+        sep = ''
+        for item in tup:
+            self.write(sep)
+            l += len(sep)
+            s = repr(item)
+            l += len(s)
+            self.write(s)
+            sep = ','
+            if l > LINE_LENGTH:
+                l = 0
+                sep += '\n' + indent
+            else:
+                sep += ' '
+                pass
+            pass
+        self.write(')')
+
+
     def n_LOAD_CONST(self, node):
         data = node.pattr; datatype = type(data)
         if isinstance(datatype, int) and data == minint:
@@ -928,6 +954,8 @@ class SourceWalker(GenericASTTraversal, object):
             # implicit eg. in 'return' w/o params
             # pass
             self.write('None')
+        elif isinstance(data, tuple):
+            self.pp_tuple(data)
         else:
             self.write(repr(data))
         # LOAD_CONST is a terminal, so stop processing/recursing early
