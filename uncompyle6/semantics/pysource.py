@@ -96,6 +96,8 @@ else:
     minint = -sys.maxint-1
     maxint = sys.maxint
 
+LINE_LENGTH = 80
+
 # Some ASTs used for comparing code fragments (like 'return None' at
 # the end of functions).
 
@@ -479,7 +481,8 @@ class SourceWalker(GenericASTTraversal, object):
 
     def __init__(self, version, out, scanner, showast=False,
                  debug_parser=PARSER_DEFAULT_DEBUG,
-                 compile_mode='exec', is_pypy=False):
+                 compile_mode='exec', is_pypy=False,
+                 linestarts={}):
         GenericASTTraversal.__init__(self, ast=None)
         self.scanner = scanner
         params = {
@@ -500,6 +503,8 @@ class SourceWalker(GenericASTTraversal, object):
         self.currentclass = None
         self.classes = []
         self.pending_newlines = 0
+        self.linestarts = linestarts
+        self.line_number = 0
 
         # hide_internal suppresses displaying the additional instructions that sometimes
         # exist in code but but were not written in the source code.
@@ -650,6 +655,15 @@ class SourceWalker(GenericASTTraversal, object):
                  lambda s, x: s.params.__setitem__('_globals', x),
                  lambda s: s.params.__delitem__('_globals'),
                  None)
+
+    def set_pos_info(self, node):
+        if hasattr(node, 'offset'):
+            if node.offset in self.linestarts:
+                self.line_number = self.linestarts[node.offset]
+
+    def preorder(self, node=None):
+        super(SourceWalker, self).preorder(node)
+        self.set_pos_info(node)
 
     def indentMore(self, indent=TAB):
         self.indent += indent
@@ -901,6 +915,30 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(node[0].pattr)
         self.prune()
 
+    def pp_tuple(self, tup):
+        """Pretty print a tuple"""
+        last_line = self.f.getvalue().split("\n")[-1]
+        l = len(last_line)+1
+        indent = ' ' * l
+        self.write('(')
+        sep = ''
+        for item in tup:
+            self.write(sep)
+            l += len(sep)
+            s = repr(item)
+            l += len(s)
+            self.write(s)
+            sep = ','
+            if l > LINE_LENGTH:
+                l = 0
+                sep += '\n' + indent
+            else:
+                sep += ' '
+                pass
+            pass
+        self.write(')')
+
+
     def n_LOAD_CONST(self, node):
         data = node.pattr; datatype = type(data)
         if isinstance(datatype, int) and data == minint:
@@ -916,6 +954,8 @@ class SourceWalker(GenericASTTraversal, object):
             # implicit eg. in 'return' w/o params
             # pass
             self.write('None')
+        elif isinstance(data, tuple):
+            self.pp_tuple(data)
         else:
             self.write(repr(data))
         # LOAD_CONST is a terminal, so stop processing/recursing early
@@ -1607,15 +1647,16 @@ class SourceWalker(GenericASTTraversal, object):
     def n_mapexpr(self, node):
         """
         prettyprint a mapexpr
-        'mapexpr' is something like k = {'a': 1, 'b': 42 }"
+        'mapexpr' is something like k = {'a': 1, 'b': 42}"
+        We will source-code use line breaks to guide us when to break.
         """
         p = self.prec
         self.prec = 100
 
         self.indentMore(INDENT_PER_LEVEL)
-        line_seperator = ',\n' + self.indent
         sep = INDENT_PER_LEVEL[:-1]
         self.write('{')
+        line_number = self.line_number
 
         if self.version >= 3.0 and not self.is_pypy:
             if node[0].type.startswith('kvlist'):
@@ -1623,11 +1664,22 @@ class SourceWalker(GenericASTTraversal, object):
                 kv_node = node[0]
                 l = list(kv_node)
                 i = 0
+                # Respect line breaks from source
                 while i < len(l):
+                    self.write(sep)
                     name = self.traverse(l[i], indent='')
+                    if i > 0:
+                        if (line_number != self.line_number):
+                            self.write("\n" + self.indent + INDENT_PER_LEVEL[:-1])
+                            pass
+                    line_number = self.line_number
+                    self.write(name, ': ')
                     value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
-                    self.write(sep, name, ': ', value)
-                    sep = line_seperator
+                    self.write(value)
+                    sep = ","
+                    if line_number != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        line_number = self.line_number
                     i += 2
                     pass
                 pass
@@ -1641,10 +1693,23 @@ class SourceWalker(GenericASTTraversal, object):
                     l = list(kv_node)
                 i = 0
                 while i < len(l):
+                    self.write(sep)
                     name = self.traverse(l[i+1], indent='')
+                    if i > 0:
+                        if (line_number != self.line_number):
+                            self.write("\n" + self.indent + INDENT_PER_LEVEL[:-1])
+                            pass
+                        pass
+                    line_number = self.line_number
+                    self.write(name, ': ')
                     value = self.traverse(l[i], indent=self.indent+(len(name)+2)*' ')
-                    self.write(sep, name, ': ', value)
-                    sep = line_seperator
+                    self.write(value)
+                    sep = ","
+                    if line_number != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        line_number = self.line_number
+                    else:
+                        sep += " "
                     i += 3
                     pass
                 pass
@@ -1654,23 +1719,59 @@ class SourceWalker(GenericASTTraversal, object):
             assert node[-1].type.startswith('kvlist')
             kv_node = node[-1] # goto kvlist
 
+            first_time = True
             for kv in kv_node:
                 assert kv in ('kv', 'kv2', 'kv3')
                 # kv ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
                 # kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
                 # kv3 ::= expr expr STORE_MAP
+
+                # FIXME: DRY this and the above
                 if kv == 'kv':
+                    self.write(sep)
                     name = self.traverse(kv[-2], indent='')
+                    if first_time:
+                        if (line_number != self.line_number):
+                            self.write("\n" + self.indent + "  ")
+                            pass
+                        first_time = False
+                        pass
+                    line_number = self.line_number
+                    self.write(name, ': ')
                     value = self.traverse(kv[1], indent=self.indent+(len(name)+2)*' ')
                 elif kv == 'kv2':
+                    self.write(sep)
                     name = self.traverse(kv[1], indent='')
+                    if first_time:
+                        if (line_number != self.line_number):
+                            self.write("\n" + self.indent + "  ")
+                            pass
+                        first_time = False
+                        pass
+                    line_number = self.line_number
+                    self.write(name, ': ')
                     value = self.traverse(kv[-3], indent=self.indent+(len(name)+2)*' ')
                 elif kv == 'kv3':
+                    self.write(sep)
                     name = self.traverse(kv[-2], indent='')
+                    if first_time:
+                        if (line_number != self.line_number):
+                            self.write("\n" + self.indent + "  ")
+                            pass
+                        first_time = False
+                        pass
+                    line_number = self.line_number
+                    self.write(name, ': ')
+                    line_number = self.line_number
                     value = self.traverse(kv[0], indent=self.indent+(len(name)+2)*' ')
                     pass
-                self.write(sep, name, ': ', value)
-                sep = line_seperator
+                self.write(value)
+                sep = ","
+                if line_number != self.line_number:
+                    sep += "\n" + self.indent + "  "
+                    line_number = self.line_number
+        if sep.startswith(",\n"):
+            self.write(sep[1:])
         self.write('}')
         self.indentLess(INDENT_PER_LEVEL)
         self.prec = p
@@ -1715,24 +1816,22 @@ class SourceWalker(GenericASTTraversal, object):
                 flat_elems.append(elem)
 
         self.indentMore(INDENT_PER_LEVEL)
-        if lastnode.attr > 3:
-            line_separator = ',\n' + self.indent
-        else:
-            line_separator = ', '
-        sep = INDENT_PER_LEVEL[:-1]
+        sep = ''
 
-        # FIXME:
-        # if flat_elems > some_number, then group
-        # do automatic wrapping
         for elem in flat_elems:
             if elem == 'ROT_THREE':
                 continue
             assert elem == 'expr'
+            line_number = self.line_number
             value = self.traverse(elem)
-            self.write(sep, value)
-            sep = line_separator
+            if line_number != self.line_number:
+                sep += '\n' + self.indent + INDENT_PER_LEVEL[:-1]
+            else:
+                if sep != '': sep += ' '
             if have_star:
                 sep += '*'
+            self.write(sep, value)
+            sep = ','
         if lastnode.attr == 1 and lastnodetype.startswith('BUILD_TUPLE'):
             self.write(',')
         self.write(endchar)
@@ -1819,9 +1918,15 @@ class SourceWalker(GenericASTTraversal, object):
                 raise
 
             if   typ == '%':	self.write('%')
-            elif typ == '+':	self.indentMore()
-            elif typ == '-':	self.indentLess()
-            elif typ == '|':	self.write(self.indent)
+            elif typ == '+':
+                self.line_number += 1
+                self.indentMore()
+            elif typ == '-':
+                self.line_number += 1
+                self.indentLess()
+            elif typ == '|':
+                self.line_number += 1
+                self.write(self.indent)
             # Used mostly on the LHS of an assignment
             # BUILD_TUPLE_n is pretty printed and may take care of other uses.
             elif typ == ',':
@@ -2351,9 +2456,11 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
         debug_parser['errorstack'] = True
 
     #  Build AST from disassembly.
+    linestarts = dict(scanner.opc.findlinestarts(co))
     deparsed = SourceWalker(version, out, scanner, showast=showast,
                             debug_parser=debug_parser, compile_mode=compile_mode,
-                            is_pypy = is_pypy)
+                            is_pypy=is_pypy,
+                            linestarts=linestarts)
 
     isTopLevel = co.co_name == '<module>'
     deparsed.ast = deparsed.build_ast(tokens, customize, isTopLevel=isTopLevel)
