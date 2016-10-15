@@ -45,6 +45,8 @@ class Python26Parser(Python2Parser):
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            try_middle else_suite come_froms
 
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM POP_TOP
+
         except_suite ::= c_stmts_opt JUMP_FORWARD come_from_pop
 
         # Python 3 also has this.
