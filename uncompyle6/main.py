@@ -1,18 +1,19 @@
 from __future__ import print_function
 import datetime, os, sys
 
-from uncompyle6 import verify, PYTHON_VERSION, IS_PYPY
+from uncompyle6 import verify, IS_PYPY
 from xdis.code import iscode
 from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource
 from uncompyle6.parser import ParserError
+from uncompyle6.version import VERSION
 
 from xdis.load import load_module
 
 def uncompyle(
-        version, co, out=None, showasm=False, showast=False,
+        bytecode_version, co, out=None, showasm=False, showast=False,
         timestamp=None, showgrammar=False, code_objects={},
-        is_pypy=False, magic_int=None):
+        source_size=None, is_pypy=False, magic_int=None):
     """
     ingests and deparses a given code block 'co'
     """
@@ -22,21 +23,26 @@ def uncompyle(
     real_out = out or sys.stdout
     co_pypy_str = 'PyPy ' if is_pypy else ''
     run_pypy_str = 'PyPy ' if IS_PYPY else ''
-    print('# %sPython bytecode %s%s disassembled from %sPython %s' %
-          (co_pypy_str, version,
+    print('# uncompyle6 version %s\n'
+          '# %sPython bytecode %s%s\n# Disassembled from: %sPython %s' %
+          (VERSION, co_pypy_str, bytecode_version,
            " (%d)" % magic_int if magic_int else "",
-           run_pypy_str, PYTHON_VERSION),
-          file=real_out)
+           run_pypy_str, '\n# '.join(sys.version.split('\n'))),
+           file=real_out)
     if co.co_filename:
         print('# Embedded file name: %s' % co.co_filename,
               file=real_out)
     if timestamp:
         print('# Compiled at: %s' % datetime.datetime.fromtimestamp(timestamp),
               file=real_out)
+    if source_size:
+        print('# Size of source mod 2**32: %d bytes' % source_size,
+               file=real_out)
 
     try:
-        pysource.deparse_code(version, co, out, showasm, showast, showgrammar,
-                              code_objects=code_objects, is_pypy=is_pypy)
+        pysource.deparse_code(bytecode_version, co, out, showasm, showast,
+                              showgrammar, code_objects=code_objects,
+                              is_pypy=is_pypy)
     except pysource.SourceWalkerError as e:
         # deparsing failed
         print("\n")
@@ -66,7 +72,8 @@ def uncompyle_file(filename, outstream=None, showasm=False, showast=False,
                       is_pypy=is_pypy, magic_int=magic_int)
     else:
         uncompyle(version, co, outstream, showasm, showast,
-                  timestamp, showgrammar, code_objects=code_objects,
+                  timestamp, showgrammar,
+                  code_objects=code_objects, source_size=source_size,
                   is_pypy=is_pypy, magic_int=magic_int)
     co = None
 
