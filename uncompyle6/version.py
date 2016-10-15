@@ -1,3 +1,3 @@
 # This file is suitable for sourcing inside bash as
 # well as importing into Python
-VERSION='2.9.1'
+VERSION='2.9.2'

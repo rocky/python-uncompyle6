@@ -1,3 +1,11 @@
+uncompyle6 2.9.2 2016-10-15
+
+- use source-code line breaks to assist in where to break
+  in tuples and maps
+- Fix Python 1.5 decompyle bugs
+- Fix some Python 2.6 and below bugs
+- DRY fragments.py code a little
+
 uncompyle6 2.9.1 2016-10-09
 
 - Improved Python 1.5 decompiling

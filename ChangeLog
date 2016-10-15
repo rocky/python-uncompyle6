@@ -1,6 +1,77 @@
+2016-10-15  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/version.py: Get ready for release 2.9.2
+
+2016-10-14  rocky <rb@dustyfeet.com>
+
+	* : commit a7ef513849cc2564b35636d3865561242e46e63f Author: rocky
+	<rb@dustyfeet.com> Date:   Fri Oct 14 21:34:55 2016 -0400
+
+2016-10-14  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse26.py: Python 2.6- _ifstmst_jump bug
+
+2016-10-13  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py: Pretty-print constant tuples
+
+2016-10-13  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse26.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner26.py: 2.6 and before: try_middle
+	come_from per except
+
+2016-10-13  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse26.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner26.py: 2.6 try statement (and below) They may neeed arbitrary come_froms for each except clause
+
+2016-10-13  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py: Bug in handling kv, kv2
+
+2016-10-13  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/stmts/08_source_linebreaks.py,
+	uncompyle6/semantics/pysource.py: Start to track line breaks on
+	lists
+
+2016-10-11  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: DRY fragments.py preorder code pysource.py: doc typo
+
+2016-10-11  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, requirements.txt: Need xdis 3.0.2 for Python 1.5
+	bug fixes
+
+2016-10-11  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, requirements.txt, test/Makefile,
+	test/test_pythonlib.py, uncompyle6/scanners/scanner26.py: Fix Python
+	1.5 bytecode deparse Need xdis 3.0.2 though since the bug is really there.
+
+2016-10-11  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/test_pythonlib.py,
+	uncompyle6/scanners/scanner26.py: Fix python 1.5 decompile bugs ...  add bytecode 1.5 tests from decompyle
+
 2016-10-10  rocky <rb@dustyfeet.com>
 
-	* README.rst, __pkginfo__.py, requirements.txt,
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Map expression with
+	source-directed linebreaks ...  for Python 3.4 and 3.5
+
+2016-10-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Start using source linebreaks in
+	formatting...  .. large literals like maps and dicts, and tuples
+
+2016-10-10  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, README.rst, __pkginfo__.py, requirements.txt,
 	uncompyle6/version.py: Get ready for release 2.9.1
 
 2016-10-10  rocky <rb@dustyfeet.com>
