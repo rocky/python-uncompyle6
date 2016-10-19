@@ -632,7 +632,8 @@ class SourceWalker(GenericASTTraversal, object):
                 # Python 3.6+ Additions
                 #######################
                 TABLE_DIRECT.update({
-                    'fstring_expr': ( "f'{%c%{conversion}}'", 0),
+                    'fstring_expr': ( "{%c%{conversion}}", 0),
+                    'fstring':  ( "f'%c'", 0),
                 })
         return
 

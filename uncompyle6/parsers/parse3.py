@@ -518,7 +518,20 @@ class Python3Parser(PythonParser):
                 self.addRule("""
                     expr ::= fstring_expr
                     fstring_expr ::= expr FORMAT_VALUE
+                    str ::= LOAD_CONST
+                    fstring_expr_or_str ::= fstring_expr
+                    fstring_expr_or_str ::= str
                 """, nop_func)
+            elif opname == 'BUILD_STRING':
+                # Python 3.6+
+                v = token.attr
+                fstring_expr_or_str_n = "fstring_expr_or_str_%s" % v
+                rule = """
+                    expr ::= fstring
+                    fstring ::= %s BUILD_STRING
+                    %s ::= %sBUILD_STRING
+                """ % (fstring_expr_or_str_n, fstring_expr_or_str_n, "fstring_expr_or_str " * v)
+                self.addRule(rule, nop_func)
 
             elif opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
                             'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
@@ -542,14 +555,6 @@ class Python3Parser(PythonParser):
                 if opname_base == 'BUILD_TUPLE':
                     rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
-                if opname_base == 'BUILD_LIST' and saw_format_value:
-                    format_or_str_n = "formatted_value_or_str_%s" % v
-                    self.addRule("""
-                    expr ::= joined_str
-                    joined_str ::=  LOAD_CONST LOAD_ATTR %s CALL_FUNCTION_1
-                    %s ::= %s%s
-                    """ % (format_or_str_n, format_or_str_n, ("formatted_value_or_str " *v), opname),
-                                 nop_func)
 
             elif opname == 'LOOKUP_METHOD':
                 # A PyPy speciality - DRY with parse2
