@@ -39,6 +39,36 @@ class Scanner2(scan.Scanner):
         # For <2.5 it is <generator expression>
         self.genexpr_name = '<genexpr>';
 
+    @staticmethod
+    def unmangle_name(name, classname):
+        """Remove __ from the end of _name_ if it starts with __classname__
+        return the "unmangled" name.
+        """
+        if name.startswith(classname) and name[-2:] != '__':
+            return name[len(classname) - 2:]
+        return name
+
+    @classmethod
+    def unmangle_code_names(self, co, classname):
+        """Remove __ from the end of _name_ if it starts with __classname__
+        return the "unmangled" name.
+        """
+        if classname:
+            classname = '_' + classname.lstrip('_') + '__'
+
+            free = [ self.unmangle_name(name, classname)
+                     for name in (co.co_cellvars + co.co_freevars) ]
+            names = [ self.unmangle_name(name, classname)
+                      for name in co.co_names ]
+            varnames = [ self.unmangle_name(name, classname)
+                         for name in co.co_varnames ]
+        else:
+            free = co.co_cellvars + co.co_freevars
+            names = co.co_names
+            varnames = co.co_varnames
+        return free, names, varnames
+
+
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Pick out tokens from an uncompyle6 code object, and transform them,
@@ -82,22 +112,7 @@ class Scanner2(scan.Scanner):
         self.build_lines_data(co, n)
         self.build_prev_op(n)
 
-        # class and names
-        if classname:
-            classname = '_' + classname.lstrip('_') + '__'
-
-            def unmangle(name):
-                if name.startswith(classname) and name[-2:] != '__':
-                    return name[len(classname) - 2:]
-                return name
-
-            free = [ unmangle(name) for name in (co.co_cellvars + co.co_freevars) ]
-            names = [ unmangle(name) for name in co.co_names ]
-            varnames = [ unmangle(name) for name in co.co_varnames ]
-        else:
-            free = co.co_cellvars + co.co_freevars
-            names = co.co_names
-            varnames = co.co_varnames
+        free, names, varnames = self.unmangle_code_names(co, classname)
         self.names = names
 
         # Scan for assertions. Later we will
@@ -921,17 +936,3 @@ class Scanner2(scan.Scanner):
             instr_offsets = filtered
             filtered = []
         return instr_offsets
-
-
-if __name__ == "__main__":
-    from uncompyle6 import PYTHON_VERSION
-    if PYTHON_VERSION >= 2.3:
-        co = inspect.currentframe().f_code
-        from uncompyle6 import PYTHON_VERSION
-        tokens, customize = Scanner2(PYTHON_VERSION).ingest(co)
-        for t in tokens:
-            print(t)
-    else:
-        print("Need to be Python 3.2 or greater to demo; I am %s." %
-              PYTHON_VERSION)
-    pass

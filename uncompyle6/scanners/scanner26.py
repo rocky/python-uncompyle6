@@ -110,22 +110,7 @@ class Scanner26(scan.Scanner2):
         self.build_lines_data(co, n)
         self.build_prev_op(n)
 
-        # class and names
-        if classname:
-            classname = '_' + classname.lstrip('_') + '__'
-
-            def unmangle(name):
-                if name.startswith(classname) and name[-2:] != '__':
-                    return name[len(classname) - 2:]
-                return name
-
-            free = [ unmangle(name) for name in (co.co_cellvars + co.co_freevars) ]
-            names = [ unmangle(name) for name in co.co_names ]
-            varnames = [ unmangle(name) for name in co.co_varnames ]
-        else:
-            free = co.co_cellvars + co.co_freevars
-            names = co.co_names
-            varnames = co.co_varnames
+        free, names, varnames = self.unmangle_code_names(co, classname)
         self.names = names
 
         codelen = len(self.code)

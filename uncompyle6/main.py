@@ -24,7 +24,7 @@ def uncompyle(
     co_pypy_str = 'PyPy ' if is_pypy else ''
     run_pypy_str = 'PyPy ' if IS_PYPY else ''
     print('# uncompyle6 version %s\n'
-          '# %sPython bytecode %s%s\n# Disassembled from: %sPython %s' %
+          '# %sPython bytecode %s%s\n# Decompiled from: %sPython %s' %
           (VERSION, co_pypy_str, bytecode_version,
            " (%d)" % magic_int if magic_int else "",
            run_pypy_str, '\n# '.join(sys.version.split('\n'))),
