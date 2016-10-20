@@ -633,7 +633,8 @@ class SourceWalker(GenericASTTraversal, object):
                 #######################
                 TABLE_DIRECT.update({
                     'fstring_expr': ( "{%c%{conversion}}", 0),
-                    'fstring':  ( "f'%c'", 0),
+                    'fstring_single': ( "f'{%c%{conversion}}'", 0),
+                    'fstring_multi':  ( "f'%c'", 0),
                 })
         return
 
@@ -1892,6 +1893,9 @@ class SourceWalker(GenericASTTraversal, object):
     def n_fstring_expr(self, node):
         node.conversion = self.FSTRING_CONVERSION_MAP.get(node.data[1].attr, '')
         self.default(node)
+
+    def n_fstring_single(self, node):
+        return self.n_fstring_expr(node)
 
     def engine(self, entry, startnode):
         """The format template interpetation engine.  See the comment at the

@@ -16,9 +16,10 @@ class Python36Parser(Python35Parser):
 
     def p_36misc(self, args):
         """
+        fstring_single ::= expr FORMAT_VALUE
         fstring_expr ::= expr FORMAT_VALUE
         str ::= LOAD_CONST
-        fstring ::= fstring_expr_or_strs BUILD_STRING
+        fstring_multi ::= fstring_expr_or_strs BUILD_STRING
         fstring_expr_or_strs ::= fstring_expr_or_strs fstring_expr_or_str
         fstring_expr_or_strs ::= fstring_expr_or_str
         fstring_expr_or_str ::= fstring_expr

@@ -516,19 +516,21 @@ class Python3Parser(PythonParser):
             elif opname == 'FORMAT_VALUE':
                 # Python 3.6+
                 self.addRule("""
-                    expr ::= fstring_expr
-                    fstring_expr ::= expr FORMAT_VALUE
-                    str ::= LOAD_CONST
-                    fstring_expr_or_str ::= fstring_expr
-                    fstring_expr_or_str ::= str
+                    expr ::= fstring_single
+                    fstring_single ::= expr FORMAT_VALUE
                 """, nop_func)
             elif opname == 'BUILD_STRING':
                 # Python 3.6+
                 v = token.attr
                 fstring_expr_or_str_n = "fstring_expr_or_str_%s" % v
                 rule = """
-                    expr ::= fstring
-                    fstring ::= %s BUILD_STRING
+                    expr ::= fstring_expr
+                    fstring_expr ::= expr FORMAT_VALUE
+                    str ::= LOAD_CONST
+                    fstring_expr_or_str ::= fstring_expr
+                    fstring_expr_or_str ::= str
+                    expr ::= fstring_multi
+                    fstring_multi ::= %s BUILD_STRING
                     %s ::= %sBUILD_STRING
                 """ % (fstring_expr_or_str_n, fstring_expr_or_str_n, "fstring_expr_or_str " * v)
                 self.addRule(rule, nop_func)
