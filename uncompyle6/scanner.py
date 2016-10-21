@@ -219,6 +219,16 @@ class Scanner(object):
             yield start
             start += self.op_size(self.code[start])
 
+    def op_size(self, op):
+        """
+        Return size of operator with its arguments
+        for given opcode <op>.
+        """
+        if op < self.opc.HAVE_ARGUMENT:
+            return 1
+        else:
+            return 3
+
     def remove_mid_line_ifs(self, ifs):
         """
         Go through passed offsets, filtering ifs

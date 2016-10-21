@@ -22,7 +22,6 @@ Finally we save token information.
 
 from __future__ import print_function
 
-import inspect
 from collections import namedtuple
 from array import array
 
@@ -295,16 +294,6 @@ class Scanner2(scan.Scanner):
                 print(t)
             print()
         return tokens, customize
-
-    def op_size(self, op):
-        """
-        Return size of operator with its arguments
-        for given opcode <op>.
-        """
-        if op < self.opc.HAVE_ARGUMENT and op not in self.opc.hasArgumentExtended:
-            return 1
-        else:
-            return 3
 
     def setup_code(self, co):
         """

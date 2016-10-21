@@ -388,16 +388,6 @@ class Scanner3(Scanner):
             for _ in range(self.op_size(op)):
                 self.prev_op.append(offset)
 
-    def op_size(self, op):
-        """
-        Return size of operator with its arguments
-        for given opcode <op>.
-        """
-        if op < self.opc.HAVE_ARGUMENT:
-            return 1
-        else:
-            return 3
-
     def find_jump_targets(self):
         """
         Detect all offsets in a byte code which are jump targets.
