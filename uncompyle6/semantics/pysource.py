@@ -514,12 +514,11 @@ class SourceWalker(GenericASTTraversal, object):
         self.name = None
         self.version = version
         self.is_pypy = is_pypy
-
         self.customize_for_version(is_pypy, version)
+
         return
 
-    @staticmethod
-    def customize_for_version(is_pypy, version):
+    def customize_for_version(self, is_pypy, version):
         if is_pypy:
             ########################
             # PyPy changes
@@ -632,10 +631,26 @@ class SourceWalker(GenericASTTraversal, object):
                 # Python 3.6+ Additions
                 #######################
                 TABLE_DIRECT.update({
-                    'fstring_expr': ( "{%c%{conversion}}", 0),
+                    'fstring_expr':    ( "{%c%{conversion}}", 0),
                     'fstring_single': ( "f'{%c%{conversion}}'", 0),
                     'fstring_multi':  ( "f'%c'", 0),
                 })
+
+                FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
+                def f_conversion(node):
+                    node.conversion = FSTRING_CONVERSION_MAP.get(node.data[1].attr, '')
+
+                def n_fstring_expr(node):
+                    f_conversion(node)
+                    self.default(node)
+                self.n_fstring_expr = n_fstring_expr
+
+                def n_fstring_single(node):
+                    f_conversion(node)
+                    self.default(node)
+
+                self.n_fstring_single = n_fstring_single
+
         return
 
     f = property(lambda s: s.params['f'],
@@ -1887,15 +1902,6 @@ class SourceWalker(GenericASTTraversal, object):
         if node[-2][0] == 'unpack':
             node[-2][0].type = 'unpack_w_parens'
         self.default(node)
-
-    FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
-
-    def n_fstring_expr(self, node):
-        node.conversion = self.FSTRING_CONVERSION_MAP.get(node.data[1].attr, '')
-        self.default(node)
-
-    def n_fstring_single(self, node):
-        return self.n_fstring_expr(node)
 
     def engine(self, entry, startnode):
         """The format template interpetation engine.  See the comment at the

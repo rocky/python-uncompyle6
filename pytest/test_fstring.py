@@ -142,7 +142,7 @@ def test_uncompyle_fstring(fstring):
 
 @pytest.mark.skipif(PYTHON_VERSION < 3.6, reason='need at least python 3.6')
 @pytest.mark.parametrize('fstring', [
-    #"f'{abc}{abc!s}'",
+    "f'{abc}{abc!s}'",
     "f'{abc}0'",
 ])
 def test_uncompyle_direct(fstring):
