@@ -16,14 +16,14 @@ class Python36Parser(Python35Parser):
 
     def p_36misc(self, args):
         """
-        formatted_value ::= LOAD_FAST FORMAT_VALUE
+        fstring_single ::= expr FORMAT_VALUE
+        fstring_expr ::= expr FORMAT_VALUE
         str ::= LOAD_CONST
-        joined_str ::=  LOAD_CONST LOAD_ATTR format_value_or_strs
-                        BUILD_LIST CALL_FUNCTION
-        format_value_or_strs ::= format_value_or_strs format_value_or_str
-        format_value_or_strs ::= format_value_or_str
-        format_value_or_str ::= format_value
-        format_value_or_str ::= str
+        fstring_multi ::= fstring_expr_or_strs BUILD_STRING
+        fstring_expr_or_strs ::= fstring_expr_or_strs fstring_expr_or_str
+        fstring_expr_or_strs ::= fstring_expr_or_str
+        fstring_expr_or_str ::= fstring_expr
+        fstring_expr_or_str ::= str
         """
 
 class Python36ParserSingle(Python36Parser, PythonParserSingle):
