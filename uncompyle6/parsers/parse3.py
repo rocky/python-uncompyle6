@@ -500,7 +500,6 @@ class Python3Parser(PythonParser):
             load_attr ::= expr LOOKUP_METHOD
             call_function ::= expr CALL_METHOD
         """
-        saw_format_value = False
         for i, token in enumerate(tokens):
             opname = token.type
             opname_base = opname[:opname.rfind('_')]
@@ -513,13 +512,6 @@ class Python3Parser(PythonParser):
                     assign2_pypy ::= expr expr designator designator
                 """, nop_func)
                 continue
-            elif opname == 'FORMAT_VALUE':
-                # Python 3.6+
-                self.addRule("""
-                    expr ::= fstring_expr
-                    fstring_expr ::= expr FORMAT_VALUE
-                """, nop_func)
-
             elif opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
                             'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
                 self.custom_classfunc_rule(opname, token, customize)
@@ -542,14 +534,6 @@ class Python3Parser(PythonParser):
                 if opname_base == 'BUILD_TUPLE':
                     rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
-                if opname_base == 'BUILD_LIST' and saw_format_value:
-                    format_or_str_n = "formatted_value_or_str_%s" % v
-                    self.addRule("""
-                    expr ::= joined_str
-                    joined_str ::=  LOAD_CONST LOAD_ATTR %s CALL_FUNCTION_1
-                    %s ::= %s%s
-                    """ % (format_or_str_n, format_or_str_n, ("formatted_value_or_str " *v), opname),
-                                 nop_func)
 
             elif opname == 'LOOKUP_METHOD':
                 # A PyPy speciality - DRY with parse2
@@ -734,7 +718,6 @@ class Python33ParserSingle(Python33Parser, PythonParserSingle):
 
 def info(args):
     # Check grammar
-    # Should also add a way to dump grammar
     p = Python3Parser()
     if len(args) > 0:
         arg = args[0]
@@ -746,7 +729,9 @@ def info(args):
         elif arg == '3.2':
             p = Python32Parser()
     p.checkGrammar()
-
+    if len(sys.argv) > 1 and sys.argv[1] == 'dump':
+        print('-' * 50)
+        p.dumpGrammar()
 
 if __name__ == '__main__':
     import sys
