@@ -42,11 +42,20 @@ class PythonParser(GenericASTBuilder):
         return
 
     def add_unique_rules(self, rules, customize):
-        """Add rules to grammar
+        """Add rules (a list of string) to grammar
         """
         for rule in rules:
+            if len(rule) == 0:
+                continue
             opname = rule.split('::=')[0].strip()
             self.add_unique_rule(rule, opname, 0, customize)
+        return
+
+    def add_unique_doc_rules(self, rules_str, customize):
+        """Add rules (a docstring-like list of rules) to grammar
+        """
+        rules = [r.strip() for r in rules_str.split("\n")]
+        self.add_unique_rules(rules, customize)
         return
 
     def cleanup(self):

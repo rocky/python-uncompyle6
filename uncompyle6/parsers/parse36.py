@@ -16,15 +16,36 @@ class Python36Parser(Python35Parser):
 
     def p_36misc(self, args):
         """
-        fstring_single ::= expr FORMAT_VALUE
-        fstring_expr ::= expr FORMAT_VALUE
-        str ::= LOAD_CONST
         fstring_multi ::= fstring_expr_or_strs BUILD_STRING
         fstring_expr_or_strs ::= fstring_expr_or_strs fstring_expr_or_str
         fstring_expr_or_strs ::= fstring_expr_or_str
-        fstring_expr_or_str ::= fstring_expr
-        fstring_expr_or_str ::= str
         """
+
+    def add_custom_rules(self, tokens, customize):
+        super(Python36Parser, self).add_custom_rules(tokens, customize)
+        for i, token in enumerate(tokens):
+            opname = token.type
+            if opname == 'FORMAT_VALUE':
+                rules_str = """
+                    expr ::= fstring_single
+                    fstring_single ::= expr FORMAT_VALUE
+                """
+                self.add_unique_doc_rules(rules_str, customize)
+            elif opname == 'BUILD_STRING':
+                v = token.attr
+                fstring_expr_or_str_n = "fstring_expr_or_str_%s" % v
+                rules_str = """
+                    expr ::= fstring_expr
+                    fstring_expr ::= expr FORMAT_VALUE
+                    str ::= LOAD_CONST
+                    fstring_expr_or_str ::= fstring_expr
+                    fstring_expr_or_str ::= str
+
+                    expr ::= fstring_multi
+                    fstring_multi ::= %s BUILD_STRING
+                    %s ::= %sBUILD_STRING
+                """ % (fstring_expr_or_str_n, fstring_expr_or_str_n, "fstring_expr_or_str " * v)
+                self.add_unique_doc_rules(rules_str, customize)
 
 class Python36ParserSingle(Python36Parser, PythonParserSingle):
     pass
