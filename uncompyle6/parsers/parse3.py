@@ -577,7 +577,7 @@ class Python3Parser(PythonParser):
                     self.add_unique_rule(rule, opname, token.attr, customize)
                     rule = "mapexpr ::=  %s %s" % (opname, kvlist_n)
                 self.add_unique_rule(rule, opname, token.attr, customize)
-            elif opname_base in ('UNPACK_EX'):
+            elif opname_base in ('UNPACK_EX',):
                 before_count, after_count = token.attr
                 rule = 'unpack ::= ' + opname + ' designator' * (before_count + after_count + 1)
                 self.add_unique_rule(rule, opname, token.attr, customize)

@@ -249,7 +249,7 @@ class Scanner3(Scanner):
                     opname = '%s_N%d' % (opname, name_pair_args)
                     pass
                 if annotate_args > 0:
-                    opname = '%s_A_%d' % [opname, annotate_args]
+                    opname = '%s_A_%d' % (opname, annotate_args)
                     pass
                 opname = '%s_%d' % (opname, pos_args)
                 pattr = ("%d positional, %d keyword pair, %d annotated" %
@@ -286,6 +286,7 @@ class Scanner3(Scanner):
                 pattr = "%d before vararg, %d after" % (before_args, after_args)
                 argval = (before_args, after_args)
                 opname = '%s_%d+%d' % (opname, before_args, after_args)
+
             elif op == self.opc.JUMP_ABSOLUTE:
                 # Further classify JUMP_ABSOLUTE into backward jumps
                 # which are used in loops, and "CONTINUE" jumps which
