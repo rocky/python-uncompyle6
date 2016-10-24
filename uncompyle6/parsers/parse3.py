@@ -577,7 +577,7 @@ class Python3Parser(PythonParser):
                     self.add_unique_rule(rule, opname, token.attr, customize)
                     rule = "mapexpr ::=  %s %s" % (opname, kvlist_n)
                 self.add_unique_rule(rule, opname, token.attr, customize)
-            elif opname_base in ('UNPACK_EX'):
+            elif opname_base in ('UNPACK_EX',):
                 before_count, after_count = token.attr
                 rule = 'unpack ::= ' + opname + ' designator' * (before_count + after_count + 1)
                 self.add_unique_rule(rule, opname, token.attr, customize)
@@ -672,6 +672,15 @@ class Python3Parser(PythonParser):
         return
 
 
+class Python30Parser(Python3Parser):
+
+    def p_30(self, args):
+        """
+        # Store locals is only in Python 3.0 to 3.3
+        stmt ::= store_locals
+        store_locals ::= LOAD_FAST STORE_LOCALS
+        """
+
 class Python31Parser(Python3Parser):
 
     def p_31(self, args):
@@ -706,6 +715,9 @@ class Python3ParserSingle(Python3Parser, PythonParserSingle):
     pass
 
 
+class Python30ParserSingle(Python30Parser, PythonParserSingle):
+    pass
+
 class Python31ParserSingle(Python31Parser, PythonParserSingle):
     pass
 
@@ -728,6 +740,8 @@ def info(args):
             p = Python33Parser()
         elif arg == '3.2':
             p = Python32Parser()
+        elif arg == '3.0':
+            p = Python30Parser()
     p.checkGrammar()
     if len(sys.argv) > 1 and sys.argv[1] == 'dump':
         print('-' * 50)
