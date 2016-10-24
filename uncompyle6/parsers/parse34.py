@@ -1,6 +1,6 @@
 #  Copyright (c) 2016 Rocky Bernstein
 """
-spark grammar differences over Python3 for Python 3.4.2.
+spark grammar differences over Python 3.2 for Python 3.4
 """
 
 from uncompyle6.parser import PythonParserSingle

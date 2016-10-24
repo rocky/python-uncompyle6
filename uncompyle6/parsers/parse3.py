@@ -360,10 +360,9 @@ class Python3Parser(PythonParser):
         # Python 3.4+
         expr ::= LOAD_CLASSDEREF
 
+        binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
         # Python3 drops slice0..slice3
 
-        # In Python 2, DUP_TOP_TWO is DUP_TOPX_2
-        binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
         '''
 
     @staticmethod
@@ -672,24 +671,6 @@ class Python3Parser(PythonParser):
         return
 
 
-class Python31Parser(Python3Parser):
-
-    def p_31(self, args):
-        """
-        # Store locals is only in Python 3.0 to 3.3
-        stmt ::= store_locals
-        store_locals ::= LOAD_FAST STORE_LOCALS
-        """
-
-class Python32Parser(Python3Parser):
-
-    def p_32(self, args):
-        """
-        # Store locals is only in Python 3.0 to 3.3
-        stmt ::= store_locals
-        store_locals ::= LOAD_FAST STORE_LOCALS
-        """
-
 class Python33Parser(Python3Parser):
     def p_33(self, args):
         """
@@ -700,6 +681,23 @@ class Python33Parser(Python3Parser):
         # Python 3.3 adds yield from.
         expr ::= yield_from
         yield_from ::= expr expr YIELD_FROM
+        """
+
+class Python32Parser(Python3Parser):
+    def p_32on(self, args):
+        """
+        # In Python 3.2+, DUP_TOPX is DUP_TOP_TWO
+        binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
+        stmt ::= store_locals
+        store_locals ::= LOAD_FAST STORE_LOCALS
+        """
+    pass
+
+class Python31Parser(Python32Parser):
+
+    def p_31(self, args):
+        """
+        binary_subscr2 ::= expr expr DUP_TOPX BINARY_SUBSCR
         """
 
 class Python3ParserSingle(Python3Parser, PythonParserSingle):

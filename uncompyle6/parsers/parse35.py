@@ -1,14 +1,14 @@
 #  Copyright (c) 2016 Rocky Bernstein
 """
-spark grammar differences over Python3 for Python 3.5.
+spark grammar differences over Python 3.2 for Python 3.5.
 """
 from __future__ import print_function
 
 from uncompyle6.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from uncompyle6.parsers.parse3 import Python3Parser
+from uncompyle6.parsers.parse3 import Python32Parser
 
-class Python35Parser(Python3Parser):
+class Python35Parser(Python32Parser):
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
         super(Python35Parser, self).__init__(debug_parser)
