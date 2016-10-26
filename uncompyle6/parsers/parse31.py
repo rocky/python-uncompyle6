@@ -33,8 +33,22 @@ class Python31Parser(Python32Parser):
         load  ::= LOAD_FAST
         load  ::= LOAD_NAME
 
-        funcdef ::= mkfunc designator
+        stmt ::= funcdeftest
+        funcdeftest ::= mkfunctest designator
         """
+
+    def add_custom_rules(self, tokens, customize):
+        super(Python31Parser, self).add_custom_rules(tokens, customize)
+        for i, token in enumerate(tokens):
+            opname = token.type
+            if opname.startswith('MAKE_FUNCTION_A'):
+                args_pos, args_kw, annotate_args  = token.attr
+                # Check that there are 2 annotated params?
+                # rule = ('mkfunc2 ::= %s%sEXTENDED_ARG %s' %
+                #         ('pos_arg ' * (args_pos), 'kwargs ' * (annotate_args-1), opname))
+                rule = ('mkfunctest ::= %s%sLOAD_CONST EXTENDED_ARG %s' %
+                        (('pos_arg ' * (args_pos)), 'kwargs ', opname))
+                self.add_unique_rule(rule, opname, token.attr, customize)
 
 class Python31ParserSingle(Python31Parser, PythonParserSingle):
     pass
