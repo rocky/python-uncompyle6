@@ -1,3 +1,18 @@
+uncompyle6 2.9.3 2016-10-26
+
+Release forced by incompatiblity change in xdis 3.2.0.
+
+- Python 3.1 bugs:
+  * handle "with ... as"
+  * handle "with"
+  * Start handling def (...) -> yy (has bugs still)
+
+- DRY Python 3.x via inheritance
+- Python 3.6 work (from Daniel Bradburn)
+  * Handle 3.6 buildstring
+  * Handle 3.6 handle single and multiple fstring better
+
+
 uncompyle6 2.9.2 2016-10-15
 
 - use source-code line breaks to assist in where to break
