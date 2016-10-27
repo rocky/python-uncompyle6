@@ -611,206 +611,213 @@ class SourceWalker(GenericASTTraversal, object):
                 'comp_for':	( ' for %c in %c%c', 2, 0, 3 ),
             })
 
+        if version >= 3.0:
+            if 3.1 == version:
+                ##########################
+                # Python 3.1
+                ##########################
+                TABLE_DIRECT.update({
+                    'funcdef_annotate': ( '\n\n%|def %c%c\n', -1, 0),
+                    })
 
-        if 3.1 == version:
-            ##########################
-            # Python 3.1
-            ##########################
-            TABLE_DIRECT.update({
-                'funcdeftest': 	( '\n\n%|def %c%c\n', -1, 0),
-                })
+                def make_function31(node, isLambda, nested=1,
+                                    codeNode=None, annotate=None):
+                    """Dump function defintion, doc string, and function
+                    body. This code is specialzed for Python 3.1"""
 
-            def make_function31(node, isLambda, nested=1,
-                                codeNode=None, annotate=None):
-                """Dump function defintion, doc string, and function
-                body. This code is specialzed for Python 3.1"""
-
-                def build_param(ast, name, default):
-                    """build parameters:
-                        - handle defaults
-                        - handle format tuple parameters
-                    """
-                    if default:
-                        value = self.traverse(default, indent='')
-                        maybe_show_ast_param_default(self.showast, name, value)
-                        result = '%s=%s' % (name,  value)
-                        if result[-2:] == '= ':	# default was 'LOAD_CONST None'
-                            result += 'None'
-                        return result
-                    else:
-                        return name
-
-                # MAKE_FUNCTION_... or MAKE_CLOSURE_...
-                assert node[-1].type.startswith('MAKE_')
-
-                args_node = node[-1]
-                if isinstance(args_node.attr, tuple):
-                    defparams = node[1:args_node.attr[0]+1]
-                    pos_args, kw_args, annotate_args  = args_node.attr
-                else:
-                    defparams = node[:args_node.attr]
-                    kw_args  = 0
-                    pass
-
-                lambda_index = -2
-
-                if lambda_index and isLambda and iscode(node[lambda_index].attr):
-                    assert node[lambda_index].type == 'LOAD_LAMBDA'
-                    code = node[lambda_index].attr
-                else:
-                    code = codeNode.attr
-
-                assert iscode(code)
-                code = Code(code, self.scanner, self.currentclass)
-
-                # add defaults values to parameter names
-                argc = code.co_argcount
-                paramnames = list(code.co_varnames[:argc])
-
-                try:
-                    ast = self.build_ast(code._tokens,
-                                         code._customize,
-                                         isLambda = isLambda,
-                                         noneInNames = ('None' in code.co_names))
-                except ParserError as p:
-                    self.write(str(p))
-                    self.ERROR = p
-                    return
-
-                kw_pairs = args_node.attr[1] if self.version >= 3.0 else 0
-                indent = self.indent
-
-                params = [build_param(ast, name, default) for
-                          name, default in zip_longest(paramnames, defparams, fillvalue=None)]
-                params.reverse() # back to correct order
-
-                if 4 & code.co_flags:	# flag 2 -> variable number of args
-                    if self.version > 3.0:
-                        params.append('*%s' % code.co_varnames[argc + kw_pairs])
-                    else:
-                        params.append('*%s' % code.co_varnames[argc])
-                    argc += 1
-
-                # dump parameter list (with default values)
-                if isLambda:
-                    self.write("lambda ", ", ".join(params))
-                else:
-                    self.write("(", ", ".join(params))
-                # self.println(indent, '#flags:\t', int(code.co_flags))
-                if kw_args > 0:
-                    if not (4 & code.co_flags):
-                        if argc > 0:
-                            self.write(", *, ")
+                    def build_param(ast, name, default):
+                        """build parameters:
+                            - handle defaults
+                            - handle format tuple parameters
+                        """
+                        if default:
+                            value = self.traverse(default, indent='')
+                            maybe_show_ast_param_default(self.showast, name, value)
+                            result = '%s=%s' % (name,  value)
+                            if result[-2:] == '= ':	# default was 'LOAD_CONST None'
+                                result += 'None'
+                            return result
                         else:
-                            self.write("*, ")
-                        pass
-                    else:
-                        self.write(", ")
+                            return name
 
-                    kwargs = node[0]
-                    last = len(kwargs)-1
-                    i = 0
-                    for n in node[0]:
-                        if n == 'kwarg':
-                            self.write('%s=' % n[0].pattr)
-                            self.preorder(n[1])
-                            if i < last:
-                                self.write(', ')
+                    # MAKE_FUNCTION_... or MAKE_CLOSURE_...
+                    assert node[-1].type.startswith('MAKE_')
+
+                    args_node = node[-1]
+                    if isinstance(args_node.attr, tuple):
+                        # positional args are before kwargs
+                        defparams = node[:args_node.attr[0]]
+                        pos_args, kw_args, annotate_args  = args_node.attr
+                    else:
+                        defparams = node[:args_node.attr]
+                        kw_args  = 0
+                        pass
+
+                    lambda_index = -2
+
+                    if lambda_index and isLambda and iscode(node[lambda_index].attr):
+                        assert node[lambda_index].type == 'LOAD_LAMBDA'
+                        code = node[lambda_index].attr
+                    else:
+                        code = codeNode.attr
+
+                    assert iscode(code)
+                    code = Code(code, self.scanner, self.currentclass)
+
+                    # add defaults values to parameter names
+                    argc = code.co_argcount
+                    paramnames = list(code.co_varnames[:argc])
+
+                    try:
+                        ast = self.build_ast(code._tokens,
+                                             code._customize,
+                                             isLambda = isLambda,
+                                             noneInNames = ('None' in code.co_names))
+                    except ParserError as p:
+                        self.write(str(p))
+                        self.ERROR = p
+                        return
+
+                    kw_pairs = args_node.attr[1]
+                    indent = self.indent
+
+                    if isLambda:
+                        self.write("lambda ")
+                    else:
+                        self.write("(")
+
+                    if 4 & code.co_flags:	# flag 2 -> variable number of args
+                        self.write('*%s' % code.co_varnames[argc + kw_pairs])
+                        argc += 1
+
+                    i = len(paramnames) - len(defparams)
+                    self.write(",".join(paramnames[:i]))
+                    suffix = ', ' if i > 0 else ''
+                    for n in node:
+                        if n == 'pos_arg':
+                            self.write(suffix)
+                            self.write(paramnames[i] + '=')
                             i += 1
+                            self.preorder(n)
+                            suffix = ', '
+
+                    # self.println(indent, '#flags:\t', int(code.co_flags))
+                    if kw_args > 0:
+                        if not (4 & code.co_flags):
+                            if argc > 0:
+                                self.write(", *, ")
+                            else:
+                                self.write("*, ")
+                            pass
+                        else:
+                            self.write(", ")
+
+                        kwargs = node[0]
+                        last = len(kwargs)-1
+                        i = 0
+                        for n in node[0]:
+                            if n == 'kwarg':
+                                self.write('%s=' % n[0].pattr)
+                                self.preorder(n[1])
+                                if i < last:
+                                    self.write(', ')
+                                i += 1
+                                pass
                             pass
                         pass
-                    pass
 
-                if 8 & code.co_flags:	# flag 3 -> keyword args
-                    if argc > 0:
-                        self.write(', ')
-                    self.write('**%s' % code.co_varnames[argc + kw_pairs])
+                    if 8 & code.co_flags:	# flag 3 -> keyword args
+                        if argc > 0:
+                            self.write(', ')
+                        self.write('**%s' % code.co_varnames[argc + kw_pairs])
 
-                if isLambda:
-                    self.write(": ")
-                else:
-                    self.write(')')
-                    if annotate:
-                        self.write(' -> %s' % annotate)
-                    self.println(":")
+                    if isLambda:
+                        self.write(": ")
+                    else:
+                        self.write(')')
+                        if annotate:
+                            self.write(' -> %s' % annotate)
+                        self.println(":")
 
-                if (len(code.co_consts) > 0 and
-                    code.co_consts[0] is not None and not isLambda): # ugly
-                    # docstring exists, dump it
-                    self.print_docstring(indent, code.co_consts[0])
+                    if (len(code.co_consts) > 0 and
+                        code.co_consts[0] is not None and not isLambda): # ugly
+                        # docstring exists, dump it
+                        self.print_docstring(indent, code.co_consts[0])
 
-                code._tokens = None # save memory
-                assert ast == 'stmts'
+                    code._tokens = None # save memory
+                    assert ast == 'stmts'
 
-                all_globals = find_all_globals(ast, set())
-                for g in ((all_globals & self.mod_globs) | find_globals(ast, set())):
-                    self.println(self.indent, 'global ', g)
-                self.mod_globs -= all_globals
-                has_none = 'None' in code.co_names
-                rn = has_none and not find_none(ast)
-                self.gen_source(ast, code.co_name, code._customize, isLambda=isLambda,
-                                returnNone=rn)
-                code._tokens = code._customize = None # save memory
+                    all_globals = find_all_globals(ast, set())
+                    for g in ((all_globals & self.mod_globs) | find_globals(ast, set())):
+                        self.println(self.indent, 'global ', g)
+                    self.mod_globs -= all_globals
+                    has_none = 'None' in code.co_names
+                    rn = has_none and not find_none(ast)
+                    self.gen_source(ast, code.co_name, code._customize, isLambda=isLambda,
+                                    returnNone=rn)
+                    code._tokens = code._customize = None # save memory
 
-            self.make_function31 = make_function31
+                self.make_function31 = make_function31
 
-            def n_mkfunctest(node):
+                def n_mkfunc_annotate(node):
 
-                self.indentMore()
-                code = node[-3]
-                annotate = None
-                if node[-4][0][0] == 'LOAD_CONST':
-                    annotate = node[-4][0][0].attr
-                self.make_function31(node, isLambda=False,
-                                     codeNode=code, annotate=annotate)
+                    self.indentMore()
+                    code = node[-3]
+                    annotate = None
+                    if node[-4] == 'kwargs' and node[-4][0][0] == 'LOAD_CONST':
+                        # FIXME: Annotate args are currently stored as kwargs
+                        # we should rename that grammar nonterminal
+                        annotate = node[-4][0][0].attr
+                    self.make_function31(node, isLambda=False,
+                                         codeNode=code, annotate=annotate)
 
-                if len(self.param_stack) > 1:
-                    self.write('\n\n')
-                else:
-                    self.write('\n\n\n')
-                self.indentLess()
-                self.prune() # stop recursing
-            self.n_mkfunctest = n_mkfunctest
+                    if len(self.param_stack) > 1:
+                        self.write('\n\n')
+                    else:
+                        self.write('\n\n\n')
+                    self.indentLess()
+                    self.prune() # stop recursing
+                self.n_mkfunc_annotate = n_mkfunc_annotate
 
 
-        elif 3.2 <= version <= 3.3:
-            ##########################
-            # Python 3.2 and 3.3
-            ##########################
-            TABLE_DIRECT.update({
-                'store_locals': ( '%|# inspect.currentframe().f_locals = __locals__\n', ),
-                })
-        elif version >= 3.4:
-            ########################
-            # Python 3.4+ Additions
-            #######################
-            TABLE_DIRECT.update({
-                'LOAD_CLASSDEREF':	( '%{pattr}', ),
-                })
-            if version >= 3.6:
+            elif 3.2 <= version <= 3.3:
+                ##########################
+                # Python 3.2 and 3.3
+                ##########################
+                TABLE_DIRECT.update({
+                    'store_locals': ( '%|# inspect.currentframe().f_locals = __locals__\n', ),
+                    })
+            elif version >= 3.4:
                 ########################
-                # Python 3.6+ Additions
+                # Python 3.4+ Additions
                 #######################
                 TABLE_DIRECT.update({
-                    'fstring_expr':    ( "{%c%{conversion}}", 0),
-                    'fstring_single': ( "f'{%c%{conversion}}'", 0),
-                    'fstring_multi':  ( "f'%c'", 0),
-                })
+                    'LOAD_CLASSDEREF':	( '%{pattr}', ),
+                    })
+                if version >= 3.6:
+                    ########################
+                    # Python 3.6+ Additions
+                    #######################
+                    TABLE_DIRECT.update({
+                        'fstring_expr':    ( "{%c%{conversion}}", 0),
+                        'fstring_single': ( "f'{%c%{conversion}}'", 0),
+                        'fstring_multi':  ( "f'%c'", 0),
+                    })
 
-                FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
-                def f_conversion(node):
-                    node.conversion = FSTRING_CONVERSION_MAP.get(node.data[1].attr, '')
+                    FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
+                    def f_conversion(node):
+                        node.conversion = FSTRING_CONVERSION_MAP.get(node.data[1].attr, '')
 
-                def n_fstring_expr(node):
-                    f_conversion(node)
-                    self.default(node)
-                self.n_fstring_expr = n_fstring_expr
+                    def n_fstring_expr(node):
+                        f_conversion(node)
+                        self.default(node)
+                    self.n_fstring_expr = n_fstring_expr
 
-                def n_fstring_single(node):
-                    f_conversion(node)
-                    self.default(node)
+                    def n_fstring_single(node):
+                        f_conversion(node)
+                        self.default(node)
 
-                self.n_fstring_single = n_fstring_single
+                    self.n_fstring_single = n_fstring_single
 
         return
 
@@ -2346,7 +2353,7 @@ class SourceWalker(GenericASTTraversal, object):
         indent = self.indent
 
         # build parameters
-        if not 3.0 <= self.version <= 3.2:
+        if self.version != 3.2:
             params = [build_param(ast, name, default) for
                       name, default in zip_longest(paramnames, defparams, fillvalue=None)]
             params.reverse() # back to correct order
