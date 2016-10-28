@@ -612,16 +612,17 @@ class SourceWalker(GenericASTTraversal, object):
             })
 
         if version >= 3.0:
-            if 3.1 == version:
+            if 3.1 <= version <= 3.3:
                 ##########################
-                # Python 3.1
+                # Python 3.1 - 3.3
                 ##########################
                 TABLE_DIRECT.update({
                     'funcdef_annotate': ( '\n\n%|def %c%c\n', -1, 0),
+                    'store_locals': ( '%|# inspect.currentframe().f_locals = __locals__\n', ),
                     })
 
-                def make_function31(node, isLambda, nested=1,
-                                    codeNode=None, annotate=None):
+                def make_function3(node, isLambda, nested=1,
+                                   codeNode=None, annotate=None):
                     """Dump function defintion, doc string, and function
                     body. This code is specialzed for Python 3.1"""
 
@@ -653,7 +654,12 @@ class SourceWalker(GenericASTTraversal, object):
                         kw_args  = 0
                         pass
 
-                    lambda_index = -2
+                    if 3.0 <= self.version <= 3.2:
+                        lambda_index = -2
+                    elif 3.03 <= self.version:
+                        lambda_index = -3
+                    else:
+                        lambda_index = None
 
                     if lambda_index and isLambda and iscode(node[lambda_index].attr):
                         assert node[lambda_index].type == 'LOAD_LAMBDA'
@@ -757,19 +763,31 @@ class SourceWalker(GenericASTTraversal, object):
                                     returnNone=rn)
                     code._tokens = code._customize = None # save memory
 
-                self.make_function31 = make_function31
+                self.make_function3 = make_function3
 
                 def n_mkfunc_annotate(node):
 
+                    if self.version >= 3.3 or node[-2] == 'kwargs':
+                        # LOAD_CONST code object ..
+                        # LOAD_CONST        'x0'  if >= 3.3
+                        # EXTENDED_ARG
+                        # MAKE_FUNCTION ..
+                        code = node[-4]
+                    elif node[-3] == 'expr':
+                        code = node[-3][0]
+                    else:
+                        # LOAD_CONST code object ..
+                        # MAKE_FUNCTION ..
+                        code = node[-3]
+
                     self.indentMore()
-                    code = node[-3]
                     annotate = None
-                    if node[-4] == 'kwargs' and node[-4][0][0] == 'LOAD_CONST':
-                        # FIXME: Annotate args are currently stored as kwargs
-                        # we should rename that grammar nonterminal
-                        annotate = node[-4][0][0].attr
-                    self.make_function31(node, isLambda=False,
-                                         codeNode=code, annotate=annotate)
+                    annotate_args = node[-4] if self.version == 3.1 else node[-5];
+
+                    if annotate_args == 'annotate_args' and annotate_args[0][0] == 'LOAD_CONST':
+                        annotate = annotate_args[0][0].attr
+                    self.make_function3(node, isLambda=False,
+                                        codeNode=code, annotate=annotate)
 
                     if len(self.param_stack) > 1:
                         self.write('\n\n')
@@ -780,13 +798,6 @@ class SourceWalker(GenericASTTraversal, object):
                 self.n_mkfunc_annotate = n_mkfunc_annotate
 
 
-            elif 3.2 <= version <= 3.3:
-                ##########################
-                # Python 3.2 and 3.3
-                ##########################
-                TABLE_DIRECT.update({
-                    'store_locals': ( '%|# inspect.currentframe().f_locals = __locals__\n', ),
-                    })
             elif version >= 3.4:
                 ########################
                 # Python 3.4+ Additions

@@ -32,9 +32,6 @@ class Python31Parser(Python32Parser):
         store ::= STORE_NAME
         load  ::= LOAD_FAST
         load  ::= LOAD_NAME
-
-        stmt ::= funcdef_annotate
-        funcdef_annotate ::= mkfunc_annotate designator
         """
 
     def add_custom_rules(self, tokens, customize):
@@ -48,8 +45,7 @@ class Python31Parser(Python32Parser):
                 #         ('pos_arg ' * (args_pos), 'kwargs ' * (annotate_args-1), opname))
                 rule = ('mkfunc_annotate ::= %s%sLOAD_CONST EXTENDED_ARG %s' %
                         (('pos_arg ' * (args_pos)),
-                         ('kwargs ' * (annotate_args-1)), opname))
+                         ('annotate_args ' * (annotate_args-1)), opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
-
 class Python31ParserSingle(Python31Parser, PythonParserSingle):
     pass

@@ -14,8 +14,29 @@ class Python32Parser(Python3Parser):
         binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
         stmt ::= store_locals
         store_locals ::= LOAD_FAST STORE_LOCALS
+
+        stmt ::= funcdef_annotate
+        funcdef_annotate ::= mkfunc_annotate designator
+
+        annotate_args   ::= annotate_args annotate_arg
+        annotate_args   ::= annotate_arg
+        annotate_arg    ::= LOAD_CONST expr
         """
     pass
+
+    def add_custom_rules(self, tokens, customize):
+        super(Python32Parser, self).add_custom_rules(tokens, customize)
+        for i, token in enumerate(tokens):
+            opname = token.type
+            if opname.startswith('MAKE_FUNCTION_A'):
+                args_pos, args_kw, annotate_args  = token.attr
+                # Check that there are 2 annotated params?
+                rule = ('mkfunc_annotate ::= %s%sLOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
+                        (('pos_arg ' * (args_pos)),
+                         ('annotate_args ' * (annotate_args-1)), opname))
+                print(rule)
+                self.add_unique_rule(rule, opname, token.attr, customize)
+
 
 class Python32ParserSingle(Python32Parser, PythonParserSingle):
     pass
