@@ -45,7 +45,7 @@ class Python31Parser(Python32Parser):
                 #         ('pos_arg ' * (args_pos), 'kwargs ' * (annotate_args-1), opname))
                 rule = ('mkfunc_annotate ::= %s%sLOAD_CONST EXTENDED_ARG %s' %
                         (('pos_arg ' * (args_pos)),
-                         ('annotate_args ' * (annotate_args-1)), opname))
+                         ('annotate_arg ' * (annotate_args)), opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
 class Python31ParserSingle(Python31Parser, PythonParserSingle):
     pass

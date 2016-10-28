@@ -22,10 +22,12 @@ def test_grammar():
     expect_right_recursive = [['designList', ('designator', 'DUP_TOP', 'designList')]]
     if PYTHON3:
         expect_lhs.add('load_genexpr')
+
         unused_rhs = unused_rhs.union(set("""
         except_pop_except genexpr classdefdeco2 listcomp
         """.split()))
-        if 3.1 <= PYTHON_VERSION <= 3.4:
+        if 3.0 <= PYTHON_VERSION:
+            expect_lhs.add("annotate_arg")
             unused_rhs.add("mkfunc_annotate")
             pass
     else:

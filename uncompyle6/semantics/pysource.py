@@ -611,191 +611,204 @@ class SourceWalker(GenericASTTraversal, object):
                 'comp_for':	( ' for %c in %c%c', 2, 0, 3 ),
             })
 
-        if version >= 3.0:
-            if 3.1 <= version <= 3.4:
-                ##########################
-                # Python 3.1 - 3.4
-                ##########################
-                TABLE_DIRECT.update({
-                    'funcdef_annotate': ( '\n\n%|def %c%c\n', -1, 0),
-                    'store_locals': ( '%|# inspect.currentframe().f_locals = __locals__\n', ),
-                    })
+        if  version >= 3.0:
+            TABLE_DIRECT.update({
+                'funcdef_annotate': ( '\n\n%|def %c%c\n', -1, 0),
+                'store_locals': ( '%|# inspect.currentframe().f_locals = __locals__\n', ),
+                })
 
-                def make_function3(node, isLambda, nested=1,
-                                   codeNode=None, annotate=None):
-                    """Dump function defintion, doc string, and function
-                    body. This code is specialzed for Python 3.1"""
+            def make_function3(node, isLambda, nested=1,
+                               codeNode=None, annotate=None):
+                """Dump function defintion, doc string, and function
+                body. This code is specialzed for Python 3"""
 
-                    def build_param(ast, name, default):
-                        """build parameters:
-                            - handle defaults
-                            - handle format tuple parameters
-                        """
-                        if default:
-                            value = self.traverse(default, indent='')
-                            maybe_show_ast_param_default(self.showast, name, value)
-                            result = '%s=%s' % (name,  value)
-                            if result[-2:] == '= ':	# default was 'LOAD_CONST None'
-                                result += 'None'
-                            return result
+                def build_param(ast, name, default):
+                    """build parameters:
+                        - handle defaults
+                        - handle format tuple parameters
+                    """
+                    if default:
+                        value = self.traverse(default, indent='')
+                        maybe_show_ast_param_default(self.showast, name, value)
+                        result = '%s=%s' % (name,  value)
+                        if result[-2:] == '= ':	# default was 'LOAD_CONST None'
+                            result += 'None'
+                        return result
+                    else:
+                        return name
+
+                # MAKE_FUNCTION_... or MAKE_CLOSURE_...
+                assert node[-1].type.startswith('MAKE_')
+
+                args_node = node[-1]
+                if isinstance(args_node.attr, tuple):
+                    # positional args are before kwargs
+                    defparams = node[:args_node.attr[0]]
+                    pos_args, kw_args, annotate_args  = args_node.attr
+                else:
+                    defparams = node[:args_node.attr]
+                    kw_args  = 0
+                    pass
+
+                if 3.0 <= self.version <= 3.2:
+                    lambda_index = -2
+                elif 3.03 <= self.version:
+                    lambda_index = -3
+                else:
+                    lambda_index = None
+
+                if lambda_index and isLambda and iscode(node[lambda_index].attr):
+                    assert node[lambda_index].type == 'LOAD_LAMBDA'
+                    code = node[lambda_index].attr
+                else:
+                    code = codeNode.attr
+
+                assert iscode(code)
+                code = Code(code, self.scanner, self.currentclass)
+
+                # add defaults values to parameter names
+                argc = code.co_argcount
+                paramnames = list(code.co_varnames[:argc])
+
+                try:
+                    ast = self.build_ast(code._tokens,
+                                         code._customize,
+                                         isLambda = isLambda,
+                                         noneInNames = ('None' in code.co_names))
+                except ParserError as p:
+                    self.write(str(p))
+                    self.ERROR = p
+                    return
+
+                kw_pairs = args_node.attr[1]
+                indent = self.indent
+
+                if isLambda:
+                    self.write("lambda ")
+                else:
+                    self.write("(")
+
+                last_line = self.f.getvalue().split("\n")[-1]
+                l = len(last_line)
+                indent = ' ' * l
+                line_number = self.line_number
+
+
+                if 4 & code.co_flags:	# flag 2 -> variable number of args
+                    self.write('*%s' % code.co_varnames[argc + kw_pairs])
+                    argc += 1
+
+                i = len(paramnames) - len(defparams)
+                self.write(",".join(paramnames[:i]))
+                suffix = ', ' if i > 0 else ''
+                for n in node:
+                    if n == 'pos_arg':
+                        self.write(suffix)
+                        self.write(paramnames[i] + '=')
+                        i += 1
+                        self.preorder(n)
+                        if (line_number != self.line_number):
+                            suffix = ",\n" + indent
+                            line_number = self.line_number
                         else:
-                            return name
-
-                    # MAKE_FUNCTION_... or MAKE_CLOSURE_...
-                    assert node[-1].type.startswith('MAKE_')
-
-                    args_node = node[-1]
-                    if isinstance(args_node.attr, tuple):
-                        # positional args are before kwargs
-                        defparams = node[:args_node.attr[0]]
-                        pos_args, kw_args, annotate_args  = args_node.attr
-                    else:
-                        defparams = node[:args_node.attr]
-                        kw_args  = 0
-                        pass
-
-                    if 3.0 <= self.version <= 3.2:
-                        lambda_index = -2
-                    elif 3.03 <= self.version:
-                        lambda_index = -3
-                    else:
-                        lambda_index = None
-
-                    if lambda_index and isLambda and iscode(node[lambda_index].attr):
-                        assert node[lambda_index].type == 'LOAD_LAMBDA'
-                        code = node[lambda_index].attr
-                    else:
-                        code = codeNode.attr
-
-                    assert iscode(code)
-                    code = Code(code, self.scanner, self.currentclass)
-
-                    # add defaults values to parameter names
-                    argc = code.co_argcount
-                    paramnames = list(code.co_varnames[:argc])
-
-                    try:
-                        ast = self.build_ast(code._tokens,
-                                             code._customize,
-                                             isLambda = isLambda,
-                                             noneInNames = ('None' in code.co_names))
-                    except ParserError as p:
-                        self.write(str(p))
-                        self.ERROR = p
-                        return
-
-                    kw_pairs = args_node.attr[1]
-                    indent = self.indent
-
-                    if isLambda:
-                        self.write("lambda ")
-                    else:
-                        self.write("(")
-
-                    if 4 & code.co_flags:	# flag 2 -> variable number of args
-                        self.write('*%s' % code.co_varnames[argc + kw_pairs])
-                        argc += 1
-
-                    i = len(paramnames) - len(defparams)
-                    self.write(",".join(paramnames[:i]))
-                    suffix = ', ' if i > 0 else ''
-                    for n in node:
-                        if n == 'pos_arg':
-                            self.write(suffix)
-                            self.write(paramnames[i] + '=')
-                            i += 1
-                            self.preorder(n)
                             suffix = ', '
 
-                    # self.println(indent, '#flags:\t', int(code.co_flags))
-                    if kw_args > 0:
-                        if not (4 & code.co_flags):
-                            if argc > 0:
-                                self.write(", *, ")
-                            else:
-                                self.write("*, ")
-                            pass
+                # self.println(indent, '#flags:\t', int(code.co_flags))
+                if kw_args > 0:
+                    if not (4 & code.co_flags):
+                        if argc > 0:
+                            self.write(", *, ")
                         else:
-                            self.write(", ")
+                            self.write("*, ")
+                        pass
+                    else:
+                        self.write(", ")
 
-                        kwargs = node[0]
-                        last = len(kwargs)-1
-                        i = 0
-                        for n in node[0]:
-                            if n == 'kwarg':
-                                self.write('%s=' % n[0].pattr)
-                                self.preorder(n[1])
-                                if i < last:
-                                    self.write(', ')
-                                i += 1
-                                pass
+                    kwargs = node[0]
+                    last = len(kwargs)-1
+                    i = 0
+                    for n in node[0]:
+                        if n == 'kwarg':
+                            self.write('%s=' % n[0].pattr)
+                            self.preorder(n[1])
+                            if i < last:
+                                self.write(', ')
+                            i += 1
                             pass
                         pass
+                    pass
 
-                    if 8 & code.co_flags:	# flag 3 -> keyword args
-                        if argc > 0:
-                            self.write(', ')
-                        self.write('**%s' % code.co_varnames[argc + kw_pairs])
+                if 8 & code.co_flags:	# flag 3 -> keyword args
+                    if argc > 0:
+                        self.write(', ')
+                    self.write('**%s' % code.co_varnames[argc + kw_pairs])
 
-                    if isLambda:
-                        self.write(": ")
-                    else:
-                        self.write(')')
-                        if annotate:
-                            self.write(' -> %s' % annotate)
-                        self.println(":")
+                if isLambda:
+                    self.write(": ")
+                else:
+                    self.write(')')
+                    if annotate:
+                        self.write(' -> "%s"' % annotate)
+                    self.println(":")
 
-                    if (len(code.co_consts) > 0 and
-                        code.co_consts[0] is not None and not isLambda): # ugly
-                        # docstring exists, dump it
-                        self.print_docstring(indent, code.co_consts[0])
+                if (len(code.co_consts) > 0 and
+                    code.co_consts[0] is not None and not isLambda): # ugly
+                    # docstring exists, dump it
+                    self.print_docstring(indent, code.co_consts[0])
 
-                    code._tokens = None # save memory
-                    assert ast == 'stmts'
+                code._tokens = None # save memory
+                assert ast == 'stmts'
 
-                    all_globals = find_all_globals(ast, set())
-                    for g in ((all_globals & self.mod_globs) | find_globals(ast, set())):
-                        self.println(self.indent, 'global ', g)
-                    self.mod_globs -= all_globals
-                    has_none = 'None' in code.co_names
-                    rn = has_none and not find_none(ast)
-                    self.gen_source(ast, code.co_name, code._customize, isLambda=isLambda,
-                                    returnNone=rn)
-                    code._tokens = code._customize = None # save memory
+                all_globals = find_all_globals(ast, set())
+                for g in ((all_globals & self.mod_globs) | find_globals(ast, set())):
+                    self.println(self.indent, 'global ', g)
+                self.mod_globs -= all_globals
+                has_none = 'None' in code.co_names
+                rn = has_none and not find_none(ast)
+                self.gen_source(ast, code.co_name, code._customize, isLambda=isLambda,
+                                returnNone=rn)
+                code._tokens = code._customize = None # save memory
 
-                self.make_function3 = make_function3
+            self.make_function3 = make_function3
 
-                def n_mkfunc_annotate(node):
+            def n_mkfunc_annotate(node):
 
-                    if self.version >= 3.3 or node[-2] == 'kwargs':
-                        # LOAD_CONST code object ..
-                        # LOAD_CONST        'x0'  if >= 3.3
-                        # EXTENDED_ARG
-                        # MAKE_FUNCTION ..
-                        code = node[-4]
-                    elif node[-3] == 'expr':
-                        code = node[-3][0]
-                    else:
-                        # LOAD_CONST code object ..
-                        # MAKE_FUNCTION ..
-                        code = node[-3]
+                if self.version >= 3.3 or node[-2] == 'kwargs':
+                    # LOAD_CONST code object ..
+                    # LOAD_CONST        'x0'  if >= 3.3
+                    # EXTENDED_ARG
+                    # MAKE_FUNCTION ..
+                    code = node[-4]
+                elif node[-3] == 'expr':
+                    code = node[-3][0]
+                else:
+                    # LOAD_CONST code object ..
+                    # MAKE_FUNCTION ..
+                    code = node[-3]
 
-                    self.indentMore()
-                    annotate = None
-                    annotate_args = node[-4] if self.version == 3.1 else node[-5];
+                self.indentMore()
+                annotate_return = None
+                annotate_last = -4 if self.version == 3.1 else -5
+                annotate_arg = node[annotate_last]
 
-                    if annotate_args == 'annotate_args' and annotate_args[0][0] == 'LOAD_CONST':
-                        annotate = annotate_args[0][0].attr
-                    self.make_function3(node, isLambda=False,
-                                        codeNode=code, annotate=annotate)
+                if (annotate_arg == 'annotate_arg'
+                    and annotate_arg[0] == 'LOAD_CONST'
+                    and isinstance(annotate_arg[0].attr, tuple)):
+                    annotate_tup = annotate_arg[0].attr
+                    if annotate_tup[-1] == 'return':
+                        annotate_return = node[annotate_last-1][0].attr
+                        pass
+                # FIXME: handle and pass full annotate args
+                self.make_function3(node, isLambda=False,
+                                    codeNode=code, annotate=annotate_return)
 
-                    if len(self.param_stack) > 1:
-                        self.write('\n\n')
-                    else:
-                        self.write('\n\n\n')
-                    self.indentLess()
-                    self.prune() # stop recursing
-                self.n_mkfunc_annotate = n_mkfunc_annotate
+                if len(self.param_stack) > 1:
+                    self.write('\n\n')
+                else:
+                    self.write('\n\n\n')
+                self.indentLess()
+                self.prune() # stop recursing
+            self.n_mkfunc_annotate = n_mkfunc_annotate
 
 
             if version >= 3.4:
@@ -2284,6 +2297,9 @@ class SourceWalker(GenericASTTraversal, object):
 
     def make_function(self, node, isLambda, nested=1, codeNode=None):
         """Dump function defintion, doc string, and function body."""
+
+        # FIXME: call make_function3 if we are self.version >= 3.0
+        # and then simplify the below.
 
         def build_param(ast, name, default):
             """build parameters:

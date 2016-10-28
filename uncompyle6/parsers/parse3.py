@@ -253,9 +253,8 @@ class Python3Parser(PythonParser):
         stmt ::= funcdef_annotate
         funcdef_annotate ::= mkfunc_annotate designator
 
-        annotate_args   ::= annotate_args annotate_arg
-        annotate_args   ::= annotate_arg
-        annotate_arg    ::= LOAD_CONST expr
+        annotate_arg    ::= LOAD_CONST
+        annotate_arg    ::= LOAD_NAME
         """
 
     def p_come_from3(self, args):
