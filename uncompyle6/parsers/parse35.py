@@ -6,7 +6,7 @@ from __future__ import print_function
 
 from uncompyle6.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from uncompyle6.parsers.parse3 import Python32Parser
+from uncompyle6.parsers.parse32 import Python32Parser
 
 class Python35Parser(Python32Parser):
 

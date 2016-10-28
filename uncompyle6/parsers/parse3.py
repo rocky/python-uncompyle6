@@ -670,38 +670,7 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
         return
 
-
-class Python33Parser(Python3Parser):
-    def p_33(self, args):
-        """
-        # Store locals is only in Python 3.0 to 3.3
-        stmt ::= store_locals
-        store_locals ::= LOAD_FAST STORE_LOCALS
-
-        # Python 3.3 adds yield from.
-        expr ::= yield_from
-        yield_from ::= expr expr YIELD_FROM
-        """
-
-class Python32Parser(Python3Parser):
-    def p_32on(self, args):
-        """
-        # In Python 3.2+, DUP_TOPX is DUP_TOP_TWO
-        binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
-        stmt ::= store_locals
-        store_locals ::= LOAD_FAST STORE_LOCALS
-        """
-    pass
-
 class Python3ParserSingle(Python3Parser, PythonParserSingle):
-    pass
-
-
-class Python32ParserSingle(Python32Parser, PythonParserSingle):
-    pass
-
-
-class Python33ParserSingle(Python33Parser, PythonParserSingle):
     pass
 
 def info(args):
@@ -713,8 +682,10 @@ def info(args):
             from uncompyle6.parser.parse35 import Python35Parser
             p = Python35Parser()
         elif arg == '3.3':
+            from uncompyle6.parser.parse33 import Python33Parser
             p = Python33Parser()
         elif arg == '3.2':
+            from uncompyle6.parser.parse32 import Python32Parser
             p = Python32Parser()
     p.checkGrammar()
     if len(sys.argv) > 1 and sys.argv[1] == 'dump':
