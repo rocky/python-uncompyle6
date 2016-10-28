@@ -25,7 +25,7 @@ def test_grammar():
         unused_rhs = unused_rhs.union(set("""
         except_pop_except genexpr classdefdeco2 listcomp
         """.split()))
-        if 3.1 <= PYTHON_VERSION <= 3.3:
+        if 3.1 <= PYTHON_VERSION <= 3.4:
             unused_rhs.add("mkfunc_annotate")
             pass
     else:
@@ -47,5 +47,6 @@ def test_grammar():
         check_tokens(tokens, opcode_set)
     elif PYTHON_VERSION == 3.4:
         ignore_set.add('LOAD_CLASSNAME')
+        ignore_set.add('STORE_LOCALS')
         opcode_set = set(s.opc.opname).union(ignore_set)
         check_tokens(tokens, opcode_set)

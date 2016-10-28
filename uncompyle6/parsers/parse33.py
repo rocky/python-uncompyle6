@@ -9,9 +9,9 @@ from uncompyle6.parsers.parse32 import Python32Parser
 
 class Python33Parser(Python32Parser):
 
-    def p_33(self, args):
+    def p_33on(self, args):
         """
-        # Python 3.3 adds yield from.
+        # Python 3.3+ adds yield from.
         expr ::= yield_from
         yield_from ::= expr expr YIELD_FROM
         """

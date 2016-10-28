@@ -246,6 +246,18 @@ class Python3Parser(PythonParser):
         c_stmts_opt34 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
         """
 
+
+    def p_def_annotations3(self, args):
+        """
+        # Annotated functions
+        stmt ::= funcdef_annotate
+        funcdef_annotate ::= mkfunc_annotate designator
+
+        annotate_args   ::= annotate_args annotate_arg
+        annotate_args   ::= annotate_arg
+        annotate_arg    ::= LOAD_CONST expr
+        """
+
     def p_come_from3(self, args):
         """
         opt_come_from_except ::= COME_FROM_EXCEPT

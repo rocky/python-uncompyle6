@@ -14,13 +14,6 @@ class Python32Parser(Python3Parser):
         binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
         stmt ::= store_locals
         store_locals ::= LOAD_FAST STORE_LOCALS
-
-        stmt ::= funcdef_annotate
-        funcdef_annotate ::= mkfunc_annotate designator
-
-        annotate_args   ::= annotate_args annotate_arg
-        annotate_args   ::= annotate_arg
-        annotate_arg    ::= LOAD_CONST expr
         """
     pass
 
@@ -34,7 +27,6 @@ class Python32Parser(Python3Parser):
                 rule = ('mkfunc_annotate ::= %s%sLOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
                         (('pos_arg ' * (args_pos)),
                          ('annotate_args ' * (annotate_args-1)), opname))
-                print(rule)
                 self.add_unique_rule(rule, opname, token.attr, customize)
 
 

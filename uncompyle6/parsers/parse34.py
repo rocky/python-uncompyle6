@@ -1,13 +1,13 @@
 #  Copyright (c) 2016 Rocky Bernstein
 """
-spark grammar differences over Python 3.2 for Python 3.4
+spark grammar differences over Python 3.3 for Python 3.4
 """
 
 from uncompyle6.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from uncompyle6.parsers.parse3 import Python3Parser
+from uncompyle6.parsers.parse33 import Python33Parser
 
-class Python34Parser(Python3Parser):
+class Python34Parser(Python33Parser):
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
         super(Python34Parser, self).__init__(debug_parser)
@@ -27,12 +27,6 @@ class Python34Parser(Python3Parser):
         # actions that want c_stmts_opt at index 1
         iflaststmt    ::= testexpr c_stmts_opt34
         c_stmts_opt34 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
-
-        # Python 3.3 added "yield from." Do it the same way as in
-        # 3.3
-
-        expr ::= yield_from
-        yield_from ::= expr expr YIELD_FROM
 
         # Is this 3.4 only?
         yield_from ::= expr GET_ITER LOAD_CONST YIELD_FROM

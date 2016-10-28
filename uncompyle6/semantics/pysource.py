@@ -612,9 +612,9 @@ class SourceWalker(GenericASTTraversal, object):
             })
 
         if version >= 3.0:
-            if 3.1 <= version <= 3.3:
+            if 3.1 <= version <= 3.4:
                 ##########################
-                # Python 3.1 - 3.3
+                # Python 3.1 - 3.4
                 ##########################
                 TABLE_DIRECT.update({
                     'funcdef_annotate': ( '\n\n%|def %c%c\n', -1, 0),
@@ -798,7 +798,7 @@ class SourceWalker(GenericASTTraversal, object):
                 self.n_mkfunc_annotate = n_mkfunc_annotate
 
 
-            elif version >= 3.4:
+            if version >= 3.4:
                 ########################
                 # Python 3.4+ Additions
                 #######################
