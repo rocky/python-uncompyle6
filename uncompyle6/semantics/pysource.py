@@ -597,20 +597,11 @@ class SourceWalker(GenericASTTraversal, object):
                     code = node[-3]
 
                 self.indentMore()
-                annotate_return = None
                 annotate_last = -4 if self.version == 3.1 else -5
-                annotate_arg = node[annotate_last]
 
-                if (annotate_arg == 'annotate_arg'
-                    and annotate_arg[0] == 'LOAD_CONST'
-                    and isinstance(annotate_arg[0].attr, tuple)):
-                    annotate_tup = annotate_arg[0].attr
-                    if annotate_tup[-1] == 'return':
-                        annotate_return = node[annotate_last-1][0].attr
-                        pass
                 # FIXME: handle and pass full annotate args
                 make_function3_annotate(self, node, isLambda=False,
-                                        codeNode=code, annotate=annotate_return)
+                                        codeNode=code, annotate_last=annotate_last)
 
                 if len(self.param_stack) > 1:
                     self.write('\n\n')

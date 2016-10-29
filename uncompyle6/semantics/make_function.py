@@ -47,7 +47,7 @@ def find_none(node):
 # FIXME: DRY the below code...
 
 def make_function3_annotate(self, node, isLambda, nested=1,
-                            codeNode=None, annotate=None):
+                            codeNode=None, annotate_last=-1):
     """
     Dump function defintion, doc string, and function
     body. This code is specialized for Python 3"""
@@ -69,6 +69,17 @@ def make_function3_annotate(self, node, isLambda, nested=1,
 
     # MAKE_FUNCTION_... or MAKE_CLOSURE_...
     assert node[-1].type.startswith('MAKE_')
+
+    annotate_return = None
+    annotate_arg = node[annotate_last]
+
+    if (annotate_arg == 'annotate_arg'
+        and annotate_arg[0] == 'LOAD_CONST'
+        and isinstance(annotate_arg[0].attr, tuple)):
+        annotate_tup = annotate_arg[0].attr
+        if annotate_tup[-1] == 'return':
+            annotate_return = node[annotate_last-1][0].attr
+            pass
 
     args_node = node[-1]
     if isinstance(args_node.attr, tuple):
@@ -177,8 +188,8 @@ def make_function3_annotate(self, node, isLambda, nested=1,
         self.write(": ")
     else:
         self.write(')')
-        if annotate:
-            self.write(' -> "%s"' % annotate)
+        if annotate_return:
+            self.write(' -> "%s"' % annotate_return)
         self.println(":")
 
     if (len(code.co_consts) > 0 and
