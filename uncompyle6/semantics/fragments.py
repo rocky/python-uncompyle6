@@ -67,7 +67,9 @@ from uncompyle6.show import (
 )
 
 from uncompyle6.semantics.pysource import AST, INDENT_PER_LEVEL, NONE, PRECEDENCE, \
-     ParserError, TABLE_DIRECT, escape, find_all_globals, find_globals, find_none, minint, MAP
+     ParserError, TABLE_DIRECT, escape, find_globals, minint, MAP
+
+from uncompyle6.semantics.make_function import find_all_globals, find_none
 
 if PYTHON3:
     from itertools import zip_longest
@@ -77,8 +79,7 @@ else:
     from StringIO import StringIO
 
 
-from spark_parser import GenericASTTraversalPruningException, \
-     DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 from collections import namedtuple
 NodeInfo = namedtuple("NodeInfo", "node start finish")
