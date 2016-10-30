@@ -134,7 +134,6 @@ def make_function3_annotate(self, node, isLambda, nested=1,
     indent = ' ' * l
     line_number = self.line_number
 
-
     if 4 & code.co_flags:	# flag 2 -> variable number of args
         self.write('*%s' % code.co_varnames[argc + kw_pairs])
         argc += 1
@@ -291,10 +290,7 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
     params.reverse() # back to correct order
 
     if 4 & code.co_flags:	# flag 2 -> variable number of args
-        if self.version > 3.0:
-            params.append('*%s' % code.co_varnames[argc + kw_pairs])
-        else:
-            params.append('*%s' % code.co_varnames[argc])
+        params.append('*%s' % code.co_varnames[argc])
         argc += 1
 
     # dump parameter list (with default values)
@@ -302,7 +298,6 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
         self.write("lambda ", ", ".join(params))
     else:
         self.write("(", ", ".join(params))
-    # self.println(indent, '#flags:\t', int(code.co_flags))
 
     if kw_args > 0:
         if not (4 & code.co_flags):
@@ -316,8 +311,6 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
 
         for n in node:
             if n == 'pos_arg':
-                continue
-            elif self.version >= 3.4 and n.type != 'kwargs':
                 continue
             else:
                 self.preorder(n)
@@ -452,6 +445,12 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
             self.write("lambda ")
         else:
             self.write("(")
+            pass
+
+        last_line = self.f.getvalue().split("\n")[-1]
+        l = len(last_line)
+        indent = ' ' * l
+        line_number = self.line_number
 
         if 4 & code.co_flags:	# flag 2 -> variable number of args
             self.write('*%s' % code.co_varnames[argc + kw_pairs])
@@ -466,7 +465,11 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
                 self.write(paramnames[i] + '=')
                 i += 1
                 self.preorder(n)
-                suffix = ', '
+                if (line_number != self.line_number):
+                    suffix = ",\n" + indent
+                    line_number = self.line_number
+                else:
+                    suffix = ', '
 
     if kw_args > 0:
         if not (4 & code.co_flags):
