@@ -1,7 +1,7 @@
+*.pyo
 *.pyc
 *_dis
 *~
-*.pyc
 /.cache
 /.eggs
 /.python-version
@@ -13,5 +13,6 @@
 /nose-*.egg
 /tmp
 /uncompyle6.egg-info
+/unpyc
 __pycache__
 build
