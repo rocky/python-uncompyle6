@@ -70,22 +70,27 @@ def make_function3_annotate(self, node, isLambda, nested=1,
     # MAKE_FUNCTION_... or MAKE_CLOSURE_...
     assert node[-1].type.startswith('MAKE_')
 
-    annotate_return = None
     annotate_arg = node[annotate_last]
+    annotate_args = {}
 
     if (annotate_arg == 'annotate_arg'
-        and annotate_arg[0] == 'LOAD_CONST'
+        and annotate_arg[0] in ('LOAD_CONST', 'LOAD_NAME')
         and isinstance(annotate_arg[0].attr, tuple)):
         annotate_tup = annotate_arg[0].attr
-        if annotate_tup[-1] == 'return':
-            annotate_return = node[annotate_last-1][0].attr
-            pass
+        i = -1
+        j = annotate_last-1
+        l = -len(node)
+        while j >= l and node[j] == 'annotate_arg':
+            annotate_args[annotate_tup[i]] = (node[j][0].attr,
+                                              node[j][0] == 'LOAD_CONST')
+            i -= 1
+            j -= 1
 
     args_node = node[-1]
     if isinstance(args_node.attr, tuple):
         # positional args are before kwargs
         defparams = node[:args_node.attr[0]]
-        pos_args, kw_args, annotate_args  = args_node.attr
+        pos_args, kw_args, annotate_argc  = args_node.attr
     else:
         defparams = node[:args_node.attr]
         kw_args  = 0
@@ -139,12 +144,26 @@ def make_function3_annotate(self, node, isLambda, nested=1,
         argc += 1
 
     i = len(paramnames) - len(defparams)
-    self.write(", ".join(paramnames[:i]))
+    suffix = ''
+    for param in paramnames[:i]:
+        self.write(suffix, param)
+        if param in annotate_args:
+            value, string = annotate_args[param]
+            if string:
+                self.write(': "%s"' % value)
+            else:
+                self.write(': %s' % value)
+        suffix = ', '
+
     suffix = ', ' if i > 0 else ''
     for n in node:
         if n == 'pos_arg':
             self.write(suffix)
-            self.write(paramnames[i] + '=')
+            param = paramnames[i]
+            self.write(param)
+            if param in annotate_args:
+                self.write(':"%s' % annotate_args[param])
+            self.write('=')
             i += 1
             self.preorder(n)
             if (line_number != self.line_number):
@@ -187,8 +206,13 @@ def make_function3_annotate(self, node, isLambda, nested=1,
         self.write(": ")
     else:
         self.write(')')
-        if annotate_return:
-            self.write(' -> "%s"' % annotate_return)
+        if 'return' in annotate_args:
+            value, string = annotate_args['return']
+            if string:
+                self.write(' -> "%s"' % value)
+            else:
+                self.write(' -> %s' % value)
+
         self.println(":")
 
     if (len(code.co_consts) > 0 and
@@ -247,7 +271,7 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
     if isinstance(args_node.attr, tuple):
         # positional args are after kwargs
         defparams = node[1:args_node.attr[0]+1]
-        pos_args, kw_args, annotate_args  = args_node.attr
+        pos_args, kw_args, annotate_argc  = args_node.attr
     else:
         defparams = node[:args_node.attr]
         kw_args  = 0
@@ -377,7 +401,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
         else:
             # positional args are before kwargs
             defparams = node[:args_node.attr[0]]
-        pos_args, kw_args, annotate_args  = args_node.attr
+        pos_args, kw_args, annotate_argc  = args_node.attr
     else:
         defparams = node[:args_node.attr]
         kw_args  = 0
