@@ -253,8 +253,16 @@ class Python3Parser(PythonParser):
         stmt ::= funcdef_annotate
         funcdef_annotate ::= mkfunc_annotate designator
 
-        annotate_arg    ::= LOAD_CONST
+        # This has the annotation value.
+        # LOAD_NAME is used in an annotation type like
+        # int, float, str
         annotate_arg    ::= LOAD_NAME
+        # LOAD_CONST is used in an annotation string
+        annotate_arg    ::= LOAD_CONST
+
+        # This stores the tuple of parameter names
+        # that have been annotated
+        annotate_tuple    ::= LOAD_CONST
         """
 
     def p_come_from3(self, args):

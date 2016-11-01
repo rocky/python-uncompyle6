@@ -28,6 +28,7 @@ def test_grammar():
         """.split()))
         if 3.0 <= PYTHON_VERSION:
             expect_lhs.add("annotate_arg")
+            expect_lhs.add("annotate_tuple")
             unused_rhs.add("mkfunc_annotate")
             pass
     else:

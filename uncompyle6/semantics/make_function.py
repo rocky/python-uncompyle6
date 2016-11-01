@@ -70,17 +70,17 @@ def make_function3_annotate(self, node, isLambda, nested=1,
     # MAKE_FUNCTION_... or MAKE_CLOSURE_...
     assert node[-1].type.startswith('MAKE_')
 
-    annotate_arg = node[annotate_last]
+    annotate_tuple = node[annotate_last]
     annotate_args = {}
 
-    if (annotate_arg == 'annotate_arg'
-        and annotate_arg[0] in ('LOAD_CONST', 'LOAD_NAME')
-        and isinstance(annotate_arg[0].attr, tuple)):
-        annotate_tup = annotate_arg[0].attr
+    if (annotate_tuple == 'annotate_tuple'
+        and annotate_tuple[0] in ('LOAD_CONST', 'LOAD_NAME')
+        and isinstance(annotate_tuple[0].attr, tuple)):
+        annotate_tup = annotate_tuple[0].attr
         i = -1
         j = annotate_last-1
         l = -len(node)
-        while j >= l and node[j] == 'annotate_arg':
+        while j >= l and node[j].type in ('annotate_arg' 'annotate_tuple'):
             annotate_args[annotate_tup[i]] = (node[j][0].attr,
                                               node[j][0] == 'LOAD_CONST')
             i -= 1

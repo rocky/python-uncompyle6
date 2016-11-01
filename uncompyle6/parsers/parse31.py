@@ -43,9 +43,9 @@ class Python31Parser(Python32Parser):
                 # Check that there are 2 annotated params?
                 # rule = ('mkfunc2 ::= %s%sEXTENDED_ARG %s' %
                 #         ('pos_arg ' * (args_pos), 'kwargs ' * (annotate_args-1), opname))
-                rule = ('mkfunc_annotate ::= %s%sLOAD_CONST EXTENDED_ARG %s' %
+                rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s' %
                         (('pos_arg ' * (args_pos)),
-                         ('annotate_arg ' * (annotate_args)), opname))
+                         ('annotate_arg ' * (annotate_args-1)), opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
 class Python31ParserSingle(Python31Parser, PythonParserSingle):
     pass
