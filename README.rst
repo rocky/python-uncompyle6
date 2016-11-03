@@ -20,9 +20,9 @@ Why this?
 There were a number of decompyle, uncompile, uncompyle2, uncompyle3
 forks around. All of them came basically from the same code base, and
 almost all of them no were no longer actively maintained. Only one
-handled Python 3, and even there, only 3.2. This code pulls these
-together and moves forward. It also addresses a number of open issues
-in the previous forks.
+handled Python 3, and even there, only 3.2 or 3.3 depending on which
+code is used. This code pulls these together and moves forward. It
+also addresses a number of open issues in the previous forks.
 
 What makes this different from other CPython bytecode decompilers?: its
 ability to deparse just fragments and give source-code information
@@ -132,7 +132,7 @@ See Also
 
 * https://github.com/zrax/pycdc : supports all versions of Python and is written in C++
 * https://code.google.com/archive/p/unpyc3/ : supports Python 3.2 only. The above projects use a different decompiling technique what is used here.
-* https://github.com/figment/unpyc3/ : fork of above, but supports Python 3.2 only. Include some fixes like supporting function annotations
+* https://github.com/figment/unpyc3/ : fork of above, but supports Python 3.3 only. Include some fixes like supporting function annotations
 * The HISTORY_ file.
 
 .. |downloads| image:: https://img.shields.io/pypi/dd/uncompyle6.svg
