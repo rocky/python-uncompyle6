@@ -1,6 +1,92 @@
+2016-11-02  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, uncompyle6/version.py: Get ready for release 2.9.4
+
+2016-11-02  rocky <rb@dustyfeet.com>
+
+	* README.rst: Update unpyc3 info.
+
+2016-11-01  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse31.py, uncompyle6/parsers/parse32.py,
+	uncompyle6/semantics/make_function.py: Clean up annotation grammar a
+	little
+
+2016-11-01  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug31/04_def_annotate.py,
+	uncompyle6/semantics/make_function.py: Full Python 3 annotations
+
+2016-10-30  rocky <rb@dustyfeet.com>
+
+	* .gitignore, README.rst, test/simple_source/def/03_class_method.py: 
+	Note github unpyc3 and..  - Add source to bytecode_2.2/03_class_method.pyc - more ignore
+
+2016-10-30  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/make_function.py: More source-code line
+	indention in make_function..  and remove Python 3 situations from make_function2()
+
+2016-10-29  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/make_function.py,
+	uncompyle6/semantics/pysource.py: More annotation processing in to
+	make_function Move return-value annotation determination from n_mkfunc_annotate to
+	make_function_annotate which is where other kinds of annotation
+	handling will also need to be done.
+
+2016-10-29  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/make_function.py,
+	uncompyle6/semantics/parser_error.py,
+	uncompyle6/semantics/pysource.py: Break out make_function() into its
+	own file.  It is already too complex and will get worse in Python 3.6.  Note: make_function in fragments.py is still inside and probably
+	needs fixup.
+
+2016-10-28  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse31.py, uncompyle6/parsers/parse32.py,
+	uncompyle6/parsers/parse35.py, uncompyle6/semantics/pysource.py: 
+	More complete annotate handling Still have a bit of work to do though.
+
+2016-10-28  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse32.py, uncompyle6/parsers/parse33.py,
+	uncompyle6/parsers/parse34.py, uncompyle6/semantics/pysource.py: 
+	Expand annotate return to Python 3.4
+
+2016-10-28  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parsers/parse31.py,
+	uncompyle6/parsers/parse32.py, uncompyle6/semantics/pysource.py: 
+	Expand annotate handling to 3.3 (and possibly 3.2) - DRY Python 3.1-3.3 grammar a little
+
+2016-10-28  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse31.py, uncompyle6/parsers/parse32.py,
+	uncompyle6/parsers/parse33.py, uncompyle6/parsers/parse35.py: Split
+	out 3.1-3.3 parsers from parser3.py This is anticipation of extending annotation to Python 3.2+
+
+2016-10-27  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug31/04_def_annotate.py,
+	test/simple_source/bug31/04_def_attr.py,
+	uncompyle6/parsers/parse31.py, uncompyle6/semantics/pysource.py: 
+	Clean and fix Python 3 annotate arg return
+
 2016-10-26  rocky <rb@dustyfeet.com>
 
-	* uncompyle6/version.py: Get ready for release 2.9.3
+	* __pkginfo__.py: Dependencies stay within 2nd semantic level
+
+2016-10-26  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, uncompyle6/version.py: Get ready for release
+	2.9.3
 
 2016-10-26  rocky <rb@dustyfeet.com>
 
