@@ -96,7 +96,7 @@ def main_bin():
         elif opt == '--verify':
             options['do_verify'] = True
         elif opt in ('--asm', '-a'):
-            options['showasm'] = True
+            options['showasm'] = 'after'
             options['do_verify'] = False
         elif opt in ('--tree', '-t'):
             options['showast'] = True

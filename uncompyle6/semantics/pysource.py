@@ -2264,7 +2264,7 @@ class SourceWalker(GenericASTTraversal, object):
         return MAP.get(node, MAP_DIRECT)
 
 
-def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
+def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
                  showgrammar=False, code_objects={}, compile_mode='exec', is_pypy=False):
     """
     ingests and deparses a given code block 'co'
@@ -2274,8 +2274,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=False, showast=False,
     # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy)
 
-    tokens, customize = scanner.ingest(co, code_objects=code_objects)
-    maybe_show_asm(showasm, tokens)
+    tokens, customize = scanner.ingest(co, code_objects=code_objects, show_asm=showasm)
 
     debug_parser = dict(PARSER_DEFAULT_DEBUG)
     if showgrammar:
@@ -2323,8 +2322,8 @@ if __name__ == '__main__':
     def deparse_test(co):
         "This is a docstring"
         sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
-        deparsed = deparse_code(sys_version, co, showasm=True, showast=True)
-        # deparsed = deparse_code(sys_version, co, showasm=False, showast=False,
+        deparsed = deparse_code(sys_version, co, showasm='after', showast=True)
+        # deparsed = deparse_code(sys_version, co, showasm=None, showast=False,
         #                         showgrammar=True)
         print(deparsed.text)
         return
