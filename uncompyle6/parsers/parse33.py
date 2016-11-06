@@ -12,8 +12,21 @@ class Python33Parser(Python32Parser):
     def p_33on(self, args):
         """
         # Python 3.3+ adds yield from.
-        expr ::= yield_from
-        yield_from ::= expr expr YIELD_FROM
+        expr          ::= yield_from
+        yield_from    ::= expr expr YIELD_FROM
+
+        # We do the grammar hackery below for semantics
+        # actions that want c_stmts_opt at index 1
+
+        iflaststmt    ::= testexpr c_stmts_opt33
+        iflaststmtl   ::= testexpr c_stmts_opt
+        c_stmts_opt33 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from
+
+        # Python 3.3+ has more loop optimization that removes
+        # JUMP_FORWARD in some cases, and hence we also don't
+        # see COME_FROM
+        _ifstmts_jump ::= c_stmts_opt
         """
 
 class Python33ParserSingle(Python33Parser, PythonParserSingle):

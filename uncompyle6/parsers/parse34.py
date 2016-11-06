@@ -15,26 +15,12 @@ class Python34Parser(Python33Parser):
 
     def p_misc34(self, args):
         """
-        # Python 3.5+ optimizes the trailing two JUMPS away
+        # Python 3.4+ optimizes the trailing two JUMPS away
 
         for_block ::= l_stmts
 
-        iflaststmtl ::= testexpr c_stmts_opt
-
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from
-
-        # We do the grammar hackery below for semantics
-        # actions that want c_stmts_opt at index 1
-        iflaststmt    ::= testexpr c_stmts_opt34
-        c_stmts_opt34 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
-
         # Is this 3.4 only?
         yield_from ::= expr GET_ITER LOAD_CONST YIELD_FROM
-
-        # Python 3.4+ has more loop optimization that removes
-        # JUMP_FORWARD in some cases, and hence we also don't
-        # see COME_FROM
-        _ifstmts_jump ::= c_stmts_opt
         """
 class Python34ParserSingle(Python34Parser, PythonParserSingle):
     pass
