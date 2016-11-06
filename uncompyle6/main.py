@@ -11,7 +11,7 @@ from uncompyle6.version import VERSION
 from xdis.load import load_module
 
 def uncompyle(
-        bytecode_version, co, out=None, showasm=False, showast=False,
+        bytecode_version, co, out=None, showasm=None, showast=False,
         timestamp=None, showgrammar=False, code_objects={},
         source_size=None, is_pypy=False, magic_int=None):
     """
@@ -53,7 +53,7 @@ def uncompyle(
 
 
 
-def uncompyle_file(filename, outstream=None, showasm=False, showast=False,
+def uncompyle_file(filename, outstream=None, showasm=None, showast=False,
                    showgrammar=False):
     """
     decompile Python byte-code file (.pyc)
@@ -79,7 +79,7 @@ def uncompyle_file(filename, outstream=None, showasm=False, showast=False,
 
 # FIXME: combine into an options parameter
 def main(in_base, out_base, files, codes, outfile=None,
-         showasm=False, showast=False, do_verify=False,
+         showasm=None, showast=False, do_verify=False,
          showgrammar=False, raise_on_error=False):
     """
     in_base	base directory for input files

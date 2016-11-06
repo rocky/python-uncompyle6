@@ -53,7 +53,11 @@ class Token:
     #             ('%9s  %-18s %r' % (self.offset, self.type, pattr)))
 
     def __str__(self):
-        prefix = '\n%4d  ' % self.linestart if self.linestart else (' ' * 6)
+        return self.format(line_prefix='')
+
+    def format(self, line_prefix=''):
+        prefix = ('\n%s%4d  ' % (line_prefix, self.linestart)
+                  if self.linestart else (' ' * (6 + len(line_prefix))))
         offset_opname = '%6s  %-17s' % (self.offset, self.type)
         if not self.has_arg:
             return "%s%s" % (prefix, offset_opname)

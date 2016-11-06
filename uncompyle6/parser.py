@@ -627,20 +627,23 @@ def get_python_parser(
             else:
                 p = parse3.Python30ParserSingle(debug_parser)
         elif version == 3.1:
+            import uncompyle6.parsers.parse31 as parse31
             if compile_mode == 'exec':
-                p = parse3.Python31Parser(debug_parser)
+                p = parse31.Python31Parser(debug_parser)
             else:
-                p = parse3.Python31ParserSingle(debug_parser)
+                p = parse31.Python31ParserSingle(debug_parser)
         elif version == 3.2:
+            import uncompyle6.parsers.parse32 as parse32
             if compile_mode == 'exec':
-                p = parse3.Python32Parser(debug_parser)
+                p = parse32.Python32Parser(debug_parser)
             else:
-                p = parse3.Python32ParserSingle(debug_parser)
+                p = parse32.Python32ParserSingle(debug_parser)
         elif version == 3.3:
+            import uncompyle6.parsers.parse33 as parse33
             if compile_mode == 'exec':
-                p = parse3.Python33Parser(debug_parser)
+                p = parse33.Python33Parser(debug_parser)
             else:
-                p = parse3.Python33ParserSingle(debug_parser)
+                p = parse33.Python33ParserSingle(debug_parser)
         elif version == 3.4:
             import uncompyle6.parsers.parse34 as parse34
             if compile_mode == 'exec':

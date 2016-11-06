@@ -246,6 +246,25 @@ class Python3Parser(PythonParser):
         c_stmts_opt34 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
         """
 
+
+    def p_def_annotations3(self, args):
+        """
+        # Annotated functions
+        stmt ::= funcdef_annotate
+        funcdef_annotate ::= mkfunc_annotate designator
+
+        # This has the annotation value.
+        # LOAD_NAME is used in an annotation type like
+        # int, float, str
+        annotate_arg    ::= LOAD_NAME
+        # LOAD_CONST is used in an annotation string
+        annotate_arg    ::= LOAD_CONST
+
+        # This stores the tuple of parameter names
+        # that have been annotated
+        annotate_tuple    ::= LOAD_CONST
+        """
+
     def p_come_from3(self, args):
         """
         opt_come_from_except ::= COME_FROM_EXCEPT
@@ -360,10 +379,9 @@ class Python3Parser(PythonParser):
         # Python 3.4+
         expr ::= LOAD_CLASSDEREF
 
+        binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
         # Python3 drops slice0..slice3
 
-        # In Python 2, DUP_TOP_TWO is DUP_TOPX_2
-        binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
         '''
 
     @staticmethod
@@ -671,7 +689,6 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
         return
 
-
 class Python30Parser(Python3Parser):
 
     def p_30(self, args):
@@ -679,53 +696,12 @@ class Python30Parser(Python3Parser):
         # Store locals is only in Python 3.0 to 3.3
         stmt ::= store_locals
         store_locals ::= LOAD_FAST STORE_LOCALS
-        """
 
-class Python31Parser(Python3Parser):
-
-    def p_31(self, args):
-        """
-        # Store locals is only in Python 3.0 to 3.3
-        stmt ::= store_locals
-        store_locals ::= LOAD_FAST STORE_LOCALS
-        """
-
-class Python32Parser(Python3Parser):
-
-    def p_32(self, args):
-        """
-        # Store locals is only in Python 3.0 to 3.3
-        stmt ::= store_locals
-        store_locals ::= LOAD_FAST STORE_LOCALS
-        """
-
-class Python33Parser(Python3Parser):
-    def p_33(self, args):
-        """
-        # Store locals is only in Python 3.0 to 3.3
-        stmt ::= store_locals
-        store_locals ::= LOAD_FAST STORE_LOCALS
-
-        # Python 3.3 adds yield from.
-        expr ::= yield_from
-        yield_from ::= expr expr YIELD_FROM
+        jmp_true ::= JUMP_IF_TRUE_OR_POP POP_TOP
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD POP_TOP COME_FROM
         """
 
 class Python3ParserSingle(Python3Parser, PythonParserSingle):
-    pass
-
-
-class Python30ParserSingle(Python30Parser, PythonParserSingle):
-    pass
-
-class Python31ParserSingle(Python31Parser, PythonParserSingle):
-    pass
-
-class Python32ParserSingle(Python32Parser, PythonParserSingle):
-    pass
-
-
-class Python33ParserSingle(Python33Parser, PythonParserSingle):
     pass
 
 def info(args):
@@ -737,8 +713,10 @@ def info(args):
             from uncompyle6.parser.parse35 import Python35Parser
             p = Python35Parser()
         elif arg == '3.3':
+            from uncompyle6.parser.parse33 import Python33Parser
             p = Python33Parser()
         elif arg == '3.2':
+            from uncompyle6.parser.parse32 import Python32Parser
             p = Python32Parser()
         elif arg == '3.0':
             p = Python30Parser()

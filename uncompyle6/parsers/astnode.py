@@ -33,7 +33,7 @@ class AST(spark_AST):
                else:
                     child = node.__repr1__(indent, None)
             else:
-                inst = str(node)
+                inst = node.format(line_prefix='L.')
                 if inst.startswith("\n"):
                     # Nuke leading \n
                     inst = inst[1:]

@@ -1,6 +1,173 @@
+2016-11-02  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, uncompyle6/version.py: Get ready for release 2.9.4
+
+2016-11-02  rocky <rb@dustyfeet.com>
+
+	* README.rst: Update unpyc3 info.
+
+2016-11-01  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse31.py, uncompyle6/parsers/parse32.py,
+	uncompyle6/semantics/make_function.py: Clean up annotation grammar a
+	little
+
+2016-11-01  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug31/04_def_annotate.py,
+	uncompyle6/semantics/make_function.py: Full Python 3 annotations
+
+2016-10-30  rocky <rb@dustyfeet.com>
+
+	* .gitignore, README.rst, test/simple_source/def/03_class_method.py: 
+	Note github unpyc3 and..  - Add source to bytecode_2.2/03_class_method.pyc - more ignore
+
+2016-10-30  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/make_function.py: More source-code line
+	indention in make_function..  and remove Python 3 situations from make_function2()
+
+2016-10-29  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/make_function.py,
+	uncompyle6/semantics/pysource.py: More annotation processing in to
+	make_function Move return-value annotation determination from n_mkfunc_annotate to
+	make_function_annotate which is where other kinds of annotation
+	handling will also need to be done.
+
+2016-10-29  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/make_function.py,
+	uncompyle6/semantics/parser_error.py,
+	uncompyle6/semantics/pysource.py: Break out make_function() into its
+	own file.  It is already too complex and will get worse in Python 3.6.  Note: make_function in fragments.py is still inside and probably
+	needs fixup.
+
+2016-10-28  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse31.py, uncompyle6/parsers/parse32.py,
+	uncompyle6/parsers/parse35.py, uncompyle6/semantics/pysource.py: 
+	More complete annotate handling Still have a bit of work to do though.
+
+2016-10-28  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse32.py, uncompyle6/parsers/parse33.py,
+	uncompyle6/parsers/parse34.py, uncompyle6/semantics/pysource.py: 
+	Expand annotate return to Python 3.4
+
+2016-10-28  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parsers/parse31.py,
+	uncompyle6/parsers/parse32.py, uncompyle6/semantics/pysource.py: 
+	Expand annotate handling to 3.3 (and possibly 3.2) - DRY Python 3.1-3.3 grammar a little
+
+2016-10-28  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse31.py, uncompyle6/parsers/parse32.py,
+	uncompyle6/parsers/parse33.py, uncompyle6/parsers/parse35.py: Split
+	out 3.1-3.3 parsers from parser3.py This is anticipation of extending annotation to Python 3.2+
+
+2016-10-27  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug31/04_def_annotate.py,
+	test/simple_source/bug31/04_def_attr.py,
+	uncompyle6/parsers/parse31.py, uncompyle6/semantics/pysource.py: 
+	Clean and fix Python 3 annotate arg return
+
+2016-10-26  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py: Dependencies stay within 2nd semantic level
+
+2016-10-26  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, uncompyle6/version.py: Get ready for release
+	2.9.3
+
+2016-10-26  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug31/04_def_attr.py,
+	uncompyle6/parsers/parse31.py, uncompyle6/scanner.py,
+	uncompyle6/semantics/pysource.py: Start to attack Python 3.1 def()
+	-> xx construct Start to localize make_function routines by Python version
+
+2016-10-25  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/parsers/parse31.py: Split
+	out Python 3.1 parser from rest.  __pkginfo__.py: use Python 3.1 bytecode fixes
+
+2016-10-25  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py: Handle Python 3.1 "with ... as"
+	statement
+
+2016-10-24  rocky <rb@dustyfeet.com>
+
+	* test/Makefile: Add python 3.1 bytecode testing
+
+2016-10-24  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/stmts/07_withstmt_fn.py,
+	uncompyle6/parsers/parse3.py: Python 3.1 "with" statement bug
+
+2016-10-24  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/parsers/parse34.py,
+	uncompyle6/parsers/parse35.py: Python 3.1 compile bug. DRY Python
+	3.x rules ...  via inheritance
+
+2016-10-24  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner3.py: Fix
+	some Python 3.1 bugs
+
+2016-10-22  Daniel Bradburn <moagstar@gmail.com>
+
+	* : Merge pull request #60 from rocky/buildstring Buildstring
+
+2016-10-22  rocky <rb@dustyfeet.com>
+
+	* pytest/test_fstring.py, test/simple_source/bug36/01_fstring.py,
+	uncompyle6/semantics/pysource.py: Move fstring rules inside a 3.6+
+	check
+
+2016-10-22  rocky <rb@dustyfeet.com>
+
+	* : commit d6f7ef4e178e04d9a612d3a6c0b77a008732357f Author: rocky
+	<rb@dustyfeet.com> Date:   Fri Oct 21 07:40:35 2016 -0400
+
+2016-10-20  moagstar <moagstar@gmail.com>
+
+	* pytest/test_fstring.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse36.py, uncompyle6/semantics/pysource.py: 
+	further work on supporting single and multiple fstring decompilation
+
+2016-10-20  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/main.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner26.py: DRY Python 2.x unmangle_classname main.py: small typo: Disassembled -> Decompiled
+
+2016-10-19  moagstar <moagstar@gmail.com>
+
+	* pytest/test_fstring.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse36.py, uncompyle6/semantics/pysource.py: 
+	urther work on fstrings for python 3.6 - there is a new opcode
+	build_string which is used to improve fstring performance, but broke
+	the fstring support in uncompyle
+
 2016-10-15  rocky <rb@dustyfeet.com>
 
-	* uncompyle6/version.py: Get ready for release 2.9.2
+	* uncompyle6/main.py: Change meta data info in uncompyle6: * Show file size of source when possible,   i.e. in Python 3.x * Show full information about python interpreter   used to decompile
+
+2016-10-15  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, __pkginfo__.py, requirements.txt,
+	uncompyle6/version.py: Get ready for release 2.9.2
 
 2016-10-14  rocky <rb@dustyfeet.com>
 
