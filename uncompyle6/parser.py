@@ -622,10 +622,11 @@ def get_python_parser(
     else:
         import uncompyle6.parsers.parse3 as parse3
         if version == 3.0:
+            import uncompyle6.parsers.parse30 as parse30
             if compile_mode == 'exec':
-                p = parse3.Python30Parser(debug_parser)
+                p = parse30.Python30Parser(debug_parser)
             else:
-                p = parse3.Python30ParserSingle(debug_parser)
+                p = parse30.Python30ParserSingle(debug_parser)
         elif version == 3.1:
             import uncompyle6.parsers.parse31 as parse31
             if compile_mode == 'exec':
