@@ -689,6 +689,18 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
         return
 
+class Python30Parser(Python3Parser):
+
+    def p_30(self, args):
+        """
+        # Store locals is only in Python 3.0 to 3.3
+        stmt ::= store_locals
+        store_locals ::= LOAD_FAST STORE_LOCALS
+
+        jmp_true ::= JUMP_IF_TRUE_OR_POP POP_TOP
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD POP_TOP COME_FROM
+        """
+
 class Python3ParserSingle(Python3Parser, PythonParserSingle):
     pass
 
@@ -706,6 +718,8 @@ def info(args):
         elif arg == '3.2':
             from uncompyle6.parser.parse32 import Python32Parser
             p = Python32Parser()
+        elif arg == '3.0':
+            p = Python30Parser()
     p.checkGrammar()
     if len(sys.argv) > 1 and sys.argv[1] == 'dump':
         print('-' * 50)
