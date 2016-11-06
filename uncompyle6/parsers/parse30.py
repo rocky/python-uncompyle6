@@ -11,7 +11,6 @@ class Python30Parser(Python3Parser):
 
     def p_30(self, args):
         """
-
         # Store locals is only in Python 3.0 to 3.3
         stmt         ::= store_locals
         store_locals ::= LOAD_FAST STORE_LOCALS
@@ -21,7 +20,14 @@ class Python30Parser(Python3Parser):
         # it is 2.7 or 3.1. So we have a number of 2.6ish (and before) rules below
 
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD come_froms POP_TOP COME_FROM
-        jmp_true ::= JUMP_IF_TRUE POP_TOP
+        jmp_true      ::= JUMP_IF_TRUE POP_TOP
+        jmp_false     ::= JUMP_IF_FALSE POP_TOP
+
+        withasstmt    ::= expr setupwithas designator suite_stmts_opt
+                          POP_BLOCK LOAD_CONST COME_FROM_FINALLY
+                          LOAD_FAST DELETE_FAST WITH_CLEANUP END_FINALLY
+        setupwithas   ::= DUP_TOP LOAD_ATTR STORE_FAST LOAD_ATTR CALL_FUNCTION_0 setup_finally
+        setup_finally ::= STORE_FAST SETUP_FINALLY LOAD_FAST DELETE_FAST
         """
 
 class Python30ParserSingle(Python30Parser, PythonParserSingle):
