@@ -91,18 +91,35 @@ class Scanner3(Scanner):
             self.opc.JUMP_ABSOLUTE, self.opc.UNPACK_EX
         ])
 
-        self.jump_if_pop = frozenset([self.opc.JUMP_IF_FALSE_OR_POP,
-                                      self.opc.JUMP_IF_TRUE_OR_POP])
+        if self.version > 3.0:
+            self.jump_if_pop = frozenset([self.opc.JUMP_IF_FALSE_OR_POP,
+                                          self.opc.JUMP_IF_TRUE_OR_POP])
 
-        self.pop_jump_if_pop = frozenset([self.opc.JUMP_IF_FALSE_OR_POP,
-                                          self.opc.JUMP_IF_TRUE_OR_POP,
-                                          self.opc.POP_JUMP_IF_TRUE,
-                                          self.opc.POP_JUMP_IF_FALSE])
+            self.pop_jump_if_pop = frozenset([self.opc.JUMP_IF_FALSE_OR_POP,
+                                              self.opc.JUMP_IF_TRUE_OR_POP,
+                                              self.opc.POP_JUMP_IF_TRUE,
+                                              self.opc.POP_JUMP_IF_FALSE])
+            # Not really a set, but still clasification-like
+            self.statement_opcode_sequences = [
+                (self.opc.POP_JUMP_IF_FALSE, self.opc.JUMP_FORWARD),
+                (self.opc.POP_JUMP_IF_FALSE, self.opc.JUMP_ABSOLUTE),
+                (self.opc.POP_JUMP_IF_TRUE,  self.opc.JUMP_FORWARD),
+                (self.opc.POP_JUMP_IF_TRUE,  self.opc.JUMP_ABSOLUTE)]
+
+        else:
+            self.jump_if_pop = frozenset([])
+            self.pop_jump_if_pop = frozenset([])
+            # Not really a set, but still clasification-like
+            self.statement_opcode_sequences = [
+                (self.opc.JUMP_FORWARD,),
+                (self.opc.JUMP_ABSOLUTE,),
+                (self.opc.JUMP_FORWARD,),
+                (self.opc.JUMP_ABSOLUTE,)]
 
         # Opcodes that take a variable number of arguments
         # (expr's)
         varargs_ops = set([
-            self.opc.BUILD_LIST,        self.opc.BUILD_TUPLE,
+             self.opc.BUILD_LIST,       self.opc.BUILD_TUPLE,
              self.opc.BUILD_SET,        self.opc.BUILD_SLICE,
              self.opc.BUILD_MAP,        self.opc.UNPACK_SEQUENCE,
              self.opc.RAISE_VARARGS])
@@ -110,13 +127,6 @@ class Scanner3(Scanner):
         if is_pypy:
             varargs_ops.add(self.opc.CALL_METHOD)
         self.varargs_ops = frozenset(varargs_ops)
-
-        # Not really a set, but still clasification-like
-        self.statement_opcode_sequences = [
-            (self.opc.POP_JUMP_IF_FALSE, self.opc.JUMP_FORWARD),
-            (self.opc.POP_JUMP_IF_FALSE, self.opc.JUMP_ABSOLUTE),
-            (self.opc.POP_JUMP_IF_TRUE,  self.opc.JUMP_FORWARD),
-            (self.opc.POP_JUMP_IF_TRUE,  self.opc.JUMP_ABSOLUTE)]
 
 
     def opName(self, offset):
@@ -139,7 +149,7 @@ class Scanner3(Scanner):
         """
 
         show_asm = self.show_asm if not show_asm else show_asm
-        # show_asm = 'after'
+        # show_asm = 'before'
         if show_asm in ('both', 'before'):
             bytecode = Bytecode(co, self.opc)
             for instr in bytecode.get_instructions(co):
