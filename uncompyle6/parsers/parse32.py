@@ -8,14 +8,29 @@ from uncompyle6.parser import PythonParserSingle
 from uncompyle6.parsers.parse3 import Python3Parser
 
 class Python32Parser(Python3Parser):
+    def p_32to35(self, args):
+        """
+        # In Python 3.2+, DUP_TOPX is DUP_TOP_TWO
+        binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
+
+        # Store locals is only in Python 3.0 to 3.3
+        stmt ::= store_locals
+        store_locals ::= LOAD_FAST STORE_LOCALS
+
+        # Python < 3.5 no POP BLOCK
+        whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK
+                              COME_FROM_LOOP
+        whileTruestmt     ::= SETUP_LOOP return_stmts
+                              COME_FROM_LOOP
+        """
+    pass
+
     def p_32on(self, args):
         """
         # In Python 3.2+, DUP_TOPX is DUP_TOP_TWO
         binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
-        stmt ::= store_locals
-        store_locals ::= LOAD_FAST STORE_LOCALS
         """
-    pass
+        pass
 
     def add_custom_rules(self, tokens, customize):
         super(Python32Parser, self).add_custom_rules(tokens, customize)

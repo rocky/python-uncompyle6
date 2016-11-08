@@ -314,6 +314,7 @@ class Python3Parser(PythonParser):
         """
         forstmt           ::= SETUP_LOOP expr _for designator for_block POP_BLOCK
                               opt_come_from_loop
+
         forelsestmt       ::= SETUP_LOOP expr _for designator for_block POP_BLOCK else_suite
                               COME_FROM_LOOP
 
@@ -344,13 +345,8 @@ class Python3Parser(PythonParser):
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt          JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
+        # FIXME: Python 3.? starts adding branch optimization? Put this starting there.
         while1stmt        ::= SETUP_LOOP l_stmts
-
-        # Python < 3.5 no POP BLOCK
-        whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK
-                              COME_FROM_LOOP
-        whileTruestmt     ::= SETUP_LOOP return_stmts
-                              COME_FROM_LOOP
 
         # FIXME: investigate - can code really produce a NOP?
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP
