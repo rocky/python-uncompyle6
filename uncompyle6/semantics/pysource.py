@@ -84,17 +84,14 @@ from uncompyle6.semantics.make_function import (
 from uncompyle6.semantics.parser_error import ParserError
 
 from uncompyle6.show import (
-    maybe_show_asm,
     maybe_show_ast,
 )
 
 if PYTHON3:
-    from itertools import zip_longest
     from io import StringIO
     minint = -sys.maxsize-1
     maxint = sys.maxsize
 else:
-    from itertools import izip_longest as zip_longest
     from StringIO import StringIO
     minint = -sys.maxint-1
     maxint = sys.maxint
