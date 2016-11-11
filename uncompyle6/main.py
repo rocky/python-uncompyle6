@@ -45,11 +45,7 @@ def uncompyle(
                               is_pypy=is_pypy)
     except pysource.SourceWalkerError as e:
         # deparsing failed
-        print("\n")
-        print(co.co_filename)
-        if real_out != out:
-            print("\n", file=real_out)
-            print(e, file=real_out)
+        raise pysource.SourceWalkerError(str(e))
 
 
 
@@ -137,7 +133,7 @@ def main(in_base, out_base, files, codes, outfile=None,
         try:
             uncompyle_file(infile, outstream, showasm, showast, showgrammar)
             tot_files += 1
-        except (ValueError, SyntaxError, ParserError) as e:
+        except (ValueError, SyntaxError, ParserError, pysource.SourceWalkerError) as e:
             sys.stderr.write("\n# file %s\n# %s" % (infile, e))
             failed_files += 1
         except KeyboardInterrupt:

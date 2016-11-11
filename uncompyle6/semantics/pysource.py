@@ -82,6 +82,7 @@ import uncompyle6.parser as python_parser
 from uncompyle6.semantics.make_function import (
     make_function2, make_function3, make_function3_annotate, find_globals)
 from uncompyle6.semantics.parser_error import ParserError
+from uncompyle6.semantics.check_ast import checker
 
 from uncompyle6.show import (
     maybe_show_ast,
@@ -466,6 +467,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.pending_newlines = 0
         self.linestarts = linestarts
         self.line_number = 0
+        self.ast_errors = []
 
         # hide_internal suppresses displaying the additional instructions that sometimes
         # exist in code but but were not written in the source code.
@@ -2254,6 +2256,8 @@ class SourceWalker(GenericASTTraversal, object):
 
         maybe_show_ast(self.showast, ast)
 
+        checker(ast, False, self.ast_errors)
+
         return ast
 
     @classmethod
@@ -2310,6 +2314,13 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
 
     for g in deparsed.mod_globs:
         deparsed.write('# global %s ## Warning: Unused global' % g)
+
+    if deparsed.ast_errors:
+        deparsed.write("# NOTE: have decompilation errors.\n")
+        deparsed.write("# Use -t option to show context of errors.")
+        for err in deparsed.ast_errors:
+            deparsed.write(err)
+        raise SourceWalkerError("Deparsing hit an internal grammar-rule bug")
 
     if deparsed.ERROR:
         raise SourceWalkerError("Deparsing stopped due to parse error")

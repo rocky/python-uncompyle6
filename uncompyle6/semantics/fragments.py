@@ -60,6 +60,8 @@ from xdis.code import iscode
 from uncompyle6.semantics import pysource
 from uncompyle6 import parser
 from uncompyle6.scanner import Token, Code, get_scanner
+from uncompyle6.semantics.check_ast import checker
+
 from uncompyle6.show import (
     maybe_show_asm,
     maybe_show_ast,
@@ -1007,6 +1009,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         maybe_show_ast(self.showast, ast)
 
+        checker(ast, False, self.ast_errors)
+
         return ast
 
     # FIXME: we could provide another customized routine
@@ -1765,6 +1769,14 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
 
     for g in deparsed.mod_globs:
         deparsed.write('# global %s ## Warning: Unused global' % g)
+
+    if deparsed.ast_errors:
+        deparsed.write("# NOTE: have decompilation errors.\n")
+        deparsed.write("# Use -t option to show context of errors.")
+        for err in deparsed.ast_errors:
+            deparsed.write(err)
+        deparsed.ERROR = True
+
     if deparsed.ERROR:
         raise deparsed.ERROR
 
