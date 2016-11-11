@@ -1772,7 +1772,7 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
 
     if deparsed.ast_errors:
         deparsed.write("# NOTE: have decompilation errors.\n")
-        deparsed.write("# Use -t option to show context of errors.")
+        deparsed.write("# Use -t option to show full of errors.")
         for err in deparsed.ast_errors:
             deparsed.write(err)
         deparsed.ERROR = True

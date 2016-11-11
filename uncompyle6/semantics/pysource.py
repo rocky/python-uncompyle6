@@ -239,8 +239,12 @@ TABLE_DIRECT = {
     'dict_comp_body':   ( '%c:%c', 1, 0 ),
 
     'assign':		( '%|%c = %p\n', -1, (0, 200) ),
-    'augassign0':	( '%|%c = %c %c %c\n', 3, 0, 2, 1),
+
+    # The 2nd parameter should have a = suffix.
+    # There is a rule with a 4th parameter "designator"
+    # which we don't use here.
     'augassign1':	( '%|%c %c %c\n', 0, 2, 1),
+
     'augassign2':	( '%|%c.%[2]{pattr} %c %c\n', 0, -3, -4),
     'designList':	( '%c = %c', 0, -1 ),
     'and':          	( '%c and %c', 0, 2 ),
@@ -2318,7 +2322,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
 
     if deparsed.ast_errors:
         deparsed.write("# NOTE: have decompilation errors.\n")
-        deparsed.write("# Use -t option to show context of errors.")
+        deparsed.write("# Use -t option to full context of errors.")
         for err in deparsed.ast_errors:
             deparsed.write(err)
         raise SourceWalkerError("Deparsing hit an internal grammar-rule bug")

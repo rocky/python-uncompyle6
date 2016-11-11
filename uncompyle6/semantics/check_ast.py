@@ -12,6 +12,11 @@ def checker(ast, in_loop, errors):
     in_loop = in_loop or ast.type in ('while1stmt', 'whileTruestmt',
                                       'whilestmt', 'whileelsestmt',
                                       'for_block')
+    if ast.type == 'augassign1' and ast[0][0] == 'and':
+        text = str(ast[0])
+        error_text = '\n# improper augmented assigment:\n#\t' + '\n# '.join(text.split("\n"))
+        errors.append(error_text)
+
     for node in ast:
         if not in_loop and node.type in ('continue_stmt', 'break_stmt'):
             text = str(node)
