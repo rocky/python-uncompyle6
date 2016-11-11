@@ -1609,16 +1609,16 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         args_node = node[-1]
         if isinstance(args_node.attr, tuple):
-            if self.version == 3.3:
+            if self.version <= 3.3 and len(node) > 2 and node[-3] != 'LOAD_LAMBDA':
                 # positional args are after kwargs
                 defparams = node[1:args_node.attr[0]+1]
             else:
                 # positional args are before kwargs
                 defparams = node[:args_node.attr[0]]
-            pos_aargs, kw_args, annotate_args  = args_node.attr
+            pos_args, kw_args, annotate_argc  = args_node.attr
         else:
             defparams = node[:args_node.attr]
-            kw_args, annotate_args  = (0, 0)
+            kw_args, annotate_argc  = (0, 0)
             pass
 
         if self.version > 3.0 and isLambda and iscode(node[-3].attr):

@@ -395,7 +395,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
 
     args_node = node[-1]
     if isinstance(args_node.attr, tuple):
-        if self.version <= 3.3:
+        if self.version <= 3.3 and len(node) > 2 and node[-3] != 'LOAD_LAMBDA':
             # positional args are after kwargs
             defparams = node[1:args_node.attr[0]+1]
         else:
