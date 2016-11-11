@@ -265,9 +265,10 @@ class PythonParser(GenericASTBuilder):
 
     def p_augmented_assign(self, args):
         '''
+        stmt ::= augassign0
         stmt ::= augassign1
         stmt ::= augassign2
-        augassign1 ::= expr expr inplace_op designator
+        augassign0 ::= expr expr inplace_op designator
         augassign1 ::= expr expr inplace_op ROT_THREE STORE_SUBSCR
         augassign2 ::= expr DUP_TOP LOAD_ATTR expr
                 inplace_op ROT_TWO   STORE_ATTR

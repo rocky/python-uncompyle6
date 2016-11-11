@@ -239,6 +239,7 @@ TABLE_DIRECT = {
     'dict_comp_body':   ( '%c:%c', 1, 0 ),
 
     'assign':		( '%|%c = %p\n', -1, (0, 200) ),
+    'augassign0':	( '%|%c = %c %c %c\n', 3, 0, 2, 1),
     'augassign1':	( '%|%c %c %c\n', 0, 2, 1),
     'augassign2':	( '%|%c.%[2]{pattr} %c %c\n', 0, -3, -4),
     'designList':	( '%c = %c', 0, -1 ),

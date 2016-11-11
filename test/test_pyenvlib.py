@@ -8,7 +8,7 @@ Usage-Examples:
   test_pyenvlib.py --all		# decompile all tests (suite + libs)
   test_pyenvlib.py --all --verify	# decomyile all tests and verify results
   test_pyenvlib.py --test		# decompile only the testsuite
-  test_pyenvlib.py --2.7.11 --verify	# decompile and verify python lib 2.7.11
+  test_pyenvlib.py --2.7.12 --verify	# decompile and verify python lib 2.7.11
 
 Adding own test-trees:
 
