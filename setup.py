@@ -24,6 +24,6 @@ setup(
        py_modules         = py_modules,
        test_suite         = 'nose.collector',
        url                = web,
-       setup_requires     = ['nose>=1.0'],
+       test_requires     = ['nose>=1.0'],
        version            = VERSION,
        zip_safe           = zip_safe)
