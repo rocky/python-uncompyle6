@@ -100,11 +100,13 @@ The biggest known and possibly fixable (but hard) problem has to do
 with handling control flow. In some cases we can detect an erroneous
 decompilation and report that.
 
-About 90% of the decompilation verifies from Python 2.3.7 to Python
-3.4.2 on the standard library packages I have on my system.
+About 90% of the decompilation of Python standard library packages in
+Python 2.7.12 verifies correctly. Over 99% of Python 2.7 and 3.3-3.5
+"weakly" verify. Python 2.6 drops down to 96% weakly verifying.
+Other versions drop off in quality too.
 
 *Verification* is the process of decompiling bytecode, compiling with
-a Python for that byecode version, and then comparing the bytecode
+a Python for that bytecode version, and then comparing the bytecode
 produced by the decompiled/compiled program. Some allowance is made
 for inessential differences. But other semantically equivalent
 differences are not caught. For example ``if x: foo()`` is

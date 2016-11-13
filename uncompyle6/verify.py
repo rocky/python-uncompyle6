@@ -395,7 +395,10 @@ def compare_code_with_srcfile(pyc_filename, src_filename, weak_verify=False):
         msg = ("Can't compare code - Python is running with magic %s, but code is magic %s "
                % (PYTHON_MAGIC_INT, magic_int))
         return msg
-    code_obj2 = load_file(src_filename)
+    try:
+        code_obj2 = load_file(src_filename)
+    except SyntaxError as e:
+        return str(e)
     cmp_code_objects(version, is_pypy, code_obj1, code_obj2, ignore_code=weak_verify)
     return None
 
