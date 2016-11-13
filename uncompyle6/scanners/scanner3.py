@@ -149,7 +149,7 @@ class Scanner3(Scanner):
         """
 
         show_asm = self.show_asm if not show_asm else show_asm
-        # show_asm = 'before'
+        # show_asm = 'after'
         if show_asm in ('both', 'before'):
             bytecode = Bytecode(co, self.opc)
             for instr in bytecode.get_instructions(co):
@@ -314,7 +314,9 @@ class Scanner3(Scanner):
                 if target <= inst.offset:
                     next_opname = self.opname[self.code[inst.offset+3]]
                     if (inst.offset in self.stmts and
-                        next_opname not in ('END_FINALLY', 'POP_BLOCK')
+                        next_opname not in ('END_FINALLY', 'POP_BLOCK',
+                                            # Python 3.0 only uses POP_TOP
+                                            'POP_TOP')
                         and inst.offset not in self.not_continue):
                         opname = 'CONTINUE'
                     else:

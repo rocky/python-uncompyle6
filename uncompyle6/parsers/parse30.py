@@ -23,7 +23,16 @@ class Python30Parser(Python3Parser):
         jmp_true       ::= JUMP_IF_TRUE POP_TOP
         jmp_false      ::= JUMP_IF_FALSE POP_TOP
 
-        while1elsestmt ::= SETUP_LOOP l_stmts POP_TOP else_suite COME_FROM_LOOP JUMP_BACK
+        # Used to keep index order the same in semantic actions
+        jb_pop_top     ::= JUMP_BACK POP_TOP
+
+        # FIXME: Add COME_FROM designators
+        # This gets confused with while1elsestmt. But this is probably more common
+        while1stmt ::= SETUP_LOOP l_stmts COME_FROM_LOOP
+
+        else_suitel ::= l_stmts COME_FROM_LOOP JUMP_BACK
+
+        ifelsestmtl ::= testexpr c_stmts_opt jb_pop_top else_suitel
 
         withasstmt    ::= expr setupwithas designator suite_stmts_opt
                           POP_BLOCK LOAD_CONST COME_FROM_FINALLY

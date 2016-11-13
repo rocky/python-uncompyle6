@@ -311,7 +311,7 @@ TABLE_DIRECT = {
     'whileTruestmt':	( '%|while True:\n%+%c%-\n\n', 1 ),
     'whilestmt':	( '%|while %c:\n%+%c%-\n\n', 1, 2 ),
     'while1stmt':	( '%|while 1:\n%+%c%-\n\n', 1 ),
-    'while1elsestmt':  ( '%|while 1:\n%+%c%-%|else:\n%+%c%-\n\n', 1, 3 ),
+    'while1elsestmt':  ( '%|while 1:\n%+%c%-%|else:\n%+%c%-\n\n', 1, -2 ),
     'whileelsestmt':	( '%|while %c:\n%+%c%-%|else:\n%+%c%-\n\n', 1, 2, -2 ),
     'whileelselaststmt':	( '%|while %c:\n%+%c%-%|else:\n%+%c%-', 1, 2, -2 ),
     'forstmt':		( '%|for %c in %c:\n%+%c%-\n\n', 3, 1, 4 ),
@@ -1010,7 +1010,10 @@ class SourceWalker(GenericASTTraversal, object):
     def n_ifelsestmt(self, node, preprocess=False):
         else_suite = node[3]
 
-        n = else_suite[0]
+        try:
+            n = else_suite[0]
+        except:
+            from trepan.api import debug; debug()
 
         if len(n) == 1 == len(n[0]) and n[0] == '_stmts':
             n = n[0][0][0]
@@ -2322,7 +2325,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
 
     if deparsed.ast_errors:
         deparsed.write("# NOTE: have decompilation errors.\n")
-        deparsed.write("# Use -t option to full context of errors.")
+        deparsed.write("# Use -t option to show full context.")
         for err in deparsed.ast_errors:
             deparsed.write(err)
         raise SourceWalkerError("Deparsing hit an internal grammar-rule bug")
