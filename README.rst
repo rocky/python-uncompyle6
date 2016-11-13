@@ -1,4 +1,4 @@
-|buildstatus|
+|buildstatus| |Supported Python Versions|
 
 uncompyle6
 ==========
@@ -96,26 +96,35 @@ For usage help:
 Known Bugs/Restrictions
 -----------------------
 
+The biggest known and possibly fixable (but hard) problem has to do
+with handling control flow. In some cases we can detect an erroneous
+decompilation and report that.
+
 About 90% of the decompilation verifies from Python 2.3.7 to Python
 3.4.2 on the standard library packages I have on my system.
 
-(Verification is the process of decompiling bytecode, compiling with a
-Python for that byecode version, and then comparing the byetcode
+*Verification* is the process of decompiling bytecode, compiling with
+a Python for that byecode version, and then comparing the bytecode
 produced by the decompiled/compiled program. Some allowance is made
-for inessential differences, but other semantically equivalent
-differences are not caught.)
+for inessential differences. But other semantically equivalent
+differences are not caught. For example ``if x: foo()`` is
+equivalent to ``x and foo()`` and decompilation may turn one into the
+other. *Weak Verification* on the other hand doesn't check bytecode
+for equivalence but does check to see if the resulting decompiled
+source is a valid Python program by running the Python
+interpreter. Because the Python language has changed so much, for best
+results you should use the same Python Version in checking as used in
+the bytecode.
 
-Later distributions average about 200 files. At this point, 2.7
-decompilation is definitely better than uncompyle2. A number of bugs
-have been fixed. We now handle more Python bytecodes than the old
-decompyle program that handled Python bytecodes ranging from 1.5 to
-2.4.  There is some work do do on the lower end which is more
-difficult for us since we don't have a Python interpreter for versions
-1.5, 1.6 or 2.0.
+Later distributions average about 200 files. There is some work to do
+on the lower end Python versions which is more difficult for us to
+handle since we don't have a Python interpreter for versions 1.5, 1.6,
+and 2.0.
 
-Python 3.5 largely works, but still has some bugs in it.
-Python 3.6 changes things drastically by using word codes rather than
-byte codes, and that needs to be addressed.
+Python 3.0 support is weak; Python 3.5 largely works, but still has
+some bugs in it.  Python 3.6 changes things drastically by using word
+codes rather than byte codes. That has been addressed, but then it also
+changes function call opcodes and its semantics.
 
 Currently not all Python magic numbers are supported. Specifically in
 some versions of Python, notably Python 3.6, the magic number has
@@ -124,6 +133,11 @@ magic. There are also customized Python interpreters, notably Dropbox,
 which use their own magic and encrypt bytcode. With the exception of
 the Dropbox's old Python 2.5 interpreter this kind of thing is not
 handled.
+
+We also don't handle PJOrion_ obfuscated code. For that try: PJOrion
+Deobfuscator_ to unscramble the bytecode to get valid bytecode before
+trying this tool.
+
 
 There is lots to do, so please dig in and help.
 
@@ -144,3 +158,7 @@ See Also
 .. _this: https://github.com/rocky/python-uncompyle6/wiki/Deparsing-technology-and-its-use-in-exact-location-reporting
 .. |buildstatus| image:: https://travis-ci.org/rocky/python-uncompyle6.svg
 		 :target: https://travis-ci.org/rocky/python-uncompyle6
+.. |Supported Python Versions| image:: https://img.shields.io/pypi/pyversions/uncompyle6.svg
+   :target: https://pypi.python.org/pypi/uncompyle6/
+.. _PJOrion: http://www.koreanrandom.com/forum/topic/15280-pjorion-%D1%80%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F-%D0%B4%D0%B5%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F-%D0%BE%D0%B1%D1%84
+.. _Deobfuscator: https://github.com/extremecoders-re/PjOrion-Deobfuscator
