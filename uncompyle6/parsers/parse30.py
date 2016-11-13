@@ -26,8 +26,6 @@ class Python30Parser(Python3Parser):
         # Used to keep index order the same in semantic actions
         jb_pop_top     ::= JUMP_BACK POP_TOP
 
-        # FIXME: Add COME_FROM designators
-        # This gets confused with while1elsestmt. But this is probably more common
         while1stmt ::= SETUP_LOOP l_stmts COME_FROM_LOOP
 
         else_suitel ::= l_stmts COME_FROM_LOOP JUMP_BACK

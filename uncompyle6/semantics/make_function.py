@@ -542,7 +542,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
 
     if len(code.co_consts) > 0 and code.co_consts[0] is not None and not isLambda: # ugly
         # docstring exists, dump it
-        self.print_docstring(indent, code.co_consts[0])
+        self.print_docstring(self.indent, code.co_consts[0])
 
     code._tokens = None # save memory
     assert ast == 'stmts'

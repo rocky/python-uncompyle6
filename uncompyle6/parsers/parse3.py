@@ -338,10 +338,8 @@ class Python3Parser(PythonParser):
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suite COME_FROM_LOOP
 
-        # FIXME: This gets confused with if/else in a loop. But while/else in Python
-        # is probably pretty rare.
         while1elsestmt    ::= SETUP_LOOP          l_stmts     JUMP_BACK
-                              else_suite COME_FROM_LOOP
+                              else_suite
 
         whileelselaststmt ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suitec COME_FROM_LOOP
