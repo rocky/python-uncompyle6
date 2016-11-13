@@ -1,6 +1,95 @@
+2016-11-13  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/version.py: Get ready for release 2.9.5
+
+2016-11-13  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/parsers/parse30.py,
+	uncompyle6/semantics/make_function.py: Python 3 bugs ...  - Was using "while 1 .. else" improperly - docstring indent bug: was indenting docstring improperly
+
+2016-11-13  rocky <rb@dustyfeet.com>
+
+	* README.rst: Revise what works and what doesn't
+
+2016-11-13  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug30/02_while1_if_while1.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/parsers/parse30.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Python 3.0 while1 if bug...  Is a workaround. We really need more tagging in of SETUP_LOOP and
+	COME_FROM.
+
+2016-11-11  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/semantics/check_ast.py,
+	uncompyle6/semantics/fragments.py, uncompyle6/semantics/pysource.py: 
+	Revert augassign change but..  Make note of what's going on and add grammar test for bad situations
+	we have in Python 2.6 (and perhaps others)
+
+2016-11-11  rocky <rb@dustyfeet.com>
+
+	* test/test_pyenvlib.py, uncompyle6/parser.py,
+	uncompyle6/semantics/pysource.py: augassign semantic action bug
+
+2016-11-10  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug33/02_pos_args.py,
+	test/simple_source/bug33/03_func_params.py,
+	uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/make_function.py: Bug in detecting 3.3 default
+	value in lambda
+
+2016-11-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/main.py, uncompyle6/semantics/check_ast.py,
+	uncompyle6/semantics/fragments.py, uncompyle6/semantics/pysource.py: 
+	Detect some erroneous decompilations Until we can actually prevent these in grammar rules, we will warn
+	of improper decompilations.  Also, we now stop when we hit a decompile error. Previously we were
+	not.
+
+2016-11-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py: Remove unused imports
+
+2016-11-07  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/parsers/parse30.py,
+	uncompyle6/parsers/parse32.py: Possiby tidy grammar
+
+2016-11-06  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py: Bump xdis to get correct 3.0 bytecodes
+
+2016-11-06  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse33.py, uncompyle6/parsers/parse34.py: Some
+	Python 3.4 grammar rules apply to Python 3.3
+
+2016-11-06  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/test_pythonlib.py,
+	uncompyle6/parsers/parse30.py: Start bytecode 3.0 decompiling
+
+2016-11-06  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse30.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/scanners/scanner30.py: Python 3.0 doesn't have POP_JUMP
+	ops...  In some ways Python 3.0 code generation is more like Python 2.6 (and
+	before) than it is Python 2.7 or 3.0.
+
+2016-11-05  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #63 from rocky/python-3.0 Python 3.0
+
+2016-11-05  rocky <rb@dustyfeet.com>
+
+	* : commit cd3cf5ec2960a733e9fedca9c4549caf33c2d1d0 Author: rocky
+	<rb@dustyfeet.com> Date:   Thu Nov 3 21:26:12 2016 -0400
+
 2016-11-02  rocky <rb@dustyfeet.com>
 
-	* __pkginfo__.py, uncompyle6/version.py: Get ready for release 2.9.4
+	* ChangeLog, NEWS, __pkginfo__.py, uncompyle6/version.py: Get ready
+	for release 2.9.4
 
 2016-11-02  rocky <rb@dustyfeet.com>
 
@@ -125,6 +214,13 @@
 
 	* uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner3.py: Fix
 	some Python 3.1 bugs
+
+2016-10-24  rocky <rb@dustyfeet.com>
+
+	* Makefile, test/Makefile, test/test_pyenvlib.py,
+	uncompyle6/bin/uncompile.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner3.py: Start Python 3.0 decoding Fix some Python 3.1 bugs
 
 2016-10-22  Daniel Bradburn <moagstar@gmail.com>
 

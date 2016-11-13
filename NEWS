@@ -1,3 +1,13 @@
+uncompyle6 2.9.5 2016-11-13
+
+- Fix Python 3 bugs:
+  * improprer while 1 else
+  * docstring indent
+  * 3.3 default values in lambda expressions
+  * start 3.0 decompilation (needs newer xdis)
+- Start grammar misparse checking
+
+
 uncompyle6 2.9.4 2016-11-02
 
 - Handle Python 3.x function annotations
