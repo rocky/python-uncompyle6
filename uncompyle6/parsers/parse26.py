@@ -23,15 +23,15 @@ class Python26Parser(Python2Parser):
                          JUMP_IF_FALSE POP_TOP POP_TOP designator POP_TOP
 
         try_middle   ::= JUMP_FORWARD COME_FROM except_stmts
-                         come_from_pop END_FINALLY COME_FROM
+                         POP_TOP END_FINALLY COME_FROM
 
         try_middle   ::= jmp_abs COME_FROM except_stmts
                          POP_TOP END_FINALLY
 
         try_middle   ::= jmp_abs COME_FROM except_stmts
-                         come_from_pop END_FINALLY
+                         POP_TOP END_FINALLY
 
-        trystmt      ::= SETUP_EXCEPT suite_stmts_opt come_from_pop
+        trystmt      ::= SETUP_EXCEPT suite_stmts_opt POP_TOP
                          try_middle
 
         # Sometimes we don't put in COME_FROM to the next statement
@@ -47,12 +47,16 @@ class Python26Parser(Python2Parser):
 
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM POP_TOP
 
-        except_suite ::= c_stmts_opt JUMP_FORWARD come_from_pop
+        except_suite ::= c_stmts_opt JUMP_FORWARD POP_TOP
 
         # Python 3 also has this.
         come_froms ::= come_froms COME_FROM
         come_froms ::= COME_FROM
 
+        # This is what happens after a jump where
+        # we start a new block. For reasons I don't fully
+        # understand, there is also a value on the top of the stack
+        come_from_pop   ::=  COME_FROM POP_TOP
         come_froms_pop ::= come_froms POP_TOP
 
         """
@@ -70,9 +74,9 @@ class Python26Parser(Python2Parser):
         jmp_true     ::= JUMP_IF_TRUE POP_TOP
         jmp_false    ::= JUMP_IF_FALSE POP_TOP
 
-        jf_pop       ::= JUMP_FORWARD come_from_pop
-        jf_pop       ::= JUMP_ABSOLUTE come_from_pop
-        jb_pop       ::= JUMP_BACK come_from_pop
+        jf_pop       ::= JUMP_FORWARD POP_TOP
+        jf_pop       ::= JUMP_ABSOLUTE POP_TOP
+        jb_pop       ::= JUMP_BACK POP_TOP
 
         jb_cont      ::= JUMP_BACK
         jb_cont      ::= CONTINUE
@@ -85,13 +89,12 @@ class Python26Parser(Python2Parser):
         jb_bp_come_from ::= JUMP_BACK bp_come_from
 
         _ifstmts_jump ::= c_stmts_opt jf_pop COME_FROM
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM come_from_pop
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM POP_TOP
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD come_froms POP_TOP COME_FROM
 
         # This is what happens after a jump where
         # we start a new block. For reasons I don't fully
         # understand, there is also a value on the top of the stack
-        come_from_pop   ::=  COME_FROM POP_TOP
         come_froms_pop  ::=  come_froms POP_TOP
 
         """
@@ -145,12 +148,12 @@ class Python26Parser(Python2Parser):
         whileelsestmt ::= SETUP_LOOP testexpr l_stmts_opt jb_pop POP_BLOCK
                           else_suite COME_FROM
 
-        return_stmt ::= ret_expr RETURN_END_IF come_from_pop
-        return_stmt ::= ret_expr RETURN_VALUE come_from_pop
-        return_if_stmt ::= ret_expr RETURN_END_IF come_from_pop
+        return_stmt ::= ret_expr RETURN_END_IF POP_TOP
+        return_stmt ::= ret_expr RETURN_VALUE POP_TOP
+        return_if_stmt ::= ret_expr RETURN_END_IF POP_TOP
 
-        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK come_from_pop
-        iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE come_from_pop
+        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK POP_TOP
+        iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE POP_TOP
 
         while1stmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM
 
@@ -186,7 +189,8 @@ class Python26Parser(Python2Parser):
         # Make sure we keep indices the same as 2.7
         setup_loop_lf ::= SETUP_LOOP LOAD_FAST
         genexpr_func ::= setup_loop_lf FOR_ITER designator comp_iter jb_bp_come_from
-        genexpr_func ::= setup_loop_lf FOR_ITER designator comp_iter JUMP_BACK come_from_pop jb_bp_come_from
+        genexpr_func ::= setup_loop_lf FOR_ITER designator comp_iter JUMP_BACK come_from_pop
+                         jb_bp_come_from
         genexpr ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1 COME_FROM
 
         '''
@@ -208,7 +212,7 @@ class Python26Parser(Python2Parser):
 
     def p_except26(self, args):
         '''
-        except_suite ::= c_stmts_opt jmp_abs come_from_pop
+        except_suite ::= c_stmts_opt jmp_abs POP_TOP
         '''
 
     def p_misc26(self, args):
