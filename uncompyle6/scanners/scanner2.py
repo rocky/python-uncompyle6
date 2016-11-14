@@ -877,8 +877,13 @@ class Scanner2(scan.Scanner):
                                 and ((self.code[offset+3] == self.opc.END_FINALLY)
                                      or (self.code[offset+3] == self.opc.POP_TOP
                                          and self.code[offset+4] == self.opc.END_FINALLY))):
+
+                            # FIXME: rocky: I think we need something like this...
+                            # if offset not in set(self.ignore_if):
+                            #    targets[label] = targets.get(label, []) + [offset]
                             targets[label] = targets.get(label, []) + [offset]
                             pass
+
                         pass
                     pass
             elif op == self.opc.END_FINALLY and offset in self.fixed_jumps and self.version == 2.7:

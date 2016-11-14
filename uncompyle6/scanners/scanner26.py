@@ -279,9 +279,9 @@ class Scanner26(scan.Scanner2):
                 pass
             pass
 
-        if show_asm:
+        if show_asm in ('both', 'after'):
             for t in tokens:
-                print(t)
+                print(t.format(line_prefix='L.'))
             print()
         return tokens, customize
 
