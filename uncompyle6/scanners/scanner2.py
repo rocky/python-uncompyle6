@@ -879,7 +879,7 @@ class Scanner2(scan.Scanner):
                                          and self.code[offset+4] == self.opc.END_FINALLY))):
 
                             # FIXME: rocky: I think we need something like this...
-                            if offset not in set(self.ignore_if):
+                            if offset not in set(self.ignore_if) or self.version == 2.7:
                                targets[label] = targets.get(label, []) + [offset]
                             # targets[label] = targets.get(label, []) + [offset]
                             pass

@@ -23,7 +23,7 @@ class Python26Parser(Python2Parser):
                          JUMP_IF_FALSE POP_TOP POP_TOP designator POP_TOP
 
         try_middle   ::= JUMP_FORWARD COME_FROM except_stmts
-                         POP_TOP END_FINALLY COME_FROM
+                         come_from_pop END_FINALLY COME_FROM
 
         try_middle   ::= jmp_abs COME_FROM except_stmts
                          POP_TOP END_FINALLY
@@ -47,7 +47,9 @@ class Python26Parser(Python2Parser):
 
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM POP_TOP
 
+        except_suite ::= c_stmts_opt JUMP_FORWARD come_from_pop
         except_suite ::= c_stmts_opt JUMP_FORWARD POP_TOP
+        except_suite ::= c_stmts_opt jmp_abs come_from_pop
 
         # Python 3 also has this.
         come_froms ::= come_froms COME_FROM
@@ -152,8 +154,8 @@ class Python26Parser(Python2Parser):
         return_stmt ::= ret_expr RETURN_VALUE POP_TOP
         return_if_stmt ::= ret_expr RETURN_END_IF POP_TOP
 
-        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK POP_TOP
-        iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE POP_TOP
+        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK come_from_pop
+        iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE come_from_pop
 
         while1stmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM
 
