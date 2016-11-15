@@ -2,10 +2,16 @@ include README.rst
 include ChangeLog
 include HISTORY.md
 include LICENSE
+include Makefile
+include requirements.txt
+include requirements-dev.txt
 include DECOMPYLE-2.4-CHANGELOG.txt
 include __pkginfo__.py
 recursive-include uncompyle6 *.py
 include bin/uncompyle6
 include bin/pydisassemble
+include pytest/Makefile
+include test/Makefile
 recursive-include test *.py *.pyc
 recursive-include pytest *.py
+recursive-include pytest/testdata *
