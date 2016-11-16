@@ -134,12 +134,14 @@ def main(in_base, out_base, files, codes, outfile=None,
             uncompyle_file(infile, outstream, showasm, showast, showgrammar)
             tot_files += 1
         except (ValueError, SyntaxError, ParserError, pysource.SourceWalkerError) as e:
-            sys.stderr.write("\n# file %s\n# %s" % (infile, e))
+            sys.stdout.write("\n")
+            sys.stderr.write("\n# file %s\n# %s\n" % (infile, e))
             failed_files += 1
         except KeyboardInterrupt:
             if outfile:
                 outstream.close()
                 os.remove(outfile)
+            sys.stdout.write("\n")
             sys.stderr.write("\nLast file: %s   " % (infile))
             raise
         # except:
