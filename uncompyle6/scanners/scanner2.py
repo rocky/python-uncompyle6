@@ -25,6 +25,7 @@ from __future__ import print_function
 from collections import namedtuple
 from array import array
 
+from uncompyle6.scanner import op_has_argument
 from xdis.code import iscode
 
 import uncompyle6.scanner as scan
@@ -175,7 +176,7 @@ class Scanner2(scan.Scanner):
             opname = self.opc.opname[op]
 
             oparg = None; pattr = None
-            has_arg = (op >= self.opc.HAVE_ARGUMENT)
+            has_arg = op_has_argument(op, self.opc)
             if has_arg:
                 oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
@@ -814,20 +815,23 @@ class Scanner2(scan.Scanner):
             self.fixed_jumps[pos] = self.restrict_to_parent(target, parent)
 
     def find_jump_targets(self):
-        '''
+        """
         Detect all offsets in a byte code which are jump targets
         where we might insert a COME_FROM instruction.
 
         Return the list of offsets. An instruction can be jumped
         to in from multiple instructions.
-        '''
-
-        n = len(self.code)
+        """
+        code = self.code
+        n = len(code)
         self.structs = [{'type':  'root',
                            'start': 0,
                            'end':   n-1}]
-        self.loops = []  # All loop entry points
-        self.fixed_jumps = {} # Map fixed jumps to their real destination
+        # All loop entry points
+        self.loops = []
+
+        # Map fixed jumps to their real destination
+        self.fixed_jumps = {}
         self.ignore_if = set()
         self.build_stmt_indices()
 
@@ -837,13 +841,13 @@ class Scanner2(scan.Scanner):
 
         targets = {}
         for offset in self.op_range(0, n):
-            op = self.code[offset]
+            op = code[offset]
 
             # Determine structures and fix jumps in Python versions
             # since 2.3
             self.detect_structure(offset, op)
 
-            if op >= self.opc.HAVE_ARGUMENT:
+            if op_has_argument(op, self.opc):
                 label = self.fixed_jumps.get(offset)
                 oparg = self.get_argument(offset)
 
@@ -867,21 +871,21 @@ class Scanner2(scan.Scanner):
                     # does now start a new statement
                     # Otherwise, we have want to add a "COME_FROM"
                     if not (self.version < 2.7 and
-                            self.code[label] == self.opc.POP_TOP and
-                            self.code[self.prev[label]] == self.opc.RETURN_VALUE):
+                            code[label] == self.opc.POP_TOP and
+                            code[self.prev[label]] == self.opc.RETURN_VALUE):
                         # In Python < 2.7, don't add a COME_FROM, for:
                         #     JUMP_FORWARD, END_FINALLY
                         # or:
                         #     JUMP_FORWARD, POP_TOP, END_FINALLY
                         if not (self.version < 2.7 and op == self.opc.JUMP_FORWARD
-                                and ((self.code[offset+3] == self.opc.END_FINALLY)
-                                     or (self.code[offset+3] == self.opc.POP_TOP
-                                         and self.code[offset+4] == self.opc.END_FINALLY))):
+                                and ((code[offset+3] == self.opc.END_FINALLY)
+                                     or (code[offset+3] == self.opc.POP_TOP
+                                         and code[offset+4] == self.opc.END_FINALLY))):
 
                             # FIXME: rocky: I think we need something like this...
-                            # if offset not in set(self.ignore_if):
-                            #    targets[label] = targets.get(label, []) + [offset]
-                            targets[label] = targets.get(label, []) + [offset]
+                            if offset not in set(self.ignore_if) or self.version == 2.7:
+                               targets[label] = targets.get(label, []) + [offset]
+                            # targets[label] = targets.get(label, []) + [offset]
                             pass
 
                         pass
