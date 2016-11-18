@@ -2324,7 +2324,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
         deparsed.write('# global %s ## Warning: Unused global' % g)
 
     if deparsed.ast_errors:
-        deparsed.write("# NOTE: have decompilation errors.\n")
+        deparsed.write("# NOTE: have internal decompilation grammar errors.\n")
         deparsed.write("# Use -t option to show full context.")
         for err in deparsed.ast_errors:
             deparsed.write(err)

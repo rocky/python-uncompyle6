@@ -403,12 +403,13 @@ class Scanner3(Scanner):
 
     def find_jump_targets(self):
         """
-        Detect all offsets in a byte code which are jump targets.
+        Detect all offsets in a byte code which are jump targets
+        where we might insert a COME_FROM instruction.
 
         Return the list of offsets.
 
-        This procedure is modelled after dis.findlabels(), but here
-        for each target the number of jumps is counted.
+        Return the list of offsets. An instruction can be jumped
+        to in from multiple instructions.
         """
         code = self.code
         n = len(code)
