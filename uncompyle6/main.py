@@ -1,5 +1,5 @@
 from __future__ import print_function
-import datetime, os, sys
+import datetime, os, subprocess, sys, tempfile
 
 from uncompyle6 import verify, IS_PYPY
 from xdis.code import iscode
@@ -7,6 +7,7 @@ from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource
 from uncompyle6.parser import ParserError
 from uncompyle6.version import VERSION
+from uncompyle6.linenumbers import line_number_mapping
 
 from xdis.load import load_module
 
@@ -76,7 +77,8 @@ def uncompyle_file(filename, outstream=None, showasm=None, showast=False,
 # FIXME: combine into an options parameter
 def main(in_base, out_base, files, codes, outfile=None,
          showasm=None, showast=False, do_verify=False,
-         showgrammar=False, raise_on_error=False):
+         showgrammar=False, raise_on_error=False,
+         do_linemaps=False):
     """
     in_base	base directory for input files
     out_base	base directory for output files (ignored when
@@ -99,7 +101,6 @@ def main(in_base, out_base, files, codes, outfile=None,
             pass
         return open(outfile, 'w')
 
-    of = outfile
     tot_files = okay_files = failed_files = verify_failed_files = 0
 
     # for code in codes:
@@ -117,10 +118,21 @@ def main(in_base, out_base, files, codes, outfile=None,
 
         # print (infile, file=sys.stderr)
 
-        if of: # outfile was given as parameter
+        if outfile: # outfile was given as parameter
             outstream = _get_outstream(outfile)
         elif out_base is None:
             outstream = sys.stdout
+            if do_linemaps or do_verify:
+                prefix = os.path.basename(filename)
+                if prefix.endswith('.py'):
+                    prefix = prefix[:-len('.py')]
+                junk, outfile = tempfile.mkstemp(suffix=".pyc",
+                                             prefix=prefix)
+                # Unbuffer output
+                sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
+                tee = subprocess.Popen(["tee", outfile], stdin=subprocess.PIPE)
+                os.dup2(tee.stdin.fileno(), sys.stdout.fileno())
+                os.dup2(tee.stdin.fileno(), sys.stderr.fileno())
         else:
             if filename.endswith('.pyc'):
                 outfile = os.path.join(out_base, filename[0:-1])
@@ -152,7 +164,13 @@ def main(in_base, out_base, files, codes, outfile=None,
         #         sys.stderr.write("\n# Can't uncompile %s\n" % infile)
         else: # uncompile successful
             if outfile:
+                if do_linemaps:
+                    mapping = line_number_mapping(infile, outfile)
+                    print("\n\n## Line number correspondences", infile)
+                    for m in mapping:
+                        print("## %s" % m, infile)
                 outstream.close()
+
                 if do_verify:
                     weak_verify = do_verify == 'weak'
                     try:

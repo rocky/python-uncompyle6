@@ -5,7 +5,7 @@
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 from __future__ import print_function
-import sys, os, getopt, tempfile, time
+import sys, os, getopt, time
 
 program, ext = os.path.splitext(os.path.basename(__file__))
 
@@ -35,7 +35,8 @@ Options:
   -p <integer>  use <integer> number of processes
   -r            recurse directories looking for .pyc and .pyo files
   --verify      compare generated source with input byte-code
-                (requires -o)
+  --linemaps    generated line number correspondencies between byte-code
+                and generated source output
   --help        show this message
 
 Debugging Options:
@@ -81,8 +82,8 @@ def main_bin():
 
     try:
         opts, files = getopt.getopt(sys.argv[1:], 'hagtdrVo:c:p:',
-                                    'help asm grammar recurse timestamp tree verify version '
-                                    'showgrammar'.split(' '))
+                                    'help asm grammar linemaps recurse timestamp tree '
+                                    'verify version showgrammar'.split(' '))
     except getopt.GetoptError as e:
         print('%s: %s' % (os.path.basename(sys.argv[0]), e),  file=sys.stderr)
         sys.exit(-1)
@@ -97,6 +98,8 @@ def main_bin():
             sys.exit(0)
         elif opt == '--verify':
             options['do_verify'] = True
+        elif opt == '--linemaps':
+            options['do_linemaps'] = True
         elif opt in ('--asm', '-a'):
             options['showasm'] = 'after'
             options['do_verify'] = False
@@ -146,11 +149,7 @@ def main_bin():
         usage()
 
     if outfile == '-':
-        if 'do_verify' in options and options['do_verify'] and len(files) == 1:
-            junk, outfile = tempfile.mkstemp(suffix=".pyc",
-                                             prefix=files[0][0:-4]+'-')
-        else:
-            outfile = None # use stdout
+        outfile = None # use stdout
     elif outfile and os.path.isdir(outfile):
         out_base = outfile; outfile = None
     elif outfile and len(files) > 1:
