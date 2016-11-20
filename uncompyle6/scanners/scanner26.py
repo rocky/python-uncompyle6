@@ -130,7 +130,7 @@ class Scanner26(scan.Scanner2):
                 if names[self.get_argument(i+4)] == 'AssertionError':
                     self.load_asserts.add(i+4)
 
-        jump_targets = self.find_jump_targets()
+        jump_targets = self.find_jump_targets(False)
         # contains (code, [addrRefToCode])
 
         last_stmt = self.next_stmt[0]

@@ -428,6 +428,8 @@ class Scanner3(Scanner):
         # Containers filled by detect_structure()
         self.not_continue = set()
         self.return_end_ifs = set()
+        self.setup_loop_targets = {}  # target given setup_loop offset
+        self.setup_loops = {}  # setup_loop offset given target
 
         targets = {}
         for offset in self.op_range(0, n):
@@ -585,6 +587,8 @@ class Scanner3(Scanner):
             start = offset+3
             target = self.get_target(offset)
             end    = self.restrict_to_parent(target, parent)
+            self.setup_loop_targets[offset] = target
+            self.setup_loops[target] = offset
 
             if target != end:
                 self.fixed_jumps[offset] = end
