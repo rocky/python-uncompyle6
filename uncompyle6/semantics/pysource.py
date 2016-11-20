@@ -741,7 +741,12 @@ class SourceWalker(GenericASTTraversal, object):
         self.pending_newlines = max(self.pending_newlines, 1)
 
     def print_docstring(self, indent, docstring):
-        quote = '"""'
+        ## FIXME: put this into a testable function.
+        if docstring.find('"""') == -1:
+            quote = '"""'
+        else:
+            quote = "'''"
+
         self.write(indent)
         if not PYTHON3 and not isinstance(docstring, str):
             # Must be unicode in Python2
@@ -774,10 +779,11 @@ class SourceWalker(GenericASTTraversal, object):
             # ruin the ending triple quote
             if len(docstring) and docstring[-1] == '"':
                 docstring = docstring[:-1] + '\\"'
-            # Escape triple quote anywhere
-            docstring = docstring.replace('"""', '\\"\\"\\"')
             # Restore escaped backslashes
             docstring = docstring.replace('\t', '\\\\')
+        # Escape triple quote when needed
+        if quote == '""""':
+            docstring = docstring.replace('"""', '\\"\\"\\"')
         lines = docstring.split('\n')
         calculate_indent = maxint
         for line in lines[1:]:
