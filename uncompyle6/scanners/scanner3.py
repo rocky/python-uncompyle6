@@ -199,7 +199,7 @@ class Scanner3(Scanner):
 
         # Get jump targets
         # Format: {target offset: [jump offsets]}
-        jump_targets = self.find_jump_targets()
+        jump_targets = self.find_jump_targets(show_asm)
 
         for inst in bytecode:
 
@@ -401,7 +401,7 @@ class Scanner3(Scanner):
             for _ in range(self.op_size(op)):
                 self.prev_op.append(offset)
 
-    def find_jump_targets(self):
+    def find_jump_targets(self, debug):
         """
         Detect all offsets in a byte code which are jump targets
         where we might insert a COME_FROM instruction.
@@ -428,6 +428,8 @@ class Scanner3(Scanner):
         # Containers filled by detect_structure()
         self.not_continue = set()
         self.return_end_ifs = set()
+        self.setup_loop_targets = {}  # target given setup_loop offset
+        self.setup_loops = {}  # setup_loop offset given target
 
         targets = {}
         for offset in self.op_range(0, n):
@@ -455,6 +457,13 @@ class Scanner3(Scanner):
             elif op == self.opc.END_FINALLY and offset in self.fixed_jumps:
                 label = self.fixed_jumps[offset]
                 targets[label] = targets.get(label, []) + [offset]
+                pass
+            pass
+        # DEBUG:
+        if debug in ('both', 'after'):
+            import pprint as pp
+            pp.pprint(self.structs)
+
         return targets
 
     def build_statement_indices(self):
@@ -585,6 +594,8 @@ class Scanner3(Scanner):
             start = offset+3
             target = self.get_target(offset)
             end    = self.restrict_to_parent(target, parent)
+            self.setup_loop_targets[offset] = target
+            self.setup_loops[target] = offset
 
             if target != end:
                 self.fixed_jumps[offset] = end

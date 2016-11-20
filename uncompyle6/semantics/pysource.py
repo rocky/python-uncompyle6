@@ -741,7 +741,12 @@ class SourceWalker(GenericASTTraversal, object):
         self.pending_newlines = max(self.pending_newlines, 1)
 
     def print_docstring(self, indent, docstring):
-        quote = '"""'
+        ## FIXME: put this into a testable function.
+        if docstring.find('"""') == -1:
+            quote = '"""'
+        else:
+            quote = "'''"
+
         self.write(indent)
         if not PYTHON3 and not isinstance(docstring, str):
             # Must be unicode in Python2
@@ -774,10 +779,11 @@ class SourceWalker(GenericASTTraversal, object):
             # ruin the ending triple quote
             if len(docstring) and docstring[-1] == '"':
                 docstring = docstring[:-1] + '\\"'
-            # Escape triple quote anywhere
-            docstring = docstring.replace('"""', '\\"\\"\\"')
             # Restore escaped backslashes
             docstring = docstring.replace('\t', '\\\\')
+        # Escape triple quote when needed
+        if quote == '""""':
+            docstring = docstring.replace('"""', '\\"\\"\\"')
         lines = docstring.split('\n')
         calculate_indent = maxint
         for line in lines[1:]:
@@ -1010,10 +1016,7 @@ class SourceWalker(GenericASTTraversal, object):
     def n_ifelsestmt(self, node, preprocess=False):
         else_suite = node[3]
 
-        try:
-            n = else_suite[0]
-        except:
-            from trepan.api import debug; debug()
+        n = else_suite[0]
 
         if len(n) == 1 == len(n[0]) and n[0] == '_stmts':
             n = n[0][0][0]
@@ -1202,6 +1205,8 @@ class SourceWalker(GenericASTTraversal, object):
         assert expr == 'expr'
         assert list_iter == 'list_iter'
 
+        # FIXME: use source line numbers for directing line breaks
+
         self.preorder(expr)
         self.preorder(list_iter)
         self.write( ' ]')
@@ -1217,7 +1222,7 @@ class SourceWalker(GenericASTTraversal, object):
             n = node[-1]
         elif self.is_pypy and node[-1] == 'JUMP_BACK':
             n = node[-2]
-        list_expr = node[0]
+        list_expr = node[1]
 
         if len(node) >= 3:
             designator = node[3]
@@ -1242,10 +1247,9 @@ class SourceWalker(GenericASTTraversal, object):
         assert expr == 'expr'
         assert list_iter == 'list_iter'
 
+        # FIXME: use source line numbers for directing line breaks
+
         self.preorder(expr)
-        self.write( ' for ')
-        self.preorder(designator)
-        self.write( ' in ')
         self.preorder(list_expr)
         self.write( ' ]')
         self.prec = p
