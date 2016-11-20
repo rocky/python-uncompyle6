@@ -875,8 +875,9 @@ class Scanner2(scan.Scanner):
                 oparg = self.get_argument(offset)
 
                 if label is None:
-                    if (op in self.opc.hasjrel and
-                        (self.version < 2.0 or op != self.opc.FOR_ITER)):
+                    if op in self.opc.hasjrel and self.opc.opname[op] != 'FOR_ITER':
+                    # if (op in self.opc.hasjrel and
+                    #     (self.version < 2.0 or op != self.opc.FOR_ITER)):
                         label = offset + 3 + oparg
                     elif self.version == 2.7 and op in self.opc.hasjabs:
                         if op in (self.opc.JUMP_IF_FALSE_OR_POP,
@@ -906,7 +907,7 @@ class Scanner2(scan.Scanner):
                                          and code[offset+4] == self.opc.END_FINALLY))):
 
                             # FIXME: rocky: I think we need something like this...
-                            if offset not in set(self.ignore_if):
+                            if offset not in set(self.ignore_if) or self.version == 2.7:
                                 source = (self.setup_loops[label]
                                           if label in self.setup_loops else offset)
                                 targets[label] = targets.get(label, []) + [source]
@@ -922,6 +923,7 @@ class Scanner2(scan.Scanner):
 
         # DEBUG:
         if debug in ('both', 'after'):
+            print(targets)
             import pprint as pp
             pp.pprint(self.structs)
 
