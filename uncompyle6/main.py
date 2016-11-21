@@ -126,7 +126,7 @@ def main(in_base, out_base, files, codes, outfile=None,
                 prefix = os.path.basename(filename)
                 if prefix.endswith('.py'):
                     prefix = prefix[:-len('.py')]
-                junk, outfile = tempfile.mkstemp(suffix=".pyc",
+                junk, outfile = tempfile.mkstemp(suffix=".py",
                                              prefix=prefix)
                 # Unbuffer output
                 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
@@ -168,9 +168,11 @@ def main(in_base, out_base, files, codes, outfile=None,
             if outfile:
                 if do_linemaps:
                     mapping = line_number_mapping(infile, outfile)
-                    print("\n\n## Line number correspondences", infile)
-                    for m in mapping:
-                        print("## %s" % m, infile)
+                    outstream.write("\n\n## Line number correspondences\n")
+                    import pprint
+                    s = pprint.pformat(mapping, indent=2, width=80)
+                    s2 = '##' + '\n##'.join(s.split("\n")) + "\n"
+                    outstream.write(s2)
                 outstream.close()
 
                 if do_verify:
