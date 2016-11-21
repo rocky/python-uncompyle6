@@ -1,6 +1,103 @@
+2016-11-20  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/version.py: Get ready for release 2.9.6
+
+2016-11-20  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #68 from rocky/line-mappings Line mappings
+
+2016-11-20  rocky <rb@dustyfeet.com>
+
+	* : Merge remote-tracking branch 'origin' into line-mappings
+
+2016-11-20  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse27.py: Back off a test.  That means bugs in 2.7 still not fixed. Sigh.
+
+2016-11-20  rocky <rb@dustyfeet.com>
+
+	* pytest/test_fjt.py, uncompyle6/parsers/parse27.py,
+	uncompyle6/scanners/scanner2.py: more 2.7 control flow bug fixing
+
+2016-11-20  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner26.py: Pass debug in scanner26
+	find_targets
+
+2016-11-20  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner3.py: Add debug option on Python 3
+	find_jump_targets()
+
+2016-11-20  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py: A little closesr in PyPy 2.7
+	list comprehensions pysource.py: note need to handle line breaks in list comprehensions
+
+2016-11-20  rocky <rb@dustyfeet.com>
+
+	* pytest/test_fjt.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner26.py, uncompyle6/scanners/scanner3.py: 
+	Start to improve detect_structure for 2.7 and 2.x Add debug flag to find_jump_targets to show the structure we found.
+	When there are control-flow bugs, it's often reflected here.  scanner3.py: make code make more similar to 2.x code
+
+2016-11-18  rocky <rb@dustyfeet.com>
+
+	* : commit d7f898b4fbf79d1f66eabadb25f0f9f0f38730cb Author: rocky
+	<rb@dustyfeet.com> Date:   Fri Nov 18 09:02:00 2016 -0500
+
+2016-11-17  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #67 from rocky/2.6-cf-ignore-if 2.6 cf ignore if
+
+2016-11-16  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug26/03_if_vs_and.py, uncompyle6/main.py,
+	uncompyle6/semantics/check_ast.py, uncompyle6/semantics/pysource.py: 
+	More AST checking Small fixes in output format
+
+2016-11-15  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse23.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/scanners/scanner2.py: WIP Grammar changes - reinstatng
+	COME_FROMs around ignore_if's
+
+2016-11-14  rocky <rb@dustyfeet.com>
+
+	* MANIFEST.in: Revise MANIFEST.in with what we have
+
+2016-11-15  rocky <rb@dustyfeet.com>
+
+	* : commit 0f719d41fdf08d41de594abb1664ab42ff92bbdf Author: rocky
+	<rb@dustyfeet.com> Date:   Mon Nov 14 20:20:07 2016 -0500
+
+2016-11-14  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse26.py, uncompyle6/scanners/scanner2.py: 
+	WIP remove COME_FROMs around ignore_if's
+
+2016-11-14  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse26.py, uncompyle6/scanners/scanner2.py: 
+	WIP remove COME_FROMs around ignore_if's
+
+2016-11-14  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner26.py: 
+	Show line numbers in 2.6 "after" asm ..  start to understand some of the Python 2.6 bytecode parse failures.
+
 2016-11-13  rocky <rb@dustyfeet.com>
 
-	* uncompyle6/version.py: Get ready for release 2.9.5
+	* README.rst, uncompyle6/verify.py: Handle verify syntax errors...  Update README.rst stats
+
+2016-11-13  rocky <rb@dustyfeet.com>
+
+	* setup.py: Administrivia: Fixes #66
+
+2016-11-13  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, uncompyle6/version.py: Get ready for release
+	2.9.5
 
 2016-11-13  rocky <rb@dustyfeet.com>
 

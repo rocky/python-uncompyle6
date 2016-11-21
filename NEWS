@@ -1,3 +1,20 @@
+uncompyle6 2.9.6 2016-11-20
+
+- Correct MANIFEST.in
+- More AST grammar checking
+- --linemapping option or linenumbers.line_number_mapping()
+  Shows correspondence of lines between source
+  and decompiled source
+- Some control flow adjustments in code for 2.x.
+  This is probably an improvement in 2.6 and before.
+  For 2.7 things are just shuffled around a little. Sigh.
+  Overall I think we are getting more precise in
+  or analysis even if it is not always reflected
+  in the results.
+- better control flow debugging output
+- Python 2 and 3 detect structure code is more similar
+- Handle Docstrings with embedded tiple quotes (""")
+
 uncompyle6 2.9.5 2016-11-13
 
 - Fix Python 3 bugs:
