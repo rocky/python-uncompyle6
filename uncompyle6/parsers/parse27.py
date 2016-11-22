@@ -31,6 +31,10 @@ class Python27Parser(Python2Parser):
 
     def p_try27(self, args):
         """
+        tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
+                           POP_BLOCK LOAD_CONST
+                           COME_FROM_FINALLY suite_stmts_opt END_FINALLY
+
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            try_middle else_suite COME_FROM
 
@@ -77,11 +81,11 @@ class Python27Parser(Python2Parser):
         assert2       ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_2
 
         withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
-                POP_BLOCK LOAD_CONST COME_FROM
+                POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP END_FINALLY
 
         withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
-                POP_BLOCK LOAD_CONST COME_FROM
+                POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP END_FINALLY
 
         # Common with 2.6
