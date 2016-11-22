@@ -1,6 +1,6 @@
 import re
 from uncompyle6 import PYTHON_VERSION, PYTHON3, IS_PYPY # , PYTHON_VERSION
-from uncompyle6.parser import get_python_parser
+from uncompyle6.parser import get_python_parser, python_parser
 from uncompyle6.scanner import get_scanner
 
 def test_grammar():
@@ -53,3 +53,11 @@ def test_grammar():
         ignore_set.add('STORE_LOCALS')
         opcode_set = set(s.opc.opname).union(ignore_set)
         check_tokens(tokens, opcode_set)
+
+def test_dup_rule():
+    import inspect
+    python_parser(PYTHON_VERSION, inspect.currentframe().f_code,
+                  is_pypy=IS_PYPY,
+                  parser_debug={
+                      'rules': True, 'transition': False, 'reduce': False,
+                      'errorstack': None, 'context': True})

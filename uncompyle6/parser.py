@@ -425,7 +425,6 @@ class PythonParser(GenericASTBuilder):
         expr ::= unary_not
         expr ::= binary_subscr
         expr ::= binary_subscr2
-        expr ::= load_attr
         expr ::= get_iter
         expr ::= buildslice2
         expr ::= buildslice3
@@ -556,7 +555,7 @@ def parse(p, tokens, customize):
 
 
 def get_python_parser(
-        version, debug_parser={}, compile_mode='exec',
+        version, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode='exec',
         is_pypy = False):
     """Returns parser object for Python version 2 or 3, 3.2, 3.5on,
     etc., depending on the parameters passed.  *compile_mode* is either

@@ -76,8 +76,6 @@ class Python2Parser(PythonParser):
         return_if_stmts ::= _stmts return_if_stmt
         return_if_stmt ::= ret_expr RETURN_END_IF
 
-        stmt ::= importstmt
-
         stmt ::= break_stmt
         break_stmt ::= BREAK_LOOP
 
@@ -210,14 +208,6 @@ class Python2Parser(PythonParser):
         and  ::= expr jmp_false expr come_from_opt
         or   ::= expr jmp_true  expr come_from_opt
 
-        slice0 ::= expr SLICE+0
-        slice0 ::= expr DUP_TOP SLICE+0
-        slice1 ::= expr expr SLICE+1
-        slice1 ::= expr expr DUP_TOPX_2 SLICE+1
-        slice2 ::= expr expr SLICE+2
-        slice2 ::= expr expr DUP_TOPX_2 SLICE+2
-        slice3 ::= expr expr expr SLICE+3
-        slice3 ::= expr expr expr DUP_TOPX_3 SLICE+3
         unary_convert ::= expr UNARY_CONVERT
 
         # In Python 3, DUP_TOPX_2 is DUP_TOP_TWO
@@ -248,7 +238,6 @@ class Python2Parser(PythonParser):
         """
         inplace_op ::= INPLACE_DIVIDE
         binary_op  ::= BINARY_DIVIDE
-        binary_subscr2 ::= expr expr DUP_TOPX_2 BINARY_SUBSCR
         """
 
     def add_custom_rules(self, tokens, customize):
