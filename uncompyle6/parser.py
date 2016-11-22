@@ -6,8 +6,6 @@
 Common uncompyle parser routines.
 """
 
-from __future__ import print_function
-
 import sys
 
 from xdis.code import iscode

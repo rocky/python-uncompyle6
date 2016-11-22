@@ -27,8 +27,6 @@ Step 2: Run the test:
   test_pythonlib.py --mylib --verify # decompile verify 'mylib'
 """
 
-from __future__ import print_function
-
 import getopt, os, py_compile, sys, shutil, tempfile, time
 
 from uncompyle6 import PYTHON_VERSION
@@ -127,8 +125,10 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
     if opts['do_compile']:
         compiled_version = opts['compiled_version']
         if compiled_version and PYTHON_VERSION != compiled_version:
-            print("Not compiling: desired Python version is %s but we are running %s" %
-                  (compiled_version, PYTHON_VERSION), file=sys.stderr)
+            sys.stderr.write("Not compiling: "
+                             "desired Python version is %s "
+                             "but we are running %s" %
+                             (compiled_version, PYTHON_VERSION))
         else:
             for root, dirs, basenames in os.walk(src_dir):
                 file_matches(files, root, basenames, PY)
@@ -146,8 +146,8 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
         file_matches(files, dirname, basenames, obj_patterns)
 
     if not files:
-        print("Didn't come up with any files to test! Try with --compile?",
-              file=sys.stderr)
+        sys.stderr.write("Didn't come up with any files to test! "
+                         "Try with --compile?")
         exit(1)
 
     os.chdir(cwd)
@@ -161,9 +161,9 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
         except ValueError:
             pass
 
-    print(time.ctime())
-    print('Source directory: ', src_dir)
-    print('Output directory: ', target_dir)
+    print time.ctime()
+    print 'Source directory: ', src_dir
+    print 'Output directory: ', target_dir
     try:
         _, _, failed_files, failed_verify = \
           main(src_dir, target_dir, files, [],
@@ -227,14 +227,13 @@ if __name__ == '__main__':
         if os.path.isdir(src_dir):
             checked_dirs.append([src_dir, pattern, target_dir])
         else:
-            print("Can't find directory %s. Skipping" % src_dir,
-                  file=sys.stderr)
+            sys.stderr.write("Can't find directory %s. Skipping" % src_dir)
             continue
         last_compile_version = compiled_version
         pass
 
     if not checked_dirs:
-        print("No directories found to check", file=sys.stderr)
+        sys.stderr.write("No directories found to check\n")
         sys.exit(1)
 
     test_opts['compiled_version'] = last_compile_version

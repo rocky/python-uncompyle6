@@ -20,7 +20,7 @@ check:
 	$(MAKE) check-$$PYTHON_VERSION
 
 #: Run working tests from Python 2.6 or 2.7
-check-2.6 check-2.7: check-bytecode-2 check-bytecode-3 check-bytecode-1  check-2.7-ok
+check-2.5 check-2.6 check-2.7: check-bytecode-2 check-bytecode-3 check-bytecode-1  check-2.7-ok
 
 #: Run working tests from Python 3.1
 check-3.0: check-bytecode

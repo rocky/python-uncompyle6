@@ -4,7 +4,6 @@
 # Copyright (c) 2015-2016 by Rocky Bernstein
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
-from __future__ import print_function
 import sys, os, getopt, time
 
 program, ext = os.path.splitext(os.path.basename(__file__))
@@ -65,11 +64,11 @@ def usage():
 
 
 def main_bin():
-    if not (sys.version_info[0:2] in ((2, 6), (2, 7),
+    if not (sys.version_info[0:2] in ((2, 4), (2, 5), (2, 6), (2, 7),
                                       (3, 2), (3, 3),
                                       (3, 4), (3, 5), (3, 6))):
-        print('Error: %s requires Python 2.6, 2.7, 3.2, 3.3, 3.4, 3.5, or 3.6' % program,
-              file=sys.stderr)
+        sys.stderr.write('Error: %s requires Python 2.4 2.5 2.6, 2.7, '
+                         '3.2, 3.3, 3.4, 3.5, or 3.6' % program)
         sys.exit(-1)
 
     do_verify = recurse_dirs = False
@@ -84,8 +83,8 @@ def main_bin():
         opts, files = getopt.getopt(sys.argv[1:], 'hagtdrVo:c:p:',
                                     'help asm grammar linemaps recurse timestamp tree '
                                     'verify version showgrammar'.split(' '))
-    except getopt.GetoptError as e:
-        print('%s: %s' % (os.path.basename(sys.argv[0]), e),  file=sys.stderr)
+    except getopt.GetoptError(e):
+        sys.stderr.write('%s: %s\n' % (os.path.basename(sys.argv[0]), e))
         sys.exit(-1)
 
     options = {}
@@ -119,7 +118,7 @@ def main_bin():
         elif opt in ('--recurse', '-r'):
             recurse_dirs = True
         else:
-            print(opt, file=sys.stderr)
+            sys.stderr.write(opt)
             usage()
 
     # expand directory if specified
@@ -145,7 +144,7 @@ def main_bin():
         del sb_len
 
     if not files:
-        print("No files given", file=sys.stderr)
+        sys.stderr.write("No files given\n")
         usage()
 
     if outfile == '-':

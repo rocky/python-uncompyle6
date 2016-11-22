@@ -10,8 +10,6 @@ scanner/ingestion module. From here we call various version-specific
 scanners, e.g. for Python 2.7 or 3.4.
 """
 
-from __future__ import print_function
-
 import sys
 
 from uncompyle6 import PYTHON3, IS_PYPY

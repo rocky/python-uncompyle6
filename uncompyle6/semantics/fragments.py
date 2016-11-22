@@ -51,8 +51,6 @@ The node position 0 will be associated with "import".
 
 # FIXME: DRY code with pysource
 
-from __future__ import print_function
-
 import re, sys
 
 from uncompyle6 import PYTHON3, IS_PYPY
@@ -75,16 +73,14 @@ from uncompyle6.semantics.pysource import AST, INDENT_PER_LEVEL, NONE, PRECEDENC
 from uncompyle6.semantics.make_function import find_all_globals, find_none
 
 if PYTHON3:
-    from itertools import zip_longest
     from io import StringIO
 else:
-    from itertools import izip_longest as zip_longest
     from StringIO import StringIO
 
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
-from collections import namedtuple
+from xdis.namedtuple25 import namedtuple
 NodeInfo = namedtuple("NodeInfo", "node start finish")
 ExtractInfo = namedtuple("ExtractInfo",
                          "lineNo lineStartOffset markerLine selectedLine selectedText")
@@ -980,7 +976,9 @@ class FragmentsWalker(pysource.SourceWalker, object):
             tokens.append(Token('LAMBDA_MARKER'))
             try:
                 ast = parser.parse(self.p, tokens, customize)
-            except (parser.ParserError, AssertionError) as e:
+            except parser.ParserError(e):
+                raise ParserError(e, tokens)
+            except AssertionError(e):
                 raise ParserError(e, tokens)
             maybe_show_ast(self.showast, ast)
             return ast
@@ -1005,7 +1003,9 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # Build AST from disassembly.
         try:
             ast = parser.parse(self.p, tokens, customize)
-        except (parser.ParserError, AssertionError) as e:
+        except parser.ParserError(e):
+            raise ParserError(e, tokens)
+        except AssertionError(e):
             raise ParserError(e, tokens)
 
         maybe_show_ast(self.showast, ast)
@@ -1642,16 +1642,16 @@ class FragmentsWalker(pysource.SourceWalker, object):
                                  code._customize,
                                  isLambda = isLambda,
                                  noneInNames = ('None' in code.co_names))
-        except ParserError as p:
+        except ParserError(p):
             self.write(str(p))
             self.ERROR = p
             return
 
         # build parameters
 
+        tup = [paramnames, defparams]
         params = [build_param(ast, name, default) for
-                  name, default in zip_longest(paramnames, defparams, fillvalue=None)]
-
+              name, default in map(lambda *tup:tup, *tup)]
         params.reverse() # back to correct order
 
         if 4 & code.co_flags:	# flag 2 -> variable number of args

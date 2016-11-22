@@ -6,8 +6,6 @@ This sets up opcodes Python's 3.2 and calls a generalized
 scanner routine for Python 3.
 """
 
-from __future__ import print_function
-
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_32 as opc
 JUMP_OPs = map(lambda op: opc.opname[op], opc.hasjrel + opc.hasjabs)

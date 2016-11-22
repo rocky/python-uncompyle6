@@ -1,4 +1,3 @@
-from __future__ import print_function
 import datetime, os, subprocess, sys, tempfile
 
 from uncompyle6 import verify, IS_PYPY
@@ -24,29 +23,22 @@ def uncompyle(
     real_out = out or sys.stdout
     co_pypy_str = 'PyPy ' if is_pypy else ''
     run_pypy_str = 'PyPy ' if IS_PYPY else ''
-    print('# uncompyle6 version %s\n'
-          '# %sPython bytecode %s%s\n# Decompiled from: %sPython %s' %
+    real_out.write('# uncompyle6 version %s\n'
+          '# %sPython bytecode %s%s\n# Decompiled from: %sPython %s\n' %
           (VERSION, co_pypy_str, bytecode_version,
            " (%d)" % magic_int if magic_int else "",
-           run_pypy_str, '\n# '.join(sys.version.split('\n'))),
-           file=real_out)
+           run_pypy_str, '\n# '.join(sys.version.split('\n'))))
     if co.co_filename:
-        print('# Embedded file name: %s' % co.co_filename,
-              file=real_out)
+        real_out.write('# Embedded file name: %s\n' % co.co_filename)
     if timestamp:
-        print('# Compiled at: %s' % datetime.datetime.fromtimestamp(timestamp),
-              file=real_out)
+        real_out.write('# Compiled at: %s\n' %
+                       datetime.datetime.fromtimestamp(timestamp))
     if source_size:
-        print('# Size of source mod 2**32: %d bytes' % source_size,
-               file=real_out)
+        real_out.write('# Size of source mod 2**32: %d bytes\n' % source_size)
 
-    try:
-        pysource.deparse_code(bytecode_version, co, out, showasm, showast,
-                              showgrammar, code_objects=code_objects,
-                              is_pypy=is_pypy)
-    except pysource.SourceWalkerError as e:
-        # deparsing failed
-        raise pysource.SourceWalkerError(str(e))
+    pysource.deparse_code(bytecode_version, co, out, showasm, showast,
+                          showgrammar, code_objects=code_objects,
+                          is_pypy=is_pypy)
 
 
 
@@ -145,9 +137,9 @@ def main(in_base, out_base, files, codes, outfile=None,
         try:
             uncompyle_file(infile, outstream, showasm, showast, showgrammar)
             tot_files += 1
-        except (ValueError, SyntaxError, ParserError, pysource.SourceWalkerError) as e:
+        except (ValueError, SyntaxError, ParserError, pysource.SourceWalkerError):
             sys.stdout.write("\n")
-            sys.stderr.write("\n# file %s\n# %s\n" % (infile, e))
+            sys.stderr.write("# file %s\n" % (infile))
             failed_files += 1
         except KeyboardInterrupt:
             if outfile:
@@ -185,21 +177,22 @@ def main(in_base, out_base, files, codes, outfile=None,
                                 okay_files += 1
                             else:
                                 print('\n# %s\n\t%s', infile, msg)
-                    except verify.VerifyCmpError as e:
+                    except verify.VerifyCmpError(e):
                         print(e)
                         verify_failed_files += 1
                         os.rename(outfile, outfile + '_unverified')
                         if not outfile:
-                            print("### Error Verifiying %s" % filename,  file=sys.stderr)
-                            print(e, file=sys.stderr)
+                            sys.stder.write("### Error Verifiying %s" %
+                                            filename)
+                            sys.stderr.write(e)
                             if raise_on_error:
                                 raise
                             pass
                         pass
                 pass
             elif do_verify:
-                print("\n### uncompile successful, but no file to compare against",
-                      file=sys.stderr)
+                sys.stderr.write("\n### uncompile successful, "
+                                 "but no file to compare against")
                 pass
             else:
                 okay_files += 1

@@ -2,8 +2,6 @@
 """
 spark grammar differences over Python 3 for Python 3.2.
 """
-from __future__ import print_function
-
 from uncompyle6.parser import PythonParserSingle
 from uncompyle6.parsers.parse3 import Python3Parser
 

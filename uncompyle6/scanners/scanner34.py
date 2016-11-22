@@ -6,8 +6,6 @@ This sets up opcodes Python's 3.4 and calls a generalized
 scanner routine for Python 3.
 """
 
-from __future__ import print_function
-
 from xdis.opcodes import opcode_34 as opc
 
 # bytecode verification, verify(), uses JUMP_OPs from here

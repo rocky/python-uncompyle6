@@ -1,6 +1,6 @@
 machine:
     python:
-        version: 2.7.12
+        version: 2.6.9
     environment:
         COMPILE: --compile
 
@@ -10,4 +10,4 @@ dependencies:
         - pip install -r requirements-dev.txt
 test:
     override:
-        - python ./setup.py develop && make check-2.7
+        - python ./setup.py develop && make check-2.6

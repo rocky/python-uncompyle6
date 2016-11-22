@@ -67,8 +67,6 @@ methods implement most of the below.
   The '%' may optionally be followed by a number (C) in square brackets, which
   makes the engine walk down to N[C] before evaluating the escape code.
 """
-from __future__ import print_function
-
 import sys, re
 
 from uncompyle6 import PYTHON3
@@ -2170,7 +2168,9 @@ class SourceWalker(GenericASTTraversal, object):
             tokens.append(Token('LAMBDA_MARKER'))
             try:
                 ast = python_parser.parse(self.p, tokens, customize)
-            except (python_parser.ParserError, AssertionError) as e:
+            except python_parser.ParserError(e):
+                raise ParserError(e, tokens)
+            except AssertionError(e):
                 raise ParserError(e, tokens)
             maybe_show_ast(self.showast, ast)
             return ast
@@ -2197,7 +2197,9 @@ class SourceWalker(GenericASTTraversal, object):
         # Build AST from disassembly.
         try:
             ast = python_parser.parse(self.p, tokens, customize)
-        except (python_parser.ParserError, AssertionError) as e:
+        except python_parser.ParserError(e):
+            raise ParserError(e, tokens)
+        except AssertionError(e):
             raise ParserError(e, tokens)
 
         maybe_show_ast(self.showast, ast)
@@ -2275,10 +2277,10 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
 if __name__ == '__main__':
     def deparse_test(co):
         "This is a docstring"
-        sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
+        sys_version = float(sys.version[0:3])
         deparsed = deparse_code(sys_version, co, showasm='after', showast=True)
         # deparsed = deparse_code(sys_version, co, showasm=None, showast=False,
         #                         showgrammar=True)
         print(deparsed.text)
         return
-    deparse_test(deparse_test.__code__)
+    deparse_test(deparse_test.func_code)

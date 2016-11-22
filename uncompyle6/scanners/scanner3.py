@@ -20,9 +20,7 @@ For example:
 Finally we save token information.
 """
 
-from __future__ import print_function
-
-from collections import namedtuple
+from xdis.namedtuple25 import namedtuple
 from array import array
 
 from uncompyle6.scanner import Scanner, op_has_argument

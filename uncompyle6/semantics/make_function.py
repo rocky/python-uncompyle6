@@ -6,14 +6,9 @@ All the crazy things we have to do to handle Python functions
 from xdis.code import iscode
 from uncompyle6.scanner import Code
 from uncompyle6.parsers.astnode import AST
-from uncompyle6 import PYTHON3
 from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.semantics.helper import print_docstring
 
-if PYTHON3:
-    from itertools import zip_longest
-else:
-    from itertools import izip_longest as zip_longest
 
 from uncompyle6.show import maybe_show_ast_param_default
 
@@ -122,7 +117,7 @@ def make_function3_annotate(self, node, isLambda, nested=1,
                              code._customize,
                              isLambda = isLambda,
                              noneInNames = ('None' in code.co_names))
-    except ParserError as p:
+    except ParserError(p):
         self.write(str(p))
         self.ERROR = p
         return
@@ -301,7 +296,7 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
                              code._customize,
                              isLambda = isLambda,
                              noneInNames = ('None' in code.co_names))
-    except ParserError as p:
+    except ParserError(p):
         self.write(str(p))
         self.ERROR = p
         return
@@ -310,8 +305,9 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
     indent = self.indent
 
     # build parameters
+    tup = [paramnames, defparams]
     params = [build_param(ast, name, default) for
-              name, default in zip_longest(paramnames, defparams, fillvalue=None)]
+              name, default in map(lambda *tup:tup, *tup)]
     params.reverse() # back to correct order
 
     if 4 & code.co_flags:	# flag 2 -> variable number of args
@@ -437,7 +433,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
                              code._customize,
                              isLambda = isLambda,
                              noneInNames = ('None' in code.co_names))
-    except ParserError as p:
+    except ParserError(p):
         self.write(str(p))
         self.ERROR = p
         return
@@ -447,8 +443,9 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
 
     # build parameters
     if self.version != 3.2:
+        tup = [paramnames, defparams]
         params = [build_param(ast, name, default) for
-                  name, default in zip_longest(paramnames, defparams, fillvalue=None)]
+              name, default in map(lambda *tup:tup, *tup)]
         params.reverse() # back to correct order
 
         if 4 & code.co_flags:	# flag 2 -> variable number of args

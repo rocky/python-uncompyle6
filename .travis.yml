@@ -3,11 +3,7 @@ language: python
 sudo: false
 
 python:
-  - '3.5'
-  - '2.7.12'
-  - '2.6'
-  - '3.3'
-  - '3.4'
+  - '2.7' # this is a cheat here because travis doesn't do 2.4-2.6
 
 install:
 - pip install -r requirements.txt

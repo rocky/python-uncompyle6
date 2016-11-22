@@ -16,8 +16,6 @@ Second, we need structured instruction information for the
 want to run on Python 2.7.
 """
 
-from __future__ import print_function
-
 import sys
 from collections import deque
 
@@ -37,10 +35,9 @@ def disco(version, co, out=None, is_pypy=False):
 
     # store final output stream for case of error
     real_out = out or sys.stdout
-    print('# Python %s' % version, file=real_out)
+    real_out.write('# Python %s\n' % version)
     if co.co_filename:
-        print('# Embedded file name: %s' % co.co_filename,
-              file=real_out)
+        real_out.write('# Embedded file name: %s\n' % co.co_filename)
 
     scanner = get_scanner(version, is_pypy=is_pypy)
 
@@ -52,16 +49,15 @@ def disco_loop(disasm, queue, real_out):
     while len(queue) > 0:
         co = queue.popleft()
         if co.co_name != '<module>':
-            print('\n# %s line %d of %s' %
-                      (co.co_name, co.co_firstlineno, co.co_filename),
-                      file=real_out)
+            real_out.write('\n# %s line %d of %s\n' %
+                      (co.co_name, co.co_firstlineno, co.co_filename))
         tokens, customize = disasm(co)
         for t in tokens:
             if iscode(t.pattr):
                 queue.append(t.pattr)
             elif iscode(t.attr):
                 queue.append(t.attr)
-            print(t, file=real_out)
+            real_out.write(t)
             pass
         pass
 
