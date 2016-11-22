@@ -61,6 +61,7 @@ from uncompyle6.semantics import pysource
 from uncompyle6 import parser
 from uncompyle6.scanner import Token, Code, get_scanner
 from uncompyle6.semantics.check_ast import checker
+from uncompyle6.semantics.helper import print_docstring
 
 from uncompyle6.show import (
     maybe_show_asm,
@@ -1687,7 +1688,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         if len(code.co_consts)>0 and code.co_consts[0] is not None and not isLambda: # ugly
             # docstring exists, dump it
-            self.print_docstring(indent, code.co_consts[0])
+            print_docstring(self, indent, code.co_consts[0])
 
         code._tokens = None # save memory
         assert ast == 'stmts'

@@ -8,6 +8,7 @@ from uncompyle6.scanner import Code
 from uncompyle6.parsers.astnode import AST
 from uncompyle6 import PYTHON3
 from uncompyle6.semantics.parser_error import ParserError
+from uncompyle6.semantics.helper import print_docstring
 
 if PYTHON3:
     from itertools import zip_longest
@@ -353,7 +354,7 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
 
     if len(code.co_consts) > 0 and code.co_consts[0] is not None and not isLambda: # ugly
         # docstring exists, dump it
-        self.print_docstring(indent, code.co_consts[0])
+        print_docstring(self, indent, code.co_consts[0])
 
     code._tokens = None # save memory
     assert ast == 'stmts'
@@ -542,7 +543,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
 
     if len(code.co_consts) > 0 and code.co_consts[0] is not None and not isLambda: # ugly
         # docstring exists, dump it
-        self.print_docstring(self.indent, code.co_consts[0])
+        print_docstring(self, self.indent, code.co_consts[0])
 
     code._tokens = None # save memory
     assert ast == 'stmts'

@@ -83,6 +83,7 @@ from uncompyle6.semantics.make_function import (
     make_function2, make_function3, make_function3_annotate, find_globals)
 from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.semantics.check_ast import checker
+from uncompyle6.semantics.helper import print_docstring
 
 from uncompyle6.show import (
     maybe_show_ast,
@@ -739,73 +740,6 @@ class SourceWalker(GenericASTTraversal, object):
         if data and not(len(data) == 1 and data[0] ==''):
             self.write(*data)
         self.pending_newlines = max(self.pending_newlines, 1)
-
-    def print_docstring(self, indent, docstring):
-        ## FIXME: put this into a testable function.
-        if docstring.find('"""') == -1:
-            quote = '"""'
-        else:
-            quote = "'''"
-
-        self.write(indent)
-        if not PYTHON3 and not isinstance(docstring, str):
-            # Must be unicode in Python2
-            self.write('u')
-            docstring = repr(docstring.expandtabs())[2:-1]
-        else:
-            docstring = repr(docstring.expandtabs())[1:-1]
-
-        for (orig, replace) in (('\\\\', '\t'),
-                                ('\\r\\n', '\n'),
-                                ('\\n', '\n'),
-                                ('\\r', '\n'),
-                                ('\\"', '"'),
-                                ("\\'", "'")):
-            docstring = docstring.replace(orig, replace)
-
-        # Do a raw string if there are backslashes but no other escaped characters:
-        # also check some edge cases
-        if ('\t' in docstring
-            and '\\' not in docstring
-            and len(docstring) >= 2
-            and docstring[-1] != '\t'
-            and (docstring[-1] != '"'
-                 or docstring[-2] == '\t')):
-            self.write('r') # raw string
-            # restore backslashes unescaped since raw
-            docstring = docstring.replace('\t', '\\')
-        else:
-            # Escape '"' if it's the last character, so it doesn't
-            # ruin the ending triple quote
-            if len(docstring) and docstring[-1] == '"':
-                docstring = docstring[:-1] + '\\"'
-            # Restore escaped backslashes
-            docstring = docstring.replace('\t', '\\\\')
-        # Escape triple quote when needed
-        if quote == '""""':
-            docstring = docstring.replace('"""', '\\"\\"\\"')
-        lines = docstring.split('\n')
-        calculate_indent = maxint
-        for line in lines[1:]:
-            stripped = line.lstrip()
-            if len(stripped) > 0:
-                calculate_indent = min(calculate_indent, len(line) - len(stripped))
-        calculate_indent = min(calculate_indent, len(lines[-1]) - len(lines[-1].lstrip()))
-        # Remove indentation (first line is special):
-        trimmed = [lines[0]]
-        if calculate_indent < maxint:
-            trimmed += [line[calculate_indent:] for line in lines[1:]]
-
-        self.write(quote)
-        if len(trimmed) == 0:
-            self.println(quote)
-        elif len(trimmed) == 1:
-            self.println(trimmed[0], quote)
-        else:
-            self.println(trimmed[0])
-            for line in trimmed[1:-1]:
-                self.println( indent, line )
-            self.println(indent, trimmed[-1], quote)
 
     def is_return_none(self, node):
         # Is there a better way?
@@ -2186,7 +2120,7 @@ class SourceWalker(GenericASTTraversal, object):
                     docstring = ast[i][0][0][0][0].pattr
                 except:
                     docstring = code.co_consts[0]
-                self.print_docstring(indent, docstring)
+                print_docstring(self, indent, docstring)
                 self.println()
                 del ast[i]
 
@@ -2313,7 +2247,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
     # convert leading '__doc__ = "..." into doc string
     try:
         if deparsed.ast[0][0] == ASSIGN_DOC_STRING(co.co_consts[0]):
-            deparsed.print_docstring('', co.co_consts[0])
+            print_docstring(deparsed, '', co.co_consts[0])
             del deparsed.ast[0]
         if deparsed.ast[-1] == RETURN_NONE:
             deparsed.ast.pop() # remove last node

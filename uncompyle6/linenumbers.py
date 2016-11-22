@@ -1,4 +1,4 @@
-from collections import deque, namedtuple
+from collections import deque
 
 from xdis.code import iscode
 from xdis.load import load_file, load_module
