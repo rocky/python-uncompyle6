@@ -9,7 +9,7 @@ e.g. 5, myvariable, "for", etc.  they are CPython Bytecode tokens,
 e.g. "LOAD_CONST 5", "STORE NAME myvariable", "SETUP_LOOP", etc.
 
 If we succeed in creating a parse tree, then we have a Python program
-that a later phase can tern into a sequence of ASCII text.
+that a later phase can turn into a sequence of ASCII text.
 """
 
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
@@ -334,7 +334,7 @@ class Python2Parser(PythonParser):
                 # always be the case.
                 self.add_unique_rules([
                     "stmt ::= tryfinallystmt_pypy",
-                    "tryfinallystmt_pypy ::= SETUP_FINALLY suite_stmts_opt COME_FROM "
+                    "tryfinallystmt_pypy ::= SETUP_FINALLY suite_stmts_opt COME_FROM_FINALLY "
                         "suite_stmts_opt END_FINALLY"
                 ], customize)
                 continue

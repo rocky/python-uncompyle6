@@ -91,11 +91,6 @@ class Scanner2(scan.Scanner):
             for instr in bytecode.get_instructions(co):
                 print(instr._disassemble())
 
-        # from xdis.bytecode import Bytecode
-        # bytecode = Bytecode(co, self.opc)
-        # for instr in bytecode.get_instructions(co):
-        #     print(instr._disassemble())
-
         # Container for tokens
         tokens = []
 
@@ -164,8 +159,15 @@ class Scanner2(scan.Scanner):
                 # properly. For example, a "loop" with an "if" nested in it should have the
                 # "loop" tag last so the grammar rule matches that properly.
                 for jump_offset  in sorted(jump_targets[offset], reverse=True):
+                    come_from_name = 'COME_FROM'
+                    opname = self.opc.opname[self.code[jump_offset]]
+                    if opname.startswith('SETUP_') and self.version == 2.7:
+                        come_from_type = opname[len('SETUP_'):]
+                        if come_from_type not in ('LOOP', 'EXCEPT'):
+                            come_from_name = 'COME_FROM_%s' % come_from_type
+                        pass
                     tokens.append(Token(
-                        'COME_FROM', None, repr(jump_offset),
+                        come_from_name, None, repr(jump_offset),
                         offset="%s_%d" % (offset, jump_idx),
                         has_arg = True))
                     jump_idx += 1
