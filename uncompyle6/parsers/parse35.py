@@ -45,13 +45,7 @@ class Python35Parser(Python34Parser):
         # Python 3.3+ also has yield from. 3.5 does it
         # differently than 3.3, 3.4
 
-        expr ::= yield_from
         yield_from ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
-
-        # Python 3.4+ has more loop optimization that removes
-        # JUMP_FORWARD in some cases, and hence we also don't
-        # see COME_FROM
-        _ifstmts_jump ::= c_stmts_opt
         """
 class Python35ParserSingle(Python35Parser, PythonParserSingle):
     pass

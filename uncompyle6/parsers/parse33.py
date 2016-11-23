@@ -19,7 +19,6 @@ class Python33Parser(Python32Parser):
         # actions that want c_stmts_opt at index 1
 
         iflaststmt    ::= testexpr c_stmts_opt33
-        iflaststmtl   ::= testexpr c_stmts_opt
         c_stmts_opt33 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from
 

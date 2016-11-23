@@ -17,8 +17,6 @@ class Python34Parser(Python33Parser):
         """
         # Python 3.4+ optimizes the trailing two JUMPS away
 
-        for_block ::= l_stmts
-
         # Is this 3.4 only?
         yield_from ::= expr GET_ITER LOAD_CONST YIELD_FROM
         """

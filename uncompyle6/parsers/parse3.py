@@ -376,9 +376,7 @@ class Python3Parser(PythonParser):
         # Python 3.4+
         expr ::= LOAD_CLASSDEREF
 
-        binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
         # Python3 drops slice0..slice3
-
         '''
 
     @staticmethod
