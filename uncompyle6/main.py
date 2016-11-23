@@ -21,13 +21,25 @@ def uncompyle(
 
     # store final output stream for case of error
     real_out = out or sys.stdout
-    co_pypy_str = 'PyPy ' if is_pypy else ''
-    run_pypy_str = 'PyPy ' if IS_PYPY else ''
+    if is_pypy:
+        co_pypy_str = 'PyPy '
+    else:
+        co_pypy_str = ''
+
+    if IS_PYPY:
+        run_pypy_str = 'PyPy '
+    else:
+        run_pypy_str = ''
+
+    if magic_int:
+        m = str(magic_int)
+    else:
+        m = ""
     real_out.write('# uncompyle6 version %s\n'
           '# %sPython bytecode %s%s\n# Decompiled from: %sPython %s\n' %
           (VERSION, co_pypy_str, bytecode_version,
-           " (%d)" % magic_int if magic_int else "",
-           run_pypy_str, '\n# '.join(sys.version.split('\n'))))
+           " (%s)" % m, run_pypy_str,
+           '\n# '.join(sys.version.split('\n'))))
     if co.co_filename:
         real_out.write('# Embedded file name: %s\n' % co.co_filename)
     if timestamp:

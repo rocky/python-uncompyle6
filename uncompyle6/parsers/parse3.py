@@ -453,7 +453,10 @@ class Python3Parser(PythonParser):
         """Python 3.3 added a an addtional LOAD_CONST before MAKE_FUNCTION and
         this has an effect on many rules.
         """
-        new_rule = rule % (('LOAD_CONST ') * (1 if  self.version >= 3.3 else 0))
+        if self.version >= 3.3:
+            new_rule = rule % (('LOAD_CONST ') * 1)
+        else:
+            new_rule = rule % (('LOAD_CONST ') * 0)
         self.add_unique_rule(new_rule, opname, attr, customize)
 
     def add_custom_rules(self, tokens, customize):

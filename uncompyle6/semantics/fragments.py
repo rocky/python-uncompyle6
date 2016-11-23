@@ -732,7 +732,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def n_genexpr(self, node):
         start = len(self.f.getvalue())
         self.write('(')
-        code_index = -6 if self.version > 3.2 else -5
+        if self.version > 3.2:
+            code_index = -6
+        else:
+            code_index = -5
         self.comprehension_walk(node, iter_index=3, code_index=code_index)
         self.write(')')
         self.set_pos_info(node, start, len(self.f.getvalue()))
@@ -886,7 +889,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
                         subclass = n.attr
                         break
                     pass
-                subclass_info = node if node == 'classdefdeco2' else node[0]
+                if node == 'classdefdeco2':
+                    subclass_info = node
+                else:
+                    subclass_info = node[0]
             elif buildclass[1][0] == 'load_closure':
                 # Python 3 with closures not functions
                 load_closure = buildclass[1]
@@ -910,7 +916,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 subclass = buildclass[1][0].attr
                 subclass_info = node[0]
         else:
-            buildclass = node if (node == 'classdefdeco2') else node[0]
+            if node == 'classdefdeco2':
+                buildclass = node
+            else:
+                buildclass = node[0]
             build_list = buildclass[1][0]
             if hasattr(buildclass[-3][0], 'attr'):
                 subclass = buildclass[-3][0].attr

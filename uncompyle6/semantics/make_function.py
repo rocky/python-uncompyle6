@@ -151,7 +151,10 @@ def make_function3_annotate(self, node, isLambda, nested=1,
                 self.write(': %s' % value)
         suffix = ', '
 
-    suffix = ', ' if i > 0 else ''
+    if i > 0:
+        suffix = ', '
+    else:
+        suffix = ''
     for n in node:
         if n == 'pos_arg':
             self.write(suffix)
@@ -301,7 +304,10 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
         self.ERROR = p
         return
 
-    kw_pairs = args_node.attr[1] if self.version >= 3.0 else 0
+    if self.version >= 3.0:
+        kw_pairs = args_node.attr[1]
+    else:
+        kw_pairs = 0
     indent = self.indent
 
     # build parameters
@@ -438,7 +444,10 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
         self.ERROR = p
         return
 
-    kw_pairs = args_node.attr[1] if self.version >= 3.0 else 0
+    if self.version >= 3.0:
+        kw_pairs = args_node.attr[1]
+    else:
+        kw_pairs = 0
     indent = self.indent
 
     # build parameters
@@ -480,7 +489,10 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
 
         i = len(paramnames) - len(defparams)
         self.write(", ".join(paramnames[:i]))
-        suffix = ', ' if i > 0 else ''
+        if i > 0:
+            suffix = ', '
+        else:
+            suffix = ''
         for n in node:
             if n == 'pos_arg':
                 self.write(suffix)

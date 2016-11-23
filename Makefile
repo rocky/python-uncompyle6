@@ -37,7 +37,7 @@ check-3.0 check-3.1 check-3.2 check-3.5 check-3.6:
 	$(MAKE) -C test $@
 
 #:Tests for Python 2.6 (doesn't have pytest)
-check-2.5 check-2.6:
+check-2.4 check-2.5 check-2.6:
 	$(MAKE) -C test $@
 
 #:PyPy 2.6.1 or PyPy 5.0.1

@@ -12,7 +12,10 @@ def maybe_show_asm(showasm, tokens):
     :param tokens:  The asm tokens to show.
     """
     if showasm:
-        stream = showasm if hasattr(showasm, 'write') else sys.stdout
+        if hasattr(showasm, 'write'):
+            stream = showasm
+        else:
+            stream = sys.stdout
         for t in tokens:
             stream.write(str(t))
             stream.write('\n')
@@ -29,7 +32,10 @@ def maybe_show_ast(showast, ast):
     :param ast:     The ast to show.
     """
     if showast:
-        stream = showast if hasattr(showast, 'write') else sys.stdout
+        if hasattr(showast, 'write'):
+            stream = showast
+        else:
+            stream = sys.stdout
         stream.write(str(ast))
         stream.write('\n')
 
@@ -48,7 +54,10 @@ def maybe_show_ast_param_default(showast, name, default):
     :param default: The function parameter default.
     """
     if showast:
-        stream = showast if hasattr(showast, 'write') else sys.stdout
+        if hasattr(showast, 'write'):
+            stream = showast
+        else:
+            stream = sys.stdout
         stream.write('\n')
         stream.write('--' + name)
         stream.write('\n')

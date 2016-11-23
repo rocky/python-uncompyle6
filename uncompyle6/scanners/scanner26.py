@@ -86,7 +86,9 @@ class Scanner26(scan.Scanner2):
         cause specific rules for the specific number of arguments they take.
         """
 
-        show_asm = self.show_asm if not show_asm else show_asm
+        if not show_asm:
+            show_asm = self.show_asm
+
         # show_asm = 'after'
         if show_asm in ('both', 'before'):
             from xdis.bytecode import Bytecode

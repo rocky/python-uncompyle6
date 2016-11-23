@@ -78,7 +78,10 @@ class PythonParser(GenericASTBuilder):
         err_token = instructions[index]
         print("Instruction context:")
         for i in range(start, finish):
-            indent = '   ' if i != index else '-> '
+            if i != index:
+                indent = '   '
+            else:
+                indent = '-> '
             print("%s%s" % (indent, instructions[i]))
         raise ParserError(err_token, err_token.offset)
 
