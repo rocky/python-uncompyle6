@@ -487,6 +487,12 @@ class SourceWalker(GenericASTTraversal, object):
 
         return
 
+    def indent_if_source_nl(self, line_number, indent):
+        if (line_number != self.line_number):
+            self.write("\n" + self.indent + INDENT_PER_LEVEL[:-1])
+        return self.line_number
+
+
     def customize_for_version(self, is_pypy, version):
         if is_pypy:
             ########################
@@ -672,9 +678,8 @@ class SourceWalker(GenericASTTraversal, object):
                  None)
 
     def set_pos_info(self, node):
-        if hasattr(node, 'offset'):
-            if node.offset in self.linestarts:
-                self.line_number = self.linestarts[node.offset]
+        if hasattr(node, 'linestart') and node.linestart:
+            self.line_number = node.linestart
 
     def preorder(self, node=None):
         super(SourceWalker, self).preorder(node)
@@ -1129,6 +1134,7 @@ class SourceWalker(GenericASTTraversal, object):
         assert n == 'lc_body'
         self.write( '[ ')
 
+
         if self.version >= 2.7:
             expr = n[0]
             list_iter = node[-1]
@@ -1141,9 +1147,19 @@ class SourceWalker(GenericASTTraversal, object):
 
         # FIXME: use source line numbers for directing line breaks
 
+        line_number = self.line_number
+        last_line = self.f.getvalue().split("\n")[-1]
+        l = len(last_line)
+        indent = ' ' * (l-1)
+
         self.preorder(expr)
+        line_number = self.indent_if_source_nl(line_number, indent)
         self.preorder(list_iter)
-        self.write( ' ]')
+        l2 = self.indent_if_source_nl(line_number, indent)
+        if l2 != line_number:
+            self.write(' ' * (len(indent) - len(self.indent) - 1) + ']')
+        else:
+            self.write( ' ]')
         self.prec = p
         self.prune() # stop recursing
 
@@ -1631,9 +1647,8 @@ class SourceWalker(GenericASTTraversal, object):
                     self.write(sep)
                     name = self.traverse(l[i], indent='')
                     if i > 0:
-                        if (line_number != self.line_number):
-                            self.write("\n" + self.indent + INDENT_PER_LEVEL[:-1])
-                            pass
+                        line_number = self.indent_if_source_nl(line_number,
+                                                               self.indent + INDENT_PER_LEVEL[:-1])
                     line_number = self.line_number
                     self.write(name, ': ')
                     value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
@@ -1658,9 +1673,8 @@ class SourceWalker(GenericASTTraversal, object):
                     self.write(sep)
                     name = self.traverse(l[i+1], indent='')
                     if i > 0:
-                        if (line_number != self.line_number):
-                            self.write("\n" + self.indent + INDENT_PER_LEVEL[:-1])
-                            pass
+                        line_number = self.indent_if_source_nl(line_number,
+                                                               self.indent + INDENT_PER_LEVEL[:-1])
                         pass
                     line_number = self.line_number
                     self.write(name, ': ')
@@ -1689,13 +1703,12 @@ class SourceWalker(GenericASTTraversal, object):
                 # kv3 ::= expr expr STORE_MAP
 
                 # FIXME: DRY this and the above
+                indent = self.indent + "  "
                 if kv == 'kv':
                     self.write(sep)
                     name = self.traverse(kv[-2], indent='')
                     if first_time:
-                        if (line_number != self.line_number):
-                            self.write("\n" + self.indent + "  ")
-                            pass
+                        line_number = self.indent_if_source_nl(line_number, indent)
                         first_time = False
                         pass
                     line_number = self.line_number
@@ -1705,9 +1718,7 @@ class SourceWalker(GenericASTTraversal, object):
                     self.write(sep)
                     name = self.traverse(kv[1], indent='')
                     if first_time:
-                        if (line_number != self.line_number):
-                            self.write("\n" + self.indent + "  ")
-                            pass
+                        line_number = self.indent_if_source_nl(line_number, indent)
                         first_time = False
                         pass
                     line_number = self.line_number
@@ -1717,9 +1728,7 @@ class SourceWalker(GenericASTTraversal, object):
                     self.write(sep)
                     name = self.traverse(kv[-2], indent='')
                     if first_time:
-                        if (line_number != self.line_number):
-                            self.write("\n" + self.indent + "  ")
-                            pass
+                        line_number = self.indent_if_source_nl(line_number, indent)
                         first_time = False
                         pass
                     line_number = self.line_number
@@ -1890,18 +1899,9 @@ class SourceWalker(GenericASTTraversal, object):
                     node[0].attr == 1):
                     self.write(',')
             elif typ == 'c':
-                # FIXME: In Python3 sometimes like from
-                # importfrom
-                #   importlist2
-                #     import_as
-                #       designator
-                # STORE_NAME        'load_entry_point'
-                #	POP_TOP           '' (2, (0, 1))
-                # we get that weird POP_TOP tuple, e.g (2, (0,1)).
-                # Why? and
-                # Is there some sort of invalid bounds access going on?
                 if isinstance(entry[arg], int):
-                    self.preorder(node[entry[arg]])
+                    entry_node = node[entry[arg]]
+                    self.preorder(entry_node)
                     arg += 1
             elif typ == 'p':
                 p = self.prec
