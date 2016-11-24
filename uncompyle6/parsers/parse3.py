@@ -352,8 +352,6 @@ class Python3Parser(PythonParser):
                               COME_FROM_LOOP
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP
                               COME_FROM_LOOP
-        whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP
-                              COME_FROM_LOOP
         forstmt           ::= SETUP_LOOP expr _for designator for_block POP_BLOCK NOP
                               COME_FROM_LOOP
         """
