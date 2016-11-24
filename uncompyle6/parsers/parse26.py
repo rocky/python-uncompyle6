@@ -84,6 +84,7 @@ class Python26Parser(Python2Parser):
         jb_cont      ::= CONTINUE
 
         jb_cf_pop ::= JUMP_BACK come_froms POP_TOP
+        jb_cf_pop ::= JUMP_BACK POP_TOP
         ja_cf_pop ::= JUMP_ABSOLUTE come_froms POP_TOP
         jf_cf_pop ::= JUMP_FORWARD come_froms POP_TOP
 
@@ -187,6 +188,8 @@ class Python26Parser(Python2Parser):
         comp_for ::= SETUP_LOOP expr _for designator comp_iter jb_bp_come_from
 
         comp_body ::= gen_comp_body
+
+        for_block ::= l_stmts_opt _come_from POP_TOP JUMP_BACK
 
         # Make sure we keep indices the same as 2.7
         setup_loop_lf ::= SETUP_LOOP LOAD_FAST

@@ -59,5 +59,5 @@ def test_dup_rule():
     python_parser(PYTHON_VERSION, inspect.currentframe().f_code,
                   is_pypy=IS_PYPY,
                   parser_debug={
-                      'rules': True, 'transition': False, 'reduce': False,
-                      'errorstack': None, 'context': True})
+                      'dups': True, 'transition': False, 'reduce': False,
+                      'rules': False, 'errorstack': None, 'context': True})

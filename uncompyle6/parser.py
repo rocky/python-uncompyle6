@@ -710,8 +710,8 @@ def python_parser(version, co, out=sys.stdout, showasm=False,
     maybe_show_asm(showasm, tokens)
 
     # For heavy grammar debugging
-    parser_debug = {'rules': True, 'transition': True, 'reduce' : True,
-                    'showstack': 'full'}
+    # parser_debug = {'rules': True, 'transition': True, 'reduce' : True,
+    #                 'showstack': 'full'}
     p = get_python_parser(version, parser_debug)
     return parse(p, tokens, customize)
 
