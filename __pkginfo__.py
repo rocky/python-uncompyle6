@@ -37,7 +37,7 @@ entry_points={
         'pydisassemble=uncompyle6.bin.pydisassemble:main',
     ]}
 ftp_url            = None
-install_requires   = ['spark-parser >= 1.4.0, < 1.5.0',
+install_requires   = ['spark-parser >= 1.4.3, < 1.5.0',
                       'xdis >= 3.2.3, < 3.3.0']
 license            = 'MIT'
 mailing_list       = 'python-debugger@googlegroups.com'
