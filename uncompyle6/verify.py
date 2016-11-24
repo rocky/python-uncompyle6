@@ -398,7 +398,7 @@ def compare_code_with_srcfile(pyc_filename, src_filename, weak_verify=False):
         return msg
     try:
         code_obj2 = load_file(src_filename)
-    except SyntaxError(e):
+    except SyntaxError, e:
         return str(e)
     cmp_code_objects(version, is_pypy, code_obj1, code_obj2, ignore_code=weak_verify)
     return None

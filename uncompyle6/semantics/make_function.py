@@ -117,7 +117,7 @@ def make_function3_annotate(self, node, isLambda, nested=1,
                              code._customize,
                              isLambda = isLambda,
                              noneInNames = ('None' in code.co_names))
-    except ParserError(p):
+    except ParserError, p:
         self.write(str(p))
         self.ERROR = p
         return
@@ -299,7 +299,7 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
                              code._customize,
                              isLambda = isLambda,
                              noneInNames = ('None' in code.co_names))
-    except ParserError(p):
+    except ParserError, p:
         self.write(str(p))
         self.ERROR = p
         return
@@ -439,7 +439,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
                              code._customize,
                              isLambda = isLambda,
                              noneInNames = ('None' in code.co_names))
-    except ParserError(p):
+    except ParserError, p:
         self.write(str(p))
         self.ERROR = p
         return

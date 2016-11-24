@@ -19,8 +19,6 @@ Step 2: Run the test:
 	  test_pyenvlib --mylib --verify # decompile verify 'mylib'
 """
 
-from __future__ import print_function
-
 from uncompyle6 import main, PYTHON3
 import os, time, shutil
 from fnmatch import fnmatch

@@ -189,7 +189,7 @@ def main(in_base, out_base, files, codes, outfile=None,
                                 okay_files += 1
                             else:
                                 print('\n# %s\n\t%s', infile, msg)
-                    except verify.VerifyCmpError(e):
+                    except verify.VerifyCmpError, e:
                         print(e)
                         verify_failed_files += 1
                         os.rename(outfile, outfile + '_unverified')
