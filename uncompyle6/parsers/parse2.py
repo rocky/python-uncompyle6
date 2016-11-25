@@ -241,7 +241,7 @@ class Python2Parser(PythonParser):
         """
 
     def add_custom_rules(self, tokens, customize):
-        '''
+        """
         Special handling for opcodes such as those that take a variable number
         of arguments -- we add a new rule for each:
 
@@ -260,7 +260,7 @@ class Python2Parser(PythonParser):
             expr ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
 
         PyPy adds custom rules here as well
-        '''
+        """
         for opname, v in list(customize.items()):
             opname_base = opname[:opname.rfind('_')]
             if opname == 'PyPy':
@@ -389,6 +389,17 @@ class Python2Parser(PythonParser):
             else:
                 raise Exception('unknown customize token %s' % opname)
             self.add_unique_rule(rule, opname_base, v, customize)
+            pass
+        self.check_reduce['augassign1'] = 'AST'
+        self.check_reduce['augassign2'] = 'AST'
+        return
+
+    def reduce_is_invalid(self, rule, ast, tokens, first, last):
+        lhs = rule[0]
+        if lhs in ('augassign1', 'augassign2') and ast[0][0] == 'and':
+            return True
+        # Add more stuff, like COME_FROM checking
+        return False
 
 class Python2ParserSingle(Python2Parser, PythonParserSingle):
     pass

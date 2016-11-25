@@ -69,6 +69,25 @@ class PythonParser(GenericASTBuilder):
         for i in dir(self):
             setattr(self, i, None)
 
+    def debug_reduce(self, rule, tokens, parent, i):
+        """Customized format and print for our kind of tokens
+        which gets called in debugging grammar reduce rules
+        """
+        prefix = ''
+        if parent and tokens:
+            p_token = tokens[parent]
+            if hasattr(p_token, 'linestart') and p_token.linestart:
+                prefix = 'L.%3d: ' % p_token.linestart
+            else:
+                prefix = '       '
+            if hasattr(p_token, 'offset'):
+                prefix += "%3d " % p_token.offset
+                prefix += "    "
+        else:
+            prefix = '               '
+
+        print("%s%s ::= %s" % (prefix, rule[0], ' '.join(rule[1])))
+
     def error(self, instructions, index):
         # Find the last line boundary
         for start in range(index, -1, -1):
