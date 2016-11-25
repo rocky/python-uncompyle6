@@ -2120,9 +2120,9 @@ class SourceWalker(GenericASTTraversal, object):
                     docstring = ast[i][0][0][0][0].pattr
                 except:
                     docstring = code.co_consts[0]
-                print_docstring(self, indent, docstring)
-                self.println()
-                del ast[i]
+                if print_docstring(self, indent, docstring):
+                    self.println()
+                    del ast[i]
 
 
         # the function defining a class normally returns locals(); we

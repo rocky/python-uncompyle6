@@ -160,7 +160,11 @@ class Scanner2(scan.Scanner):
                 # we sort them). That way, specific COME_FROM tags will match up
                 # properly. For example, a "loop" with an "if" nested in it should have the
                 # "loop" tag last so the grammar rule matches that properly.
+                # last_offset = -1
                 for jump_offset  in sorted(jump_targets[offset], reverse=True):
+                    # if jump_offset == last_offset:
+                    #     continue
+                    # last_offset = jump_offset
                     come_from_name = 'COME_FROM'
                     opname = self.opc.opname[self.code[jump_offset]]
                     if opname.startswith('SETUP_') and self.version == 2.7:
