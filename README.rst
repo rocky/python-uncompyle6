@@ -97,7 +97,8 @@ Known Bugs/Restrictions
 -----------------------
 
 The biggest known and possibly fixable (but hard) problem has to do
-with handling control flow. In some cases we can detect an erroneous
+with handling control flow. All of the Python decomilers I have looked
+at have the same problem. In some cases we can detect an erroneous
 decompilation and report that.
 
 About 90% of the decompilation of Python standard library packages in
@@ -109,14 +110,17 @@ Other versions drop off in quality too.
 a Python for that bytecode version, and then comparing the bytecode
 produced by the decompiled/compiled program. Some allowance is made
 for inessential differences. But other semantically equivalent
-differences are not caught. For example ``if x: foo()`` is
-equivalent to ``x and foo()`` and decompilation may turn one into the
-other. *Weak Verification* on the other hand doesn't check bytecode
-for equivalence but does check to see if the resulting decompiled
-source is a valid Python program by running the Python
-interpreter. Because the Python language has changed so much, for best
-results you should use the same Python Version in checking as used in
-the bytecode.
+differences are not caught. For example ``1 and 0`` is decompiled to
+the equivalent ``0``; remnants of the first true evaluation (1) is
+lost when Python compiles this. When Python next compiles ``0`` the
+resulting code is simpler.
+
+*Weak Verification*
+on the other hand doesn't check bytecode for equivalence but does
+check to see if the resulting decompiled source is a valid Python
+program by running the Python interpreter. Because the Python language
+has changed so much, for best results you should use the same Python
+Version in checking as used in the bytecode.
 
 Later distributions average about 200 files. There is some work to do
 on the lower end Python versions which is more difficult for us to
