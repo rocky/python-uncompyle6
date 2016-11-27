@@ -146,8 +146,6 @@ class Python3Parser(PythonParser):
         ifelsestmtr ::= testexpr return_if_stmts return_stmts
 
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
-        ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel JUMP_BACK COME_FROM_LOOP
-        ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel COME_FROM_LOOP
 
 
         # FIXME: this feels like a hack. Is it just 1 or two
@@ -335,11 +333,12 @@ class Python3Parser(PythonParser):
         whilestmt         ::= SETUP_LOOP testexpr return_stmts          POP_BLOCK
                               COME_FROM_LOOP
 
+        while1elsestmt    ::= SETUP_LOOP          l_stmts     JUMP_BACK
+                              else_suite
+
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suite COME_FROM_LOOP
 
-        while1elsestmt    ::= SETUP_LOOP          l_stmts     JUMP_BACK
-                              else_suite
 
         whileelselaststmt ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suitec COME_FROM_LOOP
@@ -348,6 +347,7 @@ class Python3Parser(PythonParser):
 
         # FIXME: Python 3.? starts adding branch optimization? Put this starting there.
         while1stmt        ::= SETUP_LOOP l_stmts
+        while1stmt        ::= SETUP_LOOP l_stmts COME_FROM_LOOP
 
         # FIXME: investigate - can code really produce a NOP?
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP
@@ -680,7 +680,29 @@ class Python3Parser(PythonParser):
                 rule = ('mkfunc ::= %sload_closure LOAD_CONST %s'
                         % ('expr ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
+                pass
+        self.check_reduce['augassign1'] = 'AST'
+        self.check_reduce['augassign2'] = 'AST'
+        self.check_reduce['while1stmt'] = 'noAST'
         return
+
+    def reduce_is_invalid(self, rule, ast, tokens, first, last):
+        lhs = rule[0]
+        if lhs in ('augassign1', 'augassign2') and ast[0][0] == 'and':
+            return True
+        elif lhs == 'while1stmt':
+            if tokens[last] in ('COME_FROM_LOOP', 'JUMP_BACK'):
+                # jump_back should be right afer SETUP_LOOP. Test?
+                last += 1
+            while last < len(tokens) and isinstance(tokens[last].offset, str):
+                last += 1
+            if last < len(tokens):
+                offset = tokens[last].offset
+                assert tokens[first] == 'SETUP_LOOP'
+                if offset != tokens[first].attr:
+                    return True
+            return False
+        return False
 
 class Python30Parser(Python3Parser):
 
