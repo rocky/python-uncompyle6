@@ -336,6 +336,10 @@ class Python3Parser(PythonParser):
         while1elsestmt    ::= SETUP_LOOP          l_stmts     JUMP_BACK
                               else_suite
 
+        whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+                              else_suite COME_FROM_LOOP
+
+
         whileelselaststmt ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suitec COME_FROM_LOOP
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt          JUMP_BACK POP_BLOCK
@@ -687,14 +691,13 @@ class Python3Parser(PythonParser):
         if lhs in ('augassign1', 'augassign2') and ast[0][0] == 'and':
             return True
         elif lhs == 'while1stmt':
-            # Skip COME_FROM tokens
-            skip = 0
-            if tokens[last] != 'COME_FROM_LOOP':
-                skip = 1
-            while last+skip < len(tokens) and isinstance(tokens[last+skip].offset, str):
+            if tokens[last] in ('COME_FROM_LOOP', 'JUMP_BACK'):
+                # jump_back should be right afer SETUP_LOOP. Test?
                 last += 1
-            if last + skip < len(tokens):
-                offset = tokens[last+skip].offset
+            while last < len(tokens) and isinstance(tokens[last].offset, str):
+                last += 1
+            if last < len(tokens):
+                offset = tokens[last].offset
                 assert tokens[first] == 'SETUP_LOOP'
                 if offset != tokens[first].attr:
                     return True
