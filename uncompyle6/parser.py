@@ -81,7 +81,7 @@ class PythonParser(GenericASTBuilder):
             else:
                 prefix = '       '
             if hasattr(p_token, 'offset'):
-                prefix += "%3d " % p_token.offset
+                prefix += "%3s " % str(p_token.offset)
                 prefix += "    "
         else:
             prefix = '               '
@@ -485,6 +485,8 @@ class PythonParser(GenericASTBuilder):
         _mklambda ::= load_closure mklambda
         _mklambda ::= mklambda
 
+        # "and" where the first part of the and is true,
+        # so there is only the 2nd part to evaluate
         and2 ::= _jump jmp_false COME_FROM expr COME_FROM
 
         expr ::= conditional

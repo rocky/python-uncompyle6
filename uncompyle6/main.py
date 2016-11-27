@@ -189,17 +189,16 @@ def main(in_base, out_base, files, codes, outfile=None,
                         print(e)
                         verify_failed_files += 1
                         os.rename(outfile, outfile + '_unverified')
+                        sys.stderr.write("### Error Verifying %s\n" % filename)
+                        sys.stderr.write(str(e) + "\n")
                         if not outfile:
-                            print("### Error Verifiying %s" % filename,  file=sys.stderr)
-                            print(e, file=sys.stderr)
                             if raise_on_error:
                                 raise
                             pass
                         pass
                 pass
             elif do_verify:
-                print("\n### uncompile successful, but no file to compare against",
-                      file=sys.stderr)
+                sys.stderr.write("\n### uncompile successful, but no file to compare against\n")
                 pass
             else:
                 okay_files += 1

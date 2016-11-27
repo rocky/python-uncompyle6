@@ -392,13 +392,22 @@ class Python2Parser(PythonParser):
             pass
         self.check_reduce['augassign1'] = 'AST'
         self.check_reduce['augassign2'] = 'AST'
+        self.check_reduce['_stmts'] = 'AST'
         return
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         lhs = rule[0]
         if lhs in ('augassign1', 'augassign2') and ast[0][0] == 'and':
             return True
-        # Add more stuff, like COME_FROM checking
+        elif lhs == '_stmts':
+            for i, stmt in enumerate(ast):
+                if stmt == '_stmts':
+                    stmt = stmt[0]
+                assert stmt == 'stmt'
+                if stmt[0] == 'return_stmt':
+                    return i+1 != len(ast)
+                pass
+            return False
         return False
 
 class Python2ParserSingle(Python2Parser, PythonParserSingle):

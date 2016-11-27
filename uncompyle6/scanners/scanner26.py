@@ -233,7 +233,7 @@ class Scanner26(scan.Scanner2):
                     if op != self.opc.BUILD_SLICE:
                         customize[op_name] = oparg
             elif op == self.opc.JUMP_ABSOLUTE:
-                # Further classifhy JUMP_ABSOLUTE into backward jumps
+                # Further classify JUMP_ABSOLUTE into backward jumps
                 # which are used in loops, and "CONTINUE" jumps which
                 # may appear in a "continue" statement.  The loop-type
                 # and continue-type jumps will help us classify loop
@@ -254,6 +254,9 @@ class Scanner26(scan.Scanner2):
                         #   if x: continue
                         # the "continue" is not on a new line.
                         if tokens[-1].type == 'JUMP_BACK':
+                            # We need 'intern' since we have
+                            # already have processed the previous
+                            # token.
                             tokens[-1].type = intern('CONTINUE')
 
             elif op == self.opc.LOAD_GLOBAL:
