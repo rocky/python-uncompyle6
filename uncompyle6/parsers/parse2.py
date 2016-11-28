@@ -25,20 +25,18 @@ class Python2Parser(PythonParser):
         self.new_rules = set()
 
     def p_print2(self, args):
-        '''
+        """
         stmt ::= print_items_stmt
         stmt ::= print_nl
         stmt ::= print_items_nl_stmt
 
         print_items_stmt ::= expr PRINT_ITEM print_items_opt
         print_items_nl_stmt ::= expr PRINT_ITEM print_items_opt PRINT_NEWLINE_CONT
-        print_items_opt ::= print_items
-        print_items_opt ::=
-        print_items ::= print_items print_item
-        print_items ::= print_item
-        print_item ::= expr PRINT_ITEM_CONT
-        print_nl ::= PRINT_NEWLINE
-        '''
+        print_items_opt ::= print_items?
+        print_items     ::= print_item+
+        print_item      ::= expr PRINT_ITEM_CONT
+        print_nl        ::= PRINT_NEWLINE
+        """
 
     def p_stmt2(self, args):
         """
@@ -169,8 +167,7 @@ class Python2Parser(PythonParser):
         try_middle   ::= jmp_abs COME_FROM except_stmts
                          END_FINALLY
 
-        except_stmts ::= except_stmts except_stmt
-        except_stmts ::= except_stmt
+        except_stmts ::= except_stmt+
 
         except_stmt ::= except_cond1 except_suite
         except_stmt ::= except

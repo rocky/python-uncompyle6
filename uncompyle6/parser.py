@@ -157,8 +157,7 @@ class PythonParser(GenericASTBuilder):
         """
         passstmt ::=
 
-        _stmts ::= _stmts stmt
-        _stmts ::= stmt
+        _stmts ::= stmt+
 
         # statements with continue
         c_stmts ::= _stmts
@@ -270,8 +269,7 @@ class PythonParser(GenericASTBuilder):
 
         # Zero or one COME_FROM
         # And/or expressions have this
-        come_from_opt ::= COME_FROM
-        come_from_opt ::=
+        come_from_opt ::= COME_FROM?
         """
 
     def p_dictcomp(self, args):
