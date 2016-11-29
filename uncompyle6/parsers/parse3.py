@@ -100,8 +100,7 @@ class Python3Parser(PythonParser):
         del_stmt ::= expr DELETE_ATTR
 
         kwarg   ::= LOAD_CONST expr
-        kwargs  ::= kwargs kwarg
-        kwargs  ::=
+        kwargs  ::= kwarg*
 
         classdef ::= build_class designator
 
