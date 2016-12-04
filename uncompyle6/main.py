@@ -53,7 +53,6 @@ def uncompyle(
                           is_pypy=is_pypy)
 
 
-
 def uncompyle_file(filename, outstream=None, showasm=None, showast=False,
                    showgrammar=False):
     """
@@ -64,7 +63,6 @@ def uncompyle_file(filename, outstream=None, showasm=None, showast=False,
     code_objects = {}
     (version, timestamp, magic_int, co, is_pypy,
      source_size) = load_module(filename, code_objects)
-
 
     if type(co) == list:
         for con in co:
@@ -193,6 +191,8 @@ def main(in_base, out_base, files, codes, outfile=None,
                         print(e)
                         verify_failed_files += 1
                         os.rename(outfile, outfile + '_unverified')
+                        sys.stderr.write("### Error Verifying %s\n" % filename)
+                        sys.stderr.write(str(e) + "\n")
                         if not outfile:
                             sys.stder.write("### Error Verifiying %s" %
                                             filename)

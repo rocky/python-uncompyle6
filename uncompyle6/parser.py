@@ -67,6 +67,25 @@ class PythonParser(GenericASTBuilder):
         for i in dir(self):
             setattr(self, i, None)
 
+    def debug_reduce(self, rule, tokens, parent, i):
+        """Customized format and print for our kind of tokens
+        which gets called in debugging grammar reduce rules
+        """
+        prefix = ''
+        if parent and tokens:
+            p_token = tokens[parent]
+            if hasattr(p_token, 'linestart') and p_token.linestart:
+                prefix = 'L.%3d: ' % p_token.linestart
+            else:
+                prefix = '       '
+            if hasattr(p_token, 'offset'):
+                prefix += "%3s " % str(p_token.offset)
+                prefix += "    "
+        else:
+            prefix = '               '
+
+        print("%s%s ::= %s" % (prefix, rule[0], ' '.join(rule[1])))
+
     def error(self, instructions, index):
         # Find the last line boundary
         for start in range(index, -1, -1):
@@ -118,9 +137,9 @@ class PythonParser(GenericASTBuilder):
         # print >> sys.stderr, 'resolve', str(list)
         return GenericASTBuilder.resolve(self, list)
 
-    ##############################################
-    ## Common Python 2 and Python 3 grammar rules
-    ##############################################
+    ###############################################
+    #  Common Python 2 and Python 3 grammar rules #
+    ###############################################
     def p_start(self, args):
         '''
         # The start or goal symbol
@@ -139,8 +158,7 @@ class PythonParser(GenericASTBuilder):
         """
         passstmt ::=
 
-        _stmts ::= _stmts stmt
-        _stmts ::= stmt
+        _stmts ::= stmt+
 
         # statements with continue
         c_stmts ::= _stmts
@@ -252,8 +270,7 @@ class PythonParser(GenericASTBuilder):
 
         # Zero or one COME_FROM
         # And/or expressions have this
-        come_from_opt ::= COME_FROM
-        come_from_opt ::=
+        come_from_opt ::= COME_FROM?
         """
 
     def p_dictcomp(self, args):
@@ -467,6 +484,8 @@ class PythonParser(GenericASTBuilder):
         _mklambda ::= load_closure mklambda
         _mklambda ::= mklambda
 
+        # "and" where the first part of the and is true,
+        # so there is only the 2nd part to evaluate
         and2 ::= _jump jmp_false COME_FROM expr COME_FROM
 
         expr ::= conditional

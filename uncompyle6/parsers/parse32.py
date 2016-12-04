@@ -8,9 +8,6 @@ from uncompyle6.parsers.parse3 import Python3Parser
 class Python32Parser(Python3Parser):
     def p_32to35(self, args):
         """
-        # In Python 3.2+, DUP_TOPX is DUP_TOP_TWO
-        binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
-
         # Store locals is only in Python 3.0 to 3.3
         stmt ::= store_locals
         store_locals ::= LOAD_FAST STORE_LOCALS

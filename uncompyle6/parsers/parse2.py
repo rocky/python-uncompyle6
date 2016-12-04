@@ -23,20 +23,18 @@ class Python2Parser(PythonParser):
         self.new_rules = set()
 
     def p_print2(self, args):
-        '''
+        """
         stmt ::= print_items_stmt
         stmt ::= print_nl
         stmt ::= print_items_nl_stmt
 
         print_items_stmt ::= expr PRINT_ITEM print_items_opt
         print_items_nl_stmt ::= expr PRINT_ITEM print_items_opt PRINT_NEWLINE_CONT
-        print_items_opt ::= print_items
-        print_items_opt ::=
-        print_items ::= print_items print_item
-        print_items ::= print_item
-        print_item ::= expr PRINT_ITEM_CONT
-        print_nl ::= PRINT_NEWLINE
-        '''
+        print_items_opt ::= print_items?
+        print_items     ::= print_item+
+        print_item      ::= expr PRINT_ITEM_CONT
+        print_nl        ::= PRINT_NEWLINE
+        """
 
     def p_stmt2(self, args):
         """
@@ -167,8 +165,7 @@ class Python2Parser(PythonParser):
         try_middle   ::= jmp_abs COME_FROM except_stmts
                          END_FINALLY
 
-        except_stmts ::= except_stmts except_stmt
-        except_stmts ::= except_stmt
+        except_stmts ::= except_stmt+
 
         except_stmt ::= except_cond1 except_suite
         except_stmt ::= except
@@ -239,7 +236,7 @@ class Python2Parser(PythonParser):
         """
 
     def add_custom_rules(self, tokens, customize):
-        '''
+        """
         Special handling for opcodes such as those that take a variable number
         of arguments -- we add a new rule for each:
 
@@ -258,7 +255,7 @@ class Python2Parser(PythonParser):
             expr ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
 
         PyPy adds custom rules here as well
-        '''
+        """
         for opname, v in list(customize.items()):
             opname_base = opname[:opname.rfind('_')]
             if opname == 'PyPy':
@@ -387,6 +384,26 @@ class Python2Parser(PythonParser):
             else:
                 raise Exception('unknown customize token %s' % opname)
             self.add_unique_rule(rule, opname_base, v, customize)
+            pass
+        self.check_reduce['augassign1'] = 'AST'
+        self.check_reduce['augassign2'] = 'AST'
+        self.check_reduce['_stmts'] = 'AST'
+        return
+
+    def reduce_is_invalid(self, rule, ast, tokens, first, last):
+        lhs = rule[0]
+        if lhs in ('augassign1', 'augassign2') and ast[0][0] == 'and':
+            return True
+        elif lhs == '_stmts':
+            for i, stmt in enumerate(ast):
+                if stmt == '_stmts':
+                    stmt = stmt[0]
+                assert stmt == 'stmt'
+                if stmt[0] == 'return_stmt':
+                    return i+1 != len(ast)
+                pass
+            return False
+        return False
 
 class Python2ParserSingle(Python2Parser, PythonParserSingle):
     pass

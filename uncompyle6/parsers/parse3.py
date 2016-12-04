@@ -98,8 +98,7 @@ class Python3Parser(PythonParser):
         del_stmt ::= expr DELETE_ATTR
 
         kwarg   ::= LOAD_CONST expr
-        kwargs  ::= kwargs kwarg
-        kwargs  ::=
+        kwargs  ::= kwarg*
 
         classdef ::= build_class designator
 
@@ -144,8 +143,6 @@ class Python3Parser(PythonParser):
         ifelsestmtr ::= testexpr return_if_stmts return_stmts
 
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
-        ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel JUMP_BACK COME_FROM_LOOP
-        ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel COME_FROM_LOOP
 
 
         # FIXME: this feels like a hack. Is it just 1 or two
@@ -244,7 +241,6 @@ class Python3Parser(PythonParser):
         c_stmts_opt34 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
         """
 
-
     def p_def_annotations3(self, args):
         """
         # Annotated functions
@@ -333,11 +329,12 @@ class Python3Parser(PythonParser):
         whilestmt         ::= SETUP_LOOP testexpr return_stmts          POP_BLOCK
                               COME_FROM_LOOP
 
+        while1elsestmt    ::= SETUP_LOOP          l_stmts     JUMP_BACK
+                              else_suite
+
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suite COME_FROM_LOOP
 
-        while1elsestmt    ::= SETUP_LOOP          l_stmts     JUMP_BACK
-                              else_suite
 
         whileelselaststmt ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suitec COME_FROM_LOOP
@@ -346,6 +343,7 @@ class Python3Parser(PythonParser):
 
         # FIXME: Python 3.? starts adding branch optimization? Put this starting there.
         while1stmt        ::= SETUP_LOOP l_stmts
+        while1stmt        ::= SETUP_LOOP l_stmts COME_FROM_LOOP
 
         # FIXME: investigate - can code really produce a NOP?
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP
@@ -372,9 +370,7 @@ class Python3Parser(PythonParser):
         # Python 3.4+
         expr ::= LOAD_CLASSDEREF
 
-        binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
         # Python3 drops slice0..slice3
-
         '''
 
     @staticmethod
@@ -438,10 +434,10 @@ class Python3Parser(PythonParser):
         args_kw = (token.attr >> 8) & 0xff
         nak = ( len(opname)-len('CALL_FUNCTION') ) // 3
         token.type = self.call_fn_name(token)
-        rule = ('call_function ::= expr '
-                + ('pos_arg ' * args_pos)
-                + ('kwarg ' * args_kw)
-                + 'expr ' * nak + token.type)
+        rule = ('call_function ::= expr ' +
+                ('pos_arg ' * args_pos) +
+                ('kwarg ' * args_kw) +
+                'expr ' * nak + token.type)
         self.add_unique_rule(rule, token.type, args_pos, customize)
         rule = ('classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d'
                 %  (('expr ' * (args_pos-1)), opname, args_pos))
@@ -636,10 +632,10 @@ class Python3Parser(PythonParser):
 
                 # number of apply equiv arguments:
                 nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
-                rule = ('call_function ::= expr '
-                        + ('pos_arg ' * args_pos)
-                        + ('kwarg ' * args_kw)
-                        + 'expr ' * nak + opname)
+                rule = ('call_function ::= expr ' +
+                        ('pos_arg ' * args_pos) +
+                        ('kwarg ' * args_kw) +
+                        'expr ' * nak + opname)
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname.startswith('MAKE_CLOSURE'):
                 # DRY with MAKE_FUNCTION
@@ -683,7 +679,29 @@ class Python3Parser(PythonParser):
                 rule = ('mkfunc ::= %sload_closure LOAD_CONST %s'
                         % ('expr ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
+                pass
+        self.check_reduce['augassign1'] = 'AST'
+        self.check_reduce['augassign2'] = 'AST'
+        self.check_reduce['while1stmt'] = 'noAST'
         return
+
+    def reduce_is_invalid(self, rule, ast, tokens, first, last):
+        lhs = rule[0]
+        if lhs in ('augassign1', 'augassign2') and ast[0][0] == 'and':
+            return True
+        elif lhs == 'while1stmt':
+            if tokens[last] in ('COME_FROM_LOOP', 'JUMP_BACK'):
+                # jump_back should be right afer SETUP_LOOP. Test?
+                last += 1
+            while last < len(tokens) and isinstance(tokens[last].offset, str):
+                last += 1
+            if last < len(tokens):
+                offset = tokens[last].offset
+                assert tokens[first] == 'SETUP_LOOP'
+                if offset != tokens[first].attr:
+                    return True
+            return False
+        return False
 
 class Python30Parser(Python3Parser):
 

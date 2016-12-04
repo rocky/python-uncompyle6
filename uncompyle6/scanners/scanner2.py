@@ -160,11 +160,15 @@ class Scanner2(scan.Scanner):
                 # we sort them). That way, specific COME_FROM tags will match up
                 # properly. For example, a "loop" with an "if" nested in it should have the
                 # "loop" tag last so the grammar rule matches that properly.
+                # last_offset = -1
                 for jump_offset  in sorted(jump_targets[offset], reverse=True):
+                    # if jump_offset == last_offset:
+                    #     continue
+                    # last_offset = jump_offset
                     come_from_name = 'COME_FROM'
-                    opname = self.opc.opname[self.code[jump_offset]]
-                    if opname.startswith('SETUP_') and self.version == 2.7:
-                        come_from_type = opname[len('SETUP_'):]
+                    op_name = self.opc.opname[self.code[jump_offset]]
+                    if op_name.startswith('SETUP_') and self.version == 2.7:
+                        come_from_type = op_name[len('SETUP_'):]
                         if come_from_type not in ('LOOP', 'EXCEPT'):
                             come_from_name = 'COME_FROM_%s' % come_from_type
                         pass
@@ -175,7 +179,7 @@ class Scanner2(scan.Scanner):
                     jump_idx += 1
 
             op = self.code[offset]
-            opname = self.opc.opname[op]
+            op_name = self.opc.opname[op]
 
             oparg = None; pattr = None
             has_arg = op_has_argument(op, self.opc)
@@ -190,14 +194,14 @@ class Scanner2(scan.Scanner):
                     if iscode(const):
                         oparg = const
                         if const.co_name == '<lambda>':
-                            assert opname == 'LOAD_CONST'
-                            opname = 'LOAD_LAMBDA'
+                            assert op_name == 'LOAD_CONST'
+                            op_name = 'LOAD_LAMBDA'
                         elif const.co_name == '<genexpr>':
-                            opname = 'LOAD_GENEXPR'
+                            op_name = 'LOAD_GENEXPR'
                         elif const.co_name == '<dictcomp>':
-                            opname = 'LOAD_DICTCOMP'
+                            op_name = 'LOAD_DICTCOMP'
                         elif const.co_name == '<setcomp>':
-                            opname = 'LOAD_SETCOMP'
+                            op_name = 'LOAD_SETCOMP'
                         # verify() uses 'pattr' for comparison, since 'attr'
                         # now holds Code(const) and thus can not be used
                         # for comparison (todo: think about changing this)
@@ -233,20 +237,20 @@ class Scanner2(scan.Scanner):
                     self.code[self.prev[offset]] == self.opc.LOAD_CLOSURE:
                     continue
                 else:
-                    if self.is_pypy and not oparg and opname == 'BUILD_MAP':
-                        opname = 'BUILD_MAP_n'
+                    if self.is_pypy and not oparg and op_name == 'BUILD_MAP':
+                        op_name = 'BUILD_MAP_n'
                     else:
-                        opname = '%s_%d' % (opname, oparg)
+                        op_name = '%s_%d' % (op_name, oparg)
                     if op != self.opc.BUILD_SLICE:
-                        customize[opname] = oparg
-            elif self.is_pypy and opname in ('LOOKUP_METHOD',
+                        customize[op_name] = oparg
+            elif self.is_pypy and op_name in ('LOOKUP_METHOD',
                                              'JUMP_IF_NOT_DEBUG',
                                              'SETUP_EXCEPT',
                                              'SETUP_FINALLY'):
                 # The value in the dict is in special cases in semantic actions, such
                 # as CALL_FUNCTION. The value is not used in these cases, so we put
                 # in arbitrary value 0.
-                customize[opname] = 0
+                customize[op_name] = 0
             elif op == self.opc.JUMP_ABSOLUTE:
                 # Further classify JUMP_ABSOLUTE into backward jumps
                 # which are used in loops, and "CONTINUE" jumps which
@@ -265,16 +269,16 @@ class Scanner2(scan.Scanner):
                         and self.code[offset+3] not in (self.opc.END_FINALLY,
                                                         self.opc.POP_BLOCK)
                         and offset not in self.not_continue):
-                        opname = 'CONTINUE'
+                        op_name = 'CONTINUE'
                     else:
-                        opname = 'JUMP_BACK'
+                        op_name = 'JUMP_BACK'
 
             elif op == self.opc.LOAD_GLOBAL:
                 if offset in self.load_asserts:
-                    opname = 'LOAD_ASSERT'
+                    op_name = 'LOAD_ASSERT'
             elif op == self.opc.RETURN_VALUE:
                 if offset in self.return_end_ifs:
-                    opname = 'RETURN_END_IF'
+                    op_name = 'RETURN_END_IF'
 
             if offset in self.linestartoffsets:
                 linestart = self.linestartoffsets[offset]
@@ -283,7 +287,7 @@ class Scanner2(scan.Scanner):
 
             if offset not in replace:
                 tokens.append(Token(
-                    opname, oparg, pattr, offset, linestart, op,
+                    op_name, oparg, pattr, offset, linestart, op,
                     has_arg, self.opc))
             else:
                 tokens.append(Token(
@@ -778,21 +782,23 @@ class Scanner2(scan.Scanner):
             if offset in self.ignore_if:
                 return
 
-            if code[pre[rtarget]] == self.opc.JUMP_ABSOLUTE and pre[rtarget] in self.stmts \
-                    and pre[rtarget] != offset and pre[pre[rtarget]] != offset:
-                if code[rtarget] == self.opc.JUMP_ABSOLUTE and code[rtarget+3] == self.opc.POP_BLOCK:
-                    if code[pre[pre[rtarget]]] != self.opc.JUMP_ABSOLUTE:
-                        pass
-                    elif self.get_target(pre[pre[rtarget]]) != target:
-                        pass
+            if self.version == 2.7:
+                if code[pre[rtarget]] == self.opc.JUMP_ABSOLUTE and pre[rtarget] in self.stmts \
+                        and pre[rtarget] != offset and pre[pre[rtarget]] != offset:
+                    if code[rtarget] == self.opc.JUMP_ABSOLUTE and code[rtarget+3] == self.opc.POP_BLOCK:
+                        if code[pre[pre[rtarget]]] != self.opc.JUMP_ABSOLUTE:
+                            pass
+                        elif self.get_target(pre[pre[rtarget]]) != target:
+                            pass
+                        else:
+                            rtarget = pre[rtarget]
                     else:
                         rtarget = pre[rtarget]
-                else:
-                    rtarget = pre[rtarget]
 
             # Does the "if" jump just beyond a jump op, then this is probably an if statement
             pre_rtarget = pre[rtarget]
             code_pre_rtarget = code[pre_rtarget]
+
             if code_pre_rtarget in self.jump_forward:
                 if_end = self.get_target(pre_rtarget)
 
@@ -820,6 +826,7 @@ class Scanner2(scan.Scanner):
                 self.structs.append({'type':  'if-then',
                                        'start': start-3,
                                        'end':   pre_rtarget})
+
                 self.not_continue.add(pre_rtarget)
 
                 if rtarget < end:
@@ -894,7 +901,6 @@ class Scanner2(scan.Scanner):
                                 label = oparg
                                 pass
                             pass
-
 
                 # FIXME: All the < 2.7 conditions are is horrible. We need a better way.
                 if label is not None and label != -1:

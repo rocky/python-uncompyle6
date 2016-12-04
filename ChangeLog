@@ -1,6 +1,105 @@
+2016-12-04  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/version.py: Get ready for release 2.9.7
+
+2016-11-28  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/parsers/parse36.py: 
+	Shorten Python3 grammars with + and *
+
+2016-11-28  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse2.py: Try new spark 2.5.1 grammar syntax
+	shortcuts This package I now declare stable
+
+2016-11-28  R. Bernstein <rocky@users.noreply.github.com>
+
+	* README.rst: Update README.rst
+
+2016-11-27  rocky <rb@dustyfeet.com>
+
+	* README.rst: Limitations of decompiling control structures.
+
+2016-11-27  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #69 from rocky/ast-reduce-checks AST reduce checks
+
+2016-11-26  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug26/03_elif_vs_continue.py,
+	uncompyle6/main.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner26.py: Misc changes scanner26.py: make scanner2.py and scanner26.py more alike
+	scanner2.py: check that return stmt is last in list. (May change)
+	main.py: show filename on verify error test/*: add more
+
+2016-11-25  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, test/Makefile, uncompyle6/parser.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py: Start
+	grammar reduction checks
+
+2016-11-24  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse27.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/semantics/helper.py, uncompyle6/semantics/pysource.py: 
+	2.7 grammar bug workaround. Fix docstring bug
+
+2016-11-24  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py: Better line number tracking Indent Python 2 list comprehensions, albeit badly.  DRY code a
+	little via indent_if_source_nl
+
+2016-11-24  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner2.py: 
+	<2.7 "if" detection and dup Python 3 grammar rule
+
+2016-11-23  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, pytest/test_grammar.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse26.py: Python 2.6 grammary bug and..  __pkginfo.py__: Bump spark_parser version for parse_flags 'dups'
+
+2016-11-23  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py: Note that we now work on 2.4 and 2.5
+
+2016-11-23  rocky <rb@dustyfeet.com>
+
+	* : commit 6aa1531972de83ecab15b4c96b89c873ea5a7458 Author: rocky
+	<rb@dustyfeet.com> Date:   Wed Nov 23 00:48:38 2016 -0500
+
+2016-11-22  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/parsers/parse32.py,
+	uncompyle6/parsers/parse33.py, uncompyle6/parsers/parse34.py,
+	uncompyle6/parsers/parse35.py: DRY Python3 grammar
+
+2016-11-22  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse27.py,
+	uncompyle6/scanners/scanner2.py: More detailed COME_FROMs For now we only add COME_FROM_FINALLY and COME_FROM_WITH and even
+	here only on 2.7
+
+2016-11-22  rocky <rb@dustyfeet.com>
+
+	* circle.yml, pytest/test_grammar.py, tox.ini,
+	uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse27.py: Remove redundant 2.7 (and 2.x)
+	grammar rules
+
+2016-11-22  rocky <rb@dustyfeet.com>
+
+	* pytest/test_docstring.py, uncompyle6/linenumbers.py,
+	uncompyle6/semantics/fragments.py, uncompyle6/semantics/helper.py,
+	uncompyle6/semantics/make_function.py,
+	uncompyle6/semantics/pysource.py: Split out print_docstring move from pysource.py to new helper.py
+
 2016-11-20  rocky <rb@dustyfeet.com>
 
-	* uncompyle6/version.py: Get ready for release 2.9.6
+	* ChangeLog, NEWS, uncompyle6/version.py: Get ready for release
+	2.9.6
 
 2016-11-20  R. Bernstein <rocky@users.noreply.github.com>
 

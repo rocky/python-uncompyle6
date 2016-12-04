@@ -33,7 +33,7 @@ def find_globals(node, globs):
 def find_none(node):
     for n in node:
         if isinstance(n, AST):
-            if not n in ('return_stmt', 'return_if_stmt'):
+            if n not in ('return_stmt', 'return_if_stmt'):
                 if find_none(n):
                     return True
         elif n.type == 'LOAD_CONST' and n.pattr is None:

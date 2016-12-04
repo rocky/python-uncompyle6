@@ -8,12 +8,13 @@ else:
     maxint = sys.maxint
 
 def print_docstring(self, indent, docstring):
-    ## FIXME: put this into a testable function.
-    if docstring.find('"""') == -1:
-        quote = '"""'
-    else:
-        quote = "'''"
-
+    try:
+        if docstring.find('"""') == -1:
+            quote = '"""'
+        else:
+            quote = "'''"
+    except:
+        return False
     self.write(indent)
     if not PYTHON3 and not isinstance(docstring, str):
         # Must be unicode in Python2
@@ -73,6 +74,7 @@ def print_docstring(self, indent, docstring):
         for line in trimmed[1:-1]:
             self.println( indent, line )
         self.println(indent, trimmed[-1], quote)
+    return True
 
 # if __name__ == '__main__':
 #     if PYTHON3:

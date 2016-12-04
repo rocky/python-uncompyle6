@@ -16,8 +16,7 @@ class Python36Parser(Python35Parser):
     def p_36misc(self, args):
         """
         fstring_multi ::= fstring_expr_or_strs BUILD_STRING
-        fstring_expr_or_strs ::= fstring_expr_or_strs fstring_expr_or_str
-        fstring_expr_or_strs ::= fstring_expr_or_str
+        fstring_expr_or_strs ::= fstring_expr_or_str+
         """
 
     def add_custom_rules(self, tokens, customize):

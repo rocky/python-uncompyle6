@@ -126,7 +126,6 @@ class Scanner3(Scanner):
             varargs_ops.add(self.opc.CALL_METHOD)
         self.varargs_ops = frozenset(varargs_ops)
 
-
     def opName(self, offset):
         return self.opc.opname[self.code[offset]]
 
@@ -324,9 +323,10 @@ class Scanner3(Scanner):
                         # FIXME: this is a hack to catch stuff like:
                         #   if x: continue
                         # the "continue" is not on a new line.
-                        # There are other situations were we don't catch
+                        # There are other situations where we don't catch
                         # CONTINUE as well.
-                        if tokens[-1].type == 'JUMP_BACK':
+                        if tokens[-1].type == 'JUMP_BACK' and tokens[-1].attr <= argval:
+                            # intern is used because we are changing the *previous* token
                             tokens[-1].type = intern('CONTINUE')
 
             elif op == self.opc.RETURN_VALUE:

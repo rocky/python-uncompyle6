@@ -25,5 +25,5 @@ class Scanner23(scan.Scanner24):
         # These are the only differences in initialization between
         # 2.3-2.6
         self.version = 2.3
-        self.genexpr_name = '<generator expression>';
+        self.genexpr_name = '<generator expression>'
         return
