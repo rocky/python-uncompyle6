@@ -27,7 +27,8 @@ if PYTHON3:
     intern = sys.intern
     L65536 = 65536
 
-    def long(l): l
+    def long(l):
+        return l
 else:
     L65536 = long(65536) # NOQA
 

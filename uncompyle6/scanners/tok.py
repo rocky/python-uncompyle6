@@ -29,7 +29,7 @@ class Token:
         self.pattr = pattr
         self.offset = offset
         self.linestart = linestart
-        if has_arg == False:
+        if has_arg is False:
             self.attr = None
             self.pattr = None
         self.opc = opc

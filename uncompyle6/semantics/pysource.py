@@ -641,6 +641,7 @@ class SourceWalker(GenericASTTraversal, object):
                     })
 
                     FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
+
                     def f_conversion(node):
                         node.conversion = FSTRING_CONVERSION_MAP.get(node.data[1].attr, '')
 
@@ -896,7 +897,6 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
         self.write(')')
-
 
     def n_LOAD_CONST(self, node):
         data = node.pattr; datatype = type(data)

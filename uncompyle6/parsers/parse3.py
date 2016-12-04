@@ -243,7 +243,6 @@ class Python3Parser(PythonParser):
         c_stmts_opt34 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
         """
 
-
     def p_def_annotations3(self, args):
         """
         # Annotated functions
@@ -437,10 +436,10 @@ class Python3Parser(PythonParser):
         args_kw = (token.attr >> 8) & 0xff
         nak = ( len(opname)-len('CALL_FUNCTION') ) // 3
         token.type = self.call_fn_name(token)
-        rule = ('call_function ::= expr '
-                + ('pos_arg ' * args_pos)
-                + ('kwarg ' * args_kw)
-                + 'expr ' * nak + token.type)
+        rule = ('call_function ::= expr ' +
+                ('pos_arg ' * args_pos) +
+                ('kwarg ' * args_kw) +
+                'expr ' * nak + token.type)
         self.add_unique_rule(rule, token.type, args_pos, customize)
         rule = ('classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d'
                 %  (('expr ' * (args_pos-1)), opname, args_pos))
@@ -632,10 +631,10 @@ class Python3Parser(PythonParser):
 
                 # number of apply equiv arguments:
                 nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
-                rule = ('call_function ::= expr '
-                        + ('pos_arg ' * args_pos)
-                        + ('kwarg ' * args_kw)
-                        + 'expr ' * nak + opname)
+                rule = ('call_function ::= expr ' +
+                        ('pos_arg ' * args_pos) +
+                        ('kwarg ' * args_kw) +
+                        'expr ' * nak + opname)
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname.startswith('MAKE_CLOSURE'):
                 # DRY with MAKE_FUNCTION

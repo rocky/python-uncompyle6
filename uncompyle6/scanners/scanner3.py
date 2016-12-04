@@ -128,7 +128,6 @@ class Scanner3(Scanner):
             varargs_ops.add(self.opc.CALL_METHOD)
         self.varargs_ops = frozenset(varargs_ops)
 
-
     def opName(self, offset):
         return self.opc.opname[self.code[offset]]
 
