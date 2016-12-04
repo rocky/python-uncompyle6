@@ -1,6 +1,7 @@
 2016-12-04  rocky <rb@dustyfeet.com>
 
-	* uncompyle6/version.py: Get ready for release 2.9.7
+	* : commit d22931cb49f0e28a0fbe48a7c1526b1f170a5b52 Author: rocky
+	<rb@dustyfeet.com> Date:   Sun Dec 4 07:31:34 2016 -0500
 
 2016-11-28  rocky <rb@dustyfeet.com>
 
@@ -53,8 +54,31 @@
 
 2016-11-24  rocky <rb@dustyfeet.com>
 
+	* circle.yml: CircleCI build
+
+2016-11-24  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py: Remove dup Python 3 grammar rule
+
+2016-11-24  rocky <rb@dustyfeet.com>
+
 	* uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner2.py: 
 	<2.7 "if" detection and dup Python 3 grammar rule
+
+2016-11-24  rocky <rb@dustyfeet.com>
+
+	* test/test_pyenvlib.py, uncompyle6/linenumbers.py,
+	uncompyle6/main.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/semantics/make_function.py,
+	uncompyle6/semantics/pysource.py, uncompyle6/verify.py: Bug in 2.4
+	"if" dectection and...  Wrong language used in old-style exceptions: use "except Error,e"
+	not "except Error(e)""
+
+2016-11-24  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, pytest/test_grammar.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse26.py:  Python 2.6 grammary bug and..  __pkginfo.py__: Bump spark_parser
+	version for parse_flags 'dups'
 
 2016-11-23  rocky <rb@dustyfeet.com>
 
@@ -67,8 +91,17 @@
 
 2016-11-23  rocky <rb@dustyfeet.com>
 
-	* : commit 6aa1531972de83ecab15b4c96b89c873ea5a7458 Author: rocky
-	<rb@dustyfeet.com> Date:   Wed Nov 23 00:48:38 2016 -0500
+	* : commit 7133540c235e16f02d2db62cb903b70aa311de20 Author: rocky
+	<rb@dustyfeet.com> Date:   Wed Nov 23 08:26:12 2016 -0500
+
+2016-11-23  rocky <rb@dustyfeet.com>
+
+	* : commit a9349b8f3d12b2aa0cd88286617c1af9cccad018 Author: rocky
+	<rb@dustyfeet.com> Date:   Tue Nov 22 17:49:47 2016 -0500
+
+2016-11-23  rocky <rb@dustyfeet.com>
+
+	* circle.yml: Circle CI uses 2.7.10 and 2.7.12 is not available
 
 2016-11-22  rocky <rb@dustyfeet.com>
 
