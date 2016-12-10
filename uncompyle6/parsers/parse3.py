@@ -142,6 +142,10 @@ class Python3Parser(PythonParser):
         jf_else    ::= JUMP_FORWARD ELSE
         ja_else    ::= JUMP_ABSOLUTE ELSE
 
+        # Note: in if/else kinds of statements, we err on the side
+        # of missing "else" clauses. Therefore we include grammar
+        # rules with and without ELSE.
+
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite COME_FROM
         ifelsestmt ::= testexpr c_stmts_opt jf_else else_suite _come_from
 
@@ -151,7 +155,6 @@ class Python3Parser(PythonParser):
         ifelsestmtr ::= testexpr return_if_stmts return_stmts
 
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
-
 
         # FIXME: this feels like a hack. Is it just 1 or two
         # COME_FROMs?  the parsed tree for this and even with just the
@@ -373,7 +376,10 @@ class Python3Parser(PythonParser):
 
     def p_expr3(self, args):
         """
-        conditional ::= expr jmp_false expr jf_else expr COME_FROM
+        conditional    ::= expr jmp_false expr jf_else expr COME_FROM
+        conditionalnot ::= expr jmp_true  expr jf_else expr COME_FROM
+
+
         expr ::= LOAD_CLASSNAME
 
         # Python 3.4+
