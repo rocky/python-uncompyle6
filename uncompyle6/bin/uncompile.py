@@ -66,9 +66,9 @@ def usage():
 
 def main_bin():
     if not (sys.version_info[0:2] in ((2, 6), (2, 7),
-                                      (3, 2), (3, 3),
+                                      (3, 1), (3, 2), (3, 3),
                                       (3, 4), (3, 5), (3, 6))):
-        print('Error: %s requires Python 2.6, 2.7, 3.2, 3.3, 3.4, 3.5, or 3.6' % program,
+        print('Error: %s requires Python 2.6-2.7, or 3.1-3.6' % program,
               file=sys.stderr)
         sys.exit(-1)
 
@@ -142,7 +142,6 @@ def main_bin():
     if src_base:
         sb_len = len( os.path.join(src_base, '') )
         files = [f[sb_len:] for f in files]
-        del sb_len
 
     if not files:
         print("No files given", file=sys.stderr)
