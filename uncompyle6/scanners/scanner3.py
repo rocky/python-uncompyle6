@@ -800,7 +800,8 @@ class Scanner3(Scanner):
 
                 if rtarget < end and (
                         code[rtarget] != self.opc.END_FINALLY
-                        and code[prev_op[rrtarget]] != self.opc.POP_EXCEPT):
+                        and code[prev_op[rrtarget]] not in (self.opc.POP_EXCEPT,
+                                                            self.opc.END_FINALLY)):
                     self.structs.append({'type': 'else',
                                          'start': rtarget,
                                          'end': end})
