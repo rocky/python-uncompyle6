@@ -6,9 +6,9 @@ python:
   - '3.5'
   - '2.7.12'
   - '2.6'
-  - '3.2'
   - '3.3'
   - '3.4'
+  - '3.2'
 
 install:
 - pip install -r requirements.txt
