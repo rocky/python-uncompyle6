@@ -1,3 +1,11 @@
+uncompyle6 2.9.6 2016-12-04
+
+- Shorten Python3 grammars with + and *
+  this requires spark parser 1.5.1
+- Add some AST reduction checks to improve
+  decompile accuracy. This too requires
+  spark parser 1.5.1
+
 uncompyle6 2.9.6 2016-11-20
 
 - Correct MANIFEST.in

@@ -49,7 +49,6 @@ def uncompyle(
         raise pysource.SourceWalkerError(str(e))
 
 
-
 def uncompyle_file(filename, outstream=None, showasm=None, showast=False,
                    showgrammar=False):
     """
@@ -60,7 +59,6 @@ def uncompyle_file(filename, outstream=None, showasm=None, showast=False,
     code_objects = {}
     (version, timestamp, magic_int, co, is_pypy,
      source_size) = load_module(filename, code_objects)
-
 
     if type(co) == list:
         for con in co:

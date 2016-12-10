@@ -902,7 +902,6 @@ class Scanner2(scan.Scanner):
                                 pass
                             pass
 
-
                 # FIXME: All the < 2.7 conditions are is horrible. We need a better way.
                 if label is not None and label != -1:
                     # In Python < 2.7, the POP_TOP in:

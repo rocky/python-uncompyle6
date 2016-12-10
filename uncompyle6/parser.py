@@ -136,9 +136,9 @@ class PythonParser(GenericASTBuilder):
         # print >> sys.stderr, 'resolve', str(list)
         return GenericASTBuilder.resolve(self, list)
 
-    ##############################################
-    ## Common Python 2 and Python 3 grammar rules
-    ##############################################
+    ###############################################
+    #  Common Python 2 and Python 3 grammar rules #
+    ###############################################
     def p_start(self, args):
         '''
         # The start or goal symbol
