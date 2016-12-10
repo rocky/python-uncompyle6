@@ -43,21 +43,6 @@ class Token:
         else:
             return self.type == o
 
-    def __cmp__(self, o):
-        t = self.type # shortcut
-        if t == 'BUILD_TUPLE_0' and o.type == 'LOAD_CONST' and o.pattr == ():
-            return 0
-        if t == 'COME_FROM' == o.type:
-            return 0
-        if t == 'PRINT_ITEM_CONT' and o.type == 'PRINT_ITEM':
-            return 0
-        if t == 'RETURN_VALUE' and o.type == 'RETURN_END_IF':
-            return 0
-        if t == 'JUMP_IF_FALSE_OR_POP' and o.type == 'POP_JUMP_IF_FALSE':
-            return 0
-        return (t ==  o.type) or self.pattr ==  o.pattr
-
-
     def __repr__(self):
         return str(self.type)
 
