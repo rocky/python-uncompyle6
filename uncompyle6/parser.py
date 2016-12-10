@@ -264,8 +264,7 @@ class PythonParser(GenericASTBuilder):
 
         # Zero or more COME_FROMs
         # loops can have this
-        _come_from ::= _come_from COME_FROM
-        _come_from ::=
+        _come_from ::= COME_FROM*
 
         # Zero or one COME_FROM
         # And/or expressions have this

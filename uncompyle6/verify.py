@@ -268,7 +268,7 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
                         raise CmpErrorCode(name, tokens1[idx1].offset, tokens1[idx1],
                                    tokens2[idx2], tokens1, tokens2)
 
-                if tokens1[i1].type != tokens2[i2].type:
+                if tokens1[i1] != tokens2[i2]:
                     if tokens1[i1].type == 'LOAD_CONST' == tokens2[i2].type:
                         i = 1
                         while tokens1[i1+i].type == 'LOAD_CONST':
@@ -353,6 +353,9 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
             if is_pypy:
                 # For PYPY for now we don't care about PYPY_SOURCE_IS_UTF8:
                 flags2 &= ~0x0100  # PYPY_SOURCE_IS_UTF8
+            # We also don't care about COROUTINE or GENERATOR for now
+            flags1 &= ~0x000000a0
+            flags2 &= ~0x000000a0
             if flags1 != flags2:
                 raise CmpErrorMember(name, 'co_flags',
                                      pretty_flags(flags1),

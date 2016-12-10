@@ -138,9 +138,15 @@ class Python3Parser(PythonParser):
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK COME_FROM_LOOP
 
+        # These are used to keep AST indices the same
+        jf_else    ::= JUMP_FORWARD ELSE
+        ja_else    ::= JUMP_ABSOLUTE ELSE
+
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite COME_FROM
+        ifelsestmt ::= testexpr c_stmts_opt jf_else else_suite _come_from
 
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
+        ifelsestmtc ::= testexpr c_stmts_opt ja_else else_suitec
 
         ifelsestmtr ::= testexpr return_if_stmts return_stmts
 
@@ -367,14 +373,14 @@ class Python3Parser(PythonParser):
         '''
 
     def p_expr3(self, args):
-        '''
+        """
+        conditional ::= expr jmp_false expr jf_else expr COME_FROM
         expr ::= LOAD_CLASSNAME
 
         # Python 3.4+
         expr ::= LOAD_CLASSDEREF
 
-        # Python3 drops slice0..slice3
-        '''
+        """
 
     @staticmethod
     def call_fn_name(token):
