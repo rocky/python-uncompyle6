@@ -319,6 +319,9 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
                     elif tokens1[i1].type == 'LOAD_NAME' and tokens2[i2].type == 'LOAD_CONST' \
                          and tokens1[i1].pattr == 'None' and tokens2[i2].pattr is None:
                         pass
+                    elif tokens1[i1].type == 'RETURN_VALUE' and \
+                         tokens2[i2].type == 'RETURN_END_IF':
+                        pass
                     else:
                         raise CmpErrorCode(name, tokens1[i1].offset, tokens1[i1],
                                            tokens2[i2], tokens1, tokens2)
