@@ -73,6 +73,11 @@ class PythonParser(GenericASTBuilder):
         """Customized format and print for our kind of tokens
         which gets called in debugging grammar reduce rules
         """
+        def fix(c):
+            s = str(c)
+            i = s.find('_')
+            return s if i == -1 else s[:i]
+
         prefix = ''
         if parent and tokens:
             p_token = tokens[parent]
@@ -81,8 +86,11 @@ class PythonParser(GenericASTBuilder):
             else:
                 prefix = '       '
             if hasattr(p_token, 'offset'):
-                prefix += "%3s " % str(p_token.offset)
-                prefix += "    "
+                prefix += "%3s" % fix(p_token.offset)
+                if len(rule[1]) > 1:
+                    prefix += '-%-3s ' % fix(tokens[i-1].offset)
+                else:
+                    prefix += '     '
         else:
             prefix = '               '
 
