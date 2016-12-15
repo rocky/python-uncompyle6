@@ -562,9 +562,15 @@ class Scanner3(Scanner):
         Get target offset for op located at given <offset>.
         """
         op = self.code[offset]
-        target = self.code[offset+1] + self.code[offset+2] * 256
-        if op in op3.hasjrel:
-            target += offset + 3
+        if self.version  >= 3.6:
+            target = self.code[offset+1]
+            if op in op3.hasjrel:
+                target += offset + 2
+        else:
+            target = self.code[offset+1] + self.code[offset+2] * 256
+            if op in op3.hasjrel:
+                target += offset + 3
+
         return target
 
     def detect_structure(self, offset, targets):
@@ -677,6 +683,11 @@ class Scanner3(Scanner):
             # not myself?  If so, it's part of a larger conditional.
             # rocky: if we have a conditional jump to the next instruction, then
             # possibly I am "skipping over" a "pass" or null statement.
+
+            try:
+                code[prev_op[target]]
+            except:
+                from trepan.api import debug; debug()
 
             if ((code[prev_op[target]] in self.pop_jump_if_pop) and
                 (target > offset) and prev_op[target] != offset):
