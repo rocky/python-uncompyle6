@@ -590,9 +590,10 @@ class Python3Parser(PythonParser):
                     self.add_unique_rule(rule, 'kvlist_n', 1, customize)
                     rule = "mapexpr ::=  BUILD_MAP_n kvlist_n"
                 elif self.version >= 3.5:
-                    rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
-                    self.add_unique_rule(rule, opname, token.attr, customize)
-                    rule = "mapexpr ::=  %s %s" % (kvlist_n, opname)
+                    if  opname != 'BUILD_MAP_WITH_CALL':
+                        rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
+                        self.add_unique_rule(rule, opname, token.attr, customize)
+                        rule = "mapexpr ::=  %s %s" % (kvlist_n, opname)
                 else:
                     rule = kvlist_n + ' ::= ' + 'expr expr STORE_MAP ' * token.attr
                     self.add_unique_rule(rule, opname, token.attr, customize)

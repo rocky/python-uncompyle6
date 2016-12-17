@@ -684,11 +684,6 @@ class Scanner3(Scanner):
             # rocky: if we have a conditional jump to the next instruction, then
             # possibly I am "skipping over" a "pass" or null statement.
 
-            try:
-                code[prev_op[target]]
-            except:
-                from trepan.api import debug; debug()
-
             if ((code[prev_op[target]] in self.pop_jump_if_pop) and
                 (target > offset) and prev_op[target] != offset):
                 self.fixed_jumps[offset] = prev_op[target]
