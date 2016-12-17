@@ -748,7 +748,7 @@ class Scanner2(scan.Scanner):
                     else:
                         if (self.version < 2.7
                             and parent['type'] in ('root', 'for-loop', 'if-then',
-                                                   'if-else', 'try')):
+                                                   'else', 'try')):
                             self.fixed_jumps[offset] = rtarget
                         else:
                             # note test for < 2.7 might be superflous although informative
@@ -801,7 +801,20 @@ class Scanner2(scan.Scanner):
                     else:
                         rtarget = pre[rtarget]
 
-            # Does the "if" jump just beyond a jump op, then this is probably an if statement
+            # Does the "jump if" jump beyond a jump op?
+            # That is, we have something like:
+            #  POP_JUMP_IF_FALSE HERE
+            #  ...
+            # JUMP_FORWARD
+            # HERE:
+            #
+            # If so, this can be block inside an "if" statement
+            # or a conditional assignment like:
+            #   x = 1 if x else 2
+            #
+            # There are other contexts we may need to consider
+            # like whether the target is "END_FINALLY"
+            # or if the condition jump is to a forward location
             pre_rtarget = pre[rtarget]
             code_pre_rtarget = code[pre_rtarget]
 
@@ -836,7 +849,7 @@ class Scanner2(scan.Scanner):
                 self.not_continue.add(pre_rtarget)
 
                 if rtarget < end:
-                    self.structs.append({'type':  'if-else',
+                    self.structs.append({'type':  'else',
                                        'start': rtarget,
                                        'end':   end})
             elif code_pre_rtarget == self.opc.RETURN_VALUE:

@@ -18,7 +18,7 @@ JUMP_OPs = opcode_25.JUMP_OPs
 # The history is that 2.7 support is the cleanest,
 # then from that we got 2.6 and so on.
 class Scanner25(scan.Scanner26):
-    def __init__(self, show_asm):
+    def __init__(self, show_asm=False):
         # There are no differences in initialization between
         # 2.5 and 2.6
         self.opc = opcode_25
