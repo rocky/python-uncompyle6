@@ -136,14 +136,23 @@ class Python3Parser(PythonParser):
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK COME_FROM_LOOP
 
+        # These are used to keep AST indices the same
+        jf_else    ::= JUMP_FORWARD ELSE
+        ja_else    ::= JUMP_ABSOLUTE ELSE
+
+        # Note: in if/else kinds of statements, we err on the side
+        # of missing "else" clauses. Therefore we include grammar
+        # rules with and without ELSE.
+
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite COME_FROM
+        ifelsestmt ::= testexpr c_stmts_opt jf_else else_suite _come_from
 
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
+        ifelsestmtc ::= testexpr c_stmts_opt ja_else else_suitec
 
         ifelsestmtr ::= testexpr return_if_stmts return_stmts
 
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
-
 
         # FIXME: this feels like a hack. Is it just 1 or two
         # COME_FROMs?  the parsed tree for this and even with just the
@@ -364,14 +373,17 @@ class Python3Parser(PythonParser):
         '''
 
     def p_expr3(self, args):
-        '''
+        """
+        conditional    ::= expr jmp_false expr jf_else expr COME_FROM
+        conditionalnot ::= expr jmp_true  expr jf_else expr COME_FROM
+
+
         expr ::= LOAD_CLASSNAME
 
         # Python 3.4+
         expr ::= LOAD_CLASSDEREF
 
-        # Python3 drops slice0..slice3
-        '''
+        """
 
     @staticmethod
     def call_fn_name(token):
@@ -579,9 +591,10 @@ class Python3Parser(PythonParser):
                     self.add_unique_rule(rule, 'kvlist_n', 1, customize)
                     rule = "mapexpr ::=  BUILD_MAP_n kvlist_n"
                 elif self.version >= 3.5:
-                    rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
-                    self.add_unique_rule(rule, opname, token.attr, customize)
-                    rule = "mapexpr ::=  %s %s" % (kvlist_n, opname)
+                    if  opname != 'BUILD_MAP_WITH_CALL':
+                        rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
+                        self.add_unique_rule(rule, opname, token.attr, customize)
+                        rule = "mapexpr ::=  %s %s" % (kvlist_n, opname)
                 else:
                     rule = kvlist_n + ' ::= ' + 'expr expr STORE_MAP ' * token.attr
                     self.add_unique_rule(rule, opname, token.attr, customize)

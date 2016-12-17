@@ -17,6 +17,9 @@ class Python36Parser(Python35Parser):
         """
         fstring_multi ::= fstring_expr_or_strs BUILD_STRING
         fstring_expr_or_strs ::= fstring_expr_or_str+
+
+        func_args36   ::= expr BUILD_TUPLE_0
+        call_function ::= func_args36 unmapexpr CALL_FUNCTION_EX
         """
 
     def add_custom_rules(self, tokens, customize):
@@ -44,6 +47,7 @@ class Python36Parser(Python35Parser):
                     %s ::= %sBUILD_STRING
                 """ % (fstring_expr_or_str_n, fstring_expr_or_str_n, "fstring_expr_or_str " * v)
                 self.add_unique_doc_rules(rules_str, customize)
+
 
 class Python36ParserSingle(Python36Parser, PythonParserSingle):
     pass

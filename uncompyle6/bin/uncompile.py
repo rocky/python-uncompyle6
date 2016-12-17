@@ -141,7 +141,6 @@ def main_bin():
     if src_base:
         sb_len = len( os.path.join(src_base, '') )
         files = [f[sb_len:] for f in files]
-        del sb_len
 
     if not files:
         sys.stderr.write("No files given\n")

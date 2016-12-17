@@ -20,6 +20,8 @@ classifiers =  ['Development Status :: 5 - Production/Stable',
                 'Programming Language :: Python :: 2.5',
                 'Programming Language :: Python :: 2.6',
                 'Programming Language :: Python :: 2.7',
+                'Programming Language :: Python :: 3.1',
+                'Programming Language :: Python :: 3.2',
                 'Programming Language :: Python :: 3.3',
                 'Programming Language :: Python :: 3.4',
                 'Programming Language :: Python :: 3.5',
@@ -38,7 +40,7 @@ entry_points={
     ]}
 ftp_url            = None
 install_requires   = ['spark-parser >= 1.5.1, < 1.6.0',
-                      'xdis >= 3.2.3, < 3.3.0']
+                      'xdis >= 3.2.4, < 3.3.0']
 license            = 'MIT'
 mailing_list       = 'python-debugger@googlegroups.com'
 modname            = 'uncompyle6'

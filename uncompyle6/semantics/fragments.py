@@ -579,7 +579,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.set_pos_info(node[-3], start, len(self.f.getvalue()))
         start = len(self.f.getvalue())
         self.preorder(ast[iter_index])
-        self.set_pos_info(iter_index, start, len(self.f.getvalue()))
+        self.set_pos_info(ast[iter_index], start, len(self.f.getvalue()))
         self.prec = p
 
     def comprehension_walk3(self, node, iter_index, code_index=-5):

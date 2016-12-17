@@ -46,6 +46,26 @@ class Python35Parser(Python34Parser):
 
         yield_from ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
         """
+
+    def add_custom_rules(self, tokens, customize):
+        super(Python35Parser, self).add_custom_rules(tokens, customize)
+        for i, token in enumerate(tokens):
+            opname = token.type
+            if opname == 'BUILD_MAP_UNPACK_WITH_CALL':
+                nargs = token.attr % 256
+                map_unpack_n = "map_unpack_%s" % nargs
+                rule = map_unpack_n + ' ::= ' + 'expr ' * (nargs)
+                self.add_unique_rule(rule, opname, token.attr, customize)
+                rule = "unmapexpr ::=  %s %s" % (map_unpack_n, opname)
+                self.add_unique_rule(rule, opname, token.attr, customize)
+                call_token = tokens[i+1]
+                if self.version == 3.5:
+                    rule = 'call_function ::= expr unmapexpr ' + call_token.type
+                    self.add_unique_rule(rule, opname, token.attr, customize)
+                pass
+            pass
+        return
+
 class Python35ParserSingle(Python35Parser, PythonParserSingle):
     pass
 

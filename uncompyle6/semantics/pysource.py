@@ -350,7 +350,7 @@ MAP_R = (TABLE_R, -1)
 
 MAP = {
     'stmt':		MAP_R,
-    'call_function':		MAP_R,
+    'call_function':	MAP_R,
     'del_stmt':		MAP_R,
     'designator':	MAP_R,
     'exprlist':		MAP_R0,
@@ -631,6 +631,19 @@ class SourceWalker(GenericASTTraversal, object):
                 TABLE_DIRECT.update({
                     'LOAD_CLASSDEREF':	( '%{pattr}', ),
                     })
+                if version >= 3.5:
+                    def n_unmapexpr(node):
+                        last_n = node[0][-1]
+                        for n in node[0]:
+                            self.preorder(n)
+                            if n != last_n:
+                                self.f.write(', **')
+                                pass
+                            pass
+                        self.prune()
+                        pass
+                    self.n_unmapexpr = n_unmapexpr
+
                 if version >= 3.6:
                     ########################
                     # Python 3.6+ Additions
@@ -654,7 +667,6 @@ class SourceWalker(GenericASTTraversal, object):
                     def n_fstring_single(node):
                         f_conversion(node)
                         self.default(node)
-
                     self.n_fstring_single = n_fstring_single
 
         return

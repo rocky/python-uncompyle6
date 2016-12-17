@@ -225,6 +225,14 @@ class Scanner3(Scanner):
                     jump_idx += 1
                     pass
                 pass
+            elif inst.offset in self.else_start:
+                end_offset = self.else_start[inst.offset]
+                tokens.append(Token('ELSE',
+                                    None, repr(end_offset),
+                                    offset='%s' % (inst.offset),
+                                    has_arg = True, opc=self.opc))
+
+                pass
 
             pattr =  inst.argrepr
             opname = inst.opname
@@ -424,6 +432,7 @@ class Scanner3(Scanner):
         self.fixed_jumps = {}
         self.ignore_if = set()
         self.build_statement_indices()
+        self.else_start = {}
 
         # Containers filled by detect_structure()
         self.not_continue = set()
@@ -553,9 +562,15 @@ class Scanner3(Scanner):
         Get target offset for op located at given <offset>.
         """
         op = self.code[offset]
-        target = self.code[offset+1] + self.code[offset+2] * 256
-        if op in op3.hasjrel:
-            target += offset + 3
+        if self.version  >= 3.6:
+            target = self.code[offset+1]
+            if op in op3.hasjrel:
+                target += offset + 2
+        else:
+            target = self.code[offset+1] + self.code[offset+2] * 256
+            if op in op3.hasjrel:
+                target += offset + 3
+
         return target
 
     def detect_structure(self, offset, targets):
@@ -758,15 +773,28 @@ class Scanner3(Scanner):
                      code[prev_op[prev_op[rtarget]]] != self.opc.JUMP_ABSOLUTE)):
                 rtarget = prev_op[rtarget]
 
-            # Does the "if" jump just beyond a jump op, then this can be
-            # a block inside an "if" statement
+            # Does the "jump if" jump beyond a jump op?
+            # That is, we have something like:
+            #  POP_JUMP_IF_FALSE HERE
+            #  ...
+            # JUMP_FORWARD
+            # HERE:
+            #
+            # If so, this can be block inside an "if" statement
+            # or a conditional assignment like:
+            #   x = 1 if x else 2
+            #
+            # There are other contexts we may need to consider
+            # like whether the target is "END_FINALLY"
+            # or if the condition jump is to a forward location
             if self.is_jump_forward(prev_op[rtarget]):
-                if_end = self.get_target(prev_op[rtarget])
+                rrtarget = prev_op[rtarget]
+                if_end = self.get_target(rrtarget)
 
-                # Is this a loop and not an "if" statement?
-                if ((if_end < prev_op[rtarget]) and
+                # If the jump target is back, we are looping
+                if (if_end < rrtarget and
                     (code[prev_op[if_end]] == self.opc.SETUP_LOOP)):
-                    if(if_end > start):
+                    if (if_end > start):
                         return
 
                 end = self.restrict_to_parent(if_end, parent)
@@ -776,10 +804,15 @@ class Scanner3(Scanner):
                                      'end': prev_op[rtarget]})
                 self.not_continue.add(prev_op[rtarget])
 
-                if rtarget < end:
-                    self.structs.append({'type': 'if-else',
+                if rtarget < end and (
+                        code[rtarget] not in (self.opc.END_FINALLY,
+                                              self.opc.JUMP_ABSOLUTE) and
+                        code[prev_op[rrtarget]] not in (self.opc.POP_EXCEPT,
+                                                        self.opc.END_FINALLY)):
+                    self.structs.append({'type': 'else',
                                          'start': rtarget,
                                          'end': end})
+                    self.else_start[rtarget] = end
             elif code[prev_op[rtarget]] == self.opc.RETURN_VALUE:
                 self.structs.append({'type': 'if-then',
                                      'start': start,
@@ -869,7 +902,9 @@ class Scanner3(Scanner):
             op = self.code[i]
             if op == self.opc.END_FINALLY:
                 if count_END_FINALLY == count_SETUP_:
-                    assert self.code[self.prev_op[i]] in (JUMP_ABSOLUTE, JUMP_FORWARD, RETURN_VALUE)
+                    assert self.code[self.prev_op[i]] in (JUMP_ABSOLUTE,
+                                                          JUMP_FORWARD,
+                                                          RETURN_VALUE)
                     self.not_continue.add(self.prev_op[i])
                     return self.prev_op[i]
                 count_END_FINALLY += 1
