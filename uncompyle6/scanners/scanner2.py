@@ -20,7 +20,13 @@ For example:
 Finally we save token information.
 """
 
-from xdis.namedtuple25 import namedtuple
+from uncompyle6 import PYTHON_VERSION
+
+if PYTHON_VERSION < 2.6:
+    from xdis.namedtuple25 import namedtuple
+else:
+    from collections import namedtuple
+
 from array import array
 
 from uncompyle6.scanner import op_has_argument

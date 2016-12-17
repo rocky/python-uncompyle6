@@ -53,7 +53,7 @@ The node position 0 will be associated with "import".
 
 import re, sys
 
-from uncompyle6 import PYTHON3, IS_PYPY
+from uncompyle6 import PYTHON3, IS_PYPY, PYTHON_VERSION
 from xdis.code import iscode
 from uncompyle6.semantics import pysource
 from uncompyle6 import parser
@@ -80,7 +80,11 @@ else:
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
-from xdis.namedtuple25 import namedtuple
+if PYTHON_VERSION < 2.6:
+    from xdis.namedtuple25 import namedtuple
+else:
+    from collections import namedtuple
+
 NodeInfo = namedtuple("NodeInfo", "node start finish")
 ExtractInfo = namedtuple("ExtractInfo",
                          "lineNo lineStartOffset markerLine selectedLine selectedText")

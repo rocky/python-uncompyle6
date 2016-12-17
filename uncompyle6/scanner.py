@@ -226,7 +226,10 @@ class Scanner(object):
         if op < self.opc.HAVE_ARGUMENT:
             return 1
         else:
-            return 2 if self.version >= 3.6 else 3
+            if self.version >= 3.6:
+                return 2
+            else:
+                return 3
 
     def remove_mid_line_ifs(self, ifs):
         """

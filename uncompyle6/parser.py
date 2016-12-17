@@ -74,7 +74,10 @@ class PythonParser(GenericASTBuilder):
         def fix(c):
             s = str(c)
             i = s.find('_')
-            return s if i == -1 else s[:i]
+            if i == -1:
+                return s
+            else:
+                return s[:i]
 
         prefix = ''
         if parent and tokens:
