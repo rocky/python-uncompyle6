@@ -1,3 +1,13 @@
+uncompyle6 2.9.7 2016-12-16
+
+- Start to handle 3.5/3.6 build_map_unpack_with_call
+- Some Python 3.6 bytecode to wordcode conversion fixes
+- option -g: show start-end range when possible
+- track print_docstring move to help (used in python 3.1)
+- verify: allow RETURN_VALUE to match RETURN_END_IF
+- some 3.2 compatibility
+- Better Python 3 control flow detection by adding Pseudo ELSE opcodes
+
 uncompyle6 2.9.6 2016-12-04
 
 - Shorten Python3 grammars with + and *
