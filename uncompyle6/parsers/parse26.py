@@ -42,7 +42,7 @@ class Python26Parser(Python2Parser):
                          try_middle come_froms
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           try_middle else_suite come_froms
+                           try_middle else_suite COME_FROM
 
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM POP_TOP
 

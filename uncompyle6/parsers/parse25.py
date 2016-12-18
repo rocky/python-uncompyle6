@@ -13,7 +13,7 @@ class Python25Parser(Python26Parser):
         self.customized = {}
 
     def p_misc25(self, args):
-        '''
+        """
         # If "return_if_stmt" is in a loop, a JUMP_BACK can be emitted. In 2.6 the
         # JUMP_BACK doesn't appear
 
@@ -33,7 +33,31 @@ class Python25Parser(Python26Parser):
 
         with_cleanup ::= LOAD_FAST DELETE_FAST WITH_CLEANUP END_FINALLY
         with_cleanup ::= LOAD_NAME DELETE_NAME WITH_CLEANUP END_FINALLY
-        '''
+        """
+
+    def add_custom_rules(self, tokens, customize):
+        super(Python25Parser, self).add_custom_rules(tokens, customize)
+        if self.version == 2.5:
+            self.check_reduce['tryelsestmt'] = 'tokens'
+
+
+    def reduce_is_invalid(self, rule, ast, tokens, first, last):
+        super(Python25Parser, self).reduce_is_invalid(rule, ast, tokens, first, last)
+
+        lhs = rule[0]
+        if lhs in ('tryelsestmt', ):
+            # The end of the else part of try/else come_from has to come
+            # from an END_FINALLY statement
+            if tokens[last-1].type.startswith('COME_FROM'):
+                end_finally_offset = int(tokens[last-1].pattr)
+                current  = first
+                while current < last:
+                    offset = tokens[current].offset
+                    if offset == end_finally_offset:
+                        return tokens[current].type != 'END_FINALLY'
+                    current += 1
+        return False
+
 
 class Python25ParserSingle(Python26Parser, PythonParserSingle):
     pass
