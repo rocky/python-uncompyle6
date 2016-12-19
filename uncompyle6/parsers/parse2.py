@@ -272,7 +272,7 @@ class Python2Parser(PythonParser):
                 continue
             elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
                 thousands = (v//1024)
-                thirty32s = ((v//32)%32)
+                thirty32s = ((v//32) % 32)
                 if thirty32s > 0:
                     rule = "expr32 ::=%s" % (' expr' * 32)
                     self.add_unique_rule(rule, opname_base, v, customize)

@@ -37,7 +37,7 @@ class Scanner2(scan.Scanner):
         self.jump_forward = frozenset([self.opc.JUMP_ABSOLUTE, self.opc.JUMP_FORWARD])
         # This is the 2.5+ default
         # For <2.5 it is <generator expression>
-        self.genexpr_name = '<genexpr>';
+        self.genexpr_name = '<genexpr>'
 
     @staticmethod
     def unmangle_name(name, classname):
@@ -67,7 +67,6 @@ class Scanner2(scan.Scanner):
             names = co.co_names
             varnames = co.co_varnames
         return free, names, varnames
-
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
