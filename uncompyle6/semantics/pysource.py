@@ -639,6 +639,8 @@ class SourceWalker(GenericASTTraversal, object):
                                 self.f.write(', **')
                                 pass
                             pass
+                        if version >= 3.6:
+                            self.f.write(')')
                         self.prune()
                         pass
                     self.n_unmapexpr = n_unmapexpr
@@ -648,9 +650,10 @@ class SourceWalker(GenericASTTraversal, object):
                     # Python 3.6+ Additions
                     #######################
                     TABLE_DIRECT.update({
-                        'fstring_expr':    ( "{%c%{conversion}}", 0),
+                        'fstring_expr':   ( "{%c%{conversion}}", 0),
                         'fstring_single': ( "f'{%c%{conversion}}'", 0),
                         'fstring_multi':  ( "f'%c'", 0),
+                        'func_args36':    ( "%c(**", 0),
                     })
 
                     FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
@@ -662,6 +665,10 @@ class SourceWalker(GenericASTTraversal, object):
                         f_conversion(node)
                         self.default(node)
                     self.n_fstring_expr = n_fstring_expr
+
+                    def n_func_args36(node):
+                        from trepan.api import debug; debug()
+
 
                     def n_fstring_single(node):
                         f_conversion(node)
