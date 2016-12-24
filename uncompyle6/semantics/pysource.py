@@ -666,10 +666,6 @@ class SourceWalker(GenericASTTraversal, object):
                         self.default(node)
                     self.n_fstring_expr = n_fstring_expr
 
-                    def n_func_args36(node):
-                        from trepan.api import debug; debug()
-
-
                     def n_fstring_single(node):
                         f_conversion(node)
                         self.default(node)
