@@ -282,7 +282,7 @@ class Python2Parser(PythonParser):
                                          opname_base, v, customize)
                     self.seen1024 = True
                 rule = ('build_list ::= ' + 'expr1024 '*thousands +
-                                        'expr32 '*thirty32s + 'expr '*(v%32) + opname)
+                                        'expr32 '*thirty32s + 'expr '*(v % 32) + opname)
             elif opname == 'LOOKUP_METHOD':
                 # A PyPy speciality - DRY with parse3
                 self.add_unique_rule("load_attr ::= expr LOOKUP_METHOD",

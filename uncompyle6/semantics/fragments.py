@@ -97,14 +97,14 @@ TABLE_DIRECT_FRAGMENT = {
     'importstmt':	( '%|import %c%x\n', 2, (2, (0, 1)), ),
     'importfrom':	( '%|from %[2]{pattr}%x import %c\n', (2, (0, 1)), 3),
     'importmultiple':   ( '%|import%b %c%c\n', 0, 2, 3 ),
-    'list_for':	  	(' for %c%x in %c%c', 2, (2,(1,)), 0, 3 ),
-    'forstmt':	  	( '%|for%b %c%x in %c:\n%+%c%-\n\n', 0, 3, (3, (2,)), 1, 4 ),
+    'list_for':	  	(' for %c%x in %c%c', 2, (2, (1, )), 0, 3 ),
+    'forstmt':	  	( '%|for%b %c%x in %c:\n%+%c%-\n\n', 0, 3, (3, (2, )), 1, 4 ),
     'forelsestmt': 	(
         '%|for %c in %c%x:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
     'forelselaststmt':	(
         '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-', 3, (3, (2,)), 1, 4, -2),
     'forelselaststmtl':	(
-        '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
+        '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2, )), 1, 4, -2),
 
     'whilestmt':	( '%|while%b %c:\n%+%c%-\n\n', 0, 1, 2 ),
     'whileelsestmt':	( '%|while%b %c:\n%+%c%-%|else:\n%+%c%-\n\n', 0, 1, 2, -2 ),
@@ -163,7 +163,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                  None)
 
     def set_pos_info(self, node, start, finish, name=None):
-        if name == None: name = self.name
+        if name is None: name = self.name
         if hasattr(node, 'offset'):
             self.offsets[name, node.offset] = \
               NodeInfo(node = node, start = start, finish = finish)
@@ -622,7 +622,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             n = ast[iter_index]
             assert n == 'list_iter'
 
-        ## FIXME: I'm not totally sure this is right.
+        # FIXME: I'm not totally sure this is right.
 
         # find innermost node
         if_node = None

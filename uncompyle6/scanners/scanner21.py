@@ -23,5 +23,5 @@ class Scanner21(scan.Scanner22):
         self.opc = opcode_21
         self.opname = opcode_21.opname
         self.version = 2.1
-        self.genexpr_name = '<generator expression>';
+        self.genexpr_name = '<generator expression>'
         return

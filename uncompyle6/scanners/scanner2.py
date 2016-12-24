@@ -97,7 +97,7 @@ class Scanner2(scan.Scanner):
 
         customize = {}
         if self.is_pypy:
-            customize['PyPy'] = 1;
+            customize['PyPy'] = 1
 
         Token = self.Token # shortcut
 
@@ -457,7 +457,6 @@ class Scanner2(scan.Scanner):
                     if jmp not in self.pop_jump_if | self.jump_forward:
                         self.ignore_if.add(except_match)
                         return None
-
 
                 self.ignore_if.add(except_match)
                 self.not_continue.add(jmp)
@@ -903,8 +902,8 @@ class Scanner2(scan.Scanner):
 
                 if label is None:
                     if op in self.opc.hasjrel and self.opc.opname[op] != 'FOR_ITER':
-                    # if (op in self.opc.hasjrel and
-                    #     (self.version < 2.0 or op != self.opc.FOR_ITER)):
+                        # if (op in self.opc.hasjrel and
+                        #     (self.version < 2.0 or op != self.opc.FOR_ITER)):
                         label = offset + 3 + oparg
                     elif self.version == 2.7 and op in self.opc.hasjabs:
                         if op in (self.opc.JUMP_IF_FALSE_OR_POP,
