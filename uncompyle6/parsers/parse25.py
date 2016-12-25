@@ -40,7 +40,6 @@ class Python25Parser(Python26Parser):
         if self.version == 2.5:
             self.check_reduce['tryelsestmt'] = 'tokens'
 
-
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         super(Python25Parser, self).reduce_is_invalid(rule, ast, tokens, first, last)
 

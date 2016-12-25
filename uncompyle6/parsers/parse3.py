@@ -551,7 +551,8 @@ class Python3Parser(PythonParser):
             elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
                 v = token.attr
                 rule = ('build_list ::= ' + 'expr1024 ' * int(v//1024) +
-                                        'expr32 ' * int((v//32)%32) + 'expr '*(v%32) + opname)
+                        'expr32 ' * int((v//32) % 32) +
+                        'expr ' * (v % 32) + opname)
                 self.add_unique_rule(rule, opname, token.attr, customize)
                 if opname_base == 'BUILD_TUPLE':
                     rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))

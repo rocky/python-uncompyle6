@@ -490,7 +490,6 @@ class SourceWalker(GenericASTTraversal, object):
             self.write("\n" + self.indent + INDENT_PER_LEVEL[:-1])
         return self.line_number
 
-
     def customize_for_version(self, is_pypy, version):
         if is_pypy:
             ########################
@@ -534,7 +533,6 @@ class SourceWalker(GenericASTTraversal, object):
             TABLE_DIRECT.update({
                 'raise_stmt2':	( '%|raise %c from %c\n', 0, 1),
             })
-
 
         if version < 2.0:
             TABLE_DIRECT.update({
@@ -623,7 +621,6 @@ class SourceWalker(GenericASTTraversal, object):
                 self.prune() # stop recursing
             self.n_mkfunc_annotate = n_mkfunc_annotate
 
-
             if version >= 3.4:
                 ########################
                 # Python 3.4+ Additions
@@ -640,6 +637,8 @@ class SourceWalker(GenericASTTraversal, object):
                                 self.f.write(', **')
                                 pass
                             pass
+                        if version >= 3.6:
+                            self.f.write(')')
                         self.prune()
                         pass
                     self.n_unmapexpr = n_unmapexpr
@@ -649,9 +648,10 @@ class SourceWalker(GenericASTTraversal, object):
                     # Python 3.6+ Additions
                     #######################
                     TABLE_DIRECT.update({
-                        'fstring_expr':    ( "{%c%{conversion}}", 0),
+                        'fstring_expr':   ( "{%c%{conversion}}", 0),
                         'fstring_single': ( "f'{%c%{conversion}}'", 0),
                         'fstring_multi':  ( "f'%c'", 0),
+                        'func_args36':    ( "%c(**", 0),
                     })
 
                     FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
@@ -1150,7 +1150,6 @@ class SourceWalker(GenericASTTraversal, object):
         assert n == 'lc_body'
         self.write( '[ ')
 
-
         if self.version >= 2.7:
             expr = n[0]
             list_iter = node[-1]
@@ -1350,7 +1349,7 @@ class SourceWalker(GenericASTTraversal, object):
             n = ast[iter_index]
             assert n == 'list_iter', n
 
-        ## FIXME: I'm not totally sure this is right.
+        # FIXME: I'm not totally sure this is right.
 
         # find innermost node
         if_node = None
@@ -2157,7 +2156,6 @@ class SourceWalker(GenericASTTraversal, object):
                 if print_docstring(self, indent, docstring):
                     self.println()
                     del ast[i]
-
 
         # the function defining a class normally returns locals(); we
         # don't want this to show up in the source, thus remove the node

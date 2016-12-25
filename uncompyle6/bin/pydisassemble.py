@@ -61,7 +61,6 @@ Type -h for for full help.""" % program
             sys.stderr.write(Usage_short)
             sys.exit(1)
 
-
     for file in files:
         if os.path.exists(files[0]):
             disassemble_file(file, sys.stdout, native)

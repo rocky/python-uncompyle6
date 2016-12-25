@@ -223,7 +223,6 @@ def main_bin():
         except (KeyboardInterrupt, OSError):
             pass
 
-
     if timestamp:
         print(time.strftime(timestampfmt))
 

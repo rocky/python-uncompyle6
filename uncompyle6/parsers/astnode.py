@@ -28,9 +28,9 @@ class AST(spark_AST):
         i = 0
         for node in self:
             if hasattr(node, '__repr1__'):
-               if enumerate_children:
+                if enumerate_children:
                     child =  node.__repr1__(indent, i)
-               else:
+                else:
                     child = node.__repr1__(indent, None)
             else:
                 inst = node.format(line_prefix='L.')

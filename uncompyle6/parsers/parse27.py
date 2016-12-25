@@ -115,8 +115,10 @@ if __name__ == '__main__':
             """.split()))
         remain_tokens = set(tokens) - opcode_set
         import re
-        remain_tokens = set([re.sub('_\d+$','', t) for t in remain_tokens])
-        remain_tokens = set([re.sub('_CONT$','', t) for t in remain_tokens])
+        remain_tokens = set([re.sub('_\d+$', '', t)
+                             for t in remain_tokens])
+        remain_tokens = set([re.sub('_CONT$', '', t)
+                             for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         print(remain_tokens)
         # p.dumpGrammar()

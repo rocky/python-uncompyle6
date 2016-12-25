@@ -165,7 +165,7 @@ class Scanner3(Scanner):
 
         customize = {}
         if self.is_pypy:
-            customize['PyPy'] = 1;
+            customize['PyPy'] = 1
 
         self.code = array('B', co.co_code)
         self.build_lines_data(co)
@@ -705,9 +705,9 @@ class Scanner3(Scanner):
                 # everything inside inner 'or' jumps and midline ifs
                 match = self.rem_or(start, self.next_stmt[offset],
                                     self.opc.POP_JUMP_IF_FALSE, target)
-                ## We can't remove mid-line ifs because line structures have changed
-                ## from restructBytecode().
-                ##  match = self.remove_mid_line_ifs(match)
+                # We can't remove mid-line ifs because line structures have changed
+                # from restructBytecode().
+                #  match = self.remove_mid_line_ifs(match)
 
                 # If we still have any offsets in set, start working on it
                 if match:
