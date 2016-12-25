@@ -182,16 +182,16 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
         elif member == 'co_code' and not ignore_code:
             if version == 2.3:
                 import uncompyle6.scanners.scanner23 as scan
-                scanner = scan.Scanner26()
+                scanner = scan.Scanner23(show_asm=False)
             elif version == 2.4:
                 import uncompyle6.scanners.scanner24 as scan
-                scanner = scan.Scanner25()
+                scanner = scan.Scanner24(show_asm=False)
             elif version == 2.5:
                 import uncompyle6.scanners.scanner25 as scan
-                scanner = scan.Scanner25()
+                scanner = scan.Scanner25(show_asm=False)
             elif version == 2.6:
                 import uncompyle6.scanners.scanner26 as scan
-                scanner = scan.Scanner26()
+                scanner = scan.Scanner26(show_asm=False)
             elif version == 2.7:
                 if is_pypy:
                     import uncompyle6.scanners.pypy27 as scan

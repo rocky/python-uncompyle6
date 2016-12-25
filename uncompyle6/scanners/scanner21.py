@@ -19,7 +19,7 @@ JUMP_OPs = opcode_21.JUMP_OPs
 # then from that we got 2.6 and so on.
 class Scanner21(scan.Scanner22):
     def __init__(self, show_asm=False):
-        scan.Scanner22.__init__(self, show_asm)
+        scan.Scanner22.__init__(self, show_asm=False)
         self.opc = opcode_21
         self.opname = opcode_21.opname
         self.version = 2.1

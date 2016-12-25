@@ -2,9 +2,8 @@
 """
 Python 2.4 bytecode scanner/deparser
 
-This overlaps Python's 2.4's dis module, but it can be run from
-Python 3 and other versions of Python. Also, we save token
-information for later use in deparsing.
+This massages tokenized 2.7 bytecode to make it more amenable for
+grammar parsing.
 """
 
 import uncompyle6.scanners.scanner25 as scan
@@ -18,7 +17,7 @@ JUMP_OPs = opcode_24.JUMP_OPs
 # The history is that 2.7 support is the cleanest,
 # then from that we got 2.6 and so on.
 class Scanner24(scan.Scanner25):
-    def __init__(self, show_asm):
+    def __init__(self, show_asm=False):
         scan.Scanner25.__init__(self, show_asm)
         # These are the only differences in initialization between
         # 2.4, 2.5 and 2.6

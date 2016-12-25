@@ -13,13 +13,13 @@ import uncompyle6.scanners.scanner21 as scan
 from xdis.opcodes import opcode_15
 JUMP_OPs = opcode_15.JUMP_OPs
 
-# We base this off of 2.2 instead of the other way around
+# We base this off of 2.1 instead of the other way around
 # because we cleaned things up this way.
 # The history is that 2.7 support is the cleanest,
 # then from that we got 2.6 and so on.
 class Scanner15(scan.Scanner21):
     def __init__(self, show_asm=False):
-        scan.Scanner21.__init__(self, show_asm)
+        scan.Scanner21.__init__(self, show_asm=False)
         self.opc = opcode_15
         self.opname = opcode_15.opname
         self.version = 1.5

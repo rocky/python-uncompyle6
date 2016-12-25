@@ -183,10 +183,10 @@ def main(in_base, out_base, files, codes, outfile=None,
                         msg = verify.compare_code_with_srcfile(infile, outfile, weak_verify=weak_verify)
                         if not outfile:
                             if not msg:
-                                print('\n# okay decompiling %s' % infile)
+                                print '\n# okay decompiling %s' % infile
                                 okay_files += 1
                             else:
-                                print('\n# %s\n\t%s', infile, msg)
+                                print '\n# %s\n\t%s', infile, msg
                     except verify.VerifyCmpError, e:
                         print(e)
                         verify_failed_files += 1
@@ -211,7 +211,7 @@ def main(in_base, out_base, files, codes, outfile=None,
                 if not outfile:
                     mess = '\n# okay decompiling'
                     # mem_usage = __memUsage()
-                    print(mess, infile)
+                    print mess, infile
         if outfile:
             sys.stdout.write("%s\r" %
                              status_msg(do_verify, tot_files, okay_files, failed_files, verify_failed_files))
