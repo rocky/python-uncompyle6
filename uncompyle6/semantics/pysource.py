@@ -131,12 +131,16 @@ BUILD_TUPLE_0 = AST('expr',
 
 NAME_MODULE = AST('stmt',
                 [ AST('assign',
-                    [ AST('expr', [Token('LOAD_NAME', pattr='__name__')]),
-                      AST('designator', [ Token('STORE_NAME', pattr='__module__')])
+                    [ AST('expr',
+                          [Token('LOAD_NAME', pattr='__name__', offset=0, has_arg=True)]),
+                      AST('designator',
+                          [ Token('STORE_NAME', pattr='__module__', offset=3, has_arg=True)])
                       ])])
 
-# TAB = '\t'			# as God intended
-TAB = ' ' *4   # is less spacy than "\t"
+# God intended \t, but Python has decided to use 4 spaces.
+# If you want real tabs, use Go.
+# TAB = '\t'
+TAB = ' ' * 4
 INDENT_PER_LEVEL = ' ' # additional intent per pretty-print level
 
 TABLE_R = {
@@ -544,6 +548,18 @@ class SourceWalker(GenericASTTraversal, object):
             TABLE_DIRECT.update({
                 'importlist2':	( '%C', (0, maxint, ', ') ),
                 })
+            if version <= 2.4:
+                global NAME_MODULE
+                NAME_MODULE = AST('stmt',
+                                  [ AST('assign',
+                                        [ AST('expr',
+                                              [Token('LOAD_GLOBAL', pattr='__name__',
+                                                     offset=0, has_arg=True)]),
+                                          AST('designator',
+                                              [ Token('STORE_NAME', pattr='__module__',
+                                                      offset=3, has_arg=True)])
+                                        ])])
+                pass
             if version <= 2.3:
                 TABLE_DIRECT.update({
                     'tryfinallystmt': ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 4 )
