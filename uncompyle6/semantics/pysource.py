@@ -924,6 +924,8 @@ class SourceWalker(GenericASTTraversal, object):
                 sep += ' '
                 pass
             pass
+        if len(tup) == 1:
+            self.write(", ")
         self.write(')')
 
     def n_LOAD_CONST(self, node):
