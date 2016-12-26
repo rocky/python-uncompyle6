@@ -41,8 +41,11 @@ class Python25Parser(Python26Parser):
             self.check_reduce['tryelsestmt'] = 'tokens'
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
-        super(Python25Parser, self).reduce_is_invalid(rule, ast, tokens, first, last)
-
+        invalid = super(Python25Parser,
+                        self).reduce_is_invalid(rule, ast,
+                                                tokens, first, last)
+        if invalid:
+            return invalid
         lhs = rule[0]
         if lhs in ('tryelsestmt', ):
             # The end of the else part of try/else come_from has to come
