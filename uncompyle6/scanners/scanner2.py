@@ -101,10 +101,10 @@ class Scanner2(scan.Scanner):
 
         Token = self.Token # shortcut
 
-        n = self.setup_code(co)
+        codelen = self.setup_code(co)
 
-        self.build_lines_data(co, n)
-        self.build_prev_op(n)
+        self.build_lines_data(co, codelen)
+        self.build_prev_op(codelen)
 
         free, names, varnames = self.unmangle_code_names(co, classname)
         self.names = names
@@ -113,7 +113,7 @@ class Scanner2(scan.Scanner):
         # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT'.
         # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
-        for i in self.op_range(0, n):
+        for i in self.op_range(0, codelen):
             # We need to detect the difference between:
             #   raise AssertionError
             #  and
@@ -138,7 +138,7 @@ class Scanner2(scan.Scanner):
         last_stmt = self.next_stmt[0]
         i = self.next_stmt[last_stmt]
         replace = {}
-        while i < n-1:
+        while i < codelen - 1:
             if self.lines[last_stmt].next > i:
                 # Distinguish "print ..." from "print ...,"
                 if self.code[last_stmt] == self.opc.PRINT_ITEM:
@@ -150,7 +150,7 @@ class Scanner2(scan.Scanner):
             i = self.next_stmt[i]
 
         extended_arg = 0
-        for offset in self.op_range(0, n):
+        for offset in self.op_range(0, codelen):
             if offset in jump_targets:
                 jump_idx = 0
                 # We want to process COME_FROMs to the same offset to be in *descending*
@@ -176,6 +176,7 @@ class Scanner2(scan.Scanner):
                         offset="%s_%d" % (offset, jump_idx),
                         has_arg = True))
                     jump_idx += 1
+                    pass
 
             op = self.code[offset]
             op_name = self.opc.opname[op]
