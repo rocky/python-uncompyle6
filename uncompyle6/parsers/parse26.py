@@ -113,15 +113,9 @@ class Python26Parser(Python2Parser):
 
         break_stmt ::= BREAK_LOOP JUMP_BACK
 
-        # Semantic actions want the else to be at position 3
-        ifelsestmt  ::= testexpr c_stmts_opt jf_cf_pop else_suite come_froms
-        ifelsestmt  ::= testexpr c_stmts_opt filler else_suitel come_froms POP_TOP
-
         # Semantic actions want else_suitel to be at index 3
         ifelsestmtl ::= testexpr c_stmts_opt jb_cf_pop else_suitel
         ifelsestmtc ::= testexpr c_stmts_opt ja_cf_pop else_suitec
-
-        iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE come_froms POP_TOP
 
         # Semantic actions want suite_stmts_opt to be at index 3
         withstmt ::= expr setupwith SETUP_FINALLY suite_stmts_opt
@@ -158,6 +152,29 @@ class Python26Parser(Python2Parser):
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE come_from_pop
 
         while1stmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM
+
+        ifstmt         ::= testexpr_then _ifstmts_jump
+
+        # Semantic actions want the else to be at position 3
+        ifelsestmt     ::= testexpr      c_stmts_opt jf_cf_pop else_suite come_froms
+        ifelsestmt     ::= testexpr_then c_stmts_opt jf_cf_pop else_suite come_froms
+        ifelsestmt     ::= testexpr      c_stmts_opt filler else_suitel come_froms POP_TOP
+        ifelsestmt     ::= testexpr_then c_stmts_opt filler else_suitel come_froms POP_TOP
+
+        # Semantic actions want else_suitel to be at index 3
+        ifelsestmtl    ::= testexpr_then c_stmts_opt jb_cf_pop else_suitel
+        ifelsestmtc    ::= testexpr_then c_stmts_opt ja_cf_pop else_suitec
+
+        iflaststmt     ::= testexpr_then c_stmts_opt JUMP_ABSOLUTE come_froms POP_TOP
+        iflaststmt     ::= testexpr      c_stmts_opt JUMP_ABSOLUTE come_froms POP_TOP
+
+        testexpr_then  ::= testtrue_then
+        testexpr_then  ::= testfalse_then
+        testtrue_then  ::= expr jmp_true_then
+        testfalse_then ::= expr jmp_false_then
+
+        jmp_false_then ::= JUMP_IF_FALSE THEN POP_TOP
+        jmp_true_then  ::= JUMP_IF_TRUE THEN POP_TOP
 
         # Common with 2.7
         while1stmt ::= SETUP_LOOP return_stmts bp_come_from
@@ -201,11 +218,11 @@ class Python26Parser(Python2Parser):
 
     def p_ret26(self, args):
         '''
-        ret_and  ::= expr jmp_false ret_expr_or_cond COME_FROM
-        ret_or   ::= expr jmp_true ret_expr_or_cond COME_FROM
-        ret_cond ::= expr jmp_false expr RETURN_END_IF POP_TOP ret_expr_or_cond
-        ret_cond ::= expr jmp_false expr ret_expr_or_cond
-        ret_cond_not ::= expr jmp_true expr RETURN_END_IF POP_TOP ret_expr_or_cond
+        ret_and      ::= expr jmp_false ret_expr_or_cond COME_FROM
+        ret_or       ::= expr jmp_true ret_expr_or_cond COME_FROM
+        ret_cond     ::= expr jmp_false_then expr RETURN_END_IF POP_TOP ret_expr_or_cond
+        ret_cond     ::= expr jmp_false_then expr ret_expr_or_cond
+        ret_cond_not ::= expr jmp_true_then  expr RETURN_END_IF POP_TOP ret_expr_or_cond
 
         return_if_stmt ::= ret_expr RETURN_END_IF POP_TOP
         return_stmt ::= ret_expr RETURN_VALUE POP_TOP
