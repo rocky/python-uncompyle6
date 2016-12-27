@@ -179,9 +179,9 @@ class Python26Parser(Python2Parser):
         list_iter  ::= list_if JUMP_BACK COME_FROM POP_TOP
         list_compr ::= BUILD_LIST_0 DUP_TOP
                        designator list_iter del_stmt
-	list_compr ::= BUILD_LIST_0 DUP_TOP
-		       designator list_iter JUMP_BACK del_stmt
-	lc_body    ::= LOAD_NAME expr LIST_APPEND
+        list_compr ::= BUILD_LIST_0 DUP_TOP
+	               designator list_iter JUMP_BACK del_stmt
+        lc_body    ::= LOAD_NAME expr LIST_APPEND
 	lc_body    ::= LOAD_FAST expr LIST_APPEND
 
         comp_for ::= SETUP_LOOP expr _for designator comp_iter jb_bp_come_from
