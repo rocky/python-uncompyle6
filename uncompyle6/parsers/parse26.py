@@ -232,17 +232,37 @@ class Python26Parser(Python2Parser):
         '''
 
     def p_except26(self, args):
-        '''
+        """
         except_suite ::= c_stmts_opt jmp_abs POP_TOP
-        '''
+        """
 
     def p_misc26(self, args):
-        '''
+        """
         conditional  ::= expr jmp_false expr jf_cf_pop expr come_from_opt
         and  ::= expr JUMP_IF_FALSE POP_TOP expr JUMP_IF_FALSE POP_TOP
         cmp_list ::= expr cmp_list1 ROT_TWO COME_FROM POP_TOP _come_from
-        '''
 
+        conditional_lambda ::= expr jmp_false_then return_if_stmt return_stmt LAMBDA_MARKER
+        """
+
+    def add_custom_rules(self, tokens, customize):
+        super(Python26Parser, self).add_custom_rules(tokens, customize)
+        self.check_reduce['and'] = 'AST'
+
+    def reduce_is_invalid(self, rule, ast, tokens, first, last):
+        invalid = super(Python26Parser,
+                        self).reduce_is_invalid(rule, ast,
+                                                tokens, first, last)
+        if invalid:
+            return invalid
+        if rule == ('and', ('expr', 'jmp_false', 'expr', '\\e_come_from_opt')):
+            # Test that jmp_false jumps to the end of "and"
+            # or that it jumps to the same place as the end of "and"
+            jmp_false = ast[1][0]
+            jmp_target = jmp_false.offset + jmp_false.attr + 3
+            return not (jmp_target == tokens[last].offset or
+                        tokens[last].pattr == jmp_false.pattr)
+        return False
 class Python26ParserSingle(Python2Parser, PythonParserSingle):
     pass
 

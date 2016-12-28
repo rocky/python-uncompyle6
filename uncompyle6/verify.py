@@ -407,7 +407,8 @@ def compare_code_with_srcfile(pyc_filename, src_filename, weak_verify=False):
     try:
         code_obj2 = load_file(src_filename)
     except SyntaxError as e:
-        return str(e)
+        # src_filename can be the first of a group sometimes
+        return str(e).replace(src_filename, pyc_filename)
     cmp_code_objects(version, is_pypy, code_obj1, code_obj2, ignore_code=weak_verify)
     return None
 
