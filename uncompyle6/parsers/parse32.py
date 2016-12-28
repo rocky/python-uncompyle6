@@ -19,6 +19,11 @@ class Python32Parser(Python3Parser):
                               COME_FROM_LOOP
         whileTruestmt     ::= SETUP_LOOP return_stmts
                               COME_FROM_LOOP
+
+        # Python 3.2+ has more loop optimization that removes
+        # JUMP_FORWARD in some cases, and hence we also don't
+        # see COME_FROM
+        _ifstmts_jump ::= c_stmts_opt
         """
     pass
 
