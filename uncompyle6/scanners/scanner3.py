@@ -148,7 +148,7 @@ class Scanner3(Scanner):
         """
 
         show_asm = self.show_asm if not show_asm else show_asm
-        # show_asm = 'after'
+        # show_asm = 'both'
         if show_asm in ('both', 'before'):
             bytecode = Bytecode(co, self.opc)
             for instr in bytecode.get_instructions(co):
@@ -600,7 +600,6 @@ class Scanner3(Scanner):
                 parent = struct
 
         if op == self.opc.SETUP_LOOP:
-
             # We categorize loop types: 'for', 'while', 'while 1' with
             # possibly suffixes '-loop' and '-else'
             # Try to find the jump_back instruction of the loop.
@@ -618,20 +617,30 @@ class Scanner3(Scanner):
             jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE,
                                           next_line_byte, False)
 
-            if jump_back and jump_back != self.prev_op[end] and self.is_jump_forward(jump_back+3):
-                if (code[self.prev_op[end]] == self.opc.RETURN_VALUE
-                    or (code[self.prev_op[end]] == self.opc.POP_BLOCK
-                         and code[self.prev_op[self.prev_op[end]]] == self.opc.RETURN_VALUE)):
+            jump_forward_offset = jump_back+3
+            return_val_offset1 = self.prev[self.prev[end]]
+
+            if (jump_back and jump_back != self.prev_op[end]
+                and self.is_jump_forward(jump_forward_offset)):
+                if (code[self.prev_op[end]] == self.opc.RETURN_VALUE or
+                    (code[self.prev_op[end]] == self.opc.POP_BLOCK
+                     and code[return_val_offset1] == self.opc.RETURN_VALUE)):
                     jump_back = None
-            if not jump_back: # loop suite ends in return. wtf right?
+            if not jump_back:
+                # loop suite ends in return
                 jump_back = self.last_instr(start, end, self.opc.RETURN_VALUE) + 1
                 if not jump_back:
                     return
+
+                jump_back += 1
+                if_offset = None
                 if code[self.prev_op[next_line_byte]] not in POP_JUMP_TF:
-                    loop_type = 'for'
-                else:
+                    if_offset = self.prev[next_line_byte]
+                if if_offset:
                     loop_type = 'while'
-                    self.ignore_if.add(self.prev_op[next_line_byte])
+                    self.ignore_if.add(if_offset)
+                else:
+                    loop_type = 'for'
                 target = next_line_byte
                 end = jump_back + 3
             else:
@@ -645,6 +654,7 @@ class Scanner3(Scanner):
                 elif target < offset:
                     self.fixed_jumps[offset] = jump_back+4
                     end = jump_back+4
+
                 target = self.get_target(jump_back)
 
                 if code[target] in (self.opc.FOR_ITER, self.opc.GET_ITER):
@@ -652,6 +662,7 @@ class Scanner3(Scanner):
                 else:
                     loop_type = 'while'
                     test = self.prev_op[next_line_byte]
+
                     if test == offset:
                         loop_type = 'while 1'
                     elif self.code[test] in op3.hasjabs+op3.hasjrel:
@@ -764,14 +775,15 @@ class Scanner3(Scanner):
             if offset in self.ignore_if:
                 return
 
-            if (code[prev_op[rtarget]] == self.opc.JUMP_ABSOLUTE and
-                prev_op[rtarget] in self.stmts and
-                prev_op[rtarget] != offset and
-                prev_op[prev_op[rtarget]] != offset and
+            rrtarget = prev_op[rtarget]
+            if (code[rrtarget] == self.opc.JUMP_ABSOLUTE and
+                rrtarget in self.stmts and
+                rrtarget != offset and
+                prev_op[rrtarget] != offset and
                 not (code[rtarget] == self.opc.JUMP_ABSOLUTE and
                      code[rtarget+3] == self.opc.POP_BLOCK and
-                     code[prev_op[prev_op[rtarget]]] != self.opc.JUMP_ABSOLUTE)):
-                rtarget = prev_op[rtarget]
+                     code[prev_op[rrtarget]] != self.opc.JUMP_ABSOLUTE)):
+                rtarget = rrtarget
 
             # Does the "jump if" jump beyond a jump op?
             # That is, we have something like:
@@ -787,8 +799,7 @@ class Scanner3(Scanner):
             # There are other contexts we may need to consider
             # like whether the target is "END_FINALLY"
             # or if the condition jump is to a forward location
-            if self.is_jump_forward(prev_op[rtarget]):
-                rrtarget = prev_op[rtarget]
+            if self.is_jump_forward(rrtarget):
                 if_end = self.get_target(rrtarget)
 
                 # If the jump target is back, we are looping
@@ -813,7 +824,13 @@ class Scanner3(Scanner):
                                          'start': rtarget,
                                          'end': end})
                     self.else_start[rtarget] = end
-            elif code[prev_op[rtarget]] == self.opc.RETURN_VALUE:
+            elif self.is_jump_back(rrtarget):
+                if_end = rtarget
+                self.structs.append({'type': 'if-then',
+                                     'start': start,
+                                     'end': rrtarget})
+                self.not_continue.add(prev_op[rtarget])
+            elif code[rrtarget] == self.opc.RETURN_VALUE:
                 self.structs.append({'type': 'if-then',
                                      'start': start,
                                      'end': rtarget})
@@ -881,6 +898,16 @@ class Scanner3(Scanner):
                     self.return_end_ifs.remove(rtarget_prev)
                 pass
         return
+
+    def is_jump_back(self, offset):
+        """
+        Return True if the code at offset is some sort of jump back.
+        That is, it is ether "JUMP_FORWARD" or an absolute jump that
+        goes forward.
+        """
+        if self.code[offset] != self.opc.JUMP_ABSOLUTE:
+            return False
+        return offset > self.get_target(offset)
 
     def next_except_jump(self, start):
         """
