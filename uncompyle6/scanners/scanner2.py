@@ -478,7 +478,7 @@ class Scanner2(scan.Scanner):
             elif op in self.setup_ops:
                 count_SETUP_ += 1
 
-    def detect_structure(self, offset, op):
+    def detect_control_flow(self, offset, op):
         """
         Detect type of block structures and their boundaries to fix optimized jumps
         in python2.3+
@@ -955,7 +955,7 @@ class Scanner2(scan.Scanner):
         self.ignore_if = set()
         self.build_statement_indices()
 
-        # Containers filled by detect_structure()
+        # Containers filled by detect_control_flow()
         self.not_continue = set()
         self.return_end_ifs = set()
         self.setup_loop_targets = {}  # target given setup_loop offset
@@ -968,7 +968,7 @@ class Scanner2(scan.Scanner):
 
             # Determine structures and fix jumps in Python versions
             # since 2.3
-            self.detect_structure(offset, op)
+            self.detect_control_flow(offset, op)
 
             if op_has_argument(op, self.opc):
                 label = self.fixed_jumps.get(offset)

@@ -441,7 +441,7 @@ class Scanner3(Scanner):
         self.build_statement_indices()
         self.else_start = {}
 
-        # Containers filled by detect_structure()
+        # Containers filled by detect_control_flow()
         self.not_continue = set()
         self.return_end_ifs = set()
         self.setup_loop_targets = {}  # target given setup_loop offset
@@ -453,7 +453,7 @@ class Scanner3(Scanner):
 
             # Determine structures and fix jumps in Python versions
             # since 2.3
-            self.detect_structure(offset, targets)
+            self.detect_control_flow(offset, targets)
 
             has_arg = (op >= op3.HAVE_ARGUMENT)
             if has_arg:
@@ -580,7 +580,7 @@ class Scanner3(Scanner):
 
         return target
 
-    def detect_structure(self, offset, targets):
+    def detect_control_flow(self, offset, targets):
         """
         Detect structures and their boundaries to fix optimized jumps
         in python2.3+
