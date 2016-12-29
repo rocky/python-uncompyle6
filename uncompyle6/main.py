@@ -230,11 +230,11 @@ def status_msg(do_verify, tot_files, okay_files, failed_files,
                verify_failed_files):
     if tot_files == 1:
         if failed_files:
-            return "decompile failed"
+            return "\n# decompile failed"
         elif verify_failed_files:
-            return "decompile verify failed"
+            return "\n# decompile verify failed"
         else:
-            return "Successfully decompiled file"
+            return "\n# Successfully decompiled file"
             pass
         pass
     mess = "decompiled %i files: %i okay, %i failed" % (tot_files, okay_files, failed_files)
