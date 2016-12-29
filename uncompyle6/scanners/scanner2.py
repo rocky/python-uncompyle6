@@ -700,6 +700,10 @@ class Scanner2(scan.Scanner):
                                        'end':   pre[target]})
                 return
 
+            # The op offset just before the target jump offset is important
+            # in making a determination of what we have. Save that.
+            pre_rtarget = pre[rtarget]
+
             # Is it an "and" inside an "if" or "while" block
             if op == self.opc.PJIF:
 
@@ -710,22 +714,22 @@ class Scanner2(scan.Scanner):
 
                 # If we still have any offsets in set, start working on it
                 if match:
-                    if code[pre[rtarget]] in self.jump_forward \
-                            and pre[rtarget] not in self.stmts \
-                            and self.restrict_to_parent(self.get_target(pre[rtarget]), parent) == rtarget:
-                        if code[pre[pre[rtarget]]] == self.opc.JUMP_ABSOLUTE \
+                    if code[pre_rtarget] in self.jump_forward \
+                            and pre_rtarget not in self.stmts \
+                            and self.restrict_to_parent(self.get_target(pre_rtarget), parent) == rtarget:
+                        if code[pre[pre_rtarget]] == self.opc.JUMP_ABSOLUTE \
                                 and self.remove_mid_line_ifs([offset]) \
-                                and target == self.get_target(pre[pre[rtarget]]) \
-                                and (pre[pre[rtarget]] not in self.stmts or self.get_target(pre[pre[rtarget]]) > pre[pre[rtarget]])\
-                                and 1 == len(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]], self.pop_jump_if, target))):
+                                and target == self.get_target(pre[pre_rtarget]) \
+                                and (pre[pre_rtarget] not in self.stmts or self.get_target(pre[pre_rtarget]) > pre[pre_rtarget])\
+                                and 1 == len(self.remove_mid_line_ifs(self.rem_or(start, pre[pre_rtarget], self.pop_jump_if, target))):
                             pass
-                        elif code[pre[pre[rtarget]]] == self.opc.RETURN_VALUE \
+                        elif code[pre[pre_rtarget]] == self.opc.RETURN_VALUE \
                                 and self.remove_mid_line_ifs([offset]) \
                                 and 1 == (len(set(self.remove_mid_line_ifs(self.rem_or(start,
-                                                                                       pre[pre[rtarget]],
+                                                                                       pre[pre_rtarget],
                                                                                        self.pop_jump_if, target)))
-                                              | set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre[rtarget]],
-                                                            (self.opc.PJIF, self.opc.PJIT, self.opc.JUMP_ABSOLUTE), pre[rtarget], True))))):
+                                              | set(self.remove_mid_line_ifs(self.rem_or(start, pre[pre_rtarget],
+                                                            (self.opc.PJIF, self.opc.PJIT, self.opc.JUMP_ABSOLUTE), pre_rtarget, True))))):
                             pass
                         else:
                             fix = None
@@ -758,7 +762,7 @@ class Scanner2(scan.Scanner):
                 else:
                     assert_offset = offset + 3
                 if (assert_offset) in self.load_asserts:
-                    if code[pre[rtarget]] == self.opc.RAISE_VARARGS:
+                    if code[pre_rtarget] == self.opc.RAISE_VARARGS:
                         return
                     self.load_asserts.remove(assert_offset)
 
@@ -767,7 +771,7 @@ class Scanner2(scan.Scanner):
                     pass
                 elif code[next] in self.jump_forward and target == self.get_target(next):
                     if code[pre[next]] == self.opc.PJIF:
-                        if code[next] == self.opc.JUMP_FORWARD or target != rtarget or code[pre[pre[rtarget]]] not in (self.opc.JUMP_ABSOLUTE, self.opc.RETURN_VALUE):
+                        if code[next] == self.opc.JUMP_FORWARD or target != rtarget or code[pre[pre_rtarget]] not in (self.opc.JUMP_ABSOLUTE, self.opc.RETURN_VALUE):
                             self.fixed_jumps[offset] = pre[next]
                             return
                 elif code[next] == self.opc.JUMP_ABSOLUTE and code[target] in self.jump_forward:
@@ -784,17 +788,17 @@ class Scanner2(scan.Scanner):
                 return
 
             if self.version == 2.7:
-                if code[pre[rtarget]] == self.opc.JUMP_ABSOLUTE and pre[rtarget] in self.stmts \
-                        and pre[rtarget] != offset and pre[pre[rtarget]] != offset:
+                if code[pre_rtarget] == self.opc.JUMP_ABSOLUTE and pre_rtarget in self.stmts \
+                        and pre_rtarget != offset and pre[pre_rtarget] != offset:
                     if code[rtarget] == self.opc.JUMP_ABSOLUTE and code[rtarget+3] == self.opc.POP_BLOCK:
-                        if code[pre[pre[rtarget]]] != self.opc.JUMP_ABSOLUTE:
+                        if code[pre[pre_rtarget]] != self.opc.JUMP_ABSOLUTE:
                             pass
-                        elif self.get_target(pre[pre[rtarget]]) != target:
+                        elif self.get_target(pre[pre_rtarget]) != target:
                             pass
                         else:
-                            rtarget = pre[rtarget]
+                            rtarget = pre_rtarget
                     else:
-                        rtarget = pre[rtarget]
+                        rtarget = pre_rtarget
 
             # Does the "jump if" jump beyond a jump op?
             # That is, we have something like:
@@ -810,7 +814,6 @@ class Scanner2(scan.Scanner):
             # There are other contexts we may need to consider
             # like whether the target is "END_FINALLY"
             # or if the condition jump is to a forward location
-            pre_rtarget = pre[rtarget]
             code_pre_rtarget = code[pre_rtarget]
 
             if code_pre_rtarget in self.jump_forward:

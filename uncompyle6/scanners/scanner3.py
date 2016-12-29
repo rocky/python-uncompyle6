@@ -199,6 +199,7 @@ class Scanner3(Scanner):
         # Get jump targets
         # Format: {target offset: [jump offsets]}
         jump_targets = self.find_jump_targets(show_asm)
+        last_op_was_break = False
 
         for inst in bytecode:
 
@@ -334,15 +335,21 @@ class Scanner3(Scanner):
                         # There are other situations where we don't catch
                         # CONTINUE as well.
                         if tokens[-1].type == 'JUMP_BACK' and tokens[-1].attr <= argval:
-                            # intern is used because we are changing the *previous* token
-                            tokens[-1].type = intern('CONTINUE')
-
+                            if tokens[-2].type == 'BREAK_LOOP':
+                                del tokens[-1]
+                            else:
+                                # intern is used because we are changing the *previous* token
+                                tokens[-1].type = intern('CONTINUE')
+                    if last_op_was_break and opname == 'CONTINUE':
+                        last_op_was_break = False
+                        continue
             elif op == self.opc.RETURN_VALUE:
                 if inst.offset in self.return_end_ifs:
                     opname = 'RETURN_END_IF'
             elif inst.offset in self.load_asserts:
                 opname = 'LOAD_ASSERT'
 
+            last_op_was_break = opname == 'BREAK_LOOP'
             tokens.append(
                 Token(
                     type_ = opname,
@@ -703,38 +710,40 @@ class Scanner3(Scanner):
                                      'end': prev_op[target]})
                 return
 
-            # Is it an "and" inside an "if" block
+            # The op offset just before the target jump offset is important
+            # in making a determination of what we have. Save that.
+            pre_rtarget = prev_op[rtarget]
+
+            # Is it an "and" inside an "if" or "while" block
             if op == self.opc.POP_JUMP_IF_FALSE:
+
                 # Search for another POP_JUMP_IF_FALSE targetting the same op,
                 # in current statement, starting from current offset, and filter
                 # everything inside inner 'or' jumps and midline ifs
                 match = self.rem_or(start, self.next_stmt[offset],
                                     self.opc.POP_JUMP_IF_FALSE, target)
-                # We can't remove mid-line ifs because line structures have changed
-                # from restructBytecode().
-                #  match = self.remove_mid_line_ifs(match)
 
                 # If we still have any offsets in set, start working on it
                 if match:
-                    is_jump_forward = self.is_jump_forward(prev_op[rtarget])
-                    if (is_jump_forward and prev_op[rtarget] not in self.stmts and
-                        self.restrict_to_parent(self.get_target(prev_op[rtarget]), parent) == rtarget):
-                        if (code[prev_op[prev_op[rtarget]]] == self.opc.JUMP_ABSOLUTE
+                    is_jump_forward = self.is_jump_forward(pre_rtarget)
+                    if (is_jump_forward and pre_rtarget not in self.stmts and
+                        self.restrict_to_parent(self.get_target(pre_rtarget), parent) == rtarget):
+                        if (code[prev_op[pre_rtarget]] == self.opc.JUMP_ABSOLUTE
                             and self.remove_mid_line_ifs([offset]) and
-                            target == self.get_target(prev_op[prev_op[rtarget]]) and
-                            (prev_op[prev_op[rtarget]] not in self.stmts or
-                             self.get_target(prev_op[prev_op[rtarget]]) > prev_op[prev_op[rtarget]]) and
-                            1 == len(self.remove_mid_line_ifs(self.rem_or(start, prev_op[prev_op[rtarget]], POP_JUMP_TF, target)))):
+                            target == self.get_target(prev_op[pre_rtarget]) and
+                            (prev_op[pre_rtarget] not in self.stmts or
+                             self.get_target(prev_op[pre_rtarget]) > prev_op[pre_rtarget]) and
+                            1 == len(self.remove_mid_line_ifs(self.rem_or(start, prev_op[pre_rtarget], POP_JUMP_TF, target)))):
                             pass
-                        elif (code[prev_op[prev_op[rtarget]]] == self.opc.RETURN_VALUE
+                        elif (code[prev_op[pre_rtarget]] == self.opc.RETURN_VALUE
                               and self.remove_mid_line_ifs([offset]) and
-                              1 == (len(set(self.remove_mid_line_ifs(self.rem_or(start, prev_op[prev_op[rtarget]],
+                              1 == (len(set(self.remove_mid_line_ifs(self.rem_or(start, prev_op[pre_rtarget],
                                                                                  POP_JUMP_TF, target))) |
-                                    set(self.remove_mid_line_ifs(self.rem_or(start, prev_op[prev_op[rtarget]],
+                                    set(self.remove_mid_line_ifs(self.rem_or(start, prev_op[pre_rtarget],
                                                                              (self.opc.POP_JUMP_IF_FALSE,
                                                                               self.opc.POP_JUMP_IF_TRUE,
                                                                               self.opc.JUMP_ABSOLUTE),
-                                                                             prev_op[rtarget], True)))))):
+                                                                             pre_rtarget, True)))))):
                             pass
                         else:
                             fix = None
@@ -762,7 +771,7 @@ class Scanner3(Scanner):
                     if code[prev_op[next]] == self.opc.POP_JUMP_IF_FALSE:
                         if (code[next] == self.opc.JUMP_FORWARD
                             or target != rtarget
-                            or code[prev_op[prev_op[rtarget]]] not in
+                            or code[prev_op[pre_rtarget]] not in
                             (self.opc.JUMP_ABSOLUTE, self.opc.RETURN_VALUE)):
                             self.fixed_jumps[offset] = prev_op[next]
                             return
@@ -775,15 +784,14 @@ class Scanner3(Scanner):
             if offset in self.ignore_if:
                 return
 
-            rrtarget = prev_op[rtarget]
-            if (code[rrtarget] == self.opc.JUMP_ABSOLUTE and
-                rrtarget in self.stmts and
-                rrtarget != offset and
-                prev_op[rrtarget] != offset and
+            if (code[pre_rtarget] == self.opc.JUMP_ABSOLUTE and
+                pre_rtarget in self.stmts and
+                pre_rtarget != offset and
+                prev_op[pre_rtarget] != offset and
                 not (code[rtarget] == self.opc.JUMP_ABSOLUTE and
                      code[rtarget+3] == self.opc.POP_BLOCK and
-                     code[prev_op[rrtarget]] != self.opc.JUMP_ABSOLUTE)):
-                rtarget = rrtarget
+                     code[prev_op[pre_rtarget]] != self.opc.JUMP_ABSOLUTE)):
+                rtarget = pre_rtarget
 
             # Does the "jump if" jump beyond a jump op?
             # That is, we have something like:
@@ -799,11 +807,11 @@ class Scanner3(Scanner):
             # There are other contexts we may need to consider
             # like whether the target is "END_FINALLY"
             # or if the condition jump is to a forward location
-            if self.is_jump_forward(rrtarget):
-                if_end = self.get_target(rrtarget)
+            if self.is_jump_forward(pre_rtarget):
+                if_end = self.get_target(pre_rtarget)
 
                 # If the jump target is back, we are looping
-                if (if_end < rrtarget and
+                if (if_end < pre_rtarget and
                     (code[prev_op[if_end]] == self.opc.SETUP_LOOP)):
                     if (if_end > start):
                         return
@@ -812,25 +820,25 @@ class Scanner3(Scanner):
 
                 self.structs.append({'type': 'if-then',
                                      'start': start,
-                                     'end': prev_op[rtarget]})
-                self.not_continue.add(prev_op[rtarget])
+                                     'end': pre_rtarget})
+                self.not_continue.add(pre_rtarget)
 
                 if rtarget < end and (
                         code[rtarget] not in (self.opc.END_FINALLY,
                                               self.opc.JUMP_ABSOLUTE) and
-                        code[prev_op[rrtarget]] not in (self.opc.POP_EXCEPT,
+                        code[prev_op[pre_rtarget]] not in (self.opc.POP_EXCEPT,
                                                         self.opc.END_FINALLY)):
                     self.structs.append({'type': 'else',
                                          'start': rtarget,
                                          'end': end})
                     self.else_start[rtarget] = end
-            elif self.is_jump_back(rrtarget):
+            elif self.is_jump_back(pre_rtarget):
                 if_end = rtarget
                 self.structs.append({'type': 'if-then',
                                      'start': start,
-                                     'end': rrtarget})
-                self.not_continue.add(prev_op[rtarget])
-            elif code[rrtarget] == self.opc.RETURN_VALUE:
+                                     'end': pre_rtarget})
+                self.not_continue.add(pre_rtarget)
+            elif code[pre_rtarget] == self.opc.RETURN_VALUE:
                 self.structs.append({'type': 'if-then',
                                      'start': start,
                                      'end': rtarget})
@@ -860,7 +868,7 @@ class Scanner3(Scanner):
                                 return
                             pass
                     pass
-                self.return_end_ifs.add(prev_op[rtarget])
+                self.return_end_ifs.add(pre_rtarget)
 
         elif op in self.jump_if_pop:
             target = self.get_target(offset)
