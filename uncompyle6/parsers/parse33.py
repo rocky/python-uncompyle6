@@ -20,11 +20,6 @@ class Python33Parser(Python32Parser):
         iflaststmt    ::= testexpr c_stmts_opt33
         c_stmts_opt33 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from
-
-        # Python 3.3+ has more loop optimization that removes
-        # JUMP_FORWARD in some cases, and hence we also don't
-        # see COME_FROM
-        _ifstmts_jump ::= c_stmts_opt
         """
 
 class Python33ParserSingle(Python33Parser, PythonParserSingle):

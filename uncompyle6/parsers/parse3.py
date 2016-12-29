@@ -697,12 +697,21 @@ class Python3Parser(PythonParser):
         self.check_reduce['augassign1'] = 'AST'
         self.check_reduce['augassign2'] = 'AST'
         self.check_reduce['while1stmt'] = 'noAST'
+        # FIXME: remove parser errors caused by the below
+        # self.check_reduce['while1elsestmt'] = 'noAST'
         return
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         lhs = rule[0]
         if lhs in ('augassign1', 'augassign2') and ast[0][0] == 'and':
             return True
+        elif lhs == 'while1elsestmt':
+            # if SETUP_LOOP target spans the else part, then this is
+            # not while1else. Also do for whileTrue?
+            last += 1
+            while isinstance(tokens[last].offset, str):
+                last += 1
+            return tokens[first].attr == tokens[last].offset
         elif lhs == 'while1stmt':
             if tokens[last] in ('COME_FROM_LOOP', 'JUMP_BACK'):
                 # jump_back should be right afer SETUP_LOOP. Test?
