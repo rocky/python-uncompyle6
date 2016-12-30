@@ -126,8 +126,9 @@ def main(in_base, out_base, files, codes, outfile=None,
                     prefix = prefix[:-len('.py')]
                 junk, outfile = tempfile.mkstemp(suffix=".py",
                                              prefix=prefix)
-                # Unbuffer output
-                sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
+                # Unbuffer output if possible
+                buffering = -1 if sys.stdout.isatty() else 0
+                sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering)
                 tee = subprocess.Popen(["tee", outfile], stdin=subprocess.PIPE)
                 os.dup2(tee.stdin.fileno(), sys.stdout.fileno())
                 os.dup2(tee.stdin.fileno(), sys.stderr.fileno())
