@@ -131,7 +131,10 @@ def main(in_base, out_base, files, codes, outfile=None,
                 junk, outfile = tempfile.mkstemp(suffix=".py",
                                              prefix=prefix)
                 # Unbuffer output if possible
-                buffering = -1 if sys.stdout.isatty() else 0
+                if sys.stdout.isatty():
+                    buffering = -1
+                else:
+                    buffering = 0
                 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering)
                 tee = subprocess.Popen(["tee", outfile], stdin=subprocess.PIPE)
                 os.dup2(tee.stdin.fileno(), sys.stdout.fileno())
