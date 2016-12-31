@@ -96,35 +96,32 @@ class Scanner26(scan.Scanner2):
             for instr in bytecode.get_instructions(co):
                 print(instr._disassemble())
 
-        # from xdis.bytecode import Bytecode
-        # bytecode = Bytecode(co, self.opc)
-        # for instr in bytecode.get_instructions(co):
-        #     print(instr._disassemble())
-
         # Container for tokens
         tokens = []
 
         customize = {}
+        if self.is_pypy:
+            customize['PyPy'] = 1
+
         Token = self.Token # shortcut
 
-        n = self.setup_code(co)
+        codelen = self.setup_code(co)
 
-        self.build_lines_data(co, n)
-        self.build_prev_op(n)
+        self.build_lines_data(co, codelen)
+        self.build_prev_op(codelen)
 
         free, names, varnames = self.unmangle_code_names(co, classname)
         self.names = names
-
-        codelen = len(self.code)
 
         # Scan for assertions. Later we will
         # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT'.
         # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
-        for i in self.op_range(0, n):
-            # We need to detect the difference between
-            # "raise AssertionError" and
-            # "assert"
+        for i in self.op_range(0, codelen):
+            # We need to detect the difference between:
+            #   raise AssertionError
+            #  and
+            #   assert ...
             if (self.code[i] == self.opc.JUMP_IF_TRUE and
                 i + 4 < codelen and
                 self.code[i+3] == self.opc.POP_TOP and
@@ -169,6 +166,11 @@ class Scanner26(scan.Scanner2):
                         offset="%s_%d" % (offset, jump_idx),
                         has_arg = True))
                     jump_idx += 1
+            elif offset in self.thens:
+                tokens.append(Token(
+                    'THEN', None, self.thens[offset],
+                    offset="%s_0" % offset,
+                    has_arg = True))
 
             has_arg = (op >= self.opc.HAVE_ARGUMENT)
             if has_arg:

@@ -100,7 +100,7 @@ check-bytecode-2.5:
 
 #: Check deparsing Python 2.6
 check-bytecode-2.6:
-	$(PYTHON) test_pythonlib.py --bytecode-2.6
+	$(PYTHON) test_pythonlib.py --bytecode-2.6 --weak-verify
 
 #: Check deparsing Python 2.7
 check-bytecode-2.7:

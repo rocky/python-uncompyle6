@@ -130,8 +130,9 @@ def main(in_base, out_base, files, codes, outfile=None,
                     prefix = prefix[:-len('.py')]
                 junk, outfile = tempfile.mkstemp(suffix=".py",
                                              prefix=prefix)
-                # Unbuffer output
-                sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
+                # Unbuffer output if possible
+                buffering = -1 if sys.stdout.isatty() else 0
+                sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering)
                 tee = subprocess.Popen(["tee", outfile], stdin=subprocess.PIPE)
                 os.dup2(tee.stdin.fileno(), sys.stdout.fileno())
                 os.dup2(tee.stdin.fileno(), sys.stderr.fileno())
@@ -238,11 +239,11 @@ def status_msg(do_verify, tot_files, okay_files, failed_files,
                verify_failed_files):
     if tot_files == 1:
         if failed_files:
-            return "decompile failed"
+            return "\n# decompile failed"
         elif verify_failed_files:
-            return "decompile verify failed"
+            return "\n# decompile verify failed"
         else:
-            return "Successfully decompiled file"
+            return "\n# Successfully decompiled file"
             pass
         pass
     mess = "decompiled %i files: %i okay, %i failed" % (tot_files, okay_files, failed_files)
