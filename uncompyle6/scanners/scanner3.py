@@ -624,9 +624,13 @@ class Scanner3(Scanner):
                 self.fixed_jumps[offset] = end
             (line_no, next_line_byte) = self.lines[offset]
             jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE,
-                                          next_line_byte, False)
+                                            next_line_byte, False)
 
-            jump_forward_offset = jump_back+3
+            if jump_back:
+                jump_forward_offset = jump_back+3
+            else:
+                jump_forward_offset = None
+
             return_val_offset1 = self.prev[self.prev[end]]
 
             if (jump_back and jump_back != self.prev_op[end]
