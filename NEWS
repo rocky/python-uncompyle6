@@ -1,3 +1,18 @@
+uncompyle6 2.9.9 2016-12-16
+
+- Better control-flow detection
+- pseudo instruction THEN in 2.x
+  to disambiguate if from and
+- fix bug in --verify option
+- DRY (a little) control-flow detection
+- fix syntax in tuples with one element
+- if AST rule inheritence in Python 2.5
+- NAME_MODULE removal for Python <= 2.4
+- verifycall fixes for Python <= 2.4
+- more Python lint
+
+uncompyle6 2.9.8 2016-12-16
+
 uncompyle6 2.9.7 2016-12-16
 
 - Start to handle 3.5/3.6 build_map_unpack_with_call
