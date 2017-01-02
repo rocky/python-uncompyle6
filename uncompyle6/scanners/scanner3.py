@@ -876,6 +876,14 @@ class Scanner3(Scanner):
                     pass
                 self.return_end_ifs.add(pre_rtarget)
 
+        elif op == self.opc.SETUP_EXCEPT:
+            target = self.get_target(offset)
+            end    = self.restrict_to_parent(target, parent)
+            self.fixed_jumps[offset] = end
+        elif op == self.opc.SETUP_FINALLY:
+            target = self.get_target(offset)
+            end    = self.restrict_to_parent(target, parent)
+            self.fixed_jumps[offset] = end
         elif op in self.jump_if_pop:
             target = self.get_target(offset)
             if target > offset:
