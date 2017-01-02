@@ -34,12 +34,12 @@ class Python35Parser(Python34Parser):
 
         # Python 3.5+ does jump optimization
         # In <.3.5 the below is a JUMP_FORWARD to a JUMP_ABSOLUTE.
-        # in return_stmt, we will need the semantic actions in pysource.py
-        # to work out whether to dedent or not based on the presence of
-        # RETURN_END_IF vs RETURN_VALUE
+
+        return_if_stmt ::= ret_expr RETURN_END_IF POP_BLOCK
 
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
         # ifstmt ::= testexpr c_stmts_opt
+
 
         # Python 3.3+ also has yield from. 3.5 does it
         # differently than 3.3, 3.4

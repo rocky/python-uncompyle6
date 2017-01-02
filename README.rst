@@ -43,10 +43,10 @@ information.
 Requirements
 ------------
 
-This project requires Python 2.6 or later, PyPy 3-2.4, or PyPy-5.0.1. 
-Python versions 2.3-2.7 are supported in the python-2.4 branch.
+This project requires Python 2.6 or later, PyPy 3-2.4, or PyPy-5.0.1.
+Python versions 2.4-2.7 are supported in the python-2.4 branch.
 The bytecode files it can read has been tested on Python bytecodes from
-versions 2.1-2.7, and 3.2-3.6 and the above-mentioned PyPy versions.
+versions 1.5, 2.1-2.7, and 3.2-3.6 and the above-mentioned PyPy versions.
 
 Installation
 ------------
@@ -92,6 +92,16 @@ For usage help:
 ::
 
    $ uncompyle6 -h
+
+If you want strong verification of the correctness of the
+decompilation process, add the `--verify` option. But there are
+situations where this will indicate a failure, although the generated
+program is semantically equivalent. Using option `--weak-verify` will
+tell you if there is something definitely wrong. Generally, large
+swaths of code are decompiled correctly, if not the entire program.
+
+You can also cross compare the results with pycdc_ . Since they work
+differently, bugs here often aren't in that, and vice versa.
 
 
 Known Bugs/Restrictions
