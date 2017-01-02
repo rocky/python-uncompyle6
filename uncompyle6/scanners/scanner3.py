@@ -324,11 +324,12 @@ class Scanner3(Scanner):
                     if (inst.offset in self.stmts and
                         (next_opname not in ('END_FINALLY', 'POP_BLOCK',
                                             # Python 3.0 only uses POP_TOP
-                                            'POP_TOP')
-                        and inst.offset not in self.not_continue) or
-                        (tokens[-1].type == 'RETURN_VALUE' and
-                         self.version < 3.5)):
-                        opname = 'CONTINUE'
+                                            'POP_TOP'))):
+                        if (self.version == 3.5 or
+                            (inst.offset not in self.not_continue) or
+                            (tokens[-1].type == 'RETURN_VALUE')):
+                            opname = 'CONTINUE'
+                            pass
                     else:
                         opname = 'JUMP_BACK'
                         # FIXME: this is a hack to catch stuff like:
