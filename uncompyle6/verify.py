@@ -351,8 +351,10 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
         elif member == 'co_flags':
             flags1 = code_obj1.co_flags
             flags2 = code_obj2.co_flags
-            if is_pypy:
+            if is_pypy or version == 2.4:
                 # For PYPY for now we don't care about PYPY_SOURCE_IS_UTF8:
+                # Python 2.4 also sets this flag and I am not sure
+                # where or why
                 flags2 &= ~0x0100  # PYPY_SOURCE_IS_UTF8
             # We also don't care about COROUTINE or GENERATOR for now
             flags1 &= ~0x000000a0
@@ -361,6 +363,8 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
                 raise CmpErrorMember(name, 'co_flags',
                                      pretty_flags(flags1),
                                      pretty_flags(flags2))
+
+
         else:
             # all other members must be equal
             if getattr(code_obj1, member) != getattr(code_obj2, member):
@@ -404,8 +408,10 @@ def compare_code_with_srcfile(pyc_filename, src_filename, weak_verify=False):
         return msg
     try:
         code_obj2 = load_file(src_filename)
-    except SyntaxError as e:
+    except SyntaxError, e:
         # src_filename can be the first of a group sometimes
+        if version == 2.4:
+            print(pyc_filename)
         return str(e).replace(src_filename, pyc_filename)
     cmp_code_objects(version, is_pypy, code_obj1, code_obj2, ignore_code=weak_verify)
     return None
