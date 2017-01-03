@@ -325,7 +325,7 @@ class Scanner3(Scanner):
                         (next_opname not in ('END_FINALLY', 'POP_BLOCK',
                                             # Python 3.0 only uses POP_TOP
                                             'POP_TOP'))):
-                        if (self.version == 3.5 or
+                        if (self.version >= 3.5 or
                             (inst.offset not in self.not_continue) or
                             (tokens[-1].type == 'RETURN_VALUE')):
                             opname = 'CONTINUE'
