@@ -615,7 +615,10 @@ class Scanner3(Scanner):
             # Try to find the jump_back instruction of the loop.
             # It could be a return instruction.
 
-            start = offset+3
+            if self.version <= 3.5:
+                start = offset+3
+            else:
+                start = offset+2
             target = self.get_target(offset)
             end    = self.restrict_to_parent(target, parent)
             self.setup_loop_targets[offset] = target
@@ -641,12 +644,11 @@ class Scanner3(Scanner):
                      and code[return_val_offset1] == self.opc.RETURN_VALUE)):
                     jump_back = None
             if not jump_back:
-                # loop suite ends in return
-                jump_back = self.last_instr(start, end, self.opc.RETURN_VALUE) + 1
+                jump_back = self.last_instr(start, end, self.opc.RETURN_VALUE)
                 if not jump_back:
                     return
 
-                jump_back += 1
+                jump_back += 2
                 if_offset = None
                 if code[self.prev_op[next_line_byte]] not in POP_JUMP_TF:
                     if_offset = self.prev[next_line_byte]

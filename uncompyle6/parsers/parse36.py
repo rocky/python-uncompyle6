@@ -21,6 +21,9 @@ class Python36Parser(Python35Parser):
 
         func_args36   ::= expr BUILD_TUPLE_0
         call_function ::= func_args36 unmapexpr CALL_FUNCTION_EX
+
+        withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST
+                     WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
         """
 
     def add_custom_rules(self, tokens, customize):
