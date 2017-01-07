@@ -46,6 +46,9 @@ class Python32Parser(Python3Parser):
                         (('pos_arg ' * (args_pos)),
                          ('annotate_arg ' * (annotate_args-1)), opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
+                pass
+            return
+        pass
 
 
 class Python32ParserSingle(Python32Parser, PythonParserSingle):

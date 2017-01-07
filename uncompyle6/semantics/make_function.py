@@ -148,12 +148,15 @@ def make_function3_annotate(self, node, isLambda, nested=1,
     suffix = ''
     for param in paramnames[:i]:
         self.write(suffix, param)
-        if param in annotate_args:
-            value, string = annotate_args[param]
-            if string:
-                self.write(': "%s"' % value)
-            else:
-                self.write(': %s' % value)
+        if param in annotate_tuple[0].attr:
+            p = annotate_tuple[0].attr.index(param)
+            self.write(': ')
+            self.preorder(node[p])
+            # value, string = annotate_args[param]
+            # if string:
+            #     self.write(': "%s"' % value)
+            # else:
+            #     self.write(': %s' % value)
         suffix = ', '
 
     suffix = ', ' if i > 0 else ''
@@ -210,12 +213,14 @@ def make_function3_annotate(self, node, isLambda, nested=1,
         self.write(": ")
     else:
         self.write(')')
-        if 'return' in annotate_args:
-            value, string = annotate_args['return']
-            if string:
-                self.write(' -> "%s"' % value)
-            else:
-                self.write(' -> %s' % value)
+        if 'return' in annotate_tuple[0].attr:
+            self.write(' -> ')
+            # value, string = annotate_args['return']
+            # if string:
+            #     self.write(' -> "%s"' % value)
+            # else:
+            #     self.write(' -> %s' % value)
+            self.preorder(node[annotate_last-1])
 
         self.println(":")
 
