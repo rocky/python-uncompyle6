@@ -163,8 +163,11 @@ def make_function3_annotate(self, node, isLambda, nested=1,
             param = paramnames[i]
             self.write(param)
             if param in annotate_args:
-                self.write(':"%s' % annotate_args[param])
-            self.write('=')
+                aa = annotate_args[param]
+                if isinstance(aa, tuple):
+                    aa = aa[0]
+                self.write(':"%s' % aa)
+                self.write('=')
             i += 1
             self.preorder(n)
             if (line_number != self.line_number):
