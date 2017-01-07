@@ -71,7 +71,11 @@ def make_function3_annotate(self, node, isLambda, nested=1,
     # MAKE_FUNCTION_... or MAKE_CLOSURE_...
     assert node[-1].type.startswith('MAKE_')
 
-    annotate_tuple = node[annotate_last]
+    annotate_tuple = None
+    for annotate_last in range(len(node)-1, -1, -1):
+        if node[annotate_last] == 'annotate_tuple':
+            annotate_tuple = node[annotate_last]
+            break
     annotate_args = {}
 
     if (annotate_tuple == 'annotate_tuple'
@@ -148,16 +152,19 @@ def make_function3_annotate(self, node, isLambda, nested=1,
     suffix = ''
     for param in paramnames[:i]:
         self.write(suffix, param)
+        suffix = ', '
         if param in annotate_tuple[0].attr:
             p = annotate_tuple[0].attr.index(param)
             self.write(': ')
             self.preorder(node[p])
+            if (line_number != self.line_number):
+                suffix = ",\n" + indent
+                line_number = self.line_number
             # value, string = annotate_args[param]
             # if string:
             #     self.write(': "%s"' % value)
             # else:
             #     self.write(': %s' % value)
-        suffix = ', '
 
     suffix = ', ' if i > 0 else ''
     for n in node:
@@ -169,8 +176,8 @@ def make_function3_annotate(self, node, isLambda, nested=1,
                 aa = annotate_args[param]
                 if isinstance(aa, tuple):
                     aa = aa[0]
-                self.write(':"%s' % aa)
-                self.write('=')
+                self.write(': "%s"' % aa)
+            self.write('=')
             i += 1
             self.preorder(n)
             if (line_number != self.line_number):
@@ -195,6 +202,9 @@ def make_function3_annotate(self, node, isLambda, nested=1,
         i = 0
         for n in node[0]:
             if n == 'kwarg':
+                if (line_number != self.line_number):
+                    self.write("\n" + indent)
+                    line_number = self.line_number
                 self.write('%s=' % n[0].pattr)
                 self.preorder(n[1])
                 if i < last:
@@ -214,6 +224,9 @@ def make_function3_annotate(self, node, isLambda, nested=1,
     else:
         self.write(')')
         if 'return' in annotate_tuple[0].attr:
+            if (line_number != self.line_number):
+                self.write("\n" + indent)
+                line_number = self.line_number
             self.write(' -> ')
             # value, string = annotate_args['return']
             # if string:
@@ -227,7 +240,7 @@ def make_function3_annotate(self, node, isLambda, nested=1,
     if (len(code.co_consts) > 0 and
         code.co_consts[0] is not None and not isLambda): # ugly
         # docstring exists, dump it
-        print_docstring(self, indent, code.co_consts[0])
+        print_docstring(self, self.indent, code.co_consts[0])
 
     code._tokens = None # save memory
     assert ast == 'stmts'
