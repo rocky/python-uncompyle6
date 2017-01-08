@@ -47,7 +47,10 @@ import uncompyle6.semantics.pysource
 import uncompyle6.semantics.fragments
 
 # Export some functions
-from uncompyle6.main import uncompyle_file
+from uncompyle6.main import decompile_file
+
+# For compaitility
+uncompyle_file = decompile_file
 
 # Conventience functions so you can say:
 # from uncompyle6 import deparse_code
