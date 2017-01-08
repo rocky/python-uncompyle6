@@ -322,6 +322,7 @@ class Scanner3(Scanner):
                 if target <= inst.offset:
                     next_opname = self.opname[self.code[inst.offset+3]]
                     if (inst.offset in self.stmts and
+                    #if (hasattr(inst, 'linestart') and
                         (next_opname not in ('END_FINALLY', 'POP_BLOCK',
                                             # Python 3.0 only uses POP_TOP
                                             'POP_TOP'))):
@@ -499,7 +500,7 @@ class Scanner3(Scanner):
         prelim = self.all_instr(start, end, self.statement_opcodes)
 
         # Initialize final container with statements with
-        # preliminnary data
+        # preliminary data
         stmts = self.stmts = set(prelim)
 
         # Same for opcode sequences
@@ -578,11 +579,11 @@ class Scanner3(Scanner):
         op = self.code[offset]
         if self.version  >= 3.6:
             target = self.code[offset+1]
-            if op in op3.hasjrel:
+            if op in self.opc.hasjrel:
                 target += offset + 2
         else:
             target = self.code[offset+1] + self.code[offset+2] * 256
-            if op in op3.hasjrel:
+            if op in self.opc.hasjrel:
                 target += offset + 3
 
         return target
