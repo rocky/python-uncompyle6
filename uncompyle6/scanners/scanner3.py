@@ -461,11 +461,15 @@ class Scanner3(Scanner):
             has_arg = (op >= op3.HAVE_ARGUMENT)
             if has_arg:
                 label = self.fixed_jumps.get(offset)
-                oparg = code[offset+1] + code[offset+2] * 256
+                if self.version >= 3.6:
+                    oparg = code[offset+1]
+                else:
+                    oparg = code[offset+1] + code[offset+2] * 256
+                next_offset = offset + self.op_size(op)
 
                 if label is None:
                     if op in op3.hasjrel and op != self.opc.FOR_ITER:
-                        label = offset + 3 + oparg
+                        label = next_offset + oparg
                     elif op in op3.hasjabs:
                         if op in self.jump_if_pop:
                             if oparg > offset:

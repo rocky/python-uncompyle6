@@ -649,9 +649,21 @@ class SourceWalker(GenericASTTraversal, object):
                 TABLE_DIRECT.update({
                     'LOAD_CLASSDEREF':	( '%{pattr}', ),
                     })
+                ########################
+                # Python 3.5+ Additions
+                #######################
                 if version >= 3.5:
                     TABLE_DIRECT.update({
-                        'await_stmt':	( '%|await %c', 0),
+                        'await_stmt':	       ( '%|await %c', 0),
+                        'async_for_stmt':      (
+                            '%|async for %c in %c:\n%+%c%-\n\n', 9, 1, 25 ),
+                        'async_forelse_stmt':  (
+                            '%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 9, 1, 25, 28 ),
+                        'async_with_stmt':     (
+                            '%|async with %c:\n%+%c%-', 0, 7),
+                        'async_with_as_stmt':  (
+                            '%|async with %c as %c:\n%+%c%-', 0, 6, 7),
+
                     })
                     def n_funcdef(node):
                         code_node = node[0][1]
