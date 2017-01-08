@@ -851,7 +851,8 @@ class Scanner3(Scanner):
                                      'start': start,
                                      'end': pre_rtarget})
                 self.not_continue.add(pre_rtarget)
-            elif code[pre_rtarget] == self.opc.RETURN_VALUE:
+            elif code[pre_rtarget] in (self.opc.RETURN_VALUE,
+                                       self.opc.BREAK_LOOP):
                 self.structs.append({'type': 'if-then',
                                      'start': start,
                                      'end': rtarget})
@@ -881,7 +882,12 @@ class Scanner3(Scanner):
                                 return
                             pass
                     pass
-                self.return_end_ifs.add(pre_rtarget)
+                if code[pre_rtarget] == self.opc.RETURN_VALUE:
+                    self.return_end_ifs.add(pre_rtarget)
+                else:
+                    self.fixed_jumps[offset] = rtarget
+                    self.not_continue.add(pre_rtarget)
+
 
         elif op == self.opc.SETUP_EXCEPT:
             target = self.get_target(offset)
