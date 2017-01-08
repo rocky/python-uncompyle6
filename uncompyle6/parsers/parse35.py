@@ -16,6 +16,10 @@ class Python35Parser(Python34Parser):
 
     def p_35on(self, args):
         """
+        # Python 3.5+ Await statement
+        sstmt      ::= await_stmt
+        await_stmt ::= call_function GET_AWAITABLE LOAD_CONST YIELD_FROM POP_TOP
+
         # Python 3.5+ has WITH_CLEANUP_START/FINISH
 
         withstmt ::= expr SETUP_WITH exprlist suite_stmts_opt

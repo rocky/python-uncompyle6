@@ -60,7 +60,7 @@ methods implement most of the below.
     %{...} evaluate ... in context of N
     %% literal '%'
     %p evaluate N setting precedence
-
+n
 
   * indicates an argument (A) required.
 
@@ -73,6 +73,8 @@ import sys, re
 
 from uncompyle6 import PYTHON3
 from xdis.code import iscode
+from xdis.util import COMPILER_FLAG_BIT
+
 from uncompyle6.parser import get_python_parser
 from uncompyle6.parsers.astnode import AST
 from spark_parser import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -648,6 +650,19 @@ class SourceWalker(GenericASTTraversal, object):
                     'LOAD_CLASSDEREF':	( '%{pattr}', ),
                     })
                 if version >= 3.5:
+                    TABLE_DIRECT.update({
+                        'await_stmt':	( '%|await %c', 0),
+                    })
+                    def n_funcdef(node):
+                        code_node = node[0][1]
+                        if (code_node == 'LOAD_CONST' and iscode(code_node.attr)
+                            and code_node.attr.co_flags & COMPILER_FLAG_BIT['COROUTINE']):
+                            self.engine(('\n\n%|async def %c\n', -2), node)
+                        else:
+                            self.engine(('\n\n%|def %c\n', -2), node)
+                        self.prune()
+                    self.n_funcdef = n_funcdef
+
                     def n_unmapexpr(node):
                         last_n = node[0][-1]
                         for n in node[0]:
@@ -1895,7 +1910,6 @@ class SourceWalker(GenericASTTraversal, object):
         beginning of this module for the how we interpret format specifications such as
         %c, %C, and so on.
         """
-
         # self.println("----> ", startnode.type)
         fmt = entry[0]
         arg = 1
