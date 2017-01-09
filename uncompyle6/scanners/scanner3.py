@@ -322,7 +322,7 @@ class Scanner3(Scanner):
                 if target <= inst.offset:
                     next_opname = self.opname[self.code[inst.offset+3]]
                     if (inst.offset in self.stmts and
-                    #if (hasattr(inst, 'linestart') and
+                        (self.version != 3.0 or (hasattr(inst, 'linestart'))) and
                         (next_opname not in ('END_FINALLY', 'POP_BLOCK',
                                             # Python 3.0 only uses POP_TOP
                                             'POP_TOP'))):

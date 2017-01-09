@@ -15,6 +15,11 @@ class Python30Parser(Python3Parser):
         stmt         ::= store_locals
         store_locals ::= LOAD_FAST STORE_LOCALS
 
+        # FIXME: combine with parse3.2
+        whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK
+                              COME_FROM_LOOP
+        whileTruestmt     ::= SETUP_LOOP return_stmts
+                              COME_FROM_LOOP
 
         # In many ways Python 3.0 code generation is more like Python 2.6 than
         # it is 2.7 or 3.1. So we have a number of 2.6ish (and before) rules below
