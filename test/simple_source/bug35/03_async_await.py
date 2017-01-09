@@ -1,7 +1,7 @@
 # Python 3.5+ async and await
-async def await_test():
+async def await_test(asyncio):
+    reader, writer = await asyncio.open_connection(80)
     await bar()
-
 
 async def afor_test():
 

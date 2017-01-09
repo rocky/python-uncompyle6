@@ -332,6 +332,16 @@ class SourceWalker(GenericASTTraversal, object):
                             '%|async with %c as %c:\n%+%c%-', 0, 6, 7),
 
                     })
+                    def n_async_call_function(node):
+                        self.f.write('async ')
+                        node.type == 'call_function'
+                        p = self.prec
+                        self.prec = 80
+                        self.engine(('%c(%P)', 0, (1, -4, ', ', 100)), node)
+                        self.prec = p
+                        self.prune()
+                    self.n_async_call_function = n_async_call_function
+
                     def n_funcdef(node):
                         code_node = node[0][1]
                         if (code_node == 'LOAD_CONST' and iscode(code_node.attr)
@@ -1589,7 +1599,7 @@ class SourceWalker(GenericASTTraversal, object):
         beginning of this module for the how we interpret format specifications such as
         %c, %C, and so on.
         """
-        # self.println("----> ", startnode.type)
+        # self.println("----> ", startnode.type, ', ', entry[0])
         fmt = entry[0]
         arg = 1
         i = 0
