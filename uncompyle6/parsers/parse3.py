@@ -485,8 +485,15 @@ class Python3Parser(PythonParser):
 
             # build_class (see load_build_class)
 
-            build_list  ::= {expr}^n BUILD_LIST_n
-            build_list  ::= {expr}^n BUILD_TUPLE_n
+            # Even the below say _list, in the semantic rules we
+            # disambiguate tuples, and sets from lists
+
+            build_list ::= {expr}^n BUILD_LIST_n
+            build_list ::= {expr}^n BUILD_TUPLE_n
+            build_list ::= {expr}^n BUILD_SET_n
+            build_list ::= {expr}^n BUILD_LIST_UNPACK_n
+            build_list ::= {expr}^n BUILD_SET_UNPACK_n
+            build_list ::= {expr}^n BUILD_TUPLE_UNPACK_n
 
             load_closure  ::= {LOAD_CLOSURE}^n BUILD_TUPLE_n
             # call_function (see custom_classfunc_rule)
