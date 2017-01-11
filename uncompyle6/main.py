@@ -143,6 +143,7 @@ def main(in_base, out_base, files, codes, outfile=None,
         # Try to uncompile the input file
         try:
             decompile_file(infile, outstream, showasm, showast, showgrammar)
+            outfile = None        
             tot_files += 1
         except (ValueError, SyntaxError, ParserError, pysource.SourceWalkerError) as e:
             sys.stdout.write("\n")
