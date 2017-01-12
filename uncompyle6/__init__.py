@@ -41,7 +41,9 @@ PYTHON_VERSION_STR  = "%s.%s" % (sys.version_info[0], sys.version_info[1])
 
 IS_PYPY = '__pypy__' in sys.builtin_module_names
 
-sys.setrecursionlimit(5000)
+if hasattr(sys, 'setrecursionlimit'):
+    # pyston doesn't have setrecursionlimit
+    sys.setrecursionlimit(5000)
 
 import uncompyle6.semantics.pysource
 import uncompyle6.semantics.fragments
