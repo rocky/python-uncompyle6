@@ -747,7 +747,8 @@ class Python3Parser(PythonParser):
         elif lhs == 'annotate_tuple':
             return not isinstance(tokens[first].attr, tuple)
         elif lhs == 'kwarg':
-            return not isinstance(tokens[first].attr, str)
+            return not (isinstance(tokens[first].attr, unicode) or
+                        isinstance(tokens[first].attr, str))
         elif lhs == 'while1elsestmt':
             # if SETUP_LOOP target spans the else part, then this is
             # not while1else. Also do for whileTrue?

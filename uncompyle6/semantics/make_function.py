@@ -149,7 +149,7 @@ def make_function3_annotate(self, node, isLambda, nested=1,
         self.write(suffix, param)
         suffix = ', '
         if param in annotate_tuple[0].attr:
-            p = annotate_tuple[0].attr.index(param)
+            p = [x for x in annotate_tuple[0].attr].index(param)
             self.write(': ')
             self.preorder(node[p])
             if (line_number != self.line_number):
