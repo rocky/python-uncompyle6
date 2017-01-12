@@ -1,3 +1,9 @@
+uncompyle6 2.10.0 2017-01-11
+
+- Remaining Python 3.5 ops handled
+  (this also means more Python 3.6 ops are handled)
+- Python 3.5 and 3.6 async and await handled
+
 uncompyle6 2.9.9 2016-12-16
 
 - Better control-flow detection
