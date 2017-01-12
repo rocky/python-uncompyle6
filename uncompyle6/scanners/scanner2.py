@@ -490,20 +490,21 @@ class Scanner2(scan.Scanner):
         in python2.3+
         """
 
-        # TODO: check the struct boundaries more precisely -Dan
-
         code = self.code
 
         # Detect parent structure
         parent = self.structs[0]
         start  = parent['start']
         end    = parent['end']
+
+        # Pick inner-most parent for our offset
         for struct in self.structs:
-            _start = struct['start']
-            _end   = struct['end']
-            if (_start <= offset < _end) and (_start >= start and _end <= end):
-                start  = _start
-                end    = _end
+            current_start = struct['start']
+            current_end   = struct['end']
+            if ((current_start <= offset < current_end)
+                and (current_start >= start and current_end <= end)):
+                start  = current_start
+                end    = current_end
                 parent = struct
 
         if op == self.opc.SETUP_LOOP:

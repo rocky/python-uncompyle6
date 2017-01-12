@@ -67,16 +67,17 @@ from uncompyle6.show import (
     maybe_show_ast_param_default,
 )
 
-from uncompyle6.semantics.pysource import AST, INDENT_PER_LEVEL, NONE, PRECEDENCE, \
-     ParserError, TABLE_DIRECT, escape, find_globals, minint, MAP
+from uncompyle6.parsers.astnode import AST
+
+from uncompyle6.semantics.pysource import (
+    ParserError, find_globals, StringIO)
+
+from uncompyle6.semantics.consts import (
+    INDENT_PER_LEVEL, NONE, PRECEDENCE,
+    TABLE_DIRECT, escape, minint, MAP
+    )
 
 from uncompyle6.semantics.make_function import find_all_globals, find_none
-
-if PYTHON3:
-    from io import StringIO
-else:
-    from StringIO import StringIO
-
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 

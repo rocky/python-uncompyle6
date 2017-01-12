@@ -8,3 +8,12 @@ def open(file, mode = "r", buffering = None,
          encoding = None, errors = None,
          newline = None, closefd = True) -> "IOBase":
     return text
+
+def foo(x: 'an argument that defaults to 5' = 5):
+    print(x)
+
+def div(a: dict(type=float, help='the dividend'),
+        b: dict(type=float, help='the divisor (must be different than 0)')
+    ) -> dict(type=float, help='the result of dividing a by b'):
+    """Divide a by b"""
+    return a / b

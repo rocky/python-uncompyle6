@@ -224,7 +224,7 @@ class Scanner(object):
         for given opcode <op>.
         """
         if op < self.opc.HAVE_ARGUMENT:
-            return 1
+            return 2 if self.version >= 3.6 else 1
         else:
             if self.version >= 3.6:
                 return 2

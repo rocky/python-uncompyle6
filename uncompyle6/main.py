@@ -10,7 +10,7 @@ from uncompyle6.linenumbers import line_number_mapping
 
 from xdis.load import load_module
 
-def uncompyle(
+def decompile(
         bytecode_version, co, out=None, showasm=None, showast=False,
         timestamp=None, showgrammar=False, code_objects={},
         source_size=None, is_pypy=False, magic_int=None):
@@ -52,8 +52,10 @@ def uncompyle(
                           showgrammar, code_objects=code_objects,
                           is_pypy=is_pypy)
 
+# For compatiblity
+uncompyle = decompile
 
-def uncompyle_file(filename, outstream=None, showasm=None, showast=False,
+def decompile_file(filename, outstream=None, showasm=None, showast=False,
                    showgrammar=False):
     """
     decompile Python byte-code file (.pyc)
@@ -66,15 +68,19 @@ def uncompyle_file(filename, outstream=None, showasm=None, showast=False,
 
     if type(co) == list:
         for con in co:
-            uncompyle(version, con, outstream, showasm, showast,
+            decompile(version, con, outstream, showasm, showast,
                       timestamp, showgrammar, code_objects=code_objects,
                       is_pypy=is_pypy, magic_int=magic_int)
     else:
-        uncompyle(version, co, outstream, showasm, showast,
+        decompile(version, co, outstream, showasm, showast,
                   timestamp, showgrammar,
                   code_objects=code_objects, source_size=source_size,
                   is_pypy=is_pypy, magic_int=magic_int)
     co = None
+
+# For compatiblity
+uncompyle_file = decompile_file
+
 
 # FIXME: combine into an options parameter
 def main(in_base, out_base, files, codes, outfile=None,
@@ -104,12 +110,6 @@ def main(in_base, out_base, files, codes, outfile=None,
         return open(outfile, 'w')
 
     tot_files = okay_files = failed_files = verify_failed_files = 0
-
-    # for code in codes:
-    #    version = sys.version[:3] # "2.5"
-    #    with open(code, "r") as f:
-    #        co = compile(f.read(), "", "exec")
-    #    uncompyle(sys.version[:3], co, sys.stdout, showasm=showasm, showast=showast)
 
     for filename in files:
         infile = os.path.join(in_base, filename)
@@ -149,7 +149,7 @@ def main(in_base, out_base, files, codes, outfile=None,
 
         # Try to uncompile the input file
         try:
-            uncompyle_file(infile, outstream, showasm, showast, showgrammar)
+            decompile_file(infile, outstream, showasm, showast, showgrammar)
             tot_files += 1
         except (ValueError, SyntaxError, ParserError, pysource.SourceWalkerError):
             sys.stdout.write("\n")

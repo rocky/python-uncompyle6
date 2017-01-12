@@ -15,19 +15,79 @@ class Python35Parser(Python34Parser):
 
     def p_35on(self, args):
         """
+        # The number of canned instructions in new statements is mind boggling.
+        # I'm sure by the time Python 4 comes around these will be turned
+        # into special opcodes
+
+        # Python 3.5+ Await statement
+        stmt ::= await_stmt
+        await_stmt ::= call_function GET_AWAITABLE LOAD_CONST YIELD_FROM POP_TOP
+
         # Python 3.5+ has WITH_CLEANUP_START/FINISH
 
-        withstmt ::= expr SETUP_WITH exprlist suite_stmts_opt
-                    POP_BLOCK LOAD_CONST COME_FROM_WITH
-                    WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+        withstmt    ::= expr
+                        SETUP_WITH exprlist suite_stmts_opt
+                        POP_BLOCK LOAD_CONST COME_FROM_WITH
+                        WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
-        withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
-                     POP_BLOCK LOAD_CONST COME_FROM_WITH
-                     WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+        withstmt   ::= expr
+                       SETUP_WITH POP_TOP suite_stmts_opt
+                       POP_BLOCK LOAD_CONST COME_FROM_WITH
+                       WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
-        withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
-                POP_BLOCK LOAD_CONST COME_FROM_WITH
-                WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+        withasstmt ::= expr
+                       SETUP_WITH designator suite_stmts_opt
+                       POP_BLOCK LOAD_CONST COME_FROM_WITH
+                       WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+
+
+        # Python 3.5+ async additions
+
+        stmt            ::= async_with_stmt
+        async_with_stmt ::= expr
+                            BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                            SETUP_ASYNC_WITH POP_TOP suite_stmts_opt
+                            POP_BLOCK LOAD_CONST
+                            WITH_CLEANUP_START
+                            GET_AWAITABLE LOAD_CONST YIELD_FROM
+                            WITH_CLEANUP_FINISH END_FINALLY
+
+        stmt               ::= async_with_as_stmt
+        async_with_as_stmt ::= expr
+                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               SETUP_ASYNC_WITH designator suite_stmts_opt
+                               POP_BLOCK LOAD_CONST
+                               WITH_CLEANUP_START
+                               GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               WITH_CLEANUP_FINISH END_FINALLY
+
+
+        stmt               ::= async_for_stmt
+        async_for_stmt     ::= SETUP_LOOP expr
+                               GET_AITER
+                               LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
+                               YIELD_FROM
+                               designator
+                               POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
+                               LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
+                               POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
+                               JUMP_ABSOLUTE END_FINALLY COME_FROM
+                               for_block POP_BLOCK JUMP_ABSOLUTE
+                               opt_come_from_loop
+
+        stmt               ::= async_forelse_stmt
+        async_forelse_stmt ::= SETUP_LOOP expr
+                               GET_AITER
+                               LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
+                               YIELD_FROM
+                               designator
+                               POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
+                               LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
+                               POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
+                               JUMP_ABSOLUTE END_FINALLY COME_FROM
+                               for_block POP_BLOCK JUMP_ABSOLUTE
+                               else_suite COME_FROM_LOOP
+
 
         inplace_op ::= INPLACE_MATRIX_MULTIPLY
         binary_op  ::= BINARY_MATRIX_MULTIPLY
@@ -38,13 +98,18 @@ class Python35Parser(Python34Parser):
         return_if_stmt ::= ret_expr RETURN_END_IF POP_BLOCK
 
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
+        ifelsestmtc ::= testexpr c_stmts_opt jf_else else_suitec
+
         # ifstmt ::= testexpr c_stmts_opt
 
+        iflaststmt ::= testexpr c_stmts_opt JUMP_FORWARD
 
         # Python 3.3+ also has yield from. 3.5 does it
         # differently than 3.3, 3.4
 
         yield_from ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
+
+        _ifstmts_jump ::= c_stmts_opt COME_FROM
         """
 
     def add_custom_rules(self, tokens, customize):

@@ -451,6 +451,15 @@ class Python3Parser(PythonParser):
                 ('kwarg ' * args_kw) +
                 'expr ' * nak + token.type)
         self.add_unique_rule(rule, token.type, args_pos, customize)
+        if self.version >= 3.5:
+            rule = ('async_call_function ::= expr ' +
+                    ('pos_arg ' * args_pos) +
+                    ('kwarg ' * args_kw) +
+                    'expr ' * nak + token.type +
+                    ' GET_AWAITABLE LOAD_CONST YIELD_FROM')
+            self.add_unique_rule(rule, token.type, args_pos, customize)
+            self.add_unique_rule('expr ::= async_call_function', token.type, args_pos, customize)
+
         rule = ('classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d'
                 %  (('expr ' * (args_pos-1)), opname, args_pos))
         self.add_unique_rule(rule, token.type, args_pos, customize)
@@ -477,8 +486,15 @@ class Python3Parser(PythonParser):
 
             # build_class (see load_build_class)
 
-            build_list  ::= {expr}^n BUILD_LIST_n
-            build_list  ::= {expr}^n BUILD_TUPLE_n
+            # Even the below say _list, in the semantic rules we
+            # disambiguate tuples, and sets from lists
+
+            build_list ::= {expr}^n BUILD_LIST_n
+            build_list ::= {expr}^n BUILD_TUPLE_n
+            build_list ::= {expr}^n BUILD_SET_n
+            build_list ::= {expr}^n BUILD_LIST_UNPACK_n
+            build_list ::= {expr}^n BUILD_SET_UNPACK_n
+            build_list ::= {expr}^n BUILD_TUPLE_UNPACK_n
 
             load_closure  ::= {LOAD_CLOSURE}^n BUILD_TUPLE_n
             # call_function (see custom_classfunc_rule)
@@ -637,6 +653,27 @@ class Python3Parser(PythonParser):
                     rule = ('mkfunc ::= kwargs %sexpr %s' %
                             ('pos_arg ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
+                if opname.startswith('MAKE_FUNCTION_A'):
+                    # rule = ('mkfunc2 ::= %s%sEXTENDED_ARG %s' %
+                    #         ('pos_arg ' * (args_pos), 'kwargs ' * (annotate_args-1), opname))
+                    self.add_unique_rule(rule, opname, token.attr, customize)
+                    if self.version >= 3.3:
+                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
+                                (('pos_arg ' * (args_pos)),
+                                 ('call_function ' * (annotate_args-1)), opname))
+                        self.add_unique_rule(rule, opname, token.attr, customize)
+                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
+                                (('pos_arg ' * (args_pos)),
+                                 ('annotate_arg ' * (annotate_args-1)), opname))
+                    else:
+                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s' %
+                                (('pos_arg ' * (args_pos)),
+                                 ('annotate_arg ' * (annotate_args-1)), opname))
+                        self.add_unique_rule(rule, opname, token.attr, customize)
+                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s' %
+                                (('pos_arg ' * (args_pos)),
+                                 ('call_function ' * (annotate_args-1)), opname))
+                    self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base == 'CALL_METHOD':
                 # PyPy only - DRY with parse2
 
@@ -697,6 +734,8 @@ class Python3Parser(PythonParser):
         self.check_reduce['augassign1'] = 'AST'
         self.check_reduce['augassign2'] = 'AST'
         self.check_reduce['while1stmt'] = 'noAST'
+        self.check_reduce['annotate_tuple'] = 'noAST'
+        self.check_reduce['kwarg'] = 'noAST'
         # FIXME: remove parser errors caused by the below
         # self.check_reduce['while1elsestmt'] = 'noAST'
         return
@@ -705,6 +744,10 @@ class Python3Parser(PythonParser):
         lhs = rule[0]
         if lhs in ('augassign1', 'augassign2') and ast[0][0] == 'and':
             return True
+        elif lhs == 'annotate_tuple':
+            return not isinstance(tokens[first].attr, tuple)
+        elif lhs == 'kwarg':
+            return not isinstance(tokens[first].attr, str)
         elif lhs == 'while1elsestmt':
             # if SETUP_LOOP target spans the else part, then this is
             # not while1else. Also do for whileTrue?

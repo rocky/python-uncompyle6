@@ -138,10 +138,13 @@ on the lower end Python versions which is more difficult for us to
 handle since we don't have a Python interpreter for versions 1.5, 1.6,
 and 2.0.
 
-Python 3.0 support is weak; Python 3.5 largely works, but still has
-some bugs in it.  Python 3.6 changes things drastically by using word
-codes rather than byte codes. That has been addressed, but then it also
-changes function call opcodes and its semantics.
+In the Python 3 series, Python support is is strongest around 3.4 or
+3.3 and drops off as you move further away from those versions. Python
+3.5 largely works, but still has some bugs in it and is missing some
+opcodes.  Python 3.6 changes things drastically by using word codes
+rather than byte codes. That has been addressed, but then it also
+changes function call opcodes and its semantics and has more problems
+with control flow than 3.5 has.
 
 Currently not all Python magic numbers are supported. Specifically in
 some versions of Python, notably Python 3.6, the magic number has
