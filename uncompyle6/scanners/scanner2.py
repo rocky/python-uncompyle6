@@ -427,7 +427,7 @@ class Scanner2(scan.Scanner):
                 j = self.prev[s]
                 while code[j] in self.designator_ops:
                     j = self.prev[j]
-                if self.version >= 2.1 and code[j] == self.opc.FOR_ITER:
+                if self.version > 2.1 and code[j] == self.opc.FOR_ITER:
                     stmts.remove(s)
                     continue
             last_stmt = s
@@ -589,7 +589,7 @@ class Scanner2(scan.Scanner):
 
                 target = self.get_target(jump_back, self.opc.JUMP_ABSOLUTE)
 
-                if (self.version >= 2.0 and
+                if (self.version > 2.1 and
                     code[target] in (self.opc.FOR_ITER, self.opc.GET_ITER)):
                     loop_type = 'for'
                 else:
