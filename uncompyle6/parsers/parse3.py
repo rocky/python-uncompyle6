@@ -607,14 +607,20 @@ class Python3Parser(PythonParser):
                     self.add_unique_rule(rule, 'kvlist_n', 1, customize)
                     rule = "mapexpr ::=  BUILD_MAP_n kvlist_n"
                 elif self.version >= 3.5:
-                    if  opname != 'BUILD_MAP_WITH_CALL':
+                    if opname != 'BUILD_MAP_WITH_CALL':
                         rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         rule = "mapexpr ::=  %s %s" % (kvlist_n, opname)
+
                 else:
                     rule = kvlist_n + ' ::= ' + 'expr expr STORE_MAP ' * token.attr
                     self.add_unique_rule(rule, opname, token.attr, customize)
                     rule = "mapexpr ::=  %s %s" % (opname, kvlist_n)
+                self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname_base == 'BUILD_CONST_KEY_MAP':
+                # This is in 3.6+
+                kvlist_n = 'expr ' * (token.attr)
+                rule = "mapexpr ::= %sLOAD_CONST %s" % (kvlist_n, opname)
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base in ('UNPACK_EX',):
                 before_count, after_count = token.attr
