@@ -13,7 +13,7 @@ from validate import validate_uncompyle
     "{0: 1, 2: 3}",         # BUILD_CONST_KEY_MAP
     "{'a':'b','c':'d'}",    # BUILD_CONST_KEY_MAP
     "{0: 1, 2: 3}",         # BUILD_CONST_KEY_MAP
-    "{'a': 1, 'b': 2}",     # BUILD_ONST_KEY_MAP
+    "{'a': 1, 'b': 2}",     # BUILD_CONST_KEY_MAP
     "{'a':'b','c':'d'}",    # BUILD_CONST_KEY_MAP
     "{0.0:'b',0.1:'d'}",    # BUILD_CONST_KEY_MAP
 ))
