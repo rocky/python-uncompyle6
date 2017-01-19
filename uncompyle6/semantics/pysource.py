@@ -1426,6 +1426,17 @@ class SourceWalker(GenericASTTraversal, object):
                     i += 3
                     pass
                 pass
+            elif node[-1].type == 'BUILD_CONST_KEY_MAP':
+                # Python 3.6+ style const map
+                keys = node[-2].pattr
+                values = node[:-2]
+                # FIXME: Line numbers?
+                for key, value in zip(keys, values):
+                    self.write(repr(key))
+                    self.write(':')
+                    self.write(self.traverse(value[0]))
+                    self.write(',')
+                pass
             pass
         else:
             # Python 2 style kvlist
