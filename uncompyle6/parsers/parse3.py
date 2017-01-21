@@ -617,7 +617,7 @@ class Python3Parser(PythonParser):
                     self.add_unique_rule(rule, opname, token.attr, customize)
                     rule = "mapexpr ::=  %s %s" % (opname, kvlist_n)
                 self.add_unique_rule(rule, opname, token.attr, customize)
-            elif opname == 'BUILD_CONST_KEY_MAP':
+            elif opname_base == 'BUILD_CONST_KEY_MAP':
                 # This is in 3.6+
                 kvlist_n = 'expr ' * (token.attr)
                 rule = "mapexpr ::= %sLOAD_CONST %s" % (kvlist_n, opname)

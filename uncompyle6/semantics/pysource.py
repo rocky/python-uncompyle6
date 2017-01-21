@@ -1426,7 +1426,7 @@ class SourceWalker(GenericASTTraversal, object):
                     i += 3
                     pass
                 pass
-            elif node[-1].type == 'BUILD_CONST_KEY_MAP':
+            elif node[-1].type.startswith('BUILD_CONST_KEY_MAP'):
                 # Python 3.6+ style const map
                 keys = node[-2].pattr
                 values = node[:-2]
