@@ -159,7 +159,6 @@ class Scanner2(scan.Scanner):
                 # we sort them). That way, specific COME_FROM tags will match up
                 # properly. For example, a "loop" with an "if" nested in it should have the
                 # "loop" tag last so the grammar rule matches that properly.
-                # last_offset = -1
                 for jump_offset  in sorted(jump_targets[offset], reverse=True):
                     # if jump_offset == last_offset:
                     #     continue
@@ -265,13 +264,14 @@ class Scanner2(scan.Scanner):
                 # rule for that.
                 target = self.get_target(offset)
                 if target <= offset:
+                    op_name = 'JUMP_BACK'
                     if (offset in self.stmts
                         and self.code[offset+3] not in (self.opc.END_FINALLY,
-                                                        self.opc.POP_BLOCK)
-                        and offset not in self.not_continue):
-                        op_name = 'CONTINUE'
-                    else:
-                        op_name = 'JUMP_BACK'
+                                                        self.opc.POP_BLOCK)):
+                        if ((offset in self.linestartoffsets and
+                            self.code[self.prev[offset]] == self.opc.JUMP_ABSOLUTE)
+                            or offset not in self.not_continue):
+                            op_name = 'CONTINUE'
 
             elif op == self.opc.LOAD_GLOBAL:
                 if offset in self.load_asserts:

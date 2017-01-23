@@ -158,12 +158,15 @@ class Scanner26(scan.Scanner2):
                 # we sort them). That way, specific COME_FROM tags will match up
                 # properly. For example, a "loop" with an "if" nested in it should have the
                 # "loop" tag last so the grammar rule matches that properly.
+                last_jump_offset = -1
                 for jump_offset  in sorted(jump_targets[offset], reverse=True):
-                    tokens.append(Token(
-                        'COME_FROM', None, repr(jump_offset),
-                        offset="%s_%d" % (offset, jump_idx),
-                        has_arg = True))
-                    jump_idx += 1
+                    if jump_offset != last_jump_offset:
+                        tokens.append(Token(
+                            'COME_FROM', None, repr(jump_offset),
+                            offset="%s_%d" % (offset, jump_idx),
+                            has_arg = True))
+                        jump_idx += 1
+                        last_jump_offset = jump_offset
             elif offset in self.thens:
                 tokens.append(Token(
                     'THEN', None, self.thens[offset],
@@ -242,16 +245,21 @@ class Scanner26(scan.Scanner2):
                 # boundaries The continue-type jumps help us get
                 # "continue" statements with would otherwise be turned
                 # into a "pass" statement because JUMPs are sometimes
-                # ignored in rules as just boundary overhead.
+                # ignored in rules as just boundary overhead.  In
+                # comprehensions we might sometimes classify JUMP_BACK
+                # as CONTINUE, but that's okay since we add a grammar
+                # rule for that.
                 target = self.get_target(offset)
                 if target <= offset:
+                    op_name = 'JUMP_BACK'
                     if (offset in self.stmts
                         and self.code[offset+3] not in (self.opc.END_FINALLY,
-                                                          self.opc.POP_BLOCK)
-                        and offset not in self.not_continue):
-                        op_name = 'CONTINUE'
+                                                          self.opc.POP_BLOCK)):
+                        if ((offset in self.linestartoffsets and
+                            tokens[-1].type == 'JUMP_BACK')
+                            or offset not in self.not_continue):
+                            op_name = 'CONTINUE'
                     else:
-                        op_name = 'JUMP_BACK'
                         # FIXME: this is a hack to catch stuff like:
                         #   if x: continue
                         # the "continue" is not on a new line.
