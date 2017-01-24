@@ -617,7 +617,7 @@ class Scanner2(scan.Scanner):
                                        'start': jump_back+3,
                                        'end':   end})
         elif op == self.opc.SETUP_EXCEPT:
-            start  = offset+3
+            start  = offset + self.op_size(op)
             target = self.get_target(offset, op)
             end    = self.restrict_to_parent(target, parent)
             if target != end:
@@ -632,10 +632,17 @@ class Scanner2(scan.Scanner):
 
 
             end_finally_offset = end
+            setup_except_nest = 0
             while end_finally_offset < len(self.code):
                 if self.code[end_finally_offset] == self.opc.END_FINALLY:
-                    break
+                    if setup_except_nest == 0:
+                        break
+                    else:
+                        setup_except_nest -= 1
+                elif self.code[end_finally_offset] == self.opc.SETUP_EXCEPT:
+                    setup_except_nest += 1
                 end_finally_offset += self.op_size(code[end_finally_offset])
+                pass
 
             # Add the except blocks
             i = end

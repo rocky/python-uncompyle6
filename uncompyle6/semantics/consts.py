@@ -225,6 +225,7 @@ TABLE_DIRECT = {
     'ifelsestmtr':	( '%|if %c:\n%+%c%-%|else:\n%+%c%-', 0, 1, 2 ),
     'ifelsestmtr2':	( '%|if %c:\n%+%c%-%|else:\n%+%c%-\n\n', 0, 1, 3 ), # has COME_FROM
     'elifelsestmtr':	( '%|elif %c:\n%+%c%-%|else:\n%+%c%-\n\n', 0, 1, 2 ),
+    'elifelsestmtr2':	( '%|elif %c:\n%+%c%-%|else:\n%+%c%-\n\n', 0, 1, 3 ), # has COME_FROM
 
     'whileTruestmt':	( '%|while True:\n%+%c%-\n\n', 1 ),
     'whilestmt':	( '%|while %c:\n%+%c%-\n\n', 1, 2 ),

@@ -774,10 +774,16 @@ class SourceWalker(GenericASTTraversal, object):
     n_ifelsestmtr2 = n_ifelsestmtr
 
     def n_elifelsestmtr(self, node):
-        if len(node[2]) != 2:
+        if node[2] == 'COME_FROM':
+            return_stmts_node = node[3]
+            node.type = 'elifelsestmtr2'
+        else:
+            return_stmts_node = node[2]
+
+        if len(return_stmts_node) != 2:
             self.default(node)
 
-        for n in node[2][0]:
+        for n in return_stmts_node[0]:
             if not (n[0] == 'ifstmt' and n[0][1][0] == 'return_if_stmts'):
                 self.default(node)
                 return
@@ -789,12 +795,12 @@ class SourceWalker(GenericASTTraversal, object):
         self.preorder(node[1])
         self.indentLess()
 
-        for n in node[2][0]:
+        for n in return_stmts_node[0]:
             n[0].type = 'elifstmt'
             self.preorder(n)
         self.println(self.indent, 'else:')
         self.indentMore()
-        self.preorder(node[2][1])
+        self.preorder(return_stmts_node[1])
         self.indentLess()
         self.prune()
 
