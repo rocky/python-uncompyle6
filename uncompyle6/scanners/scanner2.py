@@ -630,9 +630,16 @@ class Scanner2(scan.Scanner):
             # Now isolate the except and else blocks
             end_else = start_else = self.get_target(self.prev[end])
 
+
+            end_finally_offset = end
+            while end_finally_offset < len(self.code):
+                if self.code[end_finally_offset] == self.opc.END_FINALLY:
+                    break
+                end_finally_offset += self.op_size(code[end_finally_offset])
+
             # Add the except blocks
             i = end
-            while i < len(self.code) and self.code[i] != self.opc.END_FINALLY:
+            while i < len(self.code) and i < end_finally_offset:
                 jmp = self.next_except_jump(i)
                 if jmp is None: # check
                     i = self.next_stmt[i]
@@ -924,6 +931,7 @@ class Scanner2(scan.Scanner):
                                            'end':   rtarget})
                     self.thens[start] = rtarget
                     if self.version == 2.7 or code[pre_rtarget+1] != self.opc.JUMP_FORWARD:
+                        self.fixed_jumps[offset] = rtarget
                         self.return_end_ifs.add(pre_rtarget)
 
         elif op in self.pop_jump_if_or_pop:
