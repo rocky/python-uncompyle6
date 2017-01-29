@@ -106,27 +106,39 @@ def do_tests(src_dir, patterns, target_dir, start_with=None, do_verify=False):
 if __name__ == '__main__':
     import getopt, sys
 
-    do_verify = False
+    do_coverage = do_verify = False
     test_dirs = []
     start_with = None
 
     test_options_keys = list(test_options.keys())
     test_options_keys.sort()
     opts, args = getopt.getopt(sys.argv[1:], '',
-                               ['start-with=', 'verify', 'weak-verify', 'all', ] \
+                               ['start-with=', 'verify', 'weak-verify',
+                                'coverage', 'all', ] \
                                + test_options_keys )
+    vers = ''
     for opt, val in opts:
         if opt == '--verify':
             do_verify = True
         if opt == '--weak-verify':
             do_verify = 'weak'
+        if opt == '--coverage':
+            do_coverage = True
         elif opt == '--start-with':
             start_with = val
         elif opt[2:] in test_options_keys:
-            test_dirs.append(test_options[opt[2:]])
+            triple = test_options[opt[2:]]
+            vers = triple[-1]
+            test_dirs.append(triple)
         elif opt == '--all':
+            vers = 'all'
             for val in test_options_keys:
                 test_dirs.append(test_options[val])
+
+    if do_coverage:
+        os.environ['SPARK_PARSER_COVERAGE'] = (
+            '/tmp/spark-grammar-pyenvlib-%s.cover' % vers
+            )
 
     for src_dir, pattern, target_dir in test_dirs:
         if os.path.exists(src_dir):
