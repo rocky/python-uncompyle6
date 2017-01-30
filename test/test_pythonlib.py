@@ -190,6 +190,7 @@ if __name__ == '__main__':
     test_options_keys.sort()
     opts, args = getopt.getopt(sys.argv[1:], '',
                                ['start-with=', 'verify', 'weak-verify', 'all', 'compile',
+                                'coverage',
                                 'no-rm'] \
                                + test_options_keys )
     if not opts: help()
@@ -198,7 +199,8 @@ if __name__ == '__main__':
         'do_compile': False,
         'do_verify': False,
         'start_with': None,
-        'rmtree' : True
+        'rmtree' : True,
+        'coverage' : False
         }
 
     for opt, val in opts:
@@ -217,10 +219,17 @@ if __name__ == '__main__':
         elif opt == '--all':
             for val in test_options_keys:
                 test_dirs.append(test_options[val])
+        elif opt == '--coverage':
+            test_opts['coverage'] = True
         else:
             help()
             pass
         pass
+
+    if test_opts['coverage']:
+        os.environ['SPARK_PARSER_COVERAGE'] = (
+            '/tmp/spark-grammar-%s.cover' % test_dirs[0][-1]
+            )
 
     last_compile_version = None
     for src_dir, pattern, target_dir, compiled_version in test_dirs:

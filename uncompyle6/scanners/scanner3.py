@@ -130,7 +130,12 @@ class Scanner3(Scanner):
 
         if is_pypy:
             varargs_ops.add(self.opc.CALL_METHOD)
+        if self.version >= 3.6:
+            varargs_ops.add(self.opc.BUILD_CONST_KEY_MAP)
+
         self.varargs_ops = frozenset(varargs_ops)
+        # FIXME: remove the above in favor of:
+        # self.varargs_ops = frozenset(self.opc.hasvargs)
 
     def opName(self, offset):
         return self.opc.opname[self.code[offset]]

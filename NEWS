@@ -10,6 +10,16 @@ uncompyle6 2.9.9 2016-01-11
 
 uncompyle6 2.9.8 2016-12-16
 
+- Remaining Python 3.5 ops handled
+  (this also means more Python 3.6 ops are handled)
+- Python 3.5 and 3.6 async and await handled
+- Python 3.0 decompilation improved
+- Python 3 annotations fixed
+- Better control-flow detection
+- Code cleanups and misc bug fixes
+
+uncompyle6 2.9.8 2016-12-16
+
 - Better control-flow detection
 - pseudo instruction THEN in 2.x
   to disambiguate if from and

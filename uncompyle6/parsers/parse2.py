@@ -124,6 +124,7 @@ class Python2Parser(PythonParser):
         assert_expr_and ::= assert_expr jmp_false expr
 
         ifstmt ::= testexpr _ifstmts_jump
+        ifstmt ::= testexpr return_if_stmts COME_FROM
 
         testexpr ::= testfalse
         testexpr ::= testtrue
@@ -141,6 +142,8 @@ class Python2Parser(PythonParser):
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
 
         ifelsestmtr ::= testexpr return_if_stmts return_stmts
+
+        ifelsestmtr ::= testexpr return_if_stmts COME_FROM return_stmts
 
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
 

@@ -30,7 +30,7 @@ another clever idea: using table-driven semantics routines, using
 format specifiers.
 
 The last mention of a release of SPARK from John is around 2002. As
-released, although the Early Algorithm parser was in good shape, this
+released, although the Earley Algorithm parser was in good shape, this
 code was woefully lacking as serious Python deparser.
 
 In the fall of 2000, Hartmut Goebel
@@ -135,9 +135,9 @@ Hartmut a decade an a half ago:
     NB. This is not a masterpiece of software, but became more like a hack.
     Probably a complete rewrite would be sensefull. hG/2000-12-27
 
-This project deparses using an Early-algorithm parse with lots of
+This project deparses using an Earley-algorithm parse with lots of
 massaging of tokens and the grammar in the scanner
-phase. Early-algorithm parsers are context free and tend to be linear
+phase. Earley-algorithm parsers are context free and tend to be linear
 if the grammar is LR or left recursive.
 
 Another approach that doesn't use grammars is to do something like

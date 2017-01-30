@@ -165,7 +165,6 @@ class Scanner2(scan.Scanner):
                 # we sort them). That way, specific COME_FROM tags will match up
                 # properly. For example, a "loop" with an "if" nested in it should have the
                 # "loop" tag last so the grammar rule matches that properly.
-                # last_offset = -1
                 for jump_offset  in sorted(jump_targets[offset], reverse=True):
                     # if jump_offset == last_offset:
                     #     continue
@@ -271,13 +270,14 @@ class Scanner2(scan.Scanner):
                 # rule for that.
                 target = self.get_target(offset)
                 if target <= offset:
+                    op_name = 'JUMP_BACK'
                     if (offset in self.stmts
                         and self.code[offset+3] not in (self.opc.END_FINALLY,
-                                                        self.opc.POP_BLOCK)
-                        and offset not in self.not_continue):
-                        op_name = 'CONTINUE'
-                    else:
-                        op_name = 'JUMP_BACK'
+                                                        self.opc.POP_BLOCK)):
+                        if ((offset in self.linestartoffsets and
+                            self.code[self.prev[offset]] == self.opc.JUMP_ABSOLUTE)
+                            or offset not in self.not_continue):
+                            op_name = 'CONTINUE'
 
             elif op == self.opc.LOAD_GLOBAL:
                 if offset in self.load_asserts:
@@ -433,7 +433,7 @@ class Scanner2(scan.Scanner):
                 j = self.prev[s]
                 while code[j] in self.designator_ops:
                     j = self.prev[j]
-                if self.version >= 2.1 and code[j] == self.opc.FOR_ITER:
+                if self.version > 2.1 and code[j] == self.opc.FOR_ITER:
                     stmts.remove(s)
                     continue
             last_stmt = s
@@ -595,7 +595,7 @@ class Scanner2(scan.Scanner):
 
                 target = self.get_target(jump_back, self.opc.JUMP_ABSOLUTE)
 
-                if (self.version >= 2.0 and
+                if (self.version > 2.1 and
                     code[target] in (self.opc.FOR_ITER, self.opc.GET_ITER)):
                     loop_type = 'for'
                 else:
@@ -623,7 +623,7 @@ class Scanner2(scan.Scanner):
                                        'start': jump_back+3,
                                        'end':   end})
         elif op == self.opc.SETUP_EXCEPT:
-            start  = offset+3
+            start  = offset + self.op_size(op)
             target = self.get_target(offset, op)
             end    = self.restrict_to_parent(target, parent)
             if target != end:
@@ -636,9 +636,23 @@ class Scanner2(scan.Scanner):
             # Now isolate the except and else blocks
             end_else = start_else = self.get_target(self.prev[end])
 
+
+            end_finally_offset = end
+            setup_except_nest = 0
+            while end_finally_offset < len(self.code):
+                if self.code[end_finally_offset] == self.opc.END_FINALLY:
+                    if setup_except_nest == 0:
+                        break
+                    else:
+                        setup_except_nest -= 1
+                elif self.code[end_finally_offset] == self.opc.SETUP_EXCEPT:
+                    setup_except_nest += 1
+                end_finally_offset += self.op_size(code[end_finally_offset])
+                pass
+
             # Add the except blocks
             i = end
-            while i < len(self.code) and self.code[i] != self.opc.END_FINALLY:
+            while i < len(self.code) and i < end_finally_offset:
                 jmp = self.next_except_jump(i)
                 if jmp is None: # check
                     i = self.next_stmt[i]
@@ -930,6 +944,7 @@ class Scanner2(scan.Scanner):
                                            'end':   rtarget})
                     self.thens[start] = rtarget
                     if self.version == 2.7 or code[pre_rtarget+1] != self.opc.JUMP_FORWARD:
+                        self.fixed_jumps[offset] = rtarget
                         self.return_end_ifs.add(pre_rtarget)
 
         elif op in self.pop_jump_if_or_pop:

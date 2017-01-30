@@ -1,6 +1,126 @@
+2017-01-11  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/version.py: Get ready for release 2.10.9
+
+2017-01-11  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #79 from rocky/revert-78-patch-1 Revert "fix bug : not generate all files when use "-ro""
+
+2017-01-11  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #78 from jlugjb/patch-1 fix bug : not generate all files when use "-ro"
+
+2017-01-10  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug35/03_double_star_unpack.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/semantics/pysource.py: 
+	Improve BUILD_xxx_UNPACK slightly
+
+2017-01-09  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug35/03_async_await.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/semantics/pysource.py: Add
+	async_call_function for 3.5+
+
+2017-01-09  rocky <rb@dustyfeet.com>
+
+	* : Reinstate test
+
+2017-01-08  rocky <rb@dustyfeet.com>
+
+	* : Works now
+
+2017-01-08  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse30.py, uncompyle6/scanners/scanner3.py: 
+	Python 3.0 decompile bugs
+
+2017-01-08  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/scanners/scanner30.py: Towards better 3.0 decompilation Sync scanner2 and scanner3 better
+
+2017-01-08  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug35/03_while-if-break.py,
+	uncompyle6/parsers/parse35.py, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner3.py: Fix 3.5, 3.6 while true if/break
+	bug
+
+2017-01-08  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/__init__.py, uncompyle6/main.py,
+	uncompyle6/semantics/consts.py, uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Misc cleanups Favor "decompile" over "uncompyle" since "decompile" is in common
+	use Reduce size of pysource.py by splitting out constants
+
+2017-01-08  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug35/03_async_await.py,
+	uncompyle6/parsers/parse35.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/semantics/pysource.py: Add 3.5+ async with/for ..  scanner3.py: 3.6 bytecode vs wordcode fix
+
+2017-01-07  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug35/03_async_await.py,
+	uncompyle6/parsers/parse35.py, uncompyle6/semantics/pysource.py: 
+	Start to add 3.5+ await and async
+
+2017-01-07  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug31/04_def_annotate.py,
+	uncompyle6/semantics/make_function.py: More Python 3 annotation bugs
+
+2017-01-07  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/parsers/parse31.py,
+	uncompyle6/parsers/parse32.py,
+	uncompyle6/semantics/make_function.py,
+	uncompyle6/semantics/pysource.py: Fix some errors in deparsing
+	Python 3 annotations
+
+2017-01-07  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/make_function.py: Small Pyhton 3.x annotate
+	bug
+
+2017-01-03  rocky <rb@dustyfeet.com>
+
+	* README.rst: Note what's up with Python 3 decompile quality
+
+2017-01-03  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner3.py: 3.5 continue check is needed on
+	3.6
+
+2017-01-03  rocky <rb@dustyfeet.com>
+
+	* test/test_pyenvlib.py, uncompyle6/parsers/parse36.py,
+	uncompyle6/scanners/scanner3.py: Towards better 3.6 support
+
+2017-01-02  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse35.py, uncompyle6/scanners/scanner3.py: 
+	Python 3.5 continue detection bug
+
+2017-01-01  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner3.py: add come_from for setup_finally
+	and setup_except
+
+2017-01-01  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse35.py, uncompyle6/scanners/scanner3.py: 
+	Towards fixing Python 3.5 return bugs
+
+2017-01-01  rocky <rb@dustyfeet.com>
+
+	* README.rst: Note how to verify correctness ...  with --verify, --weak-verify and cross checking with pycdc
+
 2016-12-31  rocky <rb@dustyfeet.com>
 
-	* uncompyle6/version.py: Get ready for release 2.9.9
+	* ChangeLog, NEWS, uncompyle6/version.py: Get ready for release
+	2.9.9
 
 2016-12-31  rocky <rb@dustyfeet.com>
 

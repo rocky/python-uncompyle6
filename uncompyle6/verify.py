@@ -199,13 +199,12 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
                 else:
                     import uncompyle6.scanners.scanner27 as scan
                     scanner = scan.Scanner27()
+            elif version == 3.0:
+                import uncompyle6.scanners.scanner30 as scan
+                scanner = scan.Scanner30()
             elif version == 3.1:
-                if is_pypy:
-                    import uncompyle6.scanners.pypy31 as scan
-                    scanner = scan.ScannerPyPy31()
-                else:
-                    import uncompyle6.scanners.scanner32 as scan
-                    scanner = scan.Scanner32()
+                import uncompyle6.scanners.scanner32 as scan
+                scanner = scan.Scanner32()
             elif version == 3.2:
                 if is_pypy:
                     import uncompyle6.scanners.pypy32 as scan
@@ -317,8 +316,14 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
                     elif tokens1[i1].type == 'LOAD_NAME' and tokens2[i2].type == 'LOAD_CONST' \
                          and tokens1[i1].pattr == 'None' and tokens2[i2].pattr is None:
                         pass
-                    elif tokens1[i1].type == 'RETURN_VALUE' and \
-                         tokens2[i2].type == 'RETURN_END_IF':
+                    elif tokens1[i1].type == 'LOAD_GLOBAL' and tokens2[i2].type == 'LOAD_NAME' \
+                         and tokens1[i1].pattr == tokens2[i2].pattr:
+                        pass
+                    elif (tokens1[i1].type == 'RETURN_VALUE' and
+                          tokens2[i2].type == 'RETURN_END_IF'):
+                        pass
+                    elif (tokens1[i1].type == 'BUILD_TUPLE_0' and
+                          tokens2[i2].pattr == ()):
                         pass
                     else:
                         raise CmpErrorCode(name, tokens1[i1].offset, tokens1[i1],

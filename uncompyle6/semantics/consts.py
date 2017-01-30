@@ -73,7 +73,7 @@ TABLE_DIRECT = {
     'BINARY_MULTIPLY':	( '*' ,),
     'BINARY_DIVIDE':	( '/' ,),
     'BINARY_MATRIX_MULTIPLY':	( '@' ,),
-    'BINARY_TRUE_DIVIDE':	( '/' ,),
+    'BINARY_TRUE_DIVIDE':	( '/' ,),   # Not in <= 2.1
     'BINARY_FLOOR_DIVIDE':	( '//' ,),
     'BINARY_MODULO':	( '%%',),
     'BINARY_POWER':	( '**',),
@@ -87,7 +87,7 @@ TABLE_DIRECT = {
     'INPLACE_MULTIPLY':	( '*=' ,),
     'INPLACE_MATRIX_MULTIPLY':	( '@=' ,),
     'INPLACE_DIVIDE':	( '/=' ,),
-    'INPLACE_TRUE_DIVIDE':	( '/=' ,),
+    'INPLACE_TRUE_DIVIDE':	( '/=' ,),  # Not in <= 2.1; 2.6 generates INPLACE_DIVIDE only?
     'INPLACE_FLOOR_DIVIDE':	( '//=' ,),
     'INPLACE_MODULO':	( '%%=',),
     'INPLACE_POWER':	( '**=',),
@@ -223,7 +223,9 @@ TABLE_DIRECT = {
     'elifstmt':		( '%|elif %c:\n%+%c%-', 0, 1 ),
     'elifelsestmt':	( '%|elif %c:\n%+%c%-%|else:\n%+%c%-', 0, 1, 3 ),
     'ifelsestmtr':	( '%|if %c:\n%+%c%-%|else:\n%+%c%-', 0, 1, 2 ),
+    'ifelsestmtr2':	( '%|if %c:\n%+%c%-%|else:\n%+%c%-\n\n', 0, 1, 3 ), # has COME_FROM
     'elifelsestmtr':	( '%|elif %c:\n%+%c%-%|else:\n%+%c%-\n\n', 0, 1, 2 ),
+    'elifelsestmtr2':	( '%|elif %c:\n%+%c%-%|else:\n%+%c%-\n\n', 0, 1, 3 ), # has COME_FROM
 
     'whileTruestmt':	( '%|while True:\n%+%c%-\n\n', 1 ),
     'whilestmt':	( '%|while %c:\n%+%c%-\n\n', 1, 2 ),

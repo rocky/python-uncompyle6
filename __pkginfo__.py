@@ -9,7 +9,7 @@
 
 # Things that change more often go here.
 copyright   = """
-Copyright (C) 2015, 2016 Rocky Bernstein <rb@dustyfeet.com>.
+Copyright (C) 2015-2017 Rocky Bernstein <rb@dustyfeet.com>.
 """
 
 classifiers =  ['Development Status :: 5 - Production/Stable',
@@ -39,7 +39,7 @@ entry_points={
         'pydisassemble=uncompyle6.bin.pydisassemble:main',
     ]}
 ftp_url            = None
-install_requires   = ['spark-parser >= 1.5.1, < 1.6.0',
+install_requires   = ['spark-parser >= 1.5.2, < 1.6.0',
                       'xdis >= 3.2.4, < 3.3.0']
 license            = 'MIT'
 mailing_list       = 'python-debugger@googlegroups.com'
