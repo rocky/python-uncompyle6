@@ -73,7 +73,7 @@ TABLE_DIRECT = {
     'BINARY_MULTIPLY':	( '*' ,),
     'BINARY_DIVIDE':	( '/' ,),
     'BINARY_MATRIX_MULTIPLY':	( '@' ,),
-    'BINARY_TRUE_DIVIDE':	( '/' ,),
+    'BINARY_TRUE_DIVIDE':	( '/' ,),   # Not in <= 2.1
     'BINARY_FLOOR_DIVIDE':	( '//' ,),
     'BINARY_MODULO':	( '%%',),
     'BINARY_POWER':	( '**',),
@@ -87,7 +87,7 @@ TABLE_DIRECT = {
     'INPLACE_MULTIPLY':	( '*=' ,),
     'INPLACE_MATRIX_MULTIPLY':	( '@=' ,),
     'INPLACE_DIVIDE':	( '/=' ,),
-    'INPLACE_TRUE_DIVIDE':	( '/=' ,),
+    'INPLACE_TRUE_DIVIDE':	( '/=' ,),  # Not in <= 2.1; 2.6 generates INPLACE_DIVIDE only?
     'INPLACE_FLOOR_DIVIDE':	( '//=' ,),
     'INPLACE_MODULO':	( '%%=',),
     'INPLACE_POWER':	( '**=',),
