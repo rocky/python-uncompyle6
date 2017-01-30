@@ -7,4 +7,7 @@ y **= 1  # INPLACE POWER
 y >>= 2  # INPLACE_RSHIFT
 y <<= 2  # INPLACE_LSHIFT
 y //= 1  # INPLACE_TRUE_DIVIDE
+y &= 1   # INPLACE_AND
+y ^= 1   # INPLACE_XOR
+
 `y`      # UNARY_CONVERT  - No in Python 3.x

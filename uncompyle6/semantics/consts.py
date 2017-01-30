@@ -251,8 +251,6 @@ TABLE_DIRECT = {
     'except_cond1':	( '%|except %c:\n', 1 ),
     'except_suite':     ( '%+%c%-%C', 0, (1, maxint, '') ),
     'except_suite_finalize':     ( '%+%c%-%C', 1, (3, maxint, '') ),
-    'withstmt':     ( '%|with %c:\n%+%c%-', 0, 3),
-    'withasstmt':   ( '%|with %c as %c:\n%+%c%-', 0, 2, 3),
     'passstmt':		( '%|pass\n', ),
     'STORE_FAST':	( '%{pattr}', ),
     'kv':		( '%c: %c', 3, 1 ),
