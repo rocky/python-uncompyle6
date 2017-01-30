@@ -228,7 +228,7 @@ if __name__ == '__main__':
 
     if test_opts['coverage']:
         os.environ['SPARK_PARSER_COVERAGE'] = (
-            '/tmp/spark-grammar-pythonlib-%s.cover' % test_dirs[0][-1]
+            '/tmp/spark-grammar-%s.cover' % test_dirs[0][-1]
             )
 
     last_compile_version = None

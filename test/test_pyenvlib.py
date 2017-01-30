@@ -30,7 +30,7 @@ from fnmatch import fnmatch
 TEST_VERSIONS=('2.3.7', '2.4.6', '2.5.6', '2.6.9',
                'pypy-2.4.0', 'pypy-2.6.1',
                'pypy-5.0.1', 'pypy-5.3.1',
-               '2.7.10', '2.7.11', '2.7.12',
+               '2.7.10', '2.7.11', '2.7.12', '2.7.13',
                '3.0.1', '3.1.5', '3.2.6',
                '3.3.5', '3.3.6',
                '3.4.2', '3.5.1', '3.6.0')
@@ -137,7 +137,7 @@ if __name__ == '__main__':
 
     if do_coverage:
         os.environ['SPARK_PARSER_COVERAGE'] = (
-            '/tmp/spark-grammar-pyenvlib-%s.cover' % vers
+            '/tmp/spark-grammar-%s.cover' % vers
             )
 
     for src_dir, pattern, target_dir in test_dirs:
