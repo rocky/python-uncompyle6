@@ -239,6 +239,9 @@ class SourceWalker(GenericASTTraversal, object):
                 TABLE_DIRECT.update({
                     'importmultiple': ( '%|import %c%c\n', 2, 3 ),
                     'import_cont'   : ( ', %c', 2 ),
+                    # With/as is allowed as "from future" thing
+                    'withstmt':     ( '%|with %c:\n%+%c%-', 0, 3),
+                    'withasstmt':   ( '%|with %c as %c:\n%+%c%-', 0, 2, 3),
                 })
 
         ########################################
