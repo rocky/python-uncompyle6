@@ -1,4 +1,4 @@
-#  Copyright (c) 2016 Rocky Bernstein
+#  Copyright (c) 2016-2017 Rocky Bernstein
 """
 spark grammar differences over Python2.6 for Python 2.5.
 """
@@ -20,6 +20,7 @@ class Python25Parser(Python26Parser):
         return_if_stmt ::= ret_expr  RETURN_END_IF JUMP_BACK
 
         # Python 2.6 uses ROT_TWO instead of the STORE_xxx
+        # withas is allowed as a "from future" in 2.5
         setupwithas ::= DUP_TOP LOAD_ATTR store LOAD_ATTR CALL_FUNCTION_0
                         setup_finally
 
