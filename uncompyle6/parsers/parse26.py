@@ -28,18 +28,12 @@ class Python26Parser(Python2Parser):
                          POP_TOP END_FINALLY
 
         try_middle   ::= jmp_abs COME_FROM except_stmts
-                         POP_TOP END_FINALLY
-
-        trystmt      ::= SETUP_EXCEPT suite_stmts_opt POP_TOP
-                         try_middle
+                         END_FINALLY JUMP_FORWARD
 
         # Sometimes we don't put in COME_FROM to the next statement
         # like we do in 2.7. Perhaps we should?
         trystmt      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                          try_middle
-
-        trystmt      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                         try_middle come_froms
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            try_middle else_suite COME_FROM
