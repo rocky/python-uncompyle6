@@ -893,6 +893,11 @@ class Scanner3(Scanner):
                 else:
                     self.fixed_jumps[offset] = rtarget
                     self.not_continue.add(pre_rtarget)
+            else:
+                # For now, we'll only tag forward jump.
+                if rtarget > offset:
+                    self.fixed_jumps[offset] = rtarget
+                    self.not_continue.add(pre_rtarget)
 
 
         elif op == self.opc.SETUP_EXCEPT:

@@ -44,6 +44,10 @@ class Python3Parser(PythonParser):
 
         list_for ::= expr FOR_ITER designator list_iter jb_or_c
 
+        # This is seen in PyPy, but possibly it appears on other Python 3?
+        list_if     ::= expr jmp_false list_iter COME_FROM
+        list_if_not ::= expr jmp_true list_iter COME_FROM
+
         jb_or_c ::= JUMP_BACK
         jb_or_c ::= CONTINUE
 
@@ -51,6 +55,9 @@ class Python3Parser(PythonParser):
 
         setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
                 JUMP_BACK RETURN_VALUE RETURN_LAST
+
+        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
+                COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
 
         comp_body ::= dict_comp_body
         comp_body ::= set_comp_body
@@ -113,9 +120,11 @@ class Python3Parser(PythonParser):
         classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
         classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
 
-        assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
-        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
-        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_2
+        assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
+        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1
+                    RAISE_VARARGS_1 COME_FROM
+        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr
+                    RAISE_VARARGS_2 COME_FROM
 
         assert_expr ::= expr
         assert_expr ::= assert_expr_or
@@ -327,6 +336,9 @@ class Python3Parser(PythonParser):
                               COME_FROM_LOOP
 
         forelselaststmtl  ::= SETUP_LOOP expr _for designator for_block POP_BLOCK else_suitel
+                              COME_FROM_LOOP
+
+        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
         whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
