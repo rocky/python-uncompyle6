@@ -165,6 +165,7 @@ class Python3Parser(PythonParser):
         ifelsestmtr ::= testexpr return_if_stmts return_stmts
 
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
+        ifelsestmtl ::= testexpr c_stmts_opt COME_FROM JUMP_BACK else_suitel
 
         # FIXME: this feels like a hack. Is it just 1 or two
         # COME_FROMs?  the parsed tree for this and even with just the
@@ -368,6 +369,9 @@ class Python3Parser(PythonParser):
         # FIXME: Python 3.? starts adding branch optimization? Put this starting there.
         while1stmt        ::= SETUP_LOOP l_stmts
         while1stmt        ::= SETUP_LOOP l_stmts COME_FROM_LOOP
+
+        while1stmt        ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
+
 
         # FIXME: investigate - can code really produce a NOP?
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP
