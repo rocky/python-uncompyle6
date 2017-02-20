@@ -331,7 +331,7 @@ class Scanner3(Scanner):
                         (next_opname not in ('END_FINALLY', 'POP_BLOCK',
                                             # Python 3.0 only uses POP_TOP
                                             'POP_TOP'))):
-                        if (self.version >= 3.5 or
+                        if (self.version >= 3.4 or
                             (inst.offset not in self.not_continue) or
                             (tokens[-1].type == 'RETURN_VALUE')):
                             opname = 'CONTINUE'
@@ -897,8 +897,6 @@ class Scanner3(Scanner):
                 # For now, we'll only tag forward jump.
                 if rtarget > offset:
                     self.fixed_jumps[offset] = rtarget
-                    self.not_continue.add(pre_rtarget)
-
 
         elif op == self.opc.SETUP_EXCEPT:
             target = self.get_target(offset)

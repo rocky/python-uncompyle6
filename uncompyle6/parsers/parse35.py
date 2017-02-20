@@ -110,7 +110,6 @@ class Python35Parser(Python34Parser):
 
         yield_from ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
 
-        _ifstmts_jump ::= c_stmts_opt COME_FROM
         """
 
     def add_custom_rules(self, tokens, customize):
