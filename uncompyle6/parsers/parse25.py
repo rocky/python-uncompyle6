@@ -27,7 +27,10 @@ class Python25Parser(Python26Parser):
         store ::= STORE_FAST
         store ::= STORE_NAME
 
-        # Python 2.6 omits ths LOAD_FAST DELETE_FAST below
+        tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                           try_middle else_suite COME_FROM
+
+        # Python 2.6 omits the LOAD_FAST DELETE_FAST below
         # withas is allowed as a "from future" in 2.5
         withasstmt ::= expr setupwithas designator suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM
@@ -48,18 +51,6 @@ class Python25Parser(Python26Parser):
                                                 tokens, first, last)
         if invalid:
             return invalid
-        lhs = rule[0]
-        if lhs in ('tryelsestmt', ):
-            # The end of the else part of try/else come_from has to come
-            # from an END_FINALLY statement
-            if tokens[last-1].type.startswith('COME_FROM'):
-                end_finally_offset = int(tokens[last-1].pattr)
-                current  = first
-                while current < last:
-                    offset = tokens[current].offset
-                    if offset == end_finally_offset:
-                        return tokens[current].type != 'END_FINALLY'
-                    current += 1
         return False
 
 

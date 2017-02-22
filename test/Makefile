@@ -98,21 +98,6 @@ check-bytecode-2.4:
 check-bytecode-2.5:
 	$(PYTHON) test_pythonlib.py --bytecode-2.5
 
-#: Get grammar coverage for Python 2.5
-grammar-coverage-2.5:
-	SPARK_PARSER_COVERAGE=/tmp/spark-grammar-25.cover $(PYTHON) test_pythonlib.py --bytecode-2.5
-	SPARK_PARSER_COVERAGE=/tmp/spark-grammar-25.cover $(PYTHON) test_pyenvlib.py --2.5.6
-
-#: Get grammar coverage for Python 2.6
-grammar-coverage-2.6:
-	SPARK_PARSER_COVERAGE=/tmp/spark-grammar-26.cover $(PYTHON) test_pythonlib.py --bytecode-2.6
-	SPARK_PARSER_COVERAGE=/tmp/spark-grammar-26.cover $(PYTHON) test_pyenvlib.py --2.6.9
-
-#: Get grammar coverage for Python 2.7
-grammar-coverage-2.7:
-	SPARK_PARSER_COVERAGE=/tmp/spark-grammar-27.cover $(PYTHON) test_pythonlib.py --bytecode-2.7
-	SPARK_PARSER_COVERAGE=/tmp/spark-grammar-27.cover $(PYTHON) test_pyenvlib.py --2.7.13
-
 #: Check deparsing Python 3.0
 check-bytecode-3.0:
 	$(PYTHON) test_pythonlib.py --bytecode-3.0
