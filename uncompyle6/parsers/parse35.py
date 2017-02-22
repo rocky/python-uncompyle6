@@ -19,6 +19,9 @@ class Python35Parser(Python34Parser):
         # I'm sure by the time Python 4 comes around these will be turned
         # into special opcodes
 
+        while1stmt  ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK
+                        POP_BLOCK COME_FROM_LOOP
+
         # Python 3.5+ Await statement
         stmt ::= await_stmt
         await_stmt ::= call_function GET_AWAITABLE LOAD_CONST YIELD_FROM POP_TOP
@@ -109,7 +112,6 @@ class Python35Parser(Python34Parser):
 
         yield_from ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
 
-        _ifstmts_jump ::= c_stmts_opt COME_FROM
         """
 
     def add_custom_rules(self, tokens, customize):

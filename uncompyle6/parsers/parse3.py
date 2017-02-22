@@ -42,6 +42,10 @@ class Python3Parser(PythonParser):
 
         list_for ::= expr FOR_ITER designator list_iter jb_or_c
 
+        # This is seen in PyPy, but possibly it appears on other Python 3?
+        list_if     ::= expr jmp_false list_iter COME_FROM
+        list_if_not ::= expr jmp_true list_iter COME_FROM
+
         jb_or_c ::= JUMP_BACK
         jb_or_c ::= CONTINUE
 
@@ -49,6 +53,9 @@ class Python3Parser(PythonParser):
 
         setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
                 JUMP_BACK RETURN_VALUE RETURN_LAST
+
+        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
+                COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
 
         comp_body ::= dict_comp_body
         comp_body ::= set_comp_body
@@ -111,9 +118,11 @@ class Python3Parser(PythonParser):
         classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
         classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
 
-        assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
-        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
-        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_2
+        assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
+        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1
+                    RAISE_VARARGS_1 COME_FROM
+        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr
+                    RAISE_VARARGS_2 COME_FROM
 
         assert_expr ::= expr
         assert_expr ::= assert_expr_or
@@ -130,6 +139,7 @@ class Python3Parser(PythonParser):
 
         _ifstmts_jump ::= return_if_stmts
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM
+        _ifstmts_jump ::= c_stmts_opt COME_FROM
 
         iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
 
@@ -153,6 +163,7 @@ class Python3Parser(PythonParser):
         ifelsestmtr ::= testexpr return_if_stmts return_stmts
 
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
+        ifelsestmtl ::= testexpr c_stmts_opt COME_FROM JUMP_BACK else_suitel
 
         # FIXME: this feels like a hack. Is it just 1 or two
         # COME_FROMs?  the parsed tree for this and even with just the
@@ -327,6 +338,9 @@ class Python3Parser(PythonParser):
         forelselaststmtl  ::= SETUP_LOOP expr _for designator for_block POP_BLOCK else_suitel
                               COME_FROM_LOOP
 
+        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
+                              COME_FROM_LOOP
+
         whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
@@ -353,6 +367,9 @@ class Python3Parser(PythonParser):
         # FIXME: Python 3.? starts adding branch optimization? Put this starting there.
         while1stmt        ::= SETUP_LOOP l_stmts
         while1stmt        ::= SETUP_LOOP l_stmts COME_FROM_LOOP
+
+        while1stmt        ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
+
 
         # FIXME: investigate - can code really produce a NOP?
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP

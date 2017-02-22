@@ -1,4 +1,4 @@
-#  Copyright (c) 2015, 2016 by Rocky Bernstein
+#  Copyright (c) 2015-2017 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -239,7 +239,7 @@ class SourceWalker(GenericASTTraversal, object):
                 TABLE_DIRECT.update({
                     'importmultiple': ( '%|import %c%c\n', 2, 3 ),
                     'import_cont'   : ( ', %c', 2 ),
-                    # With/as is allowed as "from future" thing
+                    # With/as is allowed as "from future" thing in 2.5
                     'withstmt':     ( '%|with %c:\n%+%c%-', 0, 3),
                     'withasstmt':   ( '%|with %c as %c:\n%+%c%-', 0, 2, 3),
                 })
