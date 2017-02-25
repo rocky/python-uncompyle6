@@ -145,6 +145,8 @@ class Python26Parser(Python2Parser):
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK come_from_pop
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE come_from_pop
 
+        lastc_stmt ::= iflaststmt COME_FROM
+
         while1stmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM
 
         ifstmt         ::= testexpr_then _ifstmts_jump
