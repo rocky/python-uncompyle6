@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2016 Rocky Bernstein
+#  Copyright (c) 2015-2017 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -27,6 +27,16 @@ class ParserError(Exception):
 nop_func = lambda self, args: None
 
 class PythonParser(GenericASTBuilder):
+
+    def __init__(self, AST, start, debug):
+        super(PythonParser, self).__init__(AST, start, debug)
+        self.collect = frozenset(
+            ['stmts', 'except_stmts', '_stmts',
+             'exprlist', 'kvlist', 'kwargs', 'come_froms',
+              # Python < 3
+             'print_items',
+             # PyPy:
+             'kvlist_n'])
 
     def add_unique_rule(self, rule, opname, count, customize):
         """Add rule to grammar, but only if it hasn't been added previously
@@ -115,11 +125,7 @@ class PythonParser(GenericASTBuilder):
         return token.type
 
     def nonterminal(self, nt, args):
-        collect = ('stmts', 'exprlist', 'kvlist', '_stmts', 'print_items', 'kwargs',
-                   # PYPY:
-                   'kvlist_n')
-
-        if nt in collect and len(args) > 1:
+        if nt in self.collect and len(args) > 1:
             #
             #  Collect iterated thingies together. That is rather than
             #  stmts -> stmts stmt -> stmts stmt -> ...
