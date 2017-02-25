@@ -1,4 +1,4 @@
-#  Copyright (c) 2016 Rocky Bernstein
+#  Copyright (c) 2017 Rocky Bernstein
 """
 spark grammar differences over Python2 for Python 2.6.
 """
@@ -22,7 +22,10 @@ class Python26Parser(Python2Parser):
                          JUMP_IF_FALSE POP_TOP POP_TOP designator POP_TOP
 
         try_middle   ::= JUMP_FORWARD COME_FROM except_stmts
-                         come_from_pop END_FINALLY COME_FROM
+                         come_from_pop END_FINALLY come_froms
+
+        try_middle   ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY
+                         come_froms
 
         try_middle   ::= jmp_abs COME_FROM except_stmts
                          POP_TOP END_FINALLY
@@ -144,6 +147,8 @@ class Python26Parser(Python2Parser):
 
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK come_from_pop
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE come_from_pop
+
+        lastc_stmt ::= iflaststmt COME_FROM
 
         while1stmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM
 
