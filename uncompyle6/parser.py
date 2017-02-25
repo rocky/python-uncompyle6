@@ -28,13 +28,13 @@ class PythonParser(GenericASTBuilder):
 
     def __init__(self, AST, start, debug):
         super(PythonParser, self).__init__(AST, start, debug)
-        self.collect = frozenset(
-            ['stmts', 'except_stmts', '_stmts',
-             'exprlist', 'kvlist', 'kwargs', 'come_froms',
-              # Python < 3
-             'print_items',
-             # PyPy:
-             'kvlist_n'])
+        self.collect = [
+            'stmts', 'except_stmts', '_stmts',
+            'exprlist', 'kvlist', 'kwargs', 'come_froms',
+            # Python < 3
+            'print_items',
+            # PyPy:
+            'kvlist_n']
 
     def add_unique_rule(self, rule, opname, count, customize):
         """Add rule to grammar, but only if it hasn't been added previously
