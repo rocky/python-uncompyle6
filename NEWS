@@ -1,3 +1,9 @@
+uncompyle6 2.9.10 2016-02-25
+
+- Python grammar rule fixes
+- Add ability to get grammar coverage on runs
+- Handle Python 3.6 opcode BUILD_CONST_KEYMAP
+
 uncompyle6 2.9.9 2016-12-16
 
 - Remaining Python 3.5 ops handled

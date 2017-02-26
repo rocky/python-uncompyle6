@@ -1,6 +1,186 @@
+2017-02-25  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/version.py: Get ready for release 2.9.10
+
+2017-02-25  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse26.py: Python 2.6
+	parsing bugs ..  and some parser list nonterminal cleanup
+
+2017-02-24  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug25/03_if_for.py,
+	uncompyle6/parsers/parse26.py: Python 2.6 control flow bug with
+	added COME_FROM
+
+2017-02-22  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug25/02_try_else.py,
+	uncompyle6/parsers/parse25.py: Python 2.5 wasn't handling tryelse
+	properly
+
+2017-02-20  rocky <rb@dustyfeet.com>
+
+	* : New test doesn't --verify correctly. Sigh.
+
+2017-02-20  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug33/02_while1.py: Add test for last while1
+	bug fix
+
+2017-02-20  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/parsers/parse35.py: 
+	Python 3.x needs more "while 1" grammar rules
+
+2017-02-20  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/parsers/parse35.py,
+	uncompyle6/scanners/scanner3.py: Some Python 3.4 bugss fixed by
+	using 3.5 rules
+
+2017-02-20  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/exception/02_try_finally.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner3.py: More
+	COME_FROM's in Python 3...  Need this to find boundaries of simple if better
+
+2017-02-19  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse26.py: Marginally better for Python 2.6
+	but...  control flow is still wrong.
+
+2017-02-10  rocky <rb@dustyfeet.com>
+
+	* : commit f9d47abb2be7c3839df06c0ed69d3d513694af4e Author: rocky
+	<rb@dustyfeet.com> Date:   Fri Feb 10 02:07:04 2017 -0500
+
+2017-02-10  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug22/01_ops.py, test/test_pythonlib.py: Beef
+	up grammar coverage
+
+2017-01-29  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/simple_source/bug22/01_ops.py,
+	uncompyle6/parsers/parse25.py, uncompyle6/semantics/consts.py,
+	uncompyle6/semantics/pysource.py: Changes based on grammar coverage
+	info
+
+2017-01-29  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #83 from rocky/coverage Coverage
+
+2017-01-29  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug22/01_ops.py, test/test_pyenvlib.py: Add
+	--coverage to test_pyenvlib and ...  improve grammar coverage on 2.7
+
+2017-01-29  rocky <rb@dustyfeet.com>
+
+	* : commit 3dc766d0a9537842470c7b4f79e8ccb3d5a46843 Author: rocky
+	<rb@dustyfeet.com> Date:   Sun Jan 29 07:34:49 2017 -0500
+
+2017-01-29  rocky <rb@dustyfeet.com>
+
+	* test/test_pythonlib.py: Add --coverage option. WOOT!
+
+2017-01-27  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py: Bump min spark_parser version
+
+2017-01-24  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner2.py, uncompyle6/semantics/consts.py,
+	uncompyle6/semantics/pysource.py: More 2.6, 2.7 control flow Todo more COME_FROMs but now need to check targets better. In some
+	cases we're relying on grammar ambiguity to work out right and in
+	2.7 it doesn't
+
+2017-01-24  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse27.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/semantics/consts.py,
+	uncompyle6/semantics/pysource.py: More 2.6, 2.7 control-flow bugs Wasn't limiting exception clause to try finally. Probably still has
+	bugs in try-finally nesting Add another 2.6/2.7 COME_FROM to try to limit if/end scope better
+
+2017-01-23  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner26.py, uncompyle6/verify.py: Improve
+	Python 2.6 & 2.7 verification
+
+2017-01-22  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse30.py, uncompyle6/verify.py: Fix up Python
+	3.0 handling
+
+2017-01-21  rocky <rb@dustyfeet.com>
+
+	* : commit 545a46dffaa0fe2246dd7cc1b560c58db525c2b4 Author: rocky
+	<rb@dustyfeet.com> Date:   Sat Jan 21 06:24:31 2017 -0500
+
+2017-01-20  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/semantics/pysource.py: Handle BUILD_CONST_KEY_MAP as a
+	varargs custom rules with BUILD_CONST_KEY_MAP are pinned to the specific
+	number of args seen.
+
+2017-01-19  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #81 from moagstar/BUILD_CONST_KEY_MAP fixed bug with BUILD_CONST_KEY_MAP
+
+2017-01-19  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #80 from moagstar/BUILD_CONST_KEY_MAP Build const key map
+
+2017-01-18  Daniel Bradburn <moagstar@gmail.com>
+
+	* uncompyle6/semantics/pysource.py: added generation of dict display
+	from BUILD_CONST_KEY_MAP
+
+2017-01-18  Daniel Bradburn <moagstar@gmail.com>
+
+	* pytest/test_build_const_key_map.py: fixed typo
+
+2017-01-18  Daniel Bradburn <moagstar@gmail.com>
+
+	* pytest/test_build_const_key_map.py: added some more test cases for
+	BUILD_CONST_KEY_MAP
+
+2017-01-17  Daniel Bradburn <moagstar@gmail.com>
+
+	* pytest/test_build_const_key_map.py: simplified test cases for
+	test_build_const_key_map
+
+2017-01-17  Daniel Bradburn <moagstar@gmail.com>
+
+	* pytest/test_build_const_key_map.py, pytest/validate.py: added
+	validation code for checking decompilation of an expression
+
+2017-01-15  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner3.py: 
+	Handle 3.6 BUILD_CONST_KEYMAP
+
+2017-01-15  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner2.py: Python 2.1 doesn't have FOR_ITER
+	or GET_ITER...  adjust locgic for this fact
+
+2017-01-12  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/__init__.py: sys.recursionlimit is optional, not
+	essential
+
 2017-01-11  rocky <rb@dustyfeet.com>
 
-	* uncompyle6/version.py: Get ready for release 2.10.9
+	* : commit b131c20e99514d3a969a51e841d3a823017f1beb Author: rocky
+	<rb@dustyfeet.com> Date:   Wed Jan 11 21:32:26 2017 -0500
+
+2017-01-11  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS: Get ready for release 2.10.9
 
 2017-01-11  R. Bernstein <rocky@users.noreply.github.com>
 
