@@ -1,14 +1,10 @@
-uncompyle6 2.9.9 2016-01-11
+uncompyle6 2.9.10 2016-02-25
 
-- Remaining Python 3.5 ops handled
-  (this also means more Python 3.6 ops are handled)
-- Python 3.5 and 3.6 async and await handled
-- Python 3.0 decompilation improved
-- Python 3 annotations fixed
-- Better control-flow detection
-- Code cleanups and misc bug fixes
+- Python grammar rule fixes
+- Add ability to get grammar coverage on runs
+- Handle Python 3.6 opcode BUILD_CONST_KEYMAP
 
-uncompyle6 2.9.8 2016-12-16
+uncompyle6 2.9.9 2016-12-16
 
 - Remaining Python 3.5 ops handled
   (this also means more Python 3.6 ops are handled)
