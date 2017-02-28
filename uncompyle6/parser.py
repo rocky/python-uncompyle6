@@ -32,7 +32,7 @@ class PythonParser(GenericASTBuilder):
         super(PythonParser, self).__init__(AST, start, debug)
         self.collect = frozenset(
             ['stmts', 'except_stmts', '_stmts',
-             'exprlist', 'kvlist', 'kwargs', 'come_froms',
+             'exprlist', 'kvlist', 'kwargs', 'come_froms', '_come_from',
               # Python < 3
              'print_items',
              # PyPy:

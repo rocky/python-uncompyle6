@@ -1,4 +1,4 @@
-#  Copyright (c) 2016 Rocky Bernstein
+#  Copyright (c) 2016-2017 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 
@@ -95,6 +95,27 @@ class Python27Parser(Python2Parser):
         while1stmt ::= SETUP_LOOP return_stmts bp_come_from
         while1stmt ::= SETUP_LOOP return_stmts COME_FROM
         """
+
+    def add_custom_rules(self, tokens, customize):
+        super(Python27Parser, self).add_custom_rules(tokens, customize)
+        self.check_reduce['and'] = 'AST'
+        return
+
+    def reduce_is_invalid(self, rule, ast, tokens, first, last):
+        invalid = super(Python27Parser,
+                        self).reduce_is_invalid(rule, ast,
+                                                tokens, first, last)
+        if invalid:
+            return invalid
+        if rule == ('and', ('expr', 'jmp_false', 'expr', '\\e_come_from_opt')):
+            # Test that jmp_false jumps to the end of "and"
+            # or that it jumps to the same place as the end of "and"
+            jmp_false = ast[1][0]
+            jmp_target = jmp_false.offset + jmp_false.attr + 3
+            return not (jmp_target == tokens[last].offset or
+                        tokens[last].pattr == jmp_false.pattr)
+        return False
+
 
 class Python27ParserSingle(Python27Parser, PythonParserSingle):
     pass
