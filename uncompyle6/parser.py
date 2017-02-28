@@ -38,6 +38,12 @@ class PythonParser(GenericASTBuilder):
              # PyPy:
              'kvlist_n'])
 
+    def ast_first_offset(self, ast):
+        if hasattr(ast, 'offset'):
+            return ast.offset
+        else:
+            return self.ast_first_offset(ast[0])
+
     def add_unique_rule(self, rule, opname, count, customize):
         """Add rule to grammar, but only if it hasn't been added previously
            opname and count are used in the customize() semantic the actions
