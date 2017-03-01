@@ -164,7 +164,7 @@ class Scanner2(scan.Scanner):
                     #     continue
                     # last_offset = jump_offset
                     come_from_name = 'COME_FROM'
-                    op_name = self.opc.opname[self.code[jump_offset]]
+                    op_name = self.opname_for_offset(jump_offset)
                     if op_name.startswith('SETUP_') and self.version == 2.7:
                         come_from_type = op_name[len('SETUP_'):]
                         if come_from_type not in ('LOOP', 'EXCEPT'):
@@ -178,7 +178,7 @@ class Scanner2(scan.Scanner):
                     pass
 
             op = self.code[offset]
-            op_name = self.opc.opname[op]
+            op_name = self.op_name(op)
 
             oparg = None; pattr = None
             has_arg = op_has_argument(op, self.opc)
@@ -406,7 +406,7 @@ class Scanner2(scan.Scanner):
                 while code[j] == self.opc.JUMP_ABSOLUTE:
                     j = self.prev[j]
                 if (self.version >= 2.3 and
-                    self.opc.opname[code[j]] == 'LIST_APPEND'): # list comprehension
+                    self.opname_for_offset(j) == 'LIST_APPEND'): # list comprehension
                     stmts.remove(s)
                     continue
             elif code[s] == self.opc.POP_TOP:
@@ -844,7 +844,7 @@ class Scanner2(scan.Scanner):
                         # is a jump to a SETUP_LOOP target.
                         next_offset = target + self.op_size(self.code[target])
                         next_op = self.code[next_offset]
-                        if self.opc.opname[next_op] == 'JUMP_FORWARD':
+                        if self.op_name(next_op) == 'JUMP_FORWARD':
                             jump_target = self.get_target(next_offset, next_op)
                             if jump_target in self.setup_loops:
                                 self.structs.append({'type':  'while-loop',
@@ -882,12 +882,12 @@ class Scanner2(scan.Scanner):
                     # 39_0  COME_FROM 3
                     # 40 ...
 
-                    if self.opc.opname[code[jump_if_offset]].startswith('JUMP_IF'):
+                    if self.opname_for_offset(jump_if_offset).startswith('JUMP_IF'):
                         jump_if_target = code[jump_if_offset+1]
-                        if self.opc.opname[code[jump_if_target + jump_if_offset + 3]] == 'POP_TOP':
+                        if self.opname_for_offset(jump_if_target + jump_if_offset + 3) == 'POP_TOP':
                             jump_inst = jump_if_target + jump_if_offset
                             jump_offset = code[jump_inst+1]
-                            jump_op = self.opc.opname[code[jump_inst]]
+                            jump_op = self.opname_for_offset(jump_inst)
                             if (jump_op == 'JUMP_FORWARD' and jump_offset == 1):
                                 self.structs.append({'type':  'if-then',
                                                      'start': start-3,
@@ -922,7 +922,7 @@ class Scanner2(scan.Scanner):
                     # 256
                     if if_then_maybe and jump_op == 'JUMP_ABSOLUTE':
                         jump_target = self.get_target(jump_inst, code[jump_inst])
-                        if self.opc.opname[code[end]] == 'JUMP_FORWARD':
+                        if self.opname_for_offset(end) == 'JUMP_FORWARD':
                             end_target = self.get_target(end, code[end])
                             if jump_target == end_target:
                                 self.structs.append(if_then_maybe)
@@ -991,7 +991,7 @@ class Scanner2(scan.Scanner):
                 oparg = self.get_argument(offset)
 
                 if label is None:
-                    if op in self.opc.hasjrel and self.opc.opname[op] != 'FOR_ITER':
+                    if op in self.opc.hasjrel and self.op_name(op) != 'FOR_ITER':
                         # if (op in self.opc.hasjrel and
                         #     (self.version < 2.0 or op != self.opc.FOR_ITER)):
                         label = offset + 3 + oparg

@@ -133,9 +133,6 @@ class Scanner3(Scanner):
         # FIXME: remove the above in favor of:
         # self.varargs_ops = frozenset(self.opc.hasvargs)
 
-    def opName(self, offset):
-        return self.opc.opname[self.code[offset]]
-
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Pick out tokens from an uncompyle6 code object, and transform them,
@@ -219,7 +216,7 @@ class Scanner3(Scanner):
                 # "loop" tag last so the grammar rule matches that properly.
                 for jump_offset in sorted(jump_targets[inst.offset], reverse=True):
                     come_from_name = 'COME_FROM'
-                    opname = self.opName(jump_offset)
+                    opname = self.opname_for_offset(jump_offset)
                     if opname.startswith('SETUP_'):
                         come_from_type = opname[len('SETUP_'):]
                         come_from_name = 'COME_FROM_%s' % come_from_type
@@ -902,6 +899,14 @@ class Scanner3(Scanner):
             target = self.get_target(offset)
             end    = self.restrict_to_parent(target, parent)
             self.fixed_jumps[offset] = end
+        elif op == self.opc.POP_EXCEPT:
+            if self.version <= 3.5:
+                next_offset = offset+1
+            else:
+                next_offset = offset+2
+            target = self.get_target(next_offset)
+            if target > next_offset:
+                self.fixed_jumps[next_offset] = target
         elif op == self.opc.SETUP_FINALLY:
             target = self.get_target(offset)
             end    = self.restrict_to_parent(target, parent)

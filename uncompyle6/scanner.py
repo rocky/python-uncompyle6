@@ -66,6 +66,12 @@ class Scanner(object):
         # FIXME: This weird Python2 behavior is not Python3
         self.resetTokenClass()
 
+    def opname_for_offset(self, offset):
+        return self.opc.opname[self.code[offset]]
+
+    def op_name(self, op):
+        return self.opc.opname[op]
+
     def is_jump_forward(self, offset):
         """
         Return True if the code at offset is some sort of jump forward.

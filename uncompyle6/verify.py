@@ -331,18 +331,22 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
                         raise CmpErrorCode(name, tokens1[i1].offset, tokens1[i1],
                                            tokens2[i2], tokens1, tokens2)
                 elif tokens1[i1].type in JUMP_OPs and tokens1[i1].pattr != tokens2[i2].pattr:
-                    dest1 = int(tokens1[i1].pattr)
-                    dest2 = int(tokens2[i2].pattr)
                     if tokens1[i1].type == 'JUMP_BACK':
+                        dest1 = int(tokens1[i1].pattr)
+                        dest2 = int(tokens2[i2].pattr)
                         if offset_map[dest1] != dest2:
                             raise CmpErrorCode(name, tokens1[i1].offset, tokens1[i1],
                                        tokens2[i2], tokens1, tokens2)
                     else:
                         # import pdb; pdb.set_trace()
-                        if dest1 in check_jumps:
-                            check_jumps[dest1].append((i1, i2, dest2))
-                        else:
-                            check_jumps[dest1] = [(i1, i2, dest2)]
+                        try:
+                            dest1 = int(tokens1[i1].pattr)
+                            if dest1 in check_jumps:
+                                check_jumps[dest1].append((i1, i2, dest2))
+                            else:
+                                check_jumps[dest1] = [(i1, i2, dest2)]
+                        except:
+                            pass
 
                 i1 += 1
                 i2 += 1
