@@ -176,7 +176,7 @@ TABLE_DIRECT = {
     'conditional_lambda':  ( '(%c if %c else %c)', 2, 0, 3),
     'return_lambda':    ('%c', 0),
     'compare':		( '%p %[-1]{pattr} %p', (0, 19), (1, 19) ),
-    'cmp_list':		( '%p %p', (0, 20), (1, 19)),
+    'cmp_list':		( '%p %p', (0, 29), (1, 30)),
     'cmp_list1':	( '%[3]{pattr} %p %p', (0, 19), (-2, 19)),
     'cmp_list2':	( '%[1]{pattr} %p', (0, 19)),
 #   'classdef': 	(), # handled by n_classdef()
@@ -274,6 +274,10 @@ MAP = {
     'exprlist':		MAP_R0,
 }
 
+# Operator precidence
+# See https://docs.python.org/3/reference/expressions.html
+# or https://docs.python.org/3/reference/expressions.html
+# for a list.
 PRECEDENCE = {
     'build_list':           0,
     'mapexpr':              0,

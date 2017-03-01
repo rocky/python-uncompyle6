@@ -30,11 +30,17 @@ class PythonParser(GenericASTBuilder):
         super(PythonParser, self).__init__(AST, start, debug)
         self.collect = [
             'stmts', 'except_stmts', '_stmts',
-            'exprlist', 'kvlist', 'kwargs', 'come_froms',
+            'exprlist', 'kvlist', 'kwargs', 'come_froms', '_come_from',
             # Python < 3
             'print_items',
             # PyPy:
             'kvlist_n']
+
+    def ast_first_offset(self, ast):
+        if hasattr(ast, 'offset'):
+            return ast.offset
+        else:
+            return self.ast_first_offset(ast[0])
 
     def add_unique_rule(self, rule, opname, count, customize):
         """Add rule to grammar, but only if it hasn't been added previously

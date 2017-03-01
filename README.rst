@@ -112,7 +112,7 @@ with handling control flow. All of the Python decompilers I have looked
 at have the same problem. In some cases we can detect an erroneous
 decompilation and report that.
 
-About 90% of the decompilation of Python standard library packages in
+Over 98% of the decompilation of Python standard library packages in
 Python 2.7.12 verifies correctly. Over 99% of Python 2.7 and 3.3-3.5
 "weakly" verify. Python 2.6 drops down to 96% weakly verifying.
 Other versions drop off in quality too.
