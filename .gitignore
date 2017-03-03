@@ -16,3 +16,4 @@
 /unpyc
 __pycache__
 build
+/.venv*
