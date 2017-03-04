@@ -1,7 +1,7 @@
 # std
 import string
 # 3rd party
-from hypothesis import given, assume, settings, example, strategies as st
+from hypothesis import given, assume, strategies as st
 import pytest
 # uncompyle
 from validate import validate_uncompyle

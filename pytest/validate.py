@@ -2,18 +2,23 @@
 from __future__ import print_function
 # std
 import os
-import dis
 import difflib
 import subprocess
 import tempfile
+import functools
 # compatability
 import six
 # uncompyle6 / xdis
-from uncompyle6 import PYTHON_VERSION, deparse_code
+from uncompyle6 import PYTHON_VERSION, IS_PYPY, deparse_code
+# TODO : I think we can get xdis to support the dis api (python 3 version) by doing something like this there
+from xdis.bytecode import Bytecode
+from xdis.main import get_opcode
+opc = get_opcode(PYTHON_VERSION, IS_PYPY)
+Bytecode = functools.partial(Bytecode, opc=opc)
 
 
 def _dis_to_text(co):
-    return dis.Bytecode(co).dis()
+    return Bytecode(co).dis()
 
 
 def print_diff(original, uncompyled):
@@ -99,9 +104,8 @@ def are_code_objects_equal(co1, co2):
 
     :return: True if the two code objects are approximately equal, otherwise False.
     """
-    # TODO : Use xdis for python2 compatability
-    instructions1 = dis.Bytecode(co1)
-    instructions2 = dis.Bytecode(co2)
+    instructions1 = Bytecode(co1)
+    instructions2 = Bytecode(co2)
     for opcode1, opcode2 in zip(instructions1, instructions2):
         if not are_instructions_equal(opcode1, opcode2):
             return False
