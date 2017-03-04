@@ -1,7 +1,7 @@
 # std
 import string
 # 3rd party
-from hypothesis import given, assume, example, strategies as st
+from hypothesis import given, assume, settings, example, strategies as st
 import pytest
 # uncompyle
 from validate import validate_uncompyle
@@ -46,42 +46,80 @@ def function_calls(draw):
     return function_call
 
 
+def test_CALL_FUNCTION():
+    validate_uncompyle("fn(w,m,f)")
+
+
+def test_BUILD_CONST_KEY_MAP_BUILD_MAP_UNPACK_WITH_CALL_BUILD_TUPLE_CALL_FUNCTION_EX():
+    validate_uncompyle("fn(w=0,m=0,**v)")
+
+
+def test_BUILD_MAP_BUILD_MAP_UNPACK_WITH_CALL_BUILD_TUPLE_CALL_FUNCTION_EX():
+    validate_uncompyle("fn(a=0,**g)")
+
+
 @pytest.mark.xfail()
+def test_CALL_FUNCTION_KW():
+    validate_uncompyle("fn(j=0)")
+
+
+@pytest.mark.xfail()
+def test_CALL_FUNCTION_EX():
+    validate_uncompyle("fn(*g,**j)")
+
+
+@pytest.mark.xfail()
+def test_BUILD_MAP_CALL_FUNCTION_EX():
+    validate_uncompyle("fn(*z,u=0)")
+
+
+@pytest.mark.xfail()
+def test_BUILD_TUPLE_CALL_FUNCTION_EX():
+    validate_uncompyle("fn(**a)")
+
+
+@pytest.mark.xfail()
+def test_BUILD_MAP_BUILD_TUPLE_BUILD_TUPLE_UNPACK_WITH_CALL_CALL_FUNCTION_EX():
+    validate_uncompyle("fn(b,b,b=0,*a)")
+
+
+@pytest.mark.xfail()
+def test_BUILD_TUPLE_BUILD_TUPLE_UNPACK_WITH_CALL_CALL_FUNCTION_EX():
+    validate_uncompyle("fn(*c,v)")
+
+
+@pytest.mark.xfail()
+def test_BUILD_CONST_KEY_MAP_CALL_FUNCTION_EX():
+    validate_uncompyle("fn(i=0,y=0,*p)")
+
+
+@pytest.mark.skip(reason='skipping property based test until all individual tests are passing')
 @given(function_calls())
-@example('fn(i,d)')                       # CALL_FUNCTION
-@example('fn(*q)')                        # CALL_FUNCTION_EX
-@example('fn(**n)')                       # BUILD_TUPLE, CALL_FUNCTION_EX
-@example('fn(r=0)')                       # CALL_FUNCTION_KW
-@example('fn(q=0,**f)')                   # BUILD_MAP, BUILD_MAP_UNPACK_WITH_CALL, BUILD_TUPLE, CALL_FUNCTION_EX
-@example('fn(h,*b)')                      # BUILD_TUPLE, BUILD_TUPLE_UNPACK_WITH_CALL, CALL_FUNCTION_EX
-@example('fn(*a,a=0)')                    # BUILD_MAP, CALL_FUNCTION_EX
-@example('fn(**m,i=0,a=0,b=0)')           # BUILD_CONST_KEY_MAP, BUILD_MAP_UNPACK_WITH_CALL, BUILD_TUPLE, CALL_FUNCTION_EX
-@example('fn(l=0,v=0,*e,f=0)')            # BUILD_CONST_KEY_MAP, CALL_FUNCTION_EX
-@example('fn(*c,a=0,**t)')                # BUILD_MAP, BUILD_MAP_UNPACK_WITH_CALL, CALL_FUNCTION_EX
-@example('fn(p=0,*a,n=0,a=0,**a)')        # BUILD_CONST_KEY_MAP, BUILD_MAP_UNPACK_WITH_CALL, CALL_FUNCTION_EX
-@example('fn(l=0,**d,o=0,f=0)')           # BUILD_CONST_KEY_MAP, BUILD_MAP, BUILD_MAP_UNPACK_WITH_CALL, BUILD_TUPLE, CALL_FUNCTION_EX
-@example('fn(t=0,s=0,*c,**f,g=0)')        # BUILD_CONST_KEY_MAP, BUILD_MAP, BUILD_MAP_UNPACK_WITH_CALL, CALL_FUNCTION_EX
-@example('fn(b,o,b=0,*a)')                # BUILD_MAP, BUILD_TUPLE, BUILD_TUPLE_UNPACK_WITH_CALL, CALL_FUNCTION_EX
 def test_function_call(function_call):
     validate_uncompyle(function_call)
 
 
-examples = []
+examples = set()
+generate_examples = False
 
 
-@pytest.mark.skip()
+@pytest.mark.skipif(not generate_examples, reason='not generating examples')
 @given(function_calls())
 def test_generate_hypothesis(function_call):
-    examples = set()
     examples.add(function_call)
 
 
-@pytest.mark.skip()
+@pytest.mark.skipif(not generate_examples, reason='not generating examples')
 def test_generate_examples():
     import dis
     example_opcodes = {}
     for example in examples:
-        opcodes = tuple(sorted(set(instruction.opname for instruction in dis.Bytecode(example))))
+        opcodes = tuple(sorted(set(
+            instruction.opname
+            for instruction in dis.Bytecode(example)
+            if instruction.opname not in ('LOAD_CONST', 'LOAD_NAME', 'RETURN_VALUE')
+        )))
         example_opcodes[opcodes] = example
     for k, v in example_opcodes.items():
-        print("@example('" + v + "')   # ", ', '.join(k))
+        print('def test_' + '_'.join(k) + '():\n    validate_uncompyle("' + v + '")\n\n')
+    return
