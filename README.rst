@@ -11,8 +11,8 @@ Introduction
 ------------
 
 *uncompyle6* translates Python bytecode back into equivalent Python
-source code. It accepts bytecodes from Python version 2.1 to 3.6 or
-so, including PyPy bytecode and Dropbox's Python 2.5 bytecode.
+source code. It accepts bytecodes from Python version 1.5, and 2.1 to
+3.6 or so, including PyPy bytecode and Dropbox's Python 2.5 bytecode.
 
 Why this?
 ---------
@@ -140,11 +140,10 @@ and 2.0.
 
 In the Python 3 series, Python support is is strongest around 3.4 or
 3.3 and drops off as you move further away from those versions. Python
-3.5 largely works, but still has some bugs in it and is missing some
-opcodes.  Python 3.6 changes things drastically by using word codes
-rather than byte codes. That has been addressed, but then it also
-changes function call opcodes and its semantics and has more problems
-with control flow than 3.5 has.
+3.6 changes things drastically by using word codes rather than byte
+codes. That has been addressed, but then it also changes function call
+opcodes and its semantics and has more problems with control flow than
+3.5 has.
 
 Currently not all Python magic numbers are supported. Specifically in
 some versions of Python, notably Python 3.6, the magic number has
