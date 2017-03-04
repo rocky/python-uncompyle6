@@ -469,19 +469,22 @@ class Python3Parser(PythonParser):
                 ('pos_arg ' * args_pos) +
                 ('kwarg ' * args_kw) +
                 'expr ' * nak + token.type)
-        self.add_unique_rule(rule, token.type, args_pos, customize)
+
+        uniq_param = args_kw + args_pos
+
+        self.add_unique_rule(rule, token.type, uniq_param, customize)
         if self.version >= 3.5:
             rule = ('async_call_function ::= expr ' +
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) +
                     'expr ' * nak + token.type +
                     ' GET_AWAITABLE LOAD_CONST YIELD_FROM')
-            self.add_unique_rule(rule, token.type, args_pos, customize)
-            self.add_unique_rule('expr ::= async_call_function', token.type, args_pos, customize)
+            self.add_unique_rule(rule, token.type, uniq_param, customize)
+            self.add_unique_rule('expr ::= async_call_function', token.type, uniq_param, customize)
 
         rule = ('classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d'
                 %  (('expr ' * (args_pos-1)), opname, args_pos))
-        self.add_unique_rule(rule, token.type, args_pos, customize)
+        self.add_unique_rule(rule, token.type, uniq_param, customize)
 
     def add_make_function_rule(self, rule, opname, attr, customize):
         """Python 3.3 added a an addtional LOAD_CONST before MAKE_FUNCTION and
