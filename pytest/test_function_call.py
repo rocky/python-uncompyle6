@@ -46,14 +46,17 @@ def function_calls(draw):
     return function_call
 
 
+@pytest.mark.xfail()
 def test_CALL_FUNCTION():
     validate_uncompyle("fn(w,m,f)")
 
 
+@pytest.mark.xfail()
 def test_BUILD_CONST_KEY_MAP_BUILD_MAP_UNPACK_WITH_CALL_BUILD_TUPLE_CALL_FUNCTION_EX():
     validate_uncompyle("fn(w=0,m=0,**v)")
 
 
+@pytest.mark.xfail()
 def test_BUILD_MAP_BUILD_MAP_UNPACK_WITH_CALL_BUILD_TUPLE_CALL_FUNCTION_EX():
     validate_uncompyle("fn(a=0,**g)")
 
