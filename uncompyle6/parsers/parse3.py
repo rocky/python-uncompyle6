@@ -181,13 +181,16 @@ class Python3Parser(PythonParser):
                            come_from_or_finally suite_stmts_opt END_FINALLY
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                           try_middle else_suite come_from_except_clauses
+
+        tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            try_middle else_suite come_froms
 
         tryelsestmtc ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                         try_middle else_suitec COME_FROM
+                         try_middle else_suitec come_from_except_clauses
 
         tryelsestmtl ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                         try_middle else_suitel COME_FROM
+                         try_middle else_suitel come_from_except_clauses
 
         try_middle ::= jmp_abs COME_FROM except_stmts
                        END_FINALLY
@@ -254,7 +257,10 @@ class Python3Parser(PythonParser):
 
     def p_misc3(self, args):
         """
-        try_middle ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts END_FINALLY COME_FROM
+        try_middle ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
+                       END_FINALLY COME_FROM
+        try_middle ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
+                       END_FINALLY COME_FROM_EXCEPT_CLAUSE
 
         for_block ::= l_stmts_opt opt_come_from_loop JUMP_BACK
         for_block ::= l_stmts
@@ -285,10 +291,13 @@ class Python3Parser(PythonParser):
         """
         opt_come_from_except ::= COME_FROM_EXCEPT
         opt_come_from_except ::= come_froms
+        opt_come_from_except ::= come_from_except_clauses
 
-        come_froms ::= come_froms COME_FROM
-        come_froms ::=
+        come_froms ::= COME_FROM*
 
+        come_from_except_clauses ::= COME_FROM_EXCEPT_CLAUSE+
+
+        opt_come_from_loop ::= opt_come_from_loop COME_FROM_LOOP
         opt_come_from_loop ::= opt_come_from_loop COME_FROM_LOOP
         opt_come_from_loop ::=
 

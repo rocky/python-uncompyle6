@@ -221,6 +221,9 @@ class Scanner3(Scanner):
                         come_from_type = opname[len('SETUP_'):]
                         come_from_name = 'COME_FROM_%s' % come_from_type
                         pass
+                    elif inst.offset in self.except_targets:
+                        come_from_name = 'COME_FROM_EXCEPT_CLAUSE'
+                        pass
                     tokens.append(Token(come_from_name,
                                         None, repr(jump_offset),
                                         offset='%s_%s' % (inst.offset, jump_idx),
@@ -443,6 +446,7 @@ class Scanner3(Scanner):
 
         # Map fixed jumps to their real destination
         self.fixed_jumps = {}
+        self.except_targets = {}
         self.ignore_if = set()
         self.build_statement_indices()
         self.else_start = {}
@@ -907,6 +911,8 @@ class Scanner3(Scanner):
             target = self.get_target(next_offset)
             if target > next_offset:
                 self.fixed_jumps[next_offset] = target
+                self.except_targets[target] = next_offset
+
         elif op == self.opc.SETUP_FINALLY:
             target = self.get_target(offset)
             end    = self.restrict_to_parent(target, parent)
