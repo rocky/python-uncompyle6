@@ -157,6 +157,9 @@ We also don't handle PJOrion_ obfuscated code. For that try: PJOrion
 Deobfuscator_ to unscramble the bytecode to get valid bytecode before
 trying this tool.
 
+Handling pathologically long lists of expressions or statements is
+slow.
+
 
 There is lots to do, so please dig in and help.
 
