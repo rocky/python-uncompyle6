@@ -58,7 +58,10 @@ class Scanner3(Scanner):
             setup_ops.append(self.opc.SETUP_WITH)
         self.setup_ops = frozenset(setup_ops)
 
-        self.pop_jump_tf = frozenset([self.opc.PJIF, self.opc.PJIT])
+        if self.version == 3.0:
+            self.pop_jump_tf = frozenset([self.opc.JUMP_IF_FALSE, self.opc.JUMP_IF_TRUE])
+        else:
+            self.pop_jump_tf = frozenset([self.opc.PJIF, self.opc.PJIT])
 
         self.setup_ops_no_loop = frozenset(setup_ops) - frozenset([self.opc.SETUP_LOOP])
 
