@@ -46,7 +46,7 @@ Requirements
 This project requires Python 2.6 or later, PyPy 3-2.4, or PyPy-5.0.1.
 Python versions 2.4-2.7 are supported in the python-2.4 branch.
 The bytecode files it can read has been tested on Python bytecodes from
-versions 1.5, 2.1-2.7, and 3.2-3.6 and the above-mentioned PyPy versions.
+versions 1.5, 2.1-2.7, and 3.0-3.6 and the above-mentioned PyPy versions.
 
 Installation
 ------------
