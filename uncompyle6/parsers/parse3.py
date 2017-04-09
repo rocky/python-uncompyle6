@@ -1,4 +1,4 @@
-#  Copyright (c) 2015, 2016 Rocky Bernstein
+#  Copyright (c) 2015-2017 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -462,9 +462,9 @@ class Python3Parser(PythonParser):
     def custom_classfunc_rule(self, opname, token, customize):
         """
         call_function ::= expr {expr}^n CALL_FUNCTION_n
-        call_function ::= expr {expr}^n CALL_FUNCTION_VAR_n POP_TOP
-        call_function ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n POP_TOP
-        call_function ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
+        call_function ::= expr {expr}^n CALL_FUNCTION_VAR_n
+        call_function ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n
+        call_function ::= expr {expr}^n CALL_FUNCTION_KW_n
 
         classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc {expr}^n-1 CALL_FUNCTION_n
         """
@@ -472,14 +472,30 @@ class Python3Parser(PythonParser):
         # high byte number of positional parameters
         args_pos = token.attr & 0xff
         args_kw = (token.attr >> 8) & 0xff
+
+        # Additional exprs for * and ** args:
+        #  0 if neither
+        #  1 for CALL_FUNCTION_VAR or CALL_FUNCTION_KW
+        #  2 for * and ** args (CALL_FUNCTION_VAR_KW).
+        # Yes, this computation based on instruction name is a little bit hoaky.
         nak = ( len(opname)-len('CALL_FUNCTION') ) // 3
+
         token.type = self.call_fn_name(token)
+        uniq_param = args_kw + args_pos
+        if self.version == 3.5 and opname.startswith('CALL_FUNCTION_VAR_KW'):
+            # Python 3.5 changes the stack position of where * args, the
+            # first LOAD_FAST, below are located.
+            # Python 3.6+ replaces CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
+            rule = ('call_function ::= LOAD_GLOBAL LOAD_FAST ' +
+                    ('pos_arg ' * args_pos) +
+                    ('kwarg ' * args_kw) + 'LOAD_FAST '
+                    + token.type)
+            self.add_unique_rule(rule, token.type, uniq_param, customize)
+
         rule = ('call_function ::= expr ' +
                 ('pos_arg ' * args_pos) +
                 ('kwarg ' * args_kw) +
                 'expr ' * nak + token.type)
-
-        uniq_param = args_kw + args_pos
 
         self.add_unique_rule(rule, token.type, uniq_param, customize)
         if self.version >= 3.5:
