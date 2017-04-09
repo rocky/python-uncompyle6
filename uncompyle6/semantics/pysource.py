@@ -1771,16 +1771,31 @@ class SourceWalker(GenericASTTraversal, object):
                     str = '%c(%C, '
                     p2 = (1, -2, ', ')
                 if op == 'CALL_FUNCTION_VAR':
-                    str += '*%c)'
+                    # Python 3.5 only puts optional args (the VAR part)
+                    # lowest down the stack
+                    if self.version == 3.5:
+                        if str == '%c(%C, ':
+                            str = '%c(*%C, %c)'
+                    else:
+                        str += '*%c)'
                     entry = (str, 0, p2, -2)
                 elif op == 'CALL_FUNCTION_KW':
                     str += '**%c)'
                     entry = (str, 0, p2, -2)
-                else:
+                elif op == 'CALL_FUNCTION_VAR_KW':
                     str += '*%c, **%c)'
-                    if p2[2]: p2 = (1, -3, ', ')
-                    entry = (str, 0, p2, -3, -2)
+                    # Python 3.5 only puts optional args (the VAR part)
+                    # lowest down the stack
+                    if self.version == 3.5:
+                        if p2[2]: p2 = (2, -2, ', ')
+                        entry = (str, 0, p2, 1, -2)
+                    else:
+                        if p2[2]: p2 = (1, -3, ', ')
+                        entry = (str, 0, p2, -3, -2)
                     pass
+                else:
+                    assert False, "Unhandled CALL_FUNCTION %s" % op
+
                 TABLE_R[k] = entry
                 pass
             # handled by n_mapexpr:

@@ -482,14 +482,17 @@ class Python3Parser(PythonParser):
 
         token.type = self.call_fn_name(token)
         uniq_param = args_kw + args_pos
-        if self.version == 3.5 and opname.startswith('CALL_FUNCTION_VAR_KW'):
+        if self.version == 3.5 and opname.startswith('CALL_FUNCTION_VAR'):
             # Python 3.5 changes the stack position of where * args, the
             # first LOAD_FAST, below are located.
             # Python 3.6+ replaces CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
-            rule = ('call_function ::= LOAD_GLOBAL LOAD_FAST ' +
+            if opname.endswith('KW'):
+                kw = 'LOAD_FAST '
+            else:
+                kw = ''
+            rule = ('call_function ::= expr expr ' +
                     ('pos_arg ' * args_pos) +
-                    ('kwarg ' * args_kw) + 'LOAD_FAST '
-                    + token.type)
+                    ('kwarg ' * args_kw) + kw + token.type)
             self.add_unique_rule(rule, token.type, uniq_param, customize)
 
         rule = ('call_function ::= expr ' +
