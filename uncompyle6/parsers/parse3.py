@@ -381,6 +381,8 @@ class Python3Parser(PythonParser):
 
         while1stmt        ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
 
+        while1elsestmt    ::= SETUP_LOOP l_stmts JUMP_BACK
+                              else_suite COME_FROM_LOOP
 
         # FIXME: investigate - can code really produce a NOP?
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP
