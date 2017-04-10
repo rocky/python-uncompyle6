@@ -10,7 +10,7 @@ before reduction and don't reduce when there is a problem.
 
 def checker(ast, in_loop, errors):
     in_loop = in_loop or ast.type in ('while1stmt', 'whileTruestmt',
-                                      'whilestmt', 'whileelsestmt',
+                                      'whilestmt', 'whileelsestmt', 'while1elsestmt',
                                       'for_block')
     if ast.type in ('augassign1', 'augassign2') and ast[0][0] == 'and':
         text = str(ast)

@@ -41,6 +41,7 @@ class Python2Parser(PythonParser):
     def p_stmt2(self, args):
         """
         while1stmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM
+        while1stmt     ::= SETUP_LOOP l_stmts     JUMP_BACK COME_FROM
         while1stmt     ::= SETUP_LOOP l_stmts     JUMP_BACK POP_BLOCK COME_FROM
 
         while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK POP_BLOCK else_suite COME_FROM
