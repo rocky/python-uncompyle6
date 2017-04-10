@@ -1,4 +1,4 @@
-#  Copyright (c) 2015, 2016 Rocky Bernstein
+#  Copyright (c) 2015-2017 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -179,13 +179,16 @@ class Python3Parser(PythonParser):
                            come_from_or_finally suite_stmts_opt END_FINALLY
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                           try_middle else_suite come_from_except_clauses
+
+        tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            try_middle else_suite come_froms
 
         tryelsestmtc ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                         try_middle else_suitec COME_FROM
+                         try_middle else_suitec come_from_except_clauses
 
         tryelsestmtl ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                         try_middle else_suitel COME_FROM
+                         try_middle else_suitel come_from_except_clauses
 
         try_middle ::= jmp_abs COME_FROM except_stmts
                        END_FINALLY
@@ -252,7 +255,10 @@ class Python3Parser(PythonParser):
 
     def p_misc3(self, args):
         """
-        try_middle ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts END_FINALLY COME_FROM
+        try_middle ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
+                       END_FINALLY COME_FROM
+        try_middle ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
+                       END_FINALLY COME_FROM_EXCEPT_CLAUSE
 
         for_block ::= l_stmts_opt opt_come_from_loop JUMP_BACK
         for_block ::= l_stmts
@@ -283,10 +289,13 @@ class Python3Parser(PythonParser):
         """
         opt_come_from_except ::= COME_FROM_EXCEPT
         opt_come_from_except ::= come_froms
+        opt_come_from_except ::= come_from_except_clauses
 
-        come_froms ::= come_froms COME_FROM
-        come_froms ::=
+        come_froms ::= COME_FROM*
 
+        come_from_except_clauses ::= COME_FROM_EXCEPT_CLAUSE+
+
+        opt_come_from_loop ::= opt_come_from_loop COME_FROM_LOOP
         opt_come_from_loop ::= opt_come_from_loop COME_FROM_LOOP
         opt_come_from_loop ::=
 
@@ -451,9 +460,9 @@ class Python3Parser(PythonParser):
     def custom_classfunc_rule(self, opname, token, customize):
         """
         call_function ::= expr {expr}^n CALL_FUNCTION_n
-        call_function ::= expr {expr}^n CALL_FUNCTION_VAR_n POP_TOP
-        call_function ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n POP_TOP
-        call_function ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
+        call_function ::= expr {expr}^n CALL_FUNCTION_VAR_n
+        call_function ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n
+        call_function ::= expr {expr}^n CALL_FUNCTION_KW_n
 
         classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc {expr}^n-1 CALL_FUNCTION_n
         """
@@ -461,25 +470,47 @@ class Python3Parser(PythonParser):
         # high byte number of positional parameters
         args_pos = token.attr & 0xff
         args_kw = (token.attr >> 8) & 0xff
+
+        # Additional exprs for * and ** args:
+        #  0 if neither
+        #  1 for CALL_FUNCTION_VAR or CALL_FUNCTION_KW
+        #  2 for * and ** args (CALL_FUNCTION_VAR_KW).
+        # Yes, this computation based on instruction name is a little bit hoaky.
         nak = ( len(opname)-len('CALL_FUNCTION') ) // 3
+
         token.type = self.call_fn_name(token)
+        uniq_param = args_kw + args_pos
+        if self.version == 3.5 and opname.startswith('CALL_FUNCTION_VAR'):
+            # Python 3.5 changes the stack position of where * args, the
+            # first LOAD_FAST, below are located.
+            # Python 3.6+ replaces CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
+            if opname.endswith('KW'):
+                kw = 'LOAD_FAST '
+            else:
+                kw = ''
+            rule = ('call_function ::= expr expr ' +
+                    ('pos_arg ' * args_pos) +
+                    ('kwarg ' * args_kw) + kw + token.type)
+            self.add_unique_rule(rule, token.type, uniq_param, customize)
+
         rule = ('call_function ::= expr ' +
                 ('pos_arg ' * args_pos) +
                 ('kwarg ' * args_kw) +
                 'expr ' * nak + token.type)
-        self.add_unique_rule(rule, token.type, args_pos, customize)
+
+        self.add_unique_rule(rule, token.type, uniq_param, customize)
         if self.version >= 3.5:
             rule = ('async_call_function ::= expr ' +
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) +
                     'expr ' * nak + token.type +
                     ' GET_AWAITABLE LOAD_CONST YIELD_FROM')
-            self.add_unique_rule(rule, token.type, args_pos, customize)
-            self.add_unique_rule('expr ::= async_call_function', token.type, args_pos, customize)
+            self.add_unique_rule(rule, token.type, uniq_param, customize)
+            self.add_unique_rule('expr ::= async_call_function', token.type, uniq_param, customize)
 
         rule = ('classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d'
                 %  (('expr ' * (args_pos-1)), opname, args_pos))
-        self.add_unique_rule(rule, token.type, args_pos, customize)
+        self.add_unique_rule(rule, token.type, uniq_param, customize)
 
     def add_make_function_rule(self, rule, opname, attr, customize):
         """Python 3.3 added a an addtional LOAD_CONST before MAKE_FUNCTION and

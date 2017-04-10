@@ -18,3 +18,12 @@ def __init__(self, defaults=None, dict_type=_default_dict,
              default_section=DEFAULTSECT,
              interpolation=_UNSET):
     pass
+
+# Bug found by hypothesis in creating function calls
+# thanks to moagstar
+def fn(a, b, d):
+    return (a, b, d)
+
+b = {'b': 1,
+     'd': 2}
+fn(a=0, **b)

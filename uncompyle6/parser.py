@@ -29,7 +29,7 @@ class PythonParser(GenericASTBuilder):
     def __init__(self, AST, start, debug):
         super(PythonParser, self).__init__(AST, start, debug)
         self.collect = [
-            'stmts', 'except_stmts', '_stmts',
+            'stmts', 'except_stmts', '_stmts', 'load_attrs',
             'exprlist', 'kvlist', 'kwargs', 'come_froms', '_come_from',
             # Python < 3
             'print_items',
@@ -405,8 +405,7 @@ class PythonParser(GenericASTBuilder):
         import_cont ::= LOAD_CONST LOAD_CONST import_as_cont
         import_as_cont ::= IMPORT_FROM designator
 
-        load_attrs ::= LOAD_ATTR
-        load_attrs ::= load_attrs LOAD_ATTR
+        load_attrs ::= LOAD_ATTR+
         """
 
     def p_list_comprehension(self, args):

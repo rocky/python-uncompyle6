@@ -115,7 +115,7 @@ I started working on this late 2015, mostly to add fragment support.
 In that, I decided to make this runnable on Python 3.2+ and Python 2.6+
 while, handling Python bytecodes from Python versions 2.5+ and
 3.2+. In doing so, it has been expedient to separate this into three
-projects: load loading and disassembly (xdis), parsing and tree
+projects: bytecode loading and disassembly (xdis), parsing and tree
 building (spark_parser), and grammar and semantic actions for
 decompiling (uncompyle6).
 
