@@ -17,3 +17,9 @@ def div(a: dict(type=float, help='the dividend'),
     ) -> dict(type=float, help='the result of dividing a by b'):
     """Divide a by b"""
     return a / b
+
+class SupportsInt(_Protocol):
+
+    @abstractmethod
+    def __int__(self) -> int:
+        pass

@@ -1788,7 +1788,6 @@ class SourceWalker(GenericASTTraversal, object):
                     # lowest down the stack
                     na = (v & 0xff)  # positional parameters
                     if self.version == 3.5 and na == 0:
-                        print("XXX", k)
                         if p2[2]: p2 = (2, -2, ', ')
                         entry = (str, 0, p2, 1, -2)
                     else:
