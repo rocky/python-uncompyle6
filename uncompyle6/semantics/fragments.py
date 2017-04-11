@@ -79,7 +79,9 @@ from uncompyle6.semantics.consts import (
     TABLE_DIRECT, escape, minint, MAP
     )
 
-from uncompyle6.semantics.make_function import find_all_globals, find_none
+from uncompyle6.semantics.make_function import (
+    find_all_globals, find_none, code_has_star_arg, code_has_star_star_arg
+)
 
 if PYTHON3:
     from itertools import zip_longest
@@ -1659,10 +1661,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         params.reverse() # back to correct order
 
-        if 4 & code.co_flags:	# flag 2 -> variable number of args
+        if code_has_star_arg(code):
             params.append('*%s' % code.co_varnames[argc])
             argc += 1
-        if 8 & code.co_flags:	# flag 3 -> keyword args
+        if code_has_star_star_arg(code):
             params.append('**%s' % code.co_varnames[argc])
             argc += 1
 

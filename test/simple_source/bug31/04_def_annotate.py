@@ -18,6 +18,11 @@ def div(a: dict(type=float, help='the dividend'),
     """Divide a by b"""
     return a / b
 
+class TestSignatureObject(unittest.TestCase):
+    def test_signature_on_wkwonly(self):
+        def test(*, a:float, b:str) -> int:
+            pass
+
 class SupportsInt(_Protocol):
 
     @abstractmethod
