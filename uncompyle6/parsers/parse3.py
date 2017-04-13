@@ -282,8 +282,7 @@ class Python3Parser(PythonParser):
         # int, float, str
         annotate_arg    ::= LOAD_NAME
         # LOAD_CONST is used in an annotation string
-        annotate_arg    ::= LOAD_CONST
-        annotate_arg    ::= LOAD_GLOBAL
+        annotate_arg    ::= expr
 
         # This stores the tuple of parameter names
         # that have been annotated

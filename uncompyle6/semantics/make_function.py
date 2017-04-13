@@ -97,8 +97,7 @@ def make_function3_annotate(self, node, isLambda, nested=1,
         j = annotate_last-1
         l = -len(node)
         while j >= l and node[j].type in ('annotate_arg' 'annotate_tuple'):
-            annotate_args[annotate_tup[i]] = (node[j][0].attr,
-                                              node[j][0] in ('LOAD_CONST', 'LOAD_GLOBAL'))
+            annotate_args[annotate_tup[i]] = node[j][0]
             i -= 1
             j -= 1
 
@@ -227,14 +226,11 @@ def make_function3_annotate(self, node, isLambda, nested=1,
                     self.write(', ')
                 i += 1
                 pass
-            elif n == 'annotate_arg':
-                from trepan.api import debug; debug()
-                pass
             pass
         annotate_args = []
         for n in node:
             if n == 'annotate_arg':
-                annotate_args.append(n[0].attr)
+                annotate_args.append(n[0])
             elif n == 'annotate_tuple':
                 t = n[0].attr
                 if t[-1] == 'return':
@@ -243,7 +239,8 @@ def make_function3_annotate(self, node, isLambda, nested=1,
                     pass
                 last = len(annotate_args) - 1
                 for i in range(len(annotate_args)):
-                    self.write("%s: %s" % (annotate_args[i], t[i]))
+                    self.write("%s: " % (t[i]))
+                    self.preorder(annotate_args[i])
                     if i < last:
                         self.write(', ')
                         pass
