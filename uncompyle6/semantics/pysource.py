@@ -218,6 +218,11 @@ class SourceWalker(GenericASTTraversal, object):
                 'importlist2':	( '%C', (0, maxint, ', ') ),
                 })
             if version <= 2.4:
+                if version == 2.3:
+                    TABLE_DIRECT.update({
+                        'if1_stmt':	( '%|if 1\n%+%c%-', 5 )
+                    })
+
                 global NAME_MODULE
                 NAME_MODULE = AST('stmt',
                                   [ AST('assign',
