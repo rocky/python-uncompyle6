@@ -22,6 +22,7 @@ class Python35Parser(Python34Parser):
 
         while1stmt     ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK
                            POP_BLOCK COME_FROM_LOOP
+        while1stmt     ::= SETUP_LOOP l_stmts POP_BLOCK COME_FROM_LOOP
         while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK
                            POP_BLOCK else_suite COME_FROM_LOOP
 
