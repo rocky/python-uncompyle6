@@ -409,7 +409,6 @@ class Python3Parser(PythonParser):
         conditional    ::= expr jmp_false expr jf_else expr COME_FROM
         conditionalnot ::= expr jmp_true  expr jf_else expr COME_FROM
 
-
         expr ::= LOAD_CLASSNAME
 
         # Python 3.4+
