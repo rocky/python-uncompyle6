@@ -894,7 +894,7 @@ class Scanner3(Scanner):
                                 return
                             pass
                     pass
-                if code[pre_rtarget] == self.opc.RETURN_VALUE:
+                if code[pre_rtarget] == self.opc.RETURN_VALUE and self.version < 3.5:
                     self.return_end_ifs.add(pre_rtarget)
                 else:
                     self.fixed_jumps[offset] = rtarget
