@@ -42,7 +42,8 @@ class Python2Parser(PythonParser):
         while1stmt     ::= SETUP_LOOP l_stmts     JUMP_BACK COME_FROM
         while1stmt     ::= SETUP_LOOP l_stmts     JUMP_BACK POP_BLOCK COME_FROM
 
-        while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK else_suite COME_FROM
+        while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK POP_BLOCK else_suite COME_FROM
+        while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK           else_suite COME_FROM
 
         exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
         exec_stmt ::= expr exprlist EXEC_STMT

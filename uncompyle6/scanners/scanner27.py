@@ -1,4 +1,4 @@
-# Copyright (c) 2015, 2016 by Rocky Bernstein
+# Copyright (c) 2015-2017 by Rocky Bernstein
 """
 Python 2.7 bytecode ingester.
 
@@ -46,7 +46,7 @@ class Scanner27(Scanner2):
             self.opc.DELETE_SLICE_2,   self.opc.DELETE_SLICE_3,
         ])
 
-        # opcodes with expect a variable number pushed values whose
+        # opcodes which expect a variable number pushed values and whose
         # count is in the opcode. For parsing we generally change the
         # opcode name to include that number.
         varargs_ops = set([

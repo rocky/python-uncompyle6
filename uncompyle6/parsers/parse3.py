@@ -154,7 +154,7 @@ class Python3Parser(PythonParser):
         # of missing "else" clauses. Therefore we include grammar
         # rules with and without ELSE.
 
-        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite COME_FROM
+        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite opt_come_from_except
         ifelsestmt ::= testexpr c_stmts_opt jf_else else_suite _come_from
 
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
@@ -273,12 +273,14 @@ class Python3Parser(PythonParser):
         stmt ::= funcdef_annotate
         funcdef_annotate ::= mkfunc_annotate designator
 
+        mkfuncdeco0 ::= mkfunc_annotate
+
         # This has the annotation value.
         # LOAD_NAME is used in an annotation type like
         # int, float, str
         annotate_arg    ::= LOAD_NAME
         # LOAD_CONST is used in an annotation string
-        annotate_arg    ::= LOAD_CONST
+        annotate_arg    ::= expr
 
         # This stores the tuple of parameter names
         # that have been annotated
@@ -379,6 +381,8 @@ class Python3Parser(PythonParser):
 
         while1stmt        ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
 
+        while1elsestmt    ::= SETUP_LOOP l_stmts JUMP_BACK
+                              else_suite COME_FROM_LOOP
 
         # FIXME: investigate - can code really produce a NOP?
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP
@@ -402,7 +406,6 @@ class Python3Parser(PythonParser):
         """
         conditional    ::= expr jmp_false expr jf_else expr COME_FROM
         conditionalnot ::= expr jmp_true  expr jf_else expr COME_FROM
-
 
         expr ::= LOAD_CLASSNAME
 
@@ -708,9 +711,6 @@ class Python3Parser(PythonParser):
                             ('pos_arg ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
                 if opname.startswith('MAKE_FUNCTION_A'):
-                    # rule = ('mkfunc2 ::= %s%sEXTENDED_ARG %s' %
-                    #         ('pos_arg ' * (args_pos), 'kwargs ' * (annotate_args-1), opname))
-                    self.add_unique_rule(rule, opname, token.attr, customize)
                     if self.version >= 3.3:
                         rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
                                 (('pos_arg ' * (args_pos)),

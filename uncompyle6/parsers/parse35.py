@@ -19,8 +19,11 @@ class Python35Parser(Python34Parser):
         # I'm sure by the time Python 4 comes around these will be turned
         # into special opcodes
 
-        while1stmt  ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK
-                        POP_BLOCK COME_FROM_LOOP
+        while1stmt     ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK
+                           POP_BLOCK COME_FROM_LOOP
+        while1stmt     ::= SETUP_LOOP l_stmts POP_BLOCK COME_FROM_LOOP
+        while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK
+                           POP_BLOCK else_suite COME_FROM_LOOP
 
         # Python 3.5+ Await statement
         stmt ::= await_stmt

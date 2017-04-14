@@ -1,4 +1,4 @@
-#  Copyright (c) 2015, 2016 by Rocky Bernstein
+#  Copyright (c) 2015-2017 by Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 """
 All the crazy things we have to do to handle Python functions
@@ -39,6 +39,17 @@ def find_none(node):
         elif n.type == 'LOAD_CONST' and n.pattr is None:
             return True
     return False
+
+# FIXME: put this in xdis
+def code_has_star_arg(code):
+    """Return True iff
+    the code object has a variable positional parameter (*args-like)"""
+    return (code.co_flags & 4) != 0
+
+def code_has_star_star_arg(code):
+    """Return True iff
+    The code object has a variable keyword parameter (**kwargs-like)."""
+    return (code.co_flags & 8) != 0
 
 # FIXME: DRY the below code...
 
@@ -81,8 +92,7 @@ def make_function3_annotate(self, node, isLambda, nested=1,
         j = annotate_last-1
         l = -len(node)
         while j >= l and node[j].type in ('annotate_arg' 'annotate_tuple'):
-            annotate_args[annotate_tup[i]] = (node[j][0].attr,
-                                              node[j][0] == 'LOAD_CONST')
+            annotate_args[annotate_tup[i]] = node[j][0]
             i -= 1
             j -= 1
 
@@ -91,9 +101,12 @@ def make_function3_annotate(self, node, isLambda, nested=1,
         # positional args are before kwargs
         defparams = node[:args_node.attr[0]]
         pos_args, kw_args, annotate_argc  = args_node.attr
+        if 'return' in annotate_args.keys():
+            annotate_argc = len(annotate_args) - 1
     else:
         defparams = node[:args_node.attr]
         kw_args  = 0
+        annotate_argc = 0
         pass
 
     if 3.0 <= self.version <= 3.2:
@@ -139,7 +152,7 @@ def make_function3_annotate(self, node, isLambda, nested=1,
     indent = ' ' * l
     line_number = self.line_number
 
-    if 4 & code.co_flags:	# flag 2 -> variable number of args
+    if code_has_star_arg(code):
         self.write('*%s' % code.co_varnames[argc + kw_pairs])
         argc += 1
 
@@ -184,10 +197,12 @@ def make_function3_annotate(self, node, isLambda, nested=1,
             else:
                 suffix = ', '
 
+
     # self.println(indent, '#flags:\t', int(code.co_flags))
-    if kw_args > 0:
-        if not (4 & code.co_flags):
+    if kw_args + annotate_argc > 0:
+        if not code_has_star_arg(code):
             if argc > 0:
+
                 self.write(", *, ")
             else:
                 self.write("*, ")
@@ -210,9 +225,29 @@ def make_function3_annotate(self, node, isLambda, nested=1,
                 i += 1
                 pass
             pass
+        annotate_args = []
+        for n in node:
+            if n == 'annotate_arg':
+                annotate_args.append(n[0])
+            elif n == 'annotate_tuple':
+                t = n[0].attr
+                if t[-1] == 'return':
+                    t = t[0:-1]
+                    annotate_args = annotate_args[:-1]
+                    pass
+                last = len(annotate_args) - 1
+                for i in range(len(annotate_args)):
+                    self.write("%s: " % (t[i]))
+                    self.preorder(annotate_args[i])
+                    if i < last:
+                        self.write(', ')
+                        pass
+                    pass
+                break
+            pass
         pass
 
-    if 8 & code.co_flags:	# flag 3 -> keyword args
+    if code_has_star_star_arg(code):
         if argc > 0:
             self.write(', ')
         self.write('**%s' % code.co_varnames[argc + kw_pairs])
@@ -295,6 +330,7 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
     else:
         defparams = node[:args_node.attr]
         kw_args  = 0
+        annotate_argc  = 0
         pass
 
     lambda_index = None
@@ -337,7 +373,7 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
               name, default in map(lambda *tup:tup, *tup)]
     params.reverse() # back to correct order
 
-    if 4 & code.co_flags:	# flag 2 -> variable number of args
+    if code_has_star_arg(code):
         params.append('*%s' % code.co_varnames[argc])
         argc += 1
 
@@ -365,7 +401,7 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
             break
         pass
 
-    if 8 & code.co_flags:	# flag 3 -> keyword args
+    if code_has_star_star_arg(code):
         if argc > 0:
             self.write(', ')
         self.write('**%s' % code.co_varnames[argc + kw_pairs])
@@ -478,7 +514,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
               name, default in map(lambda *tup:tup, *tup)]
         params.reverse() # back to correct order
 
-        if 4 & code.co_flags:	# flag 2 -> variable number of args
+        if code_has_star_arg(code):
             if self.version > 3.0:
                 params.append('*%s' % code.co_varnames[argc + kw_pairs])
             else:
@@ -504,7 +540,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
         indent = ' ' * l
         line_number = self.line_number
 
-        if 4 & code.co_flags:	# flag 2 -> variable number of args
+        if code_has_star_arg(code):
             self.write('*%s' % code.co_varnames[argc + kw_pairs])
             argc += 1
 
@@ -561,7 +597,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
             pass
         pass
 
-    if 8 & code.co_flags:	# flag 3 -> keyword args
+    if code_has_star_star_arg(code):
         if argc > 0:
             self.write(', ')
         self.write('**%s' % code.co_varnames[argc + kw_pairs])

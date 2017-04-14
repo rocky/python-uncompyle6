@@ -77,7 +77,9 @@ from uncompyle6.semantics.consts import (
     TABLE_DIRECT, escape, minint, MAP
     )
 
-from uncompyle6.semantics.make_function import find_all_globals, find_none
+from uncompyle6.semantics.make_function import (
+    find_all_globals, find_none, code_has_star_arg, code_has_star_star_arg
+)
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
@@ -1668,10 +1670,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
               name, default in map(lambda *tup:tup, *tup)]
         params.reverse() # back to correct order
 
-        if 4 & code.co_flags:	# flag 2 -> variable number of args
+        if code_has_star_arg(code):
             params.append('*%s' % code.co_varnames[argc])
             argc += 1
-        if 8 & code.co_flags:	# flag 3 -> keyword args
+        if code_has_star_star_arg(code):
             params.append('**%s' % code.co_varnames[argc])
             argc += 1
 
