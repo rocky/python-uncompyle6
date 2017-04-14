@@ -82,7 +82,7 @@ from uncompyle6.semantics.make_function import find_all_globals, find_none
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 if PYTHON_VERSION < 2.6:
-    from xdis.namedtuple25 import namedtuple
+    from xdis.namedtuple24 import namedtuple
 else:
     from collections import namedtuple
 
