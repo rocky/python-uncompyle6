@@ -156,7 +156,7 @@ class Python3Parser(PythonParser):
         # of missing "else" clauses. Therefore we include grammar
         # rules with and without ELSE.
 
-        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite COME_FROM
+        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite opt_come_from_except
         ifelsestmt ::= testexpr c_stmts_opt jf_else else_suite _come_from
 
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
