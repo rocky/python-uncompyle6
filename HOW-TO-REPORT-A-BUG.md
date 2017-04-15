@@ -1,14 +1,14 @@
 # How to report a Bug
 
-## The difficulty of the Problem
+## The difficulty of the problem
 
 There is no Python decompiler yet, that I know about that will
 decompyle everything. This one probably does the
-best job of *any* Python decompiler. But it is a constant work in progress, as Python keeps changing as does its code generation.
+best job of *any* Python decompiler. But it is a constant work in progress: Python keeps changing, and so does its code generation.
 
 I have found bugs in *every* Python decompiler I have tried. Even
-those for the authors/maintainers clam that it works across some
-version of the entire Python standard library. And I don't mean that
+those where authors/maintainers claim that they have used it on 
+the entire Python standard library. And I don't mean that
 the program doesn't come out with the same Python source instructions,
 but that the program is *semantically* not equivalent.
 
