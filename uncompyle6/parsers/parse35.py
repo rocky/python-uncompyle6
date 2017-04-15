@@ -116,6 +116,8 @@ class Python35Parser(Python34Parser):
 
         yield_from ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
 
+        expr ::= unmap_dict
+        expr ::= unmapexpr
         """
 
     def add_custom_rules(self, tokens, customize):
@@ -134,6 +136,10 @@ class Python35Parser(Python34Parser):
                     rule = 'call_function ::= expr unmapexpr ' + call_token.type
                     self.add_unique_rule(rule, opname, token.attr, customize)
                 pass
+            elif opname == 'BUILD_MAP_UNPACK':
+                nargs = token.attr % 256
+                rule = "unmap_dict ::= mapexpr " +  opname
+                self.add_unique_rule(rule, opname, token.attr, customize)
             pass
         return
 

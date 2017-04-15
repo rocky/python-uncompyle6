@@ -338,6 +338,8 @@ class SourceWalker(GenericASTTraversal, object):
                             '%|async with %c:\n%+%c%-', 0, 7),
                         'async_with_as_stmt':  (
                             '%|async with %c as %c:\n%+%c%-', 0, 6, 7),
+                        'unmap_dict':	       ( '{**%c}', 0),
+                        'unmapexpr':	       ( '{**%c}', 0),
 
                     })
                     def n_async_call_function(node):

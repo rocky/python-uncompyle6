@@ -661,7 +661,9 @@ class Python3Parser(PythonParser):
                     if opname != 'BUILD_MAP_WITH_CALL':
                         rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
                         self.add_unique_rule(rule, opname, token.attr, customize)
-                        rule = "mapexpr ::=  %s %s" % (kvlist_n, opname)
+                        lhs = 'unmapexpr' if opname == 'BUILD_MAP_UNPACK' else' mapexpr'
+                        rule = "%s ::=  %s %s" % (lhs, kvlist_n, opname)
+                        # print("XXX", rule)
 
                 else:
                     rule = kvlist_n + ' ::= ' + 'expr expr STORE_MAP ' * token.attr
