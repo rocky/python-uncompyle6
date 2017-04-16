@@ -149,18 +149,18 @@ class Python3Parser(PythonParser):
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK COME_FROM_LOOP
 
         # These are used to keep AST indices the same
-        jf_else    ::= JUMP_FORWARD ELSE
-        ja_else    ::= JUMP_ABSOLUTE ELSE
+        jump_forward_else  ::= JUMP_FORWARD ELSE
+        jump_absolute_else ::= JUMP_ABSOLUTE ELSE
 
         # Note: in if/else kinds of statements, we err on the side
         # of missing "else" clauses. Therefore we include grammar
         # rules with and without ELSE.
 
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite opt_come_from_except
-        ifelsestmt ::= testexpr c_stmts_opt jf_else else_suite _come_from
+        ifelsestmt ::= testexpr c_stmts_opt jump_forward_else else_suite _come_from
 
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
-        ifelsestmtc ::= testexpr c_stmts_opt ja_else else_suitec
+        ifelsestmtc ::= testexpr c_stmts_opt jump_absolute_else else_suitec
 
         ifelsestmtr ::= testexpr return_if_stmts return_stmts
 
@@ -406,9 +406,12 @@ class Python3Parser(PythonParser):
 
     def p_expr3(self, args):
         """
-        conditional    ::= expr jmp_false expr jf_else expr COME_FROM
-        conditional    ::= expr jmp_false expr ja_else expr
-        conditionalnot ::= expr jmp_true  expr jf_else expr COME_FROM
+        conditional    ::= expr jmp_false expr jump_forward_else expr COME_FROM
+        conditionalnot ::= expr jmp_true  expr jump_forward_else expr COME_FROM
+
+        # a JUMP_FORWARD to another JUMP_FORWARD can get turned into
+        # a JUMP_ABSOLUTE with no COME_FROM
+        conditional    ::= expr jmp_false expr jump_absolute_else expr
 
         expr ::= LOAD_CLASSNAME
 
