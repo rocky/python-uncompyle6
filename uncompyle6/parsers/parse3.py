@@ -407,6 +407,7 @@ class Python3Parser(PythonParser):
     def p_expr3(self, args):
         """
         conditional    ::= expr jmp_false expr jf_else expr COME_FROM
+        conditional    ::= expr jmp_false expr ja_else expr
         conditionalnot ::= expr jmp_true  expr jf_else expr COME_FROM
 
         expr ::= LOAD_CLASSNAME
