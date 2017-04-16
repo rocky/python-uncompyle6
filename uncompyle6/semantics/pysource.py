@@ -1536,22 +1536,20 @@ class SourceWalker(GenericASTTraversal, object):
         # will assume that if the text ends in *.
         last_was_star = self.f.getvalue().endswith('*')
 
+        if lastnodetype.startswith('BUILD_LIST'):
+            self.write('['); endchar = ']'
+        elif lastnodetype.startswith('BUILD_TUPLE'):
+            self.write('('); endchar = ')'
+        elif lastnodetype.startswith('BUILD_SET'):
+            self.write('{'); endchar = '}'
+        elif lastnodetype.startswith('ROT_TWO'):
+            self.write('('); endchar = ')'
+        else:
+            raise 'Internal Error: n_build_list expects list or tuple'
         have_star = False
         if lastnodetype.endswith('UNPACK'):
             # FIXME: need to handle range of BUILD_LIST_UNPACK
             have_star = True
-            endchar = ''
-        else:
-            if lastnodetype.startswith('BUILD_LIST'):
-                self.write('['); endchar = ']'
-            elif lastnodetype.startswith('BUILD_TUPLE'):
-                self.write('('); endchar = ')'
-            elif lastnodetype.startswith('BUILD_SET'):
-                self.write('{'); endchar = '}'
-            elif lastnodetype.startswith('ROT_TWO'):
-                self.write('('); endchar = ')'
-            else:
-                raise 'Internal Error: n_build_list expects list or tuple'
 
         flat_elems = []
         for elem in node:
