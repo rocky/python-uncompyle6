@@ -24,3 +24,6 @@ async def awith_test():
 async def awith_as_test():
     async with 1 as i:
         print(i)
+
+async def f(z):
+    await z

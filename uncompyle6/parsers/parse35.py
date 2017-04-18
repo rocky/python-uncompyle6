@@ -27,8 +27,8 @@ class Python35Parser(Python34Parser):
                            POP_BLOCK else_suite COME_FROM_LOOP
 
         # Python 3.5+ Await statement
-        stmt ::= await_stmt
-        await_stmt ::= call_function GET_AWAITABLE LOAD_CONST YIELD_FROM POP_TOP
+        stmt       ::= await_stmt
+        await_stmt ::= expr GET_AWAITABLE LOAD_CONST YIELD_FROM POP_TOP
 
         # Python 3.5+ has WITH_CLEANUP_START/FINISH
 
