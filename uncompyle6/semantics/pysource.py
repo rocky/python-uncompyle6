@@ -204,10 +204,16 @@ class SourceWalker(GenericASTTraversal, object):
                 'raise_stmt2':	( '%|raise %c, %c\n', 0, 1),
             })
         else:
-            # Gotta love Python for its futzing around with syntax like this
             TABLE_DIRECT.update({
-                'raise_stmt2':	( '%|raise %c from %c\n', 0, 1),
+                # Gotta love Python for its futzing around with syntax like this
+                'raise_stmt2':	 ( '%|raise %c from %c\n', 0, 1),
             })
+
+            if version >= 3.2:
+                TABLE_DIRECT.update({
+                'del_deref_stmt': ( '%|del %c\n', 0),
+                'DELETE_DEREF': ( '%{pattr}', 0 ),
+                })
 
         if version < 2.0:
             TABLE_DIRECT.update({
