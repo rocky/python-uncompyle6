@@ -165,7 +165,9 @@ class Python3Parser(PythonParser):
         ifelsestmtr ::= testexpr return_if_stmts return_stmts
 
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
-        ifelsestmtl ::= testexpr c_stmts_opt COME_FROM JUMP_BACK else_suitel
+        ifelsestmtl ::= testexpr c_stmts_opt cf_jump_back else_suitel
+
+        cf_jump_back ::= COME_FROM JUMP_BACK
 
         # FIXME: this feels like a hack. Is it just 1 or two
         # COME_FROMs?  the parsed tree for this and even with just the
