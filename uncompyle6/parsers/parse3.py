@@ -697,7 +697,10 @@ class Python3Parser(PythonParser):
                 rule_pat = ("genexpr ::= %sload_genexpr %%s%s expr "
                             "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-                rule_pat = ('mklambda ::= %sLOAD_LAMBDA %%s%s' % ('pos_arg '* args_pos, opname))
+                rule_pat = ('mklambda ::= %s%sLOAD_LAMBDA %%s%s' %
+                            (('pos_arg '* args_pos),
+                            ('kwarg '* args_kw),
+                            opname))
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                 rule_pat  = ("listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
                              "GET_ITER CALL_FUNCTION_1" % ('expr ' * args_pos, opname))
