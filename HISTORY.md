@@ -68,7 +68,9 @@ COME FROM instructions were reintroduced.  See
 RELEASE-2.4-CHANGELOG.txt for more details here. There wasn't a public
 release of RELEASE-2.4 and bytecodes other than Python 2.4 weren't
 supported. Dan says the Python 2.3 version could verify the entire
-python library.
+python library. But given subsequent bugs found like simply
+recognizing complex-number constants in bytecode, the code was did a
+perfect decompilaton.
 
 Next we get to ["uncompyle" and
 PyPI](https://pypi.python.org/pypi/uncompyle/1.1) and the era of
@@ -102,10 +104,10 @@ based on code from Eloi Vanderbeken.
 This project, uncompyle6, abandons that approach for various
 reasons. However the main reason is that we need offsets in fragment
 deparsing to be exactly the same, and the transformation process can
-remove instructions.  Adding instructions with psuedo_offsets is
+remove instructions.  _Adding_ instructions with psuedo offsets is
 however okay.
 
-Uncompyle6, however owes its existence to the fork of uncompyle2 by
+`Uncompyle6` however owes its existence to the fork of `uncompyle2` by
 Myst herie (Mysterie) whose first commit picks up at
 2012. I chose this since it seemed to have been at that time the most
 actively, if briefly, worked on. Also starting around 2012 is Dark
@@ -115,9 +117,12 @@ I started working on this late 2015, mostly to add fragment support.
 In that, I decided to make this runnable on Python 3.2+ and Python 2.6+
 while, handling Python bytecodes from Python versions 2.5+ and
 3.2+. In doing so, it has been expedient to separate this into three
-projects: bytecode loading and disassembly (xdis), parsing and tree
-building (spark_parser), and grammar and semantic actions for
-decompiling (uncompyle6).
+projects:
+
+* bytecode loading and disassembly ([xdis](https://pypi.python.org/pypi/xdis)),
+* parsing and tree building ([spark_parser](https://pypi.python.org/pypi/spark_parser)),
+* this project - grammar and semantic actions for decompiling
+  ([uncompyle6](https://pypi.python.org/pypi/spark_parser)).
 
 
 Over the many years, code styles and Python features have
@@ -142,16 +147,19 @@ if the grammar is LR or left recursive.
 
 Another approach that doesn't use grammars is to do something like
 simulate execution symbolically and build expression trees off of
-stack results. The two important projects that work this way are
-[unpyc3](https://code.google.com/p/unpyc3/) and most especially
-[pycdc](https://github.com/zrax/pycdc) The latter project is largely
-by Michael Hansen and Darryl Pogue. If they supported getting
-source-code fragments and I could call it from Python, I'd probably
-ditch this and use that. From what I've seen, the code runs blindingly
-fast and spans all versions of Python.
+stack results. Control flow in that apprproach still needs to be
+handled somewhat ad hoc.  The two important projects that work this
+way are [unpyc3](https://code.google.com/p/unpyc3/) and most
+especially [pycdc](https://github.com/zrax/pycdc) The latter project
+is largely by Michael Hansen and Darryl Pogue. If they supported
+getting source-code fragments, did a better job in supporting Python
+more fully, and have a way I could call it from Python, I'd probably
+would have ditched this and used that. The code runs blindingly fast
+and spans all versions of Python, although more recently Python 3
+support has been lagging.
 
 Tests for the project have been, or are being, culled from all of the
 projects mentioned.
 
-NB. If you find mistakes, want corrections, or want your name added (or removed),
-please contact me.
+NB. If you find mistakes, want corrections, or want your name added
+(or removed), please contact me.
