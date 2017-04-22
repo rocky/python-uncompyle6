@@ -153,7 +153,7 @@ way are [unpyc3](https://code.google.com/p/unpyc3/) and most
 especially [pycdc](https://github.com/zrax/pycdc) The latter project
 is largely by Michael Hansen and Darryl Pogue. If they supported
 getting source-code fragments, did a better job in supporting Python
-more fully, and have a way I could call it from Python, I'd probably
+more fully, and had a way I could call it from Python, I'd probably
 would have ditched this and used that. The code runs blindingly fast
 and spans all versions of Python, although more recently Python 3
 support has been lagging.
