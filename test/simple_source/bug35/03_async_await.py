@@ -27,3 +27,6 @@ async def awith_as_test():
 
 async def f(z):
     await z
+
+async def g(z):
+    return await z
