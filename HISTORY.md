@@ -97,11 +97,11 @@ so. Then hamled made a few commits earler on, while Eike Siewertsen
 made a few commits later on. But mostly wibiti, and Guenther
 Starnberger got the code to where uncompyle2 was around 2012.
 
-In uncompyle2 decompilation of python bytecode 2.5 & 2.6 is done by
+In `uncompyle`, decompilation of python bytecode 2.5 & 2.6 is done by
 transforming the byte code into a a pseudo 2.7 python bytecode and is
 based on code from Eloi Vanderbeken.
 
-This project, uncompyle6, abandons that approach for various
+This project, `uncompyle6`, abandons that approach for various
 reasons. However the main reason is that we need offsets in fragment
 deparsing to be exactly the same, and the transformation process can
 remove instructions.  _Adding_ instructions with psuedo offsets is
