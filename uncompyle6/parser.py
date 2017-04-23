@@ -442,7 +442,6 @@ class PythonParser(GenericASTBuilder):
     def p_expr(self, args):
         '''
         expr ::= _mklambda
-        expr ::= LOAD_ASSERT
         expr ::= LOAD_FAST
         expr ::= LOAD_NAME
         expr ::= LOAD_CONST

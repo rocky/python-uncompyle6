@@ -15,6 +15,8 @@ class Python34Parser(Python33Parser):
 
     def p_misc34(self, args):
         """
+        expr ::= LOAD_ASSERT
+
         # Python 3.4+ optimizes the trailing two JUMPS away
 
         # Is this 3.4 only?
