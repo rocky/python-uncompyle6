@@ -26,12 +26,16 @@ class Python36Parser(Python35Parser):
 
         withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST
                      WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+
+        call_function ::= expr expr CALL_FUNCTION_EX
+        call_function ::= expr expr expr CALL_FUNCTION_EX_KW
         """
 
     def add_custom_rules(self, tokens, customize):
         super(Python36Parser, self).add_custom_rules(tokens, customize)
         for i, token in enumerate(tokens):
             opname = token.type
+
             if opname == 'FORMAT_VALUE':
                 rules_str = """
                     expr ::= fstring_single

@@ -393,7 +393,11 @@ class SourceWalker(GenericASTTraversal, object):
                         'fstring_multi':  ( "f'%c'", 0),
                         'func_args36':    ( "%c(**", 0),
                     })
-
+                    TABLE_R.update({
+                        'CALL_FUNCTION_EX': ('%c(*%P)', 0, (1, 2, ', ', 100)),
+                        # Not quite right
+                        'CALL_FUNCTION_EX_KW': ('%c%c *%c', 0, 1, 2)
+                        })
                     FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
 
                     def f_conversion(node):
@@ -1698,14 +1702,20 @@ class SourceWalker(GenericASTTraversal, object):
                 self.prec = p
                 arg += 1
             elif typ == 'C':
-                low, high, sep = entry[arg]
-                remaining = len(node[low:high])
-                for subnode in node[low:high]:
-                    self.preorder(subnode)
-                    remaining -= 1
-                    if remaining > 0:
-                        self.write(sep)
-                arg += 1
+                try:
+                    low, high, sep = entry[arg]
+                    remaining = len(node[low:high])
+                    for subnode in node[low:high]:
+                        self.preorder(subnode)
+                        remaining -= 1
+                        if remaining > 0:
+                            self.write(sep)
+                            pass
+                        pass
+                    arg += 1
+                except:
+                    from trepan.api import debug; debug()
+                    pass
             elif typ == 'D':
                 low, high, sep = entry[arg]
                 remaining = len(node[low:high])

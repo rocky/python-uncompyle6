@@ -1,8 +1,8 @@
 #  Copyright (c) 2016 by Rocky Bernstein
 """
-Python 3.5 bytecode scanner/deparser
+Python 3.6 bytecode scanner/deparser
 
-This sets up opcodes Python's 3.5 and calls a generalized
+This sets up opcodes Python's 3.6 and calls a generalized
 scanner routine for Python 3.
 """
 
@@ -19,6 +19,18 @@ class Scanner36(Scanner3):
     def __init__(self, show_asm=None):
         Scanner3.__init__(self, 3.6, show_asm)
         return
+
+    def ingest(self, co, classname=None, code_objects={}, show_asm=None):
+        tokens, customize = Scanner3.ingest(self, co, classname, code_objects, show_asm)
+        for t in tokens:
+            # The lowest bit of flags indicates whether the
+            # var-keyword argument is placed at the top of the stack
+            if t.op == self.opc.CALL_FUNCTION_EX and t.attr & 1:
+                t.type = 'CALL_FUNCTION_EX_KW'
+                pass
+            pass
+        return tokens, customize
+
     pass
 
 if __name__ == "__main__":
