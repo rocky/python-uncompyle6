@@ -1702,20 +1702,16 @@ class SourceWalker(GenericASTTraversal, object):
                 self.prec = p
                 arg += 1
             elif typ == 'C':
-                try:
-                    low, high, sep = entry[arg]
-                    remaining = len(node[low:high])
-                    for subnode in node[low:high]:
-                        self.preorder(subnode)
-                        remaining -= 1
-                        if remaining > 0:
-                            self.write(sep)
-                            pass
+                low, high, sep = entry[arg]
+                remaining = len(node[low:high])
+                for subnode in node[low:high]:
+                    self.preorder(subnode)
+                    remaining -= 1
+                    if remaining > 0:
+                        self.write(sep)
                         pass
-                    arg += 1
-                except:
-                    from trepan.api import debug; debug()
                     pass
+                arg += 1
             elif typ == 'D':
                 low, high, sep = entry[arg]
                 remaining = len(node[low:high])
