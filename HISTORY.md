@@ -44,7 +44,8 @@ it appears that Hartmut did most of the work to get this code to
 accept the full Python language. He added precedence to the table
 specifiers, support for multiple versions of Python, the
 pretty-printing of docstrings, lists, and hashes. He also wrote test and verification routines of
-deparsed bytecode, and used this in an extensive set of tests that he also wrote. He could verify against the entire Python library.
+deparsed bytecode, and used this in an extensive set of tests that he also wrote. He says he could verify against the 
+entire Python library. However I have subsequently found small and relatively obscure bugs in the decompilation code. 
 
 decompyle2.2 was packaged for Debian (sarge) by
 [Ben Burton around 2002](https://packages.qa.debian.org/d/decompyle.html). As
@@ -65,12 +66,12 @@ code to handle first Python 2.3 and then 2.4 bytecodes. Because of
 jump optimization introduced in the CPython bytecode compiler at that
 time, various JUMP instructions were classifed as going backwards, and
 COME FROM instructions were reintroduced.  See
-RELEASE-2.4-CHANGELOG.txt for more details here. There wasn't a public
+[RELEASE-2.4-CHANGELOG.txt](https://github.com/rocky/python-uncompyle6/blob/master/DECOMPYLE-2.4-CHANGELOG.txt) 
+for more details here. There wasn't a public
 release of RELEASE-2.4 and bytecodes other than Python 2.4 weren't
 supported. Dan says the Python 2.3 version could verify the entire
-python library. But given subsequent bugs found like simply
-recognizing complex-number constants in bytecode, the code was did a
-perfect decompilaton.
+Python library. But given subsequent bugs found like simply
+recognizing complex-number constants in bytecode, decompilation wasn't perfect.
 
 Next we get to ["uncompyle" and
 PyPI](https://pypi.python.org/pypi/uncompyle/1.1) and the era of
