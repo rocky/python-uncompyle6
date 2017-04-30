@@ -1553,10 +1553,12 @@ class SourceWalker(GenericASTTraversal, object):
             self.write('('); endchar = ')'
         elif lastnodetype.startswith('BUILD_SET'):
             self.write('{'); endchar = '}'
+        elif lastnodetype.startswith('BUILD_MAP_UNPACK'):
+            self.write('{**'); endchar = '}'
         elif lastnodetype.startswith('ROT_TWO'):
             self.write('('); endchar = ')'
         else:
-            raise 'Internal Error: n_build_list expects list or tuple'
+            raise 'Internal Error: n_build_list expects list, tuple, set, or unpack'
         have_star = False
         if lastnodetype.endswith('UNPACK'):
             # FIXME: need to handle range of BUILD_LIST_UNPACK

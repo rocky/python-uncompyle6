@@ -33,6 +33,8 @@ class Python35Parser(Python34Parser):
         stmt       ::= await_stmt
         await_stmt ::= await_expr POP_TOP
 
+        unmap_dict ::= mapexpr BUILD_MAP_UNPACK
+        build_list ::= expr BUILD_MAP_UNPACK
 
         # Python 3.5+ has WITH_CLEANUP_START/FINISH
 
@@ -151,10 +153,6 @@ class Python35Parser(Python34Parser):
                     rule = 'call_function ::= expr unmapexpr ' + call_token.type
                     self.add_unique_rule(rule, opname, token.attr, customize)
                 pass
-            elif opname == 'BUILD_MAP_UNPACK':
-                nargs = token.attr % 256
-                rule = "unmap_dict ::= mapexpr " +  opname
-                self.add_unique_rule(rule, opname, token.attr, customize)
             pass
         return
 
