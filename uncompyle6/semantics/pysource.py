@@ -1554,7 +1554,7 @@ class SourceWalker(GenericASTTraversal, object):
         elif lastnodetype.startswith('BUILD_SET'):
             self.write('{'); endchar = '}'
         elif lastnodetype.startswith('BUILD_MAP_UNPACK'):
-            self.write('{**'); endchar = '}'
+            self.write('{*'); endchar = '}'
         elif lastnodetype.startswith('ROT_TWO'):
             self.write('('); endchar = ')'
         else:
