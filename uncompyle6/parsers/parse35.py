@@ -33,7 +33,12 @@ class Python35Parser(Python34Parser):
         stmt       ::= await_stmt
         await_stmt ::= await_expr POP_TOP
 
+        expr       ::= unmap_dict
+        expr       ::= unmapexpr
+
         unmap_dict ::= mapexpr BUILD_MAP_UNPACK
+        unmap_dict ::= mapexpr unmap_dict
+
         build_list ::= expr BUILD_MAP_UNPACK
 
         # Python 3.5+ has WITH_CLEANUP_START/FINISH
@@ -132,9 +137,6 @@ class Python35Parser(Python34Parser):
         # differently than 3.3, 3.4
 
         yield_from ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
-
-        expr ::= unmap_dict
-        expr ::= unmapexpr
         """
 
     def add_custom_rules(self, tokens, customize):

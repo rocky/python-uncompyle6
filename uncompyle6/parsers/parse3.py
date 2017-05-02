@@ -663,14 +663,16 @@ class Python3Parser(PythonParser):
                     rule = 'kvlist_n ::='
                     self.add_unique_rule(rule, 'kvlist_n', 1, customize)
                     rule = "mapexpr ::=  BUILD_MAP_n kvlist_n"
-                elif self.version >= 3.5:
+                elif self.version == 3.5:
                     if opname != 'BUILD_MAP_WITH_CALL':
-                        rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
+                        if opname == 'BUILD_MAP_UNPACK':
+                            lhs = 'unmap_dict'
+                        else:
+                            lhs = kvlist_n
+                        rule = lhs + ' ::= ' + 'expr ' * (token.attr*2)
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         lhs = 'unmapexpr' if opname == 'BUILD_MAP_UNPACK' else' mapexpr'
                         rule = "%s ::=  %s %s" % (lhs, kvlist_n, opname)
-                        # print("XXX", rule)
-
                 else:
                     rule = kvlist_n + ' ::= ' + 'expr expr STORE_MAP ' * token.attr
                     self.add_unique_rule(rule, opname, token.attr, customize)

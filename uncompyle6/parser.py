@@ -35,6 +35,8 @@ class PythonParser(GenericASTBuilder):
              'exprlist', 'kvlist', 'kwargs', 'come_froms', '_come_from',
               # Python < 3
              'print_items',
+              # Python  3.5+
+             # 'unmap_dict',
              # PyPy:
              'kvlist_n'])
 
