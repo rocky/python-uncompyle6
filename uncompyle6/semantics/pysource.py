@@ -345,7 +345,7 @@ class SourceWalker(GenericASTTraversal, object):
                             '%|async with %c:\n%+%c%-', 0, 7),
                         'async_with_as_stmt':  (
                             '%|async with %c as %c:\n%+%c%-', 0, 6, 7),
-                        'unmap_dict':	       ( '{**%c}', 0),
+                        'unmap_dict':	       ( '{**%C}', (0, -1, ', **') ),
                         'unmapexpr':	       ( '{**%c}', 0),
 
                     })
@@ -1433,7 +1433,7 @@ class SourceWalker(GenericASTTraversal, object):
                     i += 2
                     pass
                 pass
-            elif node[1].type.startswith('kvlist'):
+            elif len(node) > 1 and node[1].type.startswith('kvlist'):
                 # Python 3.0..3.4 style key/value list in mapexpr
                 kv_node = node[1]
                 l = list(kv_node)

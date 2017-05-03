@@ -36,10 +36,11 @@ class Python35Parser(Python34Parser):
         expr       ::= unmap_dict
         expr       ::= unmapexpr
 
-        unmap_dict ::= mapexpr BUILD_MAP_UNPACK
-        unmap_dict ::= mapexpr unmap_dict
+        unmap_dict ::= dictcomp BUILD_MAP_UNPACK
 
-        build_list ::= expr BUILD_MAP_UNPACK
+        unmap_dict ::= kv_lists BUILD_MAP_UNPACK
+        kv_lists   ::= kv_list kv_lists
+        kv_lists   ::= kv_list
 
         # Python 3.5+ has WITH_CLEANUP_START/FINISH
 

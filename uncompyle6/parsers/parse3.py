@@ -663,16 +663,22 @@ class Python3Parser(PythonParser):
                     rule = 'kvlist_n ::='
                     self.add_unique_rule(rule, 'kvlist_n', 1, customize)
                     rule = "mapexpr ::=  BUILD_MAP_n kvlist_n"
-                elif self.version == 3.5:
+                elif self.version >= 3.5:
                     if opname != 'BUILD_MAP_WITH_CALL':
                         if opname == 'BUILD_MAP_UNPACK':
-                            lhs = 'unmap_dict'
+                            rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
+                            self.add_unique_rule(rule, opname, token.attr, customize)
+                            rule = 'dict ::= ' + 'expr ' * (token.attr*2)
+                            self.add_unique_rule(rule, opname, token.attr, customize)
+                            rule = 'mapexpr ::= ' + 'dict ' * token.attr
+                            self.add_unique_rule(rule, opname, token.attr, customize)
+                            rule = ('unmap_dict ::= ' +
+                                    ('mapexpr ' * token.attr) +
+                                    ' BUILD_MAP_UNPACK')
                         else:
-                            lhs = kvlist_n
-                        rule = lhs + ' ::= ' + 'expr ' * (token.attr*2)
-                        self.add_unique_rule(rule, opname, token.attr, customize)
-                        lhs = 'unmapexpr' if opname == 'BUILD_MAP_UNPACK' else' mapexpr'
-                        rule = "%s ::=  %s %s" % (lhs, kvlist_n, opname)
+                            rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
+                            self.add_unique_rule(rule, opname, token.attr, customize)
+                            rule = "mapexpr ::=  %s %s" % (kvlist_n, opname)
                 else:
                     rule = kvlist_n + ' ::= ' + 'expr expr STORE_MAP ' * token.attr
                     self.add_unique_rule(rule, opname, token.attr, customize)
