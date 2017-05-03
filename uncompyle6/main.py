@@ -134,9 +134,9 @@ def main(in_base, out_base, files, codes, outfile=None,
                 os.dup2(tee.stdin.fileno(), sys.stderr.fileno())
         else:
             if filename.endswith('.pyc'):
-                outfile = os.path.join(out_base, filename[0:-1])
+                outfileindir = os.path.join(out_base, filename[0:-1])
             else:
-                outfile = os.path.join(out_base, filename) + '_dis'
+                outfileindir = os.path.join(out_base, filename) + '_dis'
             outstream = _get_outstream(outfile)
         # print(outfile, file=sys.stderr)
 
