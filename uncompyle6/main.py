@@ -137,7 +137,7 @@ def main(in_base, out_base, files, codes, outfile=None,
                 outfileindir = os.path.join(out_base, filename[0:-1])
             else:
                 outfileindir = os.path.join(out_base, filename) + '_dis'
-            outstream = _get_outstream(outfile)
+            outstream = _get_outstream(outfileindir)
         # print(outfile, file=sys.stderr)
 
         # Try to uncompile the input file
