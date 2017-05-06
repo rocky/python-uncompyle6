@@ -27,6 +27,7 @@ class Python32Parser(Python3Parser):
         # JUMP_FORWARD in some cases, and hence we also don't
         # see COME_FROM
         _ifstmts_jump ::= c_stmts_opt
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_from
 
         stmt           ::= del_deref_stmt
         del_deref_stmt ::= DELETE_DEREF
