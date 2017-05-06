@@ -3,7 +3,7 @@ PHONY=check clean dist distclean test test-unit test-functional rmChangeLog clea
 GIT2CL ?= git2cl
 PYTHON ?= python
 
-PYTHON_VERSION = $(shell $(PYTHON) -V | cut -d ' ' -f 2 | cut -d'.' -f1,2)
+PYTHON_VERSION = $(shell $(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2)
 NATIVE_CHECK = check-$(PYTHON_VERSION)
 
 # Set COMPILE='--compile' to force compilation before check
@@ -16,11 +16,10 @@ check-short:
 
 # Run all tests
 check:
-	@$(PYTHON) -V && PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2`; \
-	$(MAKE) check-$$PYTHON_VERSION
+	$(MAKE) check-$(PYTHON_VERSION)
 
 #: Run working tests from Python 2.6 or 2.7
-check-2.6 check-2.7: check-bytecode-2 check-bytecode-3 check-bytecode-1  check-2.7-ok
+check-2.6 check-2.7: check-bytecode-2 check-bytecode-3 check-bytecode-1 check-native-short
 
 #: Run working tests from Python 3.0
 check-3.0: check-bytecode
