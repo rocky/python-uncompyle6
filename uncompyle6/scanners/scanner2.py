@@ -1,4 +1,4 @@
-# Copyright (c) 2015, 2016 by Rocky Bernstein
+# Copyright (c) 2015-2017 by Rocky Bernstein
 # Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 """
@@ -23,7 +23,7 @@ Finally we save token information.
 from uncompyle6 import PYTHON_VERSION
 
 if PYTHON_VERSION < 2.6:
-    from xdis.namedtuple24 import namedtuple
+    from xdis.namedtuple25 import namedtuple
 else:
     from collections import namedtuple
 
