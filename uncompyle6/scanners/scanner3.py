@@ -225,6 +225,8 @@ class Scanner3(Scanner):
                         pass
                     elif inst.offset in self.except_targets:
                         come_from_name = 'COME_FROM_EXCEPT_CLAUSE'
+                        if self.version <= 3.2:
+                            continue
                         pass
                     tokens.append(Token(come_from_name,
                                         None, repr(jump_offset),
