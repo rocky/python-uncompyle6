@@ -231,6 +231,8 @@ class Scanner3(Scanner):
                         pass
                     elif inst.offset in self.except_targets:
                         come_from_name = 'COME_FROM_EXCEPT_CLAUSE'
+                        if self.version <= 3.2:
+                            continue
                         pass
                     tokens.append(Token(come_from_name,
                                         None, repr(jump_offset),
@@ -900,7 +902,7 @@ class Scanner3(Scanner):
                                 return
                             pass
                     pass
-                if code[pre_rtarget] == self.opc.RETURN_VALUE:
+                if code[pre_rtarget] == self.opc.RETURN_VALUE and self.version < 3.5:
                     self.return_end_ifs.add(pre_rtarget)
                 else:
                     self.fixed_jumps[offset] = rtarget

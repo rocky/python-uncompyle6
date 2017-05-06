@@ -5,3 +5,10 @@ def display_date(loop):
         if loop.time():
             break
         x = 5
+
+    # Another loop to test 3.5 ifelsestmtl grammar rule
+    while loop:
+        if x:
+            True
+        else:
+            True

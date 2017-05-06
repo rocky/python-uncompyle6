@@ -147,23 +147,25 @@ class Python3Parser(PythonParser):
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK COME_FROM_LOOP
 
         # These are used to keep AST indices the same
-        jf_else    ::= JUMP_FORWARD ELSE
-        ja_else    ::= JUMP_ABSOLUTE ELSE
+        jump_forward_else  ::= JUMP_FORWARD ELSE
+        jump_absolute_else ::= JUMP_ABSOLUTE ELSE
 
         # Note: in if/else kinds of statements, we err on the side
         # of missing "else" clauses. Therefore we include grammar
         # rules with and without ELSE.
 
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite opt_come_from_except
-        ifelsestmt ::= testexpr c_stmts_opt jf_else else_suite _come_from
+        ifelsestmt ::= testexpr c_stmts_opt jump_forward_else else_suite _come_from
 
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
-        ifelsestmtc ::= testexpr c_stmts_opt ja_else else_suitec
+        ifelsestmtc ::= testexpr c_stmts_opt jump_absolute_else else_suitec
 
         ifelsestmtr ::= testexpr return_if_stmts return_stmts
 
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
-        ifelsestmtl ::= testexpr c_stmts_opt COME_FROM JUMP_BACK else_suitel
+        ifelsestmtl ::= testexpr c_stmts_opt cf_jump_back else_suitel
+
+        cf_jump_back ::= COME_FROM JUMP_BACK
 
         # FIXME: this feels like a hack. Is it just 1 or two
         # COME_FROMs?  the parsed tree for this and even with just the
@@ -404,8 +406,12 @@ class Python3Parser(PythonParser):
 
     def p_expr3(self, args):
         """
-        conditional    ::= expr jmp_false expr jf_else expr COME_FROM
-        conditionalnot ::= expr jmp_true  expr jf_else expr COME_FROM
+        conditional    ::= expr jmp_false expr jump_forward_else expr COME_FROM
+        conditionalnot ::= expr jmp_true  expr jump_forward_else expr COME_FROM
+
+        # a JUMP_FORWARD to another JUMP_FORWARD can get turned into
+        # a JUMP_ABSOLUTE with no COME_FROM
+        conditional    ::= expr jmp_false expr jump_absolute_else expr
 
         expr ::= LOAD_CLASSNAME
 
@@ -660,10 +666,20 @@ class Python3Parser(PythonParser):
                     rule = "mapexpr ::=  BUILD_MAP_n kvlist_n"
                 elif self.version >= 3.5:
                     if opname != 'BUILD_MAP_WITH_CALL':
-                        rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
-                        self.add_unique_rule(rule, opname, token.attr, customize)
-                        rule = "mapexpr ::=  %s %s" % (kvlist_n, opname)
-
+                        if opname == 'BUILD_MAP_UNPACK':
+                            rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
+                            self.add_unique_rule(rule, opname, token.attr, customize)
+                            rule = 'dict ::= ' + 'expr ' * (token.attr*2)
+                            self.add_unique_rule(rule, opname, token.attr, customize)
+                            rule = 'mapexpr ::= ' + 'dict ' * token.attr
+                            self.add_unique_rule(rule, opname, token.attr, customize)
+                            rule = ('unmap_dict ::= ' +
+                                    ('mapexpr ' * token.attr) +
+                                    ' BUILD_MAP_UNPACK')
+                        else:
+                            rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
+                            self.add_unique_rule(rule, opname, token.attr, customize)
+                            rule = "mapexpr ::=  %s %s" % (kvlist_n, opname)
                 else:
                     rule = kvlist_n + ' ::= ' + 'expr expr STORE_MAP ' * token.attr
                     self.add_unique_rule(rule, opname, token.attr, customize)
@@ -690,7 +706,10 @@ class Python3Parser(PythonParser):
                 rule_pat = ("genexpr ::= %sload_genexpr %%s%s expr "
                             "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-                rule_pat = ('mklambda ::= %sLOAD_LAMBDA %%s%s' % ('pos_arg '* args_pos, opname))
+                rule_pat = ('mklambda ::= %s%sLOAD_LAMBDA %%s%s' %
+                            (('pos_arg '* args_pos),
+                            ('kwarg '* args_kw),
+                            opname))
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                 rule_pat  = ("listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
                              "GET_ITER CALL_FUNCTION_1" % ('expr ' * args_pos, opname))

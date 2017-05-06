@@ -202,10 +202,16 @@ class SourceWalker(GenericASTTraversal, object):
                 'raise_stmt2':	( '%|raise %c, %c\n', 0, 1),
             })
         else:
-            # Gotta love Python for its futzing around with syntax like this
             TABLE_DIRECT.update({
-                'raise_stmt2':	( '%|raise %c from %c\n', 0, 1),
+                # Gotta love Python for its futzing around with syntax like this
+                'raise_stmt2':	 ( '%|raise %c from %c\n', 0, 1),
             })
+
+            if version >= 3.2:
+                TABLE_DIRECT.update({
+                'del_deref_stmt': ( '%|del %c\n', 0),
+                'DELETE_DEREF': ( '%{pattr}', 0 ),
+                })
 
         if version < 2.0:
             TABLE_DIRECT.update({
@@ -327,7 +333,8 @@ class SourceWalker(GenericASTTraversal, object):
                 #######################
                 if version >= 3.5:
                     TABLE_DIRECT.update({
-                        'await_stmt':	       ( '%|await %c', 0),
+                        'await_expr':	       ( 'await %c', 0),
+                        'await_stmt':	       ( '%|%c', 0),
                         'async_for_stmt':      (
                             '%|async for %c in %c:\n%+%c%-\n\n', 9, 1, 25 ),
                         'async_forelse_stmt':  (
@@ -336,6 +343,8 @@ class SourceWalker(GenericASTTraversal, object):
                             '%|async with %c:\n%+%c%-', 0, 7),
                         'async_with_as_stmt':  (
                             '%|async with %c as %c:\n%+%c%-', 0, 6, 7),
+                        'unmap_dict':	       ( '{**%C}', (0, -1, ', **') ),
+                        'unmapexpr':	       ( '{**%c}', 0),
 
                     })
                     def n_async_call_function(node):
@@ -382,7 +391,11 @@ class SourceWalker(GenericASTTraversal, object):
                         'fstring_multi':  ( "f'%c'", 0),
                         'func_args36':    ( "%c(**", 0),
                     })
-
+                    TABLE_R.update({
+                        'CALL_FUNCTION_EX': ('%c(*%P)', 0, (1, 2, ', ', 100)),
+                        # Not quite right
+                        'CALL_FUNCTION_EX_KW': ('%c(**%C', 0, (2,3, ',')),
+                        })
                     FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
 
                     def f_conversion(node):
@@ -1439,7 +1452,7 @@ class SourceWalker(GenericASTTraversal, object):
                     i += 2
                     pass
                 pass
-            elif node[1].type.startswith('kvlist'):
+            elif len(node) > 1 and node[1].type.startswith('kvlist'):
                 # Python 3.0..3.4 style key/value list in mapexpr
                 kv_node = node[1]
                 l = list(kv_node)
@@ -1553,22 +1566,22 @@ class SourceWalker(GenericASTTraversal, object):
         # will assume that if the text ends in *.
         last_was_star = self.f.getvalue().endswith('*')
 
+        if lastnodetype.startswith('BUILD_LIST'):
+            self.write('['); endchar = ']'
+        elif lastnodetype.startswith('BUILD_TUPLE'):
+            self.write('('); endchar = ')'
+        elif lastnodetype.startswith('BUILD_SET'):
+            self.write('{'); endchar = '}'
+        elif lastnodetype.startswith('BUILD_MAP_UNPACK'):
+            self.write('{*'); endchar = '}'
+        elif lastnodetype.startswith('ROT_TWO'):
+            self.write('('); endchar = ')'
+        else:
+            raise 'Internal Error: n_build_list expects list, tuple, set, or unpack'
         have_star = False
         if lastnodetype.endswith('UNPACK'):
             # FIXME: need to handle range of BUILD_LIST_UNPACK
             have_star = True
-            endchar = ''
-        else:
-            if lastnodetype.startswith('BUILD_LIST'):
-                self.write('['); endchar = ']'
-            elif lastnodetype.startswith('BUILD_TUPLE'):
-                self.write('('); endchar = ')'
-            elif lastnodetype.startswith('BUILD_SET'):
-                self.write('{'); endchar = '}'
-            elif lastnodetype.startswith('ROT_TWO'):
-                self.write('('); endchar = ')'
-            else:
-                raise 'Internal Error: n_build_list expects list or tuple'
 
         flat_elems = []
         for elem in node:
@@ -1717,6 +1730,8 @@ class SourceWalker(GenericASTTraversal, object):
                     remaining -= 1
                     if remaining > 0:
                         self.write(sep)
+                        pass
+                    pass
                 arg += 1
             elif typ == 'D':
                 low, high, sep = entry[arg]

@@ -26,8 +26,20 @@ class Python35Parser(Python34Parser):
                            POP_BLOCK else_suite COME_FROM_LOOP
 
         # Python 3.5+ Await statement
-        stmt ::= await_stmt
-        await_stmt ::= call_function GET_AWAITABLE LOAD_CONST YIELD_FROM POP_TOP
+        expr       ::= await_expr
+        await_expr ::= expr GET_AWAITABLE LOAD_CONST YIELD_FROM
+
+        stmt       ::= await_stmt
+        await_stmt ::= await_expr POP_TOP
+
+        expr       ::= unmap_dict
+        expr       ::= unmapexpr
+
+        unmap_dict ::= dictcomp BUILD_MAP_UNPACK
+
+        unmap_dict ::= kv_lists BUILD_MAP_UNPACK
+        kv_lists   ::= kv_list kv_lists
+        kv_lists   ::= kv_list
 
         # Python 3.5+ has WITH_CLEANUP_START/FINISH
 
@@ -67,18 +79,29 @@ class Python35Parser(Python34Parser):
                                GET_AWAITABLE LOAD_CONST YIELD_FROM
                                WITH_CLEANUP_FINISH END_FINALLY
 
-
         stmt               ::= async_for_stmt
         async_for_stmt     ::= SETUP_LOOP expr
                                GET_AITER
                                LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
                                YIELD_FROM
                                designator
-                               POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
+                               POP_BLOCK jump_except COME_FROM_EXCEPT DUP_TOP
                                LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
                                JUMP_ABSOLUTE END_FINALLY COME_FROM
                                for_block POP_BLOCK JUMP_ABSOLUTE
+                               opt_come_from_loop
+
+        async_for_stmt     ::= SETUP_LOOP expr
+                               GET_AITER
+                               LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
+                               YIELD_FROM
+                               designator
+                               POP_BLOCK jump_except COME_FROM_EXCEPT DUP_TOP
+                               LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
+                               POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
+                               JUMP_ABSOLUTE END_FINALLY JUMP_BACK
+                               passstmt POP_BLOCK JUMP_ABSOLUTE
                                opt_come_from_loop
 
         stmt               ::= async_forelse_stmt
@@ -114,7 +137,6 @@ class Python35Parser(Python34Parser):
         # differently than 3.3, 3.4
 
         yield_from ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
-
         """
 
     def add_custom_rules(self, tokens, customize):

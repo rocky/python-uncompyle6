@@ -44,7 +44,8 @@ it appears that Hartmut did most of the work to get this code to
 accept the full Python language. He added precedence to the table
 specifiers, support for multiple versions of Python, the
 pretty-printing of docstrings, lists, and hashes. He also wrote test and verification routines of
-deparsed bytecode, and used this in an extensive set of tests that he also wrote. He could verify against the entire Python library.
+deparsed bytecode, and used this in an extensive set of tests that he also wrote. He says he could verify against the 
+entire Python library. However I have subsequently found small and relatively obscure bugs in the decompilation code. 
 
 decompyle2.2 was packaged for Debian (sarge) by
 [Ben Burton around 2002](https://packages.qa.debian.org/d/decompyle.html). As
@@ -65,10 +66,12 @@ code to handle first Python 2.3 and then 2.4 bytecodes. Because of
 jump optimization introduced in the CPython bytecode compiler at that
 time, various JUMP instructions were classifed as going backwards, and
 COME FROM instructions were reintroduced.  See
-RELEASE-2.4-CHANGELOG.txt for more details here. There wasn't a public
+[RELEASE-2.4-CHANGELOG.txt](https://github.com/rocky/python-uncompyle6/blob/master/DECOMPYLE-2.4-CHANGELOG.txt) 
+for more details here. There wasn't a public
 release of RELEASE-2.4 and bytecodes other than Python 2.4 weren't
 supported. Dan says the Python 2.3 version could verify the entire
-python library.
+Python library. But given subsequent bugs found like simply
+recognizing complex-number constants in bytecode, decompilation wasn't perfect.
 
 Next we get to ["uncompyle" and
 PyPI](https://pypi.python.org/pypi/uncompyle/1.1) and the era of
@@ -95,17 +98,17 @@ so. Then hamled made a few commits earler on, while Eike Siewertsen
 made a few commits later on. But mostly wibiti, and Guenther
 Starnberger got the code to where uncompyle2 was around 2012.
 
-In uncompyle2 decompilation of python bytecode 2.5 & 2.6 is done by
+In `uncompyle`, decompilation of python bytecode 2.5 & 2.6 is done by
 transforming the byte code into a a pseudo 2.7 python bytecode and is
 based on code from Eloi Vanderbeken.
 
-This project, uncompyle6, abandons that approach for various
+This project, `uncompyle6`, abandons that approach for various
 reasons. However the main reason is that we need offsets in fragment
 deparsing to be exactly the same, and the transformation process can
-remove instructions.  Adding instructions with psuedo_offsets is
+remove instructions.  _Adding_ instructions with psuedo offsets is
 however okay.
 
-Uncompyle6, however owes its existence to the fork of uncompyle2 by
+`Uncompyle6` however owes its existence to the fork of `uncompyle2` by
 Myst herie (Mysterie) whose first commit picks up at
 2012. I chose this since it seemed to have been at that time the most
 actively, if briefly, worked on. Also starting around 2012 is Dark
@@ -115,9 +118,12 @@ I started working on this late 2015, mostly to add fragment support.
 In that, I decided to make this runnable on Python 3.2+ and Python 2.6+
 while, handling Python bytecodes from Python versions 2.5+ and
 3.2+. In doing so, it has been expedient to separate this into three
-projects: bytecode loading and disassembly (xdis), parsing and tree
-building (spark_parser), and grammar and semantic actions for
-decompiling (uncompyle6).
+projects:
+
+* bytecode loading and disassembly ([xdis](https://pypi.python.org/pypi/xdis)),
+* parsing and tree building ([spark_parser](https://pypi.python.org/pypi/spark_parser)),
+* this project - grammar and semantic actions for decompiling
+  ([uncompyle6](https://pypi.python.org/pypi/spark_parser)).
 
 
 Over the many years, code styles and Python features have
@@ -142,16 +148,19 @@ if the grammar is LR or left recursive.
 
 Another approach that doesn't use grammars is to do something like
 simulate execution symbolically and build expression trees off of
-stack results. The two important projects that work this way are
-[unpyc3](https://code.google.com/p/unpyc3/) and most especially
-[pycdc](https://github.com/zrax/pycdc) The latter project is largely
-by Michael Hansen and Darryl Pogue. If they supported getting
-source-code fragments and I could call it from Python, I'd probably
-ditch this and use that. From what I've seen, the code runs blindingly
-fast and spans all versions of Python.
+stack results. Control flow in that apprproach still needs to be
+handled somewhat ad hoc.  The two important projects that work this
+way are [unpyc3](https://code.google.com/p/unpyc3/) and most
+especially [pycdc](https://github.com/zrax/pycdc) The latter project
+is largely by Michael Hansen and Darryl Pogue. If they supported
+getting source-code fragments, did a better job in supporting Python
+more fully, and had a way I could call it from Python, I'd probably
+would have ditched this and used that. The code runs blindingly fast
+and spans all versions of Python, although more recently Python 3
+support has been lagging.
 
 Tests for the project have been, or are being, culled from all of the
 projects mentioned.
 
-NB. If you find mistakes, want corrections, or want your name added (or removed),
-please contact me.
+NB. If you find mistakes, want corrections, or want your name added
+(or removed), please contact me.

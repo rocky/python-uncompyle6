@@ -576,7 +576,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
             for n in node:
                 if n == 'pos_arg':
                     continue
-                elif self.version >= 3.4 and n.type != 'kwargs':
+                elif self.version >= 3.4 and not (n.type in ('kwargs', 'kwarg')):
                     continue
                 else:
                     self.preorder(n)
