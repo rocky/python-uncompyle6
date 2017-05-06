@@ -1,3 +1,9 @@
+uncompyle6 2.9.11 2016-04-06
+
+- Better support for Python 3.5+ BUILD_MAP_UNPACK
+- Start 3.6 CALL_FUNCTION_EX support
+- Many decompilation bug fixes. (Many more remain). See ChangeLog
+
 uncompyle6 2.9.10 2016-02-25
 
 - Python grammar rule fixes
