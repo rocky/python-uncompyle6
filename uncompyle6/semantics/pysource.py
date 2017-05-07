@@ -520,7 +520,7 @@ class SourceWalker(GenericASTTraversal, object):
                                 [AST('ret_expr', [NONE]), Token('RETURN_VALUE')]))
 
     def n_continue_stmt(self, node):
-        if node[0] == 'CONTINUE':
+        if self.version >= 3.0 and node[0] == 'CONTINUE':
             t = node[0]
             if not t.linestart:
                 # Artificially-added "continue" statements derived from JUMP_ABSOLUTE
