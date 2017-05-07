@@ -135,9 +135,6 @@ class Scanner3(Scanner):
         # FIXME: remove the above in favor of:
         # self.varargs_ops = frozenset(self.opc.hasvargs)
 
-    def next_offset(self, op, offset):
-        return offset + self.op_size(op)
-
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Pick out tokens from an uncompyle6 code object, and transform them,
