@@ -135,6 +135,9 @@ class Scanner3(Scanner):
         # FIXME: remove the above in favor of:
         # self.varargs_ops = frozenset(self.opc.hasvargs)
 
+    def next_offset(self, op, offset):
+        return offset + self.op_size(op)
+
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Pick out tokens from an uncompyle6 code object, and transform them,
@@ -476,7 +479,7 @@ class Scanner3(Scanner):
                     oparg = code[offset+1]
                 else:
                     oparg = code[offset+1] + code[offset+2] * 256
-                next_offset = offset + self.op_size(op)
+                next_offset = self.next_offset(op, offset)
 
                 if label is None:
                     if op in op3.hasjrel and op != self.opc.FOR_ITER:
@@ -911,14 +914,14 @@ class Scanner3(Scanner):
             end    = self.restrict_to_parent(target, parent)
             self.fixed_jumps[offset] = end
         elif op == self.opc.POP_EXCEPT:
-            if self.version <= 3.5:
-                next_offset = offset+1
-            else:
-                next_offset = offset+2
+            next_offset = self.next_offset(op, offset)
             target = self.get_target(next_offset)
             if target > next_offset:
-                self.fixed_jumps[next_offset] = target
-                self.except_targets[target] = next_offset
+                next_op = code[next_offset]
+                if (self.opc.JUMP_ABSOLUTE == next_op and
+                    END_FINALLY != code[self.next_offset(next_op, next_offset)]):
+                    self.fixed_jumps[next_offset] = target
+                    self.except_targets[target] = next_offset
 
         elif op == self.opc.SETUP_FINALLY:
             target = self.get_target(offset)
