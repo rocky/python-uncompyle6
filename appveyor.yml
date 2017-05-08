@@ -11,13 +11,13 @@ environment:
     # a later point release.
     # See: http://www.appveyor.com/docs/installed-software#python
 
-    - PYTHON: "C:\\Python27"
-      PYTHON_VERSION: "2.7.x"
-      PYTHON_ARCH: "32"
-
-    # - PYTHON: "C:\\Python27-x64"
+    # - PYTHON: "C:\\Python27"
     #   PYTHON_VERSION: "2.7.x"
-    #   PYTHON_ARCH: "64"
+    #   PYTHON_ARCH: "32"
+
+    - PYTHON: "C:\\Python27-x64"
+      PYTHON_VERSION: "2.7.x"
+      PYTHON_ARCH: "64"
 
     # - PYTHON: "C:\\Python26"
     #   PYTHON_VERSION: "2.6.x"
@@ -29,7 +29,7 @@ environment:
 
 install:
   # We need wheel installed to build wheels
-  - "%PYTHON%\\python.exe -m pip install wheel nose"
+  - "%PYTHON%\\python.exe -m pip install wheel"
 
   # Install Python (from the official .msi of http://python.org) and pip when
   # not already installed.
@@ -39,6 +39,7 @@ install:
   # done from inside the powershell script as it would require to restart
   # the parent CMD process).
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "SET HOME=."
 
   # Check that we have the expected version and architecture for Python
   - "python --version"
@@ -60,7 +61,7 @@ build_script:
 
 test_script:
   # Run the project tests
-  - "%CMD_IN_ENV% python test\test_pyenvlib.py --2.7.12
+  - "%CMD_IN_ENV% python test/test_pythonlib.py --2.7 --verify"
 
 after_test:
   # If tests are successful, create binary packages for the project.
