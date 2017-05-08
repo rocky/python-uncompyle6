@@ -531,11 +531,12 @@ class SourceWalker(GenericASTTraversal, object):
                 next_offset = self.scanner.next_offset(op, offset)
                 scanner = self.scanner
                 code = scanner.code
-                next_inst = code[next_offset]
-                if (scanner.opc.opname[next_inst] == 'JUMP_ABSOLUTE'
-                    and t.pattr == code[next_offset+1]):
-                    # Suppress "continue"
-                    self.prune()
+                if next_offset < len(code):
+                    next_inst = code[next_offset]
+                    if (scanner.opc.opname[next_inst] == 'JUMP_ABSOLUTE'
+                        and t.pattr == code[next_offset+1]):
+                        # Suppress "continue"
+                        self.prune()
         self.default(node)
 
     def n_return_stmt(self, node):

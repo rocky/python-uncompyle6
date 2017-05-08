@@ -22,7 +22,7 @@ Step 2: Run the test:
 from __future__ import print_function
 
 from uncompyle6 import main, PYTHON3
-import os, time, shutil
+import os, time, shutil, sys
 from fnmatch import fnmatch
 
 #----- configure this for your needs
@@ -33,7 +33,7 @@ TEST_VERSIONS=('2.3.7', '2.4.6', '2.5.6', '2.6.9',
                '2.7.10', '2.7.11', '2.7.12', '2.7.13',
                '3.0.1', '3.1.5', '3.2.6',
                '3.3.5', '3.3.6',
-               '3.4.2', '3.5.1', '3.6.0')
+               '3.4.2', '3.5.1', '3.6.0', 'native')
 
 target_base = '/tmp/py-dis/'
 lib_prefix = os.path.join(os.environ['HOME'], '.pyenv/versions')
@@ -54,6 +54,11 @@ for vers in TEST_VERSIONS:
         short_vers = vers[0:-2]
         test_options[vers] = (os.path.join(lib_prefix, vers, 'lib_pypy'),
                               PYC, 'python-lib'+short_vers)
+    if vers == 'native':
+        short_vers = os.path.basename(sys.path[-1])
+        test_options[vers] = (sys.path[-1],
+                              PYC, short_vers)
+
     else:
         short_vers = vers[:3]
         test_options[vers] = (os.path.join(lib_prefix, vers, 'lib', 'python'+short_vers),
