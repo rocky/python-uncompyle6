@@ -58,6 +58,17 @@ class Python36Parser(Python35Parser):
                 """ % (fstring_expr_or_str_n, fstring_expr_or_str_n, "fstring_expr_or_str " * v)
                 self.add_unique_doc_rules(rules_str, customize)
 
+    def custom_classfunc_rule(self, opname, token, customize):
+
+        if opname.startswith('CALL_FUNCTION_KW'):
+            values = 'expr ' * token.attr
+            rule = 'call_function ::= expr kwargs_only_36 {token.type}'.format(**locals())
+            self.add_unique_rule(rule, token.type, token.attr, customize)
+            rule = 'kwargs_only_36 ::= {values} LOAD_CONST'.format(**locals())
+            self.add_unique_rule(rule, token.type, token.attr, customize)
+        else:
+            super(Python36Parser, self).custom_classfunc_rule(opname, token, customize)
+
 
 class Python36ParserSingle(Python36Parser, PythonParserSingle):
     pass
