@@ -397,7 +397,7 @@ class SourceWalker(GenericASTTraversal, object):
                     TABLE_R.update({
                         'CALL_FUNCTION_EX': ('%c(*%P)', 0, (1, 2, ', ', 100)),
                         # Not quite right
-                        'CALL_FUNCTION_EX_KW': ('%c(**%C', 0, (2,3, ',')),
+                        'CALL_FUNCTION_EX_KW': ('%c(**%C)', 0, (2,3, ',')),
                         })
                     FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
 
