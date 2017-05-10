@@ -123,7 +123,6 @@ with settings(max_examples=25):
     def test_function_call_star_only(expr):
         validate_uncompyle(expr)
 
-    @pytest.mark.xfail()
     @given(isolated_function_calls('double_star'))
     @example("fn(**{})")
     def test_function_call_double_star_only(expr):
