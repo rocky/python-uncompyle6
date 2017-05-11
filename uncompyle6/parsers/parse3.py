@@ -701,7 +701,10 @@ class Python3Parser(PythonParser):
                 rule = 'unpack_list ::= ' + opname + ' designator' * token.attr
             elif opname_base.startswith('MAKE_FUNCTION'):
                 # DRY with MAKE_CLOSURE
-                args_pos, args_kw, annotate_args  = token.attr
+                if self.version < 3.6:
+                    args_pos, args_kw, annotate_args  = token.attr
+                else:
+                    args_pos, args_kw, annotate_args, closure  = token.attr
 
                 rule_pat = ("genexpr ::= %sload_genexpr %%s%s expr "
                             "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
