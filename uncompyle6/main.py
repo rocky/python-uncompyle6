@@ -106,6 +106,7 @@ def main(in_base, out_base, files, codes, outfile=None,
         return open(outfile, 'w')
 
     tot_files = okay_files = failed_files = verify_failed_files = 0
+    current_outfile = outfile
 
     for filename in files:
         infile = os.path.join(in_base, filename)
@@ -134,11 +135,11 @@ def main(in_base, out_base, files, codes, outfile=None,
                 os.dup2(tee.stdin.fileno(), sys.stderr.fileno())
         else:
             if filename.endswith('.pyc'):
-                outfile = os.path.join(out_base, filename[0:-1])
+                current_outfile = os.path.join(out_base, filename[0:-1])
             else:
-                outfile = os.path.join(out_base, filename) + '_dis'
-            outstream = _get_outstream(outfile)
-        # print(outfile, file=sys.stderr)
+                current_outfile = os.path.join(out_base, filename) + '_dis'
+            outstream = _get_outstream(current_outfile)
+        # print(current_outfile, file=sys.stderr)
 
         # Try to uncompile the input file
         try:
@@ -157,16 +158,16 @@ def main(in_base, out_base, files, codes, outfile=None,
             raise
         # except:
         #     failed_files += 1
-        #     if outfile:
+        #     if current_outfile:
         #         outstream.close()
-        #         os.rename(outfile, outfile + '_failed')
+        #         os.rename(current_outfile, current_outfile + '_failed')
         #     else:
         #         sys.stderr.write("\n# %s" % sys.exc_info()[1])
         #         sys.stderr.write("\n# Can't uncompile %s\n" % infile)
         else: # uncompile successful
-            if outfile:
+            if current_outfile:
                 if do_linemaps:
-                    mapping = line_number_mapping(infile, outfile)
+                    mapping = line_number_mapping(infile, current_outfile)
                     outstream.write("\n\n## Line number correspondences\n")
                     import pprint
                     s = pprint.pformat(mapping, indent=2, width=80)
@@ -177,8 +178,8 @@ def main(in_base, out_base, files, codes, outfile=None,
                 if do_verify:
                     weak_verify = do_verify == 'weak'
                     try:
-                        msg = verify.compare_code_with_srcfile(infile, outfile, weak_verify=weak_verify)
-                        if not outfile:
+                        msg = verify.compare_code_with_srcfile(infile, current_outfile, weak_verify=weak_verify)
+                        if not current_outfile:
                             if not msg:
                                 print('\n# okay decompiling %s' % infile)
                                 okay_files += 1
@@ -187,7 +188,7 @@ def main(in_base, out_base, files, codes, outfile=None,
                     except verify.VerifyCmpError as e:
                         print(e)
                         verify_failed_files += 1
-                        os.rename(outfile, outfile + '_unverified')
+                        os.rename(current_outfile, current_outfile + '_unverified')
                         sys.stderr.write("### Error Verifying %s\n" % filename)
                         sys.stderr.write(str(e) + "\n")
                         if not outfile:
@@ -201,15 +202,15 @@ def main(in_base, out_base, files, codes, outfile=None,
                 pass
             else:
                 okay_files += 1
-                if not outfile:
+                if not current_outfile:
                     mess = '\n# okay decompiling'
                     # mem_usage = __memUsage()
                     print(mess, infile)
-        if outfile:
+        if current_outfile:
             sys.stdout.write("%s\r" %
                              status_msg(do_verify, tot_files, okay_files, failed_files, verify_failed_files))
             sys.stdout.flush()
-    if outfile:
+    if current_outfile:
         sys.stdout.write("\n")
         sys.stdout.flush()
     return (tot_files, okay_files, failed_files, verify_failed_files)
