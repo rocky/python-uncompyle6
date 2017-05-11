@@ -1,20 +1,24 @@
 # std
 import string
 # 3rd party
-from hypothesis import given, assume, strategies as st
+from hypothesis import given, assume, example, settings, strategies as st
 import pytest
 # uncompyle
 from validate import validate_uncompyle
+from test_fstring import expressions
 
 
 alpha = st.sampled_from(string.ascii_lowercase)
 numbers = st.sampled_from(string.digits)
 alphanum = st.sampled_from(string.ascii_lowercase + string.digits)
-expressions = st.sampled_from([x for x in string.ascii_lowercase + string.digits] + ['x+1'])
 
 
 @st.composite
-def function_calls(draw):
+def function_calls(draw,
+                   min_keyword_args=0, max_keyword_args=5,
+                   min_positional_args=0, max_positional_args=5,
+                   min_star_args=0, max_star_args=1,
+                   min_double_star_args=0, max_double_star_args=1):
     """
     Strategy factory for generating function calls.
 
@@ -22,21 +26,49 @@ def function_calls(draw):
 
     :return: The function call text.
     """
-    list1 = st.lists(alpha, min_size=0, max_size=1)
-    list3 = st.lists(alpha, min_size=0, max_size=3)
+    st_positional_args = st.lists(
+        alpha,
+        min_size=min_positional_args,
+        max_size=max_positional_args
+    )
+    st_keyword_args = st.lists(
+        alpha,
+        min_size=min_keyword_args,
+        max_size=max_keyword_args
+    )
+    st_star_args = st.lists(
+        alpha,
+        min_size=min_star_args,
+        max_size=max_star_args
+    )
+    st_double_star_args = st.lists(
+        alpha,
+        min_size=min_double_star_args,
+        max_size=max_double_star_args
+    )
 
-    positional_args = draw(list3)
-    named_args = [x + '=0' for x in draw(list3)]
-    star_args = ['*' + x for x in draw(list1)]
-    double_star_args = ['**' + x for x in draw(list1)]
+    positional_args = draw(st_positional_args)
+    keyword_args = draw(st_keyword_args)
+    st_values = st.lists(
+        expressions(),
+        min_size=len(keyword_args),
+        max_size=len(keyword_args)
+    )
+    keyword_args = [
+        x + '=' + e
+        for x, e in
+        zip(keyword_args, draw(st_values))
+    ]
+    star_args = ['*' + x for x in draw(st_star_args)]
+    double_star_args = ['**' + x for x in draw(st_double_star_args)]
 
-    arguments = positional_args + named_args + star_args + double_star_args
+    arguments = positional_args + keyword_args + star_args + double_star_args
     draw(st.randoms()).shuffle(arguments)
     arguments = ','.join(arguments)
 
     function_call = 'fn({arguments})'.format(arguments=arguments)
     try:
-        # TODO: Figure out the exact rules for ordering of positional, named,
+        # TODO: Figure out the exact rules for ordering of positional, keyword,
         # star args, double star args and in which versions the various
         # types of arguments are supported so we don't need to check that the
         # expression compiles like this.
@@ -46,9 +78,55 @@ def function_calls(draw):
     return function_call
 
 
-@pytest.mark.xfail()
-def test_CALL_FUNCTION():
-    validate_uncompyle("fn(w,m,f)")
+def test_function_no_args():
+    validate_uncompyle("fn()")
+
+
+def isolated_function_calls(which):
+    """
+    Returns a strategy for generating function calls, but isolated to 
+    particular types of arguments, for example only positional arguments.
+
+    This can help reason about debugging errors in specific types of function
+    calls.
+
+    :param which: One of 'keyword', 'positional', 'star', 'double_star'
+
+    :return: Strategy for generating an function call isolated to specific
+             argument types.
+    """
+    kwargs = dict(
+        max_keyword_args=0,
+        max_positional_args=0,
+        max_star_args=0,
+        max_double_star_args=0,
+    )
+    kwargs['_'.join(('min', which, 'args'))] = 1
+    kwargs['_'.join(('max', which, 'args'))] = 5 if 'star' not in which else 1
+    return function_calls(**kwargs)
+
+
+with settings(max_examples=25):
+
+    @given(isolated_function_calls('positional'))
+    @example("fn(0)")
+    def test_function_positional_only(expr):
+        validate_uncompyle(expr)
+
+    @given(isolated_function_calls('keyword'))
+    @example("fn(a=0)")
+    def test_function_call_keyword_only(expr):
+        validate_uncompyle(expr)
+
+    @given(isolated_function_calls('star'))
+    @example("fn(*items)")
+    def test_function_call_star_only(expr):
+        validate_uncompyle(expr)
+
+    @given(isolated_function_calls('double_star'))
+    @example("fn(**{})")
+    def test_function_call_double_star_only(expr):
+        validate_uncompyle(expr)
 
 
 @pytest.mark.xfail()
@@ -59,11 +137,6 @@ def test_BUILD_CONST_KEY_MAP_BUILD_MAP_UNPACK_WITH_CALL_BUILD_TUPLE_CALL_FUNCTIO
 @pytest.mark.xfail()
 def test_BUILD_MAP_BUILD_MAP_UNPACK_WITH_CALL_BUILD_TUPLE_CALL_FUNCTION_EX():
     validate_uncompyle("fn(a=0,**g)")
-
-
-@pytest.mark.xfail()
-def test_CALL_FUNCTION_KW():
-    validate_uncompyle("fn(j=0)")
 
 
 @pytest.mark.xfail()
@@ -100,29 +173,3 @@ def test_BUILD_CONST_KEY_MAP_CALL_FUNCTION_EX():
 @given(function_calls())
 def test_function_call(function_call):
     validate_uncompyle(function_call)
-
-
-examples = set()
-generate_examples = False
-
-
-@pytest.mark.skipif(not generate_examples, reason='not generating examples')
-@given(function_calls())
-def test_generate_hypothesis(function_call):
-    examples.add(function_call)
-
-
-@pytest.mark.skipif(not generate_examples, reason='not generating examples')
-def test_generate_examples():
-    import dis
-    example_opcodes = {}
-    for example in examples:
-        opcodes = tuple(sorted(set(
-            instruction.opname
-            for instruction in dis.Bytecode(example)
-            if instruction.opname not in ('LOAD_CONST', 'LOAD_NAME', 'RETURN_VALUE')
-        )))
-        example_opcodes[opcodes] = example
-    for k, v in example_opcodes.items():
-        print('def test_' + '_'.join(k) + '():\n    validate_uncompyle("' + v + '")\n\n')
-    return

@@ -607,7 +607,8 @@ class Python3Parser(PythonParser):
                 """, nop_func)
                 continue
             elif opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
-                            'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
+                            'CALL_FUNCTION_VAR_KW') \
+                 or opname.startswith('CALL_FUNCTION_KW'):
                 self.custom_classfunc_rule(opname, token, customize)
             elif opname == 'LOAD_DICTCOMP':
                 rule_pat = ("dictcomp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 expr "

@@ -392,11 +392,12 @@ class SourceWalker(GenericASTTraversal, object):
                         'fstring_single': ( "f'{%c%{conversion}}'", 0),
                         'fstring_multi':  ( "f'%c'", 0),
                         'func_args36':    ( "%c(**", 0),
+                        #'kwargs_only_36': ( "%c(**", 0),
                     })
                     TABLE_R.update({
                         'CALL_FUNCTION_EX': ('%c(*%P)', 0, (1, 2, ', ', 100)),
                         # Not quite right
-                        'CALL_FUNCTION_EX_KW': ('%c(**%C', 0, (2,3, ',')),
+                        'CALL_FUNCTION_EX_KW': ('%c(**%C)', 0, (2,3, ',')),
                         })
                     FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
 
@@ -413,6 +414,17 @@ class SourceWalker(GenericASTTraversal, object):
                         self.default(node)
                     self.n_fstring_single = n_fstring_single
 
+                    def n_kwargs_only_36(node):
+                        keys = node[-1].attr
+                        num_kwargs = len(keys)
+                        values = node[:num_kwargs]
+                        for i, (key, value) in enumerate(zip(keys, values)):
+                            self.write(key + '=')
+                            self.preorder(value)
+                            if i < num_kwargs:
+                                self.write(',')
+                        self.prune()
+                    self.n_kwargs_only_36 = n_kwargs_only_36
         return
 
     f = property(lambda s: s.params['f'],
@@ -1799,6 +1811,8 @@ class SourceWalker(GenericASTTraversal, object):
 
             if k.startswith('CALL_METHOD'):
                 # This happens in PyPy only
+                TABLE_R[k] = ('%c(%P)', 0, (1, -1, ', ', 100))
+            elif self.version >= 3.6 and k.startswith('CALL_FUNCTION_KW'):
                 TABLE_R[k] = ('%c(%P)', 0, (1, -1, ', ', 100))
             elif op == 'CALL_FUNCTION':
                 TABLE_R[k] = ('%c(%P)', 0, (1, -1, ', ', 100))
