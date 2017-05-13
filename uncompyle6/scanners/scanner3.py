@@ -130,7 +130,7 @@ class Scanner3(Scanner):
             varargs_ops.add(self.opc.CALL_METHOD)
         if self.version >= 3.6:
             varargs_ops.add(self.opc.BUILD_CONST_KEY_MAP)
-            # Below is in bit order, "defaultt = bit 0, closure = bit 3
+            # Below is in bit order, "default = bit 0, closure = bit 3
             self.MAKE_FUNCTION_FLAGS = (
                 ("default", 'D'),
                 ("keyword-only", "K"),
