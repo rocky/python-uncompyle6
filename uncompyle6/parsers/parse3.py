@@ -334,7 +334,9 @@ class Python3Parser(PythonParser):
 
     def p_stmt3(self, args):
         """
-        stmt ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
+        stmt ::= return_closure
+        return_closure ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
+
         stmt ::= whileTruestmt
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_from
         """

@@ -424,7 +424,17 @@ class SourceWalker(GenericASTTraversal, object):
                             if i < num_kwargs:
                                 self.write(',')
                         self.prune()
+                        return
                     self.n_kwargs_only_36 = n_kwargs_only_36
+
+                    def n_return_closure(node):
+                        # Nothing should be output here
+                        self.prune()
+                        return
+                    self.n_return_closure = n_return_closure
+                    pass # version > 3.6
+                pass # version > 3.4
+            pass # version > 3.0
         return
 
     f = property(lambda s: s.params['f'],
@@ -1288,11 +1298,18 @@ class SourceWalker(GenericASTTraversal, object):
 
         if self.version > 3.0:
             if node == 'classdefdeco2':
-                currentclass = node[1][2].pattr
+                if self.version >= 3.6:
+                    class_code = node[1][1].pattr
+                else:
+                    class_code = node[1][2].pattr
                 buildclass = node
             else:
-                currentclass = node[1][0].pattr
-                buildclass = node[0]
+                if self.version >= 3.6:
+                    class_code = node[0][1][0].pattr
+                    buildclass = node[0]
+                else:
+                    class_code = node[1][0].pattr
+                    buildclass = node[0]
 
             assert 'mkfunc' == buildclass[1]
             mkfunc = buildclass[1]
@@ -1300,16 +1317,16 @@ class SourceWalker(GenericASTTraversal, object):
                 if 3.0 <= self.version <= 3.2:
                     for n in mkfunc:
                         if hasattr(n, 'attr') and iscode(n.attr):
-                            subclass = n.attr
+                            subclass_code = n.attr
                             break
                         elif n == 'expr':
-                            subclass = n[0].attr
+                            subclass_code = n[0].attr
                         pass
                     pass
                 else:
                     for n in mkfunc:
                         if hasattr(n, 'attr') and iscode(n.attr):
-                            subclass = n.attr
+                            subclass_code = n.attr
                             break
                         pass
                     pass
@@ -1321,10 +1338,10 @@ class SourceWalker(GenericASTTraversal, object):
                     # Python 3.3 classes with closures work like this.
                     # Note have to test before 3.2 case because
                     # index -2 also has an attr.
-                    subclass = load_closure[-3].attr
+                    subclass_code = load_closure[-3].attr
                 elif hasattr(load_closure[-2], 'attr'):
                     # Python 3.2 works like this
-                    subclass = load_closure[-2].attr
+                    subclass_code = load_closure[-2].attr
                 else:
                     raise 'Internal Error n_classdef: cannot find class body'
                 if hasattr(buildclass[3], '__len__'):
@@ -1333,18 +1350,21 @@ class SourceWalker(GenericASTTraversal, object):
                     subclass_info = buildclass[2]
                 else:
                     raise 'Internal Error n_classdef: cannot superclass name'
+            elif self.version >= 3.6 and node == 'classdefdeco2':
+                subclass_info = node
+                subclass_code = buildclass[1][0].attr
             else:
-                subclass = buildclass[1][0].attr
+                subclass_code = buildclass[1][0].attr
                 subclass_info = node[0]
         else:
             buildclass = node if (node == 'classdefdeco2') else node[0]
             build_list = buildclass[1][0]
             if hasattr(buildclass[-3][0], 'attr'):
-                subclass = buildclass[-3][0].attr
-                currentclass = buildclass[0].pattr
+                subclass_code = buildclass[-3][0].attr
+                class_code = buildclass[0].pattr
             elif hasattr(node[0][0], 'pattr'):
-                subclass = buildclass[-3][1].attr
-                currentclass = node[0][0].pattr
+                subclass_code = buildclass[-3][1].attr
+                class_code = node[0][0].pattr
             else:
                 raise 'Internal Error n_classdef: cannot find class name'
 
@@ -1353,7 +1373,7 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             self.write('\n\n')
 
-        self.currentclass = str(currentclass)
+        self.currentclass = str(class_code)
         self.write(self.indent, 'class ', self.currentclass)
 
         if self.version > 3.0:
@@ -1364,7 +1384,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         # class body
         self.indentMore()
-        self.build_class(subclass)
+        self.build_class(subclass_code)
         self.indentLess()
 
         self.currentclass = cclass
