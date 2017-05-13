@@ -279,13 +279,13 @@ class Scanner3(Scanner):
                     flags = inst.argval
                     opname = 'MAKE_FUNCTION_%d' % (flags)
                     attr = []
-                    for tup in self.MAKE_FUNCTION_FLAGS:
+                    for flag in self.MAKE_FUNCTION_FLAGS:
                         bit = flags & 1
                         if bit:
                             if pattr:
-                                pattr += ", " + tup[0]
+                                pattr += ", " + flag
                             else:
-                                pattr += tup[0]
+                                pattr += flag
                         attr.append(bit)
                         flags >>= 1
                     attr = attr[:4] # remove last value: attr[5] == False
