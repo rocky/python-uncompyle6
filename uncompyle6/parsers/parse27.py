@@ -52,6 +52,8 @@ class Python27Parser(Python2Parser):
         come_froms ::= come_froms COME_FROM
         come_froms ::= COME_FROM
 
+        iflaststmtl ::= testexpr c_stmts_opt
+
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD come_froms
         bp_come_from    ::= POP_BLOCK COME_FROM
 
