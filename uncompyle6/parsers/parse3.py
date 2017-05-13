@@ -703,6 +703,18 @@ class Python3Parser(PythonParser):
                 rule = 'unpack_list ::= ' + opname + ' designator' * token.attr
             elif opname_base.startswith('MAKE_FUNCTION'):
                 # DRY with MAKE_CLOSURE
+                if self.version >= 3.6:
+                    # The semantics of MAKE_FUNCTION in 3.6 are totally different from
+                    # before.
+                    args_pos, args_kw, annotate_args, closure  = token.attr
+                    stack_count = args_pos + args_kw + annotate_args
+                    rule = ('mkfunc ::= %s%s%s%s' %
+                                ('expr ' * stack_count,
+                                 'load_closure ' * closure,
+                                 'LOAD_CONST ' * 2,
+                                 opname))
+                    self.add_unique_rule(rule, opname, token.attr, customize)
+                    continue
                 if self.version < 3.6:
                     args_pos, args_kw, annotate_args  = token.attr
                 else:
