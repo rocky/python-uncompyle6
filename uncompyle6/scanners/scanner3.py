@@ -131,12 +131,8 @@ class Scanner3(Scanner):
         if self.version >= 3.6:
             varargs_ops.add(self.opc.BUILD_CONST_KEY_MAP)
             # Below is in bit order, "default = bit 0, closure = bit 3
-            self.MAKE_FUNCTION_FLAGS = (
-                ("default", 'D'),
-                ("keyword-only", "K"),
-                ("annotation", "A"),
-                ("closure", "C")
-                )
+            self.MAKE_FUNCTION_FLAGS = tuple("""
+             default keyword-only annotation closure""".split())
 
         self.varargs_ops = frozenset(varargs_ops)
         # FIXME: remove the above in favor of:
