@@ -1850,6 +1850,9 @@ class SourceWalker(GenericASTTraversal, object):
                     if self.version == 3.5:
                         if str == '%c(%C, ':
                             str = '%c(*%C, %c)'
+                        elif str == '%c(%C':
+                            str = '%c(*%C)'
+                            # p2 = (1, -1, 100)
                     else:
                         str += '*%c)'
                     entry = (str, 0, p2, -2)
