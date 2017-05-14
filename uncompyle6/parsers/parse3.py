@@ -483,6 +483,8 @@ class Python3Parser(PythonParser):
         # high byte number of positional parameters
         args_pos = token.attr & 0xff
         args_kw = (token.attr >> 8) & 0xff
+        args_kw = (token.attr >> 8) & 0xff
+        # args_ann = (token.attr >> 16) & 0x7FFF
 
         # Additional exprs for * and ** args:
         #  0 if neither
@@ -498,7 +500,7 @@ class Python3Parser(PythonParser):
             # first LOAD_FAST, below are located.
             # Python 3.6+ replaces CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
             if opname.endswith('KW'):
-                kw = 'LOAD_FAST '
+                kw = 'expr '
             else:
                 kw = ''
             rule = ('call_function ::= expr expr ' +
