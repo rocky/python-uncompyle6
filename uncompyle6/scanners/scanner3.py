@@ -130,6 +130,9 @@ class Scanner3(Scanner):
             varargs_ops.add(self.opc.CALL_METHOD)
         if self.version >= 3.6:
             varargs_ops.add(self.opc.BUILD_CONST_KEY_MAP)
+            # Below is in bit order, "default = bit 0, closure = bit 3
+            self.MAKE_FUNCTION_FLAGS = tuple("""
+             default keyword-only annotation closure""".split())
 
         self.varargs_ops = frozenset(varargs_ops)
         # FIXME: remove the above in favor of:
@@ -271,20 +274,37 @@ class Scanner3(Scanner):
                     pattr = const
                     pass
             elif opname in ('MAKE_FUNCTION', 'MAKE_CLOSURE'):
-                pos_args, name_pair_args, annotate_args = parse_fn_counts(inst.argval)
-                if name_pair_args > 0:
-                    opname = '%s_N%d' % (opname, name_pair_args)
-                    pass
-                if annotate_args > 0:
-                    opname = '%s_A_%d' % (opname, annotate_args)
-                    pass
-                opname = '%s_%d' % (opname, pos_args)
-                pattr = ("%d positional, %d keyword pair, %d annotated" %
-                             (pos_args, name_pair_args, annotate_args))
+                if self.version >= 3.6:
+                    # 3.6+ doesn't have MAKE_CLOSURE, so opname == 'MAKE_CLOSURE'
+                    flags = inst.argval
+                    opname = 'MAKE_FUNCTION_%d' % (flags)
+                    attr = []
+                    for flag in self.MAKE_FUNCTION_FLAGS:
+                        bit = flags & 1
+                        if bit:
+                            if pattr:
+                                pattr += ", " + flag
+                            else:
+                                pattr += flag
+                        attr.append(bit)
+                        flags >>= 1
+                    attr = attr[:4] # remove last value: attr[5] == False
+                else:
+                    pos_args, name_pair_args, annotate_args = parse_fn_counts(inst.argval)
+                    pattr = ("%d positional, %d keyword pair, %d annotated" %
+                                 (pos_args, name_pair_args, annotate_args))
+                    if name_pair_args > 0:
+                        opname = '%s_N%d' % (opname, name_pair_args)
+                        pass
+                    if annotate_args > 0:
+                        opname = '%s_A_%d' % (opname, annotate_args)
+                        pass
+                    opname = '%s_%d' % (opname, pos_args)
+                    attr = (pos_args, name_pair_args, annotate_args)
                 tokens.append(
                     Token(
                         type_ = opname,
-                        attr = (pos_args, name_pair_args, annotate_args),
+                        attr = attr,
                         pattr = pattr,
                         offset = inst.offset,
                         linestart = inst.starts_line,

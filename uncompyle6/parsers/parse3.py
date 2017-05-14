@@ -334,7 +334,9 @@ class Python3Parser(PythonParser):
 
     def p_stmt3(self, args):
         """
-        stmt ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
+        stmt ::= return_closure
+        return_closure ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
+
         stmt ::= whileTruestmt
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_from
         """
@@ -701,7 +703,22 @@ class Python3Parser(PythonParser):
                 rule = 'unpack_list ::= ' + opname + ' designator' * token.attr
             elif opname_base.startswith('MAKE_FUNCTION'):
                 # DRY with MAKE_CLOSURE
-                args_pos, args_kw, annotate_args  = token.attr
+                if self.version >= 3.6:
+                    # The semantics of MAKE_FUNCTION in 3.6 are totally different from
+                    # before.
+                    args_pos, args_kw, annotate_args, closure  = token.attr
+                    stack_count = args_pos + args_kw + annotate_args
+                    rule = ('mkfunc ::= %s%s%s%s' %
+                                ('expr ' * stack_count,
+                                 'load_closure ' * closure,
+                                 'LOAD_CONST ' * 2,
+                                 opname))
+                    self.add_unique_rule(rule, opname, token.attr, customize)
+                    continue
+                if self.version < 3.6:
+                    args_pos, args_kw, annotate_args  = token.attr
+                else:
+                    args_pos, args_kw, annotate_args, closure  = token.attr
 
                 rule_pat = ("genexpr ::= %sload_genexpr %%s%s expr "
                             "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
