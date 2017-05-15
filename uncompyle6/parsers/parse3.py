@@ -716,6 +716,11 @@ class Python3Parser(PythonParser):
                                  'LOAD_CONST ' * 2,
                                  opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
+                    rule_pat = ('mklambda ::= %s%sLOAD_LAMBDA %%s%s' %
+                                (('pos_arg '* args_pos),
+                                 ('kwarg '* args_kw),
+                                 opname))
+                    self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                     continue
                 if self.version < 3.6:
                     args_pos, args_kw, annotate_args  = token.attr
