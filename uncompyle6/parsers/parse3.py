@@ -721,6 +721,9 @@ class Python3Parser(PythonParser):
                                  ('kwarg '* args_kw),
                                  opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                    rule_pat  = ("listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
+                                 "GET_ITER CALL_FUNCTION_1" % ('expr ' * args_pos, opname))
+                    self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                     continue
                 if self.version < 3.6:
                     args_pos, args_kw, annotate_args  = token.attr
