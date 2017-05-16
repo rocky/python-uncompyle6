@@ -16,6 +16,19 @@ class Python36Parser(Python35Parser):
 
     def p_36misc(self, args):
         """
+        # For reasons I don't understnad the range of values in POP_JUMP_IF_FALSE
+        # got smaller and so EXTENDED_ARG needs to be used where it didn't before.
+        # Is this relevant to < 3.6 as well?
+
+        jmp_false ::= EXTENDED_ARG POP_JUMP_IF_FALSE
+        jmp_true  ::= EXTENDED_ARG POP_JUMP_IF_TRUE
+        _jump     ::= EXTENDED_ARG JUMP_BACK
+        jump_back ::= EXTENDED_ARG JUMP_BACK
+
+        for_block ::= l_stmts_opt opt_come_from_loop jump_back
+
+
+        # 3.6 redoes how return_closure works
         return_closure ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
 
         expr ::= LOAD_NAME EXTENDED_ARG
