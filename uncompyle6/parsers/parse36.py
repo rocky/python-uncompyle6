@@ -19,6 +19,7 @@ class Python36Parser(Python35Parser):
         return_closure ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
 
         expr ::= LOAD_NAME EXTENDED_ARG
+        expr ::= LOAD_CONST EXTENDED_ARG
 
         fstring_multi ::= fstring_expr_or_strs BUILD_STRING
         fstring_expr_or_strs ::= fstring_expr_or_str+

@@ -1520,10 +1520,21 @@ class SourceWalker(GenericASTTraversal, object):
                 values = node[:-2]
                 # FIXME: Line numbers?
                 for key, value in zip(keys, values):
+                    self.write(sep)
                     self.write(repr(key))
+                    line_number = self.line_number
                     self.write(':')
                     self.write(self.traverse(value[0]))
-                    self.write(',')
+                    sep = ","
+                    if line_number != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        line_number = self.line_number
+                    else:
+                        sep += " "
+                        pass
+                    pass
+                if sep.startswith(",\n"):
+                    self.write(sep[1:])
                 pass
             pass
         else:
@@ -1577,6 +1588,9 @@ class SourceWalker(GenericASTTraversal, object):
                 if line_number != self.line_number:
                     sep += "\n" + self.indent + "  "
                     line_number = self.line_number
+                    pass
+                pass
+            pass
         if sep.startswith(",\n"):
             self.write(sep[1:])
         self.write('}')
