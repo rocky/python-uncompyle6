@@ -41,6 +41,8 @@ class Python36Parser(Python35Parser):
 
         whilestmt         ::= setup_loop testexpr l_stmts_opt jump_back POP_BLOCK
                               COME_FROM_LOOP
+
+        whileTruestmt     ::= setup_loop l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM_LOOP
         """
 
 
