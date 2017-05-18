@@ -84,6 +84,29 @@ class Python36Parser(Python35Parser):
 
     def add_custom_rules(self, tokens, customize):
         super(Python36Parser, self).add_custom_rules(tokens, customize)
+        self.remove_rule("""
+        forstmt           ::= SETUP_LOOP expr _for designator for_block POP_BLOCK
+                              opt_come_from_loop
+
+        forelsestmt       ::= SETUP_LOOP expr _for designator for_block POP_BLOCK else_suite
+                              COME_FROM_LOOP
+
+        forelselaststmt   ::= SETUP_LOOP expr _for designator for_block POP_BLOCK else_suitec
+                              COME_FROM_LOOP
+
+        forelselaststmtl  ::= SETUP_LOOP expr _for designator for_block POP_BLOCK else_suitel
+                              COME_FROM_LOOP
+
+        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt COME_FROM jump_back POP_BLOCK
+                              COME_FROM_LOOP
+
+        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt jump_back POP_BLOCK
+                              COME_FROM_LOOP
+
+        whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM_LOOP
+                              COME_FROM_LOOP
+        """)
+
         for i, token in enumerate(tokens):
             opname = token.type
 

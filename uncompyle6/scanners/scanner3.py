@@ -275,7 +275,7 @@ class Scanner3(Scanner):
                     pass
             elif opname in ('MAKE_FUNCTION', 'MAKE_CLOSURE'):
                 if self.version >= 3.6:
-                    # 3.6+ doesn't have MAKE_CLOSURE, so opname == 'MAKE_CLOSURE'
+                    # 3.6+ doesn't have MAKE_CLOSURE, so opname == 'MAKE_FUNCTION'
                     flags = inst.argval
                     opname = 'MAKE_FUNCTION_%d' % (flags)
                     attr = []
