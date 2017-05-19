@@ -178,7 +178,6 @@ class Scanner26(scan.Scanner2):
                 oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
                 if op == self.opc.EXTENDED_ARG:
-                    raise NotImplementedError
                     extended_arg = oparg * scan.L65536
                     continue
                 if op in self.opc.hasconst:
