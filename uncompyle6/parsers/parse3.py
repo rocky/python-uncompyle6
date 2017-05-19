@@ -627,6 +627,12 @@ class Python3Parser(PythonParser):
                 self.custom_build_class_rule(opname, i, token, tokens, customize)
             elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
                 v = token.attr
+                if self.version >= 3.6:
+                    extended_arg = 1 << 8
+                else:
+                    extended_arg = 1 << 16
+                if v >= extended_arg:
+                    opname = "EXTENDED_ARG %s" % opname
                 rule = ('build_list ::= ' + 'expr1024 ' * int(v//1024) +
                         'expr32 ' * int((v//32) % 32) +
                         'expr ' * (v % 32) + opname)
