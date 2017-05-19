@@ -27,7 +27,6 @@ from array import array
 
 from uncompyle6.scanner import Scanner, op_has_argument
 from xdis.code import iscode
-from xdis.util import code2num
 from xdis.bytecode import Bytecode
 from uncompyle6.scanner import Token, parse_fn_counts
 
@@ -620,11 +619,14 @@ class Scanner3(Scanner):
                 pass
             pass
         target += rel_offset
-        prev_offset = self.prev_op[offset]
-        prev_op = code2num(self.code, prev_offset)
-        if prev_op == self.opc.EXTENDED_ARG:
-            target += (code2num(self.code, prev_offset + arg_offset) * extended_arg_mult)
-            pass
+
+        if offset > 0:
+            prev_offset = self.prev_op[offset]
+            prev_op = self.code[prev_offset]
+            if prev_op == self.opc.EXTENDED_ARG:
+                target += (self.code[prev_offset + arg_offset]
+                           * extended_arg_mult)
+                pass
         return target
 
     def detect_control_flow(self, offset, targets):
