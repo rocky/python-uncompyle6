@@ -61,6 +61,8 @@ class Python36Parser(Python35Parser):
         continue_stmt ::= EXTENDED_ARG CONTINUE_LOOP
 
         for_block ::= l_stmts_opt opt_come_from_loop jump_back
+        cmp_list1 ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                      EXTENDED_ARG JUMP_IF_FALSE_OR_POP cmp_list2 COME_FROM
 
 
         # 3.6 redoes how return_closure works

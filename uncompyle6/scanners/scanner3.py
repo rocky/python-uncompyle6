@@ -27,6 +27,7 @@ from array import array
 
 from uncompyle6.scanner import Scanner, op_has_argument
 from xdis.code import iscode
+from xdis.util import code2num
 from xdis.bytecode import Bytecode
 from uncompyle6.scanner import Token, parse_fn_counts
 
@@ -603,15 +604,27 @@ class Scanner3(Scanner):
         Get target offset for op located at given <offset>.
         """
         op = self.code[offset]
+        rel_offset = 0
         if self.version  >= 3.6:
             target = self.code[offset+1]
+            arg_offset = 1
+            extended_arg_mult = 1 << 8
             if op in self.opc.hasjrel:
-                target += offset + 2
+                rel_offset = offset + 2
         else:
             target = self.code[offset+1] + self.code[offset+2] * 256
+            arg_offset = 2
+            extended_arg_mult = 1 << 16
             if op in self.opc.hasjrel:
-                target += offset + 3
-
+                rel_offset = offset + 3
+                pass
+            pass
+        target += rel_offset
+        prev_offset = self.prev_op[offset]
+        prev_op = code2num(self.code, prev_offset)
+        if prev_op == self.opc.EXTENDED_ARG:
+            target += (code2num(self.code, prev_offset + arg_offset) * extended_arg_mult)
+            pass
         return target
 
     def detect_control_flow(self, offset, targets):
@@ -755,7 +768,7 @@ class Scanner3(Scanner):
             pre_rtarget = prev_op[rtarget]
 
             # Is it an "and" inside an "if" or "while" block
-            if op == self.opc.POP_JUMP_IF_FALSE:
+            if op == self.opc.POP_JUMP_IF_FALSE and self.version < 3.6:
 
                 # Search for another POP_JUMP_IF_FALSE targetting the same op,
                 # in current statement, starting from current offset, and filter
