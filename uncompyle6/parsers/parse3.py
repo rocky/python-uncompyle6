@@ -641,6 +641,7 @@ class Python3Parser(PythonParser):
                                      opname, token.attr, customize)
                 continue
             elif opname == 'JUMP_IF_NOT_DEBUG':
+                v = token.attr
                 self.add_unique_rule(
                     "stmt ::= assert_pypy", opname, v, customize)
                 self.add_unique_rule(
