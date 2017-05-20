@@ -1860,7 +1860,7 @@ class SourceWalker(GenericASTTraversal, object):
                         'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
                 if v == 0:
                     str = '%c(%C' # '%C' is a dummy here ...
-                    p2 = (0, -1, None) # .. because of this
+                    p2 = (0, 0, None) # .. because of this
                 else:
                     str = '%c(%C, '
                     p2 = (1, -2, ', ')
@@ -1872,7 +1872,7 @@ class SourceWalker(GenericASTTraversal, object):
                             str = '%c(*%C, %c)'
                         elif str == '%c(%C':
                             str = '%c(*%C)'
-                            p2 = (1, -1, 100)
+                            # p2 = (1, -1, 100)
                     else:
                         str += '*%c)'
                     entry = (str, 0, p2, -2)
