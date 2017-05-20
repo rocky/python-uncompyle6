@@ -627,12 +627,6 @@ class Python3Parser(PythonParser):
                 self.custom_build_class_rule(opname, i, token, tokens, customize)
             elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
                 v = token.attr
-                if self.version >= 3.6:
-                    extended_arg = 1 << 8
-                else:
-                    extended_arg = 1 << 16
-                if v >= extended_arg:
-                    opname = "EXTENDED_ARG %s" % opname
                 rule = ('build_list ::= ' + 'expr1024 ' * int(v//1024) +
                         'expr32 ' * int((v//32) % 32) +
                         'expr ' * (v % 32) + opname)
@@ -764,7 +758,18 @@ class Python3Parser(PythonParser):
                             ('pos_arg ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
                 if opname.startswith('MAKE_FUNCTION_A'):
+                    if self.version >= 3.6:
+                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s' %
+                                (('pos_arg ' * (args_pos)),
+                                 ('call_function ' * (annotate_args-1)), opname))
+                        self.add_unique_rule(rule, opname, token.attr, customize)
+                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s' %
+                                (('pos_arg ' * (args_pos)),
+                                 ('annotate_arg ' * (annotate_args-1)), opname))
                     if self.version >= 3.3:
+                        # Normally we remove EXTENDED_ARG from the opcodes, but in the case of
+                        # annotated functions can use the EXTENDED_ARG tuple to signal we have an annotated function.
+                        # Yes this is a little hacky
                         rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
                                 (('pos_arg ' * (args_pos)),
                                  ('call_function ' * (annotate_args-1)), opname))
@@ -773,6 +778,7 @@ class Python3Parser(PythonParser):
                                 (('pos_arg ' * (args_pos)),
                                  ('annotate_arg ' * (annotate_args-1)), opname))
                     else:
+                        # See above comment about use of EXTENDED_ARG
                         rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s' %
                                 (('pos_arg ' * (args_pos)),
                                  ('annotate_arg ' * (annotate_args-1)), opname))

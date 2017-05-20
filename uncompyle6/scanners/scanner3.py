@@ -208,9 +208,12 @@ class Scanner3(Scanner):
         jump_targets = self.find_jump_targets(show_asm)
         last_op_was_break = False
 
-        for inst in bytecode:
+        extended_arg = 0
+        for i, inst in enumerate(bytecode):
 
             argval = inst.argval
+            if isinstance(argval, int):
+                 argval += extended_arg
             if inst.offset in jump_targets:
                 jump_idx = 0
                 # We want to process COME_FROMs to the same offset to be in *descending*
@@ -247,12 +250,28 @@ class Scanner3(Scanner):
 
                 pass
 
-            pattr =  inst.argrepr
+            pattr  = inst.argrepr
             opname = inst.opname
-            op = inst.opcode
+            op     = inst.opcode
+
+            has_arg = op_has_argument(op, self.opc)
+            if has_arg:
+                extended_arg = 0
+                if op == self.opc.EXTENDED_ARG:
+                    if self.version < 3.6:
+                        extended_arg = argval * (1<<16)
+                    else:
+                        extended_arg = argval * (1<<8)
+
+                    # Normally we remove EXTENDED_ARG from the
+                    # opcodes, but in the case of annotated functions
+                    # can use the EXTENDED_ARG tuple to signal we have
+                    # an annotated function.
+                    if not bs[i+1].opname.startswith("MAKE_FUNCTION"):
+                        continue
 
             if opname in ['LOAD_CONST']:
-                const = inst.argval
+                const = argval
                 if iscode(const):
                     if const.co_name == '<lambda>':
                         opname = 'LOAD_LAMBDA'
@@ -276,7 +295,7 @@ class Scanner3(Scanner):
             elif opname in ('MAKE_FUNCTION', 'MAKE_CLOSURE'):
                 if self.version >= 3.6:
                     # 3.6+ doesn't have MAKE_CLOSURE, so opname == 'MAKE_FUNCTION'
-                    flags = inst.argval
+                    flags = argval
                     opname = 'MAKE_FUNCTION_%d' % (flags)
                     attr = []
                     for flag in self.MAKE_FUNCTION_FLAGS:
@@ -315,7 +334,7 @@ class Scanner3(Scanner):
                 )
                 continue
             elif op in self.varargs_ops:
-                pos_args = inst.argval
+                pos_args = argval
                 if self.is_pypy and not pos_args and opname == 'BUILD_MAP':
                     opname = 'BUILD_MAP_n'
                 else:
@@ -327,9 +346,9 @@ class Scanner3(Scanner):
                 customize[opname] = 0
             elif opname == 'UNPACK_EX':
                 # FIXME: try with scanner and parser by
-                # changing inst.argval
-                before_args = inst.argval & 0xFF
-                after_args = (inst.argval >> 8) & 0xff
+                # changing argval
+                before_args = argval & 0xFF
+                after_args = (argval >> 8) & 0xff
                 pattr = "%d before vararg, %d after" % (before_args, after_args)
                 argval = (before_args, after_args)
                 opname = '%s_%d+%d' % (opname, before_args, after_args)
@@ -346,7 +365,7 @@ class Scanner3(Scanner):
                 # comprehensions we might sometimes classify JUMP_BACK
                 # as CONTINUE, but that's okay since we add a grammar
                 # rule for that.
-                pattr = inst.argval
+                pattr = argval
                 target = self.get_target(inst.offset)
                 if target <= inst.offset:
                     next_opname = self.opname[self.code[inst.offset+3]]
@@ -606,27 +625,16 @@ class Scanner3(Scanner):
         rel_offset = 0
         if self.version  >= 3.6:
             target = self.code[offset+1]
-            arg_offset = 1
-            extended_arg_mult = 1 << 8
             if op in self.opc.hasjrel:
                 rel_offset = offset + 2
         else:
             target = self.code[offset+1] + self.code[offset+2] * 256
-            arg_offset = 2
-            extended_arg_mult = 1 << 16
             if op in self.opc.hasjrel:
                 rel_offset = offset + 3
                 pass
             pass
         target += rel_offset
 
-        if offset > 0:
-            prev_offset = self.prev_op[offset]
-            prev_op = self.code[prev_offset]
-            if prev_op == self.opc.EXTENDED_ARG:
-                target += (self.code[prev_offset + arg_offset]
-                           * extended_arg_mult)
-                pass
         return target
 
     def detect_control_flow(self, offset, targets):
