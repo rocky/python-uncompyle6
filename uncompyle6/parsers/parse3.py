@@ -625,6 +625,14 @@ class Python3Parser(PythonParser):
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
             elif opname == 'LOAD_BUILD_CLASS':
                 self.custom_build_class_rule(opname, i, token, tokens, customize)
+            elif opname.startswith('BUILD_LIST_UNPACK'):
+                v = token.attr
+                rule = ('build_list_unpack ::= ' + 'expr1024 ' * int(v//1024) +
+                        'expr32 ' * int((v//32) % 32) +
+                        'expr ' * (v % 32) + opname)
+                self.add_unique_rule(rule, opname, token.attr, customize)
+                rule = 'expr ::= build_list_unpack'
+                self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
                 v = token.attr
                 rule = ('build_list ::= ' + 'expr1024 ' * int(v//1024) +
@@ -680,7 +688,7 @@ class Python3Parser(PythonParser):
                             self.add_unique_rule(rule, opname, token.attr, customize)
                             rule = ('unmap_dict ::= ' +
                                     ('mapexpr ' * token.attr) +
-                                    ' BUILD_MAP_UNPACK')
+                                    'BUILD_MAP_UNPACK')
                         else:
                             rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
                             self.add_unique_rule(rule, opname, token.attr, customize)

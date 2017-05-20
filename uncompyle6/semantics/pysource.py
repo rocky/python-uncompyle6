@@ -359,6 +359,9 @@ class SourceWalker(GenericASTTraversal, object):
                         self.prune()
                     self.n_async_call_function = n_async_call_function
 
+                    self.n_build_list_unpack = self.n_build_list
+
+
                     def n_funcdef(node):
                         code_node = node[0][1]
                         if (code_node == 'LOAD_CONST' and iscode(code_node.attr)
@@ -1613,6 +1616,13 @@ class SourceWalker(GenericASTTraversal, object):
         # will assume that if the text ends in *.
         last_was_star = self.f.getvalue().endswith('*')
 
+        if lastnodetype.endswith('UNPACK'):
+            # FIXME: need to handle range of BUILD_LIST_UNPACK
+            have_star = True
+            # endchar = ''
+        else:
+            have_star = False
+
         if lastnodetype.startswith('BUILD_LIST'):
             self.write('['); endchar = ']'
         elif lastnodetype.startswith('BUILD_TUPLE'):
@@ -1624,11 +1634,7 @@ class SourceWalker(GenericASTTraversal, object):
         elif lastnodetype.startswith('ROT_TWO'):
             self.write('('); endchar = ')'
         else:
-            raise 'Internal Error: n_build_list expects list, tuple, set, or unpack'
-        have_star = False
-        if lastnodetype.endswith('UNPACK'):
-            # FIXME: need to handle range of BUILD_LIST_UNPACK
-            have_star = True
+            raise TypeError('Internal Error: n_build_list expects list, tuple, set, or unpack')
 
         flat_elems = []
         for elem in node:
@@ -1854,7 +1860,7 @@ class SourceWalker(GenericASTTraversal, object):
                         'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
                 if v == 0:
                     str = '%c(%C' # '%C' is a dummy here ...
-                    p2 = (0, 0, None) # .. because of this
+                    p2 = (0, -1, None) # .. because of this
                 else:
                     str = '%c(%C, '
                     p2 = (1, -2, ', ')
@@ -1866,7 +1872,7 @@ class SourceWalker(GenericASTTraversal, object):
                             str = '%c(*%C, %c)'
                         elif str == '%c(%C':
                             str = '%c(*%C)'
-                            # p2 = (1, -1, 100)
+                            p2 = (1, -1, 100)
                     else:
                         str += '*%c)'
                     entry = (str, 0, p2, -2)
