@@ -138,6 +138,13 @@ class Scanner3(Scanner):
         # FIXME: remove the above in favor of:
         # self.varargs_ops = frozenset(self.opc.hasvargs)
 
+    def extended_arg_val(self, val):
+        if self.version < 3.6:
+            return val * (1<<16)
+        else:
+            return val * (1<<8)
+
+
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Pick out tokens from an uncompyle6 code object, and transform them,
@@ -212,8 +219,25 @@ class Scanner3(Scanner):
         for i, inst in enumerate(bytecode):
 
             argval = inst.argval
-            if isinstance(argval, int):
-                 argval += extended_arg
+            op     = inst.opcode
+            has_arg = op_has_argument(op, self.opc)
+            if has_arg:
+                if op == self.opc.EXTENDED_ARG:
+                    extended_arg += self.extended_arg_val(argval)
+
+                    # Normally we remove EXTENDED_ARG from the
+                    # opcodes, but in the case of annotated functions
+                    # can use the EXTENDED_ARG tuple to signal we have
+                    # an annotated function.
+                    if not bs[i+1].opname.startswith("MAKE_FUNCTION"):
+                        continue
+
+            if isinstance(argval, int) and extended_arg:
+                min_extended= self.extended_arg_val(1)
+                if argval < min_extended:
+                    argval += extended_arg
+            extended_arg = 0
+
             if inst.offset in jump_targets:
                 jump_idx = 0
                 # We want to process COME_FROMs to the same offset to be in *descending*
@@ -252,23 +276,6 @@ class Scanner3(Scanner):
 
             pattr  = inst.argrepr
             opname = inst.opname
-            op     = inst.opcode
-
-            has_arg = op_has_argument(op, self.opc)
-            if has_arg:
-                extended_arg = 0
-                if op == self.opc.EXTENDED_ARG:
-                    if self.version < 3.6:
-                        extended_arg = argval * (1<<16)
-                    else:
-                        extended_arg = argval * (1<<8)
-
-                    # Normally we remove EXTENDED_ARG from the
-                    # opcodes, but in the case of annotated functions
-                    # can use the EXTENDED_ARG tuple to signal we have
-                    # an annotated function.
-                    if not bs[i+1].opname.startswith("MAKE_FUNCTION"):
-                        continue
 
             if opname in ['LOAD_CONST']:
                 const = argval
