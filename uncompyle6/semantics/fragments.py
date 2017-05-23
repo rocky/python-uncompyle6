@@ -1790,11 +1790,70 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
 
     return deparsed
 
+from bisect import bisect_right
+def find_gt(a, x):
+    'Find leftmost value greater than x'
+    i = bisect_right(a, x)
+    if i != len(a):
+        return a[i]
+    raise ValueError
+
+def deparse_code_around_offset(name, offset, version, co, out=StringIO(),
+                               showasm=False, showast=False,
+                               showgrammar=False, is_pypy=False):
+    """
+    Like deparse_code(), but given  a function/module name and
+    offset, finds the node closest to offset. If offset is not an instruction boundary,
+    we raise an IndexError.
+    """
+    deparsed = deparse_code(version, co, out, showasm, showast, showgrammar, is_pypy)
+    if (name, offset) in deparsed.offsets.keys():
+        # This is the easy case
+        return deparsed.offsets[name, offset]
+
+    valid_offsets = [t for t in deparsed.offsets if isinstance(t[1], int)]
+    offset_list = sorted([t[1] for t in valid_offsets if t[0] == name])
+
+    # FIXME: should check for branching?
+    found_offset = find_gt(offset_list, offset)
+    deparsed.offsets[name, offset] = deparsed.offsets[name, found_offset]
+    return deparsed
+
+
 if __name__ == '__main__':
 
     def deparse_test(co, is_pypy=IS_PYPY):
         sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
         walk = deparse_code(sys_version, co, showasm=False, showast=False,
+                            showgrammar=False, is_pypy=IS_PYPY)
+        print("deparsed source")
+        print(walk.text, "\n")
+        print('------------------------')
+        for name, offset in sorted(walk.offsets.keys(),
+                                   key=lambda x: str(x[0])):
+            print("name %s, offset %s" % (name, offset))
+            nodeInfo = walk.offsets[name, offset]
+            node = nodeInfo.node
+            extractInfo = walk.extract_node_info(node)
+            print("code: %s" % node.type)
+            # print extractInfo
+            print(extractInfo.selectedText)
+            print(extractInfo.selectedLine)
+            print(extractInfo.markerLine)
+            extractInfo, p = walk.extract_parent_info(node)
+            if extractInfo:
+                print("Contained in...")
+                print(extractInfo.selectedLine)
+                print(extractInfo.markerLine)
+                print("code: %s" % p.type)
+                print('=' * 40)
+                pass
+            pass
+        return
+
+    def deparse_test_around(offset, name, co, is_pypy=IS_PYPY):
+        sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
+        walk = deparse_code_around_offset(name, offset, sys_version, co, showasm=False, showast=False,
                             showgrammar=False, is_pypy=IS_PYPY)
         print("deparsed source")
         print(walk.text, "\n")
@@ -1840,6 +1899,9 @@ if __name__ == '__main__':
 
     # check_args(['3', '5'])
     # deparse_test(get_code_for_fn(gcd))
-    deparse_test(get_code_for_fn(test))
+    # deparse_test(get_code_for_fn(test))
     # deparse_test(get_code_for_fn(FragmentsWalker.fixup_offsets))
+    # deparse_test(get_code_for_fn(FragmentsWalker.n_build_list))
+    print('=' * 30)
+    deparse_test_around(408, 'n_build_list', get_code_for_fn(FragmentsWalker.n_build_list))
     # deparse_test(inspect.currentframe().f_code)

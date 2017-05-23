@@ -1741,12 +1741,8 @@ class SourceWalker(GenericASTTraversal, object):
 
             typ = m.group('type') or '{'
             node = startnode
-            try:
-                if m.group('child'):
-                    node = node[int(m.group('child'))]
-            except:
-                print(node.__dict__)
-                raise
+            if m.group('child'):
+                node = node[int(m.group('child'))]
 
             if   typ == '%':	self.write('%')
             elif typ == '+':
@@ -1821,7 +1817,6 @@ class SourceWalker(GenericASTTraversal, object):
                 try:
                     self.write(eval(expr, d, d))
                 except:
-                    print(node)
                     raise
             m = escape.search(fmt, i)
         self.write(fmt[i:])
