@@ -1302,16 +1302,16 @@ class SourceWalker(GenericASTTraversal, object):
         if self.version > 3.0:
             if node == 'classdefdeco2':
                 if self.version >= 3.6:
-                    class_code = node[1][1].pattr
+                    class_name = node[1][1].pattr
                 else:
-                    class_code = node[1][2].pattr
+                    class_name = node[1][2].pattr
                 buildclass = node
             else:
                 if self.version >= 3.6:
-                    class_code = node[0][1][0].pattr
+                    class_name = node[0][1][0].attr.co_name
                     buildclass = node[0]
                 else:
-                    class_code = node[1][0].pattr
+                    class_name = node[1][0].pattr
                     buildclass = node[0]
 
             assert 'mkfunc' == buildclass[1]
@@ -1364,10 +1364,10 @@ class SourceWalker(GenericASTTraversal, object):
             build_list = buildclass[1][0]
             if hasattr(buildclass[-3][0], 'attr'):
                 subclass_code = buildclass[-3][0].attr
-                class_code = buildclass[0].pattr
+                class_name = buildclass[0].pattr
             elif hasattr(node[0][0], 'pattr'):
                 subclass_code = buildclass[-3][1].attr
-                class_code = node[0][0].pattr
+                class_name = node[0][0].pattr
             else:
                 raise 'Internal Error n_classdef: cannot find class name'
 
@@ -1376,7 +1376,7 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             self.write('\n\n')
 
-        self.currentclass = str(class_code)
+        self.currentclass = str(class_name)
         self.write(self.indent, 'class ', self.currentclass)
 
         if self.version > 3.0:
