@@ -363,9 +363,14 @@ class SourceWalker(GenericASTTraversal, object):
 
 
                     def n_funcdef(node):
-                        code_node = node[0][1]
-                        if (code_node == 'LOAD_CONST' and iscode(code_node.attr)
-                            and code_node.attr.co_flags & COMPILER_FLAG_BIT['COROUTINE']):
+                        if self.version == 3.6:
+                            code_node = node[0][0]
+                        else:
+                            code_node = node[0][1]
+
+                        is_code = hasattr(code_node, 'attr') and iscode(code_node.attr)
+                        if (is_code and
+                            (code_node.attr.co_flags & COMPILER_FLAG_BIT['COROUTINE'])):
                             self.engine(('\n\n%|async def %c\n', -2), node)
                         else:
                             self.engine(('\n\n%|def %c\n', -2), node)
