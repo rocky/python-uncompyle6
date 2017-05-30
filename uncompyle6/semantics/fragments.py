@@ -500,7 +500,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write(func_name)
 
         self.indentMore()
-        self.make_function(node, isLambda=False, code=code)
+        self.make_function(node, isLambda=False, codeNode=code)
 
         self.set_pos_info(node, start, len(self.f.getvalue()))
 
@@ -1580,134 +1580,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 # import traceback; traceback.print_stack()
                 self.set_pos_info(last_node, startnode_start, self.last_finish)
         return
-
-    def make_function(self, node, isLambda, nested=1, code=None):
-        """Dump function defintion, doc string, and function body."""
-
-        def build_param(ast, name, default):
-            """build parameters:
-                - handle defaults
-                - handle format tuple parameters
-            """
-            if self.version < 3.0:
-                # if formal parameter is a tuple, the paramater name
-                # starts with a dot (eg. '.1', '.2')
-                if name.startswith('.'):
-                    # replace the name with the tuple-string
-                    name = self.get_tuple_parameter(ast, name)
-                    pass
-                pass
-
-            if default:
-                maybe_show_ast_param_default(self.showast, name, default)
-                result = '%s=' % name
-                old_last_finish = self.last_finish
-                self.last_finish = len(result)
-                value = self.traverse(default, indent='')
-                self.last_finish = old_last_finish
-                result += value
-                if result[-2:] == '= ':	# default was 'LOAD_CONST None'
-                    result += 'None'
-                return result
-            else:
-                return name
-
-        # MAKE_FUNCTION_... or MAKE_CLOSURE_...
-        assert node[-1].type.startswith('MAKE_')
-
-        args_node = node[-1]
-        if isinstance(args_node.attr, tuple):
-            if self.version <= 3.3 and len(node) > 2 and node[-3] != 'LOAD_LAMBDA':
-                # positional args are after kwargs
-                defparams = node[1:args_node.attr[0]+1]
-            else:
-                # positional args are before kwargs
-                defparams = node[:args_node.attr[0]]
-            pos_args, kw_args, annotate_argc  = args_node.attr
-        else:
-            defparams = node[:args_node.attr]
-            kw_args, annotate_argc  = (0, 0)
-            pass
-
-        if self.version > 3.0 and isLambda and iscode(node[-3].attr):
-            code = node[-3].attr
-        else:
-            code = code.attr
-
-        assert iscode(code)
-        code = Code(code, self.scanner, self.currentclass)
-
-        # add defaults values to parameter names
-        argc = code.co_argcount
-        paramnames = list(code.co_varnames[:argc])
-
-        # defaults are for last n parameters, thus reverse
-        paramnames.reverse(); defparams.reverse()
-
-        try:
-            ast = self.build_ast(code._tokens,
-                                 code._customize,
-                                 isLambda = isLambda,
-                                 noneInNames = ('None' in code.co_names))
-        except ParserError as p:
-            self.write(str(p))
-            self.ERROR = p
-            return
-
-        # build parameters
-
-        params = [build_param(ast, name, default) for
-                  name, default in zip_longest(paramnames, defparams, fillvalue=None)]
-
-        params.reverse() # back to correct order
-
-        if code_has_star_arg(code):
-            params.append('*%s' % code.co_varnames[argc])
-            argc += 1
-        if code_has_star_star_arg(code):
-            params.append('**%s' % code.co_varnames[argc])
-            argc += 1
-
-        # dump parameter list (with default values)
-        indent = self.indent
-        if isLambda:
-            self.write("lambda ", ", ".join(params))
-        else:
-            self.write("(", ", ".join(params))
-            # self.println(indent, '#flags:\t', int(code.co_flags))
-
-        if kw_args > 0:
-            if argc > 0:
-                self.write(", *, ")
-            else:
-                self.write("*, ")
-            for n in node:
-                if n == 'pos_arg':
-                    continue
-                self.preorder(n)
-                break
-            pass
-
-        if isLambda:
-            self.write(": ")
-        else:
-            self.println("):")
-
-        if len(code.co_consts)>0 and code.co_consts[0] is not None and not isLambda: # ugly
-            # docstring exists, dump it
-            print_docstring(self, indent, code.co_consts[0])
-
-        code._tokens = None # save memory
-        assert ast == 'stmts'
-
-        all_globals = find_all_globals(ast, set())
-        for g in ((all_globals & self.mod_globs) | find_globals(ast, set())):
-            self.println(self.indent, 'global ', g)
-        self.mod_globs -= all_globals
-        rn = ('None' in code.co_names) and not find_none(ast)
-        self.gen_source(ast, code.co_name, code._customize, isLambda=isLambda,
-                          returnNone=rn)
-        code._tokens = None; code._customize = None # save memory
 
     @classmethod
     def _get_mapping(cls, node):
