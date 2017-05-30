@@ -16,8 +16,7 @@ check-short:
 
 # Run all tests
 check:
-	@$(PYTHON) -V && PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2`; \
-	$(MAKE) check-$$PYTHON_VERSION
+	$(MAKE) check-$(PYTHON_VERSION)
 
 #: Run working tests from Python 2.6 or 2.7
 check-2.4 check-2.5 check-2.6 check-2.7: check-bytecode-2 check-bytecode-3 check-bytecode-1  check-native-short
@@ -36,7 +35,7 @@ check-3.2: check-bytecode
 
 #: Run working tests from Python 3.3
 check-3.3: check-bytecode
-	$(PYTHON) test_pythonlib.py --bytecode-3.3 --verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.3 --weak-verify $(COMPILE)
 
 #: Run working tests from Python 3.4
 check-3.4: check-bytecode check-3.4-ok check-2.7-ok

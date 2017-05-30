@@ -332,7 +332,9 @@ class Python3Parser(PythonParser):
 
     def p_stmt3(self, args):
         """
-        stmt ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
+        stmt ::= return_closure
+        return_closure ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
+
         stmt ::= whileTruestmt
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_from
         """
@@ -479,6 +481,8 @@ class Python3Parser(PythonParser):
         # high byte number of positional parameters
         args_pos = token.attr & 0xff
         args_kw = (token.attr >> 8) & 0xff
+        args_kw = (token.attr >> 8) & 0xff
+        # args_ann = (token.attr >> 16) & 0x7FFF
 
         # Additional exprs for * and ** args:
         #  0 if neither
@@ -494,7 +498,7 @@ class Python3Parser(PythonParser):
             # first LOAD_FAST, below are located.
             # Python 3.6+ replaces CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
             if opname.endswith('KW'):
-                kw = 'LOAD_FAST '
+                kw = 'expr '
             else:
                 kw = ''
             rule = ('call_function ::= expr expr ' +
@@ -608,7 +612,8 @@ class Python3Parser(PythonParser):
                 """, nop_func)
                 continue
             elif opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
-                            'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
+                            'CALL_FUNCTION_VAR_KW') \
+                 or opname.startswith('CALL_FUNCTION_KW'):
                 self.custom_classfunc_rule(opname, token, customize)
             elif opname == 'LOAD_DICTCOMP':
                 rule_pat = ("dictcomp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 expr "
@@ -621,6 +626,14 @@ class Python3Parser(PythonParser):
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
             elif opname == 'LOAD_BUILD_CLASS':
                 self.custom_build_class_rule(opname, i, token, tokens, customize)
+            elif opname.startswith('BUILD_LIST_UNPACK'):
+                v = token.attr
+                rule = ('build_list_unpack ::= ' + 'expr1024 ' * int(v//1024) +
+                        'expr32 ' * int((v//32) % 32) +
+                        'expr ' * (v % 32) + opname)
+                self.add_unique_rule(rule, opname, token.attr, customize)
+                rule = 'expr ::= build_list_unpack'
+                self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
                 v = token.attr
                 rule = ('build_list ::= ' + 'expr1024 ' * int(v//1024) +
@@ -637,6 +650,7 @@ class Python3Parser(PythonParser):
                                      opname, token.attr, customize)
                 continue
             elif opname == 'JUMP_IF_NOT_DEBUG':
+                v = token.attr
                 self.add_unique_rule(
                     "stmt ::= assert_pypy", opname, v, customize)
                 self.add_unique_rule(
@@ -675,7 +689,7 @@ class Python3Parser(PythonParser):
                             self.add_unique_rule(rule, opname, token.attr, customize)
                             rule = ('unmap_dict ::= ' +
                                     ('mapexpr ' * token.attr) +
-                                    ' BUILD_MAP_UNPACK')
+                                    'BUILD_MAP_UNPACK')
                         else:
                             rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
                             self.add_unique_rule(rule, opname, token.attr, customize)
@@ -701,7 +715,30 @@ class Python3Parser(PythonParser):
                 rule = 'unpack_list ::= ' + opname + ' designator' * token.attr
             elif opname_base.startswith('MAKE_FUNCTION'):
                 # DRY with MAKE_CLOSURE
-                args_pos, args_kw, annotate_args  = token.attr
+                if self.version >= 3.6:
+                    # The semantics of MAKE_FUNCTION in 3.6 are totally different from
+                    # before.
+                    args_pos, args_kw, annotate_args, closure  = token.attr
+                    stack_count = args_pos + args_kw + annotate_args
+                    rule = ('mkfunc ::= %s%s%s%s' %
+                                ('expr ' * stack_count,
+                                 'load_closure ' * closure,
+                                 'LOAD_CONST ' * 2,
+                                 opname))
+                    self.add_unique_rule(rule, opname, token.attr, customize)
+                    rule_pat = ('mklambda ::= %s%sLOAD_LAMBDA %%s%s' %
+                                (('pos_arg '* args_pos),
+                                 ('kwarg '* args_kw),
+                                 opname))
+                    self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                    rule_pat  = ("listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
+                                 "GET_ITER CALL_FUNCTION_1" % ('expr ' * args_pos, opname))
+                    self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                    continue
+                if self.version < 3.6:
+                    args_pos, args_kw, annotate_args  = token.attr
+                else:
+                    args_pos, args_kw, annotate_args, closure  = token.attr
 
                 rule_pat = ("genexpr ::= %sload_genexpr %%s%s expr "
                             "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
@@ -730,7 +767,18 @@ class Python3Parser(PythonParser):
                             ('pos_arg ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
                 if opname.startswith('MAKE_FUNCTION_A'):
+                    if self.version >= 3.6:
+                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s' %
+                                (('pos_arg ' * (args_pos)),
+                                 ('call_function ' * (annotate_args-1)), opname))
+                        self.add_unique_rule(rule, opname, token.attr, customize)
+                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s' %
+                                (('pos_arg ' * (args_pos)),
+                                 ('annotate_arg ' * (annotate_args-1)), opname))
                     if self.version >= 3.3:
+                        # Normally we remove EXTENDED_ARG from the opcodes, but in the case of
+                        # annotated functions can use the EXTENDED_ARG tuple to signal we have an annotated function.
+                        # Yes this is a little hacky
                         rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
                                 (('pos_arg ' * (args_pos)),
                                  ('call_function ' * (annotate_args-1)), opname))
@@ -739,6 +787,7 @@ class Python3Parser(PythonParser):
                                 (('pos_arg ' * (args_pos)),
                                  ('annotate_arg ' * (annotate_args-1)), opname))
                     else:
+                        # See above comment about use of EXTENDED_ARG
                         rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s' %
                                 (('pos_arg ' * (args_pos)),
                                  ('annotate_arg ' * (annotate_args-1)), opname))

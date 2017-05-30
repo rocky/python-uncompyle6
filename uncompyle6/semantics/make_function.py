@@ -463,7 +463,17 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
             defparams = node[:args_node.attr[0]]
         pos_args, kw_args, annotate_argc  = args_node.attr
     else:
-        defparams = node[:args_node.attr]
+        if self.version < 3.6:
+            defparams = node[:args_node.attr]
+        else:
+            default, kw, annotate, closure = args_node.attr
+            # FIXME: start here.
+            defparams = []
+            # if default:
+            #     defparams = node[-(2 +  kw + annotate  + closure)]
+            # else:
+            #     defparams = []
+
         kw_args  = 0
         pass
 

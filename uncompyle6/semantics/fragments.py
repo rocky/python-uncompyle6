@@ -496,7 +496,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write(func_name)
 
         self.indentMore()
-        self.make_function(node, isLambda=False, code=code)
+        self.make_function(node, isLambda=False, codeNode=code)
 
         self.set_pos_info(node, start, len(self.f.getvalue()))
 
@@ -1590,134 +1590,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 self.set_pos_info(last_node, startnode_start, self.last_finish)
         return
 
-    def make_function(self, node, isLambda, nested=1, code=None):
-        """Dump function defintion, doc string, and function body."""
-
-        def build_param(ast, name, default):
-            """build parameters:
-                - handle defaults
-                - handle format tuple parameters
-            """
-            if self.version < 3.0:
-                # if formal parameter is a tuple, the paramater name
-                # starts with a dot (eg. '.1', '.2')
-                if name.startswith('.'):
-                    # replace the name with the tuple-string
-                    name = self.get_tuple_parameter(ast, name)
-                    pass
-                pass
-
-            if default:
-                maybe_show_ast_param_default(self.showast, name, default)
-                result = '%s=' % name
-                old_last_finish = self.last_finish
-                self.last_finish = len(result)
-                value = self.traverse(default, indent='')
-                self.last_finish = old_last_finish
-                result += value
-                if result[-2:] == '= ':	# default was 'LOAD_CONST None'
-                    result += 'None'
-                return result
-            else:
-                return name
-
-        # MAKE_FUNCTION_... or MAKE_CLOSURE_...
-        assert node[-1].type.startswith('MAKE_')
-
-        args_node = node[-1]
-        if isinstance(args_node.attr, tuple):
-            if self.version <= 3.3 and len(node) > 2 and node[-3] != 'LOAD_LAMBDA':
-                # positional args are after kwargs
-                defparams = node[1:args_node.attr[0]+1]
-            else:
-                # positional args are before kwargs
-                defparams = node[:args_node.attr[0]]
-            pos_args, kw_args, annotate_argc  = args_node.attr
-        else:
-            defparams = node[:args_node.attr]
-            kw_args, annotate_argc  = (0, 0)
-            pass
-
-        if self.version > 3.0 and isLambda and iscode(node[-3].attr):
-            code = node[-3].attr
-        else:
-            code = code.attr
-
-        assert iscode(code)
-        code = Code(code, self.scanner, self.currentclass)
-
-        # add defaults values to parameter names
-        argc = code.co_argcount
-        paramnames = list(code.co_varnames[:argc])
-
-        # defaults are for last n parameters, thus reverse
-        paramnames.reverse(); defparams.reverse()
-
-        try:
-            ast = self.build_ast(code._tokens,
-                                 code._customize,
-                                 isLambda = isLambda,
-                                 noneInNames = ('None' in code.co_names))
-        except ParserError(p):
-            self.write(str(p))
-            self.ERROR = p
-            return
-
-        # build parameters
-
-        tup = [paramnames, defparams]
-        params = [build_param(ast, name, default) for
-              name, default in map(lambda *tup:tup, *tup)]
-        params.reverse() # back to correct order
-
-        if code_has_star_arg(code):
-            params.append('*%s' % code.co_varnames[argc])
-            argc += 1
-        if code_has_star_star_arg(code):
-            params.append('**%s' % code.co_varnames[argc])
-            argc += 1
-
-        # dump parameter list (with default values)
-        indent = self.indent
-        if isLambda:
-            self.write("lambda ", ", ".join(params))
-        else:
-            self.write("(", ", ".join(params))
-            # self.println(indent, '#flags:\t', int(code.co_flags))
-
-        if kw_args > 0:
-            if argc > 0:
-                self.write(", *, ")
-            else:
-                self.write("*, ")
-            for n in node:
-                if n == 'pos_arg':
-                    continue
-                self.preorder(n)
-                break
-            pass
-
-        if isLambda:
-            self.write(": ")
-        else:
-            self.println("):")
-
-        if len(code.co_consts)>0 and code.co_consts[0] is not None and not isLambda: # ugly
-            # docstring exists, dump it
-            print_docstring(self, indent, code.co_consts[0])
-
-        code._tokens = None # save memory
-        assert ast == 'stmts'
-
-        all_globals = find_all_globals(ast, set())
-        for g in ((all_globals & self.mod_globs) | find_globals(ast, set())):
-            self.println(self.indent, 'global ', g)
-        self.mod_globs -= all_globals
-        rn = ('None' in code.co_names) and not find_none(ast)
-        self.gen_source(ast, code.co_name, code._customize, isLambda=isLambda,
-                          returnNone=rn)
-        code._tokens = None; code._customize = None # save memory
-
     @classmethod
     def _get_mapping(cls, node):
         return MAP.get(node, MAP_DIRECT_FRAGMENT)
@@ -1799,11 +1671,70 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
 
     return deparsed
 
+from bisect import bisect_right
+def find_gt(a, x):
+    'Find leftmost value greater than x'
+    i = bisect_right(a, x)
+    if i != len(a):
+        return a[i]
+    raise ValueError
+
+def deparse_code_around_offset(name, offset, version, co, out=StringIO(),
+                               showasm=False, showast=False,
+                               showgrammar=False, is_pypy=False):
+    """
+    Like deparse_code(), but given  a function/module name and
+    offset, finds the node closest to offset. If offset is not an instruction boundary,
+    we raise an IndexError.
+    """
+    deparsed = deparse_code(version, co, out, showasm, showast, showgrammar, is_pypy)
+    if (name, offset) in deparsed.offsets.keys():
+        # This is the easy case
+        return deparsed.offsets[name, offset]
+
+    valid_offsets = [t for t in deparsed.offsets if isinstance(t[1], int)]
+    offset_list = sorted([t[1] for t in valid_offsets if t[0] == name])
+
+    # FIXME: should check for branching?
+    found_offset = find_gt(offset_list, offset)
+    deparsed.offsets[name, offset] = deparsed.offsets[name, found_offset]
+    return deparsed
+
+
 if __name__ == '__main__':
 
     def deparse_test(co, is_pypy=IS_PYPY):
         sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
         walk = deparse_code(sys_version, co, showasm=False, showast=False,
+                            showgrammar=False, is_pypy=IS_PYPY)
+        print("deparsed source")
+        print(walk.text, "\n")
+        print('------------------------')
+        for name, offset in sorted(walk.offsets.keys(),
+                                   key=lambda x: str(x[0])):
+            print("name %s, offset %s" % (name, offset))
+            nodeInfo = walk.offsets[name, offset]
+            node = nodeInfo.node
+            extractInfo = walk.extract_node_info(node)
+            print("code: %s" % node.type)
+            # print extractInfo
+            print(extractInfo.selectedText)
+            print(extractInfo.selectedLine)
+            print(extractInfo.markerLine)
+            extractInfo, p = walk.extract_parent_info(node)
+            if extractInfo:
+                print("Contained in...")
+                print(extractInfo.selectedLine)
+                print(extractInfo.markerLine)
+                print("code: %s" % p.type)
+                print('=' * 40)
+                pass
+            pass
+        return
+
+    def deparse_test_around(offset, name, co, is_pypy=IS_PYPY):
+        sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
+        walk = deparse_code_around_offset(name, offset, sys_version, co, showasm=False, showast=False,
                             showgrammar=False, is_pypy=IS_PYPY)
         print("deparsed source")
         print(walk.text, "\n")
@@ -1849,6 +1780,9 @@ if __name__ == '__main__':
 
     # check_args(['3', '5'])
     # deparse_test(get_code_for_fn(gcd))
-    deparse_test(get_code_for_fn(test))
+    # deparse_test(get_code_for_fn(test))
     # deparse_test(get_code_for_fn(FragmentsWalker.fixup_offsets))
+    # deparse_test(get_code_for_fn(FragmentsWalker.n_build_list))
+    print('=' * 30)
+    deparse_test_around(408, 'n_build_list', get_code_for_fn(FragmentsWalker.n_build_list))
     # deparse_test(inspect.currentframe().f_code)

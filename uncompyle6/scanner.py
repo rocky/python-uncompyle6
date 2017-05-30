@@ -224,6 +224,9 @@ class Scanner(object):
             yield start
             start += self.op_size(self.code[start])
 
+    def next_offset(self, op, offset):
+        return offset + self.op_size(op)
+
     def op_size(self, op):
         """
         Return size of operator with its arguments

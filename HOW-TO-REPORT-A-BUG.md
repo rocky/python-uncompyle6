@@ -7,7 +7,7 @@ decompyle everything. This one probably does the
 best job of *any* Python decompiler. But it is a constant work in progress: Python keeps changing, and so does its code generation.
 
 I have found bugs in *every* Python decompiler I have tried. Even
-those where authors/maintainers claim that they have used it on 
+those where authors/maintainers claim that they have used it on
 the entire Python standard library. And I don't mean that
 the program doesn't come out with the same Python source instructions,
 but that the program is *semantically* not equivalent.
@@ -29,7 +29,7 @@ can figure out what OS you are running this on and what version of
 *uncomplye6* was used. Therefore, if you don't provide the input
 command and the output from that, please give:
 
-* _uncompile6_ version used
+* _uncompyle6_ version used
 * OS that you used this on
 * Python interpreter version used
 
@@ -37,11 +37,16 @@ command and the output from that, please give:
 ### But I don't *have* the source code!
 
 Sure, I get it. No problem. There is Python assembly code on parse
-errors, so simply by hand decompile that. To get a full disassembly, use pydisasm from the [xdis](https://pypi.python.org/pypi/xdis) package. Opcodes are described in the documentation for the [dis](https://docs.python.org/3.6/library/dis.html) module.
+errors, so simply by hand decompile that. To get a full disassembly,
+use pydisasm from the [xdis](https://pypi.python.org/pypi/xdis)
+package. Opcodes are described in the documentation for
+the [dis](https://docs.python.org/3.6/library/dis.html) module.
 
 ### But I don't *have* the source code and am incapable of figuring how how to do a hand disassembly!
 
-Well, you could learn. No one is born into this world knowing how to disassemble Python bytecode. And as Richard Feynman once said, "What one fool can learn, so can another."
+Well, you could learn. No one is born into this world knowing how to
+disassemble Python bytecode. And as Richard Feynman once said, "What
+one fool can learn, so can another."
 
 ## Narrowing the problem
 

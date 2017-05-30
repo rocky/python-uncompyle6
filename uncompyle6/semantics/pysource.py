@@ -344,7 +344,7 @@ class SourceWalker(GenericASTTraversal, object):
                         'async_with_as_stmt':  (
                             '%|async with %c as %c:\n%+%c%-', 0, 6, 7),
                         'unmap_dict':	       ( '{**%C}', (0, -1, ', **') ),
-                        'unmapexpr':	       ( '{**%c}', 0),
+                        # 'unmapexpr':	       ( '{**%c}', 0), # done by n_unmapexpr
 
                     })
                     def n_async_call_function(node):
@@ -357,10 +357,18 @@ class SourceWalker(GenericASTTraversal, object):
                         self.prune()
                     self.n_async_call_function = n_async_call_function
 
+                    self.n_build_list_unpack = self.n_build_list
+
+
                     def n_funcdef(node):
-                        code_node = node[0][1]
-                        if (code_node == 'LOAD_CONST' and iscode(code_node.attr)
-                            and code_node.attr.co_flags & COMPILER_FLAG_BIT['COROUTINE']):
+                        if self.version == 3.6:
+                            code_node = node[0][0]
+                        else:
+                            code_node = node[0][1]
+
+                        is_code = hasattr(code_node, 'attr') and iscode(code_node.attr)
+                        if (is_code and
+                            (code_node.attr.co_flags & COMPILER_FLAG_BIT['COROUTINE'])):
                             self.engine(('\n\n%|async def %c\n', -2), node)
                         else:
                             self.engine(('\n\n%|def %c\n', -2), node)
@@ -375,8 +383,6 @@ class SourceWalker(GenericASTTraversal, object):
                                 self.f.write(', **')
                                 pass
                             pass
-                        if version >= 3.6:
-                            self.f.write(')')
                         self.prune()
                         pass
                     self.n_unmapexpr = n_unmapexpr
@@ -390,11 +396,12 @@ class SourceWalker(GenericASTTraversal, object):
                         'fstring_single': ( "f'{%c%{conversion}}'", 0),
                         'fstring_multi':  ( "f'%c'", 0),
                         'func_args36':    ( "%c(**", 0),
+                        #'kwargs_only_36': ( "%c(**", 0),
                     })
                     TABLE_R.update({
                         'CALL_FUNCTION_EX': ('%c(*%P)', 0, (1, 2, ', ', 100)),
                         # Not quite right
-                        'CALL_FUNCTION_EX_KW': ('%c(**%C', 0, (2,3, ',')),
+                        'CALL_FUNCTION_EX_KW': ('%c(**%C)', 0, (2,3, ',')),
                         })
                     FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
 
@@ -411,6 +418,27 @@ class SourceWalker(GenericASTTraversal, object):
                         self.default(node)
                     self.n_fstring_single = n_fstring_single
 
+                    def n_kwargs_only_36(node):
+                        keys = node[-1].attr
+                        num_kwargs = len(keys)
+                        values = node[:num_kwargs]
+                        for i, (key, value) in enumerate(zip(keys, values)):
+                            self.write(key + '=')
+                            self.preorder(value)
+                            if i < num_kwargs:
+                                self.write(',')
+                        self.prune()
+                        return
+                    self.n_kwargs_only_36 = n_kwargs_only_36
+
+                    def n_return_closure(node):
+                        # Nothing should be output here
+                        self.prune()
+                        return
+                    self.n_return_closure = n_return_closure
+                    pass # version > 3.6
+                pass # version > 3.4
+            pass # version > 3.0
         return
 
     f = property(lambda s: s.params['f'],
@@ -516,6 +544,26 @@ class SourceWalker(GenericASTTraversal, object):
             return (ret or
                     node == AST('return_stmt',
                                 [AST('ret_expr', [NONE]), Token('RETURN_VALUE')]))
+
+    def n_continue_stmt(self, node):
+        if self.version >= 3.0 and node[0] == 'CONTINUE':
+            t = node[0]
+            if not t.linestart:
+                # Artificially-added "continue" statements derived from JUMP_ABSOLUTE
+                # don't have line numbers associated with them.
+                # If this is a CONTINUE is to the same target as a JUMP_ABSOLUTE following it,
+                # then the "continue" can be suppressed.
+                op, offset = t.op, t.offset
+                next_offset = self.scanner.next_offset(op, offset)
+                scanner = self.scanner
+                code = scanner.code
+                if next_offset < len(code):
+                    next_inst = code[next_offset]
+                    if (scanner.opc.opname[next_inst] == 'JUMP_ABSOLUTE'
+                        and t.pattr == code[next_offset+1]):
+                        # Suppress "continue"
+                        self.prune()
+        self.default(node)
 
     def n_return_stmt(self, node):
         if self.params['isLambda']:
@@ -1269,11 +1317,18 @@ class SourceWalker(GenericASTTraversal, object):
 
         if self.version > 3.0:
             if node == 'classdefdeco2':
-                currentclass = node[1][2].pattr
+                if self.version >= 3.6:
+                    class_name = node[1][1].pattr
+                else:
+                    class_name = node[1][2].pattr
                 buildclass = node
             else:
-                currentclass = node[1][0].pattr
-                buildclass = node[0]
+                if self.version >= 3.6:
+                    class_name = node[0][1][0].attr.co_name
+                    buildclass = node[0]
+                else:
+                    class_name = node[1][0].pattr
+                    buildclass = node[0]
 
             assert 'mkfunc' == buildclass[1]
             mkfunc = buildclass[1]
@@ -1281,16 +1336,16 @@ class SourceWalker(GenericASTTraversal, object):
                 if 3.0 <= self.version <= 3.2:
                     for n in mkfunc:
                         if hasattr(n, 'attr') and iscode(n.attr):
-                            subclass = n.attr
+                            subclass_code = n.attr
                             break
                         elif n == 'expr':
-                            subclass = n[0].attr
+                            subclass_code = n[0].attr
                         pass
                     pass
                 else:
                     for n in mkfunc:
                         if hasattr(n, 'attr') and iscode(n.attr):
-                            subclass = n.attr
+                            subclass_code = n.attr
                             break
                         pass
                     pass
@@ -1305,10 +1360,10 @@ class SourceWalker(GenericASTTraversal, object):
                     # Python 3.3 classes with closures work like this.
                     # Note have to test before 3.2 case because
                     # index -2 also has an attr.
-                    subclass = load_closure[-3].attr
+                    subclass_code = load_closure[-3].attr
                 elif hasattr(load_closure[-2], 'attr'):
                     # Python 3.2 works like this
-                    subclass = load_closure[-2].attr
+                    subclass_code = load_closure[-2].attr
                 else:
                     raise 'Internal Error n_classdef: cannot find class body'
                 if hasattr(buildclass[3], '__len__'):
@@ -1317,8 +1372,11 @@ class SourceWalker(GenericASTTraversal, object):
                     subclass_info = buildclass[2]
                 else:
                     raise 'Internal Error n_classdef: cannot superclass name'
+            elif self.version >= 3.6 and node == 'classdefdeco2':
+                subclass_info = node
+                subclass_code = buildclass[1][0].attr
             else:
-                subclass = buildclass[1][0].attr
+                subclass_code = buildclass[1][0].attr
                 subclass_info = node[0]
         else:
             if node == 'classdefdeco2':
@@ -1327,11 +1385,11 @@ class SourceWalker(GenericASTTraversal, object):
                 buildclass = node[0]
             build_list = buildclass[1][0]
             if hasattr(buildclass[-3][0], 'attr'):
-                subclass = buildclass[-3][0].attr
-                currentclass = buildclass[0].pattr
+                subclass_code = buildclass[-3][0].attr
+                class_name = buildclass[0].pattr
             elif hasattr(node[0][0], 'pattr'):
-                subclass = buildclass[-3][1].attr
-                currentclass = node[0][0].pattr
+                subclass_code = buildclass[-3][1].attr
+                class_name = node[0][0].pattr
             else:
                 raise 'Internal Error n_classdef: cannot find class name'
 
@@ -1340,7 +1398,7 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             self.write('\n\n')
 
-        self.currentclass = str(currentclass)
+        self.currentclass = str(class_name)
         self.write(self.indent, 'class ', self.currentclass)
 
         if self.version > 3.0:
@@ -1351,7 +1409,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         # class body
         self.indentMore()
-        self.build_class(subclass)
+        self.build_class(subclass_code)
         self.indentLess()
 
         self.currentclass = cclass
@@ -1487,10 +1545,21 @@ class SourceWalker(GenericASTTraversal, object):
                 values = node[:-2]
                 # FIXME: Line numbers?
                 for key, value in zip(keys, values):
+                    self.write(sep)
                     self.write(repr(key))
+                    line_number = self.line_number
                     self.write(':')
                     self.write(self.traverse(value[0]))
-                    self.write(',')
+                    sep = ","
+                    if line_number != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        line_number = self.line_number
+                    else:
+                        sep += " "
+                        pass
+                    pass
+                if sep.startswith(",\n"):
+                    self.write(sep[1:])
                 pass
             pass
         else:
@@ -1544,6 +1613,9 @@ class SourceWalker(GenericASTTraversal, object):
                 if line_number != self.line_number:
                     sep += "\n" + self.indent + "  "
                     line_number = self.line_number
+                    pass
+                pass
+            pass
         if sep.startswith(",\n"):
             self.write(sep[1:])
         self.write('}')
@@ -1566,6 +1638,13 @@ class SourceWalker(GenericASTTraversal, object):
         # will assume that if the text ends in *.
         last_was_star = self.f.getvalue().endswith('*')
 
+        if lastnodetype.endswith('UNPACK'):
+            # FIXME: need to handle range of BUILD_LIST_UNPACK
+            have_star = True
+            # endchar = ''
+        else:
+            have_star = False
+
         if lastnodetype.startswith('BUILD_LIST'):
             self.write('['); endchar = ']'
         elif lastnodetype.startswith('BUILD_TUPLE'):
@@ -1577,11 +1656,7 @@ class SourceWalker(GenericASTTraversal, object):
         elif lastnodetype.startswith('ROT_TWO'):
             self.write('('); endchar = ')'
         else:
-            raise 'Internal Error: n_build_list expects list, tuple, set, or unpack'
-        have_star = False
-        if lastnodetype.endswith('UNPACK'):
-            # FIXME: need to handle range of BUILD_LIST_UNPACK
-            have_star = True
+            raise TypeError('Internal Error: n_build_list expects list, tuple, set, or unpack')
 
         flat_elems = []
         for elem in node:
@@ -1599,7 +1674,7 @@ class SourceWalker(GenericASTTraversal, object):
         sep = ''
 
         for elem in flat_elems:
-            if elem == 'ROT_THREE':
+            if elem in ('ROT_THREE', 'EXTENDED_ARG'):
                 continue
             assert elem == 'expr'
             line_number = self.line_number
@@ -1688,12 +1763,8 @@ class SourceWalker(GenericASTTraversal, object):
 
             typ = m.group('type') or '{'
             node = startnode
-            try:
-                if m.group('child'):
-                    node = node[int(m.group('child'))]
-            except:
-                print(node.__dict__)
-                raise
+            if m.group('child'):
+                node = node[int(m.group('child'))]
 
             if   typ == '%':	self.write('%')
             elif typ == '+':
@@ -1768,7 +1839,6 @@ class SourceWalker(GenericASTTraversal, object):
                 try:
                     self.write(eval(expr, d, d))
                 except:
-                    print(node)
                     raise
             m = escape.search(fmt, i)
         self.write(fmt[i:])
@@ -1799,6 +1869,8 @@ class SourceWalker(GenericASTTraversal, object):
             if k.startswith('CALL_METHOD'):
                 # This happens in PyPy only
                 TABLE_R[k] = ('%c(%P)', 0, (1, -1, ', ', 100))
+            elif self.version >= 3.6 and k.startswith('CALL_FUNCTION_KW'):
+                TABLE_R[k] = ('%c(%P)', 0, (1, -1, ', ', 100))
             elif op == 'CALL_FUNCTION':
                 TABLE_R[k] = ('%c(%P)', 0, (1, -1, ', ', 100))
             elif op in ('CALL_FUNCTION_VAR',
@@ -1815,6 +1887,9 @@ class SourceWalker(GenericASTTraversal, object):
                     if self.version == 3.5:
                         if str == '%c(%C, ':
                             str = '%c(*%C, %c)'
+                        elif str == '%c(%C':
+                            str = '%c(*%C)'
+                            # p2 = (1, -1, 100)
                     else:
                         str += '*%c)'
                     entry = (str, 0, p2, -2)

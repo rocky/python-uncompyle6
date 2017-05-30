@@ -134,10 +134,20 @@ class Scanner3(Scanner):
             varargs_ops.add(self.opc.CALL_METHOD)
         if self.version >= 3.6:
             varargs_ops.add(self.opc.BUILD_CONST_KEY_MAP)
+            # Below is in bit order, "default = bit 0, closure = bit 3
+            self.MAKE_FUNCTION_FLAGS = tuple("""
+             default keyword-only annotation closure""".split())
 
         self.varargs_ops = frozenset(varargs_ops)
         # FIXME: remove the above in favor of:
         # self.varargs_ops = frozenset(self.opc.hasvargs)
+
+    def extended_arg_val(self, val):
+        if self.version < 3.6:
+            return val * (1<<16)
+        else:
+            return val * (1<<8)
+
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
@@ -211,9 +221,29 @@ class Scanner3(Scanner):
         jump_targets = self.find_jump_targets(show_asm)
         last_op_was_break = False
 
-        for inst in bytecode:
+        extended_arg = 0
+        for i, inst in enumerate(bytecode):
 
             argval = inst.argval
+            op     = inst.opcode
+            has_arg = op_has_argument(op, self.opc)
+            if has_arg:
+                if op == self.opc.EXTENDED_ARG:
+                    extended_arg += self.extended_arg_val(argval)
+
+                    # Normally we remove EXTENDED_ARG from the
+                    # opcodes, but in the case of annotated functions
+                    # can use the EXTENDED_ARG tuple to signal we have
+                    # an annotated function.
+                    if not bs[i+1].opname.startswith("MAKE_FUNCTION"):
+                        continue
+
+            if isinstance(argval, int) and extended_arg:
+                min_extended= self.extended_arg_val(1)
+                if argval < min_extended:
+                    argval += extended_arg
+            extended_arg = 0
+
             if inst.offset in jump_targets:
                 jump_idx = 0
                 # We want to process COME_FROMs to the same offset to be in *descending*
@@ -250,12 +280,11 @@ class Scanner3(Scanner):
 
                 pass
 
-            pattr =  inst.argrepr
+            pattr  = inst.argrepr
             opname = inst.opname
-            op = inst.opcode
 
             if opname in ['LOAD_CONST']:
-                const = inst.argval
+                const = argval
                 if iscode(const):
                     if const.co_name == '<lambda>':
                         opname = 'LOAD_LAMBDA'
@@ -277,20 +306,37 @@ class Scanner3(Scanner):
                     pattr = const
                     pass
             elif opname in ('MAKE_FUNCTION', 'MAKE_CLOSURE'):
-                pos_args, name_pair_args, annotate_args = parse_fn_counts(inst.argval)
-                if name_pair_args > 0:
-                    opname = '%s_N%d' % (opname, name_pair_args)
-                    pass
-                if annotate_args > 0:
-                    opname = '%s_A_%d' % (opname, annotate_args)
-                    pass
-                opname = '%s_%d' % (opname, pos_args)
-                pattr = ("%d positional, %d keyword pair, %d annotated" %
-                             (pos_args, name_pair_args, annotate_args))
+                if self.version >= 3.6:
+                    # 3.6+ doesn't have MAKE_CLOSURE, so opname == 'MAKE_FUNCTION'
+                    flags = argval
+                    opname = 'MAKE_FUNCTION_%d' % (flags)
+                    attr = []
+                    for flag in self.MAKE_FUNCTION_FLAGS:
+                        bit = flags & 1
+                        if bit:
+                            if pattr:
+                                pattr += ", " + flag
+                            else:
+                                pattr += flag
+                        attr.append(bit)
+                        flags >>= 1
+                    attr = attr[:4] # remove last value: attr[5] == False
+                else:
+                    pos_args, name_pair_args, annotate_args = parse_fn_counts(inst.argval)
+                    pattr = ("%d positional, %d keyword pair, %d annotated" %
+                                 (pos_args, name_pair_args, annotate_args))
+                    if name_pair_args > 0:
+                        opname = '%s_N%d' % (opname, name_pair_args)
+                        pass
+                    if annotate_args > 0:
+                        opname = '%s_A_%d' % (opname, annotate_args)
+                        pass
+                    opname = '%s_%d' % (opname, pos_args)
+                    attr = (pos_args, name_pair_args, annotate_args)
                 tokens.append(
                     Token(
                         type_ = opname,
-                        attr = (pos_args, name_pair_args, annotate_args),
+                        attr = attr,
                         pattr = pattr,
                         offset = inst.offset,
                         linestart = inst.starts_line,
@@ -301,7 +347,7 @@ class Scanner3(Scanner):
                 )
                 continue
             elif op in self.varargs_ops:
-                pos_args = inst.argval
+                pos_args = argval
                 if self.is_pypy and not pos_args and opname == 'BUILD_MAP':
                     opname = 'BUILD_MAP_n'
                 else:
@@ -313,9 +359,9 @@ class Scanner3(Scanner):
                 customize[opname] = 0
             elif opname == 'UNPACK_EX':
                 # FIXME: try with scanner and parser by
-                # changing inst.argval
-                before_args = inst.argval & 0xFF
-                after_args = (inst.argval >> 8) & 0xff
+                # changing argval
+                before_args = argval & 0xFF
+                after_args = (argval >> 8) & 0xff
                 pattr = "%d before vararg, %d after" % (before_args, after_args)
                 argval = (before_args, after_args)
                 opname = '%s_%d+%d' % (opname, before_args, after_args)
@@ -332,7 +378,7 @@ class Scanner3(Scanner):
                 # comprehensions we might sometimes classify JUMP_BACK
                 # as CONTINUE, but that's okay since we add a grammar
                 # rule for that.
-                pattr = inst.argval
+                pattr = argval
                 target = self.get_target(inst.offset)
                 if target <= inst.offset:
                     next_opname = self.opname[self.code[inst.offset+3]]
@@ -341,11 +387,7 @@ class Scanner3(Scanner):
                         (next_opname not in ('END_FINALLY', 'POP_BLOCK',
                                             # Python 3.0 only uses POP_TOP
                                             'POP_TOP'))):
-                        if (self.version >= 3.4 or
-                            (inst.offset not in self.not_continue) or
-                            (tokens[-1].type == 'RETURN_VALUE')):
-                            opname = 'CONTINUE'
-                            pass
+                        opname = 'CONTINUE'
                     else:
                         opname = 'JUMP_BACK'
                         # FIXME: this is a hack to catch stuff like:
@@ -482,7 +524,7 @@ class Scanner3(Scanner):
                     oparg = code[offset+1]
                 else:
                     oparg = code[offset+1] + code[offset+2] * 256
-                next_offset = offset + self.op_size(op)
+                next_offset = self.next_offset(op, offset)
 
                 if label is None:
                     if op in op3.hasjrel and op != self.opc.FOR_ITER:
@@ -593,14 +635,18 @@ class Scanner3(Scanner):
         Get target offset for op located at given <offset>.
         """
         op = self.code[offset]
+        rel_offset = 0
         if self.version  >= 3.6:
             target = self.code[offset+1]
             if op in self.opc.hasjrel:
-                target += offset + 2
+                rel_offset = offset + 2
         else:
             target = self.code[offset+1] + self.code[offset+2] * 256
             if op in self.opc.hasjrel:
-                target += offset + 3
+                rel_offset = offset + 3
+                pass
+            pass
+        target += rel_offset
 
         return target
 
@@ -745,7 +791,7 @@ class Scanner3(Scanner):
             pre_rtarget = prev_op[rtarget]
 
             # Is it an "and" inside an "if" or "while" block
-            if op == self.opc.POP_JUMP_IF_FALSE:
+            if op == self.opc.POP_JUMP_IF_FALSE and self.version < 3.6:
 
                 # Search for another POP_JUMP_IF_FALSE targetting the same op,
                 # in current statement, starting from current offset, and filter
@@ -917,14 +963,14 @@ class Scanner3(Scanner):
             end    = self.restrict_to_parent(target, parent)
             self.fixed_jumps[offset] = end
         elif op == self.opc.POP_EXCEPT:
-            if self.version <= 3.5:
-                next_offset = offset+1
-            else:
-                next_offset = offset+2
+            next_offset = self.next_offset(op, offset)
             target = self.get_target(next_offset)
             if target > next_offset:
-                self.fixed_jumps[next_offset] = target
-                self.except_targets[target] = next_offset
+                next_op = code[next_offset]
+                if (self.opc.JUMP_ABSOLUTE == next_op and
+                    END_FINALLY != code[self.next_offset(next_op, next_offset)]):
+                    self.fixed_jumps[next_offset] = target
+                    self.except_targets[target] = next_offset
 
         elif op == self.opc.SETUP_FINALLY:
             target = self.get_target(offset)

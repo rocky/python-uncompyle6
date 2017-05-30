@@ -1,6 +1,7 @@
 2017-05-06  rocky <rb@dustyfeet.com>
 
-	* uncompyle6/version.py: Get ready for release 2.9.11
+	* ChangeLog, NEWS, uncompyle6/version.py: Get ready for release
+	2.9.11
 
 2017-05-06  rocky <rb@dustyfeet.com>
 

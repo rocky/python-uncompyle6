@@ -13,9 +13,11 @@ class Python36Parser(Python35Parser):
         super(Python36Parser, self).__init__(debug_parser)
         self.customized = {}
 
+
     def p_36misc(self, args):
         """
-        expr ::= LOAD_NAME EXTENDED_ARG
+        # 3.6 redoes how return_closure works
+        return_closure ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
 
         fstring_multi ::= fstring_expr_or_strs BUILD_STRING
         fstring_expr_or_strs ::= fstring_expr_or_str+
@@ -56,6 +58,17 @@ class Python36Parser(Python35Parser):
                     %s ::= %sBUILD_STRING
                 """ % (fstring_expr_or_str_n, fstring_expr_or_str_n, "fstring_expr_or_str " * v)
                 self.add_unique_doc_rules(rules_str, customize)
+
+    def custom_classfunc_rule(self, opname, token, customize):
+
+        if opname.startswith('CALL_FUNCTION_KW'):
+            values = 'expr ' * token.attr
+            rule = 'call_function ::= expr kwargs_only_36 {token.type}'.format(**locals())
+            self.add_unique_rule(rule, token.type, token.attr, customize)
+            rule = 'kwargs_only_36 ::= {values} LOAD_CONST'.format(**locals())
+            self.add_unique_rule(rule, token.type, token.attr, customize)
+        else:
+            super(Python36Parser, self).custom_classfunc_rule(opname, token, customize)
 
 
 class Python36ParserSingle(Python36Parser, PythonParserSingle):
