@@ -1,3 +1,23 @@
+uncompyle6 2.10.0 2016-05-30 Elaine Gordon
+
+- Add fuzzy offset deparse lookup
+- 3.6 bugfixes
+   - fix EXTENDED_ARGS handling (and in 2.6 and others)
+   - semantic routine make_function fragments.py
+   - MAKE_FUNCTION handling
+   - CALL_FUNCTION_EX handling
+   - async property on defs
+   - support for CALL_FUNCTION_KW (moagstar)
+- 3.5+ UNMAP_PACK and BUILD_UNMAP_PACK handling
+- 3.5 FUNCTION_VAR bug
+- 3.x pass statement insdie while True
+- Improve 3.2 decompilation
+- Fixed -o argument processing (Gregrory)
+- Reduce scope of LOAD_ASSERT as expr to 3.4+
+- "await" statement fixes
+- 2.3, 2.4 "if 1 .." fixes
+- 3.x annotation fixes
+
 uncompyle6 2.9.11 2016-04-06
 
 - Better support for Python 3.5+ BUILD_MAP_UNPACK
