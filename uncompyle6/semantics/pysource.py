@@ -898,19 +898,19 @@ class SourceWalker(GenericASTTraversal, object):
             # LOAD_CONST code object ..
             # LOAD_CONST        'x0'  if >= 3.3
             # MAKE_FUNCTION ..
-            code = node[-3]
+            code_node = node[-3]
         elif node[-2] == 'expr':
-            code = node[-2][0]
+            code_node = node[-2][0]
         else:
             # LOAD_CONST code object ..
             # MAKE_FUNCTION ..
-            code = node[-2]
+            code_node = node[-2]
 
-        func_name = code.attr.co_name
+        func_name = code_node.attr.co_name
         self.write(func_name)
 
         self.indentMore()
-        self.make_function(node, isLambda=False, codeNode=code)
+        self.make_function(node, isLambda=False, codeNode=code_node)
 
         if len(self.param_stack) > 1:
             self.write('\n\n')
