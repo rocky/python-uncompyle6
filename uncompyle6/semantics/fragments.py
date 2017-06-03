@@ -383,11 +383,18 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prune() # stop recursing
 
     def n_ifelsestmtr(self, node):
-        if len(node[2]) != 2:
+        if node[2] == 'COME_FROM':
+            return_stmts_node = node[3]
+            node.type = 'ifelsestmtr2'
+        else:
+            return_stmts_node = node[2]
+        if len(return_stmts_node) != 2:
             self.default(node)
 
-        if not (node[2][0][0][0] == 'ifstmt' and node[2][0][0][0][1][0] == 'return_if_stmts') \
-                and not (node[2][0][-1][0] == 'ifstmt' and node[2][0][-1][0][1][0] == 'return_if_stmts'):
+        if (not (return_stmts_node[0][0][0] == 'ifstmt'
+                 and return_stmts_node[0][0][0][1][0] == 'return_if_stmts')
+            and not (return_stmts_node[0][-1][0] == 'ifstmt'
+                     and return_stmts_node[0][-1][0][1][0] == 'return_if_stmts')):
             self.default(node)
             return
 
@@ -408,7 +415,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         past_else = False
         prev_stmt_is_if_ret = True
-        for n in node[2][0]:
+        for n in return_stmts_node[0]:
             if (n[0] == 'ifstmt' and n[0][1][0] == 'return_if_stmts'):
                 if prev_stmt_is_if_ret:
                     n[0].type = 'elifstmt'
