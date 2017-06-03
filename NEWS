@@ -1,3 +1,10 @@
+uncompyle6 2.10.1 2016-06-3 Marylin Frankel
+
+- fix some fragments parsing bugs
+  - was returning the wrong type sometimes in deparse_code_around_offset()
+  - capture function name in offsets
+  - track changes to ifelstrmtr node from pysource into fragments
+
 uncompyle6 2.10.0 2016-05-30 Elaine Gordon
 
 - Add fuzzy offset deparse lookup

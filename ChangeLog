@@ -1,6 +1,20 @@
+2017-06-03  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/version.py: Get ready for release 2.10.1
+
+2017-06-03  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Fragment bugs fragment.py: * deparse_code_aorund_offset: was sometimes returning the wrong type * capture function name offset * lint imports pysource.py: use a clearer variable name
+
+2017-06-02  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py: Track changes in ifelstmtr..  in fragments from pysource
+
 2017-05-30  rocky <rb@dustyfeet.com>
 
-	* uncompyle6/version.py: Get ready for release 2.10.0
+	* ChangeLog, NEWS, uncompyle6/version.py: Get ready for release
+	2.10.0
 
 2017-05-30  rocky <rb@dustyfeet.com>
 
