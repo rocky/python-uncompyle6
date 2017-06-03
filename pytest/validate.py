@@ -6,8 +6,7 @@ import difflib
 import subprocess
 import tempfile
 import functools
-# compatability
-import six
+from StringIO import StringIO
 # uncompyle6 / xdis
 from uncompyle6 import PYTHON_VERSION, IS_PYPY, deparse_code
 # TODO : I think we can get xdis to support the dis api (python 3 version) by doing something like this there
@@ -123,7 +122,7 @@ def validate_uncompyle(text, mode='exec'):
     original_text = text
 
     deparsed = deparse_code(PYTHON_VERSION, original_code,
-                            compile_mode=mode, out=six.StringIO())
+                            compile_mode=mode, out=StringIO())
     uncompyled_text = deparsed.text
     uncompyled_code = compile(uncompyled_text, '<string>', 'exec')
 
