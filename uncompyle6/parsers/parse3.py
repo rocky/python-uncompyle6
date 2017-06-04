@@ -496,8 +496,8 @@ class Python3Parser(PythonParser):
         token.type = self.call_fn_name(token)
         uniq_param = args_kw + args_pos
         if self.version == 3.5 and opname.startswith('CALL_FUNCTION_VAR'):
-            # Python 3.5 changes the stack position of where * args, the
-            # first LOAD_FAST, below are located.
+            # Python 3.5 changes the stack position of *args. KW args come
+            # after *args.
             # Python 3.6+ replaces CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
             if opname.endswith('KW'):
                 kw = 'expr '

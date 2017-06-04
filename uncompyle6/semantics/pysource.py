@@ -358,9 +358,33 @@ class SourceWalker(GenericASTTraversal, object):
                         self.prec = p
                         self.prune()
                     self.n_async_call_function = n_async_call_function
-
                     self.n_build_list_unpack = self.n_build_list
 
+                    if version == 3.5:
+                        def n_call_function(node):
+                            mapping = self._get_mapping(node)
+                            table = mapping[0]
+                            key = node
+                            for i in mapping[1:]:
+                                key = key[i]
+                                pass
+                            if key.type.startswith('CALL_FUNCTION_VAR_KW'):
+                                # Python 3.5 changes the stack position of *args. kwargs come
+                                # after *args whereas in earlier Pythons, *args is at the end
+                                # which simpilfiies things from our perspective.
+                                # Python 3.6+ replaces CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
+                                # We will just swap the order to make it look like earlier Python 3.
+                                entry = table[key.type]
+                                kwarg_pos = entry[2][1]
+                                args_pos = kwarg_pos - 1
+                                # Put last node[args_pos] after subsequent kwargs
+                                while node[kwarg_pos] == 'kwarg' and kwarg_pos < len(node):
+                                    # swap node[args_pos] with node[kwargs_pos]
+                                    node[kwarg_pos], node[args_pos] = node[args_pos], node[kwarg_pos]
+                                    args_pos = kwarg_pos
+                                    kwarg_pos += 1
+                            self.default(node)
+                        self.n_call_function = n_call_function
 
                     def n_funcdef(node):
                         if self.version == 3.6:
