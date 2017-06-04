@@ -56,7 +56,7 @@ This uses setup.py, so it follows the standard Python routine:
 
 ::
 
-    pip install -e setup.py
+    pip install -e .
     pip install -r requirements-dev.txt
     python setup.py install # may need sudo
     # or if you have pyenv:
