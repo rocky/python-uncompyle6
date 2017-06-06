@@ -159,8 +159,9 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def set_pos_info(self, node, start, finish, name=None):
         if name is None: name = self.name
         if hasattr(node, 'offset'):
-            self.offsets[name, node.offset] = \
-              NodeInfo(node = node, start = start, finish = finish)
+            node.start = start
+            node.finish = finish
+            self.offsets[name, node.offset] = node
 
         if hasattr(node, 'parent'):
             assert node.parent != node
@@ -1090,7 +1091,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def traverse(self, node, indent=None, isLambda=False):
         '''Buulds up fragment which can be used inside a larger
         block of code'''
-
         self.param_stack.append(self.params)
         if indent is None: indent = self.indent
         p = self.pending_newlines
@@ -1658,6 +1658,11 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
     if deparsed.ERROR:
         raise deparsed.ERROR
 
+    # To keep the API consistent with previous releases, convert
+    # deparse.offset values into NodeInfo items
+    for tup, node in deparsed.offsets.items():
+        deparsed.offsets[tup] = NodeInfo(node = node, start = node.start,
+                                         finish = node.finish)
     return deparsed
 
 from bisect import bisect_right
@@ -1692,6 +1697,7 @@ def deparse_code_around_offset(name, offset, version, co, out=StringIO(),
 
 if __name__ == '__main__':
 
+    from uncompyle6 import IS_PYPY
     def deparse_test(co, is_pypy=IS_PYPY):
         sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
         walk = deparse_code(sys_version, co, showasm=False, showast=False,
