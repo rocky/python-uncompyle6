@@ -25,12 +25,13 @@ class Python36Parser(Python35Parser):
 
         func_args36   ::= expr BUILD_TUPLE_0
         call_function ::= func_args36 unmapexpr CALL_FUNCTION_EX
+        call_function ::= func_args36 build_map_unpack_with_call CALL_FUNCTION_EX_KW_1
 
         withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST
                      WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
         call_function ::= expr expr CALL_FUNCTION_EX
-        call_function ::= expr expr expr CALL_FUNCTION_EX_KW
+        call_function ::= expr expr expr CALL_FUNCTION_EX_KW_1
         """
 
     def add_custom_rules(self, tokens, customize):

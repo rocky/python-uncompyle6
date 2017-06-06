@@ -1,4 +1,4 @@
-#  Copyright (c) 2016 by Rocky Bernstein
+#  Copyright (c) 2016-2017 by Rocky Bernstein
 """
 Python 3.6 bytecode scanner/deparser
 
@@ -28,8 +28,12 @@ class Scanner36(Scanner3):
             if t.op == self.opc.CALL_FUNCTION_EX and t.attr & 1:
                 t.type = 'CALL_FUNCTION_EX_KW'
                 pass
-            if t.op == self.opc.CALL_FUNCTION_KW:
+            elif t.op == self.opc.CALL_FUNCTION_KW:
                 t.type = 'CALL_FUNCTION_KW_{t.attr}'.format(**locals())
+            elif t.op == self.opc.BUILD_TUPLE_UNPACK_WITH_CALL:
+                t.type = 'BUILD_TUPLE_UNPACK_WITH_CALL_%d' % t.attr
+            elif t.op == self.opc.BUILD_MAP_UNPACK_WITH_CALL:
+                t.type = 'BUILD_MAP_UNPACK_WITH_CALL_%d' % t.attr
             pass
         return tokens, customize
 
