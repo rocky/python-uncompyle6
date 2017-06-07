@@ -508,7 +508,11 @@ class Python3Parser(PythonParser):
                     ('kwarg ' * args_kw) + kw + token.type)
             self.add_unique_rule(rule, token.type, uniq_param, customize)
         if self.version >= 3.6 and opname == 'CALL_FUNCTION_EX_KW':
-            rule = 'call_function ::= expr build_tuple_unpack_with_call build_map_unpack_with_call CALL_FUNCTION_EX_KW_1'
+            rule = ('call_function36 ::= '
+                    'expr build_tuple_unpack_with_call build_map_unpack_with_call '
+                    'CALL_FUNCTION_EX_KW_1')
+            self.add_unique_rule(rule, token.type, uniq_param, customize)
+            rule = 'call_function ::= call_function36'
         else:
             rule = ('call_function ::= expr ' +
                     ('pos_arg ' * args_pos) +

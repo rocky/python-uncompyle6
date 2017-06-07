@@ -177,6 +177,13 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         return
 
+    def n_trystmt(self, node):
+        start = len(self.f.getvalue()) + len(self.indent)
+        self.set_pos_info(node[0], start, start+len("try:"))
+        self.default(node)
+
+    n_tryelsestmt = n_tryelsestmtc = n_tryelsestmtl = n_tryfinallystmt = n_trystmt
+
     def n_return_stmt(self, node):
         start = len(self.f.getvalue()) + len(self.indent)
         if self.params['isLambda']:
@@ -1558,25 +1565,14 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.set_pos_info(startnode, startnode_start, fin)
 
         # FIXME rocky: figure out how to get these casess to be table driven.
-        #
-        # 1. for loops. For loops have two positions that correspond to a single text
-        # location. In "for i in ..." there is the initialization "i" code as well
-        # as the iteration code with "i".  A "copy" spec like %X3,3 - copy parame
-        # 3 to param 2 would work
-        #
         # 2. subroutine calls. It the last op is the call and for purposes of printing
         # we don't need to print anything special there. However it encompases the
         # entire string of the node fn(...)
-        match = re.search(r'^try', startnode.type)
+        match = re.search(r'^call_function', startnode.type)
         if match:
-            self.set_pos_info(node[0], startnode_start, startnode_start+len("try:"))
-            self.set_pos_info(node[2], node[3].finish, node[3].finish)
-        else:
-            match = re.search(r'^call_function', startnode.type)
-            if match:
-                last_node = startnode[-1]
-                # import traceback; traceback.print_stack()
-                self.set_pos_info(last_node, startnode_start, self.last_finish)
+            last_node = startnode[-1]
+            # import traceback; traceback.print_stack()
+            self.set_pos_info(last_node, startnode_start, self.last_finish)
         return
 
     @classmethod
