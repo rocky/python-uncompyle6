@@ -177,6 +177,11 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         return
 
+    def n_passtmt(self, node):
+        start = len(self.f.getvalue()) + len(self.indent)
+        self.set_pos_info(node, start, start+len("pass"))
+        self.default(node)
+
     def n_trystmt(self, node):
         start = len(self.f.getvalue()) + len(self.indent)
         self.set_pos_info(node[0], start, start+len("try:"))
@@ -1201,6 +1206,17 @@ class FragmentsWalker(pysource.SourceWalker, object):
         if (name, offset) not in list(self.offsets.keys()):
             return None
         return self.extract_node_info(self.offsets[name, offset])
+
+    def prev_node(self, node):
+        prev = None
+        if not hasattr(node, 'parent'):
+            return prev
+        p = node.parent
+        for n in p:
+            if node == n:
+                return prev
+            prev = n
+        return prev
 
     def extract_parent_info(self, node):
         if not hasattr(node, 'parent'):
