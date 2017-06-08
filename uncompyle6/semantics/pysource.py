@@ -571,25 +571,32 @@ class SourceWalker(GenericASTTraversal, object):
                     node == AST('return_stmt',
                                 [AST('ret_expr', [NONE]), Token('RETURN_VALUE')]))
 
-    def n_continue_stmt(self, node):
-        if self.version >= 3.0 and node[0] == 'CONTINUE':
-            t = node[0]
-            if not t.linestart:
-                # Artificially-added "continue" statements derived from JUMP_ABSOLUTE
-                # don't have line numbers associated with them.
-                # If this is a CONTINUE is to the same target as a JUMP_ABSOLUTE following it,
-                # then the "continue" can be suppressed.
-                op, offset = t.op, t.offset
-                next_offset = self.scanner.next_offset(op, offset)
-                scanner = self.scanner
-                code = scanner.code
-                if next_offset < len(code):
-                    next_inst = code[next_offset]
-                    if (scanner.opc.opname[next_inst] == 'JUMP_ABSOLUTE'
-                        and t.pattr == code[next_offset+1]):
-                        # Suppress "continue"
-                        self.prune()
-        self.default(node)
+    ## The below doesn't work because continue may be the only thing inside an 'else'. For example
+    # for ...
+    #   if ...
+    #   else:
+    #     continue
+    #
+    # def n_continue_stmt(self, node):
+    #     if self.version >= 3.0 and node[0] == 'CONTINUE':
+    #         t = node[0]
+    #         if not t.linestart:
+    #             # Artificially-added "continue" statements derived from JUMP_ABSOLUTE
+    #             # don't have line numbers associated with them.
+    #             # If this is a CONTINUE is to the same target as a JUMP_ABSOLUTE following it,
+    #             # then the "continue" can be suppressed.
+    #             op, offset = t.op, t.offset
+    #             next_offset = self.scanner.next_offset(op, offset)
+    #             scanner = self.scanner
+    #             code = scanner.code
+    #             if next_offset < len(code):
+    #                 next_inst = code[next_offset]
+    #                 if (scanner.opc.opname[next_inst] == 'JUMP_ABSOLUTE'
+    #                     and t.pattr == code[next_offset+1]):
+    #                     # Suppress "continue"
+    #                     import pdb; pdb.set_trace()
+    #                     self.prune()
+    #     self.default(node)
 
     def n_return_stmt(self, node):
         if self.params['isLambda']:
