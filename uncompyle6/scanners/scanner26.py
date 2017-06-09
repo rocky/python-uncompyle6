@@ -1,4 +1,4 @@
-#  Copyright (c) 2015, 2016 by Rocky Bernstein
+#  Copyright (c) 2015-2017 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 """
@@ -15,6 +15,7 @@ if PYTHON3:
     intern = sys.intern
 
 import uncompyle6.scanners.scanner2 as scan
+from uncompyle6.scanner import L65536
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_26
@@ -178,7 +179,7 @@ class Scanner26(scan.Scanner2):
                 oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
                 if op == self.opc.EXTENDED_ARG:
-                    extended_arg = oparg * scan.L65536
+                    extended_arg = oparg * L65536
                     continue
                 if op in self.opc.hasconst:
                     const = co.co_consts[oparg]
