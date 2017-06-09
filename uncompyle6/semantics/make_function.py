@@ -428,10 +428,30 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
 
 
 def make_function3(self, node, isLambda, nested=1, codeNode=None):
-    """Dump function definition, doc string, and function body."""
+    """Dump function definition, doc string, and function body in
+      Python version 3.0 and above
+    """
 
-    # FIXME: call make_function3 if we are self.version >= 3.0
-    # and then simplify the below.
+    # For Python 3.3, the evaluation stack in MAKE_FUNCTION is:
+
+    # * default argument objects in positional order
+    # * pairs of name and default argument, with the name just below
+    #   the object on the stack, for keyword-only parameters
+    # * parameter annotation objects
+    # * a tuple listing the parameter names for the annotations
+    #   (only if there are ony annotation objects)
+    # * the code associated with the function (at TOS1)
+    # * the qualified name of the function (at TOS)
+
+    # For Python 3.0 .. 3.2 the evaluation stack is:
+    # * The function object is defined to have argc default parameters,
+    #   which are found below TOS.
+    # Note: There is no qualified name at TOS
+
+    # MAKE_CLOSURE adds an additional closure slot
+
+    # Thank you, Python, for a such a well-thought out system that has
+    # changed 4 or so times.
 
     def build_param(ast, name, default):
         """build parameters:
@@ -451,27 +471,31 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
     # MAKE_FUNCTION_... or MAKE_CLOSURE_...
     assert node[-1].type.startswith('MAKE_')
 
+
+    # Python 3.3+ adds a qualified name at TOS (-1)
+    # moving down the LOAD_LAMBDA instruction
     if 3.0 <= self.version <= 3.2:
         lambda_index = -2
     elif 3.03 <= self.version:
         lambda_index = -3
     else:
         lambda_index = None
+
     args_node = node[-1]
     if isinstance(args_node.attr, tuple):
         pos_args, kw_args, annotate_argc  = args_node.attr
         if self.version <= 3.3 and len(node) > 2 and node[lambda_index] != 'LOAD_LAMBDA':
-            # positional args are after kwargs
+            # *args are after kwargs ?
             defparams = node[1:args_node.attr[0]+1]
         else:
-            # positional args are before kwargs
+            # *args are before kwargs ?
             defparams = node[:args_node.attr[0]]
     else:
         if self.version < 3.6:
             defparams = node[:args_node.attr]
         else:
             default, kw, annotate, closure = args_node.attr
-            # FIXME: start here.
+            # FIXME: start here for Python 3.6 and above:
             defparams = []
             # if default:
             #     defparams = node[-(2 +  kw + annotate  + closure)]
