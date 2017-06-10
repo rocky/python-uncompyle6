@@ -489,10 +489,10 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
     if isinstance(args_node.attr, tuple):
         pos_args, kw_args, annotate_argc  = args_node.attr
         if self.version <= 3.3 and len(node) > 2 and node[lambda_index] != 'LOAD_LAMBDA':
-            # args are after kwargs ?
+            # args are after kwargs; kwargs are bundled as one node
             defparams = node[1:args_node.attr[0]+1]
         else:
-            # args are before kwargs ?
+            # args are before kwargs; kwags as bundled as one node
             defparams = node[:args_node.attr[0]]
     else:
         if self.version < 3.6:
