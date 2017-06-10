@@ -242,6 +242,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.write(' ')
             node[0].parent = node
             self.preorder(node[0])
+        self.set_pos_info(node[-1], start, len(self.f.getvalue()))
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune() # stop recursing
 
