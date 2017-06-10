@@ -444,8 +444,12 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
     # * the qualified name of the function (at TOS)
 
     # For Python 3.0 .. 3.2 the evaluation stack is:
-    # * The function object is defined to have argc default parameters,
-    #   which are found below TOS.
+    # The function object is defined to have argc default parameters,
+    # which are found below TOS.
+    # * first come positional args in the order they are given in the source,
+    # * next come the keyword args in the order they given in the source,
+    # * finally is the code associated with the function (at TOS)
+    #
     # Note: There is no qualified name at TOS
 
     # MAKE_CLOSURE adds an additional closure slot
@@ -485,10 +489,10 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
     if isinstance(args_node.attr, tuple):
         pos_args, kw_args, annotate_argc  = args_node.attr
         if self.version <= 3.3 and len(node) > 2 and node[lambda_index] != 'LOAD_LAMBDA':
-            # *args are after kwargs ?
+            # args are after kwargs ?
             defparams = node[1:args_node.attr[0]+1]
         else:
-            # *args are before kwargs ?
+            # args are before kwargs ?
             defparams = node[:args_node.attr[0]]
     else:
         if self.version < 3.6:
@@ -520,7 +524,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
     paramnames = list(code.co_varnames[:argc])
 
     # defaults are for last n parameters, thus reverse
-    if not 3.0 <= self.version <= 3.2:
+    if not 3.0 <= self.version <= 3.1:
         paramnames.reverse(); defparams.reverse()
 
     try:
@@ -538,7 +542,9 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
     # build parameters
     params = [build_param(ast, name, d) for
               name, d in zip_longest(paramnames, defparams, fillvalue=None)]
-    params.reverse() # back to correct order
+
+    if not 3.0 <= self.version <= 3.1:
+        params.reverse() # back to correct order
 
     if code_has_star_arg(code):
         if self.version > 3.0:
