@@ -44,7 +44,7 @@ do it recursively which is where offsets are probably located.
 
 For example in:
   'importmultiple':   ( '%|import%b %c%c\n', 0, 2, 3 ),
-
+n
 The node position 0 will be associated with "import".
 
 """
@@ -77,6 +77,7 @@ from uncompyle6.semantics.consts import (
     )
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from spark_parser.ast import GenericASTTraversalPruningException
 
 from collections import namedtuple
 NodeInfo = namedtuple("NodeInfo", "node start finish")
@@ -176,6 +177,15 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.set_pos_info(node, start, len(self.f.getvalue()))
 
         return
+
+    def n_binary_subscr(self, node):
+        start = len(self.f.getvalue())
+        try:
+            self.default(node)
+        except GenericASTTraversalPruningException:
+            self.set_pos_info(node, start, len(self.f.getvalue()))
+            self.set_pos_info(node[-1], start, len(self.f.getvalue()))
+            raise GenericASTTraversalPruningException
 
     def n_passtmt(self, node):
         start = len(self.f.getvalue()) + len(self.indent)
@@ -1676,6 +1686,8 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
     for tup, node in deparsed.offsets.items():
         deparsed.offsets[tup] = NodeInfo(node = node, start = node.start,
                                          finish = node.finish)
+
+    deparsed.scanner = scanner
     return deparsed
 
 from bisect import bisect_right
