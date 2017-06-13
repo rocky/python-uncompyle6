@@ -82,7 +82,7 @@ from spark_parser.ast import GenericASTTraversalPruningException
 from collections import namedtuple
 NodeInfo = namedtuple("NodeInfo", "node start finish")
 ExtractInfo = namedtuple("ExtractInfo",
-                         "lineNo lineStartOffset markerLine selectedLine selectedText")
+                         "lineNo lineStartOffset markerLine selectedLine selectedText nonterminal")
 
 TABLE_DIRECT_FRAGMENT = {
     'break_stmt':	( '%|%rbreak\n', ),
@@ -1215,10 +1215,16 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         if elided: selectedLine += ' ...'
 
+        if isinstance(nodeInfo, AST):
+            nonterminal = nodeInfo[0]
+        else:
+            nonterminal = nodeInfo.node
+
         return ExtractInfo(lineNo = len(lines), lineStartOffset = lineStart,
                            markerLine = markerLine,
                            selectedLine = selectedLine,
-                           selectedText = selectedText)
+                           selectedText = selectedText,
+                           nonterminal = nonterminal)
 
     def extract_line_info(self, name, offset):
         if (name, offset) not in list(self.offsets.keys()):
