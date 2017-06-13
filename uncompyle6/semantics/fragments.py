@@ -1215,6 +1215,11 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         if elided: selectedLine += ' ...'
 
+        if isinstance(nodeInfo, Token):
+            nodeInfo = nodeInfo.parent
+        else:
+            nodeInfo = nodeInfo
+
         if isinstance(nodeInfo, AST):
             nonterminal = nodeInfo[0]
         else:
