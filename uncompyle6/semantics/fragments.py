@@ -44,7 +44,7 @@ do it recursively which is where offsets are probably located.
 
 For example in:
   'importmultiple':   ( '%|import%b %c%c\n', 0, 2, 3 ),
-
+n
 The node position 0 will be associated with "import".
 
 """
@@ -75,6 +75,7 @@ from uncompyle6.semantics.consts import (
     )
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from spark_parser.ast import GenericASTTraversalPruningException
 
 from uncompyle6 import PYTHON_VERSION
 if PYTHON_VERSION < 2.6:
@@ -84,7 +85,7 @@ else:
 
 NodeInfo = namedtuple("NodeInfo", "node start finish")
 ExtractInfo = namedtuple("ExtractInfo",
-                         "lineNo lineStartOffset markerLine selectedLine selectedText")
+                         "lineNo lineStartOffset markerLine selectedLine selectedText nonterminal")
 
 TABLE_DIRECT_FRAGMENT = {
     'break_stmt':	( '%|%rbreak\n', ),
@@ -162,8 +163,9 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def set_pos_info(self, node, start, finish, name=None):
         if name is None: name = self.name
         if hasattr(node, 'offset'):
-            self.offsets[name, node.offset] = \
-              NodeInfo(node = node, start = start, finish = finish)
+            node.start = start
+            node.finish = finish
+            self.offsets[name, node.offset] = node
 
         if hasattr(node, 'parent'):
             assert node.parent != node
@@ -178,6 +180,34 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.set_pos_info(node, start, len(self.f.getvalue()))
 
         return
+
+    def table_r_node(self, node):
+        """General pattern where the last node should should
+        get the text span attributes of the entire tree"""
+        start = len(self.f.getvalue())
+        try:
+            self.default(node)
+        except GenericASTTraversalPruningException:
+            final = len(self.f.getvalue())
+            self.set_pos_info(node, start, final)
+            self.set_pos_info(node[-1], start, final)
+            raise GenericASTTraversalPruningException
+
+    n_slice0 = n_slice1 = n_slice2 = n_slice3 = n_binary_subscr = table_r_node
+    n_augassign_1 = n_print_item = exec_stmt = print_to_item = del_stmt = table_r_node
+    n_classdefco1 = n_classdefco2 = except_cond1 = except_cond2 = table_r_node
+
+    def n_passtmt(self, node):
+        start = len(self.f.getvalue()) + len(self.indent)
+        self.set_pos_info(node, start, start+len("pass"))
+        self.default(node)
+
+    def n_trystmt(self, node):
+        start = len(self.f.getvalue()) + len(self.indent)
+        self.set_pos_info(node[0], start, start+len("try:"))
+        self.default(node)
+
+    n_tryelsestmt = n_tryelsestmtc = n_tryelsestmtl = n_tryfinallystmt = n_trystmt
 
     def n_return_stmt(self, node):
         start = len(self.f.getvalue()) + len(self.indent)
@@ -232,6 +262,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.write(' ')
             node[0].parent = node
             self.preorder(node[0])
+        self.set_pos_info(node[-1], start, len(self.f.getvalue()))
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune() # stop recursing
 
@@ -369,6 +400,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 self.write(sep); sep = ", "
                 self.preorder(subnode)
         self.set_pos_info(node, start, len(self.f.getvalue()))
+        self.set_pos_info(node[-1], start, len(self.f.getvalue()))
         self.println()
         self.prune() # stop recursing
 
@@ -1105,7 +1137,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def traverse(self, node, indent=None, isLambda=False):
         '''Buulds up fragment which can be used inside a larger
         block of code'''
-
         self.param_stack.append(self.params)
         if indent is None: indent = self.indent
         p = self.pending_newlines
@@ -1200,15 +1231,37 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         if elided: selectedLine += ' ...'
 
+        if isinstance(nodeInfo, Token):
+            nodeInfo = nodeInfo.parent
+        else:
+            nodeInfo = nodeInfo
+
+        if isinstance(nodeInfo, AST):
+            nonterminal = nodeInfo[0]
+        else:
+            nonterminal = nodeInfo.node
+
         return ExtractInfo(lineNo = len(lines), lineStartOffset = lineStart,
                            markerLine = markerLine,
                            selectedLine = selectedLine,
-                           selectedText = selectedText)
+                           selectedText = selectedText,
+                           nonterminal = nonterminal)
 
     def extract_line_info(self, name, offset):
         if (name, offset) not in list(self.offsets.keys()):
             return None
         return self.extract_node_info(self.offsets[name, offset])
+
+    def prev_node(self, node):
+        prev = None
+        if not hasattr(node, 'parent'):
+            return prev
+        p = node.parent
+        for n in p:
+            if node == n:
+                return prev
+            prev = n
+        return prev
 
     def extract_parent_info(self, node):
         if not hasattr(node, 'parent'):
@@ -1573,25 +1626,14 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.set_pos_info(startnode, startnode_start, fin)
 
         # FIXME rocky: figure out how to get these casess to be table driven.
-        #
-        # 1. for loops. For loops have two positions that correspond to a single text
-        # location. In "for i in ..." there is the initialization "i" code as well
-        # as the iteration code with "i".  A "copy" spec like %X3,3 - copy parame
-        # 3 to param 2 would work
-        #
         # 2. subroutine calls. It the last op is the call and for purposes of printing
         # we don't need to print anything special there. However it encompases the
         # entire string of the node fn(...)
-        match = re.search(r'^try', startnode.type)
+        match = re.search(r'^call_function', startnode.type)
         if match:
-            self.set_pos_info(node[0], startnode_start, startnode_start+len("try:"))
-            self.set_pos_info(node[2], node[3].finish, node[3].finish)
-        else:
-            match = re.search(r'^call_function', startnode.type)
-            if match:
-                last_node = startnode[-1]
-                # import traceback; traceback.print_stack()
-                self.set_pos_info(last_node, startnode_start, self.last_finish)
+            last_node = startnode[-1]
+            # import traceback; traceback.print_stack()
+            self.set_pos_info(last_node, startnode_start, self.last_finish)
         return
 
     @classmethod
@@ -1673,6 +1715,13 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
     if deparsed.ERROR:
         raise deparsed.ERROR
 
+    # To keep the API consistent with previous releases, convert
+    # deparse.offset values into NodeInfo items
+    for tup, node in deparsed.offsets.items():
+        deparsed.offsets[tup] = NodeInfo(node = node, start = node.start,
+                                         finish = node.finish)
+
+    deparsed.scanner = scanner
     return deparsed
 
 from bisect import bisect_right
@@ -1707,6 +1756,7 @@ def deparse_code_around_offset(name, offset, version, co, out=StringIO(),
 
 if __name__ == '__main__':
 
+    from uncompyle6 import IS_PYPY
     def deparse_test(co, is_pypy=IS_PYPY):
         sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
         walk = deparse_code(sys_version, co, showasm=False, showast=False,

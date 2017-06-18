@@ -430,10 +430,34 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
 
 
 def make_function3(self, node, isLambda, nested=1, codeNode=None):
-    """Dump function definition, doc string, and function body."""
+    """Dump function definition, doc string, and function body in
+      Python version 3.0 and above
+    """
 
-    # FIXME: call make_function3 if we are self.version >= 3.0
-    # and then simplify the below.
+    # For Python 3.3, the evaluation stack in MAKE_FUNCTION is:
+
+    # * default argument objects in positional order
+    # * pairs of name and default argument, with the name just below
+    #   the object on the stack, for keyword-only parameters
+    # * parameter annotation objects
+    # * a tuple listing the parameter names for the annotations
+    #   (only if there are ony annotation objects)
+    # * the code associated with the function (at TOS1)
+    # * the qualified name of the function (at TOS)
+
+    # For Python 3.0 .. 3.2 the evaluation stack is:
+    # The function object is defined to have argc default parameters,
+    # which are found below TOS.
+    # * first come positional args in the order they are given in the source,
+    # * next come the keyword args in the order they given in the source,
+    # * finally is the code associated with the function (at TOS)
+    #
+    # Note: There is no qualified name at TOS
+
+    # MAKE_CLOSURE adds an additional closure slot
+
+    # Thank you, Python, for a such a well-thought out system that has
+    # changed 4 or so times.
 
     def build_param(ast, name, default):
         """build parameters:
@@ -453,21 +477,31 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
     # MAKE_FUNCTION_... or MAKE_CLOSURE_...
     assert node[-1].type.startswith('MAKE_')
 
+
+    # Python 3.3+ adds a qualified name at TOS (-1)
+    # moving down the LOAD_LAMBDA instruction
+    if 3.0 <= self.version <= 3.2:
+        lambda_index = -2
+    elif 3.03 <= self.version:
+        lambda_index = -3
+    else:
+        lambda_index = None
+
     args_node = node[-1]
     if isinstance(args_node.attr, tuple):
-        if self.version <= 3.3 and len(node) > 2 and node[-3] != 'LOAD_LAMBDA':
-            # positional args are after kwargs
+        pos_args, kw_args, annotate_argc  = args_node.attr
+        if self.version <= 3.3 and len(node) > 2 and node[lambda_index] != 'LOAD_LAMBDA':
+            # args are after kwargs; kwargs are bundled as one node
             defparams = node[1:args_node.attr[0]+1]
         else:
-            # positional args are before kwargs
+            # args are before kwargs; kwags as bundled as one node
             defparams = node[:args_node.attr[0]]
-        pos_args, kw_args, annotate_argc  = args_node.attr
     else:
         if self.version < 3.6:
             defparams = node[:args_node.attr]
         else:
             default, kw, annotate, closure = args_node.attr
-            # FIXME: start here.
+            # FIXME: start here for Python 3.6 and above:
             defparams = []
             # if default:
             #     defparams = node[-(2 +  kw + annotate  + closure)]
@@ -477,12 +511,6 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
         kw_args  = 0
         pass
 
-    if 3.0 <= self.version <= 3.2:
-        lambda_index = -2
-    elif 3.03 <= self.version:
-        lambda_index = -3
-    else:
-        lambda_index = None
 
     if lambda_index and isLambda and iscode(node[lambda_index].attr):
         assert node[lambda_index].type == 'LOAD_LAMBDA'
@@ -498,7 +526,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
     paramnames = list(code.co_varnames[:argc])
 
     # defaults are for last n parameters, thus reverse
-    if not 3.0 <= self.version <= 3.2:
+    if not 3.0 <= self.version <= 3.1:
         paramnames.reverse(); defparams.reverse()
 
     try:
@@ -515,62 +543,27 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
         kw_pairs = args_node.attr[1]
     else:
         kw_pairs = 0
-    indent = self.indent
 
     # build parameters
-    if self.version != 3.2:
-        tup = [paramnames, defparams]
-        params = [build_param(ast, name, default) for
-              name, default in map(lambda *tup:tup, *tup)]
+    params = [build_param(ast, name, d) for
+              name, d in zip_longest(paramnames, defparams, fillvalue=None)]
+
+    if not 3.0 <= self.version <= 3.1:
         params.reverse() # back to correct order
 
-        if code_has_star_arg(code):
-            if self.version > 3.0:
-                params.append('*%s' % code.co_varnames[argc + kw_pairs])
-            else:
-                params.append('*%s' % code.co_varnames[argc])
-            argc += 1
-
-        # dump parameter list (with default values)
-        if isLambda:
-            self.write("lambda ", ", ".join(params))
+    if code_has_star_arg(code):
+        if self.version > 3.0:
+            params.append('*%s' % code.co_varnames[argc + kw_pairs])
         else:
-            self.write("(", ", ".join(params))
-        # self.println(indent, '#flags:\t', int(code.co_flags))
+            params.append('*%s' % code.co_varnames[argc])
+        argc += 1
 
+    # dump parameter list (with default values)
+    if isLambda:
+        self.write("lambda ", ", ".join(params))
     else:
-        if isLambda:
-            self.write("lambda ")
-        else:
-            self.write("(")
-            pass
-
-        last_line = self.f.getvalue().split("\n")[-1]
-        l = len(last_line)
-        indent = ' ' * l
-        line_number = self.line_number
-
-        if code_has_star_arg(code):
-            self.write('*%s' % code.co_varnames[argc + kw_pairs])
-            argc += 1
-
-        i = len(paramnames) - len(defparams)
-        self.write(", ".join(paramnames[:i]))
-        if i > 0:
-            suffix = ', '
-        else:
-            suffix = ''
-        for n in node:
-            if n == 'pos_arg':
-                self.write(suffix)
-                self.write(paramnames[i] + '=')
-                i += 1
-                self.preorder(n)
-                if (line_number != self.line_number):
-                    suffix = ",\n" + indent
-                    line_number = self.line_number
-                else:
-                    suffix = ', '
+        self.write("(", ", ".join(params))
+    # self.println(indent, '#flags:\t', int(code.co_flags))
 
     if kw_args > 0:
         if not (4 & code.co_flags):

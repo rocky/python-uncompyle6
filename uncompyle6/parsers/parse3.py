@@ -494,8 +494,8 @@ class Python3Parser(PythonParser):
         token.type = self.call_fn_name(token)
         uniq_param = args_kw + args_pos
         if self.version == 3.5 and opname.startswith('CALL_FUNCTION_VAR'):
-            # Python 3.5 changes the stack position of where * args, the
-            # first LOAD_FAST, below are located.
+            # Python 3.5 changes the stack position of *args. KW args come
+            # after *args.
             # Python 3.6+ replaces CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
             if opname.endswith('KW'):
                 kw = 'expr '
@@ -505,11 +505,17 @@ class Python3Parser(PythonParser):
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) + kw + token.type)
             self.add_unique_rule(rule, token.type, uniq_param, customize)
-
-        rule = ('call_function ::= expr ' +
-                ('pos_arg ' * args_pos) +
-                ('kwarg ' * args_kw) +
-                'expr ' * nak + token.type)
+        if self.version >= 3.6 and opname == 'CALL_FUNCTION_EX_KW':
+            rule = ('call_function36 ::= '
+                    'expr build_tuple_unpack_with_call build_map_unpack_with_call '
+                    'CALL_FUNCTION_EX_KW_1')
+            self.add_unique_rule(rule, token.type, uniq_param, customize)
+            rule = 'call_function ::= call_function36'
+        else:
+            rule = ('call_function ::= expr ' +
+                    ('pos_arg ' * args_pos) +
+                    ('kwarg ' * args_kw) +
+                    'expr ' * nak + token.type)
 
         self.add_unique_rule(rule, token.type, uniq_param, customize)
         if self.version >= 3.5:
@@ -611,9 +617,9 @@ class Python3Parser(PythonParser):
                     assign2_pypy ::= expr expr designator designator
                 """, nop_func)
                 continue
-            elif opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
-                            'CALL_FUNCTION_VAR_KW') \
-                 or opname.startswith('CALL_FUNCTION_KW'):
+            elif (opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
+                             'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_EX_KW')
+                  or opname.startswith('CALL_FUNCTION_KW')):
                 self.custom_classfunc_rule(opname, token, customize)
             elif opname == 'LOAD_DICTCOMP':
                 rule_pat = ("dictcomp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 expr "
@@ -634,6 +640,18 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
                 rule = 'expr ::= build_list_unpack'
                 self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
+                v = token.attr
+                rule = ('build_tuple_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
+                        'expr32 ' * int((v//32) % 32) +
+                        'expr ' * (v % 32) + opname)
+                self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname.startswith('BUILD_MAP_UNPACK_WITH_CALL'):
+                v = token.attr
+                rule = ('build_map_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
+                        'expr32 ' * int((v//32) % 32) +
+                        'expr ' * (v % 32) + opname)
+                self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
                 v = token.attr
                 rule = ('build_list ::= ' + 'expr1024 ' * int(v//1024) +
@@ -643,7 +661,10 @@ class Python3Parser(PythonParser):
                 if opname_base == 'BUILD_TUPLE':
                     rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
-
+                    rule = ('build_tuple ::= ' + 'expr1024 ' * int(v//1024) +
+                        'expr32 ' * int((v//32) % 32) +
+                        'expr ' * (v % 32) + opname)
+                    self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname == 'LOOKUP_METHOD':
                 # A PyPy speciality - DRY with parse2
                 self.add_unique_rule("load_attr ::= expr LOOKUP_METHOD",

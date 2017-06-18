@@ -1,3 +1,43 @@
+2017-06-03  rocky <rb@dustyfeet.com>
+
+	* pytest/validate.py: 2.4 doesn't do six
+
+2017-06-03  rocky <rb@dustyfeet.com>
+
+	* appveyor.yml: Nope it (appveyor) doesn't.
+
+2017-06-03  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, appveyor.yml: Administrivia See if appveyor will handle 2.5
+
+2017-06-03  rocky <rb@dustyfeet.com>
+
+	* : commit 7c299fbf3777c452d6a10075964961783f510699 Author: rocky
+	<rb@dustyfeet.com> Date:   Sat Jun 3 05:38:05 2017 -0400
+
+2017-06-03  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py: We need six
+
+2017-06-03  rocky <rb@dustyfeet.com>
+
+	* README.rst, circle.yml, requirements-dev.txt: Go over
+	administrivia
+
+2017-06-03  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, uncompyle6/version.py: Get ready for release
+	2.10.1
+
+2017-06-03  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Fragment bugs fragment.py: * deparse_code_aorund_offset: was sometimes returning the wrong type * capture function name offset * lint imports pysource.py: use a clearer variable name
+
+2017-06-02  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py: Track changes in ifelstmtr..  in fragments from pysource
+
 2017-05-30  rocky <rb@dustyfeet.com>
 
 	* pytest/test_function_call.py: No decorators in Python < 2.6

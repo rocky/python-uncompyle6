@@ -29,14 +29,14 @@ else:
 
 from array import array
 
-from uncompyle6.scanner import op_has_argument
+from uncompyle6.scanner import op_has_argument, L65536
 from xdis.code import iscode
 
-import uncompyle6.scanner as scan
+from uncompyle6.scanner import Scanner
 
-class Scanner2(scan.Scanner):
+class Scanner2(Scanner):
     def __init__(self, version, show_asm=None, is_pypy=False):
-        scan.Scanner.__init__(self, version, show_asm, is_pypy)
+        Scanner.__init__(self, version, show_asm, is_pypy)
         self.pop_jump_if = frozenset([self.opc.PJIF, self.opc.PJIT])
         self.jump_forward = frozenset([self.opc.JUMP_ABSOLUTE, self.opc.JUMP_FORWARD])
         # This is the 2.5+ default
@@ -192,7 +192,7 @@ class Scanner2(scan.Scanner):
                 oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
                 if op == self.opc.EXTENDED_ARG:
-                    extended_arg = oparg * scan.L65536
+                    extended_arg = oparg * L65536
                     continue
                 if op in self.opc.hasconst:
                     const = co.co_consts[oparg]

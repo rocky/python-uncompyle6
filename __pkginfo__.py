@@ -33,7 +33,7 @@ classifiers =  ['Development Status :: 5 - Production/Stable',
 # The rest in alphabetic order
 author             = "Rocky Bernstein, Hartmut Goebel, John Aycock, and others"
 author_email       = "rb@dustyfeet.com"
-entry_points={
+entry_points       = {
     'console_scripts': [
         'uncompyle6=uncompyle6.bin.uncompile:main_bin',
         'pydisassemble=uncompyle6.bin.pydisassemble:main',

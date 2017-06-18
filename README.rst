@@ -56,7 +56,7 @@ This uses setup.py, so it follows the standard Python routine:
 
 ::
 
-    pip install -e setup.py
+    pip install -e .
     pip install -r requirements-dev.txt
     python setup.py install # may need sudo
     # or if you have pyenv:
@@ -171,7 +171,7 @@ See Also
 * https://code.google.com/archive/p/unpyc3/ : supports Python 3.2 only. The above projects use a different decompiling technique than what is used here.
 * https://github.com/figment/unpyc3/ : fork of above, but supports Python 3.3 only. Include some fixes like supporting function annotations
 * The HISTORY_ file.
-
+* `How to report a bug <https://github.com/rocky/python-uncompyle6/blob/master/HISTORY.md>`_
 .. |downloads| image:: https://img.shields.io/pypi/dd/uncompyle6.svg
 .. _trepan: https://pypi.python.org/pypi/trepan
 .. _HISTORY: https://github.com/rocky/python-uncompyle6/blob/master/HISTORY.md
