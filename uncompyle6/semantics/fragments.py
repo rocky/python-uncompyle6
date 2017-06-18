@@ -79,7 +79,7 @@ from spark_parser.ast import GenericASTTraversalPruningException
 
 from uncompyle6 import PYTHON_VERSION
 if PYTHON_VERSION < 2.6:
-    from xdis.namedtuple25 import namedtuple
+    from xdis.namedtuple24 import namedtuple
 else:
     from collections import namedtuple
 
