@@ -1,3 +1,13 @@
+uncompyle6 2.11.1 2016-06-18 Fleetwood
+- Major improvements in fragment tracking
+  * Add nonterminal node in extractInfo
+  * tag more offsets in expressions
+  * tag array subscripts
+  * set YIELD value offset in a <yield> expr
+  * fix a long-standing bug in not adjusting final AST when melding other deparse ASTs
+- Fixes yet again for make_function node handling; document what's up here
+- Fix bug in snowflake Python 3.5 *args kwargs
+
 uncompyle6 2.10.1 2016-06-3 Marylin Frankel
 
 - fix some fragments parsing bugs

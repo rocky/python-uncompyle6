@@ -1,6 +1,115 @@
+2017-06-18  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/version.py: Get ready for release 2.11.0
+
+2017-06-13  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py: Adjust nodeInfo if it is a
+	Token
+
+2017-06-13  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py: Add nonterminal node in
+	extractInfo
+
+2017-06-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/make_function.py: Fragment tag more expressions Revise make_function3 comment wrt args and kwargs
+
+2017-06-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py: Fragment tag array subscripts
+
+2017-06-10  R. Bernstein <rocky@users.noreply.github.com>
+
+	* README.rst: Create README.rst
+
+2017-06-10  R. Bernstein <rocky@users.noreply.github.com>
+
+	* README.rst: Create README.rst
+
+2017-06-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py: Set YIELD_VALUE offset in a
+	<yield> expr
+
+2017-06-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/make_function.py: Python 3.2 MAKE_FUNCTION
+	again..  Was handling bug32/01_named_and_kwargs.py wrong again
+
+2017-06-09  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #119 from rocky/scan-longconstant Simplify access to L65536 ...
+
+2017-06-09  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/make_function.py: Attempt to document the
+	MAKE_FUNCTION/MAKE_LAMBDA mess...  in Python 3.0+
+
+2017-06-08  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/make_function.py: Correct make_function3 for
+	Pytohn 3.2
+
+2017-06-08  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py: Disable "continue" removal in
+	pysource.py "continue" could be the only statement and then removing it might
+	lead to a dangling "else".
+
+2017-06-07  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py: Mark "pass" offsets.  Start routine to find previous node.
+
+2017-06-06  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/semantics/fragments.py: 
+	Remove hacky fragments try fixup...  hacky call_function code is also not needed or will be reinstated
+	properly. Better grammar structure for Python 3.6 call_function.
+
+2017-06-05  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/parsers/parse36.py,
+	uncompyle6/scanners/scanner36.py: BUILD_{MAP,TUPLE}_UNPACK &
+	CALL_FUNCTION_EX_KW...  Bang on these in 3.6. Not totally succesfull right now.  In fact a
+	regression on one of the test cases
+
+2017-06-05  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py: Important fragments bug fix...  start, finish that had been adjusted wasn't getting reflected in
+	final returned deparsed.offsets dictionary. Redo keeping API
+	compatibility, i.e we still use namedtuple NodeInfo.
+
+2017-06-04  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/semantics/pysource.py: 
+	Python 3.5 *args with kwargs handling.  3.5 is a snowflake here. Thank you, Python.  Fully fixes Issue 95.  3.6 is broken on this source, but for a *different* reason. Sigh.
+
 2017-06-03  rocky <rb@dustyfeet.com>
 
-	* uncompyle6/version.py: Get ready for release 2.10.1
+	* README.rst, __pkginfo__.py,
+	test/simple_source/bug35/04_CALL_FUNCTION_VAR_KW.py,
+	uncompyle6/semantics/fragments.py: Small changes.  fragment tag EXEC_STMT
+
+2017-06-03  rocky <rb@dustyfeet.com>
+
+	* .travis.yml: Streamline .travis.yml a little bit
+
+2017-06-03  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py: We need six
+
+2017-06-03  rocky <rb@dustyfeet.com>
+
+	* README.rst, circle.yml, requirements-dev.txt: Go over
+	administrivia
+
+2017-06-03  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, uncompyle6/version.py: Get ready for release
+	2.10.1
 
 2017-06-03  rocky <rb@dustyfeet.com>
 
