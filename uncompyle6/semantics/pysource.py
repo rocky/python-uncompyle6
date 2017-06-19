@@ -549,6 +549,8 @@ class SourceWalker(GenericASTTraversal, object):
 
         if self.pending_newlines:
             out = out[:-self.pending_newlines]
+        if isinstance(out, str):
+            out = unicode(out, 'utf-8')
         self.f.write(out)
 
     def println(self, *data):
