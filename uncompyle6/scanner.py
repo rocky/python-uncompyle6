@@ -16,6 +16,7 @@ import sys
 
 from uncompyle6 import PYTHON3, IS_PYPY
 from uncompyle6.scanners.tok import Token
+from xdis.bytecode import op_size
 
 # The byte code versions we support
 PYTHON_VERSIONS = (1.5,
@@ -214,9 +215,6 @@ class Scanner(object):
                         result.append(offset)
         return result
 
-    def op_hasArgument(self, op):
-        return self.op_size(op) > 1
-
     def op_range(self, start, end):
         """
         Iterate through positions of opcodes, skipping
@@ -224,20 +222,7 @@ class Scanner(object):
         """
         while start < end:
             yield start
-            start += self.op_size(self.code[start])
-
-    def next_offset(self, op, offset):
-        return offset + self.op_size(op)
-
-    def op_size(self, op):
-        """
-        Return size of operator with its arguments
-        for given opcode <op>.
-        """
-        if op < self.opc.HAVE_ARGUMENT:
-            return 2 if self.version >= 3.6 else 1
-        else:
-            return 2 if self.version >= 3.6 else 3
+            start += op_size(self.code[start], self.opc)
 
     def remove_mid_line_ifs(self, ifs):
         """
@@ -268,9 +253,6 @@ class Scanner(object):
         # assert isinstance(tokenClass, types.ClassType)
         self.Token = tokenClass
         return self.Token
-
-def op_has_argument(op, opc):
-    return op >= opc.HAVE_ARGUMENT
 
 def parse_fn_counts(argc):
     return ((argc & 0xFF), (argc >> 8) & 0xFF, (argc >> 16) & 0x7FFF)

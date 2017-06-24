@@ -25,8 +25,9 @@ from __future__ import print_function
 from collections import namedtuple
 from array import array
 
-from uncompyle6.scanner import op_has_argument, L65536
+from uncompyle6.scanner import L65536
 from xdis.code import iscode
+from xdis.bytecode import op_has_argument, op_size
 
 from uncompyle6.scanner import Scanner
 
@@ -327,7 +328,7 @@ class Scanner2(Scanner):
         for i in self.op_range(0, n):
             op = self.code[i]
             self.prev.append(i)
-            if self.op_hasArgument(op):
+            if op_has_argument(op, self.opc):
                 self.prev.append(i)
                 self.prev.append(i)
                 pass
@@ -380,7 +381,7 @@ class Scanner2(Scanner):
                     if elem != code[i]:
                         match = False
                         break
-                    i += self.op_size(code[i])
+                    i += op_size(code[i], self.opc)
 
                 if match:
                     i = self.prev[i]
@@ -617,7 +618,7 @@ class Scanner2(Scanner):
                                        'start': jump_back+3,
                                        'end':   end})
         elif op == self.opc.SETUP_EXCEPT:
-            start  = offset + self.op_size(op)
+            start  = offset + op_size(op, self.opc)
             target = self.get_target(offset, op)
             end    = self.restrict_to_parent(target, parent)
             if target != end:
@@ -641,7 +642,7 @@ class Scanner2(Scanner):
                         setup_except_nest -= 1
                 elif self.code[end_finally_offset] == self.opc.SETUP_EXCEPT:
                     setup_except_nest += 1
-                end_finally_offset += self.op_size(code[end_finally_offset])
+                end_finally_offset += op_size(code[end_finally_offset], self.opc)
                 pass
 
             # Add the except blocks
@@ -842,7 +843,7 @@ class Scanner2(Scanner):
                     else:
                         # We still have the case in 2.7 that the next instruction
                         # is a jump to a SETUP_LOOP target.
-                        next_offset = target + self.op_size(self.code[target])
+                        next_offset = target + op_size(self.code[target], self.opc)
                         next_op = self.code[next_offset]
                         if self.op_name(next_op) == 'JUMP_FORWARD':
                             jump_target = self.get_target(next_offset, next_op)

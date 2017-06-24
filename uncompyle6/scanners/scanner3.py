@@ -25,10 +25,11 @@ from __future__ import print_function
 from collections import namedtuple
 from array import array
 
-from uncompyle6.scanner import Scanner, op_has_argument
+from uncompyle6.scanner import Scanner
 from xdis.code import iscode
-from xdis.bytecode import Bytecode
+from xdis.bytecode import Bytecode, op_has_argument, op_size
 from uncompyle6.scanner import Token, parse_fn_counts
+import xdis
 
 # Get all the opcodes into globals
 import xdis.opcodes.opcode_33 as op3
@@ -468,7 +469,7 @@ class Scanner3(Scanner):
         self.prev = self.prev_op = [0]
         for offset in self.op_range(0, codelen):
             op = code[offset]
-            for _ in range(self.op_size(op)):
+            for _ in range(op_size(op, self.opc)):
                 self.prev_op.append(offset)
 
     def find_jump_targets(self, debug):
@@ -518,7 +519,7 @@ class Scanner3(Scanner):
                     oparg = code[offset+1]
                 else:
                     oparg = code[offset+1] + code[offset+2] * 256
-                next_offset = self.next_offset(op, offset)
+                next_offset = xdis.next_offset(op, self.opc, offset)
 
                 if label is None:
                     if op in op3.hasjrel and op != self.opc.FOR_ITER:
@@ -564,7 +565,7 @@ class Scanner3(Scanner):
                     if elem != code[i]:
                         match = False
                         break
-                    i += self.op_size(code[i])
+                    i += op_size(code[i], self.opc)
 
                 if match is True:
                     i = self.prev_op[i]
@@ -757,7 +758,7 @@ class Scanner3(Scanner):
                                        'start': jump_back+3,
                                        'end':   end})
         elif op in self.pop_jump_tf:
-            start = offset + self.op_size(op)
+            start = offset + op_size(op, self.opc)
             target = self.get_target(offset)
             rtarget = self.restrict_to_parent(target, parent)
             prev_op = self.prev_op
@@ -932,9 +933,9 @@ class Scanner3(Scanner):
                     # not from SETUP_EXCEPT
                     next_op = rtarget
                     if code[next_op] == self.opc.POP_BLOCK:
-                        next_op += self.op_size(self.code[next_op])
+                        next_op += op_size(self.code[next_op], self.opc)
                     if code[next_op] == self.opc.JUMP_ABSOLUTE:
-                        next_op += self.op_size(self.code[next_op])
+                        next_op += op_size(self.code[next_op], self.opc)
                     if next_op in targets:
                         for try_op in targets[next_op]:
                             come_from_op = code[try_op]
@@ -957,12 +958,12 @@ class Scanner3(Scanner):
             end    = self.restrict_to_parent(target, parent)
             self.fixed_jumps[offset] = end
         elif op == self.opc.POP_EXCEPT:
-            next_offset = self.next_offset(op, offset)
+            next_offset = xdis.next_offset(op, self.opc, offset)
             target = self.get_target(next_offset)
             if target > next_offset:
                 next_op = code[next_offset]
                 if (self.opc.JUMP_ABSOLUTE == next_op and
-                    END_FINALLY != code[self.next_offset(next_op, next_offset)]):
+                    END_FINALLY != code[xdis.next_offset(next_op, self.opc, next_offset)]):
                     self.fixed_jumps[next_offset] = target
                     self.except_targets[target] = next_offset
 
