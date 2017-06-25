@@ -163,6 +163,9 @@ def make_function3_annotate(self, node, isLambda, nested=1,
 
     i = len(paramnames) - len(defparams)
     suffix = ''
+
+    no_paramnames = len(paramnames[:i]) == 0
+
     for param in paramnames[:i]:
         self.write(suffix, param)
         suffix = ', '
@@ -182,6 +185,7 @@ def make_function3_annotate(self, node, isLambda, nested=1,
     suffix = ', ' if i > 0 else ''
     for n in node:
         if n == 'pos_arg':
+            no_paramnames = False
             self.write(suffix)
             param = paramnames[i]
             self.write(param)
@@ -189,7 +193,11 @@ def make_function3_annotate(self, node, isLambda, nested=1,
                 aa = annotate_args[param]
                 if isinstance(aa, tuple):
                     aa = aa[0]
-                self.write(': "%s"' % aa)
+                    self.write(': "%s"' % aa)
+                elif isinstance(aa, AST):
+                    self.write(': ')
+                    self.preorder(aa)
+
             self.write('=')
             i += 1
             self.preorder(n)
@@ -202,64 +210,65 @@ def make_function3_annotate(self, node, isLambda, nested=1,
 
     # self.println(indent, '#flags:\t', int(code.co_flags))
     if kw_args + annotate_argc > 0:
-        if not code_has_star_arg(code):
-            if argc > 0:
-
-                self.write(", *, ")
-            else:
-                self.write("*, ")
-            pass
-        else:
-            self.write(", ")
-
-        kwargs = node[0]
-        last = len(kwargs)-1
-        i = 0
-        for n in node[0]:
-            if n == 'kwarg':
-                if (line_number != self.line_number):
-                    self.write("\n" + indent)
-                    line_number = self.line_number
-                self.write('%s=' % n[0].pattr)
-                self.preorder(n[1])
-                if i < last:
-                    self.write(', ')
-                i += 1
+        if no_paramnames:
+            if not code_has_star_arg(code):
+                if argc > 0:
+                    self.write(", *, ")
+                else:
+                    self.write("*, ")
                 pass
-            pass
-        annotate_args = []
-        for n in node:
-            if n == 'annotate_arg':
-                annotate_args.append(n[0])
-            elif n == 'annotate_tuple':
-                t = n[0].attr
-                if t[-1] == 'return':
-                    t = t[0:-1]
-                    annotate_args = annotate_args[:-1]
-                    pass
-                last = len(annotate_args) - 1
-                for i in range(len(annotate_args)):
-                    self.write("%s: " % (t[i]))
-                    self.preorder(annotate_args[i])
+            else:
+                self.write(", ")
+
+            kwargs = node[0]
+            last = len(kwargs)-1
+            i = 0
+            for n in node[0]:
+                if n == 'kwarg':
+                    if (line_number != self.line_number):
+                        self.write("\n" + indent)
+                        line_number = self.line_number
+                    self.write('%s=' % n[0].pattr)
+                    self.preorder(n[1])
                     if i < last:
                         self.write(', ')
-                        pass
+                    i += 1
                     pass
-                break
+                pass
+            annotate_args = []
+            for n in node:
+                if n == 'annotate_arg':
+                    annotate_args.append(n[0])
+                elif n == 'annotate_tuple':
+                    t = n[0].attr
+                    if t[-1] == 'return':
+                        t = t[0:-1]
+                        annotate_args = annotate_args[:-1]
+                        pass
+                    last = len(annotate_args) - 1
+                    for i in range(len(annotate_args)):
+                        self.write("%s: " % (t[i]))
+                        self.preorder(annotate_args[i])
+                        if i < last:
+                            self.write(', ')
+                            pass
+                        pass
+                    break
+                pass
             pass
-        pass
 
-    if code_has_star_star_arg(code):
-        if argc > 0:
-            self.write(', ')
-        self.write('**%s' % code.co_varnames[argc + kw_pairs])
+
+        if code_has_star_star_arg(code):
+            if argc > 0:
+                self.write(', ')
+            self.write('**%s' % code.co_varnames[argc + kw_pairs])
 
     if isLambda:
         self.write(": ")
     else:
         self.write(')')
         if 'return' in annotate_tuple[0].attr:
-            if (line_number != self.line_number):
+            if (line_number != self.line_number) and not no_paramnames:
                 self.write("\n" + indent)
                 line_number = self.line_number
             self.write(' -> ')

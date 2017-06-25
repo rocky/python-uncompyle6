@@ -1,6 +1,28 @@
+2017-06-25  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/version.py: Get ready for release 2.11.1
+
+2017-06-24  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/scanners/scanner30.py, uncompyle6/semantics/pysource.py: 
+	Use xdis' instruction offset calculation fns..  next_offset, op_size, has_argument
+
+2017-06-19  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py: Python 2 sometimes need
+	str->uncode in writing?
+
+2017-06-19  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py: Allow deparsed out to be str as
+	well as unicode
+
 2017-06-18  rocky <rb@dustyfeet.com>
 
-	* uncompyle6/version.py: Get ready for release 2.11.0
+	* ChangeLog, NEWS, uncompyle6/version.py: Get ready for release
+	2.11.0
 
 2017-06-13  rocky <rb@dustyfeet.com>
 

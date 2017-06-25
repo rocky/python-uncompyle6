@@ -311,6 +311,13 @@ class SourceWalker(GenericASTTraversal, object):
                     if node[annotate_last] == 'annotate_tuple':
                         break
 
+                # FIXME: the real situation is that when derived from
+                # funcdef_annotate we the name has been filled in.
+                # But when derived from funcdefdeco it hasn't Would like a better
+                # way to distinquish.
+                if self.f.getvalue()[-4:] == 'def ':
+                    self.write(code.attr.co_name)
+
                 # FIXME: handle and pass full annotate args
                 make_function3_annotate(self, node, isLambda=False,
                                         codeNode=code, annotate_last=annotate_last)
