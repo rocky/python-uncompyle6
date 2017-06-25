@@ -9,7 +9,7 @@ def open(file, mode = "r", buffering = None,
          newline = None, closefd = True) -> "IOBase":
     return text
 
-def foo(x: 'an argument that defaults to 5' = 5):
+def foo1(x: 'an argument that defaults to 5' = 5):
     print(x)
 
 def div(a: dict(type=float, help='the dividend'),

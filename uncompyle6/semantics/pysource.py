@@ -309,6 +309,13 @@ class SourceWalker(GenericASTTraversal, object):
                     if node[annotate_last] == 'annotate_tuple':
                         break
 
+                # FIXME: the real situation is that when derived from
+                # funcdef_annotate we the name has been filled in.
+                # But when derived from funcdefdeco it hasn't Would like a better
+                # way to distinquish.
+                if self.f.getvalue()[-4:] == 'def ':
+                    self.write(code.attr.co_name)
+
                 # FIXME: handle and pass full annotate args
                 make_function3_annotate(self, node, isLambda=False,
                                         codeNode=code, annotate_last=annotate_last)
@@ -547,6 +554,8 @@ class SourceWalker(GenericASTTraversal, object):
 
         if self.pending_newlines:
             out = out[:-self.pending_newlines]
+        if isinstance(out, str) and not PYTHON3:
+            out = unicode(out, 'utf-8')
         self.f.write(out)
 
     def println(self, *data):
@@ -568,33 +577,6 @@ class SourceWalker(GenericASTTraversal, object):
             return (ret or
                     node == AST('return_stmt',
                                 [AST('ret_expr', [NONE]), Token('RETURN_VALUE')]))
-
-    ## The below doesn't work because continue may be the only thing inside an 'else'. For example
-    # for ...
-    #   if ...
-    #   else:
-    #     continue
-    #
-    # def n_continue_stmt(self, node):
-    #     if self.version >= 3.0 and node[0] == 'CONTINUE':
-    #         t = node[0]
-    #         if not t.linestart:
-    #             # Artificially-added "continue" statements derived from JUMP_ABSOLUTE
-    #             # don't have line numbers associated with them.
-    #             # If this is a CONTINUE is to the same target as a JUMP_ABSOLUTE following it,
-    #             # then the "continue" can be suppressed.
-    #             op, offset = t.op, t.offset
-    #             next_offset = self.scanner.next_offset(op, offset)
-    #             scanner = self.scanner
-    #             code = scanner.code
-    #             if next_offset < len(code):
-    #                 next_inst = code[next_offset]
-    #                 if (scanner.opc.opname[next_inst] == 'JUMP_ABSOLUTE'
-    #                     and t.pattr == code[next_offset+1]):
-    #                     # Suppress "continue"
-    #                     import pdb; pdb.set_trace()
-    #                     self.prune()
-    #     self.default(node)
 
     def n_return_stmt(self, node):
         if self.params['isLambda']:

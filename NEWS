@@ -1,4 +1,10 @@
-uncompyle6 2.11.1 2016-06-18 Fleetwood
+uncompyle6 2.11.1 2016-06-22
+
+- Python 3.x annotatoin and function signature fixes
+- Bump xdis version
+- Small pysource bug fixes
+
+uncompyle6 2.11.0 2016-06-18 Fleetwood
 - Major improvements in fragment tracking
   * Add nonterminal node in extractInfo
   * tag more offsets in expressions

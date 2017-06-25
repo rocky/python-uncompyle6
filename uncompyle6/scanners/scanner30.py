@@ -8,6 +8,8 @@ scanner routine for Python 3.
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_30 as opc
+from xdis.bytecode import op_size
+
 JUMP_OPs = map(lambda op: opc.opname[op], opc.hasjrel + opc.hasjabs)
 
 JUMP_TF = frozenset([opc.JUMP_IF_FALSE, opc.JUMP_IF_TRUE])
@@ -131,7 +133,7 @@ class Scanner30(Scanner3):
                                        'start': jump_back+3,
                                        'end':   end})
         elif op in JUMP_TF:
-            start = offset + self.op_size(op)
+            start = offset + op_size(op, self.opc)
             target = self.get_target(offset)
             rtarget = self.restrict_to_parent(target, parent)
             prev_op = self.prev_op
@@ -303,9 +305,9 @@ class Scanner30(Scanner3):
                     # not from SETUP_EXCEPT
                     next_op = rtarget
                     if code[next_op] == self.opc.POP_BLOCK:
-                        next_op += self.op_size(self.code[next_op])
+                        next_op += op_size(self.code[next_op], self.opc)
                     if code[next_op] == self.opc.JUMP_ABSOLUTE:
-                        next_op += self.op_size(self.code[next_op])
+                        next_op += op_size(self.code[next_op], self.opc)
                     if next_op in targets:
                         for try_op in targets[next_op]:
                             come_from_op = code[try_op]
