@@ -900,11 +900,13 @@ class Scanner2(Scanner):
                                                  'start': start-3,
                                                  'end':   pre_rtarget}
 
-                if self.version == 2.7:
+                elif self.version == 2.7:
                     self.structs.append({'type':  'if-then',
                                          'start': start-3,
                                          'end':   pre_rtarget})
-                else:
+
+                # FIXME: this is yet another case were we need dominators.
+                if pre_rtarget not in self.linestartoffsets or self.version < 2.7:
                     self.not_continue.add(pre_rtarget)
 
                 if rtarget < end:
