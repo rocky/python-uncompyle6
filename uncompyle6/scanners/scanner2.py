@@ -900,12 +900,12 @@ class Scanner2(Scanner):
                                                  'start': start-3,
                                                  'end':   pre_rtarget}
 
-                elif self.version == 2.7:
+                if self.version == 2.7:
                     self.structs.append({'type':  'if-then',
                                          'start': start-3,
                                          'end':   pre_rtarget})
-
-                self.not_continue.add(pre_rtarget)
+                else:
+                    self.not_continue.add(pre_rtarget)
 
                 if rtarget < end:
                     # We have an "else" block  of some kind.
