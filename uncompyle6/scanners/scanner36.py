@@ -1,6 +1,9 @@
 #  Copyright (c) 2016-2017 by Rocky Bernstein
 """
-Python 3.6 bytecode scanner/deparser
+Python 3.6 bytecode decompiler scanner
+
+Does some additional massaging of xdis-disassembled instructions to
+make things easier for decompilation.
 
 This sets up opcodes Python's 3.6 and calls a generalized
 scanner routine for Python 3.

@@ -1,6 +1,9 @@
-#  Copyright (c) 2015-2016 by Rocky Bernstein
+#  Copyright (c) 2015-2017 by Rocky Bernstein
 """
-Python 3.2 bytecode scanner/deparser
+Python 3.2 bytecode decompiler scanner.
+
+Does some additional massaging of xdis-disassembled instructions to
+make things easier for decompilation.
 
 This sets up opcodes Python's 3.2 and calls a generalized
 scanner routine for Python 3.
