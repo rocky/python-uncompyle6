@@ -172,7 +172,7 @@ See Also
 * https://github.com/figment/unpyc3/ : fork of above, but supports Python 3.3 only. Include some fixes like supporting function annotations
 * The HISTORY_ file.
 * `How to report a bug <https://github.com/rocky/python-uncompyle6/blob/master/HISTORY.md>`_
-.. |downloads| image:: https://img.shields.io/pypi/dd/uncompyle6.svg
+
 .. _trepan: https://pypi.python.org/pypi/trepan
 .. _HISTORY: https://github.com/rocky/python-uncompyle6/blob/master/HISTORY.md
 .. _debuggers: https://pypi.python.org/pypi/trepan3k
