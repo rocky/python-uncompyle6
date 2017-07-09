@@ -65,10 +65,10 @@ class Token:
         if self.pattr:
             pattr = self.pattr
             if self.opc:
-                if self.op in self.opc.hasjrel:
+                if self.op in self.opc.JREL_OPS:
                     if not self.pattr.startswith('to '):
                         pattr = "to " + self.pattr
-                elif self.op in self.opc.hasjabs:
+                elif self.op in self.opc.JABS_OPS:
                     self.pattr= str(self.pattr)
                     if not self.pattr.startswith('to '):
                         pattr = "to " + str(self.pattr)

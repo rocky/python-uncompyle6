@@ -89,7 +89,7 @@ class Scanner(object):
         if op is None:
             op = self.code[pos]
         target = self.get_argument(pos)
-        if op in self.opc.hasjrel:
+        if op in self.opc.JREL_OPS:
             target += pos + 3
         return target
 
@@ -100,7 +100,7 @@ class Scanner(object):
     def print_bytecode(self):
         for i in self.op_range(0, len(self.code)):
             op = self.code[i]
-            if op in self.opc.hasjabs+self.opc.hasjrel:
+            if op in self.JUMP_OPs:
                 dest = self.get_target(i, op)
                 print('%i\t%s\t%i' % (i, self.opname[op], dest))
             else:

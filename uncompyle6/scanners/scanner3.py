@@ -633,11 +633,11 @@ class Scanner3(Scanner):
         rel_offset = 0
         if self.version  >= 3.6:
             target = self.code[offset+1]
-            if op in self.opc.hasjrel:
+            if op in self.opc.JREL_OPS:
                 rel_offset = offset + 2
         else:
             target = self.code[offset+1] + self.code[offset+2] * 256
-            if op in self.opc.hasjrel:
+            if op in self.opc.JREL_OPS:
                 rel_offset = offset + 3
                 pass
             pass
