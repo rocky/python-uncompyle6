@@ -44,8 +44,8 @@ it appears that Hartmut did most of the work to get this code to
 accept the full Python language. He added precedence to the table
 specifiers, support for multiple versions of Python, the
 pretty-printing of docstrings, lists, and hashes. He also wrote test and verification routines of
-deparsed bytecode, and used this in an extensive set of tests that he also wrote. He says he could verify against the 
-entire Python library. However I have subsequently found small and relatively obscure bugs in the decompilation code. 
+deparsed bytecode, and used this in an extensive set of tests that he also wrote. He says he could verify against the
+entire Python library. However I have subsequently found small and relatively obscure bugs in the decompilation code.
 
 decompyle2.2 was packaged for Debian (sarge) by
 [Ben Burton around 2002](https://packages.qa.debian.org/d/decompyle.html). As
@@ -66,7 +66,7 @@ code to handle first Python 2.3 and then 2.4 bytecodes. Because of
 jump optimization introduced in the CPython bytecode compiler at that
 time, various JUMP instructions were classifed as going backwards, and
 COME FROM instructions were reintroduced.  See
-[RELEASE-2.4-CHANGELOG.txt](https://github.com/rocky/python-uncompyle6/blob/master/DECOMPYLE-2.4-CHANGELOG.txt) 
+[RELEASE-2.4-CHANGELOG.txt](https://github.com/rocky/python-uncompyle6/blob/master/DECOMPYLE-2.4-CHANGELOG.txt)
 for more details here. There wasn't a public
 release of RELEASE-2.4 and bytecodes other than Python 2.4 weren't
 supported. Dan says the Python 2.3 version could verify the entire
@@ -99,7 +99,7 @@ made a few commits later on. But mostly wibiti, and Guenther
 Starnberger got the code to where uncompyle2 was around 2012.
 
 In `uncompyle`, decompilation of python bytecode 2.5 & 2.6 is done by
-transforming the byte code into a a pseudo 2.7 python bytecode and is
+transforming the byte code into a pseudo-2.7 Python bytecode and is
 based on code from Eloi Vanderbeken.
 
 This project, `uncompyle6`, abandons that approach for various
@@ -120,10 +120,10 @@ while, handling Python bytecodes from Python versions 2.5+ and
 3.2+. In doing so, it has been expedient to separate this into three
 projects:
 
-* bytecode loading and disassembly ([xdis](https://pypi.python.org/pypi/xdis)),
+* marshaling/unmarshaling, bytecode loading and disassembly ([xdis](https://pypi.python.org/pypi/xdis)),
 * parsing and tree building ([spark_parser](https://pypi.python.org/pypi/spark_parser)),
 * this project - grammar and semantic actions for decompiling
-  ([uncompyle6](https://pypi.python.org/pypi/spark_parser)).
+  ([uncompyle6](https://pypi.python.org/pypi/uncompyle6)).
 
 
 Over the many years, code styles and Python features have
@@ -161,6 +161,9 @@ support has been lagging.
 
 Tests for the project have been, or are being, culled from all of the
 projects mentioned.
+
+For a little bit of the history of changes to the Early-algorithm parser,
+see the file [NEW-FEATURES.rst](https://github.com/rocky/python-spark/blob/master/NEW-FEATURES.rst) in the [python-spark github repository](https://github.com/rocky/python-spark).
 
 NB. If you find mistakes, want corrections, or want your name added
 (or removed), please contact me.
