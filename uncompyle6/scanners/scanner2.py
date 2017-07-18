@@ -452,7 +452,7 @@ class Scanner2(Scanner):
                     self.not_continue.add(jmp)
                     jmp = self.get_target(jmp)
                     prev_offset = self.prev[except_match]
-                    # COMPARE_OP argument should be "exception match" or 10
+                    # COMPARE_OP argument should be "exception-match" or 10
                     if (self.code[prev_offset] == self.opc.COMPARE_OP and
                         self.code[prev_offset+1] != 10):
                         return None
