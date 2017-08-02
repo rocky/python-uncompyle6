@@ -927,7 +927,7 @@ class Scanner3(Scanner):
                 # except block return
                 jump_prev = prev_op[offset]
                 if self.is_pypy and code[jump_prev] == self.opc.COMPARE_OP:
-                    if self.opc.cmp_op[code[jump_prev+1]] == 'exception match':
+                    if self.opc.cmp_op[code[jump_prev+1]] == 'exception-match':
                         return
                 if self.version >= 3.5:
                     # Python 3.5 may remove as dead code a JUMP
