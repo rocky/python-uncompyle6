@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
-# Copyright (c) 2015 by Rocky Bernstein <rb@dustyfeet.com>
+# Copyright (c) 2015, 2017 by Rocky Bernstein <rb@dustyfeet.com>
 #
-from __future__ import print_function
 
 
 import dis, os.path

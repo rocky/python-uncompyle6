@@ -1,5 +1,3 @@
-# future
-from __future__ import print_function
 # std
 import os
 import difflib
