@@ -21,9 +21,8 @@ def bug_loop(disassemble, tb=None):
     disassemble(tb)
 
 def test_if_in_for():
-    code = bug.__code__
+    code = bug.func_code
     scan = get_scanner(PYTHON_VERSION)
-    print(PYTHON_VERSION)
     if 2.7 <= PYTHON_VERSION <= 3.0 and not IS_PYPY:
         n = scan.setup_code(code)
         scan.build_lines_data(code, n)

@@ -10,7 +10,7 @@ else:
     maxint = sys.maxint
 from uncompyle6.semantics.helper import print_docstring
 
-class PrintFake():
+class PrintFake:
     def __init__(self):
         self.pending_newlines = 0
         self.f = StringIO()
