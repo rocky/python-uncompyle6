@@ -1,3 +1,12 @@
+uncompyle6 2.11.2 2017-08-09
+
+Very minor changes
+
+- RsT doc fixes and updates
+- use newer xdis, but not too new; 3.5.2 breaks uncompyle6
+- use xdis opcode sets
+- xdis "exception match" is now "exception-match"
+
 uncompyle6 2.11.2 2017-07-09
 
 - Start supporting Pypy 3.5 (5.7.1-beta)
