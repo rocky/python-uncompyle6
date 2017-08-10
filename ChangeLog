@@ -1,3 +1,85 @@
+2017-08-09  rocky <rb@dustyfeet.com>
+
+	* README.rst, __pkginfo__.py, uncompyle6/version.py: Get ready for
+	release 2.11.3
+
+2017-08-02  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py: Revert commit to wrong branch
+
+2017-08-02  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py: Remove six from Python-2.4/2.5 package
+
+2017-07-17  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/scanners/scanner30.py: 
+	xdis's "exception match" is now "exception-match"
+
+2017-07-15  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py: xdis 3.5.1 is botched?
+
+2017-07-14  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py: Use newer xdis
+
+2017-07-14  R. Bernstein <rocky@users.noreply.github.com>
+
+	* README.rst: Fixes issue #124
+
+2017-07-14  rocky <rb@dustyfeet.com>
+
+	* HISTORY.md: History updates
+
+2017-07-09  rocky <rb@dustyfeet.com>
+
+	* README.rst: RsT doc formatting
+
+2017-07-09  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, HOW-TO-REPORT-A-BUG.md, NEWS, uncompyle6/version.py: 
+	Get ready for release 2.11.2
+
+2017-07-08  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, uncompyle6/scanner.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner26.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/scanners/scanner30.py,
+	uncompyle6/scanners/tok.py: Use xdis 3.5.0's opcode sets
+
+2017-07-08  rocky <rb@dustyfeet.com>
+
+	* test/test_pyenvlib.py, uncompyle6/scanners/pypy32.py,
+	uncompyle6/scanners/pypy35.py, uncompyle6/scanners/scanner15.py,
+	uncompyle6/scanners/scanner32.py, uncompyle6/scanners/scanner34.py,
+	uncompyle6/scanners/scanner35.py, uncompyle6/scanners/scanner36.py: 
+	Start supporting Pypy 3.5 (5.7.1-beta)
+
+2017-07-05  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug26/03_loop_if_cf.py,
+	uncompyle6/parsers/parse26.py: Loops in Python 2.4-2.6 loop
+	come_from Looks like Python 2.4-2.6 may have a COME_FROM(_LOOP) before the
+	jump_back.  Fixes Issue #123
+
+2017-06-29  rocky <rb@dustyfeet.com>
+
+	* : Work around not having real flow-control analysis
+
+2017-06-28  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/make_function.py: A guard against badly
+	formated bytecode
+
+2017-06-25  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, test/simple_source/bug31/04_def_annotate.py,
+	uncompyle6/semantics/make_function.py,
+	uncompyle6/semantics/pysource.py: 3.x funciton and annotation bug
+	fixes
+
 2017-06-25  rocky <rb@dustyfeet.com>
 
 	* uncompyle6/version.py: Get ready for release 2.11.1

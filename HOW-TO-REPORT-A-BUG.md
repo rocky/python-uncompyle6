@@ -19,7 +19,7 @@ So it is likely you'll find a mistranslation in decompiling.
 The basic requirement is pretty simple:
 
 * Python bytecode
-* Source text
+* Python source text
 
 ## What to send (additional helpful information)
 
@@ -50,7 +50,7 @@ one fool can learn, so can another."
 
 ## Narrowing the problem
 
-I don't need the entire source code base for which one file or module
+I don't need or want the entire source code base for which one file or module
 can't be decompiled. I just need that one file or module only. If
 there are several files, file a bug report for each file.
 

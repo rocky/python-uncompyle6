@@ -1,6 +1,6 @@
-#  Copyright (c) 2016 by Rocky Bernstein
+#  Copyright (c) 2016-2017 by Rocky Bernstein
 """
-Python 1.5 bytecode scanner/deparser
+Python 1.5 bytecode decompiler scanner.
 
 This massages tokenized 1.5 bytecode to make it more amenable for
 grammar parsing.

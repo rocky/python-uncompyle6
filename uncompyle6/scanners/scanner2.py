@@ -195,7 +195,7 @@ class Scanner2(Scanner):
                 if op == self.opc.EXTENDED_ARG:
                     extended_arg = oparg * L65536
                     continue
-                if op in self.opc.hasconst:
+                if op in self.opc.CONST_OPS:
                     const = co.co_consts[oparg]
                     if iscode(const):
                         oparg = const
@@ -216,23 +216,23 @@ class Scanner2(Scanner):
                         pattr = '<code_object ' + const.co_name + '>'
                     else:
                         pattr = const
-                elif op in self.opc.hasname:
+                elif op in self.opc.NAME_OPS:
                     pattr = names[oparg]
-                elif op in self.opc.hasjrel:
+                elif op in self.opc.JREL_OPS:
                     #  use instead: hasattr(self, 'patch_continue'): ?
                     if self.version == 2.7:
                         self.patch_continue(tokens, offset, op)
                     pattr = repr(offset + 3 + oparg)
-                elif op in self.opc.hasjabs:
+                elif op in self.opc.JABS_OPS:
                     # use instead: hasattr(self, 'patch_continue'): ?
                     if self.version == 2.7:
                         self.patch_continue(tokens, offset, op)
                     pattr = repr(oparg)
-                elif op in self.opc.haslocal:
+                elif op in self.opc.LOCAL_OPS:
                     pattr = varnames[oparg]
-                elif op in self.opc.hascompare:
+                elif op in self.opc.COMPARE_OPS:
                     pattr = self.opc.cmp_op[oparg]
-                elif op in self.opc.hasfree:
+                elif op in self.opc.FREE_OPS:
                     pattr = free[oparg]
 
             if op in self.varargs_ops:
@@ -458,7 +458,7 @@ class Scanner2(Scanner):
                     self.not_continue.add(jmp)
                     jmp = self.get_target(jmp)
                     prev_offset = self.prev[except_match]
-                    # COMPARE_OP argument should be "exception match" or 10
+                    # COMPARE_OP argument should be "exception-match" or 10
                     if (self.code[prev_offset] == self.opc.COMPARE_OP and
                         self.code[prev_offset+1] != 10):
                         return None
@@ -609,7 +609,7 @@ class Scanner2(Scanner):
 
                     if test == offset:
                         loop_type = 'while 1'
-                    elif self.code[test] in self.opc.hasjabs + self.opc.hasjrel:
+                    elif self.code[test] in self.opc.JUMP_OPs:
                         self.ignore_if.add(test)
                         test_target = self.get_target(test)
                         if test_target > (jump_back+3):
@@ -911,7 +911,9 @@ class Scanner2(Scanner):
                                          'start': start-3,
                                          'end':   pre_rtarget})
 
-                self.not_continue.add(pre_rtarget)
+                # FIXME: this is yet another case were we need dominators.
+                if pre_rtarget not in self.linestartoffsets or self.version < 2.7:
+                    self.not_continue.add(pre_rtarget)
 
                 if rtarget < end:
                     # We have an "else" block  of some kind.
@@ -998,11 +1000,11 @@ class Scanner2(Scanner):
                 oparg = self.get_argument(offset)
 
                 if label is None:
-                    if op in self.opc.hasjrel and self.op_name(op) != 'FOR_ITER':
-                        # if (op in self.opc.hasjrel and
+                    if op in self.opc.JREL_OPS and self.op_name(op) != 'FOR_ITER':
+                        # if (op in self.opc.JREL_OPS and
                         #     (self.version < 2.0 or op != self.opc.FOR_ITER)):
                         label = offset + 3 + oparg
-                    elif self.version == 2.7 and op in self.opc.hasjabs:
+                    elif self.version == 2.7 and op in self.opc.JABS_OPS:
                         if op in (self.opc.JUMP_IF_FALSE_OR_POP,
                                   self.opc.JUMP_IF_TRUE_OR_POP):
                             if (oparg > offset):
