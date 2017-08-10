@@ -176,7 +176,7 @@ See Also
 * https://github.com/rocky/python-xasm : Cross Python version assembler
 
 
-.. _trepan: https://pypi.python.org/pypi/trepan
+.. _trepan: https://pypi.python.org/pypi/trepan2
 .. _HISTORY: https://github.com/rocky/python-uncompyle6/blob/master/HISTORY.md
 .. _debuggers: https://pypi.python.org/pypi/trepan3k
 .. _remake: https://bashdb.sf.net/remake
