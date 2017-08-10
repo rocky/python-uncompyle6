@@ -413,7 +413,8 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
     if code_has_star_star_arg(code):
         if argc > 0:
             self.write(', ')
-        self.write('**%s' % code.co_varnames[argc + kw_pairs])
+        if argc + kw_pairs > 0:
+            self.write('**%s' % code.co_varnames[argc + kw_pairs])
 
     if isLambda:
         self.write(": ")

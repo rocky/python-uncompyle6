@@ -3,7 +3,7 @@ import os
 import difflib
 import subprocess
 import tempfile
-import functools
+
 from StringIO import StringIO
 # uncompyle6 / xdis
 from uncompyle6 import PYTHON_VERSION, IS_PYPY, deparse_code
@@ -11,11 +11,15 @@ from uncompyle6 import PYTHON_VERSION, IS_PYPY, deparse_code
 from xdis.bytecode import Bytecode
 from xdis.main import get_opcode
 opc = get_opcode(PYTHON_VERSION, IS_PYPY)
-Bytecode = functools.partial(Bytecode, opc=opc)
 
+try:
+    import functools
+    Bytecode = functools.partial(Bytecode, opc=opc)
+    def _dis_to_text(co):
+        return Bytecode(co).dis()
+except:
+    pass
 
-def _dis_to_text(co):
-    return Bytecode(co).dis()
 
 
 def print_diff(original, uncompyled):
@@ -39,8 +43,11 @@ def print_diff(original, uncompyled):
         print('\nTo display diff highlighting run:\n    pip install BeautifulSoup4')
         diff = difflib.HtmlDiff().make_table(*args)
 
-    with tempfile.NamedTemporaryFile(delete=False) as f:
+    f = tempfile.NamedTemporaryFile(delete=False)
+    try:
         f.write(str(diff).encode('utf-8'))
+    finally:
+        f.close()
 
     try:
         print()
@@ -57,8 +64,7 @@ def print_diff(original, uncompyled):
         print('\nFor side by side diff install elinks')
         diff = difflib.Differ().compare(original_lines, uncompyled_lines)
         print('\n'.join(diff))
-    finally:
-        os.unlink(f.name)
+    os.unlink(f.name)
 
 
 def are_instructions_equal(i1, i2):

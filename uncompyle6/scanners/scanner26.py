@@ -183,7 +183,7 @@ class Scanner26(scan.Scanner2):
                 if op == self.opc.EXTENDED_ARG:
                     extended_arg = oparg * L65536
                     continue
-                if op in self.opc.hasconst:
+                if op in self.opc.CONST_OPS:
                     const = co.co_consts[oparg]
                     # We can't use inspect.iscode() because we may be
                     # using a different version of Python than the
@@ -208,9 +208,9 @@ class Scanner26(scan.Scanner2):
                         pattr = '<code_object ' + const.co_name + '>'
                     else:
                         pattr = const
-                elif op in self.opc.hasname:
+                elif op in self.opc.NAME_OPS:
                     pattr = names[oparg]
-                elif op in self.opc.hasjrel:
+                elif op in self.opc.JREL_OPS:
                     pattr = repr(offset + 3 + oparg)
                     if op == self.opc.JUMP_FORWARD:
                         target = self.get_target(offset)
@@ -220,13 +220,13 @@ class Scanner26(scan.Scanner2):
                         if len(tokens) and tokens[-1].type == 'JUMP_BACK':
                             tokens[-1].type = intern('CONTINUE')
 
-                elif op in self.opc.hasjabs:
+                elif op in self.opc.JABS_OPS:
                     pattr = repr(oparg)
-                elif op in self.opc.haslocal:
+                elif op in self.opc.LOCAL_OPS:
                     pattr = varnames[oparg]
-                elif op in self.opc.hascompare:
+                elif op in self.opc.COMPARE_OPS:
                     pattr = self.opc.cmp_op[oparg]
-                elif op in self.opc.hasfree:
+                elif op in self.opc.FREE_OPS:
                     pattr = free[oparg]
             if op in self.varargs_ops:
                 # CE - Hack for >= 2.5

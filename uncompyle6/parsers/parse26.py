@@ -84,6 +84,12 @@ class Python26Parser(Python2Parser):
         ja_cf_pop ::= JUMP_ABSOLUTE come_froms POP_TOP
         jf_cf_pop ::= JUMP_FORWARD come_froms POP_TOP
 
+        # The first optional COME_FROM when it appears is really
+        # COME_FROM_LOOP, but in <= 2.6 we don't distinguish
+        # this
+
+        cf_jb_cf_pop ::= _come_from JUMP_BACK come_froms POP_TOP
+
         bp_come_from    ::= POP_BLOCK COME_FROM
         jb_bp_come_from ::= JUMP_BACK bp_come_from
 
@@ -111,7 +117,8 @@ class Python26Parser(Python2Parser):
         break_stmt ::= BREAK_LOOP JUMP_BACK
 
         # Semantic actions want else_suitel to be at index 3
-        ifelsestmtl ::= testexpr c_stmts_opt jb_cf_pop else_suitel
+        ifelsestmtl ::= testexpr c_stmts_opt cf_jb_cf_pop else_suitel
+
         ifelsestmtc ::= testexpr c_stmts_opt ja_cf_pop else_suitec
 
         # Semantic actions want suite_stmts_opt to be at index 3

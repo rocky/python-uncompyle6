@@ -118,7 +118,7 @@ class Scanner30(Scanner3):
 
                     if test == offset:
                         loop_type = 'while 1'
-                    elif self.code[test] in opc.hasjabs+opc.hasjrel:
+                    elif self.code[test] in opc.JUMP_OPs:
                         self.ignore_if.add(test)
                         test_target = self.get_target(test)
                         if test_target > (jump_back+3):
@@ -293,7 +293,7 @@ class Scanner30(Scanner3):
                 # except block return
                 jump_prev = prev_op[offset]
                 if self.is_pypy and code[jump_prev] == self.opc.COMPARE_OP:
-                    if self.opc.cmp_op[code[jump_prev+1]] == 'exception match':
+                    if self.opc.cmp_op[code[jump_prev+1]] == 'exception-match':
                         return
                 if self.version >= 3.5:
                     # Python 3.5 may remove as dead code a JUMP

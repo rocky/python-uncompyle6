@@ -29,7 +29,7 @@ def list_comp():
     [y for y in range(3)]
 
 def get_parsed_for_fn(fn):
-    code = fn.__code__ if PYTHON3 else fn.func_code
+    code = fn.func_code
     return deparse(PYTHON_VERSION, code)
 
 def check_expect(expect, parsed):
