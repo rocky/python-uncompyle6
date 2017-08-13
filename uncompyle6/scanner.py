@@ -257,7 +257,30 @@ class Scanner(object):
 def parse_fn_counts(argc):
     return ((argc & 0xFF), (argc >> 8) & 0xFF, (argc >> 16) & 0x7FFF)
 
+
+# FIXME: put in xdis
+from xdis.magics import magics
+def version_str2float(version):
+    if version in magics:
+        magic = magics[version]
+        for v, m in list(magics.items()):
+            if m == magic:
+                try:
+                    return float(v)
+                except:
+                    pass
+                pass
+            pass
+    raise RuntimeError("Can't find a valid Python version for version %s"
+                       % version)
+    return
+
 def get_scanner(version, is_pypy=False, show_asm=None):
+
+    # If version is a string, turn that into the corresponding float.
+    if isinstance(version, str):
+        version = version_str2float(version)
+
     # Pick up appropriate scanner
     if version in PYTHON_VERSIONS:
         v_str = "%s" % (int(version * 10))
@@ -284,5 +307,6 @@ def get_scanner(version, is_pypy=False, show_asm=None):
 if __name__ == "__main__":
     import inspect, uncompyle6
     co = inspect.currentframe().f_code
+    scanner = get_scanner('2.7.13', True)
     scanner = get_scanner(uncompyle6.PYTHON_VERSION, IS_PYPY, True)
     tokens, customize = scanner.ingest(co, {})
