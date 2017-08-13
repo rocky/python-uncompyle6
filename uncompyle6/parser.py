@@ -12,6 +12,9 @@ from xdis.code import iscode
 from spark_parser import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.show import maybe_show_asm
 
+# FIXME: put in xdis
+from uncompyle6.scanner import version_str2float
+
 
 class ParserError(Exception):
     def __init__(self, token, offset):
@@ -609,7 +612,15 @@ def get_python_parser(
     explanation of the different modes.
     """
 
+    # If version is a string, turn that into the corresponding float.
+    if isinstance(version, str):
+        version = version_str2float(version)
+
     # FIXME: there has to be a better way...
+    # We could do this as a table lookup, but that would force us
+    # in import all of the parsers all of the time. Perhaps there is
+    # a lazy way of doing the import?
+
     if version < 3.0:
         if version == 1.5:
             import uncompyle6.parsers.parse15 as parse15
@@ -762,6 +773,7 @@ def python_parser(version, co, out=sys.stdout, showasm=False,
 if __name__ == '__main__':
     def parse_test(co):
         from uncompyle6 import PYTHON_VERSION, IS_PYPY
+        ast = python_parser('2.7.13', co, showasm=True, is_pypy=True)
         ast = python_parser(PYTHON_VERSION, co, showasm=True, is_pypy=IS_PYPY)
         print(ast)
         return

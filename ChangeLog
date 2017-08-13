@@ -1,3 +1,12 @@
+2017-08-10  rocky <rb@dustyfeet.com>
+
+	* : commit c38dc61021368f11e95cef70ee77e4a43dba1598 Author: rocky
+	<rb@dustyfeet.com> Date:   Wed Aug 9 22:01:59 2017 -0400
+
+2017-08-09  rocky <rb@dustyfeet.com>
+
+	* ChangeLog: Get ready for release 2.11.3
+
 2017-08-09  rocky <rb@dustyfeet.com>
 
 	* : commit dc627d13b8455ded4bf708a596bb466f9df9bf7b Author: rocky
@@ -25,6 +34,15 @@
 2017-08-02  rocky <rb@dustyfeet.com>
 
 	* __pkginfo__.py: Remove six from Python-2.4/2.5 package
+
+2017-08-02  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner3.py: in xdis "exception match" is now
+	"exception-match"
+
+2017-08-02  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py: Python 2.4 doesn't do six
 
 2017-08-01  rocky <rb@dustyfeet.com>
 
