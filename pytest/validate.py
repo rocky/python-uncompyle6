@@ -123,7 +123,9 @@ def validate_uncompyle(text, mode='exec'):
     original_text = text
 
     deparsed = deparse_code(PYTHON_VERSION, original_code,
-                            compile_mode=mode, out=six.StringIO())
+                            compile_mode=mode,
+                            out=six.StringIO(),
+                            is_pypy=IS_PYPY)
     uncompyled_text = deparsed.text
     uncompyled_code = compile(uncompyled_text, '<string>', 'exec')
 
