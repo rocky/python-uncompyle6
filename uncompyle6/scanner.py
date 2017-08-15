@@ -15,6 +15,7 @@ import sys
 from uncompyle6 import PYTHON3, IS_PYPY
 from uncompyle6.scanners.tok import Token
 from xdis.bytecode import op_size
+from xdis.magics import py_str2float
 
 # The byte code versions we support
 PYTHON_VERSIONS = (1.5,
@@ -256,28 +257,11 @@ def parse_fn_counts(argc):
     return ((argc & 0xFF), (argc >> 8) & 0xFF, (argc >> 16) & 0x7FFF)
 
 
-# FIXME: put in xdis
-from xdis.magics import magics
-def version_str2float(version):
-    if version in magics:
-        magic = magics[version]
-        for v, m in list(magics.items()):
-            if m == magic:
-                try:
-                    return float(v)
-                except:
-                    pass
-                pass
-            pass
-    raise RuntimeError("Can't find a valid Python version for version %s"
-                       % version)
-    return
-
 def get_scanner(version, is_pypy=False, show_asm=None):
 
     # If version is a string, turn that into the corresponding float.
     if isinstance(version, str):
-        version = version_str2float(version)
+        version = py_str2float(version)
 
     # Pick up appropriate scanner
     if version in PYTHON_VERSIONS:

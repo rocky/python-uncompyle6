@@ -1,3 +1,9 @@
+2017-08-13  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, README.rst, __pkginfo__.py, pytest/test_basic.py,
+	uncompyle6/parser.py, uncompyle6/scanner.py: Allow version to be
+	string...  in get_python_parser and get_scanner
+
 2017-08-10  rocky <rb@dustyfeet.com>
 
 	* : commit c38dc61021368f11e95cef70ee77e4a43dba1598 Author: rocky
