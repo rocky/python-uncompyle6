@@ -1,7 +1,29 @@
+2017-08-15  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/version.py: Get ready for release 2.11.4
+
+2017-08-15  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, pytest/validate.py, uncompyle6/parser.py,
+	uncompyle6/scanner.py: Misc cleanups...  remove code now in xdis require at least xdis 3.5.4 PyPy tolerance
+	in validate testing
+
+2017-08-13  rocky <rb@dustyfeet.com>
+
+	* pytest/test_basic.py, uncompyle6/parser.py, uncompyle6/scanner.py: 
+	Allow 3-part version string lookups, e.g 2.7.1 We allow a float here, but if passed a string like '2.7'. or
+	'2.7.13', accept that in looking up either a scanner or a parser.
+
+2017-08-10  rocky <rb@dustyfeet.com>
+
+	* README.rst: Link typo Name is trepan2 now not trepan
+
 2017-08-09  rocky <rb@dustyfeet.com>
 
-	* README.rst, __pkginfo__.py, uncompyle6/version.py: Get ready for
-	release 2.11.3
+	* ChangeLog, NEWS, README.rst, __pkginfo__.py,
+	uncompyle6/semantics/consts.py, uncompyle6/version.py: Get ready for
+	release 2.11.3 need xdis 3.5.1 for now. Adjust for xdis "is-not" which we need as
+	"is not"
 
 2017-08-02  rocky <rb@dustyfeet.com>
 

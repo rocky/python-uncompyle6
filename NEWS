@@ -1,4 +1,16 @@
-uncompyle6 2.11.2 2017-08-09
+uncompyle6 2.11.4 2017-08-15
+
+* scanner and parser now allow 3-part version string lookups,
+  e.g. 2.7.1 We allow a float here, but if passed a string like '2.7'. or
+* unpin 3.5.1. xdis 3.5.4 has been releasd and fixes the problems we had. Use that.
+* some routnes here moved to xdis. Use the xdis version
+* README.rst: Link typo Name is trepan2 now not trepan
+* xdis-forched change adjust for COMPARE_OP "is-not" in
+  semanatic routines. We need "is not".
+* Some PyPy tolerance in validate testing.
+* Some pyston tolerance
+
+uncompyle6 2.11.3 2017-08-09
 
 Very minor changes
 
