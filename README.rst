@@ -12,7 +12,7 @@ Introduction
 
 *uncompyle6* translates Python bytecode back into equivalent Python
 source code. It accepts bytecodes from Python version 1.5, and 2.1 to
-3.6 or so, including PyPy bytecode and Dropbox's Python 2.5 bytecode.
+3.7 or so, including PyPy bytecode and Dropbox's Python 2.5 bytecode.
 
 Why this?
 ---------

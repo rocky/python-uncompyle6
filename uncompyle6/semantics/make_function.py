@@ -3,7 +3,7 @@
 """
 All the crazy things we have to do to handle Python functions
 """
-from xdis.code import iscode
+from xdis.code import iscode, code_has_star_arg, code_has_star_star_arg
 from uncompyle6.scanner import Code
 from uncompyle6.parsers.astnode import AST
 from uncompyle6 import PYTHON3
@@ -44,17 +44,6 @@ def find_none(node):
         elif n.type == 'LOAD_CONST' and n.pattr is None:
             return True
     return False
-
-# FIXME: put this in xdis
-def code_has_star_arg(code):
-    """Return True iff
-    the code object has a variable positional parameter (*args-like)"""
-    return (code.co_flags & 4) != 0
-
-def code_has_star_star_arg(code):
-    """Return True iff
-    The code object has a variable keyword parameter (**kwargs-like)."""
-    return (code.co_flags & 8) != 0
 
 # FIXME: DRY the below code...
 

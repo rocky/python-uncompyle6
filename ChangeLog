@@ -1,6 +1,17 @@
+2017-08-31  rocky <rb@dustyfeet.com>
+
+	* NEWS, README.rst, uncompyle6/parsers/parse37.py,
+	uncompyle6/semantics/make_function.py, uncompyle6/version.py: Get
+	ready for release 2.11.5
+
 2017-08-15  rocky <rb@dustyfeet.com>
 
-	* uncompyle6/version.py: Get ready for release 2.11.4
+	* Makefile: 3.7 support
+
+2017-08-15  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, uncompyle6/version.py: Get ready for release
+	2.11.4
 
 2017-08-15  rocky <rb@dustyfeet.com>
 
