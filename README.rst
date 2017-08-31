@@ -1,4 +1,4 @@
-|buildstatus| |Supported Python Versions|
+|buildstatus|
 
 uncompyle6
 ==========
@@ -184,7 +184,5 @@ See Also
 .. _this: https://github.com/rocky/python-uncompyle6/wiki/Deparsing-technology-and-its-use-in-exact-location-reporting
 .. |buildstatus| image:: https://travis-ci.org/rocky/python-uncompyle6.svg
 		 :target: https://travis-ci.org/rocky/python-uncompyle6
-.. |Supported Python Versions| image:: https://img.shields.io/pypi/pyversions/uncompyle6.svg
-   :target: https://pypi.python.org/pypi/uncompyle6/
 .. _PJOrion: http://www.koreanrandom.com/forum/topic/15280-pjorion-%D1%80%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F-%D0%B4%D0%B5%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F-%D0%BE%D0%B1%D1%84
 .. _Deobfuscator: https://github.com/extremecoders-re/PjOrion-Deobfuscator
