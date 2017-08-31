@@ -1,13 +1,41 @@
+2017-08-15  rocky <rb@dustyfeet.com>
+
+	* : commit c54a47b15f85be50d2278aa79fd514eb08580e65 Author: rocky
+	<rb@dustyfeet.com> Date:   Tue Aug 15 10:47:12 2017 -0400
+
+2017-08-15  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, pytest/validate.py, uncompyle6/parser.py,
+	uncompyle6/scanner.py: Misc cleanups...  remove code now in xdis require at least xdis 3.5.4 PyPy tolerance
+	in validate testing
+
 2017-08-13  rocky <rb@dustyfeet.com>
 
 	* ChangeLog, README.rst, __pkginfo__.py, pytest/test_basic.py,
 	uncompyle6/parser.py, uncompyle6/scanner.py: Allow version to be
 	string...  in get_python_parser and get_scanner
 
+2017-08-13  rocky <rb@dustyfeet.com>
+
+	* pytest/test_basic.py, uncompyle6/parser.py, uncompyle6/scanner.py: 
+	Allow 3-part version string lookups, e.g 2.7.1 We allow a float here, but if passed a string like '2.7'. or
+	'2.7.13', accept that in looking up either a scanner or a parser.
+
 2017-08-10  rocky <rb@dustyfeet.com>
 
-	* : commit c38dc61021368f11e95cef70ee77e4a43dba1598 Author: rocky
-	<rb@dustyfeet.com> Date:   Wed Aug 9 22:01:59 2017 -0400
+	* : commit 503039ab51f004cca27a9da43ff22b031cc486dc Author: rocky
+	<rb@dustyfeet.com> Date:   Thu Aug 10 09:41:48 2017 -0400
+
+2017-08-09  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, README.rst, __pkginfo__.py,
+	uncompyle6/semantics/consts.py, uncompyle6/version.py: Get ready for
+	release 2.11.3 need xdis 3.5.1 for now. Adjust for xdis "is-not" which we need as
+	"is not"
+
+2017-08-09  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/consts.py: xdis "is not" is now "is-not"
 
 2017-08-09  rocky <rb@dustyfeet.com>
 

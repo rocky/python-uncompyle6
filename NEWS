@@ -5,7 +5,7 @@ uncompyle6 2.11.4 2017-08-15
 * unpin 3.5.1. xdis 3.5.4 has been releasd and fixes the problems we had. Use that.
 * some routnes here moved to xdis. Use the xdis version
 * README.rst: Link typo Name is trepan2 now not trepan
-* xdis-forched change adjust for COMPARE_OP "is-not" in
+* xdis-forced change adjust for COMPARE_OP "is-not" in
   semanatic routines. We need "is not".
 * Some PyPy tolerance in validate testing.
 * Some pyston tolerance
