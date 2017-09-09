@@ -1,4 +1,4 @@
-#  Copyright (c) 2016 by Rocky Bernstein
+#  Copyright (c) 2016-2017 by Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 
@@ -8,7 +8,7 @@ from uncompyle6 import PYTHON3
 if PYTHON3:
     intern = sys.intern
 
-class Token:
+class Token():
     """
     Class representing a byte-code instruction.
 
