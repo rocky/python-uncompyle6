@@ -330,7 +330,7 @@ class Scanner3(Scanner):
                     attr = (pos_args, name_pair_args, annotate_args)
                 tokens.append(
                     Token(
-                        type_ = opname,
+                        opname = opname,
                         attr = attr,
                         pattr = pattr,
                         offset = inst.offset,
@@ -408,7 +408,7 @@ class Scanner3(Scanner):
             last_op_was_break = opname == 'BREAK_LOOP'
             tokens.append(
                 Token(
-                    type_ = opname,
+                    opname = opname,
                     attr = argval,
                     pattr = pattr,
                     offset = inst.offset,
