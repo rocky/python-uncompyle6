@@ -1777,10 +1777,9 @@ class SourceWalker(GenericASTTraversal, object):
                     node[0].attr == 1):
                     self.write(',')
             elif typ == 'c':
-                if isinstance(entry[arg], int):
-                    entry_node = node[entry[arg]]
-                    self.preorder(entry_node)
-                    arg += 1
+                entry_node = node[entry[arg]]
+                self.preorder(entry_node)
+                arg += 1
             elif typ == 'p':
                 p = self.prec
                 (index, self.prec) = entry[arg]
