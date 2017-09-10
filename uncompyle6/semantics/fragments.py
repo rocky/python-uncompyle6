@@ -1514,6 +1514,17 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 start = len(self.f.getvalue())
                 self.preorder(node[entry[arg]])
                 finish = len(self.f.getvalue())
+
+                # FIXME rocky: figure out how to get this to be table driven
+                # for loops have two positions that correspond to a single text
+                # location. In "for i in ..." there is the initialization "i" code as well
+                # as the iteration code with "i"
+                match = re.search(r'^for', startnode.type)
+                if match and entry[arg] == 3:
+                    self.set_pos_info(node[0], start, finish)
+                    for n in node[2]:
+                        self.set_pos_info(n, start, finish)
+
                 self.set_pos_info(node, start, finish)
                 arg += 1
             elif typ == 'p':
