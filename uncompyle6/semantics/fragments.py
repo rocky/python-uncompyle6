@@ -1,4 +1,4 @@
-#  Copyright (c) 2015, 2016 by Rocky Bernstein
+#  Copyright (c) 2015-2017 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -1474,10 +1474,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prec = p
         self.prune()
 
-    def engine(self, entry, startnode):
+    def template_engine(self, entry, startnode):
         """The format template interpetation engine.  See the comment at the
-        beginning of this module for the how we interpret format specifications such as
-        %c, %C, and so on.
+        beginning of this module for the how we interpret format
+        specifications such as %c, %C, and so on.
         """
 
         # print("-----")
