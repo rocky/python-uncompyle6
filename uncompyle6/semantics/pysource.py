@@ -26,8 +26,8 @@ These uses a printf-like syntax to direct substitution from attributes
 of the nonterminal and its children..
 
 The rest of the below describes how table-driven semantic actions work
-and gives a list of the format specifiers. The default() and engine()
-methods implement most of the below.
+and gives a list of the format specifiers. The default() and
+template_engine() methods implement most of the below.
 
   Step 1 determines a table (T) and a path to a
   table key (K) from the node type (N) (other nodes are shown as O):
@@ -64,8 +64,10 @@ methods implement most of the below.
 
   * indicates an argument (A) required.
 
-  The '%' may optionally be followed by a number (C) in square brackets, which
-  makes the engine walk down to N[C] before evaluating the escape code.
+  The '%' may optionally be followed by a number (C) in square
+  brackets, which makes the template_engine walk down to N[C] before
+  evaluating the escape code.
+
 """
 from __future__ import print_function
 
@@ -361,7 +363,8 @@ class SourceWalker(GenericASTTraversal, object):
                         node.type == 'call_function'
                         p = self.prec
                         self.prec = 80
-                        self.engine(('%c(%P)', 0, (1, -4, ', ', 100)), node)
+                        self.template_engine(('%c(%P)', 0,
+                                              (1, -4, ', ', 100)), node)
                         self.prec = p
                         self.prune()
                     self.n_async_call_function = n_async_call_function
@@ -402,9 +405,11 @@ class SourceWalker(GenericASTTraversal, object):
                         is_code = hasattr(code_node, 'attr') and iscode(code_node.attr)
                         if (is_code and
                             (code_node.attr.co_flags & COMPILER_FLAG_BIT['COROUTINE'])):
-                            self.engine(('\n\n%|async def %c\n', -2), node)
+                            self.template_engine(('\n\n%|async def %c\n',
+                                                  -2), node)
                         else:
-                            self.engine(('\n\n%|def %c\n', -2), node)
+                            self.template_engine(('\n\n%|def %c\n', -2),
+                                                 node)
                         self.prune()
                     self.n_funcdef = n_funcdef
 
@@ -1740,11 +1745,12 @@ class SourceWalker(GenericASTTraversal, object):
             node[-2][0].type = 'unpack_w_parens'
         self.default(node)
 
-    def engine(self, entry, startnode):
+    def template_engine(self, entry, startnode):
         """The format template interpetation engine.  See the comment at the
-        beginning of this module for the how we interpret format specifications such as
-        %c, %C, and so on.
+        beginning of this module for the how we interpret format
+        specifications such as %c, %C, and so on.
         """
+
         # self.println("----> ", startnode.type, ', ', entry[0])
         fmt = entry[0]
         arg = 1
@@ -1846,7 +1852,7 @@ class SourceWalker(GenericASTTraversal, object):
             pass
 
         if key.type in table:
-            self.engine(table[key.type], node)
+            self.template_engine(table[key.type], node)
             self.prune()
 
     def customize(self, customize):
