@@ -8,8 +8,8 @@ Creates Python source code from an uncompyle6 abstract syntax tree,
 and indexes fragments which can be accessed by instruction offset
 address.
 
-See the comments in pysource for information on the abstract sytax tree
-and how semantic actions are written.
+See https://github.com/rocky/python-uncompyle6/wiki/Table-driven-semantic-actions.
+for a more complete explanation, nicely marked up and with examples.
 
 We add some format specifiers here not used in pysource
 
@@ -421,10 +421,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write(self.indent, 'if ')
         self.preorder(node[0])
         self.println(':')
-        self.indentMore()
+        self.indent_more()
         node[1].parent = node
         self.preorder(node[1])
-        self.indentLess()
+        self.indent_less()
 
         if_ret_at_end = False
         if len(node[2][0]) >= 3:
@@ -443,17 +443,17 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 prev_stmt_is_if_ret = False
                 if not past_else and not if_ret_at_end:
                     self.println(self.indent, 'else:')
-                    self.indentMore()
+                    self.indent_more()
                     past_else = True
             n.parent = node
             self.preorder(n)
         if not past_else or if_ret_at_end:
             self.println(self.indent, 'else:')
-            self.indentMore()
+            self.indent_more()
         node[2][1].parent = node
         self.preorder(node[2][1])
         self.set_pos_info(node, start, len(self.f.getvalue()))
-        self.indentLess()
+        self.indent_less()
         self.prune()
 
     def n_elifelsestmtr(self, node):
@@ -470,20 +470,20 @@ class FragmentsWalker(pysource.SourceWalker, object):
         node[0].parent = node
         self.preorder(node[0])
         self.println(':')
-        self.indentMore()
+        self.indent_more()
         node[1].parent = node
         self.preorder(node[1])
-        self.indentLess()
+        self.indent_less()
 
         for n in node[2][0]:
             n[0].type = 'elifstmt'
             n.parent = node
             self.preorder(n)
         self.println(self.indent, 'else:')
-        self.indentMore()
+        self.indent_more()
         node[2][1].parent = node
         self.preorder(node[2][1])
-        self.indentLess()
+        self.indent_less()
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune()
 
@@ -527,7 +527,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write(func_name)
         self.set_pos_info(code_node, start, len(self.f.getvalue()))
 
-        self.indentMore()
+        self.indent_more()
         start = len(self.f.getvalue())
         self.make_function(node, isLambda=False, codeNode=code_node)
 
@@ -537,7 +537,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.write('\n\n')
         else:
             self.write('\n\n\n')
-        self.indentLess()
+        self.indent_less()
         self.prune() # stop recursing
 
     def n_list_compr(self, node):
@@ -977,9 +977,9 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.println(':')
 
         # class body
-        self.indentMore()
+        self.indent_more()
         self.build_class(subclass)
-        self.indentLess()
+        self.indent_less()
 
         self.currentclass = cclass
         self.set_pos_info(node, start, len(self.f.getvalue()))
@@ -1316,7 +1316,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         p = self.prec
         self.prec = 100
 
-        self.indentMore(INDENT_PER_LEVEL)
+        self.indent_more(INDENT_PER_LEVEL)
         line_seperator = ',\n' + self.indent
         sep = INDENT_PER_LEVEL[:-1]
         start = len(self.f.getvalue())
@@ -1393,7 +1393,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             n.parent = node
             self.set_pos_info(n, start, finish)
         self.set_pos_info(node, start, finish)
-        self.indentLess(INDENT_PER_LEVEL)
+        self.indent_less(INDENT_PER_LEVEL)
         self.prec = p
         self.prune()
 
@@ -1429,7 +1429,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             else:
                 flat_elems.append(elem)
 
-        self.indentMore(INDENT_PER_LEVEL)
+        self.indent_more(INDENT_PER_LEVEL)
         if len(node) > 3:
             line_separator = ',\n' + self.indent
         else:
@@ -1454,7 +1454,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         n.parent = node.parent
         self.set_pos_info(n, start, finish)
         self.set_pos_info(node, start, finish)
-        self.indentLess(INDENT_PER_LEVEL)
+        self.indent_less(INDENT_PER_LEVEL)
         self.prec = p
         self.prune()
 
@@ -1498,8 +1498,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 self.write('%')
                 self.set_pos_info(node, start, len(self.f.getvalue()))
 
-            elif typ == '+': self.indentMore()
-            elif typ == '-': self.indentLess()
+            elif typ == '+': self.indent_more()
+            elif typ == '-': self.indent_less()
             elif typ == '|': self.write(self.indent)
             # no longer used, since BUILD_TUPLE_n is pretty printed:
             elif typ == 'r': recurse_node = True

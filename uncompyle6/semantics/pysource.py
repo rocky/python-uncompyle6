@@ -350,7 +350,7 @@ class SourceWalker(GenericASTTraversal, object):
                     # MAKE_FUNCTION ..
                     code = node[-3]
 
-                self.indentMore()
+                self.indent_more()
                 for annotate_last in range(len(node)-1, -1, -1):
                     if node[annotate_last] == 'annotate_tuple':
                         break
@@ -370,7 +370,7 @@ class SourceWalker(GenericASTTraversal, object):
                     self.write('\n\n')
                 else:
                     self.write('\n\n\n')
-                self.indentLess()
+                self.indent_less()
                 self.prune() # stop recursing
             self.n_mkfunc_annotate = n_mkfunc_annotate
 
@@ -550,10 +550,10 @@ class SourceWalker(GenericASTTraversal, object):
         super(SourceWalker, self).preorder(node)
         self.set_pos_info(node)
 
-    def indentMore(self, indent=TAB):
+    def indent_more(self, indent=TAB):
         self.indent += indent
 
-    def indentLess(self, indent=TAB):
+    def indent_less(self, indent=TAB):
         self.indent = self.indent[:-len(indent)]
 
     def traverse(self, node, indent=None, isLambda=False):
@@ -871,9 +871,9 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(self.indent, 'if ')
         self.preorder(node[0])
         self.println(':')
-        self.indentMore()
+        self.indent_more()
         self.preorder(node[1])
-        self.indentLess()
+        self.indent_less()
 
         if_ret_at_end = False
         if len(return_stmts_node[0]) >= 3:
@@ -892,14 +892,14 @@ class SourceWalker(GenericASTTraversal, object):
                 prev_stmt_is_if_ret = False
                 if not past_else and not if_ret_at_end:
                     self.println(self.indent, 'else:')
-                    self.indentMore()
+                    self.indent_more()
                     past_else = True
             self.preorder(n)
         if not past_else or if_ret_at_end:
             self.println(self.indent, 'else:')
-            self.indentMore()
+            self.indent_more()
         self.preorder(return_stmts_node[1])
-        self.indentLess()
+        self.indent_less()
         self.prune()
     n_ifelsestmtr2 = n_ifelsestmtr
 
@@ -921,17 +921,17 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(self.indent, 'elif ')
         self.preorder(node[0])
         self.println(':')
-        self.indentMore()
+        self.indent_more()
         self.preorder(node[1])
-        self.indentLess()
+        self.indent_less()
 
         for n in return_stmts_node[0]:
             n[0].type = 'elifstmt'
             self.preorder(n)
         self.println(self.indent, 'else:')
-        self.indentMore()
+        self.indent_more()
         self.preorder(return_stmts_node[1])
-        self.indentLess()
+        self.indent_less()
         self.prune()
 
     def n_import_as(self, node):
@@ -972,14 +972,14 @@ class SourceWalker(GenericASTTraversal, object):
         func_name = code_node.attr.co_name
         self.write(func_name)
 
-        self.indentMore()
+        self.indent_more()
         self.make_function(node, isLambda=False, codeNode=code_node)
 
         if len(self.param_stack) > 1:
             self.write('\n\n')
         else:
             self.write('\n\n\n')
-        self.indentLess()
+        self.indent_less()
         self.prune() # stop recursing
 
     def make_function(self, node, isLambda, nested=1,
@@ -1450,9 +1450,9 @@ class SourceWalker(GenericASTTraversal, object):
         self.println(':')
 
         # class body
-        self.indentMore()
+        self.indent_more()
         self.build_class(subclass_code)
-        self.indentLess()
+        self.indent_less()
 
         self.currentclass = cclass
         if len(self.param_stack) > 1:
@@ -1523,7 +1523,7 @@ class SourceWalker(GenericASTTraversal, object):
         p = self.prec
         self.prec = 100
 
-        self.indentMore(INDENT_PER_LEVEL)
+        self.indent_more(INDENT_PER_LEVEL)
         sep = INDENT_PER_LEVEL[:-1]
         self.write('{')
         line_number = self.line_number
@@ -1661,7 +1661,7 @@ class SourceWalker(GenericASTTraversal, object):
         if sep.startswith(",\n"):
             self.write(sep[1:])
         self.write('}')
-        self.indentLess(INDENT_PER_LEVEL)
+        self.indent_less(INDENT_PER_LEVEL)
         self.prec = p
         self.prune()
 
@@ -1712,7 +1712,7 @@ class SourceWalker(GenericASTTraversal, object):
             else:
                 flat_elems.append(elem)
 
-        self.indentMore(INDENT_PER_LEVEL)
+        self.indent_more(INDENT_PER_LEVEL)
         sep = ''
 
         for elem in flat_elems:
@@ -1737,7 +1737,7 @@ class SourceWalker(GenericASTTraversal, object):
         if lastnode.attr == 1 and lastnodetype.startswith('BUILD_TUPLE'):
             self.write(',')
         self.write(endchar)
-        self.indentLess(INDENT_PER_LEVEL)
+        self.indent_less(INDENT_PER_LEVEL)
         self.prec = p
         self.prune()
 
@@ -1812,10 +1812,10 @@ class SourceWalker(GenericASTTraversal, object):
             if   typ == '%':	self.write('%')
             elif typ == '+':
                 self.line_number += 1
-                self.indentMore()
+                self.indent_more()
             elif typ == '-':
                 self.line_number += 1
-                self.indentLess()
+                self.indent_less()
             elif typ == '|':
                 self.line_number += 1
                 self.write(self.indent)
