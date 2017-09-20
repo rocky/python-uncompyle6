@@ -11,64 +11,84 @@ and what they mean).
 
 Upper levels of the grammar is a more-or-less conventional grammar for
 Python.
-
-Semantic action rules for nonterminal symbols can be specified here by
-creating a method prefaced with "n_" for that nonterminal. For
-example, "n_exec_stmt" handles the semantic actions for the
-"exec_smnt" nonterminal symbol. Similarly if a method with the name
-of the nonterminal is suffixed with "_exit" it will be called after
-all of its children are called.
-
-Another other way to specify a semantic rule for a nonterminal is via
-rule given in one of the tables MAP_R0, MAP_R, or MAP_DIRECT.
-
-These uses a printf-like syntax to direct substitution from attributes
-of the nonterminal and its children..
-
-The rest of the below describes how table-driven semantic actions work
-and gives a list of the format specifiers. The default() and
-template_engine() methods implement most of the below.
-
-  Step 1 determines a table (T) and a path to a
-  table key (K) from the node type (N) (other nodes are shown as O):
-
-         N                  N               N&K
-     / | ... \          / | ... \        / | ... \
-    O  O      O        O  O      K      O  O      O
-              |
-              K
-
-  MAP_R0 (TABLE_R0)  MAP_R (TABLE_R)  MAP_DIRECT (TABLE_DIRECT)
-
-  The default is a direct mapping.  The key K is then extracted from the
-  subtree and used to find a table entry T[K], if any.  The result is a
-  format string and arguments (a la printf()) for the formatting engine.
-  Escapes in the format string are:
-
-    %c  evaluate children N[A] recursively*
-    %C  evaluate children N[A[0]]..N[A[1]-1] recursively, separate by A[2]*
-    %P  same as %C but sets operator precedence
-    %D  same as %C but is for left-recursive lists like kwargs which
-        goes to epsilon at the beginning. Using %C an extra separator
-        with an epsilon appears at the beginning
-    %,  print ',' if last %C only printed one item. This is mostly for tuples
-        on the LHS of an assignment statement since BUILD_TUPLE_n pretty-prints
-        other tuples.
-    %|  tab to current indentation level
-    %+ increase current indentation level
-    %- decrease current indentation level
-    %{...} evaluate ... in context of N
-    %% literal '%'
-    %p evaluate N setting precedence
-
-
-  * indicates an argument (A) required.
-
-  The '%' may optionally be followed by a number (C) in square
-  brackets, which makes the template_engine walk down to N[C] before
-  evaluating the escape code.
-
 """
+
+# The below is a bit long, but still it is somehwat abbreviated.
+# See https://github.com/rocky/python-uncompyle6/wiki/Table-driven-semantic-actions.
+# for a more complete explanation, nicely marked up and with examples.
+#
+#
+# Semantic action rules for nonterminal symbols can be specified here by
+# creating a method prefaced with "n_" for that nonterminal. For
+# example, "n_exec_stmt" handles the semantic actions for the
+# "exec_stmt" nonterminal symbol. Similarly if a method with the name
+# of the nonterminal is suffixed with "_exit" it will be called after
+# all of its children are called.
+#
+# However if this were done for all of the rules, this file would be even longer
+# than it is already.
+#
+# Another more compact way to specify a semantic rule for a nonterminal is via
+# rule given in one of the tables MAP_R0, MAP_R, or MAP_DIRECT.
+#
+# These uses a printf-like syntax to direct substitution from attributes
+# of the nonterminal and its children..
+#
+# The rest of the below describes how table-driven semantic actions work
+# and gives a list of the format specifiers. The default() and
+# template_engine() methods implement most of the below.
+#
+#   Step 1 determines a table (T) and a path to a
+#   table key (K) from the node type (N) (other nodes are shown as O):
+#
+#          N                  N               N&K
+#        / | ... \          / | ... \        / | ... \
+#       O  O      O        O  O      K      O  O      O
+#                 |
+#                 K
+#
+#   MAP_R0 (TABLE_R0)  MAP_R (TABLE_R)  MAP_DIRECT (TABLE_DIRECT)
+#
+#   The default is a direct mapping.  The key K is then extracted from the
+#   subtree and used to find a table entry T[K], if any.  The result is a
+#   format string and arguments (a la printf()) for the formatting engine.
+#   Escapes in the format string are:
+#
+#     %c  evaluate the node recursively. Its argument is a single
+#         integer representing a node index.
+#     %p  like %c but sets the operator precedence.
+#         Its argument then is a tuple indicating the node
+#         index and the precidence value, an integer.
+#
+#     %C  evaluate children recursively, with sibling children separated by the
+#         given string.  It needs a tuple of 3 items, a starting node, the maximimum
+#         value of an end node, and a string to be inserted between sibling children
+#
+#     %,  Append ',' if last %C only printed one item. This is mostly for tuples
+#         on the LHS of an assignment statement since BUILD_TUPLE_n pretty-prints
+#         other tuples. The specifier takes no arguments
+#
+#     %P  same as %C but sets operator precedence.
+#
+#     %D  Same as `%C` this is for left-recursive lists like kwargs where
+#         goes to epsilon at the beginning. If we were to use `%C` an extra separator
+#         with an epsilon would appear at the beginning.
+#
+#     %|  Insert spaces to the current indentation level. Takes no arguments.
+#
+#     %+ increase current indentation level. Takes no arguments.
+#
+#     %- decrease current indentation level. Takes no arguments.
+#
+#     %{...} evaluate ... in context of N
+#
+#     %% literal '%'. Takes no arguments.
+#
+#
+#   The '%' may optionally be followed by a number (C) in square
+#   brackets, which makes the template_engine walk down to N[C] before
+#   evaluating the escape code.
+
 from __future__ import print_function
 
 import sys
@@ -126,6 +146,29 @@ class SourceWalker(GenericASTTraversal, object):
                  debug_parser=PARSER_DEFAULT_DEBUG,
                  compile_mode='exec', is_pypy=False,
                  linestarts={}):
+        """version is the Python version (a float) of the Python dialect
+
+        of both the AST and language we should produce.
+
+        out is IO-like file pointer to where the output should go. It
+        whould have a getvalue() method.
+
+        scanner is a method to call when we need to scan tokens. Sometimes
+        in producing output we will run across further tokens that need
+        to be scaned.
+
+        If showast is True, we print the AST tree.
+
+        compile_mode is is either 'exec' or 'single'. It isthe compile
+        mode that was used to create the AST and specifies a gramar variant within
+        a Python version to use.
+
+        is_pypy should be True if the AST was generated for PyPy.
+
+        linestarts is a dictionary of line number to bytecode offset. This
+        can sometimes assist in determinte which kind of source-code construct
+        to use when there is ambiguity.
+        """
         GenericASTTraversal.__init__(self, ast=None)
         self.scanner = scanner
         params = {
