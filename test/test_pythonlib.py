@@ -169,13 +169,13 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
           main(src_dir, target_dir, files, [],
                do_verify=opts['do_verify'])
         if failed_files != 0:
-            exit(2)
+            sys.exit(2)
         elif failed_verify != 0:
-            exit(3)
+            sys.exit(3)
 
     except (KeyboardInterrupt, OSError):
         print()
-        exit(1)
+        sys.exit(1)
     if test_opts['rmtree']:
         parent_dir = os.path.dirname(target_dir)
         print("Everything good, removing %s" % parent_dir)
