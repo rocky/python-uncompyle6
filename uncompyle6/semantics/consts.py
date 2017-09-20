@@ -276,7 +276,7 @@ MAP = {
 }
 
 # Operator precidence
-# See https://docs.python.org/3/reference/expressions.html
+# See https://docs.python.org/2/reference/expressions.html
 # or https://docs.python.org/3/reference/expressions.html
 # for a list.
 PRECEDENCE = {

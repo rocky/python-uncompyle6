@@ -41,15 +41,14 @@ Python.
 #   Step 1 determines a table (T) and a path to a
 #   table key (K) from the node type (N) (other nodes are shown as O):
 #
-#          N                  N               N&K
-#        / | ... \          / | ... \        / | ... \
-#       O  O      O        O  O      K      O  O      O
-#                 |
-#                 K
+#          N&K               N                  N
+#         / | ... \        / | ... \          / | ... \
+#        O  O      O      O  O      K         O O      O
+#                                                      |
+#                                                      K
+#      TABLE_DIRECT      TABLE_R             TABLE_R0
 #
-#   MAP_R0 (TABLE_R0)  MAP_R (TABLE_R)  MAP_DIRECT (TABLE_DIRECT)
-#
-#   The default is a direct mapping.  The key K is then extracted from the
+#   The default is a "TABLE_DIRECT" mapping.  The key K is then extracted from the
 #   subtree and used to find a table entry T[K], if any.  The result is a
 #   format string and arguments (a la printf()) for the formatting engine.
 #   Escapes in the format string are:
