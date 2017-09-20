@@ -408,6 +408,7 @@ class SourceWalker(GenericASTTraversal, object):
                         self.template_engine(('%c(%P)', 0,
                                               (1, -4, ', ', 100)), node)
                         self.prec = p
+                        node.type == 'async_call_function'
                         self.prune()
                     self.n_async_call_function = n_async_call_function
                     self.n_build_list_unpack = self.n_build_list
