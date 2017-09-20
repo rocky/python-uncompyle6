@@ -1,6 +1,79 @@
+2017-09-20  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Tidy pysource and fragments a
+	little more
+
+2017-09-20  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/consts.py: Tidy/regularize table entry
+	formatting
+
+2017-09-20  rocky <rb@dustyfeet.com>
+
+	* test/test_pythonlib.py, uncompyle6/semantics/pysource.py: Small
+	fixes test_pyenvlib.py: it is sys.exit(), not exit() pysource.py:
+	reinstate nod type of async_func_call
+
+2017-09-20  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/consts.py, uncompyle6/semantics/pysource.py: 
+	More small doc changes
+
+2017-09-20  rocky <rb@dustyfeet.com>
+
+	* pytest/test_pysource.py, uncompyle6/semantics/pysource.py: Update
+	Table-driven info...  Start a pysource unit test.
+
+2017-09-17  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: engine -> template_engine
+
+2017-09-13  rocky <rb@dustyfeet.com>
+
+	* test/Makefile: Need weak-verification on 3.4 for now
+
+2017-09-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py: Revert one of the changes
+	pending a better fix
+
+2017-09-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: More semantic action cleanup
+
+2017-09-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner3.py, uncompyle6/scanners/tok.py: Match
+	Python 3.4's terms a little names better
+
+2017-09-09  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/tok.py: Revert last revert
+
+2017-09-09  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/tok.py: Revert last change
+
+2017-09-09  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/tok.py: New-style Python classes only, please.
+
 2017-08-31  rocky <rb@dustyfeet.com>
 
-	* NEWS, README.rst, uncompyle6/parsers/parse37.py,
+	* uncompyle6/scanner.py, uncompyle6/scanners/scanner37.py: Skeletal
+	support for Python 3.7 Largely failing though.
+
+2017-08-31  rocky <rb@dustyfeet.com>
+
+	* README.rst: Remove python versions tag I think it's messing up Pypi's very fussy formatting
+
+2017-08-31  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, README.rst, __pkginfo__.py,
+	uncompyle6/parsers/parse37.py,
 	uncompyle6/semantics/make_function.py, uncompyle6/version.py: Get
 	ready for release 2.11.5
 
