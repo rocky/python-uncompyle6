@@ -13,7 +13,7 @@ from uncompyle6.scanners.scanner3 import Scanner3
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_35 as opc
-JUMP_OPs = map(lambda op: opc.opname[op], opc.hasjrel + opc.hasjabs)
+JUMP_OPS = opc.JUMP_OPS
 
 class Scanner35(Scanner3):
 

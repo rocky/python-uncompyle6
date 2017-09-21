@@ -1,3 +1,14 @@
+uncompyle6 2.12.0 2017-09-25
+
+- Use xdis 3.6.0 or greater now
+- Small semantic table cleanups
+- Python 3.4's terms a little names better
+- Slightly more Python 3.7, but still failing a lot
+
+uncompyle6 2.11.5 2017-08-31
+
+- Skeletal support for Python 3.7
+
 uncompyle6 2.11.4 2017-08-15
 
 * scanner and parser now allow 3-part version string lookups,

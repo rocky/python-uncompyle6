@@ -1,4 +1,4 @@
-#  Copyright (c) 2016 by Rocky Bernstein
+#  Copyright (c) 2016-2017 by Rocky Bernstein
 """
 Python PyPy 2.7 bytecode scanner/deparser
 
@@ -10,8 +10,8 @@ information for later use in deparsing.
 import uncompyle6.scanners.scanner27 as scan
 
 # bytecode verification, verify(), uses JUMP_OPs from here
-from xdis.opcodes import opcode_pypy27
-JUMP_OPs = opcode_pypy27.JUMP_OPs
+from xdis.opcodes import opcode_27pypy
+JUMP_OPS = opcode_27pypy.JUMP_OPS
 
 # We base this off of 2.6 instead of the other way around
 # because we cleaned things up this way.

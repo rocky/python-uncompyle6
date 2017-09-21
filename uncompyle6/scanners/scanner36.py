@@ -11,9 +11,9 @@ scanner routine for Python 3.
 
 from uncompyle6.scanners.scanner3 import Scanner3
 
-# bytecode verification, verify(), uses JUMP_OPs from here
+# bytecode verification, verify(), uses JUMP_OPS from here
 from xdis.opcodes import opcode_36 as opc
-JUMP_OPs = map(lambda op: opc.opname[op], opc.hasjrel + opc.hasjabs)
+JUMP_OPS = opc.JUMP_OPS
 
 class Scanner36(Scanner3):
 

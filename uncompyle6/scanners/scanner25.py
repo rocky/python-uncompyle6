@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2016 by Rocky Bernstein
+#  Copyright (c) 2015-2017 by Rocky Bernstein
 """
 Python 2.5 bytecode scanner/deparser
 
@@ -11,7 +11,7 @@ import uncompyle6.scanners.scanner26 as scan
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_25
-JUMP_OPs = opcode_25.JUMP_OPs
+JUMP_OPS = opcode_25.JUMP_OPS
 
 # We base this off of 2.6 instead of the other way around
 # because we cleaned things up this way.

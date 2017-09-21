@@ -8,9 +8,9 @@ make things easier for decompilation.
 
 import uncompyle6.scanners.scanner35 as scan
 
-# bytecode verification, verify(), uses JUMP_OPs from here
+# bytecode verification, verify(), uses JUMP_OPS from here
 from xdis.opcodes import opcode_35 as opc  # is this right?
-JUMP_OPs = map(lambda op: opc.opname[op], opc.hasjrel + opc.hasjabs)
+JUMP_OPs = opc.JUMP_OPS
 
 # We base this off of 3.5
 class ScannerPyPy35(scan.Scanner35):
