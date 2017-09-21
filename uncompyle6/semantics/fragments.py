@@ -40,7 +40,8 @@ do it recursively which is where offsets are probably located.
 2. %b
 -----
 
-   %b associates the text from the previous start node up to what we have now
+   %b associates the text from the specified index to what we have now.
+      it takes an integer argument.
 
 For example in:
   'importmultiple':   ( '%|import%b %c%c\n', 0, 2, 3 ),
@@ -95,7 +96,7 @@ TABLE_DIRECT_FRAGMENT = {
     'list_for':	  	(' for %c%x in %c%c', 2, (2, (1, )), 0, 3 ),
     'forstmt':	  	( '%|for%b %c%x in %c:\n%+%c%-\n\n', 0, 3, (3, (2, )), 1, 4 ),
     'forelsestmt': 	(
-        '%|for %c in %c%x:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
+        '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
     'forelselaststmt':	(
         '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-', 3, (3, (2,)), 1, 4, -2),
     'forelselaststmtl':	(

@@ -99,7 +99,7 @@ TABLE_DIRECT = {
 
     'UNARY_POSITIVE':	( '+',),
     'UNARY_NEGATIVE':	( '-',),
-    'UNARY_INVERT':	    ( '~%c'),
+    'UNARY_INVERT':	    ( '~'),
     'unary_expr':       ( '%c%c', 1, 0),
 
     'unary_not':	    ( 'not %c', 0 ),

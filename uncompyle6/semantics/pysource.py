@@ -60,18 +60,22 @@ Python.
 #         index and the precidence value, an integer.
 #
 #     %C  evaluate children recursively, with sibling children separated by the
-#         given string.  It needs a tuple of 3 items, a starting node, the maximimum
+#         given string.  It needs a 3-tuple: a starting node, the maximimum
 #         value of an end node, and a string to be inserted between sibling children
 #
 #     %,  Append ',' if last %C only printed one item. This is mostly for tuples
 #         on the LHS of an assignment statement since BUILD_TUPLE_n pretty-prints
 #         other tuples. The specifier takes no arguments
 #
-#     %P  same as %C but sets operator precedence.
+#     %P same as %C but sets operator precedence.  Its argument is a 4-tuple:
+#         the node low and high indices, the separator, a string the precidence
+#         value, an integer.
 #
-#     %D  Same as `%C` this is for left-recursive lists like kwargs where
-#         goes to epsilon at the beginning. If we were to use `%C` an extra separator
-#         with an epsilon would appear at the beginning.
+#     %D Same as `%C` this is for left-recursive lists like kwargs where goes
+#         to epsilon at the beginning. It needs a 3-tuple: a starting node, the
+#         maximimum value of an end node, and a string to be inserted between
+#         sibling children. If we were to use `%C` an extra separator with an
+#         epsilon would appear at the beginning.
 #
 #     %|  Insert spaces to the current indentation level. Takes no arguments.
 #
@@ -1919,7 +1923,7 @@ class SourceWalker(GenericASTTraversal, object):
                         'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
                 if v == 0:
                     str = '%c(%C' # '%C' is a dummy here ...
-                    p2 = (0, 0, None) # .. because of this
+                    p2 = (0, 0, None) # .. because of the None in this
                 else:
                     str = '%c(%C, '
                     p2 = (1, -2, ', ')
