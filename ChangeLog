@@ -1,3 +1,27 @@
+2017-09-26  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py: No unicode in Python3.  but we need it in Python2. The bug was probably introduced as a
+	result of recent Python code type unteroperability canonicalization
+
+2017-09-26  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py: Pyton 3.1 Annotation args can be
+	unicode?
+
+2017-09-25  rocky <rb@dustyfeet.com>
+
+	* : Adjust for xdis opcode JUMP_OPS. release 2.12.0
+
+2017-09-21  rocky <rb@dustyfeet.com>
+
+	* pytest/test_pysource.py: Python 3 compatibility
+
+2017-09-21  rocky <rb@dustyfeet.com>
+
+	* pytest/test_pysource.py, uncompyle6/semantics/consts.py,
+	uncompyle6/semantics/fragments.py, uncompyle6/semantics/pysource.py: 
+	Unit test for format-specifiers And in the process we catch some small bugs
+
 2017-09-20  rocky <rb@dustyfeet.com>
 
 	* uncompyle6/semantics/fragments.py,
