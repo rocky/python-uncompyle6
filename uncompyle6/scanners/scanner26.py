@@ -19,7 +19,7 @@ from uncompyle6.scanner import L65536
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_26
-JUMP_OPs = opcode_26.JUMP_OPs
+JUMP_OPS = opcode_26.JUMP_OPS
 
 class Scanner26(scan.Scanner2):
     def __init__(self, show_asm=False):

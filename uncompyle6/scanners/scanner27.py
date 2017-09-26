@@ -18,7 +18,7 @@ if PYTHON3:
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_27
-JUMP_OPs = opcode_27.JUMP_OPs
+JUMP_OPS = opcode_27.JUMP_OPs
 
 class Scanner27(Scanner2):
     def __init__(self, show_asm=False, is_pypy=False):

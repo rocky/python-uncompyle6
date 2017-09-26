@@ -56,7 +56,7 @@ class Scanner(object):
 
         if version in PYTHON_VERSIONS:
             if is_pypy:
-                v_str = "opcode_pypy%s" % (int(version * 10))
+                v_str = "opcode_%spypy" % (int(version * 10))
             else:
                 v_str = "opcode_%s" % (int(version * 10))
             exec("from xdis.opcodes import %s" % v_str)
@@ -65,6 +65,7 @@ class Scanner(object):
             raise TypeError("%s is not a Python version I know about" % version)
 
         self.opname = self.opc.opname
+
         # FIXME: This weird Python2 behavior is not Python3
         self.resetTokenClass()
 
@@ -101,7 +102,7 @@ class Scanner(object):
     def print_bytecode(self):
         for i in self.op_range(0, len(self.code)):
             op = self.code[i]
-            if op in self.JUMP_OPs:
+            if op in self.JUMP_OPS:
                 dest = self.get_target(i, op)
                 print('%i\t%s\t%i' % (i, self.opname[op], dest))
             else:

@@ -11,7 +11,7 @@ import uncompyle6.scanners.scanner21 as scan
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_15
-JUMP_OPs = opcode_15.JUMP_OPs
+JUMP_OPS = opcode_15.JUMP_OPS
 
 # We base this off of 2.2 instead of the other way around
 # because we cleaned things up this way.

@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2016 by Rocky Bernstein
+#  Copyright (c) 2015-2017 by Rocky Bernstein
 """
 Python 3.3 bytecode scanner/deparser
 
@@ -10,7 +10,7 @@ from __future__ import print_function
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_33 as opc
-JUMP_OPs = map(lambda op: opc.opname[op], opc.hasjrel + opc.hasjabs)
+JUMP_OPS = opc.JUMP_OPS
 
 from uncompyle6.scanners.scanner3 import Scanner3
 class Scanner33(Scanner3):

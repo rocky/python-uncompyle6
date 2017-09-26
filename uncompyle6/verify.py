@@ -45,7 +45,7 @@ BIN_OP_FUNCS = {
 'BINARY_OR': operator.or_,
 }
 
-JUMP_OPs = None
+JUMP_OPS = None
 
 # --- exceptions ---
 
@@ -227,8 +227,8 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
                 import uncompyle6.scanners.scanner36 as scan
                 scanner = scan.Scanner36()
 
-            global JUMP_OPs
-            JUMP_OPs = list(scan.JUMP_OPs) + ['JUMP_BACK']
+            global JUMP_OPS
+            JUMP_OPS = list(scan.JUMP_OPS) + ['JUMP_BACK']
 
             # use changed Token class
             # We (re)set this here to save exception handling,
@@ -333,7 +333,7 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
                     else:
                         raise CmpErrorCode(name, tokens1[i1].offset, tokens1[i1],
                                            tokens2[i2], tokens1, tokens2)
-                elif tokens1[i1].type in JUMP_OPs and tokens1[i1].pattr != tokens2[i2].pattr:
+                elif tokens1[i1].type in JUMP_OPS and tokens1[i1].pattr != tokens2[i2].pattr:
                     if tokens1[i1].type == 'JUMP_BACK':
                         dest1 = int(tokens1[i1].pattr)
                         dest2 = int(tokens2[i2].pattr)
@@ -396,7 +396,7 @@ class Token(scanner.Token):
             return 0
         if t == 'JUMP_IF_FALSE_OR_POP' and o.type == 'POP_JUMP_IF_FALSE':
             return 0
-        if JUMP_OPs and t in JUMP_OPs:
+        if JUMP_OPS and t in JUMP_OPS:
             # ignore offset
             return t == o.type
         return (t ==  o.type) or self.pattr ==  o.pattr

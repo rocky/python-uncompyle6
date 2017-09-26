@@ -12,7 +12,7 @@ from __future__ import print_function
 from xdis.opcodes import opcode_30 as opc
 from xdis.bytecode import op_size
 
-JUMP_OPs = map(lambda op: opc.opname[op], opc.hasjrel + opc.hasjabs)
+JUMP_OPS = opc.JUMP_OPS
 
 JUMP_TF = frozenset([opc.JUMP_IF_FALSE, opc.JUMP_IF_TRUE])
 
