@@ -18,6 +18,7 @@ that a later phase can turn into a sequence of ASCII text.
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.astnode import AST
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from xdis import PYTHON3
 
 class Python3Parser(PythonParser):
 
@@ -890,8 +891,11 @@ class Python3Parser(PythonParser):
         elif lhs == 'annotate_tuple':
             return not isinstance(tokens[first].attr, tuple)
         elif lhs == 'kwarg':
-            return not (isinstance(tokens[first].attr, unicode) or
-                        isinstance(tokens[first].attr, str))
+            arg = tokens[first].attr
+            if PYTHON3:
+                return not isinstance(arg, str)
+            else:
+                return not (isinstance(arg, str) or isinstance(arg, unicode))
         elif lhs == 'while1elsestmt':
             # if SETUP_LOOP target spans the else part, then this is
             # not while1else. Also do for whileTrue?
