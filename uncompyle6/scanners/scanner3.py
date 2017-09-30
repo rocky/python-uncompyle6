@@ -169,12 +169,16 @@ class Scanner3(Scanner):
             for instr in bytecode.get_instructions(co):
                 print(instr._disassemble())
 
-        # Container for tokens
+        # list of tokens/instructions
         tokens = []
 
+        # "customize" is a dict whose keys are nonterminals
+        # and the value is the argument stack entries for that
+        # nonterminal. The count is a little hoaky. It is mostly
+        # not used, but sometimes it is.
         customize = {}
         if self.is_pypy:
-            customize['PyPy'] = 1
+            customize['PyPy'] = 0
 
         self.code = array('B', co.co_code)
         self.build_lines_data(co)

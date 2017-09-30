@@ -93,12 +93,18 @@ class Scanner2(Scanner):
             for instr in bytecode.get_instructions(co):
                 print(instr._disassemble())
 
-        # Container for tokens
+        # list of tokens/instructions
         tokens = []
 
+        # "customize" is a dict whose keys are nonterminals
+        # and the value is the argument stack entries for that
+        # nonterminal. The count is a little hoaky. It is mostly
+        # not used, but sometimes it is.
+        # "customize" is a dict whose keys are nonterminals
         customize = {}
+
         if self.is_pypy:
-            customize['PyPy'] = 1
+            customize['PyPy'] = 0
 
         Token = self.Token # shortcut
 
