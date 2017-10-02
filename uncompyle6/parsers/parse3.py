@@ -885,6 +885,8 @@ class Python3Parser(PythonParser):
         return
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
+        if not tokens:
+            return
         lhs = rule[0]
         if lhs in ('augassign1', 'augassign2') and ast[0][0] == 'and':
             return True
