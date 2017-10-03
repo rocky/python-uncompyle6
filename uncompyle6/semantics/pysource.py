@@ -25,7 +25,7 @@ Python.
 # of the nonterminal is suffixed with "_exit" it will be called after
 # all of its children are called.
 #
-w# After a while writing methods this way, you'll find many routines which do similar
+# After a while writing methods this way, you'll find many routines which do similar
 # sorts of things, and soon you'll find you want a short notation to
 # describe rules and not have to create methods at all.
 #
