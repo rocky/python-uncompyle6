@@ -1,6 +1,4 @@
 #  Copyright (c) 2015-2017 by Rocky Bernstein
-#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 
 """
@@ -94,7 +92,6 @@ TABLE_DIRECT_FRAGMENT = {
     'importfrom':	( '%|from %[2]{pattr}%x import %c\n', (2, (0, 1)), 3),
     'importmultiple':   ( '%|import%b %c%c\n', 0, 2, 3 ),
     'list_for':	  	(' for %c%x in %c%c', 2, (2, (1, )), 0, 3 ),
-    'forstmt':	  	( '%|for%b %c%x in %c:\n%+%c%-\n\n', 0, 3, (3, (2, )), 1, 4 ),
     'forelsestmt': 	(
         '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
     'forelselaststmt':	(
