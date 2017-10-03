@@ -25,7 +25,7 @@ Python.
 # of the nonterminal is suffixed with "_exit" it will be called after
 # all of its children are called.
 #
-# After a while writing methods this way, you'll find many routines which do similar
+w# After a while writing methods this way, you'll find many routines which do similar
 # sorts of things, and soon you'll find you want a short notation to
 # describe rules and not have to create methods at all.
 #
@@ -43,8 +43,10 @@ Python.
 # We allow for a couple of ways to interact with a node in a tree.  So
 # step 1 after not seeing a custom method for a nonterminal is to
 # determine from what point of view tree-wise the rule is applied.
-# In the diagram below, "N" is a nonterminal name, and K is the table
-# key name; we show where those are with respect to each other in the
+
+# In the diagram below, N is a nonterminal name, and K also a nonterminal
+# name but the one used as a key in the table.
+# we show where those are with respect to each other in the
 # AST tree for N.
 #
 #
@@ -55,12 +57,14 @@ Python.
 #                                                      K
 #      TABLE_DIRECT      TABLE_R             TABLE_R0
 #
-#   The default is a "TABLE_DIRECT" mapping By far, most rules used work this way.
+#   The default table is TABLE_DIRECT mapping By far, most rules used work this way.
 #   TABLE_R0 is rarely used.
 #
-#   The key K is then extracted from the
-#   subtree and used to find a table entry T[K], if any.  The result is a
-#   format string and arguments (a la printf()) for the formatting engine.
+#   The key K is then extracted from the subtree and used to find one
+#   of the tables, T listed above.  The result after applying T[K] is
+#   a format string and arguments (a la printf()) for the formatting
+#   engine.
+#
 #   Escapes in the format string are:
 #
 #     %c  evaluate the node recursively. Its argument is a single
