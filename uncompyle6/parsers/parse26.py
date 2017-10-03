@@ -258,7 +258,7 @@ class Python26Parser(Python2Parser):
         invalid = super(Python26Parser,
                         self).reduce_is_invalid(rule, ast,
                                                 tokens, first, last)
-        if invalid:
+        if invalid or tokens is None:
             return invalid
         if rule == ('and', ('expr', 'jmp_false', 'expr', '\\e_come_from_opt')):
             # Test that jmp_false jumps to the end of "and"
