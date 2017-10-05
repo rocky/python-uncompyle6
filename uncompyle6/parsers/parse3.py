@@ -416,6 +416,13 @@ class Python3Parser(PythonParser):
         # a JUMP_ABSOLUTE with no COME_FROM
         conditional    ::= expr jmp_false expr jump_absolute_else expr
 
+        return_if_lambda   ::= RETURN_END_IF_LAMBDA
+        conditional_lambda ::= expr jmp_false return_stmt_lambda
+                               return_stmt_lambda LAMBDA_MARKER
+        conditional_lambda ::= expr jmp_false expr return_if_lambda
+                               return_stmt_lambda LAMBDA_MARKER
+
+
         expr ::= LOAD_CLASSNAME
 
         # Python 3.4+

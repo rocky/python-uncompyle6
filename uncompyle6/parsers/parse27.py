@@ -94,6 +94,10 @@ class Python27Parser(Python2Parser):
                 WITH_CLEANUP END_FINALLY
 
         # Common with 2.6
+        return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
+        conditional_lambda ::= expr jmp_false expr return_if_lambda
+                               return_stmt_lambda LAMBDA_MARKER
+
         while1stmt ::= SETUP_LOOP return_stmts bp_come_from
         while1stmt ::= SETUP_LOOP return_stmts COME_FROM
         """

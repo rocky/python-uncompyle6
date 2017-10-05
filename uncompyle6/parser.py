@@ -254,8 +254,11 @@ class PythonParser(GenericASTBuilder):
 
         stmt ::= return_stmt
         return_stmt ::= ret_expr RETURN_VALUE
+        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+
         return_stmts ::= return_stmt
         return_stmts ::= _stmts return_stmt
+
         """
         pass
 
@@ -530,7 +533,9 @@ class PythonParser(GenericASTBuilder):
         stmt ::= return_lambda
         stmt ::= conditional_lambda
 
-        return_lambda ::= ret_expr RETURN_VALUE LAMBDA_MARKER
+        return_lambda ::= ret_expr RETURN_VALUE_LAMBDA LAMBDA_MARKER
+        return_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+
         conditional_lambda ::= expr jmp_false return_if_stmt return_stmt LAMBDA_MARKER
 
         cmp ::= cmp_list

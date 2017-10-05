@@ -658,6 +658,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_return_if_stmt(self, node):
         if self.params['isLambda']:
+            self.write(' return ')
             self.preorder(node[0])
             self.prune()
         else:
@@ -2149,6 +2150,11 @@ class SourceWalker(GenericASTTraversal, object):
         # assert isinstance(tokens[0], Token)
 
         if isLambda:
+            for t in tokens:
+                if t.type == 'RETURN_END_IF':
+                    t.type = 'RETURN_END_IF_LAMBDA'
+                elif t.type == 'RETURN_VALUE':
+                    t.type = 'RETURN_VALUE_LAMBDA'
             tokens.append(Token('LAMBDA_MARKER'))
             try:
                 ast = python_parser.parse(self.p, tokens, customize)
@@ -2165,7 +2171,7 @@ class SourceWalker(GenericASTTraversal, object):
         # than fight (with the grammar to not emit "return None").
         if self.hide_internal:
             if len(tokens) >= 2 and not noneInNames:
-                if tokens[-1].type == 'RETURN_VALUE':
+                if tokens[-1].type in ('RETURN_VALUE', 'RETURN_VALUE_LAMBDA'):
                     # Python 3.4's classes can add a "return None" which is
                     # invalid syntax.
                     if tokens[-2].type == 'LOAD_CONST':

@@ -173,8 +173,13 @@ TABLE_DIRECT = {
     'ret_cond':         ( '%p if %p else %p', (2, 27), (0, 27), (-1, 27) ),
     'conditionalnot':   ( '%p if not %p else %p', (2, 27), (0, 22), (4, 27) ),
     'ret_cond_not':     ( '%p if not %p else %p', (2, 27), (0, 22), (-1, 27) ),
-    'conditional_lambda':  ( '(%c if %c else %c)', 2, 0, 3),
-    'return_lambda':    ('%c', 0),
+    'conditional_lambda':  ( '%c if %c else %c', 2, 0, 4),
+
+    # The semicolon is because Python 3.x can have be dead code as a result of its
+    # optimization. We don't Python's remove dead code (yet) anymore than Python does.
+    # So without that we would have "return 2return3" rather than "return 2;return 3"
+    'return_lambda':    ('return %c;', 0),
+
     'compare':		    ( '%p %[-1]{pattr.replace("-", " ")} %p', (0, 19), (1, 19) ),
     'cmp_list':		    ( '%p %p', (0, 29), (1, 30)),
     'cmp_list1':	    ( '%[3]{pattr} %p %p', (0, 19), (-2, 19)),
@@ -209,6 +214,7 @@ TABLE_DIRECT = {
     'raise_stmt3':	    ( '%|raise %c, %c, %c\n', 0, 1, 2),
 #    'yield':	( 'yield %c', 0),
 #    'return_stmt':	( '%|return %c\n', 0),
+    'return_if_stmt':	( 'return %c\n', 0),
 
     'ifstmt':		    ( '%|if %c:\n%+%c%-', 0, 1 ),
     'iflaststmt':		( '%|if %c:\n%+%c%-', 0, 1 ),
@@ -331,6 +337,7 @@ PRECEDENCE = {
     'ret_or':               26,
 
     'conditional':          28,
+    'conditional_lamdba':   28,
     'conditionalnot':       28,
     'ret_cond':             28,
     'ret_cond_not':         28,

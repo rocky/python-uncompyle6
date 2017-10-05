@@ -247,7 +247,9 @@ class Python26Parser(Python2Parser):
         and  ::= expr JUMP_IF_FALSE POP_TOP expr JUMP_IF_FALSE POP_TOP
         cmp_list ::= expr cmp_list1 ROT_TWO COME_FROM POP_TOP _come_from
 
-        conditional_lambda ::= expr jmp_false_then return_if_stmt return_stmt LAMBDA_MARKER
+        return_if_lambda   ::= RETURN_END_IF_LAMBDA POP_TOP
+        conditional_lambda ::= expr jmp_false_then expr return_if_lambda
+                               return_stmt_lambda LAMBDA_MARKER
         """
 
     def add_custom_rules(self, tokens, customize):
