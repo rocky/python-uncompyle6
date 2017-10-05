@@ -39,13 +39,14 @@ def test_grammar():
     s = get_scanner(PYTHON_VERSION, IS_PYPY)
     ignore_set = set(
             """
-            JUMP_BACK CONTINUE RETURN_END_IF
+            JUMP_BACK CONTINUE
             COME_FROM COME_FROM_EXCEPT
             COME_FROM_EXCEPT_CLAUSE
             COME_FROM_LOOP COME_FROM_WITH
             COME_FROM_FINALLY ELSE
             LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP
-            LAMBDA_MARKER RETURN_LAST
+            LAMBDA_MARKER
+            RETURN_END_IF RETURN_END_IF_LAMBDA RETURN_VALUE_LAMBDA RETURN_LAST
             """.split())
     if 2.6 <= PYTHON_VERSION <= 2.7:
         opcode_set = set(s.opc.opname).union(ignore_set)
