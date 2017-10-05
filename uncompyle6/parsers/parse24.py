@@ -55,7 +55,7 @@ class Python24Parser(Python25Parser):
         invalid = super(Python24Parser,
                         self).reduce_is_invalid(rule, ast,
                                                 tokens, first, last)
-        if invalid:
+        if invalid or tokens is None:
             return invalid
 
         # FiXME: this code never gets called...
