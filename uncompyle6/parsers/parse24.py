@@ -55,7 +55,7 @@ class Python24Parser(Python25Parser):
         invalid = super(Python24Parser,
                         self).reduce_is_invalid(rule, ast,
                                                 tokens, first, last)
-        if invalid or tokens is None:
+        if invalid:
             return invalid
 
         # FiXME: this code never gets called...
@@ -71,4 +71,4 @@ class Python24ParserSingle(Python24Parser, PythonParserSingle):
 if __name__ == '__main__':
     # Check grammar
     p = Python24Parser()
-    p.checkGrammar()
+    p.check_grammar()

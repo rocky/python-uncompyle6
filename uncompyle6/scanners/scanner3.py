@@ -394,12 +394,12 @@ class Scanner3(Scanner):
                         # the "continue" is not on a new line.
                         # There are other situations where we don't catch
                         # CONTINUE as well.
-                        if tokens[-1].type == 'JUMP_BACK' and tokens[-1].attr <= argval:
-                            if tokens[-2].type == 'BREAK_LOOP':
+                        if tokens[-1].kind == 'JUMP_BACK' and tokens[-1].attr <= argval:
+                            if tokens[-2].kind == 'BREAK_LOOP':
                                 del tokens[-1]
                             else:
                                 # intern is used because we are changing the *previous* token
-                                tokens[-1].type = intern('CONTINUE')
+                                tokens[-1].kind = intern('CONTINUE')
                     if last_op_was_break and opname == 'CONTINUE':
                         last_op_was_break = False
                         continue

@@ -215,8 +215,8 @@ class Scanner26(scan.Scanner2):
                         # FIXME: this is a hack to catch stuff like:
                         #   if x: continue
                         # the "continue" is not on a new line.
-                        if len(tokens) and tokens[-1].type == 'JUMP_BACK':
-                            tokens[-1].type = intern('CONTINUE')
+                        if len(tokens) and tokens[-1].kind == 'JUMP_BACK':
+                            tokens[-1].kind = intern('CONTINUE')
 
                 elif op in self.opc.JABS_OPS:
                     pattr = repr(oparg)
@@ -256,18 +256,18 @@ class Scanner26(scan.Scanner2):
                         and self.code[offset+3] not in (self.opc.END_FINALLY,
                                                           self.opc.POP_BLOCK)):
                         if ((offset in self.linestartoffsets and
-                            tokens[-1].type == 'JUMP_BACK')
+                            tokens[-1].kind == 'JUMP_BACK')
                             or offset not in self.not_continue):
                             op_name = 'CONTINUE'
                     else:
                         # FIXME: this is a hack to catch stuff like:
                         #   if x: continue
                         # the "continue" is not on a new line.
-                        if tokens[-1].type == 'JUMP_BACK':
+                        if tokens[-1].kind == 'JUMP_BACK':
                             # We need 'intern' since we have
                             # already have processed the previous
                             # token.
-                            tokens[-1].type = intern('CONTINUE')
+                            tokens[-1].kind = intern('CONTINUE')
 
             elif op == self.opc.LOAD_GLOBAL:
                 if offset in self.load_asserts:

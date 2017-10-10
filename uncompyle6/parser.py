@@ -134,7 +134,7 @@ class PythonParser(GenericASTBuilder):
         raise ParserError(err_token, err_token.offset)
 
     def typestring(self, token):
-        return token.type
+        return token.kind
 
     def nonterminal(self, nt, args):
         if nt in self.collect and len(args) > 1:
@@ -733,7 +733,7 @@ def get_python_parser(
             else:
                 p = parse3.Python3ParserSingle(debug_parser)
     p.version = version
-    # p.dumpGrammar() # debug
+    # p.dump_grammar() # debug
     return p
 
 class PythonParserSingle(PythonParser):

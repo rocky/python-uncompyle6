@@ -1,6 +1,6 @@
 #
 # (C) Copyright 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-# (C) Copyright 2015-2016 by Rocky Bernstein
+# (C) Copyright 2015-2017 by Rocky Bernstein
 #
 """
 byte-code verification
@@ -244,18 +244,18 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
                 scanner.resetTokenClass() # restore Token class
 
             targets1 = dis.findlabels(code_obj1.co_code)
-            tokens1 = [t for t in tokens1 if t.type != 'COME_FROM']
-            tokens2 = [t for t in tokens2 if t.type != 'COME_FROM']
+            tokens1 = [t for t in tokens1 if t.kind != 'COME_FROM']
+            tokens2 = [t for t in tokens2 if t.kind != 'COME_FROM']
 
             i1 = 0; i2 = 0
             offset_map = {}; check_jumps = {}
             while i1 < len(tokens1):
                 if i2 >= len(tokens2):
                     if len(tokens1) == len(tokens2) + 2 \
-                          and tokens1[-1].type == 'RETURN_VALUE' \
-                          and tokens1[-2].type == 'LOAD_CONST' \
+                          and tokens1[-1].kind == 'RETURN_VALUE' \
+                          and tokens1[-2].kind == 'LOAD_CONST' \
                           and tokens1[-2].pattr is None \
-                          and tokens1[-3].type == 'RETURN_VALUE':
+                          and tokens1[-3].kind == 'RETURN_VALUE':
                         break
                     else:
                         raise CmpErrorCodeLen(name, tokens1, tokens2)
@@ -267,13 +267,13 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
                         raise CmpErrorCode(name, tokens1[idx1].offset, tokens1[idx1],
                                    tokens2[idx2], tokens1, tokens2)
 
-                if tokens1[i1].type != tokens2[i2].type:
-                    if tokens1[i1].type == 'LOAD_CONST' == tokens2[i2].type:
+                if tokens1[i1].kind != tokens2[i2].kind:
+                    if tokens1[i1].kind == 'LOAD_CONST' == tokens2[i2].kind:
                         i = 1
-                        while tokens1[i1+i].type == 'LOAD_CONST':
+                        while tokens1[i1+i].kind == 'LOAD_CONST':
                             i += 1
-                        if tokens1[i1+i].type.startswith(('BUILD_TUPLE', 'BUILD_LIST')) \
-                              and i == int(tokens1[i1+i].type.split('_')[-1]):
+                        if tokens1[i1+i].kind.startswith(('BUILD_TUPLE', 'BUILD_LIST')) \
+                              and i == int(tokens1[i1+i].kind.split('_')[-1]):
                             t = tuple([ elem.pattr for elem in tokens1[i1:i1+i] ])
                             if t != tokens2[i2].pattr:
                                 raise CmpErrorCode(name, tokens1[i1].offset, tokens1[i1],
@@ -281,60 +281,60 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
                             i1 += i + 1
                             i2 += 1
                             continue
-                        elif i == 2 and tokens1[i1+i].type == 'ROT_TWO' and tokens2[i2+1].type == 'UNPACK_SEQUENCE_2':
+                        elif i == 2 and tokens1[i1+i].kind == 'ROT_TWO' and tokens2[i2+1].kind == 'UNPACK_SEQUENCE_2':
                             i1 += 3
                             i2 += 2
                             continue
-                        elif i == 2 and tokens1[i1+i].type in BIN_OP_FUNCS:
-                            f = BIN_OP_FUNCS[tokens1[i1+i].type]
+                        elif i == 2 and tokens1[i1+i].kind in BIN_OP_FUNCS:
+                            f = BIN_OP_FUNCS[tokens1[i1+i].kind]
                             if f(tokens1[i1].pattr, tokens1[i1+1].pattr) == tokens2[i2].pattr:
                                 i1 += 3
                                 i2 += 1
                                 continue
-                    elif tokens1[i1].type == 'UNARY_NOT':
-                        if tokens2[i2].type == 'POP_JUMP_IF_TRUE':
-                            if tokens1[i1+1].type == 'POP_JUMP_IF_FALSE':
+                    elif tokens1[i1].kind == 'UNARY_NOT':
+                        if tokens2[i2].kind == 'POP_JUMP_IF_TRUE':
+                            if tokens1[i1+1].kind == 'POP_JUMP_IF_FALSE':
                                 i1 += 2
                                 i2 += 1
                                 continue
-                        elif tokens2[i2].type == 'POP_JUMP_IF_FALSE':
-                            if tokens1[i1+1].type == 'POP_JUMP_IF_TRUE':
+                        elif tokens2[i2].kind == 'POP_JUMP_IF_FALSE':
+                            if tokens1[i1+1].kind == 'POP_JUMP_IF_TRUE':
                                 i1 += 2
                                 i2 += 1
                                 continue
-                    elif tokens1[i1].type in ('JUMP_FORWARD', 'JUMP_BACK') \
-                          and tokens1[i1-1].type == 'RETURN_VALUE' \
-                          and tokens2[i2-1].type in ('RETURN_VALUE', 'RETURN_END_IF') \
+                    elif tokens1[i1].kind in ('JUMP_FORWARD', 'JUMP_BACK') \
+                          and tokens1[i1-1].kind == 'RETURN_VALUE' \
+                          and tokens2[i2-1].kind in ('RETURN_VALUE', 'RETURN_END_IF') \
                           and int(tokens1[i1].offset) not in targets1:
                         i1 += 1
                         continue
-                    elif tokens1[i1].type == 'JUMP_FORWARD' and tokens2[i2].type == 'JUMP_BACK' \
-                          and tokens1[i1+1].type == 'JUMP_BACK' and tokens2[i2+1].type == 'JUMP_BACK' \
+                    elif tokens1[i1].kind == 'JUMP_FORWARD' and tokens2[i2].kind == 'JUMP_BACK' \
+                          and tokens1[i1+1].kind == 'JUMP_BACK' and tokens2[i2+1].kind == 'JUMP_BACK' \
                           and int(tokens1[i1].pattr) == int(tokens1[i1].offset) + 3:
                         if int(tokens1[i1].pattr) == int(tokens1[i1+1].offset):
                             i1 += 2
                             i2 += 2
                             continue
-                    elif tokens1[i1].type == 'LOAD_NAME' and tokens2[i2].type == 'LOAD_CONST' \
+                    elif tokens1[i1].kind == 'LOAD_NAME' and tokens2[i2].kind == 'LOAD_CONST' \
                          and tokens1[i1].pattr == 'None' and tokens2[i2].pattr is None:
                         pass
-                    elif tokens1[i1].type == 'LOAD_GLOBAL' and tokens2[i2].type == 'LOAD_NAME' \
+                    elif tokens1[i1].kind == 'LOAD_GLOBAL' and tokens2[i2].kind == 'LOAD_NAME' \
                          and tokens1[i1].pattr == tokens2[i2].pattr:
                         pass
-                    elif tokens1[i1].type == 'LOAD_ASSERT' and tokens2[i2].type == 'LOAD_NAME' \
+                    elif tokens1[i1].kind == 'LOAD_ASSERT' and tokens2[i2].kind == 'LOAD_NAME' \
                          and tokens1[i1].pattr == tokens2[i2].pattr:
                         pass
-                    elif (tokens1[i1].type == 'RETURN_VALUE' and
-                          tokens2[i2].type == 'RETURN_END_IF'):
+                    elif (tokens1[i1].kind == 'RETURN_VALUE' and
+                          tokens2[i2].kind == 'RETURN_END_IF'):
                         pass
-                    elif (tokens1[i1].type == 'BUILD_TUPLE_0' and
+                    elif (tokens1[i1].kind == 'BUILD_TUPLE_0' and
                           tokens2[i2].pattr == ()):
                         pass
                     else:
                         raise CmpErrorCode(name, tokens1[i1].offset, tokens1[i1],
                                            tokens2[i2], tokens1, tokens2)
-                elif tokens1[i1].type in JUMP_OPS and tokens1[i1].pattr != tokens2[i2].pattr:
-                    if tokens1[i1].type == 'JUMP_BACK':
+                elif tokens1[i1].kind in JUMP_OPS and tokens1[i1].pattr != tokens2[i2].pattr:
+                    if tokens1[i1].kind == 'JUMP_BACK':
                         dest1 = int(tokens1[i1].pattr)
                         dest2 = int(tokens2[i2].pattr)
                         if offset_map[dest1] != dest2:
@@ -385,28 +385,28 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
 class Token(scanner.Token):
     """Token class with changed semantics for 'cmp()'."""
     def __cmp__(self, o):
-        t = self.type # shortcut
-        if t == 'BUILD_TUPLE_0' and o.type == 'LOAD_CONST' and o.pattr == ():
+        t = self.kind # shortcut
+        if t == 'BUILD_TUPLE_0' and o.kind == 'LOAD_CONST' and o.pattr == ():
             return 0
-        if t == 'COME_FROM' == o.type:
+        if t == 'COME_FROM' == o.kind:
             return 0
-        if t == 'PRINT_ITEM_CONT' and o.type == 'PRINT_ITEM':
+        if t == 'PRINT_ITEM_CONT' and o.kind == 'PRINT_ITEM':
             return 0
-        if t == 'RETURN_VALUE' and o.type == 'RETURN_END_IF':
+        if t == 'RETURN_VALUE' and o.kind == 'RETURN_END_IF':
             return 0
-        if t == 'JUMP_IF_FALSE_OR_POP' and o.type == 'POP_JUMP_IF_FALSE':
+        if t == 'JUMP_IF_FALSE_OR_POP' and o.kind == 'POP_JUMP_IF_FALSE':
             return 0
         if JUMP_OPS and t in JUMP_OPS:
             # ignore offset
-            return t == o.type
-        return (t ==  o.type) or self.pattr ==  o.pattr
+            return t == o.kind
+        return (t ==  o.kind) or self.pattr ==  o.pattr
 
     def __repr__(self):
-        return '%s %s (%s)' % (str(self.type), str(self.attr),
+        return '%s %s (%s)' % (str(self.kind), str(self.attr),
                        repr(self.pattr))
 
     def __str__(self):
-        return '%s\t%-17s %r' % (self.offset, self.type, self.pattr)
+        return '%s\t%-17s %r' % (self.offset, self.kind, self.pattr)
 
 def compare_code_with_srcfile(pyc_filename, src_filename, weak_verify=False):
     """Compare a .pyc with a source code file."""
@@ -438,4 +438,4 @@ if __name__ == '__main__':
     t2 = Token('LOAD_CONST', -421, 'code_object _expandLang', 55)
     print(repr(t1))
     print(repr(t2))
-    print(t1.type ==  t2.type, t1.attr == t2.attr)
+    print(t1.kind ==  t2.kind, t1.attr == t2.attr)

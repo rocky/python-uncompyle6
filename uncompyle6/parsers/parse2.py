@@ -397,8 +397,6 @@ class Python2Parser(PythonParser):
         return
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
-        if tokens is None:
-            return False
         lhs = rule[0]
         if lhs in ('augassign1', 'augassign2') and ast[0][0] == 'and':
             return True
@@ -419,4 +417,4 @@ class Python2ParserSingle(Python2Parser, PythonParserSingle):
 if __name__ == '__main__':
     # Check grammar
     p = Python2Parser()
-    p.checkGrammar()
+    p.check_grammar()
