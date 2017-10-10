@@ -947,7 +947,7 @@ class Scanner3(Scanner):
                                 return
                             pass
                     pass
-                if code[pre_rtarget] == self.opc.RETURN_VALUE and self.version < 3.5:
+                if code[pre_rtarget] == self.opc.RETURN_VALUE:
                     self.return_end_ifs.add(pre_rtarget)
                 else:
                     self.fixed_jumps[offset] = rtarget
@@ -967,7 +967,7 @@ class Scanner3(Scanner):
             if target > next_offset:
                 next_op = code[next_offset]
                 if (self.opc.JUMP_ABSOLUTE == next_op and
-                    END_FINALLY != code[xdis.next_offset(next_op, self.opc, next_offset)]):
+                    self.opc.END_FINALLY != code[xdis.next_offset(next_op, self.opc, next_offset)]):
                     self.fixed_jumps[next_offset] = target
                     self.except_targets[target] = next_offset
 
@@ -990,7 +990,8 @@ class Scanner3(Scanner):
             # misclassified as RETURN_END_IF. Handle that here.
             # In RETURN_VALUE, JUMP_ABSOLUTE, RETURN_VALUE is never RETURN_END_IF
             if op == self.opc.RETURN_VALUE:
-                if (offset+1 < len(code) and code[offset+1] == self.opc.JUMP_ABSOLUTE and
+                next_offset = xdis.next_offset(op, self.opc, offset)
+                if (next_offset < len(code) and code[next_offset] == self.opc.JUMP_ABSOLUTE and
                     offset in self.return_end_ifs):
                     self.return_end_ifs.remove(offset)
                     pass
