@@ -29,8 +29,8 @@ class Python15ParserSingle(Python21Parser, PythonParserSingle):
 if __name__ == '__main__':
     # Check grammar
     p = Python15Parser()
-    p.checkGrammar()
-    p.dumpGrammar()
+    p.check_grammar()
+    p.dump_grammar()
 
 # local variables:
 # tab-width: 4

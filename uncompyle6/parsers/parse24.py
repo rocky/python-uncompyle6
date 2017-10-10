@@ -71,4 +71,4 @@ class Python24ParserSingle(Python24Parser, PythonParserSingle):
 if __name__ == '__main__':
     # Check grammar
     p = Python24Parser()
-    p.checkGrammar()
+    p.check_grammar()

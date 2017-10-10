@@ -26,8 +26,8 @@ class Python22ParserSingle(Python23Parser, PythonParserSingle):
 if __name__ == '__main__':
     # Check grammar
     p = Python22Parser()
-    p.checkGrammar()
-    p.dumpGrammar()
+    p.check_grammar()
+    p.dump_grammar()
 
 # local variables:
 # tab-width: 4

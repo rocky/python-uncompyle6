@@ -33,8 +33,8 @@ class Python21ParserSingle(Python22Parser, PythonParserSingle):
 if __name__ == '__main__':
     # Check grammar
     p = Python21Parser()
-    p.checkGrammar()
-    p.dumpGrammar()
+    p.check_grammar()
+    p.dump_grammar()
 
 # local variables:
 # tab-width: 4

@@ -733,7 +733,7 @@ def get_python_parser(
             else:
                 p = parse3.Python3ParserSingle(debug_parser)
     p.version = version
-    # p.dumpGrammar() # debug
+    # p.dump_grammar() # debug
     return p
 
 class PythonParserSingle(PythonParser):

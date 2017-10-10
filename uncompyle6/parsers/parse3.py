@@ -955,10 +955,10 @@ def info(args):
             p = Python32Parser()
         elif arg == '3.0':
             p = Python30Parser()
-    p.checkGrammar()
+    p.check_grammar()
     if len(sys.argv) > 1 and sys.argv[1] == 'dump':
         print('-' * 50)
-        p.dumpGrammar()
+        p.dump_grammar()
 
 if __name__ == '__main__':
     import sys
