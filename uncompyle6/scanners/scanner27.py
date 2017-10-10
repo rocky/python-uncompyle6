@@ -94,9 +94,9 @@ class Scanner27(Scanner2):
             # the "continue" is not on a new line.
             n = len(tokens)
             if (n > 2 and
-                tokens[-1].type == 'JUMP_BACK' and
+                tokens[-1].kind == 'JUMP_BACK' and
                 self.code[offset+3] == self.opc.END_FINALLY):
-                tokens[-1].type = intern('CONTINUE')
+                tokens[-1].kind = intern('CONTINUE')
 
     pass
 

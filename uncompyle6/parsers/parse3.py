@@ -435,7 +435,7 @@ class Python3Parser(PythonParser):
     @staticmethod
     def call_fn_name(token):
         """Customize CALL_FUNCTION to add the number of positional arguments"""
-        return '%s_%i' % (token.type, token.attr)
+        return '%s_%i' % (token.kind, token.attr)
 
     def custom_build_class_rule(self, opname, i, token, tokens, customize):
         '''
@@ -451,16 +451,16 @@ class Python3Parser(PythonParser):
         # FIXME: I bet this can be simplified
         # look for next MAKE_FUNCTION
         for i in range(i+1, len(tokens)):
-            if tokens[i].type.startswith('MAKE_FUNCTION'):
+            if tokens[i].kind.startswith('MAKE_FUNCTION'):
                 break
-            elif tokens[i].type.startswith('MAKE_CLOSURE'):
+            elif tokens[i].kind.startswith('MAKE_CLOSURE'):
                 break
             pass
         assert i < len(tokens), "build_class needs to find MAKE_FUNCTION or MAKE_CLOSURE"
-        assert tokens[i+1].type == 'LOAD_CONST', \
+        assert tokens[i+1].kind == 'LOAD_CONST', \
           "build_class expecting CONST after MAKE_FUNCTION/MAKE_CLOSURE"
         for i in range(i, len(tokens)):
-            if tokens[i].type == 'CALL_FUNCTION':
+            if tokens[i].kind == 'CALL_FUNCTION':
                 call_fn_tok = tokens[i]
                 break
         assert call_fn_tok, "build_class custom rule needs to find CALL_FUNCTION"
@@ -501,7 +501,7 @@ class Python3Parser(PythonParser):
         # Yes, this computation based on instruction name is a little bit hoaky.
         nak = ( len(opname)-len('CALL_FUNCTION') ) // 3
 
-        token.type = self.call_fn_name(token)
+        token.kind = self.call_fn_name(token)
         uniq_param = args_kw + args_pos
         if self.version == 3.5 and opname.startswith('CALL_FUNCTION_VAR'):
             # Python 3.5 changes the stack position of *args. KW args come
@@ -513,33 +513,33 @@ class Python3Parser(PythonParser):
                 kw = ''
             rule = ('call_function ::= expr expr ' +
                     ('pos_arg ' * args_pos) +
-                    ('kwarg ' * args_kw) + kw + token.type)
-            self.add_unique_rule(rule, token.type, uniq_param, customize)
+                    ('kwarg ' * args_kw) + kw + token.kind)
+            self.add_unique_rule(rule, token.kind, uniq_param, customize)
         if self.version >= 3.6 and opname == 'CALL_FUNCTION_EX_KW':
             rule = ('call_function36 ::= '
                     'expr build_tuple_unpack_with_call build_map_unpack_with_call '
                     'CALL_FUNCTION_EX_KW_1')
-            self.add_unique_rule(rule, token.type, uniq_param, customize)
+            self.add_unique_rule(rule, token.kind, uniq_param, customize)
             rule = 'call_function ::= call_function36'
         else:
             rule = ('call_function ::= expr ' +
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) +
-                    'expr ' * nak + token.type)
+                    'expr ' * nak + token.kind)
 
-        self.add_unique_rule(rule, token.type, uniq_param, customize)
+        self.add_unique_rule(rule, token.kind, uniq_param, customize)
         if self.version >= 3.5:
             rule = ('async_call_function ::= expr ' +
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) +
-                    'expr ' * nak + token.type +
+                    'expr ' * nak + token.kind +
                     ' GET_AWAITABLE LOAD_CONST YIELD_FROM')
-            self.add_unique_rule(rule, token.type, uniq_param, customize)
-            self.add_unique_rule('expr ::= async_call_function', token.type, uniq_param, customize)
+            self.add_unique_rule(rule, token.kind, uniq_param, customize)
+            self.add_unique_rule('expr ::= async_call_function', token.kind, uniq_param, customize)
 
         rule = ('classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d'
                 %  (('expr ' * (args_pos-1)), opname, args_pos))
-        self.add_unique_rule(rule, token.type, uniq_param, customize)
+        self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
     def add_make_function_rule(self, rule, opname, attr, customize):
         """Python 3.3 added a an addtional LOAD_CONST before MAKE_FUNCTION and
@@ -613,7 +613,7 @@ class Python3Parser(PythonParser):
             call_function ::= expr CALL_METHOD
         """
         for i, token in enumerate(tokens):
-            opname = token.type
+            opname = token.kind
             opname_base = opname[:opname.rfind('_')]
 
             if opname == 'PyPy':
@@ -891,8 +891,6 @@ class Python3Parser(PythonParser):
         return
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
-        if not tokens:
-            return
         lhs = rule[0]
         if lhs in ('augassign1', 'augassign2') and ast[0][0] == 'and':
             return True
@@ -912,7 +910,8 @@ class Python3Parser(PythonParser):
                 last += 1
             return tokens[first].attr == tokens[last].offset
         elif lhs == 'while1stmt':
-            if tokens[last] in ('COME_FROM_LOOP', 'JUMP_BACK'):
+            if (0 <= last < len(tokens)
+                and tokens[last] in ('COME_FROM_LOOP', 'JUMP_BACK')):
                 # jump_back should be right afer SETUP_LOOP. Test?
                 last += 1
             while last < len(tokens) and isinstance(tokens[last].offset, str):

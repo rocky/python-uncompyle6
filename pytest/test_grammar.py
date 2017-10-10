@@ -14,12 +14,13 @@ def test_grammar():
             "Remaining tokens %s\n====\n%s" % (remain_tokens, p.dumpGrammar())
 
     p = get_python_parser(PYTHON_VERSION, is_pypy=IS_PYPY)
-    lhs, rhs, tokens, right_recursive = p.checkSets()
+    lhs, rhs, tokens, right_recursive = p.check_sets()
     expect_lhs = set(['expr1024', 'pos_arg'])
-    unused_rhs = set(['build_list', 'call_function', 'mkfunc',
+    unused_rhs = frozenset(['build_list', 'call_function', 'mkfunc',
                       'mklambda',
                       'unpack', 'unpack_list'])
-    expect_right_recursive = [['designList', ('designator', 'DUP_TOP', 'designList')]]
+    expect_right_recursive = frozenset([('designList',
+                                         ('designator', 'DUP_TOP', 'designList'))])
     if PYTHON3:
         expect_lhs.add('load_genexpr')
 

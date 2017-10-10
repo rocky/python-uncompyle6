@@ -24,7 +24,7 @@ if __name__ == '__main__':
     p.checkGrammar()
     from uncompyle6 import PYTHON_VERSION, IS_PYPY
     if PYTHON_VERSION == 3.7:
-        lhs, rhs, tokens, right_recursive = p.checkSets()
+        lhs, rhs, tokens, right_recursive = p.check_sets()
         from uncompyle6.scanner import get_scanner
         s = get_scanner(PYTHON_VERSION, IS_PYPY)
         opcode_set = set(s.opc.opname).union(set(

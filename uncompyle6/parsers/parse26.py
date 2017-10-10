@@ -260,7 +260,7 @@ class Python26Parser(Python2Parser):
         invalid = super(Python26Parser,
                         self).reduce_is_invalid(rule, ast,
                                                 tokens, first, last)
-        if invalid or tokens is None:
+        if invalid:
             return invalid
         if rule == ('and', ('expr', 'jmp_false', 'expr', '\\e_come_from_opt')):
             # Test that jmp_false jumps to the end of "and"
@@ -279,7 +279,7 @@ if __name__ == '__main__':
     p.checkGrammar()
     from uncompyle6 import PYTHON_VERSION, IS_PYPY
     if PYTHON_VERSION == 2.6:
-        lhs, rhs, tokens, right_recursive = p.checkSets()
+        lhs, rhs, tokens, right_recursive = p.check_sets()
         from uncompyle6.scanner import get_scanner
         s = get_scanner(PYTHON_VERSION, IS_PYPY)
         opcode_set = set(s.opc.opname).union(set(

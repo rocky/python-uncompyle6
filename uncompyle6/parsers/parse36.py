@@ -37,7 +37,7 @@ class Python36Parser(Python35Parser):
     def add_custom_rules(self, tokens, customize):
         super(Python36Parser, self).add_custom_rules(tokens, customize)
         for i, token in enumerate(tokens):
-            opname = token.type
+            opname = token.kind
 
             if opname == 'FORMAT_VALUE':
                 rules_str = """
@@ -65,10 +65,10 @@ class Python36Parser(Python35Parser):
 
         if opname.startswith('CALL_FUNCTION_KW'):
             values = 'expr ' * token.attr
-            rule = 'call_function ::= expr kwargs_only_36 {token.type}'.format(**locals())
-            self.add_unique_rule(rule, token.type, token.attr, customize)
+            rule = 'call_function ::= expr kwargs_only_36 {token.kind}'.format(**locals())
+            self.add_unique_rule(rule, token.kind, token.attr, customize)
             rule = 'kwargs_only_36 ::= {values} LOAD_CONST'.format(**locals())
-            self.add_unique_rule(rule, token.type, token.attr, customize)
+            self.add_unique_rule(rule, token.kind, token.attr, customize)
         else:
             super(Python36Parser, self).custom_classfunc_rule(opname, token, customize)
 
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     p.checkGrammar()
     from uncompyle6 import PYTHON_VERSION, IS_PYPY
     if PYTHON_VERSION == 3.6:
-        lhs, rhs, tokens, right_recursive = p.checkSets()
+        lhs, rhs, tokens, right_recursive = p.check_sets()
         from uncompyle6.scanner import get_scanner
         s = get_scanner(PYTHON_VERSION, IS_PYPY)
         opcode_set = set(s.opc.opname).union(set(

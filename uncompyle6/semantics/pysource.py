@@ -145,7 +145,7 @@ else:
 
 def is_docstring(node):
     try:
-        return (node[0][0].type == 'assign' and
+        return (node[0][0].kind == 'assign' and
             node[0][0][1][0].pattr == '__doc__')
     except:
         return False
@@ -421,13 +421,13 @@ class SourceWalker(GenericASTTraversal, object):
                     })
                     def n_async_call_function(node):
                         self.f.write('async ')
-                        node.type == 'call_function'
+                        node.kind == 'call_function'
                         p = self.prec
                         self.prec = 80
                         self.template_engine(('%c(%P)', 0,
                                               (1, -4, ', ', 100)), node)
                         self.prec = p
-                        node.type == 'async_call_function'
+                        node.kind == 'async_call_function'
                         self.prune()
                     self.n_async_call_function = n_async_call_function
                     self.n_build_list_unpack = self.n_build_list
@@ -440,13 +440,13 @@ class SourceWalker(GenericASTTraversal, object):
                             for i in mapping[1:]:
                                 key = key[i]
                                 pass
-                            if key.type.startswith('CALL_FUNCTION_VAR_KW'):
+                            if key.kind.startswith('CALL_FUNCTION_VAR_KW'):
                                 # Python 3.5 changes the stack position of *args. kwargs come
                                 # after *args whereas in earlier Pythons, *args is at the end
                                 # which simpilfiies things from our perspective.
                                 # Python 3.6+ replaces CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
                                 # We will just swap the order to make it look like earlier Python 3.
-                                entry = table[key.type]
+                                entry = table[key.kind]
                                 kwarg_pos = entry[2][1]
                                 args_pos = kwarg_pos - 1
                                 # Put last node[args_pos] after subsequent kwargs
@@ -721,12 +721,12 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_expr(self, node):
         p = self.prec
-        if node[0].type.startswith('binary_expr'):
+        if node[0].kind.startswith('binary_expr'):
             n = node[0][-1][0]
         else:
             n = node[0]
 
-        self.prec = PRECEDENCE.get(n.type, -2)
+        self.prec = PRECEDENCE.get(n.kind, -2)
         if n == 'LOAD_CONST' and repr(n.pattr)[0] == '-':
             self.prec = 6
 
@@ -809,9 +809,9 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
 
     def n_delete_subscr(self, node):
-        if node[-2][0] == 'build_list' and node[-2][0][-1].type.startswith('BUILD_TUPLE'):
+        if node[-2][0] == 'build_list' and node[-2][0][-1].kind.startswith('BUILD_TUPLE'):
             if node[-2][0][-1] != 'BUILD_TUPLE_0':
-                node[-2][0].type = 'build_tuple2'
+                node[-2][0].kind = 'build_tuple2'
         self.default(node)
 
     n_store_subscr = n_binary_subscr = n_delete_subscr
@@ -820,9 +820,9 @@ class SourceWalker(GenericASTTraversal, object):
     def n_tryfinallystmt(self, node):
         if len(node[1][0]) == 1 and node[1][0][0] == 'stmt':
             if node[1][0][0][0] == 'trystmt':
-                node[1][0][0][0].type = 'tf_trystmt'
+                node[1][0][0][0].kind = 'tf_trystmt'
             if node[1][0][0][0] == 'tryelsestmt':
-                node[1][0][0][0].type = 'tf_tryelsestmt'
+                node[1][0][0][0].kind = 'tf_tryelsestmt'
         self.default(node)
 
     def n_exec_stmt(self, node):
@@ -847,26 +847,26 @@ class SourceWalker(GenericASTTraversal, object):
 
         if len(n) == 1 == len(n[0]) and n[0] == '_stmts':
             n = n[0][0][0]
-        elif n[0].type in ('lastc_stmt', 'lastl_stmt'):
+        elif n[0].kind in ('lastc_stmt', 'lastl_stmt'):
             n = n[0][0]
         else:
             if not preprocess:
                 self.default(node)
             return
 
-        if n.type in ('ifstmt', 'iflaststmt', 'iflaststmtl'):
-            node.type = 'ifelifstmt'
-            n.type = 'elifstmt'
-        elif n.type in ('ifelsestmtr',):
-            node.type = 'ifelifstmt'
-            n.type = 'elifelsestmtr'
-        elif n.type in ('ifelsestmt', 'ifelsestmtc', 'ifelsestmtl'):
-            node.type = 'ifelifstmt'
+        if n.kind in ('ifstmt', 'iflaststmt', 'iflaststmtl'):
+            node.kind = 'ifelifstmt'
+            n.kind = 'elifstmt'
+        elif n.kind in ('ifelsestmtr',):
+            node.kind = 'ifelifstmt'
+            n.kind = 'elifelsestmtr'
+        elif n.kind in ('ifelsestmt', 'ifelsestmtc', 'ifelsestmtl'):
+            node.kind = 'ifelifstmt'
             self.n_ifelsestmt(n, preprocess=True)
             if n == 'ifelifstmt':
-                n.type = 'elifelifstmt'
-            elif n.type in ('ifelsestmt', 'ifelsestmtc', 'ifelsestmtl'):
-                n.type = 'elifelsestmt'
+                n.kind = 'elifelifstmt'
+            elif n.kind in ('ifelsestmt', 'ifelsestmtc', 'ifelsestmtl'):
+                n.kind = 'elifelsestmt'
         if not preprocess:
             self.default(node)
 
@@ -875,7 +875,7 @@ class SourceWalker(GenericASTTraversal, object):
     def n_ifelsestmtr(self, node):
         if node[2] == 'COME_FROM':
             return_stmts_node = node[3]
-            node.type = 'ifelsestmtr2'
+            node.kind = 'ifelsestmtr2'
         else:
             return_stmts_node = node[2]
         if len(return_stmts_node) != 2:
@@ -906,7 +906,7 @@ class SourceWalker(GenericASTTraversal, object):
         for n in return_stmts_node[0]:
             if (n[0] == 'ifstmt' and n[0][1][0] == 'return_if_stmts'):
                 if prev_stmt_is_if_ret:
-                    n[0].type = 'elifstmt'
+                    n[0].kind = 'elifstmt'
                 prev_stmt_is_if_ret = True
             else:
                 prev_stmt_is_if_ret = False
@@ -926,7 +926,7 @@ class SourceWalker(GenericASTTraversal, object):
     def n_elifelsestmtr(self, node):
         if node[2] == 'COME_FROM':
             return_stmts_node = node[3]
-            node.type = 'elifelsestmtr2'
+            node.kind = 'elifelsestmtr2'
         else:
             return_stmts_node = node[2]
 
@@ -946,7 +946,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.indent_less()
 
         for n in return_stmts_node[0]:
-            n[0].type = 'elifstmt'
+            n[0].kind = 'elifstmt'
             self.preorder(n)
         self.println(self.indent, 'else:')
         self.indent_more()
@@ -956,7 +956,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_import_as(self, node):
         store_node = node[-1][-1]
-        assert store_node.type.startswith('STORE_')
+        assert store_node.kind.startswith('STORE_')
         iname = node[0].pattr  # import name
         sname = store_node.pattr # store_name
         if iname and iname == sname or iname.startswith(sname + '.'):
@@ -1070,7 +1070,7 @@ class SourceWalker(GenericASTTraversal, object):
         """
         p = self.prec
         self.prec = 27
-        if node[-1].type == 'list_iter':
+        if node[-1].kind == 'list_iter':
             n = node[-1]
         elif self.is_pypy and node[-1] == 'JUMP_BACK':
             n = node[-2]
@@ -1185,7 +1185,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write('{')
         if node[0] in ['LOAD_SETCOMP', 'LOAD_DICTCOMP']:
             self.comprehension_walk3(node, 1, 0)
-        elif node[0].type == 'load_closure' and self.version >= 3.0:
+        elif node[0].kind == 'load_closure' and self.version >= 3.0:
             self.setcomprehension_walk3(node, collection_index=4)
         else:
             self.comprehension_walk(node, iter_index=4)
@@ -1252,7 +1252,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         # Python 2.7+ starts including set_comp_body
         # Python 3.5+ starts including setcomp_func
-        assert n.type in ('lc_body', 'comp_body', 'setcomp_func', 'set_comp_body'), ast
+        assert n.kind in ('lc_body', 'comp_body', 'setcomp_func', 'set_comp_body'), ast
         assert designator, "Couldn't find designator in list/set comprehension"
 
         self.preorder(n[0])
@@ -1302,7 +1302,7 @@ class SourceWalker(GenericASTTraversal, object):
                 n = n[3]
             elif n in ('list_if', 'list_if_not'):
                 # FIXME: just a guess
-                if n[0].type == 'expr':
+                if n[0].kind == 'expr':
                     list_if = n
                 else:
                     list_if = n[1]
@@ -1323,7 +1323,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_listcomp(self, node):
         self.write('[')
-        if node[0].type == 'load_closure':
+        if node[0].kind == 'load_closure':
             self.listcomprehension_walk2(node)
         else:
             self.comprehension_walk3(node, 1, 0)
@@ -1360,7 +1360,7 @@ class SourceWalker(GenericASTTraversal, object):
                 n = n[3]
             elif n in ('list_if', 'list_if_not', 'comp_if', 'comp_if_not'):
                 # FIXME: just a guess
-                if n[0].type == 'expr':
+                if n[0].kind == 'expr':
                     list_if = n
                 else:
                     list_if = n[1]
@@ -1506,10 +1506,10 @@ class SourceWalker(GenericASTTraversal, object):
 
     def print_super_classes3(self, node):
         n = len(node)-1
-        if node.type != 'expr':
-            assert node[n].type.startswith('CALL_FUNCTION')
+        if node.kind != 'expr':
+            assert node[n].kind.startswith('CALL_FUNCTION')
             for i in range(n-2, 0, -1):
-                if not node[i].type in ['expr', 'LOAD_CLASSNAME']:
+                if not node[i].kind in ['expr', 'LOAD_CLASSNAME']:
                     break
                 pass
 
@@ -1549,7 +1549,7 @@ class SourceWalker(GenericASTTraversal, object):
         line_number = self.line_number
 
         if self.version >= 3.0 and not self.is_pypy:
-            if node[0].type.startswith('kvlist'):
+            if node[0].kind.startswith('kvlist'):
                 # Python 3.5+ style key/value list in mapexpr
                 kv_node = node[0]
                 l = list(kv_node)
@@ -1572,11 +1572,11 @@ class SourceWalker(GenericASTTraversal, object):
                     i += 2
                     pass
                 pass
-            elif len(node) > 1 and node[1].type.startswith('kvlist'):
+            elif len(node) > 1 and node[1].kind.startswith('kvlist'):
                 # Python 3.0..3.4 style key/value list in mapexpr
                 kv_node = node[1]
                 l = list(kv_node)
-                if len(l) > 0 and l[0].type == 'kv3':
+                if len(l) > 0 and l[0].kind == 'kv3':
                     # Python 3.2 does this
                     kv_node = node[1][0]
                     l = list(kv_node)
@@ -1601,7 +1601,7 @@ class SourceWalker(GenericASTTraversal, object):
                     i += 3
                     pass
                 pass
-            elif node[-1].type.startswith('BUILD_CONST_KEY_MAP'):
+            elif node[-1].kind.startswith('BUILD_CONST_KEY_MAP'):
                 # Python 3.6+ style const map
                 keys = node[-2].pattr
                 values = node[:-2]
@@ -1626,7 +1626,7 @@ class SourceWalker(GenericASTTraversal, object):
             pass
         else:
             # Python 2 style kvlist
-            assert node[-1].type.startswith('kvlist')
+            assert node[-1].kind.startswith('kvlist')
             kv_node = node[-1] # goto kvlist
 
             first_time = True
@@ -1692,7 +1692,7 @@ class SourceWalker(GenericASTTraversal, object):
         p = self.prec
         self.prec = 100
         lastnode = node.pop()
-        lastnodetype = lastnode.type
+        lastnodetype = lastnode.kind
 
         # If this build list is inside a CALL_FUNCTION_VAR,
         # then the first * has already been printed.
@@ -1762,7 +1762,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
 
     def n_unpack(self, node):
-        if node[0].type.startswith('UNPACK_EX'):
+        if node[0].kind.startswith('UNPACK_EX'):
             # Python 3+
             before_count, after_count = node[0].attr
             for i in range(before_count+1):
@@ -1777,8 +1777,8 @@ class SourceWalker(GenericASTTraversal, object):
             self.prune()
             return
         for n in node[1:]:
-            if n[0].type == 'unpack':
-                n[0].type = 'unpack_w_parens'
+            if n[0].kind == 'unpack':
+                n[0].kind = 'unpack_w_parens'
         self.default(node)
 
     n_unpack_w_parens = n_unpack
@@ -1787,25 +1787,25 @@ class SourceWalker(GenericASTTraversal, object):
         # A horrible hack for Python 3.0 .. 3.2
         if 3.0 <= self.version <= 3.2 and len(node) == 2:
             if (node[0][0] == 'LOAD_FAST' and node[0][0].pattr == '__locals__' and
-                node[1][0].type == 'STORE_LOCALS'):
+                node[1][0].kind == 'STORE_LOCALS'):
                 self.prune()
         self.default(node)
 
     def n_assign2(self, node):
         for n in node[-2:]:
             if n[0] == 'unpack':
-                n[0].type = 'unpack_w_parens'
+                n[0].kind = 'unpack_w_parens'
         self.default(node)
 
     def n_assign3(self, node):
         for n in node[-3:]:
             if n[0] == 'unpack':
-                n[0].type = 'unpack_w_parens'
+                n[0].kind = 'unpack_w_parens'
         self.default(node)
 
     def n_except_cond2(self, node):
         if node[-2][0] == 'unpack':
-            node[-2][0].type = 'unpack_w_parens'
+            node[-2][0].kind = 'unpack_w_parens'
         self.default(node)
 
     def template_engine(self, entry, startnode):
@@ -1814,7 +1814,7 @@ class SourceWalker(GenericASTTraversal, object):
         specifications such as %c, %C, and so on.
         """
 
-        # self.println("----> ", startnode.type, ', ', entry[0])
+        # self.println("----> ", startnode.kind, ', ', entry[0])
         fmt = entry[0]
         arg = 1
         i = 0
@@ -1842,7 +1842,7 @@ class SourceWalker(GenericASTTraversal, object):
             # Used mostly on the LHS of an assignment
             # BUILD_TUPLE_n is pretty printed and may take care of other uses.
             elif typ == ',':
-                if (node.type in ('unpack', 'unpack_w_parens') and
+                if (node.kind in ('unpack', 'unpack_w_parens') and
                     node[0].attr == 1):
                     self.write(',')
             elif typ == 'c':
@@ -1914,8 +1914,8 @@ class SourceWalker(GenericASTTraversal, object):
             key = key[i]
             pass
 
-        if key.type in table:
-            self.template_engine(table[key.type], node)
+        if key.kind in table:
+            self.template_engine(table[key.kind], node)
             self.prune()
 
     def customize(self, customize):
@@ -2135,10 +2135,10 @@ class SourceWalker(GenericASTTraversal, object):
 
         if isLambda:
             for t in tokens:
-                if t.type == 'RETURN_END_IF':
-                    t.type = 'RETURN_END_IF_LAMBDA'
-                elif t.type == 'RETURN_VALUE':
-                    t.type = 'RETURN_VALUE_LAMBDA'
+                if t.kind == 'RETURN_END_IF':
+                    t.kind = 'RETURN_END_IF_LAMBDA'
+                elif t.kind == 'RETURN_VALUE':
+                    t.kind = 'RETURN_VALUE_LAMBDA'
             tokens.append(Token('LAMBDA_MARKER'))
             try:
                 ast = python_parser.parse(self.p, tokens, customize)
@@ -2153,10 +2153,10 @@ class SourceWalker(GenericASTTraversal, object):
         # than fight (with the grammar to not emit "return None").
         if self.hide_internal:
             if len(tokens) >= 2 and not noneInNames:
-                if tokens[-1].type in ('RETURN_VALUE', 'RETURN_VALUE_LAMBDA'):
+                if tokens[-1].kind in ('RETURN_VALUE', 'RETURN_VALUE_LAMBDA'):
                     # Python 3.4's classes can add a "return None" which is
                     # invalid syntax.
-                    if tokens[-2].type == 'LOAD_CONST':
+                    if tokens[-2].kind == 'LOAD_CONST':
                         if isTopLevel or tokens[-2].pattr is None:
                             del tokens[-2:]
                         else:
