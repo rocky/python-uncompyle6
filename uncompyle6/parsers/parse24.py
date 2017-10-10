@@ -58,10 +58,11 @@ class Python24Parser(Python25Parser):
         if invalid or tokens is None:
             return invalid
 
-        # FiXME: this code never gets called...
         lhs = rule[0]
         if lhs == 'nop_stmt':
-            return not int(tokens[first].pattr) == tokens[last].offset
+            l = len(tokens)
+            if 0 <= l < len(tokens):
+                return not int(tokens[first].pattr) == tokens[last].offset
 
         return False
 
