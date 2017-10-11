@@ -3,8 +3,9 @@
 ## The difficulty of the problem
 
 There is no Python decompiler yet, that I know about that will
-decompyle everything. This one probably does the
-best job of *any* Python decompiler. But it is a constant work in progress: Python keeps changing, and so does its code generation.
+decompyle everything. This one probably does the best job of *any*
+Python decompiler. But it is a constant work in progress: Python keeps
+changing, and so does its code generation.
 
 I have found bugs in *every* Python decompiler I have tried. Even
 those where authors/maintainers claim that they have used it on
@@ -14,12 +15,67 @@ but that the program is *semantically* not equivalent.
 
 So it is likely you'll find a mistranslation in decompiling.
 
+
+## Is it really a bug?
+
+If the code emitted is semantically equivalent, then this isn't a bug.
+
+For example the code might be
+
+```
+if a:
+  if b:
+     x = 1
+```
+
+and we might produce:
+
+```
+if a and b:
+  x = 1
+```
+
+These are equivalent. Sometimes
+
+```
+else:
+   if ...
+
+```
+
+may out as `elif`.
+
+
+As mentioned in the README. It is possible that Python changes what
+you write to be more efficient. For example, for:
+
+
+```
+if True:
+  x = 5
+```
+
+Python will generate code like:
+
+```
+x = 5
+```
+
+So just because the text isn't the same, does not
+necessarily mean there's a bug.
+
 ## What to send (minimum requirements)
 
 The basic requirement is pretty simple:
 
 * Python bytecode
 * Python source text
+
+Please don't put files on download services that one has to register
+for. If you can't attach it to the issue, or create a github gist,
+then the code you are sending is too large.
+
+Please also try to narrow the bug. See below.
 
 ## What to send (additional helpful information)
 

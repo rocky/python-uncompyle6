@@ -647,6 +647,20 @@ class SourceWalker(GenericASTTraversal, object):
                     node == AST('return_stmt',
                                 [AST('ret_expr', [NONE]), Token('RETURN_VALUE')]))
 
+    # Python 3.x can have be dead code as a result of its optimization?
+    # So we'll add a # at the end of the return lambda so the rest is ignored
+    def n_return_lambda(self, node):
+        if 1 <= len(node) <= 2:
+            self.preorder(node[0])
+            self.write(' # Avoid dead code: ')
+            self.prune()
+        else:
+            # We can't comment out like above because there may be a trailing ')'
+            # that needs to be written
+            assert len(node) == 3 and node[2] == 'LAMBDA_MARKER'
+            self.preorder(node[0])
+            self.prune()
+
     def n_return_stmt(self, node):
         if self.params['isLambda']:
             self.preorder(node[0])
@@ -2198,7 +2212,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
     debug_parser = dict(PARSER_DEFAULT_DEBUG)
     if showgrammar:
         debug_parser['reduce'] = showgrammar
-        debug_parser['errorstack'] = True
+        debug_parser['errorstack'] = 'full'
 
     #  Build AST from disassembly.
     linestarts = dict(scanner.opc.findlinestarts(co))

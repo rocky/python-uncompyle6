@@ -47,7 +47,7 @@ check-3.5: check-bytecode
 
 #: Run working tests from Python 3.6
 check-3.6: check-bytecode
-	$(PYTHON) test_pythonlib.py --bytecode-3.6 --verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.6 --weak-verify $(COMPILE)
 
 #: Check deparsing only, but from a different Python version
 check-disasm:
