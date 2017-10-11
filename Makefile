@@ -89,7 +89,7 @@ bdist_egg:
 
 
 #: Create binary wheel distribution
-bdist_wheel:
+wheel:
 	$(PYTHON) ./setup.py bdist_wheel
 
 
