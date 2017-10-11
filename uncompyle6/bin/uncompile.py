@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
-# Copyright (c) 2015-2016 by Rocky Bernstein
+# Copyright (c) 2015-2017 by Rocky Bernstein
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 from __future__ import print_function
 import sys, os, getopt, time
 
-program, ext = os.path.splitext(os.path.basename(__file__))
+program = 'uncompyle6'
 
 __doc__ = """
 Usage:
