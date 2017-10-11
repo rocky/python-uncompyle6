@@ -308,11 +308,11 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def n_expr(self, node):
         start = len(self.f.getvalue())
         p = self.prec
-        if node[0].type.startswith('binary_expr'):
+        if node[0].kind.startswith('binary_expr'):
             n = node[0][-1][0]
         else:
             n = node[0]
-        self.prec = PRECEDENCE.get(n.type, -2)
+        self.prec = PRECEDENCE.get(n.kind, -2)
         if n == 'LOAD_CONST' and repr(n.pattr)[0] == '-':
             n.parent = node
             self.set_pos_info(n, start, len(self.f.getvalue()))
@@ -405,7 +405,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def n_ifelsestmtr(self, node):
         if node[2] == 'COME_FROM':
             return_stmts_node = node[3]
-            node.type = 'ifelsestmtr2'
+            node.kind = 'ifelsestmtr2'
         else:
             return_stmts_node = node[2]
         if len(return_stmts_node) != 2:
@@ -438,7 +438,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         for n in return_stmts_node[0]:
             if (n[0] == 'ifstmt' and n[0][1][0] == 'return_if_stmts'):
                 if prev_stmt_is_if_ret:
-                    n[0].type = 'elifstmt'
+                    n[0].kind = 'elifstmt'
                 prev_stmt_is_if_ret = True
             else:
                 prev_stmt_is_if_ret = False
@@ -477,7 +477,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.indent_less()
 
         for n in node[2][0]:
-            n[0].type = 'elifstmt'
+            n[0].kind = 'elifstmt'
             n.parent = node
             self.preorder(n)
         self.println(self.indent, 'else:')
@@ -493,7 +493,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         iname = node[0].pattr
 
         store_import_node = node[-1][-1]
-        assert store_import_node.type.startswith('STORE_')
+        assert store_import_node.kind.startswith('STORE_')
 
         sname = store_import_node.pattr
         self.write(iname)
@@ -554,7 +554,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             elif n == 'list_if':	n = n[2]
             elif n == 'list_if_not': n= n[2]
         assert n == 'lc_body'
-        if node[0].type.startswith('BUILD_LIST'):
+        if node[0].kind.startswith('BUILD_LIST'):
             start = len(self.f.getvalue())
             self.set_pos_info(node[0], start, start+1)
         self.write( '[ ')
@@ -687,7 +687,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         # Python 2.7+ starts including set_comp_body
         # Python 3.5+ starts including setcomp_func
-        assert n.type in ('lc_body', 'comp_body', 'setcomp_func', 'set_comp_body'), ast
+        assert n.kind in ('lc_body', 'comp_body', 'setcomp_func', 'set_comp_body'), ast
         assert designator, "Couldn't find designator in list/set comprehension"
 
         old_name = self.name
@@ -714,7 +714,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.preorder(if_node)
         self.prec = p
         self.name = old_name
-        if node[-1].type.startswith('CALL_FUNCTION'):
+        if node[-1].kind.startswith('CALL_FUNCTION'):
             self.set_pos_info(node[-1], gen_start, len(self.f.getvalue()))
 
     def listcomprehension_walk2(self, node):
@@ -743,7 +743,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 n = n[3]
             elif n in ('list_if', 'list_if_not'):
                 # FIXME: just a guess
-                if n[0].type == 'expr':
+                if n[0].kind == 'expr':
                     list_if = n
                 else:
                     list_if = n[1]
@@ -789,7 +789,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             start = len(self.f.getvalue())
             self.set_pos_info(node[0], start-1, start)
             self.comprehension_walk3(node, 1, 0)
-        elif node[0].type == 'load_closure':
+        elif node[0].kind == 'load_closure':
             self.setcomprehension_walk3(node, collection_index=4)
         else:
             self.comprehension_walk(node, iter_index=4)
@@ -808,7 +808,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.set_pos_info(node[0], start, len(self.f.getvalue()))
         self.write(': {')
         start = len(self.f.getvalue())
-        assert node[0].type.startswith('BUILD_SET')
+        assert node[0].kind.startswith('BUILD_SET')
         self.set_pos_info(node[0], start-1, start)
         designator = node[3]
         assert designator == 'designator'
@@ -817,7 +817,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         fin = len(self.f.getvalue())
         self.set_pos_info(designator, start, fin)
         for_iter_node = node[2]
-        assert for_iter_node.type == 'FOR_ITER'
+        assert for_iter_node.kind == 'FOR_ITER'
         self.set_pos_info(for_iter_node, start, fin)
         self.write(" for ")
         self.preorder(designator)
@@ -836,7 +836,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def n_listcomp(self, node):
         self.write('[')
-        if node[0].type == 'load_closure':
+        if node[0].kind == 'load_closure':
             self.listcomprehension_walk2(node)
         else:
             if node[0] == 'LOAD_LISTCOMP':
@@ -850,7 +850,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         if len(node) > 1:
             if (node[0] == 'c_stmts_opt' and
                 node[0][0] == 'passstmt' and
-                node[1].type.startswith('JUMP_FORWARD')):
+                node[1].kind.startswith('JUMP_FORWARD')):
                 self.set_pos_info(node[1], node[0][0].start, node[0][0].finish)
 
     def setcomprehension_walk3(self, node, collection_index):
@@ -881,7 +881,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 n = n[3]
             elif n in ('list_if', 'list_if_not', 'comp_if', 'comp_if_not'):
                 # FIXME: just a guess
-                if n[0].type == 'expr':
+                if n[0].kind == 'expr':
                     list_if = n
                 else:
                     list_if = n[1]
@@ -1044,8 +1044,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # NOTE: this differs from behavior in pysource.py
 
         if len(tokens) >= 2 and not noneInNames:
-            if tokens[-1].type == 'RETURN_VALUE':
-                if tokens[-2].type != 'LOAD_CONST':
+            if tokens[-1].kind == 'RETURN_VALUE':
+                if tokens[-2].kind != 'LOAD_CONST':
                     tokens.append(Token('RETURN_LAST'))
         if len(tokens) == 0:
             return
@@ -1299,10 +1299,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # as a custom rule
         start = len(self.f.getvalue())
         n = len(node)-1
-        assert node[n].type.startswith('CALL_FUNCTION')
+        assert node[n].kind.startswith('CALL_FUNCTION')
 
         for i in range(n-2, 0, -1):
-            if not node[i].type in ['expr', 'LOAD_CLASSNAME']:
+            if not node[i].kind in ['expr', 'LOAD_CLASSNAME']:
                 break
             pass
 
@@ -1337,7 +1337,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write('{')
 
         if self.version > 3.0:
-            if node[0].type.startswith('kvlist'):
+            if node[0].kind.startswith('kvlist'):
                 # Python 3.5+ style key/value list in mapexpr
                 kv_node = node[0]
                 l = list(kv_node)
@@ -1352,11 +1352,11 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     i += 2
                     pass
                 pass
-            elif node[1].type.startswith('kvlist'):
+            elif node[1].kind.startswith('kvlist'):
                 # Python 3.0..3.4 style key/value list in mapexpr
                 kv_node = node[1]
                 l = list(kv_node)
-                if len(l) > 0 and l[0].type == 'kv3':
+                if len(l) > 0 and l[0].kind == 'kv3':
                     # Python 3.2 does this
                     kv_node = node[1][0]
                     l = list(kv_node)
@@ -1379,7 +1379,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             pass
         else:
             # Python 2 style kvlist
-            assert node[-1].type.startswith('kvlist')
+            assert node[-1].kind.startswith('kvlist')
             kv_node = node[-1] # goto kvlist
 
             for kv in kv_node:
@@ -1418,7 +1418,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         p = self.prec
         self.prec = 100
         n = node.pop()
-        lastnode = n.type
+        lastnode = n.kind
         start = len(self.f.getvalue())
         if lastnode.startswith('BUILD_LIST'):
             self.write('['); endchar = ']'
@@ -1533,7 +1533,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 # for loops have two positions that correspond to a single text
                 # location. In "for i in ..." there is the initialization "i" code as well
                 # as the iteration code with "i"
-                match = re.search(r'^for', startnode.type)
+                match = re.search(r'^for', startnode.kind)
                 if match and entry[arg] == 3:
                     self.set_pos_info(node[0], start, finish)
                     for n in node[2]:
@@ -1627,7 +1627,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # 2. subroutine calls. It the last op is the call and for purposes of printing
         # we don't need to print anything special there. However it encompases the
         # entire string of the node fn(...)
-        match = re.search(r'^call_function', startnode.type)
+        match = re.search(r'^call_function', startnode.kind)
         if match:
             last_node = startnode[-1]
             # import traceback; traceback.print_stack()
@@ -1768,7 +1768,7 @@ if __name__ == '__main__':
             nodeInfo = walk.offsets[name, offset]
             node = nodeInfo.node
             extractInfo = walk.extract_node_info(node)
-            print("code: %s" % node.type)
+            print("code: %s" % node.kind)
             # print extractInfo
             print(extractInfo.selectedText)
             print(extractInfo.selectedLine)
@@ -1778,7 +1778,7 @@ if __name__ == '__main__':
                 print("Contained in...")
                 print(extractInfo.selectedLine)
                 print(extractInfo.markerLine)
-                print("code: %s" % p.type)
+                print("code: %s" % p.kind)
                 print('=' * 40)
                 pass
             pass
@@ -1797,7 +1797,7 @@ if __name__ == '__main__':
             nodeInfo = walk.offsets[name, offset]
             node = nodeInfo.node
             extractInfo = walk.extract_node_info(node)
-            print("code: %s" % node.type)
+            print("code: %s" % node.kind)
             # print extractInfo
             print(extractInfo.selectedText)
             print(extractInfo.selectedLine)
@@ -1807,7 +1807,7 @@ if __name__ == '__main__':
                 print("Contained in...")
                 print(extractInfo.selectedLine)
                 print(extractInfo.markerLine)
-                print("code: %s" % p.type)
+                print("code: %s" % p.kind)
                 print('=' * 40)
                 pass
             pass
