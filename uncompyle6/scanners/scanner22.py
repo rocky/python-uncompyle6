@@ -30,5 +30,5 @@ class Scanner22(scan.Scanner23):
 
     def ingest22(self, co, classname=None, code_objects={}, show_asm=None):
         tokens, customize = self.parent_ingest(co, classname, code_objects, show_asm)
-        tokens = [t for t in tokens if t.type != 'SET_LINENO']
+        tokens = [t for t in tokens if t.kind != 'SET_LINENO']
         return tokens, customize

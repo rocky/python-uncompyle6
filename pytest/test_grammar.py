@@ -11,7 +11,7 @@ def test_grammar():
         remain_tokens = set([re.sub('_CONT$','', t) for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         assert remain_tokens == set([]), \
-            "Remaining tokens %s\n====\n%s" % (remain_tokens, p.dumpGrammar())
+            "Remaining tokens %s\n====\n%s" % (remain_tokens, p.dump_grammar())
 
     p = get_python_parser(PYTHON_VERSION, is_pypy=IS_PYPY)
     lhs, rhs, tokens, right_recursive = p.checkSets()

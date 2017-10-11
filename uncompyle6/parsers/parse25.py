@@ -60,4 +60,4 @@ class Python25ParserSingle(Python26Parser, PythonParserSingle):
 if __name__ == '__main__':
     # Check grammar
     p = Python25Parser()
-    p.checkGrammar()
+    p.check_grammar()

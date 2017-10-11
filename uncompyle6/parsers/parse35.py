@@ -142,7 +142,7 @@ class Python35Parser(Python34Parser):
     def add_custom_rules(self, tokens, customize):
         super(Python35Parser, self).add_custom_rules(tokens, customize)
         for i, token in enumerate(tokens):
-            opname = token.type
+            opname = token.kind
             if opname == 'BUILD_MAP_UNPACK_WITH_CALL':
                 nargs = token.attr % 256
                 map_unpack_n = "map_unpack_%s" % nargs
@@ -152,7 +152,7 @@ class Python35Parser(Python34Parser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
                 call_token = tokens[i+1]
                 if self.version == 3.5:
-                    rule = 'call_function ::= expr unmapexpr ' + call_token.type
+                    rule = 'call_function ::= expr unmapexpr ' + call_token.kind
                     self.add_unique_rule(rule, opname, token.attr, customize)
                 pass
             pass
@@ -164,7 +164,7 @@ class Python35ParserSingle(Python35Parser, PythonParserSingle):
 if __name__ == '__main__':
     # Check grammar
     p = Python35Parser()
-    p.checkGrammar()
+    p.check_grammar()
     from uncompyle6 import PYTHON_VERSION, IS_PYPY
     if PYTHON_VERSION == 3.5:
         lhs, rhs, tokens, right_recursive = p.checkSets()

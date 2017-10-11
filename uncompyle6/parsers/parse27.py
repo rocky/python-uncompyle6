@@ -129,7 +129,7 @@ class Python27ParserSingle(Python27Parser, PythonParserSingle):
 if __name__ == '__main__':
     # Check grammar
     p = Python27Parser()
-    p.checkGrammar()
+    p.check_grammar()
     from uncompyle6 import PYTHON_VERSION, IS_PYPY
     if PYTHON_VERSION == 2.7:
         lhs, rhs, tokens, right_recursive = p.checkSets()
@@ -148,4 +148,5 @@ if __name__ == '__main__':
                              for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         print(remain_tokens)
-        # p.dumpGrammar()
+        p.check_grammar()
+        p.dump_grammar()

@@ -1,3 +1,10 @@
+uncompyle6 2.13.0 2017-10-10
+
+- Fixes in deparsing lambda expressions
+- Improve table-semantics descriptions
+- Document hacky customize arg count better (until we can remove it)
+- Update to use xdis 3.7.0 or greater
+
 uncompyle6 2.12.0 2017-09-26
 
 - Use xdis 3.6.0 or greater now

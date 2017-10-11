@@ -29,7 +29,7 @@ class Python34ParserSingle(Python34Parser, PythonParserSingle):
 if __name__ == '__main__':
     # Check grammar
     p = Python34Parser()
-    p.checkGrammar()
+    p.check_grammar()
     from uncompyle6 import PYTHON_VERSION, IS_PYPY
     if PYTHON_VERSION == 3.4:
         lhs, rhs, tokens, right_recursive = p.checkSets()

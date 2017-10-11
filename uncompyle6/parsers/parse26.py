@@ -276,7 +276,7 @@ class Python26ParserSingle(Python2Parser, PythonParserSingle):
 if __name__ == '__main__':
     # Check grammar
     p = Python26Parser()
-    p.checkGrammar()
+    p.check_grammar()
     from uncompyle6 import PYTHON_VERSION, IS_PYPY
     if PYTHON_VERSION == 2.6:
         lhs, rhs, tokens, right_recursive = p.checkSets()

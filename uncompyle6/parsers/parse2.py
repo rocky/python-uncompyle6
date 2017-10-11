@@ -417,4 +417,4 @@ class Python2ParserSingle(Python2Parser, PythonParserSingle):
 if __name__ == '__main__':
     # Check grammar
     p = Python2Parser()
-    p.checkGrammar()
+    p.check_grammar()

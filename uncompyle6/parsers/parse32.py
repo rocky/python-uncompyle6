@@ -42,7 +42,7 @@ class Python32Parser(Python3Parser):
     def add_custom_rules(self, tokens, customize):
         super(Python32Parser, self).add_custom_rules(tokens, customize)
         for i, token in enumerate(tokens):
-            opname = token.type
+            opname = token.kind
             if opname.startswith('MAKE_FUNCTION_A'):
                 args_pos, args_kw, annotate_args  = token.attr
                 # Check that there are 2 annotated params?

@@ -8,7 +8,7 @@ from uncompyle6 import PYTHON3
 if PYTHON3:
     intern = sys.intern
 
-class Token():
+class Token:
     """
     Class representing a byte-code instruction.
 
@@ -21,7 +21,7 @@ class Token():
     #    pattr = argrepr
     def __init__(self, opname, attr=None, pattr=None, offset=-1,
                  linestart=None, op=None, has_arg=None, opc=None):
-        self.type = intern(opname)
+        self.kind = intern(opname)
         self.op = op
         self.has_arg = has_arg
         self.attr = attr
@@ -36,20 +36,20 @@ class Token():
     def __eq__(self, o):
         """ '==', but it's okay if offsets and linestarts are different"""
         if isinstance(o, Token):
-            # Both are tokens: compare type and attr
+            # Both are tokens: compare kind and attr
             # It's okay if offsets are different
-            return (self.type == o.type) and (self.pattr == o.pattr)
+            return (self.kind == o.kind) and (self.pattr == o.pattr)
         else:
-            return self.type == o
+            return self.kind == o
 
     def __repr__(self):
-        return str(self.type)
+        return str(self.kind)
 
     # def __str__(self):
     #     pattr = self.pattr if self.pattr is not None else ''
     #     prefix = '\n%3d   ' % self.linestart if self.linestart else (' ' * 6)
     #     return (prefix +
-    #             ('%9s  %-18s %r' % (self.offset, self.type, pattr)))
+    #             ('%9s  %-18s %r' % (self.offset, self.kind, pattr)))
 
     def __str__(self):
         return self.format(line_prefix='')
@@ -59,7 +59,7 @@ class Token():
             prefix = '\n%s%4d  ' % (line_prefix, self.linestart)
         else:
             prefix = ' ' * (6 + len(line_prefix))
-        offset_opname = '%6s  %-17s' % (self.offset, self.type)
+        offset_opname = '%6s  %-17s' % (self.offset, self.kind)
         if not self.has_arg:
             return "%s%s" % (prefix, offset_opname)
 
@@ -83,14 +83,14 @@ class Token():
                         pattr = self.opc.cmp_op[self.attr]
                 # And so on. See xdis/bytecode.py get_instructions_bytes
                 pass
-        elif re.search('_\d+$', self.type):
+        elif re.search('_\d+$', self.kind):
             return "%s%s%s" % (prefix, offset_opname,  argstr)
         else:
             pattr = ''
         return "%s%s%s %r" % (prefix, offset_opname,  argstr, pattr)
 
     def __hash__(self):
-        return hash(self.type)
+        return hash(self.kind)
 
     def __getitem__(self, i):
         raise IndexError

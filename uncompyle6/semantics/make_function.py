@@ -17,7 +17,7 @@ def find_all_globals(node, globs):
     for n in node:
         if isinstance(n, AST):
             globs = find_all_globals(n, globs)
-        elif n.type in ('STORE_GLOBAL', 'DELETE_GLOBAL', 'LOAD_GLOBAL'):
+        elif n.kind in ('STORE_GLOBAL', 'DELETE_GLOBAL', 'LOAD_GLOBAL'):
             globs.add(n.pattr)
     return globs
 
@@ -26,7 +26,7 @@ def find_globals(node, globs):
     for n in node:
         if isinstance(n, AST):
             globs = find_globals(n, globs)
-        elif n.type in ('STORE_GLOBAL', 'DELETE_GLOBAL'):
+        elif n.kind in ('STORE_GLOBAL', 'DELETE_GLOBAL'):
             globs.add(n.pattr)
     return globs
 
@@ -36,7 +36,7 @@ def find_none(node):
             if n not in ('return_stmt', 'return_if_stmt'):
                 if find_none(n):
                     return True
-        elif n.type == 'LOAD_CONST' and n.pattr is None:
+        elif n.kind == 'LOAD_CONST' and n.pattr is None:
             return True
     return False
 
@@ -64,7 +64,7 @@ def make_function3_annotate(self, node, isLambda, nested=1,
             return name
 
     # MAKE_FUNCTION_... or MAKE_CLOSURE_...
-    assert node[-1].type.startswith('MAKE_')
+    assert node[-1].kind.startswith('MAKE_')
 
     annotate_tuple = None
     for annotate_last in range(len(node)-1, -1, -1):
@@ -80,7 +80,7 @@ def make_function3_annotate(self, node, isLambda, nested=1,
         i = -1
         j = annotate_last-1
         l = -len(node)
-        while j >= l and node[j].type in ('annotate_arg' 'annotate_tuple'):
+        while j >= l and node[j].kind in ('annotate_arg' 'annotate_tuple'):
             annotate_args[annotate_tup[i]] = node[j][0]
             i -= 1
             j -= 1
@@ -106,7 +106,7 @@ def make_function3_annotate(self, node, isLambda, nested=1,
         lambda_index = None
 
     if lambda_index and isLambda and iscode(node[lambda_index].attr):
-        assert node[lambda_index].type == 'LOAD_LAMBDA'
+        assert node[lambda_index].kind == 'LOAD_LAMBDA'
         code = node[lambda_index].attr
     else:
         code = codeNode.attr
@@ -318,7 +318,7 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
             return name
 
     # MAKE_FUNCTION_... or MAKE_CLOSURE_...
-    assert node[-1].type.startswith('MAKE_')
+    assert node[-1].kind.startswith('MAKE_')
 
     args_node = node[-1]
     if isinstance(args_node.attr, tuple):
@@ -334,7 +334,7 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
     lambda_index = None
 
     if lambda_index and isLambda and iscode(node[lambda_index].attr):
-        assert node[lambda_index].type == 'LOAD_LAMBDA'
+        assert node[lambda_index].kind == 'LOAD_LAMBDA'
         code = node[lambda_index].attr
     else:
         code = codeNode.attr
@@ -450,7 +450,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
             return name
 
     # MAKE_FUNCTION_... or MAKE_CLOSURE_...
-    assert node[-1].type.startswith('MAKE_')
+    assert node[-1].kind.startswith('MAKE_')
 
     args_node = node[-1]
     if isinstance(args_node.attr, tuple):
@@ -484,7 +484,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
         lambda_index = None
 
     if lambda_index and isLambda and iscode(node[lambda_index].attr):
-        assert node[lambda_index].type == 'LOAD_LAMBDA'
+        assert node[lambda_index].kind == 'LOAD_LAMBDA'
         code = node[lambda_index].attr
     else:
         code = codeNode.attr
@@ -585,7 +585,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
             for n in node:
                 if n == 'pos_arg':
                     continue
-                elif self.version >= 3.4 and not (n.type in ('kwargs', 'kwarg')):
+                elif self.version >= 3.4 and not (n.kind in ('kwargs', 'kwarg')):
                     continue
                 else:
                     self.preorder(n)
