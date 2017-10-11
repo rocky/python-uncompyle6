@@ -91,14 +91,14 @@ class PythonParser(GenericASTBuilder):
         for i in dir(self):
             setattr(self, i, None)
 
-    def debug_reduce(self, rule, tokens, parent, i):
+    def debug_reduce(self, rule, tokens, parent, last_token_pos):
         """Customized format and print for our kind of tokens
         which gets called in debugging grammar reduce rules
         """
         def fix(c):
             s = str(c)
-            i = s.find('_')
-            return s if i == -1 else s[:i]
+            last_token_pos = s.find('_')
+            return s if last_token_pos == -1 else s[:last_token_pos]
 
         prefix = ''
         if parent and tokens:
@@ -110,13 +110,13 @@ class PythonParser(GenericASTBuilder):
             if hasattr(p_token, 'offset'):
                 prefix += "%3s" % fix(p_token.offset)
                 if len(rule[1]) > 1:
-                    prefix += '-%-3s ' % fix(tokens[i-1].offset)
+                    prefix += '-%-3s ' % fix(tokens[last_token_pos-1].offset)
                 else:
                     prefix += '     '
         else:
             prefix = '               '
 
-        print("%s%s ::= %s" % (prefix, rule[0], ' '.join(rule[1])))
+        print("%s%s ::= %s (%d)" % (prefix, rule[0], ' '.join(rule[1]), last_token_pos))
 
     def error(self, instructions, index):
         # Find the last line boundary

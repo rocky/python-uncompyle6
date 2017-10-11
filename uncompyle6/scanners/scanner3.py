@@ -779,6 +779,10 @@ class Scanner3(Scanner):
 
             if ((code[prev_op[target]] in self.pop_jump_if_pop) and
                 (target > offset) and prev_op[target] != offset):
+                # FIXME: this is not accurate The commented out below
+                # is what it should be. However grammar rules right now
+                # assume the incorrect offsets.
+                # self.fixed_jumps[offset] = target
                 self.fixed_jumps[offset] = prev_op[target]
                 self.structs.append({'type': 'and/or',
                                      'start': start,

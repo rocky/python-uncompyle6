@@ -1,3 +1,90 @@
+2017-10-10  rocky <rb@dustyfeet.com>
+
+	* HOW-TO-REPORT-A-BUG.md, test/Makefile, uncompyle6/parser.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/semantics/consts.py, uncompyle6/semantics/pysource.py: 
+	Improve parse trace. lambda fixes yet again
+
+2017-10-10  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/branching/02_ifelse_lambda.py,
+	uncompyle6/semantics/consts.py: Address dead code in lambda ifelse
+
+2017-10-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse24.py, uncompyle6/scanners/scanner3.py: 
+	Misc bugs
+
+2017-10-10  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #131 from rocky/type2kind-rework Adjust for spark-parser 2.7.0 incompatibilities
+
+2017-10-10  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, pytest/test_grammar.py, pytest/test_pysource.py,
+	uncompyle6/parser.py, uncompyle6/parsers/astnode.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse24.py,
+	uncompyle6/parsers/parse26.py, uncompyle6/parsers/parse27.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/parsers/parse32.py,
+	uncompyle6/parsers/parse34.py, uncompyle6/parsers/parse35.py,
+	uncompyle6/parsers/parse36.py, uncompyle6/parsers/parse37.py,
+	uncompyle6/scanners/scanner22.py, uncompyle6/scanners/scanner26.py,
+	uncompyle6/scanners/scanner27.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/scanners/tok.py, uncompyle6/semantics/check_ast.py,
+	uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/make_function.py,
+	uncompyle6/semantics/pysource.py, uncompyle6/verify.py,
+	uncompyle6/version.py: Adjust for spark-parser 2.7.0
+	incompatabilities
+
+2017-10-05  rocky <rb@dustyfeet.com>
+
+	* : One more test
+
+2017-10-05  rocky <rb@dustyfeet.com>
+
+	* : commit b3359439f94c136619b198beaecbfce1b827d2db Author: rocky
+	<rb@dustyfeet.com> Date:   Thu Oct 5 11:00:55 2017 -0400
+
+2017-10-03  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse24.py,
+	uncompyle6/parsers/parse26.py: handle newer parser reduction
+	behavior
+
+2017-10-03  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py: Remove schumutz
+
+2017-10-03  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py: More table doc tweaks
+
+2017-10-03  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Go over table-semantics
+	description yet again
+
+2017-10-02  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py: 
+	spark-parser induced changes...  reduce rules can be called without token streams.
+
+2017-09-30  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner3.py: Document hacky customize arg count
+	better.
+
+2017-09-26  rocky <rb@dustyfeet.com>
+
+	* README.rst: Word hacking
+
+2017-09-26  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS: Get ready for release 2.12.0
+
 2017-09-26  rocky <rb@dustyfeet.com>
 
 	* uncompyle6/parsers/parse3.py: No unicode in Python3.  but we need it in Python2. The bug was probably introduced as a

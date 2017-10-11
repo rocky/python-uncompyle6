@@ -175,10 +175,6 @@ TABLE_DIRECT = {
     'ret_cond_not':     ( '%p if not %p else %p', (2, 27), (0, 22), (-1, 27) ),
     'conditional_lambda':  ( '%c if %c else %c', 2, 0, 4),
 
-    # Python 3.x can have be dead code as a result of its optimization?
-    # So we'll add a # at the end of the return lambda so the rest is ignored
-    'return_lambda':    ('%c # Avoid dead code: ', 0),
-
     'compare':		    ( '%p %[-1]{pattr.replace("-", " ")} %p', (0, 19), (1, 19) ),
     'cmp_list':		    ( '%p %p', (0, 29), (1, 30)),
     'cmp_list1':	    ( '%[3]{pattr} %p %p', (0, 19), (-2, 19)),
