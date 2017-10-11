@@ -43,29 +43,33 @@ Python.
 # We allow for a couple of ways to interact with a node in a tree.  So
 # step 1 after not seeing a custom method for a nonterminal is to
 # determine from what point of view tree-wise the rule is applied.
-# In the diagram below, "N" is a nonterminal name, and K is the table
-# key name; we show where those are with respect to each other in the
+
+# In the diagram below, N is a nonterminal name, and K also a nonterminal
+# name but the one used as a key in the table.
+# we show where those are with respect to each other in the
 # AST tree for N.
 #
 #
-#          N                  N               N&K
-#        / | ... \          / | ... \        / | ... \
-#       O  O      O        O  O      K      O  O      O
-#                 |
-#                 K
+#          N&K               N                  N
+#         / | ... \        / | ... \          / | ... \
+#        O  O      O      O  O      K         O O      O
+#                                                      |
+#                                                      K
+#      TABLE_DIRECT      TABLE_R             TABLE_R0
 #
-#   MAP_R0 (TABLE_R0)  MAP_R (TABLE_R)  MAP_DIRECT (TABLE_DIRECT)
-#
-#   The default is a "TABLE_DIRECT" mapping By far, most rules used work this way.
+#   The default table is TABLE_DIRECT mapping By far, most rules used work this way.
 #   TABLE_R0 is rarely used.
 #
-#   The key K is then extracted from the
-#   subtree and used to find a table entry T[K], if any.  The result is a
-#   format string and arguments (a la printf()) for the formatting engine.
+#   The key K is then extracted from the subtree and used to find one
+#   of the tables, T listed above.  The result after applying T[K] is
+#   a format string and arguments (a la printf()) for the formatting
+#   engine.
+#
 #   Escapes in the format string are:
 #
 #     %c  evaluate the node recursively. Its argument is a single
 #         integer representing a node index.
+#
 #     %p  like %c but sets the operator precedence.
 #         Its argument then is a tuple indicating the node
 #         index and the precidence value, an integer.
@@ -1861,10 +1865,9 @@ class SourceWalker(GenericASTTraversal, object):
                     node[0].attr == 1):
                     self.write(',')
             elif typ == 'c':
-                if isinstance(entry[arg], int):
-                    entry_node = node[entry[arg]]
-                    self.preorder(entry_node)
-                    arg += 1
+                entry_node = node[entry[arg]]
+                self.preorder(entry_node)
+                arg += 1
             elif typ == 'p':
                 p = self.prec
                 (index, self.prec) = entry[arg]

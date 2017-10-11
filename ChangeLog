@@ -1,3 +1,95 @@
+2017-10-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse24.py, uncompyle6/scanners/scanner3.py: 
+	Misc bugs
+
+2017-10-05  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/branching/02_ifelse_lambda.py: One more test
+
+2017-10-05  rocky <rb@dustyfeet.com>
+
+	* .gitignore, pytest/test_grammar.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse26.py, uncompyle6/parsers/parse27.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/semantics/consts.py,
+	uncompyle6/semantics/pysource.py: Sync with master
+
+2017-10-03  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse24.py,
+	uncompyle6/parsers/parse26.py: handle newer parser reduction
+	behavior
+
+2017-10-03  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Go over table-semantics
+	description yet again
+
+2017-10-02  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py: Sync
+	with master
+
+2017-09-26  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py: Annotation field can be unicode...  When deparsing Python 3.x from Python 2.
+
+2017-09-25  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py: Require xdis 3.6.0 or greater
+
+2017-09-25  rocky <rb@dustyfeet.com>
+
+	* : commit 0654aed6c823d0bb20abdc866481ca5950db72f7 Author: rocky
+	<rb@dustyfeet.com> Date:   Thu Sep 21 11:29:17 2017 -0400
+
+2017-09-21  rocky <rb@dustyfeet.com>
+
+	* pytest/test_pysource.py, uncompyle6/semantics/consts.py,
+	uncompyle6/semantics/fragments.py, uncompyle6/semantics/pysource.py: 
+	Unit test for format-specifiers
+
+2017-09-20  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Tidy pysource and fragments
+
+2017-09-20  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/consts.py: Tidy/regularize table entry
+	formatting
+
+2017-09-20  rocky <rb@dustyfeet.com>
+
+	* test/test_pythonlib.py, uncompyle6/semantics/pysource.py: small
+	fixes...  test_pythonlib.py: it is sys.exit not exit pysource.py: restore node
+	type on async_call function
+
+2017-09-20  rocky <rb@dustyfeet.com>
+
+	* pytest/test_pysource.py, uncompyle6/semantics/pysource.py: Start
+	pysource unit test
+
+2017-09-17  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: emgine -> template_engine
+
+2017-08-31  rocky <rb@dustyfeet.com>
+
+	* : commit 356ea6c7705a557cb3e725d1aca8589dd62b5cdf Author: rocky
+	<rb@dustyfeet.com> Date:   Thu Aug 31 09:50:48 2017 -0400
+
+2017-08-31  rocky <rb@dustyfeet.com>
+
+	* : commit 4d5843851543bfb3c97fc3c49036f1a971fc1d66 Author: rocky
+	<rb@dustyfeet.com> Date:   Thu Aug 31 08:53:58 2017 -0400
+
+2017-08-15  rocky <rb@dustyfeet.com>
+
+	* Makefile: 3.7 support
+
 2017-08-15  rocky <rb@dustyfeet.com>
 
 	* : commit c54a47b15f85be50d2278aa79fd514eb08580e65 Author: rocky

@@ -42,21 +42,25 @@ class PythonParser(GenericASTBuilder):
         else:
             return self.ast_first_offset(ast[0])
 
-    def add_unique_rule(self, rule, opname, count, customize):
+    def add_unique_rule(self, rule, opname, arg_count, customize):
         """Add rule to grammar, but only if it hasn't been added previously
-           opname and count are used in the customize() semantic the actions
-           to add the semantic action rule. Often, count is not used.
+           opname and stack_count are used in the customize() semantic
+           the actions to add the semantic action rule. Stack_count is
+           used in custom opcodes like MAKE_FUNCTION to indicate how
+           many arguments it has. Often it is not used.
         """
         if rule not in self.new_rules:
             # print("XXX ", rule) # debug
             self.new_rules.add(rule)
             self.addRule(rule, nop_func)
-            customize[opname] = count
+            customize[opname] = arg_count
             pass
         return
 
     def add_unique_rules(self, rules, customize):
-        """Add rules (a list of string) to grammar
+        """Add rules (a list of string) to grammar. Note that
+        the rules must not be those that set arg_count in the
+        custom dictionary.
         """
         for rule in rules:
             if len(rule) == 0:
@@ -66,7 +70,9 @@ class PythonParser(GenericASTBuilder):
         return
 
     def add_unique_doc_rules(self, rules_str, customize):
-        """Add rules (a docstring-like list of rules) to grammar
+        """Add rules (a docstring-like list of rules) to grammar.
+        Note that the rules must not be those that set arg_count in the
+        custom dictionary.
         """
         rules = [r.strip() for r in rules_str.split("\n")]
         self.add_unique_rules(rules, customize)

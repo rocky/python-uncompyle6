@@ -1,4 +1,4 @@
-#  Copyright (c) 2016 by Rocky Bernstein
+#  Copyright (c) 2016-2017 by Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 
@@ -8,7 +8,7 @@ from uncompyle6 import PYTHON3
 if PYTHON3:
     intern = sys.intern
 
-class Token:
+class Token():
     """
     Class representing a byte-code instruction.
 
@@ -16,13 +16,12 @@ class Token:
     the contents of one line as output by dis.dis().
     """
     # FIXME: match Python 3.4's terms:
-    #    type_ should be opname
     #    linestart = starts_line
     #    attr = argval
     #    pattr = argrepr
-    def __init__(self, type_, attr=None, pattr=None, offset=-1,
+    def __init__(self, opname, attr=None, pattr=None, offset=-1,
                  linestart=None, op=None, has_arg=None, opc=None):
-        self.type = intern(type_)
+        self.type = intern(opname)
         self.op = op
         self.has_arg = has_arg
         self.attr = attr

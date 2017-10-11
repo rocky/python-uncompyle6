@@ -4,7 +4,7 @@ uncompyle6
 ==========
 
 A native Python cross-version Decompiler and Fragment Decompiler.
-Follows in the tradition of decompyle, uncompyle, and uncompyle2.
+The successor to decompyle, uncompyle, and uncompyle2.
 
 
 Introduction
