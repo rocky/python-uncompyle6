@@ -76,3 +76,11 @@
 # Push tags:
 
     $ git push --tags
+
+# Check on a VM
+
+    $ cd /virtual/vagrant/virtual/vagrant/ubuntu-zesty
+	$ vagrant up
+	$ ssh vagrant
+	$ pyenv local 3.5.2
+	$ pip install --upgrade
