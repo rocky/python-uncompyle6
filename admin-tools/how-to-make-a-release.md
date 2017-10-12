@@ -81,6 +81,8 @@
 
     $ cd /virtual/vagrant/virtual/vagrant/ubuntu-zesty
 	$ vagrant up
-	$ ssh vagrant
+	$ vagrant ssh
 	$ pyenv local 3.5.2
-	$ pip install --upgrade
+	$ pip install --upgrade uncompyle6
+	$ exit
+	$ vagrant halt
