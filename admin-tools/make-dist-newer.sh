@@ -5,10 +5,11 @@ PACKAGE=uncompyle6
 function finish {
   cd $owd
 }
+
+cd $(dirname ${BASH_SOURCE[0]})
 owd=$(pwd)
 trap finish EXIT
 
-cd $(dirname ${BASH_SOURCE[0]})
 if ! source ./pyenv-newer-versions ; then
     exit $?
 fi
@@ -27,7 +28,7 @@ for pyversion in $PYVERSIONS; do
     # pip bdist_egg create too-general wheels. So
     # we narrow that by moving the generated wheel.
 
-    # Pick out first two number of version, e.g. 3.5.1 -> 35 
+    # Pick out first two number of version, e.g. 3.5.1 -> 35
     first_two=$(echo $pyversion | cut -d'.' -f 1-2 | sed -e 's/\.//')
     rm -fr build
     python setup.py bdist_egg bdist_wheel

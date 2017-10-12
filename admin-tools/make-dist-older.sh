@@ -16,7 +16,8 @@ if ! source ./setup-python-2.4.sh ; then
     exit $?
 fi
 
-source ../$PACKAGE/version.py
+cd ..
+source $PACKAGE/version.py
 echo $VERSION
 
 for pyversion in $PYVERSIONS; do
@@ -33,6 +34,6 @@ done
 # the tarball from master.
 
 tarball=dist/uncompyle6-$VERSION-tar.gz
-if -f $tarball; then
+if [[ -f $tarball ]]; then
     rm -v dist/uncompyle6-$VERSION-tar.gz
 fi
