@@ -9,8 +9,6 @@ This sets up opcodes Python's 3.6 and calls a generalized
 scanner routine for Python 3.
 """
 
-from __future__ import print_function
-
 from uncompyle6.scanners.scanner3 import Scanner3
 
 # bytecode verification, verify(), uses JUMP_OPs from here

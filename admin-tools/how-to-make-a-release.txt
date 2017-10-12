@@ -18,38 +18,25 @@ git push
 Make sure pyenv is running
 # Pyenv
 
-source make-dist/pyenv-versions
+source admin-tools/check-newer-versions.sh
 
-
-Test all python versions:
-   for version in $PYVERSIONS; do pyenv local $version && make clean && python setup.py develop && make check; done
 
 # Switch to python-2.4 and build that first...
-
-
-----
-
-./setup-python-2.4.sh
+source admin-tools/setup-python-2.4
 
 rm ChangeLog
 git merge master
-check uncompyle6/version.py to see it has changed
-make ChangeLog
 
 Update NEWS from master branch
 
 git commit -m"Get ready for release $VERSION" .
 
-PYVERSIONS='2.4.6 2.5.6'
-
-for version in $PYVERSIONS; do pyenv local $version && make clean && python setup.py develop && make check; done
+source admin-tools/check-older-versions.sh
+source admin-tools/check-newer-versions.sh
 
 make-dist-older.sh
 
 git tag release-python-2.4-$VERSION
-git push --tags
-
-. ./setup-master.sh
 
 ./make-dist-newer.sh
 

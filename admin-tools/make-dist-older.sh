@@ -1,18 +1,39 @@
 #!/bin/bash
 PACKAGE=uncompyle6
+
+# FIXME put some of the below in a common routine
+function finish {
+  cd $owd
+}
+owd=$(pwd)
+trap finish EXIT
+
+cd $(dirname ${BASH_SOURCE[0]})
+if ! source ./pyenv-older-versions ; then
+    exit $?
+fi
 if ! source ./setup-python-2.4.sh ; then
     exit $?
 fi
+
+cd ..
 source $PACKAGE/version.py
 echo $VERSION
-PYVERSIONS='2.4.6 2.5.6'
+
 for pyversion in $PYVERSIONS; do
-    # Pick out first two numbers
-    first_two=$(echo $pyversion | cut -d'.' -f 1-2 | sed -e 's/\.//')
+    if ! pyenv local $pyversion ; then
+	exit $?
+    fi
+
     rm -fr build
     python setup.py bdist_egg
 done
+
+# Pypi can only have one source tarball.
+# Tarballs can get created from the above setup, so make sure to remove them since we want
+# the tarball from master.
+
 tarball=dist/uncompyle6-$VERSION-tar.gz
-if -f $tarball; then
-    rm dist/uncompyle6-$VERSION-tar.gz
+if [[ -f $tarball ]]; then
+    rm -v dist/uncompyle6-$VERSION-tar.gz
 fi
