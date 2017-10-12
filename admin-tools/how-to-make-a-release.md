@@ -59,10 +59,10 @@
 
 # Make packages and tag
 
-    $ make-dist-older.sh
+    $ admin-tools/make-dist-older.sh
     $ git tag release-python-2.4-$VERSION
 
-    $ make-dist-newer.sh
+    $ admin-tools/make-dist-newer.sh
     $ git tag release-$VERSION
 
 # Upload single package and look at Rst Formating
@@ -76,3 +76,13 @@
 # Push tags:
 
     $ git push --tags
+
+# Check on a VM
+
+    $ cd /virtual/vagrant/virtual/vagrant/ubuntu-zesty
+	$ vagrant up
+	$ vagrant ssh
+	$ pyenv local 3.5.2
+	$ pip install --upgrade uncompyle6
+	$ exit
+	$ vagrant halt
