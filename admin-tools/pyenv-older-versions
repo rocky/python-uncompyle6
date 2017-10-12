@@ -1,0 +1,5 @@
+if [[ $0 == ${BASH_SOURCE[0]} ]] ; then
+    echo "This script should be *sourced* rather than run directly through bash"
+    exit 1
+fi
+export PYVERSIONS='2.4.6 2.5.6'
