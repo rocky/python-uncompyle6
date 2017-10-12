@@ -451,19 +451,6 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
 
     # MAKE_FUNCTION_... or MAKE_CLOSURE_...
     assert node[-1].kind.startswith('MAKE_')
-<<<<<<< HEAD
-=======
-
-
-    # Python 3.3+ adds a qualified name at TOS (-1)
-    # moving down the LOAD_LAMBDA instruction
-    if 3.0 <= self.version <= 3.2:
-        lambda_index = -2
-    elif 3.03 <= self.version:
-        lambda_index = -3
-    else:
-        lambda_index = None
->>>>>>> master
 
     args_node = node[-1]
     if isinstance(args_node.attr, tuple):

@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 uncompyle6 2.13.2 2017-10-12
 
 - Re-release using a more automated approach
@@ -8,7 +6,6 @@ uncompyle6 2.13.1 2017-10-11
 
 - Re-release because Python 2.4 source uploaded rather than 2.6-3.6
 
->>>>>>> master
 uncompyle6 2.13.0 2017-10-10
 
 - Fixes in deparsing lambda expressions

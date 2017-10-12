@@ -55,15 +55,10 @@ class Token:
         return self.format(line_prefix='')
 
     def format(self, line_prefix=''):
-<<<<<<< HEAD
         if self.linestart:
             prefix = '\n%s%4d  ' % (line_prefix, self.linestart)
         else:
             prefix = ' ' * (6 + len(line_prefix))
-=======
-        prefix = ('\n%s%4d  ' % (line_prefix, self.linestart)
-                  if self.linestart else (' ' * (6 + len(line_prefix))))
->>>>>>> master
         offset_opname = '%6s  %-17s' % (self.offset, self.kind)
         if not self.has_arg:
             return "%s%s" % (prefix, offset_opname)
