@@ -1,3 +1,51 @@
+2017-10-12  rocky <rb@dustyfeet.com>
+
+	* Makefile, admin-tools/how-to-make-a-release.txt,
+	uncompyle6/version.py: Get ready for release 2.13.2
+
+2017-10-11  rocky <rb@dustyfeet.com>
+
+	* admin-tools/check-older-versions.sh,
+	admin-tools/make-dist-newer.sh, admin-tools/make-dist-older.sh,
+	admin-tools/pyenv-newer-versions, admin-tools/pyenv-older-versions,
+	admin-tools/setup-master.sh: Administrivia
+
+2017-10-11  rocky <rb@dustyfeet.com>
+
+	* admin-tools/check-newer-versions.sh,
+	admin-tools/check-older-versions.sh,
+	admin-tools/how-to-make-a-release.txt,
+	admin-tools/make-dist-newer.sh, admin-tools/make-dist-older.sh: 
+	Adminstrivia
+
+2017-10-11  rocky <rb@dustyfeet.com>
+
+	* admin-tools/README.md, admin-tools/check-newer-versions.sh,
+	admin-tools/check-older-versions.sh,
+	admin-tools/how-to-make-a-release.txt,
+	admin-tools/make-dist-newer.sh, admin-tools/make-dist-older.sh,
+	admin-tools/pyenv-newer-versions, admin-tools/pyenv-older-versions,
+	admin-tools/setup-master.sh, admin-tools/setup-python-2.4.sh: Some
+	admin tools I use.
+
+2017-10-11  rocky <rb@dustyfeet.com>
+
+	* setup.py: remove python_requires
+
+2017-10-11  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/bin/uncompile.py: Program name was incorrect.  uncompile -> uncompyle6
+
+2017-10-11  rocky <rb@dustyfeet.com>
+
+	* Makefile, NEWS, setup.py, uncompyle6/version.py: Administrivia
+	woes
+
+2017-10-10  rocky <rb@dustyfeet.com>
+
+	* : commit 9cfd7d669edc7f065bfc314924cfecbb6c7219ec Author: rocky
+	<rb@dustyfeet.com> Date:   Tue Oct 10 21:50:06 2017 -0400
+
 2017-10-10  rocky <rb@dustyfeet.com>
 
 	* HOW-TO-REPORT-A-BUG.md, test/Makefile, uncompyle6/parser.py,
