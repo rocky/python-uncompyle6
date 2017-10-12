@@ -1,3 +1,14 @@
+<<<<<<< HEAD
+=======
+uncompyle6 2.13.2 2017-10-12
+
+- Re-release using a more automated approach
+
+uncompyle6 2.13.1 2017-10-11
+
+- Re-release because Python 2.4 source uploaded rather than 2.6-3.6
+
+>>>>>>> master
 uncompyle6 2.13.0 2017-10-10
 
 - Fixes in deparsing lambda expressions
@@ -11,6 +22,7 @@ uncompyle6 2.12.0 2017-09-26
 - Small semantic table cleanups
 - Python 3.4's terms a little names better
 - Slightly more Python 3.7, but still failing a lot
+- Cross Python 2/3 compatibility with annotation arguments
 
 uncompyle6 2.11.5 2017-08-31
 

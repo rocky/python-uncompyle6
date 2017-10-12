@@ -143,7 +143,7 @@ else:
 
 def is_docstring(node):
     try:
-        return (node[0][0].type == 'assign' and
+        return (node[0][0].kind == 'assign' and
             node[0][0][1][0].pattr == '__doc__')
     except:
         return False
@@ -419,13 +419,13 @@ class SourceWalker(GenericASTTraversal, object):
                     })
                     def n_async_call_function(node):
                         self.f.write('async ')
-                        node.type == 'call_function'
+                        node.kind == 'call_function'
                         p = self.prec
                         self.prec = 80
                         self.template_engine(('%c(%P)', 0,
                                               (1, -4, ', ', 100)), node)
                         self.prec = p
-                        node.type == 'async_call_function'
+                        node.kind == 'async_call_function'
                         self.prune()
                     self.n_async_call_function = n_async_call_function
                     self.n_build_list_unpack = self.n_build_list
@@ -2235,7 +2235,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
     debug_parser = dict(PARSER_DEFAULT_DEBUG)
     if showgrammar:
         debug_parser['reduce'] = showgrammar
-        debug_parser['errorstack'] = True
+        debug_parser['errorstack'] = 'full'
 
     #  Build AST from disassembly.
     linestarts = dict(scanner.opc.findlinestarts(co))

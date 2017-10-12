@@ -53,7 +53,7 @@ def test_tables():
                     # One arg - should be int or tuple of int
                     if typ == 'c':
                         assert isinstance(entry[arg], int), (
-                            "%s[%s][%d] type %s is '%s' should be an int but is %s. "
+                            "%s[%s][%d] kind %s is '%s' should be an int but is %s. "
                             "Full entry: %s" %
                             (name, k, arg, typ, entry[arg], type(entry[arg]), entry)
                             )

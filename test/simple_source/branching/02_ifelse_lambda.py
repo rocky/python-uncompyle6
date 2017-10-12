@@ -3,3 +3,17 @@
 
 f = lambda x: 1 if x<2 else 3
 f(5)
+<<<<<<< HEAD
+=======
+
+# If that wasn't enough ...
+# Python will create dead code
+# in the below. So we must make sure
+# not to include the else expression
+
+g = lambda: 1 if True else 3
+g()
+
+h = lambda: 1 if False else 3
+h()
+>>>>>>> master

@@ -16,7 +16,7 @@ class AST(spark_AST):
         return self.__repr1__('', None)
 
     def __repr1__(self, indent, sibNum=None):
-        rv = str(self.type)
+        rv = str(self.kind)
         if sibNum is not None:
             rv = "%2d. %s" % (sibNum, rv)
         enumerate_children = False

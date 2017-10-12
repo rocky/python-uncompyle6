@@ -1,6 +1,6 @@
 #
 # (C) Copyright 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-# (C) Copyright 2015-2016 by Rocky Bernstein
+# (C) Copyright 2015-2017 by Rocky Bernstein
 #
 """
 byte-code verification

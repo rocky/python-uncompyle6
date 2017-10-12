@@ -96,10 +96,14 @@ class PythonParser(GenericASTBuilder):
         def fix(c):
             s = str(c)
             last_token_pos = s.find('_')
+<<<<<<< HEAD
             if last_token_pos == -1:
                 return s
             else:
                 return s[:last_token_pos]
+=======
+            return s if last_token_pos == -1 else s[:last_token_pos]
+>>>>>>> master
 
         prefix = ''
         if parent and tokens:

@@ -1,5 +1,9 @@
 # -*- shell-script -*-
+<<<<<<< HEAD
  if [[ $0 == ${BASH_SOURCE[0]} ]] ; then
+=======
+if [[ $0 == ${BASH_SOURCE[0]} ]] ; then
+>>>>>>> master
     echo "This script should be *sourced* rather than run directly through bash"
     exit 1
 fi

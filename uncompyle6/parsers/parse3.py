@@ -155,8 +155,13 @@ class Python3Parser(PythonParser):
         # of missing "else" clauses. Therefore we include grammar
         # rules with and without ELSE.
 
-        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite opt_come_from_except
-        ifelsestmt ::= testexpr c_stmts_opt jump_forward_else else_suite _come_from
+        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD
+                       else_suite opt_come_from_except
+        ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
+                       else_suite _come_from
+
+        # ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
+        #                passstmt  _come_from
 
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
         ifelsestmtc ::= testexpr c_stmts_opt jump_absolute_else else_suitec
@@ -252,8 +257,14 @@ class Python3Parser(PythonParser):
                 POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP END_FINALLY
 
+        ## FIXME: Right now we have erroneous jump targets
+        ## This below is probably not correct when the COME_FROM is put in the right place
         and ::= expr jmp_false expr COME_FROM
         or  ::= expr jmp_true  expr COME_FROM
+
+        # # something like the below is needed when the jump targets are fixed
+        ## or  ::= expr JUMP_IF_TRUE_OR_POP COME_FROM expr
+        ## and ::= expr JUMP_IF_FALSE_OR_POP COME_FROM expr
         '''
 
     def p_misc3(self, args):

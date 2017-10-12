@@ -1,7 +1,65 @@
+2017-10-11  rocky <rb@dustyfeet.com>
+
+	* admin-tools/check-newer-versions.sh,
+	admin-tools/check-older-versions.sh,
+	admin-tools/how-to-make-a-release.txt,
+	admin-tools/make-dist-newer.sh, admin-tools/make-dist-older.sh,
+	admin-tools/pyenv-newer-versions, admin-tools/pyenv-older-versions,
+	uncompyle6/parsers/parse37.py, uncompyle6/scanners/scanner37.py,
+	uncompyle6/version.py: More administrivia
+
+2017-10-11  rocky <rb@dustyfeet.com>
+
+	* admin-tools/README.md, admin-tools/check-newer-versions.sh,
+	admin-tools/check-older-versions.sh,
+	admin-tools/how-to-make-a-release.txt,
+	admin-tools/make-dist-newer.sh, admin-tools/make-dist-older.sh,
+	admin-tools/pyenv-newer-versions, admin-tools/pyenv-older-versions,
+	admin-tools/setup-master.sh, admin-tools/setup-python-2.4.sh: Some
+	admin tools I use
+
+2017-10-11  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py: Remove creaping Python 2.6ism
+
 2017-10-10  rocky <rb@dustyfeet.com>
 
-	* uncompyle6/parsers/parse24.py, uncompyle6/scanners/scanner3.py: 
-	Misc bugs
+	* pytest/test_grammar.py: Sync with master
+
+2017-10-10  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/parsers/parse27.py, uncompyle6/parsers/parse34.py,
+	uncompyle6/parsers/parse35.py, uncompyle6/parsers/parse36.py,
+	uncompyle6/parsers/parse37.py: Sync with master
+
+2017-10-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py: Sync with master
+
+2017-10-10  rocky <rb@dustyfeet.com>
+
+	* NEWS, __pkginfo__.py, pytest/test_grammar.py,
+	uncompyle6/parser.py, uncompyle6/parsers/parse15.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse21.py,
+	uncompyle6/parsers/parse22.py, uncompyle6/parsers/parse23.py,
+	uncompyle6/parsers/parse24.py, uncompyle6/parsers/parse25.py,
+	uncompyle6/parsers/parse26.py, uncompyle6/parsers/parse27.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/parsers/parse32.py,
+	uncompyle6/parsers/parse34.py, uncompyle6/parsers/parse35.py,
+	uncompyle6/parsers/parse36.py, uncompyle6/parsers/parse37.py,
+	uncompyle6/scanners/scanner22.py, uncompyle6/scanners/scanner26.py,
+	uncompyle6/scanners/scanner27.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/scanners/scanner36.py, uncompyle6/scanners/tok.py,
+	uncompyle6/semantics/check_ast.py,
+	uncompyle6/semantics/make_function.py,
+	uncompyle6/semantics/pysource.py, uncompyle6/verify.py,
+	uncompyle6/version.py: Sync with master
+
+2017-10-10  rocky <rb@dustyfeet.com>
+
+	* : Merge commit '1d7a3c6444eab5a02d899f789f2a57cfdcbc5a84' into
+	python-2.4
 
 2017-10-05  rocky <rb@dustyfeet.com>
 
@@ -31,9 +89,33 @@
 	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py: Sync
 	with master
 
+2017-09-30  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner3.py: Document hacky customize arg count
+	better.
+
+2017-09-26  rocky <rb@dustyfeet.com>
+
+	* README.rst: Word hacking
+
+2017-09-26  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS: Get ready for release 2.12.0
+
 2017-09-26  rocky <rb@dustyfeet.com>
 
 	* uncompyle6/parsers/parse3.py: Annotation field can be unicode...  When deparsing Python 3.x from Python 2.
+
+2017-09-26  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py: No unicode in Python3.  but we need it in Python2. The bug was probably introduced as a
+	result of recent Python code type unteroperability canonicalization
+
+2017-09-26  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py: Pyton 3.1 Annotation args can be
+	unicode?
 
 2017-09-25  rocky <rb@dustyfeet.com>
 
@@ -44,11 +126,25 @@
 	* : commit 0654aed6c823d0bb20abdc866481ca5950db72f7 Author: rocky
 	<rb@dustyfeet.com> Date:   Thu Sep 21 11:29:17 2017 -0400
 
+2017-09-25  rocky <rb@dustyfeet.com>
+
+	* : Adjust for xdis opcode JUMP_OPS. release 2.12.0
+
+2017-09-21  rocky <rb@dustyfeet.com>
+
+	* pytest/test_pysource.py: Python 3 compatibility
+
 2017-09-21  rocky <rb@dustyfeet.com>
 
 	* pytest/test_pysource.py, uncompyle6/semantics/consts.py,
 	uncompyle6/semantics/fragments.py, uncompyle6/semantics/pysource.py: 
 	Unit test for format-specifiers
+
+2017-09-21  rocky <rb@dustyfeet.com>
+
+	* pytest/test_pysource.py, uncompyle6/semantics/consts.py,
+	uncompyle6/semantics/fragments.py, uncompyle6/semantics/pysource.py: 
+	Unit test for format-specifiers And in the process we catch some small bugs
 
 2017-09-20  rocky <rb@dustyfeet.com>
 
@@ -57,8 +153,25 @@
 
 2017-09-20  rocky <rb@dustyfeet.com>
 
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Tidy pysource and fragments a
+	little more
+
+2017-09-20  rocky <rb@dustyfeet.com>
+
 	* uncompyle6/semantics/consts.py: Tidy/regularize table entry
 	formatting
+
+2017-09-20  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/consts.py: Tidy/regularize table entry
+	formatting
+
+2017-09-20  rocky <rb@dustyfeet.com>
+
+	* test/test_pythonlib.py, uncompyle6/semantics/pysource.py: Small
+	fixes test_pyenvlib.py: it is sys.exit(), not exit() pysource.py:
+	reinstate nod type of async_func_call
 
 2017-09-20  rocky <rb@dustyfeet.com>
 
@@ -68,13 +181,64 @@
 
 2017-09-20  rocky <rb@dustyfeet.com>
 
+	* uncompyle6/semantics/consts.py, uncompyle6/semantics/pysource.py: 
+	More small doc changes
+
+2017-09-20  rocky <rb@dustyfeet.com>
+
 	* pytest/test_pysource.py, uncompyle6/semantics/pysource.py: Start
 	pysource unit test
+
+2017-09-20  rocky <rb@dustyfeet.com>
+
+	* pytest/test_pysource.py, uncompyle6/semantics/pysource.py: Update
+	Table-driven info...  Start a pysource unit test.
 
 2017-09-17  rocky <rb@dustyfeet.com>
 
 	* uncompyle6/semantics/fragments.py,
 	uncompyle6/semantics/pysource.py: emgine -> template_engine
+
+2017-09-17  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: engine -> template_engine
+
+2017-09-13  rocky <rb@dustyfeet.com>
+
+	* test/Makefile: Need weak-verification on 3.4 for now
+
+2017-09-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py: Revert one of the changes
+	pending a better fix
+
+2017-09-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: More semantic action cleanup
+
+2017-09-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner3.py, uncompyle6/scanners/tok.py: Match
+	Python 3.4's terms a little names better
+
+2017-09-09  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/tok.py: Revert last revert
+
+2017-09-09  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/tok.py: Revert last change
+
+2017-09-09  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/tok.py: New-style Python classes only, please.
+
+2017-08-31  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanner.py, uncompyle6/scanners/scanner37.py: Skeletal
+	support for Python 3.7 Largely failing though.
 
 2017-08-31  rocky <rb@dustyfeet.com>
 

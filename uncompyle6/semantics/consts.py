@@ -173,7 +173,11 @@ TABLE_DIRECT = {
     'ret_cond':         ( '%p if %p else %p', (2, 27), (0, 27), (-1, 27) ),
     'conditionalnot':   ( '%p if not %p else %p', (2, 27), (0, 22), (4, 27) ),
     'ret_cond_not':     ( '%p if not %p else %p', (2, 27), (0, 22), (-1, 27) ),
+<<<<<<< HEAD
     'conditional_lambda':  ( '(%c if %c else %c)', 2, 0, 3),
+=======
+    'conditional_lambda':  ( '%c if %c else %c', 2, 0, 4),
+>>>>>>> master
 
     'compare':		    ( '%p %[-1]{pattr.replace("-", " ")} %p', (0, 19), (1, 19) ),
     'cmp_list':		    ( '%p %p', (0, 29), (1, 30)),
