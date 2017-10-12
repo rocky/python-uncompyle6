@@ -12,6 +12,7 @@ fi
 if ! source ./setup-python-2.4.sh ; then
     exit $?
 fi
+
 cd ..
 for version in $PYVERSIONS; do
     if ! pyenv local $version ; then

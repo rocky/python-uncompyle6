@@ -5,6 +5,8 @@ PACKAGE=uncompyle6
 function finish {
   cd $owd
 }
+owd=$(pwd)
+trap finish EXIT
 
 cd $(dirname ${BASH_SOURCE[0]})
 if ! source ./pyenv-older-versions ; then
@@ -18,13 +20,15 @@ source ../$PACKAGE/version.py
 echo $VERSION
 
 for pyversion in $PYVERSIONS; do
-    # Pick out first two numbers
-    first_two=$(echo $pyversion | cut -d'.' -f 1-2 | sed -e 's/\.//')
+    if ! pyenv local $pyversion ; then
+	exit $?
+    fi
+
     rm -fr build
     python setup.py bdist_egg
 done
 
-# Pypi can only have one source taball.
+# Pypi can only have one source tarball.
 # Tarballs can get created from the above setup, so make sure to remove them since we want
 # the tarball from master.
 
