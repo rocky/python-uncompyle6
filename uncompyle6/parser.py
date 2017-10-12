@@ -3,7 +3,7 @@
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 """
-Common uncompyle parser routines.
+Common parser routines.
 """
 
 import sys
@@ -96,7 +96,10 @@ class PythonParser(GenericASTBuilder):
         def fix(c):
             s = str(c)
             last_token_pos = s.find('_')
-            return s if last_token_pos == -1 else s[:last_token_pos]
+            if last_token_pos == -1:
+                return s
+            else:
+                return s[:last_token_pos]
 
         prefix = ''
         if parent and tokens:
