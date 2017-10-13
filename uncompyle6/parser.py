@@ -474,27 +474,24 @@ class PythonParser(GenericASTBuilder):
         expr ::= buildslice3
         expr ::= yield
 
-        # Possibly Python < 2.3
-        # expr ::= SET_LINENO
-
         binary_expr ::= expr expr binary_op
-        binary_op ::= BINARY_ADD
-        binary_op ::= BINARY_MULTIPLY
-        binary_op ::= BINARY_AND
-        binary_op ::= BINARY_OR
-        binary_op ::= BINARY_XOR
-        binary_op ::= BINARY_SUBTRACT
-        binary_op ::= BINARY_TRUE_DIVIDE
-        binary_op ::= BINARY_FLOOR_DIVIDE
-        binary_op ::= BINARY_MODULO
-        binary_op ::= BINARY_LSHIFT
-        binary_op ::= BINARY_RSHIFT
-        binary_op ::= BINARY_POWER
+        binary_op   ::= BINARY_ADD
+        binary_op   ::= BINARY_MULTIPLY
+        binary_op   ::= BINARY_AND
+        binary_op   ::= BINARY_OR
+        binary_op   ::= BINARY_XOR
+        binary_op   ::= BINARY_SUBTRACT
+        binary_op   ::= BINARY_TRUE_DIVIDE
+        binary_op   ::= BINARY_FLOOR_DIVIDE
+        binary_op   ::= BINARY_MODULO
+        binary_op   ::= BINARY_LSHIFT
+        binary_op   ::= BINARY_RSHIFT
+        binary_op   ::= BINARY_POWER
 
-        unary_expr ::= expr unary_op
-        unary_op ::= UNARY_POSITIVE
-        unary_op ::= UNARY_NEGATIVE
-        unary_op ::= UNARY_INVERT
+        unary_expr  ::= expr unary_op
+        unary_op    ::= UNARY_POSITIVE
+        unary_op    ::= UNARY_NEGATIVE
+        unary_op    ::= UNARY_INVERT
 
         unary_not ::= expr UNARY_NOT
 
