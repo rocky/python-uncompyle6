@@ -67,10 +67,10 @@ TABLE_R0 = {
 }
 
 TABLE_DIRECT = {
-    'BINARY_ADD':	    ( '+' ,),
-    'BINARY_SUBTRACT':	( '-' ,),
-    'BINARY_MULTIPLY':	( '*' ,),
-    'BINARY_DIVIDE':	( '/' ,),
+    'BINARY_ADD':	        ( '+' ,),
+    'BINARY_SUBTRACT':	        ( '-' ,),
+    'BINARY_MULTIPLY':	        ( '*' ,),
+    'BINARY_DIVIDE':	        ( '/' ,),
     'BINARY_MATRIX_MULTIPLY':	( '@' ,),
     'BINARY_TRUE_DIVIDE':	( '/' ,),   # Not in <= 2.1
     'BINARY_FLOOR_DIVIDE':	( '//' ,),
@@ -110,10 +110,13 @@ TABLE_DIRECT = {
                                   (0, 'expr' ) ),
     'unary_convert':            ( '`%c`',
                                   (0, 'expr' ), ),
-    'get_iter':	                ( 'iter(%c)', 0 ),
-    'slice0':		        ( '%c[:]', 0 ),
+    'get_iter':	                ( 'iter(%c)',
+                                  (0, 'expr'), ),
+    'slice0':		        ( '%c[:]',
+                                  (0, 'expr'), ),
     'slice1':		        ( '%c[%p:]',
-                                  0, (1, 100) ),
+                                  (0, 'expr'),
+                                  (1, 100) ),
     'slice2':		        ( '%c[:%p]',
                                   0, (1, 100) ),
     'slice3':		        ( '%c[%p:%p]',

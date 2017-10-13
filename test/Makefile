@@ -49,6 +49,10 @@ check-3.5: check-bytecode
 check-3.6: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.6 --weak-verify $(COMPILE)
 
+# FIXME
+#: this is called when running under pypy3.5-5.8.0
+5.8:
+
 #: Check deparsing only, but from a different Python version
 check-disasm:
 	$(PYTHON) dis-compare.py
