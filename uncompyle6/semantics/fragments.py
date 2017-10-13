@@ -1510,7 +1510,17 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 arg += 1
             elif typ == 'c':
                 start = len(self.f.getvalue())
-                self.preorder(node[entry[arg]])
+
+                index = entry[arg]
+                if isinstance(index, tuple):
+                    assert node[index[0]] == index[1], (
+                        "at %s[%d], %s vs %s" % (
+                            node.kind, arg, node[index[0]].kind, index[1])
+                        )
+                    index = index[0]
+                if isinstance(index, int):
+                    self.preorder(node[index])
+
                 finish = len(self.f.getvalue())
 
                 # FIXME rocky: figure out how to get this to be table driven

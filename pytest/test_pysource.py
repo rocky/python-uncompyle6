@@ -56,10 +56,18 @@ def test_tables():
                 elif typ in frozenset(['c', 'p', 'P', 'C', 'D']):
                     # One arg - should be int or tuple of int
                     if typ == 'c':
-                        assert isinstance(entry[arg], int), (
+                        item = entry[arg]
+                        if isinstance(item, tuple):
+                            assert isinstance(item[1], str), (
+                            "%s[%s][%d] kind %s is '%s' should be str but is %s. "
+                            "Full entry: %s" %
+                            (name, k, arg, typ, item[1], type(item[1]), entry)
+                            )
+                            item = item[0]
+                        assert isinstance(item, int), (
                             "%s[%s][%d] kind %s is '%s' should be an int but is %s. "
                             "Full entry: %s" %
-                            (name, k, arg, typ, entry[arg], type(entry[arg]), entry)
+                            (name, k, arg, typ, item, type(item), entry)
                             )
                     elif typ in frozenset(['C', 'D']):
                         tup = entry[arg]
