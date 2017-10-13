@@ -1828,7 +1828,11 @@ class SourceWalker(GenericASTTraversal, object):
         specifications such as %c, %C, and so on.
         """
 
-        # self.println("----> ", startnode.kind, ', ', entry[0])
+        # print("-----")
+        # print(startnode)
+        # print(entry[0])
+        # print('======')
+
         fmt = entry[0]
         arg = 1
         i = 0
