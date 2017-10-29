@@ -27,7 +27,9 @@ from array import array
 
 from uncompyle6.scanner import Scanner
 from xdis.code import iscode
-from xdis.bytecode import Bytecode, op_has_argument, op_size
+from xdis.bytecode import Bytecode, op_has_argument, instruction_size
+from xdis.util import code2num
+
 from uncompyle6.scanner import Token, parse_fn_counts
 import xdis
 
@@ -139,13 +141,6 @@ class Scanner3(Scanner):
         # FIXME: remove the above in favor of:
         # self.varargs_ops = frozenset(self.opc.hasvargs)
 
-    def extended_arg_val(self, val):
-        if self.version < 3.6:
-            return val * (1<<16)
-        else:
-            return val * (1<<8)
-
-
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Pick out tokens from an uncompyle6 code object, and transform them,
@@ -218,6 +213,7 @@ class Scanner3(Scanner):
         # Get jump targets
         # Format: {target offset: [jump offsets]}
         jump_targets = self.find_jump_targets(show_asm)
+        ## print("XXX2", jump_targets)
         last_op_was_break = False
 
         extended_arg = 0
@@ -378,7 +374,8 @@ class Scanner3(Scanner):
                 # as CONTINUE, but that's okay since we add a grammar
                 # rule for that.
                 pattr = argval
-                target = self.get_target(inst.offset)
+                # FIXME: 0 isn't always correct
+                target = self.get_target(inst.offset, 0)
                 if target <= inst.offset:
                     next_opname = self.opname[self.code[inst.offset+3]]
                     if (inst.offset in self.stmts and
@@ -473,7 +470,7 @@ class Scanner3(Scanner):
         self.prev = self.prev_op = [0]
         for offset in self.op_range(0, codelen):
             op = code[offset]
-            for _ in range(op_size(op, self.opc)):
+            for _ in range(instruction_size(op, self.opc)):
                 self.prev_op.append(offset)
 
     def find_jump_targets(self, debug):
@@ -509,12 +506,18 @@ class Scanner3(Scanner):
         self.setup_loops = {}  # setup_loop offset given target
 
         targets = {}
+        extended_arg = 0
         for offset in self.op_range(0, n):
             op = code[offset]
 
+            if op == self.opc.EXTENDED_ARG:
+                arg = code2num(code, offset+1) | extended_arg
+                extended_arg = self.extended_arg_val(arg)
+                continue
+
             # Determine structures and fix jumps in Python versions
             # since 2.3
-            self.detect_control_flow(offset, targets)
+            self.detect_control_flow(offset, targets, extended_arg)
 
             has_arg = (op >= op3.HAVE_ARGUMENT)
             if has_arg:
@@ -539,7 +542,10 @@ class Scanner3(Scanner):
                 label = self.fixed_jumps[offset]
                 targets[label] = targets.get(label, []) + [offset]
                 pass
-            pass
+
+            extended_arg = 0
+            pass # for loop
+
         # DEBUG:
         if debug in ('both', 'after'):
             import pprint as pp
@@ -569,7 +575,7 @@ class Scanner3(Scanner):
                     if elem != code[i]:
                         match = False
                         break
-                    i += op_size(code[i], self.opc)
+                    i += instruction_size(code[i], self.opc)
 
                 if match is True:
                     i = self.prev_op[i]
@@ -595,7 +601,8 @@ class Scanner3(Scanner):
                 and stmt_offset not in pass_stmts):
                 # If absolute jump occurs in forward direction or it takes off from the
                 # same line as previous statement, this is not a statement
-                target = self.get_target(stmt_offset)
+                # FIXME: 0 isn't always correct
+                target = self.get_target(stmt_offset, 0)
                 if target > stmt_offset or self.lines[last_stmt_offset].l_no == self.lines[stmt_offset].l_no:
                     stmts.remove(stmt_offset)
                     continue
@@ -629,7 +636,7 @@ class Scanner3(Scanner):
         # Finish filling the list for last statement
         slist += [codelen] * (codelen-len(slist))
 
-    def get_target(self, offset):
+    def get_target(self, offset, extended_arg):
         """
         Get target offset for op located at given <offset>.
         """
@@ -646,10 +653,11 @@ class Scanner3(Scanner):
                 pass
             pass
         target += rel_offset
+        target += extended_arg
 
         return target
 
-    def detect_control_flow(self, offset, targets):
+    def detect_control_flow(self, offset, targets, extended_arg):
         """
         Detect structures and their boundaries to fix optimized jumps
         in python2.3+
@@ -681,23 +689,20 @@ class Scanner3(Scanner):
             # Try to find the jump_back instruction of the loop.
             # It could be a return instruction.
 
-            if self.version <= 3.5:
-                start = offset+3
-            else:
-                start = offset+2
-            target = self.get_target(offset)
+            start += instruction_size(op, self.opc)
+            target = self.get_target(offset, extended_arg)
             end    = self.restrict_to_parent(target, parent)
-            self.setup_loop_targets[offset] = target
             self.setup_loops[target] = offset
 
             if target != end:
                 self.fixed_jumps[offset] = end
+
             (line_no, next_line_byte) = self.lines[offset]
             jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE,
                                             next_line_byte, False)
 
             if jump_back:
-                jump_forward_offset = jump_back+3
+                jump_forward_offset = xdis.next_offset(code[jump_back], self.opc, jump_back)
             else:
                 jump_forward_offset = None
 
@@ -714,7 +719,7 @@ class Scanner3(Scanner):
                 if not jump_back:
                     return
 
-                jump_back += 2
+                jump_back += 2  # FIXME ???
                 if_offset = None
                 if code[self.prev_op[next_line_byte]] not in self.pop_jump_tf:
                     if_offset = self.prev[next_line_byte]
@@ -724,20 +729,22 @@ class Scanner3(Scanner):
                 else:
                     loop_type = 'for'
                 target = next_line_byte
-                end = jump_back + 3
+                end = xdis.next_offset(code[jump_back], self.opc, jump_back)
             else:
-                if self.get_target(jump_back) >= next_line_byte:
+                if self.get_target(jump_back, 0) >= next_line_byte:
                     jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE, start, False)
                 if end > jump_back+4 and self.is_jump_forward(end):
                     if self.is_jump_forward(jump_back+4):
-                        if self.get_target(jump_back+4) == self.get_target(end):
+                        if self.get_target(jump_back+4, extended_arg) == self.get_target(end, extended_arg):
                             self.fixed_jumps[offset] = jump_back+4
                             end = jump_back+4
                 elif target < offset:
                     self.fixed_jumps[offset] = jump_back+4
                     end = jump_back+4
 
-                target = self.get_target(jump_back)
+                # I think 0 right because jump_back has been adjusted for any EXTENDED_ARG
+                # it encounters
+                target = self.get_target(jump_back, 0)
 
                 if code[target] in (self.opc.FOR_ITER, self.opc.GET_ITER):
                     loop_type = 'for'
@@ -747,23 +754,24 @@ class Scanner3(Scanner):
 
                     if test == offset:
                         loop_type = 'while 1'
-                    elif self.code[test] in op3.hasjabs+op3.hasjrel:
+                    elif self.code[test] in self.opc.JUMP_OPs:
                         self.ignore_if.add(test)
-                        test_target = self.get_target(test)
+                        test_target = self.get_target(test, extended_arg)
                         if test_target > (jump_back+3):
                             jump_back = test_target
                 self.not_continue.add(jump_back)
             self.loops.append(target)
             self.structs.append({'type': loop_type + '-loop',
-                                   'start': target,
-                                   'end':   jump_back})
-            if jump_back+3 != end:
+                                 'start': target,
+                                 'end':   jump_back})
+            after_jump_offset = xdis.next_offset(code[jump_back], self.opc, jump_back)
+            if after_jump_offset != end:
                 self.structs.append({'type': loop_type + '-else',
-                                       'start': jump_back+3,
-                                       'end':   end})
+                                     'start': after_jump_offset,
+                                     'end':   end})
         elif op in self.pop_jump_tf:
-            start = offset + op_size(op, self.opc)
-            target = self.get_target(offset)
+            start = offset + instruction_size(op, self.opc)
+            target = self.get_target(offset, extended_arg)
             rtarget = self.restrict_to_parent(target, parent)
             prev_op = self.prev_op
 
@@ -806,12 +814,12 @@ class Scanner3(Scanner):
                 if match:
                     is_jump_forward = self.is_jump_forward(pre_rtarget)
                     if (is_jump_forward and pre_rtarget not in self.stmts and
-                        self.restrict_to_parent(self.get_target(pre_rtarget), parent) == rtarget):
+                        self.restrict_to_parent(self.get_target(pre_rtarget, extended_arg), parent) == rtarget):
                         if (code[prev_op[pre_rtarget]] == self.opc.JUMP_ABSOLUTE
                             and self.remove_mid_line_ifs([offset]) and
-                            target == self.get_target(prev_op[pre_rtarget]) and
+                            target == self.get_target(prev_op[pre_rtarget], extended_arg) and
                             (prev_op[pre_rtarget] not in self.stmts or
-                             self.get_target(prev_op[pre_rtarget]) > prev_op[pre_rtarget]) and
+                             self.get_target(prev_op[pre_rtarget], extended_arg) > prev_op[pre_rtarget]) and
                             1 == len(self.remove_mid_line_ifs(self.rem_or(start, prev_op[pre_rtarget], self.pop_jump_tf, target)))):
                             pass
                         elif (code[prev_op[pre_rtarget]] == self.opc.RETURN_VALUE
@@ -830,7 +838,7 @@ class Scanner3(Scanner):
                                                       self.opc.POP_JUMP_IF_FALSE)
                             last_jump_good = True
                             for j in jump_ifs:
-                                if target == self.get_target(j):
+                                if target == self.get_target(j, extended_arg):
                                     if self.lines[j].next == j + 3 and last_jump_good:
                                         fix = j
                                         break
@@ -846,7 +854,7 @@ class Scanner3(Scanner):
                 next = self.next_stmt[offset]
                 if prev_op[next] == offset:
                     pass
-                elif self.is_jump_forward(next) and target == self.get_target(next):
+                elif self.is_jump_forward(next) and target == self.get_target(next, extended_arg):
                     if code[prev_op[next]] == self.opc.POP_JUMP_IF_FALSE:
                         if (code[next] == self.opc.JUMP_FORWARD
                             or target != rtarget
@@ -855,7 +863,7 @@ class Scanner3(Scanner):
                             self.fixed_jumps[offset] = prev_op[next]
                             return
                 elif (code[next] == self.opc.JUMP_ABSOLUTE and self.is_jump_forward(target) and
-                      self.get_target(target) == self.get_target(next)):
+                      self.get_target(target, extended_arg) == self.get_target(next, extended_arg)):
                     self.fixed_jumps[offset] = prev_op[next]
                     return
 
@@ -887,7 +895,7 @@ class Scanner3(Scanner):
             # like whether the target is "END_FINALLY"
             # or if the condition jump is to a forward location
             if self.is_jump_forward(pre_rtarget):
-                if_end = self.get_target(pre_rtarget)
+                if_end = self.get_target(pre_rtarget, 0)
 
                 # If the jump target is back, we are looping
                 if (if_end < pre_rtarget and
@@ -914,7 +922,7 @@ class Scanner3(Scanner):
                                          'start': rtarget,
                                          'end': end})
                     self.else_start[rtarget] = end
-            elif self.is_jump_back(pre_rtarget):
+            elif self.is_jump_back(pre_rtarget, 0):
                 if_end = rtarget
                 self.structs.append({'type': 'if-then',
                                      'start': start,
@@ -941,9 +949,9 @@ class Scanner3(Scanner):
                     # not from SETUP_EXCEPT
                     next_op = rtarget
                     if code[next_op] == self.opc.POP_BLOCK:
-                        next_op += op_size(self.code[next_op], self.opc)
+                        next_op += instruction_size(self.code[next_op], self.opc)
                     if code[next_op] == self.opc.JUMP_ABSOLUTE:
-                        next_op += op_size(self.code[next_op], self.opc)
+                        next_op += instruction_size(self.code[next_op], self.opc)
                     if next_op in targets:
                         for try_op in targets[next_op]:
                             come_from_op = code[try_op]
@@ -962,12 +970,12 @@ class Scanner3(Scanner):
                     self.fixed_jumps[offset] = rtarget
 
         elif op == self.opc.SETUP_EXCEPT:
-            target = self.get_target(offset)
+            target = self.get_target(offset, extended_arg)
             end    = self.restrict_to_parent(target, parent)
             self.fixed_jumps[offset] = end
         elif op == self.opc.POP_EXCEPT:
             next_offset = xdis.next_offset(op, self.opc, offset)
-            target = self.get_target(next_offset)
+            target = self.get_target(next_offset, extended_arg)
             if target > next_offset:
                 next_op = code[next_offset]
                 if (self.opc.JUMP_ABSOLUTE == next_op and
@@ -976,11 +984,11 @@ class Scanner3(Scanner):
                     self.except_targets[target] = next_offset
 
         elif op == self.opc.SETUP_FINALLY:
-            target = self.get_target(offset)
+            target = self.get_target(offset, extended_arg)
             end    = self.restrict_to_parent(target, parent)
             self.fixed_jumps[offset] = end
         elif op in self.jump_if_pop:
-            target = self.get_target(offset)
+            target = self.get_target(offset, extended_arg)
             if target > offset:
                 unop_target = self.last_instr(offset, target, self.opc.JUMP_FORWARD, target)
                 if unop_target and code[unop_target+3] != self.opc.ROT_TWO:
@@ -1004,7 +1012,7 @@ class Scanner3(Scanner):
                 # If we have:
                 #   JUMP_FORWARD x, [non-jump, insns], RETURN_VALUE, x:
                 # then RETURN_VALUE is not RETURN_END_IF
-                rtarget = self.get_target(offset)
+                rtarget = self.get_target(offset, extended_arg)
                 rtarget_prev = self.prev[rtarget]
                 if (code[rtarget_prev] == self.opc.RETURN_VALUE and
                     rtarget_prev in self.return_end_ifs):
@@ -1017,7 +1025,7 @@ class Scanner3(Scanner):
                 pass
         return
 
-    def is_jump_back(self, offset):
+    def is_jump_back(self, offset, extended_arg):
         """
         Return True if the code at offset is some sort of jump back.
         That is, it is ether "JUMP_FORWARD" or an absolute jump that
@@ -1025,7 +1033,7 @@ class Scanner3(Scanner):
         """
         if self.code[offset] != self.opc.JUMP_ABSOLUTE:
             return False
-        return offset > self.get_target(offset)
+        return offset > self.get_target(offset, extended_arg)
 
     def next_except_jump(self, start):
         """

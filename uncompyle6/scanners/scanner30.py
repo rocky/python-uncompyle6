@@ -10,9 +10,8 @@ from __future__ import print_function
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_30 as opc
-from xdis.bytecode import op_size
-
-JUMP_OPS = opc.JUMP_OPS
+from xdis.bytecode import instruction_size, next_offset
+import xdis
 
 JUMP_TF = frozenset([opc.JUMP_IF_FALSE, opc.JUMP_IF_TRUE])
 
@@ -24,7 +23,7 @@ class Scanner30(Scanner3):
         return
     pass
 
-    def detect_control_flow(self, offset, targets):
+    def detect_control_flow(self, offset, targets, extended_arg):
         """
         Detect structures and their boundaries to fix optimized jumps
         Python 3.0 is more like Python 2.6 than it is Python 3.x.
@@ -55,8 +54,8 @@ class Scanner30(Scanner3):
             # Try to find the jump_back instruction of the loop.
             # It could be a return instruction.
 
-            start = offset+3
-            target = self.get_target(offset)
+            start += instruction_size(op, self.opc)
+            target = self.get_target(offset, extended_arg)
             end    = self.restrict_to_parent(target, parent)
             self.setup_loop_targets[offset] = target
             self.setup_loops[target] = offset
@@ -69,7 +68,7 @@ class Scanner30(Scanner3):
                                             next_line_byte, False)
 
             if jump_back:
-                jump_forward_offset = jump_back+3
+                jump_forward_offset = next_offset(code[jump_back], self.opc, jump_back)
             else:
                 jump_forward_offset = None
 
@@ -99,7 +98,7 @@ class Scanner30(Scanner3):
                 target = next_line_byte
                 end = jump_back + 3
             else:
-                if self.get_target(jump_back) >= next_line_byte:
+                if self.get_target(jump_back, 0) >= next_line_byte:
                     jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE, start, False)
                 if end > jump_back+4 and self.is_jump_forward(end):
                     if self.is_jump_forward(jump_back+4):
@@ -110,7 +109,7 @@ class Scanner30(Scanner3):
                     self.fixed_jumps[offset] = jump_back+4
                     end = jump_back+4
 
-                target = self.get_target(jump_back)
+                target = self.get_target(jump_back, 0)
 
                 if code[target] in (self.opc.FOR_ITER, self.opc.GET_ITER):
                     loop_type = 'for'
@@ -120,7 +119,7 @@ class Scanner30(Scanner3):
 
                     if test == offset:
                         loop_type = 'while 1'
-                    elif self.code[test] in opc.JUMP_OPs:
+                    elif self.code[test] in self.opc.JUMP_OPs:
                         self.ignore_if.add(test)
                         test_target = self.get_target(test)
                         if test_target > (jump_back+3):
@@ -128,15 +127,16 @@ class Scanner30(Scanner3):
                 self.not_continue.add(jump_back)
             self.loops.append(target)
             self.structs.append({'type': loop_type + '-loop',
-                                   'start': target,
-                                   'end':   jump_back})
-            if jump_back+3 != end:
+                                 'start': target,
+                                 'end':   jump_back})
+            after_jump_offset = xdis.next_offset(code[jump_back], self.opc, jump_back)
+            if after_jump_offset != end:
                 self.structs.append({'type': loop_type + '-else',
-                                       'start': jump_back+3,
-                                       'end':   end})
-        elif op in JUMP_TF:
-            start = offset + op_size(op, self.opc)
-            target = self.get_target(offset)
+                                     'start': after_jump_offset,
+                                     'end':   end})
+        elif op in self.pop_jump_tf:
+            start = offset + instruction_size(op, self.opc)
+            target = self.get_target(offset, extended_arg)
             rtarget = self.restrict_to_parent(target, parent)
             prev_op = self.prev_op
 
@@ -256,7 +256,7 @@ class Scanner30(Scanner3):
             # like whether the target is "END_FINALLY"
             # or if the condition jump is to a forward location
             if self.is_jump_forward(pre_rtarget):
-                if_end = self.get_target(pre_rtarget)
+                if_end = self.get_target(pre_rtarget, 0)
 
                 # If the jump target is back, we are looping
                 if (if_end < pre_rtarget and
@@ -280,7 +280,7 @@ class Scanner30(Scanner3):
                 #                          'start': rtarget,
                 #                          'end': end})
                 #     self.else_start[rtarget] = end
-            elif self.is_jump_back(pre_rtarget):
+            elif self.is_jump_back(pre_rtarget, 0):
                 if_end = rtarget
                 self.structs.append({'type': 'if-then',
                                      'start': start,
@@ -307,9 +307,9 @@ class Scanner30(Scanner3):
                     # not from SETUP_EXCEPT
                     next_op = rtarget
                     if code[next_op] == self.opc.POP_BLOCK:
-                        next_op += op_size(self.code[next_op], self.opc)
+                        next_op += instruction_size(self.code[next_op], self.opc)
                     if code[next_op] == self.opc.JUMP_ABSOLUTE:
-                        next_op += op_size(self.code[next_op], self.opc)
+                        next_op += instruction_size(self.code[next_op], self.opc)
                     if next_op in targets:
                         for try_op in targets[next_op]:
                             come_from_op = code[try_op]
@@ -329,7 +329,7 @@ class Scanner30(Scanner3):
             end    = self.restrict_to_parent(target, parent)
             self.fixed_jumps[offset] = end
         elif op == self.opc.SETUP_FINALLY:
-            target = self.get_target(offset)
+            target = self.get_target(offset, extended_arg)
             end    = self.restrict_to_parent(target, parent)
             self.fixed_jumps[offset] = end
         elif op in self.jump_if_pop:
