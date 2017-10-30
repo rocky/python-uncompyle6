@@ -213,7 +213,7 @@ class Scanner3(Scanner):
         # Get jump targets
         # Format: {target offset: [jump offsets]}
         jump_targets = self.find_jump_targets(show_asm)
-        ## print("XXX2", jump_targets)
+        # print("XXX2", jump_targets)
         last_op_was_break = False
 
         extended_arg = 0
@@ -797,7 +797,7 @@ class Scanner3(Scanner):
                                      'end': prev_op[target]})
                 return
 
-            # The op offset just before the target jump offset is important
+            # The opcode *two* instructions before the target jump offset is important
             # in making a determination of what we have. Save that.
             pre_rtarget = prev_op[rtarget]
 
@@ -966,8 +966,16 @@ class Scanner3(Scanner):
                     self.not_continue.add(pre_rtarget)
             else:
                 # For now, we'll only tag forward jump.
-                if rtarget > offset:
-                    self.fixed_jumps[offset] = rtarget
+                if self.version >= 3.6:
+                    if target > offset:
+                        self.fixed_jumps[offset] = target
+                        pass
+                else:
+                    # FIXME: This is probably a bug in < 3.6 and we should
+                    # instead use the above code. But until we smoke things
+                    # out we'll stick with it.
+                    if rtarget > offset:
+                        self.fixed_jumps[offset] = rtarget
 
         elif op == self.opc.SETUP_EXCEPT:
             target = self.get_target(offset, extended_arg)

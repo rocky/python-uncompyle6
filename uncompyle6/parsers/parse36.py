@@ -32,6 +32,11 @@ class Python36Parser(Python35Parser):
 
         call_function ::= expr expr CALL_FUNCTION_EX
         call_function ::= expr expr expr CALL_FUNCTION_EX_KW_1
+
+        # This might be valid in < 3.6
+        and  ::= expr jmp_false expr
+
+        except_suite ::= c_stmts_opt COME_FROM POP_EXCEPT jump_except COME_FROM
         """
 
     def add_custom_rules(self, tokens, customize):
