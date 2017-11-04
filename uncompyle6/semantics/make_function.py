@@ -8,6 +8,7 @@ from uncompyle6.scanner import Code
 from uncompyle6.parsers.astnode import AST
 from uncompyle6 import PYTHON3
 from uncompyle6.semantics.parser_error import ParserError
+from uncompyle6.parser import ParserError as ParserError2
 from uncompyle6.semantics.helper import print_docstring
 
 if PYTHON3:
@@ -128,9 +129,10 @@ def make_function3_annotate(self, node, isLambda, nested=1,
                              code._customize,
                              isLambda = isLambda,
                              noneInNames = ('None' in code.co_names))
-    except ParserError as p:
+    except (ParserError, ParserError2) as p:
         self.write(str(p))
-        self.ERROR = p
+        if not self.tolerate_errors:
+            self.ERROR = p
         return
 
     kw_pairs = args_node.attr[1]
@@ -356,9 +358,10 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
                              code._customize,
                              isLambda = isLambda,
                              noneInNames = ('None' in code.co_names))
-    except ParserError as p:
+    except (ParserError, ParserError2) as p:
         self.write(str(p))
-        self.ERROR = p
+        if not self.tolerate_errors:
+            self.ERROR = p
         return
 
     kw_pairs = args_node.attr[1] if self.version >= 3.0 else 0
@@ -531,9 +534,10 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
                              code._customize,
                              isLambda = isLambda,
                              noneInNames = ('None' in code.co_names))
-    except ParserError as p:
+    except (ParserError, ParserError2) as p:
         self.write(str(p))
-        self.ERROR = p
+        if not self.tolerate_errors:
+            self.ERROR = p
         return
 
     kw_pairs = args_node.attr[1] if self.version >= 3.0 else 0

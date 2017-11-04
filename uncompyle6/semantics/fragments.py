@@ -114,11 +114,12 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def __init__(self, version, scanner, showast=False,
                  debug_parser=PARSER_DEFAULT_DEBUG,
-                 compile_mode='exec', is_pypy=False):
+                 compile_mode='exec', is_pypy=False, tolerate_errors=True):
         pysource.SourceWalker.__init__(self, version=version, out=StringIO(),
                                        scanner=scanner,
                                        showast=showast, debug_parser=debug_parser,
-                                       compile_mode=compile_mode, is_pypy=is_pypy)
+                                       compile_mode=compile_mode, is_pypy=is_pypy,
+                                       tolerate_errors=tolerate_errors)
 
         # hide_internal suppresses displaying the additional instructions that sometimes
         # exist in code but but were not written in the source code.

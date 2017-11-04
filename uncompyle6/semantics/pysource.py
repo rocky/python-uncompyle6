@@ -166,7 +166,7 @@ class SourceWalker(GenericASTTraversal, object):
     def __init__(self, version, out, scanner, showast=False,
                  debug_parser=PARSER_DEFAULT_DEBUG,
                  compile_mode='exec', is_pypy=False,
-                 linestarts={}):
+                 linestarts={}, tolerate_errors=False):
         """version is the Python version (a float) of the Python dialect
 
         of both the AST and language we should produce.
@@ -213,6 +213,10 @@ class SourceWalker(GenericASTTraversal, object):
         self.linestarts = linestarts
         self.line_number = 0
         self.ast_errors = []
+
+        # Sometimes we may want to continue decompiling when there are errors
+        # and sometimes not
+        self.tolerate_errors = tolerate_errors
 
         # hide_internal suppresses displaying the additional instructions that sometimes
         # exist in code but but were not written in the source code.
