@@ -134,6 +134,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # FIXME: is there a better way?
         global MAP_DIRECT_FRAGMENT
         MAP_DIRECT_FRAGMENT = dict(TABLE_DIRECT, **TABLE_DIRECT_FRAGMENT),
+        return
 
     f = property(lambda s: s.params['f'],
                  lambda s, x: s.params.__setitem__('f', x),

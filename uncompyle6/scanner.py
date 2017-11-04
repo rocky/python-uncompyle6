@@ -320,5 +320,6 @@ if __name__ == "__main__":
     import inspect, uncompyle6
     co = inspect.currentframe().f_code
     scanner = get_scanner('2.7.13', True)
+    scanner = get_scanner(sys.version[:5], False)
     scanner = get_scanner(uncompyle6.PYTHON_VERSION, IS_PYPY, True)
     tokens, customize = scanner.ingest(co, {})
