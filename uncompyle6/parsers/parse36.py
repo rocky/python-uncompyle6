@@ -36,6 +36,26 @@ class Python36Parser(Python35Parser):
         # This might be valid in < 3.6
         and  ::= expr jmp_false expr
 
+        # Adds a COME_FROM_ASYNC_WITH over 3.5
+        # FIXME: remove corresponding rule for 3.5?
+        async_with_as_stmt ::= expr
+                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               SETUP_ASYNC_WITH designator
+                               suite_stmts_opt
+                               POP_BLOCK LOAD_CONST
+                               COME_FROM_ASYNC_WITH
+                               WITH_CLEANUP_START
+                               GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               WITH_CLEANUP_FINISH END_FINALLY
+        async_with_stmt ::= expr
+                            BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                            SETUP_ASYNC_WITH POP_TOP suite_stmts_opt
+                            POP_BLOCK LOAD_CONST
+                            COME_FROM_ASYNC_WITH
+                            WITH_CLEANUP_START
+                            GET_AWAITABLE LOAD_CONST YIELD_FROM
+                            WITH_CLEANUP_FINISH END_FINALLY
+
         except_suite ::= c_stmts_opt COME_FROM POP_EXCEPT jump_except COME_FROM
         """
 
