@@ -50,8 +50,8 @@ check-3.6: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.6 --weak-verify $(COMPILE)
 
 # FIXME
-#: this is called when running under pypy3.5-5.8.0
-5.8:
+#: this is called when running under pypy3.5-5.8.0 or pypy2-5.6.0
+5.8 5.6:
 
 #: Check deparsing only, but from a different Python version
 check-disasm:
@@ -71,7 +71,7 @@ check-bytecode-2:
 check-bytecode-3:
 	$(PYTHON) test_pythonlib.py --bytecode-3.0 \
        --bytecode-3.1 --bytecode-3.2 --bytecode-3.3 \
-       --bytecode-3.4 --bytecode-3.5 --bytecode-pypy3.2
+       --bytecode-3.4 --bytecode-3.5 --bytecode-3.6 --bytecode-pypy3.2
 
 #: Check deparsing bytecode that works running Python 2 and Python 3
 check-bytecode: check-bytecode-3

@@ -27,7 +27,7 @@ from array import array
 
 from uncompyle6.scanner import Scanner
 from xdis.code import iscode
-from xdis.bytecode import Bytecode, op_has_argument, instruction_size
+from xdis.bytecode import Bytecode, instruction_size
 from xdis.util import code2num
 
 from uncompyle6.scanner import Token, parse_fn_counts
@@ -144,18 +144,23 @@ class Scanner3(Scanner):
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Pick out tokens from an uncompyle6 code object, and transform them,
-        returning a list of uncompyle6 'Token's.
+        returning a list of uncompyle6 Token's.
 
         The transformations are made to assist the deparsing grammar.
         Specificially:
            -  various types of LOAD_CONST's are categorized in terms of what they load
            -  COME_FROM instructions are added to assist parsing control structures
            -  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional arguments
+           -  some EXTENDED_ARGS instructions are removed
 
         Also, when we encounter certain tokens, we add them to a set which will cause custom
         grammar rules. Specifically, variable arg tokens like MAKE_FUNCTION or BUILD_LIST
         cause specific rules for the specific number of arguments they take.
         """
+
+        # FIXME: remove this when all subsidiary functions have been removed.
+        # We should be able to get everything from the self.insts list.
+        self.code = array('B', co.co_code)
 
         show_asm = self.show_asm if not show_asm else show_asm
         # show_asm = 'both'
@@ -175,7 +180,6 @@ class Scanner3(Scanner):
         if self.is_pypy:
             customize['PyPy'] = 0
 
-        self.code = array('B', co.co_code)
         self.build_lines_data(co)
         self.build_prev_op()
 
@@ -186,27 +190,20 @@ class Scanner3(Scanner):
         # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT'.
         # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
-        bs = list(bytecode)
-        n = len(bs)
-        for i in range(n):
-            inst = bs[i]
-
+        self.insts = list(bytecode)
+        n = len(self.insts)
+        for i, inst in enumerate(self.insts):
             # We need to detect the difference between
             # "raise AssertionError" and "assert"
             # If we have a JUMP_FORWARD after the
             # RAISE_VARARGS then we have a "raise" statement
             # else we have an "assert" statement.
             if inst.opname == 'POP_JUMP_IF_TRUE' and i+1 < n:
-                next_inst = bs[i+1]
+                next_inst = self.insts[i+1]
                 if (next_inst.opname == 'LOAD_GLOBAL' and
                     next_inst.argval == 'AssertionError'):
-                    for j in range(i+2, n):
-                        raise_inst = bs[j]
-                        if raise_inst.opname.startswith('RAISE_VARARGS'):
-                            if j+1 >= n or bs[j+1].opname != 'JUMP_FORWARD':
-                                self.load_asserts.add(next_inst.offset)
-                                pass
-                            break
+                    if (i + 2 < n and self.insts[i+2].opname.startswith('RAISE_VARARGS')):
+                        self.load_asserts.add(next_inst.offset)
                     pass
                 pass
 
@@ -216,28 +213,15 @@ class Scanner3(Scanner):
         # print("XXX2", jump_targets)
         last_op_was_break = False
 
-        extended_arg = 0
         for i, inst in enumerate(bytecode):
 
             argval = inst.argval
             op     = inst.opcode
-            has_arg = op_has_argument(op, self.opc)
-            if has_arg:
-                if op == self.opc.EXTENDED_ARG:
-                    extended_arg += self.extended_arg_val(argval)
-
-                    # Normally we remove EXTENDED_ARG from the
-                    # opcodes, but in the case of annotated functions
-                    # can use the EXTENDED_ARG tuple to signal we have
-                    # an annotated function.
-                    if not bs[i+1].opname.startswith("MAKE_FUNCTION"):
-                        continue
-
-            if isinstance(argval, int) and extended_arg:
-                min_extended= self.extended_arg_val(1)
-                if argval < min_extended:
-                    argval += extended_arg
-            extended_arg = 0
+            if op == self.opc.EXTENDED_ARG:
+                # FIXME: The EXTENDED_ARG is used to signal annotation
+                # parameters
+                if self.insts[i+1].opcode != self.opc.MAKE_FUNCTION:
+                    continue
 
             if inst.offset in jump_targets:
                 jump_idx = 0
@@ -256,9 +240,6 @@ class Scanner3(Scanner):
                         pass
                     elif inst.offset in self.except_targets:
                         come_from_name = 'COME_FROM_EXCEPT_CLAUSE'
-                        if self.version <= 3.2:
-                            continue
-                        pass
                     tokens.append(Token(come_from_name,
                                         None, repr(jump_offset),
                                         offset='%s_%s' % (inst.offset, jump_idx),
@@ -336,7 +317,7 @@ class Scanner3(Scanner):
                         offset = inst.offset,
                         linestart = inst.starts_line,
                         op = op,
-                        has_arg = op_has_argument(op, op3),
+                        has_arg = inst.has_arg,
                         opc = self.opc
                     )
                 )
@@ -415,7 +396,7 @@ class Scanner3(Scanner):
                     offset = inst.offset,
                     linestart = inst.starts_line,
                     op = op,
-                    has_arg = (op >= op3.HAVE_ARGUMENT),
+                    has_arg = inst.has_arg,
                     opc = self.opc
                     )
                 )
@@ -1063,9 +1044,9 @@ class Scanner3(Scanner):
             op = self.code[i]
             if op == self.opc.END_FINALLY:
                 if count_END_FINALLY == count_SETUP_:
-                    assert self.code[self.prev_op[i]] in (JUMP_ABSOLUTE,
-                                                          JUMP_FORWARD,
-                                                          RETURN_VALUE)
+                    assert self.code[self.prev_op[i]] in frozenset([self.opc.JUMP_ABSOLUTE,
+                                                                    self.opc.JUMP_FORWARD,
+                                                                    self.opc.RETURN_VALUE])
                     self.not_continue.add(self.prev_op[i])
                     return self.prev_op[i]
                 count_END_FINALLY += 1
