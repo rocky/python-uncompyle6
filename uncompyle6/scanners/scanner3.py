@@ -28,7 +28,6 @@ from array import array
 from uncompyle6.scanner import Scanner
 from xdis.code import iscode
 from xdis.bytecode import Bytecode, instruction_size
-from xdis.util import code2num
 
 from uncompyle6.scanner import Token, parse_fn_counts
 import xdis

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from uncompyle6 import PYTHON_VERSION, IS_PYPY
 from uncompyle6.scanner import get_scanner
+from xdis.bytecode import Bytecode
 from array import array
 def bug(state, slotstate):
     if state:
@@ -53,9 +54,11 @@ def test_if_in_for():
             {'start': 48, 'end': 67, 'type': 'while-loop'}]
 
     elif 3.2 < PYTHON_VERSION <= 3.4:
+        bytecode = Bytecode(code, scan.opc)
         scan.code = array('B', code.co_code)
         scan.build_lines_data(code)
         scan.build_prev_op()
+        scan.insts = list(bytecode)
         fjt  = scan.find_jump_targets(False)
         assert {69: [66], 63: [18]} == fjt
         assert scan.structs == \
