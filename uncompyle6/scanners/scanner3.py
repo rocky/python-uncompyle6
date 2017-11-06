@@ -175,7 +175,9 @@ class Scanner3(Scanner):
         # and the value is the argument stack entries for that
         # nonterminal. The count is a little hoaky. It is mostly
         # not used, but sometimes it is.
+        # "customize" is a dict whose keys are nonterminals
         customize = {}
+
         if self.is_pypy:
             customize['PyPy'] = 0
 
@@ -193,7 +195,9 @@ class Scanner3(Scanner):
         n = len(self.insts)
         for i, inst in enumerate(self.insts):
             # We need to detect the difference between
-            # "raise AssertionError" and "assert"
+            #   raise AssertionError
+            #  and
+            #   assert ...
             # If we have a JUMP_FORWARD after the
             # RAISE_VARARGS then we have a "raise" statement
             # else we have an "assert" statement.
@@ -258,10 +262,11 @@ class Scanner3(Scanner):
             pattr  = inst.argrepr
             opname = inst.opname
 
-            if opname in ['LOAD_CONST']:
+            if op in self.opc.CONST_OPS:
                 const = argval
                 if iscode(const):
                     if const.co_name == '<lambda>':
+                        assert opname == 'LOAD_CONST'
                         opname = 'LOAD_LAMBDA'
                     elif const.co_name == '<genexpr>':
                         opname = 'LOAD_GENEXPR'
