@@ -91,7 +91,7 @@ class Scanner2(Scanner):
             from xdis.bytecode import Bytecode
             bytecode = Bytecode(co, self.opc)
             for instr in bytecode.get_instructions(co):
-                print(instr._disassemble())
+                print(instr.disassemble())
 
         # list of tokens/instructions
         tokens = []

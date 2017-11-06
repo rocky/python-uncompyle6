@@ -93,7 +93,7 @@ class Scanner26(scan.Scanner2):
             from xdis.bytecode import Bytecode
             bytecode = Bytecode(co, self.opc)
             for instr in bytecode.get_instructions(co):
-                print(instr._disassemble())
+                print(instr.disassemble())
 
         # Container for tokens
         tokens = []

@@ -162,7 +162,7 @@ class Scanner3(Scanner):
         if show_asm in ('both', 'before'):
             bytecode = Bytecode(co, self.opc)
             for instr in bytecode.get_instructions(co):
-                print(instr._disassemble())
+                print(instr.disassemble())
 
         # list of tokens/instructions
         tokens = []
