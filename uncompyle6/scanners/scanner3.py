@@ -487,26 +487,17 @@ class Scanner3(Scanner):
         self.setup_loops = {}  # setup_loop offset given target
 
         targets = {}
-        extended_arg = 0
-        for offset in self.op_range(0, n):
-            op = code[offset]
-
-            if op == self.opc.EXTENDED_ARG:
-                arg = code2num(code, offset+1) | extended_arg
-                extended_arg = self.extended_arg_val(arg)
-                continue
+        for i, inst in enumerate(self.insts):
+            offset = inst.offset
+            op = inst.opcode
 
             # Determine structures and fix jumps in Python versions
             # since 2.3
-            self.detect_control_flow(offset, targets, extended_arg)
+            self.detect_control_flow(offset, targets, 0)
 
-            has_arg = (op >= op3.HAVE_ARGUMENT)
-            if has_arg:
+            if inst.has_arg:
                 label = self.fixed_jumps.get(offset)
-                if self.version >= 3.6:
-                    oparg = code[offset+1]
-                else:
-                    oparg = code[offset+1] + code[offset+2] * 256
+                oparg = inst.arg
                 next_offset = xdis.next_offset(op, self.opc, offset)
 
                 if label is None:
@@ -524,7 +515,6 @@ class Scanner3(Scanner):
                 targets[label] = targets.get(label, []) + [offset]
                 pass
 
-            extended_arg = 0
             pass # for loop
 
         # DEBUG:

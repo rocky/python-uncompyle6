@@ -75,12 +75,11 @@ class Scanner36(Scanner3):
         self.setup_loops = {}  # setup_loop offset given target
 
         targets = {}
-        extended_arg = 0
         for i, inst in enumerate(self.insts):
             offset = inst.offset
             op = inst.opcode
 
-            self.detect_control_flow(offset, targets, extended_arg)
+            self.detect_control_flow(offset, targets, 0)
 
             if inst.has_arg:
                 label = self.fixed_jumps.get(offset)
@@ -102,7 +101,6 @@ class Scanner36(Scanner3):
                 targets[label] = targets.get(label, []) + [offset]
                 pass
 
-            extended_arg = 0
             pass # for loop
 
         # DEBUG:
