@@ -120,18 +120,22 @@ class PythonParser(GenericASTBuilder):
 
     def error(self, instructions, index):
         # Find the last line boundary
+        start, finish = -1, -1
         for start in range(index, -1, -1):
             if instructions[start].linestart:  break
             pass
         for finish in range(index+1, len(instructions)):
             if instructions[finish].linestart:  break
             pass
-        err_token = instructions[index]
-        print("Instruction context:")
-        for i in range(start, finish):
-            indent = '   ' if i != index else '-> '
-            print("%s%s" % (indent, instructions[i]))
-        raise ParserError(err_token, err_token.offset)
+        if start > 0:
+            err_token = instructions[index]
+            print("Instruction context:")
+            for i in range(start, finish):
+                indent = '   ' if i != index else '-> '
+                print("%s%s" % (indent, instructions[i]))
+            raise ParserError(err_token, err_token.offset)
+        else:
+            raise ParserError(None, -1)
 
     def typestring(self, token):
         return token.kind

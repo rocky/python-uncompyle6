@@ -369,28 +369,6 @@ class Scanner30(Scanner3):
                 pass
         return
 
-    def rem_or(self, start, end, instr, target=None, include_beyond_target=False):
-        """
-        Find offsets of all requested <instr> between <start> and <end>,
-        optionally <target>ing specified offset, and return list found
-        <instr> offsets which are not within any POP_JUMP_IF_TRUE jumps.
-        """
-        assert(start>=0 and end<=len(self.code) and start <= end)
-
-        # Find all offsets of requested instructions
-        instr_offsets = self.all_instr(start, end, instr, target, include_beyond_target)
-        # Get all JUMP_IF_TRUE (or) offsets
-        pjit_offsets = self.all_instr(start, end, opc.JUMP_IF_TRUE)
-        filtered = []
-        for pjit_offset in pjit_offsets:
-            pjit_tgt = self.get_target(pjit_offset) - 3
-            for instr_offset in instr_offsets:
-                if instr_offset <= pjit_offset or instr_offset >= pjit_tgt:
-                    filtered.append(instr_offset)
-            instr_offsets = filtered
-            filtered = []
-        return instr_offsets
-
 if __name__ == "__main__":
     from uncompyle6 import PYTHON_VERSION
     if PYTHON_VERSION == 3.0:

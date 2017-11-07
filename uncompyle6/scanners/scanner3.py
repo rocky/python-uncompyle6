@@ -161,10 +161,10 @@ class Scanner3(Scanner):
         # We should be able to get everything from the self.insts list.
         self.code = array('B', co.co_code)
 
+        bytecode = Bytecode(co, self.opc)
         show_asm = self.show_asm if not show_asm else show_asm
         # show_asm = 'both'
         if show_asm in ('both', 'before'):
-            bytecode = Bytecode(co, self.opc)
             for instr in bytecode.get_instructions(co):
                 print(instr.disassemble())
 
@@ -184,8 +184,6 @@ class Scanner3(Scanner):
         self.build_lines_data(co)
         self.build_prev_op()
 
-        bytecode = Bytecode(co, self.opc)
-
         # FIXME: put as its own method?
         # Scan for assertions. Later we will
         # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT'.
@@ -194,7 +192,7 @@ class Scanner3(Scanner):
         self.insts = list(bytecode)
         n = len(self.insts)
         for i, inst in enumerate(self.insts):
-            # We need to detect the difference between
+            # We need to detect the difference between:
             #   raise AssertionError
             #  and
             #   assert ...
@@ -214,6 +212,7 @@ class Scanner3(Scanner):
         # Format: {target offset: [jump offsets]}
         jump_targets = self.find_jump_targets(show_asm)
         # print("XXX2", jump_targets)
+
         last_op_was_break = False
 
         for i, inst in enumerate(bytecode):
@@ -1058,7 +1057,11 @@ class Scanner3(Scanner):
         # Find all offsets of requested instructions
         instr_offsets = self.all_instr(start, end, instr, target, include_beyond_target)
         # Get all POP_JUMP_IF_TRUE (or) offsets
-        pjit_offsets = self.all_instr(start, end, self.opc.POP_JUMP_IF_TRUE)
+        if self.version == 3.0:
+            jump_true_op = self.opc.JUMP_IF_TRUE
+        else:
+            jump_true_op = self.opc.POP_JUMP_IF_TRUE
+        pjit_offsets = self.all_instr(start, end, jump_true_op)
         filtered = []
         for pjit_offset in pjit_offsets:
             pjit_tgt = self.get_target(pjit_offset) - 3
