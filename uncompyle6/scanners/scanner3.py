@@ -27,8 +27,7 @@ from array import array
 
 from uncompyle6.scanner import Scanner
 from xdis.code import iscode
-from xdis.bytecode import Bytecode, op_has_argument, instruction_size
-from xdis.util import code2num
+from xdis.bytecode import Bytecode, instruction_size
 
 from uncompyle6.scanner import Token, parse_fn_counts
 import xdis
@@ -144,23 +143,28 @@ class Scanner3(Scanner):
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Pick out tokens from an uncompyle6 code object, and transform them,
-        returning a list of uncompyle6 'Token's.
+        returning a list of uncompyle6 Token's.
 
         The transformations are made to assist the deparsing grammar.
         Specificially:
            -  various types of LOAD_CONST's are categorized in terms of what they load
            -  COME_FROM instructions are added to assist parsing control structures
            -  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional arguments
+           -  some EXTENDED_ARGS instructions are removed
 
         Also, when we encounter certain tokens, we add them to a set which will cause custom
         grammar rules. Specifically, variable arg tokens like MAKE_FUNCTION or BUILD_LIST
         cause specific rules for the specific number of arguments they take.
         """
 
+        # FIXME: remove this when all subsidiary functions have been removed.
+        # We should be able to get everything from the self.insts list.
+        self.code = array('B', co.co_code)
+
+        bytecode = Bytecode(co, self.opc)
         show_asm = self.show_asm if not show_asm else show_asm
         # show_asm = 'both'
         if show_asm in ('both', 'before'):
-            bytecode = Bytecode(co, self.opc)
             for instr in bytecode.get_instructions(co):
                 print(instr.disassemble())
 
@@ -171,42 +175,36 @@ class Scanner3(Scanner):
         # and the value is the argument stack entries for that
         # nonterminal. The count is a little hoaky. It is mostly
         # not used, but sometimes it is.
+        # "customize" is a dict whose keys are nonterminals
         customize = {}
+
         if self.is_pypy:
             customize['PyPy'] = 0
 
-        self.code = array('B', co.co_code)
         self.build_lines_data(co)
         self.build_prev_op()
-
-        bytecode = Bytecode(co, self.opc)
 
         # FIXME: put as its own method?
         # Scan for assertions. Later we will
         # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT'.
         # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
-        bs = list(bytecode)
-        n = len(bs)
-        for i in range(n):
-            inst = bs[i]
-
-            # We need to detect the difference between
-            # "raise AssertionError" and "assert"
+        self.insts = list(bytecode)
+        n = len(self.insts)
+        for i, inst in enumerate(self.insts):
+            # We need to detect the difference between:
+            #   raise AssertionError
+            #  and
+            #   assert ...
             # If we have a JUMP_FORWARD after the
             # RAISE_VARARGS then we have a "raise" statement
             # else we have an "assert" statement.
             if inst.opname == 'POP_JUMP_IF_TRUE' and i+1 < n:
-                next_inst = bs[i+1]
+                next_inst = self.insts[i+1]
                 if (next_inst.opname == 'LOAD_GLOBAL' and
                     next_inst.argval == 'AssertionError'):
-                    for j in range(i+2, n):
-                        raise_inst = bs[j]
-                        if raise_inst.opname.startswith('RAISE_VARARGS'):
-                            if j+1 >= n or bs[j+1].opname != 'JUMP_FORWARD':
-                                self.load_asserts.add(next_inst.offset)
-                                pass
-                            break
+                    if (i + 2 < n and self.insts[i+2].opname.startswith('RAISE_VARARGS')):
+                        self.load_asserts.add(next_inst.offset)
                     pass
                 pass
 
@@ -214,30 +212,18 @@ class Scanner3(Scanner):
         # Format: {target offset: [jump offsets]}
         jump_targets = self.find_jump_targets(show_asm)
         # print("XXX2", jump_targets)
+
         last_op_was_break = False
 
-        extended_arg = 0
         for i, inst in enumerate(bytecode):
 
             argval = inst.argval
             op     = inst.opcode
-            has_arg = op_has_argument(op, self.opc)
-            if has_arg:
-                if op == self.opc.EXTENDED_ARG:
-                    extended_arg += self.extended_arg_val(argval)
-
-                    # Normally we remove EXTENDED_ARG from the
-                    # opcodes, but in the case of annotated functions
-                    # can use the EXTENDED_ARG tuple to signal we have
-                    # an annotated function.
-                    if not bs[i+1].opname.startswith("MAKE_FUNCTION"):
-                        continue
-
-            if isinstance(argval, int) and extended_arg:
-                min_extended= self.extended_arg_val(1)
-                if argval < min_extended:
-                    argval += extended_arg
-            extended_arg = 0
+            if op == self.opc.EXTENDED_ARG:
+                # FIXME: The EXTENDED_ARG is used to signal annotation
+                # parameters
+                if self.insts[i+1].opcode != self.opc.MAKE_FUNCTION:
+                    continue
 
             if inst.offset in jump_targets:
                 jump_idx = 0
@@ -256,9 +242,6 @@ class Scanner3(Scanner):
                         pass
                     elif inst.offset in self.except_targets:
                         come_from_name = 'COME_FROM_EXCEPT_CLAUSE'
-                        if self.version <= 3.2:
-                            continue
-                        pass
                     tokens.append(Token(come_from_name,
                                         None, repr(jump_offset),
                                         offset='%s_%s' % (inst.offset, jump_idx),
@@ -278,10 +261,11 @@ class Scanner3(Scanner):
             pattr  = inst.argrepr
             opname = inst.opname
 
-            if opname in ['LOAD_CONST']:
+            if op in self.opc.CONST_OPS:
                 const = argval
                 if iscode(const):
                     if const.co_name == '<lambda>':
+                        assert opname == 'LOAD_CONST'
                         opname = 'LOAD_LAMBDA'
                     elif const.co_name == '<genexpr>':
                         opname = 'LOAD_GENEXPR'
@@ -336,7 +320,7 @@ class Scanner3(Scanner):
                         offset = inst.offset,
                         linestart = inst.starts_line,
                         op = op,
-                        has_arg = op_has_argument(op, op3),
+                        has_arg = inst.has_arg,
                         opc = self.opc
                     )
                 )
@@ -415,7 +399,7 @@ class Scanner3(Scanner):
                     offset = inst.offset,
                     linestart = inst.starts_line,
                     op = op,
-                    has_arg = (op >= op3.HAVE_ARGUMENT),
+                    has_arg = inst.has_arg,
                     opc = self.opc
                     )
                 )
@@ -506,26 +490,17 @@ class Scanner3(Scanner):
         self.setup_loops = {}  # setup_loop offset given target
 
         targets = {}
-        extended_arg = 0
-        for offset in self.op_range(0, n):
-            op = code[offset]
-
-            if op == self.opc.EXTENDED_ARG:
-                arg = code2num(code, offset+1) | extended_arg
-                extended_arg = self.extended_arg_val(arg)
-                continue
+        for i, inst in enumerate(self.insts):
+            offset = inst.offset
+            op = inst.opcode
 
             # Determine structures and fix jumps in Python versions
             # since 2.3
-            self.detect_control_flow(offset, targets, extended_arg)
+            self.detect_control_flow(offset, targets, 0)
 
-            has_arg = (op >= op3.HAVE_ARGUMENT)
-            if has_arg:
+            if inst.has_arg:
                 label = self.fixed_jumps.get(offset)
-                if self.version >= 3.6:
-                    oparg = code[offset+1]
-                else:
-                    oparg = code[offset+1] + code[offset+2] * 256
+                oparg = inst.arg
                 next_offset = xdis.next_offset(op, self.opc, offset)
 
                 if label is None:
@@ -543,7 +518,6 @@ class Scanner3(Scanner):
                 targets[label] = targets.get(label, []) + [offset]
                 pass
 
-            extended_arg = 0
             pass # for loop
 
         # DEBUG:
@@ -1063,9 +1037,9 @@ class Scanner3(Scanner):
             op = self.code[i]
             if op == self.opc.END_FINALLY:
                 if count_END_FINALLY == count_SETUP_:
-                    assert self.code[self.prev_op[i]] in (JUMP_ABSOLUTE,
-                                                          JUMP_FORWARD,
-                                                          RETURN_VALUE)
+                    assert self.code[self.prev_op[i]] in frozenset([self.opc.JUMP_ABSOLUTE,
+                                                                    self.opc.JUMP_FORWARD,
+                                                                    self.opc.RETURN_VALUE])
                     self.not_continue.add(self.prev_op[i])
                     return self.prev_op[i]
                 count_END_FINALLY += 1
@@ -1083,7 +1057,11 @@ class Scanner3(Scanner):
         # Find all offsets of requested instructions
         instr_offsets = self.all_instr(start, end, instr, target, include_beyond_target)
         # Get all POP_JUMP_IF_TRUE (or) offsets
-        pjit_offsets = self.all_instr(start, end, self.opc.POP_JUMP_IF_TRUE)
+        if self.version == 3.0:
+            jump_true_op = self.opc.JUMP_IF_TRUE
+        else:
+            jump_true_op = self.opc.POP_JUMP_IF_TRUE
+        pjit_offsets = self.all_instr(start, end, jump_true_op)
         filtered = []
         for pjit_offset in pjit_offsets:
             pjit_tgt = self.get_target(pjit_offset) - 3
