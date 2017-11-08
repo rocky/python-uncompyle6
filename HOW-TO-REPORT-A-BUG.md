@@ -7,7 +7,8 @@ changing, and so does its code generation.
 
 There is no Python decompiler yet that I know about that will
 decompile everything. Overall, I think this one probably does the best
-job of *any* Python decompiler.
+job of *any* Python decompiler that handles such a wide range of
+versions.
 
 But at any given time, there are maybe dozens of valid Python bytecode
 files that I know of that will cause problems. And when I get through
