@@ -384,9 +384,12 @@ class Scanner3(Scanner):
                     if last_op_was_break and opname == 'CONTINUE':
                         last_op_was_break = False
                         continue
+
+            # FIXME: go over for Python 3.6+. This is sometimes wrong
             elif op == self.opc.RETURN_VALUE:
                 if inst.offset in self.return_end_ifs:
                     opname = 'RETURN_END_IF'
+
             elif inst.offset in self.load_asserts:
                 opname = 'LOAD_ASSERT'
 

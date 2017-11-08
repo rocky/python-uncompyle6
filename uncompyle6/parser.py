@@ -262,6 +262,10 @@ class PythonParser(GenericASTBuilder):
         return_stmt ::= ret_expr RETURN_VALUE
         return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
 
+        # return_stmts are a sequence of statements that ends in a RETURN statement.
+        # In later Python versions with jump optimization, this can cause JUMPs
+        # that would normally appear to be omitted.
+
         return_stmts ::= return_stmt
         return_stmts ::= _stmts return_stmt
 

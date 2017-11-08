@@ -57,6 +57,12 @@ class Python36Parser(Python35Parser):
                             WITH_CLEANUP_FINISH END_FINALLY
 
         except_suite ::= c_stmts_opt COME_FROM POP_EXCEPT jump_except COME_FROM
+
+        # In 3.6+, A sequence of statements ending in a RETURN can cause
+        # JUMP_FORWARD END_FINALLY to be omitted from try middle
+
+        except_return ::= POP_TOP POP_TOP POP_TOP return_stmts
+        try_middle    ::= JUMP_FORWARD COME_FROM_EXCEPT except_return
         """
 
     def add_custom_rules(self, tokens, customize):
