@@ -16,7 +16,7 @@ could probably easily find dozens more bugs just by doing a decompile
 of all the Python bytecode on any one of my computers. Unless you want
 to help out by _fixing_ bug, or are willing to do work by isolating
 and narrowing problems, don't feel you are doing me a favor by doing
-scans on your favorite byteocde.
+scans on your favorite bytecode.
 
 I have found bugs in *every* Python decompiler I have tried. Even
 those where authors/maintainers claim that they have used it on the
