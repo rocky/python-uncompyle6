@@ -13,10 +13,10 @@ But at any given time, there are maybe dozens of valid Python bytecode
 files that I know of that will cause problems. And when I get through
 those, along with all the issues of bugs that are currently logged, I
 could probably easily find dozens more bugs just by doing a decompile
-of all the Python bytecode one of my computers. Unless you want to
-help out by _fixing_ bug, or are willing to do work by isolating and
-narrowing problems, don't feel you are doing me a favor by doing scans
-on your favorite byteocde.
+of all the Python bytecode on any one of my computers. Unless you want
+to help out by _fixing_ bug, or are willing to do work by isolating
+and narrowing problems, don't feel you are doing me a favor by doing
+scans on your favorite byteocde.
 
 I have found bugs in *every* Python decompiler I have tried. Even
 those where authors/maintainers claim that they have used it on the
