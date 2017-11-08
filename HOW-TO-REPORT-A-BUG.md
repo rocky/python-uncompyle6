@@ -15,11 +15,12 @@ files that I know of that will cause problems. And when I get through
 those, along with all the issues of bugs that are currently logged, I
 could probably easily find dozens more bugs just by doing a decompile
 of all the Python bytecode on any one of my computers. Unless you want
-to help out by _fixing_ bug, or are willing to do work by isolating
-and narrowing problems, don't feel you are doing me a favor by doing
+to help out by _fixing_ bugs, or are willing to do work by isolating
+and narrowing thems, don't feel you are doing me a favor by doing
 scans on your favorite bytecode.
 
-So it is likely you'll find a mistranslation in decompiling.
+In sum, it is not uncommon that you will find a mistranslation in
+decompiling.
 
 
 ## Is it really a bug?
