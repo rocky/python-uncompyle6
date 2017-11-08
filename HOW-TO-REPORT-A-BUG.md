@@ -6,7 +6,7 @@ This decompiler is a constant work in progress: Python keeps
 changing, and so does its code generation.
 
 There is no Python decompiler yet that I know about that will
-decompyle everything. Overall, I think this one probably does the best
+decompile everything. Overall, I think this one probably does the best
 job of *any* Python decompiler.
 
 But at any given time, there are maybe dozens of valid Python bytecode
