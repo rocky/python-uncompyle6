@@ -359,7 +359,7 @@ class Scanner3(Scanner):
                 # rule for that.
                 pattr = argval
                 # FIXME: 0 isn't always correct
-                target = self.get_target(inst.offset, 0)
+                target = self.get_target(inst.offset)
                 if target <= inst.offset:
                     next_opname = self.opname[self.code[inst.offset+3]]
                     if (inst.offset in self.stmts and
@@ -499,7 +499,7 @@ class Scanner3(Scanner):
 
             # Determine structures and fix jumps in Python versions
             # since 2.3
-            self.detect_control_flow(offset, targets, 0)
+            self.detect_control_flow(offset, targets, i)
 
             if inst.has_arg:
                 label = self.fixed_jumps.get(offset)
@@ -579,7 +579,7 @@ class Scanner3(Scanner):
                 # If absolute jump occurs in forward direction or it takes off from the
                 # same line as previous statement, this is not a statement
                 # FIXME: 0 isn't always correct
-                target = self.get_target(stmt_offset, 0)
+                target = self.get_target(stmt_offset)
                 if target > stmt_offset or self.lines[last_stmt_offset].l_no == self.lines[stmt_offset].l_no:
                     stmts.remove(stmt_offset)
                     continue
@@ -613,7 +613,7 @@ class Scanner3(Scanner):
         # Finish filling the list for last statement
         slist += [codelen] * (codelen-len(slist))
 
-    def get_target(self, offset, extended_arg):
+    def get_target(self, offset, extended_arg=0):
         """
         Get target offset for op located at given <offset>.
         """
@@ -634,7 +634,7 @@ class Scanner3(Scanner):
 
         return target
 
-    def detect_control_flow(self, offset, targets, extended_arg):
+    def detect_control_flow(self, offset, targets, inst_index):
         """
         Detect structures and their boundaries to fix optimized jumps
         in python2.3+
@@ -667,7 +667,7 @@ class Scanner3(Scanner):
             # It could be a return instruction.
 
             start += instruction_size(op, self.opc)
-            target = self.get_target(offset, extended_arg)
+            target = self.get_target(offset, 0)
             end    = self.restrict_to_parent(target, parent)
             self.setup_loops[target] = offset
 
@@ -712,7 +712,7 @@ class Scanner3(Scanner):
                     jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE, start, False)
                 if end > jump_back+4 and self.is_jump_forward(end):
                     if self.is_jump_forward(jump_back+4):
-                        if self.get_target(jump_back+4, extended_arg) == self.get_target(end, extended_arg):
+                        if self.get_target(jump_back+4) == self.get_target(end):
                             self.fixed_jumps[offset] = jump_back+4
                             end = jump_back+4
                 elif target < offset:
@@ -721,7 +721,7 @@ class Scanner3(Scanner):
 
                 # I think 0 right because jump_back has been adjusted for any EXTENDED_ARG
                 # it encounters
-                target = self.get_target(jump_back, 0)
+                target = self.get_target(jump_back)
 
                 if code[target] in (self.opc.FOR_ITER, self.opc.GET_ITER):
                     loop_type = 'for'
@@ -733,7 +733,7 @@ class Scanner3(Scanner):
                         loop_type = 'while 1'
                     elif self.code[test] in self.opc.JUMP_OPs:
                         self.ignore_if.add(test)
-                        test_target = self.get_target(test, extended_arg)
+                        test_target = self.get_target(test)
                         if test_target > (jump_back+3):
                             jump_back = test_target
                 self.not_continue.add(jump_back)
@@ -748,7 +748,7 @@ class Scanner3(Scanner):
                                      'end':   end})
         elif op in self.pop_jump_tf:
             start = offset + instruction_size(op, self.opc)
-            target = self.get_target(offset, extended_arg)
+            target = self.get_target(offset)
             rtarget = self.restrict_to_parent(target, parent)
             prev_op = self.prev_op
 
@@ -791,12 +791,12 @@ class Scanner3(Scanner):
                 if match:
                     is_jump_forward = self.is_jump_forward(pre_rtarget)
                     if (is_jump_forward and pre_rtarget not in self.stmts and
-                        self.restrict_to_parent(self.get_target(pre_rtarget, extended_arg), parent) == rtarget):
+                        self.restrict_to_parent(self.get_target(pre_rtarget), parent) == rtarget):
                         if (code[prev_op[pre_rtarget]] == self.opc.JUMP_ABSOLUTE
                             and self.remove_mid_line_ifs([offset]) and
-                            target == self.get_target(prev_op[pre_rtarget], extended_arg) and
+                            target == self.get_target(prev_op[pre_rtarget]) and
                             (prev_op[pre_rtarget] not in self.stmts or
-                             self.get_target(prev_op[pre_rtarget], extended_arg) > prev_op[pre_rtarget]) and
+                             self.get_target(prev_op[pre_rtarget]) > prev_op[pre_rtarget]) and
                             1 == len(self.remove_mid_line_ifs(self.rem_or(start, prev_op[pre_rtarget], self.pop_jump_tf, target)))):
                             pass
                         elif (code[prev_op[pre_rtarget]] == self.opc.RETURN_VALUE
@@ -815,7 +815,7 @@ class Scanner3(Scanner):
                                                       self.opc.POP_JUMP_IF_FALSE)
                             last_jump_good = True
                             for j in jump_ifs:
-                                if target == self.get_target(j, extended_arg):
+                                if target == self.get_target(j):
                                     if self.lines[j].next == j + 3 and last_jump_good:
                                         fix = j
                                         break
@@ -831,7 +831,7 @@ class Scanner3(Scanner):
                 next = self.next_stmt[offset]
                 if prev_op[next] == offset:
                     pass
-                elif self.is_jump_forward(next) and target == self.get_target(next, extended_arg):
+                elif self.is_jump_forward(next) and target == self.get_target(next):
                     if code[prev_op[next]] == self.opc.POP_JUMP_IF_FALSE:
                         if (code[next] == self.opc.JUMP_FORWARD
                             or target != rtarget
@@ -840,7 +840,7 @@ class Scanner3(Scanner):
                             self.fixed_jumps[offset] = prev_op[next]
                             return
                 elif (code[next] == self.opc.JUMP_ABSOLUTE and self.is_jump_forward(target) and
-                      self.get_target(target, extended_arg) == self.get_target(next, extended_arg)):
+                      self.get_target(target) == self.get_target(next)):
                     self.fixed_jumps[offset] = prev_op[next]
                     return
 
@@ -937,7 +937,10 @@ class Scanner3(Scanner):
                             pass
                     pass
                 if code[pre_rtarget] == self.opc.RETURN_VALUE:
-                    self.return_end_ifs.add(pre_rtarget)
+                    # If we are at some sort of POP_JUMP_IF and the instruction before was
+                    # COMPARE_OP exception-match, then pre_rtarget is not an end_if
+                    if not (inst_index > 0 and self.insts[inst_index-1].argval == 'exception-match'):
+                        self.return_end_ifs.add(pre_rtarget)
                 else:
                     self.fixed_jumps[offset] = rtarget
                     self.not_continue.add(pre_rtarget)
@@ -955,12 +958,12 @@ class Scanner3(Scanner):
                         self.fixed_jumps[offset] = rtarget
 
         elif op == self.opc.SETUP_EXCEPT:
-            target = self.get_target(offset, extended_arg)
+            target = self.get_target(offset)
             end    = self.restrict_to_parent(target, parent)
             self.fixed_jumps[offset] = end
         elif op == self.opc.POP_EXCEPT:
             next_offset = xdis.next_offset(op, self.opc, offset)
-            target = self.get_target(next_offset, extended_arg)
+            target = self.get_target(next_offset)
             if target > next_offset:
                 next_op = code[next_offset]
                 if (self.opc.JUMP_ABSOLUTE == next_op and
@@ -969,11 +972,11 @@ class Scanner3(Scanner):
                     self.except_targets[target] = next_offset
 
         elif op == self.opc.SETUP_FINALLY:
-            target = self.get_target(offset, extended_arg)
+            target = self.get_target(offset)
             end    = self.restrict_to_parent(target, parent)
             self.fixed_jumps[offset] = end
         elif op in self.jump_if_pop:
-            target = self.get_target(offset, extended_arg)
+            target = self.get_target(offset)
             if target > offset:
                 unop_target = self.last_instr(offset, target, self.opc.JUMP_FORWARD, target)
                 if unop_target and code[unop_target+3] != self.opc.ROT_TWO:
@@ -997,7 +1000,7 @@ class Scanner3(Scanner):
                 # If we have:
                 #   JUMP_FORWARD x, [non-jump, insns], RETURN_VALUE, x:
                 # then RETURN_VALUE is not RETURN_END_IF
-                rtarget = self.get_target(offset, extended_arg)
+                rtarget = self.get_target(offset)
                 rtarget_prev = self.prev[rtarget]
                 if (code[rtarget_prev] == self.opc.RETURN_VALUE and
                     rtarget_prev in self.return_end_ifs):

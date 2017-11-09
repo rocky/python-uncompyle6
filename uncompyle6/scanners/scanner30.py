@@ -23,7 +23,7 @@ class Scanner30(Scanner3):
         return
     pass
 
-    def detect_control_flow(self, offset, targets, extended_arg):
+    def detect_control_flow(self, offset, targets, inst_index):
         """
         Detect structures and their boundaries to fix optimized jumps
         Python 3.0 is more like Python 2.6 than it is Python 3.x.
@@ -55,7 +55,7 @@ class Scanner30(Scanner3):
             # It could be a return instruction.
 
             start += instruction_size(op, self.opc)
-            target = self.get_target(offset, extended_arg)
+            target = self.get_target(offset)
             end    = self.restrict_to_parent(target, parent)
             self.setup_loop_targets[offset] = target
             self.setup_loops[target] = offset
@@ -136,7 +136,7 @@ class Scanner30(Scanner3):
                                      'end':   end})
         elif op in self.pop_jump_tf:
             start = offset + instruction_size(op, self.opc)
-            target = self.get_target(offset, extended_arg)
+            target = self.get_target(offset)
             rtarget = self.restrict_to_parent(target, parent)
             prev_op = self.prev_op
 
@@ -329,7 +329,7 @@ class Scanner30(Scanner3):
             end    = self.restrict_to_parent(target, parent)
             self.fixed_jumps[offset] = end
         elif op == self.opc.SETUP_FINALLY:
-            target = self.get_target(offset, extended_arg)
+            target = self.get_target(offset)
             end    = self.restrict_to_parent(target, parent)
             self.fixed_jumps[offset] = end
         elif op in self.jump_if_pop:
