@@ -418,6 +418,11 @@ class SourceWalker(GenericASTTraversal, object):
                         # 'unmapexpr':	       ( '{**%c}', 0), # done by n_unmapexpr
 
                     })
+                    if version >= 3.6:
+                        TABLE_DIRECT.update({
+                            'trystmt36':       ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
+                            })
+
                     def n_async_call_function(node):
                         self.f.write('async ')
                         node.kind == 'call_function'

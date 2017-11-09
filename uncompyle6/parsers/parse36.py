@@ -63,6 +63,12 @@ class Python36Parser(Python35Parser):
 
         except_return ::= POP_TOP POP_TOP POP_TOP return_stmts
         try_middle    ::= JUMP_FORWARD COME_FROM_EXCEPT except_return
+
+        # Try middle following a return_stmts
+        try_middle36    ::= COME_FROM_EXCEPT except_stmts END_FINALLY
+
+        stmt      ::= trystmt36
+        trystmt36 ::= SETUP_EXCEPT return_stmts try_middle36 opt_come_from_except
         """
 
     def add_custom_rules(self, tokens, customize):
