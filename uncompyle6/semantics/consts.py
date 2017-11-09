@@ -269,6 +269,7 @@ TABLE_DIRECT = {
     'kv2':		        ( '%c: %c', 1, 2 ),
     'mapexpr':		    ( '{%[1]C}', (0, maxint, ', ') ),
     'importstmt':       ( '%|import %c\n', 2),
+    'importlist':       ( '%C', (0, maxint, ', ') ),
     'importfrom':       ( '%|from %[2]{pattr} import %c\n',
                           (3, 'importlist') ),
     'importstar':       ( '%|from %[2]{pattr} import *\n', ),

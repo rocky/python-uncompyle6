@@ -30,13 +30,16 @@ class PythonParser(GenericASTBuilder):
 
     def __init__(self, AST, start, debug):
         super(PythonParser, self).__init__(AST, start, debug)
-        self.collect = frozenset(
-            ['stmts', 'except_stmts', '_stmts', 'load_attrs',
-             'exprlist', 'kvlist', 'kwargs', 'come_froms', '_come_from',
-              # Python < 3
-             'print_items',
-             # PyPy:
-             'kvlist_n'])
+        # FIXME: customize per python parser version
+        nt_list = [
+            'stmts', 'except_stmts', '_stmts', 'load_attrs',
+            'exprlist', 'kvlist', 'kwargs', 'come_froms', '_come_from',
+            'importlist',
+            # Python < 3
+            'print_items',
+            # PyPy:
+            'kvlist_n']
+        self.collect = frozenset(nt_list)
 
     def ast_first_offset(self, ast):
         if hasattr(ast, 'offset'):
