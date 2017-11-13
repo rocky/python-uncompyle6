@@ -1,6 +1,229 @@
+2017-11-13  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/version.py: Get ready for release 2.13.3
+
+2017-11-12  rocky <rb@dustyfeet.com>
+
+	* test/Makefile: Back off --verify for --weak-verify
+
+2017-11-12  rocky <rb@dustyfeet.com>
+
+	* test/Makefile: Back off --verify for --weak-verify
+
+2017-11-12  rocky <rb@dustyfeet.com>
+
+	* : Reinstate previously failed tests 2.6, 3.5 and 3.6 decompilation has gotten better
+
+2017-11-10  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py: Use newer xdis
+
+2017-11-09  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse36.py, uncompyle6/semantics/pysource.py: 
+	Fix bug in return-optimized try stmt
+
+2017-11-09  rocky <rb@dustyfeet.com>
+
+	* HOW-TO-REPORT-A-BUG.md: More detail is needed in bug reporting...  sigh.
+
+2017-11-09  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug35/04_importlist.py, uncompyle6/parser.py,
+	uncompyle6/semantics/consts.py: bug in 3.x importlists consts.py: add rule for importlists. imports weren't separated by ',
+	'.  parser.py: Make importlist a list type of node.  test/* add test for importlist
+
+2017-11-08  rocky <rb@dustyfeet.com>
+
+	* : commit e9b60ddbf020ee7f14d8d77c6f4a8588d2968377 Author: rocky
+	<rb@dustyfeet.com> Date:   Wed Nov 8 23:05:01 2017 -0500
+
+2017-11-08  rocky <rb@dustyfeet.com>
+
+	* HOW-TO-REPORT-A-BUG.md: more wordsmithing
+
+2017-11-08  rocky <rb@dustyfeet.com>
+
+	* HOW-TO-REPORT-A-BUG.md: more wordsmithing
+
+2017-11-08  rocky <rb@dustyfeet.com>
+
+	* HOW-TO-REPORT-A-BUG.md: more wordsmithing
+
+2017-11-08  rocky <rb@dustyfeet.com>
+
+	* HOW-TO-REPORT-A-BUG.md: Typo
+
+2017-11-08  rocky <rb@dustyfeet.com>
+
+	* HOW-TO-REPORT-A-BUG.md: Typo
+
+2017-11-08  rocky <rb@dustyfeet.com>
+
+	* HOW-TO-REPORT-A-BUG.md: Typo
+
+2017-11-08  rocky <rb@dustyfeet.com>
+
+	* HOW-TO-REPORT-A-BUG.md: Typo
+
+2017-11-08  rocky <rb@dustyfeet.com>
+
+	* HOW-TO-REPORT-A-BUG.md: Tweak how to report a bug.
+
+2017-11-08  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse36.py,
+	uncompyle6/scanners/scanner3.py: Add 3.6+ grammar for except's
+	ending in RETURN...  Not totally out of the maze in 3.6 control flow...  There are still
+	problems with erroneous RETURN_VALUEs becoming RETURN_END_IF,
+
+2017-11-07  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #135 from rocky/3.6-instruction-refactor 3.6 instruction refactor
+
+2017-11-06  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner3.py: Small tweaks to sync up better
+	with scanner2.py
+
+2017-11-06  rocky <rb@dustyfeet.com>
+
+	* pytest/test_fjt.py: Remove parts of erroneous 2.7 test for now
+
+2017-11-06  rocky <rb@dustyfeet.com>
+
+	* pytest/test_fjt.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/scanners/scanner36.py: Fix 3.{3,4} pytest. Remove dup
+	find_jump_targets
+
+2017-11-06  rocky <rb@dustyfeet.com>
+
+	* Makefile, uncompyle6/scanners/scanner3.py,
+	uncompyle6/scanners/scanner36.py: Move refactored find-jump-targets
+	from 3.6 to 3.x
+
+2017-11-06  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, uncompyle6/scanners/scanner3.py,
+	uncompyle6/scanners/scanner36.py: Move refactored ingest from 3.6 to
+	3.x...  We are getting away from working with bytecode in favor of working
+	with full-fledged structured instructions Up next: find_jump_targets()
+
+2017-11-06  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse36.py: awith custom COME_FROMs ...  Now that jump branching has been properly fixed up for EXTENDED_ARG
+	instructions which are more prevalent with wordcode encoding.
+
+2017-11-06  rocky <rb@dustyfeet.com>
+
+	* : commit 9379922c89573972aa387e4f0b9abcba7358d1a3 Author: rocky
+	<rb@dustyfeet.com> Date:   Mon Nov 6 00:38:22 2017 -0500
+
+2017-11-06  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner36.py: Revert change that should have
+	been in a branch
+
+2017-11-06  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner26.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/scanners/scanner36.py: xdis _disassemble->disassemble
+
+2017-11-04  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/make_function.py,
+	uncompyle6/semantics/pysource.py: Add flag to tolerate deparse
+	errors...  and keep going. The fragment parser should ignore errors in nested
+	function definitions
+
+2017-11-04  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanner.py, uncompyle6/semantics/fragments.py: Add
+	Python 3.6.3 scanner lookup
+
+2017-11-03  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #134 from mikemrm/master Corrected python3 import from queue
+
+2017-10-29  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug36/10_extended_arg_loop.py,
+	uncompyle6/parsers/parse36.py, uncompyle6/scanners/scanner3.py: 
+	Python 3.6 control flow bug...  Much more is needed, but it's a start
+
+2017-10-29  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/verify.py: In verify, JUMP_BACK is the same as
+	CONTINUE...  at least for now. See FIXME in verify
+
+2017-10-29  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanner.py, uncompyle6/scanners/scanner2.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/scanners/scanner30.py: 
+	Python 3.6-inspired instruction size cleanup Revise and generalize for Python 3.6+ instructions vs < 3.6
+	instuctions.  Used more of the generalized methods in xdis and
+	remove some (but not all) of the magic numbers.  This is a lot of changes, but not all of the refactoring needed.
+	Much crap still remains. Also, there are still bugs in handling 3.6
+	bytecodes.
+
+2017-10-24  rocky <rb@dustyfeet.com>
+
+	* Makefile, __pkginfo__.py: Bump uncompyle. Pypy 5.8.0-beta
+	tolerance
+
+2017-10-13  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, uncompyle6/semantics/consts.py: Tag more semantic
+	actions with nonterminals
+
+2017-10-13  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/semantics/consts.py: More node
+	checking in tables
+
+2017-10-13  rocky <rb@dustyfeet.com>
+
+	* pytest/test_pysource.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse24.py, uncompyle6/semantics/consts.py,
+	uncompyle6/semantics/fragments.py, uncompyle6/semantics/pysource.py: 
+	Start allowing node names in template engine These are now used to assert we have the right node type.  Simplify import_from
+
+2017-10-13  rocky <rb@dustyfeet.com>
+
+	* HISTORY.md, uncompyle6/semantics/pysource.py: Small changes
+
 2017-10-12  rocky <rb@dustyfeet.com>
 
-	* Makefile, admin-tools/how-to-make-a-release.txt,
+	* admin-tools/make-dist-newer.sh, admin-tools/make-dist-older.sh: 
+	Administrivia - generalize shell code
+
+2017-10-12  rocky <rb@dustyfeet.com>
+
+	* admin-tools/how-to-make-a-release.md: Update install doc
+
+2017-10-12  rocky <rb@dustyfeet.com>
+
+	* admin-tools/how-to-make-a-release.md: Update instructions
+
+2017-10-12  rocky <rb@dustyfeet.com>
+
+	* admin-tools/make-dist-newer.sh, admin-tools/make-dist-older.sh: 
+	Administrivia
+
+2017-10-12  rocky <rb@dustyfeet.com>
+
+	* admin-tools/how-to-make-a-release.md: Minor
+
+2017-10-12  rocky <rb@dustyfeet.com>
+
+	* : commit 491572ed2dd01bf655288638a121bf48c530b303 Author: rocky
+	<rb@dustyfeet.com> Date:   Thu Oct 12 06:48:49 2017 -0400
+
+2017-10-12  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, Makefile, NEWS, admin-tools/how-to-make-a-release.txt,
 	uncompyle6/version.py: Get ready for release 2.13.2
 
 2017-10-11  rocky <rb@dustyfeet.com>
