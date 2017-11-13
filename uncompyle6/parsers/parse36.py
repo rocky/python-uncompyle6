@@ -31,6 +31,43 @@ class Python36Parser(Python35Parser):
 
         call_function ::= expr expr CALL_FUNCTION_EX
         call_function ::= expr expr expr CALL_FUNCTION_EX_KW_1
+
+        # This might be valid in < 3.6
+        and  ::= expr jmp_false expr
+
+        # Adds a COME_FROM_ASYNC_WITH over 3.5
+        # FIXME: remove corresponding rule for 3.5?
+        async_with_as_stmt ::= expr
+                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               SETUP_ASYNC_WITH designator
+                               suite_stmts_opt
+                               POP_BLOCK LOAD_CONST
+                               COME_FROM_ASYNC_WITH
+                               WITH_CLEANUP_START
+                               GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               WITH_CLEANUP_FINISH END_FINALLY
+        async_with_stmt ::= expr
+                            BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                            SETUP_ASYNC_WITH POP_TOP suite_stmts_opt
+                            POP_BLOCK LOAD_CONST
+                            COME_FROM_ASYNC_WITH
+                            WITH_CLEANUP_START
+                            GET_AWAITABLE LOAD_CONST YIELD_FROM
+                            WITH_CLEANUP_FINISH END_FINALLY
+
+        except_suite ::= c_stmts_opt COME_FROM POP_EXCEPT jump_except COME_FROM
+
+        # In 3.6+, A sequence of statements ending in a RETURN can cause
+        # JUMP_FORWARD END_FINALLY to be omitted from try middle
+
+        except_return ::= POP_TOP POP_TOP POP_TOP return_stmts
+        try_middle    ::= JUMP_FORWARD COME_FROM_EXCEPT except_return
+
+        # Try middle following a return_stmts
+        try_middle36    ::= COME_FROM_EXCEPT except_stmts END_FINALLY
+
+        stmt      ::= trystmt36
+        trystmt36 ::= SETUP_EXCEPT return_stmts try_middle36 opt_come_from_except
         """
 
     def add_custom_rules(self, tokens, customize):

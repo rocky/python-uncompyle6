@@ -16,6 +16,7 @@ from uncompyle6 import PYTHON3, IS_PYPY
 from uncompyle6.scanners.tok import Token
 from xdis.bytecode import op_size
 from xdis.magics import py_str2float
+from xdis.util import code2num
 
 # The byte code versions we support
 PYTHON_VERSIONS = (1.5,
@@ -83,7 +84,8 @@ class Scanner(object):
             return True
         if self.code[offset] != self.opc.JUMP_ABSOLUTE:
             return False
-        return offset < self.get_target(offset)
+        # FIXME 0 isn't always correct
+        return offset < self.get_target(offset, 0)
 
     def get_target(self, pos, op=None):
         if op is None:
@@ -92,6 +94,10 @@ class Scanner(object):
         if op in self.opc.JREL_OPS:
             target += pos + 3
         return target
+
+    # FIXME: the below can be removed after xdis version 3.6.1 has been released
+    def extended_arg_val(self, val):
+        return val << self.opc.EXTENDED_ARG_SHIFT
 
     def get_argument(self, pos):
         arg = self.code[pos+1] + self.code[pos+2] * 256
@@ -167,13 +173,20 @@ class Scanner(object):
 
         result_offset = None
         current_distance = len(code)
+        extended_arg = 0
         for offset in self.op_range(start, end):
             op = code[offset]
+
+            if op == self.opc.EXTENDED_ARG:
+                arg = code2num(code, offset+1) | extended_arg
+                extended_arg = self.extended_arg_val(arg)
+                continue
+
             if op in instr:
                 if target is None:
                     result_offset = offset
                 else:
-                    dest = self.get_target(offset)
+                    dest = self.get_target(offset, extended_arg)
                     if dest == target:
                         current_distance = 0
                         result_offset = offset
@@ -202,17 +215,31 @@ class Scanner(object):
             instr = [instr]
 
         result = []
+        extended_arg = 0
         for offset in self.op_range(start, end):
+
             op = code[offset]
+
+            if op == self.opc.EXTENDED_ARG:
+                arg = code2num(code, offset+1) | extended_arg
+                extended_arg = self.extended_arg_val(arg)
+                continue
+
             if op in instr:
                 if target is None:
                     result.append(offset)
                 else:
-                    t = self.get_target(offset)
+                    t = self.get_target(offset, extended_arg)
                     if include_beyond_target and t >= target:
                         result.append(offset)
                     elif t == target:
                         result.append(offset)
+                        pass
+                    pass
+                pass
+            extended_arg = 0
+            pass
+
         return result
 
     def op_range(self, start, end):
@@ -291,5 +318,6 @@ if __name__ == "__main__":
     import inspect, uncompyle6
     co = inspect.currentframe().f_code
     scanner = get_scanner('2.7.13', True)
+    scanner = get_scanner(sys.version[:5], False)
     scanner = get_scanner(uncompyle6.PYTHON_VERSION, IS_PYPY, True)
     tokens, customize = scanner.ingest(co, {})

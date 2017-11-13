@@ -33,7 +33,7 @@ done
 # Tarballs can get created from the above setup, so make sure to remove them since we want
 # the tarball from master.
 
-tarball=dist/uncompyle6-$VERSION-tar.gz
+tarball=dist/${PACKAGE}-$VERSION-tar.gz
 if [[ -f $tarball ]]; then
-    rm -v dist/uncompyle6-$VERSION-tar.gz
+    rm -v dist/${PACKAGE}-$VERSION-tar.gz
 fi

@@ -117,11 +117,12 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def __init__(self, version, scanner, showast=False,
                  debug_parser=PARSER_DEFAULT_DEBUG,
-                 compile_mode='exec', is_pypy=False):
+                 compile_mode='exec', is_pypy=False, tolerate_errors=True):
         pysource.SourceWalker.__init__(self, version=version, out=StringIO(),
                                        scanner=scanner,
                                        showast=showast, debug_parser=debug_parser,
-                                       compile_mode=compile_mode, is_pypy=is_pypy)
+                                       compile_mode=compile_mode, is_pypy=is_pypy,
+                                       tolerate_errors=tolerate_errors)
 
         # hide_internal suppresses displaying the additional instructions that sometimes
         # exist in code but but were not written in the source code.
@@ -137,6 +138,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # FIXME: is there a better way?
         global MAP_DIRECT_FRAGMENT
         MAP_DIRECT_FRAGMENT = dict(TABLE_DIRECT, **TABLE_DIRECT_FRAGMENT),
+        return
 
     f = property(lambda s: s.params['f'],
                  lambda s, x: s.params.__setitem__('f', x),
@@ -1526,7 +1528,17 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 arg += 1
             elif typ == 'c':
                 start = len(self.f.getvalue())
-                self.preorder(node[entry[arg]])
+
+                index = entry[arg]
+                if isinstance(index, tuple):
+                    assert node[index[0]] == index[1], (
+                        "at %s[%d], %s vs %s" % (
+                            node.kind, arg, node[index[0]].kind, index[1])
+                        )
+                    index = index[0]
+                if isinstance(index, int):
+                    self.preorder(node[index])
+
                 finish = len(self.f.getvalue())
 
                 # FIXME rocky: figure out how to get this to be table driven

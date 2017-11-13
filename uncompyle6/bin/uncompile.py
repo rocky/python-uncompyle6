@@ -174,7 +174,7 @@ def main_bin():
         try:
             from Queue import Empty
         except ImportError:
-            from Queue import Empty
+            from queue import Empty
 
         fqueue = Queue(len(files)+numproc)
         for f in files:

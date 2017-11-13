@@ -29,9 +29,9 @@ else:
 
 from array import array
 
-from uncompyle6.scanner import L65536
 from xdis.code import iscode
-from xdis.bytecode import op_has_argument, op_size
+from xdis.bytecode import op_has_argument, op_size, instruction_size
+from xdis.util import code2num
 
 from uncompyle6.scanner import Scanner
 
@@ -97,7 +97,7 @@ class Scanner2(Scanner):
             from xdis.bytecode import Bytecode
             bytecode = Bytecode(co, self.opc)
             for instr in bytecode.get_instructions(co):
-                print(instr._disassemble())
+                print(instr.disassemble())
 
         # list of tokens/instructions
         tokens = []
@@ -199,7 +199,7 @@ class Scanner2(Scanner):
                 oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
                 if op == self.opc.EXTENDED_ARG:
-                    extended_arg = oparg * L65536
+                    extended_arg += self.extended_arg_val(oparg)
                     continue
                 if op in self.opc.CONST_OPS:
                     const = co.co_consts[oparg]
@@ -491,7 +491,7 @@ class Scanner2(Scanner):
             elif op in self.setup_ops:
                 count_SETUP_ += 1
 
-    def detect_control_flow(self, offset, op):
+    def detect_control_flow(self, offset, op, extended_arg):
         """
         Detect type of block structures and their boundaries to fix optimized jumps
         in python2.3+
@@ -515,14 +515,13 @@ class Scanner2(Scanner):
                 parent = struct
 
         if op == self.opc.SETUP_LOOP:
-
             # We categorize loop types: 'for', 'while', 'while 1' with
             # possibly suffixes '-loop' and '-else'
             # Try to find the jump_back instruction of the loop.
             # It could be a return instruction.
 
-            start = offset+3
-            target = self.get_target(offset, op)
+            start += instruction_size(op, self.opc)
+            target = self.get_target(offset) + extended_arg
             end    = self.restrict_to_parent(target, parent)
             self.setup_loop_targets[offset] = target
             self.setup_loops[target] = offset
@@ -994,12 +993,18 @@ class Scanner2(Scanner):
         self.thens = {} # JUMP_IF's that separate the 'then' part of an 'if'
 
         targets = {}
+        extended_arg = 0
         for offset in self.op_range(0, n):
             op = code[offset]
 
+            if op == self.opc.EXTENDED_ARG:
+                arg = code2num(code, offset+1) | extended_arg
+                extended_arg += self.extended_arg_val(arg)
+                continue
+
             # Determine structures and fix jumps in Python versions
             # since 2.3
-            self.detect_control_flow(offset, op)
+            self.detect_control_flow(offset, op, extended_arg)
 
             if op_has_argument(op, self.opc):
                 label = self.fixed_jumps.get(offset)
@@ -1051,7 +1056,9 @@ class Scanner2(Scanner):
                 label = self.fixed_jumps[offset]
                 targets[label] = targets.get(label, []) + [offset]
                 pass
-            pass
+
+            extended_arg = 0
+            pass # for loop
 
         # DEBUG:
         if debug in ('both', 'after'):

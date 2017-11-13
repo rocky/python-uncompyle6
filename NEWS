@@ -1,3 +1,29 @@
+uncompyle6 2.13.3 2017-11-13
+
+Overall: better 3.6 decompiling and some much needed code refactoring and cleanup
+
+
+- Start noting names in for template-action names; these are
+  used to check/assert we have the right node type
+- Simplify <import_from> rule
+- Pypy 5.80-beta testing tolerance
+- Start to clean up instruction mangling phase by using 3.6-style instructions
+  rather trying to parse the bytecode array. This largely been done in for versions 3.x;
+  3.0 custom mangling code has been reduced;
+  some 2.x conversion has been done, but more is desired. This make it possible to...
+- Handle EXTENDED_ARGS better. While relevant to all Python versions it is most noticeable in
+  version 3.6+ where in switching to wordcodes the size of operands has been reduced from 2**16
+  to 2**8. JUMP instruction then often need EXTENDED_ARGS.
+- Refactor find_jump_targets() with via working of of instructions rather the bytecode array.
+- use --weak-verify more and additional fuzzing on verify()
+- fragment parser now ignores errors in nested function definitions; an parameter was
+  added to assist here. Ignoring errors may be okay because the fragment parser often just needs,
+  well, *fragments*.
+- Distinguish RETURN_VALUE from RETURN_END_IF in exception bodies better in 3.6
+- bug in 3.x language changes: import queue va import Queue
+- reinstate some bytecode tests since decompiling has gotten better
+- Revise how to report a bug
+
 uncompyle6 2.13.2 2017-10-12
 
 - Re-release using a more automated approach

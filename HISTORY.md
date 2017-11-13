@@ -98,9 +98,20 @@ so. Then hamled made a few commits earler on, while Eike Siewertsen
 made a few commits later on. But mostly wibiti, and Guenther
 Starnberger got the code to where uncompyle2 was around 2012.
 
-In `uncompyle`, decompilation of python bytecode 2.5 & 2.6 is done by
-transforming the byte code into a pseudo-2.7 Python bytecode and is
-based on code from Eloi Vanderbeken.
+While John Aycock and Hartmut Goebel were well versed in compiler
+technology, those that have come afterwards don't seem to have been as
+facile in it.  Furthermore, documentation or guidance on how the
+decompiler code worked, comparison to a conventional compiler
+pipeline, how to add new constructs, or debug grammars was weak. Some
+of the grammar tracing and error reporting was a bit weak as well.
+
+Given this, perhaps it is not surprising that subsequent changes
+tended to shy away from using the built-in compiler technology
+mechanisms and addressed problems and extensions by some other means.
+
+Specifically, in `uncompyle`, decompilation of python bytecode 2.5 & 2.6
+is done by transforming the byte code into a pseudo-2.7 Python
+bytecode and is based on code from Eloi Vanderbeken.
 
 This project, `uncompyle6`, abandons that approach for various
 reasons. However the main reason is that we need offsets in fragment

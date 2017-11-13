@@ -27,7 +27,7 @@ class Python24Parser(Python25Parser):
         # keep positions similar to simplify semantic actions
 
         importstmt ::= filler LOAD_CONST import_as
-        importfrom ::= filler LOAD_CONST IMPORT_NAME importlist2 POP_TOP
+        importfrom ::= filler LOAD_CONST IMPORT_NAME importlist POP_TOP
         importstar ::= filler LOAD_CONST IMPORT_NAME IMPORT_STAR
 
         importmultiple ::= filler LOAD_CONST import_as imports_cont

@@ -306,6 +306,11 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
                           and int(tokens1[i1].offset) not in targets1:
                         i1 += 1
                         continue
+                    elif tokens1[i1].kind == 'JUMP_BACK' and tokens2[i2].kind == 'CONTINUE':
+                        # FIXME: should make sure that offset is inside loop, not outside of it
+                        i1 += 2
+                        i2 += 2
+                        continue
                     elif tokens1[i1].kind == 'JUMP_FORWARD' and tokens2[i2].kind == 'JUMP_BACK' \
                           and tokens1[i1+1].kind == 'JUMP_BACK' and tokens2[i2+1].kind == 'JUMP_BACK' \
                           and int(tokens1[i1].pattr) == int(tokens1[i1].offset) + 3:

@@ -68,7 +68,10 @@ Python.
 #   Escapes in the format string are:
 #
 #     %c  evaluate the node recursively. Its argument is a single
-#         integer representing a node index.
+#         integer or tuple representing a node index.
+#         If a tuple is given, the first item is the node index while
+#         the second item is a string giving the node/noterminal name.
+#         This name will be checked at runtime against the node type.
 #
 #     %p  like %c but sets the operator precedence.
 #         Its argument then is a tuple indicating the node
@@ -129,7 +132,7 @@ from uncompyle6.semantics.consts import (
     LINE_LENGTH, RETURN_LOCALS, NONE, RETURN_NONE, PASS,
     ASSIGN_DOC_STRING, NAME_MODULE, TAB,
     INDENT_PER_LEVEL, TABLE_R, TABLE_DIRECT, MAP_DIRECT,
-    MAP, PRECEDENCE, ASSIGN_TUPLE_PARAM, escape, maxint, minint)
+    MAP, PRECEDENCE, ASSIGN_TUPLE_PARAM, escape, minint)
 
 
 from uncompyle6.show import (
@@ -161,7 +164,7 @@ class SourceWalker(GenericASTTraversal, object):
     def __init__(self, version, out, scanner, showast=False,
                  debug_parser=PARSER_DEFAULT_DEBUG,
                  compile_mode='exec', is_pypy=False,
-                 linestarts={}):
+                 linestarts={}, tolerate_errors=False):
         """version is the Python version (a float) of the Python dialect
 
         of both the AST and language we should produce.
@@ -208,6 +211,10 @@ class SourceWalker(GenericASTTraversal, object):
         self.linestarts = linestarts
         self.line_number = 0
         self.ast_errors = []
+
+        # Sometimes we may want to continue decompiling when there are errors
+        # and sometimes not
+        self.tolerate_errors = tolerate_errors
 
         # hide_internal suppresses displaying the additional instructions that sometimes
         # exist in code but but were not written in the source code.
@@ -276,47 +283,39 @@ class SourceWalker(GenericASTTraversal, object):
                 'DELETE_DEREF': ( '%{pattr}', 0 ),
                 })
 
-        if version < 2.0:
-            TABLE_DIRECT.update({
-                'importlist':	( '%C', (0, maxint, ', ') ),
-                })
-        else:
-            TABLE_DIRECT.update({
-                'importlist2':	( '%C', (0, maxint, ', ') ),
-                })
-            if version <= 2.4:
-                if version == 2.3:
-                    TABLE_DIRECT.update({
-                        'if1_stmt':	( '%|if 1\n%+%c%-', 5 )
-                    })
-
-                global NAME_MODULE
-                NAME_MODULE = AST('stmt',
-                                  [ AST('assign',
-                                        [ AST('expr',
-                                              [Token('LOAD_GLOBAL', pattr='__name__',
-                                                     offset=0, has_arg=True)]),
-                                          AST('designator',
-                                              [ Token('STORE_NAME', pattr='__module__',
-                                                      offset=3, has_arg=True)])
-                                        ])])
-                pass
-            if version <= 2.3:
+        if version <= 2.4:
+            if version == 2.3:
                 TABLE_DIRECT.update({
-                    'tryfinallystmt': ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 4 )
+                    'if1_stmt':	( '%|if 1\n%+%c%-', 5 )
                 })
 
-            elif version >= 2.5:
-                ########################
-                # Import style for 2.5+
-                ########################
-                TABLE_DIRECT.update({
-                    'importmultiple': ( '%|import %c%c\n', 2, 3 ),
-                    'import_cont'   : ( ', %c', 2 ),
-                    # With/as is allowed as "from future" thing in 2.5
-                    'withstmt':     ( '%|with %c:\n%+%c%-', 0, 3),
-                    'withasstmt':   ( '%|with %c as %c:\n%+%c%-', 0, 2, 3),
-                })
+            global NAME_MODULE
+            NAME_MODULE = AST('stmt',
+                              [ AST('assign',
+                                    [ AST('expr',
+                                          [Token('LOAD_GLOBAL', pattr='__name__',
+                                                 offset=0, has_arg=True)]),
+                                      AST('designator',
+                                          [ Token('STORE_NAME', pattr='__module__',
+                                                  offset=3, has_arg=True)])
+                                    ])])
+            pass
+        if version <= 2.3:
+            TABLE_DIRECT.update({
+                'tryfinallystmt': ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 4 )
+            })
+
+        elif version >= 2.5:
+            ########################
+            # Import style for 2.5+
+            ########################
+            TABLE_DIRECT.update({
+                'importmultiple': ( '%|import %c%c\n', 2, 3 ),
+                'import_cont'   : ( ', %c', 2 ),
+                # With/as is allowed as "from future" thing in 2.5
+                'withstmt':     ( '%|with %c:\n%+%c%-', 0, 3),
+                'withasstmt':   ( '%|with %c as %c:\n%+%c%-', 0, 2, 3),
+            })
 
         ########################################
         # Python 2.6+
@@ -417,6 +416,11 @@ class SourceWalker(GenericASTTraversal, object):
                         # 'unmapexpr':	       ( '{**%c}', 0), # done by n_unmapexpr
 
                     })
+                    if version >= 3.6:
+                        TABLE_DIRECT.update({
+                            'trystmt36':       ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
+                            })
+
                     def n_async_call_function(node):
                         self.f.write('async ')
                         node.kind == 'call_function'
@@ -1847,7 +1851,11 @@ class SourceWalker(GenericASTTraversal, object):
         specifications such as %c, %C, and so on.
         """
 
-        # self.println("----> ", startnode.kind, ', ', entry[0])
+        # print("-----")
+        # print(startnode)
+        # print(entry[0])
+        # print('======')
+
         fmt = entry[0]
         arg = 1
         i = 0
@@ -1879,8 +1887,15 @@ class SourceWalker(GenericASTTraversal, object):
                     node[0].attr == 1):
                     self.write(',')
             elif typ == 'c':
-                entry_node = node[entry[arg]]
-                self.preorder(entry_node)
+                index = entry[arg]
+                if isinstance(index, tuple):
+                    assert node[index[0]] == index[1], (
+                        "at %s[%d], %s vs %s" % (
+                            node.kind, arg, node[index[0]].kind, index[1])
+                        )
+                    index = index[0]
+                if isinstance(index, int):
+                    self.preorder(node[index])
                 arg += 1
             elif typ == 'p':
                 p = self.prec

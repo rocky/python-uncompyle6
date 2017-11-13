@@ -11,6 +11,8 @@ scanner routine for Python 3.
 
 from uncompyle6.scanners.scanner3 import Scanner3
 
+import xdis
+
 # bytecode verification, verify(), uses JUMP_OPS from here
 from xdis.opcodes import opcode_36 as opc
 JUMP_OPS = opc.JUMP_OPS
@@ -37,8 +39,6 @@ class Scanner36(Scanner3):
                 t.kind = 'BUILD_MAP_UNPACK_WITH_CALL_%d' % t.attr
             pass
         return tokens, customize
-
-    pass
 
 if __name__ == "__main__":
     from uncompyle6 import PYTHON_VERSION

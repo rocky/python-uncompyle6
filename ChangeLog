@@ -1,3 +1,54 @@
+2017-10-12  rocky <rb@dustyfeet.com>
+
+	* : commit e42e3cc230237a448f48d10f3a6e11c8cda5e9c7 Author: rocky
+	<rb@dustyfeet.com> Date:   Thu Oct 12 07:29:52 2017 -0400
+
+2017-10-12  rocky <rb@dustyfeet.com>
+
+	* admin-tools/how-to-make-a-release.md: Update instructions
+
+2017-10-12  rocky <rb@dustyfeet.com>
+
+	* admin-tools/make-dist-newer.sh, admin-tools/make-dist-older.sh: 
+	Administrivia
+
+2017-10-12  rocky <rb@dustyfeet.com>
+
+	* admin-tools/make-dist-newer.sh, admin-tools/make-dist-older.sh: 
+	Merge conflicts
+
+2017-10-12  rocky <rb@dustyfeet.com>
+
+	* admin-tools/how-to-make-a-release.md: Minor
+
+2017-10-12  rocky <rb@dustyfeet.com>
+
+	* admin-tools/how-to-make-a-release.md,
+	admin-tools/pyenv-newer-versions, admin-tools/update-sources.sh: 
+	Sync
+
+2017-10-12  rocky <rb@dustyfeet.com>
+
+	* NEWS, uncompyle6/parser.py, uncompyle6/scanners/tok.py,
+	uncompyle6/semantics/consts.py,
+	uncompyle6/semantics/make_function.py: Update news
+
+2017-10-12  rocky <rb@dustyfeet.com>
+
+	* : commit b1e650a7bd79d58181557c95bc7ad64e1b8387e6 Merge: 491572e
+	717b22b Author: rocky <rb@dustyfeet.com> Date:   Thu Oct 12 06:52:24
+	2017 -0400
+
+2017-10-12  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, Makefile, NEWS, admin-tools/how-to-make-a-release.txt,
+	uncompyle6/version.py: Get ready for release 2.13.2
+
+2017-10-12  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, Makefile, NEWS, admin-tools/how-to-make-a-release.txt,
+	uncompyle6/version.py: Get ready for release 2.13.2
+
 2017-10-11  rocky <rb@dustyfeet.com>
 
 	* admin-tools/check-newer-versions.sh,
@@ -7,6 +58,21 @@
 	admin-tools/pyenv-newer-versions, admin-tools/pyenv-older-versions,
 	uncompyle6/parsers/parse37.py, uncompyle6/scanners/scanner37.py,
 	uncompyle6/version.py: More administrivia
+
+2017-10-11  rocky <rb@dustyfeet.com>
+
+	* admin-tools/check-older-versions.sh,
+	admin-tools/make-dist-newer.sh, admin-tools/make-dist-older.sh,
+	admin-tools/pyenv-newer-versions, admin-tools/pyenv-older-versions,
+	admin-tools/setup-master.sh: Administrivia
+
+2017-10-11  rocky <rb@dustyfeet.com>
+
+	* admin-tools/check-newer-versions.sh,
+	admin-tools/check-older-versions.sh,
+	admin-tools/how-to-make-a-release.txt,
+	admin-tools/make-dist-newer.sh, admin-tools/make-dist-older.sh: 
+	Adminstrivia
 
 2017-10-11  rocky <rb@dustyfeet.com>
 
@@ -20,7 +86,30 @@
 
 2017-10-11  rocky <rb@dustyfeet.com>
 
+	* admin-tools/README.md, admin-tools/check-newer-versions.sh,
+	admin-tools/check-older-versions.sh,
+	admin-tools/how-to-make-a-release.txt,
+	admin-tools/make-dist-newer.sh, admin-tools/make-dist-older.sh,
+	admin-tools/pyenv-newer-versions, admin-tools/pyenv-older-versions,
+	admin-tools/setup-master.sh, admin-tools/setup-python-2.4.sh: Some
+	admin tools I use.
+
+2017-10-11  rocky <rb@dustyfeet.com>
+
 	* uncompyle6/parser.py: Remove creaping Python 2.6ism
+
+2017-10-11  rocky <rb@dustyfeet.com>
+
+	* setup.py: remove python_requires
+
+2017-10-11  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/bin/uncompile.py: Program name was incorrect.  uncompile -> uncompyle6
+
+2017-10-11  rocky <rb@dustyfeet.com>
+
+	* Makefile, NEWS, setup.py, uncompyle6/version.py: Administrivia
+	woes
 
 2017-10-10  rocky <rb@dustyfeet.com>
 
@@ -61,6 +150,57 @@
 	* : Merge commit '1d7a3c6444eab5a02d899f789f2a57cfdcbc5a84' into
 	python-2.4
 
+2017-10-10  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, HOW-TO-REPORT-A-BUG.md, NEWS, test/Makefile,
+	uncompyle6/parser.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanners/scanner3.py, uncompyle6/semantics/consts.py,
+	uncompyle6/semantics/pysource.py: Get ready for release 2.13.0
+
+2017-10-10  rocky <rb@dustyfeet.com>
+
+	* HOW-TO-REPORT-A-BUG.md, test/Makefile, uncompyle6/parser.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/semantics/consts.py, uncompyle6/semantics/pysource.py: 
+	Improve parse trace. lambda fixes yet again
+
+2017-10-10  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/branching/02_ifelse_lambda.py,
+	uncompyle6/semantics/consts.py: Address dead code in lambda ifelse
+
+2017-10-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse24.py, uncompyle6/scanners/scanner3.py: 
+	Misc bugs
+
+2017-10-10  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse24.py, uncompyle6/scanners/scanner3.py: 
+	Misc bugs
+
+2017-10-10  R. Bernstein <rocky@users.noreply.github.com>
+
+	* : Merge pull request #131 from rocky/type2kind-rework Adjust for spark-parser 2.7.0 incompatibilities
+
+2017-10-10  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, pytest/test_grammar.py, pytest/test_pysource.py,
+	uncompyle6/parser.py, uncompyle6/parsers/astnode.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse24.py,
+	uncompyle6/parsers/parse26.py, uncompyle6/parsers/parse27.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/parsers/parse32.py,
+	uncompyle6/parsers/parse34.py, uncompyle6/parsers/parse35.py,
+	uncompyle6/parsers/parse36.py, uncompyle6/parsers/parse37.py,
+	uncompyle6/scanners/scanner22.py, uncompyle6/scanners/scanner26.py,
+	uncompyle6/scanners/scanner27.py, uncompyle6/scanners/scanner3.py,
+	uncompyle6/scanners/tok.py, uncompyle6/semantics/check_ast.py,
+	uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/make_function.py,
+	uncompyle6/semantics/pysource.py, uncompyle6/verify.py,
+	uncompyle6/version.py: Adjust for spark-parser 2.7.0
+	incompatabilities
+
 2017-10-05  rocky <rb@dustyfeet.com>
 
 	* test/simple_source/branching/02_ifelse_lambda.py: One more test
@@ -72,11 +212,40 @@
 	uncompyle6/parsers/parse3.py, uncompyle6/semantics/consts.py,
 	uncompyle6/semantics/pysource.py: Sync with master
 
+2017-10-05  rocky <rb@dustyfeet.com>
+
+	* : One more test
+
+2017-10-05  rocky <rb@dustyfeet.com>
+
+	* : commit b3359439f94c136619b198beaecbfce1b827d2db Author: rocky
+	<rb@dustyfeet.com> Date:   Thu Oct 5 11:00:55 2017 -0400
+
 2017-10-03  rocky <rb@dustyfeet.com>
 
 	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse24.py,
 	uncompyle6/parsers/parse26.py: handle newer parser reduction
 	behavior
+
+2017-10-03  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse24.py,
+	uncompyle6/parsers/parse26.py: handle newer parser reduction
+	behavior
+
+2017-10-03  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py: Remove schumutz
+
+2017-10-03  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/pysource.py: More table doc tweaks
+
+2017-10-03  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/pysource.py: Go over table-semantics
+	description yet again
 
 2017-10-03  rocky <rb@dustyfeet.com>
 
@@ -88,6 +257,11 @@
 
 	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py: Sync
 	with master
+
+2017-10-02  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py: 
+	spark-parser induced changes...  reduce rules can be called without token streams.
 
 2017-09-30  rocky <rb@dustyfeet.com>
 

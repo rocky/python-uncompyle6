@@ -7,6 +7,7 @@ from xdis.code import iscode, code_has_star_arg, code_has_star_star_arg
 from uncompyle6.scanner import Code
 from uncompyle6.parsers.astnode import AST
 from uncompyle6.semantics.parser_error import ParserError
+from uncompyle6.parser import ParserError as ParserError2
 from uncompyle6.semantics.helper import print_docstring
 
 
@@ -125,7 +126,8 @@ def make_function3_annotate(self, node, isLambda, nested=1,
                              noneInNames = ('None' in code.co_names))
     except ParserError, p:
         self.write(str(p))
-        self.ERROR = p
+        if not self.tolerate_errors:
+            self.ERROR = p
         return
 
     kw_pairs = args_node.attr[1]
@@ -356,7 +358,8 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
                              noneInNames = ('None' in code.co_names))
     except ParserError, p:
         self.write(str(p))
-        self.ERROR = p
+        if not self.tolerate_errors:
+            self.ERROR = p
         return
 
     if self.version >= 3.0:
@@ -507,7 +510,8 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
                              noneInNames = ('None' in code.co_names))
     except ParserError, p:
         self.write(str(p))
-        self.ERROR = p
+        if not self.tolerate_errors:
+            self.ERROR = p
         return
 
     if self.version >= 3.0:

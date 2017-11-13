@@ -28,9 +28,11 @@ class PythonParser(GenericASTBuilder):
 
     def __init__(self, AST, start, debug):
         super(PythonParser, self).__init__(AST, start, debug)
-        self.collect = [
+        # FIXME: customize per python parser version
+        nt_list = [
             'stmts', 'except_stmts', '_stmts', 'load_attrs',
             'exprlist', 'kvlist', 'kwargs', 'come_froms', '_come_from',
+            'importlist',
             # Python < 3
             'print_items',
             # PyPy:
@@ -121,21 +123,25 @@ class PythonParser(GenericASTBuilder):
 
     def error(self, instructions, index):
         # Find the last line boundary
+        start, finish = -1, -1
         for start in range(index, -1, -1):
             if instructions[start].linestart:  break
             pass
         for finish in range(index+1, len(instructions)):
             if instructions[finish].linestart:  break
             pass
-        err_token = instructions[index]
-        print("Instruction context:")
-        for i in range(start, finish):
-            if i != index:
-                indent = '   '
-            else:
-                indent = '-> '
-            print("%s%s" % (indent, instructions[i]))
-        raise ParserError(err_token, err_token.offset)
+        if start > 0:
+            err_token = instructions[index]
+            print("Instruction context:")
+            for i in range(start, finish):
+                if i != index:
+                    indent = '   '
+                else:
+                    indent = '-> '
+                print("%s%s" % (indent, instructions[i]))
+            raise ParserError(err_token, err_token.offset)
+        else:
+            raise ParserError(None, -1)
 
     def typestring(self, token):
         return token.kind
@@ -261,6 +267,10 @@ class PythonParser(GenericASTBuilder):
         stmt ::= return_stmt
         return_stmt ::= ret_expr RETURN_VALUE
         return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+
+        # return_stmts are a sequence of statements that ends in a RETURN statement.
+        # In later Python versions with jump optimization, this can cause JUMPs
+        # that would normally appear to be omitted.
 
         return_stmts ::= return_stmt
         return_stmts ::= _stmts return_stmt
@@ -398,15 +408,15 @@ class PythonParser(GenericASTBuilder):
         stmt ::= importstar
         stmt ::= importmultiple
 
-        importlist2 ::= importlist2 import_as
-        importlist2 ::= import_as
-        import_as ::= IMPORT_NAME designator
-        import_as ::= IMPORT_NAME load_attrs designator
-        import_as ::= IMPORT_FROM designator
+        importlist ::= importlist import_as
+        importlist ::= import_as
+        import_as  ::= IMPORT_NAME designator
+        import_as  ::= IMPORT_NAME load_attrs designator
+        import_as  ::= IMPORT_FROM designator
 
         importstmt ::= LOAD_CONST LOAD_CONST import_as
         importstar ::= LOAD_CONST LOAD_CONST IMPORT_NAME IMPORT_STAR
-        importfrom ::= LOAD_CONST LOAD_CONST IMPORT_NAME importlist2 POP_TOP
+        importfrom ::= LOAD_CONST LOAD_CONST IMPORT_NAME importlist POP_TOP
         importmultiple ::= LOAD_CONST LOAD_CONST import_as imports_cont
 
         imports_cont ::= imports_cont import_cont
@@ -478,27 +488,24 @@ class PythonParser(GenericASTBuilder):
         expr ::= buildslice3
         expr ::= yield
 
-        # Possibly Python < 2.3
-        # expr ::= SET_LINENO
-
         binary_expr ::= expr expr binary_op
-        binary_op ::= BINARY_ADD
-        binary_op ::= BINARY_MULTIPLY
-        binary_op ::= BINARY_AND
-        binary_op ::= BINARY_OR
-        binary_op ::= BINARY_XOR
-        binary_op ::= BINARY_SUBTRACT
-        binary_op ::= BINARY_TRUE_DIVIDE
-        binary_op ::= BINARY_FLOOR_DIVIDE
-        binary_op ::= BINARY_MODULO
-        binary_op ::= BINARY_LSHIFT
-        binary_op ::= BINARY_RSHIFT
-        binary_op ::= BINARY_POWER
+        binary_op   ::= BINARY_ADD
+        binary_op   ::= BINARY_MULTIPLY
+        binary_op   ::= BINARY_AND
+        binary_op   ::= BINARY_OR
+        binary_op   ::= BINARY_XOR
+        binary_op   ::= BINARY_SUBTRACT
+        binary_op   ::= BINARY_TRUE_DIVIDE
+        binary_op   ::= BINARY_FLOOR_DIVIDE
+        binary_op   ::= BINARY_MODULO
+        binary_op   ::= BINARY_LSHIFT
+        binary_op   ::= BINARY_RSHIFT
+        binary_op   ::= BINARY_POWER
 
-        unary_expr ::= expr unary_op
-        unary_op ::= UNARY_POSITIVE
-        unary_op ::= UNARY_NEGATIVE
-        unary_op ::= UNARY_INVERT
+        unary_expr  ::= expr unary_op
+        unary_op    ::= UNARY_POSITIVE
+        unary_op    ::= UNARY_NEGATIVE
+        unary_op    ::= UNARY_INVERT
 
         unary_not ::= expr UNARY_NOT
 
@@ -785,4 +792,4 @@ if __name__ == '__main__':
         ast = python_parser(PYTHON_VERSION, co, showasm=True, is_pypy=IS_PYPY)
         print(ast)
         return
-    parse_test(parse_test.__code__)
+    # parse_test(parse_test.__code__)
