@@ -158,7 +158,7 @@ check-native-short:
 
 #: Run longer Python 2.6's lib files known to be okay
 check-2.6-ok:
-	$(PYTHON) test_pythonlib.py --ok-2.6 --verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --ok-2.6 --weak-verify $(COMPILE)
 
 #: Run longer Python 2.7's lib files known to be okay
 check-2.7-ok:
