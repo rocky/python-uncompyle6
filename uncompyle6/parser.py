@@ -3,7 +3,7 @@
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 """
-Common parser routines.
+Common uncompyle6 parser routines.
 """
 
 import sys
@@ -37,6 +37,7 @@ class PythonParser(GenericASTBuilder):
             'print_items',
             # PyPy:
             'kvlist_n']
+        self.collect = frozenset(nt_list)
 
     def ast_first_offset(self, ast):
         if hasattr(ast, 'offset'):
@@ -138,7 +139,7 @@ class PythonParser(GenericASTBuilder):
                     indent = '   '
                 else:
                     indent = '-> '
-                print("%s%s" % (indent, instructions[i]))
+                print "%s%s" % (indent, instructions[i])
             raise ParserError(err_token, err_token.offset)
         else:
             raise ParserError(None, -1)

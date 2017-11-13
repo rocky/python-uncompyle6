@@ -1526,7 +1526,7 @@ class SourceWalker(GenericASTTraversal, object):
             return
 
         n_subclasses = len(node[:-1])
-        if n_subclasses > 0 or self.version > 2.1:
+        if n_subclasses > 0 or self.version > 2.4:
             # Not an old-style pre-2.2 class
             self.write('(')
 
@@ -1537,7 +1537,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.write(sep, value)
             sep = line_separator
 
-        if n_subclasses > 0 or self.version > 2.1:
+        if n_subclasses > 0 or self.version > 2.4:
             # Not an old-style pre-2.2 class
             self.write(')')
 

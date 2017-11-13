@@ -216,7 +216,7 @@ def main(in_base, out_base, files, codes, outfile=None,
                 if not current_outfile:
                     mess = '\n# okay decompiling'
                     # mem_usage = __memUsage()
-                    print(mess, infile)
+                    print mess, infile
         if current_outfile:
             sys.stdout.write("%s\r" %
                              status_msg(do_verify, tot_files, okay_files, failed_files, verify_failed_files))
