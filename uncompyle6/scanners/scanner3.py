@@ -166,7 +166,9 @@ class Scanner3(Scanner):
         self.code = array('B', co.co_code)
 
         bytecode = Bytecode(co, self.opc)
-        show_asm = self.show_asm if not show_asm else show_asm
+        if not show_asm:
+            show_asm = self.show_asm
+
         # show_asm = 'both'
         if show_asm in ('both', 'before'):
             for instr in bytecode.get_instructions(co):

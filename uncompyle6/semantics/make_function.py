@@ -7,7 +7,6 @@ from xdis.code import iscode, code_has_star_arg, code_has_star_star_arg
 from uncompyle6.scanner import Code
 from uncompyle6.parsers.astnode import AST
 from uncompyle6.semantics.parser_error import ParserError
-from uncompyle6.parser import ParserError as ParserError2
 from uncompyle6.semantics.helper import print_docstring
 
 
