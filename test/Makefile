@@ -154,7 +154,7 @@ check-bytecode-3.6:
 
 #: short tests for bytecodes only for this version of Python
 check-native-short:
-	$(PYTHON) test_pythonlib.py --bytecode-$(PYTHON_VERSION) --verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-$(PYTHON_VERSION) --weak-verify $(COMPILE)
 
 #: Run longer Python 2.6's lib files known to be okay
 check-2.6-ok:
