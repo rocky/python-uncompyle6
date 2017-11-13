@@ -144,9 +144,10 @@ there are others around let me know and I'll list them here.)
 
 ## Narrowing the problem
 
-I don't need or want the entire source code base for which one file or
-module can't be decompiled. I just need those file(s) or module(s).
-If there are several files, file a bug report for each file.
+I don't need or want the entire source code base for the file(s) or
+module(s) can't be decompiled. I just need those file(s) or module(s).
+If there are problems in several files, file a bug report for each
+file.
 
 Python modules can get quite large, and usually decompilation problems
 occur in a single function or maybe the main-line code but not any of
@@ -173,9 +174,9 @@ or constants in the source code.
 
 ## Ethics
 
-I do not condone using this program for unethical use or for using it
-non-legally. More detestful, at least to me, is asking for help to
-assist you in something that might not legitimate.
+I do not condone using this program for unethical or illegal purposes.
+More detestful, at least to me, is asking for help to assist you in
+something that might not legitimate.
 
 Don't use the issue tracker for such solicitations. To try to stave
 off illegitimate behavior, you should note that the issue tracker, the
