@@ -1,6 +1,16 @@
 2017-11-13  rocky <rb@dustyfeet.com>
 
-	* uncompyle6/version.py: Get ready for release 2.13.3
+	* uncompyle6/parser.py, uncompyle6/semantics/pysource.py: detected
+	old-style Python 2.4 class better
+
+2017-11-13  rocky <rb@dustyfeet.com>
+
+	* admin-tools/check-older-versions.sh: Administrivia
+
+2017-11-13  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, NEWS, uncompyle6/version.py: Get ready for release
+	2.13.3
 
 2017-11-12  rocky <rb@dustyfeet.com>
 

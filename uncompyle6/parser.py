@@ -3,7 +3,7 @@
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 """
-Common uncompyle parser routines.
+Common uncompyle6 parser routines.
 """
 
 from __future__ import print_function
