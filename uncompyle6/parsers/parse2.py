@@ -398,7 +398,7 @@ class Python2Parser(PythonParser):
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         lhs = rule[0]
-        if lhs in ('augassign1', 'augassign2') and ast[0][0] == 'and':
+        if lhs in ('augassign1', 'augassign2') and ast[0] and ast[0][0] == 'and':
             return True
         elif lhs == '_stmts':
             for i, stmt in enumerate(ast):
