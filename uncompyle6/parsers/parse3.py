@@ -888,9 +888,12 @@ class Python3Parser(PythonParser):
                 rule = ('mkfunc ::= %sload_closure load_genexpr %s'
                         % ('pos_arg ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
-                rule = ('mkfunc ::= %sload_closure LOAD_CONST %s'
-                        % ('expr ' * args_pos, opname))
-                self.add_unique_rule(rule, opname, token.attr, customize)
+
+                if self.version < 3.4:
+                    rule = ('mkfunc ::= %sload_closure LOAD_CONST %s'
+                            % ('expr ' * args_pos, opname))
+                    self.add_unique_rule(rule, opname, token.attr, customize)
+
                 pass
         self.check_reduce['augassign1'] = 'AST'
         self.check_reduce['augassign2'] = 'AST'

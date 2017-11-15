@@ -147,7 +147,7 @@ check-bytecode-3.3:
 
 #: Check deparsing Python 3.4
 check-bytecode-3.4:
-	$(PYTHON) test_pythonlib.py --bytecode-3.4
+	$(PYTHON) test_pythonlib.py --bytecode-3.4 --weak-verify
 
 #: Check deparsing Python 3.5
 check-bytecode-3.5:
