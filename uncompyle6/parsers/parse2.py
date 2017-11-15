@@ -187,11 +187,6 @@ class Python2Parser(PythonParser):
         jmp_abs ::= JUMP_BACK
         '''
 
-    def p_dictcomp2(self, args):
-        """"
-        dictcomp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
-        """
-
     def p_genexpr2(self, args):
         '''
         genexpr ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
@@ -308,12 +303,16 @@ class Python2Parser(PythonParser):
                 if opname == 'BUILD_MAP_n':
                     # PyPy sometimes has no count. Sigh.
                     self.add_unique_rules([
-                        'dictcomp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER designator '
-                            'comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST',
                         'kvlist_n ::=  kvlist_n kv3',
                         'kvlist_n ::=',
                         'mapexpr ::= BUILD_MAP_n kvlist_n',
                     ], customize)
+                    if self.version >= 2.7:
+                        self.add_unique_rule(
+                            'dictcomp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER designator '
+                            'comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST',
+                            'dictcomp_func', 0, customize)
+
                 else:
                     kvlist_n = "kvlist_%s" % v
                     self.add_unique_rules([
@@ -361,15 +360,18 @@ class Python2Parser(PythonParser):
                     ('genexpr ::= %s load_closure LOAD_GENEXPR %s expr'
                      ' GET_ITER CALL_FUNCTION_1' %
                      ('expr '*v, opname)),
-                    ('setcomp ::= %s load_closure LOAD_SETCOMP %s expr'
-                     ' GET_ITER CALL_FUNCTION_1' %
-                      ('expr '*v, opname)),
-                    ('dictcomp ::= %s load_closure LOAD_DICTCOMP %s expr'
-                     ' GET_ITER CALL_FUNCTION_1' %
-                      ('expr '*v, opname)),
                     ('mkfunc ::= %s load_closure LOAD_CONST %s' %
                      ('expr '*v, opname))],
                     customize)
+                if self.version >= 2.7:
+                    self.add_unique_rules([
+                        ('setcomp ::= %s load_closure LOAD_SETCOMP %s expr'
+                        ' GET_ITER CALL_FUNCTION_1' %
+                        ('expr '*v, opname)),
+                        ('dictcomp ::= %s load_closure LOAD_DICTCOMP %s expr'
+                        ' GET_ITER CALL_FUNCTION_1' %
+                        ('expr '*v, opname))],
+                        customize)
                 continue
             elif opname_base in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
                                  'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):

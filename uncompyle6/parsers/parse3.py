@@ -70,6 +70,10 @@ class Python3Parser(PythonParser):
 
     def p_dictcomp3(self, args):
         """"
+        expr ::= dictcomp
+        stmt ::= dictcomp_func
+        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER designator
+                comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
         dictcomp ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
         """
 
