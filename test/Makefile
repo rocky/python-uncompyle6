@@ -116,6 +116,11 @@ grammar-coverage-2.7:
 	SPARK_PARSER_COVERAGE=/tmp/spark-grammar-27.cover $(PYTHON) test_pythonlib.py --bytecode-2.7
 	SPARK_PARSER_COVERAGE=/tmp/spark-grammar-27.cover $(PYTHON) test_pyenvlib.py --2.7.13
 
+#: Get grammar coverage for Python 3.4
+grammar-coverage-3.4:
+	SPARK_PARSER_COVERAGE=/tmp/spark-grammar-34.cover $(PYTHON) test_pythonlib.py --bytecode-3.4
+	SPARK_PARSER_COVERAGE=/tmp/spark-grammar-34.cover $(PYTHON) test_pyenvlib.py --3.4.2
+
 #: Check deparsing Python 2.6
 check-bytecode-2.6:
 	$(PYTHON) test_pythonlib.py --bytecode-2.6 --weak-verify

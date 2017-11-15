@@ -9,6 +9,8 @@ before reduction and don't reduce when there is a problem.
 """
 
 def checker(ast, in_loop, errors):
+    if ast is None:
+        return
     in_loop = in_loop or ast.kind in ('while1stmt', 'whileTruestmt',
                                       'whilestmt', 'whileelsestmt', 'while1elsestmt',
                                       'for_block')

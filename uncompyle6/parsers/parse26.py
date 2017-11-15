@@ -263,6 +263,11 @@ class Python26Parser(Python2Parser):
         if invalid:
             return invalid
         if rule == ('and', ('expr', 'jmp_false', 'expr', '\\e_come_from_opt')):
+
+            # FIXME: workaround profiling bug
+            if ast[1] is None:
+                return False
+
             # Test that jmp_false jumps to the end of "and"
             # or that it jumps to the same place as the end of "and"
             jmp_false = ast[1][0]
