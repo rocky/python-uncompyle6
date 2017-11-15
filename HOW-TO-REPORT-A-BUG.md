@@ -74,7 +74,7 @@ else:
 
 ```
 
-may out as `elif`.
+may come out as `elif`.
 
 
 As mentioned in the README. It is possible that Python changes what
