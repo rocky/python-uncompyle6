@@ -77,7 +77,7 @@ else:
 may come out as `elif`.
 
 
-As mentioned in the README. It is possible that Python changes what
+As mentioned in the README, It is possible that Python changes what
 you write to be more efficient. For example, for:
 
 
