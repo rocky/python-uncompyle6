@@ -311,14 +311,6 @@ class PythonParser(GenericASTBuilder):
         come_from_opt ::= COME_FROM?
         """
 
-    def p_dictcomp(self, args):
-        '''
-        expr ::= dictcomp
-        stmt ::= dictcomp_func
-        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER designator
-                comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
-        '''
-
     def p_augmented_assign(self, args):
         '''
         stmt ::= augassign1
