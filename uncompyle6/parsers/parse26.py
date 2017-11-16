@@ -181,8 +181,6 @@ class Python26Parser(Python2Parser):
         jmp_false_then ::= JUMP_IF_FALSE THEN POP_TOP
         jmp_true_then  ::= JUMP_IF_TRUE THEN POP_TOP
 
-        # Common with 2.7
-        while1stmt ::= SETUP_LOOP return_stmts bp_come_from
         while1stmt ::= SETUP_LOOP return_stmts COME_FROM
         """
 
