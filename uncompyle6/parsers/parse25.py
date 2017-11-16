@@ -21,8 +21,13 @@ class Python25Parser(Python26Parser):
 
         # Python 2.6 uses ROT_TWO instead of the STORE_xxx
         # withas is allowed as a "from future" in 2.5
+        # 2.6 and 2.7 do something slightly different
         setupwithas ::= DUP_TOP LOAD_ATTR store LOAD_ATTR CALL_FUNCTION_0
                         setup_finally
+        # opcode SETUP_WITH
+        setupwith ::= DUP_TOP LOAD_ATTR STORE_NAME LOAD_ATTR CALL_FUNCTION_0 POP_TOP
+        withstmt ::= expr setupwith SETUP_FINALLY suite_stmts_opt
+                     POP_BLOCK LOAD_CONST COME_FROM with_cleanup
 
         store ::= STORE_FAST
         store ::= STORE_NAME
@@ -41,6 +46,14 @@ class Python25Parser(Python26Parser):
         """
 
     def add_custom_rules(self, tokens, customize):
+        # grammar rules inherited from Python 2.6
+        self.remove_rules("""
+        setupwith ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 POP_TOP
+        withstmt ::= expr setupwith SETUP_FINALLY suite_stmts_opt
+                     POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
+        withasstmt ::= expr setupwithas designator suite_stmts_opt
+                       POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
+        """)
         super(Python25Parser, self).add_custom_rules(tokens, customize)
         if self.version == 2.5:
             self.check_reduce['tryelsestmt'] = 'tokens'

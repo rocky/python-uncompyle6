@@ -1,3 +1,5 @@
 from __future__ import with_statement
-with (sys) as f:
+with open(__file__, 'r') as f:
     print(f)
+    with f:
+        pass
