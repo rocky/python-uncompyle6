@@ -74,10 +74,10 @@ else:
 
 ```
 
-may out as `elif`.
+may come out as `elif`.
 
 
-As mentioned in the README. It is possible that Python changes what
+As mentioned in the README, It is possible that Python changes what
 you write to be more efficient. For example, for:
 
 
@@ -144,9 +144,10 @@ there are others around let me know and I'll list them here.)
 
 ## Narrowing the problem
 
-I don't need or want the entire source code base for which one file or
-module can't be decompiled. I just need those file(s) or module(s).
-If there are several files, file a bug report for each file.
+I don't need or want the entire source code base for the file(s) or
+module(s) can't be decompiled. I just need those file(s) or module(s).
+If there are problems in several files, file a bug report for each
+file.
 
 Python modules can get quite large, and usually decompilation problems
 occur in a single function or maybe the main-line code but not any of
@@ -165,8 +166,22 @@ likley the problem will be fixed and fixed sooner.
 
 When you report a bug, you are giving up confidentiality to the source
 code and the byte code. However, I would imagine that if you have
-narrowed the problem sufficiently, confidentiality little that
+narrowed the problem sufficiently, confidentiality of the little that
 remains would not be an issue.
 
 However feel free to remove any commments, and modify variable names
 or constants in the source code.
+
+## Ethics
+
+I do not condone using this program for unethical or illegal purposes.
+More detestful, at least to me, is asking for help to assist you in
+something that might not legitimate.
+
+Don't use the issue tracker for such solicitations. To try to stave
+off illegitimate behavior, you should note that the issue tracker, the
+code, and bugs mentioned in that are in the open: there is no
+confidentiality. You may be asked about the authorship or claimed
+ownership of the bytecode. If I think something is not quite right, I
+may label the issue questionable which may make the it easier those
+who are looking for illegal activity.

@@ -283,6 +283,7 @@ class Scanner2(Scanner):
                                                         self.opc.POP_BLOCK)):
                         if ((offset in self.linestartoffsets and
                             self.code[self.prev[offset]] == self.opc.JUMP_ABSOLUTE)
+                            or self.code[target] == self.opc.FOR_ITER
                             or offset not in self.not_continue):
                             op_name = 'CONTINUE'
 

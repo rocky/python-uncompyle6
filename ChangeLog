@@ -1,5 +1,9 @@
 2017-11-13  rocky <rb@dustyfeet.com>
 
+	* ChangeLog: Get ready for release python-2.4-
+
+2017-11-13  rocky <rb@dustyfeet.com>
+
 	* uncompyle6/main.py, uncompyle6/parser.py,
 	uncompyle6/semantics/pysource.py: 2.4isms...  Need print without parens. Handle old-style classes more properly?
 

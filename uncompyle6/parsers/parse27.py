@@ -18,6 +18,14 @@ class Python27Parser(Python2Parser):
 
         stmt ::= setcomp_func
 
+        # Dictionary and set comprehensions were added in Python 2.7
+        expr ::= dictcomp
+        stmt ::= dictcomp_func
+        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER designator
+                comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
+
+        dictcomp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
+
         setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
                 JUMP_BACK RETURN_VALUE RETURN_LAST
 
@@ -93,16 +101,21 @@ class Python27Parser(Python2Parser):
                 POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP END_FINALLY
 
+        while1stmt     ::= SETUP_LOOP return_stmts bp_come_from
+        while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK POP_BLOCK else_suite COME_FROM
+        while1stmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM
+
         # Common with 2.6
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
         conditional_lambda ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
-
-        while1stmt ::= SETUP_LOOP return_stmts bp_come_from
-        while1stmt ::= SETUP_LOOP return_stmts COME_FROM
         """
 
     def add_custom_rules(self, tokens, customize):
+        self.remove_rules("""
+        while1stmt     ::= SETUP_LOOP l_stmts JUMP_BACK COME_FROM
+        while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK else_suite COME_FROM
+        """)
         super(Python27Parser, self).add_custom_rules(tokens, customize)
         self.check_reduce['and'] = 'AST'
         return

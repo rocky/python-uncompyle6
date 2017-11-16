@@ -68,6 +68,10 @@ class Python3Parser(PythonParser):
 
     def p_dictcomp3(self, args):
         """"
+        expr ::= dictcomp
+        stmt ::= dictcomp_func
+        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER designator
+                comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
         dictcomp ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
         """
 
@@ -889,9 +893,12 @@ class Python3Parser(PythonParser):
                 rule = ('mkfunc ::= %sload_closure load_genexpr %s'
                         % ('pos_arg ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
-                rule = ('mkfunc ::= %sload_closure LOAD_CONST %s'
-                        % ('expr ' * args_pos, opname))
-                self.add_unique_rule(rule, opname, token.attr, customize)
+
+                if self.version < 3.4:
+                    rule = ('mkfunc ::= %sload_closure LOAD_CONST %s'
+                            % ('expr ' * args_pos, opname))
+                    self.add_unique_rule(rule, opname, token.attr, customize)
+
                 pass
         self.check_reduce['augassign1'] = 'AST'
         self.check_reduce['augassign2'] = 'AST'

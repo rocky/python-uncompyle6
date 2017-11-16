@@ -181,8 +181,6 @@ class Python26Parser(Python2Parser):
         jmp_false_then ::= JUMP_IF_FALSE THEN POP_TOP
         jmp_true_then  ::= JUMP_IF_TRUE THEN POP_TOP
 
-        # Common with 2.7
-        while1stmt ::= SETUP_LOOP return_stmts bp_come_from
         while1stmt ::= SETUP_LOOP return_stmts COME_FROM
         """
 
@@ -263,6 +261,11 @@ class Python26Parser(Python2Parser):
         if invalid or tokens is None:
             return invalid
         if rule == ('and', ('expr', 'jmp_false', 'expr', '\\e_come_from_opt')):
+
+            # FIXME: workaround profiling bug
+            if ast[1] is None:
+                return False
+
             # Test that jmp_false jumps to the end of "and"
             # or that it jumps to the same place as the end of "and"
             jmp_false = ast[1][0]

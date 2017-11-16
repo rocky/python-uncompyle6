@@ -2262,6 +2262,10 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
     isTopLevel = co.co_name == '<module>'
     deparsed.ast = deparsed.build_ast(tokens, customize, isTopLevel=isTopLevel)
 
+    #### XXX workaround for profiling
+    if deparsed.ast is None:
+        return None
+
     assert deparsed.ast == 'stmts', 'Should have parsed grammar start'
 
     del tokens # save memory
