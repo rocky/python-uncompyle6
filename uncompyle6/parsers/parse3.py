@@ -679,10 +679,6 @@ class Python3Parser(PythonParser):
                 if opname_base == 'BUILD_TUPLE':
                     rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
-                    rule = ('build_tuple ::= ' + 'expr1024 ' * int(v//1024) +
-                        'expr32 ' * int((v//32) % 32) +
-                        'expr ' * (v % 32) + opname)
-                    self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname == 'LOOKUP_METHOD':
                 # A PyPy speciality - DRY with parse2
                 self.add_unique_rule("load_attr ::= expr LOOKUP_METHOD",

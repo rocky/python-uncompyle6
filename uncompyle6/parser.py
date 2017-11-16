@@ -227,6 +227,8 @@ class PythonParser(GenericASTBuilder):
         suite_stmts ::= continue_stmts
 
         suite_stmts_opt ::= suite_stmts
+
+        # passtmt is needed for semantic actions to add "pass"
         suite_stmts_opt ::= passstmt
 
         else_suite ::= suite_stmts
