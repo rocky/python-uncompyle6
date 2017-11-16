@@ -235,7 +235,6 @@ class PythonParser(GenericASTBuilder):
         else_suitec ::= return_stmts
 
         stmt ::= assert
-        stmt ::= assert2
 
         stmt ::= classdef
         stmt ::= call_stmt

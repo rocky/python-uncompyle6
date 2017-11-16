@@ -82,6 +82,7 @@ class Python2Parser(PythonParser):
         continue_stmts ::= lastl_stmt continue_stmt
         continue_stmts ::= continue_stmt
 
+        stmt ::= assert2
         stmt ::= raise_stmt0
         stmt ::= raise_stmt1
         stmt ::= raise_stmt2
