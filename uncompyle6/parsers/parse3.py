@@ -126,8 +126,6 @@ class Python3Parser(PythonParser):
         classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
 
         assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
-        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1
-                    RAISE_VARARGS_1 COME_FROM
         assert2 ::= assert_expr jmp_true LOAD_ASSERT expr
                     RAISE_VARARGS_2 COME_FROM
 
