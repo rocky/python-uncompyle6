@@ -8,6 +8,7 @@ NATIVE_CHECK = check-$(PYTHON_VERSION)
 
 # Set COMPILE='--compile' to force compilation before check
 COMPILE ?=
+COVER_DIR=../tmp/grammar-cover
 
 # Run short tests
 check-short:
@@ -118,8 +119,9 @@ grammar-coverage-2.7:
 
 #: Get grammar coverage for Python 3.4
 grammar-coverage-3.4:
-	SPARK_PARSER_COVERAGE=/tmp/spark-grammar-34.cover $(PYTHON) test_pythonlib.py --bytecode-3.4
-	SPARK_PARSER_COVERAGE=/tmp/spark-grammar-34.cover $(PYTHON) test_pyenvlib.py --3.4.2
+	rm $(COVER_DIR)/spark-grammar-34.cover || /bin/true
+	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-34.cover $(PYTHON) test_pythonlib.py --bytecode-3.4
+	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-34.cover $(PYTHON) test_pyenvlib.py --3.4.2
 
 #: Check deparsing Python 2.6
 check-bytecode-2.6:

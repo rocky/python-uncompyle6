@@ -103,7 +103,8 @@ class Python2Parser(PythonParser):
         delete_subscr ::= expr expr DELETE_SUBSCR
         del_stmt ::= expr DELETE_ATTR
 
-        kwarg   ::= LOAD_CONST expr
+        _mklambda ::= load_closure mklambda
+        kwarg     ::= LOAD_CONST expr
 
         classdef ::= buildclass designator
 

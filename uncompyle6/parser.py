@@ -507,7 +507,6 @@ class PythonParser(GenericASTBuilder):
 
         yield ::= expr YIELD_VALUE
 
-        _mklambda ::= load_closure mklambda
         _mklambda ::= mklambda
 
         expr ::= conditional

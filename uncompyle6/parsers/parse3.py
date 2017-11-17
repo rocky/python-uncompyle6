@@ -489,7 +489,8 @@ class Python3Parser(PythonParser):
         self.add_unique_rule(rule, opname, token.attr, customize)
         return
 
-    def custom_classfunc_rule(self, opname, token, customize):
+    def custom_classfunc_rule(self, opname, token, customize,
+                              seen_LOAD_BUILD_CLASS):
         """
         call_function ::= expr {expr}^n CALL_FUNCTION_n
         call_function ::= expr {expr}^n CALL_FUNCTION_VAR_n
@@ -548,9 +549,10 @@ class Python3Parser(PythonParser):
             self.add_unique_rule(rule, token.kind, uniq_param, customize)
             self.add_unique_rule('expr ::= async_call_function', token.kind, uniq_param, customize)
 
-        rule = ('classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d'
-                %  (('expr ' * (args_pos-1)), opname, args_pos))
-        self.add_unique_rule(rule, token.kind, uniq_param, customize)
+        if seen_LOAD_BUILD_CLASS:
+            rule = ('classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d'
+                        %  (('expr ' * (args_pos-1)), opname, args_pos))
+            self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
     def add_make_function_rule(self, rule, opname, attr, customize):
         """Python 3.3 added a an addtional LOAD_CONST before MAKE_FUNCTION and
@@ -623,6 +625,7 @@ class Python3Parser(PythonParser):
             load_attr ::= expr LOOKUP_METHOD
             call_function ::= expr CALL_METHOD
         """
+        seen_LOAD_BUILD_CLASS = False
         for i, token in enumerate(tokens):
             opname = token.kind
             opname_base = opname[:opname.rfind('_')]
@@ -638,7 +641,7 @@ class Python3Parser(PythonParser):
             elif (opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
                              'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_EX_KW')
                   or opname.startswith('CALL_FUNCTION_KW')):
-                self.custom_classfunc_rule(opname, token, customize)
+                self.custom_classfunc_rule(opname, token, customize, seen_LOAD_BUILD_CLASS)
             elif opname == 'LOAD_DICTCOMP':
                 rule_pat = ("dictcomp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 expr "
                             "GET_ITER CALL_FUNCTION_1")
@@ -649,6 +652,7 @@ class Python3Parser(PythonParser):
                             "GET_ITER CALL_FUNCTION_1")
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
             elif opname == 'LOAD_BUILD_CLASS':
+                seen_LOAD_BUILD_CLASS = True
                 self.custom_build_class_rule(opname, i, token, tokens, customize)
             elif opname.startswith('BUILD_LIST_UNPACK'):
                 v = token.attr
