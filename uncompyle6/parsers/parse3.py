@@ -694,12 +694,23 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
                 v = token.attr
-                rule = ('build_list ::= ' + 'expr1024 ' * int(v//1024) +
-                        'expr32 ' * int((v//32) % 32) +
-                        'expr ' * (v % 32) + opname)
-                self.add_unique_rule(rule, opname, token.attr, customize)
+
+                is_LOAD_CLOSURE = False
                 if opname_base == 'BUILD_TUPLE':
-                    rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
+                    # If is part of a "load_closure", then it is not part of a
+                    # "build_list".
+                    is_LOAD_CLOSURE = True
+                    for j in range(v):
+                        if tokens[i-j-1].kind != 'LOAD_CLOSURE':
+                            is_LOAD_CLOSURE = False
+                            break
+                    if is_LOAD_CLOSURE:
+                        rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
+                        self.add_unique_rule(rule, opname, token.attr, customize)
+                if not is_LOAD_CLOSURE:
+                    rule = ('build_list ::= ' + 'expr1024 ' * int(v//1024) +
+                                'expr32 ' * int((v//32) % 32) +
+                                'expr ' * (v % 32) + opname)
                     self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
                 v = token.attr
