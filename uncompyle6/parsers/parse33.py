@@ -18,9 +18,6 @@ class Python33Parser(Python32Parser):
         # We do the grammar hackery below for semantics
         # actions that want c_stmts_opt at index 1
 
-        iflaststmt    ::= testexpr c_stmts_opt33
-        c_stmts_opt33 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
-
         whileTruestmt ::= SETUP_LOOP l_stmts JUMP_ABSOLUTE
                           JUMP_BACK COME_FROM_LOOP
 
