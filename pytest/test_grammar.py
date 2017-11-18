@@ -14,7 +14,8 @@ def test_grammar():
             "Remaining tokens %s\n====\n%s" % (remain_tokens, p.dump_grammar())
 
     p = get_python_parser(PYTHON_VERSION, is_pypy=IS_PYPY)
-    lhs, rhs, tokens, right_recursive = p.check_sets()
+    (lhs, rhs, tokens,
+     right_recursive, dup_rhs) = p.check_sets()
     expect_lhs = set(['expr1024', 'pos_arg'])
     unused_rhs = set(['build_list', 'call_function', 'mkfunc',
                       'mklambda',
