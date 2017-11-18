@@ -409,10 +409,8 @@ class PythonParser(GenericASTBuilder):
         importfrom ::= LOAD_CONST LOAD_CONST IMPORT_NAME importlist POP_TOP
         importmultiple ::= LOAD_CONST LOAD_CONST import_as imports_cont
 
-        imports_cont ::= imports_cont import_cont
-        imports_cont ::= import_cont
-        import_cont ::= LOAD_CONST LOAD_CONST import_as_cont
-        import_as_cont ::= IMPORT_FROM designator
+        imports_cont ::= import_cont+
+        import_cont  ::= LOAD_CONST LOAD_CONST import_as
 
         load_attrs ::= LOAD_ATTR+
         """
