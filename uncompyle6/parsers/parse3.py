@@ -707,7 +707,7 @@ class Python3Parser(PythonParser):
                     if is_LOAD_CLOSURE:
                         rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
-                if not is_LOAD_CLOSURE:
+                if not is_LOAD_CLOSURE or v == 0:
                     rule = ('build_list ::= ' + 'expr1024 ' * int(v//1024) +
                                 'expr32 ' * int((v//32) % 32) +
                                 'expr ' * (v % 32) + opname)
