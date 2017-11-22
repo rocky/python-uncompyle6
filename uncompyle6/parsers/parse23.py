@@ -47,6 +47,7 @@ class Python23Parser(Python24Parser):
         # so there is only the 2nd part to evaluate
         expr ::= and2
         and2 ::= _jump jmp_false COME_FROM expr COME_FROM
+
         '''
 
     def add_custom_rules(self, tokens, customize):
