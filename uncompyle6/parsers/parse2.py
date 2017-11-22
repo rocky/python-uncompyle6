@@ -360,9 +360,10 @@ class Python2Parser(PythonParser):
                 rule = 'mkfunc ::= %s LOAD_CONST %s' % ('expr '*v, opname)
             elif opname_base == 'MAKE_CLOSURE':
                 # FIXME: use add_unique_rules to tidy this up.
+                if i > 0 and tokens[i-1] == 'LOAD_LAMBDA':
+                    self.addRule('mklambda ::= %s load_closure LOAD_LAMBDA %s' %
+                                 ('expr '*v, opname),  nop_func)
                 self.add_unique_rules([
-                    ('mklambda ::= %s load_closure LOAD_LAMBDA %s' %
-                     ('expr '*v, opname)),
                     ('genexpr ::= %s load_closure LOAD_GENEXPR %s expr'
                      ' GET_ITER CALL_FUNCTION_1' %
                      ('expr '*v, opname)),
