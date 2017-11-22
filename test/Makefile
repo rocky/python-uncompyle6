@@ -123,7 +123,7 @@ grammar-coverage-2.7:
 	SPARK_PARSER_COVERAGE=/tmp/spark-grammar-27.cover $(PYTHON) test_pyenvlib.py --2.7.13
 
 #: Check deparsing Python 2.6
-check-bytecode-2.6:
+pcheck-bytecode-2.6:
 	$(PYTHON) test_pythonlib.py --bytecode-2.6 --weak-verify
 
 #: Check deparsing Python 2.7

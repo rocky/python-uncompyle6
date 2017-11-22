@@ -31,7 +31,10 @@ class Python24Parser(Python25Parser):
         importstar ::= filler LOAD_CONST IMPORT_NAME IMPORT_STAR
 
         importmultiple ::= filler LOAD_CONST import_as imports_cont
-        import_cont    ::= filler LOAD_CONST import_as_cont
+        import_cont    ::= filler LOAD_CONST import_as
+
+        import_as  ::= IMPORT_NAME load_attrs designator
+        load_attrs ::= LOAD_ATTR+
 
         # Python 2.5+ omits POP_TOP POP_BLOCK
         while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK POP_TOP POP_BLOCK COME_FROM

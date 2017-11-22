@@ -626,20 +626,20 @@ class Python3Parser(PythonParser):
         # Loop over instructions adding custom grammar rules based on
         # a specific instruction seen.
 
+        if 'PyPy' in customize:
+            self.addRule("""
+              stmt ::= assign3_pypy
+              stmt ::= assign2_pypy
+              assign3_pypy ::= expr expr expr designator designator designator
+              assign2_pypy ::= expr expr designator designator
+              """, nop_func)
+
         for i, token in enumerate(tokens):
             opname = token.kind
             opname_base = opname[:opname.rfind('_')]
 
-            # The order listed is roughly alphabetic by instruction opcode.
-            if opname == 'PyPy':
-                self.addRule("""
-                    stmt ::= assign3_pypy
-                    stmt ::= assign2_pypy
-                    assign3_pypy ::= expr expr expr designator designator designator
-                    assign2_pypy ::= expr expr designator designator
-                """, nop_func)
-                continue
-            elif opname_base == 'BUILD_CONST_KEY_MAP':
+            # The order of opname listed is roughly sorted below
+            if opname_base == 'BUILD_CONST_KEY_MAP':
                 # This is in 3.6+
                 kvlist_n = 'expr ' * (token.attr)
                 rule = "mapexpr ::= %sLOAD_CONST %s" % (kvlist_n, opname)
@@ -695,12 +695,23 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
                 v = token.attr
-                rule = ('build_list ::= ' + 'expr1024 ' * int(v//1024) +
-                        'expr32 ' * int((v//32) % 32) +
-                        'expr ' * (v % 32) + opname)
-                self.add_unique_rule(rule, opname, token.attr, customize)
+
+                is_LOAD_CLOSURE = False
                 if opname_base == 'BUILD_TUPLE':
-                    rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
+                    # If is part of a "load_closure", then it is not part of a
+                    # "build_list".
+                    is_LOAD_CLOSURE = True
+                    for j in range(v):
+                        if tokens[i-j-1].kind != 'LOAD_CLOSURE':
+                            is_LOAD_CLOSURE = False
+                            break
+                    if is_LOAD_CLOSURE:
+                        rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
+                        self.add_unique_rule(rule, opname, token.attr, customize)
+                if not is_LOAD_CLOSURE or v == 0:
+                    rule = ('build_list ::= ' + 'expr1024 ' * int(v//1024) +
+                                'expr32 ' * int((v//32) % 32) +
+                                'expr ' * (v % 32) + opname)
                     self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
                 v = token.attr

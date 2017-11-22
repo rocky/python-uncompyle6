@@ -981,8 +981,6 @@ class SourceWalker(GenericASTTraversal, object):
             self.write(iname, ' as ', sname)
         self.prune() # stop recursing
 
-    n_import_as_cont = n_import_as
-
     def n_importfrom(self, node):
         relative_path_index = 0
         if self.version >= 2.5 and node[relative_path_index].pattr > 0:

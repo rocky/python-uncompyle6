@@ -24,13 +24,8 @@ class Python34Parser(Python33Parser):
         """
 
     def add_custom_rules(self, tokens, customize):
-        self.remove_rules("""
-        whileTruestmt ::= SETUP_LOOP l_stmts JUMP_ABSOLUTE JUMP_BACK COME_FROM_LOOP
-        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP COME_FROM_LOOP
-        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP COME_FROM_LOOP
-        whilestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK
-                          POP_BLOCK JUMP_ABSOLUTE COME_FROM_LOOP
-        """)
+        # self.remove_rules("""
+        # """)
         super(Python34Parser, self).add_custom_rules(tokens, customize)
         return
 

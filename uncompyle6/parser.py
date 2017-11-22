@@ -405,7 +405,6 @@ class PythonParser(GenericASTBuilder):
         importlist ::= importlist import_as
         importlist ::= import_as
         import_as  ::= IMPORT_NAME designator
-        import_as  ::= IMPORT_NAME load_attrs designator
         import_as  ::= IMPORT_FROM designator
 
         importstmt ::= LOAD_CONST LOAD_CONST import_as
@@ -413,12 +412,8 @@ class PythonParser(GenericASTBuilder):
         importfrom ::= LOAD_CONST LOAD_CONST IMPORT_NAME importlist POP_TOP
         importmultiple ::= LOAD_CONST LOAD_CONST import_as imports_cont
 
-        imports_cont ::= imports_cont import_cont
-        imports_cont ::= import_cont
-        import_cont ::= LOAD_CONST LOAD_CONST import_as_cont
-        import_as_cont ::= IMPORT_FROM designator
-
-        load_attrs ::= LOAD_ATTR+
+        imports_cont ::= import_cont+
+        import_cont  ::= LOAD_CONST LOAD_CONST import_as
         """
 
     def p_list_comprehension(self, args):
