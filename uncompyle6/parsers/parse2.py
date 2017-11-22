@@ -117,8 +117,6 @@ class Python2Parser(PythonParser):
         classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
         classdefdeco2 ::= LOAD_CONST expr mkfunc CALL_FUNCTION_0 BUILD_CLASS
 
-        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
-
         assert_expr ::= expr
         assert_expr ::= assert_expr_or
         assert_expr ::= assert_expr_and
@@ -215,10 +213,12 @@ class Python2Parser(PythonParser):
         designator ::= expr expr STORE_SLICE+1
         designator ::= expr expr STORE_SLICE+2
         designator ::= expr expr expr STORE_SLICE+3
-        augassign1 ::= expr expr inplace_op ROT_TWO   STORE_SLICE+0
+
+        augassign1 ::= expr expr inplace_op ROT_FOUR  STORE_SLICE+3
         augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+1
         augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+2
-        augassign1 ::= expr expr inplace_op ROT_FOUR  STORE_SLICE+3
+        augassign1 ::= expr expr inplace_op ROT_TWO   STORE_SLICE+0
+
         slice0 ::= expr SLICE+0
         slice0 ::= expr DUP_TOP SLICE+0
         slice1 ::= expr expr SLICE+1

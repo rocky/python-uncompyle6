@@ -91,7 +91,8 @@ class Python27Parser(Python2Parser):
         assert        ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
 
         # assert condition, expr
-        assert2       ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_2
+        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
+
 
         withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
                 POP_BLOCK LOAD_CONST COME_FROM_WITH
