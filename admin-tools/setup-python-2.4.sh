@@ -10,7 +10,7 @@ fi
 mydir=$(dirname $bs)
 fulldir=$(readlink -f $mydir)
 cd $fulldir/..
-(cd ../python-spark && git checkout python-2.4 && pyenv local $PYTHON_VERSION) && \
-    (cd ../python-xdis && git checkout python-2.4 && pyenv local $PYTHON_VERSION) && \
-    git checkout python-2.4 &&  pyenv local $PYTHON_VERSION
+(cd ../python-spark && git checkout python-2.4 && pyenv local $PYTHON_VERSION) && git pull && \
+    (cd ../python-xdis && git checkout python-2.4 && pyenv local $PYTHON_VERSION) && git pull && \
+    git checkout python-2.4 &&  pyenv local $PYTHON_VERSION && git pull
 cd $owd
