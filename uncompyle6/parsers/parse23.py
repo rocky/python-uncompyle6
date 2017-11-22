@@ -42,6 +42,11 @@ class Python23Parser(Python24Parser):
         lc_body ::= LOAD_FAST expr CALL_FUNCTION_1 POP_TOP
         lc_body ::= LOAD_NAME expr LIST_APPEND
         lc_body ::= LOAD_FAST expr LIST_APPEND
+
+        # "and" where the first part of the and is true,
+        # so there is only the 2nd part to evaluate
+        expr ::= and2
+        and2 ::= _jump jmp_false COME_FROM expr COME_FROM
         '''
 
     def add_custom_rules(self, tokens, customize):

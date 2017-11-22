@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2016 Rocky Bernstein
+#  Copyright (c) 2015-2017 Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 """
@@ -80,6 +80,7 @@ class Python2Parser(PythonParser):
         continue_stmts ::= lastl_stmt continue_stmt
         continue_stmts ::= continue_stmt
 
+        stmt ::= assert2
         stmt ::= raise_stmt0
         stmt ::= raise_stmt1
         stmt ::= raise_stmt2
@@ -100,7 +101,8 @@ class Python2Parser(PythonParser):
         delete_subscr ::= expr expr DELETE_SUBSCR
         del_stmt ::= expr DELETE_ATTR
 
-        kwarg   ::= LOAD_CONST expr
+        _mklambda ::= load_closure mklambda
+        kwarg     ::= LOAD_CONST expr
 
         classdef ::= buildclass designator
 

@@ -231,6 +231,8 @@ class PythonParser(GenericASTBuilder):
         suite_stmts ::= continue_stmts
 
         suite_stmts_opt ::= suite_stmts
+
+        # passtmt is needed for semantic actions to add "pass"
         suite_stmts_opt ::= passstmt
 
         else_suite ::= suite_stmts
@@ -239,7 +241,6 @@ class PythonParser(GenericASTBuilder):
         else_suitec ::= return_stmts
 
         stmt ::= assert
-        stmt ::= assert2
 
         stmt ::= classdef
         stmt ::= call_stmt
@@ -469,7 +470,6 @@ class PythonParser(GenericASTBuilder):
         expr ::= cmp
         expr ::= mapexpr
         expr ::= and
-        expr ::= and2
         expr ::= or
         expr ::= unary_expr
         expr ::= call_function
@@ -511,12 +511,7 @@ class PythonParser(GenericASTBuilder):
 
         yield ::= expr YIELD_VALUE
 
-        _mklambda ::= load_closure mklambda
         _mklambda ::= mklambda
-
-        # "and" where the first part of the and is true,
-        # so there is only the 2nd part to evaluate
-        and2 ::= _jump jmp_false COME_FROM expr COME_FROM
 
         expr ::= conditional
         conditional ::= expr jmp_false expr JUMP_FORWARD expr COME_FROM

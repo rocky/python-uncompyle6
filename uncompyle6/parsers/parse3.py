@@ -124,10 +124,6 @@ class Python3Parser(PythonParser):
         classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
 
         assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
-        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1
-                    RAISE_VARARGS_1 COME_FROM
-        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr
-                    RAISE_VARARGS_2 COME_FROM
 
         assert_expr ::= expr
         assert_expr ::= assert_expr_or
@@ -281,8 +277,8 @@ class Python3Parser(PythonParser):
         for_block ::= l_stmts_opt opt_come_from_loop JUMP_BACK
         for_block ::= l_stmts
         iflaststmtl ::= testexpr c_stmts_opt
-        iflaststmt    ::= testexpr c_stmts_opt34
-        c_stmts_opt34 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
+        iflaststmt    ::= testexpr c_stmts_opt33
+        c_stmts_opt33 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
         """
 
     def p_def_annotations3(self, args):
@@ -436,13 +432,6 @@ class Python3Parser(PythonParser):
                                return_stmt_lambda LAMBDA_MARKER
         conditional_lambda ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
-
-
-        expr ::= LOAD_CLASSNAME
-
-        # Python 3.4+
-        expr ::= LOAD_CLASSDEREF
-
         """
 
     @staticmethod
@@ -491,7 +480,8 @@ class Python3Parser(PythonParser):
         self.add_unique_rule(rule, opname, token.attr, customize)
         return
 
-    def custom_classfunc_rule(self, opname, token, customize):
+    def custom_classfunc_rule(self, opname, token, customize,
+                              seen_LOAD_BUILD_CLASS):
         """
         call_function ::= expr {expr}^n CALL_FUNCTION_n
         call_function ::= expr {expr}^n CALL_FUNCTION_VAR_n
@@ -550,9 +540,10 @@ class Python3Parser(PythonParser):
             self.add_unique_rule(rule, token.kind, uniq_param, customize)
             self.add_unique_rule('expr ::= async_call_function', token.kind, uniq_param, customize)
 
-        rule = ('classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d'
-                %  (('expr ' * (args_pos-1)), opname, args_pos))
-        self.add_unique_rule(rule, token.kind, uniq_param, customize)
+        if seen_LOAD_BUILD_CLASS:
+            rule = ('classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d'
+                        %  (('expr ' * (args_pos-1)), opname, args_pos))
+            self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
     def add_make_function_rule(self, rule, opname, attr, customize):
         """Python 3.3 added a an addtional LOAD_CONST before MAKE_FUNCTION and
@@ -628,10 +619,18 @@ class Python3Parser(PythonParser):
             load_attr ::= expr LOOKUP_METHOD
             call_function ::= expr CALL_METHOD
         """
+        seen_LOAD_BUILD_CLASS = False
+        seen_LOAD_DICTCOMP = False
+        seen_LOAD_LISTCOMP = False
+
+        # Loop over instructions adding custom grammar rules based on
+        # a specific instruction seen.
+
         for i, token in enumerate(tokens):
             opname = token.kind
             opname_base = opname[:opname.rfind('_')]
 
+            # The order listed is roughly alphabetic by instruction opcode.
             if opname == 'PyPy':
                 self.addRule("""
                     stmt ::= assign3_pypy
@@ -640,21 +639,11 @@ class Python3Parser(PythonParser):
                     assign2_pypy ::= expr expr designator designator
                 """, nop_func)
                 continue
-            elif (opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
-                             'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_EX_KW')
-                  or opname.startswith('CALL_FUNCTION_KW')):
-                self.custom_classfunc_rule(opname, token, customize)
-            elif opname == 'LOAD_DICTCOMP':
-                rule_pat = ("dictcomp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 expr "
-                            "GET_ITER CALL_FUNCTION_1")
-                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-            elif opname == 'LOAD_SETCOMP':
-                # Should this be generalized and put under MAKE_FUNCTION?
-                rule_pat = ("setcomp ::= LOAD_SETCOMP %sMAKE_FUNCTION_0 expr "
-                            "GET_ITER CALL_FUNCTION_1")
-                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-            elif opname == 'LOAD_BUILD_CLASS':
-                self.custom_build_class_rule(opname, i, token, tokens, customize)
+            elif opname_base == 'BUILD_CONST_KEY_MAP':
+                # This is in 3.6+
+                kvlist_n = 'expr ' * (token.attr)
+                rule = "mapexpr ::= %sLOAD_CONST %s" % (kvlist_n, opname)
+                self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname.startswith('BUILD_LIST_UNPACK'):
                 v = token.attr
                 rule = ('build_list_unpack ::= ' + 'expr1024 ' * int(v//1024) +
@@ -663,51 +652,6 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
                 rule = 'expr ::= build_list_unpack'
                 self.add_unique_rule(rule, opname, token.attr, customize)
-            elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
-                v = token.attr
-                rule = ('build_tuple_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
-                        'expr32 ' * int((v//32) % 32) +
-                        'expr ' * (v % 32) + opname)
-                self.add_unique_rule(rule, opname, token.attr, customize)
-            elif opname.startswith('BUILD_MAP_UNPACK_WITH_CALL'):
-                v = token.attr
-                rule = ('build_map_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
-                        'expr32 ' * int((v//32) % 32) +
-                        'expr ' * (v % 32) + opname)
-                self.add_unique_rule(rule, opname, token.attr, customize)
-            elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
-                v = token.attr
-                rule = ('build_list ::= ' + 'expr1024 ' * int(v//1024) +
-                        'expr32 ' * int((v//32) % 32) +
-                        'expr ' * (v % 32) + opname)
-                self.add_unique_rule(rule, opname, token.attr, customize)
-                if opname_base == 'BUILD_TUPLE':
-                    rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
-                    self.add_unique_rule(rule, opname, token.attr, customize)
-                    rule = ('build_tuple ::= ' + 'expr1024 ' * int(v//1024) +
-                        'expr32 ' * int((v//32) % 32) +
-                        'expr ' * (v % 32) + opname)
-                    self.add_unique_rule(rule, opname, token.attr, customize)
-            elif opname == 'LOOKUP_METHOD':
-                # A PyPy speciality - DRY with parse2
-                self.add_unique_rule("load_attr ::= expr LOOKUP_METHOD",
-                                     opname, token.attr, customize)
-                continue
-            elif opname == 'JUMP_IF_NOT_DEBUG':
-                v = token.attr
-                self.add_unique_rule(
-                    "stmt ::= assert_pypy", opname, v, customize)
-                self.add_unique_rule(
-                    "stmt ::= assert2_pypy", opname_base, v, customize)
-                self.add_unique_rule(
-                    "assert_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true "
-                    "LOAD_ASSERT RAISE_VARARGS_1 COME_FROM",
-                    opname, token.attr, customize)
-                self.add_unique_rule(
-                    "assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true "
-                    "LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1 COME_FROM",
-                    opname_base, v, customize)
-                continue
             elif opname_base == 'BUILD_MAP':
                 kvlist_n = "kvlist_%s" % token.attr
                 if opname == 'BUILD_MAP_n':
@@ -743,20 +687,137 @@ class Python3Parser(PythonParser):
                     self.add_unique_rule(rule, opname, token.attr, customize)
                     rule = "mapexpr ::=  %s %s" % (opname, kvlist_n)
                 self.add_unique_rule(rule, opname, token.attr, customize)
-            elif opname_base == 'BUILD_CONST_KEY_MAP':
-                # This is in 3.6+
-                kvlist_n = 'expr ' * (token.attr)
-                rule = "mapexpr ::= %sLOAD_CONST %s" % (kvlist_n, opname)
+            elif opname.startswith('BUILD_MAP_UNPACK_WITH_CALL'):
+                v = token.attr
+                rule = ('build_map_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
+                        'expr32 ' * int((v//32) % 32) +
+                        'expr ' * (v % 32) + opname)
                 self.add_unique_rule(rule, opname, token.attr, customize)
-            elif opname_base in ('UNPACK_EX',):
-                before_count, after_count = token.attr
-                rule = 'unpack ::= ' + opname + ' designator' * (before_count + after_count + 1)
+            elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
+                v = token.attr
+                rule = ('build_list ::= ' + 'expr1024 ' * int(v//1024) +
+                        'expr32 ' * int((v//32) % 32) +
+                        'expr ' * (v % 32) + opname)
                 self.add_unique_rule(rule, opname, token.attr, customize)
-            elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
-                rule = 'unpack ::= ' + opname + ' designator' * token.attr
+                if opname_base == 'BUILD_TUPLE':
+                    rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
+                    self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
+                v = token.attr
+                rule = ('build_tuple_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
+                        'expr32 ' * int((v//32) % 32) +
+                        'expr ' * (v % 32) + opname)
                 self.add_unique_rule(rule, opname, token.attr, customize)
-            elif opname_base == 'UNPACK_LIST':
-                rule = 'unpack_list ::= ' + opname + ' designator' * token.attr
+            elif (opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
+                             'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_EX_KW')
+                  or opname.startswith('CALL_FUNCTION_KW')):
+                self.custom_classfunc_rule(opname, token, customize, seen_LOAD_BUILD_CLASS)
+            elif opname_base == 'CALL_METHOD':
+                # PyPy only - DRY with parse2
+
+                # FIXME: The below argument parsing will be wrong when PyPy gets to 3.6
+                args_pos = (token.attr & 0xff)          # positional parameters
+                args_kw = (token.attr >> 8) & 0xff      # keyword parameters
+
+                # number of apply equiv arguments:
+                nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
+                rule = ('call_function ::= expr ' +
+                        ('pos_arg ' * args_pos) +
+                        ('kwarg ' * args_kw) +
+                        'expr ' * nak + opname)
+                self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname == 'JUMP_IF_NOT_DEBUG':
+                v = token.attr
+                self.add_unique_rule(
+                    "stmt ::= assert_pypy", opname, v, customize)
+                self.add_unique_rule(
+                    "stmt ::= assert2_pypy", opname_base, v, customize)
+                self.add_unique_rule(
+                    "assert_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true "
+                    "LOAD_ASSERT RAISE_VARARGS_1 COME_FROM",
+                    opname, token.attr, customize)
+                self.add_unique_rule(
+                    "assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true "
+                    "LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1 COME_FROM",
+                    opname_base, v, customize)
+                continue
+            elif opname == 'LOAD_BUILD_CLASS':
+                seen_LOAD_BUILD_CLASS = True
+                self.custom_build_class_rule(opname, i, token, tokens, customize)
+            elif opname == 'LOAD_CLASSDEREF':
+                # Python 3.4+
+                self.add_unique_rule("expr ::= LOAD_CLASSDEREF",
+                                     opname, token.attr, customize)
+                continue
+            elif opname == 'LOAD_CLASSNAME':
+                self.add_unique_rule("expr ::= LOAD_CLASSNAME",
+                                     opname, token.attr, customize)
+                continue
+            elif opname == 'LOAD_DICTCOMP':
+                seen_LOAD_DICTCOMP = True
+                rule_pat = ("dictcomp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 expr "
+                            "GET_ITER CALL_FUNCTION_1")
+                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+            elif opname == 'LOAD_LISTCOMP':
+                seen_LOAD_LISTCOMP = True
+                continue
+            elif opname == 'LOAD_SETCOMP':
+                # Should this be generalized and put under MAKE_FUNCTION?
+                rule_pat = ("setcomp ::= LOAD_SETCOMP %sMAKE_FUNCTION_0 expr "
+                            "GET_ITER CALL_FUNCTION_1")
+                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+            elif opname == 'LOOKUP_METHOD':
+                # A PyPy speciality - DRY with parse2
+                self.add_unique_rule("load_attr ::= expr LOOKUP_METHOD",
+                                     opname, token.attr, customize)
+                continue
+            elif opname.startswith('MAKE_CLOSURE'):
+                # DRY with MAKE_FUNCTION
+                # Note: this probably doesn't handle kwargs proprerly
+                args_pos, args_kw, annotate_args  = token.attr
+
+                rule_pat = ("genexpr ::= %sload_closure load_genexpr %%s%s expr "
+                            "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
+                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                rule_pat = ('mklambda ::= %sload_closure LOAD_LAMBDA %%s%s' %
+                            ('pos_arg '* args_pos, opname))
+                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                rule_pat = ('listcomp ::= %sload_closure LOAD_LISTCOMP %%s%s expr '
+                            'GET_ITER CALL_FUNCTION_1' % ('pos_arg ' * args_pos, opname))
+                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                rule_pat = ('setcomp ::= %sload_closure LOAD_SETCOMP %%s%s expr '
+                            'GET_ITER CALL_FUNCTION_1' % ('pos_arg ' * args_pos, opname))
+                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+
+                if seen_LOAD_DICTCOMP:
+                    self.add_unique_rule('dictcomp ::= %sload_closure LOAD_DICTCOMP %s '
+                                         'expr GET_ITER CALL_FUNCTION_1' %
+                                         ('pos_arg '* args_pos, opname),
+                                         opname, token.attr, customize)
+
+                # FIXME: kwarg processing is missing here.
+                # Note order of kwargs and pos args changed between 3.3-3.4
+                if self.version <= 3.2:
+                    rule = ('mkfunc ::= kwargs %sload_closure LOAD_CONST kwargs %s'
+                            % ('expr ' * args_pos, opname))
+                elif self.version == 3.3:
+                    rule = ('mkfunc ::= kwargs %sload_closure LOAD_CONST LOAD_CONST %s'
+                            % ('expr ' * args_pos, opname))
+                elif self.version >= 3.4:
+                    rule = ('mkfunc ::= %skwargs load_closure LOAD_CONST LOAD_CONST %s'
+                            % ('expr ' * args_pos, opname))
+
+                self.add_unique_rule(rule, opname, token.attr, customize)
+                rule = ('mkfunc ::= %sload_closure load_genexpr %s'
+                        % ('pos_arg ' * args_pos, opname))
+                self.add_unique_rule(rule, opname, token.attr, customize)
+
+                if self.version < 3.4:
+                    rule = ('mkfunc ::= %sload_closure LOAD_CONST %s'
+                            % ('expr ' * args_pos, opname))
+                    self.add_unique_rule(rule, opname, token.attr, customize)
+
+                pass
             elif opname_base.startswith('MAKE_FUNCTION'):
                 # DRY with MAKE_CLOSURE
                 if self.version >= 3.6:
@@ -775,9 +836,10 @@ class Python3Parser(PythonParser):
                                  ('kwarg '* args_kw),
                                  opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-                    rule_pat  = ("listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
-                                 "GET_ITER CALL_FUNCTION_1" % ('expr ' * args_pos, opname))
-                    self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                    if seen_LOAD_LISTCOMP:
+                        rule_pat  = ("listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
+                                         "GET_ITER CALL_FUNCTION_1" % ('expr ' * args_pos, opname))
+                        self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                     continue
                 if self.version < 3.6:
                     args_pos, args_kw, annotate_args  = token.attr
@@ -840,66 +902,15 @@ class Python3Parser(PythonParser):
                                 (('pos_arg ' * (args_pos)),
                                  ('call_function ' * (annotate_args-1)), opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
-            elif opname_base == 'CALL_METHOD':
-                # PyPy only - DRY with parse2
-
-                # FIXME: The below argument parsing will be wrong when PyPy gets to 3.6
-                args_pos = (token.attr & 0xff)          # positional parameters
-                args_kw = (token.attr >> 8) & 0xff      # keyword parameters
-
-                # number of apply equiv arguments:
-                nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
-                rule = ('call_function ::= expr ' +
-                        ('pos_arg ' * args_pos) +
-                        ('kwarg ' * args_kw) +
-                        'expr ' * nak + opname)
+            elif opname_base in ('UNPACK_EX',):
+                before_count, after_count = token.attr
+                rule = 'unpack ::= ' + opname + ' designator' * (before_count + after_count + 1)
                 self.add_unique_rule(rule, opname, token.attr, customize)
-            elif opname.startswith('MAKE_CLOSURE'):
-                # DRY with MAKE_FUNCTION
-                # Note: this probably doesn't handle kwargs proprerly
-                args_pos, args_kw, annotate_args  = token.attr
-
-                rule_pat = ("genexpr ::= %sload_closure load_genexpr %%s%s expr "
-                            "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
-                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-                rule_pat = ('mklambda ::= %sload_closure LOAD_LAMBDA %%s%s' %
-                            ('pos_arg '* args_pos, opname))
-                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-                rule_pat = ('listcomp ::= %sload_closure LOAD_LISTCOMP %%s%s expr '
-                            'GET_ITER CALL_FUNCTION_1' % ('pos_arg ' * args_pos, opname))
-                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-                rule_pat = ('setcomp ::= %sload_closure LOAD_SETCOMP %%s%s expr '
-                            'GET_ITER CALL_FUNCTION_1' % ('pos_arg ' * args_pos, opname))
-                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-
-                self.add_unique_rule('dictcomp ::= %sload_closure LOAD_DICTCOMP %s '
-                                     'expr GET_ITER CALL_FUNCTION_1' %
-                                     ('pos_arg '* args_pos, opname),
-                                     opname, token.attr, customize)
-
-                # FIXME: kwarg processing is missing here.
-                # Note order of kwargs and pos args changed between 3.3-3.4
-                if self.version <= 3.2:
-                    rule = ('mkfunc ::= kwargs %sload_closure LOAD_CONST kwargs %s'
-                            % ('expr ' * args_pos, opname))
-                elif self.version == 3.3:
-                    rule = ('mkfunc ::= kwargs %sload_closure LOAD_CONST LOAD_CONST %s'
-                            % ('expr ' * args_pos, opname))
-                elif self.version >= 3.4:
-                    rule = ('mkfunc ::= %skwargs load_closure LOAD_CONST LOAD_CONST %s'
-                            % ('expr ' * args_pos, opname))
-
+            elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
+                rule = 'unpack ::= ' + opname + ' designator' * token.attr
                 self.add_unique_rule(rule, opname, token.attr, customize)
-                rule = ('mkfunc ::= %sload_closure load_genexpr %s'
-                        % ('pos_arg ' * args_pos, opname))
-                self.add_unique_rule(rule, opname, token.attr, customize)
-
-                if self.version < 3.4:
-                    rule = ('mkfunc ::= %sload_closure LOAD_CONST %s'
-                            % ('expr ' * args_pos, opname))
-                    self.add_unique_rule(rule, opname, token.attr, customize)
-
-                pass
+            elif opname_base == 'UNPACK_LIST':
+                rule = 'unpack_list ::= ' + opname + ' designator' * token.attr
         self.check_reduce['augassign1'] = 'AST'
         self.check_reduce['augassign2'] = 'AST'
         self.check_reduce['while1stmt'] = 'noAST'

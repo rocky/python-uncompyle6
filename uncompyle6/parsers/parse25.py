@@ -48,11 +48,13 @@ class Python25Parser(Python26Parser):
     def add_custom_rules(self, tokens, customize):
         # grammar rules inherited from Python 2.6
         self.remove_rules("""
-        setupwith ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 POP_TOP
-        withstmt ::= expr setupwith SETUP_FINALLY suite_stmts_opt
-                     POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
+        setupwith  ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 POP_TOP
+        withstmt   ::= expr setupwith SETUP_FINALLY suite_stmts_opt
+                       POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
         withasstmt ::= expr setupwithas designator suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
+        whilestmt  ::= SETUP_LOOP testexpr return_stmts come_froms POP_TOP bp_come_from
+        assert2    ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
         """)
         super(Python25Parser, self).add_custom_rules(tokens, customize)
         if self.version == 2.5:

@@ -1,4 +1,4 @@
-#  Copyright (c) 2016 Rocky Bernstein
+#  Copyright (c) 2017 Rocky Bernstein
 """
 spark grammar differences over Python 3.3 for Python 3.4
 """
@@ -22,6 +22,18 @@ class Python34Parser(Python33Parser):
         # Is this 3.4 only?
         yield_from ::= expr GET_ITER LOAD_CONST YIELD_FROM
         """
+
+    def add_custom_rules(self, tokens, customize):
+        self.remove_rules("""
+        whileTruestmt ::= SETUP_LOOP l_stmts JUMP_ABSOLUTE JUMP_BACK COME_FROM_LOOP
+        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP COME_FROM_LOOP
+        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP COME_FROM_LOOP
+        whilestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK
+                          POP_BLOCK JUMP_ABSOLUTE COME_FROM_LOOP
+        """)
+        super(Python34Parser, self).add_custom_rules(tokens, customize)
+        return
+
 class Python34ParserSingle(Python34Parser, PythonParserSingle):
     pass
 
