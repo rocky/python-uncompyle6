@@ -625,20 +625,20 @@ class Python3Parser(PythonParser):
         # Loop over instructions adding custom grammar rules based on
         # a specific instruction seen.
 
+        if 'PyPy' in customize:
+            self.addRule("""
+              stmt ::= assign3_pypy
+              stmt ::= assign2_pypy
+              assign3_pypy ::= expr expr expr designator designator designator
+              assign2_pypy ::= expr expr designator designator
+              """, nop_func)
+
         for i, token in enumerate(tokens):
             opname = token.kind
             opname_base = opname[:opname.rfind('_')]
 
-            # The order listed is roughly alphabetic by instruction opcode.
-            if opname == 'PyPy':
-                self.addRule("""
-                    stmt ::= assign3_pypy
-                    stmt ::= assign2_pypy
-                    assign3_pypy ::= expr expr expr designator designator designator
-                    assign2_pypy ::= expr expr designator designator
-                """, nop_func)
-                continue
-            elif opname_base == 'BUILD_CONST_KEY_MAP':
+            # The order of opname listed is roughly sorted below
+            if opname_base == 'BUILD_CONST_KEY_MAP':
                 # This is in 3.6+
                 kvlist_n = 'expr ' * (token.attr)
                 rule = "mapexpr ::= %sLOAD_CONST %s" % (kvlist_n, opname)

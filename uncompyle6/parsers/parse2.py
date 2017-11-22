@@ -256,19 +256,25 @@ class Python2Parser(PythonParser):
 
         PyPy adds custom rules here as well
         """
-        for opname, v in list(customize.items()):
-            opname_base = opname[:opname.rfind('_')]
-            if opname == 'PyPy':
-                self.addRule("""
-                    stmt ::= assign3_pypy
-                    stmt ::= assign2_pypy
-                    assign3_pypy ::= expr expr expr designator designator designator
-                    assign2_pypy ::= expr expr designator designator
-                    list_compr ::= expr  BUILD_LIST_FROM_ARG _for designator list_iter
-                                         JUMP_BACK
-                """, nop_func)
+        if 'PyPy' in customize:
+            # PyPy-specific customizations
+            self.addRule("""
+                        stmt ::= assign3_pypy
+                        stmt ::= assign2_pypy
+                        assign3_pypy ::= expr expr expr designator designator designator
+                        assign2_pypy ::= expr expr designator designator
+                        list_compr ::= expr  BUILD_LIST_FROM_ARG _for designator list_iter
+                                             JUMP_BACK
+                        """, nop_func)
+        for i, token in enumerate(tokens):
+            opname = token.kind
+            # FIXME: remove the "v" thing in the code below
+            if opname in customize:
+                v = customize[opname]
+            else:
                 continue
-            elif opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
+            opname_base = opname[:opname.rfind('_')]
+            if opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
                 thousands = (v//1024)
                 thirty32s = ((v//32) % 32)
                 if thirty32s > 0:
@@ -348,8 +354,9 @@ class Python2Parser(PythonParser):
                 # no longer need to add a rule
                 continue
             elif opname_base == 'MAKE_FUNCTION':
-                self.addRule('mklambda ::= %s LOAD_LAMBDA %s' %
-                      ('pos_arg '*v, opname), nop_func)
+                if i > 0 and tokens[i-1] == 'LOAD_LAMBDA':
+                    self.addRule('mklambda ::= %s LOAD_LAMBDA %s' %
+                                 ('pos_arg '*v, opname), nop_func)
                 rule = 'mkfunc ::= %s LOAD_CONST %s' % ('expr '*v, opname)
             elif opname_base == 'MAKE_CLOSURE':
                 # FIXME: use add_unique_rules to tidy this up.
