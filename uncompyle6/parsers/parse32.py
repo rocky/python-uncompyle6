@@ -23,6 +23,12 @@ class Python32Parser(Python3Parser):
         try_middle ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
                        END_FINALLY
 
+        tryelsestmt ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                        try_middle else_suite
+                        jump_excepts come_from_except_clauses
+
+        jump_excepts ::= jump_except+
+
         # Python 3.2+ has more loop optimization that removes
         # JUMP_FORWARD in some cases, and hence we also don't
         # see COME_FROM
