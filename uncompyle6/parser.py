@@ -506,7 +506,6 @@ class PythonParser(GenericASTBuilder):
 
         expr ::= conditional
         conditional ::= expr jmp_false expr JUMP_FORWARD expr COME_FROM
-        conditional ::= expr jmp_false expr JUMP_ABSOLUTE expr
 
         expr            ::= conditionalTrue
         conditionalTrue ::= expr JUMP_FORWARD expr COME_FROM

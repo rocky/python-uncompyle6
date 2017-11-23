@@ -279,8 +279,6 @@ class Python3Parser(PythonParser):
         for_block ::= l_stmts_opt opt_come_from_loop JUMP_BACK
         for_block ::= l_stmts
         iflaststmtl ::= testexpr c_stmts_opt
-        iflaststmt    ::= testexpr c_stmts_opt33
-        c_stmts_opt33 ::= JUMP_BACK JUMP_ABSOLUTE c_stmts_opt
         """
 
     def p_def_annotations3(self, args):
@@ -421,7 +419,6 @@ class Python3Parser(PythonParser):
     def p_expr3(self, args):
         """
         expr           ::= conditionalnot
-        conditional    ::= expr jmp_false expr jump_forward_else expr COME_FROM
         conditionalnot ::= expr jmp_true  expr jump_forward_else expr COME_FROM
 
         # a JUMP_FORWARD to another JUMP_FORWARD can get turned into
@@ -862,7 +859,7 @@ class Python3Parser(PythonParser):
                                  ('kwarg '* args_kw),
                                  opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-                    if seen_LOAD_LISTCOMP:
+                    if seen_LOAD_LISTCOMP and has_get_iter_call_function1:
                         rule_pat  = ("listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
                                          "GET_ITER CALL_FUNCTION_1" % ('expr ' * args_pos, opname))
                         self.add_make_function_rule(rule_pat, opname, token.attr, customize)
@@ -872,17 +869,20 @@ class Python3Parser(PythonParser):
                 else:
                     args_pos, args_kw, annotate_args, closure  = token.attr
 
-                rule_pat = ("genexpr ::= %sload_genexpr %%s%s expr "
-                            "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
-                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                if has_get_iter_call_function1:
+                    rule_pat = ("genexpr ::= %sload_genexpr %%s%s expr "
+                                "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
+                    self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                 rule_pat = ('mklambda ::= %s%sLOAD_LAMBDA %%s%s' %
                             (('pos_arg '* args_pos),
                             ('kwarg '* args_kw),
                             opname))
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-                rule_pat  = ("listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
-                             "GET_ITER CALL_FUNCTION_1" % ('expr ' * args_pos, opname))
-                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+
+                if seen_LOAD_LISTCOMP and has_get_iter_call_function1:
+                    rule_pat  = ("listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
+                                 "GET_ITER CALL_FUNCTION_1" % ('expr ' * args_pos, opname))
+                    self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
                 if self.version == 3.3:
                     # positional args after keyword args

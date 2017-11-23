@@ -201,6 +201,8 @@ class Python2Parser(PythonParser):
 
         # In Python 3, DUP_TOPX_2 is DUP_TOP_TWO
         binary_subscr2 ::= expr expr DUP_TOPX_2 BINARY_SUBSCR
+
+        conditional ::= expr jmp_false expr JUMP_ABSOLUTE expr
         """
 
     def p_slice2(self, args):
