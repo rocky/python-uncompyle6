@@ -383,9 +383,6 @@ class Python3Parser(PythonParser):
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suite COME_FROM_LOOP
 
-
-        whileelselaststmt ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
-                              else_suitec COME_FROM_LOOP
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt          JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 

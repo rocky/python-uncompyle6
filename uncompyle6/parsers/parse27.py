@@ -110,9 +110,6 @@ class Python27Parser(Python2Parser):
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suite COME_FROM
 
-        whileelselaststmt ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
-                              else_suitec COME_FROM
-
         # Common with 2.6
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
         conditional_lambda ::= expr jmp_false expr return_if_lambda

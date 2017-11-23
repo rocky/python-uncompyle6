@@ -20,8 +20,6 @@ class Python34Parser(Python33Parser):
 
         # FIXME the below masks a bug in not detecting COME_FROM_LOOP
         # grammar rules with COME_FROM -> COME_FROM_LOOP alreadly exist
-        whileelselaststmt ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
-                              else_suitec COME_FROM
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suite COME_FROM
 
