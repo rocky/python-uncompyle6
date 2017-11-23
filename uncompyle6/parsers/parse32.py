@@ -11,6 +11,7 @@ class Python32Parser(Python3Parser):
     def p_32to35(self, args):
         """
         conditional    ::= expr jmp_false expr jump_forward_else expr COME_FROM
+        cmp_list2      ::= expr COMPARE_OP RETURN_VALUE
 
         # Store locals is only in Python 3.0 to 3.3
         stmt           ::= store_locals
