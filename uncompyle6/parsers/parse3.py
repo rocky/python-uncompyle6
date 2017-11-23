@@ -479,7 +479,8 @@ class Python3Parser(PythonParser):
         return
 
     def custom_classfunc_rule(self, opname, token, customize,
-                              seen_LOAD_BUILD_CLASS):
+                              seen_LOAD_BUILD_CLASS,
+                              seen_GET_AWAITABLE_YIELD_FROM):
         """
         call_function ::= expr {expr}^n CALL_FUNCTION_n
         call_function ::= expr {expr}^n CALL_FUNCTION_VAR_n
@@ -529,7 +530,7 @@ class Python3Parser(PythonParser):
                     'expr ' * nak + token.kind)
 
         self.add_unique_rule(rule, token.kind, uniq_param, customize)
-        if self.version >= 3.5:
+        if self.version >= 3.5 and seen_GET_AWAITABLE_YIELD_FROM:
             rule = ('async_call_function ::= expr ' +
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) +
@@ -618,6 +619,7 @@ class Python3Parser(PythonParser):
         seen_LOAD_DICTCOMP    = False
         seen_LOAD_LISTCOMP    = False
         seen_LOAD_SETCOMP     = False
+        seen_GET_AWAITABLE_YIELD_FROM = False
 
         # Loop over instructions adding custom grammar rules based on
         # a specific instruction seen.
@@ -632,9 +634,16 @@ class Python3Parser(PythonParser):
 
         has_get_iter_call_function1 = False
         n = len(tokens)
+        max_branches = 0
         for i, token in enumerate(tokens):
             if token == 'GET_ITER' and i < n-2 and self.call_fn_name(tokens[i+1]) == 'CALL_FUNCTION_1':
                 has_get_iter_call_function1 = True
+                max_branches += 1
+            elif (token == 'GET_AWAITABLE' and i < n-3
+                  and tokens[i+1] == 'LOAD_CONST' and tokens[i+2] == 'YIELD_FROM'):
+                max_branches += 1
+                seen_GET_AWAITABLE_YIELD_FROM = True
+            if max_branches > 2:
                 break
 
         for i, token in enumerate(tokens):
@@ -725,7 +734,9 @@ class Python3Parser(PythonParser):
             elif (opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
                              'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_EX_KW')
                   or opname.startswith('CALL_FUNCTION_KW')):
-                self.custom_classfunc_rule(opname, token, customize, seen_LOAD_BUILD_CLASS)
+                self.custom_classfunc_rule(opname, token, customize,
+                                           seen_LOAD_BUILD_CLASS,
+                                           seen_GET_AWAITABLE_YIELD_FROM)
             elif opname_base == 'CALL_METHOD':
                 # PyPy only - DRY with parse2
 
