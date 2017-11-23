@@ -422,6 +422,7 @@ class Python3Parser(PythonParser):
 
     def p_expr3(self, args):
         """
+        expr           ::= conditionalnot
         conditional    ::= expr jmp_false expr jump_forward_else expr COME_FROM
         conditionalnot ::= expr jmp_true  expr jump_forward_else expr COME_FROM
 
