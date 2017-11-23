@@ -14,8 +14,6 @@ class Python33Parser(Python32Parser):
         expr          ::= yield_from
         yield_from    ::= expr expr YIELD_FROM
 
-        cmp_list2     ::= expr COMPARE_OP RETURN_VALUE
-
         # We do the grammar hackery below for semantics
         # actions that want c_stmts_opt at index 1
 
@@ -25,20 +23,16 @@ class Python33Parser(Python32Parser):
         # Python 3.5+ has jump optimization to remove the redundant
         # jump_excepts. But in 3.3 we need them added
 
-        tryelsestmt ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                        try_middle else_suite
-                        jump_excepts come_from_except_clauses
-
         trystmt     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                         try_middle
                         jump_excepts come_from_except_clauses
-
-        jump_excepts ::= jump_except+
         """
 
     def add_custom_rules(self, tokens, customize):
         self.remove_rules("""
+        # 3.3+ adds POP_BLOCKS
         whileTruestmt ::= SETUP_LOOP l_stmts JUMP_ABSOLUTE JUMP_BACK COME_FROM_LOOP
+        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM_LOOP
         whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP COME_FROM_LOOP
         whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP COME_FROM_LOOP
         whilestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK

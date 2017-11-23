@@ -9,6 +9,7 @@ class Python32Parser(Python3Parser):
     def p_32to35(self, args):
         """
         conditional    ::= expr jmp_false expr jump_forward_else expr COME_FROM
+        cmp_list2      ::= expr COMPARE_OP RETURN_VALUE
 
         # Store locals is only in Python 3.0 to 3.3
         stmt           ::= store_locals
@@ -18,8 +19,21 @@ class Python32Parser(Python3Parser):
         whileTruestmt  ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM_LOOP
         whileTruestmt  ::= SETUP_LOOP return_stmts          COME_FROM_LOOP
 
+        # Python 3.5+ has jump optimization to remove the redundant
+        # jump_excepts. But in 3.3 we need them added
+
+        trystmt     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                        try_middle
+                        jump_excepts come_from_except_clauses
+
         try_middle ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
                        END_FINALLY
+
+        tryelsestmt ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                        try_middle else_suite
+                        jump_excepts come_from_except_clauses
+
+        jump_excepts ::= jump_except+
 
         # Python 3.2+ has more loop optimization that removes
         # JUMP_FORWARD in some cases, and hence we also don't
