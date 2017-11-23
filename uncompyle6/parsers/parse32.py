@@ -42,6 +42,9 @@ class Python32Parser(Python3Parser):
         pass
 
     def add_custom_rules(self, tokens, customize):
+        # self.remove_rules("""
+        #     cmp_list2 ::= expr COMPARE_OP RETURN_VALUE
+        # """)
         super(Python32Parser, self).add_custom_rules(tokens, customize)
         for i, token in enumerate(tokens):
             opname = token.kind

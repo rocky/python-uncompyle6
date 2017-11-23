@@ -243,7 +243,9 @@ class Python26Parser(Python2Parser):
         """
         conditional  ::= expr jmp_false expr jf_cf_pop expr come_from_opt
         and  ::= expr JUMP_IF_FALSE POP_TOP expr JUMP_IF_FALSE POP_TOP
-        cmp_list ::= expr cmp_list1 ROT_TWO COME_FROM POP_TOP _come_from
+        cmp_list ::=  expr cmp_list1 ROT_TWO COME_FROM POP_TOP _come_from
+        cmp_list1 ::= expr DUP_TOP ROT_THREE COMPARE_OP jmp_false cmp_list1 _come_from
+        cmp_list1 ::= expr DUP_TOP ROT_THREE COMPARE_OP jmp_false cmp_list2 _come_from
 
         return_if_lambda   ::= RETURN_END_IF_LAMBDA POP_TOP
         conditional_lambda ::= expr jmp_false_then expr return_if_lambda

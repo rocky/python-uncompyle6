@@ -336,12 +336,10 @@ class Python3Parser(PythonParser):
         or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
 
-        cmp_list1 ::= expr DUP_TOP ROT_THREE
-                COMPARE_OP JUMP_IF_FALSE_OR_POP
-                cmp_list1 COME_FROM
-        cmp_list1 ::= expr DUP_TOP ROT_THREE
-                COMPARE_OP JUMP_IF_FALSE_OR_POP
-                cmp_list2 COME_FROM
+        cmp_list1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
+                      cmp_list1 COME_FROM
+        cmp_list1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
+                      cmp_list2 COME_FROM
         """
 
     def p_stmt3(self, args):
@@ -440,7 +438,10 @@ class Python3Parser(PythonParser):
     @staticmethod
     def call_fn_name(token):
         """Customize CALL_FUNCTION to add the number of positional arguments"""
-        return '%s_%i' % (token.kind, token.attr)
+        if token.attr is not None:
+            return '%s_%i' % (token.kind, token.attr)
+        else:
+            return '%s_0' % (token.kind)
 
     def custom_build_class_rule(self, opname, i, token, tokens, customize):
         '''
@@ -620,8 +621,9 @@ class Python3Parser(PythonParser):
             call_function ::= expr CALL_METHOD
         """
         seen_LOAD_BUILD_CLASS = False
-        seen_LOAD_DICTCOMP = False
-        seen_LOAD_LISTCOMP = False
+        seen_LOAD_DICTCOMP    = False
+        seen_LOAD_LISTCOMP    = False
+        seen_LOAD_SETCOMP     = False
 
         # Loop over instructions adding custom grammar rules based on
         # a specific instruction seen.
@@ -633,6 +635,13 @@ class Python3Parser(PythonParser):
               assign3_pypy ::= expr expr expr designator designator designator
               assign2_pypy ::= expr expr designator designator
               """, nop_func)
+
+        has_get_iter_call_function1 = False
+        n = len(tokens)
+        for i, token in enumerate(tokens):
+            if token == 'GET_ITER' and i < n-2 and self.call_fn_name(tokens[i+1]) == 'CALL_FUNCTION_1':
+                has_get_iter_call_function1 = True
+                break
 
         for i, token in enumerate(tokens):
             opname = token.kind
@@ -766,17 +775,20 @@ class Python3Parser(PythonParser):
                 continue
             elif opname == 'LOAD_DICTCOMP':
                 seen_LOAD_DICTCOMP = True
-                rule_pat = ("dictcomp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 expr "
-                            "GET_ITER CALL_FUNCTION_1")
-                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                if has_get_iter_call_function1:
+                    rule_pat = ("dictcomp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 expr "
+                                "GET_ITER CALL_FUNCTION_1")
+                    self.add_make_function_rule(rule_pat, opname, token.attr, customize)
             elif opname == 'LOAD_LISTCOMP':
                 seen_LOAD_LISTCOMP = True
                 continue
             elif opname == 'LOAD_SETCOMP':
+                seen_LOAD_SETCOMP = True
                 # Should this be generalized and put under MAKE_FUNCTION?
-                rule_pat = ("setcomp ::= LOAD_SETCOMP %sMAKE_FUNCTION_0 expr "
-                            "GET_ITER CALL_FUNCTION_1")
-                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                if has_get_iter_call_function1:
+                    rule_pat = ("setcomp ::= LOAD_SETCOMP %sMAKE_FUNCTION_0 expr "
+                                "GET_ITER CALL_FUNCTION_1")
+                    self.add_make_function_rule(rule_pat, opname, token.attr, customize)
             elif opname == 'LOOKUP_METHOD':
                 # A PyPy speciality - DRY with parse2
                 self.add_unique_rule("load_attr ::= expr LOOKUP_METHOD",
@@ -787,24 +799,27 @@ class Python3Parser(PythonParser):
                 # Note: this probably doesn't handle kwargs proprerly
                 args_pos, args_kw, annotate_args  = token.attr
 
-                rule_pat = ("genexpr ::= %sload_closure load_genexpr %%s%s expr "
-                            "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
-                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                 rule_pat = ('mklambda ::= %sload_closure LOAD_LAMBDA %%s%s' %
                             ('pos_arg '* args_pos, opname))
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-                rule_pat = ('listcomp ::= %sload_closure LOAD_LISTCOMP %%s%s expr '
-                            'GET_ITER CALL_FUNCTION_1' % ('pos_arg ' * args_pos, opname))
-                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-                rule_pat = ('setcomp ::= %sload_closure LOAD_SETCOMP %%s%s expr '
-                            'GET_ITER CALL_FUNCTION_1' % ('pos_arg ' * args_pos, opname))
-                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
-                if seen_LOAD_DICTCOMP:
-                    self.add_unique_rule('dictcomp ::= %sload_closure LOAD_DICTCOMP %s '
-                                         'expr GET_ITER CALL_FUNCTION_1' %
-                                         ('pos_arg '* args_pos, opname),
-                                         opname, token.attr, customize)
+                if has_get_iter_call_function1:
+                    rule_pat = ("genexpr ::= %sload_closure load_genexpr %%s%s expr "
+                                "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
+                    self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                    if seen_LOAD_LISTCOMP:
+                        rule_pat = ('listcomp ::= %sload_closure LOAD_LISTCOMP %%s%s expr '
+                                    'GET_ITER CALL_FUNCTION_1' % ('pos_arg ' * args_pos, opname))
+                        self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                    if seen_LOAD_SETCOMP:
+                        rule_pat = ('setcomp ::= %sload_closure LOAD_SETCOMP %%s%s expr '
+                                    'GET_ITER CALL_FUNCTION_1' % ('pos_arg ' * args_pos, opname))
+                        self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                    if seen_LOAD_DICTCOMP:
+                        self.add_unique_rule('dictcomp ::= %sload_closure LOAD_DICTCOMP %s '
+                                             'expr GET_ITER CALL_FUNCTION_1' %
+                                             ('pos_arg '* args_pos, opname),
+                                             opname, token.attr, customize)
 
                 # FIXME: kwarg processing is missing here.
                 # Note order of kwargs and pos args changed between 3.3-3.4

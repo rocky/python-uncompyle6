@@ -15,6 +15,8 @@ class Python33Parser(Python32Parser):
         expr          ::= yield_from
         yield_from    ::= expr expr YIELD_FROM
 
+        cmp_list2     ::= expr COMPARE_OP RETURN_VALUE
+
         # We do the grammar hackery below for semantics
         # actions that want c_stmts_opt at index 1
 
