@@ -372,25 +372,6 @@ class PythonParser(GenericASTBuilder):
                 for_block POP_BLOCK else_suitel _come_from
         """
 
-    def p_whilestmt(self, args):
-        """
-        whilestmt  ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK
-                       POP_BLOCK _come_from
-
-        whilestmt  ::= SETUP_LOOP testexpr return_stmts
-                       POP_BLOCK COME_FROM
-
-        whileelsestmt ::= SETUP_LOOP testexpr
-                l_stmts_opt JUMP_BACK
-                POP_BLOCK
-                else_suite COME_FROM
-
-        whileelselaststmt ::= SETUP_LOOP testexpr
-                l_stmts_opt JUMP_BACK
-                POP_BLOCK
-                else_suitec COME_FROM
-        """
-
     def p_import20(self, args):
         """
         stmt ::= importstmt

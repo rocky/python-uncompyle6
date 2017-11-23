@@ -103,9 +103,12 @@ class Python27Parser(Python2Parser):
                 WITH_CLEANUP END_FINALLY
 
         while1stmt     ::= SETUP_LOOP return_stmts bp_come_from
-        while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK POP_BLOCK else_suite COME_FROM
         while1stmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK _come_from
+        while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK POP_BLOCK
+                           else_suite COME_FROM
+        whileelsestmt  ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+                           else_suite COME_FROM
 
         # Common with 2.6
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM

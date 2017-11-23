@@ -143,6 +143,7 @@ class Python26Parser(Python2Parser):
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt jb_pop POP_BLOCK _come_from
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt jb_cf_pop bp_come_from
         whilestmt      ::= SETUP_LOOP testexpr return_stmts come_froms POP_TOP bp_come_from
+        whilestmt      ::= SETUP_LOOP testexpr return_stmts POP_BLOCK COME_FROM
 
         whileelsestmt  ::= SETUP_LOOP testexpr l_stmts_opt jb_pop POP_BLOCK
                            else_suite COME_FROM
