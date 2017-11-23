@@ -98,7 +98,9 @@ class Python36Parser(Python35Parser):
                 """ % (fstring_expr_or_str_n, fstring_expr_or_str_n, "fstring_expr_or_str " * v)
                 self.add_unique_doc_rules(rules_str, customize)
 
-    def custom_classfunc_rule(self, opname, token, customize, seen_LOAD_BUILD_CLASS):
+    def custom_classfunc_rule(self, opname, token, customize,
+                              seen_LOAD_BUILD_CLASS,
+                              seen_GET_AWAITABLE_YIELD_FROM):
         if opname.startswith('CALL_FUNCTION_KW'):
             values = 'expr ' * token.attr
             rule = 'call_function ::= expr kwargs_only_36 {token.kind}'.format(**locals())
@@ -107,7 +109,9 @@ class Python36Parser(Python35Parser):
             self.add_unique_rule(rule, token.kind, token.attr, customize)
         else:
             super(Python36Parser, self).custom_classfunc_rule(opname, token,
-                                                              customize, seen_LOAD_BUILD_CLASS)
+                                                              customize,
+                                                              seen_LOAD_BUILD_CLASS,
+                                                              seen_GET_AWAITABLE_YIELD_FROM)
 
 
 class Python36ParserSingle(Python36Parser, PythonParserSingle):
