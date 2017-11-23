@@ -1,4 +1,4 @@
-#  Copyright (c) 2016 Rocky Bernstein
+#  Copyright (c) 2016-2017 Rocky Bernstein
 """
 spark grammar differences over Python 3 for Python 3.2.
 """
@@ -8,15 +8,15 @@ from uncompyle6.parsers.parse3 import Python3Parser
 class Python32Parser(Python3Parser):
     def p_32to35(self, args):
         """
+        conditional    ::= expr jmp_false expr jump_forward_else expr COME_FROM
+
         # Store locals is only in Python 3.0 to 3.3
-        stmt ::= store_locals
-        store_locals ::= LOAD_FAST STORE_LOCALS
+        stmt           ::= store_locals
+        store_locals   ::= LOAD_FAST STORE_LOCALS
 
         # Python < 3.5 no POP BLOCK
-        whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK
-                              COME_FROM_LOOP
-        whileTruestmt     ::= SETUP_LOOP return_stmts
-                              COME_FROM_LOOP
+        whileTruestmt  ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM_LOOP
+        whileTruestmt  ::= SETUP_LOOP return_stmts          COME_FROM_LOOP
 
         try_middle ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
                        END_FINALLY
@@ -40,6 +40,9 @@ class Python32Parser(Python3Parser):
         pass
 
     def add_custom_rules(self, tokens, customize):
+        # self.remove_rules("""
+        #     cmp_list2 ::= expr COMPARE_OP RETURN_VALUE
+        # """)
         super(Python32Parser, self).add_custom_rules(tokens, customize)
         for i, token in enumerate(tokens):
             opname = token.kind

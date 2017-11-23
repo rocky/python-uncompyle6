@@ -17,6 +17,12 @@ class Python34Parser(Python33Parser):
         """
         expr ::= LOAD_ASSERT
 
+
+        # FIXME the below masks a bug in not detecting COME_FROM_LOOP
+        # grammar rules with COME_FROM -> COME_FROM_LOOP alreadly exist
+        whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+                              else_suite COME_FROM
+
         # Python 3.4+ optimizes the trailing two JUMPS away
 
         # Is this 3.4 only?

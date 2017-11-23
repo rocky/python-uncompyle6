@@ -38,10 +38,6 @@ class Python2Parser(PythonParser):
 
     def p_stmt2(self, args):
         """
-        # Note: these are removed in 2.7
-        while1stmt     ::= SETUP_LOOP l_stmts JUMP_BACK COME_FROM
-        while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK else_suite COME_FROM
-
         exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
         exec_stmt ::= expr exprlist EXEC_STMT
 
@@ -203,6 +199,8 @@ class Python2Parser(PythonParser):
 
         # In Python 3, DUP_TOPX_2 is DUP_TOP_TWO
         binary_subscr2 ::= expr expr DUP_TOPX_2 BINARY_SUBSCR
+
+        conditional ::= expr jmp_false expr JUMP_ABSOLUTE expr
         """
 
     def p_slice2(self, args):

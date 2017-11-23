@@ -203,7 +203,6 @@ class PythonParser(GenericASTBuilder):
         c_stmts ::= continue_stmts
 
         lastc_stmt ::= iflaststmt
-        lastc_stmt ::= whileelselaststmt
         lastc_stmt ::= forelselaststmt
         lastc_stmt ::= ifelsestmtr
         lastc_stmt ::= ifelsestmtc
@@ -376,25 +375,6 @@ class PythonParser(GenericASTBuilder):
                 for_block POP_BLOCK else_suitel _come_from
         """
 
-    def p_whilestmt(self, args):
-        """
-        whilestmt  ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK
-                       POP_BLOCK _come_from
-
-        whilestmt  ::= SETUP_LOOP testexpr return_stmts
-                       POP_BLOCK COME_FROM
-
-        whileelsestmt ::= SETUP_LOOP testexpr
-                l_stmts_opt JUMP_BACK
-                POP_BLOCK
-                else_suite COME_FROM
-
-        whileelselaststmt ::= SETUP_LOOP testexpr
-                l_stmts_opt JUMP_BACK
-                POP_BLOCK
-                else_suitec COME_FROM
-        """
-
     def p_import20(self, args):
         """
         stmt ::= importstmt
@@ -510,10 +490,6 @@ class PythonParser(GenericASTBuilder):
 
         expr ::= conditional
         conditional ::= expr jmp_false expr JUMP_FORWARD expr COME_FROM
-        conditional ::= expr jmp_false expr JUMP_ABSOLUTE expr
-
-        expr ::= conditionalnot
-        conditionalnot  ::= expr jmp_true expr _jump expr COME_FROM
 
         expr            ::= conditionalTrue
         conditionalTrue ::= expr JUMP_FORWARD expr COME_FROM
@@ -532,21 +508,14 @@ class PythonParser(GenericASTBuilder):
         return_lambda ::= ret_expr RETURN_VALUE_LAMBDA LAMBDA_MARKER
         return_lambda ::= ret_expr RETURN_VALUE_LAMBDA
 
-        conditional_lambda ::= expr jmp_false return_if_stmt return_stmt LAMBDA_MARKER
+        # Doesn't seemt to be used anymore, but other conditional_lambda's are
+        # conditional_lambda ::= expr jmp_false return_if_stmt return_stmt LAMBDA_MARKER
 
         cmp ::= cmp_list
         cmp ::= compare
         compare ::= expr expr COMPARE_OP
-        cmp_list ::= expr cmp_list1 ROT_TWO POP_TOP
-                _come_from
-        cmp_list1 ::= expr DUP_TOP ROT_THREE
-                COMPARE_OP jmp_false
-                cmp_list1 _come_from
-        cmp_list1 ::= expr DUP_TOP ROT_THREE
-                COMPARE_OP jmp_false
-                cmp_list2 _come_from
+        cmp_list ::= expr cmp_list1 ROT_TWO POP_TOP _come_from
         cmp_list2 ::= expr COMPARE_OP JUMP_FORWARD
-        cmp_list2 ::= expr COMPARE_OP RETURN_VALUE
         mapexpr ::= BUILD_MAP kvlist
 
         kvlist ::= kvlist kv
