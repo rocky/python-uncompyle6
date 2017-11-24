@@ -203,6 +203,8 @@ class Python2Parser(PythonParser):
         binary_subscr2 ::= expr expr DUP_TOPX_2 BINARY_SUBSCR
 
         conditional ::= expr jmp_false expr JUMP_ABSOLUTE expr
+        cmp_list2   ::= expr COMPARE_OP RETURN_VALUE
+        cmp_list2   ::= expr COMPARE_OP RETURN_VALUE_LAMBDA
         """
 
     def p_slice2(self, args):
