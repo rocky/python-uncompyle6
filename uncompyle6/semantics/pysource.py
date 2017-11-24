@@ -808,7 +808,12 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_LOAD_CONST(self, node):
         data = node.pattr; datatype = type(data)
-        if isinstance(datatype, int) and data == minint:
+        if isinstance(data, float) and str(data) in frozenset(['nan', '-nan', 'inf', '-inf']):
+            # float values 'nan' and 'inf' are not directly representable in Python at least
+            # before 3.5 and even there it is via a library constant.
+            # So we will canonicalize their representation as float('nan') and float('inf')
+            self.write("float('%s')" % data)
+        elif isinstance(datatype, int) and data == minint:
             # convert to hex, since decimal representation
             # would result in 'LOAD_CONST; UNARY_NEGATIVE'
             # change:hG/2002-02-07: this was done for all negative integers
