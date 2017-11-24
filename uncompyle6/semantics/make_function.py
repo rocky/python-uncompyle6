@@ -332,7 +332,6 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
     else:
         defparams = node[:args_node.attr]
         kw_args  = 0
-        annotate_argc  = 0
         pass
 
     lambda_index = None
@@ -364,7 +363,7 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
             self.ERROR = p
         return
 
-    kw_pairs = args_node.attr[1] if self.version >= 3.0 else 0
+    kw_pairs = 0
     indent = self.indent
 
     # build parameters
@@ -379,6 +378,22 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
     # dump parameter list (with default values)
     if isLambda:
         self.write("lambda ", ", ".join(params))
+        # If the last statement is None (which is the
+        # same thing as "return None" in a lambda) and the
+        # next to last statement is a "yield". Then we want to
+        # drop the (return) None since that was just put there
+        # to have something to after the yield finishes.
+        # FIXME: this is a bit hoaky and not general
+        if (len(ast) > 1 and
+            self.traverse(ast[-1]) == 'None' and
+            self.traverse(ast[-2]).strip().startswith('yield')):
+            del ast[-1]
+            # Now pick out the expr part of the last statement
+            ast_expr = ast[-1]
+            while ast_expr.kind != 'expr':
+                ast_expr = ast_expr[0]
+            ast[-1] = ast_expr
+            pass
     else:
         self.write("(", ", ".join(params))
 
@@ -416,7 +431,8 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
         print_docstring(self, indent, code.co_consts[0])
 
     code._tokens = None # save memory
-    assert ast == 'stmts'
+    if not isLambda:
+        assert ast == 'stmts'
 
     all_globals = find_all_globals(ast, set())
     for g in ((all_globals & self.mod_globs) | find_globals(ast, set())):
@@ -559,6 +575,22 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
     # dump parameter list (with default values)
     if isLambda:
         self.write("lambda ", ", ".join(params))
+        # If the last statement is None (which is the
+        # same thing as "return None" in a lambda) and the
+        # next to last statement is a "yield". Then we want to
+        # drop the (return) None since that was just put there
+        # to have something to after the yield finishes.
+        # FIXME: this is a bit hoaky and not general
+        if (len(ast) > 1 and
+            self.traverse(ast[-1]) == 'None' and
+            self.traverse(ast[-2]).strip().startswith('yield')):
+            del ast[-1]
+            # Now pick out the expr part of the last statement
+            ast_expr = ast[-1]
+            while ast_expr.kind != 'expr':
+                ast_expr = ast_expr[0]
+            ast[-1] = ast_expr
+            pass
     else:
         self.write("(", ", ".join(params))
     # self.println(indent, '#flags:\t', int(code.co_flags))

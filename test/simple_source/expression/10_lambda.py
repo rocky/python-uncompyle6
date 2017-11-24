@@ -26,3 +26,11 @@ class ExtendedInterpolation():
         value_getter = lambda option: self._interpolation.before_get(self,
             section, option, d[option], d)
         return value_getter
+
+# Bug from Python 2.7's test_collections.py
+# is that the lambda function has two
+# statements in it, one for returning *after* the yield
+# The return None statement should be removed and the
+# yield should be turned into a statement
+def test_Iterable(self):
+    return (lambda: (yield))()
