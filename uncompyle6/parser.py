@@ -504,14 +504,17 @@ class PythonParser(GenericASTBuilder):
         return_lambda ::= ret_expr RETURN_VALUE_LAMBDA LAMBDA_MARKER
         return_lambda ::= ret_expr RETURN_VALUE_LAMBDA
 
-        # Doesn't seemt to be used anymore, but other conditional_lambda's are
+        # Doesn't seem to be used anymore, but other conditional_lambda's are
         # conditional_lambda ::= expr jmp_false return_if_stmt return_stmt LAMBDA_MARKER
 
-        cmp ::= cmp_list
-        cmp ::= compare
+        cmp     ::= compare_chained
+        cmp     ::= compare
         compare ::= expr expr COMPARE_OP
-        cmp_list ::= expr cmp_list1 ROT_TWO POP_TOP _come_from
-        cmp_list2 ::= expr COMPARE_OP JUMP_FORWARD
+
+        # A compare_chained is two comparisions like x <= y <= z
+        compare_chained  ::= expr compare_chained1 ROT_TWO POP_TOP _come_from
+        compare_chained2 ::= expr COMPARE_OP JUMP_FORWARD
+
         mapexpr ::= BUILD_MAP kvlist
 
         kvlist ::= kvlist kv
