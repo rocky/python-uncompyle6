@@ -10,3 +10,9 @@
 def formatweekday(self):
     with self as encoding:
         return encoding
+
+# Bug in 2.7.14 test_contextlib.py. Bug was not enclosing (x,y) in parenthesis
+def withas_bug(self, nested, a, b):
+    with self.assertRaises(ZeroDivisionError):
+        with nested(a(), b()) as (x, y):
+                1 // 0

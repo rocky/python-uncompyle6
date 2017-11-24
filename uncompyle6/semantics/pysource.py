@@ -315,8 +315,10 @@ class SourceWalker(GenericASTTraversal, object):
                 'importmultiple': ( '%|import %c%c\n', 2, 3 ),
                 'import_cont'   : ( ', %c', 2 ),
                 # With/as is allowed as "from future" thing in 2.5
+                # Note: It is safe to put the variables after "as" in parenthesis,
+                # and sometimes it is needed.
                 'withstmt':     ( '%|with %c:\n%+%c%-', 0, 3),
-                'withasstmt':   ( '%|with %c as %c:\n%+%c%-', 0, 2, 3),
+                'withasstmt':   ( '%|with %c as (%c):\n%+%c%-', 0, 2, 3),
             })
 
         ########################################
@@ -1726,7 +1728,21 @@ class SourceWalker(GenericASTTraversal, object):
         if lastnodetype.startswith('BUILD_LIST'):
             self.write('['); endchar = ']'
         elif lastnodetype.startswith('BUILD_TUPLE'):
-            self.write('('); endchar = ')'
+            # Tuples can appear places that can NOT
+            # have parenthesis around them, like array
+            # subscripts. We check for that by seeing
+            # if a tuple item is some sort of slice.
+            no_parens = False
+            for n in node:
+                if n == 'expr' and n[0].kind.startswith('buildslice'):
+                    no_parens = True
+                    break
+                pass
+            if no_parens:
+                endchar = ''
+            else:
+                self.write('('); endchar = ')'
+                pass
         elif lastnodetype.startswith('BUILD_SET'):
             self.write('{'); endchar = '}'
         elif lastnodetype.startswith('BUILD_MAP_UNPACK'):
