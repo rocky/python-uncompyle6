@@ -438,7 +438,7 @@ class PythonParser(GenericASTBuilder):
         expr ::= load_attr
         expr ::= binary_expr
         expr ::= build_list
-        expr ::= cmp
+        expr ::= compare
         expr ::= mapexpr
         expr ::= and
         expr ::= or
@@ -507,9 +507,9 @@ class PythonParser(GenericASTBuilder):
         # Doesn't seem to be used anymore, but other conditional_lambda's are
         # conditional_lambda ::= expr jmp_false return_if_stmt return_stmt LAMBDA_MARKER
 
-        cmp     ::= compare_chained
-        cmp     ::= compare
-        compare ::= expr expr COMPARE_OP
+        compare        ::= compare_chained
+        compare        ::= compare_single
+        compare_single ::= expr expr COMPARE_OP
 
         # A compare_chained is two comparisions like x <= y <= z
         compare_chained  ::= expr compare_chained1 ROT_TWO POP_TOP _come_from

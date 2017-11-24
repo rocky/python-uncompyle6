@@ -192,7 +192,7 @@ TABLE_DIRECT = {
     'ret_cond_not':     ( '%p if not %p else %p', (2, 27), (0, 22), (-1, 27) ),
     'conditional_lambda':  ( '%c if %c else %c', 2, 0, 4),
 
-    'compare':		    ( '%p %[-1]{pattr.replace("-", " ")} %p', (0, 19), (1, 19) ),
+    'compare_single':	    ( '%p %[-1]{pattr.replace("-", " ")} %p', (0, 19), (1, 19) ),
     'compare_chained':	    ( '%p %p', (0, 29), (1, 30)),
     'compare_chained1':	    ( '%[3]{pattr} %p %p', (0, 19), (-2, 19)),
     'compare_chained2':	    ( '%[1]{pattr} %p', (0, 19)),
@@ -340,7 +340,7 @@ PRECEDENCE = {
 
     'BINARY_OR':            18,
 
-    'cmp':                  20,
+    'compare':              20,
 
     'unary_not':            22,
 
