@@ -360,14 +360,7 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
             self.ERROR = p
         return
 
-<<<<<<< HEAD
-    if self.version >= 3.0:
-        kw_pairs = args_node.attr[1]
-    else:
-        kw_pairs = 0
-=======
     kw_pairs = 0
->>>>>>> master
     indent = self.indent
 
     # build parameters
@@ -451,10 +444,34 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
 
 
 def make_function3(self, node, isLambda, nested=1, codeNode=None):
-    """Dump function definition, doc string, and function body."""
+    """Dump function definition, doc string, and function body in
+      Python version 3.0 and above
+    """
 
-    # FIXME: call make_function3 if we are self.version >= 3.0
-    # and then simplify the below.
+    # For Python 3.3, the evaluation stack in MAKE_FUNCTION is:
+
+    # * default argument objects in positional order
+    # * pairs of name and default argument, with the name just below
+    #   the object on the stack, for keyword-only parameters
+    # * parameter annotation objects
+    # * a tuple listing the parameter names for the annotations
+    #   (only if there are ony annotation objects)
+    # * the code associated with the function (at TOS1)
+    # * the qualified name of the function (at TOS)
+
+    # For Python 3.0 .. 3.2 the evaluation stack is:
+    # The function object is defined to have argc default parameters,
+    # which are found below TOS.
+    # * first come positional args in the order they are given in the source,
+    # * next come the keyword args in the order they given in the source,
+    # * finally is the code associated with the function (at TOS)
+    #
+    # Note: There is no qualified name at TOS
+
+    # MAKE_CLOSURE adds an additional closure slot
+
+    # Thank you, Python, for a such a well-thought out system that has
+    # changed 4 or so times.
 
     def build_param(ast, name, default):
         """build parameters:
@@ -480,7 +497,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
             # positional args are after kwargs
             defparams = node[1:args_node.attr[0]+1]
         else:
-            # positional args are before kwargs
+            # args are before kwargs; kwags as bundled as one node
             defparams = node[:args_node.attr[0]]
         pos_args, kw_args, annotate_argc  = args_node.attr
     else:
@@ -488,7 +505,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
             defparams = node[:args_node.attr]
         else:
             default, kw, annotate, closure = args_node.attr
-            # FIXME: start here.
+            # FIXME: start here for Python 3.6 and above:
             defparams = []
             # if default:
             #     defparams = node[-(2 +  kw + annotate  + closure)]
@@ -519,7 +536,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
     paramnames = list(code.co_varnames[:argc])
 
     # defaults are for last n parameters, thus reverse
-    if not 3.0 <= self.version <= 3.2:
+    if not 3.0 <= self.version <= 3.1:
         paramnames.reverse(); defparams.reverse()
 
     try:
@@ -560,31 +577,28 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
             self.write("(", ", ".join(params))
         # self.println(indent, '#flags:\t', int(code.co_flags))
 
-    # dump parameter list (with default values)
-    if isLambda:
-        self.write("lambda ", ", ".join(params))
-        # If the last statement is None (which is the
-        # same thing as "return None" in a lambda) and the
-        # next to last statement is a "yield". Then we want to
-        # drop the (return) None since that was just put there
-        # to have something to after the yield finishes.
-        # FIXME: this is a bit hoaky and not general
-        if (len(ast) > 1 and
-            self.traverse(ast[-1]) == 'None' and
-            self.traverse(ast[-2]).strip().startswith('yield')):
-            del ast[-1]
-            # Now pick out the expr part of the last statement
-            ast_expr = ast[-1]
-            while ast_expr.kind != 'expr':
-                ast_expr = ast_expr[0]
-            ast[-1] = ast_expr
-            pass
     else:
         if isLambda:
             self.write("lambda ")
-        else:
-            self.write("(")
-            pass
+            # If the last statement is None (which is the
+            # same thing as "return None" in a lambda) and the
+            # next to last statement is a "yield". Then we want to
+            # drop the (return) None since that was just put there
+            # to have something to after the yield finishes.
+            # FIXME: this is a bit hoaky and not general
+            if (len(ast) > 1 and
+                self.traverse(ast[-1]) == 'None' and
+                self.traverse(ast[-2]).strip().startswith('yield')):
+                del ast[-1]
+                # Now pick out the expr part of the last statement
+                ast_expr = ast[-1]
+                while ast_expr.kind != 'expr':
+                    ast_expr = ast_expr[0]
+                ast[-1] = ast_expr
+                pass
+            else:
+                self.write("(")
+                pass
 
         last_line = self.f.getvalue().split("\n")[-1]
         l = len(last_line)
