@@ -549,15 +549,14 @@ class PythonParser(GenericASTBuilder):
         ##   designLists ::=
         ## Will need to redo semantic actiion
 
-        designator ::= STORE_FAST
-        designator ::= STORE_NAME
-        designator ::= STORE_GLOBAL
-        designator ::= STORE_DEREF
-        designator ::= expr STORE_ATTR
-        designator ::= store_subscr
+        designator   ::= STORE_FAST
+        designator   ::= STORE_NAME
+        designator   ::= STORE_GLOBAL
+        designator   ::= STORE_DEREF
+        designator   ::= expr STORE_ATTR
+        designator   ::= store_subscr
         store_subscr ::= expr expr STORE_SUBSCR
-        designator ::= unpack
-        designator ::= unpack_list
+        designator   ::= unpack
         '''
 
 

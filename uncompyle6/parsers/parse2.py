@@ -258,6 +258,7 @@ class Python2Parser(PythonParser):
 
         PyPy adds custom rules here as well
         """
+
         if 'PyPy' in customize:
             # PyPy-specific customizations
             self.addRule("""
@@ -276,6 +277,8 @@ class Python2Parser(PythonParser):
             else:
                 continue
             opname_base = opname[:opname.rfind('_')]
+
+            # The order of opname listed is roughly sorted below
             if opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
                 thousands = (v//1024)
                 thirty32s = ((v//32) % 32)
@@ -289,23 +292,6 @@ class Python2Parser(PythonParser):
                     self.seen1024 = True
                 rule = ('build_list ::= ' + 'expr1024 '*thousands +
                                         'expr32 '*thirty32s + 'expr '*(v % 32) + opname)
-            elif opname == 'LOOKUP_METHOD':
-                # A PyPy speciality - DRY with parse3
-                self.add_unique_rule("load_attr ::= expr LOOKUP_METHOD",
-                                     opname, v, customize)
-                continue
-            elif opname == 'JUMP_IF_NOT_DEBUG':
-                self.add_unique_rules([
-                    'jmp_true_false ::= POP_JUMP_IF_TRUE',
-                    'jmp_true_false ::= POP_JUMP_IF_FALSE',
-                    "stmt ::= assert_pypy",
-                    "stmt ::= assert2_pypy",
-                    "assert_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true_false "
-                       "LOAD_ASSERT RAISE_VARARGS_1 COME_FROM",
-                    "assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true_false "
-                       "LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1 COME_FROM",
-                    ], customize)
-                continue
             elif opname_base == 'BUILD_MAP':
                 if opname == 'BUILD_MAP_n':
                     # PyPy sometimes has no count. Sigh.
@@ -327,33 +313,42 @@ class Python2Parser(PythonParser):
                         "mapexpr ::= %s %s" % (opname, kvlist_n)
                     ], customize)
                 continue
-            elif opname == 'SETUP_EXCEPT':
-                # FIXME: have a way here to detect PyPy. Right now we
-                # only have SETUP_EXCEPT customization for PyPy, but that might not
-                # always be the case.
-                self.add_unique_rules([
-                    "stmt ::= trystmt_pypy",
-                    "trystmt_pypy ::= SETUP_EXCEPT suite_stmts_opt try_middle_pypy",
-                    "try_middle_pypy ::= COME_FROM except_stmts END_FINALLY COME_FROM"
-                    ], customize)
-                continue
-            elif opname == 'SETUP_FINALLY':
-                # FIXME: have a way here to detect PyPy. Right now we
-                # only have SETUP_EXCEPT customization for PyPy, but that might not
-                # always be the case.
-                self.add_unique_rules([
-                    "stmt ::= tryfinallystmt_pypy",
-                    "tryfinallystmt_pypy ::= SETUP_FINALLY suite_stmts_opt COME_FROM_FINALLY "
-                        "suite_stmts_opt END_FINALLY"
-                ], customize)
-                continue
-            elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
-                rule = 'unpack ::= ' + opname + ' designator'*v
-            elif opname_base == 'UNPACK_LIST':
-                rule = 'unpack_list ::= ' + opname + ' designator'*v
+            elif opname_base in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
+                                 'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
+                args_pos = (v & 0xff)          # positional parameters
+                args_kw = (v >> 8) & 0xff      # keyword parameters
+                # number of apply equiv arguments:
+                nak = ( len(opname_base)-len('CALL_FUNCTION') ) // 3
+                rule = 'call_function ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
+                       + 'expr ' * nak + opname
+            elif opname_base == 'CALL_METHOD':
+                # PyPy only - DRY with parse3
+                args_pos = (v & 0xff)          # positional parameters
+                args_kw = (v >> 8) & 0xff      # keyword parameters
+                # number of apply equiv arguments:
+                nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
+                rule = 'call_function ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
+                       + 'expr ' * nak + opname
             elif opname_base in ('DUP_TOPX', 'RAISE_VARARGS'):
                 # FIXME: remove these conditions if they are not needed.
                 # no longer need to add a rule
+                continue
+            elif opname == 'JUMP_IF_NOT_DEBUG':
+                self.add_unique_rules([
+                    'jmp_true_false ::= POP_JUMP_IF_TRUE',
+                    'jmp_true_false ::= POP_JUMP_IF_FALSE',
+                    "stmt ::= assert_pypy",
+                    "stmt ::= assert2_pypy",
+                    "assert_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true_false "
+                       "LOAD_ASSERT RAISE_VARARGS_1 COME_FROM",
+                    "assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true_false "
+                       "LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1 COME_FROM",
+                    ], customize)
+                continue
+            elif opname == 'LOOKUP_METHOD':
+                # A PyPy speciality - DRY with parse3
+                self.add_unique_rule("load_attr ::= expr LOOKUP_METHOD",
+                                     opname, v, customize)
                 continue
             elif opname_base == 'MAKE_FUNCTION':
                 if i > 0 and tokens[i-1] == 'LOAD_LAMBDA':
@@ -381,23 +376,32 @@ class Python2Parser(PythonParser):
                         ' GET_ITER CALL_FUNCTION_1' %
                         ('expr '*v, opname))],
                         customize)
+                    pass
                 continue
-            elif opname_base in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
-                                 'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
-                args_pos = (v & 0xff)          # positional parameters
-                args_kw = (v >> 8) & 0xff      # keyword parameters
-                # number of apply equiv arguments:
-                nak = ( len(opname_base)-len('CALL_FUNCTION') ) // 3
-                rule = 'call_function ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
-                       + 'expr ' * nak + opname
-            elif opname_base == 'CALL_METHOD':
-                # PyPy only - DRY with parse3
-                args_pos = (v & 0xff)          # positional parameters
-                args_kw = (v >> 8) & 0xff      # keyword parameters
-                # number of apply equiv arguments:
-                nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
-                rule = 'call_function ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
-                       + 'expr ' * nak + opname
+            elif opname == 'SETUP_EXCEPT':
+                # FIXME: have a way here to detect PyPy. Right now we
+                # only have SETUP_EXCEPT customization for PyPy, but that might not
+                # always be the case.
+                self.add_unique_rules([
+                    "stmt ::= trystmt_pypy",
+                    "trystmt_pypy ::= SETUP_EXCEPT suite_stmts_opt try_middle_pypy",
+                    "try_middle_pypy ::= COME_FROM except_stmts END_FINALLY COME_FROM"
+                    ], customize)
+                continue
+            elif opname == 'SETUP_FINALLY':
+                # FIXME: have a way here to detect PyPy. Right now we
+                # only have SETUP_EXCEPT customization for PyPy, but that might not
+                # always be the case.
+                self.add_unique_rules([
+                    "stmt ::= tryfinallystmt_pypy",
+                    "tryfinallystmt_pypy ::= SETUP_FINALLY suite_stmts_opt COME_FROM_FINALLY "
+                        "suite_stmts_opt END_FINALLY"
+                ], customize)
+                continue
+            elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
+                rule = 'unpack ::= ' + opname + ' designator'*v
+            elif opname_base == 'UNPACK_LIST':
+                rule = 'unpack_list ::= ' + opname + ' designator'*v
             else:
                 raise Exception('unknown customize token %s' % opname)
             self.add_unique_rule(rule, opname_base, v, customize)

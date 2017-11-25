@@ -110,7 +110,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     MAP_DIRECT_FRAGMENT = ()
 
-    stacked_params = ('f', 'indent', 'isLambda', '_globals')
+    stacked_params = ('f', 'indent', 'is_lambda', '_globals')
 
     def __init__(self, version, scanner, showast=False,
                  debug_parser=PARSER_DEFAULT_DEBUG,
@@ -143,19 +143,19 @@ class FragmentsWalker(pysource.SourceWalker, object):
                  None)
 
     indent = property(lambda s: s.params['indent'],
-                 lambda s, x: s.params.__setitem__('indent', x),
-                 lambda s: s.params.__delitem__('indent'),
-                 None)
+                      lambda s, x: s.params.__setitem__('indent', x),
+                      lambda s: s.params.__delitem__('indent'),
+                      None)
 
-    isLambda = property(lambda s: s.params['isLambda'],
-                 lambda s, x: s.params.__setitem__('isLambda', x),
-                 lambda s: s.params.__delitem__('isLambda'),
-                 None)
+    is_lambda = property(lambda s: s.params['is_lambda'],
+                         lambda s, x: s.params.__setitem__('is_lambda', x),
+                         lambda s: s.params.__delitem__('is_lambda'),
+                         None)
 
     _globals = property(lambda s: s.params['_globals'],
-                 lambda s, x: s.params.__setitem__('_globals', x),
-                 lambda s: s.params.__delitem__('_globals'),
-                 None)
+                        lambda s, x: s.params.__setitem__('_globals', x),
+                        lambda s: s.params.__delitem__('_globals'),
+                        None)
 
     def set_pos_info(self, node, start, finish, name=None):
         if name is None: name = self.name
@@ -208,7 +208,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def n_return_stmt(self, node):
         start = len(self.f.getvalue()) + len(self.indent)
-        if self.params['isLambda']:
+        if self.params['is_lambda']:
             self.preorder(node[0])
             if hasattr(node[-1], 'offset'):
                 self.set_pos_info(node[-1], start,
@@ -237,7 +237,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def n_return_if_stmt(self, node):
 
         start = len(self.f.getvalue()) + len(self.indent)
-        if self.params['isLambda']:
+        if self.params['is_lambda']:
             node[0].parent = node
             self.preorder(node[0])
         else:
@@ -529,7 +529,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         self.indent_more()
         start = len(self.f.getvalue())
-        self.make_function(node, isLambda=False, codeNode=code_node)
+        self.make_function(node, is_lambda=False, codeNode=code_node)
 
         self.set_pos_info(node, start, len(self.f.getvalue()))
 
@@ -992,7 +992,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     n_classdefdeco2 = n_classdef
 
-    def gen_source(self, ast, name, customize, isLambda=False, returnNone=False):
+    def gen_source(self, ast, name, customize, is_lambda=False, returnNone=False):
         """convert AST to Python source code"""
 
         rn = self.return_none
@@ -1004,15 +1004,15 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.println(self.indent, 'pass')
         else:
             self.customize(customize)
-            self.text = self.traverse(ast, isLambda=isLambda)
+            self.text = self.traverse(ast, is_lambda=is_lambda)
         self.name = old_name
         self.return_none = rn
 
-    def build_ast(self, tokens, customize, isLambda=False, noneInNames=False):
+    def build_ast(self, tokens, customize, is_lambda=False, noneInNames=False):
         # assert type(tokens) == ListType
         # assert isinstance(tokens[0], Token)
 
-        if isLambda:
+        if is_lambda:
             tokens.append(Token('LAMBDA_MARKER'))
             try:
                 ast = parser.parse(self.p, tokens, customize)
@@ -1118,7 +1118,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.last_finish = len(self.f.getvalue())
 
     # FIXME: duplicated from pysource, since we don't find self.params
-    def traverse(self, node, indent=None, isLambda=False):
+    def traverse(self, node, indent=None, is_lambda=False):
         '''Buulds up fragment which can be used inside a larger
         block of code'''
         self.param_stack.append(self.params)
@@ -1129,7 +1129,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             '_globals': {},
             'f': StringIO(),
             'indent': indent,
-            'isLambda': isLambda,
+            'is_lambda': is_lambda,
             }
         self.preorder(node)
         self.f.write('\n'*self.pending_newlines)

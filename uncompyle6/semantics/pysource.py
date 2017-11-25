@@ -161,7 +161,7 @@ class SourceWalkerError(Exception):
         return self.errmsg
 
 class SourceWalker(GenericASTTraversal, object):
-    stacked_params = ('f', 'indent', 'isLambda', '_globals')
+    stacked_params = ('f', 'indent', 'is_lambda', '_globals')
 
     def __init__(self, version, out, scanner, showast=False,
                  debug_parser=PARSER_DEFAULT_DEBUG,
@@ -383,7 +383,7 @@ class SourceWalker(GenericASTTraversal, object):
                     self.write(code.attr.co_name)
 
                 # FIXME: handle and pass full annotate args
-                make_function3_annotate(self, node, isLambda=False,
+                make_function3_annotate(self, node, is_lambda=False,
                                         codeNode=code, annotate_last=annotate_last)
 
                 if len(self.param_stack) > 1:
@@ -553,19 +553,19 @@ class SourceWalker(GenericASTTraversal, object):
                  None)
 
     indent = property(lambda s: s.params['indent'],
-                 lambda s, x: s.params.__setitem__('indent', x),
-                 lambda s: s.params.__delitem__('indent'),
-                 None)
+                      lambda s, x: s.params.__setitem__('indent', x),
+                      lambda s: s.params.__delitem__('indent'),
+                      None)
 
-    isLambda = property(lambda s: s.params['isLambda'],
-                 lambda s, x: s.params.__setitem__('isLambda', x),
-                 lambda s: s.params.__delitem__('isLambda'),
-                 None)
+    is_lambda = property(lambda s: s.params['is_lambda'],
+                         lambda s, x: s.params.__setitem__('is_lambda', x),
+                         lambda s: s.params.__delitem__('is_lambda'),
+                         None)
 
     _globals = property(lambda s: s.params['_globals'],
-                 lambda s, x: s.params.__setitem__('_globals', x),
-                 lambda s: s.params.__delitem__('_globals'),
-                 None)
+                        lambda s, x: s.params.__setitem__('_globals', x),
+                        lambda s: s.params.__delitem__('_globals'),
+                        None)
 
     def set_pos_info(self, node):
         if hasattr(node, 'linestart') and node.linestart:
@@ -581,7 +581,7 @@ class SourceWalker(GenericASTTraversal, object):
     def indent_less(self, indent=TAB):
         self.indent = self.indent[:-len(indent)]
 
-    def traverse(self, node, indent=None, isLambda=False):
+    def traverse(self, node, indent=None, is_lambda=False):
         self.param_stack.append(self.params)
         if indent is None: indent = self.indent
         p = self.pending_newlines
@@ -590,7 +590,7 @@ class SourceWalker(GenericASTTraversal, object):
             '_globals': {},
             'f': StringIO(),
             'indent': indent,
-            'isLambda': isLambda,
+            'is_lambda': is_lambda,
             }
         self.preorder(node)
         self.f.write('\n'*self.pending_newlines)
@@ -668,7 +668,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.prune()
 
     def n_return_stmt(self, node):
-        if self.params['isLambda']:
+        if self.params['is_lambda']:
             self.preorder(node[0])
             self.prune()
         else:
@@ -683,7 +683,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.prune() # stop recursing
 
     def n_return_if_stmt(self, node):
-        if self.params['isLambda']:
+        if self.params['is_lambda']:
             self.write(' return ')
             self.preorder(node[0])
             self.prune()
@@ -1016,7 +1016,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(func_name)
 
         self.indent_more()
-        self.make_function(node, isLambda=False, codeNode=code_node)
+        self.make_function(node, is_lambda=False, codeNode=code_node)
 
         if len(self.param_stack) > 1:
             self.write('\n\n')
@@ -1025,15 +1025,15 @@ class SourceWalker(GenericASTTraversal, object):
         self.indent_less()
         self.prune() # stop recursing
 
-    def make_function(self, node, isLambda, nested=1,
+    def make_function(self, node, is_lambda, nested=1,
                       codeNode=None, annotate=None):
         if self.version >= 3.0:
-            make_function3(self, node, isLambda, nested, codeNode)
+            make_function3(self, node, is_lambda, nested, codeNode)
         else:
-            make_function2(self, node, isLambda, nested, codeNode)
+            make_function2(self, node, is_lambda, nested, codeNode)
 
     def n_mklambda(self, node):
-        self.make_function(node, isLambda=True, codeNode=node[-2])
+        self.make_function(node, is_lambda=True, codeNode=node[-2])
         self.prune() # stop recursing
 
     def n_list_compr(self, node):
@@ -2161,7 +2161,7 @@ class SourceWalker(GenericASTTraversal, object):
         code._tokens = None; code._customize = None # save memory
         self.classes.pop(-1)
 
-    def gen_source(self, ast, name, customize, isLambda=False, returnNone=False):
+    def gen_source(self, ast, name, customize, is_lambda=False, returnNone=False):
         """convert AST to Python source code"""
 
         rn = self.return_none
@@ -2173,20 +2173,20 @@ class SourceWalker(GenericASTTraversal, object):
             self.println(self.indent, 'pass')
         else:
             self.customize(customize)
-            if isLambda:
-                self.write(self.traverse(ast, isLambda=isLambda))
+            if is_lambda:
+                self.write(self.traverse(ast, is_lambda=is_lambda))
             else:
-                self.text = self.traverse(ast, isLambda=isLambda)
+                self.text = self.traverse(ast, is_lambda=is_lambda)
                 self.println(self.text)
         self.name = old_name
         self.return_none = rn
 
-    def build_ast(self, tokens, customize, isLambda=False,
+    def build_ast(self, tokens, customize, is_lambda=False,
                   noneInNames=False, isTopLevel=False):
 
         # assert isinstance(tokens[0], Token)
 
-        if isLambda:
+        if is_lambda:
             for t in tokens:
                 if t.kind == 'RETURN_END_IF':
                     t.kind = 'RETURN_END_IF_LAMBDA'
