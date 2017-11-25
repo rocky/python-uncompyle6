@@ -1472,6 +1472,11 @@ class SourceWalker(GenericASTTraversal, object):
             if hasattr(buildclass[-3][0], 'attr'):
                 subclass_code = buildclass[-3][0].attr
                 class_name = buildclass[0].pattr
+            elif (buildclass[-3] == 'mkfunc' and
+                  node == 'classdefdeco2' and
+                  buildclass[-3][0] == 'load_closure'):
+                subclass_code = buildclass[-3][1].attr
+                class_name = buildclass[-3][0][0].pattr
             elif hasattr(node[0][0], 'pattr'):
                 subclass_code = buildclass[-3][1].attr
                 class_name = node[0][0].pattr
