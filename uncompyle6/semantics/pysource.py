@@ -313,8 +313,10 @@ class SourceWalker(GenericASTTraversal, object):
                 'importmultiple': ( '%|import %c%c\n', 2, 3 ),
                 'import_cont'   : ( ', %c', 2 ),
                 # With/as is allowed as "from future" thing in 2.5
+                # Note: It is safe to put the variables after "as" in parenthesis,
+                # and sometimes it is needed.
                 'withstmt':     ( '%|with %c:\n%+%c%-', 0, 3),
-                'withasstmt':   ( '%|with %c as %c:\n%+%c%-', 0, 2, 3),
+                'withasstmt':   ( '%|with %c as (%c):\n%+%c%-', 0, 2, 3),
             })
 
         ########################################
@@ -804,7 +806,12 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_LOAD_CONST(self, node):
         data = node.pattr; datatype = type(data)
-        if isinstance(datatype, int) and data == minint:
+        if isinstance(data, float) and str(data) in frozenset(['nan', '-nan', 'inf', '-inf']):
+            # float values 'nan' and 'inf' are not directly representable in Python at least
+            # before 3.5 and even there it is via a library constant.
+            # So we will canonicalize their representation as float('nan') and float('inf')
+            self.write("float('%s')" % data)
+        elif isinstance(datatype, int) and data == minint:
             # convert to hex, since decimal representation
             # would result in 'LOAD_CONST; UNARY_NEGATIVE'
             # change:hG/2002-02-07: this was done for all negative integers
@@ -1484,6 +1491,11 @@ class SourceWalker(GenericASTTraversal, object):
             if hasattr(buildclass[-3][0], 'attr'):
                 subclass_code = buildclass[-3][0].attr
                 class_name = buildclass[0].pattr
+            elif (buildclass[-3] == 'mkfunc' and
+                  node == 'classdefdeco2' and
+                  buildclass[-3][0] == 'load_closure'):
+                subclass_code = buildclass[-3][1].attr
+                class_name = buildclass[-3][0][0].pattr
             elif hasattr(node[0][0], 'pattr'):
                 subclass_code = buildclass[-3][1].attr
                 class_name = node[0][0].pattr
@@ -1745,7 +1757,21 @@ class SourceWalker(GenericASTTraversal, object):
         if lastnodetype.startswith('BUILD_LIST'):
             self.write('['); endchar = ']'
         elif lastnodetype.startswith('BUILD_TUPLE'):
-            self.write('('); endchar = ')'
+            # Tuples can appear places that can NOT
+            # have parenthesis around them, like array
+            # subscripts. We check for that by seeing
+            # if a tuple item is some sort of slice.
+            no_parens = False
+            for n in node:
+                if n == 'expr' and n[0].kind.startswith('buildslice'):
+                    no_parens = True
+                    break
+                pass
+            if no_parens:
+                endchar = ''
+            else:
+                self.write('('); endchar = ')'
+                pass
         elif lastnodetype.startswith('BUILD_SET'):
             self.write('{'); endchar = '}'
         elif lastnodetype.startswith('BUILD_MAP_UNPACK'):

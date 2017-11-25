@@ -332,10 +332,11 @@ class Python3Parser(PythonParser):
         or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
 
-        cmp_list1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
-                      cmp_list1 COME_FROM
-        cmp_list1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
-                      cmp_list2 COME_FROM
+        # compare_chained1 is used exclusively in chained_compare
+        compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
+                             compare_chained1 COME_FROM
+        compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
+                             compare_chained2 COME_FROM
         """
 
     def p_stmt3(self, args):

@@ -8,8 +8,9 @@ from uncompyle6.parsers.parse3 import Python3Parser
 class Python32Parser(Python3Parser):
     def p_32to35(self, args):
         """
-        conditional    ::= expr jmp_false expr jump_forward_else expr COME_FROM
-        cmp_list2      ::= expr COMPARE_OP RETURN_VALUE
+        conditional      ::= expr jmp_false expr jump_forward_else expr COME_FROM
+        # used exclusively in compare_chained
+        compare_chained2 ::= expr COMPARE_OP RETURN_VALUE
 
         # Store locals is only in Python 3.0 to 3.3
         stmt           ::= store_locals
@@ -55,7 +56,7 @@ class Python32Parser(Python3Parser):
 
     def add_custom_rules(self, tokens, customize):
         # self.remove_rules("""
-        #     cmp_list2 ::= expr COMPARE_OP RETURN_VALUE
+        #     compare_chained2 ::= expr COMPARE_OP RETURN_VALUE
         # """)
         super(Python32Parser, self).add_custom_rules(tokens, customize)
         for i, token in enumerate(tokens):
