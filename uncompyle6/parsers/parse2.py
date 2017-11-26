@@ -246,6 +246,9 @@ class Python2Parser(PythonParser):
             unpack      ::= UNPACK_TUPLE {expr}^n
             unpack      ::= UNPACK_SEQEUENCE {expr}^n
 
+            build_set  ::= {expr}^n BUILD_SET_n
+            build_set  ::= {expr}^n BUILD_SET_UNPACK_n
+
             mkfunc      ::= {expr}^n LOAD_CONST MAKE_FUNCTION_n
             mklambda    ::= {expr}^n LOAD_LAMBDA MAKE_FUNCTION_n
             mkfunc      ::= {expr}^n load_closure LOAD_CONST MAKE_FUNCTION_n
@@ -277,7 +280,7 @@ class Python2Parser(PythonParser):
             opname_base = opname[:opname.rfind('_')]
 
             # The order of opname listed is roughly sorted below
-            if opname_base in ('BUILD_LIST', 'BUILD_TUPLE', 'BUILD_SET'):
+            if opname_base in ('BUILD_LIST', 'BUILD_SET', 'BUILD_TUPLE'):
                 thousands = (v//1024)
                 thirty32s = ((v//32) % 32)
                 if thirty32s > 0:
@@ -289,7 +292,7 @@ class Python2Parser(PythonParser):
                                          opname_base, v, customize)
                     self.seen1024 = True
                 rule = ('build_list ::= ' + 'expr1024 '*thousands +
-                                        'expr32 '*thirty32s + 'expr '*(v % 32) + opname)
+                        'expr32 '*thirty32s + 'expr '*(v % 32) + opname)
             elif opname_base == 'BUILD_MAP':
                 if opname == 'BUILD_MAP_n':
                     # PyPy sometimes has no count. Sigh.

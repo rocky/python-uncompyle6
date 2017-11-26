@@ -1821,6 +1821,9 @@ class SourceWalker(GenericASTTraversal, object):
         self.indent_less(INDENT_PER_LEVEL)
         self.prec = p
         self.prune()
+        return
+
+    n_build_set = n_build_list
 
     def n_unpack(self, node):
         if node[0].kind.startswith('UNPACK_EX'):
