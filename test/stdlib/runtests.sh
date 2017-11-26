@@ -2,7 +2,7 @@
 me=${BASH_SOURCE[0]}
 
 # Python version setup
-FULLVERSION=${1:-2.7.14}
+FULLVERSION=$(pyenv local)
 PYVERSION=${FULLVERSION%.*}
 MINOR=${FULLVERSION##?.?.}
 
