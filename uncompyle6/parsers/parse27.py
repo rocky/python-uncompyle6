@@ -53,8 +53,6 @@ class Python27Parser(Python2Parser):
 
         except_cond2 ::= DUP_TOP expr COMPARE_OP
                          jmp_false POP_TOP designator POP_TOP
-
-        except_suite ::= c_stmts_opt CONTINUE
         """
 
     def p_jump27(self, args):
@@ -120,6 +118,7 @@ class Python27Parser(Python2Parser):
         """
 
     def add_custom_rules(self, tokens, customize):
+        # 2.7 changes COME_FROM to COME_FROM_FINALLY
         self.remove_rules("""
         while1stmt     ::= SETUP_LOOP l_stmts JUMP_BACK COME_FROM
         while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK else_suite COME_FROM

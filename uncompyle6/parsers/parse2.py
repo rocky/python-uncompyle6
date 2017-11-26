@@ -73,7 +73,6 @@ class Python2Parser(PythonParser):
 
         stmt ::= continue_stmt
         continue_stmt ::= CONTINUE
-        continue_stmt ::= CONTINUE_LOOP
         continue_stmts ::= _stmts lastl_stmt continue_stmt
         continue_stmts ::= lastl_stmt continue_stmt
         continue_stmts ::= continue_stmt
@@ -202,11 +201,8 @@ class Python2Parser(PythonParser):
         # In Python 3, DUP_TOPX_2 is DUP_TOP_TWO
         binary_subscr2 ::= expr expr DUP_TOPX_2 BINARY_SUBSCR
 
-        conditional ::= expr jmp_false expr JUMP_ABSOLUTE expr
-
         # compare_chained2 is used in a "chained_compare": x <= y <= z
         compare_chained2   ::= expr COMPARE_OP RETURN_VALUE
-        compare_chained2   ::= expr COMPARE_OP RETURN_VALUE_LAMBDA
         """
 
     def p_slice2(self, args):
@@ -347,6 +343,10 @@ class Python2Parser(PythonParser):
                 nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
                 rule = 'call_function ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
                        + 'expr ' * nak + opname
+            elif opname == 'CONTINUE_LOOP':
+                self.add_unique_rule('continue_stmt ::= CONTINUE_LOOP',
+                                     opname, v, customize)
+                continue
             elif opname_base in ('DUP_TOPX', 'RAISE_VARARGS'):
                 # FIXME: remove these conditions if they are not needed.
                 # no longer need to add a rule
@@ -378,13 +378,18 @@ class Python2Parser(PythonParser):
                 if i > 0 and tokens[i-1] == 'LOAD_LAMBDA':
                     self.addRule('mklambda ::= %s load_closure LOAD_LAMBDA %s' %
                                  ('expr '*v, opname),  nop_func)
+                if i > 0:
+                    prev_tok = tokens[i-1]
+                    if prev_tok == 'LOAD_GENEXPR':
+                        self.add_unique_rules([
+                            ('genexpr ::= %s load_closure LOAD_GENEXPR %s expr'
+                                 ' GET_ITER CALL_FUNCTION_1' %
+                            ('expr '*v, opname))], customize)
+                        pass
                 self.add_unique_rules([
-                    ('genexpr ::= %s load_closure LOAD_GENEXPR %s expr'
-                     ' GET_ITER CALL_FUNCTION_1' %
-                     ('expr '*v, opname)),
                     ('mkfunc ::= %s load_closure LOAD_CONST %s' %
-                     ('expr '*v, opname))],
-                    customize)
+                     ('expr '*v, opname))], customize)
+
                 if self.version >= 2.7:
                     if i > 0:
                         prev_tok = tokens[i-1]

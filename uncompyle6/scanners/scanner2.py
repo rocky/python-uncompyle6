@@ -258,6 +258,8 @@ class Scanner2(Scanner):
                 # as CALL_FUNCTION. The value is not used in these cases, so we put
                 # in arbitrary value 0.
                 customize[op_name] = 0
+            elif op == self.opc.CONTINUE_LOOP:
+                customize[op_name] = 0
             elif op == self.opc.JUMP_ABSOLUTE:
                 # Further classify JUMP_ABSOLUTE into backward jumps
                 # which are used in loops, and "CONTINUE" jumps which
