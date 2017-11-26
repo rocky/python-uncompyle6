@@ -101,7 +101,10 @@ class PythonParser(GenericASTBuilder):
         def fix(c):
             s = str(c)
             last_token_pos = s.find('_')
-            return s if last_token_pos == -1 else s[:last_token_pos]
+            if last_token_pos == -1:
+                return s
+            else:
+                return s[:last_token_pos]
 
         prefix = ''
         if parent and tokens:
@@ -134,7 +137,10 @@ class PythonParser(GenericASTBuilder):
             err_token = instructions[index]
             print("Instruction context:")
             for i in range(start, finish):
-                indent = '   ' if i != index else '-> '
+                if i != index:
+                    indent = '   '
+                else:
+                    indent = '-> '
                 print("%s%s" % (indent, instructions[i]))
             raise ParserError(err_token, err_token.offset)
         else:
@@ -448,8 +454,6 @@ class PythonParser(GenericASTBuilder):
         expr ::= binary_subscr
         expr ::= binary_subscr2
         expr ::= get_iter
-        expr ::= buildslice2
-        expr ::= buildslice3
         expr ::= yield
 
         binary_expr ::= expr expr binary_op
@@ -477,8 +481,6 @@ class PythonParser(GenericASTBuilder):
 
         load_attr ::= expr LOAD_ATTR
         get_iter ::= expr GET_ITER
-        buildslice3 ::= expr expr expr BUILD_SLICE_3
-        buildslice2 ::= expr expr BUILD_SLICE_2
 
         yield ::= expr YIELD_VALUE
 

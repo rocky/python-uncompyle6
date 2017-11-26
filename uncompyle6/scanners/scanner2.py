@@ -85,7 +85,9 @@ class Scanner2(Scanner):
         cause specific rules for the specific number of arguments they take.
         """
 
-        show_asm = self.show_asm if not show_asm else show_asm
+        if not show_asm:
+            show_asm = self.show_asm
+
         # show_asm = 'after'
         if show_asm in ('both', 'before'):
             from xdis.bytecode import Bytecode
@@ -247,8 +249,7 @@ class Scanner2(Scanner):
                         op_name = 'BUILD_MAP_n'
                     else:
                         op_name = '%s_%d' % (op_name, oparg)
-                    if op != self.opc.BUILD_SLICE:
-                        customize[op_name] = oparg
+                    customize[op_name] = oparg
             elif self.is_pypy and op_name in ('LOOKUP_METHOD',
                                              'JUMP_IF_NOT_DEBUG',
                                              'SETUP_EXCEPT',
@@ -1038,8 +1039,10 @@ class Scanner2(Scanner):
 
                             # FIXME: rocky: I think we need something like this...
                             if offset not in set(self.ignore_if) or self.version == 2.7:
-                                source = (self.setup_loops[label]
-                                          if label in self.setup_loops else offset)
+                                if label in self.setup_loops:
+                                    source = self.setup_loops[label]
+                                else:
+                                    source = offset
                                 targets[label] = targets.get(label, []) + [source]
                             pass
 

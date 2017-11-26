@@ -714,7 +714,7 @@ class SourceWalker(GenericASTTraversal, object):
             assert False, "dunno about this python version"
         self.prune() # stop recursing
 
-    def n_buildslice3(self, node):
+    def n_slice3(self, node):
         p = self.prec
         self.prec = 100
         if not node[0].isNone():
@@ -728,7 +728,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = p
         self.prune() # stop recursing
 
-    def n_buildslice2(self, node):
+    def n_slice2(self, node):
         p = self.prec
         self.prec = 100
         if not node[0].isNone():
@@ -1744,7 +1744,7 @@ class SourceWalker(GenericASTTraversal, object):
             # if a tuple item is some sort of slice.
             no_parens = False
             for n in node:
-                if n == 'expr' and n[0].kind.startswith('buildslice'):
+                if n == 'expr' and n[0].kind.startswith('slice'):
                     no_parens = True
                     break
                 pass
