@@ -386,14 +386,20 @@ class Python2Parser(PythonParser):
                      ('expr '*v, opname))],
                     customize)
                 if self.version >= 2.7:
-                    self.add_unique_rules([
-                        ('setcomp ::= %s load_closure LOAD_SETCOMP %s expr'
-                        ' GET_ITER CALL_FUNCTION_1' %
-                        ('expr '*v, opname)),
-                        ('dictcomp ::= %s load_closure LOAD_DICTCOMP %s expr'
-                        ' GET_ITER CALL_FUNCTION_1' %
-                        ('expr '*v, opname))],
-                        customize)
+                    if i > 0:
+                        prev_tok = tokens[i-1]
+                        if prev_tok == 'LOAD_DICTCOMP':
+                            self.add_unique_rules([
+                                ('dictcomp ::= %s load_closure LOAD_DICTCOMP %s expr'
+                                 ' GET_ITER CALL_FUNCTION_1' %
+                                ('expr '*v, opname))], customize)
+                        elif prev_tok == 'LOAD_SETCOMP':
+                            self.add_unique_rules([
+                                ('setcomp ::= %s load_closure LOAD_SETCOMP %s expr'
+                                ' GET_ITER CALL_FUNCTION_1' %
+                                ('expr '*v, opname))
+                                ], customize)
+                        pass
                     pass
                 continue
             elif opname == 'SETUP_EXCEPT':
