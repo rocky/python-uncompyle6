@@ -43,6 +43,10 @@ class Python25Parser(Python26Parser):
 
         with_cleanup ::= LOAD_FAST DELETE_FAST WITH_CLEANUP END_FINALLY
         with_cleanup ::= LOAD_NAME DELETE_NAME WITH_CLEANUP END_FINALLY
+
+
+        kvlist ::= kvlist kv
+        kv     ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
         """
 
     def add_custom_rules(self, tokens, customize):

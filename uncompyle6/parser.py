@@ -514,12 +514,8 @@ class PythonParser(GenericASTBuilder):
 
         mapexpr ::= BUILD_MAP kvlist
 
-        kvlist ::= kvlist kv2
-        kvlist ::= kvlist kv3
+        # Non-null kvlist items are broken out in the indiviual grammars
         kvlist ::=
-
-        kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
-        kv3 ::= expr expr STORE_MAP
 
         exprlist ::= exprlist expr
         exprlist ::= expr

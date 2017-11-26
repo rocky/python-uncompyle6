@@ -254,6 +254,8 @@ class Python26Parser(Python2Parser):
         return_if_lambda   ::= RETURN_END_IF_LAMBDA POP_TOP
         conditional_lambda ::= expr jmp_false_then expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
+        kvlist ::= kvlist kv3
+        kv3 ::= expr expr STORE_MAP
         """
 
     def add_custom_rules(self, tokens, customize):
