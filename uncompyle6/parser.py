@@ -419,15 +419,12 @@ class PythonParser(GenericASTBuilder):
         setcomp ::= LOAD_SETCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
 
         comp_iter ::= comp_if
-        comp_iter ::= comp_ifnot
         comp_iter ::= comp_for
         comp_iter ::= comp_body
         comp_body ::= gen_comp_body
         gen_comp_body ::= expr YIELD_VALUE POP_TOP
 
-        comp_if ::= expr jmp_false comp_iter
-        comp_ifnot ::= expr jmp_true comp_iter
-
+        comp_if  ::= expr jmp_false comp_iter
         comp_for ::= expr _for designator comp_iter JUMP_BACK
         """
 
@@ -517,12 +514,10 @@ class PythonParser(GenericASTBuilder):
 
         mapexpr ::= BUILD_MAP kvlist
 
-        kvlist ::= kvlist kv
         kvlist ::= kvlist kv2
         kvlist ::= kvlist kv3
         kvlist ::=
 
-        kv ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
         kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
         kv3 ::= expr expr STORE_MAP
 

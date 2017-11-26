@@ -9,8 +9,11 @@ class Python32Parser(Python3Parser):
     def p_32to35(self, args):
         """
         conditional      ::= expr jmp_false expr jump_forward_else expr COME_FROM
+
+        # compare_chained2 is used in a "chained_compare": x <= y <= z
         # used exclusively in compare_chained
         compare_chained2 ::= expr COMPARE_OP RETURN_VALUE
+        compare_chained2 ::= expr COMPARE_OP RETURN_VALUE_LAMBDA
 
         # Store locals is only in Python 3.0 to 3.3
         stmt           ::= store_locals
