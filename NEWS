@@ -1,3 +1,11 @@
+uncompyle6 2.14.0 2017-11-26 johnnybamazing
+
+- Start to isolate grammar rules between versions
+  and remove used grammar rules
+- Fix a number of bytecode decompile problems
+  (many more remain)
+- Add stdlib/runtests.sh for even more rigourous testing
+
 uncompyle6 2.13.3 2017-11-13
 
 Overall: better 3.6 decompiling and some much needed code refactoring and cleanup

@@ -17,17 +17,23 @@ source code. It accepts bytecodes from Python version 1.5, and 2.1 to
 Why this?
 ---------
 
-There were a number of decompyle, uncompile, uncompyle2, uncompyle3
+There were a number of decompyle, uncompyle, uncompyle2, uncompyle3
 forks around. All of them came basically from the same code base, and
 almost all of them no were no longer actively maintained. Only one
 handled Python 3, and even there, only 3.2 or 3.3 depending on which
-code is used. This code pulls these together and moves forward. This
-project has the most complete support for Python 3.3 and above. It
-also addresses a number of open issues in the previous forks.
+code is used. This code pulls these together and moves forward.
 
-What makes this different from other CPython bytecode decompilers?: its
-ability to deparse just fragments and give source-code information
-around a given bytecode offset.
+This project has the most complete support for Python 3.3 and above
+and the best all-around Pythoin support.
+
+We are serious about testing, and use automated processes to find
+bugs. In the issue trackers for other decompilers, you will find a
+number of bugs we've found along the way. Very few to none of them are
+not fixed in the other decompilers.
+
+Another thing that makes this different from other CPython bytecode
+decompilers is the ability to deparse just fragments and give
+source-code information around a given bytecode offset.
 
 I use this to deparse fragments of code inside my trepan_
 debuggers_. For that, I need to record text fragments for all
@@ -109,14 +115,14 @@ Known Bugs/Restrictions
 -----------------------
 
 The biggest known and possibly fixable (but hard) problem has to do
-with handling control flow. All of the Python decompilers I have looked
-at have the same problem. In some cases we can detect an erroneous
-decompilation and report that.
+with handling control flow. (Python has probably the most diverse and
+screwy set of compound statements I've ever seen; a number of the
+usual ones like else clauses on loops and try blocks I suspect most
+programmers don't know aobut.)
 
-Over 98% of the decompilation of Python standard library packages in
-Python 2.7.12 verifies correctly. Over 99% of Python 2.7 and 3.3-3.5
-"weakly" verify. Python 2.6 drops down to 96% weakly verifying.
-Other versions drop off in quality too.
+All of the Python decompilers I have looked at have the same
+problem. In some cases we can detect an erroneous decompilation and
+report that.
 
 *Verification* is the process of decompiling bytecode, compiling with
 a Python for that bytecode version, and then comparing the bytecode
@@ -134,6 +140,17 @@ program by running the Python interpreter. Because the Python language
 has changed so much, for best results you should use the same Python
 Version in checking as used in the bytecode.
 
+Finally, we have automated running the standard Python tests after
+first compiling and decompiling the test program. Results here are a
+bit weak (if not better than most other Python decompilers). But over
+time this will probably get better.
+
+Python support is strongest in Python 2 for 2.7 and drops off as you
+get further away from that. Support is also probably pretty good for
+python 2.3-2.4 since a lot of the goodness of early the version of the
+decompiler from that era has been preserved (and Python compilation in
+that era was minimal)
+
 Later distributions average about 200 files. There is some work to do
 on the lower end Python versions which is more difficult for us to
 handle since we don't have a Python interpreter for versions 1.5, 1.6,
@@ -144,7 +161,9 @@ In the Python 3 series, Python support is is strongest around 3.4 or
 3.6 changes things drastically by using word codes rather than byte
 codes. That has been addressed, but then it also changes function call
 opcodes and its semantics and has more problems with control flow than
-3.5 has.
+3.5 has. Between Python 3.5, 3.6 and 3.7 there have been major changes
+to the `MAKE_FUNCTION` and `CALL_FUNCTION` instructions. Those are
+not handled yet.
 
 Currently not all Python magic numbers are supported. Specifically in
 some versions of Python, notably Python 3.6, the magic number has
