@@ -20,6 +20,9 @@ class Python21Parser(Python22Parser):
         forstmt   ::= SETUP_LOOP expr _for designator
                       l_stmts_opt _jump_back
                       POP_BLOCK COME_FROM
+
+        kvlist ::= kvlist kv
+        kv     ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
         """
 
     def p_import21(self, args):

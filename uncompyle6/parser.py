@@ -516,12 +516,10 @@ class PythonParser(GenericASTBuilder):
 
         mapexpr ::= BUILD_MAP kvlist
 
-        kvlist ::= kvlist kv
         kvlist ::= kvlist kv2
         kvlist ::= kvlist kv3
         kvlist ::=
 
-        kv ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
         kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
         kv3 ::= expr expr STORE_MAP
 
