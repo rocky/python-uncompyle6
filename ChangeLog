@@ -1,6 +1,422 @@
+2017-11-26  rocky <rb@dustyfeet.com>
+
+	* : commit bfac9a62602e7640d19c14ed2cb508be3396e101 Author: rocky
+	<rb@dustyfeet.com> Date:   Sun Nov 26 09:25:37 2017 -0500
+
+2017-11-26  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/semantics/pysource.py: Isolate build_set from build_list
+	in Python 2...  More work is needed. Not done in Python 3 yet
+
+2017-11-26  rocky <rb@dustyfeet.com>
+
+	* test/stdlib/runtests.sh: stdlib/runtess.sh python version
+	detection
+
+2017-11-26  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, test/simple_source/bug22/01_kv.py,
+	test/simple_source/bug32/05_while_true_break.py: Work around grammar
+	remove rule bug...  And reinstate source to a current 3.3 bug (which we don't detect).
+	But at least it is noted for future work.
+
+2017-11-26  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse22.py,
+	uncompyle6/parsers/parse24.py, uncompyle6/parsers/parse25.py,
+	uncompyle6/parsers/parse26.py, uncompyle6/parsers/parse27.py,
+	uncompyle6/parsers/parse32.py: Isolaate kv, kv2 and kv3 better
+
+2017-11-26  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse22.py,
+	uncompyle6/parsers/parse24.py, uncompyle6/parsers/parse25.py,
+	uncompyle6/parsers/parse26.py, uncompyle6/parsers/parse27.py,
+	uncompyle6/parsers/parse32.py: Isolate kv, kv2, and kdv3 better
+
+2017-11-26  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse22.py: Localize kv
+
+2017-11-26  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse21.py, uncompyle6/parsers/parse22.py: 
+	localize kv
+
+2017-11-26  rocky <rb@dustyfeet.com>
+
+	* : commit 0965e2cc967ab890dc789cdf840ba5a13dcde486 Author: rocky
+	<rb@dustyfeet.com> Date:   Sun Nov 26 01:26:57 2017 -0500
+
+2017-11-26  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/parsers/parse32.py: remove comp_ifnot
+
+2017-11-25  rocky <rb@dustyfeet.com>
+
+	* : Another test
+
+2017-11-25  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/make_function.py: Merge hell
+
+2017-11-25  rocky <rb@dustyfeet.com>
+
+	* : commit 8c0959de425caf50c1d9606b95679a39724d9f8f Author: rocky
+	<rb@dustyfeet.com> Date:   Sat Nov 25 23:11:27 2017 -0500
+
+2017-11-25  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/simple_source/bug27+/05_for_try_except.py,
+	uncompyle6/parsers/parse27.py: 2.7 control-flow bug: except/pass in
+	loop
+
+2017-11-25  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/semantics/pysource.py: back off of build_slice{2,3}
+	->slice{2,3} There is another slice rule that interferes with this.
+
+2017-11-25  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/slice/02_slice.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/scanners/scanner2.py, uncompyle6/scanners/scanner26.py,
+	uncompyle6/semantics/pysource.py: localize 2 and 3 argument
+	BUILD_SLICE...  Nontermninal name matches AST anme now. Add test.
+
+2017-11-25  rocky <rb@dustyfeet.com>
+
+	* test/Makefile: Improve grammar-cover targets
+
+2017-11-25  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, test/Makefile, uncompyle6/parser.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/semantics/fragments.py,
+	uncompyle6/semantics/make_function.py,
+	uncompyle6/semantics/pysource.py: remove unpack_list rule and ...  tidy things a bit more
+
+2017-11-24  rocky <rb@dustyfeet.com>
+
+	* test/Makefile: Regularze grammar coverage rules
+
+2017-11-24  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/make_function.py: Merge hell
+
+2017-11-24  rocky <rb@dustyfeet.com>
+
+	* : commit c9f3838d04f812b693007d6a8542fbb3379f2634 Author: rocky
+	<rb@dustyfeet.com> Date:   Fri Nov 24 21:16:59 2017 -0500
+
+2017-11-24  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/expression/01_float.py,
+	uncompyle6/semantics/pysource.py: Handle inf, +inf, -nan, and nan
+	constants
+
+2017-11-24  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/expression/03_tuple_assign.py,
+	test/simple_source/stmts/04_withas.py,
+	uncompyle6/semantics/consts.py, uncompyle6/semantics/pysource.py: A
+	couple more bugs found running 2.7 stdlib tests
+
+2017-11-24  rocky <rb@dustyfeet.com>
+
+	* : One more (lambda) test
+
+2017-11-24  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/expression/10_lambda.py,
+	uncompyle6/semantics/make_function.py: Fix bug where lambda has a
+	yield in it
+
+2017-11-24  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/semantics/consts.py: cmp ->
+	compare ...  to better match the Python AST name Compare.  This forces us to
+	change compare -> compare_single Relates to Issue #29
+
+2017-11-24  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug33/01_triple_compare.py,
+	uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse26.py, uncompyle6/parsers/parse27.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/parsers/parse32.py,
+	uncompyle6/semantics/consts.py: cmp_list -> compare_chained ...  to better match the Python AST name Compare. Relates to Issue #29
+
+2017-11-23  rocky <rb@dustyfeet.com>
+
+	* test/stdlib/README.md, test/stdlib/compile-file.py,
+	test/stdlib/runtests.sh, uncompyle6/parsers/parse2.py: Start another
+	kind of testing...  And fix a bug found in that with 3-way equal
+
+2017-11-23  rocky <rb@dustyfeet.com>
+
+	* : commit 84632bdc78b79f15685c2f9c88489323a7cdc237 Author: rocky
+	<rb@dustyfeet.com> Date:   Thu Nov 23 16:44:07 2017 -0500
+
+2017-11-23  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py: Reduce 3.5 call_aysnc grammar rules
+
+2017-11-23  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug32/03_if_try_raise.py,
+	uncompyle6/parsers/parse32.py: Trystmt grammar from 3.3 needed in
+	3.2 Add test to cover this
+
+2017-11-23  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse32.py, uncompyle6/parsers/parse33.py,
+	uncompyle6/parsers/parse35.py: Add triple compare from 3.3 into 3.2
+
+2017-11-23  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse32.py, uncompyle6/parsers/parse33.py: 
+	Improve try else in 3.2...  Grammar from 3.3 is relevant here
+
+2017-11-23  rocky <rb@dustyfeet.com>
+
+	* : commit 184f480bc860b878a13747a8d1d3d6b9c150975c Author: rocky
+	<rb@dustyfeet.com> Date:   Thu Nov 23 12:33:41 2017 -0500
+
+2017-11-23  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse27.py: provisional 2.7 whileelselast rule
+
+2017-11-23  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/parsers/parse27.py, uncompyle6/parsers/parse34.py: 
+	grammar reduction of while loops
+
+2017-11-23  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/bug30/01_ops.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse32.py: 3.x Grammar reduction of custom
+	rules...  by looking for token patterns GET_ITER CALL_FUNCTION_1
+
+2017-11-23  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/simple_source/bug33/01_triple_compare.py,
+	uncompyle6/parser.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/parsers/parse3.py, uncompyle6/parsers/parse32.py,
+	uncompyle6/parsers/parse33.py: Grammar coverage and pruning
+
+2017-11-22  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse3.py: Isotate
+	conditionalnot
+
+2017-11-22  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/expression/02_true_divide.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse25.py,
+	uncompyle6/parsers/parse26.py, uncompyle6/parsers/parse27.py: 2.x
+	Grammar reduction/isolation
+
+2017-11-22  rocky <rb@dustyfeet.com>
+
+	* : commit b00c59bdd79fe965f7eb9b3b650f19b218930f8a Author: rocky
+	<rb@dustyfeet.com> Date:   Wed Nov 22 14:41:23 2017 -0500
+
+2017-11-22  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py: Reduce
+	unecessary grammar rules in 2.x
+
+2017-11-22  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/stmts/01_augmented_assign.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse27.py: 
+	Increase grammar coverage
+
+2017-11-22  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/stmts/01_augmented_assign.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse23.py,
+	uncompyle6/parsers/parse27.py: More complete grammar coverage
+
+2017-11-22  rocky <rb@dustyfeet.com>
+
+	* admin-tools/setup-master.sh, admin-tools/setup-python-2.4.sh: 
+	Administrivia: add "git pull"s
+
+2017-11-22  rocky <rb@dustyfeet.com>
+
+	* admin-tools/setup-python-2.4.sh, test/Makefile: Merge hell
+
+2017-11-22  rocky <rb@dustyfeet.com>
+
+	* : commit a8e235de175bbc4e6bd87689c0c60d570dcb71b4 Author: rocky
+	<rb@dustyfeet.com> Date:   Sat Nov 18 11:02:54 2017 -0500
+
+2017-11-18  rocky <rb@dustyfeet.com>
+
+	* pytest/test_grammar.py, uncompyle6/parser.py,
+	uncompyle6/parsers/parse24.py, uncompyle6/semantics/pysource.py: 
+	Grammar cleanup: import_as_cont -> import_as
+
+2017-11-18  rocky <rb@dustyfeet.com>
+
+	* __pkginfo__.py, pytest/test_grammar.py: Track spark_parser changes
+
+2017-11-17  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, uncompyle6/parsers/parse3.py: custom rule hacking
+	...  Reduce extraneous 3.x "load_list" and "load_closure" rules
+
+2017-11-17  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse3.py, uncompyle6/parsers/parse33.py: 
+	Python 3 grammar clean up and reorganization
+
+2017-11-17  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, uncompyle6/parser.py,
+	uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse3.py,
+	uncompyle6/parsers/parse36.py: More grammar isolation. narrow custom
+	rules...  Specifically: _mklambda with load_closure is Python2 only Add
+	classdefdeco2 rule only when we have seen a LOAD_BUILD_CLASS
+
+2017-11-16  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse34.py: Python 3.4 while grammar cleanup
+
+2017-11-16  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse3.py: More grammar
+	cleanups
+
+2017-11-16  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/semantics/consts.py: Tag %c nonterminals in more
+	template rules
+
+2017-11-16  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py: Bump copyright
+
+2017-11-16  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse2.py,
+	uncompyle6/parsers/parse3.py: More grammar isolation: assert2 in
+	Python3
+
+2017-11-16  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse25.py, uncompyle6/parsers/parse3.py: 
+	Isolate "assert2" rule
+
+2017-11-16  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py, uncompyle6/parsers/parse23.py: Isolate
+	"and2" rule to 2.3
+
+2017-11-16  rocky <rb@dustyfeet.com>
+
+	* test/simple_source/stmts/05_with.py,
+	uncompyle6/parsers/parse25.py, uncompyle6/parsers/parse26.py: Python
+	2.5 "with"; Isolate 2.5-2.6 grammar better
+
+2017-11-16  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/simple_source/stmts/05_with.py,
+	uncompyle6/parsers/parse25.py, uncompyle6/parsers/parse26.py: Python
+	2.5 "with". isolate 2.5-2.7 grammar better
+
+2017-11-16  rocky <rb@dustyfeet.com>
+
+	* : commit 953cf312dbfa8fa6f25b8f8304d0125fa4a7fa31 Author: rocky
+	<rb@dustyfeet.com> Date:   Thu Nov 16 01:29:49 2017 -0500
+
+2017-11-16  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse26.py, uncompyle6/parsers/parse27.py: More
+	grammar cleanup
+
+2017-11-16  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/scanners/scanner2.py: 2.7 continue-detection bug
+
+2017-11-15  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse27.py: More
+	2.7/2.7- grammer separation & cleanup
+
+2017-11-15  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse27.py: 
+	Grammar cleanup: separate some 2.7 from 2.7- rules
+
+2017-11-15  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parser.py: I said, remove dict/setcomp from <= 2.6!
+
+2017-11-15  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py, uncompyle6/parsers/parse27.py,
+	uncompyle6/parsers/parse3.py: grammar cleanup: dict/set
+	comprehensions 2.7+
+
+2017-11-15  rocky <rb@dustyfeet.com>
+
+	* HOW-TO-REPORT-A-BUG.md: Grammar typo
+
+2017-11-15  rocky <rb@dustyfeet.com>
+
+	* HOW-TO-REPORT-A-BUG.md: Grammar typo
+
+2017-11-15  rocky <rb@dustyfeet.com>
+
+	* : One more pypy test
+
+2017-11-15  rocky <rb@dustyfeet.com>
+
+	* : Keep bytecode_2.7 pypy free...  We need to add _another_ pypy directory
+
+2017-11-15  rocky <rb@dustyfeet.com>
+
+	* : del stmt testing on 2.7
+
+2017-11-15  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, uncompyle6/parsers/parse3.py: Stronger 3.4 testing
+	...  parse3.py: remove unused grammar rule
+
+2017-11-15  rocky <rb@dustyfeet.com>
+
+	* test/Makefile, test/simple_source/stmts/10_del.py,
+	test/test_pyenvlib.py, uncompyle6/parsers/parse26.py,
+	uncompyle6/semantics/check_ast.py, uncompyle6/semantics/pysource.py: 
+	Profiling workarounds, more coverage ...  test/Makefile: more grammar checking. Update python versions
+	10_del.pyc add test of DEL_GLOBAL check_ast.py, pysource.py: Profileing workarounds
+
+2017-11-14  rocky <rb@dustyfeet.com>
+
+	* uncompyle6/parsers/parse2.py: Guard around null ast This can happen in profiling
+
+2017-11-13  rocky <rb@dustyfeet.com>
+
+	* HOW-TO-REPORT-A-BUG.md: bug report doc tweak
+
+2017-11-13  rocky <rb@dustyfeet.com>
+
+	* HOW-TO-REPORT-A-BUG.md: add note on illegal use
+
 2017-11-13  rocky <rb@dustyfeet.com>
 
 	* ChangeLog: Get ready for release python-2.4-
+
+2017-11-13  rocky <rb@dustyfeet.com>
+
+	* ChangeLog, uncompyle6/parser.py, uncompyle6/semantics/pysource.py: 
+	detected old-style Python 2.4 class better
 
 2017-11-13  rocky <rb@dustyfeet.com>
 
