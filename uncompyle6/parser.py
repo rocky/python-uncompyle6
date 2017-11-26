@@ -452,8 +452,6 @@ class PythonParser(GenericASTBuilder):
         expr ::= binary_subscr
         expr ::= binary_subscr2
         expr ::= get_iter
-        expr ::= buildslice2
-        expr ::= buildslice3
         expr ::= yield
 
         binary_expr ::= expr expr binary_op
@@ -481,8 +479,6 @@ class PythonParser(GenericASTBuilder):
 
         load_attr ::= expr LOAD_ATTR
         get_iter ::= expr GET_ITER
-        buildslice3 ::= expr expr expr BUILD_SLICE_3
-        buildslice2 ::= expr expr BUILD_SLICE_2
 
         yield ::= expr YIELD_VALUE
 
@@ -553,15 +549,14 @@ class PythonParser(GenericASTBuilder):
         ##   designLists ::=
         ## Will need to redo semantic actiion
 
-        designator ::= STORE_FAST
-        designator ::= STORE_NAME
-        designator ::= STORE_GLOBAL
-        designator ::= STORE_DEREF
-        designator ::= expr STORE_ATTR
-        designator ::= store_subscr
+        designator   ::= STORE_FAST
+        designator   ::= STORE_NAME
+        designator   ::= STORE_GLOBAL
+        designator   ::= STORE_DEREF
+        designator   ::= expr STORE_ATTR
+        designator   ::= store_subscr
         store_subscr ::= expr expr STORE_SUBSCR
-        designator ::= unpack
-        designator ::= unpack_list
+        designator   ::= unpack
         '''
 
 

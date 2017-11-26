@@ -739,6 +739,18 @@ class Python3Parser(PythonParser):
                 self.custom_classfunc_rule(opname, token, customize,
                                            seen_LOAD_BUILD_CLASS,
                                            seen_GET_AWAITABLE_YIELD_FROM)
+            elif opname_base == 'BUILD_SLICE':
+                if token.attr == 2:
+                     self.add_unique_rules([
+                        'expr ::= build_slice2',
+                        'build_slice2 ::= expr expr BUILD_SLICE_2'
+                        ], customize)
+                else:
+                    assert token.attr == 3, "BUILD_SLICE value must be 2 or 3; is %s" % v
+                    self.add_unique_rules([
+                        'expr ::= build_slice3',
+                        'build_slice3 ::= expr expr expr BUILD_SLICE_3',
+                        ], customize)
             elif opname_base == 'CALL_METHOD':
                 # PyPy only - DRY with parse2
 

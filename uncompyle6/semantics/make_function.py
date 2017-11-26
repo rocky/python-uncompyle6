@@ -42,7 +42,7 @@ def find_none(node):
 
 # FIXME: DRY the below code...
 
-def make_function3_annotate(self, node, isLambda, nested=1,
+def make_function3_annotate(self, node, is_lambda, nested=1,
                             codeNode=None, annotate_last=-1):
     """
     Dump function defintion, doc string, and function
@@ -105,7 +105,7 @@ def make_function3_annotate(self, node, isLambda, nested=1,
     else:
         lambda_index = None
 
-    if lambda_index and isLambda and iscode(node[lambda_index].attr):
+    if lambda_index and is_lambda and iscode(node[lambda_index].attr):
         assert node[lambda_index].kind == 'LOAD_LAMBDA'
         code = node[lambda_index].attr
     else:
@@ -121,7 +121,7 @@ def make_function3_annotate(self, node, isLambda, nested=1,
     try:
         ast = self.build_ast(code._tokens,
                              code._customize,
-                             isLambda = isLambda,
+                             is_lambda = is_lambda,
                              noneInNames = ('None' in code.co_names))
     except ParserError, p:
         self.write(str(p))
@@ -132,7 +132,7 @@ def make_function3_annotate(self, node, isLambda, nested=1,
     kw_pairs = args_node.attr[1]
     indent = self.indent
 
-    if isLambda:
+    if is_lambda:
         self.write("lambda ")
     else:
         self.write("(")
@@ -251,7 +251,7 @@ def make_function3_annotate(self, node, isLambda, nested=1,
                 self.write(', ')
             self.write('**%s' % code.co_varnames[argc + kw_pairs])
 
-    if isLambda:
+    if is_lambda:
         self.write(": ")
     else:
         self.write(')')
@@ -270,7 +270,7 @@ def make_function3_annotate(self, node, isLambda, nested=1,
         self.println(":")
 
     if (len(code.co_consts) > 0 and
-        code.co_consts[0] is not None and not isLambda): # ugly
+        code.co_consts[0] is not None and not is_lambda): # ugly
         # docstring exists, dump it
         print_docstring(self, self.indent, code.co_consts[0])
 
@@ -283,11 +283,11 @@ def make_function3_annotate(self, node, isLambda, nested=1,
     self.mod_globs -= all_globals
     has_none = 'None' in code.co_names
     rn = has_none and not find_none(ast)
-    self.gen_source(ast, code.co_name, code._customize, isLambda=isLambda,
+    self.gen_source(ast, code.co_name, code._customize, is_lambda=is_lambda,
                     returnNone=rn)
     code._tokens = code._customize = None # save memory
 
-def make_function2(self, node, isLambda, nested=1, codeNode=None):
+def make_function2(self, node, is_lambda, nested=1, codeNode=None):
     """
     Dump function defintion, doc string, and function body.
     This code is specialied for Python 2.
@@ -333,7 +333,7 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
 
     lambda_index = None
 
-    if lambda_index and isLambda and iscode(node[lambda_index].attr):
+    if lambda_index and is_lambda and iscode(node[lambda_index].attr):
         assert node[lambda_index].kind == 'LOAD_LAMBDA'
         code = node[lambda_index].attr
     else:
@@ -352,7 +352,7 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
     try:
         ast = self.build_ast(code._tokens,
                              code._customize,
-                             isLambda = isLambda,
+                             is_lambda = is_lambda,
                              noneInNames = ('None' in code.co_names))
     except ParserError, p:
         self.write(str(p))
@@ -374,7 +374,7 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
         argc += 1
 
     # dump parameter list (with default values)
-    if isLambda:
+    if is_lambda:
         self.write("lambda ", ", ".join(params))
         # If the last statement is None (which is the
         # same thing as "return None" in a lambda) and the
@@ -419,17 +419,17 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
         if argc + kw_pairs > 0:
             self.write('**%s' % code.co_varnames[argc + kw_pairs])
 
-    if isLambda:
+    if is_lambda:
         self.write(": ")
     else:
         self.println("):")
 
-    if len(code.co_consts) > 0 and code.co_consts[0] is not None and not isLambda: # ugly
+    if len(code.co_consts) > 0 and code.co_consts[0] is not None and not is_lambda: # ugly
         # docstring exists, dump it
         print_docstring(self, indent, code.co_consts[0])
 
     code._tokens = None # save memory
-    if not isLambda:
+    if not is_lambda:
         assert ast == 'stmts'
 
     all_globals = find_all_globals(ast, set())
@@ -438,12 +438,12 @@ def make_function2(self, node, isLambda, nested=1, codeNode=None):
     self.mod_globs -= all_globals
     has_none = 'None' in code.co_names
     rn = has_none and not find_none(ast)
-    self.gen_source(ast, code.co_name, code._customize, isLambda=isLambda,
+    self.gen_source(ast, code.co_name, code._customize, is_lambda=is_lambda,
                     returnNone=rn)
     code._tokens = None; code._customize = None # save memory
 
 
-def make_function3(self, node, isLambda, nested=1, codeNode=None):
+def make_function3(self, node, is_lambda, nested=1, codeNode=None):
     """Dump function definition, doc string, and function body in
       Python version 3.0 and above
     """
@@ -522,7 +522,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
     else:
         lambda_index = None
 
-    if lambda_index and isLambda and iscode(node[lambda_index].attr):
+    if lambda_index and is_lambda and iscode(node[lambda_index].attr):
         assert node[lambda_index].kind == 'LOAD_LAMBDA'
         code = node[lambda_index].attr
     else:
@@ -542,7 +542,7 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
     try:
         ast = self.build_ast(code._tokens,
                              code._customize,
-                             isLambda = isLambda,
+                             is_lambda = is_lambda,
                              noneInNames = ('None' in code.co_names))
     except ParserError, p:
         self.write(str(p))
@@ -667,12 +667,12 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
             self.write(', ')
         self.write('**%s' % code.co_varnames[argc + kw_pairs])
 
-    if isLambda:
+    if is_lambda:
         self.write(": ")
     else:
         self.println("):")
 
-    if len(code.co_consts) > 0 and code.co_consts[0] is not None and not isLambda: # ugly
+    if len(code.co_consts) > 0 and code.co_consts[0] is not None and not is_lambda: # ugly
         # docstring exists, dump it
         print_docstring(self, self.indent, code.co_consts[0])
 
@@ -685,6 +685,6 @@ def make_function3(self, node, isLambda, nested=1, codeNode=None):
     self.mod_globs -= all_globals
     has_none = 'None' in code.co_names
     rn = has_none and not find_none(ast)
-    self.gen_source(ast, code.co_name, code._customize, isLambda=isLambda,
+    self.gen_source(ast, code.co_name, code._customize, is_lambda=is_lambda,
                     returnNone=rn)
     code._tokens = None; code._customize = None # save memory

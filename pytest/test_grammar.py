@@ -19,7 +19,7 @@ def test_grammar():
     expect_lhs = set(['expr1024', 'pos_arg'])
     unused_rhs = set(['build_list', 'call_function', 'mkfunc',
                       'mklambda',
-                      'unpack', 'unpack_list'])
+                      'unpack',])
     expect_right_recursive = frozenset([('designList',
                                          ('designator', 'DUP_TOP', 'designList'))])
     if PYTHON3:

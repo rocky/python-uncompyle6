@@ -237,8 +237,7 @@ class Scanner26(scan.Scanner2):
                     continue
                 else:
                     op_name = '%s_%d' % (op_name, oparg)
-                    if op != self.opc.BUILD_SLICE:
-                        customize[op_name] = oparg
+                    customize[op_name] = oparg
             elif op == self.opc.JUMP_ABSOLUTE:
                 # Further classify JUMP_ABSOLUTE into backward jumps
                 # which are used in loops, and "CONTINUE" jumps which

@@ -53,6 +53,8 @@ class Python27Parser(Python2Parser):
 
         except_cond2 ::= DUP_TOP expr COMPARE_OP
                          jmp_false POP_TOP designator POP_TOP
+
+        except_suite ::= c_stmts_opt CONTINUE
         """
 
     def p_jump27(self, args):

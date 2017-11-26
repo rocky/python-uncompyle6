@@ -253,8 +253,7 @@ class Scanner2(Scanner):
                         op_name = 'BUILD_MAP_n'
                     else:
                         op_name = '%s_%d' % (op_name, oparg)
-                    if op != self.opc.BUILD_SLICE:
-                        customize[op_name] = oparg
+                    customize[op_name] = oparg
             elif self.is_pypy and op_name in ('LOOKUP_METHOD',
                                              'JUMP_IF_NOT_DEBUG',
                                              'SETUP_EXCEPT',
