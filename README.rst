@@ -24,7 +24,7 @@ handled Python 3, and even there, only 3.2 or 3.3 depending on which
 code is used. This code pulls these together and moves forward.
 
 This project has the most complete support for Python 3.3 and above
-and the best all-around Pythoin support.
+and the best all-around Python support.
 
 We are serious about testing, and use automated processes to find
 bugs. In the issue trackers for other decompilers, you will find a
