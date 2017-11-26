@@ -317,15 +317,15 @@ class Python2Parser(PythonParser):
                 slice_num  = token.attr
                 if slice_num == 2:
                      self.add_unique_rules([
-                        'expr ::= slice2',
-                        'slice2 ::= expr expr BUILD_SLICE_2'
+                        'expr ::= build_slice2',
+                        'build_slice2 ::= expr expr BUILD_SLICE_2'
                         ], customize)
                 else:
                     assert slice_num == 3, ("BUILD_SLICE value must be 2 or 3; is %s" %
                                             slice_num)
                     self.add_unique_rules([
-                        'expr ::= slice3',
-                        'slice3 ::= expr expr expr BUILD_SLICE_3',
+                        'expr ::= build_slice3',
+                        'build_slice3 ::= expr expr expr BUILD_SLICE_3',
                         ], customize)
                 continue
             elif opname_base in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',

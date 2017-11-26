@@ -741,14 +741,14 @@ class Python3Parser(PythonParser):
             elif opname_base == 'BUILD_SLICE':
                 if token.attr == 2:
                      self.add_unique_rules([
-                        'expr ::= slice2',
-                        'slice2 ::= expr expr BUILD_SLICE_2'
+                        'expr ::= build_slice2',
+                        'build_slice2 ::= expr expr BUILD_SLICE_2'
                         ], customize)
                 else:
                     assert token.attr == 3, "BUILD_SLICE value must be 2 or 3; is %s" % v
                     self.add_unique_rules([
-                        'expr ::= slice3',
-                        'slice3 ::= expr expr expr BUILD_SLICE_3',
+                        'expr ::= build_slice3',
+                        'build_slice3 ::= expr expr expr BUILD_SLICE_3',
                         ], customize)
             elif opname_base == 'CALL_METHOD':
                 # PyPy only - DRY with parse2
