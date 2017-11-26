@@ -571,14 +571,14 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
             argc += 1
 
         # dump parameter list (with default values)
-        if isLambda:
+        if is_lambda:
             self.write("lambda ", ", ".join(params))
         else:
             self.write("(", ", ".join(params))
         # self.println(indent, '#flags:\t', int(code.co_flags))
 
     else:
-        if isLambda:
+        if is_lambda:
             self.write("lambda ")
             # If the last statement is None (which is the
             # same thing as "return None" in a lambda) and the
