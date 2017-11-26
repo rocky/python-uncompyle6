@@ -49,6 +49,7 @@ class Python32Parser(Python3Parser):
 
         stmt           ::= del_deref_stmt
         del_deref_stmt ::= DELETE_DEREF
+        kv3            ::= expr expr STORE_MAP
         """
     pass
 

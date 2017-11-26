@@ -47,9 +47,18 @@ class Python24Parser(Python25Parser):
 
         # Python 2.5+ adds POP_TOP at the end
         gen_comp_body ::= expr YIELD_VALUE
+
+        # Python 2.4
+        # Python 2.6, 2.7 and 3.3+ use kv3
+        # Python 2.3- use kv
+        kvlist ::= kvlist kv2
+        kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
         '''
 
     def add_custom_rules(self, tokens, customize):
+        self.remove_rules("""
+        kvlist ::= kvlist kv3
+        """)
         super(Python24Parser, self).add_custom_rules(tokens, customize)
         if self.version == 2.4:
             self.check_reduce['nop_stmt'] = 'tokens'
