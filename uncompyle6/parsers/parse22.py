@@ -18,6 +18,9 @@ class Python22Parser(Python23Parser):
                       COME_FROM POP_TOP COME_FROM
         list_for  ::= expr _for designator list_iter CONTINUE JUMP_FORWARD
                       COME_FROM POP_TOP COME_FROM
+
+        kvlist ::= kvlist kv
+        kv     ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
         '''
 
 class Python22ParserSingle(Python23Parser, PythonParserSingle):
