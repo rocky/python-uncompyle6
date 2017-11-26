@@ -150,7 +150,7 @@ pcheck-bytecode-2.6:
 
 #: Check deparsing Python 2.7
 check-bytecode-2.7:
-	$(PYTHON) test_pythonlib.py --bytecode-2.7 --verify
+	$(PYTHON) test_pythonlib.py --bytecode-2.7 --weak-verify
 
 #: Check deparsing Python 3.0
 check-bytecode-3.0:
