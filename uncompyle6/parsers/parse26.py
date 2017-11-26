@@ -246,10 +246,11 @@ class Python26Parser(Python2Parser):
         and          ::= expr JUMP_IF_FALSE POP_TOP expr JUMP_IF_FALSE POP_TOP
 
         # compare_chained is like x <= y <= z
-        compare_chained  ::= expr compare_chained1 ROT_TWO COME_FROM POP_TOP _come_from
-        compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP jmp_false compare_chained1 _come_from
-        compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP jmp_false compare_chained2 _come_from
-
+        compare_chained    ::= expr compare_chained1 ROT_TWO COME_FROM POP_TOP _come_from
+        compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                               jmp_false compare_chained1 _come_from
+        compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                               jmp_false compare_chained2 _come_from
         return_if_lambda   ::= RETURN_END_IF_LAMBDA POP_TOP
         conditional_lambda ::= expr jmp_false_then expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
