@@ -15,6 +15,8 @@ class Python27Parser(Python2Parser):
     def p_comprehension27(self, args):
         """
         list_for ::= expr _for designator list_iter JUMP_BACK
+        list_compr ::= BUILD_LIST_0 list_iter
+        lc_body ::= expr LIST_APPEND
 
         stmt ::= setcomp_func
 

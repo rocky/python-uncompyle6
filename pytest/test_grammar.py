@@ -37,12 +37,6 @@ def test_grammar():
     else:
         expect_lhs.add('kwarg')
 
-    # FIXME: grammar remove_rule on
-    #  kv3 ::= expr expr STORE_MAP
-    # doesn't currently work in grammar, so we have this extraneous kv3 around.
-    if 3.3 <= PYTHON_VERSION <= 3.4:
-        expect_lhs.add('kv3')
-
     assert expect_lhs == set(lhs)
     assert unused_rhs == set(rhs)
     assert expect_right_recursive == right_recursive

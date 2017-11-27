@@ -400,7 +400,6 @@ class PythonParser(GenericASTBuilder):
     def p_list_comprehension(self, args):
         """
         expr ::= list_compr
-        list_compr ::= BUILD_LIST_0 list_iter
 
         list_iter ::= list_for
         list_iter ::= list_if
@@ -409,8 +408,6 @@ class PythonParser(GenericASTBuilder):
 
         list_if ::= expr jmp_false list_iter
         list_if_not ::= expr jmp_true list_iter
-
-        lc_body ::= expr LIST_APPEND
         """
 
     def p_setcomp(self, args):
