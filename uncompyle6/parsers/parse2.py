@@ -108,8 +108,9 @@ class Python2Parser(PythonParser):
         buildclass ::= LOAD_CONST expr mkfunc
                      CALL_FUNCTION_0 BUILD_CLASS
 
-        stmt ::= classdefdeco
-        classdefdeco ::= classdefdeco1 designator
+        # Class decorators starting in 2.6
+        stmt          ::= classdefdeco
+        classdefdeco  ::= classdefdeco1 designator
         classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
         classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
         classdefdeco2 ::= LOAD_CONST expr mkfunc CALL_FUNCTION_0 BUILD_CLASS
