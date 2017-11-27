@@ -206,7 +206,6 @@ class PythonParser(GenericASTBuilder):
 
         lastc_stmt ::= iflaststmt
         lastc_stmt ::= forelselaststmt
-        lastc_stmt ::= ifelsestmtr
         lastc_stmt ::= ifelsestmtc
         lastc_stmt ::= tryelsestmtc
 
