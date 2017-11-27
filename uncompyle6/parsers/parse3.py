@@ -809,6 +809,8 @@ class Python3Parser(PythonParser):
                 seen_LOAD_SETCOMP = True
                 # Should this be generalized and put under MAKE_FUNCTION?
                 if has_get_iter_call_function1:
+                    self.add_unique_rule("expr ::= setcomp",
+                                         opname, token.attr, customize)
                     rule_pat = ("setcomp ::= LOAD_SETCOMP %sMAKE_FUNCTION_0 expr "
                                 "GET_ITER CALL_FUNCTION_1")
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)

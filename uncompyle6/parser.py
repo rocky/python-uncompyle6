@@ -415,10 +415,6 @@ class PythonParser(GenericASTBuilder):
 
     def p_setcomp(self, args):
         """
-        expr ::= setcomp
-
-        setcomp ::= LOAD_SETCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
-
         comp_iter ::= comp_if
         comp_iter ::= comp_for
         comp_iter ::= comp_body
@@ -511,8 +507,6 @@ class PythonParser(GenericASTBuilder):
         # A compare_chained is two comparisions like x <= y <= z
         compare_chained  ::= expr compare_chained1 ROT_TWO POP_TOP _come_from
         compare_chained2 ::= expr COMPARE_OP JUMP_FORWARD
-
-        mapexpr ::= BUILD_MAP kvlist
 
         # Non-null kvlist items are broken out in the indiviual grammars
         kvlist ::=

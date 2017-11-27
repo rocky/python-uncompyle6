@@ -113,7 +113,6 @@ class Python27Parser(Python2Parser):
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
         conditional_lambda ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
-        kvlist ::= kvlist kv3
         kv3 ::= expr expr STORE_MAP
         """
 
