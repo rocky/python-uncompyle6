@@ -474,6 +474,7 @@ class PythonParser(GenericASTBuilder):
         _mklambda ::= mklambda
 
         expr ::= conditional
+        conditional ::= expr jmp_false expr JUMP_FORWARD expr COME_FROM
 
         ret_expr ::= expr
         ret_expr ::= ret_and

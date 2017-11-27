@@ -99,6 +99,7 @@ class Python27Parser(Python2Parser):
         # assert condition, expr
         assert2    ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
 
+        for_block  ::= return_stmts _come_from
         del_stmt   ::= expr expr DELETE_SLICE+1
 
         withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt
@@ -118,6 +119,9 @@ class Python27Parser(Python2Parser):
                               else_suite COME_FROM
 
         ifstmt            ::= testexpr return_if_stmts COME_FROM
+        ifelsestmt        ::= testexpr c_stmts_opt JUMP_FORWARD else_suite COME_FROM
+        ifelsestmtc       ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
+        ifelsestmtl       ::= testexpr c_stmts_opt JUMP_BACK else_suitel
 
         # Common with 2.6
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM

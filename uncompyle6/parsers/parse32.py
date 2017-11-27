@@ -10,7 +10,8 @@ from uncompyle6.parsers.parse3 import Python3Parser
 class Python32Parser(Python3Parser):
     def p_32to35(self, args):
         """
-        conditional      ::= expr jmp_false expr jump_forward_else expr COME_FROM
+        expr        ::= conditional
+        conditional ::= expr jmp_false expr jump_forward_else expr COME_FROM
 
         # compare_chained2 is used in a "chained_compare": x <= y <= z
         # used exclusively in compare_chained

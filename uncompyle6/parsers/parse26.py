@@ -93,7 +93,6 @@ class Python26Parser(Python2Parser):
         bp_come_from    ::= POP_BLOCK COME_FROM
         jb_bp_come_from ::= JUMP_BACK bp_come_from
 
-        _ifstmts_jump ::= c_stmts_opt jf_pop COME_FROM
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM POP_TOP
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD come_froms POP_TOP COME_FROM
 
@@ -182,6 +181,7 @@ class Python26Parser(Python2Parser):
         jmp_true_then  ::= JUMP_IF_TRUE THEN POP_TOP
 
         while1stmt ::= SETUP_LOOP return_stmts COME_FROM
+        for_block  ::= return_stmts _come_from
         """
 
     def p_comp26(self, args):
