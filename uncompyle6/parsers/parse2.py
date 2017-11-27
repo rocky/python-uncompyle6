@@ -138,8 +138,6 @@ class Python2Parser(PythonParser):
 
         ifelsestmtr ::= testexpr return_if_stmts return_stmts
 
-        ifelsestmtr ::= testexpr return_if_stmts COME_FROM return_stmts
-
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
 
 
@@ -200,9 +198,6 @@ class Python2Parser(PythonParser):
 
         # In Python 3, DUP_TOPX_2 is DUP_TOP_TWO
         binary_subscr2 ::= expr expr DUP_TOPX_2 BINARY_SUBSCR
-
-        # compare_chained2 is used in a "chained_compare": x <= y <= z
-        compare_chained2   ::= expr COMPARE_OP RETURN_VALUE
         """
 
     def p_slice2(self, args):

@@ -77,11 +77,12 @@ class Python27Parser(Python2Parser):
         or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
 
-        # compare_chained1 is used exclusively in chained_compare
+        # compare_chained{1,2} is used exclusively in chained_compare
         compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
                              compare_chained1 COME_FROM
         compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
                              compare_chained2 COME_FROM
+        compare_chained2 ::= expr COMPARE_OP RETURN_VALUE
         """
 
     def p_stmt27(self, args):
