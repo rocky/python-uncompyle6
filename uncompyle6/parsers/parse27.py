@@ -53,8 +53,6 @@ class Python27Parser(Python2Parser):
 
         except_cond2 ::= DUP_TOP expr COMPARE_OP
                          jmp_false POP_TOP designator POP_TOP
-
-        except_suite ::= c_stmts_opt CONTINUE
         """
 
     def p_jump27(self, args):
@@ -79,11 +77,12 @@ class Python27Parser(Python2Parser):
         or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
 
-        # compare_chained1 is used exclusively in chained_compare
+        # compare_chained{1,2} is used exclusively in chained_compare
         compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
                              compare_chained1 COME_FROM
         compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
                              compare_chained2 COME_FROM
+        compare_chained2 ::= expr COMPARE_OP RETURN_VALUE
         """
 
     def p_stmt27(self, args):
@@ -120,6 +119,7 @@ class Python27Parser(Python2Parser):
         """
 
     def add_custom_rules(self, tokens, customize):
+        # 2.7 changes COME_FROM to COME_FROM_FINALLY
         self.remove_rules("""
         while1stmt     ::= SETUP_LOOP l_stmts JUMP_BACK COME_FROM
         while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK else_suite COME_FROM

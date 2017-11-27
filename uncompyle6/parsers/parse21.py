@@ -20,6 +20,8 @@ class Python21Parser(Python22Parser):
         forstmt   ::= SETUP_LOOP expr _for designator
                       l_stmts_opt _jump_back
                       POP_BLOCK COME_FROM
+
+        conditional   ::= expr jmp_false expr JUMP_ABSOLUTE expr
         """
 
     def p_import21(self, args):
