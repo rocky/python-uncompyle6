@@ -72,8 +72,6 @@ class Python26Parser(Python2Parser):
         jmp_true     ::= JUMP_IF_TRUE POP_TOP
         jmp_false    ::= JUMP_IF_FALSE POP_TOP
 
-        jf_pop       ::= JUMP_FORWARD POP_TOP
-        jf_pop       ::= JUMP_ABSOLUTE POP_TOP
         jb_pop       ::= JUMP_BACK POP_TOP
 
         jb_cont      ::= JUMP_BACK
