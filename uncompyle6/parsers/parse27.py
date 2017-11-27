@@ -33,6 +33,8 @@ class Python27Parser(Python2Parser):
 
         comp_body ::= dict_comp_body
         comp_body ::= set_comp_body
+        comp_for ::= expr _for designator comp_iter JUMP_BACK
+
         dict_comp_body ::= expr expr MAP_ADD
         set_comp_body ::= expr SET_ADD
 
@@ -84,6 +86,9 @@ class Python27Parser(Python2Parser):
         compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
                              compare_chained2 COME_FROM
         compare_chained2 ::= expr COMPARE_OP RETURN_VALUE
+
+        expr            ::= conditionalTrue
+        conditionalTrue ::= expr JUMP_FORWARD expr COME_FROM
         """
 
     def p_stmt27(self, args):
@@ -94,6 +99,7 @@ class Python27Parser(Python2Parser):
         # assert condition, expr
         assert2 ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
 
+        del_stmt ::= expr expr DELETE_SLICE+1
 
         withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
                 POP_BLOCK LOAD_CONST COME_FROM_WITH

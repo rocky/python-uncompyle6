@@ -419,7 +419,6 @@ class PythonParser(GenericASTBuilder):
         gen_comp_body ::= expr YIELD_VALUE POP_TOP
 
         comp_if  ::= expr jmp_false comp_iter
-        comp_for ::= expr _for designator comp_iter JUMP_BACK
         """
 
     def p_expr(self, args):
@@ -477,9 +476,6 @@ class PythonParser(GenericASTBuilder):
 
         expr ::= conditional
         conditional ::= expr jmp_false expr JUMP_FORWARD expr COME_FROM
-
-        expr            ::= conditionalTrue
-        conditionalTrue ::= expr JUMP_FORWARD expr COME_FROM
 
         ret_expr ::= expr
         ret_expr ::= ret_and

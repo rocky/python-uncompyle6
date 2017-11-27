@@ -42,6 +42,7 @@ class Python3Parser(PythonParser):
         # as a CONTINUE. The two are kind of the same in a comprehension.
 
         comp_for ::= expr _for designator comp_iter CONTINUE
+        comp_for ::= expr _for designator comp_iter JUMP_BACK
 
         list_for ::= expr FOR_ITER designator list_iter jb_or_c
 
@@ -279,6 +280,9 @@ class Python3Parser(PythonParser):
         for_block ::= l_stmts_opt opt_come_from_loop JUMP_BACK
         for_block ::= l_stmts
         iflaststmtl ::= testexpr c_stmts_opt
+
+        expr            ::= conditionalTrue
+        conditionalTrue ::= expr JUMP_FORWARD expr COME_FROM
         """
 
     def p_def_annotations3(self, args):

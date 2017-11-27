@@ -90,7 +90,6 @@ class Python2Parser(PythonParser):
         stmt ::= exec_stmt
 
         del_stmt ::= expr DELETE_SLICE+0
-        del_stmt ::= expr expr DELETE_SLICE+1
         del_stmt ::= expr expr DELETE_SLICE+2
         del_stmt ::= expr expr expr DELETE_SLICE+3
         del_stmt ::= delete_subscr
