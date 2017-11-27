@@ -27,6 +27,7 @@ class Python33Parser(Python32Parser):
         trystmt     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                         try_middle
                         jump_excepts come_from_except_clauses
+        kvlist ::= kvlist kv3
         """
 
     def add_custom_rules(self, tokens, customize):
