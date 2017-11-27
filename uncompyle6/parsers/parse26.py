@@ -226,7 +226,6 @@ class Python26Parser(Python2Parser):
         ret_or       ::= expr jmp_true ret_expr_or_cond COME_FROM
         ret_cond     ::= expr jmp_false_then expr RETURN_END_IF POP_TOP ret_expr_or_cond
         ret_cond     ::= expr jmp_false_then expr ret_expr_or_cond
-        ret_cond_not ::= expr jmp_true_then  expr RETURN_END_IF POP_TOP ret_expr_or_cond
 
         return_if_stmt ::= ret_expr RETURN_END_IF POP_TOP
         return_stmt ::= ret_expr RETURN_VALUE POP_TOP

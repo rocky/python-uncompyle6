@@ -61,7 +61,6 @@ class Python2Parser(PythonParser):
     def p_grammar(self, args):
         '''
         sstmt ::= stmt
-        sstmt ::= ifelsestmtr
         sstmt ::= return_stmt RETURN_LAST
 
         return_if_stmts ::= return_if_stmt
@@ -135,8 +134,6 @@ class Python2Parser(PythonParser):
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite COME_FROM
 
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
-
-        ifelsestmtr ::= testexpr return_if_stmts return_stmts
 
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
 
