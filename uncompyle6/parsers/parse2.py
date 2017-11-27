@@ -123,7 +123,6 @@ class Python2Parser(PythonParser):
         assert_expr_and ::= assert_expr jmp_false expr
 
         ifstmt ::= testexpr _ifstmts_jump
-        ifstmt ::= testexpr return_if_stmts COME_FROM
 
         testexpr ::= testfalse
         testexpr ::= testtrue

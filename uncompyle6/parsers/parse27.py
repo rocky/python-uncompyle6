@@ -97,13 +97,13 @@ class Python27Parser(Python2Parser):
         assert        ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
 
         # assert condition, expr
-        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
+        assert2    ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
 
-        del_stmt ::= expr expr DELETE_SLICE+1
+        del_stmt   ::= expr expr DELETE_SLICE+1
 
-        withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
-                POP_BLOCK LOAD_CONST COME_FROM_WITH
-                WITH_CLEANUP END_FINALLY
+        withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt
+                       POP_BLOCK LOAD_CONST COME_FROM_WITH
+                       WITH_CLEANUP END_FINALLY
 
         withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
                 POP_BLOCK LOAD_CONST COME_FROM_WITH
@@ -117,10 +117,13 @@ class Python27Parser(Python2Parser):
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suite COME_FROM
 
+        ifstmt            ::= testexpr return_if_stmts COME_FROM
+
         # Common with 2.6
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
         conditional_lambda ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
+
         kv3 ::= expr expr STORE_MAP
         """
 

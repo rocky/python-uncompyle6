@@ -361,7 +361,6 @@ class PythonParser(GenericASTBuilder):
         _for ::= GET_ITER FOR_ITER
 
         for_block ::= l_stmts_opt _come_from JUMP_BACK
-        for_block ::= return_stmts _come_from
 
         forstmt ::= SETUP_LOOP expr _for designator
                 for_block POP_BLOCK _come_from
@@ -475,7 +474,6 @@ class PythonParser(GenericASTBuilder):
         _mklambda ::= mklambda
 
         expr ::= conditional
-        conditional ::= expr jmp_false expr JUMP_FORWARD expr COME_FROM
 
         ret_expr ::= expr
         ret_expr ::= ret_and
