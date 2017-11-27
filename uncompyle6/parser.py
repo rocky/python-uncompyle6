@@ -495,7 +495,6 @@ class PythonParser(GenericASTBuilder):
 
         ret_expr_or_cond ::= ret_expr
         ret_expr_or_cond ::= ret_cond
-        ret_expr_or_cond ::= ret_cond_not
 
         stmt ::= return_lambda
         stmt ::= conditional_lambda
