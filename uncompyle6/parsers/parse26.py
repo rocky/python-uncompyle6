@@ -93,7 +93,6 @@ class Python26Parser(Python2Parser):
         bp_come_from    ::= POP_BLOCK COME_FROM
         jb_bp_come_from ::= JUMP_BACK bp_come_from
 
-        _ifstmts_jump ::= c_stmts_opt jf_pop COME_FROM
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM POP_TOP
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD come_froms POP_TOP COME_FROM
 
@@ -142,7 +141,6 @@ class Python26Parser(Python2Parser):
 
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt jb_pop POP_BLOCK _come_from
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt jb_cf_pop bp_come_from
-        whilestmt      ::= SETUP_LOOP testexpr return_stmts come_froms POP_TOP bp_come_from
         whilestmt      ::= SETUP_LOOP testexpr return_stmts POP_BLOCK COME_FROM
 
         whileelsestmt  ::= SETUP_LOOP testexpr l_stmts_opt jb_pop POP_BLOCK
@@ -183,6 +181,7 @@ class Python26Parser(Python2Parser):
         jmp_true_then  ::= JUMP_IF_TRUE THEN POP_TOP
 
         while1stmt ::= SETUP_LOOP return_stmts COME_FROM
+        for_block  ::= return_stmts _come_from
         """
 
     def p_comp26(self, args):
@@ -226,7 +225,6 @@ class Python26Parser(Python2Parser):
         ret_or       ::= expr jmp_true ret_expr_or_cond COME_FROM
         ret_cond     ::= expr jmp_false_then expr RETURN_END_IF POP_TOP ret_expr_or_cond
         ret_cond     ::= expr jmp_false_then expr ret_expr_or_cond
-        ret_cond_not ::= expr jmp_true_then  expr RETURN_END_IF POP_TOP ret_expr_or_cond
 
         return_if_stmt ::= ret_expr RETURN_END_IF POP_TOP
         return_stmt ::= ret_expr RETURN_VALUE POP_TOP
@@ -254,8 +252,6 @@ class Python26Parser(Python2Parser):
         return_if_lambda   ::= RETURN_END_IF_LAMBDA POP_TOP
         conditional_lambda ::= expr jmp_false_then expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
-        kvlist ::= kvlist kv3
-        kv3 ::= expr expr STORE_MAP
         """
 
     def add_custom_rules(self, tokens, customize):

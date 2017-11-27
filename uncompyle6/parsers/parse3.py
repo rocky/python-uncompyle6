@@ -40,6 +40,7 @@ class Python3Parser(PythonParser):
         # as a CONTINUE. The two are kind of the same in a comprehension.
 
         comp_for ::= expr _for designator comp_iter CONTINUE
+        comp_for ::= expr _for designator comp_iter JUMP_BACK
 
         list_for ::= expr FOR_ITER designator list_iter jb_or_c
 
@@ -277,6 +278,9 @@ class Python3Parser(PythonParser):
         for_block ::= l_stmts_opt opt_come_from_loop JUMP_BACK
         for_block ::= l_stmts
         iflaststmtl ::= testexpr c_stmts_opt
+
+        expr            ::= conditionalTrue
+        conditionalTrue ::= expr JUMP_FORWARD expr COME_FROM
         """
 
     def p_def_annotations3(self, args):
@@ -327,7 +331,6 @@ class Python3Parser(PythonParser):
         ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
         ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
         ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF ret_expr_or_cond
-        ret_cond_not ::= expr POP_JUMP_IF_TRUE expr RETURN_END_IF ret_expr_or_cond
 
         or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
@@ -811,6 +814,8 @@ class Python3Parser(PythonParser):
                 seen_LOAD_SETCOMP = True
                 # Should this be generalized and put under MAKE_FUNCTION?
                 if has_get_iter_call_function1:
+                    self.add_unique_rule("expr ::= setcomp",
+                                         opname, token.attr, customize)
                     rule_pat = ("setcomp ::= LOAD_SETCOMP %sMAKE_FUNCTION_0 expr "
                                 "GET_ITER CALL_FUNCTION_1")
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)

@@ -59,7 +59,6 @@ class Python2Parser(PythonParser):
     def p_grammar(self, args):
         '''
         sstmt ::= stmt
-        sstmt ::= ifelsestmtr
         sstmt ::= return_stmt RETURN_LAST
 
         return_if_stmts ::= return_if_stmt
@@ -89,7 +88,6 @@ class Python2Parser(PythonParser):
         stmt ::= exec_stmt
 
         del_stmt ::= expr DELETE_SLICE+0
-        del_stmt ::= expr expr DELETE_SLICE+1
         del_stmt ::= expr expr DELETE_SLICE+2
         del_stmt ::= expr expr expr DELETE_SLICE+3
         del_stmt ::= delete_subscr
@@ -98,6 +96,12 @@ class Python2Parser(PythonParser):
 
         _mklambda ::= load_closure mklambda
         kwarg     ::= LOAD_CONST expr
+
+        kvlist ::= kvlist kv3
+        kv3 ::= expr expr STORE_MAP
+
+        mapexpr ::= BUILD_MAP kvlist
+
 
         classdef ::= buildclass designator
 
@@ -117,7 +121,6 @@ class Python2Parser(PythonParser):
         assert_expr_and ::= assert_expr jmp_false expr
 
         ifstmt ::= testexpr _ifstmts_jump
-        ifstmt ::= testexpr return_if_stmts COME_FROM
 
         testexpr ::= testfalse
         testexpr ::= testtrue
@@ -126,18 +129,8 @@ class Python2Parser(PythonParser):
 
         _ifstmts_jump ::= return_if_stmts
 
-        iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
-
+        iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
-
-        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite COME_FROM
-
-        ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
-
-        ifelsestmtr ::= testexpr return_if_stmts return_stmts
-
-        ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
-
 
         # this is nested inside a trystmt
         tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
@@ -356,6 +349,12 @@ class Python2Parser(PythonParser):
                        "LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1 COME_FROM",
                     ], customize)
                 continue
+            elif opname == 'LOAD_SETCOMP':
+                self.add_unique_rules([
+                    "expr ::= setcomp",
+                    "setcomp ::= LOAD_SETCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1"
+                    ], customize)
+                continue
             elif opname == 'LOOKUP_METHOD':
                 # A PyPy speciality - DRY with parse3
                 self.add_unique_rule("load_attr ::= expr LOOKUP_METHOD",
@@ -393,6 +392,7 @@ class Python2Parser(PythonParser):
                                 ('expr '*v, opname))], customize)
                         elif prev_tok == 'LOAD_SETCOMP':
                             self.add_unique_rules([
+                                "expr ::= setcomp",
                                 ('setcomp ::= %s load_closure LOAD_SETCOMP %s expr'
                                 ' GET_ITER CALL_FUNCTION_1' %
                                 ('expr '*v, opname))

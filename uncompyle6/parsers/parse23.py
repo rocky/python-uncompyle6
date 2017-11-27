@@ -48,6 +48,7 @@ class Python23Parser(Python24Parser):
         expr ::= and2
         and2 ::= _jump jmp_false COME_FROM expr COME_FROM
 
+        conditional ::= expr jmp_false expr JUMP_FORWARD expr COME_FROM
         '''
 
     def add_custom_rules(self, tokens, customize):

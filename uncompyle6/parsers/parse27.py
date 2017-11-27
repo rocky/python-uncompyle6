@@ -15,6 +15,8 @@ class Python27Parser(Python2Parser):
     def p_comprehension27(self, args):
         """
         list_for ::= expr _for designator list_iter JUMP_BACK
+        list_compr ::= BUILD_LIST_0 list_iter
+        lc_body ::= expr LIST_APPEND
 
         stmt ::= setcomp_func
 
@@ -31,6 +33,8 @@ class Python27Parser(Python2Parser):
 
         comp_body ::= dict_comp_body
         comp_body ::= set_comp_body
+        comp_for ::= expr _for designator comp_iter JUMP_BACK
+
         dict_comp_body ::= expr expr MAP_ADD
         set_comp_body ::= expr SET_ADD
 
@@ -72,7 +76,6 @@ class Python27Parser(Python2Parser):
         ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
         ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
         ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
-        ret_cond_not ::= expr POP_JUMP_IF_TRUE expr RETURN_END_IF ret_expr_or_cond
 
         or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
@@ -83,6 +86,9 @@ class Python27Parser(Python2Parser):
         compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
                              compare_chained2 COME_FROM
         compare_chained2 ::= expr COMPARE_OP RETURN_VALUE
+
+        expr            ::= conditionalTrue
+        conditionalTrue ::= expr JUMP_FORWARD expr COME_FROM
         """
 
     def p_stmt27(self, args):
@@ -91,12 +97,14 @@ class Python27Parser(Python2Parser):
         assert        ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
 
         # assert condition, expr
-        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
+        assert2    ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
 
+        for_block  ::= return_stmts _come_from
+        del_stmt   ::= expr expr DELETE_SLICE+1
 
-        withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
-                POP_BLOCK LOAD_CONST COME_FROM_WITH
-                WITH_CLEANUP END_FINALLY
+        withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt
+                       POP_BLOCK LOAD_CONST COME_FROM_WITH
+                       WITH_CLEANUP END_FINALLY
 
         withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
                 POP_BLOCK LOAD_CONST COME_FROM_WITH
@@ -110,11 +118,16 @@ class Python27Parser(Python2Parser):
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suite COME_FROM
 
+        ifstmt            ::= testexpr return_if_stmts COME_FROM
+        ifelsestmt        ::= testexpr c_stmts_opt JUMP_FORWARD else_suite COME_FROM
+        ifelsestmtc       ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
+        ifelsestmtl       ::= testexpr c_stmts_opt JUMP_BACK else_suitel
+
         # Common with 2.6
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
         conditional_lambda ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
-        kvlist ::= kvlist kv3
+
         kv3 ::= expr expr STORE_MAP
         """
 

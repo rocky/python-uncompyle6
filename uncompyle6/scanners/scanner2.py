@@ -264,6 +264,8 @@ class Scanner2(Scanner):
                 customize[op_name] = 0
             elif op == self.opc.CONTINUE_LOOP:
                 customize[op_name] = 0
+            elif op_name == 'LOAD_SETCOMP':
+                customize[op_name] = 0
             elif op == self.opc.JUMP_ABSOLUTE:
                 # Further classify JUMP_ABSOLUTE into backward jumps
                 # which are used in loops, and "CONTINUE" jumps which

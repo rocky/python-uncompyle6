@@ -204,7 +204,6 @@ class PythonParser(GenericASTBuilder):
 
         lastc_stmt ::= iflaststmt
         lastc_stmt ::= forelselaststmt
-        lastc_stmt ::= ifelsestmtr
         lastc_stmt ::= ifelsestmtc
         lastc_stmt ::= tryelsestmtc
 
@@ -360,7 +359,6 @@ class PythonParser(GenericASTBuilder):
         _for ::= GET_ITER FOR_ITER
 
         for_block ::= l_stmts_opt _come_from JUMP_BACK
-        for_block ::= return_stmts _come_from
 
         forstmt ::= SETUP_LOOP expr _for designator
                 for_block POP_BLOCK _come_from
@@ -399,7 +397,6 @@ class PythonParser(GenericASTBuilder):
     def p_list_comprehension(self, args):
         """
         expr ::= list_compr
-        list_compr ::= BUILD_LIST_0 list_iter
 
         list_iter ::= list_for
         list_iter ::= list_if
@@ -408,16 +405,10 @@ class PythonParser(GenericASTBuilder):
 
         list_if ::= expr jmp_false list_iter
         list_if_not ::= expr jmp_true list_iter
-
-        lc_body ::= expr LIST_APPEND
         """
 
     def p_setcomp(self, args):
         """
-        expr ::= setcomp
-
-        setcomp ::= LOAD_SETCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
-
         comp_iter ::= comp_if
         comp_iter ::= comp_for
         comp_iter ::= comp_body
@@ -425,7 +416,6 @@ class PythonParser(GenericASTBuilder):
         gen_comp_body ::= expr YIELD_VALUE POP_TOP
 
         comp_if  ::= expr jmp_false comp_iter
-        comp_for ::= expr _for designator comp_iter JUMP_BACK
         """
 
     def p_expr(self, args):
@@ -484,16 +474,12 @@ class PythonParser(GenericASTBuilder):
         expr ::= conditional
         conditional ::= expr jmp_false expr JUMP_FORWARD expr COME_FROM
 
-        expr            ::= conditionalTrue
-        conditionalTrue ::= expr JUMP_FORWARD expr COME_FROM
-
         ret_expr ::= expr
         ret_expr ::= ret_and
         ret_expr ::= ret_or
 
         ret_expr_or_cond ::= ret_expr
         ret_expr_or_cond ::= ret_cond
-        ret_expr_or_cond ::= ret_cond_not
 
         stmt ::= return_lambda
         stmt ::= conditional_lambda
@@ -511,8 +497,6 @@ class PythonParser(GenericASTBuilder):
         # A compare_chained is two comparisions like x <= y <= z
         compare_chained  ::= expr compare_chained1 ROT_TWO POP_TOP _come_from
         compare_chained2 ::= expr COMPARE_OP JUMP_FORWARD
-
-        mapexpr ::= BUILD_MAP kvlist
 
         # Non-null kvlist items are broken out in the indiviual grammars
         kvlist ::=
