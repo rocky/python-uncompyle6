@@ -99,8 +99,8 @@ class Python36Parser(Python35Parser):
                 self.add_unique_doc_rules(rules_str, customize)
 
     def custom_classfunc_rule(self, opname, token, customize,
-                              seen_LOAD_BUILD_CLASS,
-                              seen_GET_AWAITABLE_YIELD_FROM):
+                              possible_class_decorator,
+                              seen_GET_AWAITABLE_YIELD_FROM, next_token):
         if opname.startswith('CALL_FUNCTION_KW'):
             values = 'expr ' * token.attr
             rule = 'call_function ::= expr kwargs_only_36 {token.kind}'.format(**locals())
@@ -110,8 +110,9 @@ class Python36Parser(Python35Parser):
         else:
             super(Python36Parser, self).custom_classfunc_rule(opname, token,
                                                               customize,
-                                                              seen_LOAD_BUILD_CLASS,
-                                                              seen_GET_AWAITABLE_YIELD_FROM)
+                                                              possible_class_decorator,
+                                                              seen_GET_AWAITABLE_YIELD_FROM,
+                                                              next_token)
 
 
 class Python36ParserSingle(Python36Parser, PythonParserSingle):

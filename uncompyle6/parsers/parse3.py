@@ -483,8 +483,8 @@ class Python3Parser(PythonParser):
         return
 
     def custom_classfunc_rule(self, opname, token, customize,
-                              seen_LOAD_BUILD_CLASS,
-                              seen_GET_AWAITABLE_YIELD_FROM):
+                              possible_class_decorator,
+                              seen_GET_AWAITABLE_YIELD_FROM, next_token):
         """
         call_function ::= expr {expr}^n CALL_FUNCTION_n
         call_function ::= expr {expr}^n CALL_FUNCTION_VAR_n
@@ -543,10 +543,11 @@ class Python3Parser(PythonParser):
             self.add_unique_rule(rule, token.kind, uniq_param, customize)
             self.add_unique_rule('expr ::= async_call_function', token.kind, uniq_param, customize)
 
-        if seen_LOAD_BUILD_CLASS:
-            rule = ('classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d'
+        if possible_class_decorator:
+            if next_token == 'CALL_FUNCTION' and next_token.attr == 1:
+                rule = ('classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d'
                         %  (('expr ' * (args_pos-1)), opname, args_pos))
-            self.add_unique_rule(rule, token.kind, uniq_param, customize)
+                self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
     def add_make_function_rule(self, rule, opname, attr, customize):
         """Python 3.3 added a an addtional LOAD_CONST before MAKE_FUNCTION and
@@ -628,6 +629,7 @@ class Python3Parser(PythonParser):
         seen_LOAD_DICTCOMP    = False
         seen_LOAD_LISTCOMP    = False
         seen_LOAD_SETCOMP     = False
+        seen_classdeco_end    = False
         seen_GET_AWAITABLE_YIELD_FROM = False
 
         # Loop over instructions adding custom grammar rules based on
@@ -758,7 +760,7 @@ class Python3Parser(PythonParser):
                   or opname.startswith('CALL_FUNCTION_KW')):
                 self.custom_classfunc_rule(opname, token, customize,
                                            seen_LOAD_BUILD_CLASS,
-                                           seen_GET_AWAITABLE_YIELD_FROM)
+                                           seen_GET_AWAITABLE_YIELD_FROM, tokens[i+1])
             elif opname_base == 'CALL_METHOD':
                 # PyPy only - DRY with parse2
 

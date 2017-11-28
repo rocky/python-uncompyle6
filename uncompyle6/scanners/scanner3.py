@@ -219,6 +219,7 @@ class Scanner3(Scanner):
 
             argval = inst.argval
             op     = inst.opcode
+
             if op == self.opc.EXTENDED_ARG:
                 # FIXME: The EXTENDED_ARG is used to signal annotation
                 # parameters
@@ -331,6 +332,7 @@ class Scanner3(Scanner):
                     opname = 'BUILD_MAP_n'
                 else:
                     opname = '%s_%d' % (opname, pos_args)
+
             elif self.is_pypy and opname in ('CALL_METHOD', 'JUMP_IF_NOT_DEBUG'):
                 # The value in the dict is in special cases in semantic actions, such
                 # as CALL_FUNCTION. The value is not used in these cases, so we put
