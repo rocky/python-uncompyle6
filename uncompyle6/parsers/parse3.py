@@ -887,6 +887,12 @@ class Python3Parser(PythonParser):
                                  'LOAD_CONST ' * 2,
                                  opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
+
+                    if has_get_iter_call_function1:
+                        rule_pat = ("genexpr ::= %sload_closure load_genexpr %%s%s expr "
+                                   "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
+                        self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+
                     rule_pat = ('mklambda ::= %s%sLOAD_LAMBDA %%s%s' %
                                 (('pos_arg '* args_pos),
                                  ('kwarg '* args_kw),
