@@ -29,7 +29,7 @@ and the best all-around Python support.
 We are serious about testing, and use automated processes to find
 bugs. In the issue trackers for other decompilers, you will find a
 number of bugs we've found along the way. Very few to none of them are
-not fixed in the other decompilers.
+fixed in the other decompilers.
 
 Another thing that makes this different from other CPython bytecode
 decompilers is the ability to deparse just fragments and give
