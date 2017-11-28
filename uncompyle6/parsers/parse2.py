@@ -104,7 +104,6 @@ class Python2Parser(PythonParser):
 
         mapexpr ::= BUILD_MAP kvlist
 
-
         classdef ::= buildclass designator
 
         buildclass ::= LOAD_CONST expr mkfunc

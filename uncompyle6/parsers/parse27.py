@@ -89,6 +89,7 @@ class Python27Parser(Python2Parser):
 
         expr            ::= conditionalTrue
         conditionalTrue ::= expr JUMP_FORWARD expr COME_FROM
+        conditional     ::= expr jmp_false expr JUMP_FORWARD expr COME_FROM
         """
 
     def p_stmt27(self, args):
