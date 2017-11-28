@@ -38,6 +38,7 @@ class PythonParser(GenericASTBuilder):
             # Python < 3
             'print_items',
             # PyPy:
+            'imports_cont',
             'kvlist_n']
         self.collect = frozenset(nt_list)
 
