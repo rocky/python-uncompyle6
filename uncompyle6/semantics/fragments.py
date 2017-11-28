@@ -570,7 +570,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # FIXME: clean this up
         if self.version > 3.0 and node == 'dictcomp':
             cn = node[1]
-        elif self.version > 3.0 and node == 'genexpr':
+        elif self.version > 3.0 and node == 'generator_exp':
             if node[0] == 'load_genexpr':
                 load_genexpr = node[0]
             elif node[1] == 'load_genexpr':
@@ -769,7 +769,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         self.prec = p
 
-    def n_genexpr(self, node):
+    def n_generator_exp(self, node):
         start = len(self.f.getvalue())
         self.write('(')
         code_index = -6 if self.version > 3.2 else -5

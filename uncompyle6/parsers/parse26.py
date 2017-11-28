@@ -213,7 +213,7 @@ class Python26Parser(Python2Parser):
         genexpr_func ::= setup_loop_lf FOR_ITER designator comp_iter jb_bp_come_from
         genexpr_func ::= setup_loop_lf FOR_ITER designator comp_iter JUMP_BACK come_from_pop
                          jb_bp_come_from
-        genexpr ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1 COME_FROM
+        generator_exp ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1 COME_FROM
         list_if ::= list_if ::= expr jmp_false_then list_iter
         '''
 

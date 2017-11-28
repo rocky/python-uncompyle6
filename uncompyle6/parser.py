@@ -294,9 +294,9 @@ class PythonParser(GenericASTBuilder):
         load_closure ::= LOAD_CLOSURE
         '''
 
-    def p_genexpr(self, args):
+    def p_generator_exp(self, args):
         '''
-        expr ::= genexpr
+        expr ::= generator_exp
         stmt ::= genexpr_func
 
         genexpr_func ::= LOAD_FAST FOR_ITER designator comp_iter JUMP_BACK

@@ -305,7 +305,7 @@ PRECEDENCE = {
     'dictcomp':             0,
     'setcomp':              0,
     'list_compr':           0,
-    'genexpr':              0,
+    'generator_exp':        0,
 
     'load_attr':            2,
     'binary_subscr':        2,

@@ -1161,13 +1161,13 @@ class SourceWalker(GenericASTTraversal, object):
         # FIXME: clean this up
         if self.version > 3.0 and node == 'dictcomp':
             cn = node[1]
-        elif self.version < 2.7 and node == 'genexpr':
+        elif self.version < 2.7 and node == 'generator_exp':
             if node[0] == 'LOAD_GENEXPR':
                 cn = node[0]
             elif node[0] == 'load_closure':
                 cn = node[1]
 
-        elif self.version > 3.0 and node == 'genexpr':
+        elif self.version > 3.0 and node == 'generator_exp':
             if node[0] == 'load_genexpr':
                 load_genexpr = node[0]
             elif node[1] == 'load_genexpr':
@@ -1221,7 +1221,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.preorder(ast[iter_index])
         self.prec = p
 
-    def n_genexpr(self, node):
+    def n_generator_exp(self, node):
         self.write('(')
         code_index = -6 if self.version > 3.2 else -5
         self.comprehension_walk(node, iter_index=3, code_index=code_index)

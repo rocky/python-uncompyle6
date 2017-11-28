@@ -169,9 +169,9 @@ class Python2Parser(PythonParser):
         jmp_abs ::= JUMP_BACK
         '''
 
-    def p_genexpr2(self, args):
+    def p_generator_exp2(self, args):
         '''
-        genexpr ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
+        generator_exp ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
         '''
 
     def p_expr2(self, args):
@@ -375,7 +375,7 @@ class Python2Parser(PythonParser):
                     prev_tok = tokens[i-1]
                     if prev_tok == 'LOAD_GENEXPR':
                         self.add_unique_rules([
-                            ('genexpr ::= %s load_closure LOAD_GENEXPR %s expr'
+                            ('generator_exp ::= %s load_closure LOAD_GENEXPR %s expr'
                                  ' GET_ITER CALL_FUNCTION_1' %
                             ('expr '*v, opname))], customize)
                         pass

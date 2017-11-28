@@ -74,7 +74,7 @@ class Python3Parser(PythonParser):
         expr ::= dictcomp
         stmt ::= dictcomp_func
         dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER designator
-                comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
+                          comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
         dictcomp ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
         """
 
@@ -408,7 +408,7 @@ class Python3Parser(PythonParser):
                               COME_FROM_LOOP
         """
 
-    def p_genexpr3(self, args):
+    def p_generator_exp3(self, args):
         '''
         load_genexpr ::= LOAD_GENEXPR
         load_genexpr ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_CONST
@@ -596,9 +596,9 @@ class Python3Parser(PythonParser):
             dictcomp ::= LOAD_DICTCOMP [LOAD_CONST] MAKE_FUNCTION_0 expr
                            GET_ITER CALL_FUNCTION_1
 
-            genexpr  ::= {pos_arg}^n load_genexpr [LOAD_CONST] MAKE_FUNCTION_n expr
+            generator_exp  ::= {pos_arg}^n load_genexpr [LOAD_CONST] MAKE_FUNCTION_n expr
                            GET_ITER CALL_FUNCTION_1
-            genexpr  ::= {expr}^n load_closure LOAD_GENEXPR [LOAD_CONST]
+            generator_exp  ::= {expr}^n load_closure LOAD_GENEXPR [LOAD_CONST]
                           MAKE_CLOSURE_n expr GET_ITER CALL_FUNCTION_1
             listcomp ::= {pos_arg}^n LOAD_LISTCOMP [LOAD_CONST] MAKE_CLOSURE_n expr
                            GET_ITER CALL_FUNCTION_1
@@ -835,7 +835,7 @@ class Python3Parser(PythonParser):
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
                 if has_get_iter_call_function1:
-                    rule_pat = ("genexpr ::= %sload_closure load_genexpr %%s%s expr "
+                    rule_pat = ("generator_exp ::= %sload_closure load_genexpr %%s%s expr "
                                 "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                     if seen_LOAD_LISTCOMP:
@@ -890,7 +890,7 @@ class Python3Parser(PythonParser):
                     self.add_unique_rule(rule, opname, token.attr, customize)
 
                     if has_get_iter_call_function1:
-                        rule_pat = ("genexpr ::= %sload_closure load_genexpr %%s%s expr "
+                        rule_pat = ("generator_exp ::= %sload_closure load_genexpr %%s%s expr "
                                    "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
                         self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
@@ -910,7 +910,7 @@ class Python3Parser(PythonParser):
                     args_pos, args_kw, annotate_args, closure  = token.attr
 
                 if has_get_iter_call_function1:
-                    rule_pat = ("genexpr ::= %sload_genexpr %%s%s expr "
+                    rule_pat = ("generator_exp ::= %sload_genexpr %%s%s expr "
                                 "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                 rule_pat = ('mklambda ::= %s%sLOAD_LAMBDA %%s%s' %
