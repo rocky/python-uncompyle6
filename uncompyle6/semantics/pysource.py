@@ -300,11 +300,21 @@ class SourceWalker(GenericASTTraversal, object):
                                                   offset=3, has_arg=True)])
                                     ])])
             pass
-        if version <= 2.3:
-            TABLE_DIRECT.update({
-                'tryfinallystmt': ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 4 )
-            })
-
+            if version <= 2.3:
+                TABLE_DIRECT.update({
+                    'tryfinallystmt': ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 4 )
+                })
+                if version <= 2.1:
+                    TABLE_DIRECT.update({
+                        'importmultiple': ( '%c', 2 ),
+                        'imports_cont': ( '%c', 2 ),
+                        # FIXME: not quite right. We have indiividual imports
+                        # when there is in fact one: "import a, b, ..."
+                        'imports_cont': ( '%C%,', (1, 100, '\n') ),
+                    })
+                    pass
+                pass
+            pass
         elif version >= 2.5:
             ########################
             # Import style for 2.5+
@@ -978,6 +988,20 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
 
     def n_import_as(self, node):
+        if self.version <= 2.1:
+            if len(node) == 2:
+                designator = node[1]
+                assert designator == 'designator'
+                if designator[0].pattr == node[0].pattr:
+                    self.write("import %s\n" % node[0].pattr)
+                else:
+                    self.write("import %s as %s\n" %
+                               (node[0].pattr, designator[0].pattr))
+                    pass
+                pass
+            self.prune() # stop recursing
+
+
         store_node = node[-1][-1]
         assert store_node.kind.startswith('STORE_')
         iname = node[0].pattr  # import name

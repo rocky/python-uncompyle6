@@ -33,7 +33,6 @@ class Python33Parser(Python32Parser):
         self.remove_rules("""
         # 3.3+ adds POP_BLOCKS
         whileTruestmt ::= SETUP_LOOP l_stmts JUMP_ABSOLUTE JUMP_BACK COME_FROM_LOOP
-        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM_LOOP
         whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP COME_FROM_LOOP
         whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP COME_FROM_LOOP
         whilestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK
