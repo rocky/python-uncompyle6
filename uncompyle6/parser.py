@@ -411,12 +411,12 @@ class PythonParser(GenericASTBuilder):
 
     def p_setcomp(self, args):
         """
-        comp_iter ::= comp_if
         comp_iter ::= comp_for
         comp_iter ::= comp_body
         comp_body ::= gen_comp_body
         gen_comp_body ::= expr YIELD_VALUE POP_TOP
 
+        comp_iter ::= comp_if
         comp_if  ::= expr jmp_false comp_iter
         """
 
