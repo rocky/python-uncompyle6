@@ -60,6 +60,12 @@ class Python24Parser(Python25Parser):
         while1stmt    ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM
         while1stmt    ::= SETUP_LOOP return_stmts COME_FROM
         whilestmt     ::= SETUP_LOOP testexpr return_stmts POP_BLOCK COME_FROM
+        with_cleanup  ::= LOAD_FAST DELETE_FAST WITH_CLEANUP END_FINALLY
+        with_cleanup  ::= LOAD_NAME DELETE_NAME WITH_CLEANUP END_FINALLY
+        withasstmt    ::= expr setupwithas designator suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM with_cleanup
+        withstmt      ::= expr setupwith SETUP_FINALLY suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM with_cleanup
+        stmt ::= withstmt
+        stmt ::= withasstmt
         """)
         super(Python24Parser, self).add_custom_rules(tokens, customize)
         if self.version == 2.4:
