@@ -27,7 +27,7 @@ def test_grammar():
         expect_lhs.add('load_genexpr')
 
         unused_rhs = unused_rhs.union(set("""
-        except_pop_except genexpr classdefdeco2 listcomp
+        except_pop_except generator_exp classdefdeco2 listcomp
         """.split()))
         if 3.0 <= PYTHON_VERSION:
             expect_lhs.add("annotate_arg")
