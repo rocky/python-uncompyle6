@@ -18,7 +18,7 @@ Why this?
 ---------
 
 Ok, I'll say it: this software is amazing. It is a little more than
-just your normal hacky decompiler. Using compiler technology, the
+just your normal hacky decompiler. Using compiler_ technology, the
 programs creates a parse tree of the program from the instructions;
 nodes at the upper levels that look like they come from a Python
 AST. So we can really classify and understand what's going on in
@@ -203,6 +203,7 @@ See Also
 
 
 .. _trepan: https://pypi.python.org/pypi/trepan2
+.. _compiler: https://pypi.python.org/pypi/spark_parser
 .. _HISTORY: https://github.com/rocky/python-uncompyle6/blob/master/HISTORY.md
 .. _debuggers: https://pypi.python.org/pypi/trepan3k
 .. _remake: https://bashdb.sf.net/remake
