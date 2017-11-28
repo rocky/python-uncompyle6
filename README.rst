@@ -125,7 +125,7 @@ The biggest known and possibly fixable (but hard) problem has to do
 with handling control flow. (Python has probably the most diverse and
 screwy set of compound statements I've ever seen; a number of the
 usual ones like else clauses on loops and try blocks I suspect most
-programmers don't know aobut.)
+programmers don't know about.)
 
 All of the Python decompilers I have looked at have the same
 problem. In some cases we can detect an erroneous decompilation and
