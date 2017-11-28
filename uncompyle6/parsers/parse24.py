@@ -33,9 +33,6 @@ class Python24Parser(Python25Parser):
         importmultiple ::= filler LOAD_CONST import_as imports_cont
         import_cont    ::= filler LOAD_CONST import_as
 
-        import_as  ::= IMPORT_NAME load_attrs designator
-        load_attrs ::= LOAD_ATTR+
-
         # Python 2.5+ omits POP_TOP POP_BLOCK
         while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK POP_TOP POP_BLOCK COME_FROM
         while1stmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_TOP POP_BLOCK COME_FROM
@@ -58,6 +55,10 @@ class Python24Parser(Python25Parser):
     def add_custom_rules(self, tokens, customize):
         self.remove_rules("""
         kvlist ::= kvlist kv3
+        while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK COME_FROM
+        while1stmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM
+        while1stmt ::= SETUP_LOOP return_stmts COME_FROM
+        whilestmt  ::= SETUP_LOOP testexpr return_stmts POP_BLOCK COME_FROM
         """)
         super(Python24Parser, self).add_custom_rules(tokens, customize)
         if self.version == 2.4:
