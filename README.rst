@@ -35,10 +35,11 @@ associated with fragments of the source code. This purpose, although
 compatible with the original intention, is yet a little bit different.
 See this_ for more information.
 
-The idea of Python fragment deparsing given an instruction offset can
-be used in showing stack traces or any program that wants to show a
-location in more detail than just a line number.  It can be also used
-when source-code information does not exist and there is just bytecode
+Python fragment deparsing given an instruction offset is useful in
+showing stack traces and can be encorporated into any program that
+wants to show a location in more detail than just a line number.  This
+code can be also used when source-code information does not exist and
+there is just bytecode. Again, my debugggers make use of this.
 
 There were (and still are) a number of decompyle, uncompyle,
 uncompyle2, uncompyle3 forks around. Almost all of them come basically
