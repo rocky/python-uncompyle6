@@ -320,7 +320,7 @@ class Python2Parser(PythonParser):
                 args_kw = (v >> 8) & 0xff      # keyword parameters
                 # number of apply equiv arguments:
                 nak = ( len(opname_base)-len('CALL_FUNCTION') ) // 3
-                rule = 'call_function ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
+                rule = 'call ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
                        + 'expr ' * nak + opname
             elif opname_base == 'CALL_METHOD':
                 # PyPy only - DRY with parse3
@@ -328,7 +328,7 @@ class Python2Parser(PythonParser):
                 args_kw = (v >> 8) & 0xff      # keyword parameters
                 # number of apply equiv arguments:
                 nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
-                rule = 'call_function ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
+                rule = 'call ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
                        + 'expr ' * nak + opname
             elif opname == 'CONTINUE_LOOP':
                 self.add_unique_rule('continue_stmt ::= CONTINUE_LOOP',

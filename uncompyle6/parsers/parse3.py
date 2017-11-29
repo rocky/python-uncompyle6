@@ -119,7 +119,7 @@ class Python3Parser(PythonParser):
 
         # Python3 introduced LOAD_BUILD_CLASS
         # Other definitions are in a custom rule
-        build_class ::= LOAD_BUILD_CLASS mkfunc expr call_function CALL_FUNCTION_3
+        build_class ::= LOAD_BUILD_CLASS mkfunc expr call CALL_FUNCTION_3
 
         stmt ::= classdefdeco
         classdefdeco ::= classdefdeco1 designator
@@ -486,10 +486,10 @@ class Python3Parser(PythonParser):
                               possible_class_decorator,
                               seen_GET_AWAITABLE_YIELD_FROM, next_token):
         """
-        call_function ::= expr {expr}^n CALL_FUNCTION_n
-        call_function ::= expr {expr}^n CALL_FUNCTION_VAR_n
-        call_function ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n
-        call_function ::= expr {expr}^n CALL_FUNCTION_KW_n
+        call ::= expr {expr}^n CALL_FUNCTION_n
+        call ::= expr {expr}^n CALL_FUNCTION_VAR_n
+        call ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n
+        call ::= expr {expr}^n CALL_FUNCTION_KW_n
 
         classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc {expr}^n-1 CALL_FUNCTION_n
         """
@@ -517,31 +517,31 @@ class Python3Parser(PythonParser):
                 kw = 'expr '
             else:
                 kw = ''
-            rule = ('call_function ::= expr expr ' +
+            rule = ('call ::= expr expr ' +
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) + kw + token.kind)
             self.add_unique_rule(rule, token.kind, uniq_param, customize)
         if self.version >= 3.6 and opname == 'CALL_FUNCTION_EX_KW':
-            rule = ('call_function36 ::= '
+            rule = ('call36 ::= '
                     'expr build_tuple_unpack_with_call build_map_unpack_with_call '
                     'CALL_FUNCTION_EX_KW_1')
             self.add_unique_rule(rule, token.kind, uniq_param, customize)
-            rule = 'call_function ::= call_function36'
+            rule = 'call ::= call36'
         else:
-            rule = ('call_function ::= expr ' +
+            rule = ('call ::= expr ' +
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) +
                     'expr ' * nak + token.kind)
 
         self.add_unique_rule(rule, token.kind, uniq_param, customize)
         if self.version >= 3.5 and seen_GET_AWAITABLE_YIELD_FROM:
-            rule = ('async_call_function ::= expr ' +
+            rule = ('async_call ::= expr ' +
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) +
                     'expr ' * nak + token.kind +
                     ' GET_AWAITABLE LOAD_CONST YIELD_FROM')
             self.add_unique_rule(rule, token.kind, uniq_param, customize)
-            self.add_unique_rule('expr ::= async_call_function', token.kind, uniq_param, customize)
+            self.add_unique_rule('expr ::= async_call', token.kind, uniq_param, customize)
 
         if possible_class_decorator:
             if next_token == 'CALL_FUNCTION' and next_token.attr == 1:
@@ -584,7 +584,7 @@ class Python3Parser(PythonParser):
               build_set  ::= {expr}^n BUILD_SET_UNPACK_n
 
             load_closure  ::= {LOAD_CLOSURE}^n BUILD_TUPLE_n
-            # call_function (see custom_classfunc_rule)
+            # call (see custom_classfunc_rule)
 
             # ------------
             # Python <= 3.2 omits LOAD_CONST before MAKE_
@@ -623,7 +623,7 @@ class Python3Parser(PythonParser):
 
         For PYPY:
             load_attr ::= expr LOOKUP_METHOD
-            call_function ::= expr CALL_METHOD
+            call ::= expr CALL_METHOD
         """
         seen_LOAD_BUILD_CLASS = False
         seen_LOAD_DICTCOMP    = False
@@ -770,7 +770,7 @@ class Python3Parser(PythonParser):
 
                 # number of apply equiv arguments:
                 nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
-                rule = ('call_function ::= expr ' +
+                rule = ('call ::= expr ' +
                         ('pos_arg ' * args_pos) +
                         ('kwarg ' * args_kw) +
                         'expr ' * nak + opname)
@@ -942,7 +942,7 @@ class Python3Parser(PythonParser):
                     if self.version >= 3.6:
                         rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s' %
                                 (('pos_arg ' * (args_pos)),
-                                 ('call_function ' * (annotate_args-1)), opname))
+                                 ('call ' * (annotate_args-1)), opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s' %
                                 (('pos_arg ' * (args_pos)),
@@ -953,7 +953,7 @@ class Python3Parser(PythonParser):
                         # Yes this is a little hacky
                         rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
                                 (('pos_arg ' * (args_pos)),
-                                 ('call_function ' * (annotate_args-1)), opname))
+                                 ('call ' * (annotate_args-1)), opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
                                 (('pos_arg ' * (args_pos)),
@@ -966,7 +966,7 @@ class Python3Parser(PythonParser):
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s' %
                                 (('pos_arg ' * (args_pos)),
-                                 ('call_function ' * (annotate_args-1)), opname))
+                                 ('call ' * (annotate_args-1)), opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base in ('UNPACK_EX',):
                 before_count, after_count = token.attr

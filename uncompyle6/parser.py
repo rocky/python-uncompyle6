@@ -437,7 +437,7 @@ class PythonParser(GenericASTBuilder):
         expr ::= and
         expr ::= or
         expr ::= unary_expr
-        expr ::= call_function
+        expr ::= call
         expr ::= unary_not
         expr ::= binary_subscr
         expr ::= binary_subscr2

@@ -435,21 +435,21 @@ class SourceWalker(GenericASTTraversal, object):
                             'trystmt36':       ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
                             })
 
-                    def n_async_call_function(node):
+                    def n_async_call(node):
                         self.f.write('async ')
-                        node.kind == 'call_function'
+                        node.kind == 'call'
                         p = self.prec
                         self.prec = 80
                         self.template_engine(('%c(%P)', 0,
                                               (1, -4, ', ', 100)), node)
                         self.prec = p
-                        node.kind == 'async_call_function'
+                        node.kind == 'async_call'
                         self.prune()
-                    self.n_async_call_function = n_async_call_function
+                    self.n_async_call = n_async_call
                     self.n_build_list_unpack = self.n_build_list
 
                     if version == 3.5:
-                        def n_call_function(node):
+                        def n_call(node):
                             mapping = self._get_mapping(node)
                             table = mapping[0]
                             key = node
@@ -472,7 +472,7 @@ class SourceWalker(GenericASTTraversal, object):
                                     args_pos = kwarg_pos
                                     kwarg_pos += 1
                             self.default(node)
-                        self.n_call_function = n_call_function
+                        self.n_call = n_call
 
                     def n_funcdef(node):
                         if self.version == 3.6:

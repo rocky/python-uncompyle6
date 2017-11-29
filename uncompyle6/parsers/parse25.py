@@ -67,13 +67,13 @@ class Python25Parser(Python26Parser):
         mkfuncdeco ::= expr mkfuncdeco CALL_FUNCTION_1
         ret_cond ::= expr jmp_false_then expr RETURN_END_IF POP_TOP ret_expr_or_cond
         return_if_lambda ::= RETURN_END_IF_LAMBDA POP_TOP
-        return_if_stmt ::= ret_expr RETURN_END_IF POP_TOP
-        return_if_stmts ::= return_if_stmt
-        return_stmt ::= ret_expr RETURN_END_IF POP_TOP
-        return_stmt ::= ret_expr RETURN_VALUE POP_TOP
+        return_if_stmt   ::= ret_expr RETURN_END_IF POP_TOP
+        return_if_stmts  ::= return_if_stmt
+        return_stmt      ::= ret_expr RETURN_END_IF POP_TOP
+        return_stmt      ::= ret_expr RETURN_VALUE POP_TOP
         setupwithas      ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 setup_finally
-        stmt          ::= classdefdeco
-        stmt ::= conditional_lambda
+        stmt             ::= classdefdeco
+        stmt             ::= conditional_lambda
         """)
         super(Python25Parser, self).add_custom_rules(tokens, customize)
         if self.version == 2.5:

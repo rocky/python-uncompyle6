@@ -1623,10 +1623,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # 2. subroutine calls. It the last op is the call and for purposes of printing
         # we don't need to print anything special there. However it encompases the
         # entire string of the node fn(...)
-        match = re.search(r'^call_function', startnode.kind)
-        if match:
+        if startnode.kind == 'call':
             last_node = startnode[-1]
-            # import traceback; traceback.print_stack()
             self.set_pos_info(last_node, startnode_start, self.last_finish)
         return
 

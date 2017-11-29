@@ -157,7 +157,7 @@ class Python35Parser(Python34Parser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
                 call_token = tokens[i+1]
                 if self.version == 3.5:
-                    rule = 'call_function ::= expr unmapexpr ' + call_token.kind
+                    rule = 'call ::= expr unmapexpr ' + call_token.kind
                     self.add_unique_rule(rule, opname, token.attr, customize)
                 pass
             pass

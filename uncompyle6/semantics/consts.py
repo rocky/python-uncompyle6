@@ -287,8 +287,8 @@ MAP_R0 = (TABLE_R0, -1, 0)
 MAP_R = (TABLE_R, -1)
 
 MAP = {
-    'stmt':		MAP_R,
-    'call_function':	MAP_R,
+    'stmt':		    MAP_R,
+    'call':	        MAP_R,
     'del_stmt':		MAP_R,
     'designator':	MAP_R,
     'exprlist':		MAP_R0,
@@ -316,7 +316,7 @@ PRECEDENCE = {
     'slice3':               2,
     'buildslice2':          2,
     'buildslice3':          2,
-    'call_function':        2,
+    'call':                 2,
 
     'BINARY_POWER':         4,
 
