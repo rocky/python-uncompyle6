@@ -19,14 +19,15 @@ Why this?
 
 Ok, I'll say it: this software is amazing. It is a little more than
 just your normal hacky decompiler. Using compiler_ technology, the
-programs creates a parse tree of the program from the instructions;
+program creates a parse tree of the program from the instructions;
 nodes at the upper levels that look like they come from a Python
 AST. So we can really classify and understand what's going on in
-sections of instructions.
+sections of Python bytecode.
 
-So another thing that makes this different from other CPython bytecode
-decompilers is the ability to deparse just *fragments* of source code
-and give source-code information around a given bytecode offset.
+Building on this, another thing that makes this different from other
+CPython bytecode decompilers is the ability to deparse just
+*fragments* of source code and give source-code information around a
+given bytecode offset.
 
 I use the tree fragments to deparse fragments of code inside my
 trepan_ debuggers_. For that, bytecode offsets are recorded and
