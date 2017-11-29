@@ -14,7 +14,7 @@ class Python27Parser(Python2Parser):
 
     def p_comprehension27(self, args):
         """
-        list_for ::= expr _for designator list_iter JUMP_BACK
+        list_for ::= expr _for store list_iter JUMP_BACK
         list_compr ::= BUILD_LIST_0 list_iter
         lc_body ::= expr LIST_APPEND
 
@@ -23,17 +23,17 @@ class Python27Parser(Python2Parser):
         # Dictionary and set comprehensions were added in Python 2.7
         expr ::= dictcomp
         stmt ::= dictcomp_func
-        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER designator
+        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
                 comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
 
         dictcomp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
 
-        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
+        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
                 JUMP_BACK RETURN_VALUE RETURN_LAST
 
         comp_body ::= dict_comp_body
         comp_body ::= set_comp_body
-        comp_for ::= expr _for designator comp_iter JUMP_BACK
+        comp_for ::= expr _for store comp_iter JUMP_BACK
 
         dict_comp_body ::= expr expr MAP_ADD
         set_comp_body ::= expr SET_ADD
@@ -56,7 +56,7 @@ class Python27Parser(Python2Parser):
                          jmp_false POP_TOP POP_TOP POP_TOP
 
         except_cond2 ::= DUP_TOP expr COMPARE_OP
-                         jmp_false POP_TOP designator POP_TOP
+                         jmp_false POP_TOP store POP_TOP
         """
 
     def p_jump27(self, args):
@@ -107,7 +107,7 @@ class Python27Parser(Python2Parser):
                        POP_BLOCK LOAD_CONST COME_FROM_WITH
                        WITH_CLEANUP END_FINALLY
 
-        withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
+        withasstmt ::= expr SETUP_WITH store suite_stmts_opt
                 POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP END_FINALLY
 

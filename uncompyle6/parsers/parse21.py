@@ -1,4 +1,4 @@
-#  Copyright (c) 2016 Rocky Bernstein
+#  Copyright (c) 2016-2017 Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -14,10 +14,10 @@ class Python21Parser(Python22Parser):
     def p_forstmt21(self, args):
         """
         _for        ::= LOAD_CONST FOR_LOOP
-        forstmt     ::= SETUP_LOOP expr _for designator
+        forstmt     ::= SETUP_LOOP expr _for store
                         return_stmts
                         POP_BLOCK COME_FROM
-        forstmt     ::= SETUP_LOOP expr _for designator
+        forstmt     ::= SETUP_LOOP expr _for store
                         l_stmts_opt _jump_back
                         POP_BLOCK COME_FROM
 
@@ -27,7 +27,7 @@ class Python21Parser(Python22Parser):
 
     def p_import21(self, args):
         '''
-        import_as ::= IMPORT_NAME_CONT designator
+        import_as ::= IMPORT_NAME_CONT store
         '''
 
 class Python21ParserSingle(Python22Parser, PythonParserSingle):

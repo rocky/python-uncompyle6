@@ -1,4 +1,4 @@
-#  Copyright (c) 2016 Rocky Bernstein
+#  Copyright (c) 2016-2017 Rocky Bernstein
 """
 spark grammar differences over Python 3.5 for Python 3.6.
 """
@@ -40,7 +40,7 @@ class Python36Parser(Python35Parser):
         # FIXME: remove corresponding rule for 3.5?
         async_with_as_stmt ::= expr
                                BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               SETUP_ASYNC_WITH designator
+                               SETUP_ASYNC_WITH store
                                suite_stmts_opt
                                POP_BLOCK LOAD_CONST
                                COME_FROM_ASYNC_WITH

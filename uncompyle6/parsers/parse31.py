@@ -1,4 +1,4 @@
-#  Copyright (c) 2016 Rocky Bernstein
+#  Copyright (c) 2016-2017 Rocky Bernstein
 """
 spark grammar differences over Python 3.2 for Python 3.1.
 """
@@ -23,7 +23,7 @@ class Python31Parser(Python32Parser):
         # Keeps Python 3.1 withas desigator in the same position as it is in other version
         setupwithas31  ::= setupwithas SETUP_FINALLY load del_stmt
 
-        withasstmt     ::= expr setupwithas31 designator
+        withasstmt     ::= expr setupwithas31 store
                            suite_stmts_opt
                            POP_BLOCK LOAD_CONST COME_FROM_FINALLY
                            load del_stmt WITH_CLEANUP END_FINALLY

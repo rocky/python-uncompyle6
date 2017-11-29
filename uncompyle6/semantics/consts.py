@@ -38,14 +38,14 @@ ASSIGN_DOC_STRING = lambda doc_string: \
   AST('stmt',
       [ AST('assign',
             [ AST('expr', [ Token('LOAD_CONST', pattr=doc_string) ]),
-              AST('designator', [ Token('STORE_NAME', pattr='__doc__')])
+              AST('store', [ Token('STORE_NAME', pattr='__doc__')])
             ])])
 
 NAME_MODULE = AST('stmt',
                 [ AST('assign',
                     [ AST('expr',
                           [Token('LOAD_NAME', pattr='__name__', offset=0, has_arg=True)]),
-                      AST('designator',
+                      AST('store',
                           [ Token('STORE_NAME', pattr='__module__', offset=3, has_arg=True)])
                       ])])
 
@@ -174,7 +174,7 @@ TABLE_DIRECT = {
     'assign':		    ( '%|%c = %p\n', -1, (0, 200) ),
 
     # The 2nd parameter should have a = suffix.
-    # There is a rule with a 4th parameter "designator"
+    # There is a rule with a 4th parameter "store"
     # which we don't use here.
     'augassign1':	    ( '%|%c %c %c\n', 0, 2, 1),
 
@@ -287,10 +287,10 @@ MAP_R0 = (TABLE_R0, -1, 0)
 MAP_R = (TABLE_R, -1)
 
 MAP = {
-    'stmt':		    MAP_R,
+    'stmt':		MAP_R,
     'call':	        MAP_R,
     'del_stmt':		MAP_R,
-    'designator':	MAP_R,
+    'store':	        MAP_R,
     'exprlist':		MAP_R0,
 }
 

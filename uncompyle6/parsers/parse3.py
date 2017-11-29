@@ -41,10 +41,10 @@ class Python3Parser(PythonParser):
         # one may be a continue - sometimes classifies a JUMP_BACK
         # as a CONTINUE. The two are kind of the same in a comprehension.
 
-        comp_for ::= expr _for designator comp_iter CONTINUE
-        comp_for ::= expr _for designator comp_iter JUMP_BACK
+        comp_for ::= expr _for store comp_iter CONTINUE
+        comp_for ::= expr _for store comp_iter JUMP_BACK
 
-        list_for ::= expr FOR_ITER designator list_iter jb_or_c
+        list_for ::= expr FOR_ITER store list_iter jb_or_c
 
         # This is seen in PyPy, but possibly it appears on other Python 3?
         list_if     ::= expr jmp_false list_iter COME_FROM
@@ -55,10 +55,10 @@ class Python3Parser(PythonParser):
 
         stmt ::= setcomp_func
 
-        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
+        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
                 JUMP_BACK RETURN_VALUE RETURN_LAST
 
-        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
+        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
                 COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
 
         comp_body ::= dict_comp_body
@@ -73,7 +73,7 @@ class Python3Parser(PythonParser):
         """"
         expr ::= dictcomp
         stmt ::= dictcomp_func
-        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER designator
+        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
                           comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
         dictcomp ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
         """
@@ -115,14 +115,14 @@ class Python3Parser(PythonParser):
         kwarg   ::= LOAD_CONST expr
         kwargs  ::= kwarg*
 
-        classdef ::= build_class designator
+        classdef ::= build_class store
 
         # Python3 introduced LOAD_BUILD_CLASS
         # Other definitions are in a custom rule
         build_class ::= LOAD_BUILD_CLASS mkfunc expr call CALL_FUNCTION_3
 
         stmt ::= classdefdeco
-        classdefdeco ::= classdefdeco1 designator
+        classdefdeco ::= classdefdeco1 store
         classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
         classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
 
@@ -236,7 +236,7 @@ class Python3Parser(PythonParser):
                                   END_FINALLY _jump
 
         except_var_finalize ::= POP_BLOCK POP_EXCEPT LOAD_CONST come_from_or_finally
-                                LOAD_CONST designator del_stmt
+                                LOAD_CONST store del_stmt
 
         except_suite ::= return_stmts
 
@@ -244,7 +244,7 @@ class Python3Parser(PythonParser):
                 jmp_false POP_TOP POP_TOP POP_TOP
 
         except_cond2 ::= DUP_TOP expr COMPARE_OP
-                jmp_false POP_TOP designator POP_TOP
+                jmp_false POP_TOP store POP_TOP
 
         except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT _jump
         except  ::=  POP_TOP POP_TOP POP_TOP return_stmts
@@ -256,7 +256,7 @@ class Python3Parser(PythonParser):
                 POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP END_FINALLY
 
-        withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
+        withasstmt ::= expr SETUP_WITH store suite_stmts_opt
                 POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP END_FINALLY
 
@@ -289,7 +289,7 @@ class Python3Parser(PythonParser):
         """
         # Annotated functions
         stmt ::= funcdef_annotate
-        funcdef_annotate ::= mkfunc_annotate designator
+        funcdef_annotate ::= mkfunc_annotate store
 
         mkfuncdeco0 ::= mkfunc_annotate
 
@@ -355,16 +355,16 @@ class Python3Parser(PythonParser):
 
     def p_loop_stmt3(self, args):
         """
-        forstmt           ::= SETUP_LOOP expr _for designator for_block POP_BLOCK
+        forstmt           ::= SETUP_LOOP expr _for store for_block POP_BLOCK
                               opt_come_from_loop
 
-        forelsestmt       ::= SETUP_LOOP expr _for designator for_block POP_BLOCK else_suite
+        forelsestmt       ::= SETUP_LOOP expr _for store for_block POP_BLOCK else_suite
                               COME_FROM_LOOP
 
-        forelselaststmt   ::= SETUP_LOOP expr _for designator for_block POP_BLOCK else_suitec
+        forelselaststmt   ::= SETUP_LOOP expr _for store for_block POP_BLOCK else_suitec
                               COME_FROM_LOOP
 
-        forelselaststmtl  ::= SETUP_LOOP expr _for designator for_block POP_BLOCK else_suitel
+        forelselaststmtl  ::= SETUP_LOOP expr _for store for_block POP_BLOCK else_suitel
                               COME_FROM_LOOP
 
         whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
@@ -404,7 +404,7 @@ class Python3Parser(PythonParser):
                               COME_FROM_LOOP
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP
                               COME_FROM_LOOP
-        forstmt           ::= SETUP_LOOP expr _for designator for_block POP_BLOCK NOP
+        forstmt           ::= SETUP_LOOP expr _for store for_block POP_BLOCK NOP
                               COME_FROM_LOOP
         """
 
@@ -639,8 +639,8 @@ class Python3Parser(PythonParser):
             self.addRule("""
               stmt ::= assign3_pypy
               stmt ::= assign2_pypy
-              assign3_pypy ::= expr expr expr designator designator designator
-              assign2_pypy ::= expr expr designator designator
+              assign3_pypy ::= expr expr expr store store store
+              assign2_pypy ::= expr expr store store
               """, nop_func)
 
         has_get_iter_call_function1 = False
@@ -679,7 +679,7 @@ class Python3Parser(PythonParser):
                 kvlist_n = "kvlist_%s" % token.attr
                 if opname == 'BUILD_MAP_n':
                     # PyPy sometimes has no count. Sigh.
-                    rule = ('dictcomp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER designator '
+                    rule = ('dictcomp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER store '
                             'comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST')
                     self.add_unique_rule(rule, 'dictomp_func', 1, customize)
 
@@ -970,13 +970,13 @@ class Python3Parser(PythonParser):
                     self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base in ('UNPACK_EX',):
                 before_count, after_count = token.attr
-                rule = 'unpack ::= ' + opname + ' designator' * (before_count + after_count + 1)
+                rule = 'unpack ::= ' + opname + ' store' * (before_count + after_count + 1)
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
-                rule = 'unpack ::= ' + opname + ' designator' * token.attr
+                rule = 'unpack ::= ' + opname + ' store' * token.attr
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base == 'UNPACK_LIST':
-                rule = 'unpack_list ::= ' + opname + ' designator' * token.attr
+                rule = 'unpack_list ::= ' + opname + ' store' * token.attr
         self.check_reduce['augassign1'] = 'AST'
         self.check_reduce['augassign2'] = 'AST'
         self.check_reduce['while1stmt'] = 'noAST'

@@ -37,7 +37,7 @@ class Python25Parser(Python26Parser):
 
         # Python 2.6 omits the LOAD_FAST DELETE_FAST below
         # withas is allowed as a "from future" in 2.5
-        withasstmt ::= expr setupwithas designator suite_stmts_opt
+        withasstmt ::= expr setupwithas store suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM
                        with_cleanup
 
@@ -55,10 +55,10 @@ class Python25Parser(Python26Parser):
         setupwith  ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 POP_TOP
         withstmt   ::= expr setupwith SETUP_FINALLY suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
-        withasstmt ::= expr setupwithas designator suite_stmts_opt
+        withasstmt ::= expr setupwithas store suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
         assert2       ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
-        classdefdeco  ::= classdefdeco1 designator
+        classdefdeco  ::= classdefdeco1 store
         classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
         classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
         classdefdeco2 ::= LOAD_CONST expr mkfunc CALL_FUNCTION_0 BUILD_CLASS

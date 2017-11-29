@@ -104,13 +104,13 @@ class Python2Parser(PythonParser):
 
         mapexpr ::= BUILD_MAP kvlist
 
-        classdef ::= buildclass designator
+        classdef ::= buildclass store
 
         buildclass ::= LOAD_CONST expr mkfunc
                      CALL_FUNCTION_0 BUILD_CLASS
 
         stmt ::= classdefdeco
-        classdefdeco ::= classdefdeco1 designator
+        classdefdeco ::= classdefdeco1 store
         classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
         classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
         classdefdeco2 ::= LOAD_CONST expr mkfunc CALL_FUNCTION_0 BUILD_CLASS
@@ -194,10 +194,10 @@ class Python2Parser(PythonParser):
 
     def p_slice2(self, args):
         """
-        designator ::= expr STORE_SLICE+0
-        designator ::= expr expr STORE_SLICE+1
-        designator ::= expr expr STORE_SLICE+2
-        designator ::= expr expr expr STORE_SLICE+3
+        store ::= expr STORE_SLICE+0
+        store ::= expr expr STORE_SLICE+1
+        store ::= expr expr STORE_SLICE+2
+        store ::= expr expr expr STORE_SLICE+3
 
         augassign1 ::= expr expr inplace_op ROT_FOUR  STORE_SLICE+3
         augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+1
@@ -250,9 +250,9 @@ class Python2Parser(PythonParser):
             self.addRule("""
                         stmt ::= assign3_pypy
                         stmt ::= assign2_pypy
-                        assign3_pypy ::= expr expr expr designator designator designator
-                        assign2_pypy ::= expr expr designator designator
-                        list_compr ::= expr  BUILD_LIST_FROM_ARG _for designator list_iter
+                        assign3_pypy ::= expr expr expr store store store
+                        assign2_pypy ::= expr expr store store
+                        list_compr ::= expr  BUILD_LIST_FROM_ARG _for store list_iter
                                              JUMP_BACK
                         """, nop_func)
         for i, token in enumerate(tokens):
@@ -288,7 +288,7 @@ class Python2Parser(PythonParser):
                     ], customize)
                     if self.version >= 2.7:
                         self.add_unique_rule(
-                            'dictcomp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER designator '
+                            'dictcomp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER store '
                             'comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST',
                             'dictcomp_func', 0, customize)
 
@@ -422,9 +422,9 @@ class Python2Parser(PythonParser):
                 ], customize)
                 continue
             elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
-                rule = 'unpack ::= ' + opname + ' designator'*v
+                rule = 'unpack ::= ' + opname + ' store'*v
             elif opname_base == 'UNPACK_LIST':
-                rule = 'unpack_list ::= ' + opname + ' designator'*v
+                rule = 'unpack_list ::= ' + opname + ' store'*v
             else:
                 raise Exception('unknown customize token %s' % opname)
             self.add_unique_rule(rule, opname_base, v, customize)

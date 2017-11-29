@@ -1,4 +1,4 @@
-#  Copyright (c) 2016 Rocky Bernstein
+#  Copyright (c) 2016-2017 Rocky Bernstein
 """
 spark grammar differences over Python 3.1 for Python 3.0.
 """
@@ -37,7 +37,7 @@ class Python30Parser(Python31Parser):
 
         ifelsestmtl ::= testexpr c_stmts_opt jb_pop_top else_suitel
 
-        withasstmt    ::= expr setupwithas designator suite_stmts_opt
+        withasstmt    ::= expr setupwithas store suite_stmts_opt
                           POP_BLOCK LOAD_CONST COME_FROM_FINALLY
                           LOAD_FAST DELETE_FAST WITH_CLEANUP END_FINALLY
         setupwithas   ::= DUP_TOP LOAD_ATTR STORE_FAST LOAD_ATTR CALL_FUNCTION_0 setup_finally

@@ -609,8 +609,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.preorder(n[0])
         self.write(' for ')
         start = len(self.f.getvalue())
-        designator = ast[iter_index-1]
-        self.preorder(designator)
+        store = ast[iter_index-1]
+        self.preorder(store)
         self.set_pos_info(ast[iter_index-1], start, len(self.f.getvalue()))
         self.write(' in ')
         start = len(self.f.getvalue())
@@ -640,7 +640,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.customize(code._customize)
         # skip over stmts sstmt smt
         ast = ast[0][0][0]
-        designator = None
+        store = None
         if ast in ['setcomp_func', 'dictcomp_func']:
             # Offset 0: BUILD_SET should have the span
             # of '{'
@@ -648,8 +648,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
             for k in ast:
                 if k == 'comp_iter':
                     n = k
-                elif k == 'designator':
-                    designator = k
+                elif k == 'store':
+                    store = k
                     pass
                 pass
             pass
@@ -663,23 +663,23 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # find innermost node
         if_node = None
         comp_for = None
-        comp_designator = None
+        comp_store = None
         if n == 'comp_iter':
             comp_for = n
-            comp_designator = ast[3]
+            comp_store = ast[3]
 
         have_not = False
         while n in ('list_iter', 'comp_iter'):
             n = n[0] # recurse one step
             if n == 'list_for':
-                if n[2] == 'designator':
-                    designator = n[2]
+                if n[2] == 'store':
+                    store = n[2]
                 n = n[3]
             elif n in ['list_if', 'list_if_not', 'comp_if']:
                 have_not = n in ('list_if_not', 'comp_ifnot')
                 if_node = n[0]
-                if n[1] == 'designator':
-                    designator = n[1]
+                if n[1] == 'store':
+                    store = n[1]
                 n = n[2]
                 pass
             pass
@@ -687,7 +687,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # Python 2.7+ starts including set_comp_body
         # Python 3.5+ starts including setcomp_func
         assert n.kind in ('lc_body', 'comp_body', 'setcomp_func', 'set_comp_body'), ast
-        assert designator, "Couldn't find designator in list/set comprehension"
+        assert store, "Couldn't find store in list/set comprehension"
 
         old_name = self.name
         self.name = code_name
@@ -695,8 +695,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         gen_start = len(self.f.getvalue()) + 1
         self.write(' for ')
         start = len(self.f.getvalue())
-        self.preorder(designator)
-        self.set_pos_info(designator, start, len(self.f.getvalue()))
+        self.preorder(store)
+        self.set_pos_info(store, start, len(self.f.getvalue()))
         self.write(' in ')
         start = len(self.f.getvalue())
         node[-3].parent = node
@@ -704,7 +704,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         fin = len(self.f.getvalue())
         self.set_pos_info(node[-3], start, fin, old_name)
 
-        if comp_designator:
+        if comp_store:
             self.preorder(comp_for)
         elif if_node:
             self.write(' if ')
@@ -738,7 +738,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         while n == 'list_iter':
             n = n[0] # recurse one step
             if   n == 'list_for':
-                designator = n[2]
+                store = n[2]
                 n = n[3]
             elif n in ('list_if', 'list_if_not'):
                 # FIXME: just a guess
@@ -755,8 +755,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.preorder(n[0])
         self.write(' for ')
         start = len(self.f.getvalue())
-        self.preorder(designator)
-        self.set_pos_info(designator, start, len(self.f.getvalue()))
+        self.preorder(store)
+        self.set_pos_info(store, start, len(self.f.getvalue()))
         self.write(' in ')
         start = len(self.f.getvalue())
         node[-3].parent = node
@@ -806,17 +806,17 @@ class FragmentsWalker(pysource.SourceWalker, object):
         start = len(self.f.getvalue())
         assert node[0].kind.startswith('BUILD_SET')
         self.set_pos_info(node[0], start-1, start)
-        designator = node[3]
-        assert designator == 'designator'
+        store = node[3]
+        assert store == 'store'
         start = len(self.f.getvalue())
-        self.preorder(designator)
+        self.preorder(store)
         fin = len(self.f.getvalue())
-        self.set_pos_info(designator, start, fin)
+        self.set_pos_info(store, start, fin)
         for_iter_node = node[2]
         assert for_iter_node.kind == 'FOR_ITER'
         self.set_pos_info(for_iter_node, start, fin)
         self.write(" for ")
-        self.preorder(designator)
+        self.preorder(store)
         self.write(" in ")
         self.preorder(param_node)
         start = len(self.f.getvalue())
@@ -861,7 +861,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
         ast = ast[0][0][0]
-        designator = ast[3]
+        store = ast[3]
         collection = node[collection_index]
 
         n = ast[4]
@@ -873,7 +873,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             n = n[0] # recurse one step
             # FIXME: adjust for set comprehension
             if n == 'list_for':
-                designator = n[2]
+                store = n[2]
                 n = n[3]
             elif n in ('list_if', 'list_if_not', 'comp_if', 'comp_if_not'):
                 # FIXME: just a guess
@@ -890,8 +890,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.preorder(n[0])
         self.write(' for ')
         start = len(self.f.getvalue())
-        self.preorder(designator)
-        self.set_pos_info(designator, start, len(self.f.getvalue()))
+        self.preorder(store)
+        self.set_pos_info(store, start, len(self.f.getvalue()))
         self.write(' in ')
         start = len(self.f.getvalue())
         self.preorder(collection)

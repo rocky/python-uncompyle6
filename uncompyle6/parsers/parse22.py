@@ -1,4 +1,4 @@
-#  Copyright (c) 2016 Rocky Bernstein
+#  Copyright (c) 2016-2017 Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -16,7 +16,7 @@ class Python22Parser(Python23Parser):
         _for ::= LOAD_CONST FOR_LOOP
         list_iter ::= list_if JUMP_FORWARD
                       COME_FROM POP_TOP COME_FROM
-        list_for  ::= expr _for designator list_iter CONTINUE JUMP_FORWARD
+        list_for  ::= expr _for store list_iter CONTINUE JUMP_FORWARD
                       COME_FROM POP_TOP COME_FROM
         '''
 

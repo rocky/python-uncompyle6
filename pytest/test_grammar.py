@@ -22,7 +22,7 @@ def test_grammar():
                       'unpack',])
 
     expect_right_recursive = frozenset([('designList',
-                                         ('designator', 'DUP_TOP', 'designList'))])
+                                         ('store', 'DUP_TOP', 'designList'))])
     if PYTHON3:
         expect_lhs.add('load_genexpr')
 
