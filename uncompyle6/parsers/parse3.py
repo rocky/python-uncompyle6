@@ -39,10 +39,10 @@ class Python3Parser(PythonParser):
         # one may be a continue - sometimes classifies a JUMP_BACK
         # as a CONTINUE. The two are kind of the same in a comprehension.
 
-        comp_for ::= expr _for designator comp_iter CONTINUE
-        comp_for ::= expr _for designator comp_iter JUMP_BACK
+        comp_for ::= expr _for store comp_iter CONTINUE
+        comp_for ::= expr _for store comp_iter JUMP_BACK
 
-        list_for ::= expr FOR_ITER designator list_iter jb_or_c
+        list_for ::= expr FOR_ITER store list_iter jb_or_c
 
         # This is seen in PyPy, but possibly it appears on other Python 3?
         list_if     ::= expr jmp_false list_iter COME_FROM
@@ -53,10 +53,10 @@ class Python3Parser(PythonParser):
 
         stmt ::= setcomp_func
 
-        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
+        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
                 JUMP_BACK RETURN_VALUE RETURN_LAST
 
-        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER designator comp_iter
+        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
                 COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
 
         comp_body ::= dict_comp_body
@@ -71,8 +71,8 @@ class Python3Parser(PythonParser):
         """"
         expr ::= dictcomp
         stmt ::= dictcomp_func
-        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER designator
-                comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
+        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
+                          comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
         dictcomp ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
         """
 
@@ -113,14 +113,14 @@ class Python3Parser(PythonParser):
         kwarg   ::= LOAD_CONST expr
         kwargs  ::= kwarg*
 
-        classdef ::= build_class designator
+        classdef ::= build_class store
 
         # Python3 introduced LOAD_BUILD_CLASS
         # Other definitions are in a custom rule
-        build_class ::= LOAD_BUILD_CLASS mkfunc expr call_function CALL_FUNCTION_3
+        build_class ::= LOAD_BUILD_CLASS mkfunc expr call CALL_FUNCTION_3
 
         stmt ::= classdefdeco
-        classdefdeco ::= classdefdeco1 designator
+        classdefdeco ::= classdefdeco1 store
         classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
         classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
 
@@ -234,7 +234,7 @@ class Python3Parser(PythonParser):
                                   END_FINALLY _jump
 
         except_var_finalize ::= POP_BLOCK POP_EXCEPT LOAD_CONST come_from_or_finally
-                                LOAD_CONST designator del_stmt
+                                LOAD_CONST store del_stmt
 
         except_suite ::= return_stmts
 
@@ -242,7 +242,7 @@ class Python3Parser(PythonParser):
                 jmp_false POP_TOP POP_TOP POP_TOP
 
         except_cond2 ::= DUP_TOP expr COMPARE_OP
-                jmp_false POP_TOP designator POP_TOP
+                jmp_false POP_TOP store POP_TOP
 
         except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT _jump
         except  ::=  POP_TOP POP_TOP POP_TOP return_stmts
@@ -254,7 +254,7 @@ class Python3Parser(PythonParser):
                 POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP END_FINALLY
 
-        withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
+        withasstmt ::= expr SETUP_WITH store suite_stmts_opt
                 POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP END_FINALLY
 
@@ -287,7 +287,7 @@ class Python3Parser(PythonParser):
         """
         # Annotated functions
         stmt ::= funcdef_annotate
-        funcdef_annotate ::= mkfunc_annotate designator
+        funcdef_annotate ::= mkfunc_annotate store
 
         mkfuncdeco0 ::= mkfunc_annotate
 
@@ -353,16 +353,16 @@ class Python3Parser(PythonParser):
 
     def p_loop_stmt3(self, args):
         """
-        forstmt           ::= SETUP_LOOP expr _for designator for_block POP_BLOCK
+        forstmt           ::= SETUP_LOOP expr _for store for_block POP_BLOCK
                               opt_come_from_loop
 
-        forelsestmt       ::= SETUP_LOOP expr _for designator for_block POP_BLOCK else_suite
+        forelsestmt       ::= SETUP_LOOP expr _for store for_block POP_BLOCK else_suite
                               COME_FROM_LOOP
 
-        forelselaststmt   ::= SETUP_LOOP expr _for designator for_block POP_BLOCK else_suitec
+        forelselaststmt   ::= SETUP_LOOP expr _for store for_block POP_BLOCK else_suitec
                               COME_FROM_LOOP
 
-        forelselaststmtl  ::= SETUP_LOOP expr _for designator for_block POP_BLOCK else_suitel
+        forelselaststmtl  ::= SETUP_LOOP expr _for store for_block POP_BLOCK else_suitel
                               COME_FROM_LOOP
 
         whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
@@ -402,11 +402,11 @@ class Python3Parser(PythonParser):
                               COME_FROM_LOOP
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP
                               COME_FROM_LOOP
-        forstmt           ::= SETUP_LOOP expr _for designator for_block POP_BLOCK NOP
+        forstmt           ::= SETUP_LOOP expr _for store for_block POP_BLOCK NOP
                               COME_FROM_LOOP
         """
 
-    def p_genexpr3(self, args):
+    def p_generator_exp3(self, args):
         '''
         load_genexpr ::= LOAD_GENEXPR
         load_genexpr ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_CONST
@@ -481,13 +481,13 @@ class Python3Parser(PythonParser):
         return
 
     def custom_classfunc_rule(self, opname, token, customize,
-                              seen_LOAD_BUILD_CLASS,
-                              seen_GET_AWAITABLE_YIELD_FROM):
+                              possible_class_decorator,
+                              seen_GET_AWAITABLE_YIELD_FROM, next_token):
         """
-        call_function ::= expr {expr}^n CALL_FUNCTION_n
-        call_function ::= expr {expr}^n CALL_FUNCTION_VAR_n
-        call_function ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n
-        call_function ::= expr {expr}^n CALL_FUNCTION_KW_n
+        call ::= expr {expr}^n CALL_FUNCTION_n
+        call ::= expr {expr}^n CALL_FUNCTION_VAR_n
+        call ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n
+        call ::= expr {expr}^n CALL_FUNCTION_KW_n
 
         classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc {expr}^n-1 CALL_FUNCTION_n
         """
@@ -515,36 +515,37 @@ class Python3Parser(PythonParser):
                 kw = 'expr '
             else:
                 kw = ''
-            rule = ('call_function ::= expr expr ' +
+            rule = ('call ::= expr expr ' +
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) + kw + token.kind)
             self.add_unique_rule(rule, token.kind, uniq_param, customize)
         if self.version >= 3.6 and opname == 'CALL_FUNCTION_EX_KW':
-            rule = ('call_function36 ::= '
+            rule = ('call36 ::= '
                     'expr build_tuple_unpack_with_call build_map_unpack_with_call '
                     'CALL_FUNCTION_EX_KW_1')
             self.add_unique_rule(rule, token.kind, uniq_param, customize)
-            rule = 'call_function ::= call_function36'
+            rule = 'call ::= call36'
         else:
-            rule = ('call_function ::= expr ' +
+            rule = ('call ::= expr ' +
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) +
                     'expr ' * nak + token.kind)
 
         self.add_unique_rule(rule, token.kind, uniq_param, customize)
         if self.version >= 3.5 and seen_GET_AWAITABLE_YIELD_FROM:
-            rule = ('async_call_function ::= expr ' +
+            rule = ('async_call ::= expr ' +
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) +
                     'expr ' * nak + token.kind +
                     ' GET_AWAITABLE LOAD_CONST YIELD_FROM')
             self.add_unique_rule(rule, token.kind, uniq_param, customize)
-            self.add_unique_rule('expr ::= async_call_function', token.kind, uniq_param, customize)
+            self.add_unique_rule('expr ::= async_call', token.kind, uniq_param, customize)
 
-        if seen_LOAD_BUILD_CLASS:
-            rule = ('classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d'
+        if possible_class_decorator:
+            if next_token == 'CALL_FUNCTION' and next_token.attr == 1:
+                rule = ('classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d'
                         %  (('expr ' * (args_pos-1)), opname, args_pos))
-            self.add_unique_rule(rule, token.kind, uniq_param, customize)
+                self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
     def add_make_function_rule(self, rule, opname, attr, customize):
         """Python 3.3 added a an addtional LOAD_CONST before MAKE_FUNCTION and
@@ -584,7 +585,7 @@ class Python3Parser(PythonParser):
               build_set  ::= {expr}^n BUILD_SET_UNPACK_n
 
             load_closure  ::= {LOAD_CLOSURE}^n BUILD_TUPLE_n
-            # call_function (see custom_classfunc_rule)
+            # call (see custom_classfunc_rule)
 
             # ------------
             # Python <= 3.2 omits LOAD_CONST before MAKE_
@@ -596,9 +597,9 @@ class Python3Parser(PythonParser):
             dictcomp ::= LOAD_DICTCOMP [LOAD_CONST] MAKE_FUNCTION_0 expr
                            GET_ITER CALL_FUNCTION_1
 
-            genexpr  ::= {pos_arg}^n load_genexpr [LOAD_CONST] MAKE_FUNCTION_n expr
+            generator_exp  ::= {pos_arg}^n load_genexpr [LOAD_CONST] MAKE_FUNCTION_n expr
                            GET_ITER CALL_FUNCTION_1
-            genexpr  ::= {expr}^n load_closure LOAD_GENEXPR [LOAD_CONST]
+            generator_exp  ::= {expr}^n load_closure LOAD_GENEXPR [LOAD_CONST]
                           MAKE_CLOSURE_n expr GET_ITER CALL_FUNCTION_1
             listcomp ::= {pos_arg}^n LOAD_LISTCOMP [LOAD_CONST] MAKE_CLOSURE_n expr
                            GET_ITER CALL_FUNCTION_1
@@ -623,12 +624,13 @@ class Python3Parser(PythonParser):
 
         For PYPY:
             load_attr ::= expr LOOKUP_METHOD
-            call_function ::= expr CALL_METHOD
+            call ::= expr CALL_METHOD
         """
         seen_LOAD_BUILD_CLASS = False
         seen_LOAD_DICTCOMP    = False
         seen_LOAD_LISTCOMP    = False
         seen_LOAD_SETCOMP     = False
+        seen_classdeco_end    = False
         seen_GET_AWAITABLE_YIELD_FROM = False
 
         # Loop over instructions adding custom grammar rules based on
@@ -638,8 +640,8 @@ class Python3Parser(PythonParser):
             self.addRule("""
               stmt ::= assign3_pypy
               stmt ::= assign2_pypy
-              assign3_pypy ::= expr expr expr designator designator designator
-              assign2_pypy ::= expr expr designator designator
+              assign3_pypy ::= expr expr expr store store store
+              assign2_pypy ::= expr expr store store
               """, nop_func)
 
         has_get_iter_call_function1 = False
@@ -678,7 +680,7 @@ class Python3Parser(PythonParser):
                 kvlist_n = "kvlist_%s" % token.attr
                 if opname == 'BUILD_MAP_n':
                     # PyPy sometimes has no count. Sigh.
-                    rule = ('dictcomp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER designator '
+                    rule = ('dictcomp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER store '
                             'comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST')
                     self.add_unique_rule(rule, 'dictomp_func', 1, customize)
 
@@ -759,7 +761,7 @@ class Python3Parser(PythonParser):
                   or opname.startswith('CALL_FUNCTION_KW')):
                 self.custom_classfunc_rule(opname, token, customize,
                                            seen_LOAD_BUILD_CLASS,
-                                           seen_GET_AWAITABLE_YIELD_FROM)
+                                           seen_GET_AWAITABLE_YIELD_FROM, tokens[i+1])
             elif opname_base == 'CALL_METHOD':
                 # PyPy only - DRY with parse2
 
@@ -769,7 +771,7 @@ class Python3Parser(PythonParser):
 
                 # number of apply equiv arguments:
                 nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
-                rule = ('call_function ::= expr ' +
+                rule = ('call ::= expr ' +
                         ('pos_arg ' * args_pos) +
                         ('kwarg ' * args_kw) +
                         'expr ' * nak + opname)
@@ -834,7 +836,7 @@ class Python3Parser(PythonParser):
                 self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
                 if has_get_iter_call_function1:
-                    rule_pat = ("genexpr ::= %sload_closure load_genexpr %%s%s expr "
+                    rule_pat = ("generator_exp ::= %sload_closure load_genexpr %%s%s expr "
                                 "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                     if seen_LOAD_LISTCOMP:
@@ -889,7 +891,7 @@ class Python3Parser(PythonParser):
                     self.add_unique_rule(rule, opname, token.attr, customize)
 
                     if has_get_iter_call_function1:
-                        rule_pat = ("genexpr ::= %sload_closure load_genexpr %%s%s expr "
+                        rule_pat = ("generator_exp ::= %sload_closure load_genexpr %%s%s expr "
                                    "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
                         self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
@@ -909,7 +911,7 @@ class Python3Parser(PythonParser):
                     args_pos, args_kw, annotate_args, closure  = token.attr
 
                 if has_get_iter_call_function1:
-                    rule_pat = ("genexpr ::= %sload_genexpr %%s%s expr "
+                    rule_pat = ("generator_exp ::= %sload_genexpr %%s%s expr "
                                 "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                 rule_pat = ('mklambda ::= %s%sLOAD_LAMBDA %%s%s' %
@@ -941,7 +943,7 @@ class Python3Parser(PythonParser):
                     if self.version >= 3.6:
                         rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s' %
                                 (('pos_arg ' * (args_pos)),
-                                 ('call_function ' * (annotate_args-1)), opname))
+                                 ('call ' * (annotate_args-1)), opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s' %
                                 (('pos_arg ' * (args_pos)),
@@ -952,7 +954,7 @@ class Python3Parser(PythonParser):
                         # Yes this is a little hacky
                         rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
                                 (('pos_arg ' * (args_pos)),
-                                 ('call_function ' * (annotate_args-1)), opname))
+                                 ('call ' * (annotate_args-1)), opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
                                 (('pos_arg ' * (args_pos)),
@@ -965,17 +967,17 @@ class Python3Parser(PythonParser):
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s' %
                                 (('pos_arg ' * (args_pos)),
-                                 ('call_function ' * (annotate_args-1)), opname))
+                                 ('call ' * (annotate_args-1)), opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base in ('UNPACK_EX',):
                 before_count, after_count = token.attr
-                rule = 'unpack ::= ' + opname + ' designator' * (before_count + after_count + 1)
+                rule = 'unpack ::= ' + opname + ' store' * (before_count + after_count + 1)
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
-                rule = 'unpack ::= ' + opname + ' designator' * token.attr
+                rule = 'unpack ::= ' + opname + ' store' * token.attr
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base == 'UNPACK_LIST':
-                rule = 'unpack_list ::= ' + opname + ' designator' * token.attr
+                rule = 'unpack_list ::= ' + opname + ' store' * token.attr
         self.check_reduce['augassign1'] = 'AST'
         self.check_reduce['augassign2'] = 'AST'
         self.check_reduce['while1stmt'] = 'noAST'

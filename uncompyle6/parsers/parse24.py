@@ -1,4 +1,4 @@
-#  Copyright (c) 2016 Rocky Bernstein
+#  Copyright (c) 2016-2017 Rocky Bernstein
 """
 spark grammar differences over Python2.5 for Python 2.4.
 """
@@ -62,7 +62,7 @@ class Python24Parser(Python25Parser):
         whilestmt     ::= SETUP_LOOP testexpr return_stmts POP_BLOCK COME_FROM
         with_cleanup  ::= LOAD_FAST DELETE_FAST WITH_CLEANUP END_FINALLY
         with_cleanup  ::= LOAD_NAME DELETE_NAME WITH_CLEANUP END_FINALLY
-        withasstmt    ::= expr setupwithas designator suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM with_cleanup
+        withasstmt    ::= expr setupwithas store suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM with_cleanup
         withstmt      ::= expr setupwith SETUP_FINALLY suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM with_cleanup
         stmt ::= withstmt
         stmt ::= withasstmt

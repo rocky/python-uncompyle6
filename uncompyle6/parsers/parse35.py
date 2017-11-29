@@ -1,4 +1,4 @@
-#  Copyright (c) 2016 Rocky Bernstein
+#  Copyright (c) 2016-2017 Rocky Bernstein
 """
 spark grammar differences over Python 3.4 for Python 3.5.
 """
@@ -54,7 +54,7 @@ class Python35Parser(Python34Parser):
                        WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
         withasstmt ::= expr
-                       SETUP_WITH designator suite_stmts_opt
+                       SETUP_WITH store suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM_WITH
                        WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
@@ -73,7 +73,7 @@ class Python35Parser(Python34Parser):
         stmt               ::= async_with_as_stmt
         async_with_as_stmt ::= expr
                                BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               SETUP_ASYNC_WITH designator suite_stmts_opt
+                               SETUP_ASYNC_WITH store suite_stmts_opt
                                POP_BLOCK LOAD_CONST
                                WITH_CLEANUP_START
                                GET_AWAITABLE LOAD_CONST YIELD_FROM
@@ -84,7 +84,7 @@ class Python35Parser(Python34Parser):
                                GET_AITER
                                LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
                                YIELD_FROM
-                               designator
+                               store
                                POP_BLOCK jump_except COME_FROM_EXCEPT DUP_TOP
                                LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
@@ -96,7 +96,7 @@ class Python35Parser(Python34Parser):
                                GET_AITER
                                LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
                                YIELD_FROM
-                               designator
+                               store
                                POP_BLOCK jump_except COME_FROM_EXCEPT DUP_TOP
                                LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
@@ -109,7 +109,7 @@ class Python35Parser(Python34Parser):
                                GET_AITER
                                LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
                                YIELD_FROM
-                               designator
+                               store
                                POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
                                LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
@@ -156,7 +156,7 @@ class Python35Parser(Python34Parser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
                 call_token = tokens[i+1]
                 if self.version == 3.5:
-                    rule = 'call_function ::= expr unmapexpr ' + call_token.kind
+                    rule = 'call ::= expr unmapexpr ' + call_token.kind
                     self.add_unique_rule(rule, opname, token.attr, customize)
                 pass
             pass

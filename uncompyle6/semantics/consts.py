@@ -38,14 +38,14 @@ ASSIGN_DOC_STRING = lambda doc_string: \
   AST('stmt',
       [ AST('assign',
             [ AST('expr', [ Token('LOAD_CONST', pattr=doc_string) ]),
-              AST('designator', [ Token('STORE_NAME', pattr='__doc__')])
+              AST('store', [ Token('STORE_NAME', pattr='__doc__')])
             ])])
 
 NAME_MODULE = AST('stmt',
                 [ AST('assign',
                     [ AST('expr',
                           [Token('LOAD_NAME', pattr='__name__', offset=0, has_arg=True)]),
-                      AST('designator',
+                      AST('store',
                           [ Token('STORE_NAME', pattr='__module__', offset=3, has_arg=True)])
                       ])])
 
@@ -137,10 +137,10 @@ TABLE_DIRECT = {
     'DELETE_NAME':	        ( '%|del %{pattr}\n', ),
     'DELETE_GLOBAL':	        ( '%|del %{pattr}\n', ),
     'delete_subscr':            ( '%|del %c[%c]\n', 0, 1,),
-    'binary_subscr':            ( '%c[%p]',
+    'subscript':                ( '%c[%p]',
                                       (0, 'expr'),
                                       (1, 100) ),
-    'binary_subscr2':           ( '%c[%c]',
+    'subscript2':               ( '%c[%c]',
                                       (0, 'expr'),
                                       (1, 'expr') ),
     'store_subscr':	        ( '%c[%c]', 0, 1),
@@ -174,7 +174,7 @@ TABLE_DIRECT = {
     'assign':		    ( '%|%c = %p\n', -1, (0, 200) ),
 
     # The 2nd parameter should have a = suffix.
-    # There is a rule with a 4th parameter "designator"
+    # There is a rule with a 4th parameter "store"
     # which we don't use here.
     'augassign1':	    ( '%|%c %c %c\n', 0, 2, 1),
 
@@ -288,9 +288,9 @@ MAP_R = (TABLE_R, -1)
 
 MAP = {
     'stmt':		MAP_R,
-    'call_function':	MAP_R,
+    'call':	        MAP_R,
     'del_stmt':		MAP_R,
-    'designator':	MAP_R,
+    'store':	        MAP_R,
     'exprlist':		MAP_R0,
 }
 
@@ -305,18 +305,18 @@ PRECEDENCE = {
     'dictcomp':             0,
     'setcomp':              0,
     'list_compr':           0,
-    'genexpr':              0,
+    'generator_exp':        0,
 
     'load_attr':            2,
-    'binary_subscr':        2,
-    'binary_subscr2':       2,
+    'subscript':            2,
+    'subscript2':           2,
     'slice0':               2,
     'slice1':               2,
     'slice2':               2,
     'slice3':               2,
     'buildslice2':          2,
     'buildslice3':          2,
-    'call_function':        2,
+    'call':                 2,
 
     'BINARY_POWER':         4,
 

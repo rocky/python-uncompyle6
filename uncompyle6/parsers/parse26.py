@@ -19,7 +19,7 @@ class Python26Parser(Python2Parser):
         except_cond1 ::= DUP_TOP expr COMPARE_OP
                          JUMP_IF_FALSE POP_TOP POP_TOP POP_TOP POP_TOP
         except_cond3 ::= DUP_TOP expr COMPARE_OP
-                         JUMP_IF_FALSE POP_TOP POP_TOP designator POP_TOP
+                         JUMP_IF_FALSE POP_TOP POP_TOP store POP_TOP
 
         try_middle   ::= JUMP_FORWARD COME_FROM except_stmts
                          come_from_pop END_FINALLY come_froms
@@ -122,8 +122,8 @@ class Python26Parser(Python2Parser):
         withstmt ::= expr setupwith SETUP_FINALLY suite_stmts_opt
                      POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
 
-        # Semantic actions want designator to be at index 2
-        withasstmt ::= expr setupwithas designator suite_stmts_opt
+        # Semantic actions want store to be at index 2
+        withasstmt ::= expr setupwithas store suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
 
         # This is truly weird. 2.7 does this (not including POP_TOP) with
@@ -184,25 +184,25 @@ class Python26Parser(Python2Parser):
 
     def p_comp26(self, args):
         '''
-        list_for ::= expr _for designator list_iter JUMP_BACK come_froms POP_TOP
+        list_for ::= expr _for store list_iter JUMP_BACK come_froms POP_TOP
 
         # The JUMP FORWARD below jumps to the JUMP BACK. It seems to happen
         # in rare cases that may have to with length of code
-        list_for ::= expr _for designator list_iter JUMP_FORWARD come_froms POP_TOP
+        list_for ::= expr _for store list_iter JUMP_FORWARD come_froms POP_TOP
                      COME_FROM JUMP_BACK
 
-        list_for ::= expr _for designator list_iter jb_cont
+        list_for ::= expr _for store list_iter jb_cont
 
         list_iter  ::= list_if JUMP_BACK
         list_iter  ::= list_if JUMP_BACK COME_FROM POP_TOP
         list_compr ::= BUILD_LIST_0 DUP_TOP
-                       designator list_iter del_stmt
+                       store list_iter del_stmt
         list_compr ::= BUILD_LIST_0 DUP_TOP
-	               designator list_iter JUMP_BACK del_stmt
+	               store list_iter JUMP_BACK del_stmt
         lc_body    ::= LOAD_NAME expr LIST_APPEND
 	lc_body    ::= LOAD_FAST expr LIST_APPEND
 
-        comp_for ::= SETUP_LOOP expr _for designator comp_iter jb_bp_come_from
+        comp_for ::= SETUP_LOOP expr _for store comp_iter jb_bp_come_from
 
         comp_body ::= gen_comp_body
 
@@ -210,10 +210,10 @@ class Python26Parser(Python2Parser):
 
         # Make sure we keep indices the same as 2.7
         setup_loop_lf ::= SETUP_LOOP LOAD_FAST
-        genexpr_func ::= setup_loop_lf FOR_ITER designator comp_iter jb_bp_come_from
-        genexpr_func ::= setup_loop_lf FOR_ITER designator comp_iter JUMP_BACK come_from_pop
+        genexpr_func ::= setup_loop_lf FOR_ITER store comp_iter jb_bp_come_from
+        genexpr_func ::= setup_loop_lf FOR_ITER store comp_iter JUMP_BACK come_from_pop
                          jb_bp_come_from
-        genexpr ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1 COME_FROM
+        generator_exp ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1 COME_FROM
         list_if ::= list_if ::= expr jmp_false_then list_iter
         '''
 
@@ -254,7 +254,7 @@ class Python26Parser(Python2Parser):
 
     def add_custom_rules(self, tokens, customize):
         self.remove_rules("""
-        withasstmt ::= expr SETUP_WITH designator suite_stmts_opt
+        withasstmt ::= expr SETUP_WITH store suite_stmts_opt
                 POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP END_FINALLY
         """)

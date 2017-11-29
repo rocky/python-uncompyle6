@@ -282,9 +282,9 @@ class PythonParser(GenericASTBuilder):
     def p_funcdef(self, args):
         '''
         stmt ::= funcdef
-        funcdef ::= mkfunc designator
+        funcdef ::= mkfunc store
         stmt ::= funcdefdeco
-        funcdefdeco ::= mkfuncdeco designator
+        funcdefdeco ::= mkfuncdeco store
         mkfuncdeco ::= expr mkfuncdeco CALL_FUNCTION_1
         mkfuncdeco ::= expr mkfuncdeco0 CALL_FUNCTION_1
         mkfuncdeco0 ::= mkfunc
@@ -292,12 +292,12 @@ class PythonParser(GenericASTBuilder):
         load_closure ::= LOAD_CLOSURE
         '''
 
-    def p_genexpr(self, args):
+    def p_generator_exp(self, args):
         '''
-        expr ::= genexpr
+        expr ::= generator_exp
         stmt ::= genexpr_func
 
-        genexpr_func ::= LOAD_FAST FOR_ITER designator comp_iter JUMP_BACK
+        genexpr_func ::= LOAD_FAST FOR_ITER store comp_iter JUMP_BACK
         '''
 
     def p_jump(self, args):
@@ -321,9 +321,9 @@ class PythonParser(GenericASTBuilder):
         stmt ::= augassign2
 
         # This is odd in that other augassign1's have only 3 slots
-        # The designator isn't used as that's supposed to be also
+        # The store isn't used as that's supposed to be also
         # indicated in the first expr
-        augassign1 ::= expr expr inplace_op designator
+        augassign1 ::= expr expr inplace_op store
 
         augassign1 ::= expr expr inplace_op ROT_THREE STORE_SUBSCR
         augassign2 ::= expr DUP_TOP LOAD_ATTR expr
@@ -347,12 +347,12 @@ class PythonParser(GenericASTBuilder):
         '''
         stmt ::= assign
         assign ::= expr DUP_TOP designList
-        assign ::= expr designator
+        assign ::= expr store
 
         stmt ::= assign2
         stmt ::= assign3
-        assign2 ::= expr expr ROT_TWO designator designator
-        assign3 ::= expr expr expr ROT_THREE ROT_TWO designator designator designator
+        assign2 ::= expr expr ROT_TWO store store
+        assign3 ::= expr expr expr ROT_THREE ROT_TWO store store store
         '''
 
     def p_forstmt(self, args):
@@ -361,16 +361,16 @@ class PythonParser(GenericASTBuilder):
 
         for_block ::= l_stmts_opt _come_from JUMP_BACK
 
-        forstmt ::= SETUP_LOOP expr _for designator
+        forstmt ::= SETUP_LOOP expr _for store
                 for_block POP_BLOCK _come_from
 
-        forelsestmt ::= SETUP_LOOP expr _for designator
+        forelsestmt ::= SETUP_LOOP expr _for store
                 for_block POP_BLOCK else_suite _come_from
 
-        forelselaststmt ::= SETUP_LOOP expr _for designator
+        forelselaststmt ::= SETUP_LOOP expr _for store
                 for_block POP_BLOCK else_suitec _come_from
 
-        forelselaststmtl ::= SETUP_LOOP expr _for designator
+        forelselaststmtl ::= SETUP_LOOP expr _for store
                 for_block POP_BLOCK else_suitel _come_from
         """
 
@@ -383,8 +383,8 @@ class PythonParser(GenericASTBuilder):
 
         importlist ::= importlist import_as
         importlist ::= import_as
-        import_as  ::= IMPORT_NAME designator
-        import_as  ::= IMPORT_FROM designator
+        import_as  ::= IMPORT_NAME store
+        import_as  ::= IMPORT_FROM store
 
         importstmt ::= LOAD_CONST LOAD_CONST import_as
         importstar ::= LOAD_CONST LOAD_CONST IMPORT_NAME IMPORT_STAR
@@ -435,10 +435,10 @@ class PythonParser(GenericASTBuilder):
         expr ::= and
         expr ::= or
         expr ::= unary_expr
-        expr ::= call_function
+        expr ::= call
         expr ::= unary_not
-        expr ::= binary_subscr
-        expr ::= binary_subscr2
+        expr ::= subscript
+        expr ::= subscript2
         expr ::= get_iter
         expr ::= yield
 
@@ -463,7 +463,7 @@ class PythonParser(GenericASTBuilder):
 
         unary_not ::= expr UNARY_NOT
 
-        binary_subscr ::= expr expr BINARY_SUBSCR
+        subscript ::= expr expr BINARY_SUBSCR
 
         load_attr ::= expr LOAD_ATTR
         get_iter ::= expr GET_ITER
@@ -473,7 +473,6 @@ class PythonParser(GenericASTBuilder):
         _mklambda ::= mklambda
 
         expr ::= conditional
-        conditional ::= expr jmp_false expr JUMP_FORWARD expr COME_FROM
 
         ret_expr ::= expr
         ret_expr ::= ret_and
@@ -512,27 +511,27 @@ class PythonParser(GenericASTBuilder):
         expr1024 ::= expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32
         '''
 
-    def p_designator(self, args):
+    def p_store(self, args):
         '''
         # Note. The below is right-recursive:
-        designList ::= designator designator
-        designList ::= designator DUP_TOP designList
+        designList ::= store store
+        designList ::= store DUP_TOP designList
 
         ## Can we replace with left-recursive, and redo with:
         ##
-        ##   designList  ::= designLists designator designator
-        ##   designLists ::= designLists designator DUP_TOP
+        ##   designList  ::= designLists store store
+        ##   designLists ::= designLists store DUP_TOP
         ##   designLists ::=
         ## Will need to redo semantic actiion
 
-        designator   ::= STORE_FAST
-        designator   ::= STORE_NAME
-        designator   ::= STORE_GLOBAL
-        designator   ::= STORE_DEREF
-        designator   ::= expr STORE_ATTR
-        designator   ::= store_subscr
+        store        ::= STORE_FAST
+        store        ::= STORE_NAME
+        store        ::= STORE_GLOBAL
+        store        ::= STORE_DEREF
+        store        ::= expr STORE_ATTR
+        store        ::= store_subscr
         store_subscr ::= expr expr STORE_SUBSCR
-        designator   ::= unpack
+        store        ::= unpack
         '''
 
 

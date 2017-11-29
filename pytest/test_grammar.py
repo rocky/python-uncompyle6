@@ -17,17 +17,17 @@ def test_grammar():
     (lhs, rhs, tokens,
      right_recursive, dup_rhs) = p.check_sets()
     expect_lhs = set(['expr1024', 'pos_arg'])
-    unused_rhs = set(['build_list', 'call_function', 'mkfunc',
+    unused_rhs = set(['build_list', 'call', 'mkfunc',
                       'mklambda',
                       'unpack',])
 
     expect_right_recursive = frozenset([('designList',
-                                         ('designator', 'DUP_TOP', 'designList'))])
+                                         ('store', 'DUP_TOP', 'designList'))])
     if PYTHON3:
         expect_lhs.add('load_genexpr')
 
         unused_rhs = unused_rhs.union(set("""
-        except_pop_except genexpr classdefdeco2 listcomp
+        except_pop_except generator_exp classdefdeco2 listcomp
         """.split()))
         if 3.0 <= PYTHON_VERSION:
             expect_lhs.add("annotate_arg")

@@ -102,15 +102,14 @@ class Python2Parser(PythonParser):
 
         mapexpr ::= BUILD_MAP kvlist
 
-
-        classdef ::= buildclass designator
+        classdef ::= buildclass store
 
         buildclass ::= LOAD_CONST expr mkfunc
                      CALL_FUNCTION_0 BUILD_CLASS
 
         # Class decorators starting in 2.6
-        stmt          ::= classdefdeco
-        classdefdeco  ::= classdefdeco1 designator
+        stmt ::= classdefdeco
+        classdefdeco ::= classdefdeco1 store
         classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
         classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
         classdefdeco2 ::= LOAD_CONST expr mkfunc CALL_FUNCTION_0 BUILD_CLASS
@@ -169,9 +168,9 @@ class Python2Parser(PythonParser):
         jmp_abs ::= JUMP_BACK
         '''
 
-    def p_genexpr2(self, args):
+    def p_generator_exp2(self, args):
         '''
-        genexpr ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
+        generator_exp ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
         '''
 
     def p_expr2(self, args):
@@ -189,15 +188,15 @@ class Python2Parser(PythonParser):
         unary_convert ::= expr UNARY_CONVERT
 
         # In Python 3, DUP_TOPX_2 is DUP_TOP_TWO
-        binary_subscr2 ::= expr expr DUP_TOPX_2 BINARY_SUBSCR
+        subscript2 ::= expr expr DUP_TOPX_2 BINARY_SUBSCR
         """
 
     def p_slice2(self, args):
         """
-        designator ::= expr STORE_SLICE+0
-        designator ::= expr expr STORE_SLICE+1
-        designator ::= expr expr STORE_SLICE+2
-        designator ::= expr expr expr STORE_SLICE+3
+        store ::= expr STORE_SLICE+0
+        store ::= expr expr STORE_SLICE+1
+        store ::= expr expr STORE_SLICE+2
+        store ::= expr expr expr STORE_SLICE+3
 
         augassign1 ::= expr expr inplace_op ROT_FOUR  STORE_SLICE+3
         augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+1
@@ -250,9 +249,9 @@ class Python2Parser(PythonParser):
             self.addRule("""
                         stmt ::= assign3_pypy
                         stmt ::= assign2_pypy
-                        assign3_pypy ::= expr expr expr designator designator designator
-                        assign2_pypy ::= expr expr designator designator
-                        list_compr ::= expr  BUILD_LIST_FROM_ARG _for designator list_iter
+                        assign3_pypy ::= expr expr expr store store store
+                        assign2_pypy ::= expr expr store store
+                        list_compr ::= expr  BUILD_LIST_FROM_ARG _for store list_iter
                                              JUMP_BACK
                         """, nop_func)
         for i, token in enumerate(tokens):
@@ -288,7 +287,7 @@ class Python2Parser(PythonParser):
                     ], customize)
                     if self.version >= 2.7:
                         self.add_unique_rule(
-                            'dictcomp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER designator '
+                            'dictcomp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER store '
                             'comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST',
                             'dictcomp_func', 0, customize)
 
@@ -320,7 +319,7 @@ class Python2Parser(PythonParser):
                 args_kw = (v >> 8) & 0xff      # keyword parameters
                 # number of apply equiv arguments:
                 nak = ( len(opname_base)-len('CALL_FUNCTION') ) // 3
-                rule = 'call_function ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
+                rule = 'call ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
                        + 'expr ' * nak + opname
             elif opname_base == 'CALL_METHOD':
                 # PyPy only - DRY with parse3
@@ -328,7 +327,7 @@ class Python2Parser(PythonParser):
                 args_kw = (v >> 8) & 0xff      # keyword parameters
                 # number of apply equiv arguments:
                 nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
-                rule = 'call_function ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
+                rule = 'call ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
                        + 'expr ' * nak + opname
             elif opname == 'CONTINUE_LOOP':
                 self.add_unique_rule('continue_stmt ::= CONTINUE_LOOP',
@@ -375,7 +374,7 @@ class Python2Parser(PythonParser):
                     prev_tok = tokens[i-1]
                     if prev_tok == 'LOAD_GENEXPR':
                         self.add_unique_rules([
-                            ('genexpr ::= %s load_closure LOAD_GENEXPR %s expr'
+                            ('generator_exp ::= %s load_closure LOAD_GENEXPR %s expr'
                                  ' GET_ITER CALL_FUNCTION_1' %
                             ('expr '*v, opname))], customize)
                         pass
@@ -422,9 +421,9 @@ class Python2Parser(PythonParser):
                 ], customize)
                 continue
             elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
-                rule = 'unpack ::= ' + opname + ' designator'*v
+                rule = 'unpack ::= ' + opname + ' store'*v
             elif opname_base == 'UNPACK_LIST':
-                rule = 'unpack_list ::= ' + opname + ' designator'*v
+                rule = 'unpack_list ::= ' + opname + ' store'*v
             else:
                 raise Exception('unknown customize token %s' % opname)
             self.add_unique_rule(rule, opname_base, v, customize)

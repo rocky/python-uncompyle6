@@ -60,7 +60,7 @@ class Python32Parser(Python3Parser):
     def p_32on(self, args):
         """
         # In Python 3.2+, DUP_TOPX is DUP_TOP_TWO
-        binary_subscr2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
+        subscript2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
         """
         pass
 

@@ -1,4 +1,4 @@
-#  Copyright (c) 2016 Rocky Bernstein
+#  Copyright (c) 2016-2017 Rocky Bernstein
 """
 spark grammar differences over Python 3.5 for Python 3.6.
 """
@@ -23,14 +23,14 @@ class Python36Parser(Python35Parser):
         fstring_expr_or_strs ::= fstring_expr_or_str+
 
         func_args36   ::= expr BUILD_TUPLE_0
-        call_function ::= func_args36 unmapexpr CALL_FUNCTION_EX
-        call_function ::= func_args36 build_map_unpack_with_call CALL_FUNCTION_EX_KW_1
+        call          ::= func_args36 unmapexpr CALL_FUNCTION_EX
+        call          ::= func_args36 build_map_unpack_with_call CALL_FUNCTION_EX_KW_1
 
-        withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST
-                     WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+        withstmt      ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST
+                          WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
-        call_function ::= expr expr CALL_FUNCTION_EX
-        call_function ::= expr expr expr CALL_FUNCTION_EX_KW_1
+        call          ::= expr expr CALL_FUNCTION_EX
+        call          ::= expr expr expr CALL_FUNCTION_EX_KW_1
 
         # This might be valid in < 3.6
         and  ::= expr jmp_false expr
@@ -39,7 +39,7 @@ class Python36Parser(Python35Parser):
         # FIXME: remove corresponding rule for 3.5?
         async_with_as_stmt ::= expr
                                BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               SETUP_ASYNC_WITH designator
+                               SETUP_ASYNC_WITH store
                                suite_stmts_opt
                                POP_BLOCK LOAD_CONST
                                COME_FROM_ASYNC_WITH
@@ -98,19 +98,20 @@ class Python36Parser(Python35Parser):
                 self.add_unique_doc_rules(rules_str, customize)
 
     def custom_classfunc_rule(self, opname, token, customize,
-                              seen_LOAD_BUILD_CLASS,
-                              seen_GET_AWAITABLE_YIELD_FROM):
+                              possible_class_decorator,
+                              seen_GET_AWAITABLE_YIELD_FROM, next_token):
         if opname.startswith('CALL_FUNCTION_KW'):
             values = 'expr ' * token.attr
-            rule = 'call_function ::= expr kwargs_only_36 {token.kind}'.format(**locals())
+            rule = 'call ::= expr kwargs_only_36 {token.kind}'.format(**locals())
             self.add_unique_rule(rule, token.kind, token.attr, customize)
             rule = 'kwargs_only_36 ::= {values} LOAD_CONST'.format(**locals())
             self.add_unique_rule(rule, token.kind, token.attr, customize)
         else:
             super(Python36Parser, self).custom_classfunc_rule(opname, token,
                                                               customize,
-                                                              seen_LOAD_BUILD_CLASS,
-                                                              seen_GET_AWAITABLE_YIELD_FROM)
+                                                              possible_class_decorator,
+                                                              seen_GET_AWAITABLE_YIELD_FROM,
+                                                              next_token)
 
 
 class Python36ParserSingle(Python36Parser, PythonParserSingle):

@@ -295,7 +295,7 @@ class SourceWalker(GenericASTTraversal, object):
                                     [ AST('expr',
                                           [Token('LOAD_GLOBAL', pattr='__name__',
                                                  offset=0, has_arg=True)]),
-                                      AST('designator',
+                                      AST('store',
                                           [ Token('STORE_NAME', pattr='__module__',
                                                   offset=3, has_arg=True)])
                                     ])])
@@ -433,21 +433,21 @@ class SourceWalker(GenericASTTraversal, object):
                             'trystmt36':       ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
                             })
 
-                    def n_async_call_function(node):
+                    def n_async_call(node):
                         self.f.write('async ')
-                        node.kind == 'call_function'
+                        node.kind == 'call'
                         p = self.prec
                         self.prec = 80
                         self.template_engine(('%c(%P)', 0,
                                               (1, -4, ', ', 100)), node)
                         self.prec = p
-                        node.kind == 'async_call_function'
+                        node.kind == 'async_call'
                         self.prune()
-                    self.n_async_call_function = n_async_call_function
+                    self.n_async_call = n_async_call
                     self.n_build_list_unpack = self.n_build_list
 
                     if version == 3.5:
-                        def n_call_function(node):
+                        def n_call(node):
                             mapping = self._get_mapping(node)
                             table = mapping[0]
                             key = node
@@ -470,7 +470,7 @@ class SourceWalker(GenericASTTraversal, object):
                                     args_pos = kwarg_pos
                                     kwarg_pos += 1
                             self.default(node)
-                        self.n_call_function = n_call_function
+                        self.n_call = n_call
 
                     def n_funcdef(node):
                         if self.version == 3.6:
@@ -847,7 +847,7 @@ class SourceWalker(GenericASTTraversal, object):
                 node[-2][0].kind = 'build_tuple2'
         self.default(node)
 
-    n_store_subscr = n_binary_subscr = n_delete_subscr
+    n_store_subscr = n_subscript = n_delete_subscr
 
 #    'tryfinallystmt':	( '%|try:\n%+%c%-%|finally:\n%+%c%-', 1, 5 ),
     def n_tryfinallystmt(self, node):
@@ -990,13 +990,13 @@ class SourceWalker(GenericASTTraversal, object):
     def n_import_as(self, node):
         if self.version <= 2.1:
             if len(node) == 2:
-                designator = node[1]
-                assert designator == 'designator'
-                if designator[0].pattr == node[0].pattr:
+                store = node[1]
+                assert store == 'store'
+                if store[0].pattr == node[0].pattr:
                     self.write("import %s\n" % node[0].pattr)
                 else:
                     self.write("import %s as %s\n" %
-                               (node[0].pattr, designator[0].pattr))
+                               (node[0].pattr, store[0].pattr))
                     pass
                 pass
             self.prune() # stop recursing
@@ -1128,12 +1128,12 @@ class SourceWalker(GenericASTTraversal, object):
         list_expr = node[1]
 
         if len(node) >= 3:
-            designator = node[3]
+            store = node[3]
         elif self.is_pypy and n[0] == 'list_for':
-            designator = n[0][2]
+            store = n[0][2]
 
         assert n == 'list_iter'
-        assert designator == 'designator'
+        assert store == 'store'
 
         # find innermost node
         while n == 'list_iter':
@@ -1168,13 +1168,13 @@ class SourceWalker(GenericASTTraversal, object):
         # FIXME: clean this up
         if self.version > 3.0 and node == 'dictcomp':
             cn = node[1]
-        elif self.version < 2.7 and node == 'genexpr':
+        elif self.version < 2.7 and node == 'generator_exp':
             if node[0] == 'LOAD_GENEXPR':
                 cn = node[0]
             elif node[0] == 'load_closure':
                 cn = node[1]
 
-        elif self.version > 3.0 and node == 'genexpr':
+        elif self.version > 3.0 and node == 'generator_exp':
             if node[0] == 'load_genexpr':
                 load_genexpr = node[0]
             elif node[1] == 'load_genexpr':
@@ -1231,7 +1231,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.preorder(ast[iter_index])
         self.prec = p
 
-    def n_genexpr(self, node):
+    def n_generator_exp(self, node):
         self.write('(')
         if self.version > 3.2:
             code_index = -6
@@ -1269,13 +1269,13 @@ class SourceWalker(GenericASTTraversal, object):
         self.customize(code._customize)
         # skip over stmts sstmt smt
         ast = ast[0][0][0]
-        designator = None
+        store = None
         if ast in ['setcomp_func', 'dictcomp_func']:
             for k in ast:
                 if k == 'comp_iter':
                     n = k
-                elif k == 'designator':
-                    designator = k
+                elif k == 'store':
+                    store = k
                     pass
                 pass
             pass
@@ -1289,23 +1289,23 @@ class SourceWalker(GenericASTTraversal, object):
         # find innermost node
         if_node = None
         comp_for = None
-        comp_designator = None
+        comp_store = None
         if n == 'comp_iter':
             comp_for = n
-            comp_designator = ast[3]
+            comp_store = ast[3]
 
         have_not = False
         while n in ('list_iter', 'comp_iter'):
             n = n[0] # recurse one step
             if n in ('list_for', 'comp_for'):
-                if n[2] == 'designator':
-                    designator = n[2]
+                if n[2] == 'store':
+                    store = n[2]
                 n = n[3]
             elif n in ('list_if', 'list_if_not', 'comp_if', 'comp_ifnot'):
                 have_not = n in ('list_if_not', 'comp_ifnot')
                 if_node = n[0]
-                if n[1] == 'designator':
-                    designator = n[1]
+                if n[1] == 'store':
+                    store = n[1]
                 n = n[2]
                 pass
             pass
@@ -1313,18 +1313,18 @@ class SourceWalker(GenericASTTraversal, object):
         # Python 2.7+ starts including set_comp_body
         # Python 3.5+ starts including setcomp_func
         assert n.kind in ('lc_body', 'comp_body', 'setcomp_func', 'set_comp_body'), ast
-        assert designator, "Couldn't find designator in list/set comprehension"
+        assert store, "Couldn't find store in list/set comprehension"
 
         self.preorder(n[0])
         self.write(' for ')
-        if comp_designator:
-            self.preorder(comp_designator)
+        if comp_store:
+            self.preorder(comp_store)
         else:
-            self.preorder(designator)
+            self.preorder(store)
 
         self.write(' in ')
         self.preorder(node[-3])
-        if comp_designator:
+        if comp_store:
             self.preorder(comp_for)
         elif if_node:
             self.write(' if ')
@@ -1358,7 +1358,7 @@ class SourceWalker(GenericASTTraversal, object):
         while n == 'list_iter':
             n = n[0] # recurse one step
             if n == 'list_for':
-                designator = n[2]
+                store = n[2]
                 n = n[3]
             elif n in ('list_if', 'list_if_not'):
                 # FIXME: just a guess
@@ -1374,7 +1374,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.preorder(n[0])
         self.write(' for ')
-        self.preorder(designator)
+        self.preorder(store)
         self.write(' in ')
         self.preorder(collection)
         if list_if:
@@ -1404,7 +1404,7 @@ class SourceWalker(GenericASTTraversal, object):
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
         ast = ast[0][0][0]
-        designator = ast[3]
+        store = ast[3]
         collection = node[collection_index]
 
         n = ast[4]
@@ -1416,7 +1416,7 @@ class SourceWalker(GenericASTTraversal, object):
             n = n[0] # recurse one step
             # FIXME: adjust for set comprehension
             if n == 'list_for':
-                designator = n[2]
+                store = n[2]
                 n = n[3]
             elif n in ('list_if', 'list_if_not', 'comp_if', 'comp_if_not'):
                 # FIXME: just a guess
@@ -1432,7 +1432,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.preorder(n[0])
         self.write(' for ')
-        self.preorder(designator)
+        self.preorder(store)
         self.write(' in ')
         self.preorder(collection)
         if list_if:
@@ -2107,7 +2107,7 @@ class SourceWalker(GenericASTTraversal, object):
                 # walk lhs; this
                 # returns a tuple of identifiers as used
                 # within the function definition
-                assert node[1] == 'designator'
+                assert node[1] == 'store'
                 # if lhs is not a UNPACK_TUPLE (or equiv.),
                 # add parenteses to make this a tuple
                 # if node[1][0] not in ('unpack', 'unpack_list'):
@@ -2154,7 +2154,7 @@ class SourceWalker(GenericASTTraversal, object):
             QUAL_NAME = AST('stmt',
                             [ AST('assign',
                                   [ AST('expr', [Token('LOAD_CONST', pattr=qualname)]),
-                                    AST('designator', [ Token('STORE_NAME', pattr='__qualname__')])
+                                    AST('store', [ Token('STORE_NAME', pattr='__qualname__')])
                                   ])])
             have_qualname = (ast[0][0] == QUAL_NAME)
         else:
@@ -2163,7 +2163,7 @@ class SourceWalker(GenericASTTraversal, object):
             try:
                 if (first_stmt[0] == 'assign' and
                     first_stmt[0][0][0] == 'LOAD_CONST' and
-                    first_stmt[0][1] == 'designator' and
+                    first_stmt[0][1] == 'store' and
                     first_stmt[0][1][0] == Token('STORE_NAME', pattr='__qualname__')):
                     have_qualname = True
             except:
