@@ -620,17 +620,18 @@ class Python3Parser(PythonParser):
             load_attr ::= expr LOOKUP_METHOD
             call ::= expr CALL_METHOD
         """
+        is_pypy               = False
         seen_LOAD_BUILD_CLASS = False
         seen_LOAD_DICTCOMP    = False
         seen_LOAD_LISTCOMP    = False
         seen_LOAD_SETCOMP     = False
-        seen_classdeco_end    = False
         seen_GET_AWAITABLE_YIELD_FROM = False
 
         # Loop over instructions adding custom grammar rules based on
         # a specific instruction seen.
 
         if 'PyPy' in customize:
+            is_pypy = True
             self.addRule("""
               stmt ::= assign3_pypy
               stmt ::= assign2_pypy
@@ -825,9 +826,12 @@ class Python3Parser(PythonParser):
                 # Note: this probably doesn't handle kwargs proprerly
                 args_pos, args_kw, annotate_args  = token.attr
 
-                rule_pat = ('mklambda ::= %sload_closure LOAD_LAMBDA %%s%s' %
-                            ('pos_arg '* args_pos, opname))
-                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                # FIXME: Fold test  into add_make_function_rule
+                j = 1 if self.version < 3.3 else 2
+                if is_pypy or (i > j and tokens[i-j] == 'LOAD_LAMBDA'):
+                    rule_pat = ('mklambda ::= %sload_closure LOAD_LAMBDA %%s%s' %
+                                ('pos_arg '* args_pos, opname))
+                    self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
                 if has_get_iter_call_function1:
                     rule_pat = ("generator_exp ::= %sload_closure load_genexpr %%s%s expr "
@@ -889,11 +893,12 @@ class Python3Parser(PythonParser):
                                    "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
                         self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
-                    rule_pat = ('mklambda ::= %s%sLOAD_LAMBDA %%s%s' %
-                                (('pos_arg '* args_pos),
-                                 ('kwarg '* args_kw),
-                                 opname))
-                    self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                    if is_pypy or (i > 2 and tokens[i-2] == 'LOAD_LAMBDA'):
+                        rule_pat = ('mklambda ::= %s%sLOAD_LAMBDA %%s%s' %
+                                    (('pos_arg '* args_pos),
+                                     ('kwarg '* args_kw),
+                                     opname))
+                        self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                     if seen_LOAD_LISTCOMP and has_get_iter_call_function1:
                         rule_pat  = ("listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
                                          "GET_ITER CALL_FUNCTION_1" % ('expr ' * args_pos, opname))
@@ -908,11 +913,15 @@ class Python3Parser(PythonParser):
                     rule_pat = ("generator_exp ::= %sload_genexpr %%s%s expr "
                                 "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-                rule_pat = ('mklambda ::= %s%sLOAD_LAMBDA %%s%s' %
-                            (('pos_arg '* args_pos),
-                            ('kwarg '* args_kw),
-                            opname))
-                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+
+                # FIXME: Fold test  into add_make_function_rule
+                j = 1 if self.version < 3.3 else 2
+                if is_pypy or (i > j and tokens[i-j] == 'LOAD_LAMBDA'):
+                    rule_pat = ('mklambda ::= %s%sLOAD_LAMBDA %%s%s' %
+                                (('pos_arg '* args_pos),
+                                ('kwarg '* args_kw),
+                                opname))
+                    self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
                 if seen_LOAD_LISTCOMP and has_get_iter_call_function1:
                     rule_pat  = ("listcomp ::= %sLOAD_LISTCOMP %%s%s expr "

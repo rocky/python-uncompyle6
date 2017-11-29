@@ -1,5 +1,8 @@
 # Statements to beef up grammar coverage rules
 # Force "inplace" ops
+# Note this is like simple_source/bug22/01_ops.py
+# But we don't ahve the UNARY_CONVERT which dropped
+# out around 2.7
 y = +10  # UNARY_POSITIVE
 y /= 1   # INPLACE_DIVIDE
 y %= 4   # INPLACE_MODULO
