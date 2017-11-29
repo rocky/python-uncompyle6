@@ -487,7 +487,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune()
 
-    def n_import_as(self, node):
+    def n_alias(self, node):
         start = len(self.f.getvalue())
         iname = node[0].pattr
 

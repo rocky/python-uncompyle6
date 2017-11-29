@@ -73,7 +73,6 @@ class Python32Parser(Python3Parser):
         try_middle     ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts END_FINALLY COME_FROM_EXCEPT_CLAUSE
         try_middle     ::= jmp_abs COME_FROM except_stmts END_FINALLY
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK try_middle else_suite come_from_except_clauses
-        while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK else_suite COME_FROM_LOOP
         whileTruestmt  ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP COME_FROM_LOOP
         whileTruestmt  ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP COME_FROM_LOOP
         """)

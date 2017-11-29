@@ -383,19 +383,19 @@ class PythonParser(GenericASTBuilder):
         stmt ::= importstar
         stmt ::= importmultiple
 
-        importlist ::= importlist import_as
-        importlist ::= import_as
-        import_as  ::= IMPORT_NAME store
-        import_as  ::= IMPORT_FROM store
-        import_as  ::= IMPORT_NAME load_attrs store
+        importlist ::= importlist alias
+        importlist ::= alias
+        alias      ::= IMPORT_NAME store
+        alias      ::= IMPORT_FROM store
+        alias      ::= IMPORT_NAME load_attrs store
 
-        importstmt ::= LOAD_CONST LOAD_CONST import_as
+        importstmt ::= LOAD_CONST LOAD_CONST alias
         importstar ::= LOAD_CONST LOAD_CONST IMPORT_NAME IMPORT_STAR
         importfrom ::= LOAD_CONST LOAD_CONST IMPORT_NAME importlist POP_TOP
-        importmultiple ::= LOAD_CONST LOAD_CONST import_as imports_cont
+        importmultiple ::= LOAD_CONST LOAD_CONST alias imports_cont
 
         imports_cont ::= import_cont+
-        import_cont  ::= LOAD_CONST LOAD_CONST import_as
+        import_cont  ::= LOAD_CONST LOAD_CONST alias
 
         load_attrs   ::= LOAD_ATTR+
         """

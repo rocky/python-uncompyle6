@@ -989,7 +989,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.indent_less()
         self.prune()
 
-    def n_import_as(self, node):
+    def n_alias(self, node):
         if self.version <= 2.1:
             if len(node) == 2:
                 store = node[1]
