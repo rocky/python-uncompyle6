@@ -1434,6 +1434,8 @@ class SourceWalker(GenericASTTraversal, object):
             if node == 'classdefdeco2':
                 if self.version >= 3.6:
                     class_name = node[1][1].pattr
+                elif self.version <= 3.3:
+                    class_name = node[2][0].pattr
                 else:
                     class_name = node[1][2].pattr
                 buildclass = node

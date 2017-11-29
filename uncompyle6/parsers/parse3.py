@@ -373,11 +373,6 @@ class Python3Parser(PythonParser):
         whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
-        # The JUMP_ABSOLUTE below comes from escaping an "if" block which surrounds
-        # the while. This is messy
-        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
-                              JUMP_ABSOLUTE COME_FROM_LOOP
-
         whilestmt         ::= SETUP_LOOP testexpr return_stmts          POP_BLOCK
                               COME_FROM_LOOP
 
