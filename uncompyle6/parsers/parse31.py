@@ -11,7 +11,7 @@ class Python31Parser(Python32Parser):
 
     def p_31(self, args):
         """
-        binary_subscr2 ::= expr expr DUP_TOPX BINARY_SUBSCR
+        subscript2     ::= expr expr DUP_TOPX BINARY_SUBSCR
 
         setupwith      ::= DUP_TOP LOAD_ATTR store LOAD_ATTR CALL_FUNCTION_0 POP_TOP
         setupwithas    ::= DUP_TOP LOAD_ATTR store LOAD_ATTR CALL_FUNCTION_0 store

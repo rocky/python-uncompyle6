@@ -439,8 +439,8 @@ class PythonParser(GenericASTBuilder):
         expr ::= unary_expr
         expr ::= call
         expr ::= unary_not
-        expr ::= binary_subscr
-        expr ::= binary_subscr2
+        expr ::= subscript
+        expr ::= subscript2
         expr ::= get_iter
         expr ::= yield
 
@@ -465,7 +465,7 @@ class PythonParser(GenericASTBuilder):
 
         unary_not ::= expr UNARY_NOT
 
-        binary_subscr ::= expr expr BINARY_SUBSCR
+        subscript ::= expr expr BINARY_SUBSCR
 
         load_attr ::= expr LOAD_ATTR
         get_iter ::= expr GET_ITER

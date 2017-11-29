@@ -189,7 +189,7 @@ class Python2Parser(PythonParser):
         unary_convert ::= expr UNARY_CONVERT
 
         # In Python 3, DUP_TOPX_2 is DUP_TOP_TWO
-        binary_subscr2 ::= expr expr DUP_TOPX_2 BINARY_SUBSCR
+        subscript2 ::= expr expr DUP_TOPX_2 BINARY_SUBSCR
         """
 
     def p_slice2(self, args):

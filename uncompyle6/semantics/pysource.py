@@ -849,7 +849,7 @@ class SourceWalker(GenericASTTraversal, object):
                 node[-2][0].kind = 'build_tuple2'
         self.default(node)
 
-    n_store_subscr = n_binary_subscr = n_delete_subscr
+    n_store_subscr = n_subscript = n_delete_subscr
 
 #    'tryfinallystmt':	( '%|try:\n%+%c%-%|finally:\n%+%c%-', 1, 5 ),
     def n_tryfinallystmt(self, node):
