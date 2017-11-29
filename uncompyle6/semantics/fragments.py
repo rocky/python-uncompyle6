@@ -191,7 +191,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             raise GenericASTTraversalPruningException
 
     n_slice0 = n_slice1 = n_slice2 = n_slice3 = n_subscript = table_r_node
-    n_augassign_1 = n_print_item = exec_stmt = print_to_item = del_stmt = table_r_node
+    n_aug_assign_1 = n_print_item = exec_stmt = print_to_item = del_stmt = table_r_node
     n_classdefco1 = n_classdefco2 = except_cond1 = except_cond2 = table_r_node
 
     def n_passtmt(self, node):

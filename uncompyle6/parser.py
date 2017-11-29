@@ -319,17 +319,18 @@ class PythonParser(GenericASTBuilder):
 
     def p_augmented_assign(self, args):
         '''
-        stmt ::= augassign1
-        stmt ::= augassign2
+        stmt ::= aug_assign1
+        stmt ::= aug_assign2
 
-        # This is odd in that other augassign1's have only 3 slots
+        # This is odd in that other aug_assign1's have only 3 slots
         # The store isn't used as that's supposed to be also
         # indicated in the first expr
-        augassign1 ::= expr expr inplace_op store
-
-        augassign1 ::= expr expr inplace_op ROT_THREE STORE_SUBSCR
-        augassign2 ::= expr DUP_TOP LOAD_ATTR expr
-                inplace_op ROT_TWO   STORE_ATTR
+        aug_assign1 ::= expr expr
+                        inplace_op store
+        aug_assign1 ::= expr expr
+                        inplace_op ROT_THREE STORE_SUBSCR
+        aug_assign2 ::= expr DUP_TOP LOAD_ATTR expr
+                        inplace_op ROT_TWO STORE_ATTR
 
         inplace_op ::= INPLACE_ADD
         inplace_op ::= INPLACE_SUBTRACT

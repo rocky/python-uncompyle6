@@ -176,9 +176,9 @@ TABLE_DIRECT = {
     # The 2nd parameter should have a = suffix.
     # There is a rule with a 4th parameter "store"
     # which we don't use here.
-    'augassign1':	    ( '%|%c %c %c\n', 0, 2, 1),
+    'aug_assign1':      ( '%|%c %c %c\n', 0, 2, 1),
 
-    'augassign2':	    ( '%|%c.%[2]{pattr} %c %c\n', 0, -3, -4 ),
+    'aug_assign2':	    ( '%|%c.%[2]{pattr} %c %c\n', 0, -3, -4 ),
     'designList':	    ( '%c = %c', 0, -1 ),
     'and':          	( '%c and %c', 0, 2 ),
     'ret_and':        	( '%c and %c', 0, 2 ),

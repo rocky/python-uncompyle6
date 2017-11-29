@@ -26,11 +26,11 @@ l[1][2][3] = 7
 l[1][2][3] *= 3;
 
 # Python 2.x
-# augassign1 ::= expr expr inplace_op ROT_TWO   STORE_SLICE+0
+# aug_assign1 ::= expr expr inplace_op ROT_TWO   STORE_SLICE+0
 l[:] += [9];  # print l
 
 # Python 2.x
-#  augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+2
+#  aug_assign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+2
 l[:2] += [9];  # print l
 
 

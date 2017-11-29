@@ -972,8 +972,8 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname_base == 'UNPACK_LIST':
                 rule = 'unpack_list ::= ' + opname + ' store' * token.attr
-        self.check_reduce['augassign1'] = 'AST'
-        self.check_reduce['augassign2'] = 'AST'
+        self.check_reduce['aug_assign1'] = 'AST'
+        self.check_reduce['aug_assign2'] = 'AST'
         self.check_reduce['while1stmt'] = 'noAST'
         self.check_reduce['annotate_tuple'] = 'noAST'
         self.check_reduce['kwarg'] = 'noAST'
@@ -983,7 +983,7 @@ class Python3Parser(PythonParser):
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         lhs = rule[0]
-        if lhs in ('augassign1', 'augassign2') and ast[0][0] == 'and':
+        if lhs in ('aug_assign1', 'aug_assign2') and ast[0][0] == 'and':
             return True
         elif lhs == 'annotate_tuple':
             return not isinstance(tokens[first].attr, tuple)

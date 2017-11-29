@@ -12,7 +12,7 @@ y ^= 1   # INPLACE_XOR
 
 `y`      # UNARY_CONVERT  - No in Python 3.x
 
-# Beef up augassign and STORE_SLICE+3
+# Beef up aug_assign and STORE_SLICE+3
 x = [1,2,3,4,5]
 x[0:1] = 1
 x[0:3] += 1, 2, 3

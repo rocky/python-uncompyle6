@@ -200,10 +200,10 @@ class Python2Parser(PythonParser):
         store ::= expr expr STORE_SLICE+2
         store ::= expr expr expr STORE_SLICE+3
 
-        augassign1 ::= expr expr inplace_op ROT_FOUR  STORE_SLICE+3
-        augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+1
-        augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+2
-        augassign1 ::= expr expr inplace_op ROT_TWO   STORE_SLICE+0
+        aug_assign1 ::= expr expr inplace_op ROT_FOUR  STORE_SLICE+3
+        aug_assign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+1
+        aug_assign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+2
+        aug_assign1 ::= expr expr inplace_op ROT_TWO   STORE_SLICE+0
 
         slice0 ::= expr SLICE+0
         slice0 ::= expr DUP_TOP SLICE+0
@@ -430,8 +430,8 @@ class Python2Parser(PythonParser):
                 raise Exception('unknown customize token %s' % opname)
             self.add_unique_rule(rule, opname_base, v, customize)
             pass
-        self.check_reduce['augassign1'] = 'AST'
-        self.check_reduce['augassign2'] = 'AST'
+        self.check_reduce['aug_assign1'] = 'AST'
+        self.check_reduce['aug_assign2'] = 'AST'
         self.check_reduce['_stmts'] = 'AST'
 
         # Dead code testing...
@@ -447,7 +447,7 @@ class Python2Parser(PythonParser):
         # if lhs == 'while1elsestmt':
         #     from trepan.api import debug; debug()
 
-        if lhs in ('augassign1', 'augassign2') and ast[0] and ast[0][0] == 'and':
+        if lhs in ('aug_assign1', 'aug_assign2') and ast[0] and ast[0][0] == 'and':
             return True
         elif lhs == '_stmts':
             for i, stmt in enumerate(ast):
