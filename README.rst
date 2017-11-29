@@ -20,9 +20,9 @@ Why this?
 Ok, I'll say it: this software is amazing. It is a little more than
 just your normal hacky decompiler. Using compiler_ technology, the
 program creates a parse tree of the program from the instructions;
-nodes at the upper levels that look like they come from a Python
-AST. So we can really classify and understand what's going on in
-sections of Python bytecode.
+nodes at the upper levels that look a little like what might come from
+a Python AST. So we can really classify and understand what's going on
+in sections of Python bytecode.
 
 Building on this, another thing that makes this different from other
 CPython bytecode decompilers is the ability to deparse just
@@ -40,12 +40,14 @@ be used in showing stack traces or any program that wants to show a
 location in more detail than just a line number.  It can be also used
 when source-code information does not exist and there is just bytecode
 
-There were (and still are) a number of decompyle, uncompyle, uncompyle2,
-uncompyle3 forks around. Almost all of them come basically from the
-same code base, and (almost?) all of them are no longer actively
-maintained. Only one handled Python 3, and even there, only 3.2 or 3.3
-depending on which code is used. This code pulls these together and
-moves forward.
+There were (and still are) a number of decompyle, uncompyle,
+uncompyle2, uncompyle3 forks around. Almost all of them come basically
+from the same code base, and (almost?) all of them are no longer
+actively maintained. One was really good at decompiling Python 1.5-2.3
+or so, another really good at Python 2.7, but that only. Another
+handles Python 3.2 only; another patched that and handled only 3.3.
+You get the idea. This code pulls all of these forks together and
+*moves forward*.
 
 This project has the most complete support for Python 3.3 and above
 and the best all-around Python support.
