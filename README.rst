@@ -48,7 +48,8 @@ actively maintained. One was really good at decompiling Python 1.5-2.3
 or so, another really good at Python 2.7, but that only. Another
 handles Python 3.2 only; another patched that and handled only 3.3.
 You get the idea. This code pulls all of these forks together and
-*moves forward*.
+*moves forward*. There is some serious refactoring and cleanup in this
+code base over those old forks.
 
 This project has the most complete support for Python 3.3 and above
 and the best all-around Python support.
