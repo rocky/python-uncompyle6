@@ -109,6 +109,7 @@ class Python2Parser(PythonParser):
         buildclass ::= LOAD_CONST expr mkfunc
                      CALL_FUNCTION_0 BUILD_CLASS
 
+        # Class decorators starting in 2.6
         stmt ::= classdefdeco
         classdefdeco ::= classdefdeco1 store
         classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
@@ -438,6 +439,8 @@ class Python2Parser(PythonParser):
         return
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
+        if tokens is None:
+            return False
         lhs = rule[0]
 
         # Dead code testing...
