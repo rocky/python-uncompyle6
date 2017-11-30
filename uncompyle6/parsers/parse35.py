@@ -36,7 +36,7 @@ class Python35Parser(Python34Parser):
         expr       ::= unmap_dict
         expr       ::= unmapexpr
 
-        unmap_dict ::= dictcomp BUILD_MAP_UNPACK
+        unmap_dict ::= dict_comp BUILD_MAP_UNPACK
 
         unmap_dict ::= kv_lists BUILD_MAP_UNPACK
         kv_lists   ::= kv_list kv_lists

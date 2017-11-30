@@ -568,7 +568,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prec = 27
 
         # FIXME: clean this up
-        if self.version > 3.0 and node == 'dictcomp':
+        if self.version > 3.0 and node == 'dict_comp':
             cn = node[1]
         elif self.version > 3.0 and node == 'generator_exp':
             if node[0] == 'load_genexpr':
@@ -793,7 +793,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune()
 
-    # FIXME: Not sure if below is general. Also, add dictcomp_func.
+    # FIXME: Not sure if below is general. Also, add dict_comp_func.
     # 'setcomp_func': ("%|lambda %c: {%c for %c in %c%c}\n", 1, 3, 3, 1, 4)
     def n_setcomp_func(self, node):
         setcomp_start = len(self.f.getvalue())

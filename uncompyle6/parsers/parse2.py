@@ -389,7 +389,7 @@ class Python2Parser(PythonParser):
                         prev_tok = tokens[i-1]
                         if prev_tok == 'LOAD_DICTCOMP':
                             self.add_unique_rules([
-                                ('dictcomp ::= %s load_closure LOAD_DICTCOMP %s expr'
+                                ('dict_comp ::= %s load_closure LOAD_DICTCOMP %s expr'
                                  ' GET_ITER CALL_FUNCTION_1' %
                                 ('expr '*v, opname))], customize)
                         elif prev_tok == 'LOAD_SETCOMP':

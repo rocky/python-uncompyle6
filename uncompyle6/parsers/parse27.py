@@ -21,12 +21,12 @@ class Python27Parser(Python2Parser):
         stmt ::= setcomp_func
 
         # Dictionary and set comprehensions were added in Python 2.7
-        expr ::= dictcomp
-        stmt ::= dictcomp_func
-        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
-                comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
+        expr      ::= dict_comp
+        dict_comp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
 
-        dictcomp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
+        stmt          ::= dictcomp_func
+        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
+                         comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
 
         setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
                 JUMP_BACK RETURN_VALUE RETURN_LAST

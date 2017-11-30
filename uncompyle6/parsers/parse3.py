@@ -71,11 +71,12 @@ class Python3Parser(PythonParser):
 
     def p_dictcomp3(self, args):
         """"
-        expr ::= dictcomp
+        expr ::= dict_comp
         stmt ::= dictcomp_func
         dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
                           comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
-        dictcomp ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
+        dict_comp     ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
+                          GET_ITER CALL_FUNCTION_1
         """
 
     def p_grammar(self, args):
@@ -409,7 +410,7 @@ class Python3Parser(PythonParser):
         load_genexpr ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_CONST
 
         # Is there something general going on here?
-        dictcomp ::= load_closure LOAD_DICTCOMP LOAD_CONST MAKE_CLOSURE_0 expr GET_ITER CALL_FUNCTION_1
+        dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST MAKE_CLOSURE_0 expr GET_ITER CALL_FUNCTION_1
         '''
 
     def p_expr3(self, args):
@@ -588,8 +589,8 @@ class Python3Parser(PythonParser):
 
             # Is there something more general than this? adding pos_arg?
             # Is there something corresponding using MAKE_CLOSURE?
-            dictcomp ::= LOAD_DICTCOMP [LOAD_CONST] MAKE_FUNCTION_0 expr
-                           GET_ITER CALL_FUNCTION_1
+            dict_comp ::= LOAD_DICTCOMP [LOAD_CONST] MAKE_FUNCTION_0 expr
+                          GET_ITER CALL_FUNCTION_1
 
             generator_exp  ::= {pos_arg}^n load_genexpr [LOAD_CONST] MAKE_FUNCTION_n expr
                            GET_ITER CALL_FUNCTION_1
@@ -797,7 +798,7 @@ class Python3Parser(PythonParser):
                 continue
             elif opname == 'LOAD_DICTCOMP':
                 if has_get_iter_call_function1:
-                    rule_pat = ("dictcomp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 expr "
+                    rule_pat = ("dict_comp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 expr "
                                 "GET_ITER CALL_FUNCTION_1")
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
             elif opname == 'LOAD_SETCOMP':
@@ -845,7 +846,7 @@ class Python3Parser(PythonParser):
                                         'GET_ITER CALL_FUNCTION_1' % ('pos_arg ' * args_pos, opname))
                             self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                         if (is_pypy or (i >= j and tokens[i-j] == 'LOAD_DICTCOMP')):
-                            self.add_unique_rule('dictcomp ::= %sload_closure LOAD_DICTCOMP %s '
+                            self.add_unique_rule('dict_comp ::= %sload_closure LOAD_DICTCOMP %s '
                                                  'expr GET_ITER CALL_FUNCTION_1' %
                                                  ('pos_arg '* args_pos, opname),
                                                  opname, token.attr, customize)

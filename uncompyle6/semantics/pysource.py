@@ -1157,7 +1157,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = 27
 
         # FIXME: clean this up
-        if self.version > 3.0 and node == 'dictcomp':
+        if self.version > 3.0 and node == 'dict_comp':
             cn = node[1]
         elif self.version < 2.7 and node == 'generator_exp':
             if node[0] == 'LOAD_GENEXPR':
@@ -1375,7 +1375,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(']')
         self.prune()
 
-    n_dictcomp = n_set_comp
+    n_dict_comp = n_set_comp
 
     def setcomprehension_walk3(self, node, collection_index):
         """List comprehensions the way they are done in Python3.
