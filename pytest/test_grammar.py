@@ -25,9 +25,12 @@ def test_grammar():
                                          ('store', 'DUP_TOP', 'designList'))])
     if PYTHON3:
         expect_lhs.add('load_genexpr')
+        expect_lhs.add('kvlist')
+        expect_lhs.add('kv3')
 
         unused_rhs = unused_rhs.union(set("""
         except_pop_except generator_exp classdefdeco2 listcomp
+        mapexpr
         """.split()))
         if 3.0 <= PYTHON_VERSION:
             expect_lhs.add("annotate_arg")

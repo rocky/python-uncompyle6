@@ -828,7 +828,7 @@ class Python3Parser(PythonParser):
 
                 # FIXME: Fold test  into add_make_function_rule
                 j = 1 if self.version < 3.3 else 2
-                if is_pypy or (i > j and tokens[i-j] == 'LOAD_LAMBDA'):
+                if is_pypy or (i >= j and tokens[i-j] == 'LOAD_LAMBDA'):
                     rule_pat = ('mklambda ::= %sload_closure LOAD_LAMBDA %%s%s' %
                                 ('pos_arg '* args_pos, opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
@@ -893,7 +893,7 @@ class Python3Parser(PythonParser):
                                    "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
                         self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
-                    if is_pypy or (i > 2 and tokens[i-2] == 'LOAD_LAMBDA'):
+                    if is_pypy or (i >= 2 and tokens[i-2] == 'LOAD_LAMBDA'):
                         rule_pat = ('mklambda ::= %s%sLOAD_LAMBDA %%s%s' %
                                     (('pos_arg '* args_pos),
                                      ('kwarg '* args_kw),
@@ -916,14 +916,20 @@ class Python3Parser(PythonParser):
 
                 # FIXME: Fold test  into add_make_function_rule
                 j = 1 if self.version < 3.3 else 2
-                if is_pypy or (i > j and tokens[i-j] == 'LOAD_LAMBDA'):
+                if is_pypy or (i >= j and tokens[i-j] == 'LOAD_LAMBDA'):
                     rule_pat = ('mklambda ::= %s%sLOAD_LAMBDA %%s%s' %
                                 (('pos_arg '* args_pos),
                                 ('kwarg '* args_kw),
                                 opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
-                if seen_LOAD_LISTCOMP and has_get_iter_call_function1:
+                if (seen_LOAD_LISTCOMP and has_get_iter_call_function1 and
+                    (is_pypy or (i >= j and tokens[i-j] == 'LOAD_LISTCOMP'))):
+                    # In the tokens we saw:
+                    #   LOAD_LISTCOMP LOAD_CONST MAKE_FUNCTION (>= 3.3) or
+                    #   LOAD_LISTCOMP MAKE_FUNCTION (< 3.3) or
+                    #   and have GET_ITER CALL_FUNCTION_1
+                    # Todo: For Pypy we need to modify this slightly
                     rule_pat  = ("listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
                                  "GET_ITER CALL_FUNCTION_1" % ('expr ' * args_pos, opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
