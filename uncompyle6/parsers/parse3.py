@@ -837,10 +837,18 @@ class Python3Parser(PythonParser):
                     rule_pat = ("generator_exp ::= %sload_closure load_genexpr %%s%s expr "
                                 "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-                    if seen_LOAD_LISTCOMP:
+
+                    if (seen_LOAD_LISTCOMP and has_get_iter_call_function1 and
+                        (is_pypy or (i >= j and tokens[i-j] == 'LOAD_LISTCOMP'))):
+                        # In the tokens we saw:
+                        #   LOAD_LISTCOMP LOAD_CONST MAKE_FUNCTION (>= 3.3) or
+                        #   LOAD_LISTCOMP MAKE_FUNCTION (< 3.3) or
+                        #   and have GET_ITER CALL_FUNCTION_1
+                        # Todo: For Pypy we need to modify this slightly
                         rule_pat = ('listcomp ::= %sload_closure LOAD_LISTCOMP %%s%s expr '
                                     'GET_ITER CALL_FUNCTION_1' % ('pos_arg ' * args_pos, opname))
                         self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                    # FIXME: do likewise for LOAD_SETCOMP and LOAD_DICTCOMP
                     if seen_LOAD_SETCOMP:
                         rule_pat = ('setcomp ::= %sload_closure LOAD_SETCOMP %%s%s expr '
                                     'GET_ITER CALL_FUNCTION_1' % ('pos_arg ' * args_pos, opname))
