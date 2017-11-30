@@ -34,9 +34,6 @@ class Python3Parser(PythonParser):
         # Python3 scanner adds LOAD_LISTCOMP. Python3 does list comprehension like
         # other comprehensions (set, dictionary).
 
-        # listcomp is a custom Python3 rule
-        expr ::= listcomp
-
         # Our "continue" heuristic -  in two successive JUMP_BACKS, the first
         # one may be a continue - sometimes classifies a JUMP_BACK
         # as a CONTINUE. The two are kind of the same in a comprehension.
@@ -801,6 +798,9 @@ class Python3Parser(PythonParser):
                     rule_pat = ("dict_comp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 expr "
                                 "GET_ITER CALL_FUNCTION_1")
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                            # listcomp is a custom Python3 rule
+            elif opname == 'LOAD_LISTCOMP':
+                self.add_unique_rule("expr ::= set_listcomp", opname, token.attr, customize)
             elif opname == 'LOAD_SETCOMP':
                 # Should this be generalized and put under MAKE_FUNCTION?
                 if has_get_iter_call_function1:
