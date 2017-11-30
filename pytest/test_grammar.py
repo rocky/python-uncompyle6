@@ -30,7 +30,7 @@ def test_grammar():
 
         unused_rhs = unused_rhs.union(set("""
         except_pop_except generator_exp classdefdeco2
-        mapexpr
+        dict
         """.split()))
         if 3.0 <= PYTHON_VERSION:
             expect_lhs.add("annotate_arg")
