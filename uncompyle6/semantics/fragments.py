@@ -18,7 +18,7 @@ We add some format specifiers here not used in pysource
 from src to dest.
 
 For example in:
-    'importstmt': ( '%|import %c%x\n', 2, (2,(0,1)), ),
+    'import': ( '%|import %c%x\n', 2, (2,(0,1)), ),
 
 node 2 range information, it in %c, is copied to nodes 0 and 1.
 
@@ -88,7 +88,7 @@ TABLE_DIRECT_FRAGMENT = {
     'continue_stmt':	( '%|%rcontinue\n', ),
     'passstmt':		( '%|%rpass\n', ),
     'raise_stmt0':	( '%|%rraise\n', ),
-    'importstmt':	( '%|import %c%x\n', 2, (2, (0, 1)), ),
+    'import':	        ( '%|import %c%x\n', 2, (2, (0, 1)), ),
     'importfrom':	( '%|from %[2]{pattr}%x import %c\n', (2, (0, 1)), 3),
     'importmultiple':   ( '%|import%b %c%c\n', 0, 2, 3 ),
     'list_for':	  	(' for %c%x in %c%c', 2, (2, (1, )), 0, 3 ),

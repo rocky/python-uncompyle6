@@ -3,7 +3,7 @@
 uncompyle6
 ==========
 
-A native Python cross-version Decompiler and Fragment Decompiler.
+A native Python cross-version decompiler and fragment decompiler.
 The successor to decompyle, uncompyle, and uncompyle2.
 
 
@@ -17,12 +17,12 @@ source code. It accepts bytecodes from Python version 1.5, and 2.1 to
 Why this?
 ---------
 
-Ok, I'll say it: this software is amazing. It is a little more than
-just your normal hacky decompiler. Using compiler_ technology, the
-program creates a parse tree of the program from the instructions;
-nodes at the upper levels that look a little like what might come from
-a Python AST. So we can really classify and understand what's going on
-in sections of Python bytecode.
+Ok, I'll say it: this software is amazing. It is more than your
+normal hacky decompiler. Using compiler_ technology, the program
+creates a parse tree of the program from the instructions; nodes at
+the upper levels that look a little like what might come from a Python
+AST. So we can really classify and understand what's going on in
+sections of Python bytecode.
 
 Building on this, another thing that makes this different from other
 CPython bytecode decompilers is the ability to deparse just
@@ -37,9 +37,10 @@ See this_ for more information.
 
 Python fragment deparsing given an instruction offset is useful in
 showing stack traces and can be encorporated into any program that
-wants to show a location in more detail than just a line number.  This
-code can be also used when source-code information does not exist and
-there is just bytecode. Again, my debugggers make use of this.
+wants to show a location in more detail than just a line number at
+runtime.  This code can be also used when source-code information does
+not exist and there is just bytecode. Again, my debugggers make use of
+this.
 
 There were (and still are) a number of decompyle, uncompyle,
 uncompyle2, uncompyle3 forks around. Almost all of them come basically

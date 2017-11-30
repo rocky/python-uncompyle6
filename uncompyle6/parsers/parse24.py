@@ -26,7 +26,7 @@ class Python24Parser(Python25Parser):
         # 2.5+ has two LOAD_CONSTs, one for the number '.'s in a relative import
         # keep positions similar to simplify semantic actions
 
-        importstmt ::= filler LOAD_CONST alias
+        import     ::= filler LOAD_CONST alias
         importfrom ::= filler LOAD_CONST IMPORT_NAME importlist POP_TOP
         importstar ::= filler LOAD_CONST IMPORT_NAME IMPORT_STAR
 
