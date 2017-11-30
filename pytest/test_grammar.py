@@ -29,7 +29,7 @@ def test_grammar():
         expect_lhs.add('kv3')
 
         unused_rhs = unused_rhs.union(set("""
-        except_pop_except generator_exp classdefdeco2 listcomp
+        except_pop_except generator_exp classdefdeco2
         mapexpr
         """.split()))
         if 3.0 <= PYTHON_VERSION:

@@ -351,6 +351,11 @@ class Python2Parser(PythonParser):
                        "LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1 COME_FROM",
                     ], customize)
                 continue
+            elif opname == 'LOAD_LISTCOMP':
+                self.add_unique_rules([
+                    "expr ::= listcomp",
+                    ], customize)
+                continue
             elif opname == 'LOAD_SETCOMP':
                 self.add_unique_rules([
                     "expr ::= set_comp",

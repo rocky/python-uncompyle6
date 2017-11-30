@@ -260,7 +260,7 @@ class Scanner2(Scanner):
                 customize[op_name] = 0
             elif op == self.opc.CONTINUE_LOOP:
                 customize[op_name] = 0
-            elif op_name == 'LOAD_SETCOMP':
+            elif op_name in frozenset(('LOAD_LISTCOMP', 'LOAD_SETCOMP')):
                 customize[op_name] = 0
             elif op == self.opc.JUMP_ABSOLUTE:
                 # Further classify JUMP_ABSOLUTE into backward jumps
