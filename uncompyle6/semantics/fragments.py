@@ -540,8 +540,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.indent_less()
         self.prune() # stop recursing
 
-    def n_list_compr(self, node):
-        """List comprehensions the way they are done in Python 2."""
+    def n_list_comp(self, node):
+        """List comprehensions"""
         p = self.prec
         self.prec = 27
         n = node[-1]

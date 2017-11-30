@@ -403,7 +403,7 @@ class PythonParser(GenericASTBuilder):
 
     def p_list_comprehension(self, args):
         """
-        expr ::= list_compr
+        expr ::= list_comp
 
         list_iter ::= list_for
         list_iter ::= list_if

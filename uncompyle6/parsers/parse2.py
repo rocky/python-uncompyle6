@@ -253,8 +253,8 @@ class Python2Parser(PythonParser):
                         stmt ::= assign2_pypy
                         assign3_pypy ::= expr expr expr store store store
                         assign2_pypy ::= expr expr store store
-                        list_compr ::= expr  BUILD_LIST_FROM_ARG _for store list_iter
-                                             JUMP_BACK
+                        list_comp    ::= expr  BUILD_LIST_FROM_ARG _for store list_iter
+                                         JUMP_BACK
                         """, nop_func)
         for i, token in enumerate(tokens):
             opname = token.kind

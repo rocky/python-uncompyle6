@@ -622,9 +622,6 @@ class Python3Parser(PythonParser):
         """
         is_pypy               = False
         seen_LOAD_BUILD_CLASS = False
-        seen_LOAD_DICTCOMP    = False
-        seen_LOAD_LISTCOMP    = False
-        seen_LOAD_SETCOMP     = False
         seen_GET_AWAITABLE_YIELD_FROM = False
 
         # Loop over instructions adding custom grammar rules based on
@@ -799,16 +796,11 @@ class Python3Parser(PythonParser):
                                      opname, token.attr, customize)
                 continue
             elif opname == 'LOAD_DICTCOMP':
-                seen_LOAD_DICTCOMP = True
                 if has_get_iter_call_function1:
                     rule_pat = ("dictcomp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 expr "
                                 "GET_ITER CALL_FUNCTION_1")
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-            elif opname == 'LOAD_LISTCOMP':
-                seen_LOAD_LISTCOMP = True
-                continue
             elif opname == 'LOAD_SETCOMP':
-                seen_LOAD_SETCOMP = True
                 # Should this be generalized and put under MAKE_FUNCTION?
                 if has_get_iter_call_function1:
                     self.add_unique_rule("expr ::= setcomp",

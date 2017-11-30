@@ -156,7 +156,6 @@ TABLE_DIRECT = {
     'unpack_list':	    ( '[%C]', (1, maxint, ', ') ),
     'build_tuple2':	    ( '%P', (0, -1, ', ', 100) ),
 
-    # 'list_compr':	( '[ %c ]', -2),	# handled by n_list_compr
     'list_iter':	    ( '%c', 0 ),
     'list_for':		    ( ' for %c in %c%c', 2, 0, 3 ),
     'list_if':		    ( ' if %c%c', 0, 2 ),
@@ -304,7 +303,7 @@ PRECEDENCE = {
     'unary_convert':        0,
     'dictcomp':             0,
     'setcomp':              0,
-    'list_compr':           0,
+    'list_comp':            0,
     'generator_exp':        0,
 
     'load_attr':            2,

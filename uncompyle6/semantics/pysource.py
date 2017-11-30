@@ -1060,14 +1060,13 @@ class SourceWalker(GenericASTTraversal, object):
         self.make_function(node, is_lambda=True, codeNode=node[-2])
         self.prune() # stop recursing
 
-    def n_list_compr(self, node):
-        """List comprehensions the way they are done in Python 2.
-        """
+    def n_list_comp(self, node):
+        """List comprehensions"""
         p = self.prec
         self.prec = 27
         if self.version >= 2.7:
             if self.is_pypy:
-                self.n_list_compr_pypy27(node)
+                self.n_list_comp_pypy27(node)
                 return
             n = node[-1]
         elif node[-1] == 'del_stmt':
@@ -1112,9 +1111,8 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = p
         self.prune() # stop recursing
 
-    def n_list_compr_pypy27(self, node):
-        """List comprehensions the way they are done in PYPY Python 2.7.
-        """
+    def n_list_comp_pypy27(self, node):
+        """List comprehensions in PYPY."""
         p = self.prec
         self.prec = 27
         if node[-1].kind == 'list_iter':
