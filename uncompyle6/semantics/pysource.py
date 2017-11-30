@@ -1226,7 +1226,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(')')
         self.prune()
 
-    def n_setcomp(self, node):
+    def n_set_comp(self, node):
         self.write('{')
         if node[0] in ['LOAD_SETCOMP', 'LOAD_DICTCOMP']:
             self.comprehension_walk3(node, 1, 0)
@@ -1329,7 +1329,7 @@ class SourceWalker(GenericASTTraversal, object):
         code = Code(node[1].attr, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
-        if node == 'setcomp':
+        if node == 'set_comp':
             ast = ast[0][0][0]
         else:
             ast = ast[0][0][0][0][0]
@@ -1375,7 +1375,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(']')
         self.prune()
 
-    n_dictcomp = n_setcomp
+    n_dictcomp = n_set_comp
 
     def setcomprehension_walk3(self, node, collection_index):
         """List comprehensions the way they are done in Python3.

@@ -603,12 +603,12 @@ class Python3Parser(PythonParser):
             # Is there something more general than this? adding pos_arg?
             # Is there something corresponding using MAKE_CLOSURE?
             For example:
-            # setcomp ::= {pos_arg}^n LOAD_SETCOMP [LOAD_CONST] MAKE_CLOSURE_n
+            # set_comp ::= {pos_arg}^n LOAD_SETCOMP [LOAD_CONST] MAKE_CLOSURE_n
                         GET_ITER CALL_FUNCTION_1
 
-            setcomp  ::= LOAD_SETCOMP [LOAD_CONST] MAKE_FUNCTION_0 expr
+            set_comp  ::= LOAD_SETCOMP [LOAD_CONST] MAKE_FUNCTION_0 expr
                            GET_ITER CALL_FUNCTION_1
-            setcomp  ::= {pos_arg}^n load_closure LOAD_SETCOMP [LOAD_CONST]
+            set_comp  ::= {pos_arg}^n load_closure LOAD_SETCOMP [LOAD_CONST]
                            MAKE_CLOSURE_n expr GET_ITER CALL_FUNCTION_1
 
             mkfunc   ::= {pos_arg}^n load_closure [LOAD_CONST] MAKE_FUNCTION_n
@@ -803,9 +803,9 @@ class Python3Parser(PythonParser):
             elif opname == 'LOAD_SETCOMP':
                 # Should this be generalized and put under MAKE_FUNCTION?
                 if has_get_iter_call_function1:
-                    self.add_unique_rule("expr ::= setcomp",
+                    self.add_unique_rule("expr ::= set_comp",
                                          opname, token.attr, customize)
-                    rule_pat = ("setcomp ::= LOAD_SETCOMP %sMAKE_FUNCTION_0 expr "
+                    rule_pat = ("set_comp ::= LOAD_SETCOMP %sMAKE_FUNCTION_0 expr "
                                 "GET_ITER CALL_FUNCTION_1")
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
             elif opname == 'LOOKUP_METHOD':
@@ -841,7 +841,7 @@ class Python3Parser(PythonParser):
                                         'GET_ITER CALL_FUNCTION_1' % ('pos_arg ' * args_pos, opname))
                             self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                         if (is_pypy or (i >= j and tokens[i-j] == 'LOAD_SETCOMP')):
-                            rule_pat = ('setcomp ::= %sload_closure LOAD_SETCOMP %%s%s expr '
+                            rule_pat = ('set_comp ::= %sload_closure LOAD_SETCOMP %%s%s expr '
                                         'GET_ITER CALL_FUNCTION_1' % ('pos_arg ' * args_pos, opname))
                             self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                         if (is_pypy or (i >= j and tokens[i-j] == 'LOAD_DICTCOMP')):

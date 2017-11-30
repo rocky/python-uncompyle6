@@ -353,8 +353,8 @@ class Python2Parser(PythonParser):
                 continue
             elif opname == 'LOAD_SETCOMP':
                 self.add_unique_rules([
-                    "expr ::= setcomp",
-                    "setcomp ::= LOAD_SETCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1"
+                    "expr ::= set_comp",
+                    "set_comp ::= LOAD_SETCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1"
                     ], customize)
                 continue
             elif opname == 'LOOKUP_METHOD':
@@ -394,8 +394,8 @@ class Python2Parser(PythonParser):
                                 ('expr '*v, opname))], customize)
                         elif prev_tok == 'LOAD_SETCOMP':
                             self.add_unique_rules([
-                                "expr ::= setcomp",
-                                ('setcomp ::= %s load_closure LOAD_SETCOMP %s expr'
+                                "expr ::= set_comp",
+                                ('set_comp ::= %s load_closure LOAD_SETCOMP %s expr'
                                 ' GET_ITER CALL_FUNCTION_1' %
                                 ('expr '*v, opname))
                                 ], customize)

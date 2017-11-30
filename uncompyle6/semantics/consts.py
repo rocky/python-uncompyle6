@@ -302,7 +302,7 @@ PRECEDENCE = {
     'mapexpr':              0,
     'unary_convert':        0,
     'dictcomp':             0,
-    'setcomp':              0,
+    'set_comp':             0,
     'list_comp':            0,
     'generator_exp':        0,
 

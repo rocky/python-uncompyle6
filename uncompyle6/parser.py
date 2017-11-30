@@ -414,7 +414,7 @@ class PythonParser(GenericASTBuilder):
         list_if_not ::= expr jmp_true list_iter
         """
 
-    def p_setcomp(self, args):
+    def p_set_comp(self, args):
         """
         comp_iter ::= comp_for
         comp_iter ::= comp_body
