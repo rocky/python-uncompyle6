@@ -800,7 +800,7 @@ class Python3Parser(PythonParser):
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                             # listcomp is a custom Python3 rule
             elif opname == 'LOAD_LISTCOMP':
-                self.add_unique_rule("expr ::= set_listcomp", opname, token.attr, customize)
+                self.add_unique_rule("expr ::= listcomp", opname, token.attr, customize)
             elif opname == 'LOAD_SETCOMP':
                 # Should this be generalized and put under MAKE_FUNCTION?
                 if has_get_iter_call_function1:
