@@ -1586,10 +1586,10 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.write(')')
 
-    def n_mapexpr(self, node):
+    def n_dict(self, node):
         """
-        prettyprint a mapexpr
-        'mapexpr' is something like k = {'a': 1, 'b': 42}"
+        prettyprint a dict
+        'dict' is something like k = {'a': 1, 'b': 42}"
         We will source-code use line breaks to guide us when to break.
         """
         p = self.prec
@@ -1602,7 +1602,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         if self.version >= 3.0 and not self.is_pypy:
             if node[0].kind.startswith('kvlist'):
-                # Python 3.5+ style key/value list in mapexpr
+                # Python 3.5+ style key/value list in dict
                 kv_node = node[0]
                 l = list(kv_node)
                 i = 0
@@ -1625,7 +1625,7 @@ class SourceWalker(GenericASTTraversal, object):
                     pass
                 pass
             elif len(node) > 1 and node[1].kind.startswith('kvlist'):
-                # Python 3.0..3.4 style key/value list in mapexpr
+                # Python 3.0..3.4 style key/value list in dict
                 kv_node = node[1]
                 l = list(kv_node)
                 if len(l) > 0 and l[0].kind == 'kv3':
@@ -2055,7 +2055,7 @@ class SourceWalker(GenericASTTraversal, object):
 
                 TABLE_R[k] = entry
                 pass
-            # handled by n_mapexpr:
+            # handled by n_dict:
             # if op == 'BUILD_SLICE':	TABLE_R[k] = ('%C'    ,    (0,-1,':'))
             # handled by n_build_list:
             # if   op == 'BUILD_LIST':	TABLE_R[k] = ('[%C]'  ,    (0,-1,', '))

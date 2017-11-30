@@ -655,7 +655,7 @@ class Python3Parser(PythonParser):
             if opname_base == 'BUILD_CONST_KEY_MAP':
                 # This is in 3.6+
                 kvlist_n = 'expr ' * (token.attr)
-                rule = "mapexpr ::= %sLOAD_CONST %s" % (kvlist_n, opname)
+                rule = "dict ::= %sLOAD_CONST %s" % (kvlist_n, opname)
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname.startswith('BUILD_LIST_UNPACK'):
                 v = token.attr
@@ -678,27 +678,27 @@ class Python3Parser(PythonParser):
                     self.add_unique_rule(rule, 'kvlist_n', 0, customize)
                     rule = 'kvlist_n ::='
                     self.add_unique_rule(rule, 'kvlist_n', 1, customize)
-                    rule = "mapexpr ::=  BUILD_MAP_n kvlist_n"
+                    rule = "dict ::=  BUILD_MAP_n kvlist_n"
                 elif self.version >= 3.5:
                     if opname != 'BUILD_MAP_WITH_CALL':
                         if opname == 'BUILD_MAP_UNPACK':
                             rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
                             self.add_unique_rule(rule, opname, token.attr, customize)
-                            rule = 'dict ::= ' + 'expr ' * (token.attr*2)
+                            rule = 'dict_entry ::= ' + 'expr ' * (token.attr*2)
                             self.add_unique_rule(rule, opname, token.attr, customize)
-                            rule = 'mapexpr ::= ' + 'dict ' * token.attr
+                            rule = 'dict ::= ' + 'dict_entry ' * token.attr
                             self.add_unique_rule(rule, opname, token.attr, customize)
                             rule = ('unmap_dict ::= ' +
-                                    ('mapexpr ' * token.attr) +
+                                    ('dict ' * token.attr) +
                                     'BUILD_MAP_UNPACK')
                         else:
                             rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
                             self.add_unique_rule(rule, opname, token.attr, customize)
-                            rule = "mapexpr ::=  %s %s" % (kvlist_n, opname)
+                            rule = "dict ::=  %s %s" % (kvlist_n, opname)
                 else:
                     rule = kvlist_n + ' ::= ' + 'expr expr STORE_MAP ' * token.attr
                     self.add_unique_rule(rule, opname, token.attr, customize)
-                    rule = "mapexpr ::=  %s %s" % (opname, kvlist_n)
+                    rule = "dict ::=  %s %s" % (opname, kvlist_n)
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname.startswith('BUILD_MAP_UNPACK_WITH_CALL'):
                 v = token.attr

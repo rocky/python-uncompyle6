@@ -270,14 +270,13 @@ TABLE_DIRECT = {
     'except_suite_finalize':     ( '%+%c%-%C', 1, (3, maxint, '') ),
     'passstmt':		    ( '%|pass\n', ),
     'STORE_FAST':	    ( '%{pattr}', ),
-    'kv':		        ( '%c: %c', 3, 1 ),
-    'kv2':		        ( '%c: %c', 1, 2 ),
-    'mapexpr':		    ( '{%[1]C}', (0, maxint, ', ') ),
-    'import':           ( '%|import %c\n', 2),
-    'importlist':       ( '%C', (0, maxint, ', ') ),
-    'importfrom':       ( '%|from %[2]{pattr} import %c\n',
-                          (3, 'importlist') ),
-    'importstar':       ( '%|from %[2]{pattr} import *\n', ),
+    'kv':		    ( '%c: %c', 3, 1 ),
+    'kv2':		    ( '%c: %c', 1, 2 ),
+    'import':               ( '%|import %c\n', 2),
+    'importlist':           ( '%C', (0, maxint, ', ') ),
+    'importfrom':           ( '%|from %[2]{pattr} import %c\n',
+                              (3, 'importlist') ),
+    'importstar':           ( '%|from %[2]{pattr} import *\n', ),
 }
 
 
@@ -299,7 +298,7 @@ MAP = {
 # for a list.
 PRECEDENCE = {
     'build_list':           0,
-    'mapexpr':              0,
+    'dict':                 0,
     'unary_convert':        0,
     'dict_comp':            0,
     'set_comp':             0,

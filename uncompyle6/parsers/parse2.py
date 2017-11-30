@@ -102,7 +102,7 @@ class Python2Parser(PythonParser):
         kvlist ::= kvlist kv3
         kv3 ::= expr expr STORE_MAP
 
-        mapexpr ::= BUILD_MAP kvlist
+        dict ::= BUILD_MAP kvlist
 
         classdef ::= buildclass store
 
@@ -285,7 +285,7 @@ class Python2Parser(PythonParser):
                     self.add_unique_rules([
                         'kvlist_n ::=  kvlist_n kv3',
                         'kvlist_n ::=',
-                        'mapexpr ::= BUILD_MAP_n kvlist_n',
+                        'dict ::= BUILD_MAP_n kvlist_n',
                     ], customize)
                     if self.version >= 2.7:
                         self.add_unique_rule(
@@ -297,7 +297,7 @@ class Python2Parser(PythonParser):
                     kvlist_n = "kvlist_%s" % v
                     self.add_unique_rules([
                         (kvlist_n + " ::=" + ' kv3' * v),
-                        "mapexpr ::= %s %s" % (opname, kvlist_n)
+                        "dict ::= %s %s" % (opname, kvlist_n)
                     ], customize)
                 continue
             elif opname_base == 'BUILD_SLICE':

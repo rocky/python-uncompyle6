@@ -437,7 +437,7 @@ class PythonParser(GenericASTBuilder):
         expr ::= binary_expr
         expr ::= build_list
         expr ::= compare
-        expr ::= mapexpr
+        expr ::= dict
         expr ::= and
         expr ::= or
         expr ::= unary_expr

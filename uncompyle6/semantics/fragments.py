@@ -1308,10 +1308,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write(')')
         self.set_pos_info(node, start, len(self.f.getvalue()))
 
-    def n_mapexpr(self, node):
+    def n_dict(self, node):
         """
-        prettyprint a mapexpr
-        'mapexpr' is something like k = {'a': 1, 'b': 42 }"
+        prettyprint a dict
+        'dict' is something like k = {'a': 1, 'b': 42 }"
         """
         p = self.prec
         self.prec = 100
@@ -1324,7 +1324,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         if self.version > 3.0:
             if node[0].kind.startswith('kvlist'):
-                # Python 3.5+ style key/value list in mapexpr
+                # Python 3.5+ style key/value list in dict
                 kv_node = node[0]
                 l = list(kv_node)
                 i = 0
@@ -1339,7 +1339,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     pass
                 pass
             elif node[1].kind.startswith('kvlist'):
-                # Python 3.0..3.4 style key/value list in mapexpr
+                # Python 3.0..3.4 style key/value list in dict
                 kv_node = node[1]
                 l = list(kv_node)
                 if len(l) > 0 and l[0].kind == 'kv3':
