@@ -39,7 +39,7 @@ Python fragment deparsing given an instruction offset is useful in
 showing stack traces and can be encorporated into any program that
 wants to show a location in more detail than just a line number at
 runtime.  This code can be also used when source-code information does
-not exist and there is just bytecode. Again, my debugggers make use of
+not exist and there is just bytecode. Again, my debuggers make use of
 this.
 
 There were (and still are) a number of decompyle, uncompyle,
