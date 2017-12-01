@@ -182,8 +182,7 @@ class PythonParser(GenericASTBuilder):
     def p_start(self, args):
         '''
         # The start or goal symbol
-        stmts ::= stmts sstmt
-        stmts ::= sstmt
+        stmts ::= sstmt+
         '''
 
     def p_call_stmt(self, args):
