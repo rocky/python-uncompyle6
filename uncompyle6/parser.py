@@ -435,7 +435,7 @@ class PythonParser(GenericASTBuilder):
         expr ::= LOAD_DEREF
         expr ::= load_attr
         expr ::= binary_expr
-        expr ::= build_list
+        expr ::= list
         expr ::= compare
         expr ::= dict
         expr ::= and

@@ -17,7 +17,7 @@ def test_grammar():
     (lhs, rhs, tokens,
      right_recursive, dup_rhs) = p.check_sets()
     expect_lhs = set(['expr1024', 'pos_arg'])
-    unused_rhs = set(['build_list', 'call', 'mkfunc',
+    unused_rhs = set(['list', 'call', 'mkfunc',
                       'mklambda',
                       'unpack',])
 

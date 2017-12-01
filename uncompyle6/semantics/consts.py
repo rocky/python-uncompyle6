@@ -297,7 +297,7 @@ MAP = {
 # or https://docs.python.org/3/reference/expressions.html
 # for a list.
 PRECEDENCE = {
-    'build_list':           0,
+    'list':                 0,
     'dict':                 0,
     'unary_convert':        0,
     'dict_comp':            0,

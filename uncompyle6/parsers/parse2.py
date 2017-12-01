@@ -226,8 +226,8 @@ class Python2Parser(PythonParser):
         Special handling for opcodes such as those that take a variable number
         of arguments -- we add a new rule for each:
 
-            build_list  ::= {expr}^n BUILD_LIST_n
-            build_list  ::= {expr}^n BUILD_TUPLE_n
+            list        ::= {expr}^n BUILD_LIST_n
+            list        ::= {expr}^n BUILD_TUPLE_n
             unpack_list ::= UNPACK_LIST {expr}^n
             unpack      ::= UNPACK_TUPLE {expr}^n
             unpack      ::= UNPACK_SEQEUENCE {expr}^n
@@ -277,7 +277,7 @@ class Python2Parser(PythonParser):
                     self.add_unique_rule("expr1024 ::=%s" % (' expr32' * 32),
                                          opname_base, v, customize)
                     self.seen1024 = True
-                rule = ('build_list ::= ' + 'expr1024 '*thousands +
+                rule = ('list ::= ' + 'expr1024 '*thousands +
                         'expr32 '*thirty32s + 'expr '*(v % 32) + opname)
             elif opname_base == 'BUILD_MAP':
                 if opname == 'BUILD_MAP_n':

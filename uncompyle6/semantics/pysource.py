@@ -446,7 +446,7 @@ class SourceWalker(GenericASTTraversal, object):
                         node.kind == 'async_call'
                         self.prune()
                     self.n_async_call = n_async_call
-                    self.n_build_list_unpack = self.n_build_list
+                    self.n_build_list_unpack = self.n_list
 
                     if version == 3.5:
                         def n_call(node):
@@ -1537,7 +1537,7 @@ class SourceWalker(GenericASTTraversal, object):
     n_classdefdeco2 = n_classdef
 
     def print_super_classes(self, node):
-        if not (node == 'build_list'):
+        if not (node == 'list'):
             return
 
         n_subclasses = len(node[:-1])
@@ -1737,7 +1737,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = p
         self.prune()
 
-    def n_build_list(self, node):
+    def n_list(self, node):
         """
         prettyprint a list or tuple
         """
@@ -1828,7 +1828,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
         return
 
-    n_build_set = n_build_list
+    n_build_set = n_list
 
     def n_unpack(self, node):
         if node[0].kind.startswith('UNPACK_EX'):
@@ -2057,7 +2057,7 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             # handled by n_dict:
             # if op == 'BUILD_SLICE':	TABLE_R[k] = ('%C'    ,    (0,-1,':'))
-            # handled by n_build_list:
+            # handled by n_list:
             # if   op == 'BUILD_LIST':	TABLE_R[k] = ('[%C]'  ,    (0,-1,', '))
             # elif op == 'BUILD_TUPLE':	TABLE_R[k] = ('(%C%,)',    (0,-1,', '))
             pass

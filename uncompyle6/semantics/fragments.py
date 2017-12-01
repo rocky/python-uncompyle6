@@ -1397,7 +1397,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prec = p
         self.prune()
 
-    def n_build_list(self, node):
+    def n_list(self, node):
         """
         prettyprint a list or tuple
         """
@@ -1415,7 +1415,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         elif lastnode.startswith('ROT_TWO'):
             self.write('('); endchar = ')'
         else:
-            raise RuntimeError('Internal Error: n_build_list expects list or tuple')
+            raise RuntimeError('Internal Error: n_list expects list or tuple')
 
         flat_elems = []
         for elem in node:
@@ -1828,7 +1828,7 @@ if __name__ == '__main__':
     # deparse_test(get_code_for_fn(gcd))
     # deparse_test(get_code_for_fn(test))
     # deparse_test(get_code_for_fn(FragmentsWalker.fixup_offsets))
-    # deparse_test(get_code_for_fn(FragmentsWalker.n_build_list))
+    # deparse_test(get_code_for_fn(FragmentsWalker.n_list))
     print('=' * 30)
-    deparse_test_around(408, 'n_build_list', get_code_for_fn(FragmentsWalker.n_build_list))
+    deparse_test_around(408, 'n_list', get_code_for_fn(FragmentsWalker.n_build_list))
     # deparse_test(inspect.currentframe().f_code)

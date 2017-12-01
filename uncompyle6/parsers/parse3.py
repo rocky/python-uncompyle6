@@ -563,14 +563,14 @@ class Python3Parser(PythonParser):
             # Even the below say _list, in the semantic rules we
             # disambiguate tuples, and sets from lists
 
-            build_list ::= {expr}^n BUILD_LIST_n
-            build_list ::= {expr}^n BUILD_TUPLE_n
-            build_list ::= {expr}^n BUILD_LIST_UNPACK_n
-            build_list ::= {expr}^n BUILD_TUPLE_UNPACK_n
+            list ::= {expr}^n BUILD_LIST_n
+            list ::= {expr}^n BUILD_TUPLE_n
+            list ::= {expr}^n BUILD_LIST_UNPACK_n
+            list ::= {expr}^n BUILD_TUPLE_UNPACK_n
 
             # FIXME:
-              build_list  ::= {expr}^n BUILD_SET_n
-              build_list  ::= {expr}^n BUILD_SET_UNPACK_n
+              list  ::= {expr}^n BUILD_SET_n
+              list  ::= {expr}^n BUILD_SET_UNPACK_n
             should be
               build_set  ::= {expr}^n BUILD_SET_n
               build_set  ::= {expr}^n BUILD_SET_UNPACK_n
@@ -712,7 +712,7 @@ class Python3Parser(PythonParser):
                 is_LOAD_CLOSURE = False
                 if opname_base == 'BUILD_TUPLE':
                     # If is part of a "load_closure", then it is not part of a
-                    # "build_list".
+                    # "list".
                     is_LOAD_CLOSURE = True
                     for j in range(v):
                         if tokens[i-j-1].kind != 'LOAD_CLOSURE':
@@ -722,9 +722,9 @@ class Python3Parser(PythonParser):
                         rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
                 if not is_LOAD_CLOSURE or v == 0:
-                    rule = ('build_list ::= ' + 'expr1024 ' * int(v//1024) +
-                                'expr32 ' * int((v//32) % 32) +
-                                'expr ' * (v % 32) + opname)
+                    rule = ('list ::= ' + 'expr1024 ' * int(v//1024) +
+                            'expr32 ' * int((v//32) % 32) +
+                            'expr ' * (v % 32) + opname)
                     self.add_unique_rule(rule, opname, token.attr, customize)
                 continue
             elif opname_base == 'BUILD_SLICE':
