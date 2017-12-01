@@ -1,4 +1,12 @@
-PHONY=check clean dist distclean test test-unit test-functional rmChangeLog clean_pyc nosetests
+PHONY=check clean dist distclean test test-unit test-functional rmChangeLog clean_pyc nosetests \
+      check-bytecode-1.5 check-bytecode-1 check-bytecode-2 check-bytecode-3 \
+      check-bytecode-2.2 check-byteocde-2.3 check-bytecode-2.4 \
+      check-short check-2.6 check-2.7 check-3.0 check-3.1 check-3.2 check-3.3 \
+      check-3.4 check-3.5 check-5.6 5.6 5.8 \
+      grammar-coverage-2.5 grammar-coverage-2.6 grammarcoverage-2.7 \
+      grammar-coverage-3.1 grammar-coverage-3.2 grammarcoverage-3.3 \
+      grammar-coverage-3.4 grammar-coverage-3.5 grammarcoverage-3.6
+
 
 GIT2CL ?= git2cl
 PYTHON ?= python
@@ -59,8 +67,7 @@ check-disasm:
 	$(PYTHON) dis-compare.py
 
 #: Check deparsing bytecode 1.x only
-check-bytecode-1:
-	$(PYTHON) test_pythonlib.py --bytecode-1.5
+check-bytecode-1: check-bytecode-1.5
 
 #: Check deparsing bytecode 2.x only
 check-bytecode-2:
@@ -81,6 +88,10 @@ check-bytecode: check-bytecode-3
         --bytecode-2.5 --bytecode-2.6 --bytecode-2.7 \
         --bytecode-pypy2.7 --bytecode-1
 
+
+#: Check deparsing bytecode 1.5 only
+check-bytecode-1.5:
+	$(PYTHON) test_pythonlib.py --bytecode-1.5
 
 #: Check deparsing Python 2.1
 check-bytecode-2.1:
@@ -127,7 +138,8 @@ grammar-coverage-2.7:
 #: Get grammar coverage for Python 3.0
 grammar-coverage-3.0:
 	-rm $(COVER_DIR)/spark-grammar-32.cover
-	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-30.cover $(PYTHON) test_pythonlib.py --bytecode-3.1
+
+SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-30.cover $(PYTHON) test_pythonlib.py --bytecode-3.1
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-30.cover $(PYTHON) test_pyenvlib.py --3.0.1
 
 #: Get grammar coverage for Python 3.1

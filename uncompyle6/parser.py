@@ -380,8 +380,8 @@ class PythonParser(GenericASTBuilder):
     def p_import20(self, args):
         """
         stmt ::= import
-        stmt ::= importfrom
-        stmt ::= importstar
+        stmt ::= import_from
+        stmt ::= import_from_star
         stmt ::= importmultiple
 
         importlist ::= importlist alias
@@ -390,10 +390,10 @@ class PythonParser(GenericASTBuilder):
         alias      ::= IMPORT_FROM store
         alias      ::= IMPORT_NAME load_attrs store
 
-        import     ::= LOAD_CONST LOAD_CONST alias
-        importstar ::= LOAD_CONST LOAD_CONST IMPORT_NAME IMPORT_STAR
-        importfrom ::= LOAD_CONST LOAD_CONST IMPORT_NAME importlist POP_TOP
-        importmultiple ::= LOAD_CONST LOAD_CONST alias imports_cont
+        import           ::= LOAD_CONST LOAD_CONST alias
+        import_from_star ::= LOAD_CONST LOAD_CONST IMPORT_NAME IMPORT_STAR
+        import_from      ::= LOAD_CONST LOAD_CONST IMPORT_NAME importlist POP_TOP
+        importmultiple   ::= LOAD_CONST LOAD_CONST alias imports_cont
 
         imports_cont ::= import_cont+
         import_cont  ::= LOAD_CONST LOAD_CONST alias

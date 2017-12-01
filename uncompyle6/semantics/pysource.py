@@ -1014,13 +1014,13 @@ class SourceWalker(GenericASTTraversal, object):
             self.write(iname, ' as ', sname)
         self.prune() # stop recursing
 
-    def n_importfrom(self, node):
+    def n_import_from(self, node):
         relative_path_index = 0
         if self.version >= 2.5 and node[relative_path_index].pattr > 0:
             node[2].pattr = '.'*node[relative_path_index].pattr + node[2].pattr
         self.default(node)
 
-    n_importstar = n_importfrom
+    n_import_from_star = n_import_from
 
     def n_mkfunc(self, node):
 
