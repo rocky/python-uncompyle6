@@ -808,7 +808,10 @@ class Python3Parser(PythonParser):
                 args_pos, args_kw, annotate_args  = token.attr
 
                 # FIXME: Fold test  into add_make_function_rule
-                j = 1 if self.version < 3.3 else 2
+                if self.version < 3.3:
+                    j = 1
+                else:
+                    j = 2
                 if is_pypy or (i >= j and tokens[i-j] == 'LOAD_LAMBDA'):
                     rule_pat = ('mklambda ::= %sload_closure LOAD_LAMBDA %%s%s' %
                                 ('pos_arg '* args_pos, opname))
@@ -896,7 +899,10 @@ class Python3Parser(PythonParser):
                 else:
                     args_pos, args_kw, annotate_args, closure  = token.attr
 
-                j = 1 if self.version < 3.3 else 2
+                if self.version < 3.3:
+                    j = 1
+                else:
+                    j = 2
                 if has_get_iter_call_function1:
                     rule_pat = ("generator_exp ::= %sload_genexpr %%s%s expr "
                                 "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
