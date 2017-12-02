@@ -268,7 +268,6 @@ class PythonParser(GenericASTBuilder):
 
         stmt ::= return_stmt
         return_stmt ::= ret_expr RETURN_VALUE
-        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
 
         # return_stmts are a sequence of statements that ends in a RETURN statement.
         # In later Python versions with jump optimization, this can cause JUMPs
@@ -487,13 +486,9 @@ class PythonParser(GenericASTBuilder):
         ret_expr_or_cond ::= ret_cond
 
         stmt ::= return_lambda
-        stmt ::= conditional_lambda
 
         return_lambda ::= ret_expr RETURN_VALUE_LAMBDA LAMBDA_MARKER
         return_lambda ::= ret_expr RETURN_VALUE_LAMBDA
-
-        # Doesn't seem to be used anymore, but other conditional_lambda's are
-        # conditional_lambda ::= expr jmp_false return_if_stmt return_stmt LAMBDA_MARKER
 
         compare        ::= compare_chained
         compare        ::= compare_single

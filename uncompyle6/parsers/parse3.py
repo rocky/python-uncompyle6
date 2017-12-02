@@ -615,6 +615,8 @@ class Python3Parser(PythonParser):
               assign3_pypy ::= expr expr expr store store store
               assign2_pypy ::= expr expr store store
               return_if_lambda ::= RETURN_END_IF_LAMBDA
+              return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+              stmt ::= conditional_lambda
               conditional_lambda ::= expr jmp_false expr return_if_lambda
                                      return_stmt_lambda LAMBDA_MARKER
               """, nop_func)

@@ -17,10 +17,9 @@ def test_grammar():
     (lhs, rhs, tokens,
      right_recursive, dup_rhs) = p.check_sets()
     expect_lhs = set(['expr1024', 'pos_arg'])
-    unused_rhs = set(['list', 'call', 'mkfunc',
+    unused_rhs = set(['list', 'mkfunc',
                       'mklambda',
                       'unpack',])
-
     expect_right_recursive = frozenset([('designList',
                                          ('store', 'DUP_TOP', 'designList'))])
     if PYTHON3:
@@ -32,13 +31,24 @@ def test_grammar():
         except_pop_except generator_exp classdefdeco2
         dict
         """.split()))
-        if 3.0 <= PYTHON_VERSION:
+        if PYTHON_VERSION >= 3.0:
             expect_lhs.add("annotate_arg")
             expect_lhs.add("annotate_tuple")
             unused_rhs.add("mkfunc_annotate")
+            if PYTHON_VERSION != 3.6:
+                # 3.6 has at least one non-custom call rule
+                # the others don't
+                unused_rhs.add('call')
+            else:
+                # These are custom rules set in 3.5
+                unused_rhs.add('build_map_unpack_with_call')
+                unused_rhs.add('unmapexpr')
+                pass
             pass
+        pass
     else:
         expect_lhs.add('kwarg')
+        unused_rhs.add('call')
 
     assert expect_lhs == set(lhs)
     assert unused_rhs == set(rhs)

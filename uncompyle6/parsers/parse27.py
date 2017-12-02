@@ -126,6 +126,7 @@ class Python27Parser(Python2Parser):
 
         # Common with 2.6
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
+        stmt ::= conditional_lambda
         conditional_lambda ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
 

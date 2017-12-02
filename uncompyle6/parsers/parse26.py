@@ -248,6 +248,7 @@ class Python26Parser(Python2Parser):
         compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
                                jmp_false compare_chained2 _come_from
         return_if_lambda   ::= RETURN_END_IF_LAMBDA POP_TOP
+        stmt               ::= conditional_lambda
         conditional_lambda ::= expr jmp_false_then expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
         """
