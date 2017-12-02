@@ -7,7 +7,22 @@ PYVERSION=${FULLVERSION%.*}
 MINOR=${FULLVERSION##?.?.}
 
 typeset -i STOP_ONERROR=1
-typeset -A SKIP_TESTS=( [test_aepack.py]=1 [audiotests.py]=1)
+
+typeset -A SKIP_TESTS
+case $PYVERSION in
+    2.6)
+	SKIP_TESTS=( [test_array.py]=1 [test_asyncore.py]=1)
+	;;
+    2.7)
+	SKIP_TESTS=(
+		     [test_builtin.py]=1  [test_contextlib.py]=1
+		     [test_decimal.py]=]  [test_decorators.py]=1
+                   )
+	;;
+    *)
+	SKIP_TESTS=( [test_aepack.py]=1 [audiotests.py]=1)
+	;;
+esac
 
 # Test directory setup
 srcdir=$(dirname $me)
@@ -25,7 +40,13 @@ export PYTHONPATH=$TESTDIR
 # Run tests
 typeset -i i=0
 typeset -i allerrs=0
-for file in test_*.py; do
+if [[ -n $1 ]] ; then
+    files=$1
+    SKIP_TESTS=()
+else
+    files=test_*.py
+fi
+for file in $files; do
     [[ -v SKIP_TESTS[$file] ]] && continue
 
     # If the fails *before* decompiling, skip it!
