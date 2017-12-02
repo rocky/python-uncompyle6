@@ -1,5 +1,5 @@
 # Tests:
-#  forstmt ::= SETUP_LOOP expr _for designator
+#  forstmt ::= SETUP_LOOP expr _for store
 #              for_block POP_BLOCK COME_FROM
 for a in [1]:
     c = 2

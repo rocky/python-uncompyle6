@@ -361,7 +361,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         if  version >= 3.0:
             TABLE_DIRECT.update({
-                'funcdef_annotate': ( '\n\n%|def %c%c\n', -1, 0),
+                'function_def_annotate': ( '\n\n%|def %c%c\n', -1, 0),
                 'store_locals': ( '%|# inspect.currentframe().f_locals = __locals__\n', ),
                 })
 
@@ -386,7 +386,7 @@ class SourceWalker(GenericASTTraversal, object):
                         break
 
                 # FIXME: the real situation is that when derived from
-                # funcdef_annotate we the name has been filled in.
+                # function_def_annotate we the name has been filled in.
                 # But when derived from funcdefdeco it hasn't Would like a better
                 # way to distinquish.
                 if self.f.getvalue()[-4:] == 'def ':
@@ -474,7 +474,7 @@ class SourceWalker(GenericASTTraversal, object):
                             self.default(node)
                         self.n_call = n_call
 
-                    def n_funcdef(node):
+                    def n_function_def(node):
                         if self.version == 3.6:
                             code_node = node[0][0]
                         else:
@@ -489,7 +489,7 @@ class SourceWalker(GenericASTTraversal, object):
                             self.template_engine(('\n\n%|def %c\n', -2),
                                                  node)
                         self.prune()
-                    self.n_funcdef = n_funcdef
+                    self.n_function_def = n_function_def
 
                     def n_unmapexpr(node):
                         last_n = node[0][-1]

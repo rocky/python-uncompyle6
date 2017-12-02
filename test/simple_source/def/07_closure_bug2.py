@@ -12,9 +12,9 @@
 # mkfunc ::= load_closure LOAD_CONST MAKE_CLOSURE_0
 
 # mkfuncdeco0 ::= mkfunc
-# mkfuncdeco ::= expr mkfuncdeco0 CALL_FUNCTION_1
-# designator ::= STORE_FAST
-# funcdefdeco ::= mkfuncdeco designator
+# mkfuncdeco  ::= expr mkfuncdeco0 CALL_FUNCTION_1
+# store       ::= STORE_FAST
+# funcdefdeco ::= mkfuncdeco store
 # stmt ::= funcdefdeco
 from functools import wraps
 

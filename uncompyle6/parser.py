@@ -169,8 +169,8 @@ class PythonParser(GenericASTBuilder):
         return GenericASTBuilder.ambiguity(self, children)
 
     def resolve(self, list):
-        if len(list) == 2 and 'funcdef' in list and 'assign' in list:
-            return 'funcdef'
+        if len(list) == 2 and 'function_def' in list and 'assign' in list:
+            return 'function_def'
         if 'grammar' in list and 'expr' in list:
             return 'expr'
         # print >> sys.stderr, 'resolve', str(list)
@@ -280,15 +280,15 @@ class PythonParser(GenericASTBuilder):
         """
         pass
 
-    def p_funcdef(self, args):
+    def p_function_def(self, args):
         '''
-        stmt ::= funcdef
-        funcdef ::= mkfunc store
-        stmt ::= funcdefdeco
-        funcdefdeco ::= mkfuncdeco store
-        mkfuncdeco ::= expr mkfuncdeco CALL_FUNCTION_1
-        mkfuncdeco ::= expr mkfuncdeco0 CALL_FUNCTION_1
-        mkfuncdeco0 ::= mkfunc
+        stmt         ::= function_def
+        function_def ::= mkfunc store
+        stmt         ::= funcdefdeco
+        funcdefdeco  ::= mkfuncdeco store
+        mkfuncdeco   ::= expr mkfuncdeco CALL_FUNCTION_1
+        mkfuncdeco   ::= expr mkfuncdeco0 CALL_FUNCTION_1
+        mkfuncdeco0  ::= mkfunc
         load_closure ::= load_closure LOAD_CLOSURE
         load_closure ::= LOAD_CLOSURE
         '''

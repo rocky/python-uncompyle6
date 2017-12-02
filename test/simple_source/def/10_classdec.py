@@ -5,8 +5,8 @@
 #   mkfuncdeco0 ::= mkfunc
 #   classdefdeco2 ::= LOAD_CONST expr mkfunc CALL_FUNCTION_0 BUILD_CLASS
 #   classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
-#   designator ::= STORE_NAME
-#   classdefdeco ::= classdefdeco1 designator
+#   store        ::= STORE_NAME
+#   classdefdeco ::= classdefdeco1 store
 
 def author(*author_names):
     def author_func(cls):

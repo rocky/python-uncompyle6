@@ -6,7 +6,7 @@
 #  76 JUMP_ABSOLUTE           17 (to 17)
 
 # And getting:
-# list_for ::= expr _for designator list_iter JUMP_BACK
+# list_for ::= expr _for store list_iter JUMP_BACK
 # list_iter ::= list_if JUMP_BACK
 #                       ^^^^^^^^^ added to 2.6 grammar
 # list_iter ::= list_for

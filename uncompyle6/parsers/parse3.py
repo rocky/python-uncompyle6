@@ -285,8 +285,8 @@ class Python3Parser(PythonParser):
     def p_def_annotations3(self, args):
         """
         # Annotated functions
-        stmt ::= funcdef_annotate
-        funcdef_annotate ::= mkfunc_annotate store
+        stmt                  ::= function_def_annotate
+        function_def_annotate ::= mkfunc_annotate store
 
         mkfuncdeco0 ::= mkfunc_annotate
 

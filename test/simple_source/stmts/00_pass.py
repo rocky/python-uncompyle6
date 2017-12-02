@@ -1,3 +1,3 @@
 # Tests:
-# assign ::= expr designator
+# assign ::= expr store
 pass

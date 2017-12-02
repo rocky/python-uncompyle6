@@ -196,12 +196,12 @@ TABLE_DIRECT = {
     'compare_chained1':	    ( '%[3]{pattr} %p %p', (0, 19), (-2, 19)),
     'compare_chained2':	    ( '%[1]{pattr} %p', (0, 19)),
 #   'classdef': 	(), # handled by n_classdef()
-    'funcdef':  	    ( '\n\n%|def %c\n', -2), # -2 to handle closures
-    'funcdefdeco':  	( '\n\n%c', 0),
+    'function_def':         ( '\n\n%|def %c\n', -2), # -2 to handle closures
+    'funcdefdeco':  	    ( '\n\n%c', 0),
     'mkfuncdeco':  	    ( '%|@%c\n%c', 0, 1),
-    'mkfuncdeco0':  	( '%|def %c\n', 0),
-    'classdefdeco':  	( '\n\n%c', 0),
-    'classdefdeco1':  	( '%|@%c\n%c', 0, 1),
+    'mkfuncdeco0':  	    ( '%|def %c\n', 0),
+    'classdefdeco':  	    ( '\n\n%c', 0),
+    'classdefdeco1':  	    ( '%|@%c\n%c', 0, 1),
     'kwarg':    	    ( '%[0]{pattr}=%c', 1),
     'kwargs':    	    ( '%D', (0, maxint, ', ') ),
 
