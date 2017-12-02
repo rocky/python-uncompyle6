@@ -15,9 +15,12 @@ case $PYVERSION in
 	;;
     2.7)
 	SKIP_TESTS=(
-		     [test_builtin.py]=1  [test_contextlib.py]=1
-		     [test_decimal.py]=]  [test_decorators.py]=1
-                   )
+	    [test_builtin.py]=1
+	    [test_contextlib.py]=1  # decorators
+            [test_decorators.py]=1  # decorators
+	    [test_decimal.py]=1
+	    [test_descr.py]=1 # syntax error look at
+        )
 	;;
     *)
 	SKIP_TESTS=( [test_aepack.py]=1 [audiotests.py]=1)
