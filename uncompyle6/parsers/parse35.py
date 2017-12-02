@@ -132,6 +132,15 @@ class Python35Parser(Python34Parser):
 
     def add_custom_rules(self, tokens, customize):
         self.remove_rules("""
+          yield_from ::= expr GET_ITER LOAD_CONST YIELD_FROM
+          yield_from ::= expr expr YIELD_FROM
+          withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt
+                         POP_BLOCK LOAD_CONST COME_FROM_WITH
+                         WITH_CLEANUP END_FINALLY
+          withasstmt ::= expr SETUP_WITH store suite_stmts_opt
+                         POP_BLOCK LOAD_CONST COME_FROM_WITH
+                         WITH_CLEANUP END_FINALLY
+
           # FIXME: should this be in 3.3?
           whileTruestmt  ::= SETUP_LOOP return_stmts          COME_FROM_LOOP
         """)

@@ -170,7 +170,7 @@ grammar-coverage-3.4:
 grammar-coverage-3.5:
 	rm $(COVER_DIR)/spark-grammar-35.cover || /bin/true
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-35.cover $(PYTHON) test_pythonlib.py --bytecode-3.5
-	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-35.cover $(PYTHON) test_pyenvlib.py --3.5.2
+	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-35.cover $(PYTHON) test_pyenvlib.py --3.5.3
 
 #: Check deparsing Python 2.6
 pcheck-bytecode-2.6:
