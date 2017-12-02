@@ -8,7 +8,8 @@ byte-code verification
 
 from __future__ import print_function
 
-import dis, operator
+import operator
+import xdis.std as dis
 
 import uncompyle6
 import uncompyle6.scanner as scanner
