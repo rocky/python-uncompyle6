@@ -38,13 +38,6 @@ class Python2Parser(PythonParser):
         print_nl        ::= PRINT_NEWLINE
         """
 
-    def p_stmt2(self, args):
-        """
-        exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
-        exec_stmt ::= expr exprlist EXEC_STMT
-
-        """
-
     def p_print_to(self, args):
         '''
         stmt ::= print_to
@@ -340,6 +333,13 @@ class Python2Parser(PythonParser):
             elif opname_base in ('DUP_TOPX', 'RAISE_VARARGS'):
                 # FIXME: remove these conditions if they are not needed.
                 # no longer need to add a rule
+                continue
+            elif opname == 'EXEC_STMT':
+                self.addRule("""
+                  exprlist  ::= expr+
+                  exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
+                  exec_stmt ::= expr exprlist EXEC_STMT
+                  """, nop_func)
                 continue
             elif opname == 'JUMP_IF_NOT_DEBUG':
                 self.add_unique_rules([

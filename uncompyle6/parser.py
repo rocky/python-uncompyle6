@@ -501,9 +501,6 @@ class PythonParser(GenericASTBuilder):
         # Non-null kvlist items are broken out in the indiviual grammars
         kvlist ::=
 
-        exprlist ::= exprlist expr
-        exprlist ::= expr
-
         # Positional arguments in make_function
         pos_arg ::= expr
 
