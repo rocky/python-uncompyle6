@@ -903,6 +903,7 @@ class Python3Parser(PythonParser):
                     j = 1
                 else:
                     j = 2
+
                 if has_get_iter_call_function1:
                     rule_pat = ("generator_exp ::= %sload_genexpr %%s%s expr "
                                 "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))

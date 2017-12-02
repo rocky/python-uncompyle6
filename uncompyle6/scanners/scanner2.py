@@ -1045,14 +1045,9 @@ class Scanner2(Scanner):
                         # or:
                         #     RETURN_VALUE POP_TOP .. POP_TOP END_FINALLY
                         skip_come_from = False
-                        if self.version <= 2.5:
+                        if self.version <= 2.6:
                             skip_come_from = (code[offset+3] == self.opc.END_FINALLY or
                                               (code[offset+3] == self.opc.POP_TOP
-                                               and code[offset+4] == self.opc.END_FINALLY))
-                        else:
-                            skip_come_from = (code[offset+3] == self.opc.END_FINALLY or
-                                              (op != self.opc.JUMP_FORWARD
-                                               and code[offset+3] == self.opc.POP_TOP
                                                and code[offset+4] == self.opc.END_FINALLY))
                         if not skip_come_from:
                             # FIXME: rocky: I think we need something like this...

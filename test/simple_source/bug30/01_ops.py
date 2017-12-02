@@ -17,3 +17,6 @@ y ^= 1   # INPLACE_XOR
 x = [1,2,3,4,5]
 x[0:1] = 1
 x[0:3] += 1, 2, 3
+
+# Is not in chained compare
+x[0] is not x[1] is not x[2]
