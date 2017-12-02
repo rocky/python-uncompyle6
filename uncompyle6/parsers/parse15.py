@@ -13,14 +13,14 @@ class Python15Parser(Python21Parser):
 
     def p_import15(self, args):
         """
-        importstmt ::= filler IMPORT_NAME STORE_FAST
-        importstmt ::= filler IMPORT_NAME STORE_NAME
+        import      ::= filler IMPORT_NAME STORE_FAST
+        import      ::= filler IMPORT_NAME STORE_NAME
 
-        importfrom ::= filler IMPORT_NAME importlist
-        importfrom ::= filler filler IMPORT_NAME importlist POP_TOP
+        import_from ::= filler IMPORT_NAME importlist
+        import_from ::= filler filler IMPORT_NAME importlist POP_TOP
 
-        importlist ::= importlist IMPORT_FROM
-        importlist ::= IMPORT_FROM
+        importlist  ::= importlist IMPORT_FROM
+        importlist  ::= IMPORT_FROM
         """
 
 class Python15ParserSingle(Python21Parser, PythonParserSingle):

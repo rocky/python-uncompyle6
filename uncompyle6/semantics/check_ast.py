@@ -14,7 +14,7 @@ def checker(ast, in_loop, errors):
     in_loop = in_loop or ast.kind in ('while1stmt', 'whileTruestmt',
                                       'whilestmt', 'whileelsestmt', 'while1elsestmt',
                                       'for_block')
-    if ast.kind in ('augassign1', 'augassign2') and ast[0][0] == 'and':
+    if ast.kind in ('aug_assign1', 'aug_assign2') and ast[0][0] == 'and':
         text = str(ast)
         error_text = '\n# improper augmented assigment (e.g. +=, *=, ...):\n#\t' + '\n# '.join(text.split("\n")) + '\n'
         errors.append(error_text)

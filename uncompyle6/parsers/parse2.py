@@ -36,13 +36,6 @@ class Python2Parser(PythonParser):
         print_nl        ::= PRINT_NEWLINE
         """
 
-    def p_stmt2(self, args):
-        """
-        exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
-        exec_stmt ::= expr exprlist EXEC_STMT
-
-        """
-
     def p_print_to(self, args):
         '''
         stmt ::= print_to
@@ -64,6 +57,8 @@ class Python2Parser(PythonParser):
         return_if_stmts ::= return_if_stmt
         return_if_stmts ::= _stmts return_if_stmt
         return_if_stmt ::= ret_expr RETURN_END_IF
+
+        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
 
         stmt ::= break_stmt
         break_stmt ::= BREAK_LOOP
@@ -100,7 +95,7 @@ class Python2Parser(PythonParser):
         kvlist ::= kvlist kv3
         kv3 ::= expr expr STORE_MAP
 
-        mapexpr ::= BUILD_MAP kvlist
+        dict ::= BUILD_MAP kvlist
 
         classdef ::= buildclass store
 
@@ -198,10 +193,10 @@ class Python2Parser(PythonParser):
         store ::= expr expr STORE_SLICE+2
         store ::= expr expr expr STORE_SLICE+3
 
-        augassign1 ::= expr expr inplace_op ROT_FOUR  STORE_SLICE+3
-        augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+1
-        augassign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+2
-        augassign1 ::= expr expr inplace_op ROT_TWO   STORE_SLICE+0
+        aug_assign1 ::= expr expr inplace_op ROT_FOUR  STORE_SLICE+3
+        aug_assign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+1
+        aug_assign1 ::= expr expr inplace_op ROT_THREE STORE_SLICE+2
+        aug_assign1 ::= expr expr inplace_op ROT_TWO   STORE_SLICE+0
 
         slice0 ::= expr SLICE+0
         slice0 ::= expr DUP_TOP SLICE+0
@@ -224,8 +219,8 @@ class Python2Parser(PythonParser):
         Special handling for opcodes such as those that take a variable number
         of arguments -- we add a new rule for each:
 
-            build_list  ::= {expr}^n BUILD_LIST_n
-            build_list  ::= {expr}^n BUILD_TUPLE_n
+            list        ::= {expr}^n BUILD_LIST_n
+            list        ::= {expr}^n BUILD_TUPLE_n
             unpack_list ::= UNPACK_LIST {expr}^n
             unpack      ::= UNPACK_TUPLE {expr}^n
             unpack      ::= UNPACK_SEQEUENCE {expr}^n
@@ -251,8 +246,8 @@ class Python2Parser(PythonParser):
                         stmt ::= assign2_pypy
                         assign3_pypy ::= expr expr expr store store store
                         assign2_pypy ::= expr expr store store
-                        list_compr ::= expr  BUILD_LIST_FROM_ARG _for store list_iter
-                                             JUMP_BACK
+                        list_comp    ::= expr  BUILD_LIST_FROM_ARG _for store list_iter
+                                         JUMP_BACK
                         """, nop_func)
         for i, token in enumerate(tokens):
             opname = token.kind
@@ -275,7 +270,7 @@ class Python2Parser(PythonParser):
                     self.add_unique_rule("expr1024 ::=%s" % (' expr32' * 32),
                                          opname_base, v, customize)
                     self.seen1024 = True
-                rule = ('build_list ::= ' + 'expr1024 '*thousands +
+                rule = ('list ::= ' + 'expr1024 '*thousands +
                         'expr32 '*thirty32s + 'expr '*(v % 32) + opname)
             elif opname_base == 'BUILD_MAP':
                 if opname == 'BUILD_MAP_n':
@@ -283,7 +278,7 @@ class Python2Parser(PythonParser):
                     self.add_unique_rules([
                         'kvlist_n ::=  kvlist_n kv3',
                         'kvlist_n ::=',
-                        'mapexpr ::= BUILD_MAP_n kvlist_n',
+                        'dict ::= BUILD_MAP_n kvlist_n',
                     ], customize)
                     if self.version >= 2.7:
                         self.add_unique_rule(
@@ -295,7 +290,7 @@ class Python2Parser(PythonParser):
                     kvlist_n = "kvlist_%s" % v
                     self.add_unique_rules([
                         (kvlist_n + " ::=" + ' kv3' * v),
-                        "mapexpr ::= %s %s" % (opname, kvlist_n)
+                        "dict ::= %s %s" % (opname, kvlist_n)
                     ], customize)
                 continue
             elif opname_base == 'BUILD_SLICE':
@@ -337,6 +332,13 @@ class Python2Parser(PythonParser):
                 # FIXME: remove these conditions if they are not needed.
                 # no longer need to add a rule
                 continue
+            elif opname == 'EXEC_STMT':
+                self.addRule("""
+                  exprlist  ::= expr+
+                  exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
+                  exec_stmt ::= expr exprlist EXEC_STMT
+                  """, nop_func)
+                continue
             elif opname == 'JUMP_IF_NOT_DEBUG':
                 self.add_unique_rules([
                     'jmp_true_false ::= POP_JUMP_IF_TRUE',
@@ -349,10 +351,15 @@ class Python2Parser(PythonParser):
                        "LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1 COME_FROM",
                     ], customize)
                 continue
+            elif opname == 'LOAD_LISTCOMP':
+                self.add_unique_rules([
+                    "expr ::= listcomp",
+                    ], customize)
+                continue
             elif opname == 'LOAD_SETCOMP':
                 self.add_unique_rules([
-                    "expr ::= setcomp",
-                    "setcomp ::= LOAD_SETCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1"
+                    "expr ::= set_comp",
+                    "set_comp ::= LOAD_SETCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1"
                     ], customize)
                 continue
             elif opname == 'LOOKUP_METHOD':
@@ -387,13 +394,13 @@ class Python2Parser(PythonParser):
                         prev_tok = tokens[i-1]
                         if prev_tok == 'LOAD_DICTCOMP':
                             self.add_unique_rules([
-                                ('dictcomp ::= %s load_closure LOAD_DICTCOMP %s expr'
+                                ('dict_comp ::= %s load_closure LOAD_DICTCOMP %s expr'
                                  ' GET_ITER CALL_FUNCTION_1' %
                                 ('expr '*v, opname))], customize)
                         elif prev_tok == 'LOAD_SETCOMP':
                             self.add_unique_rules([
-                                "expr ::= setcomp",
-                                ('setcomp ::= %s load_closure LOAD_SETCOMP %s expr'
+                                "expr ::= set_comp",
+                                ('set_comp ::= %s load_closure LOAD_SETCOMP %s expr'
                                 ' GET_ITER CALL_FUNCTION_1' %
                                 ('expr '*v, opname))
                                 ], customize)
@@ -428,8 +435,8 @@ class Python2Parser(PythonParser):
                 raise Exception('unknown customize token %s' % opname)
             self.add_unique_rule(rule, opname_base, v, customize)
             pass
-        self.check_reduce['augassign1'] = 'AST'
-        self.check_reduce['augassign2'] = 'AST'
+        self.check_reduce['aug_assign1'] = 'AST'
+        self.check_reduce['aug_assign2'] = 'AST'
         self.check_reduce['_stmts'] = 'AST'
 
         # Dead code testing...
@@ -445,7 +452,7 @@ class Python2Parser(PythonParser):
         # if lhs == 'while1elsestmt':
         #     from trepan.api import debug; debug()
 
-        if lhs in ('augassign1', 'augassign2') and ast[0] and ast[0][0] == 'and':
+        if lhs in ('aug_assign1', 'aug_assign2') and ast[0] and ast[0][0] == 'and':
             return True
         elif lhs == '_stmts':
             for i, stmt in enumerate(ast):

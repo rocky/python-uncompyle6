@@ -479,7 +479,10 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
             - handle format tuple parameters
         """
         if default:
-            value = self.traverse(default, indent='')
+            if self.version >= 3.6:
+                value = default
+            else:
+                value = self.traverse(default, indent='')
             maybe_show_ast_param_default(self.showast, name, value)
             result = '%s=%s' % (name,  value)
             if result[-2:] == '= ':	# default was 'LOAD_CONST None'
@@ -505,12 +508,17 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
             defparams = node[:args_node.attr]
         else:
             default, kw, annotate, closure = args_node.attr
-            # FIXME: start here for Python 3.6 and above:
-            defparams = []
-            # if default:
-            #     defparams = node[-(2 +  kw + annotate  + closure)]
-            # else:
-            #     defparams = []
+            if default:
+                assert node[0] == 'expr', "expecting mkfunc default node to be an expr"
+                expr_node = node[0]
+                if (expr_node[0] == 'LOAD_CONST' and
+                    isinstance(expr_node[0].attr, tuple)):
+                    defparams = list(expr_node[0].attr)
+                elif expr_node[0] == 'list':
+                    defparams =  [self.traverse(n, indent='') for n in expr_node[0][:-1]]
+            else:
+                defparams = []
+            # FIXME: handle kw, annotate and closure
 
         kw_args  = 0
         pass
@@ -536,7 +544,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
     paramnames = list(code.co_varnames[:argc])
 
     # defaults are for last n parameters, thus reverse
-    if not 3.0 <= self.version <= 3.1:
+    if not 3.0 <= self.version <= 3.1 or self.version >= 3.6:
         paramnames.reverse(); defparams.reverse()
 
     try:
@@ -557,10 +565,11 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
     indent = self.indent
 
     # build parameters
-    if self.version != 3.2:
-        tup = [paramnames, defparams]
-        params = [build_param(ast, name, default) for
-              name, default in map(lambda *tup:tup, *tup)]
+    tup = [paramnames, defparams]
+    params = [build_param(ast, name, default_value) for
+              name, default_value in map(lambda *tup:tup, *tup)]
+
+    if not 3.0 <= self.version <= 3.1 or self.version >= 3.6:
         params.reverse() # back to correct order
 
         if code_has_star_arg(code):

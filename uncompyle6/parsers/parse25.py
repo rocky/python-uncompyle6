@@ -71,9 +71,12 @@ class Python25Parser(Python26Parser):
         return_if_stmts  ::= return_if_stmt
         return_stmt      ::= ret_expr RETURN_END_IF POP_TOP
         return_stmt      ::= ret_expr RETURN_VALUE POP_TOP
+        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
         setupwithas      ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 setup_finally
         stmt             ::= classdefdeco
         stmt             ::= conditional_lambda
+        conditional_lambda ::= expr jmp_false_then expr return_if_lambda
+                               return_stmt_lambda LAMBDA_MARKER
         """)
         super(Python25Parser, self).add_custom_rules(tokens, customize)
         if self.version == 2.5:

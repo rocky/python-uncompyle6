@@ -17,10 +17,14 @@ class Python36Parser(Python35Parser):
     def p_36misc(self, args):
         """
         # 3.6 redoes how return_closure works
-        return_closure ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
+        return_closure   ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
 
-        fstring_multi ::= fstring_expr_or_strs BUILD_STRING
-        fstring_expr_or_strs ::= fstring_expr_or_str+
+        stmt               ::= conditional_lambda
+        conditional_lambda ::= expr jmp_false expr return_if_lambda
+                               return_stmt_lambda LAMBDA_MARKER
+        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+        return_if_lambda   ::= RETURN_END_IF_LAMBDA
+
 
         func_args36   ::= expr BUILD_TUPLE_0
         call          ::= func_args36 unmapexpr CALL_FUNCTION_EX
@@ -91,9 +95,11 @@ class Python36Parser(Python35Parser):
                     fstring_expr_or_str ::= fstring_expr
                     fstring_expr_or_str ::= str
 
-                    expr ::= fstring_multi
-                    fstring_multi ::= %s BUILD_STRING
-                    %s ::= %sBUILD_STRING
+                    expr                 ::= fstring_multi
+                    fstring_multi        ::= fstring_expr_or_strs BUILD_STRING
+                    fstring_expr_or_strs ::= fstring_expr_or_str+
+                    fstring_multi        ::= %s BUILD_STRING
+                    %s                   ::= %sBUILD_STRING
                 """ % (fstring_expr_or_str_n, fstring_expr_or_str_n, "fstring_expr_or_str " * v)
                 self.add_unique_doc_rules(rules_str, customize)
 

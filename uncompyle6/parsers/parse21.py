@@ -27,7 +27,7 @@ class Python21Parser(Python22Parser):
 
     def p_import21(self, args):
         '''
-        import_as ::= IMPORT_NAME_CONT store
+        alias ::= IMPORT_NAME_CONT store
         '''
 
 class Python21ParserSingle(Python22Parser, PythonParserSingle):

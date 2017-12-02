@@ -114,10 +114,18 @@ is done by transforming the byte code into a pseudo-2.7 Python
 bytecode and is based on code from Eloi Vanderbeken.
 
 This project, `uncompyle6`, abandons that approach for various
-reasons. However the main reason is that we need offsets in fragment
-deparsing to be exactly the same, and the transformation process can
-remove instructions.  _Adding_ instructions with psuedo offsets is
-however okay.
+reasons. Having a grammar per Python version is much cleaner and it
+scales indefinitely. That said, we don't have entire copies of the
+grammar, but work off of differences from some neighboring version.
+And this too I find helpful. Should there be a desire to rebase or
+start a new base version to work off of, say for some future Python
+version, that can be done by dumping a grammar for a specific version
+after it has been loaded incrementally.
+
+Another problem with pseudo-2.7 bytecode is that that we need offsets
+in fragment deparsing to be exactly the same as the bytecode; the
+transformation process can remove instructions.  _Adding_ instructions
+with psuedo offsets is however okay.
 
 `Uncompyle6` however owes its existence to the fork of `uncompyle2` by
 Myst herie (Mysterie) whose first commit picks up at
@@ -159,21 +167,37 @@ if the grammar is LR or left recursive.
 
 Another approach that doesn't use grammars is to do something like
 simulate execution symbolically and build expression trees off of
-stack results. Control flow in that apprproach still needs to be
-handled somewhat ad hoc.  The two important projects that work this
-way are [unpyc3](https://code.google.com/p/unpyc3/) and most
-especially [pycdc](https://github.com/zrax/pycdc) The latter project
-is largely by Michael Hansen and Darryl Pogue. If they supported
-getting source-code fragments, did a better job in supporting Python
-more fully, and had a way I could call it from Python, I'd probably
-would have ditched this and used that. The code runs blindingly fast
-and spans all versions of Python, although more recently Python 3
-support has been lagging.
+stack results. Control flow in that approach still needs to be handled
+somewhat ad hoc.  The two important projects that work this way are
+[unpyc3](https://code.google.com/p/unpyc3/) and most especially
+[pycdc](https://github.com/zrax/pycdc) The latter project is largely
+by Michael Hansen and Darryl Pogue. If they supported getting
+source-code fragments, did a better job in supporting Python more
+fully, and had a way I could call it from Python, I'd probably would
+have ditched this and used that. The code runs blindingly fast and
+spans all versions of Python, although more recently Python 3 support
+has been lagging. The code is impressive for its smallness given that
+it covers many versions of Python. However, I think it has reached a
+scalability issue, same as all the other efforts. For it to handle
+Python versions more accurately, I think it will need to have a lot
+more code specially which specialize for Python versions.
 
 Tests for the project have been, or are being, culled from all of the
-projects mentioned.
+projects mentioned. Quite a few have been added to improve grammar
+coverage and to address the numerous bugs that have been encountered.
 
-For a little bit of the history of changes to the Early-algorithm parser,
+If you think, as I am sure will happen in the future, "hey, I can just
+write a decompiler from scratch and not have to deal with all all of
+the complexity here", think again. What is likely to happen is that
+you'll get at best a 90% solution working for a single Python release
+that will be obsolete in about a year, and more obsolute each
+subsequent year.  Writing a decompiler for Python gets harder as it
+Python progresses, so writing one for Python 3.7 isn't as easy as it
+was for Python 2.2.  That said, if you still feel you want to write a
+single version decompiler, talk to me. I may have some ideas.
+
+
+For a little bit of the history of changes to the Earley-algorithm parser,
 see the file [NEW-FEATURES.rst](https://github.com/rocky/python-spark/blob/master/NEW-FEATURES.rst) in the [python-spark github repository](https://github.com/rocky/python-spark).
 
 NB. If you find mistakes, want corrections, or want your name added

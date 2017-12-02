@@ -1,0 +1,19 @@
+# -*- shell-script -*-
+# Sets PYVERSIONS to be all pyenv versions we have
+if [[ $0 == ${BASH_SOURCE[0]} ]] ; then
+    echo "This script should be *sourced* rather than run directly through bash"
+    exit 1
+fi
+
+olddir=$(pwd)
+mydir=$(dirname ${BASH_SOURCE[0]})
+cd $mydir
+
+all=""
+for file in pyenv-{olde{st,r},newer}-versions ; do
+    . $mydir/$file
+    all="$all $PYVERSIONS"
+done
+
+PYVERSIONS="$all"
+cd $olddir

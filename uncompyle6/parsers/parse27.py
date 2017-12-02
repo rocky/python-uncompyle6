@@ -14,19 +14,19 @@ class Python27Parser(Python2Parser):
 
     def p_comprehension27(self, args):
         """
-        list_for ::= expr _for store list_iter JUMP_BACK
-        list_compr ::= BUILD_LIST_0 list_iter
-        lc_body ::= expr LIST_APPEND
+        list_for  ::= expr _for store list_iter JUMP_BACK
+        list_comp ::= BUILD_LIST_0 list_iter
+        lc_body   ::= expr LIST_APPEND
 
         stmt ::= setcomp_func
 
         # Dictionary and set comprehensions were added in Python 2.7
-        expr ::= dictcomp
-        stmt ::= dictcomp_func
-        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
-                comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
+        expr      ::= dict_comp
+        dict_comp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
 
-        dictcomp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
+        stmt          ::= dictcomp_func
+        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
+                         comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
 
         setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
                 JUMP_BACK RETURN_VALUE RETURN_LAST
@@ -126,6 +126,7 @@ class Python27Parser(Python2Parser):
 
         # Common with 2.6
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
+        stmt ::= conditional_lambda
         conditional_lambda ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
 

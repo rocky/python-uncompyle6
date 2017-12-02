@@ -1,5 +1,5 @@
 # Tests:
-# assign ::= expr designator
+# assign ::= expr store
 
 a = 'None'
 b = None

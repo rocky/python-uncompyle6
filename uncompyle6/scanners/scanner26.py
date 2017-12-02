@@ -240,6 +240,10 @@ class Scanner26(scan.Scanner2):
                     customize[op_name] = oparg
             elif self.version > 2.0 and op == self.opc.CONTINUE_LOOP:
                 customize[op_name] = 0
+            elif op_name in """
+                 CONTINUE_LOOP EXEC_STMT LOAD_LISTCOMP LOAD_SETCOMP
+                  """.split():
+                customize[op_name] = 0
             elif op == self.opc.JUMP_ABSOLUTE:
                 # Further classify JUMP_ABSOLUTE into backward jumps
                 # which are used in loops, and "CONTINUE" jumps which

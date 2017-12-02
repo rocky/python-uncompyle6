@@ -156,7 +156,6 @@ TABLE_DIRECT = {
     'unpack_list':	    ( '[%C]', (1, maxint, ', ') ),
     'build_tuple2':	    ( '%P', (0, -1, ', ', 100) ),
 
-    # 'list_compr':	( '[ %c ]', -2),	# handled by n_list_compr
     'list_iter':	    ( '%c', 0 ),
     'list_for':		    ( ' for %c in %c%c', 2, 0, 3 ),
     'list_if':		    ( ' if %c%c', 0, 2 ),
@@ -176,9 +175,9 @@ TABLE_DIRECT = {
     # The 2nd parameter should have a = suffix.
     # There is a rule with a 4th parameter "store"
     # which we don't use here.
-    'augassign1':	    ( '%|%c %c %c\n', 0, 2, 1),
+    'aug_assign1':      ( '%|%c %c %c\n', 0, 2, 1),
 
-    'augassign2':	    ( '%|%c.%[2]{pattr} %c %c\n', 0, -3, -4 ),
+    'aug_assign2':	    ( '%|%c.%[2]{pattr} %c %c\n', 0, -3, -4 ),
     'designList':	    ( '%c = %c', 0, -1 ),
     'and':          	( '%c and %c', 0, 2 ),
     'ret_and':        	( '%c and %c', 0, 2 ),
@@ -197,12 +196,12 @@ TABLE_DIRECT = {
     'compare_chained1':	    ( '%[3]{pattr} %p %p', (0, 19), (-2, 19)),
     'compare_chained2':	    ( '%[1]{pattr} %p', (0, 19)),
 #   'classdef': 	(), # handled by n_classdef()
-    'funcdef':  	    ( '\n\n%|def %c\n', -2), # -2 to handle closures
-    'funcdefdeco':  	( '\n\n%c', 0),
+    'function_def':         ( '\n\n%|def %c\n', -2), # -2 to handle closures
+    'funcdefdeco':  	    ( '\n\n%c', 0),
     'mkfuncdeco':  	    ( '%|@%c\n%c', 0, 1),
-    'mkfuncdeco0':  	( '%|def %c\n', 0),
-    'classdefdeco':  	( '\n\n%c', 0),
-    'classdefdeco1':  	( '%|@%c\n%c', 0, 1),
+    'mkfuncdeco0':  	    ( '%|def %c\n', 0),
+    'classdefdeco':  	    ( '\n\n%c', 0),
+    'classdefdeco1':  	    ( '%|@%c\n%c', 0, 1),
     'kwarg':    	    ( '%[0]{pattr}=%c', 1),
     'kwargs':    	    ( '%D', (0, maxint, ', ') ),
 
@@ -271,14 +270,13 @@ TABLE_DIRECT = {
     'except_suite_finalize':     ( '%+%c%-%C', 1, (3, maxint, '') ),
     'passstmt':		    ( '%|pass\n', ),
     'STORE_FAST':	    ( '%{pattr}', ),
-    'kv':		        ( '%c: %c', 3, 1 ),
-    'kv2':		        ( '%c: %c', 1, 2 ),
-    'mapexpr':		    ( '{%[1]C}', (0, maxint, ', ') ),
-    'importstmt':       ( '%|import %c\n', 2),
-    'importlist':       ( '%C', (0, maxint, ', ') ),
-    'importfrom':       ( '%|from %[2]{pattr} import %c\n',
-                          (3, 'importlist') ),
-    'importstar':       ( '%|from %[2]{pattr} import *\n', ),
+    'kv':		    ( '%c: %c', 3, 1 ),
+    'kv2':		    ( '%c: %c', 1, 2 ),
+    'import':               ( '%|import %c\n', 2),
+    'importlist':           ( '%C', (0, maxint, ', ') ),
+    'import_from':          ( '%|from %[2]{pattr} import %c\n',
+                              (3, 'importlist') ),
+    'import_from_star':     ( '%|from %[2]{pattr} import *\n', ),
 }
 
 
@@ -299,12 +297,12 @@ MAP = {
 # or https://docs.python.org/3/reference/expressions.html
 # for a list.
 PRECEDENCE = {
-    'build_list':           0,
-    'mapexpr':              0,
+    'list':                 0,
+    'dict':                 0,
     'unary_convert':        0,
-    'dictcomp':             0,
-    'setcomp':              0,
-    'list_compr':           0,
+    'dict_comp':            0,
+    'set_comp':             0,
+    'list_comp':            0,
     'generator_exp':        0,
 
     'load_attr':            2,

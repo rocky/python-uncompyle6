@@ -3,7 +3,7 @@
 spark grammar differences over Python 3.4 for Python 3.5.
 """
 
-from uncompyle6.parser import PythonParserSingle
+from uncompyle6.parser import PythonParserSingle, nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parsers.parse34 import Python34Parser
 
@@ -32,21 +32,7 @@ class Python35Parser(Python34Parser):
         stmt       ::= await_stmt
         await_stmt ::= await_expr POP_TOP
 
-        expr       ::= unmap_dict
-        expr       ::= unmapexpr
-
-        unmap_dict ::= dictcomp BUILD_MAP_UNPACK
-
-        unmap_dict ::= kv_lists BUILD_MAP_UNPACK
-        kv_lists   ::= kv_list kv_lists
-        kv_lists   ::= kv_list
-
         # Python 3.5+ has WITH_CLEANUP_START/FINISH
-
-        withstmt    ::= expr
-                        SETUP_WITH exprlist suite_stmts_opt
-                        POP_BLOCK LOAD_CONST COME_FROM_WITH
-                        WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
         withstmt   ::= expr
                        SETUP_WITH POP_TOP suite_stmts_opt
@@ -90,7 +76,7 @@ class Python35Parser(Python34Parser):
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
                                JUMP_ABSOLUTE END_FINALLY COME_FROM
                                for_block POP_BLOCK JUMP_ABSOLUTE
-                               opt_come_from_loop
+                               come_from_loops
 
         async_for_stmt     ::= SETUP_LOOP expr
                                GET_AITER
@@ -102,7 +88,7 @@ class Python35Parser(Python34Parser):
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
                                JUMP_ABSOLUTE END_FINALLY JUMP_BACK
                                passstmt POP_BLOCK JUMP_ABSOLUTE
-                               opt_come_from_loop
+                               come_from_loops
 
         stmt               ::= async_forelse_stmt
         async_forelse_stmt ::= SETUP_LOOP expr
@@ -127,7 +113,6 @@ class Python35Parser(Python34Parser):
         return_if_stmt ::= ret_expr RETURN_END_IF POP_BLOCK
 
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
-        ifelsestmtc ::= testexpr c_stmts_opt jf_else else_suitec
 
         # ifstmt ::= testexpr c_stmts_opt
 
@@ -141,24 +126,37 @@ class Python35Parser(Python34Parser):
 
     def add_custom_rules(self, tokens, customize):
         self.remove_rules("""
-          # FIXME: should this be in 3.3?
-          whileTruestmt  ::= SETUP_LOOP return_stmts          COME_FROM_LOOP
+          yield_from ::= expr GET_ITER LOAD_CONST YIELD_FROM
+          yield_from ::= expr expr YIELD_FROM
+          withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt
+                         POP_BLOCK LOAD_CONST COME_FROM_WITH
+                         WITH_CLEANUP END_FINALLY
+          withasstmt ::= expr SETUP_WITH store suite_stmts_opt
+                         POP_BLOCK LOAD_CONST COME_FROM_WITH
+                         WITH_CLEANUP END_FINALLY
         """)
         super(Python35Parser, self).add_custom_rules(tokens, customize)
         for i, token in enumerate(tokens):
             opname = token.kind
             if opname == 'BUILD_MAP_UNPACK_WITH_CALL':
+                self.addRule("expr ::= unmapexpr", nop_func)
                 nargs = token.attr % 256
                 map_unpack_n = "map_unpack_%s" % nargs
                 rule = map_unpack_n + ' ::= ' + 'expr ' * (nargs)
-                self.add_unique_rule(rule, opname, token.attr, customize)
+                self.addRule(rule, nop_func)
                 rule = "unmapexpr ::=  %s %s" % (map_unpack_n, opname)
-                self.add_unique_rule(rule, opname, token.attr, customize)
+                self.addRule(rule, nop_func)
                 call_token = tokens[i+1]
                 if self.version == 3.5:
                     rule = 'call ::= expr unmapexpr ' + call_token.kind
-                    self.add_unique_rule(rule, opname, token.attr, customize)
+                    self.addRule(rule, nop_func)
                 pass
+            elif opname == 'BUILD_MAP_UNPACK':
+                self.addRule("""
+                   expr       ::= unmap_dict
+                   unmap_dict ::= dict_comp BUILD_MAP_UNPACK
+                   """, nop_func)
+
             pass
         return
 

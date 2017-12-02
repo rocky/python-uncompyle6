@@ -254,17 +254,15 @@ class Scanner2(Scanner):
                     else:
                         op_name = '%s_%d' % (op_name, oparg)
                     customize[op_name] = oparg
-            elif self.is_pypy and op_name in ('LOOKUP_METHOD',
-                                             'JUMP_IF_NOT_DEBUG',
-                                             'SETUP_EXCEPT',
-                                             'SETUP_FINALLY'):
+            elif self.is_pypy and op_name in frozenset(
+                    """LOOKUP_METHOD JUMP_IF_NOT_DEBUG SETUP_EXCEPT SETUP_FINALLY""".split()):
                 # The value in the dict is in special cases in semantic actions, such
                 # as CALL_FUNCTION. The value is not used in these cases, so we put
                 # in arbitrary value 0.
                 customize[op_name] = 0
-            elif op == self.opc.CONTINUE_LOOP:
-                customize[op_name] = 0
-            elif op_name == 'LOAD_SETCOMP':
+            elif op_name in """
+                 CONTINUE_LOOP EXEC_STMT LOAD_LISTCOMP LOAD_SETCOMP
+                  """.split():
                 customize[op_name] = 0
             elif op == self.opc.JUMP_ABSOLUTE:
                 # Further classify JUMP_ABSOLUTE into backward jumps
@@ -1027,33 +1025,45 @@ class Scanner2(Scanner):
                                 pass
                             pass
 
-                # FIXME: All the < 2.7 conditions are is horrible. We need a better way.
+                # FIXME FIXME FIXME
+                # All the conditions are horrible, and I am not sure I
+                # undestand fully what's going l
+                # WeR REALLY REALLY  need a better way to handle control flow
+                # Expecially for < 2.7
                 if label is not None and label != -1:
-                    # In Python < 2.7, the POP_TOP in:
-                    #   RETURN_VALUE, POP_TOP
-                    # does now start a new statement
-                    # Otherwise, we have want to add a "COME_FROM"
-                    if not (self.version < 2.7 and
-                            code[label] == self.opc.POP_TOP and
-                            code[self.prev[label]] == self.opc.RETURN_VALUE):
+                    if self.version == 2.7:
+                        # FIXME: rocky: I think we need something like this...
+                        if label in self.setup_loops:
+                            source = self.setup_loops[label]
+                        else:
+                            source = offset
+                        targets[label] = targets.get(label, []) + [source]
+                    elif not (code[label] == self.opc.POP_TOP and
+                              code[self.prev[label]] == self.opc.RETURN_VALUE):
                         # In Python < 2.7, don't add a COME_FROM, for:
-                        #     JUMP_FORWARD, END_FINALLY
+                        #     RETURN_VALUE POP_TOP .. END_FINALLY
                         # or:
-                        #     JUMP_FORWARD, POP_TOP, END_FINALLY
-                        if not (self.version < 2.7 and op == self.opc.JUMP_FORWARD
-                                and ((code[offset+3] == self.opc.END_FINALLY)
-                                     or (code[offset+3] == self.opc.POP_TOP
-                                         and code[offset+4] == self.opc.END_FINALLY))):
-
+                        #     RETURN_VALUE POP_TOP .. POP_TOP END_FINALLY
+                        skip_come_from = False
+                        if self.version <= 2.5:
+                            skip_come_from = (code[offset+3] == self.opc.END_FINALLY or
+                                              (code[offset+3] == self.opc.POP_TOP
+                                               and code[offset+4] == self.opc.END_FINALLY))
+                        else:
+                            skip_come_from = (code[offset+3] == self.opc.END_FINALLY or
+                                              (op != self.opc.JUMP_FORWARD
+                                               and code[offset+3] == self.opc.POP_TOP
+                                               and code[offset+4] == self.opc.END_FINALLY))
+                        if not skip_come_from:
                             # FIXME: rocky: I think we need something like this...
-                            if offset not in set(self.ignore_if) or self.version == 2.7:
+                            if offset not in set(self.ignore_if):
                                 if label in self.setup_loops:
                                     source = self.setup_loops[label]
                                 else:
                                     source = offset
                                 targets[label] = targets.get(label, []) + [source]
+                                pass
                             pass
-
                         pass
                     pass
             elif op == self.opc.END_FINALLY and offset in self.fixed_jumps and self.version == 2.7:

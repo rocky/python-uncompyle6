@@ -18,7 +18,7 @@ We add some format specifiers here not used in pysource
 from src to dest.
 
 For example in:
-    'importstmt': ( '%|import %c%x\n', 2, (2,(0,1)), ),
+    'import': ( '%|import %c%x\n', 2, (2,(0,1)), ),
 
 node 2 range information, it in %c, is copied to nodes 0 and 1.
 
@@ -91,7 +91,7 @@ TABLE_DIRECT_FRAGMENT = {
     'continue_stmt':	( '%|%rcontinue\n', ),
     'passstmt':		( '%|%rpass\n', ),
     'raise_stmt0':	( '%|%rraise\n', ),
-    'importstmt':	( '%|import %c%x\n', 2, (2, (0, 1)), ),
+    'import':	        ( '%|import %c%x\n', 2, (2, (0, 1)), ),
     'importfrom':	( '%|from %[2]{pattr}%x import %c\n', (2, (0, 1)), 3),
     'importmultiple':   ( '%|import%b %c%c\n', 0, 2, 3 ),
     'list_for':	  	(' for %c%x in %c%c', 2, (2, (1, )), 0, 3 ),
@@ -194,7 +194,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             raise GenericASTTraversalPruningException
 
     n_slice0 = n_slice1 = n_slice2 = n_slice3 = n_subscript = table_r_node
-    n_augassign_1 = n_print_item = exec_stmt = print_to_item = del_stmt = table_r_node
+    n_aug_assign_1 = n_print_item = exec_stmt = print_to_item = del_stmt = table_r_node
     n_classdefco1 = n_classdefco2 = except_cond1 = except_cond2 = table_r_node
 
     def n_passtmt(self, node):
@@ -490,7 +490,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune()
 
-    def n_import_as(self, node):
+    def n_alias(self, node):
         start = len(self.f.getvalue())
         iname = node[0].pattr
 
@@ -543,8 +543,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.indent_less()
         self.prune() # stop recursing
 
-    def n_list_compr(self, node):
-        """List comprehensions the way they are done in Python 2."""
+    def n_list_comp(self, node):
+        """List comprehensions"""
         p = self.prec
         self.prec = 27
         n = node[-1]
@@ -571,7 +571,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prec = 27
 
         # FIXME: clean this up
-        if self.version > 3.0 and node == 'dictcomp':
+        if self.version > 3.0 and node == 'dict_comp':
             cn = node[1]
         elif self.version > 3.0 and node == 'generator_exp':
             if node[0] == 'load_genexpr':
@@ -784,7 +784,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune()
 
-    def n_setcomp(self, node):
+    def n_set_comp(self, node):
         start = len(self.f.getvalue())
         self.write('{')
         if node[0] in ['LOAD_SETCOMP', 'LOAD_DICTCOMP']:
@@ -799,7 +799,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune()
 
-    # FIXME: Not sure if below is general. Also, add dictcomp_func.
+    # FIXME: Not sure if below is general. Also, add dict_comp_func.
     # 'setcomp_func': ("%|lambda %c: {%c for %c in %c%c}\n", 1, 3, 3, 1, 4)
     def n_setcomp_func(self, node):
         setcomp_start = len(self.f.getvalue())
@@ -1324,10 +1324,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write(')')
         self.set_pos_info(node, start, len(self.f.getvalue()))
 
-    def n_mapexpr(self, node):
+    def n_dict(self, node):
         """
-        prettyprint a mapexpr
-        'mapexpr' is something like k = {'a': 1, 'b': 42 }"
+        prettyprint a dict
+        'dict' is something like k = {'a': 1, 'b': 42 }"
         """
         p = self.prec
         self.prec = 100
@@ -1340,7 +1340,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         if self.version > 3.0:
             if node[0].kind.startswith('kvlist'):
-                # Python 3.5+ style key/value list in mapexpr
+                # Python 3.5+ style key/value list in dict
                 kv_node = node[0]
                 l = list(kv_node)
                 i = 0
@@ -1355,7 +1355,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     pass
                 pass
             elif node[1].kind.startswith('kvlist'):
-                # Python 3.0..3.4 style key/value list in mapexpr
+                # Python 3.0..3.4 style key/value list in dict
                 kv_node = node[1]
                 l = list(kv_node)
                 if len(l) > 0 and l[0].kind == 'kv3':
@@ -1413,7 +1413,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prec = p
         self.prune()
 
-    def n_build_list(self, node):
+    def n_list(self, node):
         """
         prettyprint a list or tuple
         """
@@ -1431,7 +1431,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         elif lastnode.startswith('ROT_TWO'):
             self.write('('); endchar = ')'
         else:
-            raise RuntimeError('Internal Error: n_build_list expects list or tuple')
+            raise RuntimeError('Internal Error: n_list expects list or tuple')
 
         flat_elems = []
         for elem in node:
@@ -1844,7 +1844,7 @@ if __name__ == '__main__':
     # deparse_test(get_code_for_fn(gcd))
     # deparse_test(get_code_for_fn(test))
     # deparse_test(get_code_for_fn(FragmentsWalker.fixup_offsets))
-    # deparse_test(get_code_for_fn(FragmentsWalker.n_build_list))
+    # deparse_test(get_code_for_fn(FragmentsWalker.n_list))
     print('=' * 30)
-    deparse_test_around(408, 'n_build_list', get_code_for_fn(FragmentsWalker.n_build_list))
+    deparse_test_around(408, 'n_list', get_code_for_fn(FragmentsWalker.n_build_list))
     # deparse_test(inspect.currentframe().f_code)

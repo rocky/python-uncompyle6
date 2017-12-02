@@ -17,26 +17,19 @@ class Python33Parser(Python32Parser):
         # We do the grammar hackery below for semantics
         # actions that want c_stmts_opt at index 1
 
-        whileTruestmt ::= SETUP_LOOP l_stmts JUMP_ABSOLUTE
-                          JUMP_BACK COME_FROM_LOOP
-
         # Python 3.5+ has jump optimization to remove the redundant
         # jump_excepts. But in 3.3 we need them added
 
         trystmt     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                         try_middle
                         jump_excepts come_from_except_clauses
-        mapexpr ::= BUILD_MAP kvlist
         """
 
     def add_custom_rules(self, tokens, customize):
         self.remove_rules("""
         # 3.3+ adds POP_BLOCKS
-        whileTruestmt ::= SETUP_LOOP l_stmts JUMP_ABSOLUTE JUMP_BACK COME_FROM_LOOP
         whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP COME_FROM_LOOP
         whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP COME_FROM_LOOP
-        whilestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK
-                          POP_BLOCK JUMP_ABSOLUTE COME_FROM_LOOP
         """)
         super(Python33Parser, self).add_custom_rules(tokens, customize)
         return

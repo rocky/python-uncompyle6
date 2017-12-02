@@ -167,8 +167,8 @@ class PythonParser(GenericASTBuilder):
         return GenericASTBuilder.ambiguity(self, children)
 
     def resolve(self, list):
-        if len(list) == 2 and 'funcdef' in list and 'assign' in list:
-            return 'funcdef'
+        if len(list) == 2 and 'function_def' in list and 'assign' in list:
+            return 'function_def'
         if 'grammar' in list and 'expr' in list:
             return 'expr'
         # print >> sys.stderr, 'resolve', str(list)
@@ -180,8 +180,7 @@ class PythonParser(GenericASTBuilder):
     def p_start(self, args):
         '''
         # The start or goal symbol
-        stmts ::= stmts sstmt
-        stmts ::= sstmt
+        stmts ::= sstmt+
         '''
 
     def p_call_stmt(self, args):
@@ -267,7 +266,6 @@ class PythonParser(GenericASTBuilder):
 
         stmt ::= return_stmt
         return_stmt ::= ret_expr RETURN_VALUE
-        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
 
         # return_stmts are a sequence of statements that ends in a RETURN statement.
         # In later Python versions with jump optimization, this can cause JUMPs
@@ -279,15 +277,15 @@ class PythonParser(GenericASTBuilder):
         """
         pass
 
-    def p_funcdef(self, args):
+    def p_function_def(self, args):
         '''
-        stmt ::= funcdef
-        funcdef ::= mkfunc store
-        stmt ::= funcdefdeco
-        funcdefdeco ::= mkfuncdeco store
-        mkfuncdeco ::= expr mkfuncdeco CALL_FUNCTION_1
-        mkfuncdeco ::= expr mkfuncdeco0 CALL_FUNCTION_1
-        mkfuncdeco0 ::= mkfunc
+        stmt         ::= function_def
+        function_def ::= mkfunc store
+        stmt         ::= funcdefdeco
+        funcdefdeco  ::= mkfuncdeco store
+        mkfuncdeco   ::= expr mkfuncdeco CALL_FUNCTION_1
+        mkfuncdeco   ::= expr mkfuncdeco0 CALL_FUNCTION_1
+        mkfuncdeco0  ::= mkfunc
         load_closure ::= load_closure LOAD_CLOSURE
         load_closure ::= LOAD_CLOSURE
         '''
@@ -317,17 +315,18 @@ class PythonParser(GenericASTBuilder):
 
     def p_augmented_assign(self, args):
         '''
-        stmt ::= augassign1
-        stmt ::= augassign2
+        stmt ::= aug_assign1
+        stmt ::= aug_assign2
 
-        # This is odd in that other augassign1's have only 3 slots
+        # This is odd in that other aug_assign1's have only 3 slots
         # The store isn't used as that's supposed to be also
         # indicated in the first expr
-        augassign1 ::= expr expr inplace_op store
-
-        augassign1 ::= expr expr inplace_op ROT_THREE STORE_SUBSCR
-        augassign2 ::= expr DUP_TOP LOAD_ATTR expr
-                inplace_op ROT_TWO   STORE_ATTR
+        aug_assign1 ::= expr expr
+                        inplace_op store
+        aug_assign1 ::= expr expr
+                        inplace_op ROT_THREE STORE_SUBSCR
+        aug_assign2 ::= expr DUP_TOP LOAD_ATTR expr
+                        inplace_op ROT_TWO STORE_ATTR
 
         inplace_op ::= INPLACE_ADD
         inplace_op ::= INPLACE_SUBTRACT
@@ -376,28 +375,31 @@ class PythonParser(GenericASTBuilder):
 
     def p_import20(self, args):
         """
-        stmt ::= importstmt
-        stmt ::= importfrom
-        stmt ::= importstar
+        stmt ::= import
+        stmt ::= import_from
+        stmt ::= import_from_star
         stmt ::= importmultiple
 
-        importlist ::= importlist import_as
-        importlist ::= import_as
-        import_as  ::= IMPORT_NAME store
-        import_as  ::= IMPORT_FROM store
+        importlist ::= importlist alias
+        importlist ::= alias
+        alias      ::= IMPORT_NAME store
+        alias      ::= IMPORT_FROM store
+        alias      ::= IMPORT_NAME load_attrs store
 
-        importstmt ::= LOAD_CONST LOAD_CONST import_as
-        importstar ::= LOAD_CONST LOAD_CONST IMPORT_NAME IMPORT_STAR
-        importfrom ::= LOAD_CONST LOAD_CONST IMPORT_NAME importlist POP_TOP
-        importmultiple ::= LOAD_CONST LOAD_CONST import_as imports_cont
+        import           ::= LOAD_CONST LOAD_CONST alias
+        import_from_star ::= LOAD_CONST LOAD_CONST IMPORT_NAME IMPORT_STAR
+        import_from      ::= LOAD_CONST LOAD_CONST IMPORT_NAME importlist POP_TOP
+        importmultiple   ::= LOAD_CONST LOAD_CONST alias imports_cont
 
         imports_cont ::= import_cont+
-        import_cont  ::= LOAD_CONST LOAD_CONST import_as
+        import_cont  ::= LOAD_CONST LOAD_CONST alias
+
+        load_attrs   ::= LOAD_ATTR+
         """
 
     def p_list_comprehension(self, args):
         """
-        expr ::= list_compr
+        expr ::= list_comp
 
         list_iter ::= list_for
         list_iter ::= list_if
@@ -408,7 +410,7 @@ class PythonParser(GenericASTBuilder):
         list_if_not ::= expr jmp_true list_iter
         """
 
-    def p_setcomp(self, args):
+    def p_set_comp(self, args):
         """
         comp_iter ::= comp_for
         comp_iter ::= comp_body
@@ -429,9 +431,9 @@ class PythonParser(GenericASTBuilder):
         expr ::= LOAD_DEREF
         expr ::= load_attr
         expr ::= binary_expr
-        expr ::= build_list
+        expr ::= list
         expr ::= compare
-        expr ::= mapexpr
+        expr ::= dict
         expr ::= and
         expr ::= or
         expr ::= unary_expr
@@ -482,13 +484,9 @@ class PythonParser(GenericASTBuilder):
         ret_expr_or_cond ::= ret_cond
 
         stmt ::= return_lambda
-        stmt ::= conditional_lambda
 
         return_lambda ::= ret_expr RETURN_VALUE_LAMBDA LAMBDA_MARKER
         return_lambda ::= ret_expr RETURN_VALUE_LAMBDA
-
-        # Doesn't seem to be used anymore, but other conditional_lambda's are
-        # conditional_lambda ::= expr jmp_false return_if_stmt return_stmt LAMBDA_MARKER
 
         compare        ::= compare_chained
         compare        ::= compare_single
@@ -500,9 +498,6 @@ class PythonParser(GenericASTBuilder):
 
         # Non-null kvlist items are broken out in the indiviual grammars
         kvlist ::=
-
-        exprlist ::= exprlist expr
-        exprlist ::= expr
 
         # Positional arguments in make_function
         pos_arg ::= expr

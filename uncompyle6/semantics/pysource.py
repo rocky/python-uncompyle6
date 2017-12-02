@@ -359,7 +359,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         if  version >= 3.0:
             TABLE_DIRECT.update({
-                'funcdef_annotate': ( '\n\n%|def %c%c\n', -1, 0),
+                'function_def_annotate': ( '\n\n%|def %c%c\n', -1, 0),
                 'store_locals': ( '%|# inspect.currentframe().f_locals = __locals__\n', ),
                 })
 
@@ -384,7 +384,7 @@ class SourceWalker(GenericASTTraversal, object):
                         break
 
                 # FIXME: the real situation is that when derived from
-                # funcdef_annotate we the name has been filled in.
+                # function_def_annotate we the name has been filled in.
                 # But when derived from funcdefdeco it hasn't Would like a better
                 # way to distinquish.
                 if self.f.getvalue()[-4:] == 'def ':
@@ -444,7 +444,7 @@ class SourceWalker(GenericASTTraversal, object):
                         node.kind == 'async_call'
                         self.prune()
                     self.n_async_call = n_async_call
-                    self.n_build_list_unpack = self.n_build_list
+                    self.n_build_list_unpack = self.n_list
 
                     if version == 3.5:
                         def n_call(node):
@@ -472,7 +472,7 @@ class SourceWalker(GenericASTTraversal, object):
                             self.default(node)
                         self.n_call = n_call
 
-                    def n_funcdef(node):
+                    def n_function_def(node):
                         if self.version == 3.6:
                             code_node = node[0][0]
                         else:
@@ -487,7 +487,7 @@ class SourceWalker(GenericASTTraversal, object):
                             self.template_engine(('\n\n%|def %c\n', -2),
                                                  node)
                         self.prune()
-                    self.n_funcdef = n_funcdef
+                    self.n_function_def = n_function_def
 
                     def n_unmapexpr(node):
                         last_n = node[0][-1]
@@ -987,7 +987,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.indent_less()
         self.prune()
 
-    def n_import_as(self, node):
+    def n_alias(self, node):
         if self.version <= 2.1:
             if len(node) == 2:
                 store = node[1]
@@ -1012,13 +1012,13 @@ class SourceWalker(GenericASTTraversal, object):
             self.write(iname, ' as ', sname)
         self.prune() # stop recursing
 
-    def n_importfrom(self, node):
+    def n_import_from(self, node):
         relative_path_index = 0
         if self.version >= 2.5 and node[relative_path_index].pattr > 0:
             node[2].pattr = '.'*node[relative_path_index].pattr + node[2].pattr
         self.default(node)
 
-    n_importstar = n_importfrom
+    n_import_from_star = n_import_from
 
     def n_mkfunc(self, node):
 
@@ -1058,14 +1058,13 @@ class SourceWalker(GenericASTTraversal, object):
         self.make_function(node, is_lambda=True, codeNode=node[-2])
         self.prune() # stop recursing
 
-    def n_list_compr(self, node):
-        """List comprehensions the way they are done in Python 2.
-        """
+    def n_list_comp(self, node):
+        """List comprehensions"""
         p = self.prec
         self.prec = 27
         if self.version >= 2.7:
             if self.is_pypy:
-                self.n_list_compr_pypy27(node)
+                self.n_list_comp_pypy27(node)
                 return
             n = node[-1]
         elif node[-1] == 'del_stmt':
@@ -1116,9 +1115,8 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = p
         self.prune() # stop recursing
 
-    def n_list_compr_pypy27(self, node):
-        """List comprehensions the way they are done in PYPY Python 2.7.
-        """
+    def n_list_comp_pypy27(self, node):
+        """List comprehensions in PYPY."""
         p = self.prec
         self.prec = 27
         if node[-1].kind == 'list_iter':
@@ -1166,7 +1164,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = 27
 
         # FIXME: clean this up
-        if self.version > 3.0 and node == 'dictcomp':
+        if self.version > 3.0 and node == 'dict_comp':
             cn = node[1]
         elif self.version < 2.7 and node == 'generator_exp':
             if node[0] == 'LOAD_GENEXPR':
@@ -1241,7 +1239,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(')')
         self.prune()
 
-    def n_setcomp(self, node):
+    def n_set_comp(self, node):
         self.write('{')
         if node[0] in ['LOAD_SETCOMP', 'LOAD_DICTCOMP']:
             self.comprehension_walk3(node, 1, 0)
@@ -1344,7 +1342,7 @@ class SourceWalker(GenericASTTraversal, object):
         code = Code(node[1].attr, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
-        if node == 'setcomp':
+        if node == 'set_comp':
             ast = ast[0][0][0]
         else:
             ast = ast[0][0][0][0][0]
@@ -1390,7 +1388,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(']')
         self.prune()
 
-    n_dictcomp = n_setcomp
+    n_dict_comp = n_set_comp
 
     def setcomprehension_walk3(self, node, collection_index):
         """List comprehensions the way they are done in Python3.
@@ -1447,6 +1445,8 @@ class SourceWalker(GenericASTTraversal, object):
             if node == 'classdefdeco2':
                 if self.version >= 3.6:
                     class_name = node[1][1].pattr
+                elif self.version <= 3.3:
+                    class_name = node[2][0].pattr
                 else:
                     class_name = node[1][2].pattr
                 buildclass = node
@@ -1556,7 +1556,7 @@ class SourceWalker(GenericASTTraversal, object):
     n_classdefdeco2 = n_classdef
 
     def print_super_classes(self, node):
-        if not (node == 'build_list'):
+        if not (node == 'list'):
             return
 
         n_subclasses = len(node[:-1])
@@ -1605,10 +1605,10 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.write(')')
 
-    def n_mapexpr(self, node):
+    def n_dict(self, node):
         """
-        prettyprint a mapexpr
-        'mapexpr' is something like k = {'a': 1, 'b': 42}"
+        prettyprint a dict
+        'dict' is something like k = {'a': 1, 'b': 42}"
         We will source-code use line breaks to guide us when to break.
         """
         p = self.prec
@@ -1621,7 +1621,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         if self.version >= 3.0 and not self.is_pypy:
             if node[0].kind.startswith('kvlist'):
-                # Python 3.5+ style key/value list in mapexpr
+                # Python 3.5+ style key/value list in dict
                 kv_node = node[0]
                 l = list(kv_node)
                 i = 0
@@ -1644,7 +1644,7 @@ class SourceWalker(GenericASTTraversal, object):
                     pass
                 pass
             elif len(node) > 1 and node[1].kind.startswith('kvlist'):
-                # Python 3.0..3.4 style key/value list in mapexpr
+                # Python 3.0..3.4 style key/value list in dict
                 kv_node = node[1]
                 l = list(kv_node)
                 if len(l) > 0 and l[0].kind == 'kv3':
@@ -1756,7 +1756,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = p
         self.prune()
 
-    def n_build_list(self, node):
+    def n_list(self, node):
         """
         prettyprint a list or tuple
         """
@@ -1847,7 +1847,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
         return
 
-    n_build_set = n_build_list
+    n_build_set = n_list
 
     def n_unpack(self, node):
         if node[0].kind.startswith('UNPACK_EX'):
@@ -2074,9 +2074,9 @@ class SourceWalker(GenericASTTraversal, object):
 
                 TABLE_R[k] = entry
                 pass
-            # handled by n_mapexpr:
+            # handled by n_dict:
             # if op == 'BUILD_SLICE':	TABLE_R[k] = ('%C'    ,    (0,-1,':'))
-            # handled by n_build_list:
+            # handled by n_list:
             # if   op == 'BUILD_LIST':	TABLE_R[k] = ('[%C]'  ,    (0,-1,', '))
             # elif op == 'BUILD_TUPLE':	TABLE_R[k] = ('(%C%,)',    (0,-1,', '))
             pass

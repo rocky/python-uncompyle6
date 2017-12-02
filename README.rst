@@ -3,7 +3,7 @@
 uncompyle6
 ==========
 
-A native Python cross-version Decompiler and Fragment Decompiler.
+A native Python cross-version decompiler and fragment decompiler.
 The successor to decompyle, uncompyle, and uncompyle2.
 
 
@@ -17,16 +17,17 @@ source code. It accepts bytecodes from Python version 1.5, and 2.1 to
 Why this?
 ---------
 
-Ok, I'll say it: this software is amazing. It is a little more than
-just your normal hacky decompiler. Using compiler_ technology, the
-programs creates a parse tree of the program from the instructions;
-nodes at the upper levels that look like they come from a Python
+Ok, I'll say it: this software is amazing. It is more than your
+normal hacky decompiler. Using compiler_ technology, the program
+creates a parse tree of the program from the instructions; nodes at
+the upper levels that look a little like what might come from a Python
 AST. So we can really classify and understand what's going on in
-sections of instructions.
+sections of Python bytecode.
 
-So another thing that makes this different from other CPython bytecode
-decompilers is the ability to deparse just *fragments* of source code
-and give source-code information around a given bytecode offset.
+Building on this, another thing that makes this different from other
+CPython bytecode decompilers is the ability to deparse just
+*fragments* of source code and give source-code information around a
+given bytecode offset.
 
 I use the tree fragments to deparse fragments of code inside my
 trepan_ debuggers_. For that, bytecode offsets are recorded and
@@ -34,17 +35,22 @@ associated with fragments of the source code. This purpose, although
 compatible with the original intention, is yet a little bit different.
 See this_ for more information.
 
-The idea of Python fragment deparsing given an instruction offset can
-be used in showing stack traces or any program that wants to show a
-location in more detail than just a line number.  It can be also used
-when source-code information does not exist and there is just bytecode
+Python fragment deparsing given an instruction offset is useful in
+showing stack traces and can be encorporated into any program that
+wants to show a location in more detail than just a line number at
+runtime.  This code can be also used when source-code information does
+not exist and there is just bytecode. Again, my debuggers make use of
+this.
 
-There were (and still are) a number of decompyle, uncompyle, uncompyle2,
-uncompyle3 forks around. Almost all of them come basically from the
-same code base, and (almost?) all of them are no longer actively
-maintained. Only one handled Python 3, and even there, only 3.2 or 3.3
-depending on which code is used. This code pulls these together and
-moves forward.
+There were (and still are) a number of decompyle, uncompyle,
+uncompyle2, uncompyle3 forks around. Almost all of them come basically
+from the same code base, and (almost?) all of them are no longer
+actively maintained. One was really good at decompiling Python 1.5-2.3
+or so, another really good at Python 2.7, but that only. Another
+handles Python 3.2 only; another patched that and handled only 3.3.
+You get the idea. This code pulls all of these forks together and
+*moves forward*. There is some serious refactoring and cleanup in this
+code base over those old forks.
 
 This project has the most complete support for Python 3.3 and above
 and the best all-around Python support.

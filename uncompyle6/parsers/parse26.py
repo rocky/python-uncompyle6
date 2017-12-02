@@ -195,9 +195,9 @@ class Python26Parser(Python2Parser):
 
         list_iter  ::= list_if JUMP_BACK
         list_iter  ::= list_if JUMP_BACK COME_FROM POP_TOP
-        list_compr ::= BUILD_LIST_0 DUP_TOP
+        list_comp  ::= BUILD_LIST_0 DUP_TOP
                        store list_iter del_stmt
-        list_compr ::= BUILD_LIST_0 DUP_TOP
+        list_comp  ::= BUILD_LIST_0 DUP_TOP
 	               store list_iter JUMP_BACK del_stmt
         lc_body    ::= LOAD_NAME expr LIST_APPEND
 	lc_body    ::= LOAD_FAST expr LIST_APPEND
@@ -248,6 +248,7 @@ class Python26Parser(Python2Parser):
         compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
                                jmp_false compare_chained2 _come_from
         return_if_lambda   ::= RETURN_END_IF_LAMBDA POP_TOP
+        stmt               ::= conditional_lambda
         conditional_lambda ::= expr jmp_false_then expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
         """
