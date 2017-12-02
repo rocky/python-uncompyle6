@@ -18,7 +18,11 @@ class Python36Parser(Python35Parser):
     def p_36misc(self, args):
         """
         # 3.6 redoes how return_closure works
-        return_closure ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
+        return_closure   ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
+
+        conditional_lambda ::= expr jmp_false expr return_if_lambda
+                               return_stmt_lambda LAMBDA_MARKER
+        return_if_lambda   ::= RETURN_END_IF_LAMBDA
 
         fstring_multi ::= fstring_expr_or_strs BUILD_STRING
         fstring_expr_or_strs ::= fstring_expr_or_str+
