@@ -284,6 +284,10 @@ class SourceWalker(GenericASTTraversal, object):
                 })
 
         if version <= 2.4:
+            TABLE_DIRECT.update({
+                'importmultiple': ( '%|import %c%c\n', 2, 3),
+                'import_cont'   : ( ', %c', 2),
+                })
             if version == 2.3:
                 TABLE_DIRECT.update({
                     'if1_stmt':	( '%|if 1\n%+%c%-', 5 )

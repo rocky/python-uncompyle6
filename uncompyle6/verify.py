@@ -6,7 +6,8 @@
 byte-code verification
 """
 
-import dis, operator
+import operator
+import xdis.std as dis
 
 import uncompyle6
 import uncompyle6.scanner as scanner
