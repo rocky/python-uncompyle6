@@ -140,9 +140,6 @@ class Python35Parser(Python34Parser):
           withasstmt ::= expr SETUP_WITH store suite_stmts_opt
                          POP_BLOCK LOAD_CONST COME_FROM_WITH
                          WITH_CLEANUP END_FINALLY
-
-          # FIXME: should this be in 3.3?
-          whileTruestmt  ::= SETUP_LOOP return_stmts          COME_FROM_LOOP
         """)
         super(Python35Parser, self).add_custom_rules(tokens, customize)
         for i, token in enumerate(tokens):

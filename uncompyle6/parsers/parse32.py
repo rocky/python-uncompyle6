@@ -24,7 +24,6 @@ class Python32Parser(Python3Parser):
 
         # Python < 3.5 no POP BLOCK
         whileTruestmt  ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM_LOOP
-        whileTruestmt  ::= SETUP_LOOP return_stmts          COME_FROM_LOOP
 
         # Python 3.5+ has jump optimization to remove the redundant
         # jump_excepts. But in 3.3 we need them added
