@@ -82,7 +82,7 @@ class Python35Parser(Python34Parser):
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
                                JUMP_ABSOLUTE END_FINALLY COME_FROM
                                for_block POP_BLOCK JUMP_ABSOLUTE
-                               opt_come_from_loop
+                               come_from_loops
 
         async_for_stmt     ::= SETUP_LOOP expr
                                GET_AITER
@@ -94,7 +94,7 @@ class Python35Parser(Python34Parser):
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
                                JUMP_ABSOLUTE END_FINALLY JUMP_BACK
                                passstmt POP_BLOCK JUMP_ABSOLUTE
-                               opt_come_from_loop
+                               come_from_loops
 
         stmt               ::= async_forelse_stmt
         async_forelse_stmt ::= SETUP_LOOP expr

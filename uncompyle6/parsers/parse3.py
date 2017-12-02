@@ -184,7 +184,7 @@ class Python3Parser(PythonParser):
         # this is nested inside a trystmt
         tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
                            POP_BLOCK LOAD_CONST
-                           come_from_or_finally suite_stmts_opt END_FINALLY
+                           COME_FROM_FINALLY suite_stmts_opt END_FINALLY
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            try_middle else_suite come_from_except_clauses
@@ -232,7 +232,7 @@ class Python3Parser(PythonParser):
         except_suite_finalize ::= SETUP_FINALLY c_stmts_opt except_var_finalize
                                   END_FINALLY _jump
 
-        except_var_finalize ::= POP_BLOCK POP_EXCEPT LOAD_CONST come_from_or_finally
+        except_var_finalize ::= POP_BLOCK POP_EXCEPT LOAD_CONST COME_FROM_FINALLY
                                 LOAD_CONST store del_stmt
 
         except_suite ::= return_stmts
@@ -274,7 +274,7 @@ class Python3Parser(PythonParser):
         try_middle ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
                        END_FINALLY COME_FROM_EXCEPT_CLAUSE
 
-        for_block ::= l_stmts_opt opt_come_from_loop JUMP_BACK
+        for_block ::= l_stmts_opt come_from_loops JUMP_BACK
         for_block ::= l_stmts
         iflaststmtl ::= testexpr c_stmts_opt
 
@@ -308,17 +308,9 @@ class Python3Parser(PythonParser):
         opt_come_from_except ::= come_froms
         opt_come_from_except ::= come_from_except_clauses
 
-        come_froms ::= COME_FROM*
-
+        come_froms               ::= COME_FROM*
         come_from_except_clauses ::= COME_FROM_EXCEPT_CLAUSE+
-
-        opt_come_from_loop ::= opt_come_from_loop COME_FROM_LOOP
-        opt_come_from_loop ::= opt_come_from_loop COME_FROM_LOOP
-        opt_come_from_loop ::=
-
-        come_from_or_finally  ::= COME_FROM_FINALLY
-        come_from_or_finally  ::= COME_FROM
-
+        come_from_loops          ::= COME_FROM_LOOP*
         """
 
     def p_jump3(self, args):
@@ -353,7 +345,7 @@ class Python3Parser(PythonParser):
     def p_loop_stmt3(self, args):
         """
         forstmt           ::= SETUP_LOOP expr _for store for_block POP_BLOCK
-                              opt_come_from_loop
+                              come_from_loops
 
         forelsestmt       ::= SETUP_LOOP expr _for store for_block POP_BLOCK else_suite
                               COME_FROM_LOOP
