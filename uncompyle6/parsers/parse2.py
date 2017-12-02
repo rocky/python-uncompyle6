@@ -82,8 +82,6 @@ class Python2Parser(PythonParser):
         raise_stmt2 ::= expr expr RAISE_VARARGS_2
         raise_stmt3 ::= expr expr expr RAISE_VARARGS_3
 
-        stmt ::= exec_stmt
-
         del_stmt ::= expr DELETE_SLICE+0
         del_stmt ::= expr expr DELETE_SLICE+2
         del_stmt ::= expr expr expr DELETE_SLICE+3
@@ -336,9 +334,10 @@ class Python2Parser(PythonParser):
                 continue
             elif opname == 'EXEC_STMT':
                 self.addRule("""
-                  exprlist  ::= expr+
+                  stmt      ::= exec_stmt
                   exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
                   exec_stmt ::= expr exprlist EXEC_STMT
+                  exprlist  ::= expr+
                   """, nop_func)
                 continue
             elif opname == 'JUMP_IF_NOT_DEBUG':
