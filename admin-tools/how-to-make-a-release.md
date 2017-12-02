@@ -2,9 +2,9 @@
 **Table of Contents**
 
 - [Get latest sources:](#get-latest-sources)
-- [Change version in uncompyle6/version.py. Then:](#change-version-in-uncompyle6versionpy-then)
+- [Change version in uncompyle6/version.py](#change-version-in-uncompyle6versionpy)
 - [Update ChangeLog:](#update-changelog)
-- [Update NEWS from ChangeLog. Then:](#update-news-from-changelog-then)
+- [Update NEWS from ChangeLog:](#update-news-from-changelog)
 - [Make sure pyenv is running and check newer versions](#make-sure-pyenv-is-running-and-check-newer-versions)
 - [Switch to python-2.4, sync that up and build that first since it creates a tarball which we don't want.](#switch-to-python-24-sync-that-up-and-build-that-first-since-it-creates-a-tarball-which-we-dont-want)
 - [Update NEWS from master branch](#update-news-from-master-branch)
@@ -19,7 +19,7 @@
 
     $ . ./admin-tool/update-sources.sh
 
-# Change version in uncompyle6/version.py. Then:
+# Change version in uncompyle6/version.py:
 
 	$ emacs uncompyle6/version.py
     $ source uncompyle6/version.py
@@ -30,7 +30,7 @@
 
     $ make ChangeLog
 
-#  Update NEWS from ChangeLog. Then:
+#  Update NEWS from ChangeLog:
 
 	$ emacs NEWS
     $ make check
@@ -46,7 +46,7 @@
     $ source admin-tools/setup-python-2.4.sh
     $ rm ChangeLog
 
-    # $ git merge master ?
+    $ git merge master
 
 # Update NEWS from master branch
 
@@ -59,10 +59,10 @@
 
 # Make packages and tag
 
-    $ admin-tools/make-dist-older.sh
+    $ . ./admin-tools/make-dist-older.sh
     $ git tag release-python-2.4-$VERSION
 
-    $ admin-tools/make-dist-newer.sh
+    $ . /admin-tools/make-dist-newer.sh
     $ git tag release-$VERSION
 
 # Upload single package and look at Rst Formating
