@@ -156,10 +156,10 @@ class Python3Parser(PythonParser):
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD
                        else_suite opt_come_from_except
         ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
-                       else_suite _come_from
+                       else_suite _come_froms
 
         # ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
-        #                passstmt  _come_from
+        #                passstmt  _come_froms
 
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
         ifelsestmtc ::= testexpr c_stmts_opt jump_absolute_else else_suitec
@@ -177,7 +177,7 @@ class Python3Parser(PythonParser):
         # COME_FROM targets from the wrong places
 
         try_except     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           try_middle opt_come_from_except
+                           except_handler opt_come_from_except
 
         # this is nested inside a try_except
         tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
@@ -185,27 +185,28 @@ class Python3Parser(PythonParser):
                            COME_FROM_FINALLY suite_stmts_opt END_FINALLY
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           try_middle else_suite come_from_except_clauses
+                           except_handler else_suite come_from_except_clauses
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           try_middle else_suite come_froms
+                           except_handler else_suite come_froms
 
-        tryelsestmtc ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                         try_middle else_suitec come_from_except_clauses
+        tryelsestmtc   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                           except_handler else_suitec come_from_except_clauses
 
-        tryelsestmtl ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                         try_middle else_suitel come_from_except_clauses
+        tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                           except_handler else_suitel come_from_except_clauses
 
-        try_middle ::= jmp_abs COME_FROM except_stmts
-                       END_FINALLY
-        try_middle ::= jmp_abs COME_FROM_EXCEPT except_stmts
-                       END_FINALLY
+        except_handler ::= jmp_abs COME_FROM except_stmts
+                           END_FINALLY
+        except_handler ::= jmp_abs COME_FROM_EXCEPT except_stmts
+                           END_FINALLY
 
         # FIXME: remove this
-        try_middle ::= JUMP_FORWARD COME_FROM except_stmts
-                       END_FINALLY COME_FROM
-        try_middle ::= JUMP_FORWARD COME_FROM except_stmts
-                       END_FINALLY COME_FROM_EXCEPT
+        except_handler ::= JUMP_FORWARD COME_FROM except_stmts
+                           END_FINALLY COME_FROM
+
+        except_handler ::= JUMP_FORWARD COME_FROM except_stmts
+                           END_FINALLY COME_FROM_EXCEPT
 
         except_stmts ::= except_stmts except_stmt
         except_stmts ::= except_stmt
@@ -267,10 +268,10 @@ class Python3Parser(PythonParser):
 
     def p_misc3(self, args):
         """
-        try_middle ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
-                       END_FINALLY COME_FROM
-        try_middle ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
-                       END_FINALLY COME_FROM_EXCEPT_CLAUSE
+        except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
+                           END_FINALLY COME_FROM
+        except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
+                            END_FINALLY COME_FROM_EXCEPT_CLAUSE
 
         for_block ::= l_stmts_opt come_from_loops JUMP_BACK
         for_block ::= l_stmts
@@ -300,10 +301,9 @@ class Python3Parser(PythonParser):
     def p_come_from3(self, args):
         """
         opt_come_from_except ::= COME_FROM_EXCEPT
-        opt_come_from_except ::= come_froms
+        opt_come_from_except ::= _come_froms
         opt_come_from_except ::= come_from_except_clauses
 
-        come_froms               ::= COME_FROM*
         come_from_except_clauses ::= COME_FROM_EXCEPT_CLAUSE+
         come_from_loops          ::= COME_FROM_LOOP*
         """
@@ -334,7 +334,7 @@ class Python3Parser(PythonParser):
         return_closure ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
 
         stmt ::= whileTruestmt
-        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_from
+        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms
         """
 
     def p_loop_stmt3(self, args):

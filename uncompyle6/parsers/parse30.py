@@ -24,7 +24,7 @@ class Python30Parser(Python31Parser):
         # In many ways Python 3.0 code generation is more like Python 2.6 than
         # it is 2.7 or 3.1. So we have a number of 2.6ish (and before) rules below
 
-        _ifstmts_jump  ::= c_stmts_opt JUMP_FORWARD come_froms POP_TOP COME_FROM
+        _ifstmts_jump  ::= c_stmts_opt JUMP_FORWARD _come_froms POP_TOP COME_FROM
         jmp_true       ::= JUMP_IF_TRUE POP_TOP
         jmp_false      ::= JUMP_IF_FALSE POP_TOP
 

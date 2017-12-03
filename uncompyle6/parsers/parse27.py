@@ -48,7 +48,7 @@ class Python27Parser(Python2Parser):
                            COME_FROM_FINALLY suite_stmts_opt END_FINALLY
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           try_middle else_suite COME_FROM
+                           except_handler else_suite COME_FROM
 
         except_stmt ::= except_cond2 except_suite
 
@@ -61,9 +61,6 @@ class Python27Parser(Python2Parser):
 
     def p_jump27(self, args):
         """
-        come_froms ::= come_froms COME_FROM
-        come_froms ::= COME_FROM
-
         iflaststmtl ::= testexpr c_stmts_opt
 
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD come_froms
@@ -100,7 +97,7 @@ class Python27Parser(Python2Parser):
         # assert condition, expr
         assert2    ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
 
-        for_block  ::= return_stmts _come_from
+        for_block  ::= return_stmts _come_froms
 
         withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM_WITH
@@ -112,7 +109,7 @@ class Python27Parser(Python2Parser):
 
         while1stmt        ::= SETUP_LOOP return_stmts bp_come_from
         while1stmt        ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM
-        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK _come_from
+        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK _come_froms
         while1elsestmt    ::= SETUP_LOOP l_stmts JUMP_BACK POP_BLOCK
                               else_suite COME_FROM
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK

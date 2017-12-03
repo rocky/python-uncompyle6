@@ -33,7 +33,7 @@ class Python25Parser(Python26Parser):
         store ::= STORE_NAME
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           try_middle else_suite COME_FROM
+                           except_handler else_suite come_froms
 
         # Python 2.6 omits the LOAD_FAST DELETE_FAST below
         # withas is allowed as a "from future" in 2.5
