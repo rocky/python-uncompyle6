@@ -16,6 +16,7 @@ case $PYVERSION in
 		     [test_call.py]=1   # need to fix tryelse
 		     [test_cgi.py]=1    # need to fix tryelse
 		     [test_class.py]=1  # need to fix tryelse
+		     [test_dis.py]=1   # We change line numbers - duh!
 		   )
 	;;
     2.6)
@@ -28,10 +29,13 @@ case $PYVERSION in
             [test_decorators.py]=1  # decorators
 	    [test_decimal.py]=1
 	    [test_descr.py]=1 # syntax error look at
+	    [test_dis.py]=1   # We change line numbers - duh!
         )
 	;;
     *)
-	SKIP_TESTS=( [test_aepack.py]=1 [audiotests.py]=1)
+	SKIP_TESTS=( [test_aepack.py]=1 [audiotests.py]=1
+		     [test_dis.py]=1   # We change line numbers - duh!
+		   )
 	;;
 esac
 

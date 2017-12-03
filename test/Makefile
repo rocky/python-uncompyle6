@@ -52,7 +52,7 @@ check-3.4: check-bytecode check-3.4-ok check-2.7-ok
 
 #: Run working tests from Python 3.5
 check-3.5: check-bytecode
-	$(PYTHON) test_pythonlib.py --bytecode-3.5 --verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.5 --weak-verify $(COMPILE)
 
 #: Run working tests from Python 3.6
 check-3.6: check-bytecode
@@ -143,14 +143,14 @@ grammar-coverage-2.7:
 
 #: Get grammar coverage for Python 3.0
 grammar-coverage-3.0:
-	-rm $(COVER_DIR)/spark-grammar-32.cover
+	-rm $(COVER_DIR)/spark-grammar-30.cover
 
 SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-30.cover $(PYTHON) test_pythonlib.py --bytecode-3.1
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-30.cover $(PYTHON) test_pyenvlib.py --3.0.1
 
 #: Get grammar coverage for Python 3.1
 grammar-coverage-3.1:
-	-rm $(COVER_DIR)/spark-grammar-32.cover
+	-rm $(COVER_DIR)/spark-grammar-31.cover
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-31.cover $(PYTHON) test_pythonlib.py --bytecode-3.1
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-31.cover $(PYTHON) test_pyenvlib.py --3.1.5
 
@@ -188,19 +188,19 @@ check-bytecode-2.7:
 
 #: Check deparsing Python 3.0
 check-bytecode-3.0:
-	$(PYTHON) test_pythonlib.py --bytecode-3.0
+	$(PYTHON) test_pythonlib.py --bytecode-3.0 --weak-verify
 
 #: Check deparsing Python 3.1
 check-bytecode-3.1:
-	$(PYTHON) test_pythonlib.py --bytecode-3.1
+	$(PYTHON) test_pythonlib.py --bytecode-3.1 --weak-verify
 
 #: Check deparsing Python 3.2
 check-bytecode-3.2:
-	$(PYTHON) test_pythonlib.py --bytecode-3.2
+	$(PYTHON) test_pythonlib.py --bytecode-3.2 --weak-verify
 
 #: Check deparsing Python 3.3
 check-bytecode-3.3:
-	$(PYTHON) test_pythonlib.py --bytecode-3.3
+	$(PYTHON) test_pythonlib.py --bytecode-3.3 --weak-verify
 
 #: Check deparsing Python 3.4
 check-bytecode-3.4:
@@ -208,7 +208,11 @@ check-bytecode-3.4:
 
 #: Check deparsing Python 3.5
 check-bytecode-3.5:
-	$(PYTHON) test_pythonlib.py --bytecode-3.5
+	$(PYTHON) test_pythonlib.py --bytecode-3.5 --weak-verify
+
+#: Check deparsing Python 3.6
+check-bytecode-3.6:
+	$(PYTHON) test_pythonlib.py --bytecode-3.6 --weak-verify
 
 #: short tests for bytecodes only for this version of Python
 check-native-short:
@@ -224,15 +228,15 @@ check-2.6-ok:
 
 #: Run longer Python 2.7's lib files known to be okay
 check-2.7-ok:
-	$(PYTHON) test_pythonlib.py --ok-2.7 --verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --ok-2.7 --weak-verify $(COMPILE)
 
 #: Run longer Python 3.2's lib files known to be okay
 check-3.2-ok:
-	$(PYTHON) test_pythonlib.py --ok-3.2 --verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --ok-3.2 --weak-verify $(COMPILE)
 
 #: Run longer Python 3.4's lib files known to be okay
 check-3.4-ok:
-	$(PYTHON) test_pythonlib.py --ok-3.4 --verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --ok-3.4 --weak-verify $(COMPILE)
 
 #: PyPy of some sort. E.g. [PyPy 5.0.1 with GCC 4.8.4]
 # Skip for now
