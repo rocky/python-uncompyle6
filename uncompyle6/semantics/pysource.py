@@ -1878,10 +1878,10 @@ class SourceWalker(GenericASTTraversal, object):
 
     n_unpack_w_parens = n_unpack
 
-    def n_load_attr(self, node):
+    def n_attribute(self, node):
         if (node[0] == 'LOAD_CONST' or
             node[0] == 'expr' and node[0][0] == 'LOAD_CONST'):
-            node.kind = 'load_attr_w_parens'
+            node.kind = 'attribute_w_parens'
         self.default(node)
 
     def n_assign(self, node):

@@ -365,7 +365,7 @@ class Python2Parser(PythonParser):
                 continue
             elif opname == 'LOOKUP_METHOD':
                 # A PyPy speciality - DRY with parse3
-                self.add_unique_rule("load_attr ::= expr LOOKUP_METHOD",
+                self.add_unique_rule("attribute ::= expr LOOKUP_METHOD",
                                      opname, v, customize)
                 continue
             elif opname_base == 'MAKE_FUNCTION':

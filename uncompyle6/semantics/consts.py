@@ -125,7 +125,7 @@ TABLE_DIRECT = {
                                   (1, 100), (2, 100) ),
 
     'IMPORT_FROM':              ( '%{pattr}', ),
-    'load_attr':	            ( '%c.%[1]{pattr}',
+    'attribute':	        ( '%c.%[1]{pattr}',
                                 (0, 'expr')),
     'LOAD_FAST':	            ( '%{pattr}', ),
     'LOAD_NAME':	            ( '%{pattr}', ),
@@ -155,7 +155,7 @@ TABLE_DIRECT = {
     'unpack_w_parens':	        ( '(%C%,)', (1, maxint, ', ') ),
 
     # This nonterminal we create on the fly in semantic routines
-    'load_attr_w_parens':	( '(%c).%[1]{pattr}',
+    'attribute_w_parens':	( '(%c).%[1]{pattr}',
                                   (0, 'expr')),
 
     'unpack_list':	        ( '[%C]',
@@ -312,7 +312,7 @@ PRECEDENCE = {
     'list_comp':            0,
     'generator_exp':        0,
 
-    'load_attr':            2,
+    'attribute':            2,
     'subscript':            2,
     'subscript2':           2,
     'slice0':               2,
