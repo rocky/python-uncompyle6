@@ -595,7 +595,7 @@ class Python3Parser(PythonParser):
             mklambda ::= {pos_arg}^n LOAD_LAMBDA [LOAD_CONST] MAKE_FUNCTION_n
 
         For PYPY:
-            load_attr ::= expr LOOKUP_METHOD
+            attribute ::= expr LOOKUP_METHOD
             call ::= expr CALL_METHOD
         """
         is_pypy               = False
@@ -796,7 +796,7 @@ class Python3Parser(PythonParser):
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
             elif opname == 'LOOKUP_METHOD':
                 # A PyPy speciality - DRY with parse2
-                self.add_unique_rule("load_attr ::= expr LOOKUP_METHOD",
+                self.add_unique_rule("attribute ::= expr LOOKUP_METHOD",
                                      opname, token.attr, customize)
                 continue
             elif opname.startswith('MAKE_CLOSURE'):

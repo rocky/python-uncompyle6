@@ -32,7 +32,7 @@ class PythonParser(GenericASTBuilder):
         super(PythonParser, self).__init__(AST, start, debug)
         # FIXME: customize per python parser version
         nt_list = [
-            'stmts', 'except_stmts', '_stmts', 'load_attrs',
+            'stmts', 'except_stmts', '_stmts', 'attributes',
             'exprlist', 'kvlist', 'kwargs', 'come_froms', '_come_froms',
             'importlist',
             # Python < 3
@@ -388,7 +388,7 @@ class PythonParser(GenericASTBuilder):
         importlist ::= alias
         alias      ::= IMPORT_NAME store
         alias      ::= IMPORT_FROM store
-        alias      ::= IMPORT_NAME load_attrs store
+        alias      ::= IMPORT_NAME attributes store
 
         import           ::= LOAD_CONST LOAD_CONST alias
         import_from_star ::= LOAD_CONST LOAD_CONST IMPORT_NAME IMPORT_STAR
@@ -398,7 +398,7 @@ class PythonParser(GenericASTBuilder):
         imports_cont ::= import_cont+
         import_cont  ::= LOAD_CONST LOAD_CONST alias
 
-        load_attrs   ::= LOAD_ATTR+
+        attributes   ::= LOAD_ATTR+
         """
 
     def p_list_comprehension(self, args):
@@ -433,7 +433,7 @@ class PythonParser(GenericASTBuilder):
         expr ::= LOAD_CONST
         expr ::= LOAD_GLOBAL
         expr ::= LOAD_DEREF
-        expr ::= load_attr
+        expr ::= attribute
         expr ::= binary_expr
         expr ::= list
         expr ::= compare
@@ -471,8 +471,8 @@ class PythonParser(GenericASTBuilder):
 
         subscript ::= expr expr BINARY_SUBSCR
 
-        load_attr ::= expr LOAD_ATTR
-        get_iter ::= expr GET_ITER
+        attribute ::= expr LOAD_ATTR
+        get_iter  ::= expr GET_ITER
 
         yield ::= expr YIELD_VALUE
 
