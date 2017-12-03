@@ -75,11 +75,9 @@ This uses setup.py, so it follows the standard Python routine:
 
 ::
 
-    pip install -e .
-    pip install -r requirements-dev.txt
+    pip install -e .  # set up to run from source tree
+                      # Or if you want to install instead
     python setup.py install # may need sudo
-    # or if you have pyenv:
-    python setup.py develop
 
 A GNU makefile is also provided so :code:`make install` (possibly as root or
 sudo) will do the steps above.

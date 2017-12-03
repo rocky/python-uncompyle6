@@ -1,5 +1,5 @@
 # Tests:
-#   trystmt ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+#   try_except ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
 #               try_middle COME_FROM
 #   except_stmt ::= except
 
@@ -9,7 +9,7 @@ except:
     pass
 
 # Tests:
-#   trystmt ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+#   try_except ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
 #               try_middle COME_FROM
 #   except_stmt ::= except_cond1 except_suite
 #   except_suite ::= ...

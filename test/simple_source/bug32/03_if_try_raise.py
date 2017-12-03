@@ -1,5 +1,5 @@
 # From 3.2 distutils/core
-# Ensure we handle funky trystmt
+# Ensure we handle funky try_except
 def setup (ok, dist, **attrs):
     if ok:
         try:

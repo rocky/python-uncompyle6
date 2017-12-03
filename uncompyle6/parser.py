@@ -252,7 +252,7 @@ class PythonParser(GenericASTBuilder):
         stmt ::= while1elsestmt
         stmt ::= forstmt
         stmt ::= forelsestmt
-        stmt ::= trystmt
+        stmt ::= try_except
         stmt ::= tryelsestmt
         stmt ::= tryfinallystmt
         stmt ::= withstmt

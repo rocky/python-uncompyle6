@@ -70,8 +70,8 @@ class Python36Parser(Python35Parser):
         # Try middle following a return_stmts
         try_middle36    ::= COME_FROM_EXCEPT except_stmts END_FINALLY
 
-        stmt      ::= trystmt36
-        trystmt36 ::= SETUP_EXCEPT return_stmts try_middle36 opt_come_from_except
+        stmt         ::= try_except36
+        try_except36 ::= SETUP_EXCEPT return_stmts try_middle36 opt_come_from_except
         """
 
     def add_custom_rules(self, tokens, customize):

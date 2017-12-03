@@ -20,7 +20,7 @@ class Python33Parser(Python32Parser):
         # Python 3.5+ has jump optimization to remove the redundant
         # jump_excepts. But in 3.3 we need them added
 
-        trystmt     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+        try_except  ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                         try_middle
                         jump_excepts come_from_except_clauses
         """

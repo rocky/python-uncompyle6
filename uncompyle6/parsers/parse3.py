@@ -97,12 +97,10 @@ class Python3Parser(PythonParser):
         stmt ::= raise_stmt0
         stmt ::= raise_stmt1
         stmt ::= raise_stmt2
-        stmt ::= raise_stmt3
 
         raise_stmt0 ::= RAISE_VARARGS_0
         raise_stmt1 ::= expr RAISE_VARARGS_1
         raise_stmt2 ::= expr expr RAISE_VARARGS_2
-        raise_stmt3 ::= expr expr expr RAISE_VARARGS_3
 
         del_stmt ::= delete_subscr
         delete_subscr ::= expr expr DELETE_SUBSCR
@@ -176,10 +174,10 @@ class Python3Parser(PythonParser):
         # one COME_FROM for Python 2.7 seems to associate the
         # COME_FROM targets from the wrong places
 
-        trystmt        ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+        try_except     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            try_middle opt_come_from_except
 
-        # this is nested inside a trystmt
+        # this is nested inside a try_except
         tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
                            POP_BLOCK LOAD_CONST
                            COME_FROM_FINALLY suite_stmts_opt END_FINALLY
