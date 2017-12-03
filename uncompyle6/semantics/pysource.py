@@ -124,7 +124,8 @@ from spark_parser import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DE
 from uncompyle6.scanner import Code, get_scanner
 import uncompyle6.parser as python_parser
 from uncompyle6.semantics.make_function import (
-    make_function2, make_function3, make_function3_annotate, find_globals)
+    make_function2, make_function3, make_function3_annotate,
+    find_globals)
 from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.semantics.check_ast import checker
 from uncompyle6.semantics.helper import print_docstring
@@ -2183,6 +2184,8 @@ class SourceWalker(GenericASTTraversal, object):
         # else:
         #    print ast[-1][-1]
 
+        # Add "global" declaration statements at the top
+        # of the function
         for g in find_globals(ast, set()):
             self.println(indent, 'global ', g)
 

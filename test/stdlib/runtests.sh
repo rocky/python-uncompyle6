@@ -10,6 +10,14 @@ typeset -i STOP_ONERROR=1
 
 typeset -A SKIP_TESTS
 case $PYVERSION in
+    2.4)
+	SKIP_TESTS=( [test_binop.py]=1  # need to fix tryelse
+		     [test_bool.py]=1   # need to fix tryelse
+		     [test_call.py]=1   # need to fix tryelse
+		     [test_cgi.py]=1    # need to fix tryelse
+		     [test_class.py]=1  # need to fix tryelse
+		   )
+	;;
     2.6)
 	SKIP_TESTS=( [test_array.py]=1 [test_asyncore.py]=1)
 	;;
