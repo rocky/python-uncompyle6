@@ -81,6 +81,7 @@ class Python2Parser(PythonParser):
         raise_stmt3 ::= expr expr expr RAISE_VARARGS_3
 
         del_stmt ::= expr DELETE_SLICE+0
+        del_stmt ::= expr expr DELETE_SLICE+1
         del_stmt ::= expr expr DELETE_SLICE+2
         del_stmt ::= expr expr expr DELETE_SLICE+3
         del_stmt ::= delete_subscr

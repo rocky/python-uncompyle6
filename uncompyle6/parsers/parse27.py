@@ -101,7 +101,6 @@ class Python27Parser(Python2Parser):
         assert2    ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
 
         for_block  ::= return_stmts _come_from
-        del_stmt   ::= expr expr DELETE_SLICE+1
 
         withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM_WITH
