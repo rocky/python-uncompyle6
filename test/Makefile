@@ -52,7 +52,7 @@ check-3.4: check-bytecode check-3.4-ok check-2.7-ok
 
 #: Run working tests from Python 3.5
 check-3.5: check-bytecode
-	$(PYTHON) test_pythonlib.py --bytecode-3.5 --verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.5 --weak-verify $(COMPILE)
 
 #: Run working tests from Python 3.6
 check-3.6: check-bytecode
@@ -218,15 +218,15 @@ check-2.6-ok:
 
 #: Run longer Python 2.7's lib files known to be okay
 check-2.7-ok:
-	$(PYTHON) test_pythonlib.py --ok-2.7 --verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --ok-2.7 --weak-verify $(COMPILE)
 
 #: Run longer Python 3.2's lib files known to be okay
 check-3.2-ok:
-	$(PYTHON) test_pythonlib.py --ok-3.2 --verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --ok-3.2 --weak-verify $(COMPILE)
 
 #: Run longer Python 3.4's lib files known to be okay
 check-3.4-ok:
-	$(PYTHON) test_pythonlib.py --ok-3.4 --verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --ok-3.4 --weak-verify $(COMPILE)
 
 #: PyPy of some sort. E.g. [PyPy 5.0.1 with GCC 4.8.4]
 # Skip for now
