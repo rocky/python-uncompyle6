@@ -61,9 +61,6 @@ class Python27Parser(Python2Parser):
 
     def p_jump27(self, args):
         """
-        come_froms ::= come_froms COME_FROM
-        come_froms ::= COME_FROM
-
         iflaststmtl ::= testexpr c_stmts_opt
 
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD come_froms
@@ -112,7 +109,7 @@ class Python27Parser(Python2Parser):
 
         while1stmt        ::= SETUP_LOOP return_stmts bp_come_from
         while1stmt        ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM
-        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK _come_from
+        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK _come_froms
         while1elsestmt    ::= SETUP_LOOP l_stmts JUMP_BACK POP_BLOCK
                               else_suite COME_FROM
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK

@@ -1037,14 +1037,17 @@ class Scanner2(Scanner):
                     elif not (code[label] == self.opc.POP_TOP and
                               code[self.prev[label]] == self.opc.RETURN_VALUE):
                         # In Python < 2.7, don't add a COME_FROM, for:
-                        #     RETURN_VALUE POP_TOP .. END_FINALLY
+                        #     ~RETURN_VALUE POP_TOP .. END_FINALLY
                         # or:
-                        #     RETURN_VALUE POP_TOP .. POP_TOP END_FINALLY
-                        skip_come_from = False
-                        if self.version <= 2.6:
-                            skip_come_from = (code[offset+3] == self.opc.END_FINALLY or
-                                              (code[offset+3] == self.opc.POP_TOP
-                                               and code[offset+4] == self.opc.END_FINALLY))
+                        #     ~RETURN_VALUE POP_TOP .. POP_TOP END_FINALLY
+                        skip_come_from = (code[offset+3] == self.opc.END_FINALLY or
+                                          (code[offset+3] == self.opc.POP_TOP
+                                          and code[offset+4] == self.opc.END_FINALLY))
+
+                        # The below is for special try/else handling
+                        if skip_come_from and op == self.opc.JUMP_FORWARD:
+                            skip_come_from = False
+
                         if not skip_come_from:
                             # FIXME: rocky: I think we need something like this...
                             if offset not in set(self.ignore_if):

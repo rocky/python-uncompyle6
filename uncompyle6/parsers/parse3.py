@@ -156,10 +156,10 @@ class Python3Parser(PythonParser):
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD
                        else_suite opt_come_from_except
         ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
-                       else_suite _come_from
+                       else_suite _come_froms
 
         # ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
-        #                passstmt  _come_from
+        #                passstmt  _come_froms
 
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
         ifelsestmtc ::= testexpr c_stmts_opt jump_absolute_else else_suitec
@@ -300,10 +300,9 @@ class Python3Parser(PythonParser):
     def p_come_from3(self, args):
         """
         opt_come_from_except ::= COME_FROM_EXCEPT
-        opt_come_from_except ::= come_froms
+        opt_come_from_except ::= _come_froms
         opt_come_from_except ::= come_from_except_clauses
 
-        come_froms               ::= COME_FROM*
         come_from_except_clauses ::= COME_FROM_EXCEPT_CLAUSE+
         come_from_loops          ::= COME_FROM_LOOP*
         """
@@ -334,7 +333,7 @@ class Python3Parser(PythonParser):
         return_closure ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
 
         stmt ::= whileTruestmt
-        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_from
+        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms
         """
 
     def p_loop_stmt3(self, args):
