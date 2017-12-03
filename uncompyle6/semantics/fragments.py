@@ -199,12 +199,12 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.set_pos_info(node, start, start+len("pass"))
         self.default(node)
 
-    def n_trystmt(self, node):
+    def n_try_except(self, node):
         start = len(self.f.getvalue()) + len(self.indent)
         self.set_pos_info(node[0], start, start+len("try:"))
         self.default(node)
 
-    n_tryelsestmt = n_tryelsestmtc = n_tryelsestmtl = n_tryfinallystmt = n_trystmt
+    n_tryelsestmt = n_tryelsestmtc = n_tryelsestmtl = n_tryfinallystmt = n_try_except
 
     def n_return_stmt(self, node):
         start = len(self.f.getvalue()) + len(self.indent)

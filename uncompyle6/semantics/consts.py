@@ -257,11 +257,11 @@ TABLE_DIRECT = {
         '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-', 3, 1, 4, -2 ),
     'forelselaststmtl':	(
         '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 3, 1, 4, -2 ),
-    'trystmt':		    ( '%|try:\n%+%c%-%c\n\n', 1, 3 ),
+    'try_except':       ( '%|try:\n%+%c%-%c\n\n', 1, 3 ),
     'tryelsestmt':	    ( '%|try:\n%+%c%-%c%|else:\n%+%c%-\n\n', 1, 3, 4 ),
     'tryelsestmtc':	    ( '%|try:\n%+%c%-%c%|else:\n%+%c%-', 1, 3, 4 ),
     'tryelsestmtl':	    ( '%|try:\n%+%c%-%c%|else:\n%+%c%-', 1, 3, 4 ),
-    'tf_trystmt':	    ( '%c%-%c%+', 1, 3 ),
+    'tf_try_except':	( '%c%-%c%+', 1, 3 ),
     'tf_tryelsestmt':	( '%c%-%c%|else:\n%+%c', 1, 3, 4 ),
     'tryfinallystmt':	( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 5 ),
     'except':           ( '%|except:\n%+%c%-', 3 ),

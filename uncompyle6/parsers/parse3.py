@@ -176,10 +176,10 @@ class Python3Parser(PythonParser):
         # one COME_FROM for Python 2.7 seems to associate the
         # COME_FROM targets from the wrong places
 
-        trystmt        ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+        try_except     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            try_middle opt_come_from_except
 
-        # this is nested inside a trystmt
+        # this is nested inside a try_except
         tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
                            POP_BLOCK LOAD_CONST
                            COME_FROM_FINALLY suite_stmts_opt END_FINALLY

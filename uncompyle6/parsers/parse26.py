@@ -35,8 +35,8 @@ class Python26Parser(Python2Parser):
 
         # Sometimes we don't put in COME_FROM to the next statement
         # like we do in 2.7. Perhaps we should?
-        trystmt      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                         try_middle
+        try_except      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                            try_middle
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            try_middle else_suite COME_FROM

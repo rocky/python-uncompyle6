@@ -128,7 +128,7 @@ class Python2Parser(PythonParser):
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
 
-        # this is nested inside a trystmt
+        # this is nested inside a try_except
         tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
                            POP_BLOCK LOAD_CONST
                            COME_FROM suite_stmts_opt END_FINALLY
@@ -140,7 +140,7 @@ class Python2Parser(PythonParser):
         tryelsestmtl ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                          try_middle else_suitel COME_FROM
 
-        trystmt      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+        try_except      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                          try_middle COME_FROM
 
         try_middle   ::= JUMP_FORWARD COME_FROM except_stmts
@@ -414,8 +414,8 @@ class Python2Parser(PythonParser):
                 # only have SETUP_EXCEPT customization for PyPy, but that might not
                 # always be the case.
                 self.add_unique_rules([
-                    "stmt ::= trystmt_pypy",
-                    "trystmt_pypy ::= SETUP_EXCEPT suite_stmts_opt try_middle_pypy",
+                    "stmt ::= try_except_pypy",
+                    "try_except_pypy ::= SETUP_EXCEPT suite_stmts_opt try_middle_pypy",
                     "try_middle_pypy ::= COME_FROM except_stmts END_FINALLY COME_FROM"
                     ], customize)
                 continue

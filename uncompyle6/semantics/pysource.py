@@ -242,10 +242,10 @@ class SourceWalker(GenericASTTraversal, object):
             TABLE_DIRECT.update({
                 'assert_pypy':	( '%|assert %c\n' , 1 ),
                 'assert2_pypy':	( '%|assert %c, %c\n' , 1, 4 ),
-                'trystmt_pypy':	( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
+                'try_except_pypy':	   ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
                 'tryfinallystmt_pypy': ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 3 ),
-                'assign3_pypy':     ( '%|%c, %c, %c = %c, %c, %c\n', 5, 4, 3, 0, 1, 2 ),
-                'assign2_pypy':     ( '%|%c, %c = %c, %c\n', 3, 2, 0, 1),
+                'assign3_pypy':        ( '%|%c, %c, %c = %c, %c, %c\n', 5, 4, 3, 0, 1, 2 ),
+                'assign2_pypy':        ( '%|%c, %c = %c, %c\n', 3, 2, 0, 1),
                 })
         else:
             ########################
@@ -254,9 +254,9 @@ class SourceWalker(GenericASTTraversal, object):
             TABLE_DIRECT.update({
                 'assert':		( '%|assert %c\n' , 0 ),
                 'assert2':		( '%|assert %c, %c\n' , 0, 3 ),
-                'trystmt':		( '%|try:\n%+%c%-%c\n\n', 1, 3 ),
-                'assign2':     ( '%|%c, %c = %c, %c\n', 3, 4, 0, 1 ),
-                'assign3':     ( '%|%c, %c, %c = %c, %c, %c\n', 5, 6, 7, 0, 1, 2 ),
+                'try_except':	( '%|try:\n%+%c%-%c\n\n', 1, 3 ),
+                'assign2':      ( '%|%c, %c = %c, %c\n', 3, 4, 0, 1 ),
+                'assign3':      ( '%|%c, %c, %c = %c, %c, %c\n', 5, 6, 7, 0, 1, 2 ),
                 })
         if version < 3.0:
             TABLE_R.update({
@@ -435,7 +435,7 @@ class SourceWalker(GenericASTTraversal, object):
                     })
                     if version >= 3.6:
                         TABLE_DIRECT.update({
-                            'trystmt36':       ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
+                            'try_except36': ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
                             })
 
                     def n_async_call(node):
@@ -857,8 +857,8 @@ class SourceWalker(GenericASTTraversal, object):
 #    'tryfinallystmt':	( '%|try:\n%+%c%-%|finally:\n%+%c%-', 1, 5 ),
     def n_tryfinallystmt(self, node):
         if len(node[1][0]) == 1 and node[1][0][0] == 'stmt':
-            if node[1][0][0][0] == 'trystmt':
-                node[1][0][0][0].kind = 'tf_trystmt'
+            if node[1][0][0][0] == 'try_except':
+                node[1][0][0][0].kind = 'tf_try_except'
             if node[1][0][0][0] == 'tryelsestmt':
                 node[1][0][0][0].kind = 'tf_tryelsestmt'
         self.default(node)
