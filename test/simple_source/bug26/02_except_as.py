@@ -1,4 +1,6 @@
 # From 2.6.9 ConfigParser.py
+# Note this can only be compiled in Python 2.x
+#
 # Bug was being able to handle:
 #   except KeyError, e
 # vs 2.6+.
@@ -12,7 +14,12 @@
 #
 # Python 2.6 allows both, but we use the older form since
 # that matches the grammar for how this gets parsed
+
 try:
     value = "foo"
+except RuntimeError:
+    # Test:
+    #  raise_stmt3 ::= expr expr expr RAISE_VARARGS_3
+    raise 1, 2, 3
 except KeyError, e:
     raise RuntimeError('foo')

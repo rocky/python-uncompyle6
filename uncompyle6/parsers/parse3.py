@@ -99,12 +99,10 @@ class Python3Parser(PythonParser):
         stmt ::= raise_stmt0
         stmt ::= raise_stmt1
         stmt ::= raise_stmt2
-        stmt ::= raise_stmt3
 
         raise_stmt0 ::= RAISE_VARARGS_0
         raise_stmt1 ::= expr RAISE_VARARGS_1
         raise_stmt2 ::= expr expr RAISE_VARARGS_2
-        raise_stmt3 ::= expr expr expr RAISE_VARARGS_3
 
         del_stmt ::= delete_subscr
         delete_subscr ::= expr expr DELETE_SUBSCR
