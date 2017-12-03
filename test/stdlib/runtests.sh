@@ -12,10 +12,8 @@ typeset -A SKIP_TESTS
 case $PYVERSION in
     2.4)
 	SKIP_TESTS=( [test_binop.py]=1  # need to fix tryelse
-		     [test_bool.py]=1   # need to fix tryelse
-		     [test_call.py]=1   # need to fix tryelse
 		     [test_cgi.py]=1    # need to fix tryelse
-		     [test_class.py]=1  # need to fix tryelse
+		     [test_codecs.py]=1    # need to fix tryelse
 		     [test_dis.py]=1   # We change line numbers - duh!
 		   )
 	;;

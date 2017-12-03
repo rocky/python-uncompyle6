@@ -1,6 +1,9 @@
 # From 2.6.9 ConfigParser.py
-# Note this can only be compiled in Python 2.x
-#
+# Note: this can only be compiled in Python 2.x
+# Note also name "except_as" is a little bit of
+# a misnomer since this is 2.7+ lingo for
+# 2.6- syntax which we use here.
+
 # Bug was being able to handle:
 #   except KeyError, e
 # vs 2.6+.
@@ -17,9 +20,12 @@
 
 try:
     value = "foo"
-except RuntimeError:
+
+# Test ensuring parens around (a, b, c) in
+# except_cond2 or except_cond3
+except RuntimeError, (a, b, c):
     # Test:
     #  raise_stmt3 ::= expr expr expr RAISE_VARARGS_3
-    raise 1, 2, 3
+    raise a, b, c
 except KeyError, e:
     raise RuntimeError('foo')
