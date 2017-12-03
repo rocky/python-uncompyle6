@@ -39,3 +39,24 @@ except SystemExit:
     x = 2
 except:
     x = 3
+
+# Try except in loops
+
+for i in (1, 2):
+    try:
+        x = 1
+    except ValueError:
+        y = 2
+
+for badarg in (2, 3):
+    try:
+        pass
+    except TypeError:
+        pass
+    except ValueError:
+        if badarg:
+            pass
+        else:
+            y = 3
+    else:
+        y = 4

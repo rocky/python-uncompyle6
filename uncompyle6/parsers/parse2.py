@@ -162,6 +162,7 @@ class Python2Parser(PythonParser):
 
         jmp_abs ::= JUMP_ABSOLUTE
         jmp_abs ::= JUMP_BACK
+        jmp_abs ::= CONTINUE
         '''
 
     def p_generator_exp2(self, args):
