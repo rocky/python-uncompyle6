@@ -48,7 +48,7 @@ class Python27Parser(Python2Parser):
                            COME_FROM_FINALLY suite_stmts_opt END_FINALLY
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           try_middle else_suite COME_FROM
+                           except_handler else_suite COME_FROM
 
         except_stmt ::= except_cond2 except_suite
 

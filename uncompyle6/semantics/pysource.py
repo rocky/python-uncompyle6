@@ -123,10 +123,11 @@ from uncompyle6.scanner import Code, get_scanner
 import uncompyle6.parser as python_parser
 from uncompyle6.semantics.make_function import (
     make_function2, make_function3, make_function3_annotate,
-    find_globals)
+    )
 from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.semantics.check_ast import checker
-from uncompyle6.semantics.helper import print_docstring
+from uncompyle6.semantics.helper import (
+    print_docstring, find_globals)
 from uncompyle6.scanners.tok import Token
 
 from uncompyle6.semantics.consts import (
@@ -1876,6 +1877,11 @@ class SourceWalker(GenericASTTraversal, object):
         self.default(node)
 
     n_unpack_w_parens = n_unpack
+
+    def n_load_attr(self, node):
+        if node[0] == 'LOAD_CONST':
+            node.kind = 'load_attr_w_parens'
+        self.default(node)
 
     def n_assign(self, node):
         # A horrible hack for Python 3.0 .. 3.2

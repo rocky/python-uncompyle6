@@ -27,17 +27,17 @@ class Python32Parser(Python3Parser):
         # jump_excepts. But in 3.3 we need them added
 
         try_except     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           try_middle
+                           except_handler
                            jump_excepts come_from_except_clauses
 
-        try_middle ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
-                       END_FINALLY
+        except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
+                           END_FINALLY
 
-        tryelsestmt ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                        try_middle else_suite
-                        jump_excepts come_from_except_clauses
+        tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                           except_handler else_suite
+                           jump_excepts come_from_except_clauses
 
-        jump_excepts ::= jump_except+
+        jump_excepts   ::= jump_except+
 
         # Python 3.2+ has more loop optimization that removes
         # JUMP_FORWARD in some cases, and hence we also don't
@@ -63,11 +63,11 @@ class Python32Parser(Python3Parser):
 
     def add_custom_rules(self, tokens, customize):
         self.remove_rules("""
-        try_middle     ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY COME_FROM
-        try_middle     ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY COME_FROM_EXCEPT
-        try_middle     ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts END_FINALLY COME_FROM_EXCEPT_CLAUSE
-        try_middle     ::= jmp_abs COME_FROM except_stmts END_FINALLY
-        tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK try_middle else_suite come_from_except_clauses
+        except_handler ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY COME_FROM
+        except_handler ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY COME_FROM_EXCEPT
+        except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts END_FINALLY COME_FROM_EXCEPT_CLAUSE
+        except_handler ::= jmp_abs COME_FROM except_stmts END_FINALLY
+        tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK except_handler else_suite come_from_except_clauses
         whileTruestmt  ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP COME_FROM_LOOP
         whileTruestmt  ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP COME_FROM_LOOP
         """)

@@ -1,7 +1,7 @@
 # From PyPy 2.7 argparse.py
 # PyPY reduces branches as a result of the return statement
-# So we need a new rules for try_except and try_middle which we
-# suffix with _pypy, e.g. try_except_pypy, and try_middle_pypy
+# So we need a new rules for try_except and except_handler which we
+# suffix with _pypy, e.g. try_except_pypy, and except_handler_pypy
 def call(self, string):
     try:
         return open(string, self, self._bufsize)

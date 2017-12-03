@@ -7,46 +7,12 @@ from xdis.code import iscode, code_has_star_arg, code_has_star_star_arg
 from uncompyle6.scanner import Code
 from uncompyle6.parsers.astnode import AST
 from uncompyle6.semantics.parser_error import ParserError
-from uncompyle6.semantics.helper import print_docstring
+from uncompyle6.semantics.helper import (
+    print_docstring, find_all_globals, find_globals, find_none
+    )
 
 
 from uncompyle6.show import maybe_show_ast_param_default
-
-def find_all_globals(node, globs):
-    """Find globals including LOAD_GLOBALs in this AST node."""
-    for n in node:
-        if isinstance(n, AST):
-            globs = find_all_globals(n, globs)
-        elif n.kind in frozenset(('STORE_GLOBAL', 'DELETE_GLOBAL', 'LOAD_GLOBAL')):
-            globs.add(n.pattr)
-    return globs
-
-mkfunc_globals = frozenset(('STORE_GLOBAL', 'DELETE_GLOBAL', 'LOAD_GLOBAL'))
-mklambda_globals = frozenset(('STORE_GLOBAL', 'DELETE_GLOBAL'))
-
-def find_globals(node, globs, global_ops=mkfunc_globals):
-    """Find globals in this statement."""
-    for n in node:
-        # print("XXX", n.kind, global_ops)
-        if isinstance(n, AST):
-            # FIXME: do I need a caser for n.kind="mkfunc"?
-            if n.kind in ("conditional_lambda", "return_lambda"):
-                globs = find_globals(n, globs, mklambda_globals)
-            else:
-                globs = find_globals(n, globs, global_ops)
-        elif n.kind in frozenset(global_ops):
-            globs.add(n.pattr)
-    return globs
-
-def find_none(node):
-    for n in node:
-        if isinstance(n, AST):
-            if n not in ('return_stmt', 'return_if_stmt'):
-                if find_none(n):
-                    return True
-        elif n.kind == 'LOAD_CONST' and n.pattr is None:
-            return True
-    return False
 
 # FIXME: DRY the below code...
 

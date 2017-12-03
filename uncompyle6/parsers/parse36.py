@@ -64,14 +64,14 @@ class Python36Parser(Python35Parser):
         # In 3.6+, A sequence of statements ending in a RETURN can cause
         # JUMP_FORWARD END_FINALLY to be omitted from try middle
 
-        except_return ::= POP_TOP POP_TOP POP_TOP return_stmts
-        try_middle    ::= JUMP_FORWARD COME_FROM_EXCEPT except_return
+        except_return    ::= POP_TOP POP_TOP POP_TOP return_stmts
+        except_handler   ::= JUMP_FORWARD COME_FROM_EXCEPT except_return
 
         # Try middle following a return_stmts
-        try_middle36    ::= COME_FROM_EXCEPT except_stmts END_FINALLY
+        except_handler36 ::= COME_FROM_EXCEPT except_stmts END_FINALLY
 
-        stmt         ::= try_except36
-        try_except36 ::= SETUP_EXCEPT return_stmts try_middle36 opt_come_from_except
+        stmt             ::= try_except36
+        try_except36     ::= SETUP_EXCEPT return_stmts except_handler36 opt_come_from_except
         """
 
     def add_custom_rules(self, tokens, customize):

@@ -19,3 +19,6 @@ x[0:3] += 1, 2, 3
 
 # Is not in chained compare
 x[0] is not x[1] is not x[2]
+
+# Method name is a constant, so we need parenthesis around it
+(1).__nonzero__() ==  1

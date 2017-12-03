@@ -1,4 +1,7 @@
 import sys
+
+from uncompyle6.parsers.astnode import AST
+
 from uncompyle6 import PYTHON3
 if PYTHON3:
     minint = -sys.maxsize-1
@@ -6,6 +9,53 @@ if PYTHON3:
 else:
     minint = -sys.maxint-1
     maxint = sys.maxint
+
+read_write_global_ops = frozenset(('STORE_GLOBAL', 'DELETE_GLOBAL', 'LOAD_GLOBAL'))
+read_global_ops       = frozenset(('STORE_GLOBAL', 'DELETE_GLOBAL'))
+
+# FIXME: this and find_globals could be paramaterized with one of the
+# above global ops
+def find_all_globals(node, globs):
+    """Search AST node to find variable names that are global."""
+    for n in node:
+        if isinstance(n, AST):
+            globs = find_all_globals(n, globs)
+        elif n.kind in read_write_global_ops:
+            globs.add(n.pattr)
+    return globs
+
+def find_globals(node, globs):
+    """search AST node to find variable names that need a 'global' added."""
+    for n in node:
+        if isinstance(n, AST):
+            globs = find_globals(n, globs)
+        elif n.kind in read_global_ops:
+            globs.add(n.pattr)
+    return globs
+
+# def find_globals(node, globs, global_ops=mkfunc_globals):
+#     """Find globals in this statement."""
+#     for n in node:
+#         # print("XXX", n.kind, global_ops)
+#         if isinstance(n, AST):
+#             # FIXME: do I need a caser for n.kind="mkfunc"?
+#             if n.kind in ("conditional_lambda", "return_lambda"):
+#                 globs = find_globals(n, globs, mklambda_globals)
+#             else:
+#                 globs = find_globals(n, globs, global_ops)
+#         elif n.kind in frozenset(global_ops):
+#             globs.add(n.pattr)
+#     return globs
+
+def find_none(node):
+    for n in node:
+        if isinstance(n, AST):
+            if n not in ('return_stmt', 'return_if_stmt'):
+                if find_none(n):
+                    return True
+        elif n.kind == 'LOAD_CONST' and n.pattr is None:
+            return True
+    return False
 
 def print_docstring(self, indent, docstring):
     try:

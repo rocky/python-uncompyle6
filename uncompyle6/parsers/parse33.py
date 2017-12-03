@@ -21,7 +21,7 @@ class Python33Parser(Python32Parser):
         # jump_excepts. But in 3.3 we need them added
 
         try_except  ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                        try_middle
+                        except_handler
                         jump_excepts come_from_except_clauses
         """
 

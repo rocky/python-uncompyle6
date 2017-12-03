@@ -204,6 +204,7 @@ See Also
 * `How to report a bug <https://github.com/rocky/python-uncompyle6/blob/master/HOW-TO-REPORT-A-BUG.md>`_
 * https://github.com/rocky/python-xdis : Cross Python version disassembler
 * https://github.com/rocky/python-xasm : Cross Python version assembler
+* https://github.com/rocky/python-uncompyle6/wiki : Wiki Documents which describe the code and aspects of it in more detail
 
 
 .. _trepan: https://pypi.python.org/pypi/trepan2
