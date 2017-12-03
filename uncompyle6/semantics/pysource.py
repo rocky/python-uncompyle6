@@ -110,8 +110,6 @@ Python.
 #   brackets, which makes the template_engine walk down to N[C] before
 #   evaluating the escape code.
 
-from __future__ import print_function
-
 import sys
 
 from uncompyle6 import PYTHON3
@@ -1075,7 +1073,10 @@ class SourceWalker(GenericASTTraversal, object):
                 return
             n = node[-1]
         elif node[-1] == 'del_stmt':
-            n = node[-3] if node[-2] == 'JUMP_BACK' else node[-2]
+            if node[-2] == 'JUMP_BACK':
+                n = node[-3]
+            else:
+                n = node[-2]
 
         assert n == 'list_iter'
 
@@ -1093,7 +1094,10 @@ class SourceWalker(GenericASTTraversal, object):
             list_iter = node[-1]
         else:
             expr = n[1]
-            list_iter = node[-3] if node[-2] == 'JUMP_BACK' else node[-2]
+            if node[-2] == 'JUMP_BACK':
+                list_iter = node[-3]
+            else:
+                list_iter = node[-2]
 
         assert expr == 'expr'
         assert list_iter == 'list_iter'
@@ -1144,7 +1148,10 @@ class SourceWalker(GenericASTTraversal, object):
         self.write( '[ ')
 
         expr = n[0]
-        list_iter = node[-2] if self.is_pypy and node[-1] == 'JUMP_BACK' else node[-1]
+        if self.is_pypy and node[-1] == 'JUMP_BACK':
+            list_iter = node[-2]
+        else:
+            list_iter = node[-1]
 
         assert expr == 'expr'
         assert list_iter == 'list_iter'
@@ -1218,7 +1225,10 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(' for ')
         self.preorder(ast[iter_index-1])
         self.write(' in ')
-        iter_expr = node[2] if node[2] == 'expr' else node[-3]
+        if node[2] == 'expr':
+            iter_expr = node[2]
+        else:
+            iter_expr = node[-3]
         assert iter_expr == 'expr'
         self.preorder(iter_expr)
         self.preorder(ast[iter_index])
@@ -1226,7 +1236,10 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_generator_exp(self, node):
         self.write('(')
-        code_index = -6 if self.version > 3.2 else -5
+        if self.version > 3.2:
+            code_index = -6
+        else:
+            code_index = -5
         self.comprehension_walk(node, iter_index=3, code_index=code_index)
         self.write(')')
         self.prune()
@@ -1469,7 +1482,10 @@ class SourceWalker(GenericASTTraversal, object):
                             break
                         pass
                     pass
-                subclass_info = node if node == 'classdefdeco2' else node[0]
+                if node == 'classdefdeco2':
+                    subclass_info = node
+                else:
+                    subclass_info = node[0]
             elif buildclass[1][0] == 'load_closure':
                 # Python 3 with closures not functions
                 load_closure = buildclass[1]
@@ -1496,7 +1512,10 @@ class SourceWalker(GenericASTTraversal, object):
                 subclass_code = buildclass[1][0].attr
                 subclass_info = node[0]
         else:
-            buildclass = node if (node == 'classdefdeco2') else node[0]
+            if node == 'classdefdeco2':
+                buildclass = node
+            else:
+                buildclass = node[0]
             build_list = buildclass[1][0]
             if hasattr(buildclass[-3][0], 'attr'):
                 subclass_code = buildclass[-3][0].attr
@@ -2338,7 +2357,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
 if __name__ == '__main__':
     def deparse_test(co):
         "This is a docstring"
-        sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
+        sys_version = float(sys.version[0:3])
         deparsed = deparse_code(sys_version, co, showasm='after', showast=True)
         # deparsed = deparse_code(sys_version, co, showasm=None, showast=False,
         #                         showgrammar=True)

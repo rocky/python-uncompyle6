@@ -182,19 +182,19 @@ check-bytecode-2.7:
 
 #: Check deparsing Python 3.0
 check-bytecode-3.0:
-	$(PYTHON) test_pythonlib.py --bytecode-3.0
+	$(PYTHON) test_pythonlib.py --bytecode-3.0 --weak-verify
 
 #: Check deparsing Python 3.1
 check-bytecode-3.1:
-	$(PYTHON) test_pythonlib.py --bytecode-3.1
+	$(PYTHON) test_pythonlib.py --bytecode-3.1 --weak-verify
 
 #: Check deparsing Python 3.2
 check-bytecode-3.2:
-	$(PYTHON) test_pythonlib.py --bytecode-3.2
+	$(PYTHON) test_pythonlib.py --bytecode-3.2 --weak-verify
 
 #: Check deparsing Python 3.3
 check-bytecode-3.3:
-	$(PYTHON) test_pythonlib.py --bytecode-3.3
+	$(PYTHON) test_pythonlib.py --bytecode-3.3 --weak-verify
 
 #: Check deparsing Python 3.4
 check-bytecode-3.4:
@@ -202,11 +202,11 @@ check-bytecode-3.4:
 
 #: Check deparsing Python 3.5
 check-bytecode-3.5:
-	$(PYTHON) test_pythonlib.py --bytecode-3.5
+	$(PYTHON) test_pythonlib.py --bytecode-3.5 --weak-verify
 
 #: Check deparsing Python 3.6
 check-bytecode-3.6:
-	$(PYTHON) test_pythonlib.py --bytecode-3.6
+	$(PYTHON) test_pythonlib.py --bytecode-3.6 --weak-verify
 
 #: short tests for bytecodes only for this version of Python
 check-native-short:

@@ -13,6 +13,7 @@ def print_docstring(self, indent, docstring):
             quote = '"""'
         else:
             quote = "'''"
+            docstring = docstring.replace("'''", "\\'''")
     except:
         return False
     self.write(indent)
