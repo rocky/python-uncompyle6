@@ -31,7 +31,7 @@ class PythonParser(GenericASTBuilder):
         # FIXME: customize per python parser version
         nt_list = [
             'stmts', 'except_stmts', '_stmts', 'load_attrs',
-            'exprlist', 'kvlist', 'kwargs', 'come_froms', '_come_from',
+            'exprlist', 'kvlist', 'kwargs', 'come_froms', '_come_froms',
             'importlist',
             # Python < 3
             'print_items',
@@ -304,9 +304,11 @@ class PythonParser(GenericASTBuilder):
         _jump ::= JUMP_FORWARD
         _jump ::= JUMP_BACK
 
-        # Zero or more COME_FROMs
-        # loops can have this
-        _come_from ::= COME_FROM*
+        # Zero or more COME_FROMs - loops can have this
+        _come_froms ::= COME_FROM*
+
+        # One or more COME_FROMs - joins of tryelse's have this
+        come_froms ::= COME_FROM+
 
         # Zero or one COME_FROM
         # And/or expressions have this
@@ -358,19 +360,19 @@ class PythonParser(GenericASTBuilder):
         """
         _for ::= GET_ITER FOR_ITER
 
-        for_block ::= l_stmts_opt _come_from JUMP_BACK
+        for_block ::= l_stmts_opt _come_froms JUMP_BACK
 
         forstmt ::= SETUP_LOOP expr _for store
-                for_block POP_BLOCK _come_from
+                for_block POP_BLOCK _come_froms
 
         forelsestmt ::= SETUP_LOOP expr _for store
-                for_block POP_BLOCK else_suite _come_from
+                for_block POP_BLOCK else_suite _come_froms
 
         forelselaststmt ::= SETUP_LOOP expr _for store
-                for_block POP_BLOCK else_suitec _come_from
+                for_block POP_BLOCK else_suitec _come_froms
 
         forelselaststmtl ::= SETUP_LOOP expr _for store
-                for_block POP_BLOCK else_suitel _come_from
+                for_block POP_BLOCK else_suitel _come_froms
         """
 
     def p_import20(self, args):
@@ -493,7 +495,7 @@ class PythonParser(GenericASTBuilder):
         compare_single ::= expr expr COMPARE_OP
 
         # A compare_chained is two comparisions like x <= y <= z
-        compare_chained  ::= expr compare_chained1 ROT_TWO POP_TOP _come_from
+        compare_chained  ::= expr compare_chained1 ROT_TWO POP_TOP _come_froms
         compare_chained2 ::= expr COMPARE_OP JUMP_FORWARD
 
         # Non-null kvlist items are broken out in the indiviual grammars
