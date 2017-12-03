@@ -129,24 +129,24 @@ class Python2Parser(PythonParser):
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
 
         # this is nested inside a try_except
-        tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
-                           POP_BLOCK LOAD_CONST
-                           COME_FROM suite_stmts_opt END_FINALLY
+        tryfinallystmt  ::= SETUP_FINALLY suite_stmts_opt
+                            POP_BLOCK LOAD_CONST
+                            COME_FROM suite_stmts_opt END_FINALLY
 
         # Move to 2.7? 2.6 may use come_froms
-        tryelsestmtc ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                         try_middle else_suitec COME_FROM
+        tryelsestmtc    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                            except_handler else_suitec COME_FROM
 
-        tryelsestmtl ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                         try_middle else_suitel COME_FROM
+        tryelsestmtl    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                            except_handler else_suitel COME_FROM
 
         try_except      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                         try_middle COME_FROM
+                            except_handler COME_FROM
 
-        try_middle   ::= JUMP_FORWARD COME_FROM except_stmts
-                         END_FINALLY COME_FROM
-        try_middle   ::= jmp_abs COME_FROM except_stmts
-                         END_FINALLY
+        except_handler  ::= JUMP_FORWARD COME_FROM except_stmts
+                            END_FINALLY COME_FROM
+        except_handler  ::= jmp_abs COME_FROM except_stmts
+                             END_FINALLY
 
         except_stmts ::= except_stmt+
 
@@ -415,8 +415,8 @@ class Python2Parser(PythonParser):
                 # always be the case.
                 self.add_unique_rules([
                     "stmt ::= try_except_pypy",
-                    "try_except_pypy ::= SETUP_EXCEPT suite_stmts_opt try_middle_pypy",
-                    "try_middle_pypy ::= COME_FROM except_stmts END_FINALLY COME_FROM"
+                    "try_except_pypy ::= SETUP_EXCEPT suite_stmts_opt except_handler_pypy",
+                    "except_handler_pypy ::= COME_FROM except_stmts END_FINALLY COME_FROM"
                     ], customize)
                 continue
             elif opname == 'SETUP_FINALLY':

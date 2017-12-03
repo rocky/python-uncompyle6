@@ -15,43 +15,43 @@ class Python26Parser(Python2Parser):
 
     def p_try_except26(self, args):
         """
-        except_stmt  ::= except_cond3 except_suite
-        except_cond1 ::= DUP_TOP expr COMPARE_OP
-                         JUMP_IF_FALSE POP_TOP POP_TOP POP_TOP POP_TOP
-        except_cond3 ::= DUP_TOP expr COMPARE_OP
-                         JUMP_IF_FALSE POP_TOP POP_TOP store POP_TOP
+        except_stmt    ::= except_cond3 except_suite
+        except_cond1   ::= DUP_TOP expr COMPARE_OP
+                           JUMP_IF_FALSE POP_TOP POP_TOP POP_TOP POP_TOP
+        except_cond3   ::= DUP_TOP expr COMPARE_OP
+                           JUMP_IF_FALSE POP_TOP POP_TOP store POP_TOP
 
-        try_middle   ::= JUMP_FORWARD COME_FROM except_stmts
-                         come_from_pop END_FINALLY come_froms
+        except_handler ::= JUMP_FORWARD COME_FROM except_stmts
+                           come_from_pop END_FINALLY come_froms
 
-        try_middle   ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY
-                         come_froms
+        except_handler ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY
+                           come_froms
 
-        try_middle   ::= jmp_abs COME_FROM except_stmts
-                         POP_TOP END_FINALLY
+        except_handler ::= jmp_abs COME_FROM except_stmts
+                           POP_TOP END_FINALLY
 
-        try_middle   ::= jmp_abs COME_FROM except_stmts
-                         END_FINALLY JUMP_FORWARD
+        except_handler ::= jmp_abs COME_FROM except_stmts
+                           END_FINALLY JUMP_FORWARD
 
         # Sometimes we don't put in COME_FROM to the next statement
         # like we do in 2.7. Perhaps we should?
-        try_except      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                            try_middle
+        try_except     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                            except_handler
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           try_middle else_suite COME_FROM
+                           except_handler else_suite COME_FROM
 
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM POP_TOP
+        _ifstmts_jump  ::= c_stmts_opt JUMP_FORWARD COME_FROM POP_TOP
 
-        except_suite ::= c_stmts_opt JUMP_FORWARD come_from_pop
-        except_suite ::= c_stmts_opt JUMP_FORWARD POP_TOP
-        except_suite ::= c_stmts_opt jmp_abs come_from_pop
+        except_suite   ::= c_stmts_opt JUMP_FORWARD come_from_pop
+        except_suite   ::= c_stmts_opt JUMP_FORWARD POP_TOP
+        except_suite   ::= c_stmts_opt jmp_abs come_from_pop
 
         # This is what happens after a jump where
         # we start a new block. For reasons I don't fully
         # understand, there is also a value on the top of the stack
         come_from_pop   ::=  COME_FROM POP_TOP
-        come_froms_pop ::= come_froms POP_TOP
+        come_froms_pop  ::= come_froms POP_TOP
         """
 
     # In contrast to Python 2.7, Python 2.6 has a lot of
