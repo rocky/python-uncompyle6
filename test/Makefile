@@ -137,14 +137,14 @@ grammar-coverage-2.7:
 
 #: Get grammar coverage for Python 3.0
 grammar-coverage-3.0:
-	-rm $(COVER_DIR)/spark-grammar-32.cover
+	-rm $(COVER_DIR)/spark-grammar-30.cover
 
 SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-30.cover $(PYTHON) test_pythonlib.py --bytecode-3.1
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-30.cover $(PYTHON) test_pyenvlib.py --3.0.1
 
 #: Get grammar coverage for Python 3.1
 grammar-coverage-3.1:
-	-rm $(COVER_DIR)/spark-grammar-32.cover
+	-rm $(COVER_DIR)/spark-grammar-31.cover
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-31.cover $(PYTHON) test_pythonlib.py --bytecode-3.1
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-31.cover $(PYTHON) test_pyenvlib.py --3.1.5
 
