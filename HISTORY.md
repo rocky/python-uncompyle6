@@ -64,14 +64,17 @@ success that his good work deserves.
 Dan Pascu did a bit of work from late 2004 to early 2006 to get this
 code to handle first Python 2.3 and then 2.4 bytecodes. Because of
 jump optimization introduced in the CPython bytecode compiler at that
-time, various JUMP instructions were classifed as going backwards, and
-COME FROM instructions were reintroduced.  See
+time, various JUMP instructions were classified to assist parsing For
+example, due to the way that code generation and line number table
+work, jump instructions to an earlier offset must be looping jumps,
+such as those found in a "continue" statement; "COME FROM"
+instructions were reintroduced.  See
 [RELEASE-2.4-CHANGELOG.txt](https://github.com/rocky/python-uncompyle6/blob/master/DECOMPYLE-2.4-CHANGELOG.txt)
-for more details here. There wasn't a public
-release of RELEASE-2.4 and bytecodes other than Python 2.4 weren't
-supported. Dan says the Python 2.3 version could verify the entire
-Python library. But given subsequent bugs found like simply
-recognizing complex-number constants in bytecode, decompilation wasn't perfect.
+for more details here. There wasn't a public release of RELEASE-2.4
+and bytecodes other than Python 2.4 weren't supported. Dan says the
+Python 2.3 version could verify the entire Python library. But given
+subsequent bugs found like simply recognizing complex-number constants
+in bytecode, decompilation wasn't perfect.
 
 Next we get to ["uncompyle" and
 PyPI](https://pypi.python.org/pypi/uncompyle/1.1) and the era of
@@ -109,18 +112,21 @@ Given this, perhaps it is not surprising that subsequent changes
 tended to shy away from using the built-in compiler technology
 mechanisms and addressed problems and extensions by some other means.
 
-Specifically, in `uncompyle`, decompilation of python bytecode 2.5 & 2.6
-is done by transforming the byte code into a pseudo-2.7 Python
-bytecode and is based on code from Eloi Vanderbeken.
+Specifically, in `uncompyle`, decompilation of python bytecode 2.5 &
+2.6 is done by transforming the byte code into a pseudo-2.7 Python
+bytecode and is based on code from Eloi Vanderbeken. A bit of this
+could have bene easily added by modifying grammar rules.
 
 This project, `uncompyle6`, abandons that approach for various
 reasons. Having a grammar per Python version is much cleaner and it
 scales indefinitely. That said, we don't have entire copies of the
 grammar, but work off of differences from some neighboring version.
-And this too I find helpful. Should there be a desire to rebase or
-start a new base version to work off of, say for some future Python
-version, that can be done by dumping a grammar for a specific version
-after it has been loaded incrementally.
+
+Should there be a desire to rebase or start a new base version to work
+off of, say for some future Python version, that can be done by
+dumping a grammar for a specific version after it has been loaded
+incrementally. You can get a full dump of the grammar by profiling the
+grammar on a large body of Python source code.
 
 Another problem with pseudo-2.7 bytecode is that that we need offsets
 in fragment deparsing to be exactly the same as the bytecode; the
@@ -163,24 +169,26 @@ Hartmut a decade an a half ago:
 This project deparses using an Earley-algorithm parse with lots of
 massaging of tokens and the grammar in the scanner
 phase. Earley-algorithm parsers are context free and tend to be linear
-if the grammar is LR or left recursive.
+if the grammar is LR or left recursive. There is a technique for
+improving LL right recursion, but our parser doesn't have that yet.
 
-Another approach that doesn't use grammars is to do something like
-simulate execution symbolically and build expression trees off of
-stack results. Control flow in that approach still needs to be handled
-somewhat ad hoc.  The two important projects that work this way are
-[unpyc3](https://code.google.com/p/unpyc3/) and most especially
-[pycdc](https://github.com/zrax/pycdc) The latter project is largely
-by Michael Hansen and Darryl Pogue. If they supported getting
-source-code fragments, did a better job in supporting Python more
-fully, and had a way I could call it from Python, I'd probably would
-have ditched this and used that. The code runs blindingly fast and
-spans all versions of Python, although more recently Python 3 support
-has been lagging. The code is impressive for its smallness given that
-it covers many versions of Python. However, I think it has reached a
-scalability issue, same as all the other efforts. For it to handle
-Python versions more accurately, I think it will need to have a lot
-more code specially which specialize for Python versions.
+Another approach to decompiling, and one that doesn't use grammars is
+to do something like simulate execution symbolically and build
+expression trees off of stack results. Control flow in that approach
+still needs to be handled somewhat ad hoc.  The two important projects
+that work this way are [unpyc3](https://code.google.com/p/unpyc3/) and
+most especially [pycdc](https://github.com/zrax/pycdc) The latter
+project is largely by Michael Hansen and Darryl Pogue. If they
+supported getting source-code fragments, did a better job in
+supporting Python more fully, and had a way I could call it from
+Python, I'd probably would have ditched this and used that. The code
+runs blindingly fast and spans all versions of Python, although more
+recently Python 3 support has been lagging. The code is impressive for
+its smallness given that it covers many versions of Python. However, I
+think it has reached a scalability issue, same as all the other
+efforts. To handle Python versions more accurately, I think that code
+base will need to have a lot more code specially which specializes for
+Python versions. And then it will run into a modularity problem.
 
 Tests for the project have been, or are being, culled from all of the
 projects mentioned. Quite a few have been added to improve grammar
@@ -190,11 +198,12 @@ If you think, as I am sure will happen in the future, "hey, I can just
 write a decompiler from scratch and not have to deal with all all of
 the complexity here", think again. What is likely to happen is that
 you'll get at best a 90% solution working for a single Python release
-that will be obsolete in about a year, and more obsolute each
+that will be obsolete in about a year, and more obsolete each
 subsequent year.  Writing a decompiler for Python gets harder as it
 Python progresses, so writing one for Python 3.7 isn't as easy as it
 was for Python 2.2.  That said, if you still feel you want to write a
-single version decompiler, talk to me. I may have some ideas.
+single version decompiler, look at the test cases in this project and
+talk to me. I may have some ideas.
 
 
 For a little bit of the history of changes to the Earley-algorithm parser,
