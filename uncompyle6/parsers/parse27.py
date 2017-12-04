@@ -85,7 +85,7 @@ class Python27Parser(Python2Parser):
         compare_chained2 ::= expr COMPARE_OP RETURN_VALUE
 
         # conditional_true are for conditions which always evaluate true
-        # There is dead or non-optional  remnants of the condition code though,
+        # There is dead or non-optional remnants of the condition code though,
         # and we use that to match on to reconstruct the source more accurately
         expr             ::= conditional_true
         conditional_true ::= expr JUMP_FORWARD expr COME_FROM

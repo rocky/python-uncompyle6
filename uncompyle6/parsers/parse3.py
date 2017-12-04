@@ -404,6 +404,12 @@ class Python3Parser(PythonParser):
         # a JUMP_FORWARD to another JUMP_FORWARD can get turned into
         # a JUMP_ABSOLUTE with no COME_FROM
         conditional    ::= expr jmp_false expr jump_absolute_else expr
+
+        # conditional_true are for conditions which always evaluate true
+        # There is dead or non-optional remnants of the condition code though,
+        # and we use that to match on to reconstruct the source more accurately
+        expr             ::= conditional_true
+        conditional_true ::= expr JUMP_FORWARD expr COME_FROM
         """
 
     @staticmethod
