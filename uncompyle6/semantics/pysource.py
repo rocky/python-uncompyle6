@@ -1082,9 +1082,10 @@ class SourceWalker(GenericASTTraversal, object):
 
         assert n == 'list_iter'
 
-        # find innermost node
+        # Find the list comprehension body. It is the inner-most
+        # node.
         while n == 'list_iter':
-            n = n[0] # recurse one step
+            n = n[0]  # iterate one nesting deeper
             if   n == 'list_for':	n = n[3]
             elif n == 'list_if':	n = n[2]
             elif n == 'list_if_not': n= n[2]
@@ -1140,9 +1141,10 @@ class SourceWalker(GenericASTTraversal, object):
         assert n == 'list_iter'
         assert store == 'store'
 
-        # find innermost node
+        # Find the list comprehension body. It is the inner-most
+        # node.
         while n == 'list_iter':
-            n = n[0] # recurse one step
+            n = n[0] # iterate one nesting deeper
             if   n == 'list_for':	n = n[3]
             elif n == 'list_if':	n = n[2]
             elif n == 'list_if_not': n= n[2]

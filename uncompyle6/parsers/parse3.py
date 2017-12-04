@@ -41,6 +41,8 @@ class Python3Parser(PythonParser):
         comp_for ::= expr _for store comp_iter CONTINUE
         comp_for ::= expr _for store comp_iter JUMP_BACK
 
+        list_comp ::= BUILD_LIST_0 list_iter
+        lc_body   ::= expr LIST_APPEND
         list_for ::= expr FOR_ITER store list_iter jb_or_c
 
         # This is seen in PyPy, but possibly it appears on other Python 3?
@@ -757,20 +759,25 @@ class Python3Parser(PythonParser):
                         ('kwarg ' * args_kw) +
                         'expr ' * nak + opname)
                 self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname == 'DELETE_DEREF':
+                self.addRule("""
+                   stmt           ::= del_deref_stmt
+                   del_deref_stmt ::= DELETE_DEREF
+                   """, nop_func)
             elif opname == 'JUMP_IF_NOT_DEBUG':
                 v = token.attr
-                self.add_unique_rule(
-                    "stmt ::= assert_pypy", opname, v, customize)
-                self.add_unique_rule(
-                    "stmt ::= assert2_pypy", opname_base, v, customize)
-                self.add_unique_rule(
-                    "assert_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true "
-                    "LOAD_ASSERT RAISE_VARARGS_1 COME_FROM",
-                    opname, token.attr, customize)
-                self.add_unique_rule(
-                    "assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true "
-                    "LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1 COME_FROM",
-                    opname_base, v, customize)
+                self.addRule("""
+                    stmt        ::= assert_pypy
+                    stmt        ::= assert2_pypy", nop_func)
+                    assert_pypy ::=  JUMP_IF_NOT_DEBUG assert_expr jmp_true
+                                     LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
+                    assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true
+                                     LOAD_ASSERT expr CALL_FUNCTION_1
+                                     RAISE_VARARGS_1 COME_FROM
+                    assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true
+                                     LOAD_ASSERT expr CALL_FUNCTION_1
+                                     RAISE_VARARGS_1 COME_FROM,
+                    """, nop_func)
                 continue
             elif opname == 'LOAD_BUILD_CLASS':
                 seen_LOAD_BUILD_CLASS = True

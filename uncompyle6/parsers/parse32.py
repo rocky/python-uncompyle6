@@ -47,11 +47,6 @@ class Python32Parser(Python3Parser):
         _ifstmts_jump ::= c_stmts_opt
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_froms
 
-        stmt           ::= del_deref_stmt
-        del_deref_stmt ::= DELETE_DEREF
-
-        list_comp ::= BUILD_LIST_0 list_iter
-        lc_body   ::= expr LIST_APPEND
         kv3       ::= expr expr STORE_MAP
         """
     pass
