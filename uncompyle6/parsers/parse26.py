@@ -269,7 +269,7 @@ class Python26Parser(Python2Parser):
                                return_stmt_lambda LAMBDA_MARKER
 
         # conditional_true are for conditions which always evaluate true
-        # There is dead or non-optional  remnants of the condition code though,
+        # There is dead or non-optional remnants of the condition code though,
         # and we use that to match on to reconstruct the source more accurately
         expr               ::= conditional_true
         conditional_true   ::= expr jf_pop expr COME_FROM
