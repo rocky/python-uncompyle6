@@ -44,7 +44,7 @@ class Python26Parser(Python2Parser):
         _ifstmts_jump  ::= c_stmts_opt JUMP_FORWARD COME_FROM POP_TOP
 
         except_suite   ::= c_stmts_opt JUMP_FORWARD come_from_pop
-        except_suite   ::= c_stmts_opt JUMP_FORWARD POP_TOP
+        except_suite   ::= c_stmts_opt jf_pop
         except_suite   ::= c_stmts_opt jmp_abs come_from_pop
 
         # This is what happens after a jump where
@@ -68,6 +68,7 @@ class Python26Parser(Python2Parser):
         jmp_false    ::= JUMP_IF_FALSE POP_TOP
 
         jb_pop       ::= JUMP_BACK POP_TOP
+        jf_pop       ::= JUMP_FORWARD POP_TOP
 
         jb_cont      ::= JUMP_BACK
         jb_cont      ::= CONTINUE
@@ -84,7 +85,7 @@ class Python26Parser(Python2Parser):
         cf_jb_cf_pop ::= _come_froms JUMP_BACK come_froms POP_TOP
 
         bp_come_from    ::= POP_BLOCK COME_FROM
-        jb_bp_come_from ::= JUMP_BACK bp_come_from
+        jb_pb_come_from ::= JUMP_BACK bp_come_from
 
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM POP_TOP
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD come_froms POP_TOP COME_FROM
@@ -183,10 +184,20 @@ class Python26Parser(Python2Parser):
 
         # The JUMP FORWARD below jumps to the JUMP BACK. It seems to happen
         # in rare cases that may have to with length of code
+        # FIXME: we can add a reduction check for this
+
         list_for ::= expr _for store list_iter JUMP_FORWARD come_froms POP_TOP
                      COME_FROM JUMP_BACK
 
         list_for ::= expr _for store list_iter jb_cont
+
+        # This is for a really funky:
+        #   [  x for x in range(10) if x % 2 if x % 3 ]
+        # the JUMP_ABSOLUTE is to the instruction after the last POP_TOP
+        #  we have a reduction check for this
+
+        list_for ::= expr _for store list_iter JUMP_ABSOLUTE come_froms
+                     POP_TOP jb_pop
 
         list_iter  ::= list_if JUMP_BACK
         list_iter  ::= list_if JUMP_BACK COME_FROM POP_TOP
@@ -197,17 +208,27 @@ class Python26Parser(Python2Parser):
         lc_body    ::= LOAD_NAME expr LIST_APPEND
 	lc_body    ::= LOAD_FAST expr LIST_APPEND
 
-        comp_for ::= SETUP_LOOP expr _for store comp_iter jb_bp_come_from
+        comp_for ::= SETUP_LOOP expr _for store comp_iter jb_pb_come_from
 
         comp_body ::= gen_comp_body
 
         for_block ::= l_stmts_opt _come_froms POP_TOP JUMP_BACK
 
         # Make sure we keep indices the same as 2.7
+
         setup_loop_lf ::= SETUP_LOOP LOAD_FAST
-        genexpr_func ::= setup_loop_lf FOR_ITER store comp_iter jb_bp_come_from
+        genexpr_func ::= setup_loop_lf FOR_ITER store comp_iter jb_pb_come_from
         genexpr_func ::= setup_loop_lf FOR_ITER store comp_iter JUMP_BACK come_from_pop
-                         jb_bp_come_from
+                         jb_pb_come_from
+
+        # This is for a really funky:
+        #   (x for x in range(10) if x % 2 if x % 3 )
+        # the JUMP_ABSOLUTE is to the instruction after the last POP_TOP.
+        # Add a reduction check for this?
+
+        genexpr_func ::= setup_loop_lf FOR_ITER store comp_iter JUMP_ABSOLUTE come_froms
+                         POP_TOP jb_pop jb_pb_come_from
+
         generator_exp ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1 COME_FROM
         list_if ::= list_if ::= expr jmp_false_then list_iter
         '''
@@ -246,6 +267,21 @@ class Python26Parser(Python2Parser):
         stmt               ::= conditional_lambda
         conditional_lambda ::= expr jmp_false_then expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
+
+        # conditional_true are for conditions which always evaluate true
+        # There is dead or non-optional  remnants of the condition code though,
+        # and we use that to match on to reconstruct the source more accurately
+        expr               ::= conditional_true
+        conditional_true   ::= expr jf_pop expr COME_FROM
+
+        # This comes from
+        #   0 or max(5, 3) if 0 else 3
+        # where there seems to be an additional COME_FROM at the
+        # end. Not sure if this is appropriately named or
+        # is the best way to handle
+        expr               ::= conditional_false
+        conditional_false  ::= conditional COME_FROM
+
         """
 
     def add_custom_rules(self, tokens, customize):
@@ -256,6 +292,7 @@ class Python26Parser(Python2Parser):
         """)
         super(Python26Parser, self).add_custom_rules(tokens, customize)
         self.check_reduce['and'] = 'AST'
+        self.check_reduce['list_for'] = 'AST'
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python26Parser,
@@ -275,6 +312,13 @@ class Python26Parser(Python2Parser):
             jmp_target = jmp_false.offset + jmp_false.attr + 3
             return not (jmp_target == tokens[last].offset or
                         tokens[last].pattr == jmp_false.pattr)
+        elif rule == (
+                'list_for',
+                ('expr', '_for', 'store', 'list_iter',
+                 'JUMP_ABSOLUTE', 'come_froms', 'POP_TOP', 'jb_pop')):
+            # The JUMP_ABSOLUTE has to be to the last POP_TOP or this is invalid
+            ja_attr = ast[4].attr
+            return tokens[last].offset != ja_attr
         return False
 class Python26ParserSingle(Python2Parser, PythonParserSingle):
     pass

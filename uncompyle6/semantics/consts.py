@@ -192,7 +192,7 @@ TABLE_DIRECT = {
     'or':           	( '%c or %c', 0, 2 ),
     'ret_or':           ( '%c or %c', 0, 2 ),
     'conditional':      ( '%p if %p else %p', (2, 27), (0, 27), (4, 27) ),
-    'conditionalTrue':  ( '%p if 1 else %p', (0, 27), (2, 27) ),
+    'conditional_true': ( '%p if 1 else %p', (0, 27), (2, 27) ),
     'ret_cond':         ( '%p if %p else %p', (2, 27), (0, 27), (-1, 27) ),
     'conditionalnot':   ( '%p if not %p else %p', (2, 27), (0, 22), (4, 27) ),
     'ret_cond_not':     ( '%p if not %p else %p', (2, 27), (0, 22), (-1, 27) ),

@@ -62,7 +62,6 @@ case $PYVERSION in
 	    [test_ftplib.py]=1  # Control flow?
 	    [test_funcattrs.py]=1  # Control flow?
 	    [test_future4.py]=1  # Possible additional rule for future mechanism?
-	    [test_grammar.py]=1  # Syntax error -- look at
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_queue.py]=1 # Control flow?
