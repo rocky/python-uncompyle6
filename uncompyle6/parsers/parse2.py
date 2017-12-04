@@ -224,8 +224,8 @@ class Python2Parser(PythonParser):
         Here, we add additional rules based on specific instructions
         that are in the instruction/token stream.
 
-        For example if we see a pretty rare DELETE_DEREF instruction we'll
-        add the grammar for that.
+        For example if we see a pretty rare JUMP_IF_NOT_DEBUG
+        instruction we'll add the grammar for that.
 
         More importantly, here we add grammar rules for instructions
         that may access a variable number of stack items. CALL_FUNCTION,
@@ -234,6 +234,7 @@ class Python2Parser(PythonParser):
         Without custom rules, there can be an super-exponential number of
         derivations. See the deparsing paper for an elaboration of
         this.
+
         """
 
         if 'PyPy' in customize:
