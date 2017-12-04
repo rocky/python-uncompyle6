@@ -538,74 +538,31 @@ class Python3Parser(PythonParser):
         self.add_unique_rule(new_rule, opname, attr, customize)
 
     def add_custom_rules(self, tokens, customize):
+        """The base grammar we start out for a Python version even with the
+        subclassing is, well, is pretty base.  And we want it that way: lean and
+        mean so that parsing will go faster.
+
+        Here, we add additional rules based on specific instructions
+        that are in the instruction/token stream.
+
+        For example if we see a pretty rare DELETE_DEREF instruction we'll
+        add the grammar for that.
+
+        More importantly, here we add grammar rules for instructions
+        that may access a variable number of stack items. CALL_FUNCTION,
+        BUILD_LIST and so on are like this.
+
+        Without custom rules, there can be an super-exponential number of
+        derivations. See the deparsing paper for an elaboration of
+        this.
         """
-        Special handling for opcodes such as those that take a variable number
-        of arguments -- we add a new rule for each:
 
-            unpack_list ::= UNPACK_LIST_n {expr}^n
-            unpack      ::= UNPACK_TUPLE_n {expr}^n
-            unpack      ::= UNPACK_SEQEUENCE_n {expr}^n
-            unpack_ex ::=   UNPACK_EX_b_a {expr}^(a+b)
+        # For a rough break out on the first word. This may
+        # include instructions that don't need customization,
+        # but we'll do a finer check after the rough breakout.
+        customize_instruction_basenames = frozenset(
+            ('BUILD', 'CALL', 'DELETE', 'JUMP', 'LOAD', 'LOOKUP', 'MAKE', 'UNPACK'))
 
-            # build_class (see load_build_class)
-
-            # Even the below say _list, in the semantic rules we
-            # disambiguate tuples, and sets from lists
-
-            list ::= {expr}^n BUILD_LIST_n
-            list ::= {expr}^n BUILD_TUPLE_n
-            list ::= {expr}^n BUILD_LIST_UNPACK_n
-            list ::= {expr}^n BUILD_TUPLE_UNPACK_n
-
-            # FIXME:
-              list  ::= {expr}^n BUILD_SET_n
-              list  ::= {expr}^n BUILD_SET_UNPACK_n
-            should be
-              build_set  ::= {expr}^n BUILD_SET_n
-              build_set  ::= {expr}^n BUILD_SET_UNPACK_n
-
-            load_closure  ::= {LOAD_CLOSURE}^n BUILD_TUPLE_n
-            # call (see custom_classfunc_rule)
-
-            # ------------
-            # Python <= 3.2 omits LOAD_CONST before MAKE_
-            # Note: are the below specific instances of a more general case?
-            # ------------
-
-            # Is there something more general than this? adding pos_arg?
-            # Is there something corresponding using MAKE_CLOSURE?
-            dict_comp ::= LOAD_DICTCOMP [LOAD_CONST] MAKE_FUNCTION_0 expr
-                          GET_ITER CALL_FUNCTION_1
-
-            generator_exp  ::= {pos_arg}^n load_genexpr [LOAD_CONST] MAKE_FUNCTION_n expr
-                           GET_ITER CALL_FUNCTION_1
-            generator_exp  ::= {expr}^n load_closure LOAD_GENEXPR [LOAD_CONST]
-                          MAKE_CLOSURE_n expr GET_ITER CALL_FUNCTION_1
-            listcomp ::= {pos_arg}^n LOAD_LISTCOMP [LOAD_CONST] MAKE_CLOSURE_n expr
-                           GET_ITER CALL_FUNCTION_1
-            listcomp ::= {pos_arg}^n load_closure LOAD_LISTCOMP [LOAD_CONST]
-                           MAKE_CLOSURE_n expr GET_ITER CALL_FUNCTION_1
-
-            # Is there something more general than this? adding pos_arg?
-            # Is there something corresponding using MAKE_CLOSURE?
-            For example:
-            # set_comp ::= {pos_arg}^n LOAD_SETCOMP [LOAD_CONST] MAKE_CLOSURE_n
-                        GET_ITER CALL_FUNCTION_1
-
-            set_comp  ::= LOAD_SETCOMP [LOAD_CONST] MAKE_FUNCTION_0 expr
-                           GET_ITER CALL_FUNCTION_1
-            set_comp  ::= {pos_arg}^n load_closure LOAD_SETCOMP [LOAD_CONST]
-                           MAKE_CLOSURE_n expr GET_ITER CALL_FUNCTION_1
-
-            mkfunc   ::= {pos_arg}^n load_closure [LOAD_CONST] MAKE_FUNCTION_n
-            mkfunc   ::= {pos_arg}^n load_closure [LOAD_CONST] MAKE_CLOSURE_n
-            mkfunc   ::= {pos_arg}^n [LOAD_CONST] MAKE_FUNCTION_n
-            mklambda ::= {pos_arg}^n LOAD_LAMBDA [LOAD_CONST] MAKE_FUNCTION_n
-
-        For PYPY:
-            attribute ::= expr LOOKUP_METHOD
-            call ::= expr CALL_METHOD
-        """
         is_pypy               = False
         seen_LOAD_BUILD_CLASS = False
         seen_GET_AWAITABLE_YIELD_FROM = False
@@ -643,8 +600,13 @@ class Python3Parser(PythonParser):
 
         for i, token in enumerate(tokens):
             opname = token.kind
-            opname_base = opname[:opname.rfind('_')]
 
+            # Do a quick breakout before testing potentially
+            # each of the dozen or so instruction in if elif.
+            if opname[:opname.find('_')] not in customize_instruction_basenames:
+                continue
+
+            opname_base = opname[:opname.rfind('_')]
             # The order of opname listed is roughly sorted below
             if opname_base == 'BUILD_CONST_KEY_MAP':
                 # This is in 3.6+

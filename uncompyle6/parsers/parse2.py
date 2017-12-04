@@ -217,28 +217,23 @@ class Python2Parser(PythonParser):
         """
 
     def add_custom_rules(self, tokens, customize):
-        """
-        Special handling for opcodes such as those that take a variable number
-        of arguments -- we add a new rule for each:
+        """The base grammar we start out for a Python version even with the
+        subclassing is, well, is pretty base.  And we want it that way: lean and
+        mean so that parsing will go faster.
 
-            list        ::= {expr}^n BUILD_LIST_n
-            list        ::= {expr}^n BUILD_TUPLE_n
-            unpack_list ::= UNPACK_LIST {expr}^n
-            unpack      ::= UNPACK_TUPLE {expr}^n
-            unpack      ::= UNPACK_SEQEUENCE {expr}^n
+        Here, we add additional rules based on specific instructions
+        that are in the instruction/token stream.
 
-            build_set  ::= {expr}^n BUILD_SET_n
-            build_set  ::= {expr}^n BUILD_SET_UNPACK_n
+        For example if we see a pretty rare DELETE_DEREF instruction we'll
+        add the grammar for that.
 
-            mkfunc      ::= {expr}^n LOAD_CONST MAKE_FUNCTION_n
-            mklambda    ::= {expr}^n LOAD_LAMBDA MAKE_FUNCTION_n
-            mkfunc      ::= {expr}^n load_closure LOAD_CONST MAKE_FUNCTION_n
-            expr ::= expr {expr}^n CALL_FUNCTION_n
-            expr ::= expr {expr}^n CALL_FUNCTION_VAR_n POP_TOP
-            expr ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n POP_TOP
-            expr ::= expr {expr}^n CALL_FUNCTION_KW_n POP_TOP
+        More importantly, here we add grammar rules for instructions
+        that may access a variable number of stack items. CALL_FUNCTION,
+        BUILD_LIST and so on are like this.
 
-        PyPy adds custom rules here as well
+        Without custom rules, there can be an super-exponential number of
+        derivations. See the deparsing paper for an elaboration of
+        this.
         """
 
         if 'PyPy' in customize:
@@ -251,6 +246,17 @@ class Python2Parser(PythonParser):
                         list_comp    ::= expr  BUILD_LIST_FROM_ARG _for store list_iter
                                          JUMP_BACK
                         """, nop_func)
+
+        # Refactor the FIXME below and use the list below
+        # # For a rough break out on the first word. This may
+        # # include instructions that don't need customization,
+        # # but we'll do a finer check after the rough breakout.
+        # customize_instruction_basenames = frozenset(
+        #     ('BUILD',     'CALL',         'CONTINUE_LOOP', 'DELETE',
+        #      'EXEC_STMT', 'JUMP',         'LOAD',          'LOOKUP',
+        #      'MAKE',      'SETUP_EXCEPT', 'SETUP_FINALLY',
+        #      'UNPACK'))
+
         for i, token in enumerate(tokens):
             opname = token.kind
             # FIXME: remove the "v" thing in the code below
