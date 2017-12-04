@@ -167,7 +167,7 @@ TABLE_DIRECT = {
     'list_for':		    ( ' for %c in %c%c', 2, 0, 3 ),
     'list_if':		    ( ' if %c%c', 0, 2 ),
     'list_if_not':		( ' if not %p%c', (0, 22), 2 ),
-    'lc_body':		    ( '', ),	# ignore when recusing
+    'lc_body':		    ( '', ),	# ignore when recursing
 
     'comp_iter':	    ( '%c', 0 ),
     'comp_if':		    ( ' if %c%c', 0, 2 ),
