@@ -38,6 +38,7 @@ case $PYVERSION in
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_extcall.py]=1  # TypeError: saboteur() takes no arguments (1 given)
 	    [test_format.py]=1   # Control flow?
+	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_long_future.py]=1 # Control flow?
 	    [test_math.py]=1 # Control flow?
@@ -76,7 +77,7 @@ case $PYVERSION in
 	    [test_descr.py]=1 # syntax error look at
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_future4.py]=1  # Possible additional rule for future mechanism?
-	    [test_grammar.py]=1  # Long test look at
+	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
 	    [test_importlib.py]=1  # Control flow?
         )
 	;;
