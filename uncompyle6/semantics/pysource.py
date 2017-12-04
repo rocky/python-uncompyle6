@@ -1083,7 +1083,7 @@ class SourceWalker(GenericASTTraversal, object):
         assert n == 'list_iter'
 
         # Find the list comprehension body. It is the inner-most
-        # node.
+        # node that is not list_.. .
         while n == 'list_iter':
             n = n[0]  # iterate one nesting deeper
             if   n == 'list_for':	n = n[3]
@@ -1210,7 +1210,8 @@ class SourceWalker(GenericASTTraversal, object):
         n = ast[iter_index]
         assert n == 'comp_iter', n
 
-        # find innermost node
+        # Find the comprehension body. It is the inner-most
+        # node that is not list_.. .
         while n == 'comp_iter': # list_iter
             n = n[0] # recurse one step
             if n == 'comp_for':
@@ -1293,7 +1294,8 @@ class SourceWalker(GenericASTTraversal, object):
 
         # FIXME: I'm not totally sure this is right.
 
-        # find innermost node
+        # Find the list comprehension body. It is the inner-most
+        # node that is not list_.. .
         if_node = None
         comp_for = None
         comp_store = None
@@ -1303,7 +1305,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         have_not = False
         while n in ('list_iter', 'comp_iter'):
-            n = n[0] # recurse one step
+            n = n[0] # iterate one nesting deeper
             if n in ('list_for', 'comp_for'):
                 if n[2] == 'store':
                     store = n[2]
@@ -1329,8 +1331,20 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             self.preorder(store)
 
+        # FIXME this is all merely approximate
+        # from trepan.api import debug; debug()
         self.write(' in ')
         self.preorder(node[-3])
+
+        if ast == 'list_comp':
+            list_iter = ast[1]
+            assert list_iter == 'list_iter'
+            if list_iter == 'list_for':
+                self.preorder(list_iter[3])
+                self.prec = p
+                return
+            pass
+
         if comp_store:
             self.preorder(comp_for)
         elif if_node:
@@ -1338,6 +1352,7 @@ class SourceWalker(GenericASTTraversal, object):
             if have_not:
                 self.write('not ')
             self.preorder(if_node)
+            pass
         self.prec = p
 
     def listcomprehension_walk2(self, node):
