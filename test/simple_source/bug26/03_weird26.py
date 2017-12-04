@@ -6,5 +6,7 @@
 [ x for x in range(10) if x % 2 if x % 3 ]
 list(x for x in range(10) if x % 2 if x % 3)
 
-# FIXME
-# (5 if 1 else max(5, 2))
+# expresion which evaluates True unconditionally,
+# but leave dead code or junk around that we have to match on.
+# Tests "conditional_true" rule
+(5 if 1 else max(5, 2))

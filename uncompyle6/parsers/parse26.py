@@ -44,7 +44,7 @@ class Python26Parser(Python2Parser):
         _ifstmts_jump  ::= c_stmts_opt JUMP_FORWARD COME_FROM POP_TOP
 
         except_suite   ::= c_stmts_opt JUMP_FORWARD come_from_pop
-        except_suite   ::= c_stmts_opt JUMP_FORWARD POP_TOP
+        except_suite   ::= c_stmts_opt jf_pop
         except_suite   ::= c_stmts_opt jmp_abs come_from_pop
 
         # This is what happens after a jump where
@@ -68,6 +68,7 @@ class Python26Parser(Python2Parser):
         jmp_false    ::= JUMP_IF_FALSE POP_TOP
 
         jb_pop       ::= JUMP_BACK POP_TOP
+        jf_pop       ::= JUMP_FORWARD POP_TOP
 
         jb_cont      ::= JUMP_BACK
         jb_cont      ::= CONTINUE
@@ -266,6 +267,21 @@ class Python26Parser(Python2Parser):
         stmt               ::= conditional_lambda
         conditional_lambda ::= expr jmp_false_then expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
+
+        # conditional_true are for conditions which always evaluate true
+        # There is dead or non-optional  remnants of the condition code though,
+        # and we use that to match on to reconstruct the source more accurately
+        expr               ::= conditional_true
+        conditional_true   ::= expr jf_pop expr COME_FROM
+
+        # This comes from
+        #   0 or max(5, 3) if 0 else 3
+        # where there seems to be an additional COME_FROM at the
+        # end. Not sure if this is appropriately named or
+        # is the best way to handle
+        expr               ::= conditional_false
+        conditional_false  ::= conditional COME_FROM
+
         """
 
     def add_custom_rules(self, tokens, customize):
@@ -299,7 +315,7 @@ class Python26Parser(Python2Parser):
         elif rule == (
                 'list_for',
                 ('expr', '_for', 'store', 'list_iter',
-                 'JUMP_ABSOLUTE', 'come_froms', 'POP_TOP', 'JUMP_BACK', 'POP_TOP')):
+                 'JUMP_ABSOLUTE', 'come_froms', 'POP_TOP', 'jb_pop')):
             # The JUMP_ABSOLUTE has to be to the last POP_TOP or this is invalid
             ja_attr = ast[4].attr
             return tokens[last].offset != ja_attr
