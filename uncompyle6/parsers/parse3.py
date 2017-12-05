@@ -455,8 +455,7 @@ class Python3Parser(PythonParser):
         # Different situations? Note that the above rule is based on the CALL_FUNCTION
         # token found, while this one doesn't.
         call_function = self.call_fn_name(call_fn_tok)
-        args_pos = call_fn_tok.attr & 0xff
-        args_kw = (call_fn_tok.attr >> 8) & 0xff
+        args_pos, args_kw = self.get_pos_kw(call_fn_tok)
         rule = ("build_class ::= LOAD_BUILD_CLASS mkfunc %s"
                 "%s" % (('expr ' * (args_pos - 1) + ('kwarg ' * args_kw)),
                         call_function))
@@ -474,12 +473,7 @@ class Python3Parser(PythonParser):
 
         classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc {expr}^n-1 CALL_FUNCTION_n
         """
-        # Low byte indicates number of positional paramters,
-        # high byte number of positional parameters
-        args_pos = token.attr & 0xff
-        args_kw = (token.attr >> 8) & 0xff
-        args_kw = (token.attr >> 8) & 0xff
-        # args_ann = (token.attr >> 16) & 0x7FFF
+        args_pos, args_kw = self.get_pos_kw(token)
 
         # Additional exprs for * and ** args:
         #  0 if neither
@@ -536,6 +530,16 @@ class Python3Parser(PythonParser):
         """
         new_rule = rule % (('LOAD_CONST ') * (1 if  self.version >= 3.3 else 0))
         self.add_unique_rule(new_rule, opname, attr, customize)
+
+    def get_pos_kw(self, token):
+        """Return then the number of positional parameters and
+        represented by the attr field of token"""
+        # Low byte indicates number of positional paramters,
+        # high byte number of keyword parameters
+        args_pos = token.attr & 0xff
+        args_kw = (token.attr >> 8) & 0xff
+        return args_pos, args_kw
+
 
     def add_custom_rules(self, tokens, customize):
         """The base grammar we start out for a Python version even with the
@@ -713,9 +717,7 @@ class Python3Parser(PythonParser):
             elif opname_base == 'CALL_METHOD':
                 # PyPy only - DRY with parse2
 
-                # FIXME: The below argument parsing will be wrong when PyPy gets to 3.6
-                args_pos = (token.attr & 0xff)          # positional parameters
-                args_kw = (token.attr >> 8) & 0xff      # keyword parameters
+                args_pos, args_kw = self.get_pos_kw(token)
 
                 # number of apply equiv arguments:
                 nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
@@ -780,6 +782,7 @@ class Python3Parser(PythonParser):
             elif opname.startswith('MAKE_CLOSURE'):
                 # DRY with MAKE_FUNCTION
                 # Note: this probably doesn't handle kwargs proprerly
+
                 args_pos, args_kw, annotate_args  = token.attr
 
                 # FIXME: Fold test  into add_make_function_rule
@@ -813,17 +816,22 @@ class Python3Parser(PythonParser):
                                                  'expr GET_ITER CALL_FUNCTION_1' %
                                                  ('pos_arg '* args_pos, opname),
                                                  opname, token.attr, customize)
-                # FIXME: kwarg processing is missing here.
+
+                if args_kw > 0:
+                    kwargs_str = 'kwargs '
+                else:
+                    kwargs_str = ''
+
                 # Note order of kwargs and pos args changed between 3.3-3.4
                 if self.version <= 3.2:
-                    rule = ('mkfunc ::= kwargs %sload_closure LOAD_CONST kwargs %s'
-                            % ('expr ' * args_pos, opname))
+                    rule = ('mkfunc ::= %sload_closure LOAD_CONST kwargs %s'
+                            % (kwargs_str, ('expr ' * args_pos, opname)))
                 elif self.version == 3.3:
-                    rule = ('mkfunc ::= kwargs %sload_closure LOAD_CONST LOAD_CONST %s'
-                            % ('expr ' * args_pos, opname))
+                    rule = ('mkfunc ::= %s%sload_closure LOAD_CONST LOAD_CONST %s'
+                            % (kwargs_str, 'expr ' * args_pos, opname))
                 elif self.version >= 3.4:
-                    rule = ('mkfunc ::= %skwargs load_closure LOAD_CONST LOAD_CONST %s'
-                            % ('expr ' * args_pos, opname))
+                    rule = ('mkfunc ::= %s%s load_closure LOAD_CONST LOAD_CONST %s'
+                            % ('expr ' * args_pos, kwargs_str, opname))
 
                 self.add_unique_rule(rule, opname, token.attr, customize)
                 rule = ('mkfunc ::= %sload_closure load_genexpr %s'
@@ -866,12 +874,17 @@ class Python3Parser(PythonParser):
                                      opname))
                         self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                     continue
+
                 if self.version < 3.6:
                     args_pos, args_kw, annotate_args  = token.attr
                 else:
                     args_pos, args_kw, annotate_args, closure  = token.attr
 
-                j = 1 if self.version < 3.3 else 2
+                if self.version < 3.3:
+                    j = 1
+                else:
+                    j = 2
+
                 if has_get_iter_call_function1:
                     rule_pat = ("generator_exp ::= %sload_genexpr %%s%s expr "
                                 "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
