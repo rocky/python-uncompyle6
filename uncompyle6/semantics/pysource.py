@@ -650,7 +650,6 @@ class SourceWalker(GenericASTTraversal, object):
             out = out[:-self.pending_newlines]
         if (isinstance(out, str) and
              not (PYTHON3 or self.FUTURE_UNICODE_LITERALS)):
-            from trepan.api import debug; debug()
             out = unicode(out, 'utf-8')
         self.f.write(out)
 
