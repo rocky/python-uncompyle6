@@ -98,14 +98,6 @@ class Python3Parser(PythonParser):
         continue_stmts ::= lastl_stmt continue_stmt
         continue_stmts ::= continue_stmt
 
-        stmt ::= raise_stmt0
-        stmt ::= raise_stmt1
-        stmt ::= raise_stmt2
-
-        raise_stmt0 ::= RAISE_VARARGS_0
-        raise_stmt1 ::= expr RAISE_VARARGS_1
-        raise_stmt2 ::= expr expr RAISE_VARARGS_2
-
         del_stmt ::= delete_subscr
         delete_subscr ::= expr expr DELETE_SUBSCR
         del_stmt ::= expr DELETE_ATTR
@@ -565,7 +557,8 @@ class Python3Parser(PythonParser):
         # include instructions that don't need customization,
         # but we'll do a finer check after the rough breakout.
         customize_instruction_basenames = frozenset(
-            ('BUILD', 'CALL', 'DELETE', 'JUMP', 'LOAD', 'LOOKUP', 'MAKE', 'UNPACK'))
+            ('BUILD', 'CALL', 'DELETE', 'JUMP', 'LOAD', 'LOOKUP', 'MAKE',
+             'RAISE', 'UNPACK'))
 
         is_pypy               = False
         seen_LOAD_BUILD_CLASS = False
@@ -952,6 +945,24 @@ class Python3Parser(PythonParser):
                                 (('pos_arg ' * (args_pos)),
                                  ('call ' * (annotate_args-1)), opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname == 'RAISE_VARARGS_0':
+                self.addRule("""
+                    stmt        ::= raise_stmt0
+                    raise_stmt0 ::= RAISE_VARARGS_0
+                    """, nop_func)
+                continue
+            elif opname == 'RAISE_VARARGS_1':
+                self.addRule("""
+                    stmt        ::= raise_stmt1
+                    raise_stmt1 ::= expr RAISE_VARARGS_1
+                    """, nop_func)
+                continue
+            elif opname == 'RAISE_VARARGS_2':
+                self.addRule("""
+                    stmt        ::= raise_stmt2
+                    raise_stmt2 ::= expr expr RAISE_VARARGS_2
+                    """, nop_func)
+                continue
             elif opname_base in ('UNPACK_EX',):
                 before_count, after_count = token.attr
                 rule = 'unpack ::= ' + opname + ' store' * (before_count + after_count + 1)
