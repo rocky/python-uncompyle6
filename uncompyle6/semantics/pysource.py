@@ -1883,7 +1883,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
         return
 
-    n_build_set = n_list
+    n_set = n_tuple = n_build_set = n_list
 
     def n_unpack(self, node):
         if node[0].kind.startswith('UNPACK_EX'):
