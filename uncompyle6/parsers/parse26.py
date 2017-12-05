@@ -39,7 +39,7 @@ class Python26Parser(Python2Parser):
                             except_handler
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           except_handler else_suite COME_FROM
+                           except_handler else_suite come_froms
 
         _ifstmts_jump  ::= c_stmts_opt JUMP_FORWARD COME_FROM POP_TOP
 
