@@ -1084,6 +1084,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         # Find the list comprehension body. It is the inner-most
         # node that is not list_.. .
+        # FIXME: DRY with other use
         while n == 'list_iter':
             n = n[0]  # iterate one nesting deeper
             if   n == 'list_for':	n = n[3]
@@ -1143,6 +1144,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         # Find the list comprehension body. It is the inner-most
         # node.
+        # FIXME: DRY with other use
         while n == 'list_iter':
             n = n[0] # iterate one nesting deeper
             if   n == 'list_for':	n = n[3]
@@ -1324,6 +1326,15 @@ class SourceWalker(GenericASTTraversal, object):
         assert n.kind in ('lc_body', 'comp_body', 'setcomp_func', 'set_comp_body'), ast
         assert store, "Couldn't find store in list/set comprehension"
 
+        # Issue created with later Python code generation is that there
+        # is a lamda set up with a dummy argument name that is then called
+        # So we can't just translate that as is but need to replace the
+        # dummy name. Below we are picking out the variable name as seen
+        # in the code. And trying to generate code for the other parts
+        # that don't have the dummy argument name in it.
+        # Another approach might be to be able to pass in the source name
+        # for the dummy argument.
+
         self.preorder(n[0])
         self.write(' for ')
         if comp_store:
@@ -1376,7 +1387,8 @@ class SourceWalker(GenericASTTraversal, object):
         list_if = None
         assert n == 'list_iter'
 
-        # find innermost node
+        # Find the list comprehension body. It is the inner-most
+        # node that is not list_.. .
         while n == 'list_iter':
             n = n[0] # recurse one step
             if n == 'list_for':
@@ -1871,7 +1883,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
         return
 
-    n_build_set = n_list
+    n_set = n_tuple = n_build_set = n_list
 
     def n_unpack(self, node):
         if node[0].kind.startswith('UNPACK_EX'):

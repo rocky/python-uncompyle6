@@ -367,7 +367,12 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def n_LOAD_CONST(self, node):
         start = len(self.f.getvalue())
         data = node.pattr; datatype = type(data)
-        if isinstance(datatype, int) and data == minint:
+        if isinstance(data, float) and str(data) in frozenset(['nan', '-nan', 'inf', '-inf']):
+            # float values 'nan' and 'inf' are not directly representable in Python at least
+            # before 3.5 and even there it is via a library constant.
+            # So we will canonicalize their representation as float('nan') and float('inf')
+            self.write("float('%s')" % data)
+        elif isinstance(datatype, int) and data == minint:
             # convert to hex, since decimal representation
             # would result in 'LOAD_CONST; UNARY_NEGATIVE'
             # change:hG/2002-02-07: this was done for all negative integers
@@ -1473,6 +1478,9 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.indent_less(INDENT_PER_LEVEL)
         self.prec = p
         self.prune()
+        return
+
+    n_set = n_tuple = n_build_set = n_list
 
     def template_engine(self, entry, startnode):
         """The format template interpetation engine.  See the comment at the

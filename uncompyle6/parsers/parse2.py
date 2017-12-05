@@ -277,8 +277,13 @@ class Python2Parser(PythonParser):
                     self.add_unique_rule("expr1024 ::=%s" % (' expr32' * 32),
                                          opname_base, v, customize)
                     self.seen1024 = True
-                rule = ('list ::= ' + 'expr1024 '*thousands +
+                collection = opname_base[opname_base.find('_')+1:].lower()
+                rule = (('%s ::= ' % collection) + 'expr1024 '*thousands +
                         'expr32 '*thirty32s + 'expr '*(v % 32) + opname)
+                self.add_unique_rules([
+                    "expr ::= %s" % collection,
+                    rule], customize)
+                continue
             elif opname_base == 'BUILD_MAP':
                 if opname == 'BUILD_MAP_n':
                     # PyPy sometimes has no count. Sigh.

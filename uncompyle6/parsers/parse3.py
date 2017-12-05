@@ -679,10 +679,13 @@ class Python3Parser(PythonParser):
                         rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
                 if not is_LOAD_CLOSURE or v == 0:
-                    rule = ('list ::= ' + 'expr1024 ' * int(v//1024) +
+                    collection = opname_base[opname_base.find('_')+1:].lower()
+                    rule = (('%s ::= ' % collection) + 'expr1024 ' * int(v//1024) +
                             'expr32 ' * int((v//32) % 32) +
                             'expr ' * (v % 32) + opname)
-                    self.add_unique_rule(rule, opname, token.attr, customize)
+                    self.add_unique_rules([
+                        'expr ::= %s' % collection,
+                        rule], customize)
                 continue
             elif opname_base == 'BUILD_SLICE':
                 if token.attr == 2:
