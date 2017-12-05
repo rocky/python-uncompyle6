@@ -649,7 +649,7 @@ class SourceWalker(GenericASTTraversal, object):
         if self.pending_newlines:
             out = out[:-self.pending_newlines]
         if (isinstance(out, str) and
-             not (PYTHON3 and self.FUTURE_UNICODE_LITERALS)):
+             not (PYTHON3 or self.FUTURE_UNICODE_LITERALS)):
             out = unicode(out, 'utf-8')
         self.f.write(out)
 
