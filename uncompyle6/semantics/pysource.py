@@ -214,6 +214,10 @@ class SourceWalker(GenericASTTraversal, object):
         self.line_number = 0
         self.ast_errors = []
 
+        # This is in Python 2.6 on. It changes the way
+        # strings get interpreted. See n_LOAD_CONST
+        self.FUTURE_UNICODE_LITERALS = False
+
         # Sometimes we may want to continue decompiling when there are errors
         # and sometimes not
         self.tolerate_errors = tolerate_errors
@@ -644,7 +648,8 @@ class SourceWalker(GenericASTTraversal, object):
 
         if self.pending_newlines:
             out = out[:-self.pending_newlines]
-        if isinstance(out, str) and not PYTHON3:
+        if (isinstance(out, str) and
+             not (PYTHON3 or self.FUTURE_UNICODE_LITERALS)):
             out = unicode(out, 'utf-8')
         self.f.write(out)
 
@@ -843,6 +848,27 @@ class SourceWalker(GenericASTTraversal, object):
             self.write('None')
         elif isinstance(data, tuple):
             self.pp_tuple(data)
+        elif self.FUTURE_UNICODE_LITERALS:
+            # The FUTURE_UNICODE_LITERALS compiler flag
+            # in 2.6 on change the way
+            # strings are interpreted:
+            #    u'xxx' -> 'xxx'
+            #    xxx'   -> b'xxx'
+            if not PYTHON3 and isinstance(data, unicode):
+                try:
+                    try:
+                        data = str(data)
+                    except UnicodeEncodeError:
+                        # Have to keep data as it is: in Unicode.
+                        pass
+                    self.write(repr(data))
+                except:
+                    from trepan.api import debug; debug()
+                    self.write(repr(data))
+            elif isinstance(data, str):
+                self.write('b'+repr(data))
+            else:
+                self.write(repr(data))
         else:
             self.write(repr(data))
         # LOAD_CONST is a terminal, so stop processing/recursing early
@@ -1592,7 +1618,7 @@ class SourceWalker(GenericASTTraversal, object):
     n_classdefdeco2 = n_classdef
 
     def print_super_classes(self, node):
-        if not (node == 'list'):
+        if not (node == 'tuple'):
             return
 
         n_subclasses = len(node[:-1])
@@ -2381,6 +2407,9 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
             # todo: if empty, add 'pass'
     except:
         pass
+
+    deparsed.FUTURE_UNICODE_LITERALS = (
+        COMPILER_FLAG_BIT['FUTURE_UNICODE_LITERALS'] & co.co_flags != 0)
 
     # What we've been waiting for: Generate source from AST!
     deparsed.gen_source(deparsed.ast, co.co_name, customize)

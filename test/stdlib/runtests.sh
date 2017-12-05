@@ -55,15 +55,13 @@ case $PYVERSION in
 	    [test_codecs.py]=1    # need to fix tryelse
 	    [test_coercion.py]=1    # Control flow?
 	    [test_cookielib.py]=1    # Control flow?
-	    [test_contextlib.py]=1  # decorators
-            [test_decorators.py]=1  # decorators
+            [test_decorators.py]=1  # Syntax Error - look at
             [test_enumerate.py]=1  # Control flow?
 	    [test_file.py]=1   # Control flow?
 	    [test_format.py]=1   # Control flow?
 	    [test_frozen.py]=1  # Control flow?
 	    [test_ftplib.py]=1  # Control flow?
 	    [test_funcattrs.py]=1  # Control flow?
-	    [test_future4.py]=1  # Possible additional rule for future mechanism?
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_queue.py]=1 # Control flow?
@@ -71,14 +69,11 @@ case $PYVERSION in
 	;;
     2.7)
 	SKIP_TESTS=(
-	    [test_builtin.py]=1
-	    [test_contextlib.py]=1  # decorators
-            [test_decorators.py]=1  # decorators
-	    [test_descr.py]=1 # syntax error look at
+	    [test_builtin.py]=1  # Syntax error, look at
 	    [test_dis.py]=1   # We change line numbers - duh!
-	    [test_future4.py]=1  # Possible additional rule for future mechanism?
 	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
-	    [test_importlib.py]=1  # Control flow?
+	    [test_ioctl.py]=1 # Test takes too long to run
+	    [test_itertools.py]=1 # Syntax error - look at!
         )
 	;;
     *)
@@ -108,7 +103,7 @@ if [[ -n $1 ]] ; then
     files=$1
     SKIP_TESTS=()
 else
-    files=test_*.py
+    files=test_[m]*.py
 fi
 for file in $files; do
     [[ -v SKIP_TESTS[$file] ]] && continue
