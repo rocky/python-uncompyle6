@@ -25,8 +25,11 @@ def foo():
     global e
     del e
 
+z = {}
+
 def a():
     b =1
+    global z
     del z
     def b(y):
         global z
