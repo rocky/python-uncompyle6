@@ -39,7 +39,10 @@ class PythonParser(GenericASTBuilder):
             'print_items',
             # PyPy:
             'imports_cont',
-            'kvlist_n']
+            'kvlist_n',
+            # Python 3.6+
+            'joined_str',
+            ]
         self.collect = frozenset(nt_list)
 
     def ast_first_offset(self, ast):
