@@ -205,7 +205,7 @@ class PythonParser(GenericASTBuilder):
         c_stmts ::= _stmts
         c_stmts ::= _stmts lastc_stmt
         c_stmts ::= lastc_stmt
-        c_stmts ::= continue_stmts
+        c_stmts ::= continues
 
         lastc_stmt ::= iflaststmt
         lastc_stmt ::= forelselaststmt
@@ -217,7 +217,7 @@ class PythonParser(GenericASTBuilder):
 
         l_stmts ::= _stmts
         l_stmts ::= return_stmts
-        l_stmts ::= continue_stmts
+        l_stmts ::= continues
         l_stmts ::= _stmts lastl_stmt
         l_stmts ::= lastl_stmt
 
@@ -231,7 +231,7 @@ class PythonParser(GenericASTBuilder):
 
         suite_stmts ::= _stmts
         suite_stmts ::= return_stmts
-        suite_stmts ::= continue_stmts
+        suite_stmts ::= continues
 
         suite_stmts_opt ::= suite_stmts
 
