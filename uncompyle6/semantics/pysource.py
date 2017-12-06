@@ -898,11 +898,13 @@ class SourceWalker(GenericASTTraversal, object):
         """
         self.write(self.indent, 'exec ')
         self.preorder(node[0])
-        if not node[1][0].isNone():
+
+        if not node[1].isNone():
             sep = ' in '
             for subnode in node[1]:
                 self.write(sep); sep = ", "
                 self.preorder(subnode)
+
         self.println()
         self.prune() # stop recursing
 
@@ -1316,8 +1318,8 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
         else:
-            ast = ast[0][0]
-            n = ast[iter_index]
+            list_comp = ast[0]
+            n = list_comp[iter_index]
             assert n == 'list_iter', n
 
         # FIXME: I'm not totally sure this is right.
@@ -1406,8 +1408,9 @@ class SourceWalker(GenericASTTraversal, object):
         if node == 'set_comp':
             ast = ast[0][0][0]
         else:
-            ast = ast[0][0][0][0][0]
+            ast = ast[0][0][0][0]
 
+        assert ast == 'list_comp'
         n = ast[1]
         collection = node[-3]
         list_if = None

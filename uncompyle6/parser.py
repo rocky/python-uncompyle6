@@ -45,6 +45,10 @@ class PythonParser(GenericASTBuilder):
             ]
         self.collect = frozenset(nt_list)
 
+        # Reduce singleton reductions in these nonterminals:
+        self.singleton = frozenset(('str', 'joined_str', 'expr', 'store',
+                                    'inplace_op'))
+
     def ast_first_offset(self, ast):
         if hasattr(ast, 'offset'):
             return ast.offset
@@ -154,7 +158,13 @@ class PythonParser(GenericASTBuilder):
         return token.kind
 
     def nonterminal(self, nt, args):
-        if nt in self.collect and len(args) > 1:
+        n = len(args)
+
+        # Use this to find lots of singleton rule
+        # if n == 1 and nt not in self.singleton:
+        #     print("XXX", nt)
+
+        if nt in self.collect and n > 1:
             #
             #  Collect iterated thingies together. That is rather than
             #  stmts -> stmts stmt -> stmts stmt -> ...
@@ -162,6 +172,8 @@ class PythonParser(GenericASTBuilder):
             #
             rv = args[0]
             rv.append(args[1])
+        elif n == 1 and args[0] in self.singleton:
+            rv = GenericASTBuilder.nonterminal(self, nt, args[0])
         else:
             rv = GenericASTBuilder.nonterminal(self, nt, args)
         return rv
