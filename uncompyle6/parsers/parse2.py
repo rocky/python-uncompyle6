@@ -65,11 +65,11 @@ class Python2Parser(PythonParser):
         stmt ::= break_stmt
         break_stmt ::= BREAK_LOOP
 
-        stmt ::= continue_stmt
-        continue_stmt ::= CONTINUE
-        continue_stmts ::= _stmts lastl_stmt continue_stmt
-        continue_stmts ::= lastl_stmt continue_stmt
-        continue_stmts ::= continue_stmt
+        stmt      ::= continue
+        continue  ::= CONTINUE
+        continues ::= _stmts lastl_stmt continue
+        continues ::= lastl_stmt continue
+        continues ::= continue
 
         stmt ::= assert2
         stmt ::= raise_stmt0
@@ -339,7 +339,7 @@ class Python2Parser(PythonParser):
                 rule = 'call ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
                        + 'expr ' * nak + opname
             elif opname == 'CONTINUE_LOOP':
-                self.add_unique_rule('continue_stmt ::= CONTINUE_LOOP',
+                self.add_unique_rule('continue ::= CONTINUE_LOOP',
                                      opname, v, customize)
                 continue
             elif opname_base in ('DUP_TOPX', 'RAISE_VARARGS'):

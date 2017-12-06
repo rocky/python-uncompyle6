@@ -85,7 +85,7 @@ ExtractInfo = namedtuple("ExtractInfo",
 
 TABLE_DIRECT_FRAGMENT = {
     'break_stmt':	( '%|%rbreak\n', ),
-    'continue_stmt':	( '%|%rcontinue\n', ),
+    'continue  ':	( '%|%rcontinue\n', ),
     'passstmt':		( '%|%rpass\n', ),
     'raise_stmt0':	( '%|%rraise\n', ),
     'import':	        ( '%|import %c%x\n', 2, (2, (0, 1)), ),

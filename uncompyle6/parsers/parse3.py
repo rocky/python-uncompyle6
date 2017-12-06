@@ -91,12 +91,12 @@ class Python3Parser(PythonParser):
         stmt ::= break_stmt
         break_stmt ::= BREAK_LOOP
 
-        stmt ::= continue_stmt
-        continue_stmt ::= CONTINUE
-        continue_stmt ::= CONTINUE_LOOP
-        continue_stmts ::= _stmts lastl_stmt continue_stmt
-        continue_stmts ::= lastl_stmt continue_stmt
-        continue_stmts ::= continue_stmt
+        stmt      ::= continue
+        continue  ::= CONTINUE
+        continue  ::= CONTINUE_LOOP
+        continues ::= _stmts lastl_stmt continue
+        continues ::= lastl_stmt continue
+        continues ::= continue
 
         del_stmt ::= delete_subscr
         delete_subscr ::= expr expr DELETE_SUBSCR

@@ -225,7 +225,7 @@ TABLE_DIRECT = {
 
     'call_stmt':	    ( '%|%p\n', (0, 200)),
     'break_stmt':	    ( '%|break\n', ),
-    'continue_stmt':	( '%|continue\n', ),
+    'continue':	            ( '%|continue\n', ),
 
     'raise_stmt0':	    ( '%|raise\n', ),
     'raise_stmt1':	    ( '%|raise %c\n', 0),
