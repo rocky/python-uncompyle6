@@ -62,8 +62,8 @@ class Python2Parser(PythonParser):
 
         return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
 
-        stmt ::= break_stmt
-        break_stmt ::= BREAK_LOOP
+        stmt      ::= break
+        break     ::= BREAK_LOOP
 
         stmt      ::= continue
         continue  ::= CONTINUE

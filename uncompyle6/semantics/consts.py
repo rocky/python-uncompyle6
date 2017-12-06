@@ -224,7 +224,7 @@ TABLE_DIRECT = {
     'print_to_items':	( '%C', (0, 2, ', ') ),
 
     'call_stmt':	    ( '%|%p\n', (0, 200)),
-    'break_stmt':	    ( '%|break\n', ),
+    'break':	            ( '%|break\n', ),
     'continue':	            ( '%|continue\n', ),
 
     'raise_stmt0':	    ( '%|raise\n', ),

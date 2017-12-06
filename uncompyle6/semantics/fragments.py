@@ -28,7 +28,7 @@ node 2 range information, it in %c, is copied to nodes 0 and 1.
    %r associates recursively location information for the string that follows
 
 For example in:
-   'break_stmt':	( '%|%rbreak\n', ),
+   'break':	( '%|%rbreak\n', ),
 
 The node will be associated with the text break, excluding the trailing newline.
 
@@ -84,7 +84,7 @@ ExtractInfo = namedtuple("ExtractInfo",
                          "lineNo lineStartOffset markerLine selectedLine selectedText nonterminal")
 
 TABLE_DIRECT_FRAGMENT = {
-    'break_stmt':	( '%|%rbreak\n', ),
+    'break':	        ( '%|%rbreak\n', ),
     'continue  ':	( '%|%rcontinue\n', ),
     'passstmt':		( '%|%rpass\n', ),
     'raise_stmt0':	( '%|%rraise\n', ),

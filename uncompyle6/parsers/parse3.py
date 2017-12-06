@@ -88,8 +88,8 @@ class Python3Parser(PythonParser):
         return_if_stmts ::= _stmts return_if_stmt
         return_if_stmt ::= ret_expr RETURN_END_IF
 
-        stmt ::= break_stmt
-        break_stmt ::= BREAK_LOOP
+        stmt      ::= break
+        break     ::= BREAK_LOOP
 
         stmt      ::= continue
         continue  ::= CONTINUE

@@ -107,7 +107,7 @@ class Python26Parser(Python2Parser):
         assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 come_froms_pop
         assert2 ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_2 come_froms_pop
 
-        break_stmt ::= BREAK_LOOP JUMP_BACK
+        break ::= BREAK_LOOP JUMP_BACK
 
         # Semantic actions want else_suitel to be at index 3
         ifelsestmtl ::= testexpr c_stmts_opt cf_jb_cf_pop else_suitel
