@@ -83,7 +83,7 @@ def main_bin():
         opts, files = getopt.getopt(sys.argv[1:], 'hagtdrVo:c:p:',
                                     'help asm grammar linemaps recurse timestamp tree '
                                     'verify version showgrammar'.split(' '))
-    except getopt.GetoptError(e):
+    except getopt.GetoptError, e:
         sys.stderr.write('%s: %s\n' % (os.path.basename(sys.argv[0]), e))
         sys.exit(-1)
 
