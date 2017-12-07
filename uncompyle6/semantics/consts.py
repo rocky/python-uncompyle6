@@ -211,6 +211,7 @@ TABLE_DIRECT = {
     'classdefdeco1':  	    ( '%|@%c\n%c', 0, 1),
     'kwarg':    	    ( '%[0]{pattr}=%c', 1),
     'kwargs':    	    ( '%D', (0, maxint, ', ') ),
+    'kwargs1':    	    ( '%D', (0, maxint, ', ') ),
 
     'assert_expr_or':   ( '%c or %c', 0, 2 ),
     'assert_expr_and':  ( '%c and %c', 0, 2 ),

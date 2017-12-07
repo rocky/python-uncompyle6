@@ -809,7 +809,7 @@ class Python3Parser(PythonParser):
                                                  opname, token.attr, customize)
 
                 if args_kw > 0:
-                    kwargs_str = 'kwargs '
+                    kwargs_str = 'kwargs1 '
                 else:
                     kwargs_str = ''
 
