@@ -2,7 +2,7 @@
 # while True and if / break
 def display_date(loop):
     while True:
-        if loop.time():
+        if loop:
             break
         x = 5
 
