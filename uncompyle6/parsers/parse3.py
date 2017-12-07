@@ -186,9 +186,6 @@ class Python3Parser(PythonParser):
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            except_handler else_suite come_froms
 
-        tryelsestmtc   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           except_handler else_suitec come_from_except_clauses
-
         tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            except_handler else_suitel come_from_except_clauses
 
