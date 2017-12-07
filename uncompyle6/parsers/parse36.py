@@ -37,6 +37,10 @@ class Python36Parser(Python35Parser):
         call          ::= expr expr CALL_FUNCTION_EX
         call          ::= expr expr expr CALL_FUNCTION_EX_KW_1
 
+        for_block       ::= l_stmts_opt come_from_loops JUMP_BACK
+        come_from_loops ::= COME_FROM_LOOP*
+
+
         # This might be valid in < 3.6
         and  ::= expr jmp_false expr
 

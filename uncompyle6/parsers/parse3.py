@@ -104,6 +104,7 @@ class Python3Parser(PythonParser):
 
         kwarg   ::= LOAD_CONST expr
         kwargs  ::= kwarg*
+        kwargs1 ::= kwarg+
 
         classdef ::= build_class store
 
@@ -268,7 +269,7 @@ class Python3Parser(PythonParser):
         except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
                             END_FINALLY COME_FROM_EXCEPT_CLAUSE
 
-        for_block ::= l_stmts_opt come_from_loops JUMP_BACK
+        for_block ::= l_stmts_opt COME_FROM_LOOP JUMP_BACK
         for_block ::= l_stmts
         iflaststmtl ::= testexpr c_stmts_opt
         """
@@ -300,7 +301,6 @@ class Python3Parser(PythonParser):
         opt_come_from_except ::= come_from_except_clauses
 
         come_from_except_clauses ::= COME_FROM_EXCEPT_CLAUSE+
-        come_from_loops          ::= COME_FROM_LOOP*
         """
 
     def p_jump3(self, args):
@@ -335,7 +335,7 @@ class Python3Parser(PythonParser):
     def p_loop_stmt3(self, args):
         """
         forstmt           ::= SETUP_LOOP expr _for store for_block POP_BLOCK
-                              come_from_loops
+                              COME_FROM_LOOP
 
         forelsestmt       ::= SETUP_LOOP expr _for store for_block POP_BLOCK else_suite
                               COME_FROM_LOOP
@@ -812,7 +812,7 @@ class Python3Parser(PythonParser):
                                                  opname, token.attr, customize)
 
                 if args_kw > 0:
-                    kwargs_str = 'kwargs '
+                    kwargs_str = 'kwargs1 '
                 else:
                     kwargs_str = ''
 
@@ -905,6 +905,11 @@ class Python3Parser(PythonParser):
                 if self.version == 3.3:
                     # positional args after keyword args
                     rule = ('mkfunc ::= kwargs %s%s %s' %
+                            ('pos_arg ' * args_pos, 'LOAD_CONST '*2,
+                             opname))
+                elif self.version > 3.5:
+                    # positional args before keyword args
+                    rule = ('mkfunc ::= %skwargs1 %s %s' %
                             ('pos_arg ' * args_pos, 'LOAD_CONST '*2,
                              opname))
                 elif self.version > 3.3:

@@ -42,6 +42,7 @@ class PythonParser(GenericASTBuilder):
             'kvlist_n',
             # Python 3.6+
             'joined_str',
+            'come_from_loops',
             ]
         self.collect = frozenset(nt_list)
 
@@ -157,9 +158,6 @@ class PythonParser(GenericASTBuilder):
         else:
             raise ParserError(None, -1)
 
-    def typestring(self, token):
-        return token.kind
-
     def nonterminal(self, nt, args):
         n = len(args)
 
@@ -177,6 +175,7 @@ class PythonParser(GenericASTBuilder):
             rv.append(args[1])
         elif n == 1 and args[0] in self.singleton:
             rv = GenericASTBuilder.nonterminal(self, nt, args[0])
+            del args[0] # save memory
         else:
             rv = GenericASTBuilder.nonterminal(self, nt, args)
         return rv
@@ -225,7 +224,6 @@ class PythonParser(GenericASTBuilder):
         lastc_stmt ::= iflaststmt
         lastc_stmt ::= forelselaststmt
         lastc_stmt ::= ifelsestmtc
-        lastc_stmt ::= tryelsestmtc
 
         c_stmts_opt ::= c_stmts
         c_stmts_opt ::= passstmt
