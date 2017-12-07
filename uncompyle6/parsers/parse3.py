@@ -815,8 +815,8 @@ class Python3Parser(PythonParser):
 
                 # Note order of kwargs and pos args changed between 3.3-3.4
                 if self.version <= 3.2:
-                    rule = ('mkfunc ::= %sload_closure LOAD_CONST kwargs %s'
-                            % (kwargs_str, ('expr ' * args_pos, opname)))
+                    rule = ('mkfunc ::= %s%sload_closure LOAD_CONST kwargs %s'
+                            % (kwargs_str, 'expr ' * args_pos, opname))
                 elif self.version == 3.3:
                     rule = ('mkfunc ::= %s%sload_closure LOAD_CONST LOAD_CONST %s'
                             % (kwargs_str, 'expr ' * args_pos, opname))
@@ -899,7 +899,12 @@ class Python3Parser(PythonParser):
                                 opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
-                if self.version == 3.3:
+                if self.version < 3.3:
+                    # positional args after keyword args
+                    rule = ('mkfunc ::= kwargs %s%s %s' %
+                            ('pos_arg ' * args_pos, 'LOAD_CONST ',
+                             opname))
+                elif self.version == 3.3:
                     # positional args after keyword args
                     rule = ('mkfunc ::= kwargs %s%s %s' %
                             ('pos_arg ' * args_pos, 'LOAD_CONST '*2,
