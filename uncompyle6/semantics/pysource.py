@@ -661,8 +661,9 @@ class SourceWalker(GenericASTTraversal, object):
     def is_return_none(self, node):
         # Is there a better way?
         ret = (node[0] == 'ret_expr'
-               and node[0][0]== 'LOAD_CONST'
-               and node[0][0].pattr is None)
+               and node[0][0] == 'expr'
+               and node[0][0][0] == 'LOAD_CONST'
+               and node[0][0][0].pattr is None)
         if self.version <= 2.6:
             return ret
         else:
@@ -897,13 +898,11 @@ class SourceWalker(GenericASTTraversal, object):
         """
         self.write(self.indent, 'exec ')
         self.preorder(node[0])
-
-        if not node[1].isNone():
+        if not node[1][0].isNone():
             sep = ' in '
             for subnode in node[1]:
                 self.write(sep); sep = ", "
                 self.preorder(subnode)
-
         self.println()
         self.prune() # stop recursing
 
@@ -1317,8 +1316,8 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
         else:
-            list_comp = ast[0]
-            n = list_comp[iter_index]
+            ast = ast[0][0]
+            n = ast[iter_index]
             assert n == 'list_iter', n
 
         # FIXME: I'm not totally sure this is right.
@@ -1407,9 +1406,8 @@ class SourceWalker(GenericASTTraversal, object):
         if node == 'set_comp':
             ast = ast[0][0][0]
         else:
-            ast = ast[0][0][0][0]
+            ast = ast[0][0][0][0][0]
 
-        assert ast == 'list_comp'
         n = ast[1]
         collection = node[-3]
         list_if = None
@@ -2328,10 +2326,10 @@ class SourceWalker(GenericASTTraversal, object):
         # than fight (with the grammar to not emit "return None").
         if self.hide_internal:
             if len(tokens) >= 2 and not noneInNames:
-                if tokens[-1] in ('RETURN_VALUE', 'RETURN_VALUE_LAMBDA'):
+                if tokens[-1].kind in ('RETURN_VALUE', 'RETURN_VALUE_LAMBDA'):
                     # Python 3.4's classes can add a "return None" which is
                     # invalid syntax.
-                    if tokens[-2] == 'LOAD_CONST':
+                    if tokens[-2].kind == 'LOAD_CONST':
                         if isTopLevel or tokens[-2].pattr is None:
                             del tokens[-2:]
                         else:

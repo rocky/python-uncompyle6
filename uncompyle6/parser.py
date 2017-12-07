@@ -46,7 +46,10 @@ class PythonParser(GenericASTBuilder):
         self.collect = frozenset(nt_list)
 
         # Reduce singleton reductions in these nonterminals:
-        self.singleton = frozenset(('str', 'joined_str', 'expr', 'store',
+        # FIXME: would love to do expr, sstmts, stmts and
+        # so on but that would require major changes to the
+        # semantic actions
+        self.singleton = frozenset(('str', 'joined_str', 'store',
                                     'inplace_op'))
 
     def ast_first_offset(self, ast):
