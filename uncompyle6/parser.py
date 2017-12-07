@@ -50,7 +50,7 @@ class PythonParser(GenericASTBuilder):
         # FIXME: would love to do expr, sstmts, stmts and
         # so on but that would require major changes to the
         # semantic actions
-        self.singleton = frozenset(('str', 'joined_str', 'store',
+        self.singleton = frozenset(('str', 'joined_str', 'store', '_stmts', 'suite_stmts_opt',
                                     'inplace_op'))
 
     def ast_first_offset(self, ast):
@@ -161,7 +161,7 @@ class PythonParser(GenericASTBuilder):
     def nonterminal(self, nt, args):
         n = len(args)
 
-        # Use this to find lots of singleton rule
+        # # Use this to find lots of singleton rule
         # if n == 1 and nt not in self.singleton:
         #     print("XXX", nt)
 
