@@ -948,7 +948,7 @@ class Scanner3(Scanner):
                     self.not_continue.add(pre_rtarget)
             else:
                 # For now, we'll only tag forward jump.
-                if self.version >= 3.5:
+                if self.version >= 3.6:
                     if target > offset:
                         self.fixed_jumps[offset] = target
                         pass
