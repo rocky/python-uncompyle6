@@ -24,6 +24,15 @@ class Python35Parser(Python34Parser):
         while1stmt     ::= SETUP_LOOP l_stmts POP_BLOCK COME_FROM_LOOP
         while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK
                            POP_BLOCK else_suite COME_FROM_LOOP
+        whilestmt      ::= SETUP_LOOP testexpr return_stmts POP_BLOCK COME_FROM_LOOP
+
+        # The following rule is for Python 3.5+ where we can have stuff like
+        # while ..
+        #     if
+        #     ...
+        # the end of the if will jump back to the loop and there will be a COME_FROM
+        # after the jump
+        l_stmts ::= lastl_stmt COME_FROM l_stmts
 
         # Python 3.5+ Await statement
         expr       ::= await_expr
@@ -76,7 +85,7 @@ class Python35Parser(Python34Parser):
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
                                JUMP_ABSOLUTE END_FINALLY COME_FROM
                                for_block POP_BLOCK JUMP_ABSOLUTE
-                               come_from_loops
+                               COME_FROM_LOOP
 
         async_for_stmt     ::= SETUP_LOOP expr
                                GET_AITER
@@ -88,7 +97,7 @@ class Python35Parser(Python34Parser):
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
                                JUMP_ABSOLUTE END_FINALLY JUMP_BACK
                                passstmt POP_BLOCK JUMP_ABSOLUTE
-                               come_from_loops
+                               COME_FROM_LOOP
 
         stmt               ::= async_forelse_stmt
         async_forelse_stmt ::= SETUP_LOOP expr

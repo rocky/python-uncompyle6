@@ -37,8 +37,19 @@ class PythonParser(GenericASTBuilder):
             'print_items',
             # PyPy:
             'imports_cont',
-            'kvlist_n']
+            'kvlist_n',
+            # Python 3.6+
+            'joined_str',
+            'come_from_loops',
+            ]
         self.collect = frozenset(nt_list)
+
+        # Reduce singleton reductions in these nonterminals:
+        # FIXME: would love to do expr, sstmts, stmts and
+        # so on but that would require major changes to the
+        # semantic actions
+        self.singleton = frozenset(('str', 'joined_str', 'store', '_stmts', 'suite_stmts_opt',
+                                    'inplace_op'))
 
     def ast_first_offset(self, ast):
         if hasattr(ast, 'offset'):
@@ -145,11 +156,14 @@ class PythonParser(GenericASTBuilder):
         else:
             raise ParserError(None, -1)
 
-    def typestring(self, token):
-        return token.kind
-
     def nonterminal(self, nt, args):
-        if nt in self.collect and len(args) > 1:
+        n = len(args)
+
+        # # Use this to find lots of singleton rule
+        # if n == 1 and nt not in self.singleton:
+        #     print("XXX", nt)
+
+        if nt in self.collect and n > 1:
             #
             #  Collect iterated thingies together. That is rather than
             #  stmts -> stmts stmt -> stmts stmt -> ...
@@ -157,6 +171,9 @@ class PythonParser(GenericASTBuilder):
             #
             rv = args[0]
             rv.append(args[1])
+        elif n == 1 and args[0] in self.singleton:
+            rv = GenericASTBuilder.nonterminal(self, nt, args[0])
+            del args[0] # save memory
         else:
             rv = GenericASTBuilder.nonterminal(self, nt, args)
         return rv
@@ -200,19 +217,18 @@ class PythonParser(GenericASTBuilder):
         c_stmts ::= _stmts
         c_stmts ::= _stmts lastc_stmt
         c_stmts ::= lastc_stmt
-        c_stmts ::= continue_stmts
+        c_stmts ::= continues
 
         lastc_stmt ::= iflaststmt
         lastc_stmt ::= forelselaststmt
         lastc_stmt ::= ifelsestmtc
-        lastc_stmt ::= tryelsestmtc
 
         c_stmts_opt ::= c_stmts
         c_stmts_opt ::= passstmt
 
         l_stmts ::= _stmts
         l_stmts ::= return_stmts
-        l_stmts ::= continue_stmts
+        l_stmts ::= continues
         l_stmts ::= _stmts lastl_stmt
         l_stmts ::= lastl_stmt
 
@@ -226,7 +242,7 @@ class PythonParser(GenericASTBuilder):
 
         suite_stmts ::= _stmts
         suite_stmts ::= return_stmts
-        suite_stmts ::= continue_stmts
+        suite_stmts ::= continues
 
         suite_stmts_opt ::= suite_stmts
 

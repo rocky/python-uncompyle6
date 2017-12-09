@@ -20,8 +20,8 @@ def test_grammar():
     unused_rhs = set(['list', 'mkfunc',
                       'mklambda',
                       'unpack',])
-    expect_right_recursive = frozenset([('designList',
-                                         ('store', 'DUP_TOP', 'designList'))])
+    expect_right_recursive = set([('designList',
+                                   ('store', 'DUP_TOP', 'designList'))])
     if PYTHON3:
         expect_lhs.add('load_genexpr')
         expect_lhs.add('kvlist')
@@ -35,14 +35,21 @@ def test_grammar():
             expect_lhs.add("annotate_arg")
             expect_lhs.add("annotate_tuple")
             unused_rhs.add("mkfunc_annotate")
-            if PYTHON_VERSION != 3.6:
+            if PYTHON_VERSION < 3.6:
                 # 3.6 has at least one non-custom call rule
                 # the others don't
                 unused_rhs.add('call')
+                if PYTHON_VERSION == 3.5:
+                    expect_right_recursive.add((('l_stmts',
+                                                 ('lastl_stmt', 'COME_FROM', 'l_stmts'))))
+                    pass
+                pass
             else:
-                # These are custom rules set in 3.5
+                expect_right_recursive.add((('l_stmts',
+                                             ('lastl_stmt', 'COME_FROM', 'l_stmts'))))
                 unused_rhs.add('build_map_unpack_with_call')
                 unused_rhs.add('unmapexpr')
+                # expect_lhs.add('kwargs1')
                 pass
             pass
         pass

@@ -206,6 +206,9 @@ class Scanner(object):
 
         Return a list with indexes to them or [] if none found.
         """
+
+        # FIXME: this is broken on 3.6+. Revise to use instructions self.insts
+
         code = self.code
         assert(start >= 0 and end <= len(code))
 

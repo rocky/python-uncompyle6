@@ -369,7 +369,7 @@ class Scanner3(Scanner):
                 # FIXME: 0 isn't always correct
                 target = self.get_target(inst.offset)
                 if target <= inst.offset:
-                    next_opname = self.opname[self.code[inst.offset+3]]
+                    next_opname = self.insts[i+1].opname
                     if (inst.offset in self.stmts and
                         (self.version != 3.0 or (hasattr(inst, 'linestart'))) and
                         (next_opname not in ('END_FINALLY', 'POP_BLOCK',
@@ -959,7 +959,7 @@ class Scanner3(Scanner):
                         self.fixed_jumps[offset] = target
                         pass
                 else:
-                    # FIXME: This is probably a bug in < 3.6 and we should
+                    # FIXME: This is probably a bug in < 3.5 and we should
                     # instead use the above code. But until we smoke things
                     # out we'll stick with it.
                     if rtarget > offset:

@@ -20,7 +20,7 @@ def checker(ast, in_loop, errors):
         errors.append(error_text)
 
     for node in ast:
-        if not in_loop and node.kind in ('continue_stmt', 'break_stmt'):
+        if not in_loop and node.kind in ('continue', 'break'):
             text = str(node)
             error_text = '\n# not in loop:\n#\t' + '\n# '.join(text.split("\n"))
             errors.append(error_text)

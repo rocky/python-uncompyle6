@@ -86,15 +86,15 @@ class Python3Parser(PythonParser):
         return_if_stmts ::= _stmts return_if_stmt
         return_if_stmt ::= ret_expr RETURN_END_IF
 
-        stmt ::= break_stmt
-        break_stmt ::= BREAK_LOOP
+        stmt      ::= break
+        break     ::= BREAK_LOOP
 
-        stmt ::= continue_stmt
-        continue_stmt ::= CONTINUE
-        continue_stmt ::= CONTINUE_LOOP
-        continue_stmts ::= _stmts lastl_stmt continue_stmt
-        continue_stmts ::= lastl_stmt continue_stmt
-        continue_stmts ::= continue_stmt
+        stmt      ::= continue
+        continue  ::= CONTINUE
+        continue  ::= CONTINUE_LOOP
+        continues ::= _stmts lastl_stmt continue
+        continues ::= lastl_stmt continue
+        continues ::= continue
 
         del_stmt ::= delete_subscr
         delete_subscr ::= expr expr DELETE_SUBSCR
@@ -102,6 +102,7 @@ class Python3Parser(PythonParser):
 
         kwarg   ::= LOAD_CONST expr
         kwargs  ::= kwarg*
+        kwargs1 ::= kwarg+
 
         classdef ::= build_class store
 
@@ -136,6 +137,7 @@ class Python3Parser(PythonParser):
 
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK COME_FROM_LOOP
+        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK POP_BLOCK
 
         # These are used to keep AST indices the same
         jump_forward_else  ::= JUMP_FORWARD ELSE
@@ -181,9 +183,6 @@ class Python3Parser(PythonParser):
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            except_handler else_suite come_froms
-
-        tryelsestmtc   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           except_handler else_suitec come_from_except_clauses
 
         tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            except_handler else_suitel come_from_except_clauses
@@ -265,7 +264,7 @@ class Python3Parser(PythonParser):
         except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
                             END_FINALLY COME_FROM_EXCEPT_CLAUSE
 
-        for_block ::= l_stmts_opt come_from_loops JUMP_BACK
+        for_block ::= l_stmts_opt COME_FROM_LOOP JUMP_BACK
         for_block ::= l_stmts
         iflaststmtl ::= testexpr c_stmts_opt
         """
@@ -297,7 +296,6 @@ class Python3Parser(PythonParser):
         opt_come_from_except ::= come_from_except_clauses
 
         come_from_except_clauses ::= COME_FROM_EXCEPT_CLAUSE+
-        come_from_loops          ::= COME_FROM_LOOP*
         """
 
     def p_jump3(self, args):
@@ -332,7 +330,7 @@ class Python3Parser(PythonParser):
     def p_loop_stmt3(self, args):
         """
         forstmt           ::= SETUP_LOOP expr _for store for_block POP_BLOCK
-                              come_from_loops
+                              COME_FROM_LOOP
 
         forelsestmt       ::= SETUP_LOOP expr _for store for_block POP_BLOCK else_suite
                               COME_FROM_LOOP
@@ -815,14 +813,14 @@ class Python3Parser(PythonParser):
                                                  opname, token.attr, customize)
 
                 if args_kw > 0:
-                    kwargs_str = 'kwargs '
+                    kwargs_str = 'kwargs1 '
                 else:
                     kwargs_str = ''
 
                 # Note order of kwargs and pos args changed between 3.3-3.4
                 if self.version <= 3.2:
-                    rule = ('mkfunc ::= %sload_closure LOAD_CONST kwargs %s'
-                            % (kwargs_str, ('expr ' * args_pos, opname)))
+                    rule = ('mkfunc ::= %s%sload_closure LOAD_CONST kwargs %s'
+                            % (kwargs_str, 'expr ' * args_pos, opname))
                 elif self.version == 3.3:
                     rule = ('mkfunc ::= %s%sload_closure LOAD_CONST LOAD_CONST %s'
                             % (kwargs_str, 'expr ' * args_pos, opname))
@@ -905,9 +903,19 @@ class Python3Parser(PythonParser):
                                 opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
-                if self.version == 3.3:
+                if self.version < 3.3:
                     # positional args after keyword args
                     rule = ('mkfunc ::= kwargs %s%s %s' %
+                            ('pos_arg ' * args_pos, 'LOAD_CONST ',
+                             opname))
+                elif self.version == 3.3:
+                    # positional args after keyword args
+                    rule = ('mkfunc ::= kwargs %s%s %s' %
+                            ('pos_arg ' * args_pos, 'LOAD_CONST '*2,
+                             opname))
+                elif self.version > 3.5:
+                    # positional args before keyword args
+                    rule = ('mkfunc ::= %skwargs1 %s %s' %
                             ('pos_arg ' * args_pos, 'LOAD_CONST '*2,
                              opname))
                 elif self.version > 3.3:

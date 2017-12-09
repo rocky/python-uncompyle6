@@ -36,6 +36,10 @@ class Python36Parser(Python35Parser):
         call          ::= expr expr CALL_FUNCTION_EX
         call          ::= expr expr expr CALL_FUNCTION_EX_KW_1
 
+        for_block       ::= l_stmts_opt come_from_loops JUMP_BACK
+        come_from_loops ::= COME_FROM_LOOP*
+
+
         # This might be valid in < 3.6
         and  ::= expr jmp_false expr
 
@@ -87,20 +91,20 @@ class Python36Parser(Python35Parser):
                 self.add_unique_doc_rules(rules_str, customize)
             elif opname == 'BUILD_STRING':
                 v = token.attr
-                fstring_expr_or_str_n = "fstring_expr_or_str_%s" % v
+                joined_str_n = "formatted_value_%s" % v
                 rules_str = """
-                    expr ::= fstring_expr
-                    fstring_expr ::= expr FORMAT_VALUE
-                    str ::= LOAD_CONST
-                    fstring_expr_or_str ::= fstring_expr
-                    fstring_expr_or_str ::= str
+                    expr            ::= fstring_expr
+                    fstring_expr    ::= expr FORMAT_VALUE
+                    str             ::= LOAD_CONST
+                    formatted_value ::= fstring_expr
+                    formatted_value ::= str
 
                     expr                 ::= fstring_multi
-                    fstring_multi        ::= fstring_expr_or_strs BUILD_STRING
-                    fstring_expr_or_strs ::= fstring_expr_or_str+
+                    fstring_multi        ::= joined_str BUILD_STRING
+                    joined_str           ::= formatted_value+
                     fstring_multi        ::= %s BUILD_STRING
                     %s                   ::= %sBUILD_STRING
-                """ % (fstring_expr_or_str_n, fstring_expr_or_str_n, "fstring_expr_or_str " * v)
+                """ % (joined_str_n, joined_str_n, "formatted_value " * v)
                 self.add_unique_doc_rules(rules_str, customize)
 
     def custom_classfunc_rule(self, opname, token, customize,
