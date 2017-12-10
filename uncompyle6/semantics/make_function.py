@@ -590,7 +590,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
             for n in node:
                 if n == 'pos_arg':
                     continue
-                elif self.version >= 3.4 and not (n.kind in ('kwargs', 'kwarg')):
+                elif self.version >= 3.4 and not (n.kind in ('kwargs', 'kwargs1', 'kwarg')):
                     continue
                 else:
                     self.preorder(n)
