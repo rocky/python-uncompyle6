@@ -152,14 +152,14 @@ class Python35Parser(Python34Parser):
                 nargs = token.attr % 256
                 map_unpack_n = "map_unpack_%s" % nargs
                 rule = map_unpack_n + ' ::= ' + 'expr ' * (nargs)
+                print("XXXX", rule)
                 self.addRule(rule, nop_func)
                 rule = "unmapexpr ::=  %s %s" % (map_unpack_n, opname)
                 self.addRule(rule, nop_func)
                 call_token = tokens[i+1]
-                if self.version == 3.5:
-                    rule = 'call ::= expr unmapexpr ' + call_token.kind
-                    self.addRule(rule, nop_func)
-                pass
+                rule = 'call ::= expr unmapexpr ' + call_token.kind
+                print("XXXX2", rule)
+                self.addRule(rule, nop_func)
             elif opname == 'BUILD_MAP_UNPACK':
                 self.addRule("""
                    expr       ::= unmap_dict

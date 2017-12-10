@@ -40,7 +40,7 @@ obfuscation.
 Checking if bytecode is valid is pretty simple: disassemble the code.
 Python comes with a disassembly module called `dis`. A prerequisite
 module for this package, `xdis` has a cross-python version
-disassembler.
+disassembler called `pydisasm`.
 
 ### Semantic equivalence vs. exact source code
 
@@ -126,7 +126,7 @@ provide the input command and the output from that, please give:
 
 Sure, I get it. No problem. There is Python assembly code on parse
 errors, so simply by hand decompile that. To get a full disassembly,
-use pydisasm from the [xdis](https://pypi.python.org/pypi/xdis)
+use `pydisasm` from the [xdis](https://pypi.python.org/pypi/xdis)
 package. Opcodes are described in the documentation for
 the [dis](https://docs.python.org/3.6/library/dis.html) module.
 
