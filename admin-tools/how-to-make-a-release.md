@@ -55,7 +55,6 @@
 # Check against all versions
 
     $ source admin-tools/check-older-versions.sh
-    $ source admin-tools/check-newer-versions.sh
 
 # Make packages and tag
 
