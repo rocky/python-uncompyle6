@@ -31,14 +31,14 @@ class Scanner36(Scanner3):
             # The lowest bit of flags indicates whether the
             # var-keyword argument is placed at the top of the stack
             if t.op == self.opc.CALL_FUNCTION_EX and t.attr & 1:
-                t.type = 'CALL_FUNCTION_EX_KW'
+                t.kind = 'CALL_FUNCTION_EX_KW'
                 pass
             elif t.op == self.opc.CALL_FUNCTION_KW:
-                t.type = 'CALL_FUNCTION_KW_{t.attr}'.format(**locals())
+                t.kind = 'CALL_FUNCTION_KW_{t.attr}'.format(**locals())
             elif t.op == self.opc.BUILD_TUPLE_UNPACK_WITH_CALL:
-                t.type = 'BUILD_TUPLE_UNPACK_WITH_CALL_%d' % t.attr
+                t.kind = 'BUILD_TUPLE_UNPACK_WITH_CALL_%d' % t.attr
             elif t.op == self.opc.BUILD_MAP_UNPACK_WITH_CALL:
-                t.type = 'BUILD_MAP_UNPACK_WITH_CALL_%d' % t.attr
+                t.kind = 'BUILD_MAP_UNPACK_WITH_CALL_%d' % t.attr
             pass
         return tokens, customize
 

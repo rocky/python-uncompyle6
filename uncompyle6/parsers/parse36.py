@@ -4,7 +4,7 @@ spark grammar differences over Python 3.5 for Python 3.6.
 """
 from __future__ import print_function
 
-from uncompyle6.parser import PythonParserSingle
+from uncompyle6.parser import PythonParserSingle, nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parsers.parse35 import Python35Parser
 
@@ -27,15 +27,8 @@ class Python36Parser(Python35Parser):
         return_if_lambda   ::= RETURN_END_IF_LAMBDA
 
 
-        func_args36   ::= expr BUILD_TUPLE_0
-        call          ::= func_args36 unmapexpr CALL_FUNCTION_EX
-        call          ::= func_args36 build_map_unpack_with_call CALL_FUNCTION_EX_KW_1
-
         withstmt      ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST
                           WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
-
-        call          ::= expr expr CALL_FUNCTION_EX
-        call          ::= expr expr expr CALL_FUNCTION_EX_KW_1
 
         for_block       ::= l_stmts_opt come_from_loops JUMP_BACK
         come_from_loops ::= COME_FROM_LOOP*
@@ -112,11 +105,38 @@ class Python36Parser(Python35Parser):
                               possible_class_decorator,
                               seen_GET_AWAITABLE_YIELD_FROM, next_token):
         if opname.startswith('CALL_FUNCTION_KW'):
+            self.addRule("expr ::= call_kw", nop_func)
             values = 'expr ' * token.attr
-            rule = 'call ::= expr kwargs_only_36 {token.kind}'.format(**locals())
+            rule = 'call_kw ::= expr kwargs_36 {token.kind}'.format(**locals())
+            self.addRule(rule, nop_func)
+            rule = 'kwargs_36 ::= {values} LOAD_CONST'.format(**locals())
             self.add_unique_rule(rule, token.kind, token.attr, customize)
-            rule = 'kwargs_only_36 ::= {values} LOAD_CONST'.format(**locals())
-            self.add_unique_rule(rule, token.kind, token.attr, customize)
+        elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
+            v = token.attr
+            rule = ('build_tuple_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
+                    'expr32 ' * int((v//32) % 32) +
+                    'expr ' * (v % 32) + opname)
+            self.addRule(rule, nop_func)
+        elif opname.startswith('CALL_FUNCTION_EX'):
+            self.addRule("expr ::= call_ex", nop_func)
+            if token.attr == 0:
+                self.addRule("""
+                             unpack_list ::= list
+                             call_ex     ::= expr unpack_list CALL_FUNCTION_EX
+                             """, nop_func)
+            else:
+                self.addRule(
+                    'call_ex ::= expr build_tuple_unpack_with_call CALL_FUNCTION_EX',
+                    nop_func)
+            pass
+        elif opname == 'CALL_FUNCTION_EX_KW':
+            args_pos, args_kw = self.get_pos_kw(token)
+            uniq_param = args_kw + args_pos
+            self.addRule("expr ::= call_ex_kw", nop_func)
+            rule = ('call_ex_kw ::= '
+                    'expr build_tuple_unpack_with_call build_map_unpack_with_call '
+                    'CALL_FUNCTION_EX_KW')
+            self.addRule(rule, nop_func)
         else:
             super(Python36Parser, self).custom_classfunc_rule(opname, token,
                                                               customize,

@@ -28,7 +28,6 @@ class Python31Parser(Python32Parser):
                            POP_BLOCK LOAD_CONST COME_FROM_FINALLY
                            load del_stmt WITH_CLEANUP END_FINALLY
 
-        store ::= STORE_FAST
         store ::= STORE_NAME
         load  ::= LOAD_FAST
         load  ::= LOAD_NAME

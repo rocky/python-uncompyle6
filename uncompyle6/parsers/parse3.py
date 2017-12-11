@@ -656,7 +656,11 @@ class Python3Parser(PythonParser):
                 rule = ('build_map_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
                         'expr32 ' * int((v//32) % 32) +
                         'expr ' * (v % 32) + opname)
-                self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
+                self.custom_classfunc_rule(opname, token, customize,
+                                           seen_LOAD_BUILD_CLASS,
+                                           seen_GET_AWAITABLE_YIELD_FROM, tokens[i+1])
+                continue
             elif opname_base in ('BUILD_LIST', 'BUILD_SET', 'BUILD_TUPLE'):
                 v = token.attr
 
@@ -693,14 +697,11 @@ class Python3Parser(PythonParser):
                         'expr ::= build_slice3',
                         'build_slice3 ::= expr expr expr BUILD_SLICE_3',
                         ], customize)
-            elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
-                v = token.attr
-                rule = ('build_tuple_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
-                        'expr32 ' * int((v//32) % 32) +
-                        'expr ' * (v % 32) + opname)
-                self.add_unique_rule(rule, opname, token.attr, customize)
-            elif (opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
-                             'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_EX_KW')
+            elif (opname in frozenset(('CALL_FUNCTION',
+                                       'CALL_FUNCTION_EX',
+                                       'CALL_FUNCTION_EX_KW',
+                                       'CALL_FUNCTION_VAR',
+                                       'CALL_FUNCTION_VAR_KW'))
                   or opname.startswith('CALL_FUNCTION_KW')):
                 self.custom_classfunc_rule(opname, token, customize,
                                            seen_LOAD_BUILD_CLASS,

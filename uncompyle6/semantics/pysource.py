@@ -442,7 +442,60 @@ class SourceWalker(GenericASTTraversal, object):
                     if version >= 3.6:
                         TABLE_DIRECT.update({
                             'try_except36': ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
-                            })
+                            'unpack_list':  ( '*%c', (0, 'list') ),
+                            'call_ex' : (
+                                '%c(%c)',
+                                (0, 'expr'), 1),
+                        })
+
+                        def n_build_tuple_unpack_with_call(node):
+                            if node[0] == 'expr':
+                                first = node[0][0]
+                            else:
+                                first = node[0]
+                            if first == 'tuple':
+                                flat_elems = []
+                                # Note: don't iteratee over last element which is a
+                                # BUILD_TUPLE...
+                                for elem in first[:-1]:
+                                    if elem == 'expr1024':
+                                        for subelem in elem:
+                                            for subsubelem in subelem:
+                                                flat_elems.append(subsubelem)
+                                    elif elem == 'expr32':
+                                        for subelem in elem:
+                                            flat_elems.append(subelem)
+                                    else:
+                                        flat_elems.append(elem)
+                                        pass
+                                    pass
+
+                                self.indent_more(INDENT_PER_LEVEL)
+                                sep = ''
+
+                                for elem in flat_elems:
+                                    if elem in ('ROT_THREE', 'EXTENDED_ARG'):
+                                        continue
+                                    assert elem == 'expr'
+                                    line_number = self.line_number
+                                    value = self.traverse(elem)
+                                    if line_number != self.line_number:
+                                        sep += '\n' + self.indent + INDENT_PER_LEVEL[:-1]
+                                    self.write(sep, value)
+                                    sep = ', '
+
+                            self.indent_less(INDENT_PER_LEVEL)
+
+                            btuwc = node[-1]
+                            assert btuwc.kind.startswith('BUILD_TUPLE_UNPACK_WITH_CALL')
+                            for n in node[1:-1]:
+                                self.f.write(', *')
+                                self.preorder(n)
+                                pass
+                            self.prune()
+                            return
+
+                        self.n_build_tuple_unpack_with_call = n_build_tuple_unpack_with_call
 
                     def n_async_call(node):
                         self.f.write('async ')

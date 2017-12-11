@@ -52,7 +52,7 @@
 
     $ git commit -m"Get ready for release $VERSION" .
 
-# Check against all versions
+# Check against older versions
 
     $ source admin-tools/check-older-versions.sh
 
