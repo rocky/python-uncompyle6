@@ -328,7 +328,7 @@ class Python3Parser(PythonParser):
 
     def p_loop_stmt3(self, args):
         """
-        forstmt           ::= SETUP_LOOP expr _for store for_block POP_BLOCK
+        for               ::= SETUP_LOOP expr _for store for_block POP_BLOCK
                               COME_FROM_LOOP
 
         forelsestmt       ::= SETUP_LOOP expr _for store for_block POP_BLOCK else_suite
@@ -372,7 +372,7 @@ class Python3Parser(PythonParser):
                               COME_FROM_LOOP
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP
                               COME_FROM_LOOP
-        forstmt           ::= SETUP_LOOP expr _for store for_block POP_BLOCK NOP
+        for               ::= SETUP_LOOP expr _for store for_block POP_BLOCK NOP
                               COME_FROM_LOOP
         """
 

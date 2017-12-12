@@ -268,7 +268,7 @@ class PythonParser(GenericASTBuilder):
         stmt ::= while1stmt
         stmt ::= whileelsestmt
         stmt ::= while1elsestmt
-        stmt ::= forstmt
+        stmt ::= for
         stmt ::= forelsestmt
         stmt ::= try_except
         stmt ::= tryelsestmt
@@ -380,8 +380,8 @@ class PythonParser(GenericASTBuilder):
 
         for_block ::= l_stmts_opt _come_froms JUMP_BACK
 
-        forstmt ::= SETUP_LOOP expr _for store
-                for_block POP_BLOCK _come_froms
+        for       ::= SETUP_LOOP expr _for store
+                      for_block POP_BLOCK _come_froms
 
         forelsestmt ::= SETUP_LOOP expr _for store
                 for_block POP_BLOCK else_suite _come_froms

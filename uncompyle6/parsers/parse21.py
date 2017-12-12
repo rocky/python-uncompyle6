@@ -14,10 +14,10 @@ class Python21Parser(Python22Parser):
     def p_forstmt21(self, args):
         """
         _for        ::= LOAD_CONST FOR_LOOP
-        forstmt     ::= SETUP_LOOP expr _for store
+        for         ::= SETUP_LOOP expr _for store
                         return_stmts
                         POP_BLOCK COME_FROM
-        forstmt     ::= SETUP_LOOP expr _for store
+        for         ::= SETUP_LOOP expr _for store
                         l_stmts_opt _jump_back
                         POP_BLOCK COME_FROM
 
