@@ -263,6 +263,10 @@ class Python26Parser(Python2Parser):
                                jmp_false_then compare_chained1 _come_froms
         compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
                                jmp_false_then compare_chained2 _come_froms
+        compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                               jmp_false compare_chained1 _come_froms
+        compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                               jmp_false compare_chained2 _come_froms
 
         return_lambda      ::= RETURN_VALUE
         return_lambda      ::= RETURN_END_IF_LAMBDA
