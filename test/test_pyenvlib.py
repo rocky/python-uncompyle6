@@ -103,6 +103,9 @@ def do_tests(src_dir, patterns, target_dir, start_with=None, do_verify=False):
         files = [file for file in files if not 'site-packages' in file]
         files = [file for file in files if not 'test' in file]
         if len(files) > 200:
+            # print("Numer of files %d - truncating to last 200" % len(files))
+            # files = files[-200:]
+            print("Numer of files %d - truncating to first 200" % len(files))
             files = files[:200]
 
     print(time.ctime())

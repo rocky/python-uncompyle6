@@ -66,6 +66,17 @@ case $PYVERSION in
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_queue.py]=1 # Control flow?
+	    # .pyenv/versions/2.6.9/lib/python2.6/lib2to3/refactor.pyc
+	    # .pyenv/versions/2.6.9/lib/python2.6/mailbox.pyc
+	    # .pyenv/versions/2.6.9/lib/python2.6/markupbase.pyc
+	    # .pyenv/versions/2.6.9/lib/python2.6/pstats.pyc
+	    # .pyenv/versions/2.6.9/lib/python2.6/pyclbr.pyc
+	    # .pyenv/versions/2.6.9/lib/python2.6/quopri.pyc -- look at ishex, is short
+	    # .pyenv/versions/2.6.9/lib/python2.6/random.pyc
+	    # .pyenv/versions/2.6.9/lib/python2.6/smtpd.pyc
+	    # .pyenv/versions/2.6.9/lib/python2.6/sre_parse.pyc
+	    # .pyenv/versions/2.6.9/lib/python2.6/tabnanny.pyc
+	    # .pyenv/versions/2.6.9/lib/python2.6/tarfile.pyc
 	    )
 	;;
     2.7)
@@ -74,6 +85,11 @@ case $PYVERSION in
 	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
 	    [test_ioctl.py]=1 # Test takes too long to run
 	    [test_itertools.py]=1 # Syntax error - look at!
+	    # Syntax errors:
+	    # .pyenv/versions/2.7.14/lib/python2.7/mimify.pyc
+	    # .pyenv/versions/2.7.14/lib/python2.7/netrc.pyc
+	    # .pyenv/versions/2.7.14/lib/python2.7/pyclbr.pyc
+	    # .pyenv/versions/2.7.14/lib/python2.7/sre_compile.pyc
         )
 	;;
     *)
