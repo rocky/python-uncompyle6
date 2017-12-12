@@ -98,9 +98,6 @@ class Python3Parser(PythonParser):
         continues ::= lastl_stmt continue
         continues ::= continue
 
-        del_stmt ::= delete_subscr
-        delete_subscr ::= expr expr DELETE_SUBSCR
-        del_stmt ::= expr DELETE_ATTR
 
         kwarg   ::= LOAD_CONST expr
         kwargs  ::= kwarg*
@@ -555,7 +552,8 @@ class Python3Parser(PythonParser):
         # include instructions that don't need customization,
         # but we'll do a finer check after the rough breakout.
         customize_instruction_basenames = frozenset(
-            ('BUILD', 'CALL', 'DELETE', 'JUMP', 'LOAD', 'LOOKUP', 'MAKE',
+            ('BUILD', 'CALL', 'DELETE',
+             'JUMP',  'LOAD', 'LOOKUP', 'MAKE',
              'RAISE', 'UNPACK'))
 
         is_pypy               = False
@@ -718,10 +716,19 @@ class Python3Parser(PythonParser):
                         ('kwarg ' * args_kw) +
                         'expr ' * nak + opname)
                 self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname == 'DELETE_ATTR':
+                self.addRule("""
+                   del_stmt ::= expr DELETE_ATTR
+                   """, nop_func)
             elif opname == 'DELETE_DEREF':
                 self.addRule("""
                    stmt           ::= del_deref_stmt
                    del_deref_stmt ::= DELETE_DEREF
+                   """, nop_func)
+            elif opname == 'DELETE_SUBSCR':
+                self.addRule("""
+                    del_stmt ::= delete_subscr
+                    delete_subscr ::= expr expr DELETE_SUBSCR
                    """, nop_func)
             elif opname == 'JUMP_IF_NOT_DEBUG':
                 v = token.attr
