@@ -134,9 +134,14 @@ class Python36Parser(Python35Parser):
             rule = 'kwargs_36 ::= {values} LOAD_CONST'.format(**locals())
             self.add_unique_rule(rule, token.kind, token.attr, customize)
         elif opname == 'CALL_FUNCTION_EX_KW':
-            self.addRule("""expr       ::= call_ex_kw
-                            call_ex_kw ::= expr expr build_map_unpack_with_call
+            self.addRule("""expr        ::= call_ex_kw
+                            expr        ::= call_ex_kw2
+                            call_ex_kw  ::= expr expr build_map_unpack_with_call
                                            CALL_FUNCTION_EX_KW
+                            call_ex_kw2 ::= expr
+                                            build_tuple_unpack_with_call
+                                            build_map_unpack_with_call
+                                            CALL_FUNCTION_EX_KW
                          """,
                          nop_func)
         elif opname == 'CALL_FUNCTION_EX':

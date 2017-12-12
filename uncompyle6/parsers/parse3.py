@@ -655,9 +655,6 @@ class Python3Parser(PythonParser):
                         'expr32 ' * int((v//32) % 32) +
                         'expr ' * (v % 32) + opname)
             elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
-                self.custom_classfunc_rule(opname, token, customize,
-                                           seen_LOAD_BUILD_CLASS,
-                                           seen_GET_AWAITABLE_YIELD_FROM, tokens[i+1])
                 continue
             elif opname_base in ('BUILD_LIST', 'BUILD_SET', 'BUILD_TUPLE'):
                 v = token.attr

@@ -526,6 +526,7 @@ class SourceWalker(GenericASTTraversal, object):
                         'call_ex_kw' : (
                             '%c(%c)',
                             (0, 'expr'), 2),
+
                     })
 
                     TABLE_R.update({
@@ -537,31 +538,12 @@ class SourceWalker(GenericASTTraversal, object):
                     def build_unpack_tuple_with_call(node):
 
                         if node[0] == 'expr':
-                            first = node[0][0]
+                            tup = node[0][0]
                         else:
-                            first = node[0]
+                            tup = node[0]
                             pass
-                        assert first == 'tuple'
-                        # Note: don't iterate over last element which is a
-                        # BUILD_TUPLE...
-                        flat_elems = flatten_list(first[:-1])
-
-                        self.indent_more(INDENT_PER_LEVEL)
-                        sep = ''
-
-                        for elem in flat_elems:
-                            if elem in ('ROT_THREE', 'EXTENDED_ARG'):
-                                continue
-                            assert elem == 'expr'
-                            line_number = self.line_number
-                            value = self.traverse(elem)
-                            if line_number != self.line_number:
-                                sep += '\n' + self.indent + INDENT_PER_LEVEL[:-1]
-                            self.write(sep, value)
-                            sep = ', '
-
-                        self.indent_less(INDENT_PER_LEVEL)
-
+                        assert tup == 'tuple'
+                        self.call36_tuple(tup)
 
                         buwc = node[-1]
                         assert buwc.kind.startswith('BUILD_TUPLE_UNPACK_WITH_CALL')
@@ -583,6 +565,114 @@ class SourceWalker(GenericASTTraversal, object):
                         self.prune()
                         return
                     self.n_build_map_unpack_with_call = build_unpack_map_with_call
+
+                    def call_ex_kw2(node):
+                        # This is weird shit. Thanks Python!
+                        self.preorder(node[0])
+                        self.write('(')
+
+                        assert node[1] == 'build_tuple_unpack_with_call'
+                        btuwc = node[1]
+                        tup = btuwc[0]
+                        if tup == 'expr':
+                            tup = tup[0]
+                        assert tup == 'tuple'
+                        self.call36_tuple(tup)
+                        assert node[2] == 'build_map_unpack_with_call'
+
+                        self.write(', ')
+                        d = node[2][0]
+                        if d == 'expr':
+                            d = d[0]
+                        assert d == 'dict'
+                        self.call36_dict(d)
+
+                        args = btuwc[1]
+                        self.write(', *')
+                        self.preorder(args)
+
+                        self.write(', **')
+                        star_star_args = node[2][1]
+                        if star_star_args == 'expr':
+                            star_star_args = star_star_args[0]
+                        self.preorder(star_star_args)
+                        self.write(')')
+                        self.prune()
+                    self.n_call_ex_kw2 = call_ex_kw2
+
+                    def call36_tuple(node):
+                        """
+                        A tuple used in a call, these are like normal tuples but they
+                        don't have the enclosing parenthesis.
+                        """
+                        assert node == 'tuple'
+                        # Note: don't iterate over last element which is a
+                        # BUILD_TUPLE...
+                        flat_elems = flatten_list(node[:-1])
+
+                        self.indent_more(INDENT_PER_LEVEL)
+                        sep = ''
+
+                        for elem in flat_elems:
+                            if elem in ('ROT_THREE', 'EXTENDED_ARG'):
+                                continue
+                            assert elem == 'expr'
+                            line_number = self.line_number
+                            value = self.traverse(elem)
+                            if line_number != self.line_number:
+                                sep += '\n' + self.indent + INDENT_PER_LEVEL[:-1]
+                            self.write(sep, value)
+                            sep = ', '
+
+                        self.indent_less(INDENT_PER_LEVEL)
+                        return
+                    self.call36_tuple = call36_tuple
+
+                    def call36_dict(node):
+                        """
+                        A dict used in a call_ex_kw2, which are a dictionary items expressed
+                        in a call. This should format to:
+                             a=1, b=2
+                        In other words, no braces, no quotes around keys and ":" becomes
+                        "=".
+
+                        We will source-code use line breaks to guide us when to break.
+                        """
+                        p = self.prec
+                        self.prec = 100
+
+                        self.indent_more(INDENT_PER_LEVEL)
+                        sep = INDENT_PER_LEVEL[:-1]
+                        line_number = self.line_number
+
+                        assert node[0].kind.startswith('kvlist')
+                        # Python 3.5+ style key/value list in dict
+                        kv_node = node[0]
+                        l = list(kv_node)
+                        i = 0
+                        # Respect line breaks from source
+                        while i < len(l):
+                            self.write(sep)
+                            name = self.traverse(l[i], indent='')
+                            # Strip off beginning and trailing quotes in name
+                            name = name[1:-1]
+                            if i > 0:
+                                line_number = self.indent_if_source_nl(line_number,
+                                                                       self.indent + INDENT_PER_LEVEL[:-1])
+                            line_number = self.line_number
+                            self.write(name, '=')
+                            value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
+                            self.write(value)
+                            sep = ","
+                            if line_number != self.line_number:
+                                sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                                line_number = self.line_number
+                            i += 2
+                            pass
+                        self.prec = p
+                        self.indent_less(INDENT_PER_LEVEL)
+                        return
+                    self.call36_dict = call36_dict
 
 
                     FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
