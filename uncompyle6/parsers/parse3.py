@@ -96,9 +96,6 @@ class Python3Parser(PythonParser):
         continues ::= lastl_stmt continue
         continues ::= continue
 
-        del_stmt ::= delete_subscr
-        delete_subscr ::= expr expr DELETE_SUBSCR
-        del_stmt ::= expr DELETE_ATTR
 
         kwarg   ::= LOAD_CONST expr
         kwargs  ::= kwarg*
@@ -556,7 +553,8 @@ class Python3Parser(PythonParser):
         # include instructions that don't need customization,
         # but we'll do a finer check after the rough breakout.
         customize_instruction_basenames = frozenset(
-            ('BUILD', 'CALL', 'DELETE', 'JUMP', 'LOAD', 'LOOKUP', 'MAKE',
+            ('BUILD', 'CALL', 'DELETE',
+             'JUMP',  'LOAD', 'LOOKUP', 'MAKE',
              'RAISE', 'UNPACK'))
 
         is_pypy               = False
@@ -657,7 +655,8 @@ class Python3Parser(PythonParser):
                 rule = ('build_map_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
                         'expr32 ' * int((v//32) % 32) +
                         'expr ' * (v % 32) + opname)
-                self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
+                continue
             elif opname_base in ('BUILD_LIST', 'BUILD_SET', 'BUILD_TUPLE'):
                 v = token.attr
 
@@ -694,14 +693,11 @@ class Python3Parser(PythonParser):
                         'expr ::= build_slice3',
                         'build_slice3 ::= expr expr expr BUILD_SLICE_3',
                         ], customize)
-            elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
-                v = token.attr
-                rule = ('build_tuple_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
-                        'expr32 ' * int((v//32) % 32) +
-                        'expr ' * (v % 32) + opname)
-                self.add_unique_rule(rule, opname, token.attr, customize)
-            elif (opname in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
-                             'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_EX_KW')
+            elif (opname in frozenset(('CALL_FUNCTION',
+                                       'CALL_FUNCTION_EX',
+                                       'CALL_FUNCTION_EX_KW',
+                                       'CALL_FUNCTION_VAR',
+                                       'CALL_FUNCTION_VAR_KW'))
                   or opname.startswith('CALL_FUNCTION_KW')):
                 self.custom_classfunc_rule(opname, token, customize,
                                            seen_LOAD_BUILD_CLASS,
@@ -718,10 +714,19 @@ class Python3Parser(PythonParser):
                         ('kwarg ' * args_kw) +
                         'expr ' * nak + opname)
                 self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname == 'DELETE_ATTR':
+                self.addRule("""
+                   del_stmt ::= expr DELETE_ATTR
+                   """, nop_func)
             elif opname == 'DELETE_DEREF':
                 self.addRule("""
                    stmt           ::= del_deref_stmt
                    del_deref_stmt ::= DELETE_DEREF
+                   """, nop_func)
+            elif opname == 'DELETE_SUBSCR':
+                self.addRule("""
+                    del_stmt ::= delete_subscr
+                    delete_subscr ::= expr expr DELETE_SUBSCR
                    """, nop_func)
             elif opname == 'JUMP_IF_NOT_DEBUG':
                 v = token.attr

@@ -127,6 +127,28 @@ def print_docstring(self, indent, docstring):
         self.println(indent, trimmed[-1], quote)
     return True
 
+
+def flatten_list(node):
+    """
+    List of expressions may be nested in groups of 32 and 1024
+    items. flatten that out and return the list
+    """
+    flat_elems = []
+    for elem in node:
+        if elem == 'expr1024':
+            for subelem in elem:
+                for subsubelem in subelem:
+                    flat_elems.append(subsubelem)
+        elif elem == 'expr32':
+            for subelem in elem:
+                flat_elems.append(subelem)
+        else:
+            flat_elems.append(elem)
+            pass
+        pass
+    return flat_elems
+
+
 # if __name__ == '__main__':
 #     if PYTHON3:
 #         from io import StringIO

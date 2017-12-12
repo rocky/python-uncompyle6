@@ -53,27 +53,7 @@ class Python35Parser(Python34Parser):
                        POP_BLOCK LOAD_CONST COME_FROM_WITH
                        WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
-
         # Python 3.5+ async additions
-
-        stmt            ::= async_with_stmt
-        async_with_stmt ::= expr
-                            BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                            SETUP_ASYNC_WITH POP_TOP suite_stmts_opt
-                            POP_BLOCK LOAD_CONST
-                            WITH_CLEANUP_START
-                            GET_AWAITABLE LOAD_CONST YIELD_FROM
-                            WITH_CLEANUP_FINISH END_FINALLY
-
-        stmt               ::= async_with_as_stmt
-        async_with_as_stmt ::= expr
-                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               SETUP_ASYNC_WITH store suite_stmts_opt
-                               POP_BLOCK LOAD_CONST
-                               WITH_CLEANUP_START
-                               GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               WITH_CLEANUP_FINISH END_FINALLY
-
         stmt               ::= async_for_stmt
         async_for_stmt     ::= SETUP_LOOP expr
                                GET_AITER
@@ -152,20 +132,57 @@ class Python35Parser(Python34Parser):
                 nargs = token.attr % 256
                 map_unpack_n = "map_unpack_%s" % nargs
                 rule = map_unpack_n + ' ::= ' + 'expr ' * (nargs)
-                print("XXXX", rule)
                 self.addRule(rule, nop_func)
                 rule = "unmapexpr ::=  %s %s" % (map_unpack_n, opname)
                 self.addRule(rule, nop_func)
                 call_token = tokens[i+1]
                 rule = 'call ::= expr unmapexpr ' + call_token.kind
-                print("XXXX2", rule)
                 self.addRule(rule, nop_func)
+            elif opname == 'BEFORE_ASYNC_WITH':
+                # Some Python 3.5+ async additions
+                rules_str = """
+                   async_with_stmt ::= expr
+                   stmt ::= async_with_stmt
+
+                   async_with_stmt ::= expr
+                            BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                            SETUP_ASYNC_WITH POP_TOP suite_stmts_opt
+                            POP_BLOCK LOAD_CONST
+                            WITH_CLEANUP_START
+                            GET_AWAITABLE LOAD_CONST YIELD_FROM
+                            WITH_CLEANUP_FINISH END_FINALLY
+
+                   stmt ::= async_with_as_stmt
+
+                   async_with_as_stmt ::= expr
+                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               SETUP_ASYNC_WITH store suite_stmts_opt
+                               POP_BLOCK LOAD_CONST
+                               WITH_CLEANUP_START
+                               GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               WITH_CLEANUP_FINISH END_FINALLY
+                """
+                self.addRule(rules_str, nop_func)
             elif opname == 'BUILD_MAP_UNPACK':
                 self.addRule("""
                    expr       ::= unmap_dict
                    unmap_dict ::= dict_comp BUILD_MAP_UNPACK
                    """, nop_func)
 
+            elif opname == 'SETUP_WITH':
+                # Python 3.5+ has WITH_CLEANUP_START/FINISH
+                rules_str = """
+                  withstmt   ::= expr
+                       SETUP_WITH POP_TOP suite_stmts_opt
+                       POP_BLOCK LOAD_CONST COME_FROM_WITH
+                       WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+
+                  withasstmt ::= expr
+                       SETUP_WITH store suite_stmts_opt
+                       POP_BLOCK LOAD_CONST COME_FROM_WITH
+                       WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                """
+                self.addRule(rules_str, nop_func)
             pass
         return
 

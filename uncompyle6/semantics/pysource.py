@@ -127,7 +127,7 @@ from uncompyle6.semantics.make_function import (
 from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.semantics.check_ast import checker
 from uncompyle6.semantics.helper import (
-    print_docstring, find_globals)
+    print_docstring, find_globals, flatten_list)
 from uncompyle6.scanners.tok import Token
 
 from uncompyle6.semantics.consts import (
@@ -439,12 +439,8 @@ class SourceWalker(GenericASTTraversal, object):
                         # 'unmapexpr':	       ( '{**%c}', 0), # done by n_unmapexpr
 
                     })
-                    if version >= 3.6:
-                        TABLE_DIRECT.update({
-                            'try_except36': ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
-                            })
 
-                    def n_async_call(node):
+                    def async_call(node):
                         self.f.write('async ')
                         node.kind == 'call'
                         p = self.prec
@@ -454,7 +450,7 @@ class SourceWalker(GenericASTTraversal, object):
                         self.prec = p
                         node.kind == 'async_call'
                         self.prune()
-                    self.n_async_call = n_async_call
+                    self.n_async_call = async_call
                     self.n_build_list_unpack = self.n_list
 
                     if version == 3.5:
@@ -500,7 +496,7 @@ class SourceWalker(GenericASTTraversal, object):
                         self.prune()
                     self.n_function_def = n_function_def
 
-                    def n_unmapexpr(node):
+                    def unmapexpr(node):
                         last_n = node[0][-1]
                         for n in node[0]:
                             self.preorder(n)
@@ -510,40 +506,191 @@ class SourceWalker(GenericASTTraversal, object):
                             pass
                         self.prune()
                         pass
-                    self.n_unmapexpr = n_unmapexpr
+                    self.n_unmapexpr = unmapexpr
 
                 if version >= 3.6:
                     ########################
                     # Python 3.6+ Additions
                     #######################
+
                     TABLE_DIRECT.update({
                         'fstring_expr':   ( "{%c%{conversion}}", 0),
                         'fstring_single': ( "f'{%c%{conversion}}'", 0),
                         'fstring_multi':  ( "f'%c'", 0),
                         'func_args36':    ( "%c(**", 0),
-                        #'kwargs_only_36': ( "%c(**", 0),
+                        'try_except36': ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
+                        'unpack_list':  ( '*%c', (0, 'list') ),
+                        'call_ex' : (
+                            '%c(%c)',
+                            (0, 'expr'), 1),
+                        'call_ex_kw' : (
+                            '%c(%c)',
+                            (0, 'expr'), 2),
+
                     })
+
                     TABLE_R.update({
                         'CALL_FUNCTION_EX': ('%c(*%P)', 0, (1, 2, ', ', 100)),
                         # Not quite right
                         'CALL_FUNCTION_EX_KW': ('%c(**%C)', 0, (2,3, ',')),
                         })
+
+                    def build_unpack_tuple_with_call(node):
+
+                        if node[0] == 'expr':
+                            tup = node[0][0]
+                        else:
+                            tup = node[0]
+                            pass
+                        assert tup == 'tuple'
+                        self.call36_tuple(tup)
+
+                        buwc = node[-1]
+                        assert buwc.kind.startswith('BUILD_TUPLE_UNPACK_WITH_CALL')
+                        for n in node[1:-1]:
+                            self.f.write(', *')
+                            self.preorder(n)
+                            pass
+                        self.prune()
+                        return
+                    self.n_build_tuple_unpack_with_call = build_unpack_tuple_with_call
+
+                    def build_unpack_map_with_call(node):
+                        sep = '**'
+                        for n in node[:-1]:
+                            self.f.write(sep)
+                            self.preorder(n)
+                            sep = ', **'
+                            pass
+                        self.prune()
+                        return
+                    self.n_build_map_unpack_with_call = build_unpack_map_with_call
+
+                    def call_ex_kw2(node):
+                        # This is weird shit. Thanks Python!
+                        self.preorder(node[0])
+                        self.write('(')
+
+                        assert node[1] == 'build_tuple_unpack_with_call'
+                        btuwc = node[1]
+                        tup = btuwc[0]
+                        if tup == 'expr':
+                            tup = tup[0]
+                        assert tup == 'tuple'
+                        self.call36_tuple(tup)
+                        assert node[2] == 'build_map_unpack_with_call'
+
+                        self.write(', ')
+                        d = node[2][0]
+                        if d == 'expr':
+                            d = d[0]
+                        assert d == 'dict'
+                        self.call36_dict(d)
+
+                        args = btuwc[1]
+                        self.write(', *')
+                        self.preorder(args)
+
+                        self.write(', **')
+                        star_star_args = node[2][1]
+                        if star_star_args == 'expr':
+                            star_star_args = star_star_args[0]
+                        self.preorder(star_star_args)
+                        self.write(')')
+                        self.prune()
+                    self.n_call_ex_kw2 = call_ex_kw2
+
+                    def call36_tuple(node):
+                        """
+                        A tuple used in a call, these are like normal tuples but they
+                        don't have the enclosing parenthesis.
+                        """
+                        assert node == 'tuple'
+                        # Note: don't iterate over last element which is a
+                        # BUILD_TUPLE...
+                        flat_elems = flatten_list(node[:-1])
+
+                        self.indent_more(INDENT_PER_LEVEL)
+                        sep = ''
+
+                        for elem in flat_elems:
+                            if elem in ('ROT_THREE', 'EXTENDED_ARG'):
+                                continue
+                            assert elem == 'expr'
+                            line_number = self.line_number
+                            value = self.traverse(elem)
+                            if line_number != self.line_number:
+                                sep += '\n' + self.indent + INDENT_PER_LEVEL[:-1]
+                            self.write(sep, value)
+                            sep = ', '
+
+                        self.indent_less(INDENT_PER_LEVEL)
+                        return
+                    self.call36_tuple = call36_tuple
+
+                    def call36_dict(node):
+                        """
+                        A dict used in a call_ex_kw2, which are a dictionary items expressed
+                        in a call. This should format to:
+                             a=1, b=2
+                        In other words, no braces, no quotes around keys and ":" becomes
+                        "=".
+
+                        We will source-code use line breaks to guide us when to break.
+                        """
+                        p = self.prec
+                        self.prec = 100
+
+                        self.indent_more(INDENT_PER_LEVEL)
+                        sep = INDENT_PER_LEVEL[:-1]
+                        line_number = self.line_number
+
+                        assert node[0].kind.startswith('kvlist')
+                        # Python 3.5+ style key/value list in dict
+                        kv_node = node[0]
+                        l = list(kv_node)
+                        i = 0
+                        # Respect line breaks from source
+                        while i < len(l):
+                            self.write(sep)
+                            name = self.traverse(l[i], indent='')
+                            # Strip off beginning and trailing quotes in name
+                            name = name[1:-1]
+                            if i > 0:
+                                line_number = self.indent_if_source_nl(line_number,
+                                                                       self.indent + INDENT_PER_LEVEL[:-1])
+                            line_number = self.line_number
+                            self.write(name, '=')
+                            value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
+                            self.write(value)
+                            sep = ","
+                            if line_number != self.line_number:
+                                sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                                line_number = self.line_number
+                            i += 2
+                            pass
+                        self.prec = p
+                        self.indent_less(INDENT_PER_LEVEL)
+                        return
+                    self.call36_dict = call36_dict
+
+
                     FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
 
                     def f_conversion(node):
                         node.conversion = FSTRING_CONVERSION_MAP.get(node.data[1].attr, '')
 
-                    def n_fstring_expr(node):
+                    def fstring_expr(node):
                         f_conversion(node)
                         self.default(node)
-                    self.n_fstring_expr = n_fstring_expr
+                    self.n_fstring_expr = fstring_expr
 
-                    def n_fstring_single(node):
+                    def fstring_single(node):
                         f_conversion(node)
                         self.default(node)
-                    self.n_fstring_single = n_fstring_single
+                    self.n_fstring_single = fstring_single
 
-                    def n_kwargs_only_36(node):
+                    def kwargs_only_36(node):
                         keys = node[-1].attr
                         num_kwargs = len(keys)
                         values = node[:num_kwargs]
@@ -554,13 +701,13 @@ class SourceWalker(GenericASTTraversal, object):
                                 self.write(',')
                         self.prune()
                         return
-                    self.n_kwargs_only_36 = n_kwargs_only_36
+                    self.n_kwargs_only_36 = kwargs_only_36
 
-                    def n_return_closure(node):
+                    def return_closure(node):
                         # Nothing should be output here
                         self.prune()
                         return
-                    self.n_return_closure = n_return_closure
+                    self.n_return_closure = return_closure
                     pass # version > 3.6
                 pass # version > 3.4
             pass # version > 3.0
@@ -1867,21 +2014,10 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             raise TypeError('Internal Error: n_build_list expects list, tuple, set, or unpack')
 
-        flat_elems = []
-        for elem in node:
-            if elem == 'expr1024':
-                for subelem in elem:
-                        for subsubelem in subelem:
-                            flat_elems.append(subsubelem)
-            elif elem == 'expr32':
-                for subelem in elem:
-                    flat_elems.append(subelem)
-            else:
-                flat_elems.append(elem)
+        flat_elems = flatten_list(node)
 
         self.indent_more(INDENT_PER_LEVEL)
         sep = ''
-
         for elem in flat_elems:
             if elem in ('ROT_THREE', 'EXTENDED_ARG'):
                 continue
@@ -1905,6 +2041,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.write(',')
         self.write(endchar)
         self.indent_less(INDENT_PER_LEVEL)
+
         self.prec = p
         self.prune()
         return

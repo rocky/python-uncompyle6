@@ -35,6 +35,7 @@ def test_grammar():
             expect_lhs.add("annotate_arg")
             expect_lhs.add("annotate_tuple")
             unused_rhs.add("mkfunc_annotate")
+            unused_rhs.add('call')
             if PYTHON_VERSION < 3.6:
                 # 3.6 has at least one non-custom call rule
                 # the others don't
@@ -47,8 +48,6 @@ def test_grammar():
             else:
                 expect_right_recursive.add((('l_stmts',
                                              ('lastl_stmt', 'COME_FROM', 'l_stmts'))))
-                unused_rhs.add('build_map_unpack_with_call')
-                unused_rhs.add('unmapexpr')
                 # expect_lhs.add('kwargs1')
                 pass
             pass

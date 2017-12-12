@@ -33,8 +33,6 @@ class Scanner36(Scanner3):
                 pass
             elif t.op == self.opc.CALL_FUNCTION_KW:
                 t.kind = 'CALL_FUNCTION_KW_{t.attr}'.format(**locals())
-            elif t.op == self.opc.BUILD_TUPLE_UNPACK_WITH_CALL:
-                t.kind = 'BUILD_TUPLE_UNPACK_WITH_CALL_%d' % t.attr
             elif t.op == self.opc.BUILD_MAP_UNPACK_WITH_CALL:
                 t.kind = 'BUILD_MAP_UNPACK_WITH_CALL_%d' % t.attr
             pass

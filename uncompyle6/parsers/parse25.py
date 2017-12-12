@@ -29,7 +29,6 @@ class Python25Parser(Python26Parser):
         withstmt ::= expr setupwith SETUP_FINALLY suite_stmts_opt
                      POP_BLOCK LOAD_CONST COME_FROM with_cleanup
 
-        store ::= STORE_FAST
         store ::= STORE_NAME
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK

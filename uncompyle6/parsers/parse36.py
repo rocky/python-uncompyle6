@@ -3,7 +3,7 @@
 spark grammar differences over Python 3.5 for Python 3.6.
 """
 
-from uncompyle6.parser import PythonParserSingle
+from uncompyle6.parser import PythonParserSingle, nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parsers.parse35 import Python35Parser
 
@@ -26,16 +26,6 @@ class Python36Parser(Python35Parser):
         return_if_lambda   ::= RETURN_END_IF_LAMBDA
 
 
-        func_args36   ::= expr BUILD_TUPLE_0
-        call          ::= func_args36 unmapexpr CALL_FUNCTION_EX
-        call          ::= func_args36 build_map_unpack_with_call CALL_FUNCTION_EX_KW_1
-
-        withstmt      ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST
-                          WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
-
-        call          ::= expr expr CALL_FUNCTION_EX
-        call          ::= expr expr expr CALL_FUNCTION_EX_KW_1
-
         for_block       ::= l_stmts_opt come_from_loops JUMP_BACK
         come_from_loops ::= COME_FROM_LOOP*
 
@@ -45,23 +35,6 @@ class Python36Parser(Python35Parser):
 
         # Adds a COME_FROM_ASYNC_WITH over 3.5
         # FIXME: remove corresponding rule for 3.5?
-        async_with_as_stmt ::= expr
-                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               SETUP_ASYNC_WITH store
-                               suite_stmts_opt
-                               POP_BLOCK LOAD_CONST
-                               COME_FROM_ASYNC_WITH
-                               WITH_CLEANUP_START
-                               GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               WITH_CLEANUP_FINISH END_FINALLY
-        async_with_stmt ::= expr
-                            BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                            SETUP_ASYNC_WITH POP_TOP suite_stmts_opt
-                            POP_BLOCK LOAD_CONST
-                            COME_FROM_ASYNC_WITH
-                            WITH_CLEANUP_START
-                            GET_AWAITABLE LOAD_CONST YIELD_FROM
-                            WITH_CLEANUP_FINISH END_FINALLY
 
         except_suite ::= c_stmts_opt COME_FROM POP_EXCEPT jump_except COME_FROM
 
@@ -89,6 +62,30 @@ class Python36Parser(Python35Parser):
                     fstring_single ::= expr FORMAT_VALUE
                 """
                 self.add_unique_doc_rules(rules_str, customize)
+            elif opname == 'BEFORE_ASYNC_WITH':
+                rules_str = """
+                  stmt ::= async_with_stmt
+                  async_with_as_stmt ::= expr
+                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               SETUP_ASYNC_WITH store
+                               suite_stmts_opt
+                               POP_BLOCK LOAD_CONST
+                               COME_FROM_ASYNC_WITH
+                               WITH_CLEANUP_START
+                               GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               WITH_CLEANUP_FINISH END_FINALLY
+                 stmt ::= async_with_as_stmt
+                 async_with_stmt ::= expr
+                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               SETUP_ASYNC_WITH POP_TOP suite_stmts_opt
+                               POP_BLOCK LOAD_CONST
+                               COME_FROM_ASYNC_WITH
+                               WITH_CLEANUP_START
+                               GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               WITH_CLEANUP_FINISH END_FINALLY
+                """
+                self.addRule(rules_str, nop_func)
+
             elif opname == 'BUILD_STRING':
                 v = token.attr
                 joined_str_n = "formatted_value_%s" % v
@@ -106,23 +103,59 @@ class Python36Parser(Python35Parser):
                     %s                   ::= %sBUILD_STRING
                 """ % (joined_str_n, joined_str_n, "formatted_value " * v)
                 self.add_unique_doc_rules(rules_str, customize)
+            elif opname.startswith('BUILD_MAP_UNPACK_WITH_CALL'):
+                v = token.attr
+                rule = ('build_map_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
+                        'expr32 ' * int((v//32) % 32) +
+                        'expr ' * (v % 32) + opname)
+                self.addRule(rule, nop_func)
+            elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
+                v = token.attr
+                rule = ('build_tuple_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
+                        'expr32 ' * int((v//32) % 32) +
+                        'expr ' * (v % 32) + opname)
+                self.addRule(rule, nop_func)
+            elif opname == 'SETUP_WITH':
+                rules_str = """
+                withstmt  ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST
+                              WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                """
+                self.addRule(rules_str, nop_func)
 
     def custom_classfunc_rule(self, opname, token, customize,
                               possible_class_decorator,
                               seen_GET_AWAITABLE_YIELD_FROM, next_token):
         if opname.startswith('CALL_FUNCTION_KW'):
+            self.addRule("expr ::= call_kw", nop_func)
             values = 'expr ' * token.attr
-            rule = 'call ::= expr kwargs_only_36 {token.kind}'.format(**locals())
+            rule = 'call_kw ::= expr kwargs_36 {token.kind}'.format(**locals())
+            self.addRule(rule, nop_func)
+            rule = 'kwargs_36 ::= {values} LOAD_CONST'.format(**locals())
             self.add_unique_rule(rule, token.kind, token.attr, customize)
-            rule = 'kwargs_only_36 ::= {values} LOAD_CONST'.format(**locals())
-            self.add_unique_rule(rule, token.kind, token.attr, customize)
+        elif opname == 'CALL_FUNCTION_EX_KW':
+            self.addRule("""expr        ::= call_ex_kw
+                            expr        ::= call_ex_kw2
+                            call_ex_kw  ::= expr expr build_map_unpack_with_call
+                                           CALL_FUNCTION_EX_KW
+                            call_ex_kw2 ::= expr
+                                            build_tuple_unpack_with_call
+                                            build_map_unpack_with_call
+                                            CALL_FUNCTION_EX_KW
+                         """,
+                         nop_func)
+        elif opname == 'CALL_FUNCTION_EX':
+            self.addRule("""
+                         expr        ::= call_ex
+                         unpack_list ::= list
+                         call_ex     ::= expr unpack_list CALL_FUNCTION_EX
+                         """, nop_func)
+            pass
         else:
             super(Python36Parser, self).custom_classfunc_rule(opname, token,
                                                               customize,
                                                               possible_class_decorator,
                                                               seen_GET_AWAITABLE_YIELD_FROM,
                                                               next_token)
-
 
 class Python36ParserSingle(Python36Parser, PythonParserSingle):
     pass
