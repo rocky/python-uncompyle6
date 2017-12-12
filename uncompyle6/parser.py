@@ -376,20 +376,20 @@ class PythonParser(GenericASTBuilder):
 
     def p_forstmt(self, args):
         """
-        _for ::= GET_ITER FOR_ITER
+        for_iter ::= GET_ITER FOR_ITER
 
         for_block ::= l_stmts_opt _come_froms JUMP_BACK
 
-        for       ::= SETUP_LOOP expr _for store
+        for       ::= SETUP_LOOP expr for_iter store
                       for_block POP_BLOCK _come_froms
 
-        forelsestmt ::= SETUP_LOOP expr _for store
+        forelsestmt ::= SETUP_LOOP expr for_iter store
                 for_block POP_BLOCK else_suite _come_froms
 
-        forelselaststmt ::= SETUP_LOOP expr _for store
+        forelselaststmt ::= SETUP_LOOP expr for_iter store
                 for_block POP_BLOCK else_suitec _come_froms
 
-        forelselaststmtl ::= SETUP_LOOP expr _for store
+        forelselaststmtl ::= SETUP_LOOP expr for_iter store
                 for_block POP_BLOCK else_suitel _come_froms
         """
 

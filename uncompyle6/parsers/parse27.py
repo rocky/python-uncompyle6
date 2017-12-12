@@ -14,7 +14,7 @@ class Python27Parser(Python2Parser):
 
     def p_comprehension27(self, args):
         """
-        list_for  ::= expr _for store list_iter JUMP_BACK
+        list_for  ::= expr for_iter store list_iter JUMP_BACK
         list_comp ::= BUILD_LIST_0 list_iter
         lc_body   ::= expr LIST_APPEND
 
@@ -33,7 +33,7 @@ class Python27Parser(Python2Parser):
 
         comp_body ::= dict_comp_body
         comp_body ::= set_comp_body
-        comp_for ::= expr _for store comp_iter JUMP_BACK
+        comp_for ::= expr for_iter store comp_iter JUMP_BACK
 
         dict_comp_body ::= expr expr MAP_ADD
         set_comp_body ::= expr SET_ADD
