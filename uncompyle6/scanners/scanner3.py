@@ -190,8 +190,12 @@ class Scanner3(Scanner):
         # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
         self.insts = list(bytecode)
+        self.offset2inst_index = {}
         n = len(self.insts)
         for i, inst in enumerate(self.insts):
+
+            self.offset2inst_index[inst.offset] = i
+
             # We need to detect the difference between:
             #   raise AssertionError
             #  and
@@ -947,8 +951,18 @@ class Scanner3(Scanner):
                     self.fixed_jumps[offset] = rtarget
                     self.not_continue.add(pre_rtarget)
             else:
-                # For now, we'll only tag forward jump.
-                if self.version >= 3.6:
+
+                # FIXME: this is very convoluted and based on rather hacky
+                # empirical evidence. It should go a way when
+                # we have better control-flow analysis
+                normal_jump = self.version >= 3.6
+                if self.version == 3.5:
+                    j = self.offset2inst_index[target]
+                    if j+2 < len(self.insts) and self.insts[j+2].is_jump_target:
+                        normal_jump = self.insts[j+1].opname == 'POP_BLOCK'
+
+                if normal_jump:
+                    # For now, we'll only tag forward jump.
                     if target > offset:
                         self.fixed_jumps[offset] = target
                         pass
