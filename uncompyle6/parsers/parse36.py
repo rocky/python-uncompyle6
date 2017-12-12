@@ -104,6 +104,18 @@ class Python36Parser(Python35Parser):
                     %s                   ::= %sBUILD_STRING
                 """ % (joined_str_n, joined_str_n, "formatted_value " * v)
                 self.add_unique_doc_rules(rules_str, customize)
+            elif opname.startswith('BUILD_MAP_UNPACK_WITH_CALL'):
+                v = token.attr
+                rule = ('build_map_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
+                        'expr32 ' * int((v//32) % 32) +
+                        'expr ' * (v % 32) + opname)
+                self.addRule(rule, nop_func)
+            elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
+                v = token.attr
+                rule = ('build_tuple_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
+                        'expr32 ' * int((v//32) % 32) +
+                        'expr ' * (v % 32) + opname)
+                self.addRule(rule, nop_func)
             elif opname == 'SETUP_WITH':
                 rules_str = """
                 withstmt  ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST
@@ -121,23 +133,15 @@ class Python36Parser(Python35Parser):
             self.addRule(rule, nop_func)
             rule = 'kwargs_36 ::= {values} LOAD_CONST'.format(**locals())
             self.add_unique_rule(rule, token.kind, token.attr, customize)
-        elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
-            v = token.attr
-            rule = ('build_tuple_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
-                    'expr32 ' * int((v//32) % 32) +
-                    'expr ' * (v % 32) + opname)
-            self.addRule(rule, nop_func)
         elif opname == 'CALL_FUNCTION_EX_KW':
-            args_pos, args_kw = self.get_pos_kw(token)
-            uniq_param = args_kw + args_pos
-            self.addRule("expr ::= call_ex_kw", nop_func)
-            rule = ('call_ex_kw ::= '
-                    'expr build_tuple_unpack_with_call build_map_unpack_with_call '
-                    'CALL_FUNCTION_EX_KW')
-            self.addRule(rule, nop_func)
+            self.addRule("""expr       ::= call_ex_kw
+                            call_ex_kw ::= expr expr build_map_unpack_with_call
+                                           CALL_FUNCTION_EX_KW
+                         """,
+                         nop_func)
         elif opname == 'CALL_FUNCTION_EX':
-            self.addRule("expr ::= call_ex", nop_func)
             self.addRule("""
+                         expr        ::= call_ex
                          unpack_list ::= list
                          call_ex     ::= expr unpack_list CALL_FUNCTION_EX
                          """, nop_func)
