@@ -51,6 +51,7 @@ case $PYVERSION in
     2.6)
 	SKIP_TESTS=(
 	    [test_binop.py]=1  # need to fix tryelse
+	    # [test_builtin.py]=1  # Syntax error on 2.6, look at and fix like 2.7.14
 	    [test_cmath.py]=1 # Control flow?
 	    [test_codecs.py]=1    # need to fix tryelse
 	    [test_coercion.py]=1    # Control flow?
@@ -69,7 +70,6 @@ case $PYVERSION in
 	;;
     2.7)
 	SKIP_TESTS=(
-	    [test_builtin.py]=1  # Syntax error, look at
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
 	    [test_ioctl.py]=1 # Test takes too long to run

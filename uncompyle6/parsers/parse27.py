@@ -83,6 +83,7 @@ class Python27Parser(Python2Parser):
         compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
                              compare_chained2 COME_FROM
         compare_chained2 ::= expr COMPARE_OP RETURN_VALUE
+        compare_chained2 ::= expr COMPARE_OP RETURN_VALUE_LAMBDA
 
         # conditional_true are for conditions which always evaluate true
         # There is dead or non-optional remnants of the condition code though,
