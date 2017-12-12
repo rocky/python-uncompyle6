@@ -27,9 +27,6 @@ class Python36Parser(Python35Parser):
         return_if_lambda   ::= RETURN_END_IF_LAMBDA
 
 
-        withstmt      ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST
-                          WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
-
         for_block       ::= l_stmts_opt come_from_loops JUMP_BACK
         come_from_loops ::= COME_FROM_LOOP*
 
@@ -107,6 +104,12 @@ class Python36Parser(Python35Parser):
                     %s                   ::= %sBUILD_STRING
                 """ % (joined_str_n, joined_str_n, "formatted_value " * v)
                 self.add_unique_doc_rules(rules_str, customize)
+            elif opname == 'SETUP_WITH':
+                rules_str = """
+                withstmt  ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST
+                              WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                """
+                self.addRule(rules_str, nop_func)
 
     def custom_classfunc_rule(self, opname, token, customize,
                               possible_class_decorator,
