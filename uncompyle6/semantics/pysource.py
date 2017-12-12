@@ -127,7 +127,7 @@ from uncompyle6.semantics.make_function import (
 from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.semantics.check_ast import checker
 from uncompyle6.semantics.helper import (
-    print_docstring, find_globals)
+    print_docstring, find_globals, flatten_list)
 from uncompyle6.scanners.tok import Token
 
 from uncompyle6.semantics.consts import (
@@ -453,38 +453,28 @@ class SourceWalker(GenericASTTraversal, object):
                                 first = node[0][0]
                             else:
                                 first = node[0]
+                                pass
                             if first == 'tuple':
-                                flat_elems = []
                                 # Note: don't iteratee over last element which is a
                                 # BUILD_TUPLE...
-                                for elem in first[:-1]:
-                                    if elem == 'expr1024':
-                                        for subelem in elem:
-                                            for subsubelem in subelem:
-                                                flat_elems.append(subsubelem)
-                                    elif elem == 'expr32':
-                                        for subelem in elem:
-                                            flat_elems.append(subelem)
-                                    else:
-                                        flat_elems.append(elem)
-                                        pass
-                                    pass
+                                flat_elems = flatten_list(first[:-1], INDENT_PER_LEVEL)
 
-                                self.indent_more(INDENT_PER_LEVEL)
-                                sep = ''
+                            self.indent_more(INDENT_PER_LEVEL)
+                            sep = ''
 
-                                for elem in flat_elems:
-                                    if elem in ('ROT_THREE', 'EXTENDED_ARG'):
-                                        continue
-                                    assert elem == 'expr'
-                                    line_number = self.line_number
-                                    value = self.traverse(elem)
-                                    if line_number != self.line_number:
-                                        sep += '\n' + self.indent + INDENT_PER_LEVEL[:-1]
-                                    self.write(sep, value)
-                                    sep = ', '
+                            for elem in flat_elems:
+                                if elem in ('ROT_THREE', 'EXTENDED_ARG'):
+                                    continue
+                                assert elem == 'expr'
+                                line_number = self.line_number
+                                value = self.traverse(elem)
+                                if line_number != self.line_number:
+                                    sep += '\n' + self.indent + INDENT_PER_LEVEL[:-1]
+                                self.write(sep, value)
+                                sep = ', '
 
                             self.indent_less(INDENT_PER_LEVEL)
+
 
                             btuwc = node[-1]
                             assert btuwc.kind.startswith('BUILD_TUPLE_UNPACK_WITH_CALL')
@@ -1920,21 +1910,10 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             raise TypeError('Internal Error: n_build_list expects list, tuple, set, or unpack')
 
-        flat_elems = []
-        for elem in node:
-            if elem == 'expr1024':
-                for subelem in elem:
-                        for subsubelem in subelem:
-                            flat_elems.append(subsubelem)
-            elif elem == 'expr32':
-                for subelem in elem:
-                    flat_elems.append(subelem)
-            else:
-                flat_elems.append(elem)
+        flat_elems = flatten_list(node)
 
         self.indent_more(INDENT_PER_LEVEL)
         sep = ''
-
         for elem in flat_elems:
             if elem in ('ROT_THREE', 'EXTENDED_ARG'):
                 continue
@@ -1958,6 +1937,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.write(',')
         self.write(endchar)
         self.indent_less(INDENT_PER_LEVEL)
+
         self.prec = p
         self.prune()
         return

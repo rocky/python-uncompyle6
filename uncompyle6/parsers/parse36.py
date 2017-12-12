@@ -39,23 +39,6 @@ class Python36Parser(Python35Parser):
 
         # Adds a COME_FROM_ASYNC_WITH over 3.5
         # FIXME: remove corresponding rule for 3.5?
-        async_with_as_stmt ::= expr
-                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               SETUP_ASYNC_WITH store
-                               suite_stmts_opt
-                               POP_BLOCK LOAD_CONST
-                               COME_FROM_ASYNC_WITH
-                               WITH_CLEANUP_START
-                               GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               WITH_CLEANUP_FINISH END_FINALLY
-        async_with_stmt ::= expr
-                            BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                            SETUP_ASYNC_WITH POP_TOP suite_stmts_opt
-                            POP_BLOCK LOAD_CONST
-                            COME_FROM_ASYNC_WITH
-                            WITH_CLEANUP_START
-                            GET_AWAITABLE LOAD_CONST YIELD_FROM
-                            WITH_CLEANUP_FINISH END_FINALLY
 
         except_suite ::= c_stmts_opt COME_FROM POP_EXCEPT jump_except COME_FROM
 
@@ -83,6 +66,30 @@ class Python36Parser(Python35Parser):
                     fstring_single ::= expr FORMAT_VALUE
                 """
                 self.add_unique_doc_rules(rules_str, customize)
+            elif opname == 'BEFORE_ASYNC_WITH':
+                rules_str = """
+                  stmt ::= async_with_stmt
+                  async_with_as_stmt ::= expr
+                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               SETUP_ASYNC_WITH store
+                               suite_stmts_opt
+                               POP_BLOCK LOAD_CONST
+                               COME_FROM_ASYNC_WITH
+                               WITH_CLEANUP_START
+                               GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               WITH_CLEANUP_FINISH END_FINALLY
+                 stmt ::= async_with_as_stmt
+                 async_with_stmt ::= expr
+                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               SETUP_ASYNC_WITH POP_TOP suite_stmts_opt
+                               POP_BLOCK LOAD_CONST
+                               COME_FROM_ASYNC_WITH
+                               WITH_CLEANUP_START
+                               GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               WITH_CLEANUP_FINISH END_FINALLY
+                """
+                self.addRule(rules_str, nop_func)
+
             elif opname == 'BUILD_STRING':
                 v = token.attr
                 joined_str_n = "formatted_value_%s" % v
@@ -117,18 +124,6 @@ class Python36Parser(Python35Parser):
                     'expr32 ' * int((v//32) % 32) +
                     'expr ' * (v % 32) + opname)
             self.addRule(rule, nop_func)
-        elif opname.startswith('CALL_FUNCTION_EX'):
-            self.addRule("expr ::= call_ex", nop_func)
-            if token.attr == 0:
-                self.addRule("""
-                             unpack_list ::= list
-                             call_ex     ::= expr unpack_list CALL_FUNCTION_EX
-                             """, nop_func)
-            else:
-                self.addRule(
-                    'call_ex ::= expr build_tuple_unpack_with_call CALL_FUNCTION_EX',
-                    nop_func)
-            pass
         elif opname == 'CALL_FUNCTION_EX_KW':
             args_pos, args_kw = self.get_pos_kw(token)
             uniq_param = args_kw + args_pos
@@ -137,13 +132,19 @@ class Python36Parser(Python35Parser):
                     'expr build_tuple_unpack_with_call build_map_unpack_with_call '
                     'CALL_FUNCTION_EX_KW')
             self.addRule(rule, nop_func)
+        elif opname == 'CALL_FUNCTION_EX':
+            self.addRule("expr ::= call_ex", nop_func)
+            self.addRule("""
+                         unpack_list ::= list
+                         call_ex     ::= expr unpack_list CALL_FUNCTION_EX
+                         """, nop_func)
+            pass
         else:
             super(Python36Parser, self).custom_classfunc_rule(opname, token,
                                                               customize,
                                                               possible_class_decorator,
                                                               seen_GET_AWAITABLE_YIELD_FROM,
                                                               next_token)
-
 
 class Python36ParserSingle(Python36Parser, PythonParserSingle):
     pass
