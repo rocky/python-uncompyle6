@@ -16,5 +16,4 @@ h = lambda: 1 if False else 3
 h()
 
 # From 2.7 test_builtin
-def test_filter(self):
-    self.assertEqual(filter(lambda c: 'a' <= c <= 'z', 'Hello World'), 'elloorld')
+lambda c: 'a' <= c <= 'z', 'Hello World'
