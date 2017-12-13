@@ -271,6 +271,7 @@ class Python2Parser(PythonParser):
 
             # The order of opname listed is roughly sorted below
             if opname_base in ('BUILD_LIST', 'BUILD_SET', 'BUILD_TUPLE'):
+                v = token.attr
                 thousands = (v//1024)
                 thirty32s = ((v//32) % 32)
                 if thirty32s > 0:
@@ -326,16 +327,18 @@ class Python2Parser(PythonParser):
                 continue
             elif opname_base in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
                                  'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
-                args_pos = (v & 0xff)          # positional parameters
-                args_kw = (v >> 8) & 0xff      # keyword parameters
+
+                args_pos, args_kw = self.get_pos_kw(token)
+
                 # number of apply equiv arguments:
                 nak = ( len(opname_base)-len('CALL_FUNCTION') ) // 3
                 rule = 'call ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
                        + 'expr ' * nak + opname
             elif opname_base == 'CALL_METHOD':
                 # PyPy only - DRY with parse3
-                args_pos = (v & 0xff)          # positional parameters
-                args_kw = (v >> 8) & 0xff      # keyword parameters
+
+                args_pos, args_kw = self.get_pos_kw(token)
+
                 # number of apply equiv arguments:
                 nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
                 rule = 'call ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
@@ -357,16 +360,18 @@ class Python2Parser(PythonParser):
                   """, nop_func)
                 continue
             elif opname == 'JUMP_IF_NOT_DEBUG':
-                self.add_unique_rules([
-                    'jmp_true_false ::= POP_JUMP_IF_TRUE',
-                    'jmp_true_false ::= POP_JUMP_IF_FALSE',
-                    "stmt ::= assert_pypy",
-                    "stmt ::= assert2_pypy",
-                    "assert_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true_false "
-                       "LOAD_ASSERT RAISE_VARARGS_1 COME_FROM",
-                    "assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true_false "
-                       "LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1 COME_FROM",
-                    ], customize)
+                v = token.attr
+                self.addRule("""
+                    jmp_true_false ::= POP_JUMP_IF_TRUE
+                    jmp_true_false ::= POP_JUMP_IF_FALSE
+                    stmt ::= assert_pypy
+                    stmt ::= assert2_pypy
+                    assert_pypy  ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true_false
+                                     LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
+                    assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true_false
+                                     LOAD_ASSERT expr CALL_FUNCTION_1
+                                     RAISE_VARARGS_1 COME_FROM
+                     """, nop_func)
                 continue
             elif opname == 'LOAD_LISTCOMP':
                 self.add_unique_rules([
@@ -382,14 +387,16 @@ class Python2Parser(PythonParser):
             elif opname == 'LOOKUP_METHOD':
                 # A PyPy speciality - DRY with parse3
                 self.add_unique_rule("attribute ::= expr LOOKUP_METHOD",
-                                     opname, v, customize)
+                                     opname, token.attr, customize)
                 continue
             elif opname_base == 'MAKE_FUNCTION':
+                # FIXME: remove v here
                 if i > 0 and tokens[i-1] == 'LOAD_LAMBDA':
                     self.addRule('mklambda ::= %s LOAD_LAMBDA %s' %
                                  ('pos_arg '*v, opname), nop_func)
                 rule = 'mkfunc ::= %s LOAD_CONST %s' % ('expr '*v, opname)
             elif opname_base == 'MAKE_CLOSURE':
+                # FIXME: remove v here
                 # FIXME: use add_unique_rules to tidy this up.
                 if i > 0 and tokens[i-1] == 'LOAD_LAMBDA':
                     self.addRule('mklambda ::= %s load_closure LOAD_LAMBDA %s' %
@@ -445,13 +452,14 @@ class Python2Parser(PythonParser):
                 ], customize)
                 continue
             elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
-                rule = 'unpack ::= ' + opname + ' store'*v
+                rule = 'unpack ::= ' + opname + ' store' * token.attr
             elif opname_base == 'UNPACK_LIST':
-                rule = 'unpack_list ::= ' + opname + ' store'*v
+                rule = 'unpack_list ::= ' + opname + ' store' * token.attr
             else:
                 raise Exception('unknown customize token %s' % opname)
-            self.add_unique_rule(rule, opname_base, v, customize)
+            self.addRule(rule, nop_func)
             pass
+
         self.check_reduce['aug_assign1'] = 'AST'
         self.check_reduce['aug_assign2'] = 'AST'
         self.check_reduce['_stmts'] = 'AST'

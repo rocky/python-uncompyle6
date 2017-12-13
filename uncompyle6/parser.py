@@ -158,6 +158,15 @@ class PythonParser(GenericASTBuilder):
         else:
             raise ParserError(None, -1)
 
+    def get_pos_kw(self, token):
+        """Return then the number of positional parameters and
+        represented by the attr field of token"""
+        # Low byte indicates number of positional paramters,
+        # high byte number of keyword parameters
+        args_pos = token.attr & 0xff
+        args_kw = (token.attr >> 8) & 0xff
+        return args_pos, args_kw
+
     def nonterminal(self, nt, args):
         n = len(args)
 

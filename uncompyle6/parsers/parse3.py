@@ -518,16 +518,6 @@ class Python3Parser(PythonParser):
         new_rule = rule % (('LOAD_CONST ') * (1 if  self.version >= 3.3 else 0))
         self.add_unique_rule(new_rule, opname, attr, customize)
 
-    def get_pos_kw(self, token):
-        """Return then the number of positional parameters and
-        represented by the attr field of token"""
-        # Low byte indicates number of positional paramters,
-        # high byte number of keyword parameters
-        args_pos = token.attr & 0xff
-        args_kw = (token.attr >> 8) & 0xff
-        return args_pos, args_kw
-
-
     def customize_grammar_rules(self, tokens, customize):
         """The base grammar we start out for a Python version even with the
         subclassing is, well, is pretty base.  And we want it that way: lean and
