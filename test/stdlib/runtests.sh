@@ -98,6 +98,7 @@ case $PYVERSION in
     2.7)
 	SKIP_TESTS=(
 	    [test_dis.py]=1   # We change line numbers - duh!
+	    [test_doctest.py]=1
 	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
 	    [test_io.py]=1 # Test takes too long to run
 	    [test_ioctl.py]=1 # Test takes too long to run
@@ -110,6 +111,7 @@ case $PYVERSION in
 	    [test_strtod.py]=1
 	    [test_traceback.py]=1
 	    [test_unicode.py]=1
+	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
 	    # Syntax errors:
 	    # .pyenv/versions/2.7.14/lib/python2.7/mimify.pyc
 	    # .pyenv/versions/2.7.14/lib/python2.7/netrc.pyc
