@@ -711,18 +711,22 @@ class Scanner2(Scanner):
             # rocky: if we have a conditional jump to the next instruction, then
             # possibly I am "skipping over" a "pass" or null statement.
 
+            test_target = target
             if self.version < 2.7:
-                op_testset = set([self.opc.POP_TOP,
-                                   self.opc.JUMP_IF_TRUE, self.opc.JUMP_IF_FALSE])
+                # Before 2.6 we have to deal with the fact that there is an extra
+                # POP_TOP that is logically associated with the JUMP_IF's (even though
+                # the instance set is called "self.pop_jump_if")
+                if code[pre[test_target]] == self.opc.POP_TOP:
+                    test_target = pre[test_target]
+                test_set = self.pop_jump_if
             else:
-                op_testset = self.pop_jump_if_or_pop | self.pop_jump_if
+                test_set = self.pop_jump_if_or_pop | self.pop_jump_if
 
-            if ( code[pre[target]] in op_testset
-                 and (target > offset) ):
+            if ( code[pre[test_target]] in test_set and target > offset ):
                 self.fixed_jumps[offset] = pre[target]
                 self.structs.append({'type':  'and/or',
-                                       'start': start,
-                                       'end':   pre[target]})
+                                     'start': start,
+                                     'end':   pre[target]})
                 return
 
             # The op offset just before the target jump offset is important
