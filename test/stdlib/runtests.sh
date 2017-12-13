@@ -55,6 +55,7 @@ case $PYVERSION in
 	    [test_sax.py]=1  # Control flow?
 	    [test_trace.py]=1  # Line numbers are expected to be different
 	    [test_types.py]=1 # Control flow?
+	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
 	)
 	;;
     2.6)
