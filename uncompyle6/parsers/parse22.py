@@ -13,10 +13,10 @@ class Python22Parser(Python23Parser):
 
     def p_misc22(self, args):
         '''
-        _for ::= LOAD_CONST FOR_LOOP
+        for_iter  ::= LOAD_CONST FOR_LOOP
         list_iter ::= list_if JUMP_FORWARD
                       COME_FROM POP_TOP COME_FROM
-        list_for  ::= expr _for store list_iter CONTINUE JUMP_FORWARD
+        list_for  ::= expr for_iter store list_iter CONTINUE JUMP_FORWARD
                       COME_FROM POP_TOP COME_FROM
         '''
 

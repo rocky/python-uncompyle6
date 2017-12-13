@@ -36,7 +36,7 @@ class Python23Parser(Python24Parser):
                        COME_FROM POP_TOP POP_BLOCK COME_FROM
 
         list_comp  ::= BUILD_LIST_0 DUP_TOP LOAD_ATTR store list_iter del_stmt
-        list_for   ::= expr _for store list_iter JUMP_BACK come_froms POP_TOP JUMP_BACK
+        list_for   ::= expr for_iter store list_iter JUMP_BACK come_froms POP_TOP JUMP_BACK
 
         lc_body ::= LOAD_NAME expr CALL_FUNCTION_1 POP_TOP
         lc_body ::= LOAD_FAST expr CALL_FUNCTION_1 POP_TOP

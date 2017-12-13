@@ -258,7 +258,7 @@ TABLE_DIRECT = {
     'while1elsestmt':   ( '%|while 1:\n%+%c%-%|else:\n%+%c%-\n\n', 1, -2 ),
     'whileelsestmt':	( '%|while %c:\n%+%c%-%|else:\n%+%c%-\n\n', 1, 2, -2 ),
     'whileelselaststmt':	( '%|while %c:\n%+%c%-%|else:\n%+%c%-', 1, 2, -2 ),
-    'forstmt':		    ( '%|for %c in %c:\n%+%c%-\n\n', 3, 1, 4 ),
+    'for':		        ( '%|for %c in %c:\n%+%c%-\n\n', 3, 1, 4 ),
     'forelsestmt':	    (
         '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 3, 1, 4, -2 ),
     'forelselaststmt':	(

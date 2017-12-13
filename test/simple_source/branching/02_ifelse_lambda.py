@@ -3,8 +3,6 @@
 
 f = lambda x: 1 if x<2 else 3
 f(5)
-<<<<<<< HEAD
-=======
 
 # If that wasn't enough ...
 # Python will create dead code
@@ -16,4 +14,6 @@ g()
 
 h = lambda: 1 if False else 3
 h()
->>>>>>> master
+
+# From 2.7 test_builtin
+lambda c: 'a' <= c <= 'z', 'Hello World'

@@ -36,8 +36,8 @@ class Python3Parser(PythonParser):
         # one may be a continue - sometimes classifies a JUMP_BACK
         # as a CONTINUE. The two are kind of the same in a comprehension.
 
-        comp_for ::= expr _for store comp_iter CONTINUE
-        comp_for ::= expr _for store comp_iter JUMP_BACK
+        comp_for ::= expr for_iter store comp_iter CONTINUE
+        comp_for ::= expr for_iter store comp_iter JUMP_BACK
 
         list_comp ::= BUILD_LIST_0 list_iter
         lc_body   ::= expr LIST_APPEND
@@ -326,16 +326,16 @@ class Python3Parser(PythonParser):
 
     def p_loop_stmt3(self, args):
         """
-        forstmt           ::= SETUP_LOOP expr _for store for_block POP_BLOCK
+        for               ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
                               COME_FROM_LOOP
 
-        forelsestmt       ::= SETUP_LOOP expr _for store for_block POP_BLOCK else_suite
+        forelsestmt       ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suite
                               COME_FROM_LOOP
 
-        forelselaststmt   ::= SETUP_LOOP expr _for store for_block POP_BLOCK else_suitec
+        forelselaststmt   ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitec
                               COME_FROM_LOOP
 
-        forelselaststmtl  ::= SETUP_LOOP expr _for store for_block POP_BLOCK else_suitel
+        forelselaststmtl  ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitel
                               COME_FROM_LOOP
 
         whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
@@ -370,7 +370,7 @@ class Python3Parser(PythonParser):
                               COME_FROM_LOOP
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP
                               COME_FROM_LOOP
-        forstmt           ::= SETUP_LOOP expr _for store for_block POP_BLOCK NOP
+        for               ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK NOP
                               COME_FROM_LOOP
         """
 

@@ -61,17 +61,48 @@ case $PYVERSION in
 	    [test_ftplib.py]=1  # Control flow?
 	    [test_funcattrs.py]=1  # Control flow?
 	    [test_grp.py]=1      # Long test - might work Control flow?
+	    [test_imp.py]=1
+	    [test_int.py]=1
+	    [test_long.py]=1
+	    [test_pty.py]=1
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_queue.py]=1 # Control flow?
+	    [test_re.py]=1 # Probably Control flow?
+	    [test_strftime.py]=1
+	    [test_trace.py]=1  # Line numbers are expected to be different
+	    # .pyenv/versions/2.6.9/lib/python2.6/lib2to3/refactor.pyc
+	    # .pyenv/versions/2.6.9/lib/python2.6/mailbox.pyc
+	    # .pyenv/versions/2.6.9/lib/python2.6/markupbase.pyc
+	    # .pyenv/versions/2.6.9/lib/python2.6/pstats.pyc
+	    # .pyenv/versions/2.6.9/lib/python2.6/pyclbr.pyc
+	    # .pyenv/versions/2.6.9/lib/python2.6/quopri.pyc -- look at ishex, is short
+	    # .pyenv/versions/2.6.9/lib/python2.6/random.pyc
+	    # .pyenv/versions/2.6.9/lib/python2.6/smtpd.pyc
+	    # .pyenv/versions/2.6.9/lib/python2.6/sre_parse.pyc
+	    # .pyenv/versions/2.6.9/lib/python2.6/tabnanny.pyc
+	    # .pyenv/versions/2.6.9/lib/python2.6/tarfile.pyc
 	    )
 	;;
     2.7)
 	SKIP_TESTS=(
-	    [test_builtin.py]=1  # Syntax error, look at
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
+	    [test_io.py]=1 # Test takes too long to run
 	    [test_ioctl.py]=1 # Test takes too long to run
 	    [test_itertools.py]=1 # Syntax error - look at!
+	    [test_memoryio.py]=1 # ?
+	    [test_multiprocessing.py]=1 # ?
+	    [test_pep352.py]=1 # ?
+	    [test_re.py]=1 # ?
+	    [test_sys_settrace.py]=1 # Line numbers are expected to be different
+	    [test_strtod.py]=1
+	    [test_traceback.py]=1
+	    [test_unicode.py]=1
+	    # Syntax errors:
+	    # .pyenv/versions/2.7.14/lib/python2.7/mimify.pyc
+	    # .pyenv/versions/2.7.14/lib/python2.7/netrc.pyc
+	    # .pyenv/versions/2.7.14/lib/python2.7/pyclbr.pyc
+	    # .pyenv/versions/2.7.14/lib/python2.7/sre_compile.pyc
         )
 	;;
     *)
@@ -101,13 +132,22 @@ if [[ -n $1 ]] ; then
     files=$1
     SKIP_TESTS=()
 else
-    files=test_[m]*.py
+    files=test_*.py
 fi
 for file in $files; do
     [[ -v SKIP_TESTS[$file] ]] && continue
 
     # If the fails *before* decompiling, skip it!
+    typeset -i STARTTIME=$(date +%s)
     if ! python $file >/dev/null 2>&1 ; then
+	echo "Skipping test $file -- it fails on its own"
+	continue
+    fi
+    typeset -i ENDTIME=$(date +%s)
+    typeset -i time_diff
+    (( time_diff =  ENDTIME - STARTTIME))
+    if (( time_diff > 10 )) ; then
+	echo "Skipping test $file -- test takes too long to run: $time_diff seconds"
 	continue
     fi
 
@@ -117,10 +157,11 @@ for file in $files; do
     decompiled_file=$short_name-${PYVERSION}.pyc
     $fulldir/compile-file.py $file && \
     mv $file{,.orig} && \
+    echo ==========  $(date +%X) Decompiling $file ===========
     $fulldir/../../bin/uncompyle6 $decompiled_file > $file
     rc=$?
     if (( rc == 0 )) ; then
-	echo ========== Running $file ===========
+	echo ========== $(date +%X) Running $file ===========
 	python $file
 	rc=$?
     else

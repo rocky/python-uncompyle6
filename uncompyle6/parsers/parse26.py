@@ -180,23 +180,23 @@ class Python26Parser(Python2Parser):
 
     def p_comp26(self, args):
         '''
-        list_for ::= expr _for store list_iter JUMP_BACK come_froms POP_TOP
+        list_for ::= expr for_iter store list_iter JUMP_BACK come_froms POP_TOP
 
         # The JUMP FORWARD below jumps to the JUMP BACK. It seems to happen
         # in rare cases that may have to with length of code
         # FIXME: we can add a reduction check for this
 
-        list_for ::= expr _for store list_iter JUMP_FORWARD come_froms POP_TOP
+        list_for ::= expr for_iter store list_iter JUMP_FORWARD come_froms POP_TOP
                      COME_FROM JUMP_BACK
 
-        list_for ::= expr _for store list_iter jb_cont
+        list_for ::= expr for_iter store list_iter jb_cont
 
         # This is for a really funky:
         #   [  x for x in range(10) if x % 2 if x % 3 ]
         # the JUMP_ABSOLUTE is to the instruction after the last POP_TOP
         #  we have a reduction check for this
 
-        list_for ::= expr _for store list_iter JUMP_ABSOLUTE come_froms
+        list_for ::= expr for_iter store list_iter JUMP_ABSOLUTE come_froms
                      POP_TOP jb_pop
 
         list_iter  ::= list_if JUMP_BACK
@@ -208,7 +208,7 @@ class Python26Parser(Python2Parser):
         lc_body    ::= LOAD_NAME expr LIST_APPEND
 	lc_body    ::= LOAD_FAST expr LIST_APPEND
 
-        comp_for ::= SETUP_LOOP expr _for store comp_iter jb_pb_come_from
+        comp_for ::= SETUP_LOOP expr for_iter store comp_iter jb_pb_come_from
 
         comp_body ::= gen_comp_body
 
@@ -260,9 +260,23 @@ class Python26Parser(Python2Parser):
         # compare_chained is like x <= y <= z
         compare_chained    ::= expr compare_chained1 ROT_TWO COME_FROM POP_TOP _come_froms
         compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                               jmp_false_then compare_chained1 _come_froms
+        compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                               jmp_false_then compare_chained2 _come_froms
+        compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
                                jmp_false compare_chained1 _come_froms
         compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
                                jmp_false compare_chained2 _come_froms
+        compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                               jmp_false_then compare_chained2 _come_froms
+
+        return_lambda      ::= RETURN_VALUE
+        return_lambda      ::= RETURN_END_IF
+        return_lambda      ::= RETURN_END_IF_LAMBDA
+        return_lambda      ::= RETURN_VALUE_LAMBDA
+
+        compare_chained2   ::= expr COMPARE_OP return_lambda
+
         return_if_lambda   ::= RETURN_END_IF_LAMBDA POP_TOP
         stmt               ::= conditional_lambda
         conditional_lambda ::= expr jmp_false_then expr return_if_lambda
@@ -314,7 +328,7 @@ class Python26Parser(Python2Parser):
                         tokens[last].pattr == jmp_false.pattr)
         elif rule == (
                 'list_for',
-                ('expr', '_for', 'store', 'list_iter',
+                ('expr', 'for_iter', 'store', 'list_iter',
                  'JUMP_ABSOLUTE', 'come_froms', 'POP_TOP', 'jb_pop')):
             # The JUMP_ABSOLUTE has to be to the last POP_TOP or this is invalid
             ja_attr = ast[4].attr

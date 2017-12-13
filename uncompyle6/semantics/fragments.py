@@ -105,7 +105,7 @@ TABLE_DIRECT_FRAGMENT = {
     'whilestmt':	( '%|while%b %c:\n%+%c%-\n\n', 0, 1, 2 ),
     'whileelsestmt':	( '%|while%b %c:\n%+%c%-%|else:\n%+%c%-\n\n', 0, 1, 2, -2 ),
     'whileelselaststmt':	( '%|while%b %c:\n%+%c%-%|else:\n%+%c%-', 0, 1, 2, -2 ),
-    'forstmt':		( '%|for%b %c in %c:\n%+%c%-\n\n', 0, 3, 1, 4 ),
+    'for':	        ( '%|for%b %c in %c:\n%+%c%-\n\n', 0, 3, 1, 4 ),
     }
 
 
