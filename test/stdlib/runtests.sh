@@ -6,9 +6,6 @@ FULLVERSION=$(pyenv local)
 PYVERSION=${FULLVERSION%.*}
 MINOR=${FULLVERSION##?.?.}
 
-# DECOMPILER=uncompyle2
-DECOMPILER="$fulldir/../../bin/uncompyle6"
-
 typeset -i STOP_ONERROR=1
 
 typeset -A SKIP_TESTS
@@ -130,6 +127,9 @@ esac
 srcdir=$(dirname $me)
 cd $srcdir
 fulldir=$(pwd)
+
+# DECOMPILER=uncompyle2
+DECOMPILER="$fulldir/../../bin/uncompyle6"
 TESTDIR=/tmp/test${PYVERSION}
 if [[ -e $TESTDIR ]] ; then
     rm -fr $TESTDIR
