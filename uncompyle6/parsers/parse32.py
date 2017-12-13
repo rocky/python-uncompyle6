@@ -56,7 +56,7 @@ class Python32Parser(Python3Parser):
         """
         pass
 
-    def add_custom_rules(self, tokens, customize):
+    def customize_grammar_rules(self, tokens, customize):
         self.remove_rules("""
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY COME_FROM
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY COME_FROM_EXCEPT
@@ -66,7 +66,7 @@ class Python32Parser(Python3Parser):
         whileTruestmt  ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP COME_FROM_LOOP
         whileTruestmt  ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP COME_FROM_LOOP
         """)
-        super(Python32Parser, self).add_custom_rules(tokens, customize)
+        super(Python32Parser, self).customize_grammar_rules(tokens, customize)
         for i, token in enumerate(tokens):
             opname = token.kind
             if opname.startswith('MAKE_FUNCTION_A'):

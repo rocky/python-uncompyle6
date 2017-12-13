@@ -52,7 +52,7 @@ class Python24Parser(Python25Parser):
         kv2    ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
         '''
 
-    def add_custom_rules(self, tokens, customize):
+    def customize_grammar_rules(self, tokens, customize):
         self.remove_rules("""
         gen_comp_body ::= expr YIELD_VALUE POP_TOP
         kvlist        ::= kvlist kv3
@@ -67,7 +67,7 @@ class Python24Parser(Python25Parser):
         stmt ::= withstmt
         stmt ::= withasstmt
         """)
-        super(Python24Parser, self).add_custom_rules(tokens, customize)
+        super(Python24Parser, self).customize_grammar_rules(tokens, customize)
         if self.version == 2.4:
             self.check_reduce['nop_stmt'] = 'tokens'
 

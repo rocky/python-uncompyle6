@@ -298,13 +298,13 @@ class Python26Parser(Python2Parser):
 
         """
 
-    def add_custom_rules(self, tokens, customize):
+    def customize_grammar_rules(self, tokens, customize):
         self.remove_rules("""
         withasstmt ::= expr SETUP_WITH store suite_stmts_opt
                 POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP END_FINALLY
         """)
-        super(Python26Parser, self).add_custom_rules(tokens, customize)
+        super(Python26Parser, self).customize_grammar_rules(tokens, customize)
         self.check_reduce['and'] = 'AST'
         self.check_reduce['list_for'] = 'AST'
 

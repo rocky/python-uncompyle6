@@ -29,10 +29,10 @@ class Python34Parser(Python33Parser):
         yield_from ::= expr GET_ITER LOAD_CONST YIELD_FROM
         """
 
-    def add_custom_rules(self, tokens, customize):
+    def customize_grammar_rules(self, tokens, customize):
         # self.remove_rules("""
         # """)
-        super(Python34Parser, self).add_custom_rules(tokens, customize)
+        super(Python34Parser, self).customize_grammar_rules(tokens, customize)
         return
 
 class Python34ParserSingle(Python34Parser, PythonParserSingle):

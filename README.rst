@@ -189,11 +189,9 @@ Deobfuscator_ to unscramble the bytecode to get valid bytecode before
 trying this tool. This program can't decompile Microsoft Windows EXE
 files created by Py2EXE_, although we can probably decompile the code
 after you extract the bytecode properly. For situations like this, you
-might want to consider a decompilation service like [Crazy
-Compilers](http://www.crazy-compilers.com/decompyle/).
-
-Handling pathologically long lists of expressions or statements is
-slow.
+might want to consider a decompilation service like `Crazy Compilers
+<http://www.crazy-compilers.com/decompyle/>`_.  Handling
+pathologically long lists of expressions or statements is slow.
 
 
 There is lots to do, so please dig in and help.

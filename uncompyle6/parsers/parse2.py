@@ -216,7 +216,7 @@ class Python2Parser(PythonParser):
         binary_op  ::= BINARY_DIVIDE
         """
 
-    def add_custom_rules(self, tokens, customize):
+    def customize_grammar_rules(self, tokens, customize):
         """The base grammar we start out for a Python version even with the
         subclassing is, well, is pretty base.  And we want it that way: lean and
         mean so that parsing will go faster.

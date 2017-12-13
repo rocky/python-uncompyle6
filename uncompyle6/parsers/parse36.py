@@ -51,8 +51,8 @@ class Python36Parser(Python35Parser):
         try_except36     ::= SETUP_EXCEPT return_stmts except_handler36 opt_come_from_except
         """
 
-    def add_custom_rules(self, tokens, customize):
-        super(Python36Parser, self).add_custom_rules(tokens, customize)
+    def customize_grammar_rules(self, tokens, customize):
+        super(Python36Parser, self).customize_grammar_rules(tokens, customize)
         for i, token in enumerate(tokens):
             opname = token.kind
 

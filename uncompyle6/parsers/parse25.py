@@ -48,7 +48,7 @@ class Python25Parser(Python26Parser):
         kv     ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
         """
 
-    def add_custom_rules(self, tokens, customize):
+    def customize_grammar_rules(self, tokens, customize):
         # Remove grammar rules inherited from Python 2.6 or Python 2
         self.remove_rules("""
         setupwith  ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 POP_TOP
@@ -77,7 +77,7 @@ class Python25Parser(Python26Parser):
         conditional_lambda ::= expr jmp_false_then expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
         """)
-        super(Python25Parser, self).add_custom_rules(tokens, customize)
+        super(Python25Parser, self).customize_grammar_rules(tokens, customize)
         if self.version == 2.5:
             self.check_reduce['tryelsestmt'] = 'tokens'
 

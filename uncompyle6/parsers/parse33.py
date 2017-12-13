@@ -25,13 +25,13 @@ class Python33Parser(Python32Parser):
                         jump_excepts come_from_except_clauses
         """
 
-    def add_custom_rules(self, tokens, customize):
+    def customize_grammar_rules(self, tokens, customize):
         self.remove_rules("""
         # 3.3+ adds POP_BLOCKS
         whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP COME_FROM_LOOP
         whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP COME_FROM_LOOP
         """)
-        super(Python33Parser, self).add_custom_rules(tokens, customize)
+        super(Python33Parser, self).customize_grammar_rules(tokens, customize)
         return
 
 class Python33ParserSingle(Python33Parser, PythonParserSingle):

@@ -43,8 +43,8 @@ class Python30Parser(Python31Parser):
         setup_finally ::= STORE_FAST SETUP_FINALLY LOAD_FAST DELETE_FAST
         """
 
-    def add_custom_rules(self, tokens, customize):
-        super(Python30Parser, self).add_custom_rules(tokens, customize)
+    def customize_grammar_rules(self, tokens, customize):
+        super(Python30Parser, self).customize_grammar_rules(tokens, customize)
         return
     pass
 

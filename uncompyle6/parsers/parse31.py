@@ -32,8 +32,8 @@ class Python31Parser(Python32Parser):
         load  ::= LOAD_NAME
         """
 
-    def add_custom_rules(self, tokens, customize):
-        super(Python31Parser, self).add_custom_rules(tokens, customize)
+    def customize_grammar_rules(self, tokens, customize):
+        super(Python31Parser, self).customize_grammar_rules(tokens, customize)
         return
     pass
 

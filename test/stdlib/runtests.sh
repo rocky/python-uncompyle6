@@ -6,6 +6,9 @@ FULLVERSION=$(pyenv local)
 PYVERSION=${FULLVERSION%.*}
 MINOR=${FULLVERSION##?.?.}
 
+# DECOMPILER=uncompyle2
+DECOMPILER="$fulldir/../../bin/uncompyle6"
+
 typeset -i STOP_ONERROR=1
 
 typeset -A SKIP_TESTS
@@ -169,7 +172,7 @@ for file in $files; do
     $fulldir/compile-file.py $file && \
     mv $file{,.orig} && \
     echo ==========  $(date +%X) Decompiling $file ===========
-    $fulldir/../../bin/uncompyle6 $decompiled_file > $file
+    $DECOMPILER $decompiled_file > $file
     rc=$?
     if (( rc == 0 )) ; then
 	echo ========== $(date +%X) Running $file ===========
