@@ -10,23 +10,36 @@ decompile everything. Overall, I think this one probably does the best
 job of *any* Python decompiler that handles such a wide range of
 versions.
 
-But at any given time, there are maybe dozens of valid Python bytecode
-files that I know of that will cause problems. And when I get through
-those and all the issues of decompiler bugs that are currently logged,
-I could probably easily find dozens more bugs just by doing a
-decompile of all the Python bytecode on any one of my
-computers. Unless you want to help out by _fixing_ bugs, or are
-willing to do work by isolating and narrowing bugs, don't feel you are
-doing me a favor by doing scans on your favorite sets of bytecode
-files.
+But at any given time, there are a number of valid Python bytecode
+files that I know of that will cause problems. See, for example, the
+list in
+[`test/stdlib/runtests.sh`](https://github.com/rocky/python-uncompyle6/blob/master/test/stdlib/runtests.sh).
 
-In sum, it is not uncommon that you will find a mistranslation in
-decompiling. Furthermore, you may be expected to do some work in order
-to have your bug worthy of being considered above other bugs.
+But I understand: you would the bugs _you_ encounter addressed before
+all the other known bugs.
 
-No one is getting paid to work to work on this project, let alone bugs
-you may have an interest in. If you require decompiling bytecode
-immediately, consider using a decompilation service.
+From my standpoint, the good thing about the bugs listed in
+`runtests.sh` is that each test case is small and isolated to a single
+kind of problem. And I'll tend to fix easier, more isolated cases than
+generic "something's wrong" kinds of bugs where I'd have to do a bit
+of work to figure out what's up, if not use some sort of mind reading,
+make some guesses, and perform some experiments to see if the guesses
+are correct. I can't read minds, nor am I into guessing games; I'd
+rather devote the effort spent instead towards fixing bugs that are
+precisely defined.
+
+And it often turns out that by just fixing the well-defined and
+prescribed cases, the ill-defined amorphous cases as well will get
+handled as well.
+
+In sum, you may need to do some work to have the bug you have found
+handled before the hundreds of other bugs, and things I could be
+doing.
+
+No one is getting paid to work to work on this project, let alone the
+bugs you may have an interest in. If you require decompiling bytecode
+immediately, consider using a decompilation service, listed further
+down in this document.
 
 ## Is it really a bug?
 
@@ -114,7 +127,7 @@ Also try to narrow the bug. See below.
 Some kind folks also give the invocation they used and the output
 which usually includes an error message produced. This is
 helpful. From this, I can figure out what OS you are running this on
-and what version of *uncomplye6* was used. Therefore, if you don't
+and what version of *uncomplye6* was used. Therefore, if you _don't_
 provide the input command and the output from that, please give:
 
 * _uncompyle6_ version used
