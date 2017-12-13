@@ -114,7 +114,7 @@ class Python35Parser(Python34Parser):
         yield_from ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
         """
 
-    def add_custom_rules(self, tokens, customize):
+    def customize_grammar_rules(self, tokens, customize):
         self.remove_rules("""
           yield_from ::= expr GET_ITER LOAD_CONST YIELD_FROM
           yield_from ::= expr expr YIELD_FROM
@@ -125,7 +125,7 @@ class Python35Parser(Python34Parser):
                          POP_BLOCK LOAD_CONST COME_FROM_WITH
                          WITH_CLEANUP END_FINALLY
         """)
-        super(Python35Parser, self).add_custom_rules(tokens, customize)
+        super(Python35Parser, self).customize_grammar_rules(tokens, customize)
         for i, token in enumerate(tokens):
             opname = token.kind
             if opname == 'BUILD_MAP_UNPACK_WITH_CALL':

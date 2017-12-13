@@ -52,8 +52,8 @@ class Python23Parser(Python24Parser):
         conditional ::= expr jmp_false expr JUMP_FORWARD expr COME_FROM
         '''
 
-    def add_custom_rules(self, tokens, customize):
-        super(Python23Parser, self).add_custom_rules(tokens, customize)
+    def customize_grammar_rules(self, tokens, customize):
+        super(Python23Parser, self).customize_grammar_rules(tokens, customize)
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python24Parser,

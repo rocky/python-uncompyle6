@@ -551,7 +551,7 @@ class PythonParser(GenericASTBuilder):
 
 
 def parse(p, tokens, customize):
-    p.add_custom_rules(tokens, customize)
+    p.customize_grammar_rules(tokens, customize)
     ast = p.parse(tokens)
     #  p.cleanup()
     return ast

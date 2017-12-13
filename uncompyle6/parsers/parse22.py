@@ -20,8 +20,8 @@ class Python22Parser(Python23Parser):
                       COME_FROM POP_TOP COME_FROM
         '''
 
-    def add_custom_rules(self, tokens, customize):
-        super(Python22Parser, self).add_custom_rules(tokens, customize)
+    def customize_grammar_rules(self, tokens, customize):
+        super(Python22Parser, self).customize_grammar_rules(tokens, customize)
         self.remove_rules("""
         kvlist ::= kvlist kv2
         """)

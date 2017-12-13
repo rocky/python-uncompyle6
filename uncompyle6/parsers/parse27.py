@@ -138,14 +138,14 @@ class Python27Parser(Python2Parser):
         kv3 ::= expr expr STORE_MAP
         """
 
-    def add_custom_rules(self, tokens, customize):
+    def customize_grammar_rules(self, tokens, customize):
         # 2.7 changes COME_FROM to COME_FROM_FINALLY
         self.remove_rules("""
         while1stmt     ::= SETUP_LOOP l_stmts JUMP_BACK COME_FROM
         while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK else_suite COME_FROM
         tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM suite_stmts_opt END_FINALLY
         """)
-        super(Python27Parser, self).add_custom_rules(tokens, customize)
+        super(Python27Parser, self).customize_grammar_rules(tokens, customize)
         self.check_reduce['and'] = 'AST'
         return
 
