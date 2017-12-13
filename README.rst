@@ -163,10 +163,9 @@ python 2.3-2.4 since a lot of the goodness of early the version of the
 decompiler from that era has been preserved (and Python compilation in
 that era was minimal)
 
-Later distributions average about 200 files. There is some work to do
-on the lower end Python versions which is more difficult for us to
-handle since we don't have a Python interpreter for versions 1.5, 1.6,
-and 2.0.
+There is some work to do on the lower end Python versions which is
+more difficult for us to handle since we don't have a Python
+interpreter for versions 1.5, 1.6, and 2.0.
 
 In the Python 3 series, Python support is is strongest around 3.4 or
 3.3 and drops off as you move further away from those versions. Python
@@ -187,7 +186,11 @@ handled.
 
 We also don't handle PJOrion_ obfuscated code. For that try: PJOrion
 Deobfuscator_ to unscramble the bytecode to get valid bytecode before
-trying this tool.
+trying this tool. This program can't decompile Microsoft Windows EXE
+files created by Py2EXE_, although we can probably decompile the code
+after you extract the bytecode properly. For situations like this, you
+might want to consider a decompilation service like [Crazy
+Compilers](http://www.crazy-compilers.com/decompyle/).
 
 Handling pathologically long lists of expressions or statements is
 slow.
@@ -219,3 +222,4 @@ See Also
 		 :target: https://travis-ci.org/rocky/python-uncompyle6
 .. _PJOrion: http://www.koreanrandom.com/forum/topic/15280-pjorion-%D1%80%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F-%D0%B4%D0%B5%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F-%D0%BE%D0%B1%D1%84
 .. _Deobfuscator: https://github.com/extremecoders-re/PjOrion-Deobfuscator
+.. _Py2EXE: https://en.wikipedia.org/wiki/Py2exe

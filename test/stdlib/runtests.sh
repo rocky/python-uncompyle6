@@ -36,8 +36,10 @@ case $PYVERSION in
 	    [test_codecs.py]=1    # need to fix tryelse
 	    [test_decorators.py]=1   # Syntax error decorators?
 	    [test_dis.py]=1   # We change line numbers - duh!
+	    [test_exceptions.py]=1
 	    [test_extcall.py]=1  # TypeError: saboteur() takes no arguments (1 given)
 	    [test_format.py]=1   # Control flow?
+	    [test_functools.py]=1
 	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_long_future.py]=1 # Control flow?
