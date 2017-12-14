@@ -46,6 +46,15 @@ class PythonParser(GenericASTBuilder):
             ]
         self.collect = frozenset(nt_list)
 
+        # ??? Do we need a debug option to skip eliding singleton reductions?
+        # Time will tell if it if useful in debugging
+
+        # FIXME: optional_nt is a misnomer. It's really about there being a
+        # singleton reduction that we can simplify. It also happens to be optional
+        # in its other derivation
+        self.optional_nt |= frozenset(['come_froms', 'suite_stmts', 'l_stmts_opt',
+                                       'c_stmts_opt'])
+
         # Reduce singleton reductions in these nonterminals:
         # FIXME: would love to do expr, sstmts, stmts and
         # so on but that would require major changes to the
@@ -180,11 +189,19 @@ class PythonParser(GenericASTBuilder):
             #  stmts -> stmts stmt -> stmts stmt -> ...
             #  stmms -> stmt stmt ...
             #
-            rv = args[0]
+            if not hasattr(args[0], 'append'):
+                # Was in self.optional_nt as a single item, but we find we have
+                # more than one now...
+                rv = GenericASTBuilder.nonterminal(self, nt, [args[0]])
+            else:
+                rv = args[0]
+                pass
             rv.append(args[1])
         elif n == 1 and args[0] in self.singleton:
             rv = GenericASTBuilder.nonterminal(self, nt, args[0])
             del args[0] # save memory
+        elif n == 1 and nt in self.optional_nt:
+            rv = args[0]
         else:
             rv = GenericASTBuilder.nonterminal(self, nt, args)
         return rv
