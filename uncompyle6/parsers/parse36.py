@@ -118,8 +118,12 @@ class Python36Parser(Python35Parser):
                 self.addRule(rule, nop_func)
             elif opname == 'SETUP_WITH':
                 rules_str = """
-                withstmt  ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST
-                              WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST
+                               WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+
+                # Removes POP_BLOCK LOAD_CONST from 3.6-
+                withasstmt ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
+                               WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
                 """
                 self.addRule(rules_str, nop_func)
 
