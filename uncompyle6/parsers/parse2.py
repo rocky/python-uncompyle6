@@ -250,23 +250,21 @@ class Python2Parser(PythonParser):
                                          JUMP_BACK
                         """, nop_func)
 
-        # Refactor the FIXME below and use the list below
-        # # For a rough break out on the first word. This may
-        # # include instructions that don't need customization,
-        # # but we'll do a finer check after the rough breakout.
-        # customize_instruction_basenames = frozenset(
-        #     ('BUILD',     'CALL',         'CONTINUE_LOOP', 'DELETE',
-        #      'EXEC_STMT', 'JUMP',         'LOAD',          'LOOKUP',
-        #      'MAKE',      'SETUP_EXCEPT', 'SETUP_FINALLY',
-        #      'UNPACK'))
+        # For a rough break out on the first word. This may
+        # include instructions that don't need customization,
+        # but we'll do a finer check after the rough breakout.
+        customize_instruction_basenames = frozenset(
+            ('BUILD',     'CALL',       'CONTINUE',
+             'DELETE',    'DUP',        'EXEC',      'JUMP',
+             'LOAD',      'LOOKUP',     'MAKE',      'SETUP',
+             'RAISE',     'UNPACK'))
 
         for i, token in enumerate(tokens):
+
             opname = token.kind
-            # FIXME: remove the "v" thing in the code below
-            if opname in customize:
-                v = customize[opname]
-            else:
+            if opname[:opname.find('_')] not in customize_instruction_basenames:
                 continue
+
             opname_base = opname[:opname.rfind('_')]
 
             # The order of opname listed is roughly sorted below
@@ -304,9 +302,9 @@ class Python2Parser(PythonParser):
                             'dictcomp_func', 0, customize)
 
                 else:
-                    kvlist_n = "kvlist_%s" % v
+                    kvlist_n = "kvlist_%s" % token.attr
                     self.add_unique_rules([
-                        (kvlist_n + " ::=" + ' kv3' * v),
+                        (kvlist_n + " ::=" + ' kv3' * token.attr),
                         "dict ::= %s %s" % (opname, kvlist_n)
                     ], customize)
                 continue
@@ -344,8 +342,7 @@ class Python2Parser(PythonParser):
                 rule = 'call ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
                        + 'expr ' * nak + opname
             elif opname == 'CONTINUE_LOOP':
-                self.add_unique_rule('continue ::= CONTINUE_LOOP',
-                                     opname, v, customize)
+                self.addRule('continue ::= CONTINUE_LOOP', nop_func)
                 continue
             elif opname_base in ('DUP_TOPX', 'RAISE_VARARGS'):
                 # FIXME: remove these conditions if they are not needed.
@@ -390,28 +387,26 @@ class Python2Parser(PythonParser):
                                      opname, token.attr, customize)
                 continue
             elif opname_base == 'MAKE_FUNCTION':
-                # FIXME: remove v here
                 if i > 0 and tokens[i-1] == 'LOAD_LAMBDA':
                     self.addRule('mklambda ::= %s LOAD_LAMBDA %s' %
-                                 ('pos_arg '*v, opname), nop_func)
-                rule = 'mkfunc ::= %s LOAD_CONST %s' % ('expr '*v, opname)
+                                 ('pos_arg ' * token.attr, opname), nop_func)
+                rule = 'mkfunc ::= %s LOAD_CONST %s' % ('expr ' * token.attr, opname)
             elif opname_base == 'MAKE_CLOSURE':
-                # FIXME: remove v here
                 # FIXME: use add_unique_rules to tidy this up.
                 if i > 0 and tokens[i-1] == 'LOAD_LAMBDA':
                     self.addRule('mklambda ::= %s load_closure LOAD_LAMBDA %s' %
-                                 ('expr '*v, opname),  nop_func)
+                                 ('expr ' * token.attr, opname),  nop_func)
                 if i > 0:
                     prev_tok = tokens[i-1]
                     if prev_tok == 'LOAD_GENEXPR':
                         self.add_unique_rules([
                             ('generator_exp ::= %s load_closure LOAD_GENEXPR %s expr'
                                  ' GET_ITER CALL_FUNCTION_1' %
-                            ('expr '*v, opname))], customize)
+                            ('expr ' * token.attr, opname))], customize)
                         pass
                 self.add_unique_rules([
                     ('mkfunc ::= %s load_closure LOAD_CONST %s' %
-                     ('expr '*v, opname))], customize)
+                     ('expr '* token.attr, opname))], customize)
 
                 if self.version >= 2.7:
                     if i > 0:
@@ -420,13 +415,13 @@ class Python2Parser(PythonParser):
                             self.add_unique_rules([
                                 ('dict_comp ::= %s load_closure LOAD_DICTCOMP %s expr'
                                  ' GET_ITER CALL_FUNCTION_1' %
-                                ('expr '*v, opname))], customize)
+                                ('expr ' * token.attr, opname))], customize)
                         elif prev_tok == 'LOAD_SETCOMP':
                             self.add_unique_rules([
                                 "expr ::= set_comp",
                                 ('set_comp ::= %s load_closure LOAD_SETCOMP %s expr'
                                 ' GET_ITER CALL_FUNCTION_1' %
-                                ('expr '*v, opname))
+                                ('expr ' * token.attr, opname))
                                 ], customize)
                         pass
                     pass
@@ -456,7 +451,7 @@ class Python2Parser(PythonParser):
             elif opname_base == 'UNPACK_LIST':
                 rule = 'unpack_list ::= ' + opname + ' store' * token.attr
             else:
-                raise Exception('unknown customize token %s' % opname)
+                continue
             self.addRule(rule, nop_func)
             pass
 

@@ -98,11 +98,8 @@ class Scanner2(Scanner):
         # list of tokens/instructions
         tokens = []
 
-        # "customize" is a dict whose keys are nonterminals
-        # and the value is the argument stack entries for that
-        # nonterminal. The count is a little hoaky. It is mostly
-        # not used, but sometimes it is.
-        # "customize" is a dict whose keys are nonterminals
+        # "customize" is ny pretty much legacy.
+        # We still use it though to signal we have a PyPy program
         customize = {}
 
         if self.is_pypy:
@@ -249,17 +246,6 @@ class Scanner2(Scanner):
                         op_name = 'BUILD_MAP_n'
                     else:
                         op_name = '%s_%d' % (op_name, oparg)
-                    customize[op_name] = oparg
-            elif self.is_pypy and op_name in frozenset(
-                    """LOOKUP_METHOD JUMP_IF_NOT_DEBUG SETUP_EXCEPT SETUP_FINALLY""".split()):
-                # The value in the dict is in special cases in semantic actions, such
-                # as CALL_FUNCTION. The value is not used in these cases, so we put
-                # in arbitrary value 0.
-                customize[op_name] = 0
-            elif op_name in """
-                 CONTINUE_LOOP EXEC_STMT LOAD_LISTCOMP LOAD_SETCOMP
-                  """.split():
-                customize[op_name] = 0
             elif op == self.opc.JUMP_ABSOLUTE:
                 # Further classify JUMP_ABSOLUTE into backward jumps
                 # which are used in loops, and "CONTINUE" jumps which
