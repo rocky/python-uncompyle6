@@ -58,8 +58,8 @@ class Python24Parser(Python25Parser):
         kvlist        ::= kvlist kv3
         while1stmt    ::= SETUP_LOOP l_stmts JUMP_BACK COME_FROM
         while1stmt    ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM
-        while1stmt    ::= SETUP_LOOP return_stmts COME_FROM
-        whilestmt     ::= SETUP_LOOP testexpr return_stmts POP_BLOCK COME_FROM
+        while1stmt    ::= SETUP_LOOP returns COME_FROM
+        whilestmt     ::= SETUP_LOOP testexpr returns POP_BLOCK COME_FROM
         with_cleanup  ::= LOAD_FAST DELETE_FAST WITH_CLEANUP END_FINALLY
         with_cleanup  ::= LOAD_NAME DELETE_NAME WITH_CLEANUP END_FINALLY
         withasstmt    ::= expr setupwithas store suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM with_cleanup

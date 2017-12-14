@@ -41,14 +41,14 @@ class Python36Parser(Python35Parser):
         # In 3.6+, A sequence of statements ending in a RETURN can cause
         # JUMP_FORWARD END_FINALLY to be omitted from try middle
 
-        except_return    ::= POP_TOP POP_TOP POP_TOP return_stmts
+        except_return    ::= POP_TOP POP_TOP POP_TOP returns
         except_handler   ::= JUMP_FORWARD COME_FROM_EXCEPT except_return
 
-        # Try middle following a return_stmts
+        # Try middle following a returns
         except_handler36 ::= COME_FROM_EXCEPT except_stmts END_FINALLY
 
         stmt             ::= try_except36
-        try_except36     ::= SETUP_EXCEPT return_stmts except_handler36 opt_come_from_except
+        try_except36     ::= SETUP_EXCEPT returns except_handler36 opt_come_from_except
         """
 
     def customize_grammar_rules(self, tokens, customize):
@@ -140,7 +140,7 @@ class Python36Parser(Python35Parser):
             self.addRule("""expr        ::= call_ex_kw
                             expr        ::= call_ex_kw2
                             call_ex_kw  ::= expr expr build_map_unpack_with_call
-                                           CALL_FUNCTION_EX_KW
+                                            CALL_FUNCTION_EX_KW
                             call_ex_kw2 ::= expr
                                             build_tuple_unpack_with_call
                                             build_map_unpack_with_call

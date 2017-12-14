@@ -817,7 +817,7 @@ class SourceWalker(GenericASTTraversal, object):
             # FIXME: should the AST expression be folded into
             # the global RETURN_NONE constant?
             return (ret or
-                    node == AST('return_stmt',
+                    node == AST('return',
                                 [AST('ret_expr', [NONE]), Token('RETURN_VALUE')]))
 
     # Python 3.x can have be dead code as a result of its optimization?
@@ -834,7 +834,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.preorder(node[0])
             self.prune()
 
-    def n_return_stmt(self, node):
+    def n_return(self, node):
         if self.params['is_lambda']:
             self.preorder(node[0])
             self.prune()

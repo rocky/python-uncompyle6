@@ -16,7 +16,10 @@ def test_grammar():
     p = get_python_parser(PYTHON_VERSION, is_pypy=IS_PYPY)
     (lhs, rhs, tokens,
      right_recursive, dup_rhs) = p.check_sets()
-    expect_lhs = set(['expr1024', 'pos_arg'])
+
+    # We have custom rules that create the below
+    expect_lhs = set(['expr1024', 'pos_arg', 'get_iter', 'attribute'])
+
     unused_rhs = set(['list', 'mkfunc',
                       'mklambda',
                       'unpack',])

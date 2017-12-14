@@ -44,6 +44,19 @@ class PythonParser(GenericASTBuilder):
             ]
         self.collect = frozenset(nt_list)
 
+        # For these items we need to keep the 1st epslion reduction since
+        # the nonterminal name is used in a semantic action.
+        self.keep_epsilon = frozenset(('kvlist_n', 'kvlist'))
+
+        # ??? Do we need a debug option to skip eliding singleton reductions?
+        # Time will tell if it if useful in debugging
+
+        # FIXME: optional_nt is a misnomer. It's really about there being a
+        # singleton reduction that we can simplify. It also happens to be optional
+        # in its other derivation
+        self.optional_nt |= frozenset(('come_froms', 'suite_stmts', 'l_stmts_opt',
+                                       'c_stmts_opt'))
+
         # Reduce singleton reductions in these nonterminals:
         # FIXME: would love to do expr, sstmts, stmts and
         # so on but that would require major changes to the
@@ -178,11 +191,24 @@ class PythonParser(GenericASTBuilder):
             #  stmts -> stmts stmt -> stmts stmt -> ...
             #  stmms -> stmt stmt ...
             #
-            rv = args[0]
-            rv.append(args[1])
+            if not hasattr(args[0], 'append'):
+                # Was in self.optional_nt as a single item, but we find we have
+                # more than one now...
+                rv = GenericASTBuilder.nonterminal(self, nt, [args[0]])
+            else:
+                rv = args[0]
+                pass
+            # In a  list-like entity where the first item goes to epsilon,
+            # drop that and save the 2nd item as the first one
+            if len(rv) == 0 and nt not in self.keep_epsilon:
+                rv = args[1]
+            else:
+                rv.append(args[1])
         elif n == 1 and args[0] in self.singleton:
             rv = GenericASTBuilder.nonterminal(self, nt, args[0])
             del args[0] # save memory
+        elif n == 1 and nt in self.optional_nt:
+            rv = args[0]
         else:
             rv = GenericASTBuilder.nonterminal(self, nt, args)
         return rv
@@ -236,7 +262,7 @@ class PythonParser(GenericASTBuilder):
         c_stmts_opt ::= pass
 
         l_stmts ::= _stmts
-        l_stmts ::= return_stmts
+        l_stmts ::= returns
         l_stmts ::= continues
         l_stmts ::= _stmts lastl_stmt
         l_stmts ::= lastl_stmt
@@ -250,7 +276,7 @@ class PythonParser(GenericASTBuilder):
         l_stmts_opt ::= pass
 
         suite_stmts ::= _stmts
-        suite_stmts ::= return_stmts
+        suite_stmts ::= returns
         suite_stmts ::= continues
 
         suite_stmts_opt ::= suite_stmts
@@ -261,7 +287,7 @@ class PythonParser(GenericASTBuilder):
         else_suite ::= suite_stmts
         else_suitel ::= l_stmts
         else_suitec ::= c_stmts
-        else_suitec ::= return_stmts
+        else_suitec ::= returns
 
         stmt ::= assert
 
@@ -289,15 +315,15 @@ class PythonParser(GenericASTBuilder):
         del_stmt ::= DELETE_GLOBAL
 
 
-        stmt ::= return_stmt
-        return_stmt ::= ret_expr RETURN_VALUE
+        stmt   ::= return
+        return ::= ret_expr RETURN_VALUE
 
-        # return_stmts are a sequence of statements that ends in a RETURN statement.
+        # returns are a sequence of statements that ends in a RETURN statement.
         # In later Python versions with jump optimization, this can cause JUMPs
         # that would normally appear to be omitted.
 
-        return_stmts ::= return_stmt
-        return_stmts ::= _stmts return_stmt
+        returns ::= return
+        returns ::= _stmts return
 
         """
         pass
@@ -456,7 +482,6 @@ class PythonParser(GenericASTBuilder):
         expr ::= LOAD_CONST
         expr ::= LOAD_GLOBAL
         expr ::= LOAD_DEREF
-        expr ::= attribute
         expr ::= binary_expr
         expr ::= list
         expr ::= compare
@@ -468,7 +493,6 @@ class PythonParser(GenericASTBuilder):
         expr ::= unary_not
         expr ::= subscript
         expr ::= subscript2
-        expr ::= get_iter
         expr ::= yield
 
         binary_expr ::= expr expr binary_op

@@ -17,7 +17,7 @@ class Python30Parser(Python31Parser):
         # FIXME: combine with parse3.2
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK
                               COME_FROM_LOOP
-        whileTruestmt     ::= SETUP_LOOP return_stmts
+        whileTruestmt     ::= SETUP_LOOP returns
                               COME_FROM_LOOP
 
         # In many ways Python 3.0 code generation is more like Python 2.6 than

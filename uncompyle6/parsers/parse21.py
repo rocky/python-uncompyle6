@@ -15,7 +15,7 @@ class Python21Parser(Python22Parser):
         """
         for_iter    ::= LOAD_CONST FOR_LOOP
         for         ::= SETUP_LOOP expr for_iter store
-                        return_stmts
+                        returns
                         POP_BLOCK COME_FROM
         for         ::= SETUP_LOOP expr for_iter store
                         l_stmts_opt _jump_back
