@@ -245,6 +245,8 @@ class Scanner2(Scanner):
                         op_name = 'BUILD_MAP_n'
                     else:
                         op_name = '%s_%d' % (op_name, oparg)
+                        pass
+                    # FIXME: Figure out why this is needed and remove.
                     customize[op_name] = oparg
             elif op == self.opc.JUMP_ABSOLUTE:
                 # Further classify JUMP_ABSOLUTE into backward jumps
