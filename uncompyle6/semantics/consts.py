@@ -32,7 +32,7 @@ RETURN_NONE = AST('stmt',
 PASS = AST('stmts',
            [ AST('sstmt',
                  [ AST('stmt',
-                       [ AST('passstmt', [])])])])
+                       [ AST('pass', [])])])])
 
 ASSIGN_DOC_STRING = lambda doc_string: \
   AST('stmt',
@@ -276,7 +276,7 @@ TABLE_DIRECT = {
     'except_cond1':	    ( '%|except %c:\n', 1 ),
     'except_suite':     ( '%+%c%-%C', 0, (1, maxint, '') ),
     'except_suite_finalize':     ( '%+%c%-%C', 1, (3, maxint, '') ),
-    'passstmt':		    ( '%|pass\n', ),
+    'pass':	            ( '%|pass\n', ),
     'STORE_FAST':	    ( '%{pattr}', ),
     'kv':		    ( '%c: %c', 3, 1 ),
     'kv2':		    ( '%c: %c', 1, 2 ),

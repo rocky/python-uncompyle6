@@ -248,27 +248,30 @@ class Python2Parser(PythonParser):
                                          JUMP_BACK
                         """, nop_func)
 
-        # Refactor the FIXME below and use the list below
-        # # For a rough break out on the first word. This may
-        # # include instructions that don't need customization,
-        # # but we'll do a finer check after the rough breakout.
-        # customize_instruction_basenames = frozenset(
-        #     ('BUILD',     'CALL',         'CONTINUE_LOOP', 'DELETE',
-        #      'EXEC_STMT', 'JUMP',         'LOAD',          'LOOKUP',
-        #      'MAKE',      'SETUP_EXCEPT', 'SETUP_FINALLY',
-        #      'UNPACK'))
+        # For a rough break out on the first word. This may
+        # include instructions that don't need customization,
+        # but we'll do a finer check after the rough breakout.
+        customize_instruction_basenames = frozenset(
+            ('BUILD',     'CALL',       'CONTINUE',
+             'DELETE',    'DUP',        'EXEC',      'JUMP',
+             'LOAD',      'LOOKUP',     'MAKE',      'SETUP',
+             'RAISE',     'UNPACK'))
 
         for i, token in enumerate(tokens):
             opname = token.kind
-            # FIXME: remove the "v" thing in the code below
-            if opname in customize:
-                v = customize[opname]
-            else:
+
+            # FIXME
+            if (opname[:opname.find('_')]
+               not in customize_instruction_basenames):
+
+            # if opname not in customize:
                 continue
+
             opname_base = opname[:opname.rfind('_')]
 
             # The order of opname listed is roughly sorted below
             if opname_base in ('BUILD_LIST', 'BUILD_SET', 'BUILD_TUPLE'):
+                v = token.attr
                 thousands = (v//1024)
                 thirty32s = ((v//32) % 32)
                 if thirty32s > 0:
@@ -301,9 +304,9 @@ class Python2Parser(PythonParser):
                             'dictcomp_func', 0, customize)
 
                 else:
-                    kvlist_n = "kvlist_%s" % v
+                    kvlist_n = "kvlist_%s" % token.attr
                     self.add_unique_rules([
-                        (kvlist_n + " ::=" + ' kv3' * v),
+                        (kvlist_n + " ::=" + ' kv3' * token.attr),
                         "dict ::= %s %s" % (opname, kvlist_n)
                     ], customize)
                 continue
@@ -324,23 +327,24 @@ class Python2Parser(PythonParser):
                 continue
             elif opname_base in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
                                  'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
-                args_pos = (v & 0xff)          # positional parameters
-                args_kw = (v >> 8) & 0xff      # keyword parameters
+
+                args_pos, args_kw = self.get_pos_kw(token)
+
                 # number of apply equiv arguments:
                 nak = ( len(opname_base)-len('CALL_FUNCTION') ) // 3
                 rule = 'call ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
                        + 'expr ' * nak + opname
             elif opname_base == 'CALL_METHOD':
                 # PyPy only - DRY with parse3
-                args_pos = (v & 0xff)          # positional parameters
-                args_kw = (v >> 8) & 0xff      # keyword parameters
+
+                args_pos, args_kw = self.get_pos_kw(token)
+
                 # number of apply equiv arguments:
                 nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
                 rule = 'call ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
                        + 'expr ' * nak + opname
             elif opname == 'CONTINUE_LOOP':
-                self.add_unique_rule('continue ::= CONTINUE_LOOP',
-                                     opname, v, customize)
+                self.addRule('continue ::= CONTINUE_LOOP', nop_func)
                 continue
             elif opname_base in ('DUP_TOPX', 'RAISE_VARARGS'):
                 # FIXME: remove these conditions if they are not needed.
@@ -355,16 +359,18 @@ class Python2Parser(PythonParser):
                   """, nop_func)
                 continue
             elif opname == 'JUMP_IF_NOT_DEBUG':
-                self.add_unique_rules([
-                    'jmp_true_false ::= POP_JUMP_IF_TRUE',
-                    'jmp_true_false ::= POP_JUMP_IF_FALSE',
-                    "stmt ::= assert_pypy",
-                    "stmt ::= assert2_pypy",
-                    "assert_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true_false "
-                       "LOAD_ASSERT RAISE_VARARGS_1 COME_FROM",
-                    "assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true_false "
-                       "LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1 COME_FROM",
-                    ], customize)
+                v = token.attr
+                self.addRule("""
+                    jmp_true_false ::= POP_JUMP_IF_TRUE
+                    jmp_true_false ::= POP_JUMP_IF_FALSE
+                    stmt ::= assert_pypy
+                    stmt ::= assert2_pypy
+                    assert_pypy  ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true_false
+                                     LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
+                    assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true_false
+                                     LOAD_ASSERT expr CALL_FUNCTION_1
+                                     RAISE_VARARGS_1 COME_FROM
+                     """, nop_func)
                 continue
             elif opname == 'LOAD_LISTCOMP':
                 self.add_unique_rules([
@@ -380,29 +386,29 @@ class Python2Parser(PythonParser):
             elif opname == 'LOOKUP_METHOD':
                 # A PyPy speciality - DRY with parse3
                 self.add_unique_rule("attribute ::= expr LOOKUP_METHOD",
-                                     opname, v, customize)
+                                     opname, token.attr, customize)
                 continue
             elif opname_base == 'MAKE_FUNCTION':
                 if i > 0 and tokens[i-1] == 'LOAD_LAMBDA':
                     self.addRule('mklambda ::= %s LOAD_LAMBDA %s' %
-                                 ('pos_arg '*v, opname), nop_func)
-                rule = 'mkfunc ::= %s LOAD_CONST %s' % ('expr '*v, opname)
+                                 ('pos_arg ' * token.attr, opname), nop_func)
+                rule = 'mkfunc ::= %s LOAD_CONST %s' % ('expr ' * token.attr, opname)
             elif opname_base == 'MAKE_CLOSURE':
                 # FIXME: use add_unique_rules to tidy this up.
                 if i > 0 and tokens[i-1] == 'LOAD_LAMBDA':
                     self.addRule('mklambda ::= %s load_closure LOAD_LAMBDA %s' %
-                                 ('expr '*v, opname),  nop_func)
+                                 ('expr ' * token.attr, opname),  nop_func)
                 if i > 0:
                     prev_tok = tokens[i-1]
                     if prev_tok == 'LOAD_GENEXPR':
                         self.add_unique_rules([
                             ('generator_exp ::= %s load_closure LOAD_GENEXPR %s expr'
                                  ' GET_ITER CALL_FUNCTION_1' %
-                            ('expr '*v, opname))], customize)
+                            ('expr ' * token.attr, opname))], customize)
                         pass
                 self.add_unique_rules([
                     ('mkfunc ::= %s load_closure LOAD_CONST %s' %
-                     ('expr '*v, opname))], customize)
+                     ('expr '* token.attr, opname))], customize)
 
                 if self.version >= 2.7:
                     if i > 0:
@@ -411,13 +417,13 @@ class Python2Parser(PythonParser):
                             self.add_unique_rules([
                                 ('dict_comp ::= %s load_closure LOAD_DICTCOMP %s expr'
                                  ' GET_ITER CALL_FUNCTION_1' %
-                                ('expr '*v, opname))], customize)
+                                ('expr ' * token.attr, opname))], customize)
                         elif prev_tok == 'LOAD_SETCOMP':
                             self.add_unique_rules([
                                 "expr ::= set_comp",
                                 ('set_comp ::= %s load_closure LOAD_SETCOMP %s expr'
                                 ' GET_ITER CALL_FUNCTION_1' %
-                                ('expr '*v, opname))
+                                ('expr ' * token.attr, opname))
                                 ], customize)
                         pass
                     pass
@@ -443,13 +449,14 @@ class Python2Parser(PythonParser):
                 ], customize)
                 continue
             elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
-                rule = 'unpack ::= ' + opname + ' store'*v
+                rule = 'unpack ::= ' + opname + ' store' * token.attr
             elif opname_base == 'UNPACK_LIST':
-                rule = 'unpack_list ::= ' + opname + ' store'*v
+                rule = 'unpack_list ::= ' + opname + ' store' * token.attr
             else:
-                raise Exception('unknown customize token %s' % opname)
-            self.add_unique_rule(rule, opname_base, v, customize)
+                continue
+            self.addRule(rule, nop_func)
             pass
+
         self.check_reduce['aug_assign1'] = 'AST'
         self.check_reduce['aug_assign2'] = 'AST'
         self.check_reduce['_stmts'] = 'AST'

@@ -1787,6 +1787,11 @@ class SourceWalker(GenericASTTraversal, object):
     def print_super_classes3(self, node):
         n = len(node)-1
         if node.kind != 'expr':
+            kwargs = None
+            # 3.6+ starts having this
+            if node[n].kind.startswith('CALL_FUNCTION_KW'):
+                kwargs = node[n-1].attr
+                assert isinstance(kwargs, tuple)
             assert node[n].kind.startswith('CALL_FUNCTION')
             for i in range(n-2, 0, -1):
                 if not node[i].kind in ['expr', 'LOAD_CLASSNAME']:
@@ -1798,11 +1803,21 @@ class SourceWalker(GenericASTTraversal, object):
             line_separator = ', '
             sep = ''
             self.write('(')
+            j = 0
             i += 2
-            while i < n:
+            if kwargs:
+                # Last arg is tuple of keyword values: omit
+                l = n - 1
+            else:
+                l = n
+            while i < l:
                 value = self.traverse(node[i])
                 i += 1
                 self.write(sep, value)
+                # 3.6+ may have this
+                if kwargs:
+                    self.write("=%s" % kwargs[j])
+                    j += 1
                 sep = line_separator
                 pass
             pass

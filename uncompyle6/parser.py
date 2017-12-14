@@ -156,6 +156,15 @@ class PythonParser(GenericASTBuilder):
         else:
             raise ParserError(None, -1)
 
+    def get_pos_kw(self, token):
+        """Return then the number of positional parameters and
+        represented by the attr field of token"""
+        # Low byte indicates number of positional paramters,
+        # high byte number of keyword parameters
+        args_pos = token.attr & 0xff
+        args_kw = (token.attr >> 8) & 0xff
+        return args_pos, args_kw
+
     def nonterminal(self, nt, args):
         n = len(args)
 
@@ -209,7 +218,7 @@ class PythonParser(GenericASTBuilder):
 
     def p_stmt(self, args):
         """
-        passstmt ::=
+        pass ::=
 
         _stmts ::= stmt+
 
@@ -224,7 +233,7 @@ class PythonParser(GenericASTBuilder):
         lastc_stmt ::= ifelsestmtc
 
         c_stmts_opt ::= c_stmts
-        c_stmts_opt ::= passstmt
+        c_stmts_opt ::= pass
 
         l_stmts ::= _stmts
         l_stmts ::= return_stmts
@@ -238,7 +247,7 @@ class PythonParser(GenericASTBuilder):
         lastl_stmt ::= tryelsestmtl
 
         l_stmts_opt ::= l_stmts
-        l_stmts_opt ::= passstmt
+        l_stmts_opt ::= pass
 
         suite_stmts ::= _stmts
         suite_stmts ::= return_stmts
@@ -247,7 +256,7 @@ class PythonParser(GenericASTBuilder):
         suite_stmts_opt ::= suite_stmts
 
         # passtmt is needed for semantic actions to add "pass"
-        suite_stmts_opt ::= passstmt
+        suite_stmts_opt ::= pass
 
         else_suite ::= suite_stmts
         else_suitel ::= l_stmts
