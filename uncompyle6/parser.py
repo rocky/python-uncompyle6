@@ -255,7 +255,7 @@ class PythonParser(GenericASTBuilder):
         c_stmts_opt ::= pass
 
         l_stmts ::= _stmts
-        l_stmts ::= return_stmts
+        l_stmts ::= returns
         l_stmts ::= continues
         l_stmts ::= _stmts lastl_stmt
         l_stmts ::= lastl_stmt
@@ -269,7 +269,7 @@ class PythonParser(GenericASTBuilder):
         l_stmts_opt ::= pass
 
         suite_stmts ::= _stmts
-        suite_stmts ::= return_stmts
+        suite_stmts ::= returns
         suite_stmts ::= continues
 
         suite_stmts_opt ::= suite_stmts
@@ -280,7 +280,7 @@ class PythonParser(GenericASTBuilder):
         else_suite ::= suite_stmts
         else_suitel ::= l_stmts
         else_suitec ::= c_stmts
-        else_suitec ::= return_stmts
+        else_suitec ::= returns
 
         stmt ::= assert
 
@@ -308,15 +308,15 @@ class PythonParser(GenericASTBuilder):
         del_stmt ::= DELETE_GLOBAL
 
 
-        stmt ::= return_stmt
-        return_stmt ::= ret_expr RETURN_VALUE
+        stmt   ::= return
+        return ::= ret_expr RETURN_VALUE
 
-        # return_stmts are a sequence of statements that ends in a RETURN statement.
+        # returns are a sequence of statements that ends in a RETURN statement.
         # In later Python versions with jump optimization, this can cause JUMPs
         # that would normally appear to be omitted.
 
-        return_stmts ::= return_stmt
-        return_stmts ::= _stmts return_stmt
+        returns ::= return
+        returns ::= _stmts return
 
         """
         pass

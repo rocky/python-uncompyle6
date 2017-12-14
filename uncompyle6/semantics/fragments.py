@@ -206,7 +206,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     n_tryelsestmt = n_tryelsestmtc = n_tryelsestmtl = n_tryfinallystmt = n_try_except
 
-    def n_return_stmt(self, node):
+    def n_return(self, node):
         start = len(self.f.getvalue()) + len(self.indent)
         if self.params['is_lambda']:
             self.preorder(node[0])
@@ -217,7 +217,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         else:
             start = len(self.f.getvalue()) + len(self.indent)
             self.write(self.indent, 'return')
-            if self.return_none or node != AST('return_stmt', [AST('ret_expr', [NONE]), Token('RETURN_VALUE')]):
+            if self.return_none or node != AST('return', [AST('ret_expr', [NONE]), Token('RETURN_VALUE')]):
                 self.write(' ')
                 self.last_finish = len(self.f.getvalue())
                 self.preorder(node[0])
@@ -243,7 +243,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         else:
             start = len(self.f.getvalue()) + len(self.indent)
             self.write(self.indent, 'return')
-            if self.return_none or node != AST('return_stmt', [AST('ret_expr', [NONE]), Token('RETURN_END_IF')]):
+            if self.return_none or node != AST('return', [AST('ret_expr', [NONE]), Token('RETURN_END_IF')]):
                 self.write(' ')
                 self.preorder(node[0])
                 if hasattr(node[-1], 'offset'):

@@ -135,14 +135,14 @@ class Python26Parser(Python2Parser):
 
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt jb_pop POP_BLOCK _come_froms
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt jb_cf_pop bp_come_from
-        whilestmt      ::= SETUP_LOOP testexpr return_stmts POP_BLOCK COME_FROM
+        whilestmt      ::= SETUP_LOOP testexpr returns POP_BLOCK COME_FROM
 
         whileelsestmt  ::= SETUP_LOOP testexpr l_stmts_opt jb_pop POP_BLOCK
                            else_suite COME_FROM
         while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK else_suite COME_FROM
 
-        return_stmt ::= ret_expr RETURN_END_IF POP_TOP
-        return_stmt ::= ret_expr RETURN_VALUE POP_TOP
+        return         ::= ret_expr RETURN_END_IF POP_TOP
+        return         ::= ret_expr RETURN_VALUE POP_TOP
         return_if_stmt ::= ret_expr RETURN_END_IF POP_TOP
 
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK come_from_pop
@@ -174,8 +174,8 @@ class Python26Parser(Python2Parser):
         jmp_false_then ::= JUMP_IF_FALSE THEN POP_TOP
         jmp_true_then  ::= JUMP_IF_TRUE THEN POP_TOP
 
-        while1stmt ::= SETUP_LOOP return_stmts COME_FROM
-        for_block  ::= return_stmts _come_froms
+        while1stmt ::= SETUP_LOOP returns COME_FROM
+        for_block  ::= returns _come_froms
         """
 
     def p_comp26(self, args):
@@ -241,7 +241,7 @@ class Python26Parser(Python2Parser):
         ret_cond     ::= expr jmp_false_then expr ret_expr_or_cond
 
         return_if_stmt ::= ret_expr RETURN_END_IF POP_TOP
-        return_stmt ::= ret_expr RETURN_VALUE POP_TOP
+        return ::= ret_expr RETURN_VALUE POP_TOP
 
         # FIXME: split into Python 2.5
         ret_or   ::= expr jmp_true ret_expr_or_cond come_froms

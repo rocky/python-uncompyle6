@@ -82,7 +82,7 @@ class Python3Parser(PythonParser):
         '''
         sstmt ::= stmt
         sstmt ::= ifelsestmtr
-        sstmt ::= return_stmt RETURN_LAST
+        sstmt ::= return RETURN_LAST
 
         return_if_stmts ::= return_if_stmt come_from_opt
         return_if_stmts ::= _stmts return_if_stmt
@@ -157,7 +157,7 @@ class Python3Parser(PythonParser):
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
         ifelsestmtc ::= testexpr c_stmts_opt jump_absolute_else else_suitec
 
-        ifelsestmtr ::= testexpr return_if_stmts return_stmts
+        ifelsestmtr ::= testexpr return_if_stmts returns
 
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
         ifelsestmtl ::= testexpr c_stmts_opt cf_jump_back else_suitel
@@ -224,7 +224,7 @@ class Python3Parser(PythonParser):
         except_var_finalize ::= POP_BLOCK POP_EXCEPT LOAD_CONST COME_FROM_FINALLY
                                 LOAD_CONST store del_stmt
 
-        except_suite ::= return_stmts
+        except_suite ::= returns
 
         except_cond1 ::= DUP_TOP expr COMPARE_OP
                 jmp_false POP_TOP POP_TOP POP_TOP
@@ -233,7 +233,7 @@ class Python3Parser(PythonParser):
                 jmp_false POP_TOP store POP_TOP
 
         except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT _jump
-        except  ::=  POP_TOP POP_TOP POP_TOP return_stmts
+        except  ::=  POP_TOP POP_TOP POP_TOP returns
 
         jmp_abs ::= JUMP_ABSOLUTE
         jmp_abs ::= JUMP_BACK
@@ -346,7 +346,7 @@ class Python3Parser(PythonParser):
         whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
-        whilestmt         ::= SETUP_LOOP testexpr return_stmts          POP_BLOCK
+        whilestmt         ::= SETUP_LOOP testexpr returns          POP_BLOCK
                               COME_FROM_LOOP
 
         while1elsestmt    ::= SETUP_LOOP          l_stmts     JUMP_BACK
@@ -574,13 +574,13 @@ class Python3Parser(PythonParser):
             self.addRule("""
               stmt ::= assign3_pypy
               stmt ::= assign2_pypy
-              assign3_pypy ::= expr expr expr store store store
-              assign2_pypy ::= expr expr store store
+              assign3_pypy     ::= expr expr expr store store store
+              assign2_pypy     ::= expr expr store store
               return_if_lambda ::= RETURN_END_IF_LAMBDA
-              return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
-              stmt ::= conditional_lambda
+              return_lambda    ::= ret_expr RETURN_VALUE_LAMBDA
+              stmt             ::= conditional_lambda
               conditional_lambda ::= expr jmp_false expr return_if_lambda
-                                     return_stmt_lambda LAMBDA_MARKER
+                                     return_lambda LAMBDA_MARKER
               """, nop_func)
 
         has_get_iter_call_function1 = False

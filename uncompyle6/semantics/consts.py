@@ -19,14 +19,14 @@ LINE_LENGTH = 80
 # Some ASTs used for comparing code fragments (like 'return None' at
 # the end of functions).
 
-RETURN_LOCALS = AST('return_stmt',
+RETURN_LOCALS = AST('return',
                     [ AST('ret_expr', [AST('expr', [ Token('LOAD_LOCALS') ])]),
                       Token('RETURN_VALUE')])
 
 NONE = AST('expr', [ NoneToken ] )
 
 RETURN_NONE = AST('stmt',
-                  [ AST('return_stmt',
+                  [ AST('return',
                         [ NONE, Token('RETURN_VALUE')]) ])
 
 PASS = AST('stmts',
@@ -231,8 +231,8 @@ TABLE_DIRECT = {
     'raise_stmt0':	    ( '%|raise\n', ),
     'raise_stmt1':	    ( '%|raise %c\n', 0),
     'raise_stmt3':	    ( '%|raise %c, %c, %c\n', 0, 1, 2),
-#    'yield':	( 'yield %c', 0),
-#    'return_stmt':	( '%|return %c\n', 0),
+#    'yield':	        ( 'yield %c', 0),
+#    'return':	        ( '%|return %c\n', 0),
     'return_if_stmt':	( 'return %c\n', 0),
 
     'ifstmt':		    ( '%|if %c:\n%+%c%-', 0, 1 ),

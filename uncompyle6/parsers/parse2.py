@@ -54,7 +54,7 @@ class Python2Parser(PythonParser):
     def p_grammar(self, args):
         '''
         sstmt ::= stmt
-        sstmt ::= return_stmt RETURN_LAST
+        sstmt ::= return RETURN_LAST
 
         return_if_stmts ::= return_if_stmt
         return_if_stmts ::= _stmts return_if_stmt
@@ -157,10 +157,10 @@ class Python2Parser(PythonParser):
 
         except_suite ::= c_stmts_opt JUMP_FORWARD
         except_suite ::= c_stmts_opt jmp_abs
-        except_suite ::= return_stmts
+        except_suite ::= returns
 
         except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt _jump
-        except  ::=  POP_TOP POP_TOP POP_TOP return_stmts
+        except  ::=  POP_TOP POP_TOP POP_TOP returns
 
         jmp_abs ::= JUMP_ABSOLUTE
         jmp_abs ::= JUMP_BACK
@@ -483,7 +483,7 @@ class Python2Parser(PythonParser):
                 if stmt == '_stmts':
                     stmt = stmt[0]
                 assert stmt == 'stmt'
-                if stmt[0] == 'return_stmt':
+                if stmt[0] == 'return':
                     return i+1 != len(ast)
                 pass
             return False
