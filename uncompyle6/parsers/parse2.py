@@ -255,8 +255,8 @@ class Python2Parser(PythonParser):
         # include instructions that don't need customization,
         # but we'll do a finer check after the rough breakout.
         customize_instruction_basenames = frozenset(
-            ('BUILD',     'CALL',       'CONTINUE',
-             'DELETE',    'DUP',        'EXEC',      'JUMP',
+            ('BUILD',     'CALL',       'CONTINUE',  'DELETE',
+             'DUP',       'EXEC',       'GET',       'JUMP',
              'LOAD',      'LOOKUP',     'MAKE',      'SETUP',
              'RAISE',     'UNPACK'))
 
@@ -374,17 +374,24 @@ class Python2Parser(PythonParser):
                    """, nop_func)
                 custom_ops_seen.add(opname)
                 continue
+            elif opname == 'GET_ITER':
+                self.addRule("""
+                    expr      ::= get_iter
+                    attribute ::= expr GET_ITER
+                    """, nop_func)
+                custom_ops_seen.add(opname)
+                continue
             elif opname_base in ('DUP_TOPX', 'RAISE_VARARGS'):
                 # FIXME: remove these conditions if they are not needed.
                 # no longer need to add a rule
                 continue
             elif opname == 'EXEC_STMT':
                 self.addRule("""
-                  stmt      ::= exec_stmt
-                  exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
-                  exec_stmt ::= expr exprlist EXEC_STMT
-                  exprlist  ::= expr+
-                  """, nop_func)
+                    stmt      ::= exec_stmt
+                    exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
+                    exec_stmt ::= expr exprlist EXEC_STMT
+                    exprlist  ::= expr+
+                    """, nop_func)
                 continue
             elif opname == 'JUMP_IF_NOT_DEBUG':
                 v = token.attr
@@ -400,6 +407,13 @@ class Python2Parser(PythonParser):
                                      RAISE_VARARGS_1 COME_FROM
                      """, nop_func)
                 continue
+            elif opname == 'LOAD_ATTR':
+                self.addRule("""
+                  expr      ::= attribute
+                  attribute ::= expr LOAD_ATTR
+                  """, nop_func)
+                custom_ops_seen.add(opname)
+                continue
             elif opname == 'LOAD_LISTCOMP':
                 self.addRule("expr ::= listcomp", nop_func)
                 custom_ops_seen.add(opname)
@@ -413,7 +427,11 @@ class Python2Parser(PythonParser):
                 continue
             elif opname == 'LOOKUP_METHOD':
                 # A PyPy speciality - DRY with parse3
-                self.addRule("attribute ::= expr LOOKUP_METHOD", nop_func)
+                self.addRule("""
+                             expr      ::= attribute
+                             attribute ::= expr LOOKUP_METHOD
+                             """,
+                             nop_func)
                 custom_ops_seen.add(opname)
                 continue
             elif opname_base == 'MAKE_FUNCTION':

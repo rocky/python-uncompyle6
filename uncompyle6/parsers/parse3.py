@@ -562,7 +562,7 @@ class Python3Parser(PythonParser):
         # include instructions that don't need customization,
         # but we'll do a finer check after the rough breakout.
         customize_instruction_basenames = frozenset(
-            ('BUILD', 'CALL', 'CONTINUE', 'DELETE',
+            ('BUILD', 'CALL', 'CONTINUE', 'DELETE', 'GET',
              'JUMP',  'LOAD', 'LOOKUP',   'MAKE',
              'RAISE', 'UNPACK'))
 
@@ -733,6 +733,9 @@ class Python3Parser(PythonParser):
                         ('kwarg ' * args_kw) +
                         'expr ' * nak + opname)
                 self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname == 'CONTINUE':
+                self.addRule('continue ::= CONTINUE', nop_func)
+                custom_ops_seen.add(opname)
             elif opname == 'CONTINUE_LOOP':
                 self.addRule('continue ::= CONTINUE_LOOP', nop_func)
                 custom_ops_seen.add(opname)
@@ -750,6 +753,12 @@ class Python3Parser(PythonParser):
                     del_stmt ::= delete_subscr
                     delete_subscr ::= expr expr DELETE_SUBSCR
                    """, nop_func)
+                custom_ops_seen.add(opname)
+            elif opname == 'GET_ITER':
+                self.addRule("""
+                    expr      ::= get_iter
+                    attribute ::= expr GET_ITER
+                    """, nop_func)
                 custom_ops_seen.add(opname)
             elif opname == 'JUMP_IF_NOT_DEBUG':
                 v = token.attr
@@ -782,6 +791,12 @@ class Python3Parser(PythonParser):
                                 "GET_ITER CALL_FUNCTION_1")
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                             # listcomp is a custom Python3 rule
+            elif opname == 'LOAD_ATTR':
+                self.addRule("""
+                  expr      ::= attribute
+                  attribute ::= expr LOAD_ATTR
+                  """, nop_func)
+                custom_ops_seen.add(opname)
             elif opname == 'LOAD_LISTCOMP':
                 self.add_unique_rule("expr ::= listcomp", opname, token.attr, customize)
             elif opname == 'LOAD_SETCOMP':
@@ -792,8 +807,12 @@ class Python3Parser(PythonParser):
                                 "GET_ITER CALL_FUNCTION_1")
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
             elif opname == 'LOOKUP_METHOD':
-                # A PyPy speciality - DRY with parse2
-                self.addRule("attribute ::= expr LOOKUP_METHOD", nop_func)
+                # A PyPy speciality - DRY with parse3
+                self.addRule("""
+                             expr      ::= attribute
+                             attribute ::= expr LOOKUP_METHOD
+                             """,
+                             nop_func)
                 custom_ops_seen.add(opname)
             elif opname.startswith('MAKE_CLOSURE'):
                 # DRY with MAKE_FUNCTION

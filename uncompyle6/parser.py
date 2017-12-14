@@ -475,7 +475,6 @@ class PythonParser(GenericASTBuilder):
         expr ::= LOAD_CONST
         expr ::= LOAD_GLOBAL
         expr ::= LOAD_DEREF
-        expr ::= attribute
         expr ::= binary_expr
         expr ::= list
         expr ::= compare
@@ -487,7 +486,6 @@ class PythonParser(GenericASTBuilder):
         expr ::= unary_not
         expr ::= subscript
         expr ::= subscript2
-        expr ::= get_iter
         expr ::= yield
 
         binary_expr ::= expr expr binary_op
