@@ -152,7 +152,7 @@ class Python3Parser(PythonParser):
                        else_suite _come_froms
 
         # ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
-        #                passstmt  _come_froms
+        #                pass  _come_froms
 
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
         ifelsestmtc ::= testexpr c_stmts_opt jump_absolute_else else_suitec

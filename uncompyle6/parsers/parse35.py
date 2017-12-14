@@ -77,7 +77,7 @@ class Python35Parser(Python34Parser):
                                LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
                                JUMP_ABSOLUTE END_FINALLY JUMP_BACK
-                               passstmt POP_BLOCK JUMP_ABSOLUTE
+                               pass POP_BLOCK JUMP_ABSOLUTE
                                COME_FROM_LOOP
 
         stmt               ::= async_forelse_stmt

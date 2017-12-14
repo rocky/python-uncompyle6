@@ -86,7 +86,7 @@ ExtractInfo = namedtuple("ExtractInfo",
 TABLE_DIRECT_FRAGMENT = {
     'break':	        ( '%|%rbreak\n', ),
     'continue  ':	( '%|%rcontinue\n', ),
-    'passstmt':		( '%|%rpass\n', ),
+    'pass':	        ( '%|%rpass\n', ),
     'raise_stmt0':	( '%|%rraise\n', ),
     'import':	        ( '%|import %c%x\n', 2, (2, (0, 1)), ),
     'importfrom':	( '%|from %[2]{pattr}%x import %c\n', (2, (0, 1)), 3),
@@ -850,7 +850,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def n__ifstmts_jump_exit(self, node):
         if len(node) > 1:
             if (node[0] == 'c_stmts_opt' and
-                node[0][0] == 'passstmt' and
+                node[0][0] == 'pass' and
                 node[1].kind.startswith('JUMP_FORWARD')):
                 self.set_pos_info(node[1], node[0][0].start, node[0][0].finish)
 
