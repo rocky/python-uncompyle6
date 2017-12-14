@@ -431,22 +431,38 @@ class Python3Parser(PythonParser):
         assert i < len(tokens), "build_class needs to find MAKE_FUNCTION or MAKE_CLOSURE"
         assert tokens[i+1].kind == 'LOAD_CONST', \
           "build_class expecting CONST after MAKE_FUNCTION/MAKE_CLOSURE"
+        call_fn_tok = None
         for i in range(i, len(tokens)):
-            if tokens[i].kind == 'CALL_FUNCTION':
+            if tokens[i].kind.startswith('CALL_FUNCTION'):
                 call_fn_tok = tokens[i]
                 break
-        assert call_fn_tok, "build_class custom rule needs to find CALL_FUNCTION"
+        if not call_fn_tok:
+            raise RuntimeError("build_class custom rule for %s needs to find CALL_FUNCTION"
+                               % opname)
+
 
         # customize build_class rule
         # FIXME: What's the deal with the two rules? Different Python versions?
         # Different situations? Note that the above rule is based on the CALL_FUNCTION
         # token found, while this one doesn't.
-        call_function = self.call_fn_name(call_fn_tok)
-        args_pos, args_kw = self.get_pos_kw(call_fn_tok)
-        rule = ("build_class ::= LOAD_BUILD_CLASS mkfunc %s"
-                "%s" % (('expr ' * (args_pos - 1) + ('kwarg ' * args_kw)),
-                        call_function))
-        self.add_unique_rule(rule, opname, token.attr, customize)
+        if self.version < 3.6:
+            call_function = self.call_fn_name(call_fn_tok)
+            args_pos, args_kw = self.get_pos_kw(call_fn_tok)
+            rule = ("build_class ::= LOAD_BUILD_CLASS mkfunc %s"
+                        "%s" % (('expr ' * (args_pos - 1) + ('kwarg ' * args_kw)),
+                                    call_function))
+        else:
+            # 3.6+ handling
+            call_function = call_fn_tok.kind
+            if call_function.startswith("CALL_FUNCTION_KW"):
+                self.addRule("classdef ::= build_class_kw store", nop_func)
+                rule = ("build_class_kw ::= LOAD_BUILD_CLASS mkfunc %sLOAD_CONST %s"
+                        % ('expr ' * (call_fn_tok.attr - 1), call_function))
+            else:
+                call_function = self.call_fn_name(call_fn_tok)
+                rule = ("build_class ::= LOAD_BUILD_CLASS mkfunc %s%s"
+                         % ('expr ' * (call_fn_tok.attr - 1), call_function))
+        self.addRule(rule, nop_func)
         return
 
     def custom_classfunc_rule(self, opname, token, customize,
