@@ -46,14 +46,18 @@ class PythonParser(GenericASTBuilder):
             ]
         self.collect = frozenset(nt_list)
 
+        # For these items we need to keep the 1st epslion reduction since
+        # the nonterminal name is used in a semantic action.
+        self.keep_epsilon = frozenset(('kvlist_n', 'kvlist'))
+
         # ??? Do we need a debug option to skip eliding singleton reductions?
         # Time will tell if it if useful in debugging
 
         # FIXME: optional_nt is a misnomer. It's really about there being a
         # singleton reduction that we can simplify. It also happens to be optional
         # in its other derivation
-        self.optional_nt |= frozenset(['come_froms', 'suite_stmts', 'l_stmts_opt',
-                                       'c_stmts_opt'])
+        self.optional_nt |= frozenset(('come_froms', 'suite_stmts', 'l_stmts_opt',
+                                       'c_stmts_opt'))
 
         # Reduce singleton reductions in these nonterminals:
         # FIXME: would love to do expr, sstmts, stmts and
@@ -196,7 +200,12 @@ class PythonParser(GenericASTBuilder):
             else:
                 rv = args[0]
                 pass
-            rv.append(args[1])
+            # In a  list-like entity where the first item goes to epsilon,
+            # drop that and save the 2nd item as the first one
+            if len(rv) == 0 and nt not in self.keep_epsilon:
+                rv = args[1]
+            else:
+                rv.append(args[1])
         elif n == 1 and args[0] in self.singleton:
             rv = GenericASTBuilder.nonterminal(self, nt, args[0])
             del args[0] # save memory
