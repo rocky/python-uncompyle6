@@ -250,19 +250,23 @@ class Python2Parser(PythonParser):
                                          JUMP_BACK
                         """, nop_func)
 
-        # For a rough break out on the first word. This may
-        # include instructions that don't need customization,
-        # but we'll do a finer check after the rough breakout.
-        customize_instruction_basenames = frozenset(
-            ('BUILD',     'CALL',       'CONTINUE',
-             'DELETE',    'DUP',        'EXEC',      'JUMP',
-             'LOAD',      'LOOKUP',     'MAKE',      'SETUP',
-             'RAISE',     'UNPACK'))
+        # # For a rough break out on the first word. This may
+        # # include instructions that don't need customization,
+        # # but we'll do a finer check after the rough breakout.
+        # customize_instruction_basenames = frozenset(
+        #     ('BUILD',     'CALL',       'CONTINUE',
+        #      'DELETE',    'DUP',        'EXEC',      'JUMP',
+        #      'LOAD',      'LOOKUP',     'MAKE',      'SETUP',
+        #      'RAISE',     'UNPACK'))
 
         for i, token in enumerate(tokens):
-
             opname = token.kind
-            if opname[:opname.find('_')] not in customize_instruction_basenames:
+
+            # FIXME
+            # if (opname[:opname.find('_')]
+            #   not in customize_instruction_basenames):
+
+            if opname not in customize:
                 continue
 
             opname_base = opname[:opname.rfind('_')]
