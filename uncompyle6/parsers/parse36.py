@@ -128,9 +128,9 @@ class Python36Parser(Python35Parser):
         if opname.startswith('CALL_FUNCTION_KW'):
             self.addRule("expr ::= call_kw", nop_func)
             values = 'expr ' * token.attr
-            rule = 'call_kw ::= expr kwargs_36 {token.kind}'.format(**locals())
+            rule = 'call_kw ::= expr kwargs_36 %s' % token.kind
             self.addRule(rule, nop_func)
-            rule = 'kwargs_36 ::= {values} LOAD_CONST'.format(**locals())
+            rule = 'kwargs_36 ::= %s LOAD_CONST' % values
             self.add_unique_rule(rule, token.kind, token.attr, customize)
         elif opname == 'CALL_FUNCTION_EX_KW':
             self.addRule("""expr        ::= call_ex_kw

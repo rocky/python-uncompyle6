@@ -11,8 +11,6 @@ scanner routine for Python 3.
 
 from uncompyle6.scanners.scanner3 import Scanner3
 
-import xdis
-
 # bytecode verification, verify(), uses JUMP_OPS from here
 from xdis.opcodes import opcode_36 as opc
 JUMP_OPS = opc.JUMP_OPS
@@ -32,7 +30,7 @@ class Scanner36(Scanner3):
                 t.kind = 'CALL_FUNCTION_EX_KW'
                 pass
             elif t.op == self.opc.CALL_FUNCTION_KW:
-                t.kind = 'CALL_FUNCTION_KW_{t.attr}'.format(**locals())
+                t.kind = 'CALL_FUNCTION_KW_%s' % t.attr
             elif t.op == self.opc.BUILD_MAP_UNPACK_WITH_CALL:
                 t.kind = 'BUILD_MAP_UNPACK_WITH_CALL_%d' % t.attr
             pass
