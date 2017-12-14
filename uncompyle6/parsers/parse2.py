@@ -223,8 +223,10 @@ class Python2Parser(PythonParser):
         subclassing is, well, is pretty base.  And we want it that way: lean and
         mean so that parsing will go faster.
 
-        Here, we add additional rules based on specific instructions
-        that are in the instruction/token stream.
+        Here, we add additional grammar rules based on specific instructions
+        that are in the instruction/token stream. In classes that
+        inherit from from here and other versions, grammar rules may
+        also be removed.
 
         For example if we see a pretty rare JUMP_IF_NOT_DEBUG
         instruction we'll add the grammar for that.
@@ -236,7 +238,6 @@ class Python2Parser(PythonParser):
         Without custom rules, there can be an super-exponential number of
         derivations. See the deparsing paper for an elaboration of
         this.
-
         """
 
         if 'PyPy' in customize:
@@ -259,14 +260,20 @@ class Python2Parser(PythonParser):
              'LOAD',      'LOOKUP',     'MAKE',      'SETUP',
              'RAISE',     'UNPACK'))
 
+        # Opcode names in the custom_ops_seen set have rules that get added
+        # unconditionally and the rules are constant. So they need to be done
+        # only once and if we see the opcode a second we don't have to consider
+        # adding more rules.
+        #
+        custom_ops_seen = set()
+
         for i, token in enumerate(tokens):
             opname = token.kind
 
-            # FIXME
-            if (opname[:opname.find('_')]
-               not in customize_instruction_basenames):
-
-            # if opname not in customize:
+            # Do a quick breakout before testing potentially
+            # each of the dozen or so instruction in if elif.
+            if (opname[:opname.find('_')] not in customize_instruction_basenames
+                    or opname in custom_ops_seen):
                 continue
 
             opname_base = opname[:opname.rfind('_')]
@@ -347,6 +354,25 @@ class Python2Parser(PythonParser):
                        + 'expr ' * nak + opname
             elif opname == 'CONTINUE_LOOP':
                 self.addRule('continue ::= CONTINUE_LOOP', nop_func)
+                custom_ops_seen.add(opname)
+                continue
+            elif opname == 'DELETE_ATTR':
+                self.addRule('del_stmt ::= expr DELETE_ATTR', nop_func)
+                custom_ops_seen.add(opname)
+                continue
+            elif opname == 'DELETE_DEREF':
+                self.addRule("""
+                   stmt           ::= del_deref_stmt
+                   del_deref_stmt ::= DELETE_DEREF
+                   """, nop_func)
+                custom_ops_seen.add(opname)
+                continue
+            elif opname == 'DELETE_SUBSCR':
+                self.addRule("""
+                    del_stmt ::= delete_subscr
+                    delete_subscr ::= expr expr DELETE_SUBSCR
+                   """, nop_func)
+                custom_ops_seen.add(opname)
                 continue
             elif opname_base in ('DUP_TOPX', 'RAISE_VARARGS'):
                 # FIXME: remove these conditions if they are not needed.
@@ -375,20 +401,20 @@ class Python2Parser(PythonParser):
                      """, nop_func)
                 continue
             elif opname == 'LOAD_LISTCOMP':
-                self.add_unique_rules([
-                    "expr ::= listcomp",
-                    ], customize)
+                self.addRule("expr ::= listcomp", nop_func)
+                custom_ops_seen.add(opname)
                 continue
             elif opname == 'LOAD_SETCOMP':
                 self.add_unique_rules([
                     "expr ::= set_comp",
                     "set_comp ::= LOAD_SETCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1"
                     ], customize)
+                custom_ops_seen.add(opname)
                 continue
             elif opname == 'LOOKUP_METHOD':
                 # A PyPy speciality - DRY with parse3
-                self.add_unique_rule("attribute ::= expr LOOKUP_METHOD",
-                                     opname, token.attr, customize)
+                self.addRule("attribute ::= expr LOOKUP_METHOD", nop_func)
+                custom_ops_seen.add(opname)
                 continue
             elif opname_base == 'MAKE_FUNCTION':
                 if i > 0 and tokens[i-1] == 'LOAD_LAMBDA':
@@ -439,20 +465,24 @@ class Python2Parser(PythonParser):
                     "try_except_pypy ::= SETUP_EXCEPT suite_stmts_opt except_handler_pypy",
                     "except_handler_pypy ::= COME_FROM except_stmts END_FINALLY COME_FROM"
                     ], customize)
+                custom_ops_seen.add(opname)
                 continue
             elif opname == 'SETUP_FINALLY':
                 # FIXME: have a way here to detect PyPy. Right now we
                 # only have SETUP_EXCEPT customization for PyPy, but that might not
                 # always be the case.
-                self.add_unique_rules([
-                    "stmt ::= tryfinallystmt_pypy",
-                    "tryfinallystmt_pypy ::= SETUP_FINALLY suite_stmts_opt COME_FROM_FINALLY "
-                        "suite_stmts_opt END_FINALLY"
-                ], customize)
+                self.addRule("""
+                    stmt ::= tryfinallystmt_pypy
+                    tryfinallystmt_pypy ::= SETUP_FINALLY suite_stmts_opt COME_FROM_FINALLY
+                                            suite_stmts_opt END_FINALLY""", nop_func)
+
+                custom_ops_seen.add(opname)
                 continue
             elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
+                custom_ops_seen.add(opname)
                 rule = 'unpack ::= ' + opname + ' store' * token.attr
             elif opname_base == 'UNPACK_LIST':
+                custom_ops_seen.add(opname)
                 rule = 'unpack_list ::= ' + opname + ' store' * token.attr
             else:
                 continue

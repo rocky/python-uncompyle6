@@ -93,7 +93,6 @@ class Python3Parser(PythonParser):
 
         stmt      ::= continue
         continue  ::= CONTINUE
-        continue  ::= CONTINUE_LOOP
         continues ::= _stmts lastl_stmt continue
         continues ::= lastl_stmt continue
         continues ::= continue
@@ -539,8 +538,10 @@ class Python3Parser(PythonParser):
         subclassing is, well, is pretty base.  And we want it that way: lean and
         mean so that parsing will go faster.
 
-        Here, we add additional rules based on specific instructions
-        that are in the instruction/token stream.
+        Here, we add additional grammra rules based on specific instructions
+        that are in the instruction/token stream. In classes that
+        inherit from from here and other versions, grammar rules may
+        also be removed.
 
         For example if we see a pretty rare DELETE_DEREF instruction we'll
         add the grammar for that.
@@ -552,6 +553,7 @@ class Python3Parser(PythonParser):
         Without custom rules, there can be an super-exponential number of
         derivations. See the deparsing paper for an elaboration of
         this.
+
         """
 
         is_pypy               = False
@@ -560,8 +562,8 @@ class Python3Parser(PythonParser):
         # include instructions that don't need customization,
         # but we'll do a finer check after the rough breakout.
         customize_instruction_basenames = frozenset(
-            ('BUILD', 'CALL', 'DELETE',
-             'JUMP',  'LOAD', 'LOOKUP', 'MAKE',
+            ('BUILD', 'CALL', 'CONTINUE', 'DELETE',
+             'JUMP',  'LOAD', 'LOOKUP',   'MAKE',
              'RAISE', 'UNPACK'))
 
         # Opcode names in the custom_ops_seen set have rules that get added
@@ -731,10 +733,11 @@ class Python3Parser(PythonParser):
                         ('kwarg ' * args_kw) +
                         'expr ' * nak + opname)
                 self.add_unique_rule(rule, opname, token.attr, customize)
+            elif opname == 'CONTINUE_LOOP':
+                self.addRule('continue ::= CONTINUE_LOOP', nop_func)
+                custom_ops_seen.add(opname)
             elif opname == 'DELETE_ATTR':
-                self.addRule("""
-                   del_stmt ::= expr DELETE_ATTR
-                   """, nop_func)
+                self.addRule('del_stmt ::= expr DELETE_ATTR', nop_func)
                 custom_ops_seen.add(opname)
             elif opname == 'DELETE_DEREF':
                 self.addRule("""
