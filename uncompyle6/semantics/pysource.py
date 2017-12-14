@@ -1806,6 +1806,7 @@ class SourceWalker(GenericASTTraversal, object):
             j = 0
             i += 2
             if kwargs:
+                # Last arg is tuple of keyword values: omit
                 l = n - 1
             else:
                 l = n
