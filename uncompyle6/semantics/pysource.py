@@ -293,6 +293,9 @@ class SourceWalker(GenericASTTraversal, object):
             TABLE_DIRECT.update({
                 'importmultiple': ( '%|import %c%c\n', 2, 3),
                 'import_cont'   : ( ', %c', 2),
+                'tryfinallystmt': ( '%|try:\n%+%c%-%|finally:\n%+%c%-',
+                                    (1, 'suite_stmts_opt') ,
+                                    (5, 'suite_stmts_opt') )
                 })
             if version == 2.3:
                 TABLE_DIRECT.update({
@@ -311,9 +314,6 @@ class SourceWalker(GenericASTTraversal, object):
                                     ])])
             pass
             if version <= 2.3:
-                TABLE_DIRECT.update({
-                    'tryfinallystmt': ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 4 )
-                })
                 if version <= 2.1:
                     TABLE_DIRECT.update({
                         'importmultiple': ( '%c', 2 ),
@@ -338,6 +338,18 @@ class SourceWalker(GenericASTTraversal, object):
                 'withstmt':     ( '%|with %c:\n%+%c%-', 0, 3),
                 'withasstmt':   ( '%|with %c as (%c):\n%+%c%-', 0, 2, 3),
             })
+
+            # In 2.5+ "except" handlers and the "finally" can appear in one
+            # "try" statement. So the below has the effect of combining the
+            # "tryfinally" with statement with the "try_except" statement
+            def tryfinallystmt(node):
+                if len(node[1][0]) == 1 and node[1][0][0] == 'stmt':
+                    if node[1][0][0][0] == 'try_except':
+                        node[1][0][0][0].kind = 'tf_try_except'
+                    if node[1][0][0][0] == 'tryelsestmt':
+                        node[1][0][0][0].kind = 'tf_tryelsestmt'
+                self.default(node)
+            self.n_tryfinallystmt = tryfinallystmt
 
         ########################################
         # Python 2.6+
@@ -1028,15 +1040,6 @@ class SourceWalker(GenericASTTraversal, object):
         self.default(node)
 
     n_store_subscr = n_subscript = n_delete_subscr
-
-#    'tryfinallystmt':	( '%|try:\n%+%c%-%|finally:\n%+%c%-', 1, 5 ),
-    def n_tryfinallystmt(self, node):
-        if len(node[1][0]) == 1 and node[1][0][0] == 'stmt':
-            if node[1][0][0][0] == 'try_except':
-                node[1][0][0][0].kind = 'tf_try_except'
-            if node[1][0][0][0] == 'tryelsestmt':
-                node[1][0][0][0].kind = 'tf_tryelsestmt'
-        self.default(node)
 
     def n_exec_stmt(self, node):
         """

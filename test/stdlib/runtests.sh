@@ -17,7 +17,6 @@ case $PYVERSION in
 	    [test_codecs.py]=1    # need to fix tryelse
 	    [test_decorators.py]=1   # Syntax error decorators?
 	    [test_dis.py]=1   # We change line numbers - duh!
-	    [test_format.py]=1   # Control flow?
 	    [test_frozen.py]=1
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_imp.py]=1   # Control flow?
