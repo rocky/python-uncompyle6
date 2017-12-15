@@ -628,8 +628,8 @@ class SourceWalker(GenericASTTraversal, object):
                         assert tup == 'tuple'
                         self.call36_tuple(tup)
                         expr = node[2]
-                        assert expr == 'expr'
-                        if tup[0].attr > 0:
+                        if len(tup) > 0:
+                        # if tup[0].attr > 0:
                             self.write(', ')
                         self.write('**')
                         self.preorder(expr)
