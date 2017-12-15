@@ -119,6 +119,8 @@ class Python36Parser(Python35Parser):
                 rules_str = """
                 withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST
                                WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt COME_FROM_WITH
+                               WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
                 # Removes POP_BLOCK LOAD_CONST from 3.6-
                 withasstmt ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
@@ -139,11 +141,16 @@ class Python36Parser(Python35Parser):
         elif opname == 'CALL_FUNCTION_EX_KW':
             self.addRule("""expr        ::= call_ex_kw
                             expr        ::= call_ex_kw2
+                            expr        ::= call_ex_kw3
                             call_ex_kw  ::= expr expr build_map_unpack_with_call
                                             CALL_FUNCTION_EX_KW
                             call_ex_kw2 ::= expr
                                             build_tuple_unpack_with_call
                                             build_map_unpack_with_call
+                                            CALL_FUNCTION_EX_KW
+                            call_ex_kw3 ::= expr
+                                            tuple
+                                            expr
                                             CALL_FUNCTION_EX_KW
                          """,
                          nop_func)

@@ -496,17 +496,11 @@ class Python3Parser(PythonParser):
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) + kw + token.kind)
             self.add_unique_rule(rule, token.kind, uniq_param, customize)
-        if self.version >= 3.6 and opname == 'CALL_FUNCTION_EX_KW':
-            rule = ('call36 ::= '
-                    'expr build_tuple_unpack_with_call build_map_unpack_with_call '
-                    'CALL_FUNCTION_EX_KW_1')
-            self.add_unique_rule(rule, token.kind, uniq_param, customize)
-            rule = 'call ::= call36'
-        else:
-            rule = ('call ::= expr ' +
-                    ('pos_arg ' * args_pos) +
-                    ('kwarg ' * args_kw) +
-                    'expr ' * nak + token.kind)
+
+        rule = ('call ::= expr ' +
+                ('pos_arg ' * args_pos) +
+                ('kwarg ' * args_kw) +
+                 'expr ' * nak + token.kind)
 
         self.add_unique_rule(rule, token.kind, uniq_param, customize)
         if self.version >= 3.5 and seen_GET_AWAITABLE_YIELD_FROM:

@@ -568,8 +568,17 @@ class SourceWalker(GenericASTTraversal, object):
                     self.n_build_tuple_unpack_with_call = build_unpack_tuple_with_call
 
                     def build_unpack_map_with_call(node):
-                        sep = '**'
-                        for n in node[:-1]:
+                        n = node[0]
+                        if n == 'expr':
+                            n = n[0]
+                        if n == 'dict':
+                            self.call36_dict(n)
+                            first = 1
+                            sep = ', **'
+                        else:
+                            first = 0
+                            sep = '**'
+                        for n in node[first:-1]:
                             self.f.write(sep)
                             self.preorder(n)
                             sep = ', **'
@@ -611,6 +620,23 @@ class SourceWalker(GenericASTTraversal, object):
                         self.write(')')
                         self.prune()
                     self.n_call_ex_kw2 = call_ex_kw2
+
+                    def call_ex_kw3(node):
+                        self.preorder(node[0])
+                        self.write('(')
+                        tup = node[1]
+                        assert tup == 'tuple'
+                        self.call36_tuple(tup)
+                        expr = node[2]
+                        if len(tup) > 0:
+                        # if tup[0].attr > 0:
+                            self.write(', ')
+                        self.write('**')
+                        self.preorder(expr)
+                        self.write(')')
+                        self.prune()
+                    self.n_call_ex_kw3 = call_ex_kw3
+
 
                     def call36_tuple(node):
                         """

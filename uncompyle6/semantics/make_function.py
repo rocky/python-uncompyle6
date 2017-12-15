@@ -479,8 +479,9 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
     else:
         if self.version < 3.6:
             defparams = node[:args_node.attr]
+            kw_args  = 0
         else:
-            default, kw, annotate, closure = args_node.attr
+            default, kw_args, annotate, closure = args_node.attr
             if default:
                 assert node[0] == 'expr', "expecting mkfunc default node to be an expr"
                 expr_node = node[0]
@@ -492,8 +493,6 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
             else:
                 defparams = []
             # FIXME: handle kw, annotate and closure
-
-        kw_args  = 0
         pass
 
     if 3.0 <= self.version <= 3.2:
@@ -619,16 +618,9 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
         else:
             self.write(", ")
 
-        if not 3.0 <= self.version <= 3.2:
-            for n in node:
-                if n == 'pos_arg':
-                    continue
-                elif self.version >= 3.4 and not (n.kind in ('kwargs', 'kwargs1', 'kwarg')):
-                    continue
-                else:
-                    self.preorder(n)
-                break
-        else:
+        # FIXME: this is not correct for 3.5. or 3.6 (which works different)
+        # and 3.7?
+        if 3.0 <= self.version <= 3.2:
             kwargs = node[0]
             last = len(kwargs)-1
             i = 0
@@ -638,8 +630,35 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
                     self.preorder(n[1])
                     if i < last:
                         self.write(', ')
+                        pass
                     i += 1
                     pass
+                pass
+            pass
+        elif self.version <= 3.5:
+            # FIXME this is not qute right for 3.5
+            for n in node:
+                if n == 'pos_arg':
+                    continue
+                elif self.version >= 3.4 and not (n.kind in ('kwargs', 'kwargs1', 'kwarg')):
+                    continue
+                else:
+                    self.preorder(n)
+                break
+        elif self.version >= 3.6:
+            d = node[1]
+            if d == 'expr':
+                d = d[0]
+            assert d == 'dict'
+            defaults = [self.traverse(n, indent='') for n in d[:-2]]
+            names = eval(self.traverse(d[-2]))
+            assert len(defaults) == len(names)
+            sep = ''
+            # FIXME: possibly handle line breaks
+            for i, n in enumerate(names):
+                self.write(sep)
+                self.write("%s=%s" % (n, defaults[i]))
+                sep = ', '
                 pass
             pass
         pass
