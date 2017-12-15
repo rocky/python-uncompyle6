@@ -612,6 +612,23 @@ class SourceWalker(GenericASTTraversal, object):
                         self.prune()
                     self.n_call_ex_kw2 = call_ex_kw2
 
+                    def call_ex_kw3(node):
+                        self.preorder(node[0])
+                        self.write('(')
+                        tup = node[1]
+                        assert tup == 'tuple'
+                        self.call36_tuple(tup)
+                        expr = node[2]
+                        assert expr == 'expr'
+                        if tup[0].attr > 0:
+                            self.write(', ')
+                        self.write('**')
+                        self.preorder(expr)
+                        self.write(')')
+                        self.prune()
+                    self.n_call_ex_kw3 = call_ex_kw3
+
+
                     def call36_tuple(node):
                         """
                         A tuple used in a call, these are like normal tuples but they

@@ -140,11 +140,16 @@ class Python36Parser(Python35Parser):
         elif opname == 'CALL_FUNCTION_EX_KW':
             self.addRule("""expr        ::= call_ex_kw
                             expr        ::= call_ex_kw2
+                            expr        ::= call_ex_kw3
                             call_ex_kw  ::= expr expr build_map_unpack_with_call
                                             CALL_FUNCTION_EX_KW
                             call_ex_kw2 ::= expr
                                             build_tuple_unpack_with_call
                                             build_map_unpack_with_call
+                                            CALL_FUNCTION_EX_KW
+                            call_ex_kw3 ::= expr
+                                            tuple
+                                            expr
                                             CALL_FUNCTION_EX_KW
                          """,
                          nop_func)
