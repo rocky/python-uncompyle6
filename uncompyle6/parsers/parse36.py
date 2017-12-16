@@ -149,7 +149,7 @@ class Python36Parser(Python35Parser):
                                             build_map_unpack_with_call
                                             CALL_FUNCTION_EX_KW
                             call_ex_kw3 ::= expr
-                                            tuple
+                                            expr
                                             expr
                                             CALL_FUNCTION_EX_KW
                          """,
