@@ -588,6 +588,9 @@ class SourceWalker(GenericASTTraversal, object):
                     self.n_build_map_unpack_with_call = build_unpack_map_with_call
 
                     def call_ex_kw2(node):
+                        """Handle CALL_FUNCTION_EX 2  (have KW) but with
+                        BUILD_{MAP,TUPLE}_UNPACK_WITH_CALL"""
+
                         # This is weird shit. Thanks Python!
                         self.preorder(node[0])
                         self.write('(')
@@ -622,17 +625,27 @@ class SourceWalker(GenericASTTraversal, object):
                     self.n_call_ex_kw2 = call_ex_kw2
 
                     def call_ex_kw3(node):
+                        """Handle CALL_FUNCTION_EX 2  (have KW) but without
+                        BUILD_{MAP,TUPLE}_UNPACK_WITH_CALL"""
                         self.preorder(node[0])
                         self.write('(')
-                        tup = node[1]
-                        assert tup == 'tuple'
-                        self.call36_tuple(tup)
-                        expr = node[2]
-                        if len(tup) > 0:
-                        # if tup[0].attr > 0:
+                        args = node[1][0]
+                        if args == 'tuple':
+                            if self.call36_tuple(args) > 0:
+                                self.write(', ')
+                                pass
+                            pass
+                        else:
+                            self.write('*')
+                            self.preorder(args)
                             self.write(', ')
+                            pass
+
+                        kwargs = node[2]
+                        if kwargs == 'expr':
+                            kwargs = kwargs[0]
                         self.write('**')
-                        self.preorder(expr)
+                        self.preorder(kwargs)
                         self.write(')')
                         self.prune()
                     self.n_call_ex_kw3 = call_ex_kw3
@@ -663,7 +676,7 @@ class SourceWalker(GenericASTTraversal, object):
                             sep = ', '
 
                         self.indent_less(INDENT_PER_LEVEL)
-                        return
+                        return len(flat_elems)
                     self.call36_tuple = call36_tuple
 
                     def call36_dict(node):
