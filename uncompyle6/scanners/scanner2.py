@@ -26,7 +26,7 @@ from collections import namedtuple
 from array import array
 
 from xdis.code import iscode
-from xdis.bytecode import op_has_argument, op_size, instruction_size
+from xdis.bytecode import Bytecode, op_has_argument, op_size, instruction_size
 from xdis.util import code2num
 
 from uncompyle6.scanner import Scanner
@@ -88,10 +88,9 @@ class Scanner2(Scanner):
         if not show_asm:
             show_asm = self.show_asm
 
+        bytecode = Bytecode(co, self.opc)
         # show_asm = 'after'
         if show_asm in ('both', 'before'):
-            from xdis.bytecode import Bytecode
-            bytecode = Bytecode(co, self.opc)
             for instr in bytecode.get_instructions(co):
                 print(instr.disassemble())
 
@@ -110,6 +109,7 @@ class Scanner2(Scanner):
 
         self.build_lines_data(co, codelen)
         self.build_prev_op(codelen)
+        self.insts = list(bytecode)
 
         free, names, varnames = self.unmangle_code_names(co, classname)
         self.names = names

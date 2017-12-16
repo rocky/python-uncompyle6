@@ -174,8 +174,9 @@ class Scanner(object):
             instr = [instr]
 
         result_offset = None
-        current_distance = len(code)
+        current_distance = self.insts[-1].offset - self.insts[0].offset
         extended_arg = 0
+        # FIXME: use self.insts rather than code[]
         for offset in self.op_range(start, end):
             op = code[offset]
 
@@ -197,6 +198,12 @@ class Scanner(object):
                         if new_distance <= current_distance:
                             current_distance = new_distance
                             result_offset = offset
+                            pass
+                        pass
+                    pass
+                pass
+            extended_arg = 0
+            pass
         return result_offset
 
     def all_instr(self, start, end, instr, target=None, include_beyond_target=False):
