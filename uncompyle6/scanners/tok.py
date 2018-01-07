@@ -34,13 +34,17 @@ class Token:
         self.opc = opc
 
     def __eq__(self, o):
-        """ '==', but it's okay if offsets and linestarts are different"""
+        """ '==' on kind and "pattr" attributes.
+            It is okay if offsets and linestarts are different"""
         if isinstance(o, Token):
-            # Both are tokens: compare kind and attr
-            # It's okay if offsets are different
             return (self.kind == o.kind) and (self.pattr == o.pattr)
         else:
+            # ?? do we need this?
             return self.kind == o
+
+    def __ne__(self, o):
+        """ '!=', but it's okay if offsets and linestarts are different"""
+        return not self.__eq__(o)
 
     def __repr__(self):
         return str(self.kind)

@@ -34,8 +34,13 @@ class Python25Parser(Python26Parser):
 
         store ::= STORE_NAME
 
+        # tryelsetmtl doesn't need COME_FROM since the jump might not
+        # be the the join point at the end of the "try" but instead back to the
+        # loop. FIXME: should "come_froms" below be a single COME_FROM?
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            except_handler else_suite come_froms
+        tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                            except_handler else_suitel
 
         # Python 2.6 omits the LOAD_FAST DELETE_FAST below
         # withas is allowed as a "from future" in 2.5

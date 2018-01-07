@@ -69,6 +69,7 @@ class Python24Parser(Python25Parser):
         super(Python24Parser, self).customize_grammar_rules(tokens, customize)
         if self.version == 2.4:
             self.check_reduce['nop_stmt'] = 'tokens'
+            self.check_reduce['try_except'] = 'tokens'
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python24Parser,
@@ -82,6 +83,15 @@ class Python24Parser(Python25Parser):
             l = len(tokens)
             if 0 <= l < len(tokens):
                 return not int(tokens[first].pattr) == tokens[last].offset
+        elif lhs == 'try_except':
+            if last == len(tokens):
+                last -= 1
+            if tokens[last] != 'COME_FROM' and tokens[last-1] == 'COME_FROM':
+                last -= 1
+            return (tokens[last] == 'COME_FROM'
+                    and tokens[last-1] == 'END_FINALLY'
+                    and tokens[last-2] == 'POP_TOP'
+                    and tokens[last-3].kind != 'JUMP_FORWARD')
 
         return False
 
