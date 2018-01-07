@@ -7,6 +7,7 @@ machine:
 dependencies:
     override:
         - pip install -e .
+        - pip install pytest
 test:
     override:
         - python ./setup.py develop && make check-2.7
