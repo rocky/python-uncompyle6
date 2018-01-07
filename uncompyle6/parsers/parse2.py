@@ -475,24 +475,20 @@ class Python2Parser(PythonParser):
                     pass
                 continue
             elif opname == 'SETUP_EXCEPT':
-                # FIXME: have a way here to detect PyPy. Right now we
-                # only have SETUP_EXCEPT customization for PyPy, but that might not
-                # always be the case.
-                self.add_unique_rules([
-                    "stmt ::= try_except_pypy",
-                    "try_except_pypy ::= SETUP_EXCEPT suite_stmts_opt except_handler_pypy",
-                    "except_handler_pypy ::= COME_FROM except_stmts END_FINALLY COME_FROM"
-                    ], customize)
+                if 'PyPy' in customize:
+                    self.add_unique_rules([
+                        "stmt ::= try_except_pypy",
+                        "try_except_pypy ::= SETUP_EXCEPT suite_stmts_opt except_handler_pypy",
+                        "except_handler_pypy ::= COME_FROM except_stmts END_FINALLY COME_FROM"
+                        ], customize)
                 custom_ops_seen.add(opname)
                 continue
             elif opname == 'SETUP_FINALLY':
-                # FIXME: have a way here to detect PyPy. Right now we
-                # only have SETUP_EXCEPT customization for PyPy, but that might not
-                # always be the case.
-                self.addRule("""
-                    stmt ::= tryfinallystmt_pypy
-                    tryfinallystmt_pypy ::= SETUP_FINALLY suite_stmts_opt COME_FROM_FINALLY
-                                            suite_stmts_opt END_FINALLY""", nop_func)
+                if 'PyPy' in customize:
+                    self.addRule("""
+                        stmt ::= tryfinallystmt_pypy
+                        tryfinallystmt_pypy ::= SETUP_FINALLY suite_stmts_opt COME_FROM_FINALLY
+                                                suite_stmts_opt END_FINALLY""", nop_func)
 
                 custom_ops_seen.add(opname)
                 continue
