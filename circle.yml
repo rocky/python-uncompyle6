@@ -7,7 +7,7 @@ machine:
 dependencies:
     override:
         - pip install -e .
-        - pip install pytest=3.2.5
+        - pip install pytest==3.2.5
 test:
     override:
         - python ./setup.py develop && make check-2.7
