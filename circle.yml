@@ -7,7 +7,6 @@ machine:
 dependencies:
     override:
         - pip install -e .
-        - pip install -r requirements-dev.txt
 test:
     override:
         - python ./setup.py develop && make check-2.7
