@@ -22,7 +22,6 @@ class Python24Parser(Python25Parser):
         stmt     ::= nop_stmt
         nop_stmt ::= JUMP_FORWARD POP_TOP COME_FROM
 
-
         # 2.5+ has two LOAD_CONSTs, one for the number '.'s in a relative import
         # keep positions similar to simplify semantic actions
 

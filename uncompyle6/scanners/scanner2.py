@@ -176,7 +176,7 @@ class Scanner2(Scanner):
                             come_from_name = 'COME_FROM_%s' % come_from_type
                         pass
                     tokens.append(Token(
-                        come_from_name, None, repr(jump_offset),
+                        come_from_name, jump_offset, repr(jump_offset),
                         offset="%s_%d" % (offset, jump_idx),
                         has_arg = True))
                     jump_idx += 1

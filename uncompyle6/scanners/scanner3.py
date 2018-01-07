@@ -248,7 +248,7 @@ class Scanner3(Scanner):
                     elif inst.offset in self.except_targets:
                         come_from_name = 'COME_FROM_EXCEPT_CLAUSE'
                     tokens.append(Token(come_from_name,
-                                        None, repr(jump_offset),
+                                        jump_offset, repr(jump_offset),
                                         offset='%s_%s' % (inst.offset, jump_idx),
                                         has_arg = True, opc=self.opc))
                     jump_idx += 1
