@@ -165,7 +165,7 @@ class Scanner26(scan.Scanner2):
                 for jump_offset  in sorted(jump_targets[offset], reverse=True):
                     if jump_offset != last_jump_offset:
                         tokens.append(Token(
-                            'COME_FROM', None, repr(jump_offset),
+                            'COME_FROM', jump_offset, repr(jump_offset),
                             offset="%s_%d" % (offset, jump_idx),
                             has_arg = True))
                         jump_idx += 1

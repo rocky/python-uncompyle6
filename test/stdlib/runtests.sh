@@ -13,7 +13,6 @@ case $PYVERSION in
     2.4)
 	SKIP_TESTS=(
 	    [test_binop.py]=1  # need to fix tryelse
-	    [test_cgi.py]=1    # need to fix tryelse
 	    [test_codecs.py]=1    # need to fix tryelse
 	    [test_decorators.py]=1   # Syntax error decorators?
 	    [test_dis.py]=1   # We change line numbers - duh!
@@ -33,14 +32,12 @@ case $PYVERSION in
     2.5)
 	SKIP_TESTS=(
 	    [test_binop.py]=1  # need to fix tryelse
-	    [test_cgi.py]=1    # need to fix tryelse
 	    [test_codecs.py]=1    # need to fix tryelse
 	    [test_coercion.py]=1
 	    [test_contextlib.py]=1
 	    [test_decorators.py]=1   # Syntax error decorators?
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_exceptions.py]=1
-	    [test_format.py]=1   # Control flow?
 	    [test_frozen.py]=1
 	    [test_functools.py]=1
 	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
@@ -67,7 +64,6 @@ case $PYVERSION in
             [test_decorators.py]=1  # Syntax Error - look at
             [test_enumerate.py]=1  # Control flow?
 	    [test_file.py]=1   # Control flow?
-	    [test_format.py]=1   # Control flow?
 	    [test_frozen.py]=1  # Control flow?
 	    [test_ftplib.py]=1  # Control flow?
 	    [test_funcattrs.py]=1  # Control flow?
