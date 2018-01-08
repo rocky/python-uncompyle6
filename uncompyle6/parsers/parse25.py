@@ -19,9 +19,6 @@ class Python25Parser(Python26Parser):
 
         return_if_stmt ::= ret_expr  RETURN_END_IF JUMP_BACK
 
-        # We have no jumps to jumps, so no "come_froms" but a single "COME_FROM"
-        ifelsestmt ::= testexpr c_stmts_opt jf_cf_pop else_suite COME_FROM
-
         # Python 2.6 uses ROT_TWO instead of the STORE_xxx
         # withas is allowed as a "from future" in 2.5
         # 2.6 and 2.7 do something slightly different
@@ -39,8 +36,6 @@ class Python25Parser(Python26Parser):
         # loop. FIXME: should "come_froms" below be a single COME_FROM?
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            except_handler else_suite come_froms
-        tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                            except_handler else_suitel
 
         # Python 2.6 omits the LOAD_FAST DELETE_FAST below
         # withas is allowed as a "from future" in 2.5
@@ -59,9 +54,6 @@ class Python25Parser(Python26Parser):
     def customize_grammar_rules(self, tokens, customize):
         # Remove grammar rules inherited from Python 2.6 or Python 2
         self.remove_rules("""
-        # No jump to jumps in 2.4 so we have a single "COME_FROM", not "come_froms"
-        ifelsestmt    ::= testexpr c_stmts_opt jf_cf_pop else_suite come_froms
-
         setupwith  ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 POP_TOP
         withstmt   ::= expr setupwith SETUP_FINALLY suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY

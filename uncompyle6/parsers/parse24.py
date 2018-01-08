@@ -69,7 +69,6 @@ class Python24Parser(Python25Parser):
         super(Python24Parser, self).customize_grammar_rules(tokens, customize)
         if self.version == 2.4:
             self.check_reduce['nop_stmt'] = 'tokens'
-            self.check_reduce['try_except'] = 'tokens'
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python24Parser,

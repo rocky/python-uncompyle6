@@ -47,27 +47,19 @@ case $PYVERSION in
 	    [test_sax.py]=1  # Control flow?
 	    [test_trace.py]=1  # Line numbers are expected to be different
 	    [test_types.py]=1 # Control flow?
-	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
+nn	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
 	)
 	;;
     2.6)
 	SKIP_TESTS=(
-	    [test_binop.py]=1  # need to fix tryelse
 	    [test_cmath.py]=1 # Control flow?
 	    [test_codecs.py]=1    # need to fix tryelse
 	    [test_coercion.py]=1    # Control flow?
-	    [test_cookielib.py]=1    # Control flow?
             [test_decorators.py]=1  # Syntax Error - look at
-            [test_enumerate.py]=1  # Control flow?
-	    [test_file.py]=1   # Control flow?
 	    [test_frozen.py]=1  # Control flow?
 	    [test_ftplib.py]=1  # Control flow?
-	    [test_funcattrs.py]=1  # Control flow?
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_imp.py]=1
-	    [test_int.py]=1
-	    [test_long.py]=1
-	    [test_pty.py]=1
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_queue.py]=1 # Control flow?
 	    [test_re.py]=1 # Probably Control flow?
