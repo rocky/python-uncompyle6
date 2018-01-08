@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017 by Rocky Bernstein
+#  Copyright (c) 2016-2018 by Rocky Bernstein
 """
 Python 3.6 bytecode decompiler scanner
 

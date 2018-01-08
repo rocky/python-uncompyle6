@@ -65,6 +65,9 @@ def test_if_in_for():
         scan.build_lines_data(code)
         scan.build_prev_op()
         scan.insts = list(bytecode)
+        scan.offset2inst_index = {}
+        for i, inst in enumerate(scan.insts):
+            scan.offset2inst_index[inst.offset] = i
         fjt  = scan.find_jump_targets(False)
         assert {69: [66], 63: [18]} == fjt
         assert scan.structs == \

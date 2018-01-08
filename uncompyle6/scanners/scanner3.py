@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2017 by Rocky Bernstein
+#  Copyright (c) 2015-2018 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 """
@@ -773,18 +773,25 @@ class Scanner3(Scanner):
             # not myself?  If so, it's part of a larger conditional.
             # rocky: if we have a conditional jump to the next instruction, then
             # possibly I am "skipping over" a "pass" or null statement.
+            pretarget = self.insts[self.offset2inst_index[prev_op[target]]]
 
-            if ((code[prev_op[target]] in self.pop_jump_if_pop) and
-                (target > offset) and prev_op[target] != offset):
-                # FIXME: this is not accurate The commented out below
-                # is what it should be. However grammar rules right now
-                # assume the incorrect offsets.
-                # self.fixed_jumps[offset] = target
-                self.fixed_jumps[offset] = prev_op[target]
-                self.structs.append({'type': 'and/or',
-                                     'start': start,
-                                     'end': prev_op[target]})
-                return
+            if (pretarget.opcode in self.pop_jump_if_pop and
+                (target > offset) and pretarget.offset != offset):
+
+                # FIXME: hack upon hack...
+                # In some cases the pretarget can be a jump to the next instruction
+                # and these aren't and/or's either. We limit to 3.5+ since we experienced there
+                # but it might be earlier versions, or might be a general principle.
+                if self.version < 3.5 or pretarget.argval != target:
+                    # FIXME: this is not accurate The commented out below
+                    # is what it should be. However grammar rules right now
+                    # assume the incorrect offsets.
+                    # self.fixed_jumps[offset] = target
+                    self.fixed_jumps[offset] = pretarget.offset
+                    self.structs.append({'type': 'and/or',
+                                         'start': start,
+                                         'end': pretarget.offset})
+                    return
 
             # The opcode *two* instructions before the target jump offset is important
             # in making a determination of what we have. Save that.
