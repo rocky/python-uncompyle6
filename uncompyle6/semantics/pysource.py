@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2017 by Rocky Bernstein
+#  Copyright (c) 2015-2018 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -2316,7 +2316,7 @@ class SourceWalker(GenericASTTraversal, object):
                             str = '%c(*%C, %c)'
                         elif str == '%c(%C':
                             str = '%c(*%C)'
-                            # p2 = (1, -1, 100)
+                            p2 = (1, 100, '')
                     else:
                         str += '*%c)'
                     entry = (str, 0, p2, -2)
