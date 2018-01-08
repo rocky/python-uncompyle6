@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017 by Rocky Bernstein
+#  Copyright (c) 2016-2018 by Rocky Bernstein
 """
 Python 3.6 bytecode decompiler scanner
 
@@ -12,8 +12,6 @@ scanner routine for Python 3.
 from __future__ import print_function
 
 from uncompyle6.scanners.scanner3 import Scanner3
-
-import xdis
 
 # bytecode verification, verify(), uses JUMP_OPS from here
 from xdis.opcodes import opcode_36 as opc
