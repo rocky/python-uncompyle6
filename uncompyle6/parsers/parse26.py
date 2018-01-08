@@ -40,6 +40,8 @@ class Python26Parser(Python2Parser):
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            except_handler else_suite come_froms
+        tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                            except_handler else_suitel
 
         _ifstmts_jump  ::= c_stmts_opt JUMP_FORWARD COME_FROM POP_TOP
 
@@ -155,9 +157,11 @@ class Python26Parser(Python2Parser):
         ifstmt         ::= testexpr_then _ifstmts_jump
 
         # Semantic actions want the else to be at position 3
-        ifelsestmt     ::= testexpr      c_stmts_opt jf_cf_pop else_suite come_froms
         ifelsestmt     ::= testexpr_then c_stmts_opt jf_cf_pop else_suite come_froms
         ifelsestmt     ::= testexpr_then c_stmts_opt filler else_suitel come_froms POP_TOP
+
+        # We have no jumps to jumps, so no "come_froms" but a single "COME_FROM"
+        ifelsestmt     ::= testexpr      c_stmts_opt jf_cf_pop else_suite COME_FROM
 
         # Semantic actions want else_suitel to be at index 3
         ifelsestmtl    ::= testexpr_then c_stmts_opt jb_cf_pop else_suitel
@@ -307,6 +311,7 @@ class Python26Parser(Python2Parser):
         super(Python26Parser, self).customize_grammar_rules(tokens, customize)
         self.check_reduce['and'] = 'AST'
         self.check_reduce['list_for'] = 'AST'
+        self.check_reduce['try_except'] = 'tokens'
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python26Parser,
@@ -333,6 +338,23 @@ class Python26Parser(Python2Parser):
             # The JUMP_ABSOLUTE has to be to the last POP_TOP or this is invalid
             ja_attr = ast[4].attr
             return tokens[last].offset != ja_attr
+        elif rule[0] == 'try_except':
+            # We need to distingush try_except from try_except_else and we do that
+            # by checking the jump before the END_FINALLY
+            # If we have:
+            #    insn
+            #    POP_TOP
+            #    END_FINALLY
+            #    COME_FROM
+            # then insn has to be either a JUMP_FORWARD or a RETURN_VALUE
+            if last == len(tokens):
+                last -= 1
+            if tokens[last] != 'COME_FROM' and tokens[last-1] == 'COME_FROM':
+                last -= 1
+            return (tokens[last] == 'COME_FROM'
+                    and tokens[last-1] == 'END_FINALLY'
+                    and tokens[last-2] == 'POP_TOP'
+                    and tokens[last-3].kind not in frozenset(('JUMP_FORWARD', 'RETURN_VALUE')))
         return False
 class Python26ParserSingle(Python2Parser, PythonParserSingle):
     pass

@@ -19,6 +19,7 @@ from uncompyle6.scanner import L65536
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_26
+from xdis.bytecode import Bytecode
 JUMP_OPS = opcode_26.JUMP_OPS
 
 class Scanner26(scan.Scanner2):
@@ -90,10 +91,9 @@ class Scanner26(scan.Scanner2):
         if not show_asm:
             show_asm = self.show_asm
 
+        bytecode = Bytecode(co, self.opc)
         # show_asm = 'after'
         if show_asm in ('both', 'before'):
-            from xdis.bytecode import Bytecode
-            bytecode = Bytecode(co, self.opc)
             for instr in bytecode.get_instructions(co):
                 print(instr.disassemble())
 
@@ -110,6 +110,7 @@ class Scanner26(scan.Scanner2):
 
         self.build_lines_data(co, codelen)
         self.build_prev_op(codelen)
+        self.insts = list(bytecode)
 
         free, names, varnames = self.unmangle_code_names(co, classname)
         self.names = names
