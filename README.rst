@@ -128,13 +128,13 @@ Known Bugs/Restrictions
 
 The biggest known and possibly fixable (but hard) problem has to do
 with handling control flow. (Python has probably the most diverse and
-screwy set of compound statements I've ever seen; a number of the
-usual ones like else clauses on loops and try blocks I suspect most
+screwy set of compound statements I've ever seen; there
+are "else" clauses on loops and try blocks that I suspect many
 programmers don't know about.)
 
-All of the Python decompilers I have looked at have the same
-problem. In some cases we can detect an erroneous decompilation and
-report that.
+All of the Python decompilers that I have looked at have problems
+decompiling Python's control flow. In some cases we can detect an
+erroneous decompilation and report that.
 
 *Verification* is the process of decompiling bytecode, compiling with
 a Python for that bytecode version, and then comparing the bytecode
