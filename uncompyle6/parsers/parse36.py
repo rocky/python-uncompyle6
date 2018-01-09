@@ -158,8 +158,8 @@ class Python36Parser(Python35Parser):
         elif opname == 'CALL_FUNCTION_EX':
             self.addRule("""
                          expr        ::= call_ex
-                         unpack_list ::= list
-                         call_ex     ::= expr unpack_list CALL_FUNCTION_EX
+                         starred     ::= expr
+                         call_ex     ::= expr starred CALL_FUNCTION_EX
                          """, nop_func)
             pass
         else:

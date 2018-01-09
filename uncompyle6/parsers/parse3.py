@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2017 Rocky Bernstein
+#  Copyright (c) 2015-2018 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -14,8 +14,6 @@ e.g. "LOAD_CONST 5", "STORE NAME myvariable", "SETUP_LOOP", etc.
 If we succeed in creating a parse tree, then we have a Python program
 that a later phase can turn into a sequence of ASCII text.
 """
-
-from __future__ import print_function
 
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.astnode import AST
@@ -523,7 +521,10 @@ class Python3Parser(PythonParser):
         """Python 3.3 added a an addtional LOAD_CONST before MAKE_FUNCTION and
         this has an effect on many rules.
         """
-        new_rule = rule % (('LOAD_CONST ') * (1 if  self.version >= 3.3 else 0))
+        if self.version >= 3.3:
+            new_rule = rule % (('LOAD_CONST ') * 1)
+        else:
+            new_rule = rule % (('LOAD_CONST ') * 0)
         self.add_unique_rule(new_rule, opname, attr, customize)
 
     def customize_grammar_rules(self, tokens, customize):
@@ -814,7 +815,10 @@ class Python3Parser(PythonParser):
                 args_pos, args_kw, annotate_args  = token.attr
 
                 # FIXME: Fold test  into add_make_function_rule
-                j = 1 if self.version < 3.3 else 2
+                if self.version < 3.3:
+                    j = 1
+                else:
+                    j = 2
                 if is_pypy or (i >= j and tokens[i-j] == 'LOAD_LAMBDA'):
                     rule_pat = ('mklambda ::= %sload_closure LOAD_LAMBDA %%s%s' %
                                 ('pos_arg '* args_pos, opname))
