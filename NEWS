@@ -1,3 +1,21 @@
+uncompyle6 2.14.0 2017-01-09 Samish
+
+Decompilation bug fixes, mostly 3.6 and pre 2.7
+
+- 3.6 FUNCTION_EX (somewhat)
+- 3.6 FUNCTION_EX_KW fixes
+- 3.6 MAKE_FUNCTION fixes
+- correct 3.5 CALL_FUNCTION_VAR
+- stronger 3.x "while 1" testing
+- Fix bug in if's with "pass" bodies. Fixes #104
+- try/else and try/finally fixes on 2.6-
+- limit pypy customization to pypy
+- Add addr fields in COME_FROMS
+- Allow use of full instructions in parser reduction routines
+- Reduce grammar in Pythion 3 by specialization more to specific
+  Python versions
+- Match Python AST names more closely when possible
+
 uncompyle6 2.14.0 2017-12-10 Dr. Gecko
 
 - Many decompilation bugfixes

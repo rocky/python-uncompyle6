@@ -6,9 +6,9 @@ from __future__ import print_function
 
 from uncompyle6.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from uncompyle6.parsers.parse36 import Python37Parser
+from uncompyle6.parsers.parse36 import Python36Parser
 
-class Python36Parser(Python35Parser):
+class Python37Parser(Python36Parser):
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
         super(Python37Parser, self).__init__(debug_parser)

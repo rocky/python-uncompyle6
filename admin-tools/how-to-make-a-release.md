@@ -21,7 +21,7 @@
 
 # Change version in uncompyle6/version.py:
 
-	$ emacs uncompyle6/version.py
+    $ emacs uncompyle6/version.py
     $ source uncompyle6/version.py
     $ echo $VERSION
     $ git commit -m"Get ready for release $VERSION" .
@@ -32,7 +32,7 @@
 
 #  Update NEWS from ChangeLog:
 
-	$ emacs NEWS
+    $ emacs NEWS
     $ make check
     $ git commit --amend .
     $ git push   # get CI testing going early
