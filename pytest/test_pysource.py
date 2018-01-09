@@ -1,4 +1,6 @@
+import sys
 from uncompyle6 import PYTHON3
+from uncompyle6.scanner import get_scanner
 from uncompyle6.semantics.consts import (
     escape, NONE,
     # RETURN_NONE, PASS, RETURN_LOCALS
@@ -13,7 +15,10 @@ from uncompyle6.semantics.pysource import SourceWalker as SourceWalker
 
 def test_template_engine():
     s = StringIO()
-    sw = SourceWalker(2.7, s, None)
+    sys_version = float(sys.version[0:3])
+    scanner = get_scanner(sys_version, is_pypy=False)
+    scanner.insts = []
+    sw = SourceWalker(2.7, s, scanner)
     sw.ast = NONE
     sw.template_engine(('--%c--', 0), NONE)
     print(sw.f.getvalue())

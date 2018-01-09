@@ -356,9 +356,8 @@ class Python3Parser(PythonParser):
                               COME_FROM_LOOP
 
         # FIXME: Python 3.? starts adding branch optimization? Put this starting there.
-        while1stmt        ::= SETUP_LOOP l_stmts
-        while1stmt        ::= SETUP_LOOP l_stmts COME_FROM_LOOP
 
+        while1stmt        ::= SETUP_LOOP l_stmts COME_FROM_LOOP
         while1stmt        ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
 
         while1elsestmt    ::= SETUP_LOOP l_stmts JUMP_BACK
@@ -1060,9 +1059,29 @@ class Python3Parser(PythonParser):
                 last += 1
             return tokens[first].attr == tokens[last].offset
         elif lhs == 'while1stmt':
+
+            # If there is a fall through to the COME_FROM_LOOP. then this is
+            # not a while 1. So the instruction before should either be a
+            # JUMP_BACK or the instruction before should not be the target of a
+            # jump. (Well that last clause i not quite right; that target could be
+            # from dead code. Ugh. We need a more uniform control flow analysis.)
+            if last == len(tokens) or tokens[last-1] == 'COME_FROM_LOOP':
+                cfl = last-1
+            else:
+                cfl = last
+            assert tokens[cfl] == 'COME_FROM_LOOP'
+
+            if tokens[cfl-1] != 'JUMP_BACK':
+                cfl_offset = tokens[cfl-1].offset
+                insn = next(i for i in self.insts if cfl_offset == i.offset)
+                if insn and  insn.is_jump_target:
+                    return True
+
+            # Check that the SETUP_LOOP jumps to the offset after the
+            # COME_FROM_LOOP
             if (0 <= last < len(tokens)
                 and tokens[last] in ('COME_FROM_LOOP', 'JUMP_BACK')):
-                # jump_back should be right afer SETUP_LOOP. Test?
+                # jump_back should be right before COME_FROM_LOOP?
                 last += 1
             while last < len(tokens) and isinstance(tokens[last].offset, str):
                 last += 1

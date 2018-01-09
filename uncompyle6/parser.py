@@ -63,6 +63,8 @@ class PythonParser(GenericASTBuilder):
         # semantic actions
         self.singleton = frozenset(('str', 'joined_str', 'store', '_stmts', 'suite_stmts_opt',
                                     'inplace_op'))
+        # Instructions filled in from scanner
+        self.insts = []
 
     def ast_first_offset(self, ast):
         if hasattr(ast, 'offset'):
