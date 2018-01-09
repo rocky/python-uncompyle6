@@ -13,7 +13,6 @@ class Python21Parser(Python22Parser):
 
     def p_forstmt21(self, args):
         """
-        for_iter    ::= LOAD_CONST FOR_LOOP
         for         ::= SETUP_LOOP expr for_iter store
                         returns
                         POP_BLOCK COME_FROM
