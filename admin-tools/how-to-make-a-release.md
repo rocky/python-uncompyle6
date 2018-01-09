@@ -44,13 +44,7 @@
 # Switch to python-2.4, sync that up and build that first since it creates a tarball which we don't want.
 
     $ source admin-tools/setup-python-2.4.sh
-    $ rm ChangeLog
-
     $ git merge master
-
-# Update NEWS from master branch
-
-    $ git commit -m"Get ready for release $VERSION" .
 
 # Check against older versions
 
@@ -61,7 +55,7 @@
     $ . ./admin-tools/make-dist-older.sh
     $ git tag release-python-2.4-$VERSION
 
-    $ . /admin-tools/make-dist-newer.sh
+    $ . ./admin-tools/make-dist-newer.sh
     $ git tag release-$VERSION
 
 # Upload single package and look at Rst Formating
