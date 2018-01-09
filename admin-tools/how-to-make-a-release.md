@@ -21,7 +21,7 @@
 
 # Change version in uncompyle6/version.py:
 
-	$ emacs uncompyle6/version.py
+    $ emacs uncompyle6/version.py
     $ source uncompyle6/version.py
     $ echo $VERSION
     $ git commit -m"Get ready for release $VERSION" .
@@ -32,7 +32,7 @@
 
 #  Update NEWS from ChangeLog:
 
-	$ emacs NEWS
+    $ emacs NEWS
     $ make check
     $ git commit --amend .
     $ git push   # get CI testing going early
@@ -44,13 +44,7 @@
 # Switch to python-2.4, sync that up and build that first since it creates a tarball which we don't want.
 
     $ source admin-tools/setup-python-2.4.sh
-    $ rm ChangeLog
-
     $ git merge master
-
-# Update NEWS from master branch
-
-    $ git commit -m"Get ready for release $VERSION" .
 
 # Check against older versions
 
