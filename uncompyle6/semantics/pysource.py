@@ -533,8 +533,9 @@ class SourceWalker(GenericASTTraversal, object):
                         'fstring_single': ( "f'{%c%{conversion}}'", 0),
                         'fstring_multi':  ( "f'%c'", 0),
                         'func_args36':    ( "%c(**", 0),
-                        'try_except36': ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
-                        'unpack_list':  ( '*%c', (0, 'list') ),
+                        'try_except36':   ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
+                        'unpack_list':    ( '*%c', (0, 'list') ),
+                        'starred':        ( '*%c', (0, 'expr') ),
                         'call_ex' : (
                             '%c(%c)',
                             (0, 'expr'), 1),
