@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2017 Rocky Bernstein
+#  Copyright (c) 2015-2018 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -19,6 +19,7 @@ from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.astnode import AST
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from xdis import PYTHON3
+from itertools import islice,chain,repeat
 
 class Python3Parser(PythonParser):
 
@@ -1073,7 +1074,7 @@ class Python3Parser(PythonParser):
 
             if tokens[cfl-1] != 'JUMP_BACK':
                 cfl_offset = tokens[cfl-1].offset
-                insn = next(i for i in self.insts if cfl_offset == i.offset)
+                insn = chain((i for i in self.insts if cfl_offset == i.offset), repeat(None)).next()
                 if insn and  insn.is_jump_target:
                     return True
 
