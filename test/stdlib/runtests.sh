@@ -53,18 +53,9 @@ case $PYVERSION in
 	;;
     2.6)
 	SKIP_TESTS=(
-	    [test_cmath.py]=1 # Control flow?
-	    [test_codecs.py]=1    # need to fix tryelse
-	    [test_coercion.py]=1    # Control flow?
-            [test_decorators.py]=1  # Syntax Error - look at
-	    [test_frozen.py]=1  # Control flow?
-	    [test_ftplib.py]=1  # Control flow?
 	    [test_grp.py]=1      # Long test - might work Control flow?
-	    [test_imp.py]=1
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
-	    [test_queue.py]=1 # Control flow?
 	    [test_re.py]=1 # Probably Control flow?
-	    [test_strftime.py]=1
 	    [test_trace.py]=1  # Line numbers are expected to be different
 	    # .pyenv/versions/2.6.9/lib/python2.6/lib2to3/refactor.pyc
 	    # .pyenv/versions/2.6.9/lib/python2.6/mailbox.pyc
