@@ -41,6 +41,7 @@ case $PYVERSION in
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_imp.py]=1
 	    [test_math.py]=1 # Control flow?
+	    [test_pdb.py]=1
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_queue.py]=1 # Control flow?
 	    [test_re.py]=1 # Probably Control flow?
@@ -135,7 +136,8 @@ else
     files=test_*.py
 fi
 for file in $files; do
-    [[ -v SKIP_TESTS[$file] ]] && continue
+    # AIX bash doesn't grok [[ -v SKIP... ]]
+    [[ ${SKIP_TESTS[$file]} == 1 ]] && continue
 
     # If the fails *before* decompiling, skip it!
     typeset -i STARTTIME=$(date +%s)

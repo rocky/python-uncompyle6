@@ -213,6 +213,9 @@ class SourceWalker(GenericASTTraversal, object):
         self.linestarts = linestarts
         self.line_number = 0
         self.ast_errors = []
+        # FIXME: have p.insts update in a better way
+        # modularity is broken here
+        self.p.insts = scanner.insts
 
         # This is in Python 2.6 on. It changes the way
         # strings get interpreted. See n_LOAD_CONST
@@ -2508,7 +2511,12 @@ class SourceWalker(GenericASTTraversal, object):
                     t.kind = 'RETURN_VALUE_LAMBDA'
             tokens.append(Token('LAMBDA_MARKER'))
             try:
+                # FIXME: have p.insts update in a better way
+                # modularity is broken here
+                p_insts = self.p.insts
+                self.p.insts = self.scanner.insts
                 ast = python_parser.parse(self.p, tokens, customize)
+                self.p.insts = p_insts
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
             maybe_show_ast(self.showast, ast)
@@ -2535,7 +2543,12 @@ class SourceWalker(GenericASTTraversal, object):
 
         # Build AST from disassembly.
         try:
+            # FIXME: have p.insts update in a better way
+            # modularity is broken here
+            p_insts = self.p.insts
+            self.p.insts = self.scanner.insts
             ast = python_parser.parse(self.p, tokens, customize)
+            self.p.insts = p_insts
         except (python_parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens)
 
@@ -2560,7 +2573,8 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
     # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy)
 
-    tokens, customize = scanner.ingest(co, code_objects=code_objects, show_asm=showasm)
+    tokens, customize = scanner.ingest(co, code_objects=code_objects,
+                                       show_asm=showasm)
 
     debug_parser = dict(PARSER_DEFAULT_DEBUG)
     if showgrammar:
@@ -2583,7 +2597,8 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
 
     assert deparsed.ast == 'stmts', 'Should have parsed grammar start'
 
-    del tokens # save memory
+    # save memory
+    del tokens
 
     deparsed.mod_globs = find_globals(deparsed.ast, set())
 
