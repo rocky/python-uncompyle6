@@ -12,7 +12,6 @@ typeset -A SKIP_TESTS
 case $PYVERSION in
     2.4)
 	SKIP_TESTS=(
-	    [test_decorators.py]=1   # Syntax error decorators?
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_math.py]=1 # Control flow?
@@ -26,7 +25,6 @@ case $PYVERSION in
     2.5)
 	SKIP_TESTS=(
 	    [test_contextlib.py]=1
-	    [test_decorators.py]=1   # Syntax error decorators?
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_exceptions.py]=1
 	    [test_functools.py]=1
