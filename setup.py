@@ -9,8 +9,8 @@ if not ((2, 6) <= SYS_VERSION  <= (3, 7)) or ((3, 0) <= SYS_VERSION <= (3, 1)):
     if ((2, 4) <= SYS_VERSION <= (2, 7)):
         mess += ("\nFor your Python, version %s, use the python-2.4 code/branch." %
                  sys.version[0:3])
-    elif SYS_VERSION < (2, 4) or ((3, 0) <= SYS_VERSION <= (3, 2)):
-        mess += ("\nThis package is not supported before Python 2.4. Your Python version is %s."
+    elif SYS_VERSION < (2, 4) or ((3, 0) <= SYS_VERSION <= (3, 1)):
+        mess += ("\nThis package is not supported for Python version %s."
                  % sys.version[0:3])
     print(mess)
     raise Exception(mess)
