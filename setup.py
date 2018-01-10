@@ -1,15 +1,15 @@
 #!/usr/bin/env python
-import sys
-
 """Setup script for the 'uncompyle6' distribution."""
 
+import sys
+
 SYS_VERSION = sys.version_info[0:2]
-if not ((2, 6) <= SYS_VERSION  <= (3, 7)) or ((3, 0) <= SYS_VERSION <= (3, 2)):
-    mess = "Python Release 2.6 .. 3.7 excluding 3.1 and 3.2 are supported in this code branch."
-    if ((2, 4) <= SYS_VERSION <= (2, 7)):
-        mess += ("\nFor your Python, version %s, use the python-2.4 code/branch." %
+if not ((2, 4) <= SYS_VERSION  <= (2, 7)):
+    mess = "Python Release 2.4 .. 2.7 are supported in this code branch."
+    if ((3, 2) <= SYS_VERSION  <= (3, 7)):
+        mess += ("\nFor your Python, version %s, use the master code/branch." %
                  sys.version[0:3])
-    elif SYS_VERSION < (2, 4) or ((3, 0) <= SYS_VERSION <= (3, 2)):
+    else:
         mess += ("\nThis package is not supported before Python 2.4. Your Python version is %s."
                  % sys.version[0:3])
     print(mess)
