@@ -335,15 +335,15 @@ class PythonParser(GenericASTBuilder):
 
     def p_function_def(self, args):
         '''
-        stmt         ::= function_def
-        function_def ::= mkfunc store
-        stmt         ::= funcdefdeco
-        funcdefdeco  ::= mkfuncdeco store
-        mkfuncdeco   ::= expr mkfuncdeco CALL_FUNCTION_1
-        mkfuncdeco   ::= expr mkfuncdeco0 CALL_FUNCTION_1
-        mkfuncdeco0  ::= mkfunc
-        load_closure ::= load_closure LOAD_CLOSURE
-        load_closure ::= LOAD_CLOSURE
+        stmt               ::= function_def
+        function_def       ::= mkfunc store
+        stmt               ::= function_def_deco
+        function_def_deco  ::= mkfuncdeco store
+        mkfuncdeco         ::= expr mkfuncdeco CALL_FUNCTION_1
+        mkfuncdeco         ::= expr mkfuncdeco0 CALL_FUNCTION_1
+        mkfuncdeco0        ::= mkfunc
+        load_closure       ::= load_closure LOAD_CLOSURE
+        load_closure       ::= LOAD_CLOSURE
         '''
 
     def p_generator_exp(self, args):

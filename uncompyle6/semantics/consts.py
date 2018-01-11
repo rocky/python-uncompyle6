@@ -204,7 +204,7 @@ TABLE_DIRECT = {
     'compare_chained2':	    ( '%[1]{pattr.replace("-", " ")} %p', (0, 19)),
 #   'classdef': 	(), # handled by n_classdef()
     'function_def':         ( '\n\n%|def %c\n', -2), # -2 to handle closures
-    'funcdefdeco':  	    ( '\n\n%c', 0),
+    'function_def_deco':    ( '\n\n%c', 0),
     'mkfuncdeco':  	    ( '%|@%c\n%c', 0, 1),
     'mkfuncdeco0':  	    ( '%|def %c\n', 0),
     'classdefdeco':  	    ( '\n\n%c', 0),

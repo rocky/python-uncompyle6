@@ -66,7 +66,6 @@ class Python25Parser(Python26Parser):
         classdefdeco2 ::= LOAD_CONST expr mkfunc CALL_FUNCTION_0 BUILD_CLASS
         kv3 ::= expr expr STORE_MAP
         kvlist ::= kvlist kv3
-        mkfuncdeco ::= expr mkfuncdeco CALL_FUNCTION_1
         ret_cond ::= expr jmp_false_then expr RETURN_END_IF POP_TOP ret_expr_or_cond
         return_if_lambda ::= RETURN_END_IF_LAMBDA POP_TOP
         return_if_stmt   ::= ret_expr RETURN_END_IF POP_TOP

@@ -12,13 +12,8 @@ typeset -A SKIP_TESTS
 case $PYVERSION in
     2.4)
 	SKIP_TESTS=(
-	    [test_codecs.py]=1    # need to fix tryelse
-	    [test_decorators.py]=1   # Syntax error decorators?
 	    [test_dis.py]=1   # We change line numbers - duh!
-	    [test_frozen.py]=1
 	    [test_grp.py]=1      # Long test - might work Control flow?
-	    [test_imp.py]=1   # Control flow?
-	    [test_import.py]=1   # Control flow?
 	    [test_math.py]=1 # Control flow?
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_queue.py]=1 # Control flow?
@@ -29,17 +24,12 @@ case $PYVERSION in
 	;;
     2.5)
 	SKIP_TESTS=(
-	    [test_codecs.py]=1    # need to fix tryelse
-	    [test_coercion.py]=1
 	    [test_contextlib.py]=1
-	    [test_decorators.py]=1   # Syntax error decorators?
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_exceptions.py]=1
-	    [test_frozen.py]=1
 	    [test_functools.py]=1
 	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
 	    [test_grp.py]=1      # Long test - might work Control flow?
-	    [test_imp.py]=1
 	    [test_math.py]=1 # Control flow?
 	    [test_pdb.py]=1
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
@@ -48,23 +38,14 @@ case $PYVERSION in
 	    [test_sax.py]=1  # Control flow?
 	    [test_trace.py]=1  # Line numbers are expected to be different
 	    [test_types.py]=1 # Control flow?
-nn	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
+	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
 	)
 	;;
     2.6)
 	SKIP_TESTS=(
-	    [test_cmath.py]=1 # Control flow?
-	    [test_codecs.py]=1    # need to fix tryelse
-	    [test_coercion.py]=1    # Control flow?
-            [test_decorators.py]=1  # Syntax Error - look at
-	    [test_frozen.py]=1  # Control flow?
-	    [test_ftplib.py]=1  # Control flow?
 	    [test_grp.py]=1      # Long test - might work Control flow?
-	    [test_imp.py]=1
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
-	    [test_queue.py]=1 # Control flow?
 	    [test_re.py]=1 # Probably Control flow?
-	    [test_strftime.py]=1
 	    [test_trace.py]=1  # Line numbers are expected to be different
 	    # .pyenv/versions/2.6.9/lib/python2.6/lib2to3/refactor.pyc
 	    # .pyenv/versions/2.6.9/lib/python2.6/mailbox.pyc
