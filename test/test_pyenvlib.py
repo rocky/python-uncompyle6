@@ -25,13 +25,15 @@ from fnmatch import fnmatch
 
 #----- configure this for your needs
 
-TEST_VERSIONS=('2.3.7', '2.4.6', '2.5.6', '2.6.9',
+TEST_VERSIONS=(
                'pypy-2.4.0', 'pypy-2.6.1',
                'pypy-5.0.1', 'pypy-5.3.1', 'pypy3.5-5.7.1-beta',
+               # FIXME:  get this from xdis magics.
+               '2.3.7', '2.4.6', '2.5.6', '2.6.9',
                '2.7.10', '2.7.11', '2.7.12', '2.7.13', '2.7.14',
                '3.0.1', '3.1.5', '3.2.6',
-               '3.3.5', '3.3.6',
-               '3.4.2', '3.5.3', '3.6.0', '3.6.3',
+               '3.3.5', '3.3.6', '3.3.7',
+               '3.4.2', '3.5.3', '3.6.0', '3.6.3', '3.6.4',
                'native')
 
 target_base = '/tmp/py-dis/'
@@ -46,6 +48,7 @@ PYOC = ('*.pyc', '*.pyo')
 test_options = {
     # name: (src_basedir, pattern, output_base_suffix)
     'test': ('./test', PYOC, 'test'),
+    'max=': 200,
     }
 
 for vers in TEST_VERSIONS:
@@ -63,7 +66,8 @@ for vers in TEST_VERSIONS:
         test_options[vers] = (os.path.join(lib_prefix, vers, 'lib', 'python'+short_vers),
                               PYC, 'python-lib'+short_vers)
 
-def do_tests(src_dir, patterns, target_dir, start_with=None, do_verify=False):
+def do_tests(src_dir, patterns, target_dir, start_with=None,
+             do_verify=False, max_files=200):
 
     def visitor(files, dirname, names):
         files.extend(
@@ -97,14 +101,14 @@ def do_tests(src_dir, patterns, target_dir, start_with=None, do_verify=False):
         except ValueError:
             pass
 
-    if len(files) > 200:
+    if len(files) > max_files:
         files = [file for file in files if not 'site-packages' in file]
         files = [file for file in files if not 'test' in file]
-        if len(files) > 200:
+        if len(files) > max_files:
             # print("Numer of files %d - truncating to last 200" % len(files))
-            # files = files[-200:]
-            print("Numer of files %d - truncating to first 200" % len(files))
-            files = files[:200]
+            print("Numer of files %d - truncating to first %s" %
+                  (len(files), max_files))
+            files = files[:max_files]
 
     print(time.ctime())
     main.main(src_dir, target_dir, files, [], do_verify=do_verify)
@@ -121,9 +125,10 @@ if __name__ == '__main__':
     test_options_keys.sort()
     opts, args = getopt.getopt(sys.argv[1:], '',
                                ['start-with=', 'verify', 'weak-verify',
-                                'coverage', 'all', ] \
+                                'max=', 'coverage', 'all', ] \
                                + test_options_keys )
     vers = ''
+
     for opt, val in opts:
         if opt == '--verify':
             do_verify = True
@@ -137,6 +142,8 @@ if __name__ == '__main__':
             triple = test_options[opt[2:]]
             vers = triple[-1]
             test_dirs.append(triple)
+        elif opt == '--max':
+            test_options['max='] = int(val)
         elif opt == '--all':
             vers = 'all'
             for val in test_options_keys:
@@ -152,7 +159,8 @@ if __name__ == '__main__':
             target_dir = os.path.join(target_base, target_dir)
             if os.path.exists(target_dir):
                 shutil.rmtree(target_dir, ignore_errors=1)
-            do_tests(src_dir, pattern, target_dir, start_with, do_verify)
+            do_tests(src_dir, pattern, target_dir, start_with,
+                     do_verify, test_options['max='])
         else:
             print("### Path %s doesn't exist; skipping" % src_dir)
 

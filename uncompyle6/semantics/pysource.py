@@ -548,7 +548,7 @@ class SourceWalker(GenericASTTraversal, object):
                     TABLE_R.update({
                         'CALL_FUNCTION_EX': ('%c(*%P)', 0, (1, 2, ', ', 100)),
                         # Not quite right
-                        'CALL_FUNCTION_EX_KW': ('%c(**%C)', 0, (2,3, ',')),
+                        'CALL_FUNCTION_EX_KW': ('%c(**%C)', 0, (2, 3, ',')),
                         })
 
                     def build_unpack_tuple_with_call(node):
@@ -2317,13 +2317,12 @@ class SourceWalker(GenericASTTraversal, object):
                     # lowest down the stack
                     if self.version == 3.5:
                         if str == '%c(%C, ':
-                            str = '%c(*%C, %c)'
+                            entry = ('%c(*%C, %c)', 0, p2, -2)
                         elif str == '%c(%C':
-                            str = '%c(*%C)'
-                            p2 = (1, 100, '')
+                            entry = ('%c(*%C)', 0, (1, 100, ''))
                     else:
                         str += '*%c)'
-                    entry = (str, 0, p2, -2)
+                        entry = (str, 0, p2, -2)
                 elif op == 'CALL_FUNCTION_KW':
                     str += '**%c)'
                     entry = (str, 0, p2, -2)

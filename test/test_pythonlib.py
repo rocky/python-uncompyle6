@@ -64,7 +64,7 @@ test_options = {
                  PYOC, 'ok-2.7', 2.7),
 
     'ok-3.2':    (os.path.join(src_dir, 'ok_lib3.2'),
-                 PYOC, 'ok-3.2', 3.5),
+                 PYOC, 'ok-3.2', 3.2),
 
     'base-2.7':  (os.path.join(src_dir, 'base_tests', 'python2.7'),
                   PYOC, 'base_2.7', 2.7),
