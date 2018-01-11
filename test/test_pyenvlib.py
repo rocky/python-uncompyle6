@@ -50,6 +50,7 @@ PYOC = ('*.pyc', '*.pyo')
 test_options = {
     # name: (src_basedir, pattern, output_base_suffix)
     'test': ('./test', PYOC, 'test'),
+    'max=': 200,
     }
 
 for vers in TEST_VERSIONS:
@@ -144,7 +145,7 @@ if __name__ == '__main__':
             vers = triple[-1]
             test_dirs.append(triple)
         elif opt == '--max':
-            test_options['max'] = int(val)
+            test_options['max='] = int(val)
         elif opt == '--all':
             vers = 'all'
             for val in test_options_keys:
@@ -161,7 +162,7 @@ if __name__ == '__main__':
             if os.path.exists(target_dir):
                 shutil.rmtree(target_dir, ignore_errors=1)
             do_tests(src_dir, pattern, target_dir, start_with,
-                     do_verify, test_options['max'])
+                     do_verify, test_options['max='])
         else:
             print("### Path %s doesn't exist; skipping" % src_dir)
 
