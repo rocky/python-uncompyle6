@@ -347,10 +347,10 @@ class Python3Parser(PythonParser):
                               COME_FROM_LOOP
 
         while1elsestmt    ::= SETUP_LOOP          l_stmts     JUMP_BACK
-                              else_suite
+                              else_suitel
 
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
-                              else_suite COME_FROM_LOOP
+                              else_suitel COME_FROM_LOOP
 
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt          JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
