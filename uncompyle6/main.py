@@ -206,6 +206,9 @@ def main(in_base, out_base, files, codes, outfile=None,
                                 raise
                             pass
                         pass
+                    pass
+                else:
+                    okay_files += 1
                 pass
             elif do_verify:
                 sys.stderr.write("\n### uncompile successful, "

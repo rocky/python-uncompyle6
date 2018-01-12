@@ -20,21 +20,25 @@ Step 2: Run the test:
 """
 
 from uncompyle6 import main, PYTHON3
-import os, time, shutil, sys
+import os, time, re, shutil, sys
 from fnmatch import fnmatch
 
+from uncompyle6 import main, PYTHON3
+import xdis.magics as magics
+
 #----- configure this for your needs
+
+python_versions = [v for v in magics.python_versions if
+                       re.match('^[0-9.]+$', v)]
+
+# FIXME: we should remove Python versions that we don't support.
+# These include Jython, and Python bytecode changes pre release.
 
 TEST_VERSIONS=(
                'pypy-2.4.0', 'pypy-2.6.1',
                'pypy-5.0.1', 'pypy-5.3.1', 'pypy3.5-5.7.1-beta',
-               # FIXME:  get this from xdis magics.
-               '2.3.7', '2.4.6', '2.5.6', '2.6.9',
-               '2.7.10', '2.7.11', '2.7.12', '2.7.13', '2.7.14',
-               '3.0.1', '3.1.5', '3.2.6',
-               '3.3.5', '3.3.6', '3.3.7',
-               '3.4.2', '3.5.3', '3.6.0', '3.6.3', '3.6.4',
-               'native')
+               'native') + tuple(python_versions)
+
 
 target_base = '/tmp/py-dis/'
 lib_prefix = os.path.join(os.environ['HOME'], '.pyenv/versions')
