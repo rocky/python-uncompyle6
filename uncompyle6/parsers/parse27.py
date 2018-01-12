@@ -120,9 +120,9 @@ class Python27Parser(Python2Parser):
         while1stmt        ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM
         whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK _come_froms
         while1elsestmt    ::= SETUP_LOOP l_stmts JUMP_BACK POP_BLOCK
-                              else_suite COME_FROM
+                              else_suitel COME_FROM
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
-                              else_suite COME_FROM
+                              else_suitel COME_FROM
 
         ifstmt            ::= testexpr return_if_stmts COME_FROM
         ifelsestmt        ::= testexpr c_stmts_opt JUMP_FORWARD else_suite COME_FROM
