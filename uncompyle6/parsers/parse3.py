@@ -1033,6 +1033,7 @@ class Python3Parser(PythonParser):
         self.check_reduce['aug_assign1'] = 'AST'
         self.check_reduce['aug_assign2'] = 'AST'
         self.check_reduce['while1stmt'] = 'noAST'
+        self.check_reduce['while1elsestmt'] = 'noAST'
         self.check_reduce['annotate_tuple'] = 'noAST'
         self.check_reduce['kwarg'] = 'noAST'
         # FIXME: remove parser errors caused by the below
@@ -1052,12 +1053,30 @@ class Python3Parser(PythonParser):
             else:
                 return not (isinstance(arg, str) or isinstance(arg, unicode))
         elif lhs == 'while1elsestmt':
+
+            n  = len(tokens)
+            if last == n:
+                # Adjust for fuzziness in parsing
+                last -= 1
+
+            if tokens[last] == 'COME_FROM_LOOP':
+                last -= 1
+            elif tokens[last-1] == 'COME_FROM_LOOP':
+                last -= 2
+            if tokens[last] in ('JUMP_BACK', 'CONTINUE'):
+                # These indicate inside a loop, but token[last]
+                # should not be in a loop.
+                # FIXME: Not quite righte: refine by using target
+                return True
+
             # if SETUP_LOOP target spans the else part, then this is
             # not while1else. Also do for whileTrue?
             last += 1
-            while isinstance(tokens[last].offset, str):
+            while last < n and isinstance(tokens[last].offset, str):
                 last += 1
-            return tokens[first].attr == tokens[last].offset
+            if last == n:
+                return False
+            return tokens[first].attr >= tokens[last].offset
         elif lhs == 'while1stmt':
 
             # If there is a fall through to the COME_FROM_LOOP. then this is
