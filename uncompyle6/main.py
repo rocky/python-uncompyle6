@@ -184,6 +184,7 @@ def main(in_base, out_base, files, codes, outfile=None,
                                 print('\n# okay decompiling %s' % infile)
                                 okay_files += 1
                             else:
+                                verify_failed_files += 1
                                 print('\n# %s\n\t%s', infile, msg)
                                 pass
                         else:
@@ -215,7 +216,8 @@ def main(in_base, out_base, files, codes, outfile=None,
                     print(mess, infile)
         if current_outfile:
             sys.stdout.write("%s\r" %
-                             status_msg(do_verify, tot_files, okay_files, failed_files, verify_failed_files))
+                             status_msg(do_verify, tot_files, okay_files, failed_files,
+                                        verify_failed_files, weak_verify))
             sys.stdout.flush()
     if current_outfile:
         sys.stdout.write("\n")
@@ -236,17 +238,21 @@ else:
         return ''
 
 def status_msg(do_verify, tot_files, okay_files, failed_files,
-               verify_failed_files):
+               verify_failed_files, weak_verify):
+    if weak_verify:
+        verification_type = 'weak'
+    else:
+        verification_type = 'strong'
     if tot_files == 1:
         if failed_files:
             return "\n# decompile failed"
         elif verify_failed_files:
-            return "\n# decompile verify failed"
+            return "\n# decompile %s verification failed" % verification_type
         else:
             return "\n# Successfully decompiled file"
             pass
         pass
     mess = "decompiled %i files: %i okay, %i failed" % (tot_files, okay_files, failed_files)
     if do_verify:
-        mess += (", %i verify failed" % verify_failed_files)
+        mess += (", %i %s verification failed" % (verify_failed_files, verification_type))
     return mess
