@@ -422,7 +422,7 @@ class PythonParser(GenericASTBuilder):
                       for_block POP_BLOCK _come_froms
 
         forelsestmt ::= SETUP_LOOP expr for_iter store
-                for_block POP_BLOCK else_suite _come_froms
+                        for_block POP_BLOCK else_suite _come_froms
 
         forelselaststmt ::= SETUP_LOOP expr for_iter store
                 for_block POP_BLOCK else_suitec _come_froms
