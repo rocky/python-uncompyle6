@@ -185,6 +185,10 @@ def main(in_base, out_base, files, codes, outfile=None,
                                 okay_files += 1
                             else:
                                 print('\n# %s\n\t%s', infile, msg)
+                                pass
+                        else:
+                            okay_files += 1
+                            pass
                     except verify.VerifyCmpError as e:
                         print(e)
                         verify_failed_files += 1
@@ -196,6 +200,9 @@ def main(in_base, out_base, files, codes, outfile=None,
                                 raise
                             pass
                         pass
+                    pass
+                else:
+                    okay_files += 1
                 pass
             elif do_verify:
                 sys.stderr.write("\n### uncompile successful, but no file to compare against\n")
