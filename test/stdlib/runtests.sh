@@ -44,13 +44,11 @@ case $PYVERSION in
     2.6)
 	SKIP_TESTS=(
 	    [test_grp.py]=1      # Long test - might work Control flow?
+	    [test_opcodes.py]=1
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_re.py]=1 # Probably Control flow?
 	    [test_trace.py]=1  # Line numbers are expected to be different
 	    # .pyenv/versions/2.6.9/lib/python2.6/lib2to3/refactor.pyc
-	    # .pyenv/versions/2.6.9/lib/python2.6/mailbox.pyc
-	    # .pyenv/versions/2.6.9/lib/python2.6/markupbase.pyc
-	    # .pyenv/versions/2.6.9/lib/python2.6/pstats.pyc
 	    # .pyenv/versions/2.6.9/lib/python2.6/pyclbr.pyc
 	    # .pyenv/versions/2.6.9/lib/python2.6/quopri.pyc -- look at ishex, is short
 	    # .pyenv/versions/2.6.9/lib/python2.6/random.pyc
