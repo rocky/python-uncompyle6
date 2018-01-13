@@ -50,6 +50,9 @@ class Python27Parser(Python2Parser):
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            except_handler else_suite COME_FROM
 
+        tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                           except_handler else_suitel JUMP_BACK COME_FROM
+
         except_stmt ::= except_cond2 except_suite
 
         except_cond1 ::= DUP_TOP expr COMPARE_OP

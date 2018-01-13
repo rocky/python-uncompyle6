@@ -12,3 +12,14 @@ def test_specific_values(self):
                 self = 2
 
         self = 3
+
+# From 2.6 test_decorators.
+# Bug was thinking an "except" was some sort of if/then
+def call(*args):
+    try:
+        return 5
+    except KeyError:
+        return 2
+    except TypeError:
+        # Unhashable argument
+        return 3

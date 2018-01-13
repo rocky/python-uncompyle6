@@ -898,7 +898,6 @@ class Scanner2(Scanner):
                                 self.structs.append({'type':  'if-then',
                                                      'start': start-3,
                                                      'end':   pre_rtarget})
-
                                 self.thens[start] = end
                             elif jump_op == 'JUMP_ABSOLUTE':
                                 if_then_maybe = {'type':  'if-then',
@@ -941,13 +940,20 @@ class Scanner2(Scanner):
                                        'end':   end})
             elif code_pre_rtarget == self.opc.RETURN_VALUE:
                 if self.version == 2.7 or pre_rtarget not in self.ignore_if:
-                    self.structs.append({'type':  'if-then',
-                                           'start': start,
-                                           'end':   rtarget})
-                    self.thens[start] = rtarget
-                    if self.version == 2.7 or code[pre_rtarget+1] != self.opc.JUMP_FORWARD:
-                        self.fixed_jumps[offset] = rtarget
-                        self.return_end_ifs.add(pre_rtarget)
+                    # 10 is exception-match. If there is an exception match in the
+                    # compare, then this is an exception clause not an if-then clause
+                    if (self.code[self.prev[offset]] != self.opc.COMPARE_OP or
+                        self.code[self.prev[offset]+1] != 10):
+                        self.structs.append({'type':  'if-then',
+                                               'start': start,
+                                               'end':   rtarget})
+                        self.thens[start] = rtarget
+                        if self.version == 2.7 or code[pre_rtarget+1] != self.opc.JUMP_FORWARD:
+                            self.fixed_jumps[offset] = rtarget
+                            self.return_end_ifs.add(pre_rtarget)
+                            pass
+                        pass
+                    pass
 
         elif op in self.pop_jump_if_or_pop:
             target = self.get_target(offset, op)
