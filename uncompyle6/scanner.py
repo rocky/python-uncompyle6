@@ -26,7 +26,7 @@ PYTHON_VERSIONS = frozenset((1.5,
                              2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7,
                              3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7))
 
-CANONIC2VERSION = {canonic_python_version[str(v)]: v for v in PYTHON_VERSIONS}
+CANONIC2VERSION = dict((canonic_python_version[str(v)], v) for v in PYTHON_VERSIONS)
 
 # Magic changed mid version for Python 3.5.2. Compatibility was added for
 # the older 3.5 interpreter magic.
