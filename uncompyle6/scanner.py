@@ -15,13 +15,21 @@ import sys
 from uncompyle6 import PYTHON3, IS_PYPY
 from uncompyle6.scanners.tok import Token
 from xdis.bytecode import op_size
-from xdis.magics import py_str2float
+from xdis.magics import py_str2float, canonic_python_version
 from xdis.util import code2num
 
-# The byte code versions we support
-PYTHON_VERSIONS = (1.5,
-                   2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7,
-                   3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7)
+# The byte code versions we support.
+# Note: these all have to be floats
+PYTHON_VERSIONS = frozenset((1.5,
+                             2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7,
+                             3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7))
+
+CANONIC2VERSION = dict((canonic_python_version[str(v)], v) for v in PYTHON_VERSIONS)
+
+# Magic changed mid version for Python 3.5.2. Compatibility was added for
+# the older 3.5 interpreter magic.
+CANONIC2VERSION['3.5.2'] = 3.5
+
 
 # FIXME: DRY
 if PYTHON3:
@@ -299,7 +307,13 @@ def get_scanner(version, is_pypy=False, show_asm=None):
 
     # If version is a string, turn that into the corresponding float.
     if isinstance(version, str):
-        version = py_str2float(version)
+        if version not in canonic_python_version:
+            raise RuntimeError("Unknown Python version in xdis %s" % version)
+        canonic_version = canonic_python_version[version]
+        if canonic_version not in CANONIC2VERSION:
+            raise RuntimeError("Unsupported Python version %s (canonic %s)"
+                               % (version, canonic_version))
+        version = CANONIC2VERSION[canonic_version]
 
     # Pick up appropriate scanner
     if version in PYTHON_VERSIONS:
