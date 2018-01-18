@@ -51,7 +51,7 @@ import uncompyle6.semantics.fragments
 # Export some functions
 from uncompyle6.main import decompile_file
 
-# For compaitility
+# For compatibility
 uncompyle_file = decompile_file
 
 # Conventience functions so you can say:
