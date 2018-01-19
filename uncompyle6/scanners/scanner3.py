@@ -716,6 +716,8 @@ class Scanner3(Scanner):
             else:
                 if self.get_target(jump_back, 0) >= next_line_byte:
                     jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE, start, False)
+
+                # This is wrong for 3.6+
                 if end > jump_back+4 and self.is_jump_forward(end):
                     if self.is_jump_forward(jump_back+4):
                         if self.get_target(jump_back+4) == self.get_target(end):
@@ -753,8 +755,8 @@ class Scanner3(Scanner):
                                      'start': after_jump_offset,
                                      'end':   end})
         elif op in self.pop_jump_tf:
-            start = offset + instruction_size(op, self.opc)
-            target = self.get_target(offset)
+            start   = offset + instruction_size(op, self.opc)
+            target  = self.insts[inst_index].argval
             rtarget = self.restrict_to_parent(target, parent)
             prev_op = self.prev_op
 
