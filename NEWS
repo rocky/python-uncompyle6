@@ -1,4 +1,16 @@
-uncompyle6 2.14.0 2017-01-09 Samish
+uncompyle6 2.14.3 2017-01-19
+
+- Fix bug in 3.5+ await stmt
+- Better version to magic handling; handle 3.5.2 .. 3.5.4 versions
+- Improve/correct test_pyenvlib.py status messages
+- Fix some 2.7 and 2.6 parser bugs
+- Fix whilelse parsing bugs
+- Correct 2.5- decorator parsing
+- grammar for decorators matchies AST more a little better
+- better tests in setup.py for running the right version of Python
+- Fix 2.6- parsing of "for .. try/else" ...  with "continue"  inside
+
+uncompyle6 2.14.2 2017-01-09 Samish
 
 Decompilation bug fixes, mostly 3.6 and pre 2.7
 
@@ -16,7 +28,7 @@ Decompilation bug fixes, mostly 3.6 and pre 2.7
   Python versions
 - Match Python AST names more closely when possible
 
-uncompyle6 2.14.0 2017-12-10 Dr. Gecko
+uncompyle6 2.14.1 2017-12-10 Dr. Gecko
 
 - Many decompilation bugfixes
 - Grammar rule reduction and version isolation
