@@ -9,7 +9,7 @@
 
 # Things that change more often go here.
 copyright   = """
-Copyright (C) 2015-2017 Rocky Bernstein <rb@dustyfeet.com>.
+Copyright (C) 2015-2018 Rocky Bernstein <rb@dustyfeet.com>.
 """
 
 classifiers =  ['Development Status :: 5 - Production/Stable',
@@ -41,12 +41,12 @@ entry_points       = {
     ]}
 ftp_url            = None
 install_requires   = ['spark-parser >= 1.8.5, < 1.9.0',
-                      'xdis >= 3.6.5, < 3.7.0']
+                      'xdis >= 3.6.6, < 3.7.0']
 license            = 'MIT'
 mailing_list       = 'python-debugger@googlegroups.com'
 modname            = 'uncompyle6'
 py_modules         = None
-short_desc         = 'Python cross-version byte-code deparser'
+short_desc         = 'Python cross-version byte-code decompiler'
 web                = 'https://github.com/rocky/python-uncompyle6/'
 
 # tracebacks in zip files are funky and not debuggable

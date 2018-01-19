@@ -441,7 +441,7 @@ class SourceWalker(GenericASTTraversal, object):
                 if version >= 3.5:
                     TABLE_DIRECT.update({
                         'await_expr':	       ( 'await %c', 0),
-                        'await_stmt':	       ( '%|%c', 0),
+                        'await_stmt':	       ( '%|%c\n', 0),
                         'async_for_stmt':      (
                             '%|async for %c in %c:\n%+%c%-\n\n', 9, 1, 25 ),
                         'async_forelse_stmt':  (
