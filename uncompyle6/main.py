@@ -217,7 +217,7 @@ def main(in_base, out_base, files, codes, outfile=None,
         if current_outfile:
             sys.stdout.write("%s\r" %
                              status_msg(do_verify, tot_files, okay_files, failed_files,
-                                        verify_failed_files, None))
+                                        verify_failed_files, do_verify))
             sys.stdout.flush()
     if current_outfile:
         sys.stdout.write("\n")
@@ -239,7 +239,7 @@ else:
 
 def status_msg(do_verify, tot_files, okay_files, failed_files,
                verify_failed_files, weak_verify):
-    if weak_verify:
+    if weak_verify == 'weak':
         verification_type = 'weak'
     else:
         verification_type = 'strong'
