@@ -745,18 +745,47 @@ class SourceWalker(GenericASTTraversal, object):
                         self.default(node)
                     self.n_fstring_single = fstring_single
 
-                    def kwargs_only_36(node):
+                    # def kwargs_only_36(node):
+                    #     keys = node[-1].attr
+                    #     num_kwargs = len(keys)
+                    #     values = node[:num_kwargs]
+                    #     for i, (key, value) in enumerate(zip(keys, values)):
+                    #         self.write(key + '=')
+                    #         self.preorder(value)
+                    #         if i < num_kwargs:
+                    #             self.write(',')
+                    #     self.prune()
+                    #     return
+                    # self.n_kwargs_only_36 = kwargs_only_36
+
+                    def kwargs_36(node):
+                        self.write('(')
                         keys = node[-1].attr
                         num_kwargs = len(keys)
-                        values = node[:num_kwargs]
-                        for i, (key, value) in enumerate(zip(keys, values)):
-                            self.write(key + '=')
-                            self.preorder(value)
-                            if i < num_kwargs:
-                                self.write(',')
+                        num_posargs = len(node) - (num_kwargs + 1)
+                        n = len(node)
+                        assert n >= len(keys)+2
+                        sep = ''
+                        # FIXME: adjust output for line breaks?
+                        for i in range(num_posargs):
+                            self.write(sep)
+                            self.preorder(node[i])
+                            sep = ', '
+
+                        i = num_posargs
+                        j = 0
+                        # FIXME: adjust output for line breaks?
+                        while i < n-1:
+                            self.write(sep)
+                            self.write(keys[j] + '=')
+                            self.preorder(node[i])
+                            i += 1
+                            j += 1
+                        self.write(')')
                         self.prune()
                         return
-                    self.n_kwargs_only_36 = kwargs_only_36
+                    self.n_kwargs_36 = kwargs_36
+
 
                     def return_closure(node):
                         # Nothing should be output here

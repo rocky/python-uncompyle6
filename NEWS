@@ -6,7 +6,7 @@ uncompyle6 2.14.3 2017-01-19
 - Fix some 2.7 and 2.6 parser bugs
 - Fix whilelse parsing bugs
 - Correct 2.5- decorator parsing
-- grammar for decorators matchies AST more a little better
+- grammar for decorators matches AST a little more
 - better tests in setup.py for running the right version of Python
 - Fix 2.6- parsing of "for .. try/else" ...  with "continue"  inside
 

@@ -170,11 +170,15 @@ interpreter for versions 1.5, 1.6, and 2.0.
 In the Python 3 series, Python support is is strongest around 3.4 or
 3.3 and drops off as you move further away from those versions. Python
 3.6 changes things drastically by using word codes rather than byte
-codes. That has been addressed, but then it also changes function call
-opcodes and its semantics and has more problems with control flow than
-3.5 has. Between Python 3.5, 3.6 and 3.7 there have been major changes
-to the `MAKE_FUNCTION` and `CALL_FUNCTION` instructions. Those are
-not handled yet.
+codes. As a result, the jump offset field in a jump instruction
+argument has been reduced. This makes the `EXTENDED_ARG` instructions
+are now more prevalent in jump instruction; previously they had been
+rare.  Perhaps to compensate for the additional `EXTENDED_ARG`
+instructions, additional jump optimization has been added. So in sum
+handling control flow by ad hoc means as is currently done is worse.
+
+Also, between Python 3.5, 3.6 and 3.7 there have been major changes to the
+`MAKE_FUNCTION` and `CALL_FUNCTION` instructions.
 
 Currently not all Python magic numbers are supported. Specifically in
 some versions of Python, notably Python 3.6, the magic number has
