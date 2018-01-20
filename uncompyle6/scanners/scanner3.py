@@ -673,6 +673,7 @@ class Scanner3(Scanner):
             # It could be a return instruction.
 
             start += instruction_size(op, self.opc)
+            # FIXME: 0 = extended arg which is not right. Use self.insts instead
             target = self.get_target(offset, 0)
             end    = self.restrict_to_parent(target, parent)
             self.setup_loops[target] = offset
