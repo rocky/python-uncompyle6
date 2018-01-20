@@ -3,7 +3,7 @@ from uncompyle6.semantics.pysource import (
     SourceWalker, SourceWalkerError, find_globals, ASSIGN_DOC_STRING, RETURN_NONE)
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 class AligningWalker(SourceWalker, object):
-    def __init__(self, version, scanner, out, showast=False,
+    def __init__(self, version, out, scanner, showast=False,
                  debug_parser=PARSER_DEFAULT_DEBUG,
                  compile_mode='exec', is_pypy=False):
         SourceWalker.__init__(self, version, out, scanner, showast, debug_parser,
