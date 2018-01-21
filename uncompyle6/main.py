@@ -5,7 +5,6 @@ from uncompyle6 import verify, IS_PYPY
 from xdis.code import iscode
 from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource
-from uncompyle6.semantics import linemap
 from uncompyle6.parser import ParserError
 from uncompyle6.version import VERSION
 from uncompyle6.linenumbers import line_number_mapping
