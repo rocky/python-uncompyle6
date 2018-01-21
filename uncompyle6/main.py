@@ -5,16 +5,32 @@ from uncompyle6 import verify, IS_PYPY
 from xdis.code import iscode
 from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource
+from uncompyle6.semantics import linemap
 from uncompyle6.parser import ParserError
 from uncompyle6.version import VERSION
 from uncompyle6.linenumbers import line_number_mapping
 
+from uncompyle6.semantics.pysource import deparse_code
+from uncompyle6.semantics.linemap import deparse_code_with_map
+
 from xdis.load import load_module
+
+def _get_outstream(outfile):
+    dir = os.path.dirname(outfile)
+    failed_file = outfile + '_failed'
+    if os.path.exists(failed_file):
+        os.remove(failed_file)
+    try:
+        os.makedirs(dir)
+    except OSError:
+        pass
+    return open(outfile, 'w')
 
 def decompile(
         bytecode_version, co, out=None, showasm=None, showast=False,
         timestamp=None, showgrammar=False, code_objects={},
-        source_size=None, is_pypy=False, magic_int=None):
+        source_size=None, is_pypy=False, magic_int=None,
+        mapstream=None):
     """
     ingests and deparses a given code block 'co'
     """
@@ -41,9 +57,25 @@ def decompile(
                file=real_out)
 
     try:
-        pysource.deparse_code(bytecode_version, co, out, showasm, showast,
-                              showgrammar, code_objects=code_objects,
-                              is_pypy=is_pypy)
+        if mapstream:
+            if isinstance(mapstream, str):
+                mapstream = _get_outstream(mapstream)
+
+            deparsed = deparse_code_with_map(bytecode_version, co, out, showasm, showast,
+                                             showgrammar, code_objects=code_objects,
+                                             is_pypy=is_pypy, first_line=7)
+            linemap = [(line_no, deparsed.source_linemap[line_no])
+                        for line_no in
+                        sorted(deparsed.source_linemap.keys())]
+            mapstream.write("\n\n# %s\n" % linemap)
+            if mapstream != real_out:
+                mapstream.close()
+        else:
+            deparsed = deparse_code(bytecode_version, co, out, showasm, showast,
+                                    showgrammar, code_objects=code_objects,
+                                    is_pypy=is_pypy)
+            pass
+        return deparsed
     except pysource.SourceWalkerError as e:
         # deparsing failed
         raise pysource.SourceWalkerError(str(e))
@@ -52,7 +84,7 @@ def decompile(
 uncompyle = decompile
 
 def decompile_file(filename, outstream=None, showasm=None, showast=False,
-                   showgrammar=False):
+                   showgrammar=False, mapstream=None):
     """
     decompile Python byte-code file (.pyc)
     """
@@ -71,7 +103,8 @@ def decompile_file(filename, outstream=None, showasm=None, showast=False,
         decompile(version, co, outstream, showasm, showast,
                   timestamp, showgrammar,
                   code_objects=code_objects, source_size=source_size,
-                  is_pypy=is_pypy, magic_int=magic_int)
+                  is_pypy=is_pypy, magic_int=magic_int,
+                  mapstream=mapstream)
     co = None
 
 # For compatiblity
@@ -94,19 +127,9 @@ def main(in_base, out_base, files, codes, outfile=None,
     - files below out_base	out_base=...
     - stdout			out_base=None, outfile=None
     """
-    def _get_outstream(outfile):
-        dir = os.path.dirname(outfile)
-        failed_file = outfile + '_failed'
-        if os.path.exists(failed_file):
-            os.remove(failed_file)
-        try:
-            os.makedirs(dir)
-        except OSError:
-            pass
-        return open(outfile, 'w')
-
     tot_files = okay_files = failed_files = verify_failed_files = 0
     current_outfile = outfile
+    linemap_stream = None
 
     for filename in files:
         infile = os.path.join(in_base, filename)
@@ -115,22 +138,33 @@ def main(in_base, out_base, files, codes, outfile=None,
                              % infile)
             continue
 
+        if do_linemaps:
+            linemap_stream = infile + '.pymap'
+            pass
+
         # print (infile, file=sys.stderr)
 
         if outfile: # outfile was given as parameter
             outstream = _get_outstream(outfile)
         elif out_base is None:
             outstream = sys.stdout
-            if do_linemaps or do_verify:
-                prefix = os.path.basename(filename)
+            if do_linemaps:
+                linemap_stream = sys.stdout
+            if do_verify:
+                prefix = os.path.basename(filename) + '-'
                 if prefix.endswith('.py'):
                     prefix = prefix[:-len('.py')]
-                junk, outfile = tempfile.mkstemp(suffix=".py",
-                                             prefix=prefix)
+
                 # Unbuffer output if possible
                 buffering = -1 if sys.stdout.isatty() else 0
+                t = tempfile.NamedTemporaryFile(mode='w+b',
+                                                buffering=buffering,
+                                                suffix='.py',
+                                                prefix=prefix)
+                current_outfile = t.name
                 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering)
-                tee = subprocess.Popen(["tee", outfile], stdin=subprocess.PIPE)
+                tee = subprocess.Popen(["tee", current_outfile],
+                                       stdin=subprocess.PIPE)
                 os.dup2(tee.stdin.fileno(), sys.stdout.fileno())
                 os.dup2(tee.stdin.fileno(), sys.stderr.fileno())
         else:
@@ -138,12 +172,16 @@ def main(in_base, out_base, files, codes, outfile=None,
                 current_outfile = os.path.join(out_base, filename[0:-1])
             else:
                 current_outfile = os.path.join(out_base, filename) + '_dis'
+                pass
+            pass
+
             outstream = _get_outstream(current_outfile)
+
         # print(current_outfile, file=sys.stderr)
 
         # Try to uncompile the input file
         try:
-            decompile_file(infile, outstream, showasm, showast, showgrammar)
+            decompile_file(infile, outstream, showasm, showast, showgrammar, linemap_stream)
             tot_files += 1
         except (ValueError, SyntaxError, ParserError, pysource.SourceWalkerError) as e:
             sys.stdout.write("\n")
@@ -166,13 +204,6 @@ def main(in_base, out_base, files, codes, outfile=None,
         #         sys.stderr.write("\n# Can't uncompile %s\n" % infile)
         else: # uncompile successful
             if current_outfile:
-                if do_linemaps:
-                    mapping = line_number_mapping(infile, current_outfile)
-                    outstream.write("\n\n## Line number correspondences\n")
-                    import pprint
-                    s = pprint.pformat(mapping, indent=2, width=80)
-                    s2 = '##' + '\n##'.join(s.split("\n")) + "\n"
-                    outstream.write(s2)
                 outstream.close()
 
                 if do_verify:
@@ -206,6 +237,7 @@ def main(in_base, out_base, files, codes, outfile=None,
                     okay_files += 1
                 pass
             elif do_verify:
+                from trepan.api import debug; debug()
                 sys.stderr.write("\n### uncompile successful, but no file to compare against\n")
                 pass
             else:

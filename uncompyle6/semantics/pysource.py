@@ -2593,7 +2593,8 @@ class SourceWalker(GenericASTTraversal, object):
 
 
 def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
-                 showgrammar=False, code_objects={}, compile_mode='exec', is_pypy=False):
+                 showgrammar=False, code_objects={}, compile_mode='exec',
+                 is_pypy=False, walker=SourceWalker):
     """
     ingests and deparses a given code block 'co'
     """
@@ -2612,10 +2613,9 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
 
     #  Build AST from disassembly.
     linestarts = dict(scanner.opc.findlinestarts(co))
-    deparsed = SourceWalker(version, out, scanner, showast=showast,
-                            debug_parser=debug_parser, compile_mode=compile_mode,
-                            is_pypy=is_pypy,
-                            linestarts=linestarts)
+    deparsed = walker(version, out, scanner, showast=showast,
+                      debug_parser=debug_parser, compile_mode=compile_mode,
+                      is_pypy=is_pypy, linestarts=linestarts)
 
     isTopLevel = co.co_name == '<module>'
     deparsed.ast = deparsed.build_ast(tokens, customize, isTopLevel=isTopLevel)

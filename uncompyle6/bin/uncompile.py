@@ -35,6 +35,7 @@ Options:
   -p <integer>  use <integer> number of processes
   -r            recurse directories looking for .pyc and .pyo files
   --verify      compare generated source with input byte-code
+  --weak-verify compile generated source
   --linemaps    generated line number correspondencies between byte-code
                 and generated source output
   --help        show this message
@@ -58,7 +59,7 @@ from uncompyle6.version import VERSION
 
 def usage():
     print("""usage:
-   %s [--verify] [--asm] [--tree] [--grammar] [-o <path>] FILE|DIR...
+   %s [--verify | --weak-verify ] [--asm] [--tree] [--grammar] [-o <path>] FILE|DIR...
    %s [--help | -h | --version | -V]
 """  % (program, program))
     sys.exit(1)
@@ -83,7 +84,7 @@ def main_bin():
     try:
         opts, files = getopt.getopt(sys.argv[1:], 'hagtdrVo:c:p:',
                                     'help asm grammar linemaps recurse timestamp tree '
-                                    'verify version showgrammar'.split(' '))
+                                    'verify version weak-verify showgrammar'.split(' '))
     except getopt.GetoptError as e:
         print('%s: %s' % (os.path.basename(sys.argv[0]), e),  file=sys.stderr)
         sys.exit(-1)
@@ -97,15 +98,17 @@ def main_bin():
             print("%s %s" % (program, VERSION))
             sys.exit(0)
         elif opt == '--verify':
-            options['do_verify'] = True
+            options['do_verify'] = 'strong'
+        elif opt == '--weak-verify':
+            options['do_verify'] = 'weak'
         elif opt == '--linemaps':
             options['do_linemaps'] = True
         elif opt in ('--asm', '-a'):
             options['showasm'] = 'after'
-            options['do_verify'] = False
+            options['do_verify'] = None
         elif opt in ('--tree', '-t'):
             options['showast'] = True
-            options['do_verify'] = False
+            options['do_verify'] = None
         elif opt in ('--grammar', '-g'):
             options['showgrammar'] = True
         elif opt == '-o':
@@ -162,7 +165,7 @@ def main_bin():
             result = main(src_base, out_base, files, codes, outfile,
                           **options)
             if len(files) > 1:
-                mess = status_msg(do_verify, *result)
+                mess = status_msg(do_verify, *result, do_verify)
                 print('# ' + mess)
                 pass
         except (KeyboardInterrupt):
