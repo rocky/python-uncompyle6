@@ -32,28 +32,32 @@ def decompile(
         mapstream=None):
     """
     ingests and deparses a given code block 'co'
-    """
-    assert iscode(co)
 
+    Caller is responsible for closing `out` and `mapstream`
+    """
     # store final output stream for case of error
     real_out = out or sys.stdout
+
+    def write(s):
+        s += '\n'
+        real_out.write(s)
+
+    assert iscode(co)
+
     co_pypy_str = 'PyPy ' if is_pypy else ''
     run_pypy_str = 'PyPy ' if IS_PYPY else ''
-    print('# uncompyle6 version %s\n'
+    sys_version_lines = sys.version.split('\n')
+    write('# uncompyle6 version %s\n'
           '# %sPython bytecode %s%s\n# Decompiled from: %sPython %s' %
           (VERSION, co_pypy_str, bytecode_version,
-           " (%d)" % magic_int if magic_int else "",
-           run_pypy_str, '\n# '.join(sys.version.split('\n'))),
-           file=real_out)
+               " (%d)" % magic_int if magic_int else "",
+          run_pypy_str, '\n# '.join(sys_version_lines)))
     if co.co_filename:
-        print('# Embedded file name: %s' % co.co_filename,
-              file=real_out)
+        write('# Embedded file name: %s' % co.co_filename,)
     if timestamp:
-        print('# Compiled at: %s' % datetime.datetime.fromtimestamp(timestamp),
-              file=real_out)
+        write('# Compiled at: %s' % datetime.datetime.fromtimestamp(timestamp))
     if source_size:
-        print('# Size of source mod 2**32: %d bytes' % source_size,
-               file=real_out)
+        write('# Size of source mod 2**32: %d bytes' % source_size)
 
     try:
         if mapstream:
@@ -61,14 +65,14 @@ def decompile(
                 mapstream = _get_outstream(mapstream)
 
             deparsed = deparse_code_with_map(bytecode_version, co, out, showasm, showast,
-                                             showgrammar, code_objects=code_objects,
-                                             is_pypy=is_pypy, first_line=7)
+                                             showgrammar,
+                                             code_objects = code_objects,
+                                             is_pypy = is_pypy,
+                                             first_line = 5+len(sys_version_lines))
             linemap = [(line_no, deparsed.source_linemap[line_no])
                         for line_no in
                         sorted(deparsed.source_linemap.keys())]
             mapstream.write("\n\n# %s\n" % linemap)
-            if mapstream != real_out:
-                mapstream.close()
         else:
             deparsed = deparse_code(bytecode_version, co, out, showasm, showast,
                                     showgrammar, code_objects=code_objects,
@@ -79,35 +83,34 @@ def decompile(
         # deparsing failed
         raise pysource.SourceWalkerError(str(e))
 
-# For compatiblity
-uncompyle = decompile
-
 def decompile_file(filename, outstream=None, showasm=None, showast=False,
                    showgrammar=False, mapstream=None):
     """
-    decompile Python byte-code file (.pyc)
+    decompile Python byte-code file (.pyc). Return objects to
+    all of the deparsed objects found in `filename`.
     """
 
     filename = check_object_path(filename)
     code_objects = {}
     (version, timestamp, magic_int, co, is_pypy,
-     source_size) = load_module(filename, code_objects)
+        source_size) = load_module(filename, code_objects)
 
-    if type(co) == list:
+    if isinstance(co, list):
+        deparsed = []
         for con in co:
-            decompile(version, con, outstream, showasm, showast,
-                      timestamp, showgrammar, code_objects=code_objects,
-                      is_pypy=is_pypy, magic_int=magic_int)
+            deparsed.append(
+                decompile(version, con, outstream, showasm, showast,
+                          timestamp, showgrammar, code_objects=code_objects,
+                          is_pypy=is_pypy, magic_int=magic_int),
+                          mapstream=mapstream)
     else:
-        decompile(version, co, outstream, showasm, showast,
-                  timestamp, showgrammar,
-                  code_objects=code_objects, source_size=source_size,
-                  is_pypy=is_pypy, magic_int=magic_int,
-                  mapstream=mapstream)
+        deparsed = [decompile(version, co, outstream, showasm, showast,
+                              timestamp, showgrammar,
+                              code_objects=code_objects, source_size=source_size,
+                              is_pypy=is_pypy, magic_int=magic_int,
+                              mapstream=mapstream)]
     co = None
-
-# For compatiblity
-uncompyle_file = decompile_file
+    return deparsed
 
 
 # FIXME: combine into an options parameter

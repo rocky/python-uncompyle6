@@ -31,7 +31,7 @@ class LineMapWalker(SourceWalker):
                 self.source_linemap[self.current_line_number] = node.linestart
         return super(LineMapWalker, self).default(node)
 
-def deparse_code_with_map(*args, **kwargs):
+def deparse_code_with_map(*args, first_line=0, **kwargs):
     """
     Like deparse_code but saves line number correspondences.
     """
