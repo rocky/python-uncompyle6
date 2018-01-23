@@ -60,6 +60,7 @@ case $PYVERSION in
 	;;
     2.7)
 	SKIP_TESTS=(
+	    [test_curses.py]=1  # Possibly fails on its own but not detected
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_doctest.py]=1
 	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
