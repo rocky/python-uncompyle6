@@ -2,16 +2,13 @@ from uncompyle6.semantics.pysource import SourceWalker, deparse_code
 
 # FIXME: does this handle nested code, and lambda properly
 class LineMapWalker(SourceWalker):
-<<<<<<< HEAD
     def __init__(self, *args, **kwargs):
         if 'first_line' not in kwargs:
             first_line = 0
-=======
-    def __init__(self, *args, first_line=0, **kwargs):
->>>>>>> Forgot to add linemap file
+    def __init__(self, *args, **kwargs):
         super(LineMapWalker, self).__init__(*args, **kwargs)
         self.source_linemap = {}
-        self.current_line_number = first_line
+        self.current_line_number = 0
 
     def write(self, *data):
         """Augment write routine to keep track of current line"""
@@ -31,7 +28,7 @@ class LineMapWalker(SourceWalker):
                 self.source_linemap[self.current_line_number] = node.linestart
         return super(LineMapWalker, self).default(node)
 
-def deparse_code_with_map(*args, first_line=0, **kwargs):
+def deparse_code_with_map(*args, **kwargs):
     """
     Like deparse_code but saves line number correspondences.
     """
