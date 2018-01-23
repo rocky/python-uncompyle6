@@ -1,7 +1,7 @@
 from __future__ import print_function
 import datetime, os, subprocess, sys, tempfile
 
-from uncompyle6 import verify, IS_PYPY
+from uncompyle6 import verify, IS_PYPY, PYTHON_VERSION
 from xdis.code import iscode
 from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource
@@ -156,10 +156,15 @@ def main(in_base, out_base, files, codes, outfile=None,
 
                 # Unbuffer output if possible
                 buffering = -1 if sys.stdout.isatty() else 0
-                t = tempfile.NamedTemporaryFile(mode='w+b',
-                                                buffering=buffering,
-                                                suffix='.py',
-                                                prefix=prefix)
+                if PYTHON_VERSION >= 3.5:
+                    t = tempfile.NamedTemporaryFile(mode='w+b',
+                                                    buffering=buffering,
+                                                    suffix='.py',
+                                                    prefix=prefix)
+                else:
+                    t = tempfile.NamedTemporaryFile(mode='w+b',
+                                                    suffix='.py',
+                                                    prefix=prefix)
                 current_outfile = t.name
                 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering)
                 tee = subprocess.Popen(["tee", current_outfile],

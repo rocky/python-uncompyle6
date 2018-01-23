@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2017 by Rocky Bernstein
+# Copyright (c) 2015-2018 by Rocky Bernstein
 """
 Python 2.7 bytecode ingester.
 

@@ -131,6 +131,7 @@ class Python27Parser(Python2Parser):
         ifelsestmt        ::= testexpr c_stmts_opt JUMP_FORWARD else_suite COME_FROM
         ifelsestmtc       ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
         ifelsestmtl       ::= testexpr c_stmts_opt JUMP_BACK else_suitel
+        ifelsestmtl       ::= testexpr c_stmts_opt CONTINUE else_suitel
 
         # Common with 2.6
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
