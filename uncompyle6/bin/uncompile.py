@@ -35,6 +35,7 @@ Options:
   -p <integer>  use <integer> number of processes
   -r            recurse directories looking for .pyc and .pyo files
   --verify      compare generated source with input byte-code
+  --verify-run  compile generated source, run it and check exit code
   --weak-verify compile generated source
   --linemaps    generated line number correspondencies between byte-code
                 and generated source output
@@ -84,7 +85,8 @@ def main_bin():
     try:
         opts, files = getopt.getopt(sys.argv[1:], 'hagtdrVo:c:p:',
                                     'help asm grammar linemaps recurse timestamp tree '
-                                    'verify version weak-verify showgrammar'.split(' '))
+                                    'verify verify-run version weak-verify '
+                                    'showgrammar'.split(' '))
     except getopt.GetoptError as e:
         print('%s: %s' % (os.path.basename(sys.argv[0]), e),  file=sys.stderr)
         sys.exit(-1)
@@ -101,6 +103,8 @@ def main_bin():
             options['do_verify'] = 'strong'
         elif opt == '--weak-verify':
             options['do_verify'] = 'weak'
+        elif opt == '--verify-run':
+            options['do_verify'] = 'verify-run'
         elif opt == '--linemaps':
             options['do_linemaps'] = True
         elif opt in ('--asm', '-a'):

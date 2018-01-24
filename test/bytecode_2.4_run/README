@@ -1,0 +1,5 @@
+These are byte-compiled programs compiled by Python 2.4
+
+Furthrmore the programs here are self-checking: when decompiled and
+then run again in a 2.4 interpreter, they will give an error if they
+are miscompiled.

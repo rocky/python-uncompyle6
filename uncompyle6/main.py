@@ -215,9 +215,10 @@ def main(in_base, out_base, files, codes, outfile=None,
                 outstream.close()
 
                 if do_verify:
-                    weak_verify = do_verify == 'weak'
                     try:
-                        msg = verify.compare_code_with_srcfile(infile, current_outfile, weak_verify=weak_verify)
+                        msg = verify.compare_code_with_srcfile(infile,
+                                                               current_outfile,
+                                                               do_verify)
                         if not current_outfile:
                             if not msg:
                                 print('\n# okay decompiling %s' % infile)
@@ -245,7 +246,6 @@ def main(in_base, out_base, files, codes, outfile=None,
                     okay_files += 1
                 pass
             elif do_verify:
-                from trepan.api import debug; debug()
                 sys.stderr.write("\n### uncompile successful, but no file to compare against\n")
                 pass
             else:
@@ -280,19 +280,21 @@ else:
 def status_msg(do_verify, tot_files, okay_files, failed_files,
                verify_failed_files, weak_verify):
     if weak_verify == 'weak':
-        verification_type = 'weak'
+        verification_type = 'weak '
+    elif weak_verify == 'verify-run':
+        verification_type = 'run '
     else:
-        verification_type = 'strong'
+        verification_type = ''
     if tot_files == 1:
         if failed_files:
             return "\n# decompile failed"
         elif verify_failed_files:
-            return "\n# decompile %s verification failed" % verification_type
+            return "\n# decompile %sverification failed" % verification_type
         else:
             return "\n# Successfully decompiled file"
             pass
         pass
     mess = "decompiled %i files: %i okay, %i failed" % (tot_files, okay_files, failed_files)
     if do_verify:
-        mess += (", %i %s verification failed" % (verify_failed_files, verification_type))
+        mess += (", %i %sverification failed" % (verify_failed_files, verification_type))
     return mess
