@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2016 by Rocky Bernstein
+# Copyright (c) 2015-2016, 2818 by Rocky Bernstein
 # Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 # Copyright (c) 1999 John Aycock
@@ -13,7 +13,7 @@ that is doing the extraction.
 
 Second, we need structured instruction information for the
 (de)-parsing step. Python 3.4 and up provides this, but we still do
-want to run on Python 2.7.
+want to run on earlier Python versions.
 """
 
 from __future__ import print_function
@@ -23,7 +23,6 @@ from collections import deque
 
 import uncompyle6
 
-from xdis.main import disassemble_file as xdisassemble_file
 from xdis.code import iscode
 from xdis.load import check_object_path, load_module
 from uncompyle6.scanner import get_scanner
@@ -65,17 +64,13 @@ def disco_loop(disasm, queue, real_out):
             pass
         pass
 
-def disassemble_file(filename, outstream=None, native=False):
+def disassemble_file(filename, outstream=None):
     """
     disassemble Python byte-code file (.pyc)
 
     If given a Python source file (".py") file, we'll
     try to find the corresponding compiled object.
     """
-    if native:
-        xdisassemble_file(filename, outstream)
-        return
-
     filename = check_object_path(filename)
     (version, timestamp, magic_int, co, is_pypy,
      source_size) = load_module(filename)
@@ -90,14 +85,14 @@ def _test():
     """Simple test program to disassemble a file."""
     argc = len(sys.argv)
     if argc != 2:
-        if argc == 1 and uncompyle6.PYTHON3:
+        if argc == 1:
             fn = __file__
         else:
             sys.stderr.write("usage: %s [-|CPython compiled file]\n" % __file__)
             sys.exit(2)
     else:
         fn = sys.argv[1]
-    disassemble_file(fn, native=True)
+    disassemble_file(fn)
 
 if __name__ == "__main__":
     _test()

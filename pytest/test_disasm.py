@@ -11,20 +11,14 @@ src_dir = get_srcdir()
 os.chdir(src_dir)
 
 
-@pytest.mark.parametrize(("test_tuple", "function_to_test"), [
-    (
-        ('../test/bytecode_2.7/05_if.pyc', 'testdata/if-2.7.right',),
-        disassemble_file
-    ),
-    (
-        ('../test/bytecode_2.7/05_ifelse.pyc', 'testdata/ifelse-2.7.right',),
-        disassemble_file
-    ),
+@pytest.mark.parametrize(("test_tuple"), [
+    ('../test/bytecode_2.7/05_if.pyc', 'testdata/if-2.7.right',),
+    ('../test/bytecode_2.7/05_ifelse.pyc', 'testdata/ifelse-2.7.right',),
 ])
-def test_funcoutput(capfd, test_tuple, function_to_test):
+def test_funcoutput(capfd, test_tuple):
 
-    in_file , filename_expected = test_tuple
-    function_to_test(in_file, native=False)
+    in_file, filename_expected = test_tuple
+    disassemble_file(in_file)
     resout, reserr = capfd.readouterr()
     expected = open(filename_expected, "r").read()
     if resout != expected:

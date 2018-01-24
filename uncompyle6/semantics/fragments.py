@@ -1643,7 +1643,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     pass
 
 def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
-                 showgrammar=False, is_pypy=False):
+                 showgrammar=False, is_pypy=False, walker=FragmentsWalker):
     """
     Convert the code object co into a python source fragment.
 
@@ -1683,7 +1683,8 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
 
     #  Build AST from disassembly.
     # deparsed = pysource.FragmentsWalker(out, scanner, showast=showast)
-    deparsed = FragmentsWalker(version, scanner, showast=showast, debug_parser=debug_parser)
+    deparsed = walker(version, scanner, showast=showast,
+                      debug_parser=debug_parser)
 
     deparsed.ast = deparsed.build_ast(tokens, customize)
 
