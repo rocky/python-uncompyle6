@@ -27,6 +27,13 @@ class LineMapWalker(SourceWalker):
                 self.source_linemap[self.current_line_number] = node.linestart
         return super(LineMapWalker, self).default(node)
 
+    def n_LOAD_CONST(self, node):
+        if hasattr(node, 'linestart'):
+            if node.linestart:
+                self.source_linemap[self.current_line_number] = node.linestart
+        return super(LineMapWalker, self).n_LOAD_CONST(node)
+
+
 class LineMapFragmentWalker(fragments.FragmentsWalker, LineMapWalker):
     def __init__(self, *args, **kwargs):
         super(LineMapFragmentWalker, self).__init__(*args, **kwargs)

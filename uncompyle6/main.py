@@ -69,7 +69,7 @@ def decompile(
                                              code_objects = code_objects,
                                              is_pypy = is_pypy,
                                              )
-            header_count = 1+len(sys_version_lines)
+            header_count = 3+len(sys_version_lines)
             linemap = [(line_no, deparsed.source_linemap[line_no]+header_count)
                         for line_no in
                         sorted(deparsed.source_linemap.keys())]
