@@ -128,17 +128,19 @@ if __name__ == '__main__':
     test_options_keys = list(test_options.keys())
     test_options_keys.sort()
     opts, args = getopt.getopt(sys.argv[1:], '',
-                               ['start-with=', 'verify', 'weak-verify',
+                               ['start-with=', 'verify', 'verify-run', 'weak-verify',
                                 'max=', 'coverage', 'all', ] \
                                + test_options_keys )
     vers = ''
 
     for opt, val in opts:
         if opt == '--verify':
-            do_verify = True
-        if opt == '--weak-verify':
+            do_verify = 'strong'
+        elif opt == '--weak-verify':
             do_verify = 'weak'
-        if opt == '--coverage':
+        elif opt == '--verify-run':
+            do_verify = 'verify-run'
+        elif opt == '--coverage':
             do_coverage = True
         elif opt == '--start-with':
             start_with = val

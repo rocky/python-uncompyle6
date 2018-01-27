@@ -1,16 +1,17 @@
 #
+# (C) Copyright 2015-2018 by Rocky Bernstein
 # (C) Copyright 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-# (C) Copyright 2015-2017 by Rocky Bernstein
 #
 """
 byte-code verification
 """
 
-import operator
+import operator, sys
 import xdis.std as dis
+from subprocess import call
 
 import uncompyle6
-import uncompyle6.scanner as scanner
+from uncompyle6.scanner import (Token as ScannerToken, get_scanner)
 from uncompyle6 import PYTHON3
 from xdis.code import iscode
 from xdis.magics import PYTHON_MAGIC_INT
@@ -132,8 +133,8 @@ class CmpErrorMember(VerifyCmpError):
 # these members are ignored
 __IGNORE_CODE_MEMBERS__ = ['co_filename', 'co_firstlineno', 'co_lnotab', 'co_stacksize', 'co_names']
 
-def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
-                     name='', ignore_code=False):
+def cmp_code_objects(version, is_pypy, code_obj1, code_obj2, verify,
+                     name=''):
     """
     Compare two code-objects.
 
@@ -178,53 +179,12 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
 
     tokens1 = None
     for member in members:
-        if member in __IGNORE_CODE_MEMBERS__ or ignore_code:
+        if member in __IGNORE_CODE_MEMBERS__ or verify != 'verify':
             pass
-        elif member == 'co_code' and not ignore_code:
-            if version == 2.3:
-                import uncompyle6.scanners.scanner23 as scan
-                scanner = scan.Scanner23(show_asm=False)
-            elif version == 2.4:
-                import uncompyle6.scanners.scanner24 as scan
-                scanner = scan.Scanner24(show_asm=False)
-            elif version == 2.5:
-                import uncompyle6.scanners.scanner25 as scan
-                scanner = scan.Scanner25(show_asm=False)
-            elif version == 2.6:
-                import uncompyle6.scanners.scanner26 as scan
-                scanner = scan.Scanner26(show_asm=False)
-            elif version == 2.7:
-                if is_pypy:
-                    import uncompyle6.scanners.pypy27 as scan
-                    scanner = scan.ScannerPyPy27(show_asm=False)
-                else:
-                    import uncompyle6.scanners.scanner27 as scan
-                    scanner = scan.Scanner27()
-            elif version == 3.0:
-                import uncompyle6.scanners.scanner30 as scan
-                scanner = scan.Scanner30()
-            elif version == 3.1:
-                import uncompyle6.scanners.scanner32 as scan
-                scanner = scan.Scanner32()
-            elif version == 3.2:
-                if is_pypy:
-                    import uncompyle6.scanners.pypy32 as scan
-                    scanner = scan.ScannerPyPy32()
-                else:
-                    import uncompyle6.scanners.scanner32 as scan
-                    scanner = scan.Scanner32()
-            elif version == 3.3:
-                import uncompyle6.scanners.scanner33 as scan
-                scanner = scan.Scanner33()
-            elif version == 3.4:
-                import uncompyle6.scanners.scanner34 as scan
-                scanner = scan.Scanner34()
-            elif version == 3.5:
-                import uncompyle6.scanners.scanner35 as scan
-                scanner = scan.Scanner35()
-            elif version == 3.6:
-                import uncompyle6.scanners.scanner36 as scan
-                scanner = scan.Scanner36()
+        elif member == 'co_code':
+            if verify != 'strong':
+                continue
+            scanner = get_scanner(version, is_pypy, show_asm=False)
 
             global JUMP_OPS
             JUMP_OPS = list(scan.JUMP_OPS) + ['JUMP_BACK']
@@ -365,7 +325,8 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
             codes2 = ( c for c in code_obj2.co_consts if hasattr(c, 'co_consts') )
 
             for c1, c2 in zip(codes1, codes2):
-                cmp_code_objects(version, is_pypy, c1, c2, name=name)
+                cmp_code_objects(version, is_pypy, c1, c2, verify,
+                                 name=name)
         elif member == 'co_flags':
             flags1 = code_obj1.co_flags
             flags2 = code_obj2.co_flags
@@ -390,7 +351,7 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2,
                              getattr(code_obj1, member),
                              getattr(code_obj2, member))
 
-class Token(scanner.Token):
+class Token(ScannerToken):
     """Token class with changed semantics for 'cmp()'."""
     def __cmp__(self, o):
         t = self.kind # shortcut
@@ -416,8 +377,10 @@ class Token(scanner.Token):
     def __str__(self):
         return '%s\t%-17s %r' % (self.offset, self.kind, self.pattr)
 
-def compare_code_with_srcfile(pyc_filename, src_filename, weak_verify=False):
-    """Compare a .pyc with a source code file."""
+def compare_code_with_srcfile(pyc_filename, src_filename, verify):
+    """Compare a .pyc with a source code file. If everything is okay, None
+    is returned. Otherwise a string message describing the mismatch is returned.
+    """
     (version, timestamp, magic_int, code_obj1, is_pypy,
      source_size) = load_module(pyc_filename)
     if magic_int != PYTHON_MAGIC_INT:
@@ -431,17 +394,27 @@ def compare_code_with_srcfile(pyc_filename, src_filename, weak_verify=False):
         if version == 2.4:
             print(pyc_filename)
         return str(e).replace(src_filename, pyc_filename)
-    cmp_code_objects(version, is_pypy, code_obj1, code_obj2, ignore_code=weak_verify)
+    cmp_code_objects(version, is_pypy, code_obj1, code_obj2, verify)
+    if verify == 'verify-run':
+        try:
+            retcode = call("%s %s" % (sys.executable, src_filename), shell=True)
+            if retcode != 0:
+                return "Child was terminated by signal %d" % retcode
+            pass
+        except OSError, e:
+            return "Execution failed: %s" % e
+        pass
     return None
 
-def compare_files(pyc_filename1, pyc_filename2, weak_verify=False):
+def compare_files(pyc_filename1, pyc_filename2, verify):
     """Compare two .pyc files."""
     (version1, timestamp, magic_int1, code_obj1, is_pypy,
      source_size) = uncompyle6.load_module(pyc_filename1)
     (version2, timestamp, magic_int2, code_obj2, is_pypy,
-     source_size) = uncompyle6.load_module(pyc_filename2)
-    weak_verify = weak_verify or (magic_int1 != magic_int2)
-    cmp_code_objects(version1, is_pypy, code_obj1, code_obj2, ignore_code=weak_verify)
+        source_size) = uncompyle6.load_module(pyc_filename2)
+    if (magic_int1 != magic_int2) and verify == 'verify':
+         verify = 'weak_verify'
+    cmp_code_objects(version1, is_pypy, code_obj1, code_obj2, verify)
 
 if __name__ == '__main__':
     t1 = Token('LOAD_CONST', None, 'code_object _expandLang', 52)

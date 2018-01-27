@@ -83,6 +83,9 @@ for  vers in (1.5,
     bytecode = "bytecode_%s" % vers
     key = "bytecode-%s" % vers
     test_options[key] =  (bytecode, PYC, bytecode, vers)
+    bytecode = "bytecode_%s_run" % vers
+    key = "bytecode-%s-run" % vers
+    test_options[key] =  (bytecode, PYC, bytecode, vers)
     key = "%s" % vers
     pythonlib = "python%s" % vers
     if isinstance(vers, float) and vers >= 3.0:
@@ -189,8 +192,9 @@ if __name__ == '__main__':
     test_options_keys = list(test_options.keys())
     test_options_keys.sort()
     opts, args = getopt.getopt(sys.argv[1:], '',
-                               ['start-with=', 'verify', 'weak-verify', 'all', 'compile',
-                                'coverage',
+                               ['start-with=', 'verify', 'verify-run',
+                                'weak-verify', 'all',
+                                'compile', 'coverage',
                                 'no-rm'] \
                                + test_options_keys )
     if not opts: help()
@@ -205,9 +209,11 @@ if __name__ == '__main__':
 
     for opt, val in opts:
         if opt == '--verify':
-            test_opts['do_verify'] = True
+            test_opts['do_verify'] = 'strong'
         elif opt == '--weak-verify':
             test_opts['do_verify'] = 'weak'
+        elif opt == '--verify-run':
+            test_opts['do_verify'] = 'verify-run'
         elif opt == '--compile':
             test_opts['do_compile'] = True
         elif opt == '--start-with':
