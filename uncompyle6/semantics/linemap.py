@@ -7,11 +7,12 @@ class LineMapWalker(SourceWalker):
     def __init__(self, *args, **kwargs):
         super(LineMapWalker, self).__init__(*args, **kwargs)
         self.source_linemap = {}
-        self.current_line_number = 0
+        self.current_line_number = 1
 
     def write(self, *data):
         """Augment write routine to keep track of current line"""
         for l in data:
+            ## print("XXX write: '%s'" % l)
             for i in str(l):
                 if i == '\n':
                     self.current_line_number += 1
@@ -19,6 +20,8 @@ class LineMapWalker(SourceWalker):
                 pass
             pass
         return super(LineMapWalker, self).write(*data)
+
+    # Note n_expr needs treatment too
 
     def default(self, node):
         """Augment write default routine to record line number changes"""

@@ -211,7 +211,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.classes = []
         self.pending_newlines = 0
         self.linestarts = linestarts
-        self.line_number = 0
+        self.line_number = 1
         self.ast_errors = []
         # FIXME: have p.insts update in a better way
         # modularity is broken here
@@ -996,6 +996,10 @@ class SourceWalker(GenericASTTraversal, object):
             n = node[0][-1][0]
         else:
             n = node[0]
+
+        # if (hasattr(n, 'linestart') and n.linestart and
+        #     hasattr(self, 'current_line_number')):
+        #     self.source_linemap[self.current_line_number] = n.linestart
 
         self.prec = PRECEDENCE.get(n.kind, -2)
         if n == 'LOAD_CONST' and repr(n.pattr)[0] == '-':
@@ -2296,6 +2300,9 @@ class SourceWalker(GenericASTTraversal, object):
             elif typ == '{':
                 d = node.__dict__
                 expr = m.group('expr')
+                if (hasattr(node, 'linestart') and node.linestart
+                    and hasattr(node, 'current_line_number')):
+                    self.source_linemap[self.current_line_number] = node.linestart
                 try:
                     self.write(eval(expr, d, d))
                 except:
