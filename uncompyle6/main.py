@@ -50,7 +50,7 @@ def decompile(
     write('# uncompyle6 version %s\n'
           '# %sPython bytecode %s%s\n# Decompiled from: %sPython %s' %
           (VERSION, co_pypy_str, bytecode_version,
-               " (%d)" % magic_int if magic_int else "",
+               " (%s)" % str(magic_int) if magic_int else "",
           run_pypy_str, '\n# '.join(sys_version_lines)))
     if co.co_filename:
         write('# Embedded file name: %s' % co.co_filename,)
