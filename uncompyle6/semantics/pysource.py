@@ -126,6 +126,7 @@ from uncompyle6.semantics.make_function import (
     )
 from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.semantics.check_ast import checker
+from uncompyle6.semantics.customize import customize_for_version
 from uncompyle6.semantics.helper import (
     print_docstring, find_globals, flatten_list)
 from uncompyle6.scanners.tok import Token
@@ -233,7 +234,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.name = None
         self.version = version
         self.is_pypy = is_pypy
-        self.customize_for_version(is_pypy, version)
+        customize_for_version(self, is_pypy, version)
 
         return
 
@@ -320,7 +321,6 @@ class SourceWalker(GenericASTTraversal, object):
                 if version <= 2.1:
                     TABLE_DIRECT.update({
                         'importmultiple': ( '%c', 2 ),
-                        'imports_cont': ( '%c', 2 ),
                         # FIXME: not quite right. We have indiividual imports
                         # when there is in fact one: "import a, b, ..."
                         'imports_cont': ( '%C%,', (1, 100, '\n') ),
@@ -1091,15 +1091,11 @@ class SourceWalker(GenericASTTraversal, object):
             #    xxx'   -> b'xxx'
             if not PYTHON3 and isinstance(data, unicode):
                 try:
-                    try:
-                        data = str(data)
-                    except UnicodeEncodeError:
-                        # Have to keep data as it is: in Unicode.
-                        pass
-                    self.write(repr(data))
-                except:
-                    from trepan.api import debug; debug()
-                    self.write(repr(data))
+                    data = str(data)
+                except UnicodeEncodeError:
+                    # Have to keep data as it is: in Unicode.
+                    pass
+                self.write(repr(data))
             elif isinstance(data, str):
                 self.write('b'+repr(data))
             else:
@@ -1117,6 +1113,10 @@ class SourceWalker(GenericASTTraversal, object):
 
     n_store_subscr = n_subscript = n_delete_subscr
 
+    # Note: this node is only in Python 2.x
+    # FIXME: figure out how to get this into customization
+    # put so that we can get access via super from
+    # the fragments routine.
     def n_exec_stmt(self, node):
         """
         exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
@@ -2300,9 +2300,12 @@ class SourceWalker(GenericASTTraversal, object):
             elif typ == '{':
                 d = node.__dict__
                 expr = m.group('expr')
+
+                # Line mapping stuff
                 if (hasattr(node, 'linestart') and node.linestart
                     and hasattr(node, 'current_line_number')):
                     self.source_linemap[self.current_line_number] = node.linestart
+
                 try:
                     self.write(eval(expr, d, d))
                 except:

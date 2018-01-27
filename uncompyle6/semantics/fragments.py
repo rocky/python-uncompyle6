@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2017 by Rocky Bernstein
+#  Copyright (c) 2015-2018 by Rocky Bernstein
 #  Copyright (c) 1999 John Aycock
 
 """
@@ -90,7 +90,10 @@ TABLE_DIRECT_FRAGMENT = {
     'raise_stmt0':	( '%|%rraise\n', ),
     'import':	        ( '%|import %c%x\n', 2, (2, (0, 1)), ),
     'importfrom':	( '%|from %[2]{pattr}%x import %c\n', (2, (0, 1)), 3),
+
+    # FIXME only in <= 2.4
     'importmultiple':   ( '%|import%b %c%c\n', 0, 2, 3 ),
+
     'list_for':	  	(' for %c%x in %c%c', 2, (2, (1, )), 0, 3 ),
     'forelsestmt': 	(
         '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
@@ -194,7 +197,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     n_aug_assign_1 = n_print_item = exec_stmt = print_to_item = del_stmt = table_r_node
     n_classdefco1 = n_classdefco2 = except_cond1 = except_cond2 = table_r_node
 
-    def n_passtmt(self, node):
+    def n_pass(self, node):
         start = len(self.f.getvalue()) + len(self.indent)
         self.set_pos_info(node, start, start+len("pass"))
         self.default(node)
@@ -254,11 +257,12 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def n_yield(self, node):
         start = len(self.f.getvalue())
-        self.write('yield')
+        try:
+            super(FragmentsWalker, self).n_yield(node)
+        except GenericASTTraversalPruningException:
+            pass
         if node != AST('yield', [NONE, Token('YIELD_VALUE')]):
-            self.write(' ')
             node[0].parent = node
-            self.preorder(node[0])
         self.set_pos_info(node[-1], start, len(self.f.getvalue()))
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune() # stop recursing
@@ -266,41 +270,29 @@ class FragmentsWalker(pysource.SourceWalker, object):
     # In Python 3.3+ only
     def n_yield_from(self, node):
         start = len(self.f.getvalue())
-        self.write('yield from')
-        self.write(' ')
-        node[0].parent = node
+        try:
+            super(FragmentsWalker, self).n_yield(node)
+        except GenericASTTraversalPruningException:
+            pass
         self.preorder(node[0])
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune() # stop recursing
 
     def n_buildslice3(self, node):
         start = len(self.f.getvalue())
-        p = self.prec
-        self.prec = 100
-        if node[0] != NONE:
-            self.preorder(node[0])
-        self.write(':')
-        if node[1] != NONE:
-            self.preorder(node[1])
-        self.write(':')
-        if node[2] != NONE:
-            self.preorder(node[2])
-        self.prec = p
+        try:
+            super(FragmentsWalker, self).n_buildslice3(node)
+        except GenericASTTraversalPruningException:
+            pass
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune() # stop recursing
 
     def n_buildslice2(self, node):
         start = len(self.f.getvalue())
-        p = self.prec
-        self.prec = 100
-        if node[0] != NONE:
-            node[0].parent = node
-            self.preorder(node[0])
-        self.write(':')
-        if node[1] != NONE:
-            node[1].parent = node
-            self.preorder(node[1])
-        self.prec = p
+        try:
+            super(FragmentsWalker, self).n_buildslice2(node)
+        except GenericASTTraversalPruningException:
+            pass
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune() # stop recursing
 
@@ -338,54 +330,27 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def n_ret_expr(self, node):
         start = len(self.f.getvalue())
-        if len(node) == 1 and node[0] == 'expr':
-            node[0].parent = node
-            self.n_expr(node[0])
-        else:
-            self.n_expr(node)
+        super(FragmentsWalker, self).n_ret_expr(node)
         self.set_pos_info(node, start, len(self.f.getvalue()))
 
     def n_binary_expr(self, node):
         start = len(self.f.getvalue())
         node[0].parent = node
         self.last_finish = len(self.f.getvalue())
-        self.preorder(node[0])
-        self.write(' ')
-        node[-1].parent = node
-        self.preorder(node[-1])
-        self.write(' ')
-        self.prec -= 1
-        node[1].parent = node
-        self.preorder(node[1])
-        self.prec += 1
+        try:
+            super(FragmentsWalker, self).n_binary_expr(node)
+        except GenericASTTraversalPruningException:
+            pass
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune()
 
     def n_LOAD_CONST(self, node):
         start = len(self.f.getvalue())
-        data = node.pattr; datatype = type(data)
-        if isinstance(data, float) and str(data) in frozenset(['nan', '-nan', 'inf', '-inf']):
-            # float values 'nan' and 'inf' are not directly representable in Python at least
-            # before 3.5 and even there it is via a library constant.
-            # So we will canonicalize their representation as float('nan') and float('inf')
-            self.write("float('%s')" % data)
-        elif isinstance(datatype, int) and data == minint:
-            # convert to hex, since decimal representation
-            # would result in 'LOAD_CONST; UNARY_NEGATIVE'
-            # change:hG/2002-02-07: this was done for all negative integers
-            # todo: check whether this is necessary in Python 2.1
-            self.write( hex(data) )
-        elif datatype is type(Ellipsis):
-            self.write('...')
-        elif data is None:
-            # LOAD_CONST 'None' only occurs, when None is
-            # implicit eg. in 'return' w/o params
-            # pass
-            self.write('None')
-        else:
-            self.write(repr(data))
+        try:
+            super(FragmentsWalker, self).n_LOAD_CONST(node)
+        except GenericASTTraversalPruningException:
+            pass
         self.set_pos_info(node, start, len(self.f.getvalue()))
-        # LOAD_CONST is a terminal, so stop processing/recursing early
         self.prune()
 
     def n_exec_stmt(self, node):
@@ -394,16 +359,12 @@ class FragmentsWalker(pysource.SourceWalker, object):
         exec_stmt ::= expr exprlist EXEC_STMT
         """
         start = len(self.f.getvalue()) + len(self.indent)
-        self.write(self.indent, 'exec ')
-        self.preorder(node[0])
-        if node[1][0] != NONE:
-            sep = ' in '
-            for subnode in node[1]:
-                self.write(sep); sep = ", "
-                self.preorder(subnode)
+        try:
+            super(FragmentsWalker, self).n_exec_stmt(node)
+        except GenericASTTraversalPruningException:
+            pass
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.set_pos_info(node[-1], start, len(self.f.getvalue()))
-        self.println()
         self.prune() # stop recursing
 
     def n_ifelsestmtr(self, node):
@@ -1610,6 +1571,12 @@ class FragmentsWalker(pysource.SourceWalker, object):
             elif typ == '{':
                 d = node.__dict__
                 expr = m.group('expr')
+
+                # Line mapping stuff
+                if (hasattr(node, 'linestart') and node.linestart
+                    and hasattr(node, 'current_line_number')):
+                    self.source_linemap[self.current_line_number] = node.linestart
+                # Additional fragment-position stuff
                 try:
                     start = len(self.f.getvalue())
                     self.write(eval(expr, d, d))
