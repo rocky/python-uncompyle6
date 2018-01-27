@@ -17,7 +17,7 @@
 <!-- markdown-toc end -->
 # Get latest sources:
 
-    $ . ./admin-tool/update-sources.sh
+    git pull
 
 # Change version in uncompyle6/version.py:
 

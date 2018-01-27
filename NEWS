@@ -1,3 +1,15 @@
+uncompyle6 2.15.0 2017-01-27
+
+- Add --linemap option to give line correspondences
+  between original source lines and reconstructed line sources.
+  It is far from perfect, but it is a start
+- Add a new class of tests: tests which when decompiled check themselves
+- Split off Python version semantic action customizations into its own file
+- Fix 2.7 bug in ifelse loop statement
+- Handle 3.6+ EXTENDED_ARGs for POP_JUMP_IF... instructions
+- Correct 3.6+ calls with kwargs
+- Describe the difficulty of 3.6 in README
+
 uncompyle6 2.14.3 2017-01-19
 
 - Fix bug in 3.5+ await stmt
