@@ -1,3 +1,3 @@
 pytest>=3.0.0
 flake8
-hypothesis
+hypothesis<=3.8.3
