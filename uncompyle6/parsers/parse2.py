@@ -505,7 +505,7 @@ class Python2Parser(PythonParser):
 
         self.check_reduce['aug_assign1'] = 'AST'
         self.check_reduce['aug_assign2'] = 'AST'
-        self.check_reduce['_stmts'] = 'AST'
+        # self.check_reduce['_stmts'] = 'AST'
 
         # Dead code testing...
         # self.check_reduce['while1elsestmt'] = 'tokens'
@@ -522,15 +522,6 @@ class Python2Parser(PythonParser):
 
         if lhs in ('aug_assign1', 'aug_assign2') and ast[0] and ast[0][0] == 'and':
             return True
-        elif lhs == '_stmts':
-            for i, stmt in enumerate(ast):
-                if stmt == '_stmts':
-                    stmt = stmt[0]
-                assert stmt == 'stmt'
-                if stmt[0] == 'return':
-                    return i+1 != len(ast)
-                pass
-            return False
         return False
 
 class Python2ParserSingle(Python2Parser, PythonParserSingle):
