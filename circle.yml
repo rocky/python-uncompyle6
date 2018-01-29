@@ -11,3 +11,4 @@ dependencies:
 test:
     override:
         - python ./setup.py develop && make check-2.6
+        - cd ./test/stdlib && pyenv local 2.5.9 && bash ./runtests.sh 'test_[p-z]*.py'

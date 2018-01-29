@@ -64,9 +64,9 @@ class Python27Parser(Python2Parser):
 
     def p_jump27(self, args):
         """
-        iflaststmtl ::= testexpr c_stmts_opt
+        iflaststmtl     ::= testexpr c_stmts
 
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD come_froms
+        _ifstmts_jump   ::= c_stmts_opt JUMP_FORWARD come_froms
         bp_come_from    ::= POP_BLOCK COME_FROM
 
         # FIXME: Common with 3.0+
@@ -118,6 +118,8 @@ class Python27Parser(Python2Parser):
         withasstmt ::= expr SETUP_WITH store suite_stmts_opt
                 POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP END_FINALLY
+
+        whilestmt         ::= SETUP_LOOP testexpr returns POP_BLOCK COME_FROM
 
         while1stmt        ::= SETUP_LOOP returns bp_come_from
         while1stmt        ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM
