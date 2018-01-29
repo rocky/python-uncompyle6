@@ -43,13 +43,12 @@ case $PYVERSION in
 	    [test_functools.py]=1
 	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
 	    [test_grp.py]=1      # Long test - might work Control flow?
+	    [test_math.py]=1 # Control flow?
 	    [test_pdb.py]=1
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
-	    [test_select.py]=1  # Runs okay but takes 11 seconds
-	    [test_socket.py]=1  # Runs ok but takes 22 seconds
-	    [test_subprocess.py]=1 # Runs ok but takes 22 seconds
+	    [test_queue.py]=1 # Control flow?
+	    [test_re.py]=1 # Probably Control flow?
 	    [test_trace.py]=1  # Line numbers are expected to be different
-	    [test_xpickle.py]=1 # Runs ok but takes 72 seconds
 	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
 	)
 	;;
@@ -74,25 +73,23 @@ case $PYVERSION in
 	SKIP_TESTS=(
 	    [test_curses.py]=1  # Possibly fails on its own but not detected
 	    [test_dis.py]=1   # We change line numbers - duh!
-	    [test_doctest.py]=1
+	    [test_doctest.py]=1 # Fails on its own
 	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
 	    [test_io.py]=1 # Test takes too long to run
 	    [test_ioctl.py]=1 # Test takes too long to run
 	    [test_itertools.py]=1 # Syntax error - look at!
-	    [test_memoryio.py]=1 # ?
-	    [test_multiprocessing.py]=1 # ?
+	    [test_memoryio.py]=1 # FIX
+	    [test_multiprocessing.py]=1 # FIX
 	    [test_pep352.py]=1 # ?
-	    [test_re.py]=1 # ?
+	    [test_select.py]=1  # Runs okay but takes 11 seconds
+	    [test_socket.py]=1  # Runs ok but takes 22 seconds
+	    [test_subprocess.py]=1 # Runs ok but takes 22 seconds
 	    [test_sys_settrace.py]=1 # Line numbers are expected to be different
-	    [test_strtod.py]=1
-	    [test_traceback.py]=1
-	    [test_unicode.py]=1
+	    [test_strtod.py]=1 # FIX
+	    [test_traceback.py]=1 # Line numbers change - duh.
+	    [test_unicode.py]=1  # Too long to run 11 seconds
+	    [test_xpickle.py]=1 # Runs ok but takes 72 seconds
 	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
-	    # Syntax errors:
-	    # .pyenv/versions/2.7.14/lib/python2.7/mimify.pyc
-	    # .pyenv/versions/2.7.14/lib/python2.7/netrc.pyc
-	    # .pyenv/versions/2.7.14/lib/python2.7/pyclbr.pyc
-	    # .pyenv/versions/2.7.14/lib/python2.7/sre_compile.pyc
         )
 	;;
     *)
