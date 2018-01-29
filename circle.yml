@@ -11,4 +11,4 @@ dependencies:
 test:
     override:
         - python ./setup.py develop && make check-2.7
-        - cd test/stdlib && bash ./runtests.sh
+        - bash ./test/stdlib/runtests.sh
