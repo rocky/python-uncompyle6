@@ -1,6 +1,19 @@
 #!/bin/bash
 me=${BASH_SOURCE[0]}
 
+function displaytime {
+  local T=$1
+  local D=$((T/60/60/24))
+  local H=$((T/60/60%24))
+  local M=$((T/60%60))
+  local S=$((T%60))
+  (( $D > 0 )) && printf '%d days ' $D
+  (( $H > 0 )) && printf '%d hours ' $H
+  (( $M > 0 )) && printf '%d minutes ' $M
+  (( $D > 0 || $H > 0 || $M > 0 )) && printf 'and '
+  printf '%d seconds\n' $S
+}
+
 # Python version setup
 FULLVERSION=$(pyenv local)
 PYVERSION=${FULLVERSION%.*}
@@ -111,10 +124,16 @@ typeset -i i=0
 typeset -i allerrs=0
 if [[ -n $1 ]] ; then
     files=$1
-    SKIP_TESTS=()
+    typeset -a files_ary=( $(echo $1) )
+    if (( ${#files_ary[@]} == 1 )) ; then
+	SKIP_TESTS=()
+    fi
 else
     files=test_*.py
 fi
+
+typeset -i ALL_FILES_STARTTIME=$(date +%s)
+
 for file in $files; do
     # AIX bash doesn't grok [[ -v SKIP... ]]
     [[ ${SKIP_TESTS[$file]} == 1 ]] && continue
@@ -155,5 +174,11 @@ for file in $files; do
 	exit $allerrs
     fi
 done
-echo "Ran $i tests"
+typeset -i ALL_FILES_ENDTIME=$(date +%s)
+
+(( time_diff =  ALL_FILES_ENDTIME - ALL_FILES_STARTTIME))
+
+printf "Ran $i tests in "
+displaytime $time_diff
+
 exit $allerrs
