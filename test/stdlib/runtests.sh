@@ -43,14 +43,13 @@ case $PYVERSION in
 	    [test_functools.py]=1
 	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
 	    [test_grp.py]=1      # Long test - might work Control flow?
-	    [test_math.py]=1 # Control flow?
 	    [test_pdb.py]=1
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
-	    [test_queue.py]=1 # Control flow?
-	    [test_re.py]=1 # Probably Control flow?
-	    [test_sax.py]=1  # Control flow?
+	    [test_select.py]=1  # Runs okay but takes 11 seconds
+	    [test_socket.py]=1  # Runs ok but takes 22 seconds
+	    [test_subprocess.py]=1 # Runs ok but takes 22 seconds
 	    [test_trace.py]=1  # Line numbers are expected to be different
-	    [test_types.py]=1 # Control flow?
+	    [test_xpickle.py]=1 # Runs ok but takes 72 seconds
 	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
 	)
 	;;
