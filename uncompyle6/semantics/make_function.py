@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2017 by Rocky Bernstein
+#  Copyright (c) 2015-2018 by Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 """
 All the crazy things we have to do to handle Python functions
@@ -146,6 +146,7 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
             #     self.write(': "%s"' % value)
             # else:
             #     self.write(': %s' % value)
+
 
     suffix = ', ' if i > 0 else ''
     for n in node:
@@ -507,7 +508,6 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
             # FIXME: handle kw, annotate and closure
         pass
 
-
     if lambda_index and is_lambda and iscode(node[lambda_index].attr):
         assert node[lambda_index].kind == 'LOAD_LAMBDA'
         code = node[lambda_index].attr
@@ -575,6 +575,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
         self.write("(", ", ".join(params))
     # self.println(indent, '#flags:\t', int(code.co_flags))
 
+    ends_in_comma = False
     if kw_args > 0:
         if not (4 & code.co_flags):
             if argc > 0:
@@ -584,6 +585,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
             pass
         else:
             self.write(", ")
+        ends_in_comma = True
 
         # FIXME: this is not correct for 3.5. or 3.6 (which works different)
         # and 3.7?
@@ -597,7 +599,10 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
                     self.preorder(n[1])
                     if i < last:
                         self.write(', ')
+                        ends_in_comma = True
                         pass
+                    else:
+                        ends_in_comma = False
                     pass
                 i += 1
                 pass
@@ -611,6 +616,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
                     continue
                 else:
                     self.preorder(n)
+                    ends_in_comma = False
                 break
         elif self.version >= 3.6:
             d = node[1]
@@ -626,12 +632,13 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
                 self.write(sep)
                 self.write("%s=%s" % (n, defaults[i]))
                 sep = ', '
+                ends_in_comma = True
                 pass
             pass
         pass
 
     if code_has_star_star_arg(code):
-        if argc > 0:
+        if argc > 0 and not ends_in_comma:
             self.write(', ')
         self.write('**%s' % code.co_varnames[argc + kw_pairs])
 
