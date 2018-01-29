@@ -598,8 +598,8 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
                     if i < last:
                         self.write(', ')
                         pass
-                    i += 1
                     pass
+                i += 1
                 pass
             pass
         elif self.version <= 3.5:
