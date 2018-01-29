@@ -10,5 +10,5 @@ dependencies:
         - pip install pytest==3.2.5 hypothesis
 test:
     override:
-        - python ./setup.py develop && make check-2.6
-        - cd ./test/stdlib && pyenv local 2.5.9 && bash ./runtests.sh 'test_[f-i]*.py'
+        - python ./setup.py develop && make check-2.7
+        - cd ./test/stdlib && pyenv local 2.7.10 && bash ./runtests.sh 'test_[f-i]*.py'
