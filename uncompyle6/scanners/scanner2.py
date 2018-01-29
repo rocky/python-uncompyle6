@@ -816,6 +816,7 @@ class Scanner2(Scanner):
                             rtarget = pre_rtarget
                     else:
                         rtarget = pre_rtarget
+                    pre_rtarget = pre[rtarget]
 
             # Does the "jump if" jump beyond a jump op?
             # That is, we have something like:
