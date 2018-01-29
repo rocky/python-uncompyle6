@@ -323,7 +323,7 @@ class PythonParser(GenericASTBuilder):
         stmt   ::= return
         return ::= ret_expr RETURN_VALUE
 
-        # returns are a sequence of statements that ends in a RETURN statement.
+        # "returns" nonterminal is a sequence of statements that ends in a RETURN statement.
         # In later Python versions with jump optimization, this can cause JUMPs
         # that would normally appear to be omitted.
 
