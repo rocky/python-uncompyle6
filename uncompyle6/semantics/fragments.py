@@ -58,6 +58,7 @@ from xdis.code import iscode
 from uncompyle6.semantics import pysource
 from uncompyle6 import parser
 from uncompyle6.scanner import Token, Code, get_scanner
+import uncompyle6.parser as python_parser
 from uncompyle6.semantics.check_ast import checker
 
 from uncompyle6.show import (
@@ -72,7 +73,7 @@ from uncompyle6.semantics.pysource import (
 
 from uncompyle6.semantics.consts import (
     INDENT_PER_LEVEL, NONE, PRECEDENCE,
-    TABLE_DIRECT, escape, minint, MAP
+    TABLE_DIRECT, escape, MAP, PASS
     )
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -974,14 +975,27 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.name = old_name
         self.return_none = rn
 
-    def build_ast(self, tokens, customize, is_lambda=False, noneInNames=False):
-        # assert type(tokens) == ListType
+    def build_ast(self, tokens, customize, is_lambda=False,
+                  noneInNames=False, isTopLevel=False):
+
+        # FIXME: DRY with pysource.py
+
         # assert isinstance(tokens[0], Token)
 
         if is_lambda:
+            for t in tokens:
+                if t.kind == 'RETURN_END_IF':
+                    t.kind = 'RETURN_END_IF_LAMBDA'
+                elif t.kind == 'RETURN_VALUE':
+                    t.kind = 'RETURN_VALUE_LAMBDA'
             tokens.append(Token('LAMBDA_MARKER'))
             try:
-                ast = parser.parse(self.p, tokens, customize)
+                # FIXME: have p.insts update in a better way
+                # modularity is broken here
+                p_insts = self.p.insts
+                self.p.insts = self.scanner.insts
+                ast = python_parser.parse(self.p, tokens, customize)
+                self.p.insts = p_insts
             except (parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
             maybe_show_ast(self.showast, ast)
@@ -997,16 +1011,29 @@ class FragmentsWalker(pysource.SourceWalker, object):
         #
         # NOTE: this differs from behavior in pysource.py
 
-        if len(tokens) >= 2 and not noneInNames:
-            if tokens[-1].kind == 'RETURN_VALUE':
-                if tokens[-2].kind != 'LOAD_CONST':
-                    tokens.append(Token('RETURN_LAST'))
-        if len(tokens) == 0:
-            return
+        if self.hide_internal:
+            if len(tokens) >= 2 and not noneInNames:
+                if tokens[-1].kind in ('RETURN_VALUE', 'RETURN_VALUE_LAMBDA'):
+                    # Python 3.4's classes can add a "return None" which is
+                    # invalid syntax.
+                    if tokens[-2].kind == 'LOAD_CONST':
+                        if isTopLevel or tokens[-2].pattr is None:
+                            del tokens[-2:]
+                        else:
+                            tokens.append(Token('RETURN_LAST'))
+                    else:
+                        tokens.append(Token('RETURN_LAST'))
+            if len(tokens) == 0:
+                return PASS
 
         # Build AST from disassembly.
         try:
+            # FIXME: have p.insts update in a better way
+            # modularity is broken here
+            p_insts = self.p.insts
+            self.p.insts = self.scanner.insts
             ast = parser.parse(self.p, tokens, customize)
+            self.p.insts = p_insts
         except (parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens)
 
