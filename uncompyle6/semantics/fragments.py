@@ -1287,6 +1287,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         sep = INDENT_PER_LEVEL[:-1]
         start = len(self.f.getvalue())
         self.write('{')
+        self.set_pos_info(node[0], start, start+1)
 
         if self.version > 3.0:
             if node[0].kind.startswith('kvlist'):
@@ -1355,9 +1356,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 sep = line_seperator
         self.write('}')
         finish = len(self.f.getvalue())
-        for n in node:
-            n.parent = node
-            self.set_pos_info(n, start, finish)
         self.set_pos_info(node, start, finish)
         self.indent_less(INDENT_PER_LEVEL)
         self.prec = p
@@ -1610,7 +1608,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
     pass
 
 def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
-                 showgrammar=False, is_pypy=False, walker=FragmentsWalker):
+                 showgrammar=False, code_objects={}, compile_mode='exec',
+                 is_pypy=False, walker=FragmentsWalker):
     """
     Convert the code object co into a python source fragment.
 
@@ -1638,7 +1637,8 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
     # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy)
 
-    tokens, customize = scanner.ingest(co)
+    tokens, customize = scanner.ingest(co, code_objects=code_objects,
+                                       show_asm=showasm)
 
     tokens, customize = scanner.ingest(co)
     maybe_show_asm(showasm, tokens)
@@ -1651,7 +1651,8 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
     #  Build AST from disassembly.
     # deparsed = pysource.FragmentsWalker(out, scanner, showast=showast)
     deparsed = walker(version, scanner, showast=showast,
-                      debug_parser=debug_parser)
+                      debug_parser=debug_parser, compile_mode=compile_mode,
+                      is_pypy=is_pypy)
 
     deparsed.ast = deparsed.build_ast(tokens, customize)
 

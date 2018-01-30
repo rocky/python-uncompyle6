@@ -7,9 +7,10 @@ from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource
 from uncompyle6.parser import ParserError
 from uncompyle6.version import VERSION
-from uncompyle6.linenumbers import line_number_mapping
+# from uncompyle6.linenumbers import line_number_mapping
 
 from uncompyle6.semantics.pysource import deparse_code
+from uncompyle6.semantics.fragments import deparse_code as deparse_code_fragments
 from uncompyle6.semantics.linemap import deparse_code_with_map
 
 from xdis.load import load_module
@@ -29,7 +30,7 @@ def decompile(
         bytecode_version, co, out=None, showasm=None, showast=False,
         timestamp=None, showgrammar=False, code_objects={},
         source_size=None, is_pypy=False, magic_int=None,
-        mapstream=None):
+        mapstream=None, do_fragments=False):
     """
     ingests and deparses a given code block 'co'
 
@@ -75,9 +76,13 @@ def decompile(
                         sorted(deparsed.source_linemap.keys())]
             mapstream.write("\n\n# %s\n" % linemap)
         else:
-            deparsed = deparse_code(bytecode_version, co, out, showasm, showast,
-                                    showgrammar, code_objects=code_objects,
-                                    is_pypy=is_pypy)
+            if do_fragments:
+                deparse_fn = deparse_code_fragments
+            else:
+                deparse_fn = deparse_code
+            deparsed = deparse_fn(bytecode_version, co, out, showasm, showast,
+                                  showgrammar, code_objects=code_objects,
+                                      is_pypy=is_pypy)
             pass
         return deparsed
     except pysource.SourceWalkerError as e:
@@ -85,7 +90,7 @@ def decompile(
         raise pysource.SourceWalkerError(str(e))
 
 def decompile_file(filename, outstream=None, showasm=None, showast=False,
-                   showgrammar=False, mapstream=None):
+                   showgrammar=False, mapstream=None, do_fragments=False):
     """
     decompile Python byte-code file (.pyc). Return objects to
     all of the deparsed objects found in `filename`.
@@ -109,7 +114,7 @@ def decompile_file(filename, outstream=None, showasm=None, showast=False,
                               timestamp, showgrammar,
                               code_objects=code_objects, source_size=source_size,
                               is_pypy=is_pypy, magic_int=magic_int,
-                              mapstream=mapstream)]
+                              mapstream=mapstream, do_fragments=do_fragments)]
     co = None
     return deparsed
 
@@ -118,7 +123,7 @@ def decompile_file(filename, outstream=None, showasm=None, showast=False,
 def main(in_base, out_base, files, codes, outfile=None,
          showasm=None, showast=False, do_verify=False,
          showgrammar=False, raise_on_error=False,
-         do_linemaps=False):
+         do_linemaps=False, do_fragments=False):
     """
     in_base	base directory for input files
     out_base	base directory for output files (ignored when
@@ -189,7 +194,24 @@ def main(in_base, out_base, files, codes, outfile=None,
 
         # Try to uncompile the input file
         try:
-            decompile_file(infile, outstream, showasm, showast, showgrammar, linemap_stream)
+            deparsed = decompile_file(infile, outstream, showasm, showast, showgrammar,
+                                      linemap_stream, do_fragments)
+            if do_fragments:
+                for d in deparsed:
+                    last_mod = None
+                    offsets = d.offsets
+                    for e in sorted(offsets.keys()):
+                        if e[0] != last_mod:
+                            line = '=' * len(e[0])
+                            outstream.write("%s\n%s\n%s\n" % (line, e[0], line))
+                        last_mod = e[0]
+                        info = offsets[e]
+                        extractInfo = d.extract_node_info(info)
+                        outstream.write("%s" % info.node.format().strip() + "\n")
+                        outstream.write(extractInfo.selectedLine + "\n")
+                        outstream.write(extractInfo.markerLine + "\n\n")
+                    pass
+                pass
             tot_files += 1
         except (ValueError, SyntaxError, ParserError, pysource.SourceWalkerError) as e:
             sys.stdout.write("\n")
