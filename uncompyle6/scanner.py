@@ -17,7 +17,7 @@ import sys
 from uncompyle6 import PYTHON3, IS_PYPY
 from uncompyle6.scanners.tok import Token
 import xdis
-from xdis.bytecode import op_size
+from xdis.bytecode import op_size, extended_arg_val
 from xdis.magics import py_str2float, canonic_python_version
 from xdis.util import code2num
 
@@ -190,7 +190,7 @@ class Scanner(object):
 
             if op == self.opc.EXTENDED_ARG:
                 arg = code2num(code, offset+1) | extended_arg
-                extended_arg = self.extended_arg_val(arg)
+                extended_arg = extended_arg_val(self.opc, arg)
                 continue
 
             if op in instr:
@@ -242,7 +242,7 @@ class Scanner(object):
 
             if op == self.opc.EXTENDED_ARG:
                 arg = code2num(code, offset+1) | extended_arg
-                extended_arg = self.extended_arg_val(arg)
+                extended_arg = extended_arg_val(self.opc, arg)
                 continue
 
             if op in instr:
