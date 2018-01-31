@@ -89,7 +89,6 @@ def main_bin():
                                     'showgrammar'.split(' '))
     except getopt.GetoptError(e):
         sys.stderr.write('%s: %s\n' % (os.path.basename(sys.argv[0]), e))
-        print('%s: %s' % (os.path.basename(sys.argv[0]), e),  file=sys.stderr)
         sys.exit(-1)
 
     options = {}
