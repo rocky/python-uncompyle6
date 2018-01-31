@@ -79,7 +79,7 @@ case $PYVERSION in
 	    [test_ioctl.py]=1 # Test takes too long to run
 	    [test_itertools.py]=1 # Syntax error - look at!
 	    [test_memoryio.py]=1 # FIX
-	    [test_multiprocessing.py]=1 # FIX
+	    [test_multiprocessing.py]=1 # On uncompyle2, taks 24 secs
 	    [test_pep352.py]=1 # ?
 	    [test_select.py]=1  # Runs okay but takes 11 seconds
 	    [test_socket.py]=1  # Runs ok but takes 22 seconds
@@ -105,7 +105,7 @@ cd $srcdir
 fulldir=$(pwd)
 
 # DECOMPILER=uncompyle2
-DECOMPILER="$fulldir/../../bin/uncompyle6"
+DECOMPILER=${DECOMPILER:-"$fulldir/../../bin/uncompyle6"}
 TESTDIR=/tmp/test${PYVERSION}
 if [[ -e $TESTDIR ]] ; then
     rm -fr $TESTDIR

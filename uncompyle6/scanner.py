@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017 by Rocky Bernstein
+#  Copyright (c) 2016-2018 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -14,7 +14,8 @@ import sys
 
 from uncompyle6 import PYTHON3, IS_PYPY
 from uncompyle6.scanners.tok import Token
-from xdis.bytecode import op_size
+import xdis
+from xdis.bytecode import op_size, extended_arg_val
 from xdis.magics import py_str2float, canonic_python_version
 from xdis.util import code2num
 
@@ -103,13 +104,12 @@ class Scanner(object):
             target += pos + 3
         return target
 
-    # FIXME: the below can be removed after xdis version 3.6.1 has been released
-    def extended_arg_val(self, val):
-        return val << self.opc.EXTENDED_ARG_SHIFT
-
     def get_argument(self, pos):
         arg = self.code[pos+1] + self.code[pos+2] * 256
         return arg
+
+    def next_offset(self, op, offset):
+        return xdis.next_offset(op, self.opc, offset)
 
     def print_bytecode(self):
         for i in self.op_range(0, len(self.code)):
@@ -188,7 +188,7 @@ class Scanner(object):
 
             if op == self.opc.EXTENDED_ARG:
                 arg = code2num(code, offset+1) | extended_arg
-                extended_arg = self.extended_arg_val(arg)
+                extended_arg = extended_arg_val(self.opc, arg)
                 continue
 
             if op in instr:
@@ -240,7 +240,7 @@ class Scanner(object):
 
             if op == self.opc.EXTENDED_ARG:
                 arg = code2num(code, offset+1) | extended_arg
-                extended_arg = self.extended_arg_val(arg)
+                extended_arg = extended_arg_val(self.opc, arg)
                 continue
 
             if op in instr:

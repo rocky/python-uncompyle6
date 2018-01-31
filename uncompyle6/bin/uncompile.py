@@ -33,6 +33,7 @@ Options:
   -d            print timestamps
   -p <integer>  use <integer> number of processes
   -r            recurse directories looking for .pyc and .pyo files
+  --fragments   use fragments deparser
   --verify      compare generated source with input byte-code
   --verify-run  compile generated source, run it and check exit code
   --weak-verify compile generated source
@@ -84,9 +85,11 @@ def main_bin():
     try:
         opts, files = getopt.getopt(sys.argv[1:], 'hagtdrVo:c:p:',
                                     'help asm grammar linemaps recurse timestamp tree '
-                                    'verify verify-run version showgrammar'.split(' '))
-    except getopt.GetoptError, e:
+                                    'fragments verify verify-run version weak-verify '
+                                    'showgrammar'.split(' '))
+    except getopt.GetoptError(e):
         sys.stderr.write('%s: %s\n' % (os.path.basename(sys.argv[0]), e))
+        print('%s: %s' % (os.path.basename(sys.argv[0]), e),  file=sys.stderr)
         sys.exit(-1)
 
     options = {}
@@ -101,6 +104,8 @@ def main_bin():
             options['do_verify'] = 'strong'
         elif opt == '--weak-verify':
             options['do_verify'] = 'weak'
+        elif opt == '--fragments':
+            options['do_fragments'] = True
         elif opt == '--verify-run':
             options['do_verify'] = 'verify-run'
         elif opt == '--linemaps':

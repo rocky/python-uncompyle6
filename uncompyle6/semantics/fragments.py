@@ -56,6 +56,7 @@ from xdis.code import iscode
 from uncompyle6.semantics import pysource
 from uncompyle6 import parser
 from uncompyle6.scanner import Token, Code, get_scanner
+import uncompyle6.parser as python_parser
 from uncompyle6.semantics.check_ast import checker
 
 from uncompyle6.show import (
@@ -70,7 +71,7 @@ from uncompyle6.semantics.pysource import (
 
 from uncompyle6.semantics.consts import (
     INDENT_PER_LEVEL, NONE, PRECEDENCE,
-    TABLE_DIRECT, escape, minint, MAP
+    TABLE_DIRECT, escape, MAP, PASS
     )
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -986,17 +987,28 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.name = old_name
         self.return_none = rn
 
-    def build_ast(self, tokens, customize, is_lambda=False, noneInNames=False):
-        # assert type(tokens) == ListType
+    def build_ast(self, tokens, customize, is_lambda=False,
+                  noneInNames=False, isTopLevel=False):
+
+        # FIXME: DRY with pysource.py
+
         # assert isinstance(tokens[0], Token)
 
         if is_lambda:
+            for t in tokens:
+                if t.kind == 'RETURN_END_IF':
+                    t.kind = 'RETURN_END_IF_LAMBDA'
+                elif t.kind == 'RETURN_VALUE':
+                    t.kind = 'RETURN_VALUE_LAMBDA'
             tokens.append(Token('LAMBDA_MARKER'))
             try:
-                ast = parser.parse(self.p, tokens, customize)
-            except parser.ParserError(e):
-                raise ParserError(e, tokens)
-            except AssertionError(e):
+                # FIXME: have p.insts update in a better way
+                # modularity is broken here
+                p_insts = self.p.insts
+                self.p.insts = self.scanner.insts
+                ast = python_parser.parse(self.p, tokens, customize)
+                self.p.insts = p_insts
+            except (parser.ParserError(e), AssertionError(e)):
                 raise ParserError(e, tokens)
             maybe_show_ast(self.showast, ast)
             return ast
@@ -1011,19 +1023,30 @@ class FragmentsWalker(pysource.SourceWalker, object):
         #
         # NOTE: this differs from behavior in pysource.py
 
-        if len(tokens) >= 2 and not noneInNames:
-            if tokens[-1].kind == 'RETURN_VALUE':
-                if tokens[-2].kind != 'LOAD_CONST':
-                    tokens.append(Token('RETURN_LAST'))
-        if len(tokens) == 0:
-            return
+        if self.hide_internal:
+            if len(tokens) >= 2 and not noneInNames:
+                if tokens[-1].kind in ('RETURN_VALUE', 'RETURN_VALUE_LAMBDA'):
+                    # Python 3.4's classes can add a "return None" which is
+                    # invalid syntax.
+                    if tokens[-2].kind == 'LOAD_CONST':
+                        if isTopLevel or tokens[-2].pattr is None:
+                            del tokens[-2:]
+                        else:
+                            tokens.append(Token('RETURN_LAST'))
+                    else:
+                        tokens.append(Token('RETURN_LAST'))
+            if len(tokens) == 0:
+                return PASS
 
         # Build AST from disassembly.
         try:
+            # FIXME: have p.insts update in a better way
+            # modularity is broken here
+            p_insts = self.p.insts
+            self.p.insts = self.scanner.insts
             ast = parser.parse(self.p, tokens, customize)
-        except parser.ParserError(e):
-            raise ParserError(e, tokens)
-        except AssertionError(e):
+            self.p.insts = p_insts
+        except (parser.ParserError(e), AssertionError(e)):
             raise ParserError(e, tokens)
 
         maybe_show_ast(self.showast, ast)
@@ -1303,6 +1326,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         sep = INDENT_PER_LEVEL[:-1]
         start = len(self.f.getvalue())
         self.write('{')
+        self.set_pos_info(node[0], start, start+1)
 
         if self.version > 3.0:
             if node[0].kind.startswith('kvlist'):
@@ -1371,9 +1395,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 sep = line_seperator
         self.write('}')
         finish = len(self.f.getvalue())
-        for n in node:
-            n.parent = node
-            self.set_pos_info(n, start, finish)
         self.set_pos_info(node, start, finish)
         self.indent_less(INDENT_PER_LEVEL)
         self.prec = p
@@ -1626,7 +1647,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
     pass
 
 def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
-                 showgrammar=False, is_pypy=False, walker=FragmentsWalker):
+                 showgrammar=False, code_objects={}, compile_mode='exec',
+                 is_pypy=False, walker=FragmentsWalker):
     """
     Convert the code object co into a python source fragment.
 
@@ -1654,7 +1676,8 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
     # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy)
 
-    tokens, customize = scanner.ingest(co)
+    tokens, customize = scanner.ingest(co, code_objects=code_objects,
+                                       show_asm=showasm)
 
     tokens, customize = scanner.ingest(co)
     maybe_show_asm(showasm, tokens)
@@ -1667,7 +1690,8 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
     #  Build AST from disassembly.
     # deparsed = pysource.FragmentsWalker(out, scanner, showast=showast)
     deparsed = walker(version, scanner, showast=showast,
-                      debug_parser=debug_parser)
+                      debug_parser=debug_parser, compile_mode=compile_mode,
+                      is_pypy=is_pypy)
 
     deparsed.ast = deparsed.build_ast(tokens, customize)
 
@@ -1771,7 +1795,7 @@ if __name__ == '__main__':
         return
 
     def deparse_test_around(offset, name, co, is_pypy=IS_PYPY):
-        sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
+        sys_version = sys.version_info[0] + (sys.version_info[1] / 10.0)
         walk = deparse_code_around_offset(name, offset, sys_version, co, showasm=False, showast=False,
                             showgrammar=False, is_pypy=IS_PYPY)
         print("deparsed source")
@@ -1800,6 +1824,8 @@ if __name__ == '__main__':
         return
 
     def get_code_for_fn(fn):
+        if hasattr(fn, 'func_code'):
+            return fn.func_code
         return fn.__code__
 
     def test():
@@ -1822,5 +1848,5 @@ if __name__ == '__main__':
     # deparse_test(get_code_for_fn(FragmentsWalker.fixup_offsets))
     # deparse_test(get_code_for_fn(FragmentsWalker.n_list))
     print('=' * 30)
-    deparse_test_around(408, 'n_list', get_code_for_fn(FragmentsWalker.n_build_list))
+    deparse_test_around(408, 'n_list', get_code_for_fn(FragmentsWalker.n_list))
     # deparse_test(inspect.currentframe().f_code)

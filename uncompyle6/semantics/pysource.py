@@ -2540,6 +2540,8 @@ class SourceWalker(GenericASTTraversal, object):
     def build_ast(self, tokens, customize, is_lambda=False,
                   noneInNames=False, isTopLevel=False):
 
+        # FIXME: DRY with fragments.py
+
         # assert isinstance(tokens[0], Token)
 
         if is_lambda:
