@@ -377,7 +377,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def n_binary_expr(self, node):
         start = len(self.f.getvalue())
-        node[0].parent = node
+        for n in node:
+            n.parent = node
         self.last_finish = len(self.f.getvalue())
         try:
             super(FragmentsWalker, self).n_binary_expr(node)
@@ -1827,8 +1828,9 @@ if __name__ == '__main__':
 
     from uncompyle6 import IS_PYPY
     def deparse_test(co, is_pypy=IS_PYPY):
-        sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
-        walk = deparse_code(sys_version, co, showasm=False, showast=False,
+        from xdis.magics import sysinfo2float
+        float_version = sysinfo2float()
+        walk = deparse_code(float_version, co, showasm=False, showast=False,
                             showgrammar=False, is_pypy=IS_PYPY)
         print("deparsed source")
         print(walk.text, "\n")
@@ -1845,6 +1847,7 @@ if __name__ == '__main__':
             print(extractInfo.selectedLine)
             print(extractInfo.markerLine)
             extractInfo, p = walk.extract_parent_info(node)
+
             if extractInfo:
                 print("Contained in...")
                 print(extractInfo.selectedLine)
@@ -1890,6 +1893,9 @@ if __name__ == '__main__':
     def test():
         import os, sys
 
+    def div_test(a, b, c):
+        return a / b / c
+
     def gcd(a, b):
         if a > b:
             (a, b) = (b, a)
@@ -1903,9 +1909,10 @@ if __name__ == '__main__':
 
     # check_args(['3', '5'])
     # deparse_test(get_code_for_fn(gcd))
+    deparse_test(get_code_for_fn(div_test))
     # deparse_test(get_code_for_fn(test))
     # deparse_test(get_code_for_fn(FragmentsWalker.fixup_offsets))
     # deparse_test(get_code_for_fn(FragmentsWalker.n_list))
     print('=' * 30)
-    deparse_test_around(408, 'n_list', get_code_for_fn(FragmentsWalker.n_build_list))
+    # deparse_test_around(408, 'n_list', get_code_for_fn(FragmentsWalker.n_build_list))
     # deparse_test(inspect.currentframe().f_code)
