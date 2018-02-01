@@ -210,6 +210,47 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     n_tryelsestmt = n_tryelsestmtc = n_tryelsestmtl = n_tryfinallystmt = n_try_except
 
+    def n_raise_stmt0(self, node):
+        assert node[0] == 'RAISE_VARARGS_0'
+        start = len(self.f.getvalue()) + len(self.indent)
+        try:
+            self.default(node)
+        except GenericASTTraversalPruningException:
+            pass
+        self.set_pos_info(node[0], start, len(self.f.getvalue()))
+        self.prune()
+
+    def n_raise_stmt1(self, node):
+        assert node[1] == 'RAISE_VARARGS_1'
+        start = len(self.f.getvalue()) + len(self.indent)
+        try:
+            self.default(node)
+        except GenericASTTraversalPruningException:
+            pass
+        self.set_pos_info(node[1], start, len(self.f.getvalue()))
+        self.prune()
+
+    def n_raise_stmt2(self, node):
+        assert node[2] == 'RAISE_VARARGS_2'
+        start = len(self.f.getvalue()) + len(self.indent)
+        try:
+            self.default(node)
+        except GenericASTTraversalPruningException:
+            pass
+        self.set_pos_info(node[2], start, len(self.f.getvalue()))
+        self.prune()
+
+    # FIXME: Isolate: only in Python 2.x.
+    def n_raise_stmt3(self, node):
+        assert node[3] == 'RAISE_VARARGS_3'
+        start = len(self.f.getvalue()) + len(self.indent)
+        try:
+            self.default(node)
+        except GenericASTTraversalPruningException:
+            pass
+        self.set_pos_info(node[3], start, len(self.f.getvalue()))
+        self.prune()
+
     def n_return(self, node):
         start = len(self.f.getvalue()) + len(self.indent)
         if self.params['is_lambda']:
