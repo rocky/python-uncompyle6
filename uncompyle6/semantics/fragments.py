@@ -640,13 +640,17 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prec = 27
         code = node[code_index].attr
 
-        assert iscode(code)
+        assert iscode(code), node[code_index]
         code_name = code.co_name
         code = Code(code, self.scanner, self.currentclass)
 
         ast = self.build_ast(code._tokens, code._customize)
+
         self.customize(code._customize)
-        # skip over stmts sstmt smt
+        if ast[0] == 'sstmt':
+            ast = ast[0]
+
+        # skip over stmt return ret_expr
         ast = ast[0][0][0]
         store = None
         if ast in ['setcomp_func', 'dictcomp_func']:
@@ -664,11 +668,12 @@ class FragmentsWalker(pysource.SourceWalker, object):
         else:
             ast = ast[0][0]
             n = ast[iter_index]
-            assert n == 'list_iter'
+            assert n == 'list_iter', n
 
         # FIXME: I'm not totally sure this is right.
 
-        # find innermost node
+        # Find the list comprehension body. It is the inner-most
+        # node that is not list_.. .
         if_node = None
         comp_for = None
         comp_store = None
@@ -678,12 +683,12 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         have_not = False
         while n in ('list_iter', 'comp_iter'):
-            n = n[0] # recurse one step
-            if n == 'list_for':
+            n = n[0] # iterate one nesting deeper
+            if n in ('list_for', 'comp_for'):
                 if n[2] == 'store':
                     store = n[2]
                 n = n[3]
-            elif n in ['list_if', 'list_if_not', 'comp_if']:
+            elif n in ('list_if', 'list_if_not', 'comp_if', 'comp_ifnot'):
                 have_not = n in ('list_if_not', 'comp_ifnot')
                 if_node = n[0]
                 if n[1] == 'store':
@@ -699,18 +704,44 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         old_name = self.name
         self.name = code_name
+
+        # Issue created with later Python code generation is that there
+        # is a lamda set up with a dummy argument name that is then called
+        # So we can't just translate that as is but need to replace the
+        # dummy name. Below we are picking out the variable name as seen
+        # in the code. And trying to generate code for the other parts
+        # that don't have the dummy argument name in it.
+        # Another approach might be to be able to pass in the source name
+        # for the dummy argument.
+
         self.preorder(n[0])
         gen_start = len(self.f.getvalue()) + 1
         self.write(' for ')
         start = len(self.f.getvalue())
-        self.preorder(store)
+        if comp_store:
+            self.preorder(comp_store)
+        else:
+            self.preorder(store)
+
         self.set_pos_info(store, start, len(self.f.getvalue()))
+
+        # FIXME this is all merely approximate
+        # from trepan.api import debug; debug()
         self.write(' in ')
         start = len(self.f.getvalue())
         node[-3].parent = node
         self.preorder(node[-3])
         fin = len(self.f.getvalue())
         self.set_pos_info(node[-3], start, fin, old_name)
+
+        if ast == 'list_comp':
+            list_iter = ast[1]
+            assert list_iter == 'list_iter'
+            if list_iter == 'list_for':
+                self.preorder(list_iter[3])
+                self.prec = p
+                return
+            pass
 
         if comp_store:
             self.preorder(comp_for)
@@ -719,6 +750,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             if have_not:
                 self.write('not ')
             self.preorder(if_node)
+            pass
         self.prec = p
         self.name = old_name
         if node[-1].kind.startswith('CALL_FUNCTION'):

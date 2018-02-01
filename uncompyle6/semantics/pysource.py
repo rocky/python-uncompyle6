@@ -1529,7 +1529,8 @@ class SourceWalker(GenericASTTraversal, object):
 
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
-        # skip over stmts sstmt smt
+
+        # skip over stmt return ret_expr
         ast = ast[0][0][0]
         store = None
         if ast in ['setcomp_func', 'dictcomp_func']:
