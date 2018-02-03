@@ -1,5 +1,4 @@
 #  Copyright (c) 2015-2018 by Rocky Bernstein
-#  Copyright (c) 1999 John Aycock
 
 """
 Creates Python source code from an uncompyle6 abstract syntax tree,
@@ -15,12 +14,13 @@ We add some format specifiers here not used in pysource
 -----
 
    %x takes an argument (src, (dest...)) and copies all of the range attributes
-from src to dest.
+from src to all nodes under dest.
 
 For example in:
     'import': ( '%|import %c%x\n', 2, (2,(0,1)), ),
 
-node 2 range information, it in %c, is copied to nodes 0 and 1.
+node 2 range information, it in %c, is copied to nodes 0 and 1. If
+1. is a nonterminal, all the nodes under it get node2 range information.
 
 2. %r
 -----
@@ -43,7 +43,7 @@ do it recursively which is where offsets are probably located.
 
 For example in:
   'importmultiple':   ( '%|import%b %c%c\n', 0, 2, 3 ),
-n
+
 The node position 0 will be associated with "import".
 
 """
@@ -96,17 +96,22 @@ TABLE_DIRECT_FRAGMENT = {
     'importmultiple':   ( '%|import%b %c%c\n', 0, 2, 3 ),
 
     'list_for':	  	(' for %c%x in %c%c', 2, (2, (1, )), 0, 3 ),
-    'forelsestmt': 	(
-        '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2,)), 1, 4, -2),
-    'forelselaststmt':	(
-        '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-', 3, (3, (2,)), 1, 4, -2),
-    'forelselaststmtl':	(
-        '%|for %c%x in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 3, (3, (2, )), 1, 4, -2),
+    'for':
+        ('%|for%b %c%x in %c:\n%+%c%-\n\n',
+         0, (3, 'store'), (3, (2,)), 1, 4 ),
+    'forelsestmt':
+        ('%|for%b %c%x in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
+         0, (3, 'store'), (3, (2,)), 1, 4, -2),
+    'forelselaststmt':
+        ('%|for%b %c%x in %c:\n%+%c%-%|else:\n%+%c%-',
+         0, (3, 'store'), (3, (2,)), 1, 4, -2),
+    'forelselaststmtl':
+        ('%|for%b %c%x in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
+         0, (3, 'store'), (3, (2,)), 1, 4, -2),
 
     'whilestmt':	( '%|while%b %c:\n%+%c%-\n\n', 0, 1, 2 ),
     'whileelsestmt':	( '%|while%b %c:\n%+%c%-%|else:\n%+%c%-\n\n', 0, 1, 2, -2 ),
     'whileelselaststmt':	( '%|while%b %c:\n%+%c%-%|else:\n%+%c%-', 0, 1, 2, -2 ),
-    'for':	        ( '%|for%b %c in %c:\n%+%c%-\n\n', 0, 3, 1, 4 ),
     }
 
 
@@ -216,9 +221,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         try:
             self.default(node)
         except GenericASTTraversalPruningException:
-            pass
-        self.set_pos_info(node[0], start, len(self.f.getvalue()))
-        self.prune()
+            self.set_pos_info(node[0], start, len(self.f.getvalue()))
+            self.prune()
 
     def n_raise_stmt1(self, node):
         assert node[1] == 'RAISE_VARARGS_1'
@@ -226,9 +230,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         try:
             self.default(node)
         except GenericASTTraversalPruningException:
-            pass
-        self.set_pos_info(node[1], start, len(self.f.getvalue()))
-        self.prune()
+            self.set_pos_info(node[1], start, len(self.f.getvalue()))
+            self.prune()
 
     def n_raise_stmt2(self, node):
         assert node[2] == 'RAISE_VARARGS_2'
@@ -1592,17 +1595,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     self.preorder(node[index])
 
                 finish = len(self.f.getvalue())
-
-                # FIXME rocky: figure out how to get this to be table driven
-                # for loops have two positions that correspond to a single text
-                # location. In "for i in ..." there is the initialization "i" code as well
-                # as the iteration code with "i"
-                match = re.search(r'^for', startnode.kind)
-                if match and entry[arg] == 3:
-                    self.set_pos_info(node[0], start, finish)
-                    for n in node[2]:
-                        self.set_pos_info(n, start, finish)
-
                 self.set_pos_info(node, start, finish)
                 arg += 1
             elif typ == 'p':
@@ -1640,18 +1632,9 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     pass
                 arg += 1
             elif typ == 'x':
-                assert isinstance(entry[arg], tuple)
                 src, dest = entry[arg]
                 for d in dest:
-                    if hasattr(node[d], 'offset'):
-                        self.set_pos_info(node[d], node[src].start, node[src].finish)
-                    else:
-                        for n in node[d]:
-                            if hasattr(n, 'offset'):
-                                self.set_pos_info(n, node[src].start, node[src].finish)
-                                pass
-                            pass
-                        pass
+                    self.set_pos_info_recurse(node[d], node[src].start, node[src].finish)
                     pass
                 arg += 1
             elif typ == 'P':
@@ -1824,95 +1807,95 @@ def deparse_code_around_offset(name, offset, version, co, out=StringIO(),
     return deparsed
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
-    from uncompyle6 import IS_PYPY
-    def deparse_test(co, is_pypy=IS_PYPY):
-        from xdis.magics import sysinfo2float
-        float_version = sysinfo2float()
-        walk = deparse_code(float_version, co, showasm=False, showast=False,
-                            showgrammar=False, is_pypy=IS_PYPY)
-        print("deparsed source")
-        print(walk.text, "\n")
-        print('------------------------')
-        for name, offset in sorted(walk.offsets.keys(),
-                                   key=lambda x: str(x[0])):
-            print("name %s, offset %s" % (name, offset))
-            nodeInfo = walk.offsets[name, offset]
-            node = nodeInfo.node
-            extractInfo = walk.extract_node_info(node)
-            print("code: %s" % node.kind)
-            # print extractInfo
-            print(extractInfo.selectedText)
-            print(extractInfo.selectedLine)
-            print(extractInfo.markerLine)
-            extractInfo, p = walk.extract_parent_info(node)
+#     from uncompyle6 import IS_PYPY
+#     def deparse_test(co, is_pypy=IS_PYPY):
+#         from xdis.magics import sysinfo2float
+#         float_version = sysinfo2float()
+#         walk = deparse_code(float_version, co, showasm=False, showast=False,
+#                             showgrammar=False, is_pypy=IS_PYPY)
+#         print("deparsed source")
+#         print(walk.text, "\n")
+#         print('------------------------')
+#         for name, offset in sorted(walk.offsets.keys(),
+#                                    key=lambda x: str(x[0])):
+#             print("name %s, offset %s" % (name, offset))
+#             nodeInfo = walk.offsets[name, offset]
+#             node = nodeInfo.node
+#             extractInfo = walk.extract_node_info(node)
+#             print("code: %s" % node.kind)
+#             # print extractInfo
+#             print(extractInfo.selectedText)
+#             print(extractInfo.selectedLine)
+#             print(extractInfo.markerLine)
+#             extractInfo, p = walk.extract_parent_info(node)
 
-            if extractInfo:
-                print("Contained in...")
-                print(extractInfo.selectedLine)
-                print(extractInfo.markerLine)
-                print("code: %s" % p.kind)
-                print('=' * 40)
-                pass
-            pass
-        return
+#             if extractInfo:
+#                 print("Contained in...")
+#                 print(extractInfo.selectedLine)
+#                 print(extractInfo.markerLine)
+#                 print("code: %s" % p.kind)
+#                 print('=' * 40)
+#                 pass
+#             pass
+#         return
 
-    def deparse_test_around(offset, name, co, is_pypy=IS_PYPY):
-        sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
-        walk = deparse_code_around_offset(name, offset, sys_version, co, showasm=False, showast=False,
-                            showgrammar=False, is_pypy=IS_PYPY)
-        print("deparsed source")
-        print(walk.text, "\n")
-        print('------------------------')
-        for name, offset in sorted(walk.offsets.keys(),
-                                   key=lambda x: str(x[0])):
-            print("name %s, offset %s" % (name, offset))
-            nodeInfo = walk.offsets[name, offset]
-            node = nodeInfo.node
-            extractInfo = walk.extract_node_info(node)
-            print("code: %s" % node.kind)
-            # print extractInfo
-            print(extractInfo.selectedText)
-            print(extractInfo.selectedLine)
-            print(extractInfo.markerLine)
-            extractInfo, p = walk.extract_parent_info(node)
-            if extractInfo:
-                print("Contained in...")
-                print(extractInfo.selectedLine)
-                print(extractInfo.markerLine)
-                print("code: %s" % p.kind)
-                print('=' * 40)
-                pass
-            pass
-        return
+#     def deparse_test_around(offset, name, co, is_pypy=IS_PYPY):
+#         sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
+#         walk = deparse_code_around_offset(name, offset, sys_version, co, showasm=False, showast=False,
+#                             showgrammar=False, is_pypy=IS_PYPY)
+#         print("deparsed source")
+#         print(walk.text, "\n")
+#         print('------------------------')
+#         for name, offset in sorted(walk.offsets.keys(),
+#                                    key=lambda x: str(x[0])):
+#             print("name %s, offset %s" % (name, offset))
+#             nodeInfo = walk.offsets[name, offset]
+#             node = nodeInfo.node
+#             extractInfo = walk.extract_node_info(node)
+#             print("code: %s" % node.kind)
+#             # print extractInfo
+#             print(extractInfo.selectedText)
+#             print(extractInfo.selectedLine)
+#             print(extractInfo.markerLine)
+#             extractInfo, p = walk.extract_parent_info(node)
+#             if extractInfo:
+#                 print("Contained in...")
+#                 print(extractInfo.selectedLine)
+#                 print(extractInfo.markerLine)
+#                 print("code: %s" % p.kind)
+#                 print('=' * 40)
+#                 pass
+#             pass
+#         return
 
-    def get_code_for_fn(fn):
-        return fn.__code__
+#     def get_code_for_fn(fn):
+#         return fn.__code__
 
-    def test():
-        import os, sys
+#     def test():
+#         import os, sys
 
-    def div_test(a, b, c):
-        return a / b / c
+#     def div_test(a, b, c):
+#         return a / b / c
 
-    def gcd(a, b):
-        if a > b:
-            (a, b) = (b, a)
-            pass
+#     def gcd(a, b):
+#         if a > b:
+#             (a, b) = (b, a)
+#             pass
 
-        if a <= 0:
-            return None
-        if a == 1 or a == b:
-            return a
-        return gcd(b-a, a)
+#         if a <= 0:
+#             return None
+#         if a == 1 or a == b:
+#             return a
+#         return gcd(b-a, a)
 
-    # check_args(['3', '5'])
-    # deparse_test(get_code_for_fn(gcd))
-    deparse_test(get_code_for_fn(div_test))
-    # deparse_test(get_code_for_fn(test))
-    # deparse_test(get_code_for_fn(FragmentsWalker.fixup_offsets))
-    # deparse_test(get_code_for_fn(FragmentsWalker.n_list))
-    print('=' * 30)
-    # deparse_test_around(408, 'n_list', get_code_for_fn(FragmentsWalker.n_build_list))
-    # deparse_test(inspect.currentframe().f_code)
+#     # check_args(['3', '5'])
+#     # deparse_test(get_code_for_fn(gcd))
+#     deparse_test(get_code_for_fn(div_test))
+#     # deparse_test(get_code_for_fn(test))
+#     # deparse_test(get_code_for_fn(FragmentsWalker.fixup_offsets))
+#     # deparse_test(get_code_for_fn(FragmentsWalker.n_list))
+#     print('=' * 30)
+#     # deparse_test_around(408, 'n_list', get_code_for_fn(FragmentsWalker.n_build_list))
+#     # deparse_test(inspect.currentframe().f_code)
