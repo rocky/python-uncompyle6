@@ -209,6 +209,12 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.default(node)
 
     def n_try_except(self, node):
+        # Note: we could also do this via modifying the
+        # 5 or so template rules. That is change:
+        #  'try_except':  ( '%|try%:\n%+%c%-%c\n\n', 1, 3 ),
+        # to:
+        #  'try_except':  ( '%|try%b:\n%+%c%-%c\n\n', 0, 1, 3 ),
+
         start = len(self.f.getvalue()) + len(self.indent)
         self.set_pos_info(node[0], start, start+len("try:"))
         self.default(node)
@@ -239,9 +245,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         try:
             self.default(node)
         except GenericASTTraversalPruningException:
-            pass
-        self.set_pos_info(node[2], start, len(self.f.getvalue()))
-        self.prune()
+            self.set_pos_info(node[2], start, len(self.f.getvalue()))
+            self.prune()
 
     # FIXME: Isolate: only in Python 2.x.
     def n_raise_stmt3(self, node):
@@ -250,9 +255,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         try:
             self.default(node)
         except GenericASTTraversalPruningException:
-            pass
-        self.set_pos_info(node[3], start, len(self.f.getvalue()))
-        self.prune()
+            self.set_pos_info(node[3], start, len(self.f.getvalue()))
+            self.prune()
 
     def n_return(self, node):
         start = len(self.f.getvalue()) + len(self.indent)
@@ -265,7 +269,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         else:
             start = len(self.f.getvalue()) + len(self.indent)
             self.write(self.indent, 'return')
-            if self.return_none or node != AST('return', [AST('ret_expr', [NONE]), Token('RETURN_VALUE')]):
+            if self.return_none or node != AST('return', [AST('ret_expr', [NONE]),
+                                                          Token('RETURN_VALUE')]):
                 self.write(' ')
                 self.last_finish = len(self.f.getvalue())
                 self.preorder(node[0])
