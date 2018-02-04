@@ -615,8 +615,7 @@ class Scanner2(Scanner):
                     elif self.code[test_op_offset] in self.opc.JUMP_OPs:
                         test_target = self.get_target(test_op_offset)
 
-                        if self.version < 2.7:
-                            self.ignore_if.add(test_op_offset)
+                        self.ignore_if.add(test_op_offset)
 
                         if test_target > (jump_back_offset+3):
                             jump_back_offset = test_target
