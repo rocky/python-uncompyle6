@@ -26,9 +26,7 @@ from collections import namedtuple
 from array import array
 
 from xdis.code import iscode
-from xdis.bytecode import (
-    Bytecode, op_has_argument, op_size,
-    instruction_size, get_jump_targets)
+from xdis.bytecode import Bytecode, op_has_argument, op_size, instruction_size
 from xdis.util import code2num
 
 from uncompyle6.scanner import Scanner
@@ -144,7 +142,6 @@ class Scanner2(Scanner):
                     self.load_asserts.add(i+3)
 
         jump_targets = self.find_jump_targets(show_asm)
-        self.xdis_jump_targets = get_jump_targets(co, self.opc)
         # contains (code, [addrRefToCode])
 
         last_stmt = self.next_stmt[0]
@@ -970,18 +967,9 @@ class Scanner2(Scanner):
                                                'start': start,
                                                'end':   rtarget})
                         self.thens[start] = rtarget
-                        if ((self.version == 2.7 and target > offset)
-                            or (self.version < 2.7 and
-                                (code[pre_rtarget+1] != self.opc.JUMP_FORWARD))):
+                        if self.version == 2.7 or code[pre_rtarget+1] != self.opc.JUMP_FORWARD:
                             self.fixed_jumps[offset] = rtarget
-
-                            # We need more sophistication in
-                            # determining whether this is an end if in
-                            # 2.7. For now, skip here, but we have
-                            # jiggered the grammar (parse27.py) to
-                            # treat the two more alike.
-                            if self.version < 2.7:
-                                self.return_end_ifs.add(pre_rtarget)
+                            self.return_end_ifs.add(pre_rtarget)
                             pass
                         pass
                     pass
