@@ -75,7 +75,7 @@ class Python27Parser(Python2Parser):
 
         ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
         ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
-        ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
+        ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_VALUE COME_FROM ret_expr_or_cond
 
         or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
@@ -119,7 +119,8 @@ class Python27Parser(Python2Parser):
                 POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP END_FINALLY
 
-        whilestmt         ::= SETUP_LOOP testexpr returns POP_BLOCK COME_FROM
+        whilestmt         ::= SETUP_LOOP testexpr returns
+                              _come_froms POP_BLOCK COME_FROM
 
         while1stmt        ::= SETUP_LOOP returns bp_come_from
         while1stmt        ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM
@@ -135,8 +136,16 @@ class Python27Parser(Python2Parser):
         ifelsestmtl       ::= testexpr c_stmts_opt JUMP_BACK else_suitel
         ifelsestmtl       ::= testexpr c_stmts_opt CONTINUE else_suitel
 
+        # These below rules in 2.6 and before use RETURN_IF_THEN.. insead
+        # of RETURN_VALUE.. However since our "if" non-if detection in
+        # 2.7 is weak, we allow RETURN_VALUE as well as RETURN_IF_THEN
+
+        return_if_lambda   ::= RETURN_VALUE_LAMBDA COME_FROM
+        conditional_lambda ::= expr jmp_false expr return_lambda
+                               return_stmt_lambda LAMBDA_MARKER
+        return_if_stmt     ::= ret_expr RETURN_VALUE
+
         # Common with 2.6
-        return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
         stmt ::= conditional_lambda
         conditional_lambda ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
