@@ -110,7 +110,11 @@ class Scanner26(scan.Scanner2):
 
         self.build_lines_data(co, codelen)
         self.build_prev_op(codelen)
+
         self.insts = list(bytecode)
+        self.offset2inst_index = {}
+        for i, inst in enumerate(self.insts):
+            self.offset2inst_index[inst.offset] = i
 
         free, names, varnames = self.unmangle_code_names(co, classname)
         self.names = names

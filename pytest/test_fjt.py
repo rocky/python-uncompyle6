@@ -30,6 +30,9 @@ def test_if_in_for():
         bytecode = Bytecode(code, scan.opc)
         scan.build_lines_data(code, n)
         scan.insts = list(bytecode)
+        scan.offset2inst_index = {}
+        for i, inst in enumerate(scan.insts):
+            scan.offset2inst_index[inst.offset] = i
         scan.build_prev_op(n)
         fjt = scan.find_jump_targets(False)
 
@@ -46,8 +49,13 @@ def test_if_in_for():
 
         code = bug_loop.__code__
         n = scan.setup_code(code)
+        bytecode = Bytecode(code, scan.opc)
         scan.build_lines_data(code, n)
+        scan.insts = list(bytecode)
         scan.build_prev_op(n)
+        scan.offset2inst_index = {}
+        for i, inst in enumerate(scan.insts):
+            scan.offset2inst_index[inst.offset] = i
         fjt = scan.find_jump_targets(False)
         assert{64: [42], 67: [42, 42], 42: [16, 41], 19: [6]} == fjt
         assert scan.structs == [
