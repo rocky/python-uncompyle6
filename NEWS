@@ -1,4 +1,11 @@
-uncompyle6 2.15.0 2017-01-27
+uncompyle6 2.15.0 2018-02-05 pycon2018.co
+
+- Bug fixes
+- Code fragment improvements
+- Code cleanups
+- Expand testing
+
+uncompyle6 2.15.1 2018-01-27
 
 - Add --linemap option to give line correspondences
   between original source lines and reconstructed line sources.
@@ -10,7 +17,7 @@ uncompyle6 2.15.0 2017-01-27
 - Correct 3.6+ calls with kwargs
 - Describe the difficulty of 3.6 in README
 
-uncompyle6 2.14.3 2017-01-19
+uncompyle6 2.14.3 2018-01-19
 
 - Fix bug in 3.5+ await stmt
 - Better version to magic handling; handle 3.5.2 .. 3.5.4 versions
@@ -22,7 +29,7 @@ uncompyle6 2.14.3 2017-01-19
 - better tests in setup.py for running the right version of Python
 - Fix 2.6- parsing of "for .. try/else" ...  with "continue"  inside
 
-uncompyle6 2.14.2 2017-01-09 Samish
+uncompyle6 2.14.2 2018-01-09 Samish
 
 Decompilation bug fixes, mostly 3.6 and pre 2.7
 
