@@ -170,8 +170,9 @@ def main_bin():
         try:
             result = main(src_base, out_base, files, codes, outfile,
                           **options)
+            result = list(result) + [options.get('do_verify', None)]
             if len(files) > 1:
-                mess = status_msg(do_verify, result, do_verify)
+                mess = status_msg(do_verify, *result)
                 print('# ' + mess)
                 pass
         except (KeyboardInterrupt):

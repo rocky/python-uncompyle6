@@ -119,7 +119,8 @@ class Python27Parser(Python2Parser):
                 POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP END_FINALLY
 
-        whilestmt         ::= SETUP_LOOP testexpr returns POP_BLOCK COME_FROM
+        whilestmt         ::= SETUP_LOOP testexpr returns
+                              _come_froms POP_BLOCK COME_FROM
 
         while1stmt        ::= SETUP_LOOP returns bp_come_from
         while1stmt        ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM

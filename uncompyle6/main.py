@@ -207,7 +207,7 @@ def main(in_base, out_base, files, codes, outfile=None,
                 for d in deparsed:
                     last_mod = None
                     offsets = d.offsets
-                    for e in sorted(offsets.keys()):
+                    for e in sorted([k for k in offsets.keys() if isinstance(k[1], int)]):
                         if e[0] != last_mod:
                             line = '=' * len(e[0])
                             outstream.write("%s\n%s\n%s\n" % (line, e[0], line))
