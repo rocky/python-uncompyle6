@@ -251,8 +251,8 @@ def customize_for_version(self, is_pypy, version):
                     node.kind == 'call'
                     p = self.prec
                     self.prec = 80
-                    self.template_engine(('%c(%P)', 0,
-                                          (1, -4, ', ', 100)), node)
+                    self.template_engine(('%c(%P)', 0, (1, -4, ', ',
+                                          100)), node)
                     self.prec = p
                     node.kind == 'async_call'
                     self.prune()
@@ -270,7 +270,7 @@ def customize_for_version(self, is_pypy, version):
                         if key.kind.startswith('CALL_FUNCTION_VAR_KW'):
                             # Python 3.5 changes the stack position of *args. kwargs come
                             # after *args whereas in earlier Pythons, *args is at the end
-                            # which simpilfiies things from our perspective.
+                            # which simplifies things from our perspective.
                             # Python 3.6+ replaces CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
                             # We will just swap the order to make it look like earlier Python 3.
                             entry = table[key.kind]
@@ -282,6 +282,13 @@ def customize_for_version(self, is_pypy, version):
                                 node[kwarg_pos], node[args_pos] = node[args_pos], node[kwarg_pos]
                                 args_pos = kwarg_pos
                                 kwarg_pos += 1
+                        elif key.kind == 'CALL_FUNCTION_VAR_0' and node[1][0] == 'build_list_unpack':
+                            self.preorder(node[0])
+                            build_list_unpack = node[1][0]
+                            template = ('(*%P)', (0, len(build_list_unpack)-1, ', *', 100))
+                            self.template_engine(template, build_list_unpack)
+                            self.prune()
+
                         self.default(node)
                     self.n_call = n_call
 
