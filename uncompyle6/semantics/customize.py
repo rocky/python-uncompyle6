@@ -283,7 +283,7 @@ def customize_for_version(self, is_pypy, version):
                                 args_pos = kwarg_pos
                                 kwarg_pos += 1
                         elif key.kind.startswith('CALL_FUNCTION_VAR'):
-                            nargs = node[-1].attr
+                            nargs = node[-1].attr & 0xFF
                             args_node =  node[-2]
                             if args_node == 'pos_arg':
                                 args_node = args_node[0]
@@ -297,7 +297,9 @@ def customize_for_version(self, is_pypy, version):
                             if args_node == 'build_list_unpack':
                                 template = ('*%P)', (0, len(args_node)-1, ', *', 100))
                                 self.template_engine(template, args_node)
-                                self.prune()
+                            else:
+                                self.write(')')
+                            self.prune()
 
                         self.default(node)
                     self.n_call = n_call
