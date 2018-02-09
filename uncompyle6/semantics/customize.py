@@ -282,12 +282,22 @@ def customize_for_version(self, is_pypy, version):
                                 node[kwarg_pos], node[args_pos] = node[args_pos], node[kwarg_pos]
                                 args_pos = kwarg_pos
                                 kwarg_pos += 1
-                        elif key.kind == 'CALL_FUNCTION_VAR_0' and node[1][0] == 'build_list_unpack':
-                            self.preorder(node[0])
-                            build_list_unpack = node[1][0]
-                            template = ('(*%P)', (0, len(build_list_unpack)-1, ', *', 100))
-                            self.template_engine(template, build_list_unpack)
-                            self.prune()
+                        elif key.kind.startswith('CALL_FUNCTION_VAR'):
+                            nargs = node[-1].attr
+                            args_node =  node[-2]
+                            if args_node == 'pos_arg':
+                                args_node = args_node[0]
+                            if args_node == 'expr':
+                                args_node = args_node[0]
+                            if nargs > 0:
+                                template = ('%c(%C, ', 0, (0, nargs, ', '))
+                            else:
+                                template = ('%c(', 0)
+                            self.template_engine(template, node)
+                            if args_node == 'build_list_unpack':
+                                template = ('*%P)', (0, len(args_node)-1, ', *', 100))
+                                self.template_engine(template, args_node)
+                                self.prune()
 
                         self.default(node)
                     self.n_call = n_call
