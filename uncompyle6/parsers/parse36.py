@@ -132,6 +132,26 @@ class Python36Parser(Python35Parser):
     def custom_classfunc_rule(self, opname, token, customize,
                               possible_class_decorator,
                               seen_GET_AWAITABLE_YIELD_FROM, next_token):
+
+        args_pos, args_kw = self.get_pos_kw(token)
+
+        # Additional exprs for * and ** args:
+        #  0 if neither
+        #  1 for CALL_FUNCTION_VAR or CALL_FUNCTION_KW
+        #  2 for * and ** args (CALL_FUNCTION_VAR_KW).
+        # Yes, this computation based on instruction name is a little bit hoaky.
+        nak = ( len(opname)-len('CALL_FUNCTION') ) // 3
+        uniq_param = args_kw + args_pos
+
+        if seen_GET_AWAITABLE_YIELD_FROM:
+            rule = ('async_call ::= expr ' +
+                    ('pos_arg ' * args_pos) +
+                    ('kwarg ' * args_kw) +
+                    'expr ' * nak + token.kind +
+                    ' GET_AWAITABLE LOAD_CONST YIELD_FROM')
+            self.add_unique_rule(rule, token.kind, uniq_param, customize)
+            self.add_unique_rule('expr ::= async_call', token.kind, uniq_param, customize)
+
         if opname.startswith('CALL_FUNCTION_KW'):
             self.addRule("expr ::= call_kw", nop_func)
             values = 'expr ' * token.attr

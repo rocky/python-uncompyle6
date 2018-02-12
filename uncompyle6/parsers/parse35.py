@@ -187,6 +187,52 @@ class Python35Parser(Python34Parser):
             pass
         return
 
+    def custom_classfunc_rule(self, opname, token, customize,
+                              seen_LOAD_BUILD_CLASS,
+                              seen_GET_AWAITABLE_YIELD_FROM,
+                              *args):
+        args_pos, args_kw = self.get_pos_kw(token)
+
+        # Additional exprs for * and ** args:
+        #  0 if neither
+        #  1 for CALL_FUNCTION_VAR or CALL_FUNCTION_KW
+        #  2 for * and ** args (CALL_FUNCTION_VAR_KW).
+        # Yes, this computation based on instruction name is a little bit hoaky.
+        nak = ( len(opname)-len('CALL_FUNCTION') ) // 3
+        uniq_param = args_kw + args_pos
+
+        if seen_GET_AWAITABLE_YIELD_FROM:
+            rule = ('async_call ::= expr ' +
+                    ('pos_arg ' * args_pos) +
+                    ('kwarg ' * args_kw) +
+                    'expr ' * nak + token.kind +
+                    ' GET_AWAITABLE LOAD_CONST YIELD_FROM')
+            self.add_unique_rule(rule, token.kind, uniq_param, customize)
+            self.add_unique_rule('expr ::= async_call', token.kind, uniq_param, customize)
+
+        uniq_param = args_kw + args_pos
+        if opname.startswith('CALL_FUNCTION_VAR'):
+            # Python 3.5 changes the stack position of *args. KW args come
+            # after *args.
+
+            # Note: Python 3.6+ replaces CALL_FUNCTION_VAR and
+            # CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
+
+            token.kind = self.call_fn_name(token)
+            if opname.endswith('KW'):
+                kw = 'expr '
+            else:
+                kw = ''
+            rule = ('call ::= expr expr ' +
+                    ('pos_arg ' * args_pos) +
+                    ('kwarg ' * args_kw) + kw + token.kind)
+            self.add_unique_rule(rule, token.kind, uniq_param, customize)
+        else:
+            super(Python35Parser, self).custom_classfunc_rule(opname, token, customize,
+                                                              seen_LOAD_BUILD_CLASS,
+                                                              seen_GET_AWAITABLE_YIELD_FROM,
+                                                              *args)
+
 class Python35ParserSingle(Python35Parser, PythonParserSingle):
     pass
 
