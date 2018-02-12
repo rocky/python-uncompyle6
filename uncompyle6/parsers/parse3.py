@@ -495,13 +495,14 @@ class Python3Parser(PythonParser):
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) + kw + token.kind)
             self.add_unique_rule(rule, token.kind, uniq_param, customize)
+        else:
+            rule = ('call ::= expr ' +
+                    ('pos_arg ' * args_pos) +
+                    ('kwarg ' * args_kw) +
+                    'expr ' * nak + token.kind)
 
-        rule = ('call ::= expr ' +
-                ('pos_arg ' * args_pos) +
-                ('kwarg ' * args_kw) +
-                 'expr ' * nak + token.kind)
+            self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
-        self.add_unique_rule(rule, token.kind, uniq_param, customize)
         if self.version >= 3.5 and seen_GET_AWAITABLE_YIELD_FROM:
             rule = ('async_call ::= expr ' +
                     ('pos_arg ' * args_pos) +

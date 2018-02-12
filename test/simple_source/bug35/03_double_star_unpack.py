@@ -3,15 +3,14 @@
 # to unpack star arguments
 def sum(a, b, c, d):
     return a + b + c + d
-a, b, c = 1, 2, 3
-args = (1, 2)
+
+args, a, b, c = (1, 2), 1, 2, 3
 sum(*args, *args)
+sum(*args, *args, *args)
 
-# FIXME: these is handled incorrectly
-
-# sum(a, *args, *args)
-
-# sum(a, b, *args)
+sum(a, *args, *args)
+sum(a, b, *args)
+sum(a, b, *args, *args)
 
 # FIXME: this is handled incorrectly
 # (*c,) = (3,4)
