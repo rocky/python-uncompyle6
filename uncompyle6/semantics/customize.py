@@ -43,9 +43,9 @@ def customize_for_version(self, is_pypy, version):
     if version < 3.0:
         TABLE_R.update({
             'STORE_SLICE+0':	( '%c[:]', 0 ),
-            'STORE_SLICE+1':	( '%c[%p:]', 0, (1, 100) ),
-            'STORE_SLICE+2':	( '%c[:%p]', 0, (1, 100) ),
-            'STORE_SLICE+3':	( '%c[%p:%p]', 0, (1, 100), (2, 100) ),
+            'STORE_SLICE+1':	( '%c[%p:]', 0, (1, -1) ),
+            'STORE_SLICE+2':	( '%c[:%p]', 0, (1, -1) ),
+            'STORE_SLICE+3':	( '%c[%p:%p]', 0, (1, -1), (2, -1) ),
             'DELETE_SLICE+0':	( '%|del %c[:]\n', 0 ),
             'DELETE_SLICE+1':	( '%|del %c[%c:]\n', 0, 1 ),
             'DELETE_SLICE+2':	( '%|del %c[:%c]\n', 0, 1 ),
@@ -347,7 +347,6 @@ def customize_for_version(self, is_pypy, version):
                     'func_args36':    ( "%c(**", 0),
                     'try_except36':   ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
                     'unpack_list':    ( '*%c', (0, 'list') ),
-                    'starred':        ( '*%c', (0, 'expr') ),
                     'call_ex' : (
                         '%c(%c)',
                         (0, 'expr'), 1),
@@ -598,6 +597,15 @@ def customize_for_version(self, is_pypy, version):
                     return
                 self.n_kwargs_36 = kwargs_36
 
+                def starred(node):
+                    if len(node) > 1:
+                        template = ( '*%C', (0, -1, ', *') )
+                    else:
+                        template = ( '*%c', (0, 'expr') )
+                    self.template_engine(template, node)
+                    self.prune()
+
+                self.n_starred = starred
 
                 def return_closure(node):
                     # Nothing should be output here

@@ -652,6 +652,11 @@ class Python3Parser(PythonParser):
                 rule = ('build_map_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
                         'expr32 ' * int((v//32) % 32) +
                         'expr ' * (v % 32) + opname)
+                self.addRule(rule, nop_func)
+            elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
+                v = token.attr
+                rule = ('starred ::= %s %s' % ('expr ' * v, opname))
+                self.addRule(rule, nop_func)
             elif opname_base in ('BUILD_LIST', 'BUILD_SET', 'BUILD_TUPLE'):
                 v = token.attr
 
