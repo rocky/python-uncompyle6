@@ -598,10 +598,22 @@ def customize_for_version(self, is_pypy, version):
                 self.n_kwargs_36 = kwargs_36
 
                 def starred(node):
-                    if len(node) > 1:
-                        template = ( '*%C', (0, -1, ', *') )
+                    l = len(node)
+                    assert l > 0
+                    pos_args = node[0]
+                    if pos_args == 'expr':
+                        pos_args = pos_args[0]
+                    if pos_args == 'tuple':
+                        star_start = 1
+                        template = '%C', (0, -1, ', ')
+                        self.template_engine(template, pos_args)
+                        self.write(', ')
                     else:
-                        template = ( '*%c', (0, 'expr') )
+                        star_start = 0
+                    if l > 1:
+                        template = ( '*%C', (star_start, -1, ', *') )
+                    else:
+                        template = ( '*%c', (star_start, 'expr') )
                     self.template_engine(template, node)
                     self.prune()
 
