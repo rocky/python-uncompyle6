@@ -1,5 +1,5 @@
 import pytest
-from uncompyle6.semantics.fragments import deparse_code as deparse
+from uncompyle6.semantics.fragments import deparse_code as deparse, deparsed_find
 from uncompyle6 import PYTHON_VERSION, PYTHON3
 
 def map_stmts(x, y):
@@ -42,6 +42,7 @@ def check_expect(expect, parsed, fn_name):
             "%s: ran out if items in testing node" % fn_name)
         nodeInfo = parsed.offsets[name, offset]
         node = nodeInfo.node
+        nodeInfo2 = deparsed_find((name, offset), parsed, code)
         extractInfo = parsed.extract_node_info(node)
 
         assert expect[i] == extractInfo.selectedLine, \
