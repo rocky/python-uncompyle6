@@ -12,8 +12,8 @@ program, ext = os.path.splitext(os.path.basename(__file__))
 
 __doc__ = """
 Usage:
-  {0} [OPTIONS]... FILE
-  {0} [--help | -h | -V | --version]
+  %s [OPTIONS]... FILE
+  %s [--help | -h | -V | --version]
 
 Disassemble FILE with the instruction mangling that is done to
 assist uncompyle6 in parsing the instruction stream. For example
@@ -22,9 +22,9 @@ BUILD_LIST have arguement counts appended to the instruction name, and
 COME_FROM instructions are inserted into the instruction stream.
 
 Examples:
-  {0} foo.pyc
-  {0} foo.py    # same thing as above but find the file
-  {0} foo.pyc bar.pyc  # disassemble foo.pyc and bar.pyc
+  %s foo.pyc
+  %s foo.py    # same thing as above but find the file
+  %s foo.pyc bar.pyc  # disassemble foo.pyc and bar.pyc
 
 See also `pydisasm' from the `xdis' package.
 
@@ -32,7 +32,7 @@ Options:
   -V | --version     show version and stop
   -h | --help        show this message
 
-""" % (program, program)
+""" % ((program,) * 5)
 
 PATTERNS = ('*.pyc', '*.pyo')
 
