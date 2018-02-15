@@ -43,9 +43,9 @@ def customize_for_version(self, is_pypy, version):
     if version < 3.0:
         TABLE_R.update({
             'STORE_SLICE+0':	( '%c[:]', 0 ),
-            'STORE_SLICE+1':	( '%c[%p:]', 0, (1, 100) ),
-            'STORE_SLICE+2':	( '%c[:%p]', 0, (1, 100) ),
-            'STORE_SLICE+3':	( '%c[%p:%p]', 0, (1, 100), (2, 100) ),
+            'STORE_SLICE+1':	( '%c[%p:]', 0, (1, -1) ),
+            'STORE_SLICE+2':	( '%c[:%p]', 0, (1, -1) ),
+            'STORE_SLICE+3':	( '%c[%p:%p]', 0, (1, -1), (2, -1) ),
             'DELETE_SLICE+0':	( '%|del %c[:]\n', 0 ),
             'DELETE_SLICE+1':	( '%|del %c[%c:]\n', 0, 1 ),
             'DELETE_SLICE+2':	( '%|del %c[:%c]\n', 0, 1 ),
@@ -251,8 +251,8 @@ def customize_for_version(self, is_pypy, version):
                     node.kind == 'call'
                     p = self.prec
                     self.prec = 80
-                    self.template_engine(('%c(%P)', 0,
-                                          (1, -4, ', ', 100)), node)
+                    self.template_engine(('%c(%P)', 0, (1, -4, ', ',
+                                          100)), node)
                     self.prec = p
                     node.kind == 'async_call'
                     self.prune()
@@ -270,7 +270,7 @@ def customize_for_version(self, is_pypy, version):
                         if key.kind.startswith('CALL_FUNCTION_VAR_KW'):
                             # Python 3.5 changes the stack position of *args. kwargs come
                             # after *args whereas in earlier Pythons, *args is at the end
-                            # which simpilfiies things from our perspective.
+                            # which simplifies things from our perspective.
                             # Python 3.6+ replaces CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
                             # We will just swap the order to make it look like earlier Python 3.
                             entry = table[key.kind]
@@ -282,6 +282,27 @@ def customize_for_version(self, is_pypy, version):
                                 node[kwarg_pos], node[args_pos] = node[args_pos], node[kwarg_pos]
                                 args_pos = kwarg_pos
                                 kwarg_pos += 1
+                        elif key.kind.startswith('CALL_FUNCTION_VAR'):
+                            nargs = node[-1].attr & 0xFF
+                            if nargs > 0:
+                                template = ('%c(%C, ', 0, (1, nargs+1, ', '))
+                            else:
+                                template = ('%c(', 0)
+                            self.template_engine(template, node)
+
+                            args_node =  node[-2]
+                            if args_node == 'pos_arg':
+                                args_node = args_node[0]
+                            if args_node == 'expr':
+                                args_node = args_node[0]
+                            if args_node == 'build_list_unpack':
+                                template = ('*%P)', (0, len(args_node)-1, ', *', 100))
+                                self.template_engine(template, args_node)
+                            else:
+                                template = ('*%c)', -2)
+                                self.template_engine(template, node)
+                            self.prune()
+
                         self.default(node)
                     self.n_call = n_call
 
@@ -326,7 +347,6 @@ def customize_for_version(self, is_pypy, version):
                     'func_args36':    ( "%c(**", 0),
                     'try_except36':   ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
                     'unpack_list':    ( '*%c', (0, 'list') ),
-                    'starred':        ( '*%c', (0, 'expr') ),
                     'call_ex' : (
                         '%c(%c)',
                         (0, 'expr'), 1),
@@ -577,6 +597,27 @@ def customize_for_version(self, is_pypy, version):
                     return
                 self.n_kwargs_36 = kwargs_36
 
+                def starred(node):
+                    l = len(node)
+                    assert l > 0
+                    pos_args = node[0]
+                    if pos_args == 'expr':
+                        pos_args = pos_args[0]
+                    if pos_args == 'tuple':
+                        star_start = 1
+                        template = '%C', (0, -1, ', ')
+                        self.template_engine(template, pos_args)
+                        self.write(', ')
+                    else:
+                        star_start = 0
+                    if l > 1:
+                        template = ( '*%C', (star_start, -1, ', *') )
+                    else:
+                        template = ( '*%c', (star_start, 'expr') )
+                    self.template_engine(template, node)
+                    self.prune()
+
+                self.n_starred = starred
 
                 def return_closure(node):
                     # Nothing should be output here

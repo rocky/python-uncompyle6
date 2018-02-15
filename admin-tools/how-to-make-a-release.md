@@ -45,6 +45,8 @@
 
     $ source admin-tools/setup-python-2.4.sh
     $ git merge master
+	# Add and fix merge conflicts
+	$ git commit
 
 # Check against older versions
 

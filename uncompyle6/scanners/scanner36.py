@@ -33,6 +33,8 @@ class Scanner36(Scanner3):
                 t.kind = 'CALL_FUNCTION_KW_%s' % t.attr
             elif t.op == self.opc.BUILD_MAP_UNPACK_WITH_CALL:
                 t.kind = 'BUILD_MAP_UNPACK_WITH_CALL_%d' % t.attr
+            elif t.op == self.opc.BUILD_TUPLE_UNPACK_WITH_CALL:
+                t.kind = 'BUILD_TUPLE_UNPACK_WITH_CALL_%d' % t.attr
             pass
         return tokens, customize
 

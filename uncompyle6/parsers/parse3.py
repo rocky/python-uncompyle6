@@ -484,33 +484,15 @@ class Python3Parser(PythonParser):
 
         token.kind = self.call_fn_name(token)
         uniq_param = args_kw + args_pos
-        if self.version == 3.5 and opname.startswith('CALL_FUNCTION_VAR'):
-            # Python 3.5 changes the stack position of *args. KW args come
-            # after *args.
-            # Python 3.6+ replaces CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
-            if opname.endswith('KW'):
-                kw = 'expr '
-            else:
-                kw = ''
-            rule = ('call ::= expr expr ' +
-                    ('pos_arg ' * args_pos) +
-                    ('kwarg ' * args_kw) + kw + token.kind)
-            self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
+        # Note: 3.5+ have subclassed this method; so we don't handle
+        # 'CALL_FUNCTION_VAR' or 'CALL_FUNCTION_EX' here.
         rule = ('call ::= expr ' +
-                ('pos_arg ' * args_pos) +
-                ('kwarg ' * args_kw) +
-                 'expr ' * nak + token.kind)
-
-        self.add_unique_rule(rule, token.kind, uniq_param, customize)
-        if self.version >= 3.5 and seen_GET_AWAITABLE_YIELD_FROM:
-            rule = ('async_call ::= expr ' +
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) +
-                    'expr ' * nak + token.kind +
-                    ' GET_AWAITABLE LOAD_CONST YIELD_FROM')
-            self.add_unique_rule(rule, token.kind, uniq_param, customize)
-            self.add_unique_rule('expr ::= async_call', token.kind, uniq_param, customize)
+                    'expr ' * nak + token.kind)
+
+        self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
         if possible_class_decorator:
             if next_token == 'CALL_FUNCTION' and next_token.attr == 1:
@@ -671,6 +653,11 @@ class Python3Parser(PythonParser):
                 rule = ('build_map_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
                         'expr32 ' * int((v//32) % 32) +
                         'expr ' * (v % 32) + opname)
+                self.addRule(rule, nop_func)
+            elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
+                v = token.attr
+                rule = ('starred ::= %s %s' % ('expr ' * v, opname))
+                self.addRule(rule, nop_func)
             elif opname_base in ('BUILD_LIST', 'BUILD_SET', 'BUILD_TUPLE'):
                 v = token.attr
 
