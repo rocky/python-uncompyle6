@@ -1812,29 +1812,66 @@ def deparse_code_around_offset(name, offset, version, co, out=StringIO(),
     return deparsed
 
 
+def op_at_code_loc(code, loc, opc):
+    """Return the instruction name at code[loc] using
+    opc to look up instruction names. Returns 'got IndexError'
+    if code[loc] is invalid.
+
+    `code` is instruction bytecode, `loc` is an offset (integer) and
+    `opc` is an opcode module from `xdis`.
+    """
+    try:
+        op = code[loc]
+    except IndexError:
+        return 'got IndexError'
+    return opc.opname[op]
+
+def deparsed_find(tup, deparsed, code):
+    """Return a NodeInfo nametuple for a fragment-deparsed `deparsed` at `tup`.
+
+    `tup` is a name and offset tuple, `deparsed` is a fragment object
+    and `code` is instruction bytecode.
+"""
+    nodeInfo = None
+    name, last_i = tup
+    if (name, last_i) in deparsed.offsets.keys():
+        nodeInfo =  deparsed.offsets[name, last_i]
+    else:
+        from uncompyle6.scanner import get_scanner
+        scanner = get_scanner(deparsed.version)
+        co = code.co_code
+        if op_at_code_loc(co, last_i, scanner.opc) == 'DUP_TOP':
+            offset = deparsed.scanner.next_offset(co[last_i], last_i)
+            if (name, offset) in deparsed.offsets:
+                nodeInfo =  deparsed.offsets[name, offset]
+
+    return nodeInfo
+
 # if __name__ == '__main__':
 
 #     from uncompyle6 import IS_PYPY
 #     def deparse_test(co, is_pypy=IS_PYPY):
 #         from xdis.magics import sysinfo2float
 #         float_version = sysinfo2float()
-#         walk = deparse_code(float_version, co, showasm=False, showast=False,
-#                             showgrammar=False, is_pypy=IS_PYPY)
+#         deparsed = deparse_code(float_version, co, showasm=False, showast=False,
+#                                 showgrammar=False, is_pypy=IS_PYPY)
 #         print("deparsed source")
-#         print(walk.text, "\n")
+#         print(deparsed.text, "\n")
 #         print('------------------------')
-#         for name, offset in sorted(walk.offsets.keys(),
+#         for name, offset in sorted(deparsed.offsets.keys(),
 #                                    key=lambda x: str(x[0])):
 #             print("name %s, offset %s" % (name, offset))
-#             nodeInfo = walk.offsets[name, offset]
+#             nodeInfo = deparsed.offsets[name, offset]
+#             nodeInfo2 = deparsed_find((name, offset), deparsed, co)
+#             assert nodeInfo == nodeInfo2
 #             node = nodeInfo.node
-#             extractInfo = walk.extract_node_info(node)
+#             extractInfo = deparsed.extract_node_info(node)
 #             print("code: %s" % node.kind)
 #             # print extractInfo
 #             print(extractInfo.selectedText)
 #             print(extractInfo.selectedLine)
 #             print(extractInfo.markerLine)
-#             extractInfo, p = walk.extract_parent_info(node)
+#             extractInfo, p = deparsed.extract_parent_info(node)
 
 #             if extractInfo:
 #                 print("Contained in...")
@@ -1848,23 +1885,26 @@ def deparse_code_around_offset(name, offset, version, co, out=StringIO(),
 
 #     def deparse_test_around(offset, name, co, is_pypy=IS_PYPY):
 #         sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
-#         walk = deparse_code_around_offset(name, offset, sys_version, co, showasm=False, showast=False,
-#                             showgrammar=False, is_pypy=IS_PYPY)
+#         deparsed = deparse_code_around_offset(name, offset, sys_version, co,
+#                                               showasm=False,
+#                                               showast=False,
+#                                               showgrammar=False,
+#                                               is_pypy=IS_PYPY)
 #         print("deparsed source")
-#         print(walk.text, "\n")
+#         print(deparsed.text, "\n")
 #         print('------------------------')
-#         for name, offset in sorted(walk.offsets.keys(),
+#         for name, offset in sorted(deparsed.offsets.keys(),
 #                                    key=lambda x: str(x[0])):
 #             print("name %s, offset %s" % (name, offset))
-#             nodeInfo = walk.offsets[name, offset]
+#             nodeInfo = deparsed.offsets[name, offset]
 #             node = nodeInfo.node
-#             extractInfo = walk.extract_node_info(node)
+#             extractInfo = deparsed.extract_node_info(node)
 #             print("code: %s" % node.kind)
 #             # print extractInfo
 #             print(extractInfo.selectedText)
 #             print(extractInfo.selectedLine)
 #             print(extractInfo.markerLine)
-#             extractInfo, p = walk.extract_parent_info(node)
+#             extractInfo, p = deparsed.extract_parent_info(node)
 #             if extractInfo:
 #                 print("Contained in...")
 #                 print(extractInfo.selectedLine)
