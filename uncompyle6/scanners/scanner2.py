@@ -958,17 +958,32 @@ class Scanner2(Scanner):
                                        'end':   end_offset})
             elif code_pre_rtarget == self.opc.RETURN_VALUE:
                 if self.version == 2.7 or pre_rtarget not in self.ignore_if:
-                    # 10 is exception-match. If there is an exception match in the
-                    # compare, then this is an exception clause not an if-then clause
+                    # Below, 10 is exception-match. If there is an exception
+                    # match in the compare, then this is an exception
+                    # clause not an if-then clause
                     if (self.code[self.prev[offset]] != self.opc.COMPARE_OP or
                         self.code[self.prev[offset]+1] != 10):
                         self.structs.append({'type':  'if-then',
                                                'start': start,
                                                'end':   rtarget})
                         self.thens[start] = rtarget
-                        if self.version == 2.7 or code[pre_rtarget+1] != self.opc.JUMP_FORWARD:
+                        if (self.version == 2.7 or
+                            code[pre_rtarget+1] != self.opc.JUMP_FORWARD):
+                            # The below is a big hack until we get
+                            # better control flow analysis: disallow
+                            # END_IF if the instruction before the
+                            # END_IF instruction happens to be a jump
+                            # target. In this case, probably what's
+                            # gone on is that we messed up on the
+                            # END_IF location and it should be the
+                            # instruction before.
                             self.fixed_jumps[offset] = rtarget
-                            self.return_end_ifs.add(pre_rtarget)
+                            if (self.version == 2.7 and
+                                self.insts[self.offset2inst_index[pre[pre_rtarget]]].is_jump_target):
+                                self.return_end_ifs.add(pre[pre_rtarget])
+                                pass
+                            else:
+                                self.return_end_ifs.add(pre_rtarget)
                             pass
                         pass
                     pass

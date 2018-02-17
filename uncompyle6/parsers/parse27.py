@@ -130,6 +130,10 @@ class Python27Parser(Python2Parser):
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suitel COME_FROM
 
+        return_stmts      ::= _stmts return_stmt
+        return_stmt       ::= return
+
+        ifstmt            ::= testexpr return_stmts COME_FROM
         ifstmt            ::= testexpr return_if_stmts COME_FROM
         ifelsestmt        ::= testexpr c_stmts_opt JUMP_FORWARD else_suite COME_FROM
         ifelsestmtc       ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
