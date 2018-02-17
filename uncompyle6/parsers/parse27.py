@@ -131,6 +131,7 @@ class Python27Parser(Python2Parser):
                               else_suitel COME_FROM
 
         return_stmts      ::= _stmts return_stmt
+        return_stmts      ::= return_stmt
         return_stmt       ::= return
 
         ifstmt            ::= testexpr return_stmts COME_FROM
