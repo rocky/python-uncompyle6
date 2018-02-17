@@ -769,7 +769,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.set_pos_info(node[-1], gen_start, len(self.f.getvalue()))
 
     def listcomprehension_walk2(self, node):
-        """List comprehensions the way they are done in Python3.
+        """List comprehensions the way they are done in Python 2 (and
+        some Python 3?).
         They're more other comprehensions, e.g. set comprehensions
         See if we can combine code.
         """
@@ -779,17 +780,24 @@ class FragmentsWalker(pysource.SourceWalker, object):
         code = Code(node[1].attr, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
-        ast = ast[0][0][0][0][0]
+        if node == 'set_comp':
+            ast = ast[0][0][0]
+        else:
+            ast = ast[0][0][0][0][0]
+
+        if ast == 'expr':
+            ast = ast[0]
 
         n = ast[1]
         collection = node[-3]
         list_if = None
         assert n == 'list_iter'
 
-        # find innermost node
+        # Find the list comprehension body. It is the inner-most
+        # node that is not list_.. .
         while n == 'list_iter':
             n = n[0] # recurse one step
-            if   n == 'list_for':
+            if n == 'list_for':
                 store = n[2]
                 n = n[3]
             elif n in ('list_if', 'list_if_not'):

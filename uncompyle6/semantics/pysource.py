@@ -1620,7 +1620,8 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = p
 
     def listcomprehension_walk2(self, node):
-        """List comprehensions the way they are done in Python 2.
+        """List comprehensions the way they are done in Python 2 (and
+        some Python 3?).
         They're more other comprehensions, e.g. set comprehensions
         See if we can combine code.
         """
@@ -1634,6 +1635,9 @@ class SourceWalker(GenericASTTraversal, object):
             ast = ast[0][0][0]
         else:
             ast = ast[0][0][0][0][0]
+
+        if ast == 'expr':
+            ast = ast[0]
 
         n = ast[1]
         collection = node[-3]

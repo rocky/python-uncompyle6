@@ -1,3 +1,19 @@
+uncompyle6 2.16.0 2018-02-17
+
+- API additions:
+  - add fragments.op_at_code_loc() and
+  - fragments.deparsed_find()_
+- Better 2.7 end_if and COME_FROM determination
+- Fix up 3.6+ CALL_FUNCTION_EX
+- Misc pydisasm fixes
+- Wierd comprehension bug seen via new loctraceback
+- Fix Python 3.5+ CALL_FUNCTION_VAR and BUILD_LIST_UNPACK in call; with this
+  we can can handle 3.5+ f(a, b, *c, *d, *e) now
+
+uncompyle6 2.15.1 2018-02-05
+
+- More bug fixes and revert an improper bug fix in 2.15.0
+
 uncompyle6 2.15.0 2018-02-05 pycon2018.co
 
 - Bug fixes
