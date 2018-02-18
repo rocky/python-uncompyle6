@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017 Rocky Bernstein
+#  Copyright (c) 2016-2018 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 
@@ -17,8 +17,10 @@ class Python27Parser(Python2Parser):
         list_for  ::= expr for_iter store list_iter JUMP_BACK
         list_comp ::= BUILD_LIST_0 list_iter
         lc_body   ::= expr LIST_APPEND
+        for_iter  ::= GET_ITER COME_FROM FOR_ITER
 
         stmt ::= setcomp_func
+
 
         # Dictionary and set comprehensions were added in Python 2.7
         expr      ::= dict_comp
@@ -53,6 +55,9 @@ class Python27Parser(Python2Parser):
         tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            except_handler else_suitel JUMP_BACK COME_FROM
 
+        tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                           except_handler else_suitel
+
         except_stmt ::= except_cond2 except_suite
 
         except_cond1 ::= DUP_TOP expr COMPARE_OP
@@ -60,6 +65,9 @@ class Python27Parser(Python2Parser):
 
         except_cond2 ::= DUP_TOP expr COMPARE_OP
                          jmp_false POP_TOP store POP_TOP
+
+        for_block    ::= l_stmts_opt JUMP_BACK
+
         """
 
     def p_jump27(self, args):
