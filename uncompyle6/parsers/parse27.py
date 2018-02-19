@@ -102,7 +102,9 @@ class Python27Parser(Python2Parser):
 
         # conditional_true are for conditions which always evaluate true
         # There is dead or non-optional remnants of the condition code though,
-        # and we use that to match on to reconstruct the source more accurately
+        # and we use that to match on to reconstruct the source more accurately.
+        # FIXME: we should do analysis and reduce *only* if there is dead code
+
         expr             ::= conditional_true
         conditional_true ::= expr JUMP_FORWARD expr COME_FROM
 
@@ -167,6 +169,7 @@ class Python27Parser(Python2Parser):
         """)
         super(Python27Parser, self).customize_grammar_rules(tokens, customize)
         self.check_reduce['and'] = 'AST'
+        self.check_reduce['conditional_true'] = 'AST'
         return
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
@@ -182,6 +185,15 @@ class Python27Parser(Python2Parser):
             jmp_target = jmp_false.offset + jmp_false.attr + 3
             return not (jmp_target == tokens[last].offset or
                         tokens[last].pattr == jmp_false.pattr)
+        elif rule[0] == ('conditional_true'):
+            # FIXME: the below is a hack. script is probably never used in a boolean
+            # What we really need is to look for precence of dead code.
+            if ast[0] == 'expr':
+                a = ast[0]
+            else:
+                a = ast
+            return a[0] == 'subscript'
+
         return False
 
 
