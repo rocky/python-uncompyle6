@@ -1103,10 +1103,6 @@ class Python30Parser(Python3Parser):
 
     def p_30(self, args):
         """
-        # Store locals is only in Python 3.0 to 3.3
-        stmt ::= store_locals
-        store_locals ::= LOAD_FAST STORE_LOCALS
-
         jmp_true ::= JUMP_IF_TRUE_OR_POP POP_TOP
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD POP_TOP COME_FROM
         """

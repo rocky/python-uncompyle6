@@ -186,8 +186,9 @@ class Python27Parser(Python2Parser):
             return not (jmp_target == tokens[last].offset or
                         tokens[last].pattr == jmp_false.pattr)
         elif rule[0] == ('conditional_true'):
-            # FIXME: the below is a hack. script is probably never used in a boolean
-            # What we really need is to look for precence of dead code.
+            # FIXME: the below is a hack: "subscript" was probably never used
+            # in a boolean which got eliminated.  What we really need is to
+            # look for precence of dead code.
             if ast[0] == 'expr':
                 a = ast[0]
             else:

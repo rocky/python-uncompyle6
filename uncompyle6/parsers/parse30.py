@@ -11,9 +11,6 @@ class Python30Parser(Python31Parser):
 
     def p_30(self, args):
         """
-        # Store locals is only in Python 3.0 to 3.3
-        stmt         ::= store_locals
-        store_locals ::= LOAD_FAST STORE_LOCALS
 
         # FIXME: combine with parse3.2
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK
