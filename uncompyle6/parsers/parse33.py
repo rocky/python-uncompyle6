@@ -25,6 +25,13 @@ class Python33Parser(Python32Parser):
                         jump_excepts come_from_except_clauses
         """
 
+    def p_30to33(self, args):
+        """
+        # Store locals is only in Python 3.0 to 3.3
+        stmt           ::= store_locals
+        store_locals   ::= LOAD_FAST STORE_LOCALS
+        """
+
     def customize_grammar_rules(self, tokens, customize):
         self.remove_rules("""
         # 3.3+ adds POP_BLOCKS

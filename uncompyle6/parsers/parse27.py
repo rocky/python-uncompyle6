@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017 Rocky Bernstein
+#  Copyright (c) 2016-2018 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 
@@ -17,8 +17,10 @@ class Python27Parser(Python2Parser):
         list_for  ::= expr for_iter store list_iter JUMP_BACK
         list_comp ::= BUILD_LIST_0 list_iter
         lc_body   ::= expr LIST_APPEND
+        for_iter  ::= GET_ITER COME_FROM FOR_ITER
 
         stmt ::= setcomp_func
+
 
         # Dictionary and set comprehensions were added in Python 2.7
         expr      ::= dict_comp
@@ -53,6 +55,9 @@ class Python27Parser(Python2Parser):
         tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            except_handler else_suitel JUMP_BACK COME_FROM
 
+        tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                           except_handler else_suitel
+
         except_stmt ::= except_cond2 except_suite
 
         except_cond1 ::= DUP_TOP expr COMPARE_OP
@@ -60,6 +65,9 @@ class Python27Parser(Python2Parser):
 
         except_cond2 ::= DUP_TOP expr COMPARE_OP
                          jmp_false POP_TOP store POP_TOP
+
+        for_block    ::= l_stmts_opt JUMP_BACK
+
         """
 
     def p_jump27(self, args):
@@ -94,7 +102,10 @@ class Python27Parser(Python2Parser):
 
         # conditional_true are for conditions which always evaluate true
         # There is dead or non-optional remnants of the condition code though,
-        # and we use that to match on to reconstruct the source more accurately
+        # and we use that to match on to reconstruct the source more accurately.
+        # FIXME: we should do analysis and reduce *only* if there is dead code?
+        #        right now we check that expr is "or". Any other nodes types?
+
         expr             ::= conditional_true
         conditional_true ::= expr JUMP_FORWARD expr COME_FROM
 
@@ -159,6 +170,7 @@ class Python27Parser(Python2Parser):
         """)
         super(Python27Parser, self).customize_grammar_rules(tokens, customize)
         self.check_reduce['and'] = 'AST'
+        self.check_reduce['conditional_true'] = 'AST'
         return
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
@@ -174,6 +186,12 @@ class Python27Parser(Python2Parser):
             jmp_target = jmp_false.offset + jmp_false.attr + 3
             return not (jmp_target == tokens[last].offset or
                         tokens[last].pattr == jmp_false.pattr)
+        elif rule[0] == ('conditional_true'):
+            # FIXME: the below is a hack: we check expr for
+            # nodes that could have possibly been a been a Boolean.
+            # We should also look for the presence of dead code.
+            return ast[0] == 'expr' and ast[0] == 'or'
+
         return False
 
 
