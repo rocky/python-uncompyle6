@@ -27,7 +27,6 @@ case $PYVERSION in
 	SKIP_TESTS=(
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_grp.py]=1      # Long test - might work Control flow?
-	    [test_math.py]=1 # Control flow?
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_queue.py]=1 # Control flow?
 	    [test_sax.py]=1  # Control flow?
@@ -43,7 +42,6 @@ case $PYVERSION in
 	    [test_functools.py]=1
 	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
 	    [test_grp.py]=1      # Long test - might work Control flow?
-	    [test_math.py]=1 # Control flow?
 	    [test_pdb.py]=1
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_queue.py]=1 # Control flow?

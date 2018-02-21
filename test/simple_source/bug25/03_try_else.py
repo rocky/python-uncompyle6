@@ -1,18 +1,17 @@
-# From Python 2.4. test_cgi.py
-# Bug was in putting  try block inside the ifelse statement.
-
-# Note: this is a self testing program - will assert on failure.
-def do_test(method):
-    if method == "GET":
-        rc = 0
-    elif method == "POST":
-        rc = 1
-    else:
-        raise ValueError, "unknown method: %s" % method
+# Bug found in 2.4 test_math.py
+# Bug was turning last try/except/else into try/else
+import math
+def test_exceptions():
     try:
-        rc = 2
-    except ZeroDivisionError:
-        rc = 3
-    return rc
+        x = math.exp(-1000000000)
+    except:
+        raise RuntimeError
 
-assert 2 == do_test("GET")
+    try:
+        x = math.sqrt(-1.0)
+    except ValueError:
+        return x
+    else:
+        raise RuntimeError
+
+test_exceptions()
