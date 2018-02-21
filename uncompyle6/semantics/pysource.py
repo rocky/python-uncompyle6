@@ -2619,7 +2619,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
 
     assert iscode(co)
 
-    if version == None:
+    if version is None:
         version = float(sys.version[0:3])
 
     # store final output stream for case of error
