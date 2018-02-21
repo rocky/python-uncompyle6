@@ -2613,10 +2613,15 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
                  showgrammar=False, code_objects={}, compile_mode='exec',
                  is_pypy=False, walker=SourceWalker):
     """
-    ingests and deparses a given code block 'co'
+    ingests and deparses a given code block 'co'. If version is None,
+    we will use the current Python interpreter version.
     """
 
     assert iscode(co)
+
+    if version == None:
+        version = float(sys.version[0:3])
+
     # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy)
 
