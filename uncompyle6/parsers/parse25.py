@@ -89,14 +89,27 @@ class Python25Parser(Python26Parser):
         """)
         super(Python25Parser, self).customize_grammar_rules(tokens, customize)
         if self.version == 2.5:
-            self.check_reduce['tryelsestmt'] = 'tokens'
+            self.check_reduce['try_except'] = 'tokens'
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python25Parser,
                         self).reduce_is_invalid(rule, ast,
                                                 tokens, first, last)
-        if invalid:
+        if invalid or tokens is None:
             return invalid
+        elif rule[0] == 'try_except':
+            # Distinguish try/except from try/except/else
+            if last == len(tokens):
+                last -= 1
+            if tokens[last] != 'COME_FROM' and tokens[last-1] == 'COME_FROM':
+                last -= 1
+            if (tokens[last] == 'COME_FROM'
+                and tokens[last-1] == 'END_FINALLY'
+                    and tokens[last-2] == 'POP_TOP'):
+                # A jump of 2 is a jump around POP_TOP, END_FINALLY which
+                # would indicate try/else rather than try
+                return (tokens[last-3].kind != 'JUMP_FORWARD'
+                        or tokens[last-3].attr != 2)
         return False
 
 
