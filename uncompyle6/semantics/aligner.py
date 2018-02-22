@@ -100,7 +100,7 @@ def align_deparse_code(version, co, out=sys.stderr, showasm=False, showast=False
         debug_parser['reduce'] = showgrammar
         debug_parser['errorstack'] = True
 
-    #  Build AST from disassembly.
+    #  Build a grammar tree from tokenized and massaged disassembly.
     deparsed = AligningWalker(version, scanner, out, showast=showast,
                             debug_parser=debug_parser, compile_mode=compile_mode,
                             is_pypy = is_pypy)
@@ -125,7 +125,7 @@ def align_deparse_code(version, co, out=sys.stderr, showasm=False, showast=False
     except:
         pass
 
-    # What we've been waiting for: Generate source from AST!
+    # What we've been waiting for: Generate Python source from the grammar tree!
     deparsed.gen_source(deparsed.ast, co.co_name, customize)
 
     for g in deparsed.mod_globs:

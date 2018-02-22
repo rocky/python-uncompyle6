@@ -1,4 +1,4 @@
-#  Copyright (c) 2017 by Rocky Bernstein
+#  Copyright (c) 2017, 2018 by Rocky Bernstein
 """Constants and initial table values used in pysource.py and fragments.py"""
 
 import re, sys
@@ -16,8 +16,8 @@ else:
 
 LINE_LENGTH = 80
 
-# Some ASTs used for comparing code fragments (like 'return None' at
-# the end of functions).
+# Some grammar trees created below are used for comparing code
+# fragments (like 'return None' at the end of functions).
 
 RETURN_LOCALS = AST('return',
                     [ AST('ret_expr', [AST('expr', [ Token('LOAD_LOCALS') ])]),

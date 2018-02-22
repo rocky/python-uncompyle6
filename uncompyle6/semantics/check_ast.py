@@ -1,5 +1,5 @@
 """
-Python AST grammar checker.
+Python grammar tree checker.
 
 Our rules sometimes give erroneous results. Until we have perfect rules,
 This checker will catch mistakes in decompilation we've made.

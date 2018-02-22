@@ -1,7 +1,7 @@
 #  Copyright (c) 2015-2018 by Rocky Bernstein
 
 """
-Creates Python source code from an uncompyle6 abstract syntax tree,
+Creates Python source code from an uncompyle6 grammar tree,
 and indexes fragments which can be accessed by instruction offset
 address.
 
@@ -63,7 +63,7 @@ from uncompyle6.semantics.check_ast import checker
 
 from uncompyle6.show import (
     maybe_show_asm,
-    maybe_show_ast,
+    maybe_show_tree,
 )
 
 from uncompyle6.parsers.astnode import AST
@@ -1050,7 +1050,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     n_classdefdeco2 = n_classdef
 
     def gen_source(self, ast, name, customize, is_lambda=False, returnNone=False):
-        """convert AST to Python source code"""
+        """convert grammar tree to Python source code"""
 
         rn = self.return_none
         self.return_none = returnNone
@@ -1088,7 +1088,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 self.p.insts = p_insts
             except (parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
-            maybe_show_ast(self.showast, ast)
+            maybe_show_tree(self.showast, ast)
             return ast
 
         # The bytecode for the end of the main routine has a
@@ -1116,7 +1116,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             if len(tokens) == 0:
                 return PASS
 
-        # Build AST from disassembly.
+        # Build grammar tree from tokenized and massaged disassembly.
         try:
             # FIXME: have p.insts update in a better way
             # modularity is broken here
@@ -1127,7 +1127,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         except (parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens)
 
-        maybe_show_ast(self.showast, ast)
+        maybe_show_tree(self.showast, ast)
 
         checker(ast, False, self.ast_errors)
 
@@ -1719,12 +1719,12 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
                             pass a file like object, into which the asm will be
                             written).
     :param showast:         Flag which determines whether the constructed
-                            abstract syntax tree is written to sys.stdout or
+                            grammar tree is written to sys.stdout or
                             not. (It is also to pass a file like object, into
                             which the ast will be written).
-    :param showgrammar:     Flag which determines whether the grammar
+    :param showgrammar:     Flag which determines whether the grammar reduction rules
                             is written to sys.stdout or not. (It is also to
-                            pass a file like object, into which the grammer
+                            pass a file like object, into which the grammar
                             will be written).
 
     :return: The deparsed source fragment.
@@ -1745,7 +1745,7 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
         debug_parser['reduce'] = showgrammar
         debug_parser['errorstack'] = True
 
-    #  Build AST from disassembly.
+    #  Build Syntax Tree from tokenized and massaged disassembly.
     # deparsed = pysource.FragmentsWalker(out, scanner, showast=showast)
     deparsed = walker(version, scanner, showast=showast,
                       debug_parser=debug_parser, compile_mode=compile_mode,

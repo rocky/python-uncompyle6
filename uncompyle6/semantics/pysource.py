@@ -3,7 +3,7 @@
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 
-"""Creates Python source code from an uncompyle6 abstract syntax tree.
+"""Creates Python source code from an uncompyle6 grammar tree.
 
 The terminal symbols are CPython bytecode instructions. (See the
 python documentation under module "dis" for a list of instructions
@@ -47,7 +47,7 @@ Python.
 # In the diagram below, N is a nonterminal name, and K also a nonterminal
 # name but the one used as a key in the table.
 # we show where those are with respect to each other in the
-# AST tree for N.
+# grammar tree for N.
 #
 #
 #          N&K               N                  N
@@ -139,7 +139,7 @@ from uncompyle6.semantics.consts import (
 
 
 from uncompyle6.show import (
-    maybe_show_ast,
+    maybe_show_tree,
 )
 
 if PYTHON3:
@@ -2565,7 +2565,7 @@ class SourceWalker(GenericASTTraversal, object):
                 self.p.insts = p_insts
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
-            maybe_show_ast(self.showast, ast)
+            maybe_show_tree(self.showast, ast)
             return ast
 
         # The bytecode for the end of the main routine has a
@@ -2587,7 +2587,7 @@ class SourceWalker(GenericASTTraversal, object):
             if len(tokens) == 0:
                 return PASS
 
-        # Build AST from disassembly.
+        # Build a grammar tree from a tokenized and massaged disassembly.
         try:
             # FIXME: have p.insts update in a better way
             # modularity is broken here
@@ -2598,7 +2598,7 @@ class SourceWalker(GenericASTTraversal, object):
         except (python_parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens)
 
-        maybe_show_ast(self.showast, ast)
+        maybe_show_tree(self.showast, ast)
 
         checker(ast, False, self.ast_errors)
 
@@ -2633,7 +2633,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
         debug_parser['reduce'] = showgrammar
         debug_parser['errorstack'] = 'full'
 
-    #  Build AST from disassembly.
+    #  Build Syntax Tree from disassembly.
     linestarts = dict(scanner.opc.findlinestarts(co))
     deparsed = walker(version, out, scanner, showast=showast,
                       debug_parser=debug_parser, compile_mode=compile_mode,
@@ -2667,7 +2667,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
     deparsed.FUTURE_UNICODE_LITERALS = (
         COMPILER_FLAG_BIT['FUTURE_UNICODE_LITERALS'] & co.co_flags != 0)
 
-    # What we've been waiting for: Generate source from AST!
+    # What we've been waiting for: Generate source from Syntax Tree!
     deparsed.gen_source(deparsed.ast, co.co_name, customize)
 
     for g in deparsed.mod_globs:
@@ -2684,13 +2684,30 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
         raise SourceWalkerError("Deparsing stopped due to parse error")
     return deparsed
 
+#
+DEFAULT_DEBUG_OPTS = {
+    'asm': False,
+    'tree': False,
+    'grammar': False
+}
+def deparse_code2str(code, out=sys.stdout, version=None,
+                     debug_opts=DEFAULT_DEBUG_OPTS,
+                     code_objects={}, compile_mode='exec',
+                     is_pypy=False, walker=SourceWalker):
+    """Return the deparsed text for a Python code object. `out` is where any intermediate
+    output for assembly or tree output will be sent.
+    """
+    return deparse_code(version, code, out, showasm=debug_opts.get('asm', None),
+                        showast=debug_opts.get('tree', None),
+                        showgrammar=debug_opts.get('grammar', None), code_objects=code_objects,
+                        compile_mode=compile_mode, is_pypy=is_pypy, walker=walker).text
+
 if __name__ == '__main__':
     def deparse_test(co):
         "This is a docstring"
-        sys_version = float(sys.version[0:3])
-        deparsed = deparse_code(sys_version, co, showasm='after', showast=True)
-        # deparsed = deparse_code(sys_version, co, showasm=None, showast=False,
-        #                         showgrammar=True)
-        print(deparsed.text)
+        s = deparse_code2str(co, debug_opts={'asm':'after', 'tree':True})
+        # s = deparse_code2str(co, showasm=None, showast=False,
+        #                       showgrammar=True)
+        print(s)
         return
     deparse_test(deparse_test.__code__)
