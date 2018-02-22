@@ -1,7 +1,7 @@
 #  Copyright (c) 2015-2018 by Rocky Bernstein
 
 """
-Creates Python source code from an uncompyle6 grammar tree,
+Creates Python source code from an uncompyle6 parse tree,
 and indexes fragments which can be accessed by instruction offset
 address.
 
@@ -1050,7 +1050,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     n_classdefdeco2 = n_classdef
 
     def gen_source(self, ast, name, customize, is_lambda=False, returnNone=False):
-        """convert grammar tree to Python source code"""
+        """convert parse tree to Python source code"""
 
         rn = self.return_none
         self.return_none = returnNone
@@ -1116,7 +1116,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             if len(tokens) == 0:
                 return PASS
 
-        # Build grammar tree from tokenized and massaged disassembly.
+        # Build parse tree from tokenized and massaged disassembly.
         try:
             # FIXME: have p.insts update in a better way
             # modularity is broken here
@@ -1719,7 +1719,7 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
                             pass a file like object, into which the asm will be
                             written).
     :param showast:         Flag which determines whether the constructed
-                            grammar tree is written to sys.stdout or
+                            parse tree is written to sys.stdout or
                             not. (It is also to pass a file like object, into
                             which the ast will be written).
     :param showgrammar:     Flag which determines whether the grammar reduction rules

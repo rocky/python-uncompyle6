@@ -16,7 +16,7 @@ else:
 
 LINE_LENGTH = 80
 
-# Some grammar trees created below are used for comparing code
+# Some parse trees created below are used for comparing code
 # fragments (like 'return None' at the end of functions).
 
 RETURN_LOCALS = AST('return',

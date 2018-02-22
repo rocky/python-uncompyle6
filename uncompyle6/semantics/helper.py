@@ -25,7 +25,8 @@ def find_all_globals(node, globs):
     return globs
 
 def find_globals(node, globs):
-    """search grammar-tree node to find variable names that need a 'global' added."""
+    """search a node of parse tree to find variable names that need a
+    'global' added."""
     for n in node:
         if isinstance(n, AST):
             globs = find_globals(n, globs)

@@ -23,7 +23,7 @@ def maybe_show_tree(show_tree, ast):
     Show the ast based on the showast flag (or file object), writing to the
     appropriate stream depending on the type of the flag.
 
-    :param show_tree: Flag which determines whether the grammar tree is
+    :param show_tree: Flag which determines whether the parse tree is
                       written to sys.stdout or not. (It is also to pass a file
                       like object, into which the ast will be written).
     :param ast:     The ast to show.

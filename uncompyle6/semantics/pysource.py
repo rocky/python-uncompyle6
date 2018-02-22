@@ -3,7 +3,7 @@
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 
-"""Creates Python source code from an uncompyle6 grammar tree.
+"""Creates Python source code from an uncompyle6 parse tree.
 
 The terminal symbols are CPython bytecode instructions. (See the
 python documentation under module "dis" for a list of instructions
@@ -47,7 +47,7 @@ Python.
 # In the diagram below, N is a nonterminal name, and K also a nonterminal
 # name but the one used as a key in the table.
 # we show where those are with respect to each other in the
-# grammar tree for N.
+# parse tree for N.
 #
 #
 #          N&K               N                  N
@@ -2587,7 +2587,7 @@ class SourceWalker(GenericASTTraversal, object):
             if len(tokens) == 0:
                 return PASS
 
-        # Build a grammar tree from a tokenized and massaged disassembly.
+        # Build a parse tree from a tokenized and massaged disassembly.
         try:
             # FIXME: have p.insts update in a better way
             # modularity is broken here
