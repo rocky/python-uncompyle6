@@ -314,6 +314,7 @@ class Python26Parser(Python2Parser):
         self.check_reduce['and'] = 'AST'
         self.check_reduce['list_for'] = 'AST'
         self.check_reduce['try_except'] = 'tokens'
+        self.check_reduce['tryelsestmt'] = 'tokens'
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python26Parser,
@@ -341,7 +342,7 @@ class Python26Parser(Python2Parser):
             ja_attr = ast[4].attr
             return tokens[last].offset != ja_attr
         elif rule[0] == 'try_except':
-            # We need to distingush try_except from try_except_else and we do that
+            # We need to distingush try_except from tryelsestmt and we do that
             # by checking the jump before the END_FINALLY
             # If we have:
             #    insn
@@ -349,14 +350,45 @@ class Python26Parser(Python2Parser):
             #    END_FINALLY
             #    COME_FROM
             # then insn has to be either a JUMP_FORWARD or a RETURN_VALUE
+            # and if it is JUMP_FORWARD, then it has to be a JUMP_FORWARD to right after
+            # COME_FROM
             if last == len(tokens):
                 last -= 1
             if tokens[last] != 'COME_FROM' and tokens[last-1] == 'COME_FROM':
                 last -= 1
-            return (tokens[last] == 'COME_FROM'
-                    and tokens[last-1] == 'END_FINALLY'
-                    and tokens[last-2] == 'POP_TOP'
-                    and tokens[last-3].kind not in frozenset(('JUMP_FORWARD', 'RETURN_VALUE')))
+            if (tokens[last] == 'COME_FROM'
+                and tokens[last-1] == 'END_FINALLY'
+                    and tokens[last-2] == 'POP_TOP'):
+                # A jump of 2 is a jump around POP_TOP, END_FINALLY which
+                # would indicate try/else rather than try
+                return (tokens[last-3].kind not in frozenset(('JUMP_FORWARD', 'RETURN_VALUE'))
+                        or (tokens[last-3] == 'JUMP_FORWARD' and tokens[last-3].attr != 2))
+        elif rule[0] == 'tryelsestmt':
+            # We need to distingush try_except from tryelsestmt and we do that
+            # by checking the jump before the END_FINALLY
+            # If we have:
+            #    insn
+            #    POP_TOP
+            #    END_FINALLY
+            #    COME_FROM
+            # then insn is neither a JUMP_FORWARD nor RETURN_VALUE,
+            # or if it is JUMP_FORWARD, then it can't be a JUMP_FORWARD to right after
+            # COME_FROM
+            if last == len(tokens):
+                last -= 1
+            while tokens[last-1] == 'COME_FROM' and tokens[last-2] == 'COME_FROM':
+                last -= 1
+            if tokens[last] == 'COME_FROM' and tokens[last-1] == 'COME_FROM':
+                last -= 1
+            if (tokens[last] == 'COME_FROM'
+                and tokens[last-1] == 'END_FINALLY'
+                    and tokens[last-2] == 'POP_TOP'):
+                # A jump of 2 is a jump around POP_TOP, END_FINALLY which
+                # would indicate try/else rather than try
+                return (tokens[last-3].kind in frozenset(('JUMP_FORWARD', 'RETURN_VALUE'))
+                        and (tokens[last-3] != 'JUMP_FORWARD' or tokens[last-3].attr == 2))
+
+
         return False
 class Python26ParserSingle(Python2Parser, PythonParserSingle):
     pass
