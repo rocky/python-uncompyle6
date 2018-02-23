@@ -29,19 +29,16 @@ case $PYVERSION in
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_queue.py]=1 # Control flow?
-	    [test_sax.py]=1  # Control flow?
 	    # [test_threading.py]=1 # Long test - works
 	)
 	;;
     2.5)
 	SKIP_TESTS=(
-	    [test_contextlib.py]=1
+	    [test_contextlib.py]=1 # Syntax error
 	    [test_dis.py]=1   # We change line numbers - duh!
-	    [test_exceptions.py]=1
-	    [test_functools.py]=1
 	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
 	    [test_grp.py]=1      # Long test - might work Control flow?
-	    [test_pdb.py]=1
+	    [test_pdb.py]=1      # Line number specific
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_queue.py]=1 # Control flow?
 	    [test_re.py]=1 # Probably Control flow?
