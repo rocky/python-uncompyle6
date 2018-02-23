@@ -136,7 +136,7 @@ class Python3Parser(PythonParser):
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK COME_FROM_LOOP
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK POP_BLOCK
 
-        # These are used to keep AST indices the same
+        # These are used to keep parse tree indices the same
         jump_forward_else  ::= JUMP_FORWARD ELSE
         jump_absolute_else ::= JUMP_ABSOLUTE ELSE
 

@@ -16,7 +16,7 @@ read_global_ops       = frozenset(('STORE_GLOBAL', 'DELETE_GLOBAL'))
 # FIXME: this and find_globals could be paramaterized with one of the
 # above global ops
 def find_all_globals(node, globs):
-    """Search AST node to find variable names that are global."""
+    """Search Syntax Tree node to find variable names that are global."""
     for n in node:
         if isinstance(n, AST):
             globs = find_all_globals(n, globs)
@@ -25,7 +25,8 @@ def find_all_globals(node, globs):
     return globs
 
 def find_globals(node, globs):
-    """search AST node to find variable names that need a 'global' added."""
+    """search a node of parse tree to find variable names that need a
+    'global' added."""
     for n in node:
         if isinstance(n, AST):
             globs = find_globals(n, globs)

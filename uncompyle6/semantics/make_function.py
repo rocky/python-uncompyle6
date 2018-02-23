@@ -12,7 +12,7 @@ from uncompyle6.semantics.helper import (
     )
 
 
-from uncompyle6.show import maybe_show_ast_param_default
+from uncompyle6.show import maybe_show_tree_param_default
 
 # FIXME: DRY the below code...
 
@@ -29,7 +29,7 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
         """
         if default:
             value = self.traverse(default, indent='')
-            maybe_show_ast_param_default(self.showast, name, value)
+            maybe_show_tree_param_default(self.showast, name, value)
             result = '%s=%s' % (name,  value)
             if result[-2:] == '= ':	# default was 'LOAD_CONST None'
                 result += 'None'
@@ -284,7 +284,7 @@ def make_function2(self, node, is_lambda, nested=1, codeNode=None):
 
         if default:
             value = self.traverse(default, indent='')
-            maybe_show_ast_param_default(self.showast, name, value)
+            maybe_show_tree_param_default(self.showast, name, value)
             result = '%s=%s' % (name,  value)
             if result[-2:] == '= ':	# default was 'LOAD_CONST None'
                 result += 'None'
@@ -456,7 +456,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
                 value = default
             else:
                 value = self.traverse(default, indent='')
-            maybe_show_ast_param_default(self.showast, name, value)
+            maybe_show_tree_param_default(self.showast, name, value)
             result = '%s=%s' % (name,  value)
             if result[-2:] == '= ':	# default was 'LOAD_CONST None'
                 result += 'None'

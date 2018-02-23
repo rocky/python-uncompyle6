@@ -1,7 +1,7 @@
 """
-  Copyright (c) 1999 John Aycock
+  Copyright (c) 2015, 2018 by Rocky Bernstein
   Copyright (c) 2000 by hartmut Goebel <h.goebel@crazy-compilers.com>
-  Copyright (c) 2015 by Rocky Bernstein
+  Copyright (c) 1999 John Aycock
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -55,6 +55,7 @@ from uncompyle6.main import decompile_file
 uncompyle_file = decompile_file
 
 # Conventience functions so you can say:
-# from uncompyle6 import deparse_code
+# from uncompyle6 import (deparse_code, deparse_code2str)
 
 deparse_code = uncompyle6.semantics.pysource.deparse_code
+deparse_code2str = uncompyle6.semantics.pysource.deparse_code2str
