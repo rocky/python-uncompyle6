@@ -31,7 +31,6 @@ case $PYVERSION in
 	    [test_queue.py]=1 # Control flow?
 	    [test_sax.py]=1  # Control flow?
 	    # [test_threading.py]=1 # Long test - works
-	    [test_types.py]=1 # Control flow?
 	)
 	;;
     2.5)
