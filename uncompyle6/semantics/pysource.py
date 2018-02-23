@@ -951,6 +951,10 @@ class SourceWalker(GenericASTTraversal, object):
         if node != AST('yield', [NONE, Token('YIELD_VALUE')]):
             self.write(' ')
             self.preorder(node[0])
+        elif self.version <= 2.4:
+            # Early versions of Python don't allow a plain "yield"
+            self.write(' None')
+
         self.prune() # stop recursing
 
     # In Python 3.3+ only
