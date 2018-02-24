@@ -2517,7 +2517,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         # Add "global" declaration statements at the top
         # of the function
-        for g in find_globals(ast, set()):
+        for g in sorted(find_globals(ast, set())):
             self.println(indent, 'global ', g)
 
         old_name = self.name
@@ -2674,8 +2674,8 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
     # What we've been waiting for: Generate source from Syntax Tree!
     deparsed.gen_source(deparsed.ast, co.co_name, customize)
 
-    for g in deparsed.mod_globs:
-        deparsed.write('# global %s ## Warning: Unused global' % g)
+    for g in sorted(deparsed.mod_globs):
+        deparsed.write('# global %s ## Warning: Unused global\n' % g)
 
     if deparsed.ast_errors:
         deparsed.write("# NOTE: have internal decompilation grammar errors.\n")
