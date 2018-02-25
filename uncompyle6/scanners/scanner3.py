@@ -1,6 +1,6 @@
-#  Copyright (c) 2015-2018 by Rocky Bernstein
-#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+# Copyright (c) 2015-2018 by Rocky Bernstein
+# Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+# Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 """
 Python 3 Generic bytecode scanner/deparser
 
@@ -25,9 +25,8 @@ from __future__ import print_function
 from collections import namedtuple
 from array import array
 
-from uncompyle6.scanner import Scanner
 from xdis.code import iscode
-from xdis.bytecode import Bytecode, instruction_size, next_offset
+from xdis.bytecode import Bytecode, instruction_size
 
 from uncompyle6.scanner import Token, parse_fn_counts
 import xdis
@@ -35,44 +34,14 @@ import xdis
 # Get all the opcodes into globals
 import xdis.opcodes.opcode_33 as op3
 
+from uncompyle6.scanner import Scanner
+
 import sys
 from uncompyle6 import PYTHON3
 if PYTHON3:
     intern = sys.intern
 
 globals().update(op3.opmap)
-
-def remove_extended_args(instructions, prev_op):
-    """Go through instructions removing extended ARG.
-    get_instruction_bytes previously adjusted the operand values
-    to account for these"""
-    new_instructions = []
-    last_was_extarg = False
-    n = len(instructions)
-    for i, inst in enumerate(instructions):
-        if (inst.opname == 'EXTENDED_ARG' and
-            i+1 < n and instructions[i+1].opname != 'MAKE_FUNCTION'):
-            last_was_extarg = True
-            starts_line = inst.starts_line
-            is_jump_target = inst.is_jump_target
-            offset = inst.offset
-            continue
-        if last_was_extarg:
-            new_inst= inst._replace(starts_line=starts_line,
-                                    is_jump_target=is_jump_target,
-                                    offset=offset)
-            inst = new_inst
-            if i < n:
-                j = instructions[i+1].offset
-                old_prev = prev_op[j]
-                while prev_op[j] == old_prev and j < n:
-                    prev_op[j] = prev_op[i]
-                    j += 1
-
-        last_was_extarg = False
-        new_instructions.append(inst)
-    return new_instructions
-
 
 class Scanner3(Scanner):
 
@@ -172,6 +141,41 @@ class Scanner3(Scanner):
         # FIXME: remove the above in favor of:
         # self.varargs_ops = frozenset(self.opc.hasvargs)
 
+    def remove_extended_args(self, instructions):
+        """Go through instructions removing extended ARG.
+        get_instruction_bytes previously adjusted the operand values
+        to account for these"""
+        new_instructions = []
+        last_was_extarg = False
+        n = len(instructions)
+        for i, inst in enumerate(instructions):
+            if (inst.opname == 'EXTENDED_ARG' and
+                i+1 < n and instructions[i+1].opname != 'MAKE_FUNCTION'):
+                last_was_extarg = True
+                starts_line = inst.starts_line
+                is_jump_target = inst.is_jump_target
+                offset = inst.offset
+                continue
+            if last_was_extarg:
+
+                # j = self.stmts.index(inst.offset)
+                # self.lines[j] = offset
+
+                new_inst= inst._replace(starts_line=starts_line,
+                                        is_jump_target=is_jump_target,
+                                        offset=offset)
+                inst = new_inst
+                if i < n:
+                    j = instructions[i+1].offset
+                    old_prev = self.prev_op[j]
+                    while self.prev_op[j] == old_prev and j < n:
+                        self.prev_op[j] = self.prev_op[i]
+                        j += 1
+
+            last_was_extarg = False
+            new_instructions.append(inst)
+        return new_instructions
+
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Pick out tokens from an uncompyle6 code object, and transform them,
@@ -203,17 +207,13 @@ class Scanner3(Scanner):
         # list of tokens/instructions
         tokens = []
 
-        # "customize" is a dict whose keys are nonterminals
-        # and the value is the argument stack entries for that
-        # nonterminal. The count is a little hoaky. It is mostly
-        # not used, but sometimes it is.
-        # "customize" is a dict whose keys are nonterminals
+        # "customize" is in the process of going away here
         customize = {}
 
         if self.is_pypy:
             customize['PyPy'] = 0
 
-        self.build_lines_data(co)
+        self.lines = self.build_lines_data(co)
         self.build_prev_op()
 
         # FIXME: put as its own method?
@@ -221,7 +221,7 @@ class Scanner3(Scanner):
         # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT'.
         # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
-        self.insts = remove_extended_args(list(bytecode), self.prev_op)
+        self.insts = self.remove_extended_args(list(bytecode))
 
         self.offset2inst_index = {}
         n = len(self.insts)
@@ -450,7 +450,7 @@ class Scanner3(Scanner):
 
         if show_asm in ('both', 'after'):
             for t in tokens:
-                print(t)
+                print(t.format(line_prefix='L.'))
             print()
         return tokens, customize
 
@@ -466,7 +466,7 @@ class Scanner3(Scanner):
         self.linestart_offsets = set(a for (a, _) in linestarts)
         # 'List-map' which shows line number of current op and offset of
         # first op on following line, given offset of op as index
-        self.lines = lines = []
+        lines = []
         LineTuple = namedtuple('LineTuple', ['l_no', 'next'])
         # Iterate through available linestarts, and fill
         # the data for all code offsets encountered until
@@ -484,6 +484,7 @@ class Scanner3(Scanner):
         while offset < codelen:
             lines.append(LineTuple(prev_line_no, codelen))
             offset += 1
+        return lines
 
     def build_prev_op(self):
         """
@@ -653,34 +654,19 @@ class Scanner3(Scanner):
         # Finish filling the list for last statement
         slist += [codelen] * (codelen-len(slist))
 
-    def get_target(self, offset, extended_arg=0):
-        """
-        Get next instruction offset for op located at given <offset>.
-        NOTE: extended_arg is no longer used
-        """
-        inst = self.insts[self.offset2inst_index[offset]]
-        if inst.opcode in self.opc.JREL_OPS | self.opc.JABS_OPS:
-            target = inst.argval
-        else:
-            # No jump offset, so use fall-through offset
-            target = next_offset(inst.opcode, self.opc, inst.offset)
-        return target
-
     def detect_control_flow(self, offset, targets, inst_index):
         """
-        Detect structures and their boundaries to fix optimized jumps
+        Detect type of block structures and their boundaries to fix optimized jumps
         in python2.3+
         """
-
-        # TODO: check the struct boundaries more precisely -Dan
 
         code = self.code
         op = self.insts[inst_index].opcode
 
         # Detect parent structure
         parent = self.structs[0]
-        start = parent['start']
-        end = parent['end']
+        start  = parent['start']
+        end    = parent['end']
 
         # Pick inner-most parent for our offset
         for struct in self.structs:
@@ -688,8 +674,8 @@ class Scanner3(Scanner):
             current_end   = struct['end']
             if ((current_start <= offset < current_end)
                 and (current_start >= start and current_end <= end)):
-                start = current_start
-                end = current_end
+                start  = current_start
+                end    = current_end
                 parent = struct
 
         if op == self.opc.SETUP_LOOP:

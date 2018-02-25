@@ -17,8 +17,8 @@ import sys
 from uncompyle6 import PYTHON3, IS_PYPY
 from uncompyle6.scanners.tok import Token
 import xdis
-from xdis.bytecode import op_size, extended_arg_val
-from xdis.magics import py_str2float, canonic_python_version
+from xdis.bytecode import instruction_size, extended_arg_val, next_offset
+from xdis.magics import canonic_python_version
 from xdis.util import code2num
 
 # The byte code versions we support.
@@ -98,12 +98,20 @@ class Scanner(object):
         # FIXME 0 isn't always correct
         return offset < self.get_target(offset, 0)
 
-    def get_target(self, pos, op=None):
-        if op is None:
-            op = self.code[pos]
-        target = self.get_argument(pos)
-        if op in self.opc.JREL_OPS:
-            target += pos + 3
+    def get_target(self, offset, extended_arg=0):
+        """
+        Get next instruction offset for op located at given <offset>.
+        NOTE: extended_arg is no longer used
+        """
+        # instructions can get moved as a result of EXTENDED_ARGS removal
+        if offset not in self.offset2inst_index:
+            offset -= instruction_size(self.opc.EXTENDED_ARG, self.opc)
+        inst = self.insts[self.offset2inst_index[offset]]
+        if inst.opcode in self.opc.JREL_OPS | self.opc.JABS_OPS:
+            target = inst.argval
+        else:
+            # No jump offset, so use fall-through offset
+            target = next_offset(inst.opcode, self.opc, inst.offset)
         return target
 
     def get_argument(self, pos):
@@ -269,7 +277,7 @@ class Scanner(object):
         """
         while start < end:
             yield start
-            start += op_size(self.code[start], self.opc)
+            start += instruction_size(self.code[start], self.opc)
 
     def remove_mid_line_ifs(self, ifs):
         """
