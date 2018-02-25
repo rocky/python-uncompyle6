@@ -42,6 +42,38 @@ if PYTHON3:
 
 globals().update(op3.opmap)
 
+def remove_extended_args(instructions, prev_op):
+    """Go through instructions removing extended ARG.
+    get_instruction_bytes previously adjusted the operand values
+    to account for these"""
+    new_instructions = []
+    last_was_extarg = False
+    n = len(instructions)
+    for i, inst in enumerate(instructions):
+        if (inst.opname == 'EXTENDED_ARG' and
+            i+1 < n and instructions[i+1].opname != 'MAKE_FUNCTION'):
+            last_was_extarg = True
+            starts_line = inst.starts_line
+            is_jump_target = inst.is_jump_target
+            offset = inst.offset
+            continue
+        if last_was_extarg:
+            new_inst= inst._replace(starts_line=starts_line,
+                                    is_jump_target=is_jump_target,
+                                    offset=offset)
+            inst = new_inst
+            if i < n:
+                j = instructions[i+1].offset
+                old_prev = prev_op[j]
+                while prev_op[j] == old_prev and j < n:
+                    prev_op[j] = prev_op[i]
+                    j += 1
+
+        last_was_extarg = False
+        new_instructions.append(inst)
+    return new_instructions
+
+
 class Scanner3(Scanner):
 
     def __init__(self, version, show_asm=None, is_pypy=False):
@@ -189,7 +221,8 @@ class Scanner3(Scanner):
         # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT'.
         # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
-        self.insts = list(bytecode)
+        self.insts = remove_extended_args(list(bytecode), self.prev_op)
+
         self.offset2inst_index = {}
         n = len(self.insts)
         for i, inst in enumerate(self.insts):
@@ -219,15 +252,16 @@ class Scanner3(Scanner):
 
         last_op_was_break = False
 
-        for i, inst in enumerate(bytecode):
+        for i, inst in enumerate(self.insts):
 
             argval = inst.argval
             op     = inst.opcode
 
-            if op == self.opc.EXTENDED_ARG:
+            if inst.opname == 'EXTENDED_ARG':
                 # FIXME: The EXTENDED_ARG is used to signal annotation
                 # parameters
-                if self.insts[i+1].opcode != self.opc.MAKE_FUNCTION:
+                if (i+1 < n and
+                    self.insts[i+1].opcode != self.opc.MAKE_FUNCTION):
                     continue
 
             if inst.offset in jump_targets:
@@ -622,23 +656,9 @@ class Scanner3(Scanner):
     def get_target(self, offset, extended_arg=0):
         """
         Get target offset for op located at given <offset>.
+        NOTE: extended_arg is no longer used
         """
-        op = self.code[offset]
-        rel_offset = 0
-        if self.version  >= 3.6:
-            target = self.code[offset+1]
-            if op in self.opc.JREL_OPS:
-                rel_offset = offset + 2
-        else:
-            target = self.code[offset+1] + self.code[offset+2] * 256
-            if op in self.opc.JREL_OPS:
-                rel_offset = offset + 3
-                pass
-            pass
-        target += rel_offset
-        target += extended_arg
-
-        return target
+        return self.insts[self.offset2inst_index[offset]].argval
 
     def detect_control_flow(self, offset, targets, inst_index):
         """
@@ -649,7 +669,7 @@ class Scanner3(Scanner):
         # TODO: check the struct boundaries more precisely -Dan
 
         code = self.code
-        op = code[offset]
+        op = self.insts[inst_index].opcode
 
         # Detect parent structure
         parent = self.structs[0]
@@ -673,8 +693,7 @@ class Scanner3(Scanner):
             # It could be a return instruction.
 
             start += instruction_size(op, self.opc)
-            # FIXME: 0 = extended arg which is not right. Use self.insts instead
-            target = self.get_target(offset, 0)
+            target = self.get_target(offset)
             end    = self.restrict_to_parent(target, parent)
             self.setup_loops[target] = offset
 
@@ -715,7 +734,7 @@ class Scanner3(Scanner):
                 target = next_line_byte
                 end = xdis.next_offset(code[jump_back], self.opc, jump_back)
             else:
-                if self.get_target(jump_back, 0) >= next_line_byte:
+                if self.get_target(jump_back) >= next_line_byte:
                     jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE, start, False)
 
                 # This is wrong for 3.6+
@@ -728,21 +747,20 @@ class Scanner3(Scanner):
                     self.fixed_jumps[offset] = jump_back+4
                     end = jump_back+4
 
-                # I think 0 right because jump_back has been adjusted for any EXTENDED_ARG
-                # it encounters
                 target = self.get_target(jump_back)
 
                 if code[target] in (self.opc.FOR_ITER, self.opc.GET_ITER):
                     loop_type = 'for'
                 else:
                     loop_type = 'while'
-                    test = self.prev_op[next_line_byte]
+                    test_inst = self.insts[self.offset2inst_index[next_line_byte]-1]
+                    # test = self.prev_op[next_line_byte]
 
-                    if test == offset:
+                    if test_inst.offset == offset:
                         loop_type = 'while 1'
-                    elif self.code[test] in self.opc.JUMP_OPs:
-                        self.ignore_if.add(test)
-                        test_target = self.get_target(test)
+                    elif test_inst.opcode in self.opc.JUMP_OPs:
+                        self.ignore_if.add(test_inst.offset)
+                        test_target = self.get_target(test_inst.offset)
                         if test_target > (jump_back+3):
                             jump_back = test_target
                 self.not_continue.add(jump_back)
@@ -888,7 +906,7 @@ class Scanner3(Scanner):
             # like whether the target is "END_FINALLY"
             # or if the condition jump is to a forward location
             if self.is_jump_forward(pre_rtarget):
-                if_end = self.get_target(pre_rtarget, 0)
+                if_end = self.get_target(pre_rtarget)
 
                 # If the jump target is back, we are looping
                 if (if_end < pre_rtarget and
