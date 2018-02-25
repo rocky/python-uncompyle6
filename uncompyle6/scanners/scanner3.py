@@ -27,7 +27,7 @@ from array import array
 
 from uncompyle6.scanner import Scanner
 from xdis.code import iscode
-from xdis.bytecode import Bytecode, instruction_size
+from xdis.bytecode import Bytecode, instruction_size, next_offset
 
 from uncompyle6.scanner import Token, parse_fn_counts
 import xdis
@@ -621,23 +621,15 @@ class Scanner3(Scanner):
 
     def get_target(self, offset, extended_arg=0):
         """
-        Get target offset for op located at given <offset>.
+        Get next instruction offset for op located at given <offset>.
+        NOTE: extended_arg is no longer used
         """
-        op = self.code[offset]
-        rel_offset = 0
-        if self.version  >= 3.6:
-            target = self.code[offset+1]
-            if op in self.opc.JREL_OPS:
-                rel_offset = offset + 2
+        inst = self.insts[self.offset2inst_index[offset]]
+        if inst.opcode in self.opc.JREL_OPS | self.opc.JABS_OPS:
+            target = inst.argval
         else:
-            target = self.code[offset+1] + self.code[offset+2] * 256
-            if op in self.opc.JREL_OPS:
-                rel_offset = offset + 3
-                pass
-            pass
-        target += rel_offset
-        target += extended_arg
-
+            # No jump offset, so use fall-through offset
+            target = next_offset(inst.opcode, self.opc, inst.offset)
         return target
 
     def detect_control_flow(self, offset, targets, inst_index):
@@ -649,7 +641,7 @@ class Scanner3(Scanner):
         # TODO: check the struct boundaries more precisely -Dan
 
         code = self.code
-        op = code[offset]
+        op = self.insts[inst_index].opcode
 
         # Detect parent structure
         parent = self.structs[0]
@@ -673,8 +665,7 @@ class Scanner3(Scanner):
             # It could be a return instruction.
 
             start += instruction_size(op, self.opc)
-            # FIXME: 0 = extended arg which is not right. Use self.insts instead
-            target = self.get_target(offset, 0)
+            target = self.get_target(offset)
             end    = self.restrict_to_parent(target, parent)
             self.setup_loops[target] = offset
 
@@ -715,7 +706,7 @@ class Scanner3(Scanner):
                 target = next_line_byte
                 end = xdis.next_offset(code[jump_back], self.opc, jump_back)
             else:
-                if self.get_target(jump_back, 0) >= next_line_byte:
+                if self.get_target(jump_back) >= next_line_byte:
                     jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE, start, False)
 
                 # This is wrong for 3.6+
@@ -728,23 +719,24 @@ class Scanner3(Scanner):
                     self.fixed_jumps[offset] = jump_back+4
                     end = jump_back+4
 
-                # I think 0 right because jump_back has been adjusted for any EXTENDED_ARG
-                # it encounters
                 target = self.get_target(jump_back)
 
                 if code[target] in (self.opc.FOR_ITER, self.opc.GET_ITER):
                     loop_type = 'for'
                 else:
                     loop_type = 'while'
-                    test = self.prev_op[next_line_byte]
-
-                    if test == offset:
-                        loop_type = 'while 1'
-                    elif self.code[test] in self.opc.JUMP_OPs:
-                        self.ignore_if.add(test)
-                        test_target = self.get_target(test)
-                        if test_target > (jump_back+3):
-                            jump_back = test_target
+                    if next_line_byte < len(code):
+                        test_inst = self.insts[self.offset2inst_index[next_line_byte]-1]
+                        if test_inst.offset == offset:
+                            loop_type = 'while 1'
+                        elif test_inst.opcode in self.opc.JUMP_OPs:
+                            self.ignore_if.add(test_inst.offset)
+                            test_target = self.get_target(test_inst.offset)
+                            if test_target > (jump_back+3):
+                                jump_back = test_target
+                                pass
+                            pass
+                        pass
                 self.not_continue.add(jump_back)
             self.loops.append(target)
             self.structs.append({'type': loop_type + '-loop',
@@ -888,7 +880,7 @@ class Scanner3(Scanner):
             # like whether the target is "END_FINALLY"
             # or if the condition jump is to a forward location
             if self.is_jump_forward(pre_rtarget):
-                if_end = self.get_target(pre_rtarget, 0)
+                if_end = self.get_target(pre_rtarget)
 
                 # If the jump target is back, we are looping
                 if (if_end < pre_rtarget and
@@ -990,6 +982,8 @@ class Scanner3(Scanner):
         elif op == self.opc.POP_EXCEPT:
             next_offset = xdis.next_offset(op, self.opc, offset)
             target = self.get_target(next_offset)
+            if target is None:
+                from trepan.api import debug; debug()
             if target > next_offset:
                 next_op = code[next_offset]
                 if (self.opc.JUMP_ABSOLUTE == next_op and
