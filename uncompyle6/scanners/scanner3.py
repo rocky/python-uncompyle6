@@ -27,7 +27,7 @@ from array import array
 
 from uncompyle6.scanner import Scanner
 from xdis.code import iscode
-from xdis.bytecode import Bytecode, instruction_size
+from xdis.bytecode import Bytecode, instruction_size, next_offset
 
 from uncompyle6.scanner import Token, parse_fn_counts
 import xdis
@@ -655,10 +655,16 @@ class Scanner3(Scanner):
 
     def get_target(self, offset, extended_arg=0):
         """
-        Get target offset for op located at given <offset>.
+        Get next instruction offset for op located at given <offset>.
         NOTE: extended_arg is no longer used
         """
-        return self.insts[self.offset2inst_index[offset]].argval
+        inst = self.insts[self.offset2inst_index[offset]]
+        if inst.opcode in self.opc.JREL_OPS | self.opc.JABS_OPS:
+            target = inst.argval
+        else:
+            # No jump offset, so use fall-through offset
+            target = next_offset(inst.opcode, self.opc, inst.offset)
+        return target
 
     def detect_control_flow(self, offset, targets, inst_index):
         """
@@ -753,16 +759,18 @@ class Scanner3(Scanner):
                     loop_type = 'for'
                 else:
                     loop_type = 'while'
-                    test_inst = self.insts[self.offset2inst_index[next_line_byte]-1]
-                    # test = self.prev_op[next_line_byte]
-
-                    if test_inst.offset == offset:
-                        loop_type = 'while 1'
-                    elif test_inst.opcode in self.opc.JUMP_OPs:
-                        self.ignore_if.add(test_inst.offset)
-                        test_target = self.get_target(test_inst.offset)
-                        if test_target > (jump_back+3):
-                            jump_back = test_target
+                    if next_line_byte < len(code):
+                        test_inst = self.insts[self.offset2inst_index[next_line_byte]-1]
+                        if test_inst.offset == offset:
+                            loop_type = 'while 1'
+                        elif test_inst.opcode in self.opc.JUMP_OPs:
+                            self.ignore_if.add(test_inst.offset)
+                            test_target = self.get_target(test_inst.offset)
+                            if test_target > (jump_back+3):
+                                jump_back = test_target
+                                pass
+                            pass
+                        pass
                 self.not_continue.add(jump_back)
             self.loops.append(target)
             self.structs.append({'type': loop_type + '-loop',
@@ -1008,6 +1016,8 @@ class Scanner3(Scanner):
         elif op == self.opc.POP_EXCEPT:
             next_offset = xdis.next_offset(op, self.opc, offset)
             target = self.get_target(next_offset)
+            if target is None:
+                from trepan.api import debug; debug()
             if target > next_offset:
                 next_op = code[next_offset]
                 if (self.opc.JUMP_ABSOLUTE == next_op and
