@@ -1,6 +1,6 @@
-#  Copyright (c) 2015-2018 by Rocky Bernstein
-#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+# Copyright (c) 2015-2018 by Rocky Bernstein
+# Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+# Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 """
 Python 3 Generic bytecode scanner/deparser
 
@@ -25,15 +25,16 @@ from __future__ import print_function
 from collections import namedtuple
 from array import array
 
-from uncompyle6.scanner import Scanner
 from xdis.code import iscode
-from xdis.bytecode import Bytecode, instruction_size, next_offset
+from xdis.bytecode import Bytecode, instruction_size
 
 from uncompyle6.scanner import Token, parse_fn_counts
 import xdis
 
 # Get all the opcodes into globals
 import xdis.opcodes.opcode_33 as op3
+
+from uncompyle6.scanner import Scanner
 
 import sys
 from uncompyle6 import PYTHON3
@@ -171,11 +172,7 @@ class Scanner3(Scanner):
         # list of tokens/instructions
         tokens = []
 
-        # "customize" is a dict whose keys are nonterminals
-        # and the value is the argument stack entries for that
-        # nonterminal. The count is a little hoaky. It is mostly
-        # not used, but sometimes it is.
-        # "customize" is a dict whose keys are nonterminals
+        # "customize" is in the process of going away here
         customize = {}
 
         if self.is_pypy:
@@ -417,7 +414,7 @@ class Scanner3(Scanner):
 
         if show_asm in ('both', 'after'):
             for t in tokens:
-                print(t)
+                print(t.format(line_prefix='L.'))
             print()
         return tokens, customize
 
@@ -620,34 +617,19 @@ class Scanner3(Scanner):
         # Finish filling the list for last statement
         slist += [codelen] * (codelen-len(slist))
 
-    def get_target(self, offset, extended_arg=0):
-        """
-        Get next instruction offset for op located at given <offset>.
-        NOTE: extended_arg is no longer used
-        """
-        inst = self.insts[self.offset2inst_index[offset]]
-        if inst.opcode in self.opc.JREL_OPS | self.opc.JABS_OPS:
-            target = inst.argval
-        else:
-            # No jump offset, so use fall-through offset
-            target = next_offset(inst.opcode, self.opc, inst.offset)
-        return target
-
     def detect_control_flow(self, offset, targets, inst_index):
         """
-        Detect structures and their boundaries to fix optimized jumps
+        Detect type of block structures and their boundaries to fix optimized jumps
         in python2.3+
         """
-
-        # TODO: check the struct boundaries more precisely -Dan
 
         code = self.code
         op = self.insts[inst_index].opcode
 
         # Detect parent structure
         parent = self.structs[0]
-        start = parent['start']
-        end = parent['end']
+        start  = parent['start']
+        end    = parent['end']
 
         # Pick inner-most parent for our offset
         for struct in self.structs:
@@ -655,8 +637,8 @@ class Scanner3(Scanner):
             current_end   = struct['end']
             if ((current_start <= offset < current_end)
                 and (current_start >= start and current_end <= end)):
-                start = current_start
-                end = current_end
+                start  = current_start
+                end    = current_end
                 parent = struct
 
         if op == self.opc.SETUP_LOOP:
