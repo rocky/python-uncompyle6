@@ -128,8 +128,8 @@ def align_deparse_code(version, co, out=sys.stderr, showasm=False, showast=False
     # What we've been waiting for: Generate Python source from the parse tree!
     deparsed.gen_source(deparsed.ast, co.co_name, customize)
 
-    for g in deparsed.mod_globs:
-        deparsed.write('# global %s ## Warning: Unused global' % g)
+    for g in sorted(deparsed.mod_globs):
+        deparsed.write('# global %s ## Warning: Unused global\n' % g)
 
     if deparsed.ERROR:
         raise SourceWalkerError("Deparsing stopped due to parse error")

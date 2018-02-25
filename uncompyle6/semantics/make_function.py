@@ -256,7 +256,7 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
     assert ast == 'stmts'
 
     all_globals = find_all_globals(ast, set())
-    for g in ((all_globals & self.mod_globs) | find_globals(ast, set())):
+    for g in sorted((all_globals & self.mod_globs) | find_globals(ast, set())):
         self.println(self.indent, 'global ', g)
     self.mod_globs -= all_globals
     has_none = 'None' in code.co_names
@@ -409,7 +409,7 @@ def make_function2(self, node, is_lambda, nested=1, codeNode=None):
         assert ast == 'stmts'
 
     all_globals = find_all_globals(ast, set())
-    for g in ((all_globals & self.mod_globs) | find_globals(ast, set())):
+    for g in sorted((all_globals & self.mod_globs) | find_globals(ast, set())):
         self.println(self.indent, 'global ', g)
     self.mod_globs -= all_globals
     has_none = 'None' in code.co_names
@@ -655,7 +655,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
     assert ast == 'stmts'
 
     all_globals = find_all_globals(ast, set())
-    for g in ((all_globals & self.mod_globs) | find_globals(ast, set())):
+    for g in sorted((all_globals & self.mod_globs) | find_globals(ast, set())):
         self.println(self.indent, 'global ', g)
     self.mod_globs -= all_globals
     has_none = 'None' in code.co_names
