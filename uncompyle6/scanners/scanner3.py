@@ -227,7 +227,8 @@ class Scanner3(Scanner):
             if op == self.opc.EXTENDED_ARG:
                 # FIXME: The EXTENDED_ARG is used to signal annotation
                 # parameters
-                if self.insts[i+1].opcode != self.opc.MAKE_FUNCTION:
+                if (i+1 < n and
+                    self.insts[i+1].opcode != self.opc.MAKE_FUNCTION):
                     continue
 
             if inst.offset in jump_targets:
