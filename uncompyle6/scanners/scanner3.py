@@ -141,6 +141,41 @@ class Scanner3(Scanner):
         # FIXME: remove the above in favor of:
         # self.varargs_ops = frozenset(self.opc.hasvargs)
 
+    def remove_extended_args(self, instructions):
+        """Go through instructions removing extended ARG.
+        get_instruction_bytes previously adjusted the operand values
+        to account for these"""
+        new_instructions = []
+        last_was_extarg = False
+        n = len(instructions)
+        for i, inst in enumerate(instructions):
+            if (inst.opname == 'EXTENDED_ARG' and
+                i+1 < n and instructions[i+1].opname != 'MAKE_FUNCTION'):
+                last_was_extarg = True
+                starts_line = inst.starts_line
+                is_jump_target = inst.is_jump_target
+                offset = inst.offset
+                continue
+            if last_was_extarg:
+
+                # j = self.stmts.index(inst.offset)
+                # self.lines[j] = offset
+
+                new_inst= inst._replace(starts_line=starts_line,
+                                        is_jump_target=is_jump_target,
+                                        offset=offset)
+                inst = new_inst
+                if i < n:
+                    j = instructions[i+1].offset
+                    old_prev = self.prev_op[j]
+                    while self.prev_op[j] == old_prev and j < n:
+                        self.prev_op[j] = self.prev_op[i]
+                        j += 1
+
+            last_was_extarg = False
+            new_instructions.append(inst)
+        return new_instructions
+
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Pick out tokens from an uncompyle6 code object, and transform them,
@@ -178,7 +213,7 @@ class Scanner3(Scanner):
         if self.is_pypy:
             customize['PyPy'] = 0
 
-        self.build_lines_data(co)
+        self.lines = self.build_lines_data(co)
         self.build_prev_op()
 
         # FIXME: put as its own method?
@@ -186,7 +221,8 @@ class Scanner3(Scanner):
         # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT'.
         # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
-        self.insts = list(bytecode)
+        self.insts = self.remove_extended_args(list(bytecode))
+
         self.offset2inst_index = {}
         n = len(self.insts)
         for i, inst in enumerate(self.insts):
@@ -216,12 +252,12 @@ class Scanner3(Scanner):
 
         last_op_was_break = False
 
-        for i, inst in enumerate(bytecode):
+        for i, inst in enumerate(self.insts):
 
             argval = inst.argval
             op     = inst.opcode
 
-            if op == self.opc.EXTENDED_ARG:
+            if inst.opname == 'EXTENDED_ARG':
                 # FIXME: The EXTENDED_ARG is used to signal annotation
                 # parameters
                 if (i+1 < n and
@@ -239,6 +275,10 @@ class Scanner3(Scanner):
                 for jump_offset in sorted(jump_targets[inst.offset], reverse=True):
                     come_from_name = 'COME_FROM'
                     opname = self.opname_for_offset(jump_offset)
+                    if opname == 'EXTENDED_ARG':
+                        j = xdis.next_offset(op, self.opc, jump_offset)
+                        opname = self.opname_for_offset(j)
+
                     if opname.startswith('SETUP_'):
                         come_from_type = opname[len('SETUP_'):]
                         come_from_name = 'COME_FROM_%s' % come_from_type
@@ -362,7 +402,6 @@ class Scanner3(Scanner):
                 # as CONTINUE, but that's okay since we add a grammar
                 # rule for that.
                 pattr = argval
-                # FIXME: 0 isn't always correct
                 target = self.get_target(inst.offset)
                 if target <= inst.offset:
                     next_opname = self.insts[i+1].opname
@@ -430,7 +469,7 @@ class Scanner3(Scanner):
         self.linestart_offsets = set(a for (a, _) in linestarts)
         # 'List-map' which shows line number of current op and offset of
         # first op on following line, given offset of op as index
-        self.lines = lines = []
+        lines = []
         LineTuple = namedtuple('LineTuple', ['l_no', 'next'])
         # Iterate through available linestarts, and fill
         # the data for all code offsets encountered until
@@ -448,6 +487,7 @@ class Scanner3(Scanner):
         while offset < codelen:
             lines.append(LineTuple(prev_line_no, codelen))
             offset += 1
+        return lines
 
     def build_prev_op(self):
         """
@@ -508,7 +548,12 @@ class Scanner3(Scanner):
             if inst.has_arg:
                 label = self.fixed_jumps.get(offset)
                 oparg = inst.arg
-                next_offset = xdis.next_offset(op, self.opc, offset)
+                if (self.version >= 3.6 and
+                    self.code[offset] == self.opc.EXTENDED_ARG):
+                    j = xdis.next_offset(op, self.opc, offset)
+                    next_offset = xdis.next_offset(op, self.opc, j)
+                else:
+                    next_offset = xdis.next_offset(op, self.opc, offset)
 
                 if label is None:
                     if op in op3.hasjrel and op != self.opc.FOR_ITER:

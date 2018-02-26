@@ -17,7 +17,7 @@ import sys
 from uncompyle6 import PYTHON3, IS_PYPY
 from uncompyle6.scanners.tok import Token
 import xdis
-from xdis.bytecode import op_size, extended_arg_val, next_offset
+from xdis.bytecode import instruction_size, extended_arg_val, next_offset
 from xdis.magics import canonic_python_version
 from xdis.util import code2num
 
@@ -103,6 +103,9 @@ class Scanner(object):
         Get next instruction offset for op located at given <offset>.
         NOTE: extended_arg is no longer used
         """
+        # instructions can get moved as a result of EXTENDED_ARGS removal
+        if offset not in self.offset2inst_index:
+            offset -= instruction_size(self.opc.EXTENDED_ARG, self.opc)
         inst = self.insts[self.offset2inst_index[offset]]
         if inst.opcode in self.opc.JREL_OPS | self.opc.JABS_OPS:
             target = inst.argval
@@ -274,7 +277,7 @@ class Scanner(object):
         """
         while start < end:
             yield start
-            start += op_size(self.code[start], self.opc)
+            start += instruction_size(self.code[start], self.opc)
 
     def remove_mid_line_ifs(self, ifs):
         """
