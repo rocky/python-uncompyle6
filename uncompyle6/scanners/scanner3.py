@@ -275,6 +275,10 @@ class Scanner3(Scanner):
                 for jump_offset in sorted(jump_targets[inst.offset], reverse=True):
                     come_from_name = 'COME_FROM'
                     opname = self.opname_for_offset(jump_offset)
+                    if opname == 'EXTENDED_ARG':
+                        j = xdis.next_offset(op, self.opc, jump_offset)
+                        opname = self.opname_for_offset(j)
+
                     if opname.startswith('SETUP_'):
                         come_from_type = opname[len('SETUP_'):]
                         come_from_name = 'COME_FROM_%s' % come_from_type
@@ -545,7 +549,12 @@ class Scanner3(Scanner):
             if inst.has_arg:
                 label = self.fixed_jumps.get(offset)
                 oparg = inst.arg
-                next_offset = xdis.next_offset(op, self.opc, offset)
+                if (self.version >= 3.6 and
+                    self.code[offset] == self.opc.EXTENDED_ARG):
+                    j = xdis.next_offset(op, self.opc, offset)
+                    next_offset = xdis.next_offset(op, self.opc, j)
+                else:
+                    next_offset = xdis.next_offset(op, self.opc, offset)
 
                 if label is None:
                     if op in op3.hasjrel and op != self.opc.FOR_ITER:
