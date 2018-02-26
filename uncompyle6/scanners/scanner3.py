@@ -402,7 +402,6 @@ class Scanner3(Scanner):
                 # as CONTINUE, but that's okay since we add a grammar
                 # rule for that.
                 pattr = argval
-                # FIXME: 0 isn't always correct
                 target = self.get_target(inst.offset)
                 if target <= inst.offset:
                     next_opname = self.insts[i+1].opname
