@@ -28,7 +28,7 @@ def test_if_in_for():
     if 2.7 <= PYTHON_VERSION <= 3.0 and not IS_PYPY:
         n = scan.setup_code(code)
         bytecode = Bytecode(code, scan.opc)
-        scan.lines = scan.build_lines_data(code, n)
+        scan.build_lines_data(code, n)
         scan.insts = list(bytecode)
         scan.offset2inst_index = {}
         for i, inst in enumerate(scan.insts):
@@ -50,7 +50,7 @@ def test_if_in_for():
         code = bug_loop.__code__
         n = scan.setup_code(code)
         bytecode = Bytecode(code, scan.opc)
-        scan.lines = scan.build_lines_data(code, n)
+        scan.build_lines_data(code, n)
         scan.insts = list(bytecode)
         scan.build_prev_op(n)
         scan.offset2inst_index = {}
