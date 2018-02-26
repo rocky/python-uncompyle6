@@ -30,6 +30,8 @@ class Python36Parser(Python35Parser):
         for_block       ::= l_stmts_opt come_from_loops JUMP_BACK
         come_from_loops ::= COME_FROM_LOOP*
 
+        whilestmt       ::= SETUP_LOOP testexpr l_stmts_opt
+                            JUMP_BACK COME_FROM POP_BLOCK COME_FROM_LOOP
 
         # This might be valid in < 3.6
         and  ::= expr jmp_false expr
