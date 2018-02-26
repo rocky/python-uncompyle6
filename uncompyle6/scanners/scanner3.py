@@ -790,7 +790,7 @@ class Scanner3(Scanner):
             # not myself?  If so, it's part of a larger conditional.
             # rocky: if we have a conditional jump to the next instruction, then
             # possibly I am "skipping over" a "pass" or null statement.
-            pretarget = self.insts[self.offset2inst_index[prev_op[target]]]
+            pretarget = self.get_inst(prev_op[target])
 
             if (pretarget.opcode in self.pop_jump_if_pop and
                 (target > offset) and pretarget.offset != offset):
