@@ -575,7 +575,8 @@ def customize_for_version(self, is_pypy, version):
                     num_kwargs = len(keys)
                     num_posargs = len(node) - (num_kwargs + 1)
                     n = len(node)
-                    assert n >= len(keys)+2
+                    assert n >= len(keys)+1, \
+                        'not enough parameters keyword-tuple values'
                     sep = ''
                     # FIXME: adjust output for line breaks?
                     for i in range(num_posargs):
@@ -590,6 +591,7 @@ def customize_for_version(self, is_pypy, version):
                         self.write(sep)
                         self.write(keys[j] + '=')
                         self.preorder(node[i])
+                        sep=', '
                         i += 1
                         j += 1
                     self.write(')')
