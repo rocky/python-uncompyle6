@@ -98,15 +98,23 @@ class Scanner(object):
         # FIXME 0 isn't always correct
         return offset < self.get_target(offset, 0)
 
+    def get_inst(self, offset):
+        # Instructions can get moved as a result of EXTENDED_ARGS removal.
+        # So if "offset" is not in self.offset2inst_index, then
+        # we assume that it was an instruction moved back.
+        # We check that assumption though by looking at
+        # self.code's opcode.
+        if offset not in self.offset2inst_index:
+            offset -= instruction_size(self.opc.EXTENDED_ARG, self.opc)
+            assert self.code[offset] == self.opc.EXTENDED_ARG
+        return self.insts[self.offset2inst_index[offset]]
+
     def get_target(self, offset, extended_arg=0):
         """
         Get next instruction offset for op located at given <offset>.
         NOTE: extended_arg is no longer used
         """
-        # instructions can get moved as a result of EXTENDED_ARGS removal
-        if offset not in self.offset2inst_index:
-            offset -= instruction_size(self.opc.EXTENDED_ARG, self.opc)
-        inst = self.insts[self.offset2inst_index[offset]]
+        inst = self.get_inst(offset)
         if inst.opcode in self.opc.JREL_OPS | self.opc.JABS_OPS:
             target = inst.argval
         else:
