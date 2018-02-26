@@ -217,6 +217,7 @@ def main(in_base, out_base, files, codes, outfile=None,
             sys.stdout.write("\n")
             sys.stderr.write("\n# file %s\n# %s\n" % (infile, e))
             failed_files += 1
+            tot_files += 1
         except KeyboardInterrupt:
             if outfile:
                 outstream.close()
