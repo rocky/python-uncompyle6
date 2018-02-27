@@ -55,7 +55,10 @@ from uncompyle6.main import decompile_file
 uncompyle_file = decompile_file
 
 # Conventience functions so you can say:
-# from uncompyle6 import (deparse_code, deparse_code2str)
+# from uncompyle6 import (code_deparse, deparse_code2str)
 
-deparse_code = uncompyle6.semantics.pysource.deparse_code
+code_deparse = uncompyle6.semantics.pysource.code_deparse
 deparse_code2str = uncompyle6.semantics.pysource.deparse_code2str
+
+# This is deprecated:
+deparse_code = uncompyle6.semantics.pysource.deparse_code

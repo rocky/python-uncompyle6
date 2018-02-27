@@ -1,4 +1,4 @@
-This project has history of over 17 years spanning back to Python 1.5
+This project has history of over 18 years spanning back to Python 1.5
 
 There have been a number of people who have worked on this. I am awed
 by the amount of work, number of people who have contributed to this,

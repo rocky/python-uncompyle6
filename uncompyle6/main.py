@@ -23,8 +23,8 @@ from uncompyle6.parser import ParserError
 from uncompyle6.version import VERSION
 # from uncompyle6.linenumbers import line_number_mapping
 
-from uncompyle6.semantics.pysource import deparse_code
-from uncompyle6.semantics.fragments import deparse_code as deparse_code_fragments
+from uncompyle6.semantics.pysource import code_deparse
+from uncompyle6.semantics.fragments import code_deparse  as code_deparse_fragments
 from uncompyle6.semantics.linemap import deparse_code_with_map
 
 from xdis.load import load_module
@@ -43,7 +43,7 @@ def _get_outstream(outfile):
 def decompile(
         bytecode_version, co, out=None, showasm=None, showast=False,
         timestamp=None, showgrammar=False, code_objects={},
-        source_size=None, is_pypy=False, magic_int=None,
+        source_size=None, is_pypy=None, magic_int=None,
         mapstream=None, do_fragments=False):
     """
     ingests and deparses a given code block 'co'
@@ -89,6 +89,12 @@ def decompile(
         real_out.write('# Size of source mod 2**32: %d bytes\n' %
                        source_size)
 
+    debug_opts = {
+        'asm': showasm,
+        'ast': showast,
+        'grammar': showgrammar
+    }
+
     try:
         if mapstream:
             if isinstance(mapstream, str):
@@ -106,12 +112,12 @@ def decompile(
             mapstream.write("\n\n# %s\n" % linemap)
         else:
             if do_fragments:
-                deparse_fn = deparse_code_fragments
+                deparse_fn = code_deparse_fragments
             else:
-                deparse_fn = deparse_code
-            deparsed = deparse_fn(bytecode_version, co, out, showasm, showast,
-                                  showgrammar, code_objects=code_objects,
-                                      is_pypy=is_pypy)
+                deparse_fn = code_deparse
+            deparsed = deparse_fn(co, out, bytecode_version,
+                                  debug_opts = debug_opts,
+                                  is_pypy=is_pypy)
             pass
         return deparsed
     except pysource.SourceWalkerError, e:

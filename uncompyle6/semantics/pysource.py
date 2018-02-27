@@ -2,6 +2,19 @@
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Creates Python source code from an uncompyle6 parse tree.
 
@@ -1521,7 +1534,7 @@ class SourceWalker(GenericASTTraversal, object):
     def comprehension_walk3(self, node, iter_index, code_index=-5):
         """
         List comprehensions the way they are done in Python3.
-        They're more other comprehensions, e.g. set comprehensions
+        They are other comprehensions, e.g. set comprehensions
         See if we can combine code.
         """
         p = self.prec
@@ -1534,8 +1547,13 @@ class SourceWalker(GenericASTTraversal, object):
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
 
-        # skip over stmt return ret_expr
-        ast = ast[0][0][0]
+        # skip over: sstmt, stmt, return, ret_expr
+        # and other singleton derivations
+        while (len(ast) == 1
+               or (ast in ('sstmt', 'return')
+                   and ast[-1] in ('RETURN_LAST', 'RETURN_VALUE'))):
+            ast = ast[0]
+
         store = None
         if ast in ['setcomp_func', 'dictcomp_func']:
             for k in ast:
@@ -1547,7 +1565,6 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
         else:
-            ast = ast[0][0]
             n = ast[iter_index]
             assert n == 'list_iter', n
 
@@ -2615,9 +2632,27 @@ class SourceWalker(GenericASTTraversal, object):
         return MAP.get(node, MAP_DIRECT)
 
 
+#
+DEFAULT_DEBUG_OPTS = {
+    'asm': False,
+    'tree': False,
+    'grammar': False
+}
+
+# This interface is deprecated. Use simpler code_deparse.
 def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
                  showgrammar=False, code_objects={}, compile_mode='exec',
                  is_pypy=False, walker=SourceWalker):
+    debug_opts = {
+        'asm': showasm,
+        'ast': showast,
+        'grammar': showgrammar
+    }
+    return code_deparse(co, out, version, debug_opts, code_objects, compile_mode,
+                        is_pypy, walker)
+
+def code_deparse(co, out=sys.stdout, version=None, debug_opts=DEFAULT_DEBUG_OPTS,
+                 code_objects={}, compile_mode='exec', is_pypy=False, walker=SourceWalker):
     """
     ingests and deparses a given code block 'co'. If version is None,
     we will use the current Python interpreter version.
@@ -2632,16 +2667,16 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
     scanner = get_scanner(version, is_pypy=is_pypy)
 
     tokens, customize = scanner.ingest(co, code_objects=code_objects,
-                                       show_asm=showasm)
+                                       show_asm=debug_opts['asm'])
 
     debug_parser = dict(PARSER_DEFAULT_DEBUG)
-    if showgrammar:
-        debug_parser['reduce'] = showgrammar
+    if debug_opts.get('grammar', None):
+        debug_parser['reduce'] = debug_opts['grammar']
         debug_parser['errorstack'] = 'full'
 
     #  Build Syntax Tree from disassembly.
     linestarts = dict(scanner.opc.findlinestarts(co))
-    deparsed = walker(version, out, scanner, showast=showast,
+    deparsed = walker(version, out, scanner, showast=debug_opts['ast'],
                       debug_parser=debug_parser, compile_mode=compile_mode,
                       is_pypy=is_pypy, linestarts=linestarts)
 
@@ -2690,12 +2725,6 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
         raise SourceWalkerError("Deparsing stopped due to parse error")
     return deparsed
 
-#
-DEFAULT_DEBUG_OPTS = {
-    'asm': False,
-    'tree': False,
-    'grammar': False
-}
 def deparse_code2str(code, out=sys.stdout, version=None,
                      debug_opts=DEFAULT_DEBUG_OPTS,
                      code_objects={}, compile_mode='exec',
