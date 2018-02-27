@@ -166,10 +166,11 @@ class Scanner3(Scanner):
                                         offset=offset)
                 inst = new_inst
                 if i < n:
+                    new_prev = self.prev_op[instructions[i].offset]
                     j = instructions[i+1].offset
                     old_prev = self.prev_op[j]
                     while self.prev_op[j] == old_prev and j < n:
-                        self.prev_op[j] = self.prev_op[i]
+                        self.prev_op[j] = new_prev
                         j += 1
 
             last_was_extarg = False
