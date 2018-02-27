@@ -1565,10 +1565,7 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
         else:
-            try:
-                n = ast[iter_index]
-            except:
-                from trepan.api import debug; debug()
+            n = ast[iter_index]
             assert n == 'list_iter', n
 
         # FIXME: I'm not totally sure this is right.
