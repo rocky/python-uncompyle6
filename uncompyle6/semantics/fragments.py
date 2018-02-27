@@ -73,6 +73,7 @@ from uncompyle6 import parser
 from uncompyle6.scanner import Token, Code, get_scanner
 import uncompyle6.parser as python_parser
 from uncompyle6.semantics.check_ast import checker
+from uncompyle6 import IS_PYPY
 
 from uncompyle6.show import (
     maybe_show_asm,
@@ -1717,9 +1718,29 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     pass
 
+#
+DEFAULT_DEBUG_OPTS = {
+    'asm': False,
+    'tree': False,
+    'grammar': False
+}
+
+# This interface is deprecated
 def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
                  showgrammar=False, code_objects={}, compile_mode='exec',
-                 is_pypy=False, walker=FragmentsWalker):
+                 is_pypy=None, walker=FragmentsWalker):
+    debug_opts = {
+        'asm': showasm,
+        'ast': showast,
+        'grammar': showgrammar
+    }
+    return code_deparse(co, out, version, debug_opts, code_objects, compile_mode,
+                        is_pypy, walker)
+
+def code_deparse(co, out=StringIO(), version=None, is_pypy=None,
+                 debug_opts=DEFAULT_DEBUG_OPTS,
+                 code_objects={}, compile_mode='exec',
+                 walker=FragmentsWalker):
     """
     Convert the code object co into a python source fragment.
 
@@ -1727,40 +1748,44 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
                             example 2.6, 2.7, 3.2, 3.3, 3.4, 3.5 etc.
     :param co:              The code object to parse.
     :param out:             File like object to write the output to.
-    :param showasm:         Flag which determines whether the ingestd code
-                            is written to sys.stdout or not. (It is also to
-                            pass a file like object, into which the asm will be
-                            written).
-    :param showast:         Flag which determines whether the constructed
-                            parse tree is written to sys.stdout or
-                            not. (It is also to pass a file like object, into
-                            which the ast will be written).
-    :param showgrammar:     Flag which determines whether the grammar reduction rules
-                            is written to sys.stdout or not. (It is also to
-                            pass a file like object, into which the grammar
-                            will be written).
+    :param debug_opts:      A dictionary with keys
+       'asm':     value determines whether to show
+                  mangled bytecode disdassembly
+       'ast':     value determines whether to show
+       'grammar': boolean determining whether to show
+                  grammar reduction rules.
+       If value is a file-like object, output that object's write method will
+       be used rather than sys.stdout
 
     :return: The deparsed source fragment.
     """
 
     assert iscode(co)
-    # store final output stream for case of error
+
+    if version is None:
+        version = float(sys.version[0:3])
+    if is_pypy is None:
+        is_pypy = IS_PYPY
+
     scanner = get_scanner(version, is_pypy=is_pypy)
 
+    show_asm = debug_opts.get('asm', None)
     tokens, customize = scanner.ingest(co, code_objects=code_objects,
-                                       show_asm=showasm)
+                                       show_asm=show_asm)
 
     tokens, customize = scanner.ingest(co)
-    maybe_show_asm(showasm, tokens)
+    maybe_show_asm(show_asm, tokens)
 
     debug_parser = dict(PARSER_DEFAULT_DEBUG)
-    if showgrammar:
-        debug_parser['reduce'] = showgrammar
+    show_grammar = debug_opts.get('grammar', None)
+    if show_grammar:
+        debug_parser['reduce'] = show_grammar
         debug_parser['errorstack'] = True
 
-    #  Build Syntax Tree from tokenized and massaged disassembly.
+    # Build Syntax Tree from tokenized and massaged disassembly.
     # deparsed = pysource.FragmentsWalker(out, scanner, showast=showast)
-    deparsed = walker(version, scanner, showast=showast,
+    show_ast = debug_opts.get('ast', None)
+    deparsed = walker(version, scanner, showast=show_ast,
                       debug_parser=debug_parser, compile_mode=compile_mode,
                       is_pypy=is_pypy)
 
@@ -1870,12 +1895,8 @@ def deparsed_find(tup, deparsed, code):
 
 # if __name__ == '__main__':
 
-#     from uncompyle6 import IS_PYPY
 #     def deparse_test(co, is_pypy=IS_PYPY):
-#         from xdis.magics import sysinfo2float
-#         float_version = sysinfo2float()
-#         deparsed = deparse_code(float_version, co, showasm=False, showast=False,
-#                                 showgrammar=False, is_pypy=IS_PYPY)
+#         deparsed = code_deparse(co, is_pypy=IS_PYPY)
 #         print("deparsed source")
 #         print(deparsed.text, "\n")
 #         print('------------------------')
