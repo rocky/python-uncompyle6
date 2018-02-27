@@ -9,6 +9,7 @@ Usage-Examples:
   test_pyenvlib.py --all --verify	# decomyile all tests and verify results
   test_pyenvlib.py --test		# decompile only the testsuite
   test_pyenvlib.py --2.7.12 --verify	# decompile and verify python lib 2.7.11
+  test_pyenvlib.py --3.6.4 --max 10	# decompile first 10 of 3.6.4
 
 Adding own test-trees:
 

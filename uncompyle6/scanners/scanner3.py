@@ -1,6 +1,20 @@
 #  Copyright (c) 2015-2018 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 """
 Python 3 Generic bytecode scanner/deparser
 
@@ -29,7 +43,6 @@ else:
 
 from array import array
 
-from uncompyle6.scanner import Scanner
 from xdis.code import iscode
 from xdis.bytecode import Bytecode, instruction_size
 
@@ -38,6 +51,8 @@ import xdis
 
 # Get all the opcodes into globals
 import xdis.opcodes.opcode_33 as op3
+
+from uncompyle6.scanner import Scanner
 
 import sys
 from uncompyle6 import PYTHON3
@@ -144,6 +159,42 @@ class Scanner3(Scanner):
         # FIXME: remove the above in favor of:
         # self.varargs_ops = frozenset(self.opc.hasvargs)
 
+    def remove_extended_args(self, instructions):
+        """Go through instructions removing extended ARG.
+        get_instruction_bytes previously adjusted the operand values
+        to account for these"""
+        new_instructions = []
+        last_was_extarg = False
+        n = len(instructions)
+        for i, inst in enumerate(instructions):
+            if (inst.opname == 'EXTENDED_ARG' and
+                i+1 < n and instructions[i+1].opname != 'MAKE_FUNCTION'):
+                last_was_extarg = True
+                starts_line = inst.starts_line
+                is_jump_target = inst.is_jump_target
+                offset = inst.offset
+                continue
+            if last_was_extarg:
+
+                # j = self.stmts.index(inst.offset)
+                # self.lines[j] = offset
+
+                new_inst= inst._replace(starts_line=starts_line,
+                                        is_jump_target=is_jump_target,
+                                        offset=offset)
+                inst = new_inst
+                if i < n:
+                    new_prev = self.prev_op[instructions[i].offset]
+                    j = instructions[i+1].offset
+                    old_prev = self.prev_op[j]
+                    while self.prev_op[j] == old_prev and j < n:
+                        self.prev_op[j] = new_prev
+                        j += 1
+
+            last_was_extarg = False
+            new_instructions.append(inst)
+        return new_instructions
+
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Pick out tokens from an uncompyle6 code object, and transform them,
@@ -177,17 +228,13 @@ class Scanner3(Scanner):
         # list of tokens/instructions
         tokens = []
 
-        # "customize" is a dict whose keys are nonterminals
-        # and the value is the argument stack entries for that
-        # nonterminal. The count is a little hoaky. It is mostly
-        # not used, but sometimes it is.
-        # "customize" is a dict whose keys are nonterminals
+        # "customize" is in the process of going away here
         customize = {}
 
         if self.is_pypy:
             customize['PyPy'] = 0
 
-        self.build_lines_data(co)
+        self.lines = self.build_lines_data(co)
         self.build_prev_op()
 
         # FIXME: put as its own method?
@@ -195,7 +242,8 @@ class Scanner3(Scanner):
         # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT'.
         # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
-        self.insts = list(bytecode)
+        self.insts = self.remove_extended_args(list(bytecode))
+
         self.offset2inst_index = {}
         n = len(self.insts)
         for i, inst in enumerate(self.insts):
@@ -225,15 +273,16 @@ class Scanner3(Scanner):
 
         last_op_was_break = False
 
-        for i, inst in enumerate(bytecode):
+        for i, inst in enumerate(self.insts):
 
             argval = inst.argval
             op     = inst.opcode
 
-            if op == self.opc.EXTENDED_ARG:
+            if inst.opname == 'EXTENDED_ARG':
                 # FIXME: The EXTENDED_ARG is used to signal annotation
                 # parameters
-                if self.insts[i+1].opcode != self.opc.MAKE_FUNCTION:
+                if (i+1 < n and
+                    self.insts[i+1].opcode != self.opc.MAKE_FUNCTION):
                     continue
 
             if inst.offset in jump_targets:
@@ -247,6 +296,10 @@ class Scanner3(Scanner):
                 for jump_offset in sorted(jump_targets[inst.offset], reverse=True):
                     come_from_name = 'COME_FROM'
                     opname = self.opname_for_offset(jump_offset)
+                    if opname == 'EXTENDED_ARG':
+                        j = xdis.next_offset(op, self.opc, jump_offset)
+                        opname = self.opname_for_offset(j)
+
                     if opname.startswith('SETUP_'):
                         come_from_type = opname[len('SETUP_'):]
                         come_from_name = 'COME_FROM_%s' % come_from_type
@@ -370,7 +423,6 @@ class Scanner3(Scanner):
                 # as CONTINUE, but that's okay since we add a grammar
                 # rule for that.
                 pattr = argval
-                # FIXME: 0 isn't always correct
                 target = self.get_target(inst.offset)
                 if target <= inst.offset:
                     next_opname = self.insts[i+1].opname
@@ -422,7 +474,7 @@ class Scanner3(Scanner):
 
         if show_asm in ('both', 'after'):
             for t in tokens:
-                print(t)
+                print(t.format(line_prefix='L.'))
             print()
         return tokens, customize
 
@@ -438,7 +490,7 @@ class Scanner3(Scanner):
         self.linestart_offsets = set(a for (a, _) in linestarts)
         # 'List-map' which shows line number of current op and offset of
         # first op on following line, given offset of op as index
-        self.lines = lines = []
+        lines = []
         LineTuple = namedtuple('LineTuple', ['l_no', 'next'])
         # Iterate through available linestarts, and fill
         # the data for all code offsets encountered until
@@ -456,6 +508,7 @@ class Scanner3(Scanner):
         while offset < codelen:
             lines.append(LineTuple(prev_line_no, codelen))
             offset += 1
+        return lines
 
     def build_prev_op(self):
         """
@@ -516,7 +569,12 @@ class Scanner3(Scanner):
             if inst.has_arg:
                 label = self.fixed_jumps.get(offset)
                 oparg = inst.arg
-                next_offset = xdis.next_offset(op, self.opc, offset)
+                if (self.version >= 3.6 and
+                    self.code[offset] == self.opc.EXTENDED_ARG):
+                    j = xdis.next_offset(op, self.opc, offset)
+                    next_offset = xdis.next_offset(op, self.opc, j)
+                else:
+                    next_offset = xdis.next_offset(op, self.opc, offset)
 
                 if label is None:
                     if op in op3.hasjrel and op != self.opc.FOR_ITER:
@@ -625,42 +683,19 @@ class Scanner3(Scanner):
         # Finish filling the list for last statement
         slist += [codelen] * (codelen-len(slist))
 
-    def get_target(self, offset, extended_arg=0):
-        """
-        Get target offset for op located at given <offset>.
-        """
-        op = self.code[offset]
-        rel_offset = 0
-        if self.version  >= 3.6:
-            target = self.code[offset+1]
-            if op in self.opc.JREL_OPS:
-                rel_offset = offset + 2
-        else:
-            target = self.code[offset+1] + self.code[offset+2] * 256
-            if op in self.opc.JREL_OPS:
-                rel_offset = offset + 3
-                pass
-            pass
-        target += rel_offset
-        target += extended_arg
-
-        return target
-
     def detect_control_flow(self, offset, targets, inst_index):
         """
-        Detect structures and their boundaries to fix optimized jumps
+        Detect type of block structures and their boundaries to fix optimized jumps
         in python2.3+
         """
 
-        # TODO: check the struct boundaries more precisely -Dan
-
         code = self.code
-        op = code[offset]
+        op = self.insts[inst_index].opcode
 
         # Detect parent structure
         parent = self.structs[0]
-        start = parent['start']
-        end = parent['end']
+        start  = parent['start']
+        end    = parent['end']
 
         # Pick inner-most parent for our offset
         for struct in self.structs:
@@ -668,8 +703,8 @@ class Scanner3(Scanner):
             current_end   = struct['end']
             if ((current_start <= offset < current_end)
                 and (current_start >= start and current_end <= end)):
-                start = current_start
-                end = current_end
+                start  = current_start
+                end    = current_end
                 parent = struct
 
         if op == self.opc.SETUP_LOOP:
@@ -679,8 +714,7 @@ class Scanner3(Scanner):
             # It could be a return instruction.
 
             start += instruction_size(op, self.opc)
-            # FIXME: 0 = extended arg which is not right. Use self.insts instead
-            target = self.get_target(offset, 0)
+            target = self.get_target(offset)
             end    = self.restrict_to_parent(target, parent)
             self.setup_loops[target] = offset
 
@@ -721,7 +755,7 @@ class Scanner3(Scanner):
                 target = next_line_byte
                 end = xdis.next_offset(code[jump_back], self.opc, jump_back)
             else:
-                if self.get_target(jump_back, 0) >= next_line_byte:
+                if self.get_target(jump_back) >= next_line_byte:
                     jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE, start, False)
 
                 # This is wrong for 3.6+
@@ -734,23 +768,24 @@ class Scanner3(Scanner):
                     self.fixed_jumps[offset] = jump_back+4
                     end = jump_back+4
 
-                # I think 0 right because jump_back has been adjusted for any EXTENDED_ARG
-                # it encounters
                 target = self.get_target(jump_back)
 
                 if code[target] in (self.opc.FOR_ITER, self.opc.GET_ITER):
                     loop_type = 'for'
                 else:
                     loop_type = 'while'
-                    test = self.prev_op[next_line_byte]
-
-                    if test == offset:
-                        loop_type = 'while 1'
-                    elif self.code[test] in self.opc.JUMP_OPs:
-                        self.ignore_if.add(test)
-                        test_target = self.get_target(test)
-                        if test_target > (jump_back+3):
-                            jump_back = test_target
+                    if next_line_byte < len(code):
+                        test_inst = self.insts[self.offset2inst_index[next_line_byte]-1]
+                        if test_inst.offset == offset:
+                            loop_type = 'while 1'
+                        elif test_inst.opcode in self.opc.JUMP_OPs:
+                            self.ignore_if.add(test_inst.offset)
+                            test_target = self.get_target(test_inst.offset)
+                            if test_target > (jump_back+3):
+                                jump_back = test_target
+                                pass
+                            pass
+                        pass
                 self.not_continue.add(jump_back)
             self.loops.append(target)
             self.structs.append({'type': loop_type + '-loop',
@@ -776,7 +811,7 @@ class Scanner3(Scanner):
             # not myself?  If so, it's part of a larger conditional.
             # rocky: if we have a conditional jump to the next instruction, then
             # possibly I am "skipping over" a "pass" or null statement.
-            pretarget = self.insts[self.offset2inst_index[prev_op[target]]]
+            pretarget = self.get_inst(prev_op[target])
 
             if (pretarget.opcode in self.pop_jump_if_pop and
                 (target > offset) and pretarget.offset != offset):
@@ -894,7 +929,7 @@ class Scanner3(Scanner):
             # like whether the target is "END_FINALLY"
             # or if the condition jump is to a forward location
             if self.is_jump_forward(pre_rtarget):
-                if_end = self.get_target(pre_rtarget, 0)
+                if_end = self.get_target(pre_rtarget)
 
                 # If the jump target is back, we are looping
                 if (if_end < pre_rtarget and
@@ -996,6 +1031,8 @@ class Scanner3(Scanner):
         elif op == self.opc.POP_EXCEPT:
             next_offset = xdis.next_offset(op, self.opc, offset)
             target = self.get_target(next_offset)
+            if target is None:
+                from trepan.api import debug; debug()
             if target > next_offset:
                 next_op = code[next_offset]
                 if (self.opc.JUMP_ABSOLUTE == next_op and

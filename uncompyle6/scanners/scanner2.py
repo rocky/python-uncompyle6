@@ -1,6 +1,19 @@
-# Copyright (c) 2015-2018 by Rocky Bernstein
-# Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-# Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#  Copyright (c) 2015-2018 by Rocky Bernstein
+#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
+#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 Python 2 Generic bytecode scanner/deparser
 
@@ -30,7 +43,7 @@ else:
 from array import array
 
 from xdis.code import iscode
-from xdis.bytecode import Bytecode, op_has_argument, op_size, instruction_size
+from xdis.bytecode import Bytecode, op_has_argument, instruction_size
 from xdis.util import code2num
 
 from uncompyle6.scanner import Scanner
@@ -76,13 +89,14 @@ class Scanner2(Scanner):
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Pick out tokens from an uncompyle6 code object, and transform them,
-        returning a list of uncompyle6 'Token's.
+        returning a list of uncompyle6 Token's.
 
         The transformations are made to assist the deparsing grammar.
         Specificially:
            -  various types of LOAD_CONST's are categorized in terms of what they load
            -  COME_FROM instructions are added to assist parsing control structures
            -  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional arguments
+           -  some EXTENDED_ARGS instructions are removed
 
         Also, when we encounter certain tokens, we add them to a set which will cause custom
         grammar rules. Specifically, variable arg tokens like MAKE_FUNCTION or BUILD_LIST
@@ -145,8 +159,10 @@ class Scanner2(Scanner):
                 if names[self.get_argument(i+3)] == 'AssertionError':
                     self.load_asserts.add(i+3)
 
+        # Get jump targets
+        # Format: {target offset: [jump offsets]}
         jump_targets = self.find_jump_targets(show_asm)
-        # contains (code, [addrRefToCode])
+        # print("XXX2", jump_targets)
 
         last_stmt = self.next_stmt[0]
         i = self.next_stmt[last_stmt]
@@ -387,7 +403,7 @@ class Scanner2(Scanner):
                     if elem != code[i]:
                         match = False
                         break
-                    i += op_size(code[i], self.opc)
+                    i += instruction_size(code[i], self.opc)
 
                 if match:
                     i = self.prev[i]
@@ -633,7 +649,7 @@ class Scanner2(Scanner):
                                        'start': jump_back_offset+3,
                                        'end':   loop_end_offset})
         elif op == self.opc.SETUP_EXCEPT:
-            start  = offset + op_size(op, self.opc)
+            start  = offset + instruction_size(op, self.opc)
             target = self.get_target(offset, op)
             end_offset = self.restrict_to_parent(target, parent)
             if target != end_offset:
@@ -657,7 +673,7 @@ class Scanner2(Scanner):
                         setup_except_nest -= 1
                 elif self.code[end_finally_offset] == self.opc.SETUP_EXCEPT:
                     setup_except_nest += 1
-                end_finally_offset += op_size(code[end_finally_offset], self.opc)
+                end_finally_offset += instruction_size(code[end_finally_offset], self.opc)
                 pass
 
             # Add the except blocks
@@ -870,7 +886,7 @@ class Scanner2(Scanner):
                     else:
                         # We still have the case in 2.7 that the next instruction
                         # is a jump to a SETUP_LOOP target.
-                        next_offset = target + op_size(self.code[target], self.opc)
+                        next_offset = target + instruction_size(self.code[target], self.opc)
                         next_op = self.code[next_offset]
                         if self.op_name(next_op) == 'JUMP_FORWARD':
                             jump_target = self.get_target(next_offset, next_op)

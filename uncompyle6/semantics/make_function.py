@@ -252,7 +252,7 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
     assert ast == 'stmts'
 
     all_globals = find_all_globals(ast, set())
-    for g in ((all_globals & self.mod_globs) | find_globals(ast, set())):
+    for g in sorted((all_globals & self.mod_globs) | find_globals(ast, set())):
         self.println(self.indent, 'global ', g)
     self.mod_globs -= all_globals
     has_none = 'None' in code.co_names
@@ -406,7 +406,7 @@ def make_function2(self, node, is_lambda, nested=1, codeNode=None):
         assert ast == 'stmts'
 
     all_globals = find_all_globals(ast, set())
-    for g in ((all_globals & self.mod_globs) | find_globals(ast, set())):
+    for g in sorted((all_globals & self.mod_globs) | find_globals(ast, set())):
         self.println(self.indent, 'global ', g)
     self.mod_globs -= all_globals
     has_none = 'None' in code.co_names
@@ -652,22 +652,44 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
                     ends_in_comma = False
                 break
         elif self.version >= 3.6:
-            d = node[1]
-            if d == 'expr':
-                d = d[0]
-            assert d == 'dict'
-            defaults = [self.traverse(n, indent='') for n in d[:-2]]
-            names = eval(self.traverse(d[-2]))
-            assert len(defaults) == len(names)
-            sep = ''
-            # FIXME: possibly handle line breaks
-            for i, n in enumerate(names):
-                self.write(sep)
-                self.write("%s=%s" % (n, defaults[i]))
-                sep = ', '
-                ends_in_comma = True
+            # argc = node[-1].attr
+            # co = node[-3].attr
+            # argcount = co.co_argcount
+            # kwonlyargcount = co.co_kwonlyargcount
+
+            free_tup = annotate_dict = kw_dict = default_tup = None
+            index = 0
+            # FIXME: this is woefully wrong
+            if argc & 8:
+                free_tup = node[index]
+                index += 1
+            if argc & 4:
+                kw_dict = node[1]
+                index += 1
+            if argc & 2:
+                kw_dict = node[index]
+                index += 1
+            if argc & 1:
+                kw_dict = node[index]
+
+            if kw_dict == 'expr':
+                kw_dict = kw_dict[0]
+
+            # FIXME: handle free_tup, annotatate_dict, and default_tup
+            if kw_dict:
+                assert kw_dict == 'dict'
+                defaults = [self.traverse(n, indent='') for n in kw_dict[:-2]]
+                names = eval(self.traverse(kw_dict[-2]))
+                assert len(defaults) == len(names)
+                sep = ''
+                # FIXME: possibly handle line breaks
+                for i, n in enumerate(names):
+                    self.write(sep)
+                    self.write("%s=%s" % (n, defaults[i]))
+                    sep = ', '
+                    ends_in_comma = True
+                    pass
                 pass
-            pass
         pass
 
     if code_has_star_star_arg(code):
@@ -688,7 +710,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
     assert ast == 'stmts'
 
     all_globals = find_all_globals(ast, set())
-    for g in ((all_globals & self.mod_globs) | find_globals(ast, set())):
+    for g in sorted((all_globals & self.mod_globs) | find_globals(ast, set())):
         self.println(self.indent, 'global ', g)
     self.mod_globs -= all_globals
     has_none = 'None' in code.co_names

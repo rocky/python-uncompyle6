@@ -70,7 +70,7 @@ def test_if_in_for():
     elif 3.2 < PYTHON_VERSION <= 3.4:
         bytecode = Bytecode(code, scan.opc)
         scan.code = array('B', code.co_code)
-        scan.build_lines_data(code)
+        scan.lines = scan.build_lines_data(code)
         scan.build_prev_op()
         scan.insts = list(bytecode)
         scan.offset2inst_index = {}

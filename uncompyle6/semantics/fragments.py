@@ -1780,8 +1780,8 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
     deparsed.set_pos_info(deparsed.ast, 0, len(deparsed.text))
     deparsed.fixup_parents(deparsed.ast, None)
 
-    for g in deparsed.mod_globs:
-        deparsed.write('# global %s ## Warning: Unused global' % g)
+    for g in sorted(deparsed.mod_globs):
+        deparsed.write('# global %s ## Warning: Unused global\n' % g)
 
     if deparsed.ast_errors:
         deparsed.write("# NOTE: have decompilation errors.\n")

@@ -1,4 +1,17 @@
-#  Copyright (c) 2016-2017 Rocky Bernstein
+#  Copyright (c) 2016-2018 Rocky Bernstein
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 spark grammar differences over Python 3.5 for Python 3.6.
 """
@@ -16,6 +29,8 @@ class Python36Parser(Python35Parser):
 
     def p_36misc(self, args):
         """
+        sstmt ::= sstmt RETURN_LAST
+
         # 3.6 redoes how return_closure works
         return_closure   ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
 
@@ -29,6 +44,8 @@ class Python36Parser(Python35Parser):
         for_block       ::= l_stmts_opt come_from_loops JUMP_BACK
         come_from_loops ::= COME_FROM_LOOP*
 
+        whilestmt       ::= SETUP_LOOP testexpr l_stmts_opt
+                            JUMP_BACK COME_FROM POP_BLOCK COME_FROM_LOOP
 
         # This might be valid in < 3.6
         and  ::= expr jmp_false expr
@@ -48,7 +65,14 @@ class Python36Parser(Python35Parser):
         except_handler36 ::= COME_FROM_EXCEPT except_stmts END_FINALLY
 
         stmt             ::= try_except36
-        try_except36     ::= SETUP_EXCEPT returns except_handler36 opt_come_from_except
+        try_except36     ::= SETUP_EXCEPT returns except_handler36
+                             opt_come_from_except
+
+        stmt             ::= tryfinally36
+        tryfinally36     ::= SETUP_FINALLY returns
+                             COME_FROM_FINALLY suite_stmts
+        tryfinally36     ::= SETUP_FINALLY returns
+                             COME_FROM_FINALLY suite_stmts_opt END_FINALLY
         """
 
     def customize_grammar_rules(self, tokens, customize):

@@ -3,7 +3,18 @@
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 #
-#  See LICENSE
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 """
 scanner/ingestion module. From here we call various version-specific
@@ -15,8 +26,8 @@ import sys
 from uncompyle6 import PYTHON3, IS_PYPY
 from uncompyle6.scanners.tok import Token
 import xdis
-from xdis.bytecode import op_size, extended_arg_val
-from xdis.magics import py_str2float, canonic_python_version
+from xdis.bytecode import instruction_size, extended_arg_val, next_offset
+from xdis.magics import canonic_python_version
 from xdis.util import code2num
 
 # The byte code versions we support.
@@ -96,12 +107,28 @@ class Scanner(object):
         # FIXME 0 isn't always correct
         return offset < self.get_target(offset, 0)
 
-    def get_target(self, pos, op=None):
-        if op is None:
-            op = self.code[pos]
-        target = self.get_argument(pos)
-        if op in self.opc.JREL_OPS:
-            target += pos + 3
+    def get_inst(self, offset):
+        # Instructions can get moved as a result of EXTENDED_ARGS removal.
+        # So if "offset" is not in self.offset2inst_index, then
+        # we assume that it was an instruction moved back.
+        # We check that assumption though by looking at
+        # self.code's opcode.
+        if offset not in self.offset2inst_index:
+            offset -= instruction_size(self.opc.EXTENDED_ARG, self.opc)
+            assert self.code[offset] == self.opc.EXTENDED_ARG
+        return self.insts[self.offset2inst_index[offset]]
+
+    def get_target(self, offset, extended_arg=0):
+        """
+        Get next instruction offset for op located at given <offset>.
+        NOTE: extended_arg is no longer used
+        """
+        inst = self.get_inst(offset)
+        if inst.opcode in self.opc.JREL_OPS | self.opc.JABS_OPS:
+            target = inst.argval
+        else:
+            # No jump offset, so use fall-through offset
+            target = next_offset(inst.opcode, self.opc, inst.offset)
         return target
 
     def get_argument(self, pos):
@@ -267,7 +294,7 @@ class Scanner(object):
         """
         while start < end:
             yield start
-            start += op_size(self.code[start], self.opc)
+            start += instruction_size(self.code[start], self.opc)
 
     def remove_mid_line_ifs(self, ifs):
         """

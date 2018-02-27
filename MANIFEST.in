@@ -2,7 +2,7 @@ include README.rst
 include ChangeLog
 include HISTORY.md
 include HOW-TO-REPORT-A-BUG.md
-include LICENSE
+include COPYING
 include Makefile
 include requirements.txt
 include requirements-dev.txt
