@@ -30,6 +30,8 @@ class Python36Parser(Python35Parser):
 
     def p_36misc(self, args):
         """
+        sstmt ::= sstmt RETURN_LAST
+
         # 3.6 redoes how return_closure works
         return_closure   ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
 
@@ -64,7 +66,14 @@ class Python36Parser(Python35Parser):
         except_handler36 ::= COME_FROM_EXCEPT except_stmts END_FINALLY
 
         stmt             ::= try_except36
-        try_except36     ::= SETUP_EXCEPT returns except_handler36 opt_come_from_except
+        try_except36     ::= SETUP_EXCEPT returns except_handler36
+                             opt_come_from_except
+
+        stmt             ::= tryfinally36
+        tryfinally36     ::= SETUP_FINALLY returns
+                             COME_FROM_FINALLY suite_stmts
+        tryfinally36     ::= SETUP_FINALLY returns
+                             COME_FROM_FINALLY suite_stmts_opt END_FINALLY
         """
 
     def customize_grammar_rules(self, tokens, customize):
