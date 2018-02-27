@@ -12,11 +12,10 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import print_function
->>>>>>> master
-import datetime, os, subprocess, sys, tempfile
 
-from uncompyle6 import verify, IS_PYPY, PYTHON_VERSION
+import datetime, os, subprocess, sys
+
+from uncompyle6 import verify, IS_PYPY
 from xdis.code import iscode
 from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource
@@ -267,7 +266,7 @@ def main(in_base, out_base, files, codes, outfile=None,
                                                                do_verify)
                         if not current_outfile:
                             if not msg:
-                                print '\n# okay decompiling %s' % infile
+                                print('\n# okay decompiling %s' % infile)
                                 okay_files += 1
                             else:
                                 verify_failed_files += 1
