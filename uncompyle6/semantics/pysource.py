@@ -2,6 +2,19 @@
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Creates Python source code from an uncompyle6 parse tree.
 
@@ -1521,7 +1534,7 @@ class SourceWalker(GenericASTTraversal, object):
     def comprehension_walk3(self, node, iter_index, code_index=-5):
         """
         List comprehensions the way they are done in Python3.
-        They're more other comprehensions, e.g. set comprehensions
+        They are other comprehensions, e.g. set comprehensions
         See if we can combine code.
         """
         p = self.prec
@@ -1534,8 +1547,13 @@ class SourceWalker(GenericASTTraversal, object):
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
 
-        # skip over stmt return ret_expr
-        ast = ast[0][0][0]
+        # skip over: sstmt, stmt, return, ret_expr
+        # and other singleton derivations
+        while (len(ast) == 1
+               or (ast in ('sstmt', 'return')
+                   and ast[-1] in ('RETURN_LAST', 'RETURN_VALUE'))):
+            ast = ast[0]
+
         store = None
         if ast in ['setcomp_func', 'dictcomp_func']:
             for k in ast:
@@ -1547,8 +1565,10 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
         else:
-            ast = ast[0][0]
-            n = ast[iter_index]
+            try:
+                n = ast[iter_index]
+            except:
+                from trepan.api import debug; debug()
             assert n == 'list_iter', n
 
         # FIXME: I'm not totally sure this is right.
