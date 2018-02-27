@@ -2630,9 +2630,27 @@ class SourceWalker(GenericASTTraversal, object):
         return MAP.get(node, MAP_DIRECT)
 
 
+#
+DEFAULT_DEBUG_OPTS = {
+    'asm': False,
+    'tree': False,
+    'grammar': False
+}
+
+# This interface is deprecated. Use simpler code_deparse.
 def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
                  showgrammar=False, code_objects={}, compile_mode='exec',
                  is_pypy=False, walker=SourceWalker):
+    debug_opts = {
+        'asm': showasm,
+        'ast': showast,
+        'grammar': showgrammar
+    }
+    return code_deparse(co, out, version, debug_opts, code_objects, compile_mode,
+                        is_pypy, walker)
+
+def code_deparse(co, out=sys.stdout, version=None, debug_opts=DEFAULT_DEBUG_OPTS,
+                 code_objects={}, compile_mode='exec', is_pypy=False, walker=SourceWalker):
     """
     ingests and deparses a given code block 'co'. If version is None,
     we will use the current Python interpreter version.
@@ -2647,16 +2665,16 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
     scanner = get_scanner(version, is_pypy=is_pypy)
 
     tokens, customize = scanner.ingest(co, code_objects=code_objects,
-                                       show_asm=showasm)
+                                       show_asm=debug_opts['asm'])
 
     debug_parser = dict(PARSER_DEFAULT_DEBUG)
-    if showgrammar:
-        debug_parser['reduce'] = showgrammar
+    if debug_opts.get('grammar', None):
+        debug_parser['reduce'] = debug_opts['grammar']
         debug_parser['errorstack'] = 'full'
 
     #  Build Syntax Tree from disassembly.
     linestarts = dict(scanner.opc.findlinestarts(co))
-    deparsed = walker(version, out, scanner, showast=showast,
+    deparsed = walker(version, out, scanner, showast=debug_opts['ast'],
                       debug_parser=debug_parser, compile_mode=compile_mode,
                       is_pypy=is_pypy, linestarts=linestarts)
 
@@ -2705,12 +2723,6 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
         raise SourceWalkerError("Deparsing stopped due to parse error")
     return deparsed
 
-#
-DEFAULT_DEBUG_OPTS = {
-    'asm': False,
-    'tree': False,
-    'grammar': False
-}
 def deparse_code2str(code, out=sys.stdout, version=None,
                      debug_opts=DEFAULT_DEBUG_OPTS,
                      code_objects={}, compile_mode='exec',
