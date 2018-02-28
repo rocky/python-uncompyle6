@@ -16,3 +16,9 @@ def __init__(self, path, name, files=(), dirs=(), volumes=()):
          for filename in files
          for drive in volumes]
     return f, f2
+
+# From 3.6 codeop. The below listcomp is generated still
+# like it was in 3.5
+import __future__
+_features = [getattr(__future__, fname)
+             for fname in __future__.all_feature_names]

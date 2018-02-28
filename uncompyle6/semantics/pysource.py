@@ -1697,6 +1697,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         assert n == 'lc_body', ast
 
+        # FIXME: add indentation around "for"'s and "in"'s
         self.preorder(n[0])
         if self.version < 3.6:
             self.write(' for ')
