@@ -18,3 +18,6 @@ def test_token():
     t = Token('LOAD_CONST', offset=1, attr=False, pattr=False, has_arg=True)
     expect = '           1  LOAD_CONST            0  False'
     assert t.format() == expect
+
+if __name__ == '__main__':
+    test_token()
