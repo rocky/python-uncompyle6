@@ -2712,7 +2712,7 @@ def code_deparse(co, out=sys.stdout, version=None, debug_opts=DEFAULT_DEBUG_OPTS
 
     #  Build Syntax Tree from disassembly.
     linestarts = dict(scanner.opc.findlinestarts(co))
-    deparsed = walker(version, out, scanner, showast=debug_opts['ast'],
+    deparsed = walker(version, out, scanner, showast=debug_opts.get('ast', None),
                       debug_parser=debug_parser, compile_mode=compile_mode,
                       is_pypy=is_pypy, linestarts=linestarts)
 
