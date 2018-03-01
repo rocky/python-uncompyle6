@@ -625,19 +625,22 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
             # kwonlyargcount = co.co_kwonlyargcount
 
             free_tup = annotate_dict = kw_dict = default_tup = None
-            index = 0
-            # FIXME: this is woefully wrong
-            if argc & 8:
+            fn_bits = node[-1].attr
+            index = -4  # Skip over:
+                        #  MAKE_FUNCTION,
+                        #  LOAD_CONST qualified name,
+                        #  LOAD_CONST code object
+            if fn_bits[-1]:
                 free_tup = node[index]
-                index += 1
-            if argc & 4:
-                kw_dict = node[1]
-                index += 1
-            if argc & 2:
+                index -= 1
+            if fn_bits[-2]:
+                annotate_dict = node[index]
+                index -= 1
+            if fn_bits[-3]:
                 kw_dict = node[index]
-                index += 1
-            if argc & 1:
-                kw_dict = node[index]
+                index -= 1
+            if fn_bits[-4]:
+                default_tup = node[index]
 
             if kw_dict == 'expr':
                 kw_dict = kw_dict[0]
@@ -645,10 +648,6 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
             # FIXME: handle free_tup, annotate_dict, and default_tup
             if kw_dict:
                 assert kw_dict == 'dict'
-                # try:
-                #     assert kw_dict == 'dict'
-                # except:
-                #     from trepan.api import debug; debug()
                 defaults = [self.traverse(n, indent='') for n in kw_dict[:-2]]
                 names = eval(self.traverse(kw_dict[-2]))
                 assert len(defaults) == len(names)

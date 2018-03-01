@@ -354,11 +354,6 @@ class Scanner3(Scanner):
                     attr = []
                     for flag in self.MAKE_FUNCTION_FLAGS:
                         bit = flags & 1
-                        if bit:
-                            if pattr:
-                                pattr += ", " + flag
-                            else:
-                                pattr += flag
                         attr.append(bit)
                         flags >>= 1
                     attr = attr[:4] # remove last value: attr[5] == False

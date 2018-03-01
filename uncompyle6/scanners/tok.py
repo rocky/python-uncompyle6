@@ -17,7 +17,6 @@
 
 import re, sys
 from uncompyle6 import PYTHON3
-from xdis.bytecode import op_has_argument
 
 if PYTHON3:
     intern = sys.intern
