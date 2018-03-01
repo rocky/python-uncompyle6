@@ -642,9 +642,13 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
             if kw_dict == 'expr':
                 kw_dict = kw_dict[0]
 
-            # FIXME: handle free_tup, annotatate_dict, and default_tup
+            # FIXME: handle free_tup, annotate_dict, and default_tup
             if kw_dict:
                 assert kw_dict == 'dict'
+                # try:
+                #     assert kw_dict == 'dict'
+                # except:
+                #     from trepan.api import debug; debug()
                 defaults = [self.traverse(n, indent='') for n in kw_dict[:-2]]
                 names = eval(self.traverse(kw_dict[-2]))
                 assert len(defaults) == len(names)

@@ -1079,6 +1079,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(')')
 
     def n_LOAD_CONST(self, node):
+        attr = node.attr
         data = node.pattr; datatype = type(data)
         if isinstance(data, float) and str(data) in frozenset(['nan', '-nan', 'inf', '-inf']):
             # float values 'nan' and 'inf' are not directly representable in Python at least
@@ -1093,13 +1094,15 @@ class SourceWalker(GenericASTTraversal, object):
             self.write( hex(data) )
         elif datatype is type(Ellipsis):
             self.write('...')
-        elif data is None:
+        elif attr is None:
             # LOAD_CONST 'None' only occurs, when None is
             # implicit eg. in 'return' w/o params
             # pass
             self.write('None')
         elif isinstance(data, tuple):
             self.pp_tuple(data)
+        elif isinstance(attr, bool):
+            self.write(repr(attr))
         elif self.FUTURE_UNICODE_LITERALS:
             # The FUTURE_UNICODE_LITERALS compiler flag
             # in 2.6 on change the way
@@ -1290,8 +1293,8 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_import_from(self, node):
         relative_path_index = 0
-        if self.version >= 2.5 and node[relative_path_index].pattr > 0:
-            node[2].pattr = '.'*node[relative_path_index].pattr + node[2].pattr
+        if self.version >= 2.5 and node[relative_path_index].attr > 0:
+            node[2].pattr = '.'*node[relative_path_index].pattr + node[2].attr
         self.default(node)
 
     n_import_from_star = n_import_from

@@ -40,7 +40,7 @@ from collections import namedtuple
 from array import array
 
 from xdis.code import iscode
-from xdis.bytecode import Bytecode, instruction_size
+from xdis.bytecode import Bytecode, instruction_size, _get_const_info
 
 from uncompyle6.scanner import Token, parse_fn_counts
 import xdis
@@ -340,6 +340,10 @@ class Scanner3(Scanner):
                     # (id(const), const.co_filename, const.co_name)
                     pattr = '<code_object ' + const.co_name + '>'
                 else:
+                    argval, _ = _get_const_info(inst.arg, co.co_consts)
+                    # Why don't we use _ above for "pattr" rather than "const"?
+                    # This *is* a little hoaky, but we have to coordinate with
+                    # other parts like n_LOAD_CONST in pysource.py for example.
                     pattr = const
                     pass
             elif opname in ('MAKE_FUNCTION', 'MAKE_CLOSURE'):
