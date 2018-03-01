@@ -526,30 +526,49 @@ def customize_for_version(self, is_pypy, version):
                     sep = INDENT_PER_LEVEL[:-1]
                     line_number = self.line_number
 
-                    assert node[0].kind.startswith('kvlist')
-                    # Python 3.5+ style key/value list in dict
-                    kv_node = node[0]
-                    l = list(kv_node)
-                    i = 0
-                    # Respect line breaks from source
-                    while i < len(l):
-                        self.write(sep)
-                        name = self.traverse(l[i], indent='')
-                        # Strip off beginning and trailing quotes in name
-                        name = name[1:-1]
-                        if i > 0:
-                            line_number = self.indent_if_source_nl(line_number,
-                                                                   self.indent + INDENT_PER_LEVEL[:-1])
-                        line_number = self.line_number
-                        self.write(name, '=')
-                        value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
-                        self.write(value)
-                        sep = ","
-                        if line_number != self.line_number:
-                            sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                    if  node[0].kind.startswith('kvlist'):
+                        # Python 3.5+ style key/value list in dict
+                        kv_node = node[0]
+                        l = list(kv_node)
+                        i = 0
+                        # Respect line breaks from source
+                        while i < len(l):
+                            self.write(sep)
+                            name = self.traverse(l[i], indent='')
+                            # Strip off beginning and trailing quotes in name
+                            name = name[1:-1]
+                            if i > 0:
+                                line_number = self.indent_if_source_nl(line_number,
+                                                                       self.indent + INDENT_PER_LEVEL[:-1])
                             line_number = self.line_number
-                        i += 2
-                        pass
+                            self.write(name, '=')
+                            value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
+                            self.write(value)
+                            sep = ", "
+                            if line_number != self.line_number:
+                                sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                                line_number = self.line_number
+                            i += 2
+                            pass
+                    elif node[-1].kind.startswith('BUILD_CONST_KEY_MAP'):
+                        keys_node = node[-2]
+                        keys = keys_node.attr
+                        # from trepan.api import debug; debug()
+                        assert keys_node == 'LOAD_CONST' and isinstance(keys, tuple)
+                        for i in range(node[-1].attr):
+                            self.write(sep)
+                            self.write(keys[i], '=')
+                            value = self.traverse(node[i], indent='')
+                            self.write(value)
+                            sep = ", "
+                            if line_number != self.line_number:
+                                sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                                line_number = self.line_number
+                                pass
+                            pass
+                    else:
+                        assert False, "Don't known to to untangle dictionary"
+
                     self.prec = p
                     self.indent_less(INDENT_PER_LEVEL)
                     return
@@ -592,6 +611,11 @@ def customize_for_version(self, is_pypy, version):
                     n = len(node)
                     assert n >= len(keys)+1, \
                         'not enough parameters keyword-tuple values'
+                    # try:
+                    #     assert n >= len(keys)+1, \
+                    #         'not enough parameters keyword-tuple values'
+                    # except:
+                    #     from trepan.api import debug; debug()
                     sep = ''
                     # FIXME: adjust output for line breaks?
                     for i in range(num_posargs):
