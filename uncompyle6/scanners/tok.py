@@ -21,7 +21,7 @@ from uncompyle6 import PYTHON3
 if PYTHON3:
     intern = sys.intern
 
-class Token():
+class Token:   # Python 2.4 can't have empty ()
     """
     Class representing a byte-code instruction.
 
