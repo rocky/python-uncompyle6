@@ -1,5 +1,18 @@
 #  Copyright (c) 2015-2018 by Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 All the crazy things we have to do to handle Python functions
 """
@@ -658,24 +671,27 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
             # kwonlyargcount = co.co_kwonlyargcount
 
             free_tup = annotate_dict = kw_dict = default_tup = None
-            index = 0
-            # FIXME: this is woefully wrong
-            if argc & 8:
+            fn_bits = node[-1].attr
+            index = -4  # Skip over:
+                        #  MAKE_FUNCTION,
+                        #  LOAD_CONST qualified name,
+                        #  LOAD_CONST code object
+            if fn_bits[-1]:
                 free_tup = node[index]
-                index += 1
-            if argc & 4:
-                kw_dict = node[1]
-                index += 1
-            if argc & 2:
+                index -= 1
+            if fn_bits[-2]:
+                annotate_dict = node[index]
+                index -= 1
+            if fn_bits[-3]:
                 kw_dict = node[index]
-                index += 1
-            if argc & 1:
-                kw_dict = node[index]
+                index -= 1
+            if fn_bits[-4]:
+                default_tup = node[index]
 
             if kw_dict == 'expr':
                 kw_dict = kw_dict[0]
 
-            # FIXME: handle free_tup, annotatate_dict, and default_tup
+            # FIXME: handle free_tup, annotate_dict, and default_tup
             if kw_dict:
                 assert kw_dict == 'dict'
                 defaults = [self.traverse(n, indent='') for n in kw_dict[:-2]]

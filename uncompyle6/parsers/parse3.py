@@ -886,8 +886,15 @@ class Python3Parser(PythonParser):
                                    "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
                         self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                         if is_pypy or (i >= 2 and tokens[i-2] == 'LOAD_LISTCOMP'):
+                            if self.version >= 3.6:
+                                # 3.6+ sometimes bundles all of the
+                                # 'exprs' in the rule above into a
+                                # tuple.
+                                rule_pat = ("listcomp ::= load_closure LOAD_LISTCOMP %%s%s "
+                                        "expr GET_ITER CALL_FUNCTION_1" % (opname,))
+                                self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                             rule_pat = ("listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
-                                       "GET_ITER CALL_FUNCTION_1" % ('expr ' * args_pos, opname))
+                                        "GET_ITER CALL_FUNCTION_1" % ('expr ' * args_pos, opname))
                             self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
                     if is_pypy or (i >= 2 and tokens[i-2] == 'LOAD_LAMBDA'):

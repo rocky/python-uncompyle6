@@ -1,7 +1,25 @@
+#  Copyright (c) 2018 by Rocky Bernstein
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import sys
 from uncompyle6.semantics.pysource import (
     SourceWalker, SourceWalkerError, find_globals, ASSIGN_DOC_STRING, RETURN_NONE)
+
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from uncompyle6 import IS_PYPY
+
 class AligningWalker(SourceWalker, object):
     def __init__(self, version, out, scanner, showast=False,
                  debug_parser=PARSER_DEFAULT_DEBUG,
@@ -82,26 +100,45 @@ from uncompyle6.show import (
     maybe_show_asm,
 )
 
-def align_deparse_code(version, co, out=sys.stderr, showasm=False, showast=False,
-                 showgrammar=False, code_objects={}, compile_mode='exec', is_pypy=False):
+#
+DEFAULT_DEBUG_OPTS = {
+    'asm': False,
+    'tree': False,
+    'grammar': False
+}
+
+def code_deparse_align(co, out=sys.stderr, version=None, is_pypy=None,
+                       debug_opts=DEFAULT_DEBUG_OPTS,
+                       code_objects={}, compile_mode='exec'):
     """
     ingests and deparses a given code block 'co'
     """
 
     assert iscode(co)
+
+    if version is None:
+        version = float(sys.version[0:3])
+    if is_pypy is None:
+        is_pypy = IS_PYPY
+
+
     # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy)
 
     tokens, customize = scanner.ingest(co, code_objects=code_objects)
-    maybe_show_asm(showasm, tokens)
+    show_asm = debug_opts.get('asm', None)
+    maybe_show_asm(show_asm, tokens)
 
     debug_parser = dict(PARSER_DEFAULT_DEBUG)
-    if showgrammar:
-        debug_parser['reduce'] = showgrammar
+    show_grammar = debug_opts.get('grammar', None)
+    show_grammar = debug_opts.get('grammar', None)
+    if show_grammar:
+        debug_parser['reduce'] = show_grammar
         debug_parser['errorstack'] = True
 
     #  Build a parse tree from tokenized and massaged disassembly.
-    deparsed = AligningWalker(version, scanner, out, showast=showast,
+    show_ast = debug_opts.get('ast', None)
+    deparsed = AligningWalker(version, scanner, out, showast=show_ast,
                             debug_parser=debug_parser, compile_mode=compile_mode,
                             is_pypy = is_pypy)
 
@@ -138,10 +175,7 @@ def align_deparse_code(version, co, out=sys.stderr, showasm=False, showast=False
 if __name__ == '__main__':
     def deparse_test(co):
         "This is a docstring"
-        sys_version = sys.version_info.major + (sys.version_info.minor / 10.0)
-        # deparsed = deparse_code(sys_version, co, showasm=True, showast=True)
-        deparsed = align_deparse_code(sys_version, co, showasm=False, showast=False,
-                                      showgrammar=False)
+        deparsed = code_deparse_align(co)
         print(deparsed.text)
         return
     deparse_test(deparse_test.__code__)

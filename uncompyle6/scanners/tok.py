@@ -21,7 +21,7 @@ from uncompyle6 import PYTHON3
 if PYTHON3:
     intern = sys.intern
 
-class Token:
+class Token():
     """
     Class representing a byte-code instruction.
 
@@ -35,7 +35,6 @@ class Token:
     def __init__(self, opname, attr=None, pattr=None, offset=-1,
                  linestart=None, op=None, has_arg=None, opc=None):
         self.kind = intern(opname)
-        self.op = op
         self.has_arg = has_arg
         self.attr = attr
         self.pattr = pattr
@@ -44,7 +43,16 @@ class Token:
         if has_arg is False:
             self.attr = None
             self.pattr = None
-        self.opc = opc
+
+        if opc is None:
+            from xdis.std import _std_api
+            self.opc = _std_api.opc
+        else:
+            self.opc = opc
+        if op is None:
+            self.op = self.opc.opmap.get(self.kind, None)
+        else:
+            self.op = op
 
     def __eq__(self, o):
         """ '==' on kind and "pattr" attributes.
@@ -84,7 +92,7 @@ class Token:
             argstr = "%6d " % self.attr
         else:
             argstr = ' '*7
-        if self.pattr:
+        if self.has_arg:
             pattr = self.pattr
             if self.opc:
                 if self.op in self.opc.JREL_OPS:
@@ -95,6 +103,11 @@ class Token:
                     if not self.pattr.startswith('to '):
                         pattr = "to " + str(self.pattr)
                     pass
+                elif self.op in self.opc.CONST_OPS:
+                    # Compare with pysource n_LOAD_CONST
+                    attr = self.attr
+                    if attr is None:
+                        pattr = None
                 elif self.op in self.opc.hascompare:
                     if isinstance(self.attr, int):
                         pattr = self.opc.cmp_op[self.attr]

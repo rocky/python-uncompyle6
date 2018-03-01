@@ -43,7 +43,9 @@ else:
 from array import array
 
 from xdis.code import iscode
-from xdis.bytecode import Bytecode, op_has_argument, instruction_size
+from xdis.bytecode import (
+    Bytecode, op_has_argument, instruction_size,
+    _get_const_info)
 from xdis.util import code2num
 
 from uncompyle6.scanner import Scanner
@@ -237,7 +239,13 @@ class Scanner2(Scanner):
                         # (id(const), const.co_filename, const.co_name)
                         pattr = '<code_object ' + const.co_name + '>'
                     else:
+                        if oparg < len(co.co_consts):
+                            argval, _ = _get_const_info(oparg, co.co_consts)
+                        # Why don't we use _ above for "pattr" rather than "const"?
+                        # This *is* a little hoaky, but we have to coordinate with
+                        # other parts like n_LOAD_CONST in pysource.py for example.
                         pattr = const
+                        pass
                 elif op in self.opc.NAME_OPS:
                     pattr = names[oparg]
                 elif op in self.opc.JREL_OPS:

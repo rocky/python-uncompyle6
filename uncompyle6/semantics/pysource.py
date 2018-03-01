@@ -1079,6 +1079,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(')')
 
     def n_LOAD_CONST(self, node):
+        attr = node.attr
         data = node.pattr; datatype = type(data)
         if isinstance(data, float) and str(data) in frozenset(['nan', '-nan', 'inf', '-inf']):
             # float values 'nan' and 'inf' are not directly representable in Python at least
@@ -1093,13 +1094,15 @@ class SourceWalker(GenericASTTraversal, object):
             self.write( hex(data) )
         elif datatype is type(Ellipsis):
             self.write('...')
-        elif data is None:
+        elif attr is None:
             # LOAD_CONST 'None' only occurs, when None is
             # implicit eg. in 'return' w/o params
             # pass
             self.write('None')
         elif isinstance(data, tuple):
             self.pp_tuple(data)
+        elif isinstance(attr, bool):
+            self.write(repr(attr))
         elif self.FUTURE_UNICODE_LITERALS:
             # The FUTURE_UNICODE_LITERALS compiler flag
             # in 2.6 on change the way
@@ -1290,8 +1293,17 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_import_from(self, node):
         relative_path_index = 0
-        if self.version >= 2.5 and node[relative_path_index].pattr > 0:
-            node[2].pattr = '.'*node[relative_path_index].pattr + node[2].pattr
+        if self.version >= 2.5:
+            if node[relative_path_index].attr > 0:
+                node[2].pattr = ('.' * node[relative_path_index].pattr) + node[2].pattr
+            if self.version > 2.7:
+                if isinstance(node[1].pattr, tuple):
+                    imports = node[1].pattr
+                    for pattr in imports:
+                        node[1].pattr = pattr
+                        self.default(node)
+                    return
+                pass
         self.default(node)
 
     n_import_from_star = n_import_from
@@ -1532,10 +1544,9 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
 
     def comprehension_walk3(self, node, iter_index, code_index=-5):
-        """
-        List comprehensions the way they are done in Python3.
-        They are other comprehensions, e.g. set comprehensions
-        See if we can combine code.
+        """Non-closure-based comprehensions the way they are done in Python3.
+        They are other comprehensions, e.g. set comprehensions See if
+        we can combine code.
         """
         p = self.prec
         self.prec = 27
@@ -1600,7 +1611,7 @@ class SourceWalker(GenericASTTraversal, object):
         assert n.kind in ('lc_body', 'comp_body', 'setcomp_func', 'set_comp_body'), ast
         assert store, "Couldn't find store in list/set comprehension"
 
-        # Issue created with later Python code generation is that there
+        # A problem created with later Python code generation is that there
         # is a lamda set up with a dummy argument name that is then called
         # So we can't just translate that as is but need to replace the
         # dummy name. Below we are picking out the variable name as seen
@@ -1641,8 +1652,8 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = p
 
     def listcomprehension_walk2(self, node):
-        """List comprehensions the way they are done in Python 2 (and
-        some Python 3?).
+        """List comprehensions the way they are done in Python 2 and
+        sometimes in Python 3.
         They're more other comprehensions, e.g. set comprehensions
         See if we can combine code.
         """
@@ -1652,45 +1663,72 @@ class SourceWalker(GenericASTTraversal, object):
         code = Code(node[1].attr, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
-        if node == 'set_comp':
-            ast = ast[0][0][0]
-        else:
-            ast = ast[0][0][0][0][0]
 
-        if ast == 'expr':
+        # skip over: sstmt, stmt, return, ret_expr
+        # and other singleton derivations
+        while (len(ast) == 1
+               or (ast in ('sstmt', 'return')
+                   and ast[-1] in ('RETURN_LAST', 'RETURN_VALUE'))):
             ast = ast[0]
 
         n = ast[1]
-        collection = node[-3]
-        list_if = None
+        # collection = node[-3]
+        collections = [node[-3]]
+        list_ifs = []
         assert n == 'list_iter'
+
+        stores = []
 
         # Find the list comprehension body. It is the inner-most
         # node that is not list_.. .
         while n == 'list_iter':
             n = n[0] # recurse one step
             if n == 'list_for':
-                store = n[2]
+                stores.append(n[2])
                 n = n[3]
+                if self.version >= 3.6 and n[0] == 'list_for':
+                    # Dog-paddle down largely singleton reductions
+                    # to find the collection (expr)
+                    c = n[0][0]
+                    if c == 'expr':
+                        c = c[0]
+                    # FIXME: grammar is wonky here? Is this really an attribute?
+                    if c == 'attribute':
+                        c = c[0]
+                    collections.append(c)
+                    pass
             elif n in ('list_if', 'list_if_not'):
                 # FIXME: just a guess
                 if n[0].kind == 'expr':
-                    list_if = n
+                    list_ifs.append(n)
                 else:
-                    list_if = n[1]
+                    list_ifs.append([1])
                 n = n[2]
                 pass
             pass
 
         assert n == 'lc_body', ast
 
+        # FIXME: add indentation around "for"'s and "in"'s
         self.preorder(n[0])
-        self.write(' for ')
-        self.preorder(store)
-        self.write(' in ')
-        self.preorder(collection)
-        if list_if:
-            self.preorder(list_if)
+        if self.version < 3.6:
+            self.write(' for ')
+            self.preorder(stores[0])
+            self.write(' in ')
+            self.preorder(collections[0])
+            if list_ifs:
+                self.preorder(list_ifs[0])
+                pass
+        else:
+            for i, store in enumerate(stores):
+                self.write(' for ')
+                self.preorder(store)
+                self.write(' in ')
+                self.preorder(collections[i])
+                if i < len(list_ifs):
+                    self.preorder(list_ifs[i])
+                    pass
+                pass
         self.prec = p
 
     def n_listcomp(self, node):
@@ -1705,7 +1743,7 @@ class SourceWalker(GenericASTTraversal, object):
     n_dict_comp = n_set_comp
 
     def setcomprehension_walk3(self, node, collection_index):
-        """List comprehensions the way they are done in Python3.
+        """Set comprehensions the way they are done in Python3.
         They're more other comprehensions, e.g. set comprehensions
         See if we can combine code.
         """
@@ -2676,7 +2714,7 @@ def code_deparse(co, out=sys.stdout, version=None, debug_opts=DEFAULT_DEBUG_OPTS
 
     #  Build Syntax Tree from disassembly.
     linestarts = dict(scanner.opc.findlinestarts(co))
-    deparsed = walker(version, out, scanner, showast=debug_opts['ast'],
+    deparsed = walker(version, out, scanner, showast=debug_opts.get('ast', None),
                       debug_parser=debug_parser, compile_mode=compile_mode,
                       is_pypy=is_pypy, linestarts=linestarts)
 
