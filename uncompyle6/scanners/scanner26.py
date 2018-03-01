@@ -1,6 +1,19 @@
 #  Copyright (c) 2015-2017 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 Python 2.6 bytecode scanner
 
@@ -20,6 +33,8 @@ from uncompyle6.scanner import L65536
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_26
 from xdis.bytecode import Bytecode
+from xdis.bytecode import _get_const_info
+
 JUMP_OPS = opcode_26.JUMP_OPS
 
 class Scanner26(scan.Scanner2):
@@ -212,7 +227,13 @@ class Scanner26(scan.Scanner2):
                         # (id(const), const.co_filename, const.co_name)
                         pattr = '<code_object ' + const.co_name + '>'
                     else:
+                        if oparg < len(co.co_consts):
+                            argval, _ = _get_const_info(oparg, co.co_consts)
+                        # Why don't we use _ above for "pattr" rather than "const"?
+                        # This *is* a little hoaky, but we have to coordinate with
+                        # other parts like n_LOAD_CONST in pysource.py for example.
                         pattr = const
+                        pass
                 elif op in self.opc.NAME_OPS:
                     pattr = names[oparg]
                 elif op in self.opc.JREL_OPS:

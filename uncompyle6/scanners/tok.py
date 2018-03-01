@@ -87,7 +87,7 @@ class Token():
         if not self.has_arg:
             return "%s%s" % (prefix, offset_opname)
         argstr = "%6d " % self.attr if isinstance(self.attr, int) else (' '*7)
-        if op_has_argument(self.op, self.opc):
+        if self.has_arg:
             pattr = self.pattr
             if self.opc:
                 if self.op in self.opc.JREL_OPS:

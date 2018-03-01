@@ -1294,7 +1294,9 @@ class SourceWalker(GenericASTTraversal, object):
     def n_import_from(self, node):
         relative_path_index = 0
         if self.version >= 2.5 and node[relative_path_index].attr > 0:
-            node[2].pattr = '.'*node[relative_path_index].pattr + node[2].attr
+            node[2].pattr = '.' * (node[relative_path_index].pattr + node[2].attr)
+        if isinstance(node[1].pattr, tuple):
+            node[1].pattr = '.'.join(node[1].pattr)
         self.default(node)
 
     n_import_from_star = n_import_from

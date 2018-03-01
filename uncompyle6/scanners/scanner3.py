@@ -14,7 +14,6 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 Python 3 Generic bytecode scanner/deparser
 
@@ -340,7 +339,8 @@ class Scanner3(Scanner):
                     # (id(const), const.co_filename, const.co_name)
                     pattr = '<code_object ' + const.co_name + '>'
                 else:
-                    argval, _ = _get_const_info(inst.arg, co.co_consts)
+                    if isinstance(inst.arg, int) and inst.arg < len(co.co_consts):
+                        argval, _ = _get_const_info(inst.arg, co.co_consts)
                     # Why don't we use _ above for "pattr" rather than "const"?
                     # This *is* a little hoaky, but we have to coordinate with
                     # other parts like n_LOAD_CONST in pysource.py for example.
