@@ -58,7 +58,7 @@ ftp_url            = None
 install_requires   = ['spark-parser >= 1.8.5, < 1.9.0',
                       'xdis >= 3.6.9, < 3.7.0', 'six']
 
-license            = 'MIT'
+license            = 'GPL3'
 mailing_list       = 'python-debugger@googlegroups.com'
 modname            = 'uncompyle6'
 py_modules         = None
