@@ -102,12 +102,15 @@ class Scanner(object):
         That is, it is ether "JUMP_FORWARD" or an absolute jump that
         goes forward.
         """
-        if self.code[offset] == self.opc.JUMP_FORWARD:
+        opname = self.get_inst(offset).opname
+        if opname == 'JUMP_FORWARD':
             return True
-        if self.code[offset] != self.opc.JUMP_ABSOLUTE:
+        if opname != 'JUMP_ABSOLUTE':
             return False
-        # FIXME 0 isn't always correct
-        return offset < self.get_target(offset, 0)
+        return offset < self.get_target(offset)
+
+    def prev_offset(self, offset):
+        return self.insts[self.offset2inst_index[offset]-1].offset
 
     def get_inst(self, offset):
         # Instructions can get moved as a result of EXTENDED_ARGS removal.
