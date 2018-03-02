@@ -1,3 +1,25 @@
+uncompyle6 3.0.0 2018-02-17
+
+- deparse_code() and lookalikes from the various semantic actions are
+  now deprecated. Instead use new API code_deparse() which makes the
+  version optional and bundles debug options into a dictionary.
+- License changed to GPL3.
+- Many Python 3.6 fixes, especially around handling EXTENDED_ARGS
+  Due to the reduction in operand size for JUMP's there are many
+  more EXTENDED_ARGS instructions which can be the targets
+  of jumps, and messes up the peephole-like analysis that is
+  done for control flow since we don't have something better in place.
+- Code has been reorganized to be more instruction nametuple based where it
+  has been more byecode array based. There was and still is code that had
+  had magic numbers to advance instructions or to pick out operands.
+- Bug fixes in numerous other Python versions
+- Instruction display improved
+- Keep global statements in fixed order (from wangym5106)
+
+A bit more work is still needed for 3.6 especially in the area of
+function calls and definitions.
+
+
 uncompyle6 2.16.0 2018-02-17
 
 - API additions:
