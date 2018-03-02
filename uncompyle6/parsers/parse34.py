@@ -31,6 +31,7 @@ class Python34Parser(Python33Parser):
         expr ::= LOAD_ASSERT
 
 
+        # Seems to be needed starting 3.4.4 or so
         while1stmt    ::= SETUP_LOOP l_stmts
                           COME_FROM JUMP_BACK POP_BLOCK COME_FROM_LOOP
 
@@ -47,7 +48,8 @@ class Python34Parser(Python33Parser):
 
     def customize_grammar_rules(self, tokens, customize):
         self.remove_rules("""
-        while1stmt ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
+        # 3.4.2 has this. 3.4.4 may now
+        # while1stmt ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
         """)
         super(Python34Parser, self).customize_grammar_rules(tokens, customize)
         return
