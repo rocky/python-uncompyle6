@@ -295,9 +295,22 @@ class Scanner2(Scanner):
                 target = self.get_target(offset)
                 if target <= offset:
                     op_name = 'JUMP_BACK'
-                    if (offset in self.stmts
-                        and self.code[offset+3] not in (self.opc.END_FINALLY,
-                                                        self.opc.POP_BLOCK)):
+
+                    # 'Continue's include jumps to loops that are not
+                    # and the end of a block which follow with POP_BLOCK and COME_FROM_LOOP.
+                    # If the JUMP_ABSOLUTE is
+                    #   either to a FOR_ITER or the instruction after a SETUP_LOOP
+                    #   and it is followed by another JUMP_FORWARD
+                    # then we'll take it as a "continue".
+                    j = self.offset2inst_index[offset]
+                    target_index = self.offset2inst_index[target]
+                    is_continue = (self.insts[target_index-1].opname == 'SETUP_LOOP'
+                                   and self.insts[j+1].opname == 'JUMP_FORWARD') and False
+                    if is_continue:
+                        op_name = 'CONTINUE'
+                    if (offset in self.stmts and
+                          self.code[offset+3] not in (self.opc.END_FINALLY,
+                                                     self.opc.POP_BLOCK)):
                         if ((offset in self.linestartoffsets and
                             self.code[self.prev[offset]] == self.opc.JUMP_ABSOLUTE)
                             or self.code[target] == self.opc.FOR_ITER

@@ -456,26 +456,28 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
 
     # MAKE_CLOSURE adds an additional closure slot
 
-    # Thank you, Python, for a such a well-thought out system that has
-    # changed 4 or so times.
+    # Thank you, Python: such a well-thought out system that has
+    # changed and continues to change many times.
 
     def build_param(ast, name, default):
         """build parameters:
             - handle defaults
             - handle format tuple parameters
         """
-        if default:
-            if self.version >= 3.6:
-                value = default
-            else:
-                value = self.traverse(default, indent='')
-            maybe_show_tree_param_default(self.showast, name, value)
-            result = '%s=%s' % (name,  value)
-            if result[-2:] == '= ':	# default was 'LOAD_CONST None'
-                result += 'None'
-            return result
+        if self.version >= 3.6:
+            value = default
         else:
-            return name
+            value = self.traverse(default, indent='')
+        maybe_show_tree_param_default(self.showast, name, value)
+        result = '%s=%s' % (name,  value)
+
+        # The below can probably be removed. This is probably
+        # a holdover from days when LOAD_CONST erroneously
+        # didn't handle LOAD_CONST None properly
+        if result[-2:] == '= ':	# default was 'LOAD_CONST None'
+            result += 'None'
+
+        return result
 
     # MAKE_FUNCTION_... or MAKE_CLOSURE_...
     assert node[-1].kind.startswith('MAKE_')
@@ -550,9 +552,14 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
     indent = self.indent
 
     # build parameters
-    tup = [paramnames, defparams]
-    params = [build_param(ast, name, default_value) for
-              name, default_value in map(lambda *tup:tup, *tup)]
+    params = []
+    if defparams:
+        for i, defparam in enumerate(defparams):
+            params.append(build_param(ast, paramnames[i], defparam))
+
+        params += paramnames[i+1:]
+    else:
+        params = paramnames
 
     if not 3.0 <= self.version <= 3.1 or self.version >= 3.6:
         params.reverse() # back to correct order

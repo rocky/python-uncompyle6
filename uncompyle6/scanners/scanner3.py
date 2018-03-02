@@ -425,11 +425,21 @@ class Scanner3(Scanner):
                 target = self.get_target(inst.offset)
                 if target <= inst.offset:
                     next_opname = self.insts[i+1].opname
-                    if (inst.offset in self.stmts and
+
+                    # 'Continue's include jumps to loops that are not
+                    # and the end of a block which follow with POP_BLOCK and COME_FROM_LOOP.
+                    # If the JUMP_ABSOLUTE is to a FOR_ITER and it is followed by another JUMP_FORWARD
+                    # then we'll take it as a "continue".
+                    is_continue = (self.insts[self.offset2inst_index[target]]
+                                  .opname == 'FOR_ITER'
+                                  and self.insts[i+1].opname == 'JUMP_FORWARD')
+
+                    if (is_continue or
+                        (inst.offset in self.stmts and
                         (self.version != 3.0 or (hasattr(inst, 'linestart'))) and
                         (next_opname not in ('END_FINALLY', 'POP_BLOCK',
                                             # Python 3.0 only uses POP_TOP
-                                            'POP_TOP'))):
+                                            'POP_TOP')))):
                         opname = 'CONTINUE'
                     else:
                         opname = 'JUMP_BACK'
