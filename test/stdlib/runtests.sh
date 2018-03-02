@@ -71,6 +71,8 @@ case $PYVERSION in
 	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
 	    [test_io.py]=1 # Test takes too long to run
 	    [test_ioctl.py]=1 # Test takes too long to run
+	    [test_itertools.py]=1 # Fix erroneous reduction to "conditional_true".
+	                          # See test/simple_source/bug27+/05_not_unconditional.py
 	    [test_memoryio.py]=1 # FIX
 	    [test_multiprocessing.py]=1 # On uncompyle2, taks 24 secs
 	    [test_pep352.py]=1 # ?
