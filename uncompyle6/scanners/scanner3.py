@@ -420,9 +420,9 @@ class Scanner3(Scanner):
                 if target <= inst.offset:
                     next_opname = self.insts[i+1].opname
 
-                    # Continues include jumps to FOR_ITER that are not
+                    # 'Continue's include jumps to loops that are not
                     # and the end of a block which follow with POP_BLOCK and COME_FROM_LOOP.
-                    # If the JUMP_ABSOLUTE is ot a FOR_ITER and is followed by another JUMP_FORWARD
+                    # If the JUMP_ABSOLUTE is to a FOR_ITER and it is followed by another JUMP_FORWARD
                     # then we'll take it as a "continue".
                     is_continue = (self.insts[self.offset2inst_index[target]]
                                   .opname == 'FOR_ITER'
