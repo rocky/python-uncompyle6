@@ -515,7 +515,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
                 expr_node = node[0]
                 if (expr_node[0] == 'LOAD_CONST' and
                     isinstance(expr_node[0].attr, tuple)):
-                    defparams = list(expr_node[0].attr)
+                    defparams = [repr(a) for a in expr_node[0].attr]
                 elif expr_node[0] in frozenset(('list', 'tuple', 'dict', 'set')):
                     defparams =  [self.traverse(n, indent='') for n in expr_node[0][:-1]]
             else:

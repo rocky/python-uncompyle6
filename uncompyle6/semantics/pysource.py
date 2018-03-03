@@ -1954,13 +1954,13 @@ class SourceWalker(GenericASTTraversal, object):
             else:
                 l = n
             while i < l:
+                # 3.6+ may have this
+                if kwargs:
+                    self.write("%s=" % kwargs[j])
+                    j += 1
                 value = self.traverse(node[i])
                 i += 1
                 self.write(sep, value)
-                # 3.6+ may have this
-                if kwargs:
-                    self.write("=%s" % kwargs[j])
-                    j += 1
                 sep = line_separator
                 pass
             pass
