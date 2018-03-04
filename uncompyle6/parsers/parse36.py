@@ -187,6 +187,8 @@ class Python36Parser(Python35Parser):
             self.addRule("""expr        ::= call_ex_kw
                             expr        ::= call_ex_kw2
                             expr        ::= call_ex_kw3
+                            expr        ::= call_ex_kw4
+
                             call_ex_kw  ::= expr expr build_map_unpack_with_call
                                             CALL_FUNCTION_EX_KW
                             call_ex_kw2 ::= expr
@@ -194,6 +196,10 @@ class Python36Parser(Python35Parser):
                                             build_map_unpack_with_call
                                             CALL_FUNCTION_EX_KW
                             call_ex_kw3 ::= expr
+                                            build_tuple_unpack_with_call
+                                            expr
+                                            CALL_FUNCTION_EX_KW
+                            call_ex_kw4 ::= expr
                                             expr
                                             expr
                                             CALL_FUNCTION_EX_KW

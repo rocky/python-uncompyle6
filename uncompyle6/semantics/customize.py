@@ -455,6 +455,33 @@ def customize_for_version(self, is_pypy, version):
                 self.n_call_ex_kw2 = call_ex_kw2
 
                 def call_ex_kw3(node):
+                    """Handle CALL_FUNCTION_EX 1 (have KW) but without
+                    BUILD_MAP_UNPACK_WITH_CALL"""
+                    self.preorder(node[0])
+                    self.write('(')
+                    args = node[1][0]
+                    if args == 'expr':
+                        args = args[0]
+                    if args == 'tuple':
+                        if self.call36_tuple(args) > 0:
+                            self.write(', ')
+                            pass
+                        pass
+
+                    self.write('*')
+                    self.preorder(node[1][1])
+                    self.write(', ')
+
+                    kwargs = node[2]
+                    if kwargs == 'expr':
+                        kwargs = kwargs[0]
+                    self.write('**')
+                    self.preorder(kwargs)
+                    self.write(')')
+                    self.prune()
+                self.n_call_ex_kw3 = call_ex_kw3
+
+                def call_ex_kw4(node):
                     """Handle CALL_FUNCTION_EX 2  (have KW) but without
                     BUILD_{MAP,TUPLE}_UNPACK_WITH_CALL"""
                     self.preorder(node[0])
@@ -478,8 +505,7 @@ def customize_for_version(self, is_pypy, version):
                     self.preorder(kwargs)
                     self.write(')')
                     self.prune()
-                self.n_call_ex_kw3 = call_ex_kw3
-
+                self.n_call_ex_kw4 = call_ex_kw4
 
                 def call36_tuple(node):
                     """
@@ -665,7 +691,7 @@ def customize_for_version(self, is_pypy, version):
                     self.prune()
                     return
                 self.n_return_closure = return_closure
-                pass # version > 3.6
-            pass # version > 3.4
-        pass # version > 3.0
+                pass # version >= 3.6
+            pass # version >= 3.4
+        pass # version >= 3.0
     return
