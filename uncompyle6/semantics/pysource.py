@@ -1531,17 +1531,21 @@ class SourceWalker(GenericASTTraversal, object):
                     class_name = node[2][0].pattr
                 else:
                     class_name = node[1][2].pattr
-                buildclass = node
+                build_class = node
             else:
+                build_class = node[0]
                 if self.version >= 3.6:
-                    class_name = node[0][1][0].attr.co_name
-                    buildclass = node[0]
+                    if build_class[1][0] == 'load_closure':
+                        code_node = build_class[1][1]
+                    else:
+                        code_node = build_class[1][0]
+                    class_name = code_node.attr.co_name
                 else:
                     class_name = node[1][0].pattr
-                    buildclass = node[0]
+                    build_class = node[0]
 
-            assert 'mkfunc' == buildclass[1]
-            mkfunc = buildclass[1]
+            assert 'mkfunc' == build_class[1]
+            mkfunc = build_class[1]
             if mkfunc[0] == 'kwargs':
                 if 3.0 <= self.version <= 3.2:
                     for n in mkfunc:
@@ -1563,9 +1567,9 @@ class SourceWalker(GenericASTTraversal, object):
                     subclass_info = node
                 else:
                     subclass_info = node[0]
-            elif buildclass[1][0] == 'load_closure':
+            elif build_class[1][0] == 'load_closure':
                 # Python 3 with closures not functions
-                load_closure = buildclass[1]
+                load_closure = build_class[1]
                 if hasattr(load_closure[-3], 'attr'):
                     # Python 3.3 classes with closures work like this.
                     # Note have to test before 3.2 case because
@@ -1576,34 +1580,34 @@ class SourceWalker(GenericASTTraversal, object):
                     subclass_code = load_closure[-2].attr
                 else:
                     raise 'Internal Error n_classdef: cannot find class body'
-                if hasattr(buildclass[3], '__len__'):
-                    subclass_info = buildclass[3]
-                elif hasattr(buildclass[2], '__len__'):
-                    subclass_info = buildclass[2]
+                if hasattr(build_class[3], '__len__'):
+                    subclass_info = build_class[3]
+                elif hasattr(build_class[2], '__len__'):
+                    subclass_info = build_class[2]
                 else:
                     raise 'Internal Error n_classdef: cannot superclass name'
             elif self.version >= 3.6 and node == 'classdefdeco2':
                 subclass_info = node
-                subclass_code = buildclass[1][0].attr
+                subclass_code = build_class[1][0].attr
             else:
-                subclass_code = buildclass[1][0].attr
+                subclass_code = build_class[1][0].attr
                 subclass_info = node[0]
         else:
             if node == 'classdefdeco2':
-                buildclass = node
+                build_class = node
             else:
-                buildclass = node[0]
-            build_list = buildclass[1][0]
-            if hasattr(buildclass[-3][0], 'attr'):
-                subclass_code = buildclass[-3][0].attr
-                class_name = buildclass[0].pattr
-            elif (buildclass[-3] == 'mkfunc' and
+                build_class = node[0]
+            build_list = build_class[1][0]
+            if hasattr(build_class[-3][0], 'attr'):
+                subclass_code = build_class[-3][0].attr
+                class_name = build_class[0].pattr
+            elif (build_class[-3] == 'mkfunc' and
                   node == 'classdefdeco2' and
-                  buildclass[-3][0] == 'load_closure'):
-                subclass_code = buildclass[-3][1].attr
-                class_name = buildclass[-3][0][0].pattr
+                  build_class[-3][0] == 'load_closure'):
+                subclass_code = build_class[-3][1].attr
+                class_name = build_class[-3][0][0].pattr
             elif hasattr(node[0][0], 'pattr'):
-                subclass_code = buildclass[-3][1].attr
+                subclass_code = build_class[-3][1].attr
                 class_name = node[0][0].pattr
             else:
                 raise 'Internal Error n_classdef: cannot find class name'
