@@ -459,8 +459,11 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
 
     # MAKE_CLOSURE adds an additional closure slot
 
-    # Thank you, Python: such a well-thought out system that has
-    # changed and continues to change many times.
+    # In Python 3.6 stack entries change again. I understand
+    # 3.7 changes some of those changes. Yes, it is hard to follow
+    # and I am sure I haven't been able to keep up.
+
+    # Thank you, Python.
 
     def build_param(ast, name, default):
         """build parameters:
@@ -498,7 +501,10 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
     args_node = node[-1]
     if isinstance(args_node.attr, tuple):
         pos_args, kw_args, annotate_argc  = args_node.attr
-        if self.version <= 3.3 and len(node) > 2 and node[lambda_index] != 'LOAD_LAMBDA':
+        # FIXME: there is probably a better way to classify this.
+        if (self.version <= 3.3 and len(node) > 2 and
+            node[lambda_index] != 'LOAD_LAMBDA' and
+            (node[0].kind.startswith('kwarg') or node[2].kind != 'load_closure')):
             # args are after kwargs; kwargs are bundled as one node
             defparams = node[1:args_node.attr[0]+1]
         else:
