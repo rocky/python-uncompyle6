@@ -636,7 +636,7 @@ def customize_for_version(self, is_pypy, version):
                     num_posargs = len(node) - (num_kwargs + 1)
                     n = len(node)
                     assert n >= len(keys)+1, \
-                        'not enough parameters keyword-tuple values'
+                      'not enough parameters keyword-tuple values'
                     # try:
                     #     assert n >= len(keys)+1, \
                     #         'not enough parameters keyword-tuple values'
