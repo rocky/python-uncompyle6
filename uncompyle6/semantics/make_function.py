@@ -504,7 +504,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
         # FIXME: there is probably a better way to classify this.
         if (self.version <= 3.3 and len(node) > 2 and
             node[lambda_index] != 'LOAD_LAMBDA' and
-            (node[0].kind.startswith('kwarg') or node[2].kind != 'load_closure')):
+            (node[0].kind.startswith('kwarg') or node[-4].kind != 'load_closure')):
             # args are after kwargs; kwargs are bundled as one node
             defparams = node[1:args_node.attr[0]+1]
         else:
