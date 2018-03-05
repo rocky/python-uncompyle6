@@ -1327,8 +1327,8 @@ class SourceWalker(GenericASTTraversal, object):
                 if n[2] == 'store':
                     store = n[2]
                 n = n[3]
-            elif n in ('list_if', 'list_if_not', 'comp_if', 'comp_ifnot'):
-                have_not = n in ('list_if_not', 'comp_ifnot')
+            elif n in ('list_if', 'list_if_not', 'comp_if', 'comp_if_not'):
+                have_not = n in ('list_if_not', 'comp_if_not')
                 if_node = n[0]
                 if n[1] == 'store':
                     store = n[1]

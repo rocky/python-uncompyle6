@@ -33,8 +33,8 @@ class Python24Parser(Python25Parser):
         import_cont    ::= filler LOAD_CONST alias
 
         # Python 2.5+ omits POP_TOP POP_BLOCK
-        while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK POP_TOP POP_BLOCK COME_FROM
         while1stmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_TOP POP_BLOCK COME_FROM
+        while1stmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_TOP POP_BLOCK
 
         # Python 2.5+:
         #  call_stmt ::= expr POP_TOP

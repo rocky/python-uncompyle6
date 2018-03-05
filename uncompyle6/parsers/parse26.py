@@ -135,9 +135,11 @@ class Python26Parser(Python2Parser):
         setup_finally ::= STORE_NAME SETUP_FINALLY LOAD_NAME DELETE_NAME
 
         while1stmt     ::= SETUP_LOOP l_stmts JUMP_BACK COME_FROM
+        while1stmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK
 
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt jb_pop POP_BLOCK _come_froms
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt jb_cf_pop bp_come_from
+        whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt jb_cf_pop POP_BLOCK
         whilestmt      ::= SETUP_LOOP testexpr returns POP_BLOCK COME_FROM
 
         whileelsestmt  ::= SETUP_LOOP testexpr l_stmts_opt jb_pop POP_BLOCK

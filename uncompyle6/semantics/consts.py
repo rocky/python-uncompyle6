@@ -184,7 +184,7 @@ TABLE_DIRECT = {
 
     'comp_iter':	    ( '%c', 0 ),
     'comp_if':		    ( ' if %c%c', 0, 2 ),
-    'comp_ifnot':	    ( ' if not %p%c', (0, 22), 2 ),
+    'comp_if_not':	    ( ' if not %p%c', (0, 22), 2 ),
     'comp_body':	    ( '', ),	# ignore when recusing
     'set_comp_body':    ( '%c', 0 ),
     'gen_comp_body':    ( '%c', 0 ),
