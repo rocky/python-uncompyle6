@@ -306,9 +306,9 @@ class Python2Parser(PythonParser):
                     ], customize)
                     if self.version >= 2.7:
                         self.add_unique_rule(
-                            'dictcomp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER store '
+                            'dict_comp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER store '
                             'comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST',
-                            'dictcomp_func', 0, customize)
+                            'dict_comp_func', 0, customize)
 
                 else:
                     kvlist_n = "kvlist_%s" % token.attr

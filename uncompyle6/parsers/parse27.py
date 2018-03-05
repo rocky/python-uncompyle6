@@ -19,23 +19,28 @@ class Python27Parser(Python2Parser):
         lc_body   ::= expr LIST_APPEND
         for_iter  ::= GET_ITER COME_FROM FOR_ITER
 
-        stmt ::= setcomp_func
+        stmt ::= set_comp_func
 
 
         # Dictionary and set comprehensions were added in Python 2.7
         expr      ::= dict_comp
         dict_comp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
 
-        stmt          ::= dictcomp_func
-        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
-                         comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
+        stmt           ::= dict_comp_func
+        dict_comp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
+                           comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
 
-        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
-                JUMP_BACK RETURN_VALUE RETURN_LAST
+        set_comp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
+                          JUMP_BACK RETURN_VALUE RETURN_LAST
 
         comp_body ::= dict_comp_body
         comp_body ::= set_comp_body
         comp_for ::= expr for_iter store comp_iter JUMP_BACK
+
+        comp_iter     ::= comp_if
+        comp_iter     ::= comp_if_not
+        comp_if_not   ::= expr jmp_true comp_iter
+        comp_iter     ::= comp_body
 
         dict_comp_body ::= expr expr MAP_ADD
         set_comp_body ::= expr SET_ADD

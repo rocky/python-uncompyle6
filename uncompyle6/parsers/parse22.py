@@ -18,6 +18,10 @@ class Python22Parser(Python23Parser):
                       COME_FROM POP_TOP COME_FROM
         list_for  ::= expr for_iter store list_iter CONTINUE JUMP_FORWARD
                       COME_FROM POP_TOP COME_FROM
+
+        # Some versions of Python 2.2 have been found to generate
+        # PRINT_ITEM_CONT for PRINT_ITEM
+        print_items_stmt ::= expr PRINT_ITEM_CONT print_items_opt
         '''
 
     def customize_grammar_rules(self, tokens, customize):

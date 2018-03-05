@@ -679,7 +679,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # skip over stmt return ret_expr
         ast = ast[0][0][0]
         store = None
-        if ast in ['setcomp_func', 'dictcomp_func']:
+        if ast in ['set_comp_func', 'dict_comp_func']:
             # Offset 0: BUILD_SET should have the span
             # of '{'
             self.gen_source(ast, code_name, {})
@@ -724,8 +724,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
             pass
 
         # Python 2.7+ starts including set_comp_body
-        # Python 3.5+ starts including setcomp_func
-        assert n.kind in ('lc_body', 'comp_body', 'setcomp_func', 'set_comp_body'), ast
+        # Python 3.5+ starts including set_comp_func
+        assert n.kind in ('lc_body', 'comp_body', 'set_comp_func', 'set_comp_body'), ast
         assert store, "Couldn't find store in list/set comprehension"
 
         old_name = self.name
@@ -871,8 +871,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prune()
 
     # FIXME: Not sure if below is general. Also, add dict_comp_func.
-    # 'setcomp_func': ("%|lambda %c: {%c for %c in %c%c}\n", 1, 3, 3, 1, 4)
-    def n_setcomp_func(self, node):
+    # 'set_comp_func': ("%|lambda %c: {%c for %c in %c%c}\n", 1, 3, 3, 1, 4)
+    def n_set_comp_func(self, node):
         setcomp_start = len(self.f.getvalue())
         self.write(self.indent, "lambda ")
         param_node = node[1]

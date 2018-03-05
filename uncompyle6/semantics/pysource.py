@@ -1272,6 +1272,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.comprehension_walk(node, iter_index=4)
         self.write('}')
         self.prune()
+    n_dict_comp = n_set_comp
 
     def comprehension_walk3(self, node, iter_index, code_index=-5):
         """Non-closure-based comprehensions the way they are done in Python3.
@@ -1296,7 +1297,7 @@ class SourceWalker(GenericASTTraversal, object):
             ast = ast[0]
 
         store = None
-        if ast in ['setcomp_func', 'dictcomp_func']:
+        if ast in ['set_comp_func', 'dict_comp_func']:
             for k in ast:
                 if k == 'comp_iter':
                     n = k
@@ -1337,8 +1338,8 @@ class SourceWalker(GenericASTTraversal, object):
             pass
 
         # Python 2.7+ starts including set_comp_body
-        # Python 3.5+ starts including setcomp_func
-        assert n.kind in ('lc_body', 'comp_body', 'setcomp_func', 'set_comp_body'), ast
+        # Python 3.5+ starts including set_comp_func
+        assert n.kind in ('lc_body', 'comp_body', 'set_comp_func', 'set_comp_body'), ast
         assert store, "Couldn't find store in list/set comprehension"
 
         # A problem created with later Python code generation is that there
@@ -1469,8 +1470,6 @@ class SourceWalker(GenericASTTraversal, object):
             self.comprehension_walk3(node, 1, 0)
         self.write(']')
         self.prune()
-
-    n_dict_comp = n_set_comp
 
     def setcomprehension_walk3(self, node, collection_index):
         """Set comprehensions the way they are done in Python3.
