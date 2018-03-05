@@ -323,6 +323,7 @@ PRECEDENCE = {
     'unary_convert':        0,
     'dict_comp':            0,
     'set_comp':             0,
+    'set_comp_expr':        0,
     'list_comp':            0,
     'generator_exp':        0,
 

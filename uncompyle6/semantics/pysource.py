@@ -1262,7 +1262,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(')')
         self.prune()
 
-    def n_set_comp(self, node):
+    def n_set_comp_expr(self, node):
         self.write('{')
         if node[0] in ['LOAD_SETCOMP', 'LOAD_DICTCOMP']:
             self.comprehension_walk3(node, 1, 0)
@@ -1272,6 +1272,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.comprehension_walk(node, iter_index=4)
         self.write('}')
         self.prune()
+    n_dict_comp = n_set_comp_expr
 
     def comprehension_walk3(self, node, iter_index, code_index=-5):
         """Non-closure-based comprehensions the way they are done in Python3.
@@ -1296,7 +1297,7 @@ class SourceWalker(GenericASTTraversal, object):
             ast = ast[0]
 
         store = None
-        if ast in ['set_comp', 'dictcomp_func']:
+        if ast in ['set_comp', 'dict_comp_func']:
             for k in ast:
                 if k == 'comp_iter':
                     n = k
@@ -1469,8 +1470,6 @@ class SourceWalker(GenericASTTraversal, object):
             self.comprehension_walk3(node, 1, 0)
         self.write(']')
         self.prune()
-
-    n_dict_comp = n_set_comp
 
     def setcomprehension_walk3(self, node, collection_index):
         """Set comprehensions the way they are done in Python3.

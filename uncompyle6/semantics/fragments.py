@@ -849,7 +849,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune()
 
-    def n_set_comp(self, node):
+    def n_set_comp_expr(self, node):
         start = len(self.f.getvalue())
         self.write('{')
         if node[0] in ['LOAD_SETCOMP', 'LOAD_DICTCOMP']:

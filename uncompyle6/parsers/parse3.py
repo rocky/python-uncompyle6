@@ -3,7 +3,18 @@
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 #
-#  See LICENSE for license
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 A spark grammar for Python 3.x.
 
@@ -66,14 +77,14 @@ class Python3Parser(PythonParser):
         # See also common Python p_list_comprehension
         """
 
-    def p_dictcomp3(self, args):
+    def p_dict_comp3(self, args):
         """"
         expr ::= dict_comp
-        stmt ::= dictcomp_func
-        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
-                          comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
-        dict_comp     ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
-                          GET_ITER CALL_FUNCTION_1
+        stmt ::= dict_comp_func
+        dict_comp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
+                           comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
+        dict_comp      ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
+                           GET_ITER CALL_FUNCTION_1
 
         comp_iter     ::= comp_if
         comp_iter     ::= comp_if_not
@@ -621,9 +632,9 @@ class Python3Parser(PythonParser):
                 kvlist_n = "kvlist_%s" % token.attr
                 if opname == 'BUILD_MAP_n':
                     # PyPy sometimes has no count. Sigh.
-                    rule = ('dictcomp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER store '
+                    rule = ('dict_comp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER store '
                             'comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST')
-                    self.add_unique_rule(rule, 'dictomp_func', 1, customize)
+                    self.add_unique_rule(rule, 'dict_comp_func', 1, customize)
 
                     kvlist_n = 'kvlist_n'
                     rule = 'kvlist_n ::=  kvlist_n kv3'

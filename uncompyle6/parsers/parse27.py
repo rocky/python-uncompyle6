@@ -26,9 +26,9 @@ class Python27Parser(Python2Parser):
         expr      ::= dict_comp
         dict_comp ::= LOAD_DICTCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
 
-        stmt          ::= dictcomp_func
-        dictcomp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
-                         comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
+        stmt           ::= dict_comp_func
+        dict_comp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
+                           comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
 
         set_comp      ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
                 JUMP_BACK RETURN_VALUE RETURN_LAST
