@@ -1296,7 +1296,7 @@ class SourceWalker(GenericASTTraversal, object):
             ast = ast[0]
 
         store = None
-        if ast in ['setcomp_func', 'dictcomp_func']:
+        if ast in ['set_comp', 'dictcomp_func']:
             for k in ast:
                 if k == 'comp_iter':
                     n = k
@@ -1337,8 +1337,8 @@ class SourceWalker(GenericASTTraversal, object):
             pass
 
         # Python 2.7+ starts including set_comp_body
-        # Python 3.5+ starts including setcomp_func
-        assert n.kind in ('lc_body', 'comp_body', 'setcomp_func', 'set_comp_body'), ast
+        # Python 3.5+ starts including set_comp
+        assert n.kind in ('lc_body', 'comp_body', 'set_comp', 'set_comp_body'), ast
         assert store, "Couldn't find store in list/set comprehension"
 
         # A problem created with later Python code generation is that there

@@ -50,13 +50,13 @@ class Python3Parser(PythonParser):
         jb_or_c ::= JUMP_BACK
         jb_or_c ::= CONTINUE
 
-        stmt ::= setcomp_func
+        stmt ::= set_comp
 
-        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
-                JUMP_BACK RETURN_VALUE RETURN_LAST
+        set_comp ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
+                    JUMP_BACK RETURN_VALUE RETURN_LAST
 
-        setcomp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
-                COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
+        set_comp ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
+                     COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
 
         comp_body ::= dict_comp_body
         comp_body ::= set_comp_body
