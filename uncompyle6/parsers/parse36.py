@@ -19,6 +19,7 @@ spark grammar differences over Python 3.5 for Python 3.6.
 from uncompyle6.parser import PythonParserSingle, nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parsers.parse35 import Python35Parser
+from uncompyle6.scanners.tok import Token
 
 class Python36Parser(Python35Parser):
 
@@ -77,6 +78,8 @@ class Python36Parser(Python35Parser):
 
     def customize_grammar_rules(self, tokens, customize):
         super(Python36Parser, self).customize_grammar_rules(tokens, customize)
+        self.check_reduce['call_kw'] = 'AST'
+
         for i, token in enumerate(tokens):
             opname = token.kind
 
@@ -186,6 +189,8 @@ class Python36Parser(Python35Parser):
             self.addRule("""expr        ::= call_ex_kw
                             expr        ::= call_ex_kw2
                             expr        ::= call_ex_kw3
+                            expr        ::= call_ex_kw4
+
                             call_ex_kw  ::= expr expr build_map_unpack_with_call
                                             CALL_FUNCTION_EX_KW
                             call_ex_kw2 ::= expr
@@ -193,6 +198,10 @@ class Python36Parser(Python35Parser):
                                             build_map_unpack_with_call
                                             CALL_FUNCTION_EX_KW
                             call_ex_kw3 ::= expr
+                                            build_tuple_unpack_with_call
+                                            expr
+                                            CALL_FUNCTION_EX_KW
+                            call_ex_kw4 ::= expr
                                             expr
                                             expr
                                             CALL_FUNCTION_EX_KW
@@ -212,6 +221,21 @@ class Python36Parser(Python35Parser):
                                                               seen_GET_AWAITABLE_YIELD_FROM,
                                                               next_token)
 
+    def reduce_is_invalid(self, rule, ast, tokens, first, last):
+        invalid = super(Python36Parser,
+                        self).reduce_is_invalid(rule, ast,
+                                                tokens, first, last)
+        if invalid:
+            return invalid
+        if rule[0] == 'call_kw':
+            # Make sure we don't derive call_kw
+            nt = ast[0]
+            while not isinstance(nt, Token):
+                if nt[0] == 'call_kw':
+                    return True
+                nt = nt[0]
+
+        return False
 class Python36ParserSingle(Python36Parser, PythonParserSingle):
     pass
 

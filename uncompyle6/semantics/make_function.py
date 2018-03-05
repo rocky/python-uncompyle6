@@ -456,8 +456,11 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
 
     # MAKE_CLOSURE adds an additional closure slot
 
-    # Thank you, Python: such a well-thought out system that has
-    # changed and continues to change many times.
+    # In Python 3.6 stack entries change again. I understand
+    # 3.7 changes some of those changes. Yes, it is hard to follow
+    # and I am sure I haven't been able to keep up.
+
+    # Thank you, Python.
 
     def build_param(ast, name, default):
         """build parameters:
@@ -482,10 +485,23 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
     # MAKE_FUNCTION_... or MAKE_CLOSURE_...
     assert node[-1].kind.startswith('MAKE_')
 
+    # Python 3.3+ adds a qualified name at TOS (-1)
+    # moving down the LOAD_LAMBDA instruction
+    if 3.0 <= self.version <= 3.2:
+        lambda_index = -2
+    elif 3.03 <= self.version:
+        lambda_index = -3
+    else:
+        lambda_index = None
+
     args_node = node[-1]
     if isinstance(args_node.attr, tuple):
-        if self.version <= 3.3 and len(node) > 2 and node[-3] != 'LOAD_LAMBDA':
-            # positional args are after kwargs
+        pos_args, kw_args, annotate_argc  = args_node.attr
+        # FIXME: there is probably a better way to classify this.
+        if (self.version <= 3.3 and len(node) > 2 and
+            node[lambda_index] != 'LOAD_LAMBDA' and
+            (node[0].kind.startswith('kwarg') or node[-4].kind != 'load_closure')):
+            # args are after kwargs; kwargs are bundled as one node
             defparams = node[1:args_node.attr[0]+1]
         else:
             # args are before kwargs; kwags as bundled as one node
@@ -502,7 +518,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
                 expr_node = node[0]
                 if (expr_node[0] == 'LOAD_CONST' and
                     isinstance(expr_node[0].attr, tuple)):
-                    defparams = list(expr_node[0].attr)
+                    defparams = [repr(a) for a in expr_node[0].attr]
                 elif expr_node[0] in frozenset(('list', 'tuple', 'dict', 'set')):
                     defparams =  [self.traverse(n, indent='') for n in expr_node[0][:-1]]
             else:

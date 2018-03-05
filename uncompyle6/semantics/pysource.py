@@ -536,278 +536,8 @@ class SourceWalker(GenericASTTraversal, object):
                         pass
                     self.n_unmapexpr = unmapexpr
 
-                if version >= 3.6:
-                    ########################
-                    # Python 3.6+ Additions
-                    #######################
-
-                    TABLE_DIRECT.update({
-                        'fstring_expr':   ( "{%c%{conversion}}", 0),
-                        'fstring_single': ( "f'{%c%{conversion}}'", 0),
-                        'fstring_multi':  ( "f'%c'", 0),
-                        'func_args36':    ( "%c(**", 0),
-                        'try_except36':   ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
-                        'unpack_list':    ( '*%c', (0, 'list') ),
-                        'starred':        ( '*%c', (0, 'expr') ),
-                        'call_ex' : (
-                            '%c(%c)',
-                            (0, 'expr'), 1),
-                        'call_ex_kw' : (
-                            '%c(%c)',
-                            (0, 'expr'), 2),
-
-                    })
-
-                    TABLE_R.update({
-                        'CALL_FUNCTION_EX': ('%c(*%P)', 0, (1, 2, ', ', 100)),
-                        # Not quite right
-                        'CALL_FUNCTION_EX_KW': ('%c(**%C)', 0, (2, 3, ',')),
-                        })
-
-                    def build_unpack_tuple_with_call(node):
-
-                        if node[0] == 'expr':
-                            tup = node[0][0]
-                        else:
-                            tup = node[0]
-                            pass
-                        assert tup == 'tuple'
-                        self.call36_tuple(tup)
-
-                        buwc = node[-1]
-                        assert buwc.kind.startswith('BUILD_TUPLE_UNPACK_WITH_CALL')
-                        for n in node[1:-1]:
-                            self.f.write(', *')
-                            self.preorder(n)
-                            pass
-                        self.prune()
-                        return
-                    self.n_build_tuple_unpack_with_call = build_unpack_tuple_with_call
-
-                    def build_unpack_map_with_call(node):
-                        n = node[0]
-                        if n == 'expr':
-                            n = n[0]
-                        if n == 'dict':
-                            self.call36_dict(n)
-                            first = 1
-                            sep = ', **'
-                        else:
-                            first = 0
-                            sep = '**'
-                        for n in node[first:-1]:
-                            self.f.write(sep)
-                            self.preorder(n)
-                            sep = ', **'
-                            pass
-                        self.prune()
-                        return
-                    self.n_build_map_unpack_with_call = build_unpack_map_with_call
-
-                    def call_ex_kw2(node):
-                        """Handle CALL_FUNCTION_EX 2  (have KW) but with
-                        BUILD_{MAP,TUPLE}_UNPACK_WITH_CALL"""
-
-                        # This is weird shit. Thanks Python!
-                        self.preorder(node[0])
-                        self.write('(')
-
-                        assert node[1] == 'build_tuple_unpack_with_call'
-                        btuwc = node[1]
-                        tup = btuwc[0]
-                        if tup == 'expr':
-                            tup = tup[0]
-                        assert tup == 'tuple'
-                        self.call36_tuple(tup)
-                        assert node[2] == 'build_map_unpack_with_call'
-
-                        self.write(', ')
-                        d = node[2][0]
-                        if d == 'expr':
-                            d = d[0]
-                        assert d == 'dict'
-                        self.call36_dict(d)
-
-                        args = btuwc[1]
-                        self.write(', *')
-                        self.preorder(args)
-
-                        self.write(', **')
-                        star_star_args = node[2][1]
-                        if star_star_args == 'expr':
-                            star_star_args = star_star_args[0]
-                        self.preorder(star_star_args)
-                        self.write(')')
-                        self.prune()
-                    self.n_call_ex_kw2 = call_ex_kw2
-
-                    def call_ex_kw3(node):
-                        """Handle CALL_FUNCTION_EX 2  (have KW) but without
-                        BUILD_{MAP,TUPLE}_UNPACK_WITH_CALL"""
-                        self.preorder(node[0])
-                        self.write('(')
-                        args = node[1][0]
-                        if args == 'tuple':
-                            if self.call36_tuple(args) > 0:
-                                self.write(', ')
-                                pass
-                            pass
-                        else:
-                            self.write('*')
-                            self.preorder(args)
-                            self.write(', ')
-                            pass
-
-                        kwargs = node[2]
-                        if kwargs == 'expr':
-                            kwargs = kwargs[0]
-                        self.write('**')
-                        self.preorder(kwargs)
-                        self.write(')')
-                        self.prune()
-                    self.n_call_ex_kw3 = call_ex_kw3
-
-
-                    def call36_tuple(node):
-                        """
-                        A tuple used in a call, these are like normal tuples but they
-                        don't have the enclosing parenthesis.
-                        """
-                        assert node == 'tuple'
-                        # Note: don't iterate over last element which is a
-                        # BUILD_TUPLE...
-                        flat_elems = flatten_list(node[:-1])
-
-                        self.indent_more(INDENT_PER_LEVEL)
-                        sep = ''
-
-                        for elem in flat_elems:
-                            if elem in ('ROT_THREE', 'EXTENDED_ARG'):
-                                continue
-                            assert elem == 'expr'
-                            line_number = self.line_number
-                            value = self.traverse(elem)
-                            if line_number != self.line_number:
-                                sep += '\n' + self.indent + INDENT_PER_LEVEL[:-1]
-                            self.write(sep, value)
-                            sep = ', '
-
-                        self.indent_less(INDENT_PER_LEVEL)
-                        return len(flat_elems)
-                    self.call36_tuple = call36_tuple
-
-                    def call36_dict(node):
-                        """
-                        A dict used in a call_ex_kw2, which are a dictionary items expressed
-                        in a call. This should format to:
-                             a=1, b=2
-                        In other words, no braces, no quotes around keys and ":" becomes
-                        "=".
-
-                        We will source-code use line breaks to guide us when to break.
-                        """
-                        p = self.prec
-                        self.prec = 100
-
-                        self.indent_more(INDENT_PER_LEVEL)
-                        sep = INDENT_PER_LEVEL[:-1]
-                        line_number = self.line_number
-
-                        assert node[0].kind.startswith('kvlist')
-                        # Python 3.5+ style key/value list in dict
-                        kv_node = node[0]
-                        l = list(kv_node)
-                        i = 0
-                        # Respect line breaks from source
-                        while i < len(l):
-                            self.write(sep)
-                            name = self.traverse(l[i], indent='')
-                            # Strip off beginning and trailing quotes in name
-                            name = name[1:-1]
-                            if i > 0:
-                                line_number = self.indent_if_source_nl(line_number,
-                                                                       self.indent + INDENT_PER_LEVEL[:-1])
-                            line_number = self.line_number
-                            self.write(name, '=')
-                            value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
-                            self.write(value)
-                            sep = ","
-                            if line_number != self.line_number:
-                                sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
-                                line_number = self.line_number
-                            i += 2
-                            pass
-                        self.prec = p
-                        self.indent_less(INDENT_PER_LEVEL)
-                        return
-                    self.call36_dict = call36_dict
-
-
-                    FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
-
-                    def f_conversion(node):
-                        node.conversion = FSTRING_CONVERSION_MAP.get(node.data[1].attr, '')
-
-                    def fstring_expr(node):
-                        f_conversion(node)
-                        self.default(node)
-                    self.n_fstring_expr = fstring_expr
-
-                    def fstring_single(node):
-                        f_conversion(node)
-                        self.default(node)
-                    self.n_fstring_single = fstring_single
-
-                    # def kwargs_only_36(node):
-                    #     keys = node[-1].attr
-                    #     num_kwargs = len(keys)
-                    #     values = node[:num_kwargs]
-                    #     for i, (key, value) in enumerate(zip(keys, values)):
-                    #         self.write(key + '=')
-                    #         self.preorder(value)
-                    #         if i < num_kwargs:
-                    #             self.write(',')
-                    #     self.prune()
-                    #     return
-                    # self.n_kwargs_only_36 = kwargs_only_36
-
-                    def kwargs_36(node):
-                        self.write('(')
-                        keys = node[-1].attr
-                        num_kwargs = len(keys)
-                        num_posargs = len(node) - (num_kwargs + 1)
-                        n = len(node)
-                        assert n >= len(keys)+2
-                        sep = ''
-                        # FIXME: adjust output for line breaks?
-                        for i in range(num_posargs):
-                            self.write(sep)
-                            self.preorder(node[i])
-                            sep = ', '
-
-                        i = num_posargs
-                        j = 0
-                        # FIXME: adjust output for line breaks?
-                        while i < n-1:
-                            self.write(sep)
-                            self.write(keys[j] + '=')
-                            self.preorder(node[i])
-                            i += 1
-                            j += 1
-                        self.write(')')
-                        self.prune()
-                        return
-                    self.n_kwargs_36 = kwargs_36
-
-
-                    def return_closure(node):
-                        # Nothing should be output here
-                        self.prune()
-                        return
-                    self.n_return_closure = return_closure
-                    pass # version > 3.6
-                pass # version > 3.4
-            pass # version > 3.0
+                pass # version >= 3.4
+            pass # version >= 3.0
         return
 
     f = property(lambda s: s.params['f'],
@@ -1801,17 +1531,21 @@ class SourceWalker(GenericASTTraversal, object):
                     class_name = node[2][0].pattr
                 else:
                     class_name = node[1][2].pattr
-                buildclass = node
+                build_class = node
             else:
+                build_class = node[0]
                 if self.version >= 3.6:
-                    class_name = node[0][1][0].attr.co_name
-                    buildclass = node[0]
+                    if build_class[1][0] == 'load_closure':
+                        code_node = build_class[1][1]
+                    else:
+                        code_node = build_class[1][0]
+                    class_name = code_node.attr.co_name
                 else:
                     class_name = node[1][0].pattr
-                    buildclass = node[0]
+                    build_class = node[0]
 
-            assert 'mkfunc' == buildclass[1]
-            mkfunc = buildclass[1]
+            assert 'mkfunc' == build_class[1]
+            mkfunc = build_class[1]
             if mkfunc[0] == 'kwargs':
                 if 3.0 <= self.version <= 3.2:
                     for n in mkfunc:
@@ -1833,9 +1567,9 @@ class SourceWalker(GenericASTTraversal, object):
                     subclass_info = node
                 else:
                     subclass_info = node[0]
-            elif buildclass[1][0] == 'load_closure':
+            elif build_class[1][0] == 'load_closure':
                 # Python 3 with closures not functions
-                load_closure = buildclass[1]
+                load_closure = build_class[1]
                 if hasattr(load_closure[-3], 'attr'):
                     # Python 3.3 classes with closures work like this.
                     # Note have to test before 3.2 case because
@@ -1846,34 +1580,34 @@ class SourceWalker(GenericASTTraversal, object):
                     subclass_code = load_closure[-2].attr
                 else:
                     raise 'Internal Error n_classdef: cannot find class body'
-                if hasattr(buildclass[3], '__len__'):
-                    subclass_info = buildclass[3]
-                elif hasattr(buildclass[2], '__len__'):
-                    subclass_info = buildclass[2]
+                if hasattr(build_class[3], '__len__'):
+                    subclass_info = build_class[3]
+                elif hasattr(build_class[2], '__len__'):
+                    subclass_info = build_class[2]
                 else:
                     raise 'Internal Error n_classdef: cannot superclass name'
             elif self.version >= 3.6 and node == 'classdefdeco2':
                 subclass_info = node
-                subclass_code = buildclass[1][0].attr
+                subclass_code = build_class[1][0].attr
             else:
-                subclass_code = buildclass[1][0].attr
+                subclass_code = build_class[1][0].attr
                 subclass_info = node[0]
         else:
             if node == 'classdefdeco2':
-                buildclass = node
+                build_class = node
             else:
-                buildclass = node[0]
-            build_list = buildclass[1][0]
-            if hasattr(buildclass[-3][0], 'attr'):
-                subclass_code = buildclass[-3][0].attr
-                class_name = buildclass[0].pattr
-            elif (buildclass[-3] == 'mkfunc' and
+                build_class = node[0]
+            build_list = build_class[1][0]
+            if hasattr(build_class[-3][0], 'attr'):
+                subclass_code = build_class[-3][0].attr
+                class_name = build_class[0].pattr
+            elif (build_class[-3] == 'mkfunc' and
                   node == 'classdefdeco2' and
-                  buildclass[-3][0] == 'load_closure'):
-                subclass_code = buildclass[-3][1].attr
-                class_name = buildclass[-3][0][0].pattr
+                  build_class[-3][0] == 'load_closure'):
+                subclass_code = build_class[-3][1].attr
+                class_name = build_class[-3][0][0].pattr
             elif hasattr(node[0][0], 'pattr'):
-                subclass_code = buildclass[-3][1].attr
+                subclass_code = build_class[-3][1].attr
                 class_name = node[0][0].pattr
             else:
                 raise 'Internal Error n_classdef: cannot find class name'
@@ -1954,13 +1688,13 @@ class SourceWalker(GenericASTTraversal, object):
             else:
                 l = n
             while i < l:
+                # 3.6+ may have this
+                if kwargs:
+                    self.write("%s=" % kwargs[j])
+                    j += 1
                 value = self.traverse(node[i])
                 i += 1
                 self.write(sep, value)
-                # 3.6+ may have this
-                if kwargs:
-                    self.write("=%s" % kwargs[j])
-                    j += 1
                 sep = line_separator
                 pass
             pass

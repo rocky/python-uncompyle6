@@ -57,6 +57,19 @@ disassembler called `pydisasm`.
 
 ### Semantic equivalence vs. exact source code
 
+Consider how Python compiles something like "(x*y) + 5". Early on
+Python creates an "abstract syntax tree" (AST) for this. And this is
+"abstract" in the sense that unimportant, redundant or unnecceary
+items have been removed. Here, this means that any notion that you
+wrote "x+y" in parenthesis is lost, since in this context they are
+unneeded. Also lost is the fact that the multiplication didn't have
+spaces around it while the addition did. It should not come as a
+surprise then that the bytecode which is derived from the AST also has
+no notion of such possible variation. Generally this kind of thing
+isn't noticed since the Python community has laid out a very rigid set
+of formatting guidelines; and it has largely beaten the community into
+compliance.
+
 Almost all versions of Python can perform some sort of code
 improvement that can't be undone. In earlier versions of Python it is
 rare; in later Python versions, it is more common.
@@ -66,7 +79,7 @@ If the code emitted is semantically equivalent, then this isn't a bug.
 
 For example the code might be
 
-```
+```python
 if a:
   if b:
      x = 1
@@ -74,7 +87,7 @@ if a:
 
 and we might produce:
 
-```
+```python
 if a and b:
   x = 1
 ```
@@ -87,23 +100,34 @@ else:
 
 ```
 
-may come out as `elif`.
+may come out as `elif` or vice versa.
 
 
 As mentioned in the README, It is possible that Python changes what
 you write to be more efficient. For example, for:
 
 
-```
+```python
 if True:
   x = 5
 ```
 
 Python will generate code like:
 
-```
+```python
 x = 5
 ```
+
+Even more extreme, if your code is:
+
+```python
+if False:
+   x = 1
+   y = 2
+   # ...
+```
+
+Python will eliminate the entire "if" statement.
 
 So just because the text isn't the same, does not
 necessarily mean there's a bug.

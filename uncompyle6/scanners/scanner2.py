@@ -1131,7 +1131,13 @@ class Scanner2(Scanner):
                                     source = self.setup_loops[label]
                                 else:
                                     source = offset
-                                targets[label] = targets.get(label, []) + [source]
+                                # FIXME: The grammar for 2.6 and before doesn't
+                                # handle COME_FROM's from a loop inside if's
+                                # It probably should.
+                                if (self.version > 2.6 or
+                                    self.code[source] != self.opc.SETUP_LOOP or
+                                        self.code[label] != self.opc.JUMP_FORWARD):
+                                    targets[label] = targets.get(label, []) + [source]
                                 pass
                             pass
                         pass

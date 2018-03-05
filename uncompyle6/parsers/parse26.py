@@ -115,8 +115,7 @@ class Python26Parser(Python2Parser):
 
         # Semantic actions want else_suitel to be at index 3
         ifelsestmtl ::= testexpr c_stmts_opt cf_jb_cf_pop else_suitel
-
-        ifelsestmtc ::= testexpr c_stmts_opt ja_cf_pop else_suitec
+        ifelsestmtc ::= testexpr c_stmts_opt ja_cf_pop    else_suitec
 
         # Semantic actions want suite_stmts_opt to be at index 3
         withstmt ::= expr setupwith SETUP_FINALLY suite_stmts_opt
