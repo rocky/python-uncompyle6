@@ -77,8 +77,7 @@ class Python26Parser(Python2Parser):
         jb_cont      ::= JUMP_BACK
         jb_cont      ::= CONTINUE
 
-        jb_cf_pop ::= JUMP_BACK come_froms POP_TOP
-        jb_cf_pop ::= JUMP_BACK POP_TOP
+        jb_cf_pop ::= come_from_opt JUMP_BACK _come_froms POP_TOP
         ja_cf_pop ::= JUMP_ABSOLUTE come_froms POP_TOP
         jf_cf_pop ::= JUMP_FORWARD come_froms POP_TOP
 
