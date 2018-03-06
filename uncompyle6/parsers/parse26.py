@@ -133,7 +133,7 @@ class Python26Parser(Python2Parser):
         setup_finally ::= STORE_FAST SETUP_FINALLY LOAD_FAST DELETE_FAST
         setup_finally ::= STORE_NAME SETUP_FINALLY LOAD_NAME DELETE_NAME
 
-        while1stmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK _come_froms
+        while1stmt     ::= SETUP_LOOP l_stmts_opt come_from_opt JUMP_BACK _come_froms
 
         # Sometimes JUMP_BACK is misclassified as CONTINUE.
         # workaround until we have better control flow in place
