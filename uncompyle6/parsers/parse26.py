@@ -22,7 +22,7 @@ class Python26Parser(Python2Parser):
                            JUMP_IF_FALSE POP_TOP POP_TOP store POP_TOP
 
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts
-                           come_from_pop END_FINALLY come_froms
+                           come_froms_pop END_FINALLY come_froms
 
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY
                            come_froms

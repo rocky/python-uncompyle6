@@ -21,7 +21,6 @@ def call(*args):
     except KeyError:
         return 2
     except TypeError:
-        # Unhashable argument
         return 3
 
 
@@ -39,3 +38,16 @@ def do_jump(self, arg):
             arg(3)
         except ValueError:
             arg(4)
+
+# From 2.6.9 smtpd.py
+# Bug was that the for can cause multiple COME_FROMs at the
+# of the try block
+def _deliver(self, s, mailfrom, rcpttos):
+    try:
+        mailfrom(1)
+    except RuntimeError:
+        mailfrom(2)
+    except IndexError:
+        for r in s:
+            mailfrom()
+    return
