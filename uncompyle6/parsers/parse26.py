@@ -137,6 +137,10 @@ class Python26Parser(Python2Parser):
         while1stmt     ::= SETUP_LOOP l_stmts JUMP_BACK COME_FROM
         while1stmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK
 
+        # Sometimes JUMP_BACK is misclassified as CONTINUE.
+        # workaround until we have better control flow in place
+        while1stmt     ::= SETUP_LOOP l_stmts_opt CONTINUE
+
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt jb_pop POP_BLOCK _come_froms
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt jb_cf_pop bp_come_from
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt jb_cf_pop POP_BLOCK
