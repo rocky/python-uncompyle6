@@ -1234,7 +1234,7 @@ class SourceWalker(GenericASTTraversal, object):
                     n = n[3]
             elif n == 'comp_if':
                 n = n[2]
-            elif n == 'comp_ifnot':
+            elif n == 'comp_if_not':
                 n = n[2]
 
         assert n == 'comp_body', n
