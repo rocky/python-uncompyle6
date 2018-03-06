@@ -305,7 +305,7 @@ class Scanner2(Scanner):
                     j = self.offset2inst_index[offset]
                     target_index = self.offset2inst_index[target]
                     is_continue = (self.insts[target_index-1].opname == 'SETUP_LOOP'
-                                   and self.insts[j+1].opname == 'JUMP_FORWARD') and False
+                                   and self.insts[j+1].opname == 'JUMP_FORWARD')
                     if is_continue:
                         op_name = 'CONTINUE'
                     if (offset in self.stmts and

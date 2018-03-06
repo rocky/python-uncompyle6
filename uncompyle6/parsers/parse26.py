@@ -134,8 +134,11 @@ class Python26Parser(Python2Parser):
         setup_finally ::= STORE_FAST SETUP_FINALLY LOAD_FAST DELETE_FAST
         setup_finally ::= STORE_NAME SETUP_FINALLY LOAD_NAME DELETE_NAME
 
-        while1stmt     ::= SETUP_LOOP l_stmts JUMP_BACK COME_FROM
-        while1stmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK
+        while1stmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK _come_froms
+
+        # Sometimes JUMP_BACK is misclassified as CONTINUE.
+        # workaround until we have better control flow in place
+        while1stmt     ::= SETUP_LOOP l_stmts_opt CONTINUE _come_froms
 
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt jb_pop POP_BLOCK _come_froms
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt jb_cf_pop bp_come_from
@@ -150,12 +153,10 @@ class Python26Parser(Python2Parser):
         return         ::= ret_expr RETURN_VALUE POP_TOP
         return_if_stmt ::= ret_expr RETURN_END_IF POP_TOP
 
-        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK come_from_pop
+        iflaststmtl ::= testexpr c_stmts_opt jb_cf_pop
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE come_from_pop
 
         lastc_stmt ::= iflaststmt COME_FROM
-
-        while1stmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM
 
         ifstmt         ::= testexpr_then _ifstmts_jump
 

@@ -1024,7 +1024,7 @@ class SourceWalker(GenericASTTraversal, object):
     def n_import_from(self, node):
         relative_path_index = 0
         if self.version >= 2.5:
-            if node[relative_path_index].attr > 0:
+            if node[relative_path_index].pattr > 0:
                 node[2].pattr = ('.' * node[relative_path_index].pattr) + node[2].pattr
             if self.version > 2.7:
                 if isinstance(node[1].pattr, tuple):
@@ -1234,7 +1234,7 @@ class SourceWalker(GenericASTTraversal, object):
                     n = n[3]
             elif n == 'comp_if':
                 n = n[2]
-            elif n == 'comp_ifnot':
+            elif n == 'comp_if_not':
                 n = n[2]
 
         assert n == 'comp_body', n
