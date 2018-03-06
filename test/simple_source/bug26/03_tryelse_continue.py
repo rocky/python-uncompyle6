@@ -23,3 +23,19 @@ def call(*args):
     except TypeError:
         # Unhashable argument
         return 3
+
+
+# From 2.6.9 pdb.py
+# Here we have a "try/except" inside a "try/except/else and we can't
+# distinguish which COME_FROM comes from which "try".
+
+def do_jump(self, arg):
+    try:
+        arg(1)
+    except ValueError:
+        arg(2)
+    else:
+        try:
+            arg(3)
+        except ValueError:
+            arg(4)
