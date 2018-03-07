@@ -26,6 +26,8 @@ for VERSION in $PYVERSION ; do
     if ! pyenv local $VERSION ; then
 	rc=1
     else
+      echo $(pyenv local)
+      echo ""
       typeset -i ALL_FILES_STARTTIME=$(date +%s)
       python ./test_pyenvlib.py --max ${MAX_TESTS} --weak-verify --$VERSION  >$LOGFILE 2>&1
       rc=$?
