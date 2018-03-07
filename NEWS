@@ -1,3 +1,13 @@
+uncompyle6 3.0.1 2018-02-17
+
+- All Python 2.6.9 standard library files weakly verify
+- Many 3.6 fixes. 84% of the first 200 standard library files weakly compile.
+  One more big push is needed to get the remaining to compile
+- Many decompilation fixes for other Python versions
+- Add more to the test framework
+- And more add tests target previous existing bugs more completely
+- sync recent license changes in metadata
+
 uncompyle6 3.0.0 2018-02-17
 
 - deparse_code() and lookalikes from the various semantic actions are
@@ -10,7 +20,7 @@ uncompyle6 3.0.0 2018-02-17
   of jumps, and messes up the peephole-like analysis that is
   done for control flow since we don't have something better in place.
 - Code has been reorganized to be more instruction nametuple based where it
-  has been more byecode array based. There was and still is code that had
+  has been more bytecode array based. There was and still is code that had
   had magic numbers to advance instructions or to pick out operands.
 - Bug fixes in numerous other Python versions
 - Instruction display improved
@@ -28,7 +38,7 @@ uncompyle6 2.16.0 2018-02-17
 - Better 2.7 end_if and COME_FROM determination
 - Fix up 3.6+ CALL_FUNCTION_EX
 - Misc pydisasm fixes
-- Wierd comprehension bug seen via new loctraceback
+- Weird comprehension bug seen via new loctraceback
 - Fix Python 3.5+ CALL_FUNCTION_VAR and BUILD_LIST_UNPACK in call; with this
   we can can handle 3.5+ f(a, b, *c, *d, *e) now
 
@@ -81,7 +91,7 @@ Decompilation bug fixes, mostly 3.6 and pre 2.7
 - limit pypy customization to pypy
 - Add addr fields in COME_FROMS
 - Allow use of full instructions in parser reduction routines
-- Reduce grammar in Pythion 3 by specialization more to specific
+- Reduce grammar in Python 3 by specialization more to specific
   Python versions
 - Match Python AST names more closely when possible
 
@@ -99,7 +109,7 @@ uncompyle6 2.14.0 2017-11-26 johnnybamazing
   and remove used grammar rules
 - Fix a number of bytecode decompile problems
   (many more remain)
-- Add stdlib/runtests.sh for even more rigourous testing
+- Add stdlib/runtests.sh for even more rigorous testing
 
 uncompyle6 2.13.3 2017-11-13
 
@@ -123,7 +133,7 @@ Overall: better 3.6 decompiling and some much needed code refactoring and cleanu
   added to assist here. Ignoring errors may be okay because the fragment parser often just needs,
   well, *fragments*.
 - Distinguish RETURN_VALUE from RETURN_END_IF in exception bodies better in 3.6
-- bug in 3.x language changes: import queue va import Queue
+- bug in 3.x language changes: import queue via import Queue
 - reinstate some bytecode tests since decompiling has gotten better
 - Revise how to report a bug
 
@@ -158,8 +168,8 @@ uncompyle6 2.11.4 2017-08-15
 
 * scanner and parser now allow 3-part version string lookups,
   e.g. 2.7.1 We allow a float here, but if passed a string like '2.7'. or
-* unpin 3.5.1. xdis 3.5.4 has been releasd and fixes the problems we had. Use that.
-* some routnes here moved to xdis. Use the xdis version
+* unpin 3.5.1. xdis 3.5.4 has been release and fixes the problems we had. Use that.
+* some routines here moved to xdis. Use the xdis version
 * README.rst: Link typo Name is trepan2 now not trepan
 * xdis-forced change adjust for COMPARE_OP "is-not" in
   semanatic routines. We need "is not".
@@ -255,9 +265,9 @@ uncompyle6 2.9.8 2016-12-16
 - fix bug in --verify option
 - DRY (a little) control-flow detection
 - fix syntax in tuples with one element
-- if AST rule inheritence in Python 2.5
+- if AST rule inheritance in Python 2.5
 - NAME_MODULE removal for Python <= 2.4
-- verifycall fixes for Python <= 2.4
+- verify call fixes for Python <= 2.4
 - more Python lint
 
 uncompyle6 2.9.7 2016-12-16
@@ -293,7 +303,7 @@ uncompyle6 2.9.6 2016-11-20
   in the results.
 - better control flow debugging output
 - Python 2 and 3 detect structure code is more similar
-- Handle Docstrings with embedded tiple quotes (""")
+- Handle Docstrings with embedded triple quotes (""")
 
 uncompyle6 2.9.5 2016-11-13
 
