@@ -1,11 +1,15 @@
-*.pyo
 *.pyc
+*.pyo
 *_dis
 *~
 /.cache
 /.eggs
+/.hypothesis
+/.idea
+/.pytest_cache
 /.python-version
 /.tox
+/.venv*
 /README
 /__pkginfo__.pyc
 /dist
@@ -14,9 +18,6 @@
 /tmp
 /uncompyle6.egg-info
 /unpyc
+ChangeLog
 __pycache__
 build
-/.venv*
-/.idea
-/.hypothesis
-ChangeLog
