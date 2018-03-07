@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 EMAIL=${EMAIL:-rb@dustyfeet.com}
 for VERSION in 2.7.14 2.6.9 ; do
+    pyenv local $VERSION
     LOGFILE=/tmp/pyenlib-$VERSION-$$.log
     python ./test_pyenvlib.py --max 800 --weak-verify --$VERSION  >$LOGFILE 2>&1
     rc=$?
