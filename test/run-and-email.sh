@@ -1,4 +1,5 @@
 #!/bin/bash
+USER=${USER:-rocky}
 EMAIL=${EMAIL:-rb@dustyfeet.com}
 MAX_TESTS=${MAX_TESTS:-800}
 for VERSION in 2.7.14 2.6.9 ; do
@@ -11,9 +12,9 @@ for VERSION in 2.7.14 2.6.9 ; do
       rc=$?
     fi
     if ((rc == 0)); then
-	tail -v $LOGFILE | mail -s \""$VERSION ok"\" rocky@localhost
+	tail -v $LOGFILE | mail -s \""$VERSION ok"\" ${USER}@localhost
     else
-	tail -v $LOGFILE | mail -s \""$VERSION not ok"\" rocky@localhost
-	tail -v $LOGFILE | mail -s \""$VERSION not ok"\" rb@dustyfeet.com
+	tail -v $LOGFILE | mail -s \""$VERSION not ok"\" ${USER}@localhost
+	tail -v $LOGFILE | mail -s \""$VERSION not ok"\" ${EMAIL}
     fi
 done
