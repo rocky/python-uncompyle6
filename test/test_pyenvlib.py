@@ -116,8 +116,10 @@ def do_tests(src_dir, patterns, target_dir, start_with=None,
             files = files[:max_files]
 
     print(time.ctime())
-    main.main(src_dir, target_dir, files, [], do_verify=do_verify)
+    (tot_files, okay_files, failed_files,
+     verify_failed_files) = main.main(src_dir, target_dir, files, [], do_verify=do_verify)
     print(time.ctime())
+    return verify_failed_files + failed_files
 
 if __name__ == '__main__':
     import getopt, sys
@@ -161,15 +163,19 @@ if __name__ == '__main__':
             '/tmp/spark-grammar-%s.cover' % vers
             )
 
+    failed = 0
     for src_dir, pattern, target_dir in test_dirs:
         if os.path.exists(src_dir):
             target_dir = os.path.join(target_base, target_dir)
             if os.path.exists(target_dir):
                 shutil.rmtree(target_dir, ignore_errors=1)
-            do_tests(src_dir, pattern, target_dir, start_with,
-                     do_verify, test_options['max='])
+            failed += do_tests(src_dir, pattern, target_dir, start_with,
+                               do_verify, test_options['max='])
         else:
             print("### Path %s doesn't exist; skipping" % src_dir)
+            pass
+        pass
+    sys.exit(failed)
 
 # python 1.5:
 
