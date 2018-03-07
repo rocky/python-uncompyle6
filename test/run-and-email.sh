@@ -21,16 +21,20 @@ MAX_TESTS=${MAX_TESTS:-800}
 SUBJECT_PREFIX="stdlib weak verify (max $MAX_TESTS) for"
 for VERSION in $PYVERSION ; do
     typeset -i rc=0
-    LOGFILE=/tmp/pyenlib-$VERSION-$$.log
+    LOGFILE=/tmp/pyenvlib-$VERSION-$$.log
 
     if ! pyenv local $VERSION ; then
 	rc=1
     else
-      echo $(pyenv local)
-      echo ""
+      echo Python Versoin $(pyenv local) >> $LOGFILE
+      echo "" >> $LOGFILE
       typeset -i ALL_FILES_STARTTIME=$(date +%s)
       python ./test_pyenvlib.py --max ${MAX_TESTS} --weak-verify --$VERSION  >$LOGFILE 2>&1
       rc=$?
+
+      echo Python Version $(pyenv local) >> $LOGFILE
+      echo "" >>LOGFILE
+
       typeset -i ALL_FILES_ENDTIME=$(date +%s)
       (( time_diff =  ALL_FILES_ENDTIME - ALL_FILES_STARTTIME))
       displaytime $time_diff >> $LOGFILE
