@@ -178,7 +178,7 @@ typeset -i ALL_FILES_ENDTIME=$(date +%s)
 
 (( time_diff =  ALL_FILES_ENDTIME - ALL_FILES_STARTTIME))
 
-printf "Ran $i tests in "
+printf "Ran $i unit-test files in "
 displaytime $time_diff
 
 exit $allerrs
