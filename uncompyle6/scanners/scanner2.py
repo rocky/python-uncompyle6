@@ -37,6 +37,7 @@ from __future__ import print_function
 
 from collections import namedtuple
 from array import array
+from copy import copy
 
 from xdis.code import iscode
 from xdis.bytecode import (
@@ -54,6 +55,7 @@ class Scanner2(Scanner):
         # This is the 2.5+ default
         # For <2.5 it is <generator expression>
         self.genexpr_name = '<genexpr>'
+        self.load_asserts = set([])
 
     @staticmethod
     def unmangle_name(name, classname):
@@ -139,6 +141,9 @@ class Scanner2(Scanner):
         # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
         for i in self.op_range(0, codelen):
+
+            self.offset2inst_index[inst.offset] = i
+
             # We need to detect the difference between:
             #   raise AssertionError
             #  and
@@ -159,7 +164,9 @@ class Scanner2(Scanner):
 
         # Get jump targets
         # Format: {target offset: [jump offsets]}
+        load_asserts_save = copy(self.load_asserts)
         jump_targets = self.find_jump_targets(show_asm)
+        self.load_asserts = load_asserts_save
         # print("XXX2", jump_targets)
 
         last_stmt = self.next_stmt[0]
