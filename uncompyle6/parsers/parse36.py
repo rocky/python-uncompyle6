@@ -52,6 +52,9 @@ class Python36Parser(Python35Parser):
         # This might be valid in < 3.6
         and  ::= expr jmp_false expr
 
+        jf_cf       ::= JUMP_FORWARD COME_FROM
+        conditional ::= expr jmp_false expr jf_cf expr COME_FROM
+
         # Adds a COME_FROM_ASYNC_WITH over 3.5
         # FIXME: remove corresponding rule for 3.5?
 
