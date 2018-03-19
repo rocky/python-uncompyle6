@@ -887,11 +887,17 @@ class Python3Parser(PythonParser):
                     args_pos, args_kw, annotate_args, closure  = token.attr
                     stack_count = args_pos + args_kw + annotate_args
                     if closure:
-                        rule = ('mklambda ::= %s%s%s%s' %
-                                    ('expr ' * stack_count,
-                                     'load_closure ' * closure,
-                                     'BUILD_TUPLE_1 LOAD_LAMBDA LOAD_CONST ',
-                                    opname))
+                        if args_pos:
+                            rule = ('mklambda ::= %s%s%s%s' %
+                                        ('expr ' * stack_count,
+                                         'load_closure ' * closure,
+                                         'BUILD_TUPLE_1 LOAD_LAMBDA LOAD_CONST ',
+                                        opname))
+                        else:
+                            rule = ('mklambda ::= %s%s%s' %
+                                        ('load_closure ' * closure,
+                                         'BUILD_TUPLE_2 LOAD_LAMBDA LOAD_CONST ',
+                                        opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
 
                     rule = ('mkfunc ::= %s%s%s%s' %
