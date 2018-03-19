@@ -9,3 +9,12 @@ def __init__(self, msg = None, digestmod = None):
 def bug():
     def register(cls, func=None):
         return lambda f: register(cls, f)
+
+# From Python 3.6 configparser.py
+def items(self, d, section=5, raw=False, vars=None):
+    if vars:
+        for key, value in vars.items():
+            d[self.optionxform(key)] = value
+    d = lambda option: self._interpolation.before_get(self,
+        section, option, d[option], d)
+    return

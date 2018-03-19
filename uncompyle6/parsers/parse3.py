@@ -896,7 +896,7 @@ class Python3Parser(PythonParser):
                         else:
                             rule = ('mklambda ::= %s%s%s' %
                                         ('load_closure ' * closure,
-                                         'BUILD_TUPLE_2 LOAD_LAMBDA LOAD_CONST ',
+                                         'LOAD_LAMBDA LOAD_CONST ',
                                         opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
 
