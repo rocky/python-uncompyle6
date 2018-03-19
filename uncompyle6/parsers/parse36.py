@@ -93,7 +93,6 @@ class Python36Parser(Python35Parser):
     def customize_grammar_rules(self, tokens, customize):
         super(Python36Parser, self).customize_grammar_rules(tokens, customize)
         self.remove_rules("""
-           for ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK _come_froms
            dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST MAKE_CLOSURE_0 expr GET_ITER CALL_FUNCTION_1
         """)
         self.check_reduce['call_kw'] = 'AST'

@@ -95,6 +95,9 @@ class Python2Parser(PythonParser):
         raise_stmt2 ::= expr expr RAISE_VARARGS_2
         raise_stmt3 ::= expr expr expr RAISE_VARARGS_3
 
+        for         ::= SETUP_LOOP expr for_iter store
+                        for_block POP_BLOCK _come_froms
+
         del_stmt ::= expr DELETE_SLICE+0
         del_stmt ::= expr expr DELETE_SLICE+1
         del_stmt ::= expr expr DELETE_SLICE+2

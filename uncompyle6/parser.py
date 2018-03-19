@@ -431,9 +431,6 @@ class PythonParser(GenericASTBuilder):
 
         for_block ::= l_stmts_opt _come_froms JUMP_BACK
 
-        for       ::= SETUP_LOOP expr for_iter store
-                      for_block POP_BLOCK _come_froms
-
         forelsestmt ::= SETUP_LOOP expr for_iter store
                         for_block POP_BLOCK else_suite _come_froms
 
