@@ -240,10 +240,10 @@ class Python3Parser(PythonParser):
         except_suite ::= returns
 
         except_cond1 ::= DUP_TOP expr COMPARE_OP
-                jmp_false POP_TOP POP_TOP POP_TOP
+                         jmp_false POP_TOP POP_TOP POP_TOP
 
         except_cond2 ::= DUP_TOP expr COMPARE_OP
-                jmp_false POP_TOP store POP_TOP
+                         jmp_false POP_TOP store POP_TOP
 
         except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT _jump
         except  ::=  POP_TOP POP_TOP POP_TOP returns

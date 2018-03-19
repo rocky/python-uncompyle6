@@ -33,8 +33,11 @@ class Python36Parser(Python35Parser):
         """
         sstmt ::= sstmt RETURN_LAST
 
-        # 3.6 redoes how return_closure works
+        # 3.6 redoes how return_closure works. FIXME: Isolate to LOAD_CLOSURE
         return_closure   ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
+
+        # Is there something general going on here? FIXME: Isolate to LOAD_DICTCOMP
+        dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_8 expr GET_ITER CALL_FUNCTION_1
 
         stmt               ::= conditional_lambda
         conditional_lambda ::= expr jmp_false expr return_if_lambda
@@ -78,6 +81,8 @@ class Python36Parser(Python35Parser):
                              COME_FROM_FINALLY suite_stmts
         tryfinally36     ::= SETUP_FINALLY returns
                              COME_FROM_FINALLY suite_stmts_opt END_FINALLY
+        except_suite_finalize ::= SETUP_FINALLY returns
+                                  COME_FROM_FINALLY suite_stmts_opt END_FINALLY _jump
         """
 
     def customize_grammar_rules(self, tokens, customize):
