@@ -75,6 +75,11 @@ class Python36Parser(Python35Parser):
         stmt             ::= try_except36
         try_except36     ::= SETUP_EXCEPT returns except_handler36
                              opt_come_from_except
+        try_except36     ::= SETUP_EXCEPT suite_stmts
+
+        # 3.6 omits END_FINALLY sometimes
+        except_handler36 ::= COME_FROM_EXCEPT except_stmts
+        except_handler   ::= jmp_abs COME_FROM_EXCEPT except_stmts
 
         stmt             ::= tryfinally36
         tryfinally36     ::= SETUP_FINALLY returns
@@ -87,6 +92,10 @@ class Python36Parser(Python35Parser):
 
     def customize_grammar_rules(self, tokens, customize):
         super(Python36Parser, self).customize_grammar_rules(tokens, customize)
+        self.remove_rules("""
+           for ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK _come_froms
+           dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST MAKE_CLOSURE_0 expr GET_ITER CALL_FUNCTION_1
+        """)
         self.check_reduce['call_kw'] = 'AST'
 
         for i, token in enumerate(tokens):
