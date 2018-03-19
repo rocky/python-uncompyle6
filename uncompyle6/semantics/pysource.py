@@ -141,7 +141,7 @@ from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.semantics.check_ast import checker
 from uncompyle6.semantics.customize import customize_for_version
 from uncompyle6.semantics.helper import (
-    print_docstring, find_globals, flatten_list)
+    print_docstring, find_globals_and_nonlocals, flatten_list)
 from uncompyle6.scanners.tok import Token
 
 from uncompyle6.semantics.consts import (
@@ -581,6 +581,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.pending_newlines = 0
         self.params = {
             '_globals': {},
+            '_nonlocals': {},   # Python 3 has nonlocal
             'f': StringIO(),
             'indent': indent,
             'is_lambda': is_lambda,
@@ -2303,10 +2304,15 @@ class SourceWalker(GenericASTTraversal, object):
         # else:
         #    print ast[-1][-1]
 
+        globals, nonlocals = find_globals_and_nonlocals(ast, set(), set(),
+                                                        code, self.version)
         # Add "global" declaration statements at the top
         # of the function
-        for g in sorted(find_globals(ast, set())):
+        for g in sorted(globals):
             self.println(indent, 'global ', g)
+
+        for nl in sorted(nonlocals):
+            self.println(indent, 'nonlocal ', nl)
 
         old_name = self.name
         self.gen_source(ast, code.co_name, code._customize)
@@ -2461,7 +2467,11 @@ def code_deparse(co, out=sys.stdout, version=None, debug_opts=DEFAULT_DEBUG_OPTS
     # save memory
     del tokens
 
-    deparsed.mod_globs = find_globals(deparsed.ast, set())
+    deparsed.mod_globs, nonlocals = find_globals_and_nonlocals(deparsed.ast,
+                                                               set(), set(),
+                                                               co, version)
+
+    assert not nonlocals
 
     # convert leading '__doc__ = "..." into doc string
     try:

@@ -23,7 +23,7 @@ from uncompyle6 import PYTHON3
 from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.parser import ParserError as ParserError2
 from uncompyle6.semantics.helper import (
-    print_docstring, find_all_globals, find_globals, find_none
+    print_docstring, find_all_globals, find_globals_and_nonlocals, find_none
     )
 
 if PYTHON3:
@@ -269,8 +269,12 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
     assert ast == 'stmts'
 
     all_globals = find_all_globals(ast, set())
-    for g in sorted((all_globals & self.mod_globs) | find_globals(ast, set())):
+    globals, nonlocals = find_globals_and_nonlocals(ast, set(), set(),
+                                                    code, self.version)
+    for g in sorted((all_globals & self.mod_globs) | globals):
         self.println(self.indent, 'global ', g)
+    for nl in sorted(nonlocals):
+        self.println(self.indent, 'nonlocal ', nl)
     self.mod_globs -= all_globals
     has_none = 'None' in code.co_names
     rn = has_none and not find_none(ast)
@@ -422,7 +426,17 @@ def make_function2(self, node, is_lambda, nested=1, codeNode=None):
         assert ast == 'stmts'
 
     all_globals = find_all_globals(ast, set())
-    for g in sorted((all_globals & self.mod_globs) | find_globals(ast, set())):
+
+    globals, nonlocals = find_globals_and_nonlocals(ast, set(), set(),
+                                                    code, self.version)
+
+    # Python 2 doesn't support the "nonlocal" statement
+    try:
+        assert self.version >= 3.0 or not nonlocals
+    except:
+        from trepan.api import debug; debug()
+
+    for g in sorted((all_globals & self.mod_globs) | globals):
         self.println(self.indent, 'global ', g)
     self.mod_globs -= all_globals
     has_none = 'None' in code.co_names
@@ -536,19 +550,19 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
         code = codeNode.attr
 
     assert iscode(code)
-    code = Code(code, self.scanner, self.currentclass)
+    scanner_code = Code(code, self.scanner, self.currentclass)
 
     # add defaults values to parameter names
     argc = code.co_argcount
-    paramnames = list(code.co_varnames[:argc])
+    paramnames = list(scanner_code.co_varnames[:argc])
 
     # defaults are for last n parameters, thus reverse
     if not 3.0 <= self.version <= 3.1 or self.version >= 3.6:
         paramnames.reverse(); defparams.reverse()
 
     try:
-        ast = self.build_ast(code._tokens,
-                             code._customize,
+        ast = self.build_ast(scanner_code._tokens,
+                             scanner_code._customize,
                              is_lambda = is_lambda,
                              noneInNames = ('None' in code.co_names))
     except (ParserError, ParserError2) as p:
@@ -703,15 +717,22 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
         # docstring exists, dump it
         print_docstring(self, self.indent, code.co_consts[0])
 
-    code._tokens = None # save memory
+    scanner_code._tokens = None # save memory
     assert ast == 'stmts'
 
     all_globals = find_all_globals(ast, set())
-    for g in sorted((all_globals & self.mod_globs) | find_globals(ast, set())):
+    globals, nonlocals = find_globals_and_nonlocals(ast, set(),
+                                                    set(), code, self.version)
+
+    for g in sorted((all_globals & self.mod_globs) | globals):
         self.println(self.indent, 'global ', g)
+
+    for nl in sorted(nonlocals):
+        self.println(self.indent, 'nonlocal ', nl)
+
     self.mod_globs -= all_globals
     has_none = 'None' in code.co_names
     rn = has_none and not find_none(ast)
-    self.gen_source(ast, code.co_name, code._customize, is_lambda=is_lambda,
+    self.gen_source(ast, code.co_name, scanner_code._customize, is_lambda=is_lambda,
                     returnNone=rn)
-    code._tokens = None; code._customize = None # save memory
+    scanner_code._tokens = None; scanner_code._customize = None # save memory

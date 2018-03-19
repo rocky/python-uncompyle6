@@ -13,6 +13,9 @@ else:
 read_write_global_ops = frozenset(('STORE_GLOBAL', 'DELETE_GLOBAL', 'LOAD_GLOBAL'))
 read_global_ops       = frozenset(('STORE_GLOBAL', 'DELETE_GLOBAL'))
 
+# NOTE: we also need to check that he variable name is a free variable, not a cell variable.
+nonglobal_ops         = frozenset(('LOAD_DEREF', 'STORE_DEREF',  'DELETE_DEREF'))
+
 # FIXME: this and find_globals could be paramaterized with one of the
 # above global ops
 def find_all_globals(node, globs):
@@ -24,15 +27,22 @@ def find_all_globals(node, globs):
             globs.add(n.pattr)
     return globs
 
-def find_globals(node, globs):
+def find_globals_and_nonlocals(node, globs, nonlocals, code, version):
     """search a node of parse tree to find variable names that need a
-    'global' added."""
+    either 'global' or 'nonlocal' statements added."""
     for n in node:
         if isinstance(n, AST):
-            globs = find_globals(n, globs)
+            globs, nonlocals = find_globals_and_nonlocals(n, globs, nonlocals,
+                                                          code, version)
         elif n.kind in read_global_ops:
             globs.add(n.pattr)
-    return globs
+        elif (version >= 3.0
+              and n.kind in nonglobal_ops
+              and n.pattr in code.co_freevars
+              and n.pattr != code.co_name
+              and code.co_name != '<lambda>'):
+            nonlocals.add(n.pattr)
+    return globs, nonlocals
 
 # def find_globals(node, globs, global_ops=mkfunc_globals):
 #     """Find globals in this statement."""
