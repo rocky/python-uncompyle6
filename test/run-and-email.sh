@@ -13,7 +13,7 @@ function displaytime {
   printf 'Ran in %d seconds\n' $S
 }
 
-PYVERSION=${PYVERSION:-"3.5.5 2.7.14 2.6.9"}
+PYVERSION=${PYVERSION:-"3.5.5 2.7.14 3.4.8 2.6.9"}
 
 USER=${USER:-rocky}
 EMAIL=${EMAIL:-rb@dustyfeet.com}
@@ -25,6 +25,8 @@ for VERSION in $PYVERSION ; do
 
     if [[ $VERSION == '3.5.5' ]] ; then
 	MAX_TESTS=224
+    elif [[ $VERSION == '3.4.8' ]] ; then
+	MAX_TESTS=200
     else
 	MAX_TESTS=800
     fi
