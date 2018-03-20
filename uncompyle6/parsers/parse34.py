@@ -44,6 +44,8 @@ class Python34Parser(Python33Parser):
 
         # Is this 3.4 only?
         yield_from ::= expr GET_ITER LOAD_CONST YIELD_FROM
+
+        _ifstmts_jump ::= c_stmts_opt JUMP_ABSOLUTE JUMP_FORWARD COME_FROM
         """
 
     def customize_grammar_rules(self, tokens, customize):

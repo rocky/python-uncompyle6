@@ -13,8 +13,8 @@ else:
 read_write_global_ops = frozenset(('STORE_GLOBAL', 'DELETE_GLOBAL', 'LOAD_GLOBAL'))
 read_global_ops       = frozenset(('STORE_GLOBAL', 'DELETE_GLOBAL'))
 
-# NOTE: we also need to check that he variable name is a free variable, not a cell variable.
-nonglobal_ops         = frozenset(('LOAD_DEREF', 'STORE_DEREF',  'DELETE_DEREF'))
+# NOTE: we also need to check that the variable name is a free variable, not a cell variable.
+nonglobal_ops         = frozenset(('STORE_DEREF',  'DELETE_DEREF'))
 
 # FIXME: this and find_globals could be paramaterized with one of the
 # above global ops
