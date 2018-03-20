@@ -13,7 +13,7 @@ function displaytime {
   printf 'Ran in %d seconds\n' $S
 }
 
-PYVERSION=${PYVERSION:-"2.7.14 2.6.9"}
+PYVERSION=${PYVERSION:-"3.5.5 2.7.14 2.6.9"}
 
 USER=${USER:-rocky}
 EMAIL=${EMAIL:-rb@dustyfeet.com}
@@ -22,6 +22,12 @@ SUBJECT_PREFIX="stdlib weak verify (max $MAX_TESTS) for"
 for VERSION in $PYVERSION ; do
     typeset -i rc=0
     LOGFILE=/tmp/pyenvlib-$VERSION-$$.log
+
+    if [[ $VERSION == '3.5.5' ]] ; then
+	MAX_TESTS=224
+    else
+	MAX_TESTS=800
+    fi
 
     if ! pyenv local $VERSION ; then
 	rc=1
