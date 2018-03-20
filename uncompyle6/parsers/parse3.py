@@ -1090,7 +1090,7 @@ class Python3Parser(PythonParser):
             if tokens[last] in ('JUMP_BACK', 'CONTINUE'):
                 # These indicate inside a loop, but token[last]
                 # should not be in a loop.
-                # FIXME: Not quite righte: refine by using target
+                # FIXME: Not quite right: refine by using target
                 return True
 
             # if SETUP_LOOP target spans the else part, then this is
@@ -1100,7 +1100,7 @@ class Python3Parser(PythonParser):
                 last += 1
             if last == n:
                 return False
-            return tokens[first].attr >= tokens[last].offset
+            return tokens[first].attr > tokens[last].offset
         elif lhs == 'while1stmt':
 
             # If there is a fall through to the COME_FROM_LOOP. then this is

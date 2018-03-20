@@ -42,6 +42,9 @@ class Python34Parser(Python33Parser):
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suitel COME_FROM
 
+        while1elsestmt    ::= SETUP_LOOP l_stmts JUMP_BACK POP_BLOCK else_suitel
+                              COME_FROM_LOOP
+
         # Python 3.4+ optimizes the trailing two JUMPS away
 
         # Is this 3.4 only?

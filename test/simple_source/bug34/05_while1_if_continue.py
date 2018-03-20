@@ -25,3 +25,13 @@ def readline2(self):
                 continue
 
         return line + self[0]
+
+# From 3.4.4 connection.py
+def PipeClient(address):
+    while 1:
+        try:
+            address += 1
+        except OSError as e:
+            raise e
+    else:
+        raise
