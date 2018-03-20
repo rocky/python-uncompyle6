@@ -18,7 +18,6 @@ PYVERSION=${PYVERSION:-"3.5.5 2.7.14 3.4.8 2.6.9"}
 USER=${USER:-rocky}
 EMAIL=${EMAIL:-rb@dustyfeet.com}
 MAX_TESTS=${MAX_TESTS:-800}
-SUBJECT_PREFIX="stdlib weak verify (max $MAX_TESTS) for"
 for VERSION in $PYVERSION ; do
     typeset -i rc=0
     LOGFILE=/tmp/pyenvlib-$VERSION-$$.log
@@ -48,6 +47,7 @@ for VERSION in $PYVERSION ; do
       displaytime $time_diff >> $LOGFILE
     fi
 
+    SUBJECT_PREFIX="stdlib weak verify (max $MAX_TESTS) for"
     if ((rc == 0)); then
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION ok" ${USER}@localhost
     else
