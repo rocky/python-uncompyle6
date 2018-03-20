@@ -24,8 +24,6 @@ for VERSION in $PYVERSION ; do
 
     if [[ $VERSION == '3.5.5' ]] ; then
 	MAX_TESTS=224
-    elif [[ $VERSION == '3.4.8' ]] ; then
-	MAX_TESTS=200
     else
 	MAX_TESTS=800
     fi
