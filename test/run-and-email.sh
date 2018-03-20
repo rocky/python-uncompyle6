@@ -14,10 +14,13 @@ function displaytime {
 }
 
 PYVERSION=${PYVERSION:-"3.5.5 2.7.14 3.4.8 2.6.9"}
+# PYVERSION=${PYVERSION:-"3.5.5"}
 
 USER=${USER:-rocky}
 EMAIL=${EMAIL:-rb@dustyfeet.com}
 MAX_TESTS=${MAX_TESTS:-800}
+typeset -i RUN_STARTTIME=$(date +%s)
+
 for VERSION in $PYVERSION ; do
     typeset -i rc=0
     LOGFILE=/tmp/pyenvlib-$VERSION-$$.log
@@ -45,7 +48,7 @@ for VERSION in $PYVERSION ; do
       displaytime $time_diff >> $LOGFILE
     fi
 
-    SUBJECT_PREFIX="stdlib weak verify (max $MAX_TESTS) for"
+    SUBJECT_PREFIX="pyenv weak verify (max $MAX_TESTS) for"
     if ((rc == 0)); then
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION ok" ${USER}@localhost
     else
@@ -54,3 +57,8 @@ for VERSION in $PYVERSION ; do
     fi
     rm .python-version
 done
+
+typeset -i RUN_ENDTIME=$(date +%s)
+(( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
+elapsed_time=$(displaytime $time_diff)
+echo "Run complete in $elapsed_time for versions $PYVERSION" | mail -s "pyenv weak verify in $elapsed_time" ${EMAIL}
