@@ -48,6 +48,7 @@ case $PYVERSION in
 	;;
     2.6)
 	SKIP_TESTS=(
+	    [test_compile.py]=1  # Intermittent - sometimes works and sometimes doesn't
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_opcodes.py]=1
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
