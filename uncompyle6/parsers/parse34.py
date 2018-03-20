@@ -34,6 +34,8 @@ class Python34Parser(Python33Parser):
         # Seems to be needed starting 3.4.4 or so
         while1stmt    ::= SETUP_LOOP l_stmts
                           COME_FROM JUMP_BACK POP_BLOCK COME_FROM_LOOP
+        while1stmt    ::= SETUP_LOOP l_stmts
+                          POP_BLOCK COME_FROM_LOOP
 
         # FIXME the below masks a bug in not detecting COME_FROM_LOOP
         # grammar rules with COME_FROM -> COME_FROM_LOOP already exist

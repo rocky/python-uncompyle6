@@ -15,3 +15,13 @@ def readline(b):
 
 assert readline(None) == 1
 assert readline([2]) == 2
+
+def readline2(self):
+    while True:
+        line = 5
+        if self[0]:
+            if self:
+                self[0] = 1
+                continue
+
+        return line + self[0]
