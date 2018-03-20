@@ -1,4 +1,5 @@
-# Bug in Python 3.4 somewhere after the first 200 programs
+# Bug in Python 3.4 text_file.py
+# Bug is handling:  while true ... if ... continue
 def readline(b):
     a = 1
     while True:
