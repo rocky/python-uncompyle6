@@ -1,16 +1,17 @@
 #!/bin/bash
 
 function displaytime {
-  local T=$1
-  local D=$((T/60/60/24))
-  local H=$((T/60/60%24))
-  local M=$((T/60%60))
-  local S=$((T%60))
-  (( $D > 0 )) && printf '%d days ' $D
-  (( $H > 0 )) && printf '%d hours ' $H
-  (( $M > 0 )) && printf '%d minutes ' $M
-  (( $D > 0 || $H > 0 || $M > 0 )) && printf 'and '
-  printf 'Ran in %d seconds\n' $S
+    printf "ran in "
+    local T=$1
+    local D=$((T/60/60/24))
+    local H=$((T/60/60%24))
+    local M=$((T/60%60))
+    local S=$((T%60))
+    (( $D > 0 )) && printf '%d days ' $D
+    (( $H > 0 )) && printf '%d hours ' $H
+    (( $M > 0 )) && printf '%d minutes ' $M
+    (( $D > 0 || $H > 0 || $M > 0 )) && printf 'and '
+    printf '%d seconds\n' $S
 }
 
 PYVERSION=${PYVERSION:-"3.5.5 2.7.14 3.4.8 2.6.9"}
@@ -61,4 +62,4 @@ done
 typeset -i RUN_ENDTIME=$(date +%s)
 (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
 elapsed_time=$(displaytime $time_diff)
-echo "Run complete in $elapsed_time for versions $PYVERSION" | mail -s "pyenv weak verify in $elapsed_time" ${EMAIL}
+echo "Run complete $elapsed_time for versions $PYVERSION" | mail -s "pyenv weak verify in $elapsed_time" ${EMAIL}
