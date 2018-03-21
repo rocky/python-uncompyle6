@@ -9,3 +9,9 @@ class TestABCWithInitSubclass(unittest.TestCase):
                 super().__init_subclass__()
         class Receiver(ReceivesClassKwargs, abc.ABC, x=1, y=2, z=3):
             pass
+
+def test_abstractmethod_integration(self):
+    for abstractthing in [abc.abstractmethod]:
+        class C(metaclass=abc.ABCMeta):
+            @abstractthing
+            def foo(self): pass  # abstract
