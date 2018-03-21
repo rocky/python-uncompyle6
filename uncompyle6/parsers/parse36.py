@@ -32,8 +32,11 @@ class Python36Parser(Python35Parser):
         """
         sstmt ::= sstmt RETURN_LAST
 
-        # 3.6 redoes how return_closure works
+        # 3.6 redoes how return_closure works. FIXME: Isolate to LOAD_CLOSURE
         return_closure   ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
+
+        # Is there something general going on here? FIXME: Isolate to LOAD_DICTCOMP
+        dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_8 expr GET_ITER CALL_FUNCTION_1
 
         stmt               ::= conditional_lambda
         conditional_lambda ::= expr jmp_false expr return_if_lambda
@@ -46,10 +49,13 @@ class Python36Parser(Python35Parser):
         come_from_loops ::= COME_FROM_LOOP*
 
         whilestmt       ::= SETUP_LOOP testexpr l_stmts_opt
-                            JUMP_BACK COME_FROM POP_BLOCK COME_FROM_LOOP
+                            JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
 
         # This might be valid in < 3.6
         and  ::= expr jmp_false expr
+
+        jf_cf       ::= JUMP_FORWARD COME_FROM
+        conditional ::= expr jmp_false expr jf_cf expr COME_FROM
 
         # Adds a COME_FROM_ASYNC_WITH over 3.5
         # FIXME: remove corresponding rule for 3.5?
@@ -68,16 +74,26 @@ class Python36Parser(Python35Parser):
         stmt             ::= try_except36
         try_except36     ::= SETUP_EXCEPT returns except_handler36
                              opt_come_from_except
+        try_except36     ::= SETUP_EXCEPT suite_stmts
+
+        # 3.6 omits END_FINALLY sometimes
+        except_handler36 ::= COME_FROM_EXCEPT except_stmts
+        except_handler   ::= jmp_abs COME_FROM_EXCEPT except_stmts
 
         stmt             ::= tryfinally36
         tryfinally36     ::= SETUP_FINALLY returns
                              COME_FROM_FINALLY suite_stmts
         tryfinally36     ::= SETUP_FINALLY returns
                              COME_FROM_FINALLY suite_stmts_opt END_FINALLY
+        except_suite_finalize ::= SETUP_FINALLY returns
+                                  COME_FROM_FINALLY suite_stmts_opt END_FINALLY _jump
         """
 
     def customize_grammar_rules(self, tokens, customize):
         super(Python36Parser, self).customize_grammar_rules(tokens, customize)
+        self.remove_rules("""
+           dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST MAKE_CLOSURE_0 expr GET_ITER CALL_FUNCTION_1
+        """)
         self.check_reduce['call_kw'] = 'AST'
 
         for i, token in enumerate(tokens):

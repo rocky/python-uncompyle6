@@ -141,7 +141,7 @@ from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.semantics.check_ast import checker
 from uncompyle6.semantics.customize import customize_for_version
 from uncompyle6.semantics.helper import (
-    print_docstring, find_globals, flatten_list)
+    print_docstring, find_globals_and_nonlocals, flatten_list)
 from uncompyle6.scanners.tok import Token
 
 from uncompyle6.semantics.consts import (
@@ -581,6 +581,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.pending_newlines = 0
         self.params = {
             '_globals': {},
+            '_nonlocals': {},   # Python 3 has nonlocal
             'f': StringIO(),
             'indent': indent,
             'is_lambda': is_lambda,
@@ -1522,6 +1523,13 @@ class SourceWalker(GenericASTTraversal, object):
         # class definition ('class X(A,B,C):')
         cclass = self.currentclass
 
+        # Pick out various needed bits of information
+        # * class_name - the name of the class
+        # * subclass_info - the parameters to the class  e.g.
+        #      class Foo(bar, baz)
+        #             -----------
+        # * subclass_code - the code for the subclass body
+        subclass_info = None
         if self.version > 3.0:
             if node == 'classdefdeco2':
                 if self.version >= 3.6:
@@ -1534,6 +1542,16 @@ class SourceWalker(GenericASTTraversal, object):
             else:
                 build_class = node[0]
                 if self.version >= 3.6:
+                    if build_class == 'build_class_kw':
+                        mkfunc = build_class[1]
+                        assert mkfunc == 'mkfunc'
+                        subclass_info = build_class
+                        if hasattr(mkfunc[0], 'attr') and iscode(mkfunc[0].attr):
+                            subclass_code = mkfunc[0].attr
+                        else:
+                            assert mkfunc[0] == 'load_closure'
+                            subclass_code = mkfunc[1].attr
+                            assert iscode(subclass_code)
                     if build_class[1][0] == 'load_closure':
                         code_node = build_class[1][1]
                     else:
@@ -1580,7 +1598,8 @@ class SourceWalker(GenericASTTraversal, object):
                 else:
                     raise 'Internal Error n_classdef: cannot find class body'
                 if hasattr(build_class[3], '__len__'):
-                    subclass_info = build_class[3]
+                    if not subclass_info:
+                        subclass_info = build_class[3]
                 elif hasattr(build_class[2], '__len__'):
                     subclass_info = build_class[2]
                 else:
@@ -1588,7 +1607,7 @@ class SourceWalker(GenericASTTraversal, object):
             elif self.version >= 3.6 and node == 'classdefdeco2':
                 subclass_info = node
                 subclass_code = build_class[1][0].attr
-            else:
+            elif not subclass_info:
                 subclass_code = build_class[1][0].attr
                 subclass_info = node[0]
         else:
@@ -1663,43 +1682,64 @@ class SourceWalker(GenericASTTraversal, object):
     def print_super_classes3(self, node):
         n = len(node)-1
         if node.kind != 'expr':
+            assert node[n].kind.startswith('CALL_FUNCTION')
+
             kwargs = None
-            # 3.6+ starts having this
             if node[n].kind.startswith('CALL_FUNCTION_KW'):
+                # 3.6+ starts does this
                 kwargs = node[n-1].attr
                 assert isinstance(kwargs, tuple)
-            assert node[n].kind.startswith('CALL_FUNCTION')
-            for i in range(n-2, 0, -1):
-                if not node[i].kind in ['expr', 'LOAD_CLASSNAME']:
-                    break
-                pass
+                i = n - (len(kwargs)+1)
+                j = 1 + n - node[n].attr
+            else:
+                for i in range(n-2, 0, -1):
+                    if not node[i].kind in ['expr', 'LOAD_CLASSNAME']:
+                        break
+                    pass
 
-            if i == n-2:
-                return
+                if i == n-2:
+                    return
+                i += 2
+
             line_separator = ', '
             sep = ''
             self.write('(')
-            j = 0
-            i += 2
             if kwargs:
                 # Last arg is tuple of keyword values: omit
                 l = n - 1
             else:
                 l = n
-            while i < l:
-                # 3.6+ may have this
-                if kwargs:
-                    self.write("%s=" % kwargs[j])
+
+            if kwargs:
+                # 3.6+ does this
+                while j < i:
+                    self.write(sep)
+                    value = self.traverse(node[j])
+                    self.write("%s" % value)
+                    sep = line_separator
                     j += 1
-                value = self.traverse(node[i])
-                i += 1
-                self.write(sep, value)
-                sep = line_separator
-                pass
+
+                j = 0
+                while i < l:
+                    self.write(sep)
+                    value = self.traverse(node[i])
+                    self.write("%s=%s" % (kwargs[j], value))
+                    sep = line_separator
+                    j += 1
+                    i += 1
+            else:
+                while i < l:
+                    value = self.traverse(node[i])
+                    i += 1
+                    self.write(sep, value)
+                    sep = line_separator
+                    pass
             pass
         else:
-            self.write('(')
+            if self.version >= 3.6 and node[0] == 'LOAD_CONST':
+                return
             value = self.traverse(node[0])
+            self.write('(')
             self.write(value)
             pass
 
@@ -2303,10 +2343,15 @@ class SourceWalker(GenericASTTraversal, object):
         # else:
         #    print ast[-1][-1]
 
+        globals, nonlocals = find_globals_and_nonlocals(ast, set(), set(),
+                                                        code, self.version)
         # Add "global" declaration statements at the top
         # of the function
-        for g in sorted(find_globals(ast, set())):
+        for g in sorted(globals):
             self.println(indent, 'global ', g)
+
+        for nl in sorted(nonlocals):
+            self.println(indent, 'nonlocal ', nl)
 
         old_name = self.name
         self.gen_source(ast, code.co_name, code._customize)
@@ -2419,8 +2464,12 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
         'ast': showast,
         'grammar': showgrammar
     }
-    return code_deparse(co, out, version, debug_opts, code_objects, compile_mode,
-                        is_pypy, walker)
+    return code_deparse(co, out,
+                        version=version,
+                        debug_opts=debug_opts,
+                        code_objects=code_objects,
+                        compile_mode=compile_mode,
+                        is_pypy=is_pypy, walker=walker)
 
 def code_deparse(co, out=sys.stdout, version=None, debug_opts=DEFAULT_DEBUG_OPTS,
                  code_objects={}, compile_mode='exec', is_pypy=False, walker=SourceWalker):
@@ -2463,7 +2512,11 @@ def code_deparse(co, out=sys.stdout, version=None, debug_opts=DEFAULT_DEBUG_OPTS
     # save memory
     del tokens
 
-    deparsed.mod_globs = find_globals(deparsed.ast, set())
+    deparsed.mod_globs, nonlocals = find_globals_and_nonlocals(deparsed.ast,
+                                                               set(), set(),
+                                                               co, version)
+
+    assert not nonlocals
 
     # convert leading '__doc__ = "..." into doc string
     try:

@@ -175,6 +175,7 @@ class Python27Parser(Python2Parser):
         """)
         super(Python27Parser, self).customize_grammar_rules(tokens, customize)
         self.check_reduce['and'] = 'AST'
+        self.check_reduce['raise_stmt1'] = 'AST'
         # self.check_reduce['conditional_true'] = 'AST'
         return
 
@@ -191,6 +192,8 @@ class Python27Parser(Python2Parser):
             jmp_target = jmp_false.offset + jmp_false.attr + 3
             return not (jmp_target == tokens[last].offset or
                         tokens[last].pattr == jmp_false.pattr)
+        elif rule[0] == ('raise_stmt1'):
+            return ast[0] == 'expr' and ast[0][0] == 'or'
         # elif rule[0] == ('conditional_true'):
         #     # FIXME: the below is a hack: we check expr for
         #     # nodes that could have possibly been a been a Boolean.

@@ -34,16 +34,23 @@ class Python34Parser(Python33Parser):
         # Seems to be needed starting 3.4.4 or so
         while1stmt    ::= SETUP_LOOP l_stmts
                           COME_FROM JUMP_BACK POP_BLOCK COME_FROM_LOOP
+        while1stmt    ::= SETUP_LOOP l_stmts
+                          POP_BLOCK COME_FROM_LOOP
 
         # FIXME the below masks a bug in not detecting COME_FROM_LOOP
         # grammar rules with COME_FROM -> COME_FROM_LOOP already exist
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suitel COME_FROM
 
+        while1elsestmt    ::= SETUP_LOOP l_stmts JUMP_BACK POP_BLOCK else_suitel
+                              COME_FROM_LOOP
+
         # Python 3.4+ optimizes the trailing two JUMPS away
 
         # Is this 3.4 only?
         yield_from ::= expr GET_ITER LOAD_CONST YIELD_FROM
+
+        _ifstmts_jump ::= c_stmts_opt JUMP_ABSOLUTE JUMP_FORWARD COME_FROM
         """
 
     def customize_grammar_rules(self, tokens, customize):

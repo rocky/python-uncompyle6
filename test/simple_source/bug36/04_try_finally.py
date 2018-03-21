@@ -18,3 +18,16 @@ def getvalue1(self):
     finally:
         pass
     return 2
+
+# From Python 3.6 asynchat.py
+# Bug is handling as why in the face of a return.
+# uncompyle6 shows removal of "why" after the return.
+def handle_read(self):
+    try:
+        data = 5
+    except ZeroDivisionError:
+        return
+    except OSError as why:
+        return why
+
+    return data

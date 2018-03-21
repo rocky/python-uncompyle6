@@ -1,8 +1,21 @@
 #  Copyright (c) 2015-2017 Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#
 #  Copyright (c) 1999 John Aycock
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-A spark grammar for Python 2.x.
+Base grammar for Python 2.x.
 
 However instead of terminal symbols being the usual ASCII text,
 e.g. 5, myvariable, "for", etc.  they are CPython Bytecode tokens,
@@ -79,6 +92,9 @@ class Python2Parser(PythonParser):
         raise_stmt1 ::= expr RAISE_VARARGS_1
         raise_stmt2 ::= expr expr RAISE_VARARGS_2
         raise_stmt3 ::= expr expr expr RAISE_VARARGS_3
+
+        for         ::= SETUP_LOOP expr for_iter store
+                        for_block POP_BLOCK _come_froms
 
         del_stmt ::= expr DELETE_SLICE+0
         del_stmt ::= expr expr DELETE_SLICE+1
@@ -173,6 +189,7 @@ class Python2Parser(PythonParser):
     def p_expr2(self, args):
         """
         expr ::= LOAD_LOCALS
+        expr ::= LOAD_ASSERT
         expr ::= slice0
         expr ::= slice1
         expr ::= slice2
@@ -503,6 +520,7 @@ class Python2Parser(PythonParser):
 
         self.check_reduce['aug_assign1'] = 'AST'
         self.check_reduce['aug_assign2'] = 'AST'
+        self.check_reduce['or'] = 'AST'
         # self.check_reduce['_stmts'] = 'AST'
 
         # Dead code testing...
@@ -518,8 +536,11 @@ class Python2Parser(PythonParser):
         # if lhs == 'while1elsestmt':
         #     from trepan.api import debug; debug()
 
-        if lhs in ('aug_assign1', 'aug_assign2') and ast[0] and ast[0][0] == 'and':
+        if lhs in ('aug_assign1', 'aug_assign2') and ast[0] and ast[0][0] in ('and', 'or'):
             return True
+        if rule == ('or', ('expr', 'jmp_true', 'expr', '\\e_come_from_opt')):
+            expr2 = ast[2]
+            return expr2 == 'expr' and expr2[0] == 'LOAD_ASSERT'
         return False
 
 class Python2ParserSingle(Python2Parser, PythonParserSingle):

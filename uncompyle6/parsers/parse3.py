@@ -241,10 +241,10 @@ class Python3Parser(PythonParser):
         except_suite ::= returns
 
         except_cond1 ::= DUP_TOP expr COMPARE_OP
-                jmp_false POP_TOP POP_TOP POP_TOP
+                         jmp_false POP_TOP POP_TOP POP_TOP
 
         except_cond2 ::= DUP_TOP expr COMPARE_OP
-                jmp_false POP_TOP store POP_TOP
+                         jmp_false POP_TOP store POP_TOP
 
         except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT _jump
         except  ::=  POP_TOP POP_TOP POP_TOP returns
@@ -887,6 +887,20 @@ class Python3Parser(PythonParser):
                     # before.
                     args_pos, args_kw, annotate_args, closure  = token.attr
                     stack_count = args_pos + args_kw + annotate_args
+                    if closure:
+                        if args_pos:
+                            rule = ('mklambda ::= %s%s%s%s' %
+                                        ('expr ' * stack_count,
+                                         'load_closure ' * closure,
+                                         'BUILD_TUPLE_1 LOAD_LAMBDA LOAD_CONST ',
+                                        opname))
+                        else:
+                            rule = ('mklambda ::= %s%s%s' %
+                                        ('load_closure ' * closure,
+                                         'LOAD_LAMBDA LOAD_CONST ',
+                                        opname))
+                        self.add_unique_rule(rule, opname, token.attr, customize)
+
                     rule = ('mkfunc ::= %s%s%s%s' %
                                 ('expr ' * stack_count,
                                  'load_closure ' * closure,
@@ -1077,7 +1091,7 @@ class Python3Parser(PythonParser):
             if tokens[last] in ('JUMP_BACK', 'CONTINUE'):
                 # These indicate inside a loop, but token[last]
                 # should not be in a loop.
-                # FIXME: Not quite righte: refine by using target
+                # FIXME: Not quite right: refine by using target
                 return True
 
             # if SETUP_LOOP target spans the else part, then this is
@@ -1087,7 +1101,7 @@ class Python3Parser(PythonParser):
                 last += 1
             if last == n:
                 return False
-            return tokens[first].attr >= tokens[last].offset
+            return tokens[first].attr > tokens[last].offset
         elif lhs == 'while1stmt':
 
             # If there is a fall through to the COME_FROM_LOOP. then this is
