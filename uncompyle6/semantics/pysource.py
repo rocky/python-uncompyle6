@@ -1664,39 +1664,58 @@ class SourceWalker(GenericASTTraversal, object):
     def print_super_classes3(self, node):
         n = len(node)-1
         if node.kind != 'expr':
+            assert node[n].kind.startswith('CALL_FUNCTION')
+
             kwargs = None
-            # 3.6+ starts having this
             if node[n].kind.startswith('CALL_FUNCTION_KW'):
+                # 3.6+ starts does this
                 kwargs = node[n-1].attr
                 assert isinstance(kwargs, tuple)
-            assert node[n].kind.startswith('CALL_FUNCTION')
-            for i in range(n-2, 0, -1):
-                if not node[i].kind in ['expr', 'LOAD_CLASSNAME']:
-                    break
-                pass
+                i = n - (len(kwargs)+1)
+                j = 1 + n - node[n].attr
+            else:
+                for i in range(n-2, 0, -1):
+                    if not node[i].kind in ['expr', 'LOAD_CLASSNAME']:
+                        break
+                    pass
 
-            if i == n-2:
-                return
+                if i == n-2:
+                    return
+                i += 2
+
             line_separator = ', '
             sep = ''
             self.write('(')
-            j = 0
-            i += 2
             if kwargs:
                 # Last arg is tuple of keyword values: omit
                 l = n - 1
             else:
                 l = n
-            while i < l:
-                # 3.6+ may have this
-                if kwargs:
-                    self.write("%s=" % kwargs[j])
+
+            if kwargs:
+                # 3.6+ does this
+                while j < i:
+                    self.write(sep)
+                    value = self.traverse(node[j])
+                    self.write("%s" % value)
+                    sep = line_separator
                     j += 1
-                value = self.traverse(node[i])
-                i += 1
-                self.write(sep, value)
-                sep = line_separator
-                pass
+
+                j = 0
+                while i < l:
+                    self.write(sep)
+                    value = self.traverse(node[i])
+                    self.write("%s=%s" % (kwargs[j], value))
+                    sep = line_separator
+                    j += 1
+                    i += 1
+            else:
+                while i < l:
+                    value = self.traverse(node[i])
+                    i += 1
+                    self.write(sep, value)
+                    sep = line_separator
+                    pass
             pass
         else:
             self.write('(')
