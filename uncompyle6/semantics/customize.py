@@ -357,8 +357,10 @@ def customize_for_version(self, is_pypy, version):
                     'tryfinally36':  ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
                                        (1, 'returns'), 3 ),
                     'fstring_expr':   ( "{%c%{conversion}}", 0),
-                    'fstring_single': ( "f'{%c%{conversion}}'", 0),
-                    'fstring_multi':  ( "f'%c'", 0),
+                    # FIXME: the below assumes the format strings
+                    # don't have ''' in them. Fix this properly
+                    'fstring_single': ( "f'''{%c%{conversion}}'''", 0),
+                    'fstring_multi':  ( "f'''%c'''", 0),
                     'func_args36':    ( "%c(**", 0),
                     'try_except36':   ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
                     'unpack_list':    ( '*%c', (0, 'list') ),
@@ -602,6 +604,14 @@ def customize_for_version(self, is_pypy, version):
 
 
                 FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
+
+                def n_formatted_value(node):
+                    if node[0] == 'LOAD_CONST':
+                        self.write(node[0].attr)
+                        self.prune()
+                    else:
+                        self.default(node)
+                self.n_formatted_value = n_formatted_value
 
                 def f_conversion(node):
                     node.conversion = FSTRING_CONVERSION_MAP.get(node.data[1].attr, '')

@@ -317,6 +317,10 @@ MAP = {
 # See https://docs.python.org/2/reference/expressions.html
 # or https://docs.python.org/3/reference/expressions.html
 # for a list.
+
+# Things at the top of this list below with low-value precidence will
+# tend to have parenthesis around them. Things at the bottom
+# of the list will tend not to have parenthesis around them.
 PRECEDENCE = {
     'list':                 0,
     'dict':                 0,
@@ -377,8 +381,9 @@ PRECEDENCE = {
     'ret_cond_not':         28,
 
     '_mklambda':            30,
-    'yield':                101,
-    'yield_from':           101
+    'call_kw':             100,  # 100 seems to to be module/function precidence
+    'yield':               101,
+    'yield_from':          101
 }
 
 ASSIGN_TUPLE_PARAM = lambda param_name: \
