@@ -538,7 +538,7 @@ class Python2Parser(PythonParser):
         # if lhs == 'while1elsestmt':
         #     from trepan.api import debug; debug()
 
-        if lhs in ('aug_assign1', 'aug_assign2') and ast[0] and ast[0][0] == 'and':
+        if lhs in ('aug_assign1', 'aug_assign2') and ast[0] and ast[0][0] in ('and', 'or'):
             return True
         if rule == ('or', ('expr', 'jmp_true', 'expr', '\\e_come_from_opt')):
             expr2 = ast[2]
