@@ -1735,8 +1735,12 @@ def deparse_code(version, co, out=StringIO(), showasm=False, showast=False,
         'ast': showast,
         'grammar': showgrammar
     }
-    return code_deparse(co, out, version, debug_opts, code_objects, compile_mode,
-                        is_pypy, walker)
+    return code_deparse(co, out,
+                        version=version,
+                        debug_opts=debug_opts,
+                        code_objects=code_objects,
+                        compile_mode=compile_mode,
+                        is_pypy=is_pypy, walker=walker)
 
 def code_deparse(co, out=StringIO(), version=None, is_pypy=None,
                  debug_opts=DEFAULT_DEBUG_OPTS,
