@@ -1523,6 +1523,13 @@ class SourceWalker(GenericASTTraversal, object):
         # class definition ('class X(A,B,C):')
         cclass = self.currentclass
 
+        # Pick out various needed bits of information
+        # * class_name - the name of the class
+        # * subclass_info - the parameters to the class  e.g.
+        #      class Foo(bar, baz)
+        #             -----------
+        # * subclass_code - the code for the subclass body
+        subclass_info = None
         if self.version > 3.0:
             if node == 'classdefdeco2':
                 if self.version >= 3.6:
@@ -1535,6 +1542,16 @@ class SourceWalker(GenericASTTraversal, object):
             else:
                 build_class = node[0]
                 if self.version >= 3.6:
+                    if build_class == 'build_class_kw':
+                        mkfunc = build_class[1]
+                        assert mkfunc == 'mkfunc'
+                        subclass_info = build_class
+                        if hasattr(mkfunc[0], 'attr') and iscode(mkfunc[0].attr):
+                            subclass_code = mkfunc[0].attr
+                        else:
+                            assert mkfunc[0] == 'load_closure'
+                            subclass_code = mkfunc[1].attr
+                            assert iscode(subclass_code)
                     if build_class[1][0] == 'load_closure':
                         code_node = build_class[1][1]
                     else:
@@ -1581,7 +1598,8 @@ class SourceWalker(GenericASTTraversal, object):
                 else:
                     raise 'Internal Error n_classdef: cannot find class body'
                 if hasattr(build_class[3], '__len__'):
-                    subclass_info = build_class[3]
+                    if not subclass_info:
+                        subclass_info = build_class[3]
                 elif hasattr(build_class[2], '__len__'):
                     subclass_info = build_class[2]
                 else:
@@ -1589,7 +1607,7 @@ class SourceWalker(GenericASTTraversal, object):
             elif self.version >= 3.6 and node == 'classdefdeco2':
                 subclass_info = node
                 subclass_code = build_class[1][0].attr
-            else:
+            elif not subclass_info:
                 subclass_code = build_class[1][0].attr
                 subclass_info = node[0]
         else:
@@ -1718,8 +1736,10 @@ class SourceWalker(GenericASTTraversal, object):
                     pass
             pass
         else:
-            self.write('(')
+            if self.version >= 3.6 and node[0] == 'LOAD_CONST':
+                return
             value = self.traverse(node[0])
+            self.write('(')
             self.write(value)
             pass
 
