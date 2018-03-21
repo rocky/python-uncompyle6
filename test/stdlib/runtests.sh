@@ -97,6 +97,18 @@ case $PYVERSION in
 	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
         )
 	;;
+    3.5)
+	SKIP_TESTS=(
+	    [test_decorators.py]=1  # Control flow wrt "if elif"
+	)
+	;;
+    3.6)
+	SKIP_TESTS=(
+	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
+	    [test_decorators.py]=1  # Control flow wrt "if elif"
+	    [test_pow.py]=1         # Control flow wrt "continue"
+	)
+	;;
     *)
 	SKIP_TESTS=( [test_aepack.py]=1
 		     [audiotests.py]=1
