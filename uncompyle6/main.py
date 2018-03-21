@@ -38,7 +38,7 @@ def _get_outstream(outfile):
         os.makedirs(dir)
     except OSError:
         pass
-    return open(outfile, 'w')
+    return open(outfile, 'wb')
 
 def decompile(
         bytecode_version, co, out=None, showasm=None, showast=False,
