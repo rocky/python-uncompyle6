@@ -38,7 +38,11 @@ def _get_outstream(outfile):
         os.makedirs(dir)
     except OSError:
         pass
-    return open(outfile, 'wb')
+    if PYTHON_VERSION < 3.0:
+        mode = 'wb'
+    else:
+        mode = 'w'
+    return open(outfile, mode)
 
 def decompile(
         bytecode_version, co, out=None, showasm=None, showast=False,
