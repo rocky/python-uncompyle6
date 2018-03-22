@@ -15,7 +15,7 @@
 
 import datetime, os, subprocess, sys
 
-from uncompyle6 import verify, IS_PYPY, PYTHON_VERSION
+from uncompyle6 import verify, IS_PYPY
 from xdis.code import iscode
 from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource
@@ -38,11 +38,7 @@ def _get_outstream(outfile):
         os.makedirs(dir)
     except OSError:
         pass
-    if PYTHON_VERSION < 3.0:
-        mode = 'wb'
-    else:
-        mode = 'w'
-    return open(outfile, mode)
+    return open(outfile, 'wb')
 
 def decompile(
         bytecode_version, co, out=None, showasm=None, showast=False,
