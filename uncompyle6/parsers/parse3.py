@@ -392,9 +392,6 @@ class Python3Parser(PythonParser):
         '''
         load_genexpr ::= LOAD_GENEXPR
         load_genexpr ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_CONST
-
-        # Is there something general going on here?
-        dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST MAKE_CLOSURE_0 expr GET_ITER CALL_FUNCTION_1
         '''
 
     def p_expr3(self, args):
@@ -573,6 +570,10 @@ class Python3Parser(PythonParser):
         # over customization
         seen_LOAD_BUILD_CLASS = False
         seen_GET_AWAITABLE_YIELD_FROM = False
+
+        # This is used in parse36.py as well as here
+        self.seen_LOAD_DICTCOMP = False
+
 
         # Loop over instructions adding custom grammar rules based on
         # a specific instruction seen.
@@ -783,6 +784,7 @@ class Python3Parser(PythonParser):
                 self.addRule("expr ::= LOAD_CLASSNAME", nop_func)
                 custom_ops_seen.add(opname)
             elif opname == 'LOAD_DICTCOMP':
+                self.seen_LOAD_DICTCOMP = True
                 if has_get_iter_call_function1:
                     rule_pat = ("dict_comp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 expr "
                                 "GET_ITER CALL_FUNCTION_1")
@@ -814,6 +816,17 @@ class Python3Parser(PythonParser):
             elif opname.startswith('MAKE_CLOSURE'):
                 # DRY with MAKE_FUNCTION
                 # Note: this probably doesn't handle kwargs proprerly
+
+                if opname == 'MAKE_CLOSURE_0' and self.seen_LOAD_DICTCOMP:
+                    # Is there something general going on here?
+                    # Note that 3.6+ doesn't do this, but we'll remove
+                    # this rule in parse36.py
+                    rule = """
+                        dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST
+                                      MAKE_CLOSURE_0 expr
+                                      GET_ITER CALL_FUNCTION_1
+                    """
+                    self.addRule(rule, nop_func)
 
                 args_pos, args_kw, annotate_args  = token.attr
 
