@@ -381,7 +381,6 @@ PRECEDENCE = {
     'ret_cond_not':         28,
 
     '_mklambda':            30,
-    'call_kw':             100,  # 100 seems to to be module/function precidence
     'yield':               101,
     'yield_from':          101
 }

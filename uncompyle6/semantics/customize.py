@@ -17,7 +17,7 @@
 """
 
 from uncompyle6.semantics.consts import (
-    INDENT_PER_LEVEL, TABLE_R, TABLE_DIRECT)
+    PRECEDENCE, INDENT_PER_LEVEL, TABLE_R, TABLE_DIRECT)
 
 from uncompyle6.semantics.make_function import (
     make_function3_annotate,
@@ -352,6 +352,10 @@ def customize_for_version(self, is_pypy, version):
                 ########################
                 # Python 3.6+ Additions
                 #######################
+
+                # Value 100 is important; it is exactly
+                # module/function precidence.
+                PRECEDENCE['call_kw'] = 100
 
                 TABLE_DIRECT.update({
                     'tryfinally36':  ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
