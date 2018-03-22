@@ -1,3 +1,11 @@
+uncompyle6 3.1.0 2018-03-21 Equinox
+
+- Add code_deparse_with_offset() fragment function.
+- Correct paramenter call fragment deparse_code()
+- Lots of 3.6, 3.x, and 2.7 bug fixes
+  About 5% of 3.6 fail parsing now. But
+  semantics still needs much to be desired.
+
 uncompyle6 3.0.1 2018-02-17
 
 - All Python 2.6.9 standard library files weakly verify
