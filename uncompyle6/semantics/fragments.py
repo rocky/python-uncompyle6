@@ -1920,91 +1920,91 @@ def deparsed_find(tup, deparsed, code):
 
     return nodeInfo
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
-    def deparse_test(co, is_pypy=IS_PYPY):
-        deparsed = code_deparse(co, is_pypy=IS_PYPY)
-        print("deparsed source")
-        print(deparsed.text, "\n")
-        print('------------------------')
-        for name, offset in sorted(deparsed.offsets.keys(),
-                                   key=lambda x: str(x[0])):
-            print("name %s, offset %s" % (name, offset))
-            nodeInfo = deparsed.offsets[name, offset]
-            nodeInfo2 = deparsed_find((name, offset), deparsed, co)
-            assert nodeInfo == nodeInfo2
-            node = nodeInfo.node
-            extractInfo = deparsed.extract_node_info(node)
-            print("code: %s" % node.kind)
-            # print extractInfo
-            print(extractInfo.selectedText)
-            print(extractInfo.selectedLine)
-            print(extractInfo.markerLine)
-            extractInfo, p = deparsed.extract_parent_info(node)
+#     def deparse_test(co, is_pypy=IS_PYPY):
+#         deparsed = code_deparse(co, is_pypy=IS_PYPY)
+#         print("deparsed source")
+#         print(deparsed.text, "\n")
+#         print('------------------------')
+#         for name, offset in sorted(deparsed.offsets.keys(),
+#                                    key=lambda x: str(x[0])):
+#             print("name %s, offset %s" % (name, offset))
+#             nodeInfo = deparsed.offsets[name, offset]
+#             nodeInfo2 = deparsed_find((name, offset), deparsed, co)
+#             assert nodeInfo == nodeInfo2
+#             node = nodeInfo.node
+#             extractInfo = deparsed.extract_node_info(node)
+#             print("code: %s" % node.kind)
+#             # print extractInfo
+#             print(extractInfo.selectedText)
+#             print(extractInfo.selectedLine)
+#             print(extractInfo.markerLine)
+#             extractInfo, p = deparsed.extract_parent_info(node)
 
-            if extractInfo:
-                print("Contained in...")
-                print(extractInfo.selectedLine)
-                print(extractInfo.markerLine)
-                print("code: %s" % p.kind)
-                print('=' * 40)
-                pass
-            pass
-        return
+#             if extractInfo:
+#                 print("Contained in...")
+#                 print(extractInfo.selectedLine)
+#                 print(extractInfo.markerLine)
+#                 print("code: %s" % p.kind)
+#                 print('=' * 40)
+#                 pass
+#             pass
+#         return
 
-    def deparse_test_around(offset, name, co, is_pypy=IS_PYPY):
-        deparsed = code_deparse_around_offset(name, offset, co)
-        print("deparsed source")
-        print(deparsed.text, "\n")
-        print('------------------------')
-        for name, offset in sorted(deparsed.offsets.keys(),
-                                   key=lambda x: str(x[0])):
-            print("name %s, offset %s" % (name, offset))
-            nodeInfo = deparsed.offsets[name, offset]
-            node = nodeInfo.node
-            extractInfo = deparsed.extract_node_info(node)
-            print("code: %s" % node.kind)
-            # print extractInfo
-            print(extractInfo.selectedText)
-            print(extractInfo.selectedLine)
-            print(extractInfo.markerLine)
-            extractInfo, p = deparsed.extract_parent_info(node)
-            if extractInfo:
-                print("Contained in...")
-                print(extractInfo.selectedLine)
-                print(extractInfo.markerLine)
-                print("code: %s" % p.kind)
-                print('=' * 40)
-                pass
-            pass
-        return
+#     def deparse_test_around(offset, name, co, is_pypy=IS_PYPY):
+#         deparsed = code_deparse_around_offset(name, offset, co)
+#         print("deparsed source")
+#         print(deparsed.text, "\n")
+#         print('------------------------')
+#         for name, offset in sorted(deparsed.offsets.keys(),
+#                                    key=lambda x: str(x[0])):
+#             print("name %s, offset %s" % (name, offset))
+#             nodeInfo = deparsed.offsets[name, offset]
+#             node = nodeInfo.node
+#             extractInfo = deparsed.extract_node_info(node)
+#             print("code: %s" % node.kind)
+#             # print extractInfo
+#             print(extractInfo.selectedText)
+#             print(extractInfo.selectedLine)
+#             print(extractInfo.markerLine)
+#             extractInfo, p = deparsed.extract_parent_info(node)
+#             if extractInfo:
+#                 print("Contained in...")
+#                 print(extractInfo.selectedLine)
+#                 print(extractInfo.markerLine)
+#                 print("code: %s" % p.kind)
+#                 print('=' * 40)
+#                 pass
+#             pass
+#         return
 
-    def get_code_for_fn(fn):
-        return fn.__code__
+#     def get_code_for_fn(fn):
+#         return fn.__code__
 
-    def test():
-        import os, sys
+#     def test():
+#         import os, sys
 
-    def div_test(a, b, c):
-        return a / b / c
+#     def div_test(a, b, c):
+#         return a / b / c
 
-    def gcd(a, b):
-        if a > b:
-            (a, b) = (b, a)
-            pass
+#     def gcd(a, b):
+#         if a > b:
+#             (a, b) = (b, a)
+#             pass
 
-        if a <= 0:
-            return None
-        if a == 1 or a == b:
-            return a
-        return gcd(b-a, a)
+#         if a <= 0:
+#             return None
+#         if a == 1 or a == b:
+#             return a
+#         return gcd(b-a, a)
 
-    # check_args(['3', '5'])
-    # deparse_test(get_code_for_fn(gcd))
-    deparse_test(get_code_for_fn(div_test))
-    # deparse_test(get_code_for_fn(test))
-    # deparse_test(get_code_for_fn(FragmentsWalker.fixup_offsets))
-    # deparse_test(get_code_for_fn(FragmentsWalker.n_list))
-    print('=' * 30)
-    # deparse_test_around(408, 'n_list', get_code_for_fn(FragmentsWalker.n_build_list))
-    # deparse_test(inspect.currentframe().f_code)
+#     # check_args(['3', '5'])
+#     # deparse_test(get_code_for_fn(gcd))
+#     deparse_test(get_code_for_fn(div_test))
+#     # deparse_test(get_code_for_fn(test))
+#     # deparse_test(get_code_for_fn(FragmentsWalker.fixup_offsets))
+#     # deparse_test(get_code_for_fn(FragmentsWalker.n_list))
+#     print('=' * 30)
+#     # deparse_test_around(408, 'n_list', get_code_for_fn(FragmentsWalker.n_build_list))
+#     # deparse_test(inspect.currentframe().f_code)
