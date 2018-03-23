@@ -609,6 +609,22 @@ def customize_for_version(self, is_pypy, version):
 
                 FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
 
+                def n_except_suite_finalize(node):
+                    if node[1] == 'returns' and self.hide_internal:
+                        # Process node[1] only.
+                        # The code after "returns", e.g. node[3], is dead code.
+                        # Adding it is wrong as it dedents and another
+                        # exception handler "except_stmt" afterwards.
+                        # Note it is also possible that the grammar is wrong here.
+                        # and this should not be "except_stmt".
+                        self.indent_more()
+                        self.preorder(node[1])
+                        self.indent_less()
+                    else:
+                        self.default(node)
+                    self.prune()
+                self.n_except_suite_finalize = n_except_suite_finalize
+
                 def n_formatted_value(node):
                     if node[0] == 'LOAD_CONST':
                         self.write(node[0].attr)
