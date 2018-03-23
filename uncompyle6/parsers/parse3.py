@@ -112,9 +112,10 @@ class Python3Parser(PythonParser):
         continues ::= continue
 
 
-        kwarg   ::= LOAD_CONST expr
-        kwargs  ::= kwarg*
-        kwargs1 ::= kwarg+
+        kwarg      ::= LOAD_CONST expr
+        kwargs     ::= kwarg+
+        no_kwargs  ::=
+
 
         classdef ::= build_class store
 
@@ -527,7 +528,7 @@ class Python3Parser(PythonParser):
         subclassing is, well, is pretty base.  And we want it that way: lean and
         mean so that parsing will go faster.
 
-        Here, we add additional grammra rules based on specific instructions
+        Here, we add additional grammar rules based on specific instructions
         that are in the instruction/token stream. In classes that
         inherit from from here and other versions, grammar rules may
         also be removed.
@@ -656,9 +657,9 @@ class Python3Parser(PythonParser):
                                     ('dict ' * token.attr) +
                                     'BUILD_MAP_UNPACK')
                         else:
-                            rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
+                            rule = "%s ::= %s %s" % (kvlist_n, 'expr ' * (token.attr*2), opname)
                             self.add_unique_rule(rule, opname, token.attr, customize)
-                            rule = "dict ::=  %s %s" % (kvlist_n, opname)
+                            rule = "dict ::=  %s" % kvlist_n
                 else:
                     rule = kvlist_n + ' ::= ' + 'expr expr STORE_MAP ' * token.attr
                     self.add_unique_rule(rule, opname, token.attr, customize)
@@ -866,13 +867,13 @@ class Python3Parser(PythonParser):
                                                  opname, token.attr, customize)
 
                 if args_kw > 0:
-                    kwargs_str = 'kwargs1 '
+                    kwargs_str = 'kwargs '
                 else:
                     kwargs_str = ''
 
                 # Note order of kwargs and pos args changed between 3.3-3.4
                 if self.version <= 3.2:
-                    rule = ('mkfunc ::= %s%sload_closure LOAD_CONST kwargs %s'
+                    rule = ('mkfunc ::= %s%sload_closure LOAD_CONST %s'
                             % (kwargs_str, 'expr ' * args_pos, opname))
                 elif self.version == 3.3:
                     rule = ('mkfunc ::= %s%sload_closure LOAD_CONST LOAD_CONST %s'
@@ -980,29 +981,37 @@ class Python3Parser(PythonParser):
                                 opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
+                if args_kw == 0:
+                    kwargs = 'no_kwargs'
+                else:
+                    kwargs = 'kwargs'
                 if self.version < 3.3:
                     # positional args after keyword args
-                    rule = ('mkfunc ::= kwargs %s%s %s' %
+                    rule = ('mkfunc ::= %s %s%s%s' %
+                            (kwargs, 'pos_arg ' * args_pos, 'LOAD_CONST ',
+                             opname))
+                    self.add_unique_rule(rule, opname, token.attr, customize)
+                    rule = ('mkfunc ::= %s%s%s' %
                             ('pos_arg ' * args_pos, 'LOAD_CONST ',
                              opname))
                 elif self.version == 3.3:
                     # positional args after keyword args
-                    rule = ('mkfunc ::= kwargs %s%s %s' %
-                            ('pos_arg ' * args_pos, 'LOAD_CONST '*2,
+                    rule = ('mkfunc ::= %s %s%s%s' %
+                            (kwargs, 'pos_arg ' * args_pos, 'LOAD_CONST '*2,
                              opname))
                 elif self.version > 3.5:
                     # positional args before keyword args
-                    rule = ('mkfunc ::= %skwargs1 %s %s' %
-                            ('pos_arg ' * args_pos, 'LOAD_CONST '*2,
+                    rule = ('mkfunc ::= %s%s %s%s' %
+                            ('pos_arg ' * args_pos, kwargs, 'LOAD_CONST '*2,
                              opname))
                 elif self.version > 3.3:
                     # positional args before keyword args
-                    rule = ('mkfunc ::= %skwargs %s %s' %
-                            ('pos_arg ' * args_pos, 'LOAD_CONST '*2,
+                    rule = ('mkfunc ::= %s%s %s%s' %
+                            ('pos_arg ' * args_pos, kwargs, 'LOAD_CONST '*2,
                              opname))
                 else:
-                    rule = ('mkfunc ::= kwargs %sexpr %s' %
-                            ('pos_arg ' * args_pos, opname))
+                    rule = ('mkfunc ::= %s%sexpr %s' %
+                            (kwargs, 'pos_arg ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
                 if opname.startswith('MAKE_FUNCTION_A'):
                     if self.version >= 3.6:

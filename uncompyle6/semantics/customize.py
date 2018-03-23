@@ -563,8 +563,16 @@ def customize_for_version(self, is_pypy, version):
                         kv_node = node[0]
                         l = list(kv_node)
                         i = 0
+
+                        length = len(l)
+                        # FIXME: Parser-speed improved grammars will have BUILD_MAP
+                        # at the end. So in the future when everything is
+                        # complete, we can do an "assert" instead of "if".
+                        if kv_node[-1].kind.startswith("BUILD_MAP"):
+                            length -= 1
+
                         # Respect line breaks from source
-                        while i < len(l):
+                        while i < length:
                             self.write(sep)
                             name = self.traverse(l[i], indent='')
                             # Strip off beginning and trailing quotes in name

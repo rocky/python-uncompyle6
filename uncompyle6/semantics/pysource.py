@@ -404,7 +404,7 @@ class SourceWalker(GenericASTTraversal, object):
 
             def n_mkfunc_annotate(node):
 
-                if self.version >= 3.3 or node[-2] == 'kwargs':
+                if self.version >= 3.3 or node[-2] in ('kwargs', 'no_kwargs'):
                     # LOAD_CONST code object ..
                     # LOAD_CONST        'x0'  if >= 3.3
                     # EXTENDED_ARG
@@ -1041,7 +1041,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_mkfunc(self, node):
 
-        if self.version >= 3.3 or node[-2] == 'kwargs':
+        if self.version >= 3.3 or node[-2] in ('kwargs', 'no_kwargs'):
             # LOAD_CONST code object ..
             # LOAD_CONST        'x0'  if >= 3.3
             # MAKE_FUNCTION ..
@@ -1057,7 +1057,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(func_name)
 
         self.indent_more()
-        self.make_function(node, is_lambda=False, codeNode=code_node)
+        self.make_function(node, is_lambda=False, code_node=code_node)
 
         if len(self.param_stack) > 1:
             self.write('\n\n')
@@ -1067,14 +1067,14 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune() # stop recursing
 
     def make_function(self, node, is_lambda, nested=1,
-                      codeNode=None, annotate=None):
+                      code_node=None, annotate=None):
         if self.version >= 3.0:
-            make_function3(self, node, is_lambda, nested, codeNode)
+            make_function3(self, node, is_lambda, nested, code_node)
         else:
-            make_function2(self, node, is_lambda, nested, codeNode)
+            make_function2(self, node, is_lambda, nested, code_node)
 
     def n_mklambda(self, node):
-        self.make_function(node, is_lambda=True, codeNode=node[-2])
+        self.make_function(node, is_lambda=True, code_node=node[-2])
         self.prune() # stop recursing
 
     def n_list_comp(self, node):
@@ -1563,7 +1563,7 @@ class SourceWalker(GenericASTTraversal, object):
 
             assert 'mkfunc' == build_class[1]
             mkfunc = build_class[1]
-            if mkfunc[0] == 'kwargs':
+            if mkfunc[0] in ('kwargs', 'no_kwargs'):
                 if 3.0 <= self.version <= 3.2:
                     for n in mkfunc:
                         if hasattr(n, 'attr') and iscode(n.attr):
@@ -1608,7 +1608,10 @@ class SourceWalker(GenericASTTraversal, object):
                 subclass_info = node
                 subclass_code = build_class[1][0].attr
             elif not subclass_info:
-                subclass_code = build_class[1][0].attr
+                if mkfunc[0] in ('no_kwargs', 'kwargs'):
+                    subclass_code = mkfunc[1].attr
+                else:
+                    subclass_code = mkfunc[0].attr
                 subclass_info = node[0]
         else:
             if node == 'classdefdeco2':
@@ -1764,9 +1767,17 @@ class SourceWalker(GenericASTTraversal, object):
                 # Python 3.5+ style key/value list in dict
                 kv_node = node[0]
                 l = list(kv_node)
+                length = len(l)
+
+                # FIXME: Parser-speed improved grammars will have BUILD_MAP
+                # at the end. So in the future when everything is
+                # complete, we can do an "assert" instead of "if".
+                if kv_node[-1].kind.startswith("BUILD_MAP"):
+                    length -= 1
                 i = 0
+
                 # Respect line breaks from source
-                while i < len(l):
+                while i < length:
                     self.write(sep)
                     name = self.traverse(l[i], indent='')
                     if i > 0:
