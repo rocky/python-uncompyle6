@@ -489,7 +489,7 @@ def customize_for_version(self, is_pypy, version):
                 self.n_call_ex_kw3 = call_ex_kw3
 
                 def call_ex_kw4(node):
-                    """Handle CALL_FUNCTION_EX 2  (have KW) but without
+                    """Handle CALL_FUNCTION_EX {1 or 2}  (have KW) but without
                     BUILD_{MAP,TUPLE}_UNPACK_WITH_CALL"""
                     self.preorder(node[0])
                     self.write('(')
@@ -508,8 +508,13 @@ def customize_for_version(self, is_pypy, version):
                     kwargs = node[2]
                     if kwargs == 'expr':
                         kwargs = kwargs[0]
-                    self.write('**')
-                    self.preorder(kwargs)
+                    call_function_ex = node[-1]
+                    assert call_function_ex == 'CALL_FUNCTION_EX_KW'
+                    if call_function_ex.attr & 1 and not isinstance(kwargs, Token):
+                        self.call36_dict(kwargs)
+                    else:
+                        self.write('**')
+                        self.preorder(kwargs)
                     self.write(')')
                     self.prune()
                 self.n_call_ex_kw4 = call_ex_kw4
