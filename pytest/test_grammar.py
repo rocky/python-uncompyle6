@@ -51,7 +51,6 @@ def test_grammar():
             else:
                 expect_right_recursive.add((('l_stmts',
                                              ('lastl_stmt', 'COME_FROM', 'l_stmts'))))
-                # expect_lhs.add('kwargs1')
                 pass
             pass
         pass

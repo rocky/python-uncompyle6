@@ -17,7 +17,7 @@
 """
 
 from uncompyle6.semantics.consts import (
-    INDENT_PER_LEVEL, TABLE_R, TABLE_DIRECT)
+    PRECEDENCE, INDENT_PER_LEVEL, TABLE_R, TABLE_DIRECT)
 
 from uncompyle6.semantics.make_function import (
     make_function3_annotate,
@@ -239,6 +239,7 @@ def customize_for_version(self, is_pypy, version):
             TABLE_DIRECT.update({
                 'LOAD_CLASSDEREF':	( '%{pattr}', ),
                 })
+
             ########################
             # Python 3.5+ Additions
             #######################
@@ -312,7 +313,7 @@ def customize_for_version(self, is_pypy, version):
                                 template = ('*%P)', (0, len(args_node)-1, ', *', 100))
                                 self.template_engine(template, args_node)
                             else:
-                                template = ('*%c)', -2)
+                                template = ('*%c, %C)', 1, (2, -1, ', '))
                                 self.template_engine(template, node)
                             self.prune()
 
@@ -352,6 +353,10 @@ def customize_for_version(self, is_pypy, version):
                 ########################
                 # Python 3.6+ Additions
                 #######################
+
+                # Value 100 is important; it is exactly
+                # module/function precidence.
+                PRECEDENCE['call_kw'] = 100
 
                 TABLE_DIRECT.update({
                     'tryfinally36':  ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
@@ -484,7 +489,7 @@ def customize_for_version(self, is_pypy, version):
                 self.n_call_ex_kw3 = call_ex_kw3
 
                 def call_ex_kw4(node):
-                    """Handle CALL_FUNCTION_EX 2  (have KW) but without
+                    """Handle CALL_FUNCTION_EX {1 or 2}  (have KW) but without
                     BUILD_{MAP,TUPLE}_UNPACK_WITH_CALL"""
                     self.preorder(node[0])
                     self.write('(')
@@ -503,8 +508,13 @@ def customize_for_version(self, is_pypy, version):
                     kwargs = node[2]
                     if kwargs == 'expr':
                         kwargs = kwargs[0]
-                    self.write('**')
-                    self.preorder(kwargs)
+                    call_function_ex = node[-1]
+                    assert call_function_ex == 'CALL_FUNCTION_EX_KW'
+                    if call_function_ex.attr & 1 and not isinstance(kwargs, Token):
+                        self.call36_dict(kwargs)
+                    else:
+                        self.write('**')
+                        self.preorder(kwargs)
                     self.write(')')
                     self.prune()
                 self.n_call_ex_kw4 = call_ex_kw4
@@ -559,8 +569,16 @@ def customize_for_version(self, is_pypy, version):
                         kv_node = node[0]
                         l = list(kv_node)
                         i = 0
+
+                        length = len(l)
+                        # FIXME: Parser-speed improved grammars will have BUILD_MAP
+                        # at the end. So in the future when everything is
+                        # complete, we can do an "assert" instead of "if".
+                        if kv_node[-1].kind.startswith("BUILD_MAP"):
+                            length -= 1
+
                         # Respect line breaks from source
-                        while i < len(l):
+                        while i < length:
                             self.write(sep)
                             name = self.traverse(l[i], indent='')
                             # Strip off beginning and trailing quotes in name
@@ -604,6 +622,22 @@ def customize_for_version(self, is_pypy, version):
 
 
                 FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
+
+                def n_except_suite_finalize(node):
+                    if node[1] == 'returns' and self.hide_internal:
+                        # Process node[1] only.
+                        # The code after "returns", e.g. node[3], is dead code.
+                        # Adding it is wrong as it dedents and another
+                        # exception handler "except_stmt" afterwards.
+                        # Note it is also possible that the grammar is wrong here.
+                        # and this should not be "except_stmt".
+                        self.indent_more()
+                        self.preorder(node[1])
+                        self.indent_less()
+                    else:
+                        self.default(node)
+                    self.prune()
+                self.n_except_suite_finalize = n_except_suite_finalize
 
                 def n_formatted_value(node):
                     if node[0] == 'LOAD_CONST':

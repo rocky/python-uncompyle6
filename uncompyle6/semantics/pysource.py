@@ -404,7 +404,7 @@ class SourceWalker(GenericASTTraversal, object):
 
             def n_mkfunc_annotate(node):
 
-                if self.version >= 3.3 or node[-2] == 'kwargs':
+                if self.version >= 3.3 or node[-2] in ('kwargs', 'no_kwargs'):
                     # LOAD_CONST code object ..
                     # LOAD_CONST        'x0'  if >= 3.3
                     # EXTENDED_ARG
@@ -468,73 +468,6 @@ class SourceWalker(GenericASTTraversal, object):
 
                     })
 
-                    def async_call(node):
-                        self.f.write('async ')
-                        node.kind == 'call'
-                        p = self.prec
-                        self.prec = 80
-                        self.template_engine(('%c(%P)', 0,
-                                              (1, -4, ', ', 100)), node)
-                        self.prec = p
-                        node.kind == 'async_call'
-                        self.prune()
-                    self.n_async_call = async_call
-                    self.n_build_list_unpack = self.n_list
-
-                    if version == 3.5:
-                        def n_call(node):
-                            mapping = self._get_mapping(node)
-                            table = mapping[0]
-                            key = node
-                            for i in mapping[1:]:
-                                key = key[i]
-                                pass
-                            if key.kind.startswith('CALL_FUNCTION_VAR_KW'):
-                                # Python 3.5 changes the stack position of *args. kwargs come
-                                # after *args whereas in earlier Pythons, *args is at the end
-                                # which simpilfiies things from our perspective.
-                                # Python 3.6+ replaces CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
-                                # We will just swap the order to make it look like earlier Python 3.
-                                entry = table[key.kind]
-                                kwarg_pos = entry[2][1]
-                                args_pos = kwarg_pos - 1
-                                # Put last node[args_pos] after subsequent kwargs
-                                while node[kwarg_pos] == 'kwarg' and kwarg_pos < len(node):
-                                    # swap node[args_pos] with node[kwargs_pos]
-                                    node[kwarg_pos], node[args_pos] = node[args_pos], node[kwarg_pos]
-                                    args_pos = kwarg_pos
-                                    kwarg_pos += 1
-                            self.default(node)
-                        self.n_call = n_call
-
-                    def n_function_def(node):
-                        if self.version == 3.6:
-                            code_node = node[0][0]
-                        else:
-                            code_node = node[0][1]
-
-                        is_code = hasattr(code_node, 'attr') and iscode(code_node.attr)
-                        if (is_code and
-                            (code_node.attr.co_flags & COMPILER_FLAG_BIT['COROUTINE'])):
-                            self.template_engine(('\n\n%|async def %c\n',
-                                                  -2), node)
-                        else:
-                            self.template_engine(('\n\n%|def %c\n', -2),
-                                                 node)
-                        self.prune()
-                    self.n_function_def = n_function_def
-
-                    def unmapexpr(node):
-                        last_n = node[0][-1]
-                        for n in node[0]:
-                            self.preorder(n)
-                            if n != last_n:
-                                self.f.write(', **')
-                                pass
-                            pass
-                        self.prune()
-                        pass
-                    self.n_unmapexpr = unmapexpr
 
                 pass # version >= 3.4
             pass # version >= 3.0
@@ -1041,7 +974,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_mkfunc(self, node):
 
-        if self.version >= 3.3 or node[-2] == 'kwargs':
+        if self.version >= 3.3 or node[-2] in ('kwargs', 'no_kwargs'):
             # LOAD_CONST code object ..
             # LOAD_CONST        'x0'  if >= 3.3
             # MAKE_FUNCTION ..
@@ -1057,7 +990,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(func_name)
 
         self.indent_more()
-        self.make_function(node, is_lambda=False, codeNode=code_node)
+        self.make_function(node, is_lambda=False, code_node=code_node)
 
         if len(self.param_stack) > 1:
             self.write('\n\n')
@@ -1067,14 +1000,14 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune() # stop recursing
 
     def make_function(self, node, is_lambda, nested=1,
-                      codeNode=None, annotate=None):
+                      code_node=None, annotate=None):
         if self.version >= 3.0:
-            make_function3(self, node, is_lambda, nested, codeNode)
+            make_function3(self, node, is_lambda, nested, code_node)
         else:
-            make_function2(self, node, is_lambda, nested, codeNode)
+            make_function2(self, node, is_lambda, nested, code_node)
 
     def n_mklambda(self, node):
-        self.make_function(node, is_lambda=True, codeNode=node[-2])
+        self.make_function(node, is_lambda=True, code_node=node[-2])
         self.prune() # stop recursing
 
     def n_list_comp(self, node):
@@ -1563,7 +1496,7 @@ class SourceWalker(GenericASTTraversal, object):
 
             assert 'mkfunc' == build_class[1]
             mkfunc = build_class[1]
-            if mkfunc[0] == 'kwargs':
+            if mkfunc[0] in ('kwargs', 'no_kwargs'):
                 if 3.0 <= self.version <= 3.2:
                     for n in mkfunc:
                         if hasattr(n, 'attr') and iscode(n.attr):
@@ -1608,8 +1541,15 @@ class SourceWalker(GenericASTTraversal, object):
                 subclass_info = node
                 subclass_code = build_class[1][0].attr
             elif not subclass_info:
-                subclass_code = build_class[1][0].attr
-                subclass_info = node[0]
+                if mkfunc[0] in ('no_kwargs', 'kwargs'):
+                    subclass_code = mkfunc[1].attr
+                else:
+                    subclass_code = mkfunc[0].attr
+                if node == 'classdefdeco2':
+                    subclass_info = node
+                else:
+                    subclass_info = node[0]
+
         else:
             if node == 'classdefdeco2':
                 build_class = node
@@ -1680,7 +1620,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.write(')')
 
     def print_super_classes3(self, node):
-        n = len(node)-1
+        n = len(node) - 1
         if node.kind != 'expr':
             assert node[n].kind.startswith('CALL_FUNCTION')
 
@@ -1764,9 +1704,17 @@ class SourceWalker(GenericASTTraversal, object):
                 # Python 3.5+ style key/value list in dict
                 kv_node = node[0]
                 l = list(kv_node)
+                length = len(l)
+
+                # FIXME: Parser-speed improved grammars will have BUILD_MAP
+                # at the end. So in the future when everything is
+                # complete, we can do an "assert" instead of "if".
+                if kv_node[-1].kind.startswith("BUILD_MAP"):
+                    length -= 1
                 i = 0
+
                 # Respect line breaks from source
-                while i < len(l):
+                while i < length:
                     self.write(sep)
                     name = self.traverse(l[i], indent='')
                     if i > 0:
@@ -2196,6 +2144,15 @@ class SourceWalker(GenericASTTraversal, object):
                             entry = ('%c(*%C, %c)', 0, p2, -2)
                         elif str == '%c(%C':
                             entry = ('%c(*%C)', 0, (1, 100, ''))
+                    elif self.version == 3.4:
+                        # CALL_FUNCTION_VAR's top element of the stack contains
+                        # the variable argument list
+                        if v == 0:
+                            str = '%c(*%c)'
+                            entry = (str, 0, -2)
+                        else:
+                            str = '%c(*%c, %C)'
+                            entry = (str, 0, -2, p2)
                     else:
                         str += '*%c)'
                         entry = (str, 0, p2, -2)

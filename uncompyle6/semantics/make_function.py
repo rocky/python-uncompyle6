@@ -428,10 +428,7 @@ def make_function2(self, node, is_lambda, nested=1, codeNode=None):
                                                     code, self.version)
 
     # Python 2 doesn't support the "nonlocal" statement
-    try:
-        assert self.version >= 3.0 or not nonlocals
-    except:
-        from trepan.api import debug; debug()
+    assert self.version >= 3.0 or not nonlocals
 
     for g in sorted((all_globals & self.mod_globs) | globals):
         self.println(self.indent, 'global ', g)
@@ -512,15 +509,22 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
     if isinstance(args_node.attr, tuple):
         pos_args, kw_args, annotate_argc  = args_node.attr
         # FIXME: there is probably a better way to classify this.
+        have_kwargs = node[0].kind.startswith('kwarg') or node[0] == 'no_kwargs'
+        if len(node) >= 4:
+            lc_index = -4
+        else:
+            lc_index = -3
+            pass
+
         if (self.version <= 3.3 and len(node) > 2 and
-            node[lambda_index] != 'LOAD_LAMBDA' and
-            (node[0].kind.startswith('kwarg') or node[-4].kind != 'load_closure')):
+                node[lambda_index] != 'LOAD_LAMBDA' and
+                (have_kwargs or node[lc_index].kind != 'load_closure')):
             # args are after kwargs; kwargs are bundled as one node
             defparams = node[1:args_node.attr[0]+1]
         else:
             # args are before kwargs; kwags as bundled as one node
             defparams = node[:args_node.attr[0]]
-        pos_args, kw_args, annotate_argc  = args_node.attr
+            pass
     else:
         if self.version < 3.6:
             defparams = node[:args_node.attr]
@@ -695,7 +699,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
             for n in node:
                 if n == 'pos_arg':
                     continue
-                elif self.version >= 3.4 and not (n.kind in ('kwargs', 'kwargs1', 'kwarg')):
+                elif self.version >= 3.4 and not (n.kind in ('kwargs', 'no_kwargs', 'kwarg')):
                     continue
                 else:
                     self.preorder(n)

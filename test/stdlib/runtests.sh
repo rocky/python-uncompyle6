@@ -78,7 +78,8 @@ case $PYVERSION in
 	    [test_curses.py]=1  # Possibly fails on its own but not detected
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_doctest.py]=1 # Fails on its own
-	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
+	    [test_generators.py]=1  # control flow. uncompyle2 has problem here too
+	    [test_grammar.py]=1     # Too many stmts. Handle large stmts
 	    [test_io.py]=1 # Test takes too long to run
 	    [test_ioctl.py]=1 # Test takes too long to run
 	    [test_itertools.py]=1 # Fix erroneous reduction to "conditional_true".

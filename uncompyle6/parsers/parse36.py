@@ -35,9 +35,6 @@ class Python36Parser(Python35Parser):
         # 3.6 redoes how return_closure works. FIXME: Isolate to LOAD_CLOSURE
         return_closure   ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
 
-        # Is there something general going on here? FIXME: Isolate to LOAD_DICTCOMP
-        dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_8 expr GET_ITER CALL_FUNCTION_1
-
         stmt               ::= conditional_lambda
         conditional_lambda ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
@@ -105,6 +102,14 @@ class Python36Parser(Python35Parser):
                     fstring_single ::= expr FORMAT_VALUE
                 """
                 self.add_unique_doc_rules(rules_str, customize)
+            elif opname == 'MAKE_FUNCTION_8' and self.seen_LOAD_DICTCOMP:
+                # Is there something general going on here?
+                rule = """
+                   dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST
+                                 MAKE_FUNCTION_8 expr
+                                 GET_ITER CALL_FUNCTION_1
+                   """
+                self.addRule(rule, nop_func)
             elif opname == 'BEFORE_ASYNC_WITH':
                 rules_str = """
                   stmt ::= async_with_stmt

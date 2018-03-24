@@ -31,3 +31,18 @@ def handle_read(self):
         return why
 
     return data
+
+# From 3.6 contextlib
+# Bug is indentation of "return exc"
+# Also there are extra statements to remove exec,
+# which we hide (unless doing fragments).
+# Note: The indentation bug may be a result of using improper
+# grammar.
+def __exit__(self, type, value, traceback):
+    try:
+        value()
+    except StopIteration as exc:
+        return exc
+    except RuntimeError as exc:
+        return exc
+    return
