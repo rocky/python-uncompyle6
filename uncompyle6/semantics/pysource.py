@@ -468,73 +468,6 @@ class SourceWalker(GenericASTTraversal, object):
 
                     })
 
-                    def async_call(node):
-                        self.f.write('async ')
-                        node.kind == 'call'
-                        p = self.prec
-                        self.prec = 80
-                        self.template_engine(('%c(%P)', 0,
-                                              (1, -4, ', ', 100)), node)
-                        self.prec = p
-                        node.kind == 'async_call'
-                        self.prune()
-                    self.n_async_call = async_call
-                    self.n_build_list_unpack = self.n_list
-
-                    if version == 3.5:
-                        def n_call(node):
-                            mapping = self._get_mapping(node)
-                            table = mapping[0]
-                            key = node
-                            for i in mapping[1:]:
-                                key = key[i]
-                                pass
-                            if key.kind.startswith('CALL_FUNCTION_VAR_KW'):
-                                # Python 3.5 changes the stack position of *args. kwargs come
-                                # after *args whereas in earlier Pythons, *args is at the end
-                                # which simpilfiies things from our perspective.
-                                # Python 3.6+ replaces CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
-                                # We will just swap the order to make it look like earlier Python 3.
-                                entry = table[key.kind]
-                                kwarg_pos = entry[2][1]
-                                args_pos = kwarg_pos - 1
-                                # Put last node[args_pos] after subsequent kwargs
-                                while node[kwarg_pos] == 'kwarg' and kwarg_pos < len(node):
-                                    # swap node[args_pos] with node[kwargs_pos]
-                                    node[kwarg_pos], node[args_pos] = node[args_pos], node[kwarg_pos]
-                                    args_pos = kwarg_pos
-                                    kwarg_pos += 1
-                            self.default(node)
-                        self.n_call = n_call
-
-                    def n_function_def(node):
-                        if self.version == 3.6:
-                            code_node = node[0][0]
-                        else:
-                            code_node = node[0][1]
-
-                        is_code = hasattr(code_node, 'attr') and iscode(code_node.attr)
-                        if (is_code and
-                            (code_node.attr.co_flags & COMPILER_FLAG_BIT['COROUTINE'])):
-                            self.template_engine(('\n\n%|async def %c\n',
-                                                  -2), node)
-                        else:
-                            self.template_engine(('\n\n%|def %c\n', -2),
-                                                 node)
-                        self.prune()
-                    self.n_function_def = n_function_def
-
-                    def unmapexpr(node):
-                        last_n = node[0][-1]
-                        for n in node[0]:
-                            self.preorder(n)
-                            if n != last_n:
-                                self.f.write(', **')
-                                pass
-                            pass
-                        self.prune()
-                        pass
-                    self.n_unmapexpr = unmapexpr
 
                 pass # version >= 3.4
             pass # version >= 3.0
@@ -2211,6 +2144,15 @@ class SourceWalker(GenericASTTraversal, object):
                             entry = ('%c(*%C, %c)', 0, p2, -2)
                         elif str == '%c(%C':
                             entry = ('%c(*%C)', 0, (1, 100, ''))
+                    elif self.version == 3.4:
+                        # CALL_FUNCTION_VAR's top element of the stack contains
+                        # the variable argument list
+                        if v == 0:
+                            str = '%c(*%c)'
+                            entry = (str, 0, -2)
+                        else:
+                            str = '%c(*%c, %C)'
+                            entry = (str, 0, -2, p2)
                     else:
                         str += '*%c)'
                         entry = (str, 0, p2, -2)
