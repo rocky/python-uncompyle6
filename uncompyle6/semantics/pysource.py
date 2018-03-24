@@ -1612,7 +1612,11 @@ class SourceWalker(GenericASTTraversal, object):
                     subclass_code = mkfunc[1].attr
                 else:
                     subclass_code = mkfunc[0].attr
-                subclass_info = node[0]
+                if node == 'classdefdeco2':
+                    subclass_info = node
+                else:
+                    subclass_info = node[0]
+
         else:
             if node == 'classdefdeco2':
                 build_class = node
@@ -1683,7 +1687,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.write(')')
 
     def print_super_classes3(self, node):
-        n = len(node)-1
+        n = len(node) - 1
         if node.kind != 'expr':
             assert node[n].kind.startswith('CALL_FUNCTION')
 

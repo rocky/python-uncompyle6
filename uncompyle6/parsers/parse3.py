@@ -114,7 +114,6 @@ class Python3Parser(PythonParser):
 
         kwarg      ::= LOAD_CONST expr
         kwargs     ::= kwarg+
-        no_kwargs  ::=
 
 
         classdef ::= build_class store
@@ -983,8 +982,10 @@ class Python3Parser(PythonParser):
 
                 if args_kw == 0:
                     kwargs = 'no_kwargs'
+                    self.add_unique_rule("no_kwargs ::=", opname, token.attr, customize)
                 else:
                     kwargs = 'kwargs'
+
                 if self.version < 3.3:
                     # positional args after keyword args
                     rule = ('mkfunc ::= %s %s%s%s' %
