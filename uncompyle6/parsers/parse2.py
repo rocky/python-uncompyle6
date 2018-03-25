@@ -541,7 +541,8 @@ class Python2Parser(PythonParser):
         elif lhs in ('raise_stmt1',):
             # We will assme 'LOAD_ASSERT' will be handled by an assert grammar rule
             return (tokens[first] == 'LOAD_ASSERT' and
-                    (last >= len(tokens) or tokens[last] != 'JUMP_FORWARD'))
+                    (last >= len(tokens) or tokens[last] not in
+                     ('COME_FROM', 'JUMP_BACK','JUMP_FORWARD')))
         elif rule == ('or', ('expr', 'jmp_true', 'expr', '\\e_come_from_opt')):
             expr2 = ast[2]
             return expr2 == 'expr' and expr2[0] == 'LOAD_ASSERT'
