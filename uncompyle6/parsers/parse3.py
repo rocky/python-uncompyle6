@@ -646,6 +646,8 @@ class Python3Parser(PythonParser):
                 elif self.version >= 3.5:
                     if opname != 'BUILD_MAP_WITH_CALL':
                         if opname == 'BUILD_MAP_UNPACK':
+                            # FIXME: start here
+                            # rule = "%s ::= %s %s" % (kvlist_n, 'expr ' * (token.attr*2), opname)
                             rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
                             self.add_unique_rule(rule, opname, token.attr, customize)
                             rule = 'dict_entry ::= ' + 'expr ' * (token.attr*2)

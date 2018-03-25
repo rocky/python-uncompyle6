@@ -330,11 +330,9 @@ class Python2Parser(PythonParser):
                             'dict_comp_func', 0, customize)
 
                 else:
-                    kvlist_n = "kvlist_%s" % token.attr
-                    self.add_unique_rules([
-                        (kvlist_n + " ::=" + ' kv3' * token.attr),
-                        "dict ::= %s %s" % (opname, kvlist_n)
-                    ], customize)
+                    kvlist_n =  ' kv3' * token.attr
+                    rule = "dict ::= %s%s" % (opname, kvlist_n)
+                    self.addRule(rule, nop_func)
                 continue
             elif opname_base == 'BUILD_SLICE':
                 slice_num  = token.attr
