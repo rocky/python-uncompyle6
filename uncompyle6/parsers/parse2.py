@@ -328,11 +328,9 @@ class Python2Parser(PythonParser):
                             'dict_comp_func', 0, customize)
 
                 else:
-                    kvlist_n = "kvlist_%s" % token.attr
-                    self.add_unique_rules([
-                        (kvlist_n + " ::=" + ' kv3' * token.attr),
-                        "dict ::= %s %s" % (opname, kvlist_n)
-                    ], customize)
+                    kvlist_n =  ' kv3' * token.attr
+                    rule = "dict ::= %s%s" % (opname, kvlist_n)
+                    self.addRule(rule, nop_func)
                 continue
             elif opname_base == 'BUILD_SLICE':
                 slice_num  = token.attr
@@ -518,7 +516,7 @@ class Python2Parser(PythonParser):
             self.addRule(rule, nop_func)
             pass
 
-        self.check_reduce['aug_assign1'] = 'AST'
+        self.check_reduce['raise_stmt1'] = 'tokens'
         self.check_reduce['aug_assign2'] = 'AST'
         self.check_reduce['or'] = 'AST'
         # self.check_reduce['_stmts'] = 'AST'
@@ -538,7 +536,11 @@ class Python2Parser(PythonParser):
 
         if lhs in ('aug_assign1', 'aug_assign2') and ast[0] and ast[0][0] in ('and', 'or'):
             return True
-        if rule == ('or', ('expr', 'jmp_true', 'expr', '\\e_come_from_opt')):
+        elif lhs in ('raise_stmt1',):
+            # We will assme 'LOAD_ASSERT' will be handled by an assert grammar rule
+            return (tokens[first] == 'LOAD_ASSERT' and
+                    (last >= len(tokens) or tokens[last] != 'JUMP_FORWARD'))
+        elif rule == ('or', ('expr', 'jmp_true', 'expr', '\\e_come_from_opt')):
             expr2 = ast[2]
             return expr2 == 'expr' and expr2[0] == 'LOAD_ASSERT'
         return False

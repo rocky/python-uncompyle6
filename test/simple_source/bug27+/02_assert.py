@@ -1,5 +1,5 @@
 # From 2.7 test_argparse.py
-# Bug was turnning assert into an "or raise" statement
+# Bug was turning assert into an "or raise" statement
 def __call__(arg, dest):
     try:
         assert arg == 'spam', 'dest: %s' % dest
@@ -15,3 +15,17 @@ def refactor_doctest(clipped, new):
     if not new:
         new += u"\n"
     return
+
+# From 2.7.14 test_hashlib.py
+# The bug was turning assert into an "if"
+# statement which isn't wrong, but we got the
+# range of the if incorrect. When we have
+# better control flow analysis we can revisit.
+def test_threaded_hashing():
+    for threadnum in xrange(1):
+        result = 1
+        assert result > 0
+        result = 2
+    return result
+
+assert test_threaded_hashing() == 2

@@ -152,7 +152,7 @@ class Scanner2(Scanner):
             #   raise AssertionError
             #  and
             #   assert ...
-            # Below we use the heuristic that it is preceded by a POP_JUMP.
+            # Below we use the heuristic that an "sssert" is preceded by a POP_JUMP.
             # however we could also use followed by RAISE_VARARGS
             # or for PyPy there may be a JUMP_IF_NOT_DEBUG before.
             # FIXME: remove uses of PJIF, and PJIT

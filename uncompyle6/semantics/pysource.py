@@ -1705,10 +1705,6 @@ class SourceWalker(GenericASTTraversal, object):
                 kv_node = node[0]
                 l = list(kv_node)
                 length = len(l)
-
-                # FIXME: Parser-speed improved grammars will have BUILD_MAP
-                # at the end. So in the future when everything is
-                # complete, we can do an "assert" instead of "if".
                 if kv_node[-1].kind.startswith("BUILD_MAP"):
                     length -= 1
                 i = 0
@@ -1784,13 +1780,20 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
         else:
-            # Python 2 style kvlist
-            assert node[-1].kind.startswith('kvlist')
-            kv_node = node[-1] # goto kvlist
+            # Python 2 style kvlist. Find beginning of kvlist.
+            if node[0].kind.startswith("BUILD_MAP"):
+                if len(node) > 1 and node[1].kind in ('kvlist', 'kvlist_n'):
+                    kv_node = node[1]
+                else:
+                    kv_node = node[1:]
+            else:
+                assert node[-1].kind.startswith('kvlist')
+                kv_node = node[-1]
 
             first_time = True
             for kv in kv_node:
                 assert kv in ('kv', 'kv2', 'kv3')
+
                 # kv ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
                 # kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
                 # kv3 ::= expr expr STORE_MAP
