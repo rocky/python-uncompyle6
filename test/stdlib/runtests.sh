@@ -108,6 +108,7 @@ case $PYVERSION in
 	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
 	    [test_decorators.py]=1  # Control flow wrt "if elif"
 	    [test_pow.py]=1         # Control flow wrt "continue"
+	    [test_quopri.py]=1      # Only fails on POWER
 	)
 	;;
     *)
