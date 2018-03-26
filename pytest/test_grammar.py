@@ -31,7 +31,7 @@ def test_grammar():
         expect_lhs.add('kv3')
 
         unused_rhs = unused_rhs.union(set("""
-        except_pop_except generator_exp classdefdeco2
+        except_pop_except generator_exp
         dict
         """.split()))
         if PYTHON_VERSION >= 3.0:
@@ -39,6 +39,8 @@ def test_grammar():
             expect_lhs.add("annotate_tuple")
             unused_rhs.add("mkfunc_annotate")
             unused_rhs.add('call')
+            unused_rhs.add("dict_comp")
+            unused_rhs.add("classdefdeco1")
             if PYTHON_VERSION < 3.6:
                 # 3.6 has at least one non-custom call rule
                 # the others don't
