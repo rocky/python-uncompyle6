@@ -161,7 +161,7 @@ grammar-coverage-3.2:
 grammar-coverage-3.3:
 	-rm $(COVER_DIR)/spark-grammar-3.3.cover || true
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-3.3.cover $(PYTHON) test_pythonlib.py --bytecode-3.3
-	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-3.3.cover $(PYTHON) test_pyenvlib.py --3.3.6 --max=800
+	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-3.3.cover $(PYTHON) test_pyenvlib.py --3.3.7 --max=800
 
 #: Get grammar coverage for Python 3.4
 grammar-coverage-3.4:
