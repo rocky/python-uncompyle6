@@ -209,7 +209,6 @@ class Python35Parser(Python34Parser):
             self.add_unique_rule(rule, token.kind, uniq_param, customize)
             self.add_unique_rule('expr ::= async_call', token.kind, uniq_param, customize)
 
-        uniq_param = args_kw + args_pos
         if opname.startswith('CALL_FUNCTION_VAR'):
             # Python 3.5 changes the stack position of *args. KW args come
             # after *args.
@@ -225,7 +224,10 @@ class Python35Parser(Python34Parser):
             rule = ('call ::= expr expr ' +
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) + kw + token.kind)
-            self.add_unique_rule(rule, token.kind, uniq_param, customize)
+
+            # Note: semantic actions make use of the fact of wheter  "args_pos"
+            # zero or not in creating a template rule.
+            self.add_unique_rule(rule, token.kind, args_pos, customize)
         else:
             super(Python35Parser, self).custom_classfunc_rule(opname, token, customize,
                                                               seen_LOAD_BUILD_CLASS,

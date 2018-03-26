@@ -296,19 +296,8 @@ class Python2Parser(PythonParser):
             # The order of opname listed is roughly sorted below
             if opname_base in ('BUILD_LIST', 'BUILD_SET', 'BUILD_TUPLE'):
                 v = token.attr
-                thousands = (v//1024)
-                thirty32s = ((v//32) % 32)
-                if thirty32s > 0:
-                    rule = "expr32 ::=%s" % (' expr' * 32)
-                    self.add_unique_rule(rule, opname_base, v, customize)
-                    self.seen32 = True
-                if thousands > 0:
-                    self.add_unique_rule("expr1024 ::=%s" % (' expr32' * 32),
-                                         opname_base, v, customize)
-                    self.seen1024 = True
                 collection = opname_base[opname_base.find('_')+1:].lower()
-                rule = (('%s ::= ' % collection) + 'expr1024 '*thousands +
-                        'expr32 '*thirty32s + 'expr '*(v % 32) + opname)
+                rule = '%s ::= %s%s' % (collection, (token.attr * 'expr '), opname)
                 self.add_unique_rules([
                     "expr ::= %s" % collection,
                     rule], customize)

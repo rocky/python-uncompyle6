@@ -240,6 +240,44 @@ def customize_for_version(self, is_pypy, version):
                 'LOAD_CLASSDEREF':	( '%{pattr}', ),
                 })
 
+            if version == 3.4:
+                def n_call(node):
+                    mapping = self._get_mapping(node)
+                    key = node
+                    for i in mapping[1:]:
+                        key = key[i]
+                        pass
+                    if key.kind.startswith('CALL_FUNCTION_VAR_KW'):
+                        # We may want to fill this in...
+                        # But it is distinct from CALL_FUNCTION_VAR below
+                        pass
+                    elif key.kind.startswith('CALL_FUNCTION_VAR'):
+                        # CALL_FUNCTION_VAR's top element of the stack contains
+                        # the variable argument list, then comes
+                        # annotation args, then keyword args.
+                        # In the most least-top-most stack entry, but position 1
+                        # in node order, the positional args.
+                        argc = node[-1].attr
+                        nargs = argc & 0xFF
+                        kwargs = (argc >> 8) & 0xFF
+                        # FIXME: handle annotation args
+                        if kwargs != 0:
+                            # kwargs == 0 is handled by the table entry
+                            # Should probably handle it here though.
+                            if nargs == 0:
+                                template = ('%c(*%c, %C)',
+                                            0, -2, (1, kwargs+1, ', '))
+                            else:
+                                template = ('%c(%C, *%c, %C)',
+                                            0, -2, (1, kwargs+1, ', '),
+                                                (kwargs+1, -2, ', '))
+                            self.template_engine(template, node)
+                            self.prune()
+
+                    self.default(node)
+                self.n_call = n_call
+
+
             ########################
             # Python 3.5+ Additions
             #######################
@@ -282,11 +320,15 @@ def customize_for_version(self, is_pypy, version):
                             key = key[i]
                             pass
                         if key.kind.startswith('CALL_FUNCTION_VAR_KW'):
-                            # Python 3.5 changes the stack position of *args. kwargs come
-                            # after *args whereas in earlier Pythons, *args is at the end
-                            # which simplifies things from our perspective.
-                            # Python 3.6+ replaces CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
-                            # We will just swap the order to make it look like earlier Python 3.
+                            # Python 3.5 changes the stack position of
+                            # *args: kwargs come after *args whereas
+                            # in earlier Pythons, *args is at the end
+                            # which simplifies things from our
+                            # perspective.  Python 3.6+ replaces
+                            # CALL_FUNCTION_VAR_KW with
+                            # CALL_FUNCTION_EX We will just swap the
+                            # order to make it look like earlier
+                            # Python 3.
                             entry = table[key.kind]
                             kwarg_pos = entry[2][1]
                             args_pos = kwarg_pos - 1
@@ -297,7 +339,15 @@ def customize_for_version(self, is_pypy, version):
                                 args_pos = kwarg_pos
                                 kwarg_pos += 1
                         elif key.kind.startswith('CALL_FUNCTION_VAR'):
-                            nargs = node[-1].attr & 0xFF
+                            # CALL_FUNCTION_VAR's top element of the stack contains
+                            # the variable argument list, then comes
+                            # annotation args, then keyword args.
+                            # In the most least-top-most stack entry, but position 1
+                            # in node order, the positional args.
+                            argc = node[-1].attr
+                            nargs = argc & 0xFF
+                            kwargs = (argc >> 8) & 0xFF
+                            # FIXME: handle annotation args
                             if nargs > 0:
                                 template = ('%c(%C, ', 0, (1, nargs+1, ', '))
                             else:
@@ -305,15 +355,16 @@ def customize_for_version(self, is_pypy, version):
                             self.template_engine(template, node)
 
                             args_node =  node[-2]
-                            if args_node == 'pos_arg':
-                                args_node = args_node[0]
-                            if args_node == 'expr':
+                            if args_node in ('pos_arg', 'expr'):
                                 args_node = args_node[0]
                             if args_node == 'build_list_unpack':
                                 template = ('*%P)', (0, len(args_node)-1, ', *', 100))
                                 self.template_engine(template, args_node)
                             else:
-                                template = ('*%c, %C)', 1, (2, -1, ', '))
+                                if len(node) - nargs > 3:
+                                    template = ('*%c, %C)', 1, (nargs+kwargs+1, -1, ', '))
+                                else:
+                                    template = ('*%c)', 1)
                                 self.template_engine(template, node)
                             self.prune()
 

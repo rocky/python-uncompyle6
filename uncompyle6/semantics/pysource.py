@@ -2133,6 +2133,10 @@ class SourceWalker(GenericASTTraversal, object):
                 TABLE_R[k] = ('%c(%P)', 0, (1, -1, ', ', 100))
             elif op in ('CALL_FUNCTION_VAR',
                         'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
+
+                # FIXME: handle everything in customize.
+                # Right now, some of this is here, and some in that.
+
                 if v == 0:
                     str = '%c(%C' # '%C' is a dummy here ...
                     p2 = (0, 0, None) # .. because of the None in this
@@ -2154,8 +2158,8 @@ class SourceWalker(GenericASTTraversal, object):
                             str = '%c(*%c)'
                             entry = (str, 0, -2)
                         else:
-                            str = '%c(*%c, %C)'
-                            entry = (str, 0, -2, p2)
+                            str = '%c(%C, *%c)'
+                            entry = (str, 0, p2, -2)
                     else:
                         str += '*%c)'
                         entry = (str, 0, p2, -2)

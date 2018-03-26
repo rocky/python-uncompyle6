@@ -1,6 +1,8 @@
 # From sql/schema.py and 3.5 _strptime.py
 # Note that kwargs comes before "positional" args
 
+# RUNNABLE!
+
 def tometadata(self, metadata, schema, Table, args, name=None):
     table = Table(
         name, metadata, schema=schema,
@@ -21,3 +23,22 @@ def Time2Internaldate(date_time):
     return datetime(*date_time[:6], tzinfo=timezone(delta))
 
 assert Time2Internaldate(time.localtime())
+
+# From 3.5.5 tkinter/dialog.py
+def test_varargs0_ext():
+    try:
+        {}.__contains__(*())
+    except TypeError:
+        pass
+
+test_varargs0_ext()
+
+# From 3.4.6 tkinter/dialog.py
+# Bug is in position of *cnf.
+
+def __init__(self, cnf={}):
+    self.num = self.tk.call(
+        'tk_dialog', self._w,
+        cnf['title'], cnf['text'],
+        cnf['bitmap'], cnf['default'],
+        *cnf['strings'])

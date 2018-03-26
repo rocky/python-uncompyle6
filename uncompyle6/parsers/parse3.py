@@ -84,8 +84,6 @@ class Python3Parser(PythonParser):
         stmt ::= dict_comp_func
         dict_comp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
                            comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
-        dict_comp      ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
-                           GET_ITER CALL_FUNCTION_1
 
         comp_iter     ::= comp_if
         comp_iter     ::= comp_if_not
@@ -125,8 +123,6 @@ class Python3Parser(PythonParser):
 
         stmt ::= classdefdeco
         classdefdeco ::= classdefdeco1 store
-        classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
-        classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
 
         assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
 
@@ -719,6 +715,16 @@ class Python3Parser(PythonParser):
                                        'CALL_FUNCTION_VAR',
                                        'CALL_FUNCTION_VAR_KW'))
                   or opname.startswith('CALL_FUNCTION_KW')):
+
+                if opname == 'CALL_FUNCTION' and token.attr == 1:
+                    rule = """
+                     dict_comp    ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
+                                      GET_ITER CALL_FUNCTION_1
+                    classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
+                    classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
+                    """
+                    self.addRule(rule, nop_func)
+
                 self.custom_classfunc_rule(opname, token, customize,
                                            seen_LOAD_BUILD_CLASS,
                                            seen_GET_AWAITABLE_YIELD_FROM, tokens[i+1])
@@ -885,9 +891,11 @@ class Python3Parser(PythonParser):
                             % ('expr ' * args_pos, kwargs_str, opname))
 
                 self.add_unique_rule(rule, opname, token.attr, customize)
-                rule = ('mkfunc ::= %sload_closure load_genexpr %s'
-                        % ('pos_arg ' * args_pos, opname))
-                self.add_unique_rule(rule, opname, token.attr, customize)
+
+                if args_kw == 0:
+                    rule = ('mkfunc ::= %sload_closure load_genexpr %s'
+                                % ('pos_arg ' * args_pos, opname))
+                    self.add_unique_rule(rule, opname, token.attr, customize)
 
                 if self.version < 3.4:
                     rule = ('mkfunc ::= %sload_closure LOAD_CONST %s'

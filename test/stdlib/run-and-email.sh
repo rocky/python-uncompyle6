@@ -2,7 +2,7 @@
 USER=${USER:-rocky}
 EMAIL=${EMAIL:-rb@dustyfeet.com}
 SUBJECT_PREFIX="stdlib unit testing for"
-for VERSION in 2.7.14 2.6.9 3.6.4 ; do
+for VERSION in 3.4.8 3.5.5 3.6.4 ; do
     typeset -i rc=0
     LOGFILE=/tmp/runtests-$VERSION-$$.log
     if ! pyenv local $VERSION ; then
