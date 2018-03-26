@@ -269,8 +269,8 @@ def customize_for_version(self, is_pypy, version):
                                             0, -2, (1, kwargs+1, ', '))
                             else:
                                 template = ('%c(%C, *%c, %C)',
-                                            0, -2, (1, kwargs+1, ', '),
-                                                (kwargs+1, -2, ', '))
+                                            0, (1, nargs+1, ', '),
+                                            -2, (-2-kwargs, -2, ', '))
                             self.template_engine(template, node)
                             self.prune()
 
