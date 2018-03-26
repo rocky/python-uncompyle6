@@ -21,3 +21,10 @@ def Time2Internaldate(date_time):
     return datetime(*date_time[:6], tzinfo=timezone(delta))
 
 assert Time2Internaldate(time.localtime())
+
+# From 3.5.5 tkinter/dialog.py
+def test_varargs0_ext(self):
+    try:
+        {}.__contains__(*())
+    except TypeError:
+        pass

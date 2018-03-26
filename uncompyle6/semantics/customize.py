@@ -313,7 +313,10 @@ def customize_for_version(self, is_pypy, version):
                                 template = ('*%P)', (0, len(args_node)-1, ', *', 100))
                                 self.template_engine(template, args_node)
                             else:
-                                template = ('*%c, %C)', 1, (2, -1, ', '))
+                                if len(node) > 3:
+                                    template = ('*%c, %C)', 1, (2, -1, ', '))
+                                else:
+                                    template = ('*%c)', 1)
                                 self.template_engine(template, node)
                             self.prune()
 
