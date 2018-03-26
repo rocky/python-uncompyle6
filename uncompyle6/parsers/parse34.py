@@ -31,6 +31,9 @@ class Python34Parser(Python33Parser):
         expr ::= LOAD_ASSERT
 
 
+        # passtmt is needed for semantic actions to add "pass"
+        suite_stmts_opt ::= pass
+
         # Seems to be needed starting 3.4.4 or so
         while1stmt    ::= SETUP_LOOP l_stmts
                           COME_FROM JUMP_BACK POP_BLOCK COME_FROM_LOOP
