@@ -42,3 +42,8 @@ def __init__(self, cnf={}):
         cnf['title'], cnf['text'],
         cnf['bitmap'], cnf['default'],
         *cnf['strings'])
+
+# From python 3.4.8 multiprocessing/context.py
+def Value(self, fn, typecode_or_type, *args, lock=True):
+    return fn(typecode_or_type, *args, lock=lock,
+              ctx=self.get_context())
