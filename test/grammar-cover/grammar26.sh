@@ -6,7 +6,7 @@ workdir=$(dirname $me)
 cd $workdir
 workdir=$(pwd)
 tmpdir=$workdir/../../tmp/grammar-cover
-[[ -d  $tmpdir ]] || mkdir $tmpdir
+[[ -d  $tmpdir ]] || mkdir -p $tmpdir
 cd $workdir/../..
 source ./admin-tools/setup-master.sh
 GRAMMAR_TXT=$tmpdir/grammar-${VERS}.txt
