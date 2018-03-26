@@ -118,13 +118,13 @@ check-bytecode-2.5:
 grammar-coverage-2.4:
 	-rm $(COVER_DIR)/spark-grammar-24.cover
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-24.cover $(PYTHON) test_pythonlib.py --bytecode-2.4
-	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-24.cover $(PYTHON) test_pyenvlib.py --2.4.6
+	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-24.cover $(PYTHON) test_pyenvlib.py --2.4.6 --max= 800
 
 #: Get grammar coverage for Python 2.5
 grammar-coverage-2.5:
 	-rm $(COVER_DIR)/spark-grammar-25.cover
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-25.cover $(PYTHON) test_pythonlib.py --bytecode-2.5
-	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-25.cover $(PYTHON) test_pyenvlib.py --2.5.6
+	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-25.cover $(PYTHON) test_pyenvlib.py --2.5.6 --max=800
 
 #: Get grammar coverage for Python 2.6
 grammar-coverage-2.6:
