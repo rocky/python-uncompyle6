@@ -13,8 +13,8 @@ GRAMMAR_TXT=$tmpdir/grammar-${VERS}.txt
 pyenv local 2.4.6
 cd ./test
 if [[ -r $GRAMMAR_TXT ]]; then
-    GRAMMAR_SAVE_TXT=${workdir}/grammar-${VERS}-save.txt
+    GRAMMAR_SAVE_TXT=${tmpdir}/grammar-${VERS}-save.txt
     cp $GRAMMAR_TXT $GRAMMAR_SAVE_TXT
 fi
 make grammar-coverage-2.4 && \
-    spark-parser-coverage --path ${workdir}/spark-grammar-${VERS}.cover > $GRAMMAR_TXT
+    spark-parser-coverage --path ${tmpdir}/spark-grammar-${VERS}.cover > $GRAMMAR_TXT
