@@ -761,15 +761,17 @@ class Scanner3(Scanner):
                 if self.get_target(jump_back) >= next_line_byte:
                     jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE, start, False)
 
-                # This is wrong for 3.6+
-                if end > jump_back+4 and self.is_jump_forward(end):
-                    if self.is_jump_forward(jump_back+4):
-                        if self.get_target(jump_back+4) == self.get_target(end):
-                            self.fixed_jumps[offset] = jump_back+4
-                            end = jump_back+4
+                jb_inst = self.get_inst(jump_back)
+
+                jb_next_offset = self.next_offset(jb_inst.opcode, jump_back)
+                if end > jb_next_offset and self.is_jump_forward(end):
+                    if self.is_jump_forward(jb_next_offset):
+                        if self.get_target(jb_next_offset) == self.get_target(end):
+                            self.fixed_jumps[offset] = jb_next_offset
+                            end = jb_next_offset
                 elif target < offset:
-                    self.fixed_jumps[offset] = jump_back+4
-                    end = jump_back+4
+                    self.fixed_jumps[offset] = jb_next_offset
+                    end = jb_next_offset
 
                 target = self.get_target(jump_back)
 
