@@ -35,6 +35,6 @@ while [[ -n $1 ]]  ; do
         GRAMMAR_SAVE_TXT=${tmpdir}/grammar-${SHORT_VERSION}-save.txt
         cp $GRAMMAR_TXT $GRAMMAR_SAVE_TXT
     fi
-    make grammar-coverage-${SHORT_VERSION} && \
-       spark-parser-coverage --path ${tmpdir}/spark-grammar-${SHORT_VERSION}.cover > $GRAMMAR_TXT
+    make grammar-coverage-${SHORT_VERSION};
+    spark-parser-coverage --path ${tmpdir}/spark-grammar-${SHORT_VERSION}.cover > $GRAMMAR_TXT
 done
