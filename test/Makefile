@@ -114,11 +114,17 @@ check-bytecode-2.4:
 check-bytecode-2.5:
 	$(PYTHON) test_pythonlib.py --bytecode-2.5
 
+#: Get grammar coverage for Python 2.4
+grammar-coverage-2.4:
+	-rm $(COVER_DIR)/spark-grammar-24.cover
+	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-24.cover $(PYTHON) test_pythonlib.py --bytecode-2.4
+	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-24.cover $(PYTHON) test_pyenvlib.py --2.4.6 --max= 800
+
 #: Get grammar coverage for Python 2.5
 grammar-coverage-2.5:
 	-rm $(COVER_DIR)/spark-grammar-25.cover
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-25.cover $(PYTHON) test_pythonlib.py --bytecode-2.5
-	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-25.cover $(PYTHON) test_pyenvlib.py --2.5.6
+	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-25.cover $(PYTHON) test_pyenvlib.py --2.5.6 --max=800
 
 #: Get grammar coverage for Python 2.6
 grammar-coverage-2.6:
@@ -130,7 +136,7 @@ grammar-coverage-2.6:
 grammar-coverage-2.7:
 	-rm $(COVER_DIR)/spark-grammar-27.cover
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-27.cover $(PYTHON) test_pythonlib.py --bytecode-2.7
-	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-27.cover $(PYTHON) test_pyenvlib.py --2.7.13
+	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-27.cover $(PYTHON) test_pyenvlib.py --2.7.14 --max=800
 
 #: Get grammar coverage for Python 3.0
 grammar-coverage-3.0:
@@ -155,19 +161,19 @@ grammar-coverage-3.2:
 grammar-coverage-3.3:
 	-rm $(COVER_DIR)/spark-grammar-33.cover
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-33.cover $(PYTHON) test_pythonlib.py --bytecode-3.3
-	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-33.cover $(PYTHON) test_pyenvlib.py --3.3.6
+	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-33.cover $(PYTHON) test_pyenvlib.py --3.3.6 --max=800
 
 #: Get grammar coverage for Python 3.4
 grammar-coverage-3.4:
 	-rm $(COVER_DIR)/spark-grammar-34.cover
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-34.cover $(PYTHON) test_pythonlib.py --bytecode-3.4
-	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-34.cover $(PYTHON) test_pyenvlib.py --3.4.2
+	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-34.cover $(PYTHON) test_pyenvlib.py --3.4.8 --max=800
 
 #: Get grammar coverage for Python 3.5
 grammar-coverage-3.5:
 	rm $(COVER_DIR)/spark-grammar-35.cover || /bin/true
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-35.cover $(PYTHON) test_pythonlib.py --bytecode-3.5
-	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-35.cover $(PYTHON) test_pyenvlib.py --3.5.3
+	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-35.cover $(PYTHON) test_pyenvlib.py --3.5.5 --max=800
 
 #: Check deparsing Python 2.6
 check-bytecode-2.6:
