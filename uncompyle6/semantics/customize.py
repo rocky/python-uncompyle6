@@ -240,6 +240,44 @@ def customize_for_version(self, is_pypy, version):
                 'LOAD_CLASSDEREF':	( '%{pattr}', ),
                 })
 
+            if version == 3.4:
+                def n_call(node):
+                    mapping = self._get_mapping(node)
+                    key = node
+                    for i in mapping[1:]:
+                        key = key[i]
+                        pass
+                    if key.kind.startswith('CALL_FUNCTION_VAR_KW'):
+                        # We may want to fill this in...
+                        # But it is distinct from CALL_FUNCTION_VAR below
+                        pass
+                    elif key.kind.startswith('CALL_FUNCTION_VAR'):
+                        # CALL_FUNCTION_VAR's top element of the stack contains
+                        # the variable argument list, then comes
+                        # annotation args, then keyword args,
+                        # and finally on the most bottom (but position 1
+                        # in node order, the positional args.
+                        argc = node[-1].attr
+                        nargs = argc & 0xFF
+                        kwargs = (argc >> 8) & 0xFF
+                        # FIXME: handle annotation args
+                        if kwargs != 0:
+                            # kwargs == 0 is handled by the table entry
+                            # Should probably handle it here though.
+                            if nargs == 0:
+                                template = ('%c(*%c, %C)',
+                                            0, -2, (1, kwargs+1, ', '))
+                            else:
+                                template = ('%c(%C, *%c, %C)',
+                                            0, -2, (1, kwargs+1, ', '),
+                                                (kwargs+1, -2, ', '))
+                            self.template_engine(template, node)
+                            self.prune()
+
+                    self.default(node)
+                self.n_call = n_call
+
+
             ########################
             # Python 3.5+ Additions
             #######################

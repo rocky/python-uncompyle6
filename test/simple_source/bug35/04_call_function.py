@@ -28,3 +28,13 @@ def test_varargs0_ext(self):
         {}.__contains__(*())
     except TypeError:
         pass
+
+# From 3.4.6 tkinter/dialog.py
+# Bug is in position of *cnf.
+
+def __init__(self, master=None, cnf={}):
+    self.num = self.tk.call(
+        'tk_dialog', self._w,
+        cnf['title'], cnf['text'],
+        cnf['bitmap'], cnf['default'],
+        *cnf['strings'])
