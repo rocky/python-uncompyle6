@@ -540,7 +540,7 @@ def customize_for_version(self, is_pypy, version):
                 self.n_call_ex_kw3 = call_ex_kw3
 
                 def call_ex_kw4(node):
-                    """Handle CALL_FUNCTION_EX {1 or 2}  (have KW) but without
+                    """Handle CALL_FUNCTION_EX {1 or 2} but without
                     BUILD_{MAP,TUPLE}_UNPACK_WITH_CALL"""
                     self.preorder(node[0])
                     self.write('(')
@@ -561,7 +561,8 @@ def customize_for_version(self, is_pypy, version):
                         kwargs = kwargs[0]
                     call_function_ex = node[-1]
                     assert call_function_ex == 'CALL_FUNCTION_EX_KW'
-                    if call_function_ex.attr & 1 and not isinstance(kwargs, Token):
+                    if (call_function_ex.attr & 1 and
+                        (not isinstance(kwargs, Token) and kwargs != 'attribute')):
                         self.call36_dict(kwargs)
                     else:
                         self.write('**')
@@ -664,7 +665,7 @@ def customize_for_version(self, is_pypy, version):
                                 pass
                             pass
                     else:
-                        assert False, "Don't known to to untangle dictionary"
+                        assert False, "Don't know how to untangle dictionary"
 
                     self.prec = p
                     self.indent_less(INDENT_PER_LEVEL)
