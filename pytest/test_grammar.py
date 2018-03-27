@@ -18,21 +18,20 @@ def test_grammar():
      right_recursive, dup_rhs) = p.check_sets()
 
     # We have custom rules that create the below
-    expect_lhs = set(['expr1024', 'pos_arg', 'get_iter', 'attribute'])
+    expect_lhs = set(['pos_arg', 'get_iter', 'attribute'])
 
-    unused_rhs = set(['list', 'mkfunc',
+    unused_rhs = set(['list', 'mkfunc', 'dict',
                       'mklambda',
                       'unpack',])
     expect_right_recursive = set([('designList',
                                    ('store', 'DUP_TOP', 'designList'))])
+    expect_lhs.add('kvlist')
+    expect_lhs.add('kv3')
     if PYTHON3:
         expect_lhs.add('load_genexpr')
-        expect_lhs.add('kvlist')
-        expect_lhs.add('kv3')
 
         unused_rhs = unused_rhs.union(set("""
         except_pop_except generator_exp
-        dict
         """.split()))
         if PYTHON_VERSION >= 3.0:
             expect_lhs.add("annotate_arg")
