@@ -408,6 +408,7 @@ def customize_for_version(self, is_pypy, version):
                 # Value 100 is important; it is exactly
                 # module/function precidence.
                 PRECEDENCE['call_kw'] = 100
+                PRECEDENCE['call_ex'] = 100
 
                 TABLE_DIRECT.update({
                     'tryfinally36':  ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
@@ -421,11 +422,11 @@ def customize_for_version(self, is_pypy, version):
                     'try_except36':   ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
                     'unpack_list':    ( '*%c', (0, 'list') ),
                     'call_ex' : (
-                        '%c(%c)',
-                        (0, 'expr'), 1),
+                        '%c(%p)',
+                        (0, 'expr'), (1, 100)),
                     'call_ex_kw' : (
-                        '%c(%c)',
-                        (0, 'expr'), 2),
+                        '%c(%p)',
+                        (0, 'expr'), (2, 100)),
 
                 })
 
@@ -533,14 +534,17 @@ def customize_for_version(self, is_pypy, version):
                     kwargs = node[2]
                     if kwargs == 'expr':
                         kwargs = kwargs[0]
-                    self.write('**')
-                    self.preorder(kwargs)
+                    if kwargs == 'dict':
+                        self.call36_dict(kwargs)
+                    else:
+                        self.write('**')
+                        self.preorder(kwargs)
                     self.write(')')
                     self.prune()
                 self.n_call_ex_kw3 = call_ex_kw3
 
                 def call_ex_kw4(node):
-                    """Handle CALL_FUNCTION_EX {1 or 2}  (have KW) but without
+                    """Handle CALL_FUNCTION_EX {1 or 2} but without
                     BUILD_{MAP,TUPLE}_UNPACK_WITH_CALL"""
                     self.preorder(node[0])
                     self.write('(')
@@ -561,7 +565,9 @@ def customize_for_version(self, is_pypy, version):
                         kwargs = kwargs[0]
                     call_function_ex = node[-1]
                     assert call_function_ex == 'CALL_FUNCTION_EX_KW'
-                    if call_function_ex.attr & 1 and not isinstance(kwargs, Token):
+                    # FIXME: decide if the below test be on kwargs == 'dict'
+                    if (call_function_ex.attr & 1 and
+                        (not isinstance(kwargs, Token) and kwargs != 'attribute')):
                         self.call36_dict(kwargs)
                     else:
                         self.write('**')
@@ -664,7 +670,7 @@ def customize_for_version(self, is_pypy, version):
                                 pass
                             pass
                     else:
-                        assert False, "Don't known to to untangle dictionary"
+                        assert False, "Don't know how to untangle dictionary"
 
                     self.prec = p
                     self.indent_less(INDENT_PER_LEVEL)
@@ -766,9 +772,18 @@ def customize_for_version(self, is_pypy, version):
                     if pos_args == 'expr':
                         pos_args = pos_args[0]
                     if pos_args == 'tuple':
+                        build_tuple = pos_args[0]
+                        if build_tuple.kind.startswith('BUILD_TUPLE'):
+                            tuple_len = 0
+                        else:
+                            tuple_len = len(node) - 1
                         star_start = 1
                         template = '%C', (0, -1, ', ')
                         self.template_engine(template, pos_args)
+                        if tuple_len == 0:
+                            self.write("*()")
+                            # That's it
+                            self.prune()
                         self.write(', ')
                     else:
                         star_start = 0
@@ -776,6 +791,7 @@ def customize_for_version(self, is_pypy, version):
                         template = ( '*%C', (star_start, -1, ', *') )
                     else:
                         template = ( '*%c', (star_start, 'expr') )
+
                     self.template_engine(template, node)
                     self.prune()
 
