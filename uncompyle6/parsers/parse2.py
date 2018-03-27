@@ -109,10 +109,7 @@ class Python2Parser(PythonParser):
         _mklambda ::= load_closure mklambda
         kwarg     ::= LOAD_CONST expr
 
-        kvlist ::= kvlist kv3
         kv3 ::= expr expr STORE_MAP
-
-        dict ::= BUILD_MAP kvlist
 
         classdef ::= buildclass store
 

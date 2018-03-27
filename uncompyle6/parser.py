@@ -567,9 +567,6 @@ class PythonParser(GenericASTBuilder):
 
         # Positional arguments in make_function
         pos_arg ::= expr
-
-        expr32 ::= expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr expr
-        expr1024 ::= expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32 expr32
         '''
 
     def p_store(self, args):

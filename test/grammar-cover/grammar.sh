@@ -21,6 +21,7 @@ while [[ -n $1 ]]  ; do
     fi
 
     tmpdir=$workdir/../../tmp/grammar-cover
+    COVER_FILE=${tmpdir}/spark-grammar-${SHORT_VERSION}.cover
     [[ -d  $tmpdir ]] || mkdir $tmpdir
     cd $workdir/../..
     if [[ $SHORT_VERSION > 2.5 ]] ; then
@@ -31,10 +32,13 @@ while [[ -n $1 ]]  ; do
     GRAMMAR_TXT=$tmpdir/grammar-${SHORT_VERSION}.txt
     pyenv local ${LONG_VERSION}
     cd ./test
+    if [[ -r $COVER_FILE ]]; then
+	rm $COVER_FILE
+    fi
     if [[ -r $GRAMMAR_TXT ]]; then
         GRAMMAR_SAVE_TXT=${tmpdir}/grammar-${SHORT_VERSION}-save.txt
         cp $GRAMMAR_TXT $GRAMMAR_SAVE_TXT
     fi
     make grammar-coverage-${SHORT_VERSION};
-    spark-parser-coverage --path ${tmpdir}/spark-grammar-${SHORT_VERSION}.cover > $GRAMMAR_TXT
+    spark-parser-coverage --max-count=3000 --path $COVER_FILE > $GRAMMAR_TXT
 done

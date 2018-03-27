@@ -261,6 +261,9 @@ class Python26Parser(Python2Parser):
 
     def p_misc26(self, args):
         """
+        dict ::= BUILD_MAP kvlist
+        kvlist ::= kvlist kv3
+
         conditional  ::= expr jmp_false expr jf_cf_pop expr come_from_opt
         and          ::= expr JUMP_IF_FALSE POP_TOP expr JUMP_IF_FALSE POP_TOP
 
