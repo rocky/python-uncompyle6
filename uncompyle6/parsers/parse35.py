@@ -102,7 +102,14 @@ class Python35Parser(Python34Parser):
 
         return_if_stmt ::= ret_expr RETURN_END_IF POP_BLOCK
 
+        jb_else     ::= JUMP_BACK ELSE
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
+        ifelsestmtl ::= testexpr c_stmts_opt jb_else else_suitel
+
+        # 3.5 Has jump optimization which can route the end of an
+        # "if/then" back to to a loop just before an else.
+        jump_absolute_else ::= jb_else
+        jump_absolute_else ::= CONTINUE ELSE
 
         # ifstmt ::= testexpr c_stmts_opt
 

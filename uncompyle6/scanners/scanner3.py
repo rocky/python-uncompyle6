@@ -910,7 +910,8 @@ class Scanner3(Scanner):
             if offset in self.ignore_if:
                 return
 
-            if (code[pre_rtarget] == self.opc.JUMP_ABSOLUTE and
+            rtarget_is_ja = code[pre_rtarget] == self.opc.JUMP_ABSOLUTE
+            if ( rtarget_is_ja and
                 pre_rtarget in self.stmts and
                 pre_rtarget != offset and
                 prev_op[pre_rtarget] != offset and
@@ -930,10 +931,13 @@ class Scanner3(Scanner):
             # or a conditional assignment like:
             #   x = 1 if x else 2
             #
+            # For 3.5, in addition the JUMP_FORWARD above we could have
+            # JUMP_BACK or CONTINUE
+            #
             # There are other contexts we may need to consider
             # like whether the target is "END_FINALLY"
             # or if the condition jump is to a forward location
-            if self.is_jump_forward(pre_rtarget):
+            if self.is_jump_forward(pre_rtarget) or (rtarget_is_ja and self.version >= 3.5):
                 if_end = self.get_target(pre_rtarget)
 
                 # If the jump target is back, we are looping
