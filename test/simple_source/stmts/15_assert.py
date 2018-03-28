@@ -1,7 +1,5 @@
 # RUNNABLE!
 
-# But if it miscompiles one of the tests may loop forever
-
 # Tests:
 #   2.7:
 #   assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
@@ -35,11 +33,3 @@ def getpreferredencoding(do_setlocale=True):
     assert not do_setlocale
 
 getpreferredencoding(False)
-
-# From python 3.3 idlelib/PyParse.py
-def _study1(i):
-    while i:
-        assert i
-        continue
-
-_study1(False)
