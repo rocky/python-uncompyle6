@@ -111,6 +111,12 @@ class Python35Parser(Python34Parser):
         jump_absolute_else ::= jb_else
         jump_absolute_else ::= CONTINUE ELSE
 
+        # Our hacky "ELSE" determination doesn't do a good job and really
+        # determine the start of an "else". It could also be the end of an
+        # "if-then" which ends in a "continue". Perhaps with real control-flow
+        # analysis we'll sort this out. Or call "ELSE" something more appropriate.
+        _ifstmts_jump ::= c_stmts_opt ELSE
+
         # ifstmt ::= testexpr c_stmts_opt
 
         iflaststmt ::= testexpr c_stmts_opt JUMP_FORWARD
