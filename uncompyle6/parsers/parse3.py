@@ -620,9 +620,7 @@ class Python3Parser(PythonParser):
                 self.addRule(rule, nop_func)
             elif opname.startswith('BUILD_LIST_UNPACK'):
                 v = token.attr
-                rule = ('build_list_unpack ::= ' + 'expr1024 ' * int(v//1024) +
-                        'expr32 ' * int((v//32) % 32) +
-                        'expr ' * (v % 32) + opname)
+                rule = 'build_list_unpack ::= %s%s' % ('expr ' * v, opname)
                 self.addRule(rule, nop_func)
                 rule = 'expr ::= build_list_unpack'
                 self.addRule(rule, nop_func)
@@ -665,9 +663,7 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname.startswith('BUILD_MAP_UNPACK_WITH_CALL'):
                 v = token.attr
-                rule = ('build_map_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
-                        'expr32 ' * int((v//32) % 32) +
-                        'expr ' * (v % 32) + opname)
+                rule = 'build_map_unpack_with_call ::= %s%s' % ('expr ' * v, opname)
                 self.addRule(rule, nop_func)
             elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
                 v = token.attr
@@ -690,9 +686,7 @@ class Python3Parser(PythonParser):
                         self.add_unique_rule(rule, opname, token.attr, customize)
                 if not is_LOAD_CLOSURE or v == 0:
                     collection = opname_base[opname_base.find('_')+1:].lower()
-                    rule = (('%s ::= ' % collection) + 'expr1024 ' * int(v//1024) +
-                            'expr32 ' * int((v//32) % 32) +
-                            'expr ' * (v % 32) + opname)
+                    rule = '%s ::= %s%s' % (collection, 'expr ' * v, opname)
                     self.add_unique_rules([
                         'expr ::= %s' % collection,
                         rule], customize)
