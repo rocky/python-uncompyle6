@@ -504,7 +504,8 @@ class Python3Parser(PythonParser):
         self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
         if possible_class_decorator:
-            if next_token == 'CALL_FUNCTION' and next_token.attr == 1:
+            if (next_token == 'CALL_FUNCTION' and next_token.attr == 1
+                and args_pos > 1):
                 rule = ('classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d'
                         %  (('expr ' * (args_pos-1)), opname, args_pos))
                 self.add_unique_rule(rule, token.kind, uniq_param, customize)
@@ -714,9 +715,12 @@ class Python3Parser(PythonParser):
                     rule = """
                      dict_comp    ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
                                       GET_ITER CALL_FUNCTION_1
-                    classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
                     classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
                     """
+                    if self.version < 3.5:
+                        rule += """
+                        classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
+                        """
                     self.addRule(rule, nop_func)
 
                 self.custom_classfunc_rule(opname, token, customize,
@@ -1019,6 +1023,7 @@ class Python3Parser(PythonParser):
                     rule = ('mkfunc ::= %s%sexpr %s' %
                             (kwargs, 'pos_arg ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
+
                 if opname.startswith('MAKE_FUNCTION_A'):
                     if self.version >= 3.6:
                         rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s' %
