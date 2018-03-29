@@ -592,7 +592,10 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
         params.reverse() # back to correct order
 
     if code_has_star_arg(code):
-        if self.version > 3.0:
+        if self.version >= 3.6:
+            j = -2 if code_has_star_star_arg(code) else -1
+            params.append('*%s' % code.co_varnames[j])
+        elif self.version > 3.0:
             params.append('*%s' % code.co_varnames[argc + kw_pairs])
         else:
             params.append('*%s' % code.co_varnames[argc])

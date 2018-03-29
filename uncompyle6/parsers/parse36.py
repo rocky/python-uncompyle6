@@ -49,8 +49,9 @@ class Python36Parser(Python35Parser):
         whilestmt       ::= SETUP_LOOP testexpr l_stmts_opt
                             JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
 
-        # This might be valid in < 3.6
+        # A COME_FROM is dropped off because of JUMP-to-JUMP optimization
         and  ::= expr jmp_false expr
+        and  ::= expr jmp_false expr jmp_false
 
         jf_cf       ::= JUMP_FORWARD COME_FROM
         conditional ::= expr jmp_false expr jf_cf expr COME_FROM

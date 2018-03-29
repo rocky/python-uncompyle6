@@ -33,7 +33,7 @@ class Python35Parser(Python34Parser):
         #     ...
         # the end of the if will jump back to the loop and there will be a COME_FROM
         # after the jump
-        l_stmts ::= lastl_stmt COME_FROM l_stmts
+        l_stmts ::= lastl_stmt come_froms l_stmts
 
         # Python 3.5+ Await statement
         expr       ::= await_expr
