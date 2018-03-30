@@ -51,3 +51,6 @@ def Value(self, fn, typecode_or_type, *args, lock=True):
 # From 3.6.4 heapq.py
 def merge(*iterables, key=None, reverse=False):
     return
+
+def __call__(self, *args, **kwds):
+    pass

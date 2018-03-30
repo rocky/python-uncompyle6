@@ -545,7 +545,21 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
                     defparams =  [self.traverse(n, indent='') for n in expr_node[0][:-1]]
             else:
                 defparams = []
-            # FIXME: handle kw, annotate and closure
+
+            i = -4
+            kw_pairs = 0
+            if closure:
+                # FIXME: fill in
+                i -= 1
+            if annotate:
+                # FIXME: fill in
+                i -= 1
+            if kw_args:
+                kw_node = node[i]
+                if kw_node == 'expr':
+                    kw_node = kw_node[0]
+                if kw_node == 'dict':
+                    kw_pairs = kw_node[-1].attr
         pass
 
     if lambda_index and is_lambda and iscode(node[lambda_index].attr):
@@ -576,7 +590,11 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
             self.ERROR = p
         return
 
-    kw_pairs = args_node.attr[1] if self.version >= 3.0 else 0
+    if self.version >= 3.0:
+        if self.version < 3.6:
+            kw_pairs = args_node.attr[1]
+    else:
+        kw_pairs = 0
 
     # build parameters
     params = []
@@ -592,10 +610,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
         params.reverse() # back to correct order
 
     if code_has_star_arg(code):
-        if self.version >= 3.6:
-            j = -2 if code_has_star_star_arg(code) else -1
-            params.append('*%s' % code.co_varnames[j])
-        elif self.version > 3.0:
+        if self.version > 3.0:
             params.append('*%s' % code.co_varnames[argc + kw_pairs])
         else:
             params.append('*%s' % code.co_varnames[argc])
