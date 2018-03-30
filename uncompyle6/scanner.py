@@ -244,17 +244,57 @@ class Scanner(object):
             pass
         return result_offset
 
-    def all_instr(self, start, end, instr, target=None, include_beyond_target=False):
+    def inst_matches(self, start, end, instr, target=None, include_beyond_target=False):
         """
-        Find all <instr> in the block from start to end.
-        <instr> is any python bytecode instruction or a list of opcodes
-        If <instr> is an opcode with a target (like a jump), a target
+        Find all `instr` in the block from start to end.
+        `instr` is a Python opcode or a list of opcodes
+        If `instr` is an opcode with a target (like a jump), a target
         destination can be specified which must match precisely.
 
         Return a list with indexes to them or [] if none found.
         """
+        try:
+            None in instr
+        except:
+            instr = [instr]
 
-        # FIXME: this is broken on 3.6+. Revise to use instructions self.insts
+        first = self.offset2inst_index[start]
+        result = []
+        for inst in self.insts[first:]:
+            if inst.opcode in instr:
+                if target is None:
+                    result.append(inst.offset)
+                else:
+                    t = self.get_target(inst.offset)
+                    if include_beyond_target and t >= target:
+                        result.append(inst.offset)
+                    elif t == target:
+                        result.append(inst.offset)
+                        pass
+                    pass
+                pass
+            if inst.offset >= end:
+                break
+            pass
+
+        # FIXME: put in a test
+        # check = self.all_instr(start, end, instr, target, include_beyond_target)
+        # assert result == check
+
+        return result
+
+
+    # FIXME: this is broken on 3.6+. Replace remaining (2.x-based) calls
+    # with inst_matches
+    def all_instr(self, start, end, instr, target=None, include_beyond_target=False):
+        """
+        Find all `instr` in the block from start to end.
+        `instr` is any Python opcode or a list of opcodes
+        If `instr` is an opcode with a target (like a jump), a target
+        destination can be specified which must match precisely.
+
+        Return a list with indexes to them or [] if none found.
+        """
 
         code = self.code
         assert(start >= 0 and end <= len(code))

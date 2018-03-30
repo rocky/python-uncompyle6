@@ -428,6 +428,7 @@ class Scanner3(Scanner):
                                   .opname == 'FOR_ITER'
                                   and self.insts[i+1].opname == 'JUMP_FORWARD')
 
+
                     if (is_continue or
                         (inst.offset in self.stmts and
                         (self.version != 3.0 or (hasattr(inst, 'linestart'))) and
@@ -610,7 +611,7 @@ class Scanner3(Scanner):
 
         # Compose preliminary list of indices with statements,
         # using plain statement opcodes
-        prelim = self.all_instr(start, end, self.statement_opcodes)
+        prelim = self.inst_matches(start, end, self.statement_opcodes)
 
         # Initialize final container with statements with
         # preliminary data
@@ -873,11 +874,12 @@ class Scanner3(Scanner):
                             pass
                         else:
                             fix = None
-                            jump_ifs = self.all_instr(start, self.next_stmt[offset],
-                                                      self.opc.POP_JUMP_IF_FALSE)
+                            jump_ifs = self.inst_matches(start, self.next_stmt[offset],
+                                                         self.opc.POP_JUMP_IF_FALSE)
                             last_jump_good = True
                             for j in jump_ifs:
                                 if target == self.get_target(j):
+                                    # FIXME: remove magic number
                                     if self.lines[j].next == j + 3 and last_jump_good:
                                         fix = j
                                         break
@@ -1139,13 +1141,14 @@ class Scanner3(Scanner):
         assert(start>=0 and end<=len(self.code) and start <= end)
 
         # Find all offsets of requested instructions
-        instr_offsets = self.all_instr(start, end, instr, target, include_beyond_target)
+        instr_offsets = self.inst_matches(start, end, instr, target,
+                                          include_beyond_target)
         # Get all POP_JUMP_IF_TRUE (or) offsets
         if self.version == 3.0:
             jump_true_op = self.opc.JUMP_IF_TRUE
         else:
             jump_true_op = self.opc.POP_JUMP_IF_TRUE
-        pjit_offsets = self.all_instr(start, end, jump_true_op)
+        pjit_offsets = self.inst_matches(start, end, jump_true_op)
         filtered = []
         for pjit_offset in pjit_offsets:
             pjit_tgt = self.get_target(pjit_offset) - 3

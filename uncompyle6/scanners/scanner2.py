@@ -416,7 +416,7 @@ class Scanner2(Scanner):
                                       (self.opc.PJIT, self.opc.JUMP_FORWARD),
                                       (self.opc.PJIT, self.opc.JUMP_ABSOLUTE)])
 
-        prelim = self.all_instr(start, end, self.stmt_opcodes)
+        prelim = self.all_instr(start, end, self.statement_opcodes)
 
         stmts = self.stmts = set(prelim)
         pass_stmts = set()

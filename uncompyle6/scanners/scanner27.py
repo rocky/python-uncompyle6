@@ -25,7 +25,7 @@ class Scanner27(Scanner2):
         super(Scanner27, self).__init__(2.7, show_asm, is_pypy)
 
         # opcodes that start statements
-        self.stmt_opcodes = frozenset([
+        self.statement_opcodes = frozenset([
             self.opc.SETUP_LOOP,       self.opc.BREAK_LOOP,
             self.opc.SETUP_FINALLY,    self.opc.END_FINALLY,
             self.opc.SETUP_EXCEPT,
