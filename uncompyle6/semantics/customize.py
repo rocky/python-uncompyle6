@@ -420,6 +420,7 @@ def customize_for_version(self, is_pypy, version):
                     'fstring_multi':  ( "f'''%c'''", 0),
                     'func_args36':    ( "%c(**", 0),
                     'try_except36':   ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
+                    'except_return':  ( '%|except:\n%+%c%-', 3 ),
                     'unpack_list':    ( '*%c', (0, 'list') ),
                     'call_ex' : (
                         '%c(%p)',
