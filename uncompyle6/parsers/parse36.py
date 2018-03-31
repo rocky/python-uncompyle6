@@ -61,6 +61,9 @@ class Python36Parser(Python35Parser):
 
         except_suite ::= c_stmts_opt COME_FROM POP_EXCEPT jump_except COME_FROM
 
+        jb_cfs      ::= JUMP_BACK come_froms
+        ifelsestmtl ::= testexpr c_stmts_opt jb_cfs else_suitel
+
         # In 3.6+, A sequence of statements ending in a RETURN can cause
         # JUMP_FORWARD END_FINALLY to be omitted from try middle
 
