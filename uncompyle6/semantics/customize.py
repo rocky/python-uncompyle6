@@ -408,9 +408,13 @@ def customize_for_version(self, is_pypy, version):
 
                 # Value 100 is important; it is exactly
                 # module/function precidence.
-                PRECEDENCE['call_kw']   = 100
-                PRECEDENCE['call_kw36'] = 100
-                PRECEDENCE['call_ex']   = 100
+                PRECEDENCE['call_kw']     = 100
+                PRECEDENCE['call_kw36']   = 100
+                PRECEDENCE['call_ex']     = 100
+                PRECEDENCE['call_ex_kw']  = 100
+                PRECEDENCE['call_ex_kw2'] = 100
+                PRECEDENCE['call_ex_kw3'] = 100
+                PRECEDENCE['call_ex_kw4'] = 100
 
                 TABLE_DIRECT.update({
                     'tryfinally36':  ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
@@ -570,7 +574,8 @@ def customize_for_version(self, is_pypy, version):
                     assert call_function_ex == 'CALL_FUNCTION_EX_KW'
                     # FIXME: decide if the below test be on kwargs == 'dict'
                     if (call_function_ex.attr & 1 and
-                        (not isinstance(kwargs, Token) and kwargs != 'attribute')):
+                        (not isinstance(kwargs, Token) and kwargs != 'attribute')
+                        and not kwargs[0].kind.startswith('kvlist')):
                         self.call36_dict(kwargs)
                     else:
                         self.write('**')
