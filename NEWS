@@ -1,3 +1,16 @@
+uncompyle6 3.1.1 2018-04-01 Easter April Fool's
+
+Jesus on Friday's New York Times puzzle: "I'm stuck on 2A"
+
+- fill out 3.5+ BUILD_MAP_UNPACK (more work is needed)
+- fill out 3.4+ CALL_FUNCTION_... (more work is needed)
+- fill out 3.5 MAKE_FUNCTION  (more work is needed)
+- reduce 3.5, 3.6 control-flow bugs
+- reduce ambiguity in rules that lead to long (exponential?) parses
+- limit/isolate some 2.6/2.7,3.x grammar rules
+- more runtime testing of decompiled code
+- more removal of parenthesis around calls via setting precidence
+
 uncompyle6 3.1.0 2018-03-21 Equinox
 
 - Add code_deparse_with_offset() fragment function.
