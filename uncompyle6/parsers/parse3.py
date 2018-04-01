@@ -641,19 +641,27 @@ class Python3Parser(PythonParser):
                     self.add_unique_rule(rule, 'kvlist_n', 1, customize)
                     rule = "dict ::=  BUILD_MAP_n kvlist_n"
                 elif self.version >= 3.5:
-                    if opname != 'BUILD_MAP_WITH_CALL':
-                        if opname == 'BUILD_MAP_UNPACK':
+                    if not opname.startswith('BUILD_MAP_WITH_CALL'):
+                        # FIXME: Use the attr
+                        # so this doesn't run into exponential parsing time.
+                        if opname.startswith('BUILD_MAP_UNPACK'):
                             # FIXME: start here
                             # rule = "%s ::= %s %s" % (kvlist_n, 'expr ' * (token.attr*2), opname)
                             rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
                             self.add_unique_rule(rule, opname, token.attr, customize)
                             rule = 'dict_entry ::= ' + 'expr ' * (token.attr*2)
                             self.add_unique_rule(rule, opname, token.attr, customize)
-                            rule = 'dict ::= ' + 'dict_entry ' * token.attr
-                            self.add_unique_rule(rule, opname, token.attr, customize)
-                            rule = ('unmap_dict ::= ' +
-                                    ('dict ' * token.attr) +
-                                    'BUILD_MAP_UNPACK')
+                            rule = 'dict ::= %s' % ('dict_entry ' * token.attr)
+                            self.addRule(rule, nop_func)
+
+                            # FIXME: really we need a combination of dict_entry-like things.
+                            # It just so happens the most common case is not to mix
+                            # dictionary comphensions with dictionary, elements
+                            if self.seen_LOAD_DICTCOMP:
+                                rule = 'dict ::= %s%s' % ('dict_comp ' * token.attr, opname)
+                                self.addRule(rule, nop_func)
+
+                            rule = 'unmap_dict ::= %s%s' % (('dict ' * token.attr), opname)
                         else:
                             rule = "%s ::= %s %s" % (kvlist_n, 'expr ' * (token.attr*2), opname)
                             self.add_unique_rule(rule, opname, token.attr, customize)
