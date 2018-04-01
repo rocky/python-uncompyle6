@@ -205,11 +205,9 @@ class Python36Parser(Python35Parser):
             self.add_unique_rule('expr ::= async_call', token.kind, uniq_param, customize)
 
         if opname.startswith('CALL_FUNCTION_KW'):
-            self.addRule("expr ::= call_kw", nop_func)
+            self.addRule("expr ::= call_kw36", nop_func)
             values = 'expr ' * token.attr
-            rule = 'call_kw ::= expr kwargs_36 {token.kind}'.format(**locals())
-            self.addRule(rule, nop_func)
-            rule = 'kwargs_36 ::= {values} LOAD_CONST'.format(**locals())
+            rule = "call_kw36 ::= expr {values} LOAD_CONST {opname}".format(**locals())
             self.add_unique_rule(rule, token.kind, token.attr, customize)
         elif opname == 'CALL_FUNCTION_EX_KW':
             self.addRule("""expr        ::= call_ex_kw

@@ -407,8 +407,9 @@ def customize_for_version(self, is_pypy, version):
 
                 # Value 100 is important; it is exactly
                 # module/function precidence.
-                PRECEDENCE['call_kw'] = 100
-                PRECEDENCE['call_ex'] = 100
+                PRECEDENCE['call_kw']   = 100
+                PRECEDENCE['call_kw36'] = 100
+                PRECEDENCE['call_ex']   = 100
 
                 TABLE_DIRECT.update({
                     'tryfinally36':  ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
@@ -731,40 +732,43 @@ def customize_for_version(self, is_pypy, version):
                 #     return
                 # self.n_kwargs_only_36 = kwargs_only_36
 
-                def kwargs_36(node):
-                    self.write('(')
-                    keys = node[-1].attr
+                def n_call_kw36(node):
+                    self.template_engine(("%c(", 0), node)
+                    keys = node[-2].attr
                     num_kwargs = len(keys)
-                    num_posargs = len(node) - (num_kwargs + 1)
+                    num_posargs = len(node) - (num_kwargs + 2)
                     n = len(node)
                     assert n >= len(keys)+1, \
                       'not enough parameters keyword-tuple values'
-                    # try:
-                    #     assert n >= len(keys)+1, \
-                    #         'not enough parameters keyword-tuple values'
-                    # except:
-                    #     from trepan.api import debug; debug()
                     sep = ''
-                    # FIXME: adjust output for line breaks?
-                    for i in range(num_posargs):
+
+                    line_number = self.line_number
+                    for i in range(1, num_posargs):
                         self.write(sep)
                         self.preorder(node[i])
-                        sep = ', '
+                        if line_number != self.line_number:
+                            sep = ",\n" + self.indent + "  "
+                        else:
+                            sep = ", "
+                        line_number = self.line_number
 
                     i = num_posargs
                     j = 0
                     # FIXME: adjust output for line breaks?
-                    while i < n-1:
+                    while i < n-2:
                         self.write(sep)
                         self.write(keys[j] + '=')
                         self.preorder(node[i])
-                        sep=', '
+                        if line_number != self.line_number:
+                            sep = ",\n" + self.indent + "  "
+                        else:
+                            sep = ", "
                         i += 1
                         j += 1
                     self.write(')')
                     self.prune()
                     return
-                self.n_kwargs_36 = kwargs_36
+                self.n_call_kw36 = n_call_kw36
 
                 def starred(node):
                     l = len(node)
