@@ -1696,7 +1696,8 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.indent_more(INDENT_PER_LEVEL)
         sep = INDENT_PER_LEVEL[:-1]
-        self.write('{')
+        if node[0] != 'dict_entry':
+            self.write('{')
         line_number = self.line_number
 
         if self.version >= 3.0 and not self.is_pypy:
@@ -1720,7 +1721,7 @@ class SourceWalker(GenericASTTraversal, object):
                     self.write(name, ': ')
                     value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
                     self.write(value)
-                    sep = ","
+                    sep = ", "
                     if line_number != self.line_number:
                         sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
                         line_number = self.line_number
@@ -1747,7 +1748,7 @@ class SourceWalker(GenericASTTraversal, object):
                     self.write(name, ': ')
                     value = self.traverse(l[i], indent=self.indent+(len(name)+2)*' ')
                     self.write(value)
-                    sep = ","
+                    sep = ", "
                     if line_number != self.line_number:
                         sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
                         line_number = self.line_number
@@ -1767,7 +1768,7 @@ class SourceWalker(GenericASTTraversal, object):
                     line_number = self.line_number
                     self.write(':')
                     self.write(self.traverse(value[0]))
-                    sep = ","
+                    sep = ", "
                     if line_number != self.line_number:
                         sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
                         line_number = self.line_number
@@ -1778,6 +1779,22 @@ class SourceWalker(GenericASTTraversal, object):
                 if sep.startswith(",\n"):
                     self.write(sep[1:])
                 pass
+            elif node[0].kind.startswith('dict_entry'):
+                assert self.version >= 3.5
+                template = ("%C", (0, len(node[0]), ", **"))
+                self.template_engine(template, node[0])
+                sep = ''
+            elif (node[-1].kind.startswith('BUILD_MAP_UNPACK')
+                  or node[-1].kind.startswith('dict_entry')):
+                assert self.version >= 3.5
+                # FIXME: I think we can intermingle dict_comp's with other
+                # dictionary kinds of things. The most common though is
+                # a sequence of dict_comp's
+                kwargs = node[-1].attr
+                template = ("**%C", (0, kwargs, ", **"))
+                self.template_engine(template, node)
+                sep = ''
+
             pass
         else:
             # Python 2 style kvlist. Find beginning of kvlist.
@@ -1833,7 +1850,7 @@ class SourceWalker(GenericASTTraversal, object):
                     value = self.traverse(kv[0], indent=self.indent+(len(name)+2)*' ')
                     pass
                 self.write(value)
-                sep = ","
+                sep = ", "
                 if line_number != self.line_number:
                     sep += "\n" + self.indent + "  "
                     line_number = self.line_number
@@ -1842,7 +1859,8 @@ class SourceWalker(GenericASTTraversal, object):
             pass
         if sep.startswith(",\n"):
             self.write(sep[1:])
-        self.write('}')
+        if node[0] != 'dict_entry':
+            self.write('}')
         self.indent_less(INDENT_PER_LEVEL)
         self.prec = p
         self.prune()

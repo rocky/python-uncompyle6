@@ -1,5 +1,5 @@
 # From 2.7 test_itertools.py
-# Bug was in 2.7 decompiling like the commented out
+# Bug was in 2.7 decompiling the target assignment
 # code below
 from itertools import izip_longest
 for args in [

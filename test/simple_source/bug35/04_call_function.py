@@ -47,3 +47,14 @@ def __init__(self, cnf={}):
 def Value(self, fn, typecode_or_type, *args, lock=True):
     return fn(typecode_or_type, *args, lock=lock,
               ctx=self.get_context())
+
+# From 3.6.4 heapq.py
+def merge(*iterables, key=None, reverse=False):
+    return
+
+def __call__(self, *args, **kwds):
+    pass
+
+# From 3.6.4 shutil
+def unpack_archive(func, filename, dict, format_info, extract_dir=None):
+    func(filename, extract_dir, **dict(format_info[2]))

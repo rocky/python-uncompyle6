@@ -48,8 +48,9 @@ class Python36Parser(Python35Parser):
         whilestmt       ::= SETUP_LOOP testexpr l_stmts_opt
                             JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
 
-        # This might be valid in < 3.6
+        # A COME_FROM is dropped off because of JUMP-to-JUMP optimization
         and  ::= expr jmp_false expr
+        and  ::= expr jmp_false expr jmp_false
 
         jf_cf       ::= JUMP_FORWARD COME_FROM
         conditional ::= expr jmp_false expr jf_cf expr COME_FROM
@@ -58,6 +59,9 @@ class Python36Parser(Python35Parser):
         # FIXME: remove corresponding rule for 3.5?
 
         except_suite ::= c_stmts_opt COME_FROM POP_EXCEPT jump_except COME_FROM
+
+        jb_cfs      ::= JUMP_BACK come_froms
+        ifelsestmtl ::= testexpr c_stmts_opt jb_cfs else_suitel
 
         # In 3.6+, A sequence of statements ending in a RETURN can cause
         # JUMP_FORWARD END_FINALLY to be omitted from try middle
@@ -102,14 +106,23 @@ class Python36Parser(Python35Parser):
                     fstring_single ::= expr FORMAT_VALUE
                 """
                 self.add_unique_doc_rules(rules_str, customize)
-            elif opname == 'MAKE_FUNCTION_8' and self.seen_LOAD_DICTCOMP:
-                # Is there something general going on here?
-                rule = """
-                   dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST
-                                 MAKE_FUNCTION_8 expr
-                                 GET_ITER CALL_FUNCTION_1
-                   """
-                self.addRule(rule, nop_func)
+            elif opname == 'MAKE_FUNCTION_8':
+                if self.seen_LOAD_DICTCOMP:
+                    # Is there something general going on here?
+                    rule = """
+                       dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST
+                                     MAKE_FUNCTION_8 expr
+                                     GET_ITER CALL_FUNCTION_1
+                       """
+                    self.addRule(rule, nop_func)
+                elif self.seen_LOAD_SETCOMP:
+                    rule = """
+                       set_comp ::= load_closure LOAD_SETCOMP LOAD_CONST
+                                    MAKE_FUNCTION_8 expr
+                                    GET_ITER CALL_FUNCTION_1
+                       """
+                    self.addRule(rule, nop_func)
+
             elif opname == 'BEFORE_ASYNC_WITH':
                 rules_str = """
                   stmt ::= async_with_stmt
@@ -200,11 +213,9 @@ class Python36Parser(Python35Parser):
             self.add_unique_rule('expr ::= async_call', token.kind, uniq_param, customize)
 
         if opname.startswith('CALL_FUNCTION_KW'):
-            self.addRule("expr ::= call_kw", nop_func)
+            self.addRule("expr ::= call_kw36", nop_func)
             values = 'expr ' * token.attr
-            rule = 'call_kw ::= expr kwargs_36 %s' % token.kind
-            self.addRule(rule, nop_func)
-            rule = 'kwargs_36 ::= %s LOAD_CONST' % values
+            rule = "call_kw36 ::= expr %s LOAD_CONST %s" % (values, opname)
             self.add_unique_rule(rule, token.kind, token.attr, customize)
         elif opname == 'CALL_FUNCTION_EX_KW':
             self.addRule("""expr        ::= call_ex_kw

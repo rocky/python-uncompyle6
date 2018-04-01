@@ -434,6 +434,7 @@ class Scanner3(Scanner):
                                   .opname == 'FOR_ITER'
                                   and self.insts[i+1].opname == 'JUMP_FORWARD')
 
+
                     if (is_continue or
                         (inst.offset in self.stmts and
                         (self.version != 3.0 or (hasattr(inst, 'linestart'))) and
@@ -616,7 +617,7 @@ class Scanner3(Scanner):
 
         # Compose preliminary list of indices with statements,
         # using plain statement opcodes
-        prelim = self.all_instr(start, end, self.statement_opcodes)
+        prelim = self.inst_matches(start, end, self.statement_opcodes)
 
         # Initialize final container with statements with
         # preliminary data
@@ -879,11 +880,12 @@ class Scanner3(Scanner):
                             pass
                         else:
                             fix = None
-                            jump_ifs = self.all_instr(start, self.next_stmt[offset],
-                                                      self.opc.POP_JUMP_IF_FALSE)
+                            jump_ifs = self.inst_matches(start, self.next_stmt[offset],
+                                                         self.opc.POP_JUMP_IF_FALSE)
                             last_jump_good = True
                             for j in jump_ifs:
                                 if target == self.get_target(j):
+                                    # FIXME: remove magic number
                                     if self.lines[j].next == j + 3 and last_jump_good:
                                         fix = j
                                         break
@@ -916,7 +918,8 @@ class Scanner3(Scanner):
             if offset in self.ignore_if:
                 return
 
-            if (code[pre_rtarget] == self.opc.JUMP_ABSOLUTE and
+            rtarget_is_ja = code[pre_rtarget] == self.opc.JUMP_ABSOLUTE
+            if ( rtarget_is_ja and
                 pre_rtarget in self.stmts and
                 pre_rtarget != offset and
                 prev_op[pre_rtarget] != offset and
@@ -936,10 +939,13 @@ class Scanner3(Scanner):
             # or a conditional assignment like:
             #   x = 1 if x else 2
             #
+            # For 3.5, in addition the JUMP_FORWARD above we could have
+            # JUMP_BACK or CONTINUE
+            #
             # There are other contexts we may need to consider
             # like whether the target is "END_FINALLY"
             # or if the condition jump is to a forward location
-            if self.is_jump_forward(pre_rtarget):
+            if self.is_jump_forward(pre_rtarget) or (rtarget_is_ja and self.version >= 3.5):
                 if_end = self.get_target(pre_rtarget)
 
                 # If the jump target is back, we are looping
@@ -1141,13 +1147,14 @@ class Scanner3(Scanner):
         assert(start>=0 and end<=len(self.code) and start <= end)
 
         # Find all offsets of requested instructions
-        instr_offsets = self.all_instr(start, end, instr, target, include_beyond_target)
+        instr_offsets = self.inst_matches(start, end, instr, target,
+                                          include_beyond_target)
         # Get all POP_JUMP_IF_TRUE (or) offsets
         if self.version == 3.0:
             jump_true_op = self.opc.JUMP_IF_TRUE
         else:
             jump_true_op = self.opc.POP_JUMP_IF_TRUE
-        pjit_offsets = self.all_instr(start, end, jump_true_op)
+        pjit_offsets = self.inst_matches(start, end, jump_true_op)
         filtered = []
         for pjit_offset in pjit_offsets:
             pjit_tgt = self.get_target(pjit_offset) - 3

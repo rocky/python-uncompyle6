@@ -505,7 +505,8 @@ class Python3Parser(PythonParser):
         self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
         if possible_class_decorator:
-            if next_token == 'CALL_FUNCTION' and next_token.attr == 1:
+            if (next_token == 'CALL_FUNCTION' and next_token.attr == 1
+                and args_pos > 1):
                 rule = ('classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d'
                         %  (('expr ' * (args_pos-1)), opname, args_pos))
                 self.add_unique_rule(rule, token.kind, uniq_param, customize)
@@ -571,6 +572,7 @@ class Python3Parser(PythonParser):
 
         # This is used in parse36.py as well as here
         self.seen_LOAD_DICTCOMP = False
+        self.seen_LOAD_SETCOMP = False
 
 
         # Loop over instructions adding custom grammar rules based on
@@ -621,9 +623,7 @@ class Python3Parser(PythonParser):
                 self.addRule(rule, nop_func)
             elif opname.startswith('BUILD_LIST_UNPACK'):
                 v = token.attr
-                rule = ('build_list_unpack ::= ' + 'expr1024 ' * int(v//1024) +
-                        'expr32 ' * int((v//32) % 32) +
-                        'expr ' * (v % 32) + opname)
+                rule = 'build_list_unpack ::= %s%s' % ('expr ' * v, opname)
                 self.addRule(rule, nop_func)
                 rule = 'expr ::= build_list_unpack'
                 self.addRule(rule, nop_func)
@@ -642,19 +642,27 @@ class Python3Parser(PythonParser):
                     self.add_unique_rule(rule, 'kvlist_n', 1, customize)
                     rule = "dict ::=  BUILD_MAP_n kvlist_n"
                 elif self.version >= 3.5:
-                    if opname != 'BUILD_MAP_WITH_CALL':
-                        if opname == 'BUILD_MAP_UNPACK':
+                    if not opname.startswith('BUILD_MAP_WITH_CALL'):
+                        # FIXME: Use the attr
+                        # so this doesn't run into exponential parsing time.
+                        if opname.startswith('BUILD_MAP_UNPACK'):
                             # FIXME: start here
                             # rule = "%s ::= %s %s" % (kvlist_n, 'expr ' * (token.attr*2), opname)
                             rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
                             self.add_unique_rule(rule, opname, token.attr, customize)
                             rule = 'dict_entry ::= ' + 'expr ' * (token.attr*2)
                             self.add_unique_rule(rule, opname, token.attr, customize)
-                            rule = 'dict ::= ' + 'dict_entry ' * token.attr
-                            self.add_unique_rule(rule, opname, token.attr, customize)
-                            rule = ('unmap_dict ::= ' +
-                                    ('dict ' * token.attr) +
-                                    'BUILD_MAP_UNPACK')
+                            rule = 'dict ::= %s' % ('dict_entry ' * token.attr)
+                            self.addRule(rule, nop_func)
+
+                            # FIXME: really we need a combination of dict_entry-like things.
+                            # It just so happens the most common case is not to mix
+                            # dictionary comphensions with dictionary, elements
+                            if self.seen_LOAD_DICTCOMP:
+                                rule = 'dict ::= %s%s' % ('dict_comp ' * token.attr, opname)
+                                self.addRule(rule, nop_func)
+
+                            rule = 'unmap_dict ::= %s%s' % (('dict ' * token.attr), opname)
                         else:
                             rule = "%s ::= %s %s" % (kvlist_n, 'expr ' * (token.attr*2), opname)
                             self.add_unique_rule(rule, opname, token.attr, customize)
@@ -666,9 +674,7 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname.startswith('BUILD_MAP_UNPACK_WITH_CALL'):
                 v = token.attr
-                rule = ('build_map_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
-                        'expr32 ' * int((v//32) % 32) +
-                        'expr ' * (v % 32) + opname)
+                rule = 'build_map_unpack_with_call ::= %s%s' % ('expr ' * v, opname)
                 self.addRule(rule, nop_func)
             elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
                 v = token.attr
@@ -691,9 +697,7 @@ class Python3Parser(PythonParser):
                         self.add_unique_rule(rule, opname, token.attr, customize)
                 if not is_LOAD_CLOSURE or v == 0:
                     collection = opname_base[opname_base.find('_')+1:].lower()
-                    rule = (('%s ::= ' % collection) + 'expr1024 ' * int(v//1024) +
-                            'expr32 ' * int((v//32) % 32) +
-                            'expr ' * (v % 32) + opname)
+                    rule = '%s ::= %s%s' % (collection, 'expr ' * v, opname)
                     self.add_unique_rules([
                         'expr ::= %s' % collection,
                         rule], customize)
@@ -721,9 +725,12 @@ class Python3Parser(PythonParser):
                     rule = """
                      dict_comp    ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
                                       GET_ITER CALL_FUNCTION_1
-                    classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
                     classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
                     """
+                    if self.version < 3.5:
+                        rule += """
+                        classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
+                        """
                     self.addRule(rule, nop_func)
 
                 self.custom_classfunc_rule(opname, token, customize,
@@ -809,6 +816,7 @@ class Python3Parser(PythonParser):
             elif opname == 'LOAD_LISTCOMP':
                 self.add_unique_rule("expr ::= listcomp", opname, token.attr, customize)
             elif opname == 'LOAD_SETCOMP':
+                self.seen_LOAD_SETCOMP = True
                 # Should this be generalized and put under MAKE_FUNCTION?
                 if has_get_iter_call_function1:
                     self.addRule("expr ::= set_comp", nop_func)
@@ -1026,6 +1034,7 @@ class Python3Parser(PythonParser):
                     rule = ('mkfunc ::= %s%sexpr %s' %
                             (kwargs, 'pos_arg ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
+
                 if opname.startswith('MAKE_FUNCTION_A'):
                     if self.version >= 3.6:
                         rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s' %

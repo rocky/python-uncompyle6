@@ -40,7 +40,7 @@ JUMP_OPS = opcode_26.JUMP_OPS
 class Scanner26(scan.Scanner2):
     def __init__(self, show_asm=False):
         super(Scanner26, self).__init__(2.6, show_asm)
-        self.stmt_opcodes = frozenset([
+        self.statement_opcodes = frozenset([
             self.opc.SETUP_LOOP,       self.opc.BREAK_LOOP,
             self.opc.SETUP_FINALLY,    self.opc.END_FINALLY,
             self.opc.SETUP_EXCEPT,     self.opc.POP_BLOCK,

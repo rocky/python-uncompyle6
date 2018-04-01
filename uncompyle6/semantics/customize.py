@@ -28,6 +28,7 @@ from xdis.code import iscode
 from uncompyle6.parsers.astnode import AST
 from uncompyle6.scanners.tok import Token
 from uncompyle6.semantics.helper import flatten_list
+from spark_parser.ast import GenericASTTraversalPruningException
 
 def customize_for_version(self, is_pypy, version):
     if is_pypy:
@@ -407,8 +408,13 @@ def customize_for_version(self, is_pypy, version):
 
                 # Value 100 is important; it is exactly
                 # module/function precidence.
-                PRECEDENCE['call_kw'] = 100
-                PRECEDENCE['call_ex'] = 100
+                PRECEDENCE['call_kw']     = 100
+                PRECEDENCE['call_kw36']   = 100
+                PRECEDENCE['call_ex']     = 100
+                PRECEDENCE['call_ex_kw']  = 100
+                PRECEDENCE['call_ex_kw2'] = 100
+                PRECEDENCE['call_ex_kw3'] = 100
+                PRECEDENCE['call_ex_kw4'] = 100
 
                 TABLE_DIRECT.update({
                     'tryfinally36':  ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
@@ -420,6 +426,7 @@ def customize_for_version(self, is_pypy, version):
                     'fstring_multi':  ( "f'''%c'''", 0),
                     'func_args36':    ( "%c(**", 0),
                     'try_except36':   ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
+                    'except_return':  ( '%|except:\n%+%c%-', 3 ),
                     'unpack_list':    ( '*%c', (0, 'list') ),
                     'call_ex' : (
                         '%c(%p)',
@@ -567,7 +574,8 @@ def customize_for_version(self, is_pypy, version):
                     assert call_function_ex == 'CALL_FUNCTION_EX_KW'
                     # FIXME: decide if the below test be on kwargs == 'dict'
                     if (call_function_ex.attr & 1 and
-                        (not isinstance(kwargs, Token) and kwargs != 'attribute')):
+                        (not isinstance(kwargs, Token) and kwargs != 'attribute')
+                        and not kwargs[0].kind.startswith('kvlist')):
                         self.call36_dict(kwargs)
                     else:
                         self.write('**')
@@ -670,7 +678,11 @@ def customize_for_version(self, is_pypy, version):
                                 pass
                             pass
                     else:
-                        assert False, "Don't know how to untangle dictionary"
+                        self.write("**")
+                        try:
+                            self.default(node)
+                        except GenericASTTraversalPruningException:
+                            pass
 
                     self.prec = p
                     self.indent_less(INDENT_PER_LEVEL)
@@ -730,40 +742,43 @@ def customize_for_version(self, is_pypy, version):
                 #     return
                 # self.n_kwargs_only_36 = kwargs_only_36
 
-                def kwargs_36(node):
-                    self.write('(')
-                    keys = node[-1].attr
+                def n_call_kw36(node):
+                    self.template_engine(("%c(", 0), node)
+                    keys = node[-2].attr
                     num_kwargs = len(keys)
-                    num_posargs = len(node) - (num_kwargs + 1)
+                    num_posargs = len(node) - (num_kwargs + 2)
                     n = len(node)
                     assert n >= len(keys)+1, \
                       'not enough parameters keyword-tuple values'
-                    # try:
-                    #     assert n >= len(keys)+1, \
-                    #         'not enough parameters keyword-tuple values'
-                    # except:
-                    #     from trepan.api import debug; debug()
                     sep = ''
-                    # FIXME: adjust output for line breaks?
-                    for i in range(num_posargs):
+
+                    line_number = self.line_number
+                    for i in range(1, num_posargs):
                         self.write(sep)
                         self.preorder(node[i])
-                        sep = ', '
+                        if line_number != self.line_number:
+                            sep = ",\n" + self.indent + "  "
+                        else:
+                            sep = ", "
+                        line_number = self.line_number
 
                     i = num_posargs
                     j = 0
                     # FIXME: adjust output for line breaks?
-                    while i < n-1:
+                    while i < n-2:
                         self.write(sep)
                         self.write(keys[j] + '=')
                         self.preorder(node[i])
-                        sep=', '
+                        if line_number != self.line_number:
+                            sep = ",\n" + self.indent + "  "
+                        else:
+                            sep = ", "
                         i += 1
                         j += 1
                     self.write(')')
                     self.prune()
                     return
-                self.n_kwargs_36 = kwargs_36
+                self.n_call_kw36 = n_call_kw36
 
                 def starred(node):
                     l = len(node)

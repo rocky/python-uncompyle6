@@ -532,8 +532,10 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
         else:
             default, kw_args, annotate, closure = args_node.attr
             if default:
-                assert node[0] == 'expr', "expecting mkfunc default node to be an expr"
                 expr_node = node[0]
+                if node[0] == 'pos_arg':
+                    expr_node = expr_node[0]
+                assert expr_node == 'expr', "expecting mkfunc default node to be an expr"
                 if (expr_node[0] == 'LOAD_CONST' and
                     isinstance(expr_node[0].attr, tuple)):
                     defparams = [repr(a) for a in expr_node[0].attr]
@@ -541,7 +543,21 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
                     defparams =  [self.traverse(n, indent='') for n in expr_node[0][:-1]]
             else:
                 defparams = []
-            # FIXME: handle kw, annotate and closure
+
+            i = -4
+            kw_pairs = 0
+            if closure:
+                # FIXME: fill in
+                i -= 1
+            if annotate:
+                # FIXME: fill in
+                i -= 1
+            if kw_args:
+                kw_node = node[i]
+                if kw_node == 'expr':
+                    kw_node = kw_node[0]
+                if kw_node == 'dict':
+                    kw_pairs = kw_node[-1].attr
         pass
 
     if 3.0 <= self.version <= 3.2:
@@ -580,10 +596,10 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
         return
 
     if self.version >= 3.0:
-        kw_pairs = args_node.attr[1]
+        if self.version < 3.6:
+            kw_pairs = args_node.attr[1]
     else:
         kw_pairs = 0
-    indent = self.indent
 
     # build parameters
     params = []

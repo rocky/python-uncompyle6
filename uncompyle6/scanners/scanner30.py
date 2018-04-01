@@ -193,11 +193,12 @@ class Scanner30(Scanner3):
                             pass
                         else:
                             fix = None
-                            jump_ifs = self.all_instr(start, self.next_stmt[offset],
-                                                      opc.JUMP_IF_FALSE)
+                            jump_ifs = self.inst_matches(start, self.next_stmt[offset],
+                                                         opc.JUMP_IF_FALSE)
                             last_jump_good = True
                             for j in jump_ifs:
                                 if target == self.get_target(j):
+                                    # FIXME: remove magic number
                                     if self.lines[j].next == j + 3 and last_jump_good:
                                         fix = j
                                         break
