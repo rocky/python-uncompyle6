@@ -107,14 +107,23 @@ class Python36Parser(Python35Parser):
                     fstring_single ::= expr FORMAT_VALUE
                 """
                 self.add_unique_doc_rules(rules_str, customize)
-            elif opname == 'MAKE_FUNCTION_8' and self.seen_LOAD_DICTCOMP:
-                # Is there something general going on here?
-                rule = """
-                   dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST
-                                 MAKE_FUNCTION_8 expr
-                                 GET_ITER CALL_FUNCTION_1
-                   """
-                self.addRule(rule, nop_func)
+            elif opname == 'MAKE_FUNCTION_8':
+                if self.seen_LOAD_DICTCOMP:
+                    # Is there something general going on here?
+                    rule = """
+                       dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST
+                                     MAKE_FUNCTION_8 expr
+                                     GET_ITER CALL_FUNCTION_1
+                       """
+                    self.addRule(rule, nop_func)
+                elif self.seen_LOAD_SETCOMP:
+                    rule = """
+                       set_comp ::= load_closure LOAD_SETCOMP LOAD_CONST
+                                    MAKE_FUNCTION_8 expr
+                                    GET_ITER CALL_FUNCTION_1
+                       """
+                    self.addRule(rule, nop_func)
+
             elif opname == 'BEFORE_ASYNC_WITH':
                 rules_str = """
                   stmt ::= async_with_stmt

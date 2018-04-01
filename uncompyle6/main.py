@@ -165,6 +165,7 @@ def main(in_base, out_base, files, codes, outfile=None,
 
     for filename in files:
         infile = os.path.join(in_base, filename)
+        # print("XXX", infile)
         if not os.path.exists(infile):
             sys.stderr.write("File '%s' doesn't exist. Skipped\n"
                              % infile)

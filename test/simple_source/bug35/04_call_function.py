@@ -54,3 +54,7 @@ def merge(*iterables, key=None, reverse=False):
 
 def __call__(self, *args, **kwds):
     pass
+
+# From 3.6.4 shutil
+def unpack_archive(func, filename, dict, format_info, extract_dir=None):
+    func(filename, extract_dir, **dict(format_info[2]))

@@ -28,6 +28,7 @@ from xdis.code import iscode
 from uncompyle6.parsers.astnode import AST
 from uncompyle6.scanners.tok import Token
 from uncompyle6.semantics.helper import flatten_list
+from spark_parser.ast import GenericASTTraversalPruningException
 
 def customize_for_version(self, is_pypy, version):
     if is_pypy:
@@ -672,7 +673,11 @@ def customize_for_version(self, is_pypy, version):
                                 pass
                             pass
                     else:
-                        assert False, "Don't know how to untangle dictionary"
+                        self.write("**")
+                        try:
+                            self.default(node)
+                        except GenericASTTraversalPruningException:
+                            pass
 
                     self.prec = p
                     self.indent_less(INDENT_PER_LEVEL)

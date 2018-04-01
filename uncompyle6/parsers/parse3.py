@@ -571,6 +571,7 @@ class Python3Parser(PythonParser):
 
         # This is used in parse36.py as well as here
         self.seen_LOAD_DICTCOMP = False
+        self.seen_LOAD_SETCOMP = False
 
 
         # Loop over instructions adding custom grammar rules based on
@@ -806,6 +807,7 @@ class Python3Parser(PythonParser):
             elif opname == 'LOAD_LISTCOMP':
                 self.add_unique_rule("expr ::= listcomp", opname, token.attr, customize)
             elif opname == 'LOAD_SETCOMP':
+                self.seen_LOAD_SETCOMP = True
                 # Should this be generalized and put under MAKE_FUNCTION?
                 if has_get_iter_call_function1:
                     self.addRule("expr ::= set_comp", nop_func)

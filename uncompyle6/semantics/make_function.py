@@ -536,8 +536,10 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
         else:
             default, kw_args, annotate, closure = args_node.attr
             if default:
-                assert node[0] == 'expr', "expecting mkfunc default node to be an expr"
                 expr_node = node[0]
+                if node[0] == 'pos_arg':
+                    expr_node = expr_node[0]
+                assert expr_node == 'expr', "expecting mkfunc default node to be an expr"
                 if (expr_node[0] == 'LOAD_CONST' and
                     isinstance(expr_node[0].attr, tuple)):
                     defparams = [repr(a) for a in expr_node[0].attr]
