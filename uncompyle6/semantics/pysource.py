@@ -1696,7 +1696,8 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.indent_more(INDENT_PER_LEVEL)
         sep = INDENT_PER_LEVEL[:-1]
-        self.write('{')
+        if node[0] != 'dict_entry':
+            self.write('{')
         line_number = self.line_number
 
         if self.version >= 3.0 and not self.is_pypy:
@@ -1778,7 +1779,13 @@ class SourceWalker(GenericASTTraversal, object):
                 if sep.startswith(",\n"):
                     self.write(sep[1:])
                 pass
-            elif node[-1].kind.startswith('BUILD_MAP_UNPACK'):
+            elif node[0].kind.startswith('dict_entry'):
+                assert self.version >= 3.5
+                template = ("%C", (0, len(node[0]), ", **"))
+                self.template_engine(template, node[0])
+                sep = ''
+            elif (node[-1].kind.startswith('BUILD_MAP_UNPACK')
+                  or node[-1].kind.startswith('dict_entry')):
                 assert self.version >= 3.5
                 # FIXME: I think we can intermingle dict_comp's with other
                 # dictionary kinds of things. The most common though is
@@ -1852,7 +1859,8 @@ class SourceWalker(GenericASTTraversal, object):
             pass
         if sep.startswith(",\n"):
             self.write(sep[1:])
-        self.write('}')
+        if node[0] != 'dict_entry':
+            self.write('}')
         self.indent_less(INDENT_PER_LEVEL)
         self.prec = p
         self.prune()
