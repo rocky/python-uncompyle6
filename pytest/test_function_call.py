@@ -6,7 +6,7 @@ import pytest
 # uncompyle
 from validate import validate_uncompyle
 from test_fstring import expressions
-
+from uncompyle6 import PYTHON_VERSION
 
 alpha = st.sampled_from(string.ascii_lowercase)
 numbers = st.sampled_from(string.digits)
@@ -81,10 +81,11 @@ def function_calls(draw,
 def test_function_no_args():
     validate_uncompyle("fn()")
 
-
+@pytest.mark.skipif(PYTHON_VERSION < 2.7,
+                    reason="need at least Python 2.7")
 def isolated_function_calls(which):
     """
-    Returns a strategy for generating function calls, but isolated to 
+    Returns a strategy for generating function calls, but isolated to
     particular types of arguments, for example only positional arguments.
 
     This can help reason about debugging errors in specific types of function
@@ -108,21 +109,29 @@ def isolated_function_calls(which):
 
 with settings(max_examples=25):
 
+    @pytest.mark.skipif(PYTHON_VERSION < 2.7,
+                        reason="need at least Python 2.7")
     @given(isolated_function_calls('positional'))
     @example("fn(0)")
     def test_function_positional_only(expr):
         validate_uncompyle(expr)
 
+    @pytest.mark.skipif(PYTHON_VERSION < 2.7,
+                        reason="need at least Python 2.7")
     @given(isolated_function_calls('keyword'))
     @example("fn(a=0)")
     def test_function_call_keyword_only(expr):
         validate_uncompyle(expr)
 
+    @pytest.mark.skipif(PYTHON_VERSION < 2.7,
+                        reason="need at least Python 2.7")
     @given(isolated_function_calls('star'))
     @example("fn(*items)")
     def test_function_call_star_only(expr):
         validate_uncompyle(expr)
 
+    @pytest.mark.skipif(PYTHON_VERSION < 2.7,
+                        reason="need at least Python 2.7")
     @given(isolated_function_calls('double_star'))
     @example("fn(**{})")
     def test_function_call_double_star_only(expr):

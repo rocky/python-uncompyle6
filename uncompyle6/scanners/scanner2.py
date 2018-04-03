@@ -171,11 +171,6 @@ class Scanner2(Scanner):
             customize['PyPy'] = 0
 
         codelen = len(self.code)
-        self.lines = self.build_lines_data(co)
-
-        self.offset2inst_index = {}
-        for i, inst in enumerate(self.insts):
-            self.offset2inst_index[inst.offset] = i
 
         free, names, varnames = self.unmangle_code_names(co, classname)
         self.names = names
@@ -185,8 +180,6 @@ class Scanner2(Scanner):
         # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
         for i in self.op_range(0, codelen):
-
-            self.offset2inst_index[inst.offset] = i
 
             # We need to detect the difference between:
             #   raise AssertionError
@@ -358,7 +351,7 @@ class Scanner2(Scanner):
                     if (offset in self.stmts and
                           self.code[offset+3] not in (self.opc.END_FINALLY,
                                                      self.opc.POP_BLOCK)):
-                        if ((offset in self.linestart_offsets and
+                        if ((offset in self.linestarts and
                             self.code[self.prev[offset]] == self.opc.JUMP_ABSOLUTE)
                             or self.code[target] == self.opc.FOR_ITER
                             or offset not in self.not_continue):
@@ -956,7 +949,7 @@ class Scanner2(Scanner):
                                          'end':   pre_rtarget})
 
                 # FIXME: this is yet another case were we need dominators.
-                if (pre_rtarget not in self.linestart_offsets
+                if (pre_rtarget not in self.linestarts
                     or self.version < 2.7):
                     self.not_continue.add(pre_rtarget)
 

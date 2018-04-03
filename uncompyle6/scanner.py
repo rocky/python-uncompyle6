@@ -105,6 +105,11 @@ class Scanner(object):
         bytecode = Bytecode(co, self.opc)
         self.build_prev_op()
         self.insts = self.remove_extended_args(list(bytecode))
+        self.lines = self.build_lines_data(co)
+        self.offset2inst_index = {}
+        for i, inst in enumerate(self.insts):
+            self.offset2inst_index[inst.offset] = i
+
         return bytecode
 
     def build_lines_data(self, code_obj):
@@ -116,10 +121,6 @@ class Scanner(object):
         # Locally we use list for more convenient iteration using indices
         linestarts = list(self.opc.findlinestarts(code_obj))
         self.linestarts = dict(linestarts)
-
-        # Plain set with offsets of first ops on line.
-        # FIXME: we probably could do without
-        self.linestart_offsets = set(a for (a, _) in linestarts)
 
         # 'List-map' which shows line number of current op and offset of
         # first op on following line, given offset of op as index
@@ -452,6 +453,9 @@ class Scanner(object):
         Go through passed offsets, filtering ifs
         located somewhere mid-line.
         """
+
+        # FIXME: this doesn't work for Python 3.6+
+
         filtered = []
         for i in ifs:
             # For each offset, if line number of current and next op

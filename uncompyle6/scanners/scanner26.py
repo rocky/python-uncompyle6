@@ -84,13 +84,6 @@ class Scanner26(scan.Scanner2):
 
         codelen = len(self.code)
 
-        self.lines = self.build_lines_data(co)
-
-        self.insts = list(bytecode)
-        self.offset2inst_index = {}
-        for i, inst in enumerate(self.insts):
-            self.offset2inst_index[inst.offset] = i
-
         free, names, varnames = self.unmangle_code_names(co, classname)
         self.names = names
 
@@ -248,7 +241,7 @@ class Scanner26(scan.Scanner2):
                     if (offset in self.stmts
                         and self.code[offset+3] not in (self.opc.END_FINALLY,
                                                           self.opc.POP_BLOCK)):
-                        if ((offset in self.linestart_offsets and
+                        if ((offset in self.linestarts and
                             tokens[-1].kind == 'JUMP_BACK')
                             or offset not in self.not_continue):
                             op_name = 'CONTINUE'

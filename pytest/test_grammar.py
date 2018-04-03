@@ -20,13 +20,17 @@ def test_grammar():
     # We have custom rules that create the below
     expect_lhs = set(['pos_arg', 'get_iter', 'attribute'])
 
-    unused_rhs = set(['list', 'mkfunc', 'dict',
+    unused_rhs = set(['list', 'mkfunc',
                       'mklambda',
                       'unpack',])
     expect_right_recursive = set([('designList',
                                    ('store', 'DUP_TOP', 'designList'))])
-    expect_lhs.add('kvlist')
-    expect_lhs.add('kv3')
+
+    if PYTHON_VERSION > 2.6:
+        expect_lhs.add('kvlist')
+        expect_lhs.add('kv3')
+        unused_rhs.add('dict')
+
     if PYTHON3:
         expect_lhs.add('load_genexpr')
 
@@ -85,6 +89,8 @@ def test_grammar():
             """.split())
     if 2.6 <= PYTHON_VERSION <= 2.7:
         opcode_set = set(s.opc.opname).union(ignore_set)
+        if PYTHON_VERSION == 2.6:
+            opcode_set.add("THEN")
         check_tokens(tokens, opcode_set)
     elif PYTHON_VERSION == 3.4:
         ignore_set.add('LOAD_CLASSNAME')
