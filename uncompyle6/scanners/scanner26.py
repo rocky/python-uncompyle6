@@ -32,59 +32,21 @@ from uncompyle6.scanner import L65536
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_26
-from xdis.bytecode import Bytecode
 from xdis.bytecode import _get_const_info
+
+from uncompyle6.scanner import Token
 
 JUMP_OPS = opcode_26.JUMP_OPS
 
 class Scanner26(scan.Scanner2):
     def __init__(self, show_asm=False):
         super(Scanner26, self).__init__(2.6, show_asm)
-        self.statement_opcodes = frozenset([
-            self.opc.SETUP_LOOP,       self.opc.BREAK_LOOP,
-            self.opc.SETUP_FINALLY,    self.opc.END_FINALLY,
-            self.opc.SETUP_EXCEPT,     self.opc.POP_BLOCK,
-            self.opc.STORE_FAST,       self.opc.DELETE_FAST,
-            self.opc.STORE_DEREF,      self.opc.STORE_GLOBAL,
-            self.opc.DELETE_GLOBAL,    self.opc.STORE_NAME,
-            self.opc.DELETE_NAME,      self.opc.STORE_ATTR,
-            self.opc.DELETE_ATTR,      self.opc.STORE_SUBSCR,
-            self.opc.DELETE_SUBSCR,    self.opc.RETURN_VALUE,
-            self.opc.RAISE_VARARGS,    self.opc.POP_TOP,
-            self.opc.PRINT_EXPR,       self.opc.PRINT_ITEM,
-            self.opc.PRINT_NEWLINE,    self.opc.PRINT_ITEM_TO,
-            self.opc.PRINT_NEWLINE_TO, self.opc.CONTINUE_LOOP,
-            self.opc.JUMP_ABSOLUTE,    self.opc.EXEC_STMT,
-        ])
 
         # "setup" opcodes
         self.setup_ops = frozenset([
             self.opc.SETUP_EXCEPT, self.opc.SETUP_FINALLY,
             ])
 
-        # opcodes with expect a variable number pushed values whose
-        # count is in the opcode. For parsing we generally change the
-        # opcode name to include that number.
-        self.varargs_ops = frozenset([
-            self.opc.BUILD_LIST,           self.opc.BUILD_TUPLE,
-            self.opc.BUILD_SLICE,          self.opc.UNPACK_SEQUENCE,
-            self.opc.MAKE_FUNCTION,        self.opc.CALL_FUNCTION,
-            self.opc.MAKE_CLOSURE,         self.opc.CALL_FUNCTION_VAR,
-            self.opc.CALL_FUNCTION_KW,     self.opc.CALL_FUNCTION_VAR_KW,
-            self.opc.DUP_TOPX,             self.opc.RAISE_VARARGS])
-
-        # opcodes that store values into a variable
-        self.designator_ops = frozenset([
-            self.opc.STORE_FAST,    self.opc.STORE_NAME,
-            self.opc.STORE_GLOBAL,  self.opc.STORE_DEREF,   self.opc.STORE_ATTR,
-            self.opc.STORE_SLICE_0, self.opc.STORE_SLICE_1, self.opc.STORE_SLICE_2,
-            self.opc.STORE_SLICE_3, self.opc.STORE_SUBSCR,  self.opc.UNPACK_SEQUENCE,
-            self.opc.JUMP_ABSOLUTE
-        ])
-
-        # Python 2.7 has POP_JUMP_IF_{TRUE,FALSE}_OR_POP but < 2.7 doesn't
-        # Add an empty set make processing more uniform.
-        self.pop_jump_if_or_pop = frozenset([])
         return
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
@@ -106,7 +68,8 @@ class Scanner26(scan.Scanner2):
         if not show_asm:
             show_asm = self.show_asm
 
-        bytecode = Bytecode(co, self.opc)
+        bytecode = self.build_instructions(co)
+
         # show_asm = 'after'
         if show_asm in ('both', 'before'):
             for instr in bytecode.get_instructions(co):
@@ -119,17 +82,7 @@ class Scanner26(scan.Scanner2):
         if self.is_pypy:
             customize['PyPy'] = 1
 
-        Token = self.Token # shortcut
-
-        codelen = self.setup_code(co)
-
-        self.build_lines_data(co, codelen)
-        self.build_prev_op(codelen)
-
-        self.insts = list(bytecode)
-        self.offset2inst_index = {}
-        for i, inst in enumerate(self.insts):
-            self.offset2inst_index[inst.offset] = i
+        codelen = len(self.code)
 
         free, names, varnames = self.unmangle_code_names(co, classname)
         self.names = names
@@ -288,7 +241,7 @@ class Scanner26(scan.Scanner2):
                     if (offset in self.stmts
                         and self.code[offset+3] not in (self.opc.END_FINALLY,
                                                           self.opc.POP_BLOCK)):
-                        if ((offset in self.linestartoffsets and
+                        if ((offset in self.linestarts and
                             tokens[-1].kind == 'JUMP_BACK')
                             or offset not in self.not_continue):
                             op_name = 'CONTINUE'
@@ -309,10 +262,7 @@ class Scanner26(scan.Scanner2):
                 if offset in self.return_end_ifs:
                     op_name = 'RETURN_END_IF'
 
-            if offset in self.linestartoffsets:
-                linestart = self.linestartoffsets[offset]
-            else:
-                linestart = None
+            linestart = self.linestarts.get(offset, None)
 
             if offset not in replace:
                 tokens.append(Token(
