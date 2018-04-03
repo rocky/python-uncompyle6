@@ -35,17 +35,15 @@ Finally we save token information.
 
 from __future__ import print_function
 
-from collections import namedtuple
-from array import array
 from copy import copy
 
 from xdis.code import iscode
 from xdis.bytecode import (
-    Bytecode, op_has_argument, instruction_size,
+    op_has_argument, instruction_size,
     _get_const_info)
 from xdis.util import code2num
 
-from uncompyle6.scanner import Scanner
+from uncompyle6.scanner import Scanner, Token
 
 class Scanner2(Scanner):
     def __init__(self, version, show_asm=None, is_pypy=False):
@@ -56,6 +54,57 @@ class Scanner2(Scanner):
         # For <2.5 it is <generator expression>
         self.genexpr_name = '<genexpr>'
         self.load_asserts = set([])
+
+        # Create opcode classification sets
+        # Note: super initilization above initializes self.opc
+
+        # Ops that start SETUP_ ... We will COME_FROM with these names
+        # Some blocks and END_ statements. And they can start
+        # a new statement
+
+        self.statement_opcodes = frozenset([
+            self.opc.SETUP_LOOP,       self.opc.BREAK_LOOP,
+            self.opc.SETUP_FINALLY,    self.opc.END_FINALLY,
+            self.opc.SETUP_EXCEPT,     self.opc.POP_BLOCK,
+            self.opc.STORE_FAST,       self.opc.DELETE_FAST,
+            self.opc.STORE_DEREF,      self.opc.STORE_GLOBAL,
+            self.opc.DELETE_GLOBAL,    self.opc.STORE_NAME,
+            self.opc.DELETE_NAME,      self.opc.STORE_ATTR,
+            self.opc.DELETE_ATTR,      self.opc.STORE_SUBSCR,
+            self.opc.DELETE_SUBSCR,    self.opc.RETURN_VALUE,
+            self.opc.RAISE_VARARGS,    self.opc.POP_TOP,
+            self.opc.PRINT_EXPR,       self.opc.PRINT_ITEM,
+            self.opc.PRINT_NEWLINE,    self.opc.PRINT_ITEM_TO,
+            self.opc.PRINT_NEWLINE_TO, self.opc.CONTINUE_LOOP,
+            self.opc.JUMP_ABSOLUTE,    self.opc.EXEC_STMT,
+        ])
+
+        # Opcodes that can start a "store" non-terminal.
+        # FIXME: JUMP_ABSOLUTE is weird. What's up with that?
+        self.designator_ops = frozenset([
+            self.opc.STORE_FAST,    self.opc.STORE_NAME,
+            self.opc.STORE_GLOBAL,  self.opc.STORE_DEREF,   self.opc.STORE_ATTR,
+            self.opc.STORE_SLICE_0, self.opc.STORE_SLICE_1, self.opc.STORE_SLICE_2,
+            self.opc.STORE_SLICE_3, self.opc.STORE_SUBSCR,  self.opc.UNPACK_SEQUENCE,
+            self.opc.JUMP_ABSOLUTE
+        ])
+
+        # Python 2.7 has POP_JUMP_IF_{TRUE,FALSE}_OR_POP but < 2.7 doesn't
+        # Add an empty set make processing more uniform.
+        self.pop_jump_if_or_pop = frozenset([])
+
+        # opcodes with expect a variable number pushed values whose
+        # count is in the opcode. For parsing we generally change the
+        # opcode name to include that number.
+        self.varargs_ops = frozenset([
+            self.opc.BUILD_LIST,           self.opc.BUILD_TUPLE,
+            self.opc.BUILD_SLICE,          self.opc.UNPACK_SEQUENCE,
+            self.opc.MAKE_FUNCTION,        self.opc.CALL_FUNCTION,
+            self.opc.MAKE_CLOSURE,         self.opc.CALL_FUNCTION_VAR,
+            self.opc.CALL_FUNCTION_KW,     self.opc.CALL_FUNCTION_VAR_KW,
+            self.opc.DUP_TOPX,             self.opc.RAISE_VARARGS])
+
+
 
     @staticmethod
     def unmangle_name(name, classname):
@@ -106,7 +155,8 @@ class Scanner2(Scanner):
         if not show_asm:
             show_asm = self.show_asm
 
-        bytecode = Bytecode(co, self.opc)
+        bytecode = self.build_instructions(co)
+
         # show_asm = 'after'
         if show_asm in ('both', 'before'):
             for instr in bytecode.get_instructions(co):
@@ -117,18 +167,12 @@ class Scanner2(Scanner):
 
         # "customize" is in the process of going away here
         customize = {}
-
         if self.is_pypy:
             customize['PyPy'] = 0
 
-        Token = self.Token # shortcut
+        codelen = len(self.code)
+        self.lines = self.build_lines_data(co)
 
-        codelen = self.setup_code(co)
-
-        self.build_lines_data(co, codelen)
-        self.build_prev_op(codelen)
-
-        self.insts = list(bytecode)
         self.offset2inst_index = {}
         for i, inst in enumerate(self.insts):
             self.offset2inst_index[inst.offset] = i
@@ -314,7 +358,7 @@ class Scanner2(Scanner):
                     if (offset in self.stmts and
                           self.code[offset+3] not in (self.opc.END_FINALLY,
                                                      self.opc.POP_BLOCK)):
-                        if ((offset in self.linestartoffsets and
+                        if ((offset in self.linestart_offsets and
                             self.code[self.prev[offset]] == self.opc.JUMP_ABSOLUTE)
                             or self.code[target] == self.opc.FOR_ITER
                             or offset not in self.not_continue):
@@ -327,10 +371,7 @@ class Scanner2(Scanner):
                 if offset in self.return_end_ifs:
                     op_name = 'RETURN_END_IF'
 
-            if offset in self.linestartoffsets:
-                linestart = self.linestartoffsets[offset]
-            else:
-                linestart = None
+            linestart = self.linestarts.get(offset, None)
 
             if offset not in replace:
                 tokens.append(Token(
@@ -348,63 +389,6 @@ class Scanner2(Scanner):
                 print(t.format(line_prefix='L.'))
             print()
         return tokens, customize
-
-    def setup_code(self, co):
-        """
-        Creates Python-independent bytecode structure (byte array) in
-        self.code and records previous instruction in self.prev
-        The size of self.code is returned
-        """
-        self.code = array('B', co.co_code)
-
-        n = -1
-        for i in self.op_range(0, len(self.code)):
-            if self.code[i] in (self.opc.RETURN_VALUE, self.opc.END_FINALLY):
-                n = i + 1
-                pass
-            pass
-        assert n > -1, "Didn't find RETURN_VALUE or END_FINALLY"
-        self.code = array('B', co.co_code[:n])
-
-        return n
-
-    def build_prev_op(self, n):
-        self.prev = [0]
-        # mapping addresses of instruction & argument
-        for i in self.op_range(0, n):
-            op = self.code[i]
-            self.prev.append(i)
-            if op_has_argument(op, self.opc):
-                self.prev.append(i)
-                self.prev.append(i)
-                pass
-            pass
-
-    def build_lines_data(self, co, n):
-        """
-        Initializes self.lines and self.linesstartoffsets
-        """
-        self.lines = []
-        linetuple = namedtuple('linetuple', ['l_no', 'next'])
-
-        # self.linestarts is a tuple of (offset, line number).
-        # Turn that in a has that we can index
-        self.linestarts = list(self.opc.findlinestarts(co))
-        self.linestartoffsets = {}
-        for offset, lineno in self.linestarts:
-            self.linestartoffsets[offset] = lineno
-
-        j = 0
-        (prev_start_byte, prev_line_no) = self.linestarts[0]
-        for (start_byte, line_no) in self.linestarts[1:]:
-            while j < start_byte:
-                self.lines.append(linetuple(prev_line_no, start_byte))
-                j += 1
-            prev_line_no = start_byte
-        while j < n:
-            self.lines.append(linetuple(prev_line_no, n))
-            j+=1
-        return
 
     def build_statement_indices(self):
         code = self.code
@@ -972,7 +956,8 @@ class Scanner2(Scanner):
                                          'end':   pre_rtarget})
 
                 # FIXME: this is yet another case were we need dominators.
-                if pre_rtarget not in self.linestartoffsets or self.version < 2.7:
+                if (pre_rtarget not in self.linestart_offsets
+                    or self.version < 2.7):
                     self.not_continue.add(pre_rtarget)
 
                 if rtarget < end_offset:
@@ -1161,6 +1146,19 @@ class Scanner2(Scanner):
 
         return targets
 
+    def patch_continue(self, tokens, offset, op):
+        if op in (self.opc.JUMP_FORWARD, self.opc.JUMP_ABSOLUTE):
+            # FIXME: this is a hack to catch stuff like:
+            #   for ...
+            #     try: ...
+            #     except: continue
+            # the "continue" is not on a new line.
+            n = len(tokens)
+            if (n > 2 and
+                tokens[-1].kind == 'JUMP_BACK' and
+                self.code[offset+3] == self.opc.END_FINALLY):
+                tokens[-1].kind = intern('CONTINUE')
+
     # FIXME: combine with scanner3.py code and put into scanner.py
     def rem_or(self, start, end, instr, target=None, include_beyond_target=False):
         """
@@ -1200,3 +1198,17 @@ class Scanner2(Scanner):
             instr_offsets = filtered
             filtered = []
         return instr_offsets
+
+if __name__ == "__main__":
+    from uncompyle6 import PYTHON_VERSION
+    if 2.0 <= PYTHON_VERSION < 3.0:
+        import inspect
+        co = inspect.currentframe().f_code
+        from uncompyle6 import PYTHON_VERSION
+        tokens, customize = Scanner2(PYTHON_VERSION).ingest(co)
+        for t in tokens:
+            print(t)
+    else:
+        print("Need to be Python 2.x to demo; I am %s." %
+              PYTHON_VERSION)
+    pass

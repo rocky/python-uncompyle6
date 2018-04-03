@@ -25,28 +25,15 @@ class Scanner27(Scanner2):
         super(Scanner27, self).__init__(2.7, show_asm, is_pypy)
 
         # opcodes that start statements
-        self.statement_opcodes = frozenset([
-            self.opc.SETUP_LOOP,       self.opc.BREAK_LOOP,
-            self.opc.SETUP_FINALLY,    self.opc.END_FINALLY,
-            self.opc.SETUP_EXCEPT,
-            self.opc.POP_BLOCK,        self.opc.STORE_FAST, self.opc.DELETE_FAST,
-            self.opc.STORE_DEREF,      self.opc.STORE_GLOBAL,
-            self.opc.DELETE_GLOBAL,    self.opc.STORE_NAME,
-            self.opc.DELETE_NAME,      self.opc.STORE_ATTR,
-            self.opc.DELETE_ATTR,      self.opc.STORE_SUBSCR,
-            self.opc.DELETE_SUBSCR,    self.opc.RETURN_VALUE,
-            self.opc.RAISE_VARARGS,    self.opc.POP_TOP,
-            self.opc.PRINT_EXPR,       self.opc.PRINT_ITEM,
-            self.opc.PRINT_NEWLINE,    self.opc.PRINT_ITEM_TO,
-            self.opc.PRINT_NEWLINE_TO, self.opc.CONTINUE_LOOP,
-            self.opc.JUMP_ABSOLUTE,    self.opc.EXEC_STMT,
-            # New in 2.7
-            self.opc.SETUP_WITH,
-            self.opc.STORE_SLICE_0,    self.opc.STORE_SLICE_1,
-            self.opc.STORE_SLICE_2,    self.opc.STORE_SLICE_3,
-            self.opc.DELETE_SLICE_0,   self.opc.DELETE_SLICE_1,
-            self.opc.DELETE_SLICE_2,   self.opc.DELETE_SLICE_3,
-        ])
+        self.statement_opcodes = frozenset(
+            self.statement_opcodes | set([
+                # New in 2.7
+                self.opc.SETUP_WITH,
+                self.opc.STORE_SLICE_0,    self.opc.STORE_SLICE_1,
+                self.opc.STORE_SLICE_2,    self.opc.STORE_SLICE_3,
+                self.opc.DELETE_SLICE_0,   self.opc.DELETE_SLICE_1,
+                self.opc.DELETE_SLICE_2,   self.opc.DELETE_SLICE_3,
+            ]))
 
         # opcodes which expect a variable number pushed values and whose
         # count is in the opcode. For parsing we generally change the
@@ -84,19 +71,6 @@ class Scanner27(Scanner2):
                                              self.opc.JUMP_IF_TRUE_OR_POP])
 
         return
-
-    def patch_continue(self, tokens, offset, op):
-        if op in (self.opc.JUMP_FORWARD, self.opc.JUMP_ABSOLUTE):
-            # FIXME: this is a hack to catch stuff like:
-            #   for ...
-            #     try: ...
-            #     except: continue
-            # the "continue" is not on a new line.
-            n = len(tokens)
-            if (n > 2 and
-                tokens[-1].kind == 'JUMP_BACK' and
-                self.code[offset+3] == self.opc.END_FINALLY):
-                tokens[-1].kind = intern('CONTINUE')
 
     pass
 

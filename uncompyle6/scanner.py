@@ -23,12 +23,15 @@ scanners, e.g. for Python 2.7 or 3.4.
 
 from __future__ import print_function
 
+from array import array
+from collections import namedtuple
 import sys
 
 from uncompyle6 import PYTHON3, IS_PYPY
 from uncompyle6.scanners.tok import Token
 import xdis
-from xdis.bytecode import instruction_size, extended_arg_val, next_offset
+from xdis.bytecode import (
+    Bytecode, instruction_size, extended_arg_val, next_offset)
 from xdis.magics import canonic_python_version
 from xdis.util import code2num
 
@@ -90,11 +93,72 @@ class Scanner(object):
         # FIXME: This weird Python2 behavior is not Python3
         self.resetTokenClass()
 
-    def opname_for_offset(self, offset):
-        return self.opc.opname[self.code[offset]]
+    def build_instructions(self, co):
+        """
+        Create a list of instructions (a structured object rather than
+        an array of bytes) and store that in self.insts
+        """
+        # FIXME: remove this when all subsidiary functions have been removed.
+        # We should be able to get everything from the self.insts list.
+        self.code = array('B', co.co_code)
 
-    def op_name(self, op):
-        return self.opc.opname[op]
+        bytecode = Bytecode(co, self.opc)
+        self.build_prev_op()
+        self.insts = self.remove_extended_args(list(bytecode))
+        return bytecode
+
+    def build_lines_data(self, code_obj):
+        """
+        Generate various line-related helper data.
+        """
+
+        # Offset: lineno pairs, only for offsets which start line.
+        # Locally we use list for more convenient iteration using indices
+        linestarts = list(self.opc.findlinestarts(code_obj))
+        self.linestarts = dict(linestarts)
+
+        # Plain set with offsets of first ops on line.
+        # FIXME: we probably could do without
+        self.linestart_offsets = set(a for (a, _) in linestarts)
+
+        # 'List-map' which shows line number of current op and offset of
+        # first op on following line, given offset of op as index
+        lines = []
+        LineTuple = namedtuple('LineTuple', ['l_no', 'next'])
+
+        # Iterate through available linestarts, and fill
+        # the data for all code offsets encountered until
+        # last linestart offset
+        _, prev_line_no = linestarts[0]
+        offset = 0
+        for start_offset, line_no in linestarts[1:]:
+            while offset < start_offset:
+                lines.append(LineTuple(prev_line_no, start_offset))
+                offset += 1
+            prev_line_no = line_no
+
+        # Fill remaining offsets with reference to last line number
+        # and code length as start offset of following non-existing line
+        codelen = len(self.code)
+        while offset < codelen:
+            lines.append(LineTuple(prev_line_no, codelen))
+            offset += 1
+        return lines
+
+    def build_prev_op(self):
+        """
+        Compose 'list-map' which allows to jump to previous
+        op, given offset of current op as index.
+        """
+        code = self.code
+        codelen = len(code)
+        # 2.x uses prev 3.x uses prev_op. Sigh
+        # Until we get this sorted out.
+        self.prev = self.prev_op = [0]
+        for offset in self.op_range(0, codelen):
+            op = code[offset]
+            for _ in range(instruction_size(op, self.opc)):
+                self.prev_op.append(offset)
 
     def is_jump_forward(self, offset):
         """
@@ -332,6 +396,12 @@ class Scanner(object):
 
         return result
 
+    def opname_for_offset(self, offset):
+        return self.opc.opname[self.code[offset]]
+
+    def op_name(self, op):
+        return self.opc.opname[op]
+
     def op_range(self, start, end):
         """
         Iterate through positions of opcodes, skipping
@@ -340,6 +410,42 @@ class Scanner(object):
         while start < end:
             yield start
             start += instruction_size(self.code[start], self.opc)
+
+    def remove_extended_args(self, instructions):
+        """Go through instructions removing extended ARG.
+        get_instruction_bytes previously adjusted the operand values
+        to account for these"""
+        new_instructions = []
+        last_was_extarg = False
+        n = len(instructions)
+        for i, inst in enumerate(instructions):
+            if (inst.opname == 'EXTENDED_ARG' and
+                i+1 < n and instructions[i+1].opname != 'MAKE_FUNCTION'):
+                last_was_extarg = True
+                starts_line = inst.starts_line
+                is_jump_target = inst.is_jump_target
+                offset = inst.offset
+                continue
+            if last_was_extarg:
+
+                # j = self.stmts.index(inst.offset)
+                # self.lines[j] = offset
+
+                new_inst= inst._replace(starts_line=starts_line,
+                                        is_jump_target=is_jump_target,
+                                        offset=offset)
+                inst = new_inst
+                if i < n:
+                    new_prev = self.prev_op[instructions[i].offset]
+                    j = instructions[i+1].offset
+                    old_prev = self.prev_op[j]
+                    while self.prev_op[j] == old_prev and j < n:
+                        self.prev_op[j] = new_prev
+                        j += 1
+
+            last_was_extarg = False
+            new_instructions.append(inst)
+        return new_instructions
 
     def remove_mid_line_ifs(self, ifs):
         """
@@ -413,7 +519,7 @@ def get_scanner(version, is_pypy=False, show_asm=None):
 if __name__ == "__main__":
     import inspect, uncompyle6
     co = inspect.currentframe().f_code
-    scanner = get_scanner('2.7.13', True)
-    scanner = get_scanner(sys.version[:5], False)
+    # scanner = get_scanner('2.7.13', True)
+    # scanner = get_scanner(sys.version[:5], False)
     scanner = get_scanner(uncompyle6.PYTHON_VERSION, IS_PYPY, True)
-    tokens, customize = scanner.ingest(co, {})
+    tokens, customize = scanner.ingest(co, {}, show_asm='after')

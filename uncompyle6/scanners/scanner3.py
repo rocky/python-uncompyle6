@@ -35,11 +35,8 @@ Finally we save token information.
 
 from __future__ import print_function
 
-from collections import namedtuple
-from array import array
-
 from xdis.code import iscode
-from xdis.bytecode import Bytecode, instruction_size, _get_const_info
+from xdis.bytecode import instruction_size, _get_const_info
 
 from uncompyle6.scanner import Token, parse_fn_counts
 import xdis
@@ -100,7 +97,7 @@ class Scanner3(Scanner):
 
         self.statement_opcodes = frozenset(statement_opcodes) | self.setup_ops_no_loop
 
-        # Opcodes that can start a designator non-terminal.
+        # Opcodes that can start a "store" non-terminal.
         # FIXME: JUMP_ABSOLUTE is weird. What's up with that?
         self.designator_ops = frozenset([
             self.opc.STORE_FAST,    self.opc.STORE_NAME, self.opc.STORE_GLOBAL,
@@ -154,42 +151,6 @@ class Scanner3(Scanner):
         # FIXME: remove the above in favor of:
         # self.varargs_ops = frozenset(self.opc.hasvargs)
 
-    def remove_extended_args(self, instructions):
-        """Go through instructions removing extended ARG.
-        get_instruction_bytes previously adjusted the operand values
-        to account for these"""
-        new_instructions = []
-        last_was_extarg = False
-        n = len(instructions)
-        for i, inst in enumerate(instructions):
-            if (inst.opname == 'EXTENDED_ARG' and
-                i+1 < n and instructions[i+1].opname != 'MAKE_FUNCTION'):
-                last_was_extarg = True
-                starts_line = inst.starts_line
-                is_jump_target = inst.is_jump_target
-                offset = inst.offset
-                continue
-            if last_was_extarg:
-
-                # j = self.stmts.index(inst.offset)
-                # self.lines[j] = offset
-
-                new_inst= inst._replace(starts_line=starts_line,
-                                        is_jump_target=is_jump_target,
-                                        offset=offset)
-                inst = new_inst
-                if i < n:
-                    new_prev = self.prev_op[instructions[i].offset]
-                    j = instructions[i+1].offset
-                    old_prev = self.prev_op[j]
-                    while self.prev_op[j] == old_prev and j < n:
-                        self.prev_op[j] = new_prev
-                        j += 1
-
-            last_was_extarg = False
-            new_instructions.append(inst)
-        return new_instructions
-
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Pick out tokens from an uncompyle6 code object, and transform them,
@@ -207,13 +168,12 @@ class Scanner3(Scanner):
         cause specific rules for the specific number of arguments they take.
         """
 
-        # FIXME: remove this when all subsidiary functions have been removed.
-        # We should be able to get everything from the self.insts list.
-        self.code = array('B', co.co_code)
+        if not show_asm:
+            show_asm = self.show_asm
 
-        bytecode = Bytecode(co, self.opc)
-        show_asm = self.show_asm if not show_asm else show_asm
-        # show_asm = 'both'
+        bytecode = self.build_instructions(co)
+
+        # show_asm = 'after'
         if show_asm in ('both', 'before'):
             for instr in bytecode.get_instructions(co):
                 print(instr.disassemble())
@@ -228,14 +188,11 @@ class Scanner3(Scanner):
             customize['PyPy'] = 0
 
         self.lines = self.build_lines_data(co)
-        self.build_prev_op()
 
-        # FIXME: put as its own method?
         # Scan for assertions. Later we will
         # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT'.
         # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
-        self.insts = self.remove_extended_args(list(bytecode))
 
         self.offset2inst_index = {}
         n = len(self.insts)
@@ -481,53 +438,6 @@ class Scanner3(Scanner):
                 print(t.format(line_prefix='L.'))
             print()
         return tokens, customize
-
-    def build_lines_data(self, code_obj):
-        """
-        Generate various line-related helper data.
-        """
-        # Offset: lineno pairs, only for offsets which start line.
-        # Locally we use list for more convenient iteration using indices
-        linestarts = list(self.opc.findlinestarts(code_obj))
-        self.linestarts = dict(linestarts)
-        # Plain set with offsets of first ops on line
-        self.linestart_offsets = set(a for (a, _) in linestarts)
-        # 'List-map' which shows line number of current op and offset of
-        # first op on following line, given offset of op as index
-        lines = []
-        LineTuple = namedtuple('LineTuple', ['l_no', 'next'])
-        # Iterate through available linestarts, and fill
-        # the data for all code offsets encountered until
-        # last linestart offset
-        _, prev_line_no = linestarts[0]
-        offset = 0
-        for start_offset, line_no in linestarts[1:]:
-            while offset < start_offset:
-                lines.append(LineTuple(prev_line_no, start_offset))
-                offset += 1
-            prev_line_no = line_no
-        # Fill remaining offsets with reference to last line number
-        # and code length as start offset of following non-existing line
-        codelen = len(self.code)
-        while offset < codelen:
-            lines.append(LineTuple(prev_line_no, codelen))
-            offset += 1
-        return lines
-
-    def build_prev_op(self):
-        """
-        Compose 'list-map' which allows to jump to previous
-        op, given offset of current op as index.
-        """
-        code = self.code
-        codelen = len(code)
-        # 2.x uses prev 3.x uses prev_op. Sigh
-        # Until we get this sorted out.
-        self.prev = self.prev_op = [0]
-        for offset in self.op_range(0, codelen):
-            op = code[offset]
-            for _ in range(instruction_size(op, self.opc)):
-                self.prev_op.append(offset)
 
     def find_jump_targets(self, debug):
         """
