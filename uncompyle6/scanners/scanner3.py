@@ -176,6 +176,9 @@ class Scanner3(Scanner):
         if not show_asm:
             show_asm = self.show_asm
 
+        if not show_asm:
+            show_asm = self.show_asm
+
         bytecode = self.build_instructions(co)
 
         # show_asm = 'after'

@@ -35,11 +35,6 @@ Finally we save token information.
 
 from uncompyle6 import PYTHON_VERSION
 
-if PYTHON_VERSION < 2.6:
-    from xdis.namedtuple24 import namedtuple
-else:
-    from collections import namedtuple
-
 from copy import copy
 
 from xdis.code import iscode
