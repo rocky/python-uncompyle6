@@ -1,6 +1,8 @@
 import pytest
-from uncompyle6 import PYTHON_VERSION, PYTHON3, deparse_code
+from uncompyle6 import PYTHON_VERSION, deparse_code
 
+@pytest.mark.skip(PYTHON_VERSION < 2.7,
+                  reason="need at least Python 2.7")
 def test_single_mode():
     single_expressions = (
         'i = 1',

@@ -187,18 +187,13 @@ class Scanner3(Scanner):
         if self.is_pypy:
             customize['PyPy'] = 0
 
-        self.lines = self.build_lines_data(co)
-
         # Scan for assertions. Later we will
         # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT'.
         # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
 
-        self.offset2inst_index = {}
         n = len(self.insts)
         for i, inst in enumerate(self.insts):
-
-            self.offset2inst_index[inst.offset] = i
 
             # We need to detect the difference between:
             #   raise AssertionError
