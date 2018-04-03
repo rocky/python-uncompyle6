@@ -63,3 +63,8 @@ def unpack_archive(func, filename, dict, format_info, extract_dir=None):
 import xdrlib
 def assertRaisesConversion(self, *args):
    self.assertRaises(xdrlib.ConversionError, *args)
+
+# From 3.2.6 _pyio.py
+class BlockingIOError(IOError):
+    def __init__(self, errno, strerror, characters_written=5):
+        super().__init__(errno, strerror)
