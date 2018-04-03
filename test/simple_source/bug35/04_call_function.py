@@ -58,3 +58,8 @@ def __call__(self, *args, **kwds):
 # From 3.6.4 shutil
 def unpack_archive(func, filename, dict, format_info, extract_dir=None):
     func(filename, extract_dir, **dict(format_info[2]))
+
+# From 3.5.5 test_xrdrlib.py
+import xdrlib
+def assertRaisesConversion(self, *args):
+   self.assertRaises(xdrlib.ConversionError, *args)
