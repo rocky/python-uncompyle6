@@ -509,6 +509,10 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
         lambda_index = None
 
     args_node = node[-1]
+
+    # Get a list of tree nodes that constitute the "default parameters"
+    # these are default values that appear before any *, and are not
+    # to be confused with keyword parameters which may appear after *.
     if isinstance(args_node.attr, tuple):
         pos_args, kw_args, annotate_argc  = args_node.attr
         # FIXME: there is probably a better way to classify this.
@@ -519,23 +523,25 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
             lc_index = -3
             pass
 
-        default_values_start = 0
-        param_str = None
-        if node[0] == 'no_kwargs':
-            default_values_start += 1
+        if (3.2 <= self.version <= 3.3 and len(node) > 2 and
+                node[lambda_index] != 'LOAD_LAMBDA' and
+                (have_kwargs or node[lc_index].kind != 'load_closure')):
 
-        if not param_str:
-            if (3.2 <= self.version <= 3.3 and len(node) > 2 and
-                    node[lambda_index] != 'LOAD_LAMBDA' and
-                    (have_kwargs or node[lc_index].kind != 'load_closure')):
-                # args are after kwargs; kwargs are bundled as one node
-                if self.version == 3.3:
-                    default_values_start += 1
-                defparams = node[default_values_start:args_node.attr[0]+default_values_start]
-            else:
-                # args are before kwargs; kwags as bundled as one node
-                defparams = node[default_values_start:default_values_start+args_node.attr[0]]
-                pass
+            # Find the index in "node" where the first default
+            # parameter value is located. Note this is in contrast to
+            # key-word arguments, pairs of (name, value), which appear after "*".
+            # "default_values_start" is this location.
+            default_values_start = 0
+            if node[0] == 'no_kwargs':
+                default_values_start += 1
+            # args are after kwargs; kwargs are bundled as one node
+            if node[default_values_start] == 'kwargs':
+                default_values_start += 1
+            defparams = node[default_values_start:default_values_start+args_node.attr[0]]
+        else:
+            # args are first, before kwargs.
+            defparams = node[:args_node.attr[0]]
+            pass
     else:
         if self.version < 3.6:
             defparams = node[:args_node.attr]
