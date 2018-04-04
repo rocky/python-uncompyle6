@@ -499,7 +499,6 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
     # MAKE_FUNCTION_... or MAKE_CLOSURE_...
     assert node[-1].kind.startswith('MAKE_')
 
-
     # Python 3.3+ adds a qualified name at TOS (-1)
     # moving down the LOAD_LAMBDA instruction
     if 3.0 <= self.version <= 3.2:
@@ -520,15 +519,23 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
             lc_index = -3
             pass
 
-        if (self.version == 3.3 and len(node) > 2 and
-                node[lambda_index] != 'LOAD_LAMBDA' and
-                (have_kwargs or node[lc_index].kind != 'load_closure')):
-            # args are after kwargs; kwargs are bundled as one node
-            defparams = node[1:args_node.attr[0]+1]
-        else:
-            # args are before kwargs; kwags as bundled as one node
-            defparams = node[:args_node.attr[0]]
-            pass
+        default_values_start = 0
+        param_str = None
+        if node[0] == 'no_kwargs':
+            default_values_start += 1
+
+        if not param_str:
+            if (3.2 <= self.version <= 3.3 and len(node) > 2 and
+                    node[lambda_index] != 'LOAD_LAMBDA' and
+                    (have_kwargs or node[lc_index].kind != 'load_closure')):
+                # args are after kwargs; kwargs are bundled as one node
+                if self.version == 3.3:
+                    default_values_start += 1
+                defparams = node[default_values_start:args_node.attr[0]+default_values_start]
+            else:
+                # args are before kwargs; kwags as bundled as one node
+                defparams = node[default_values_start:default_values_start+args_node.attr[0]]
+                pass
     else:
         if self.version < 3.6:
             defparams = node[:args_node.attr]
