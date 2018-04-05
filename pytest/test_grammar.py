@@ -50,7 +50,7 @@ def test_grammar():
                 unused_rhs.add('call')
                 if PYTHON_VERSION == 3.5:
                     expect_right_recursive.add((('l_stmts',
-                                                 ('lastl_stmt', 'COME_FROM', 'l_stmts'))))
+                                                 ('lastl_stmt', 'come_froms', 'l_stmts'))))
                     pass
                 pass
             else:

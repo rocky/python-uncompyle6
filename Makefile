@@ -29,12 +29,12 @@ check-short: pytest
 
 # Note for 2.6 use <=3.0.1 see requirements-dev.txt
 #: Tests for Python 2.7, 3.3 and 3.4
-check-2.6 check-2.7 check-3.3 check-3.4: pytest
+check-2.6 check-2.7 check-3.3 check-3.4 check-3.5: pytest
 	$(MAKE) -C test $@
 
 #: Tests for Python 3.2 and 3.5 - pytest doesn't work here
 # Or rather 3.5 doesn't work not on Travis
-check-3.0 check-3.1 check-3.2 check-3.5 check-3.6:
+check-3.0 check-3.1 check-3.2 check-3.6:
 	$(MAKE) -C test $@
 
 check-3.7: pytest
