@@ -510,9 +510,9 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
 
     args_node = node[-1]
 
-    # Get a list of tree nodes that constitute the "default parameters"
-    # these are default values that appear before any *, and are not
-    # to be confused with keyword parameters which may appear after *.
+    # Get a list of tree nodes that constitute the values for the "default
+    # parameters"; these are default values that appear before any *, and are
+    # not to be confused with keyword parameters which may appear after *.
     if isinstance(args_node.attr, tuple):
         pos_args, kw_args, annotate_argc  = args_node.attr
         # FIXME: there is probably a better way to classify this.
@@ -539,7 +539,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
                 default_values_start += 1
             defparams = node[default_values_start:default_values_start+args_node.attr[0]]
         else:
-            # args are first, before kwargs.
+            # args are first, before kwargs. Or there simply are no kwargs.
             defparams = node[:args_node.attr[0]]
             pass
     else:

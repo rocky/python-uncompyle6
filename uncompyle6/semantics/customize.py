@@ -21,7 +21,6 @@ from uncompyle6.semantics.consts import (
 
 from uncompyle6.parsers.astnode import AST
 from uncompyle6.scanners.tok import Token
-from uncompyle6.semantics.customize3 import customize_for_version3
 
 def customize_for_version(self, is_pypy, version):
     if is_pypy:
@@ -182,5 +181,6 @@ def customize_for_version(self, is_pypy, version):
         })
 
     if  version >= 3.0:
+        from uncompyle6.semantics.customize3 import customize_for_version3
         customize_for_version3(self, version)
     return

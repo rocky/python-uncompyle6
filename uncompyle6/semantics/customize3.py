@@ -46,8 +46,6 @@ def customize_for_version3(self, version):
         self.n_yield_from = n_yield_from
 
     if 3.2 <= version <= 3.4:
-
-        # In Python 3.3+ only
         def n_call(node):
             mapping = self._get_mapping(node)
             key = node
