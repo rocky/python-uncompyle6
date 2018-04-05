@@ -14,7 +14,7 @@ function displaytime {
     printf '%d seconds\n' $S
 }
 
-PYVERSION=${PYVERSION:-"3.5.5 2.7.14 3.2.6 3.4.8 2.6.9 3.6.4"}
+PYVERSION=${PYVERSION:-"3.5.5 2.7.14 3.2.6 3.3.7 3.4.8 2.6.9 3.6.4"}
 # PYVERSION=${PYVERSION:-"3.5.5"}
 
 USER=${USER:-rocky}
@@ -29,7 +29,7 @@ for VERSION in $PYVERSION ; do
     if [[ $VERSION == '3.5.5' ]] ; then
 	MAX_TESTS=224
     elif [[ $VERSION == '3.2.6' ]] ; then
-	MAX_TESTS=75
+	MAX_TESTS=700
     elif [[ $VERSION == '3.6.4' ]] ; then
 	MAX_TESTS=400
     else
