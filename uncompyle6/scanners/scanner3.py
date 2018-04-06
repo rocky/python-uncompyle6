@@ -131,6 +131,7 @@ class Scanner3(Scanner):
                 (self.opc.JUMP_FORWARD,),
                 (self.opc.JUMP_ABSOLUTE,)]
 
+        # FIXME: remove this and use instead info from xdis.
         # Opcodes that take a variable number of arguments
         # (expr's)
         varargs_ops = set([
@@ -141,11 +142,14 @@ class Scanner3(Scanner):
 
         if is_pypy:
             varargs_ops.add(self.opc.CALL_METHOD)
-        if self.version >= 3.6:
-            varargs_ops.add(self.opc.BUILD_CONST_KEY_MAP)
-            # Below is in bit order, "default = bit 0, closure = bit 3
-            self.MAKE_FUNCTION_FLAGS = tuple("""
-             default keyword-only annotation closure""".split())
+        if self.version >= 3.5:
+            varargs_ops |= set([self.opc.BUILD_SET_UNPACK,
+                                self.opc.BUILD_TUPLE_UNPACK])
+            if self.version >= 3.6:
+                varargs_ops.add(self.opc.BUILD_CONST_KEY_MAP)
+                # Below is in bit order, "default = bit 0, closure = bit 3
+                self.MAKE_FUNCTION_FLAGS = tuple("""
+                 default keyword-only annotation closure""".split())
 
         self.varargs_ops = frozenset(varargs_ops)
         # FIXME: remove the above in favor of:
