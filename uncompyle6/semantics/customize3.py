@@ -304,10 +304,9 @@ def customize_for_version3(self, version):
                     if elem in ('ROT_THREE', 'EXTENDED_ARG'):
                         continue
                     assert elem == 'expr'
-                    elem = elem[0]
                     line_number = self.line_number
                     value = self.traverse(elem)
-                    if elem == 'tuple':
+                    if elem[0] == 'tuple':
                         assert value[0] == '('
                         assert value[-1] == ')'
                         value = value[1:-1]

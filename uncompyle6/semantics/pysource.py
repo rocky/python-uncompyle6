@@ -1694,7 +1694,6 @@ class SourceWalker(GenericASTTraversal, object):
             if elem in ('ROT_THREE', 'EXTENDED_ARG'):
                 continue
             assert elem == 'expr'
-            elem = elem[0]
             line_number = self.line_number
             value = self.traverse(elem)
             if line_number != self.line_number:
@@ -1719,7 +1718,6 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
         return
 
-    # FIXME: add n_tuple_unpack  to list?
     n_set = n_tuple = n_build_set = n_list
 
     def n_unpack(self, node):
