@@ -46,7 +46,7 @@ for VERSION in $PYVERSION ; do
       rc=$?
 
       echo Python Version $(pyenv local) >> $LOGFILE
-      echo "" >>LOGFILE
+      echo "" >>$LOGFILE
 
       typeset -i ALL_FILES_ENDTIME=$(date +%s)
       (( time_diff =  ALL_FILES_ENDTIME - ALL_FILES_STARTTIME))

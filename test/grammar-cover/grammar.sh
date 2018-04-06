@@ -30,7 +30,7 @@ while [[ -n $1 ]]  ; do
         source ./admin-tools/setup-python-2.4.sh
     fi
     GRAMMAR_TXT=$tmpdir/grammar-${SHORT_VERSION}.txt
-    pyenv local ${LONG_VERSION}
+    (cd ../.. && pyenv local ${LONG_VERSION})
     cd ./test
     if [[ -r $COVER_FILE ]]; then
 	rm $COVER_FILE
