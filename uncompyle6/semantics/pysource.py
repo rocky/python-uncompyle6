@@ -135,7 +135,7 @@ from spark_parser import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DE
 from uncompyle6.scanner import Code, get_scanner
 import uncompyle6.parser as python_parser
 from uncompyle6.semantics.make_function import (
-    make_function2, make_function3, make_function3_annotate,
+    make_function2, make_function3
     )
 from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.semantics.check_ast import checker
@@ -147,7 +147,7 @@ from uncompyle6.scanners.tok import Token
 from uncompyle6.semantics.consts import (
     LINE_LENGTH, RETURN_LOCALS, NONE, RETURN_NONE, PASS,
     ASSIGN_DOC_STRING, NAME_MODULE, TAB,
-    INDENT_PER_LEVEL, TABLE_R, TABLE_DIRECT, MAP_DIRECT,
+    INDENT_PER_LEVEL, TABLE_R, MAP_DIRECT,
     MAP, PRECEDENCE, ASSIGN_TUPLE_PARAM, escape, minint)
 
 
@@ -1676,6 +1676,7 @@ class SourceWalker(GenericASTTraversal, object):
             else:
                 self.write('('); endchar = ')'
                 pass
+
         elif lastnodetype.startswith('BUILD_SET'):
             self.write('{'); endchar = '}'
         elif lastnodetype.startswith('BUILD_MAP_UNPACK'):
@@ -1693,6 +1694,7 @@ class SourceWalker(GenericASTTraversal, object):
             if elem in ('ROT_THREE', 'EXTENDED_ARG'):
                 continue
             assert elem == 'expr'
+            elem = elem[0]
             line_number = self.line_number
             value = self.traverse(elem)
             if line_number != self.line_number:
@@ -1717,6 +1719,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
         return
 
+    # FIXME: add n_tuple_unpack  to list?
     n_set = n_tuple = n_build_set = n_list
 
     def n_unpack(self, node):

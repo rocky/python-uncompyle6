@@ -252,6 +252,92 @@ def customize_for_version3(self, version):
                 pass
             self.n_unmapexpr = unmapexpr
 
+            # FIXME: start here
+            def n_list_unpack(node):
+                """
+                prettyprint an unpacked list or tuple
+                """
+                p = self.prec
+                self.prec = 100
+                lastnode = node.pop()
+                lastnodetype = lastnode.kind
+
+                # If this build list is inside a CALL_FUNCTION_VAR,
+                # then the first * has already been printed.
+                # Until I have a better way to check for CALL_FUNCTION_VAR,
+                # will assume that if the text ends in *.
+                last_was_star = self.f.getvalue().endswith('*')
+
+                if lastnodetype.startswith('BUILD_LIST'):
+                    self.write('['); endchar = ']'
+                elif lastnodetype.startswith('BUILD_TUPLE'):
+                    # Tuples can appear places that can NOT
+                    # have parenthesis around them, like array
+                    # subscripts. We check for that by seeing
+                    # if a tuple item is some sort of slice.
+                    no_parens = False
+                    for n in node:
+                        if n == 'expr' and n[0].kind.startswith('build_slice'):
+                            no_parens = True
+                            break
+                        pass
+                    if no_parens:
+                        endchar = ''
+                    else:
+                        self.write('('); endchar = ')'
+                        pass
+
+                elif lastnodetype.startswith('BUILD_SET'):
+                    self.write('{'); endchar = '}'
+                elif lastnodetype.startswith('BUILD_MAP_UNPACK'):
+                    self.write('{*'); endchar = '}'
+                elif lastnodetype.startswith('ROT_TWO'):
+                    self.write('('); endchar = ')'
+                else:
+                    raise TypeError('Internal Error: n_build_list expects list, tuple, set, or unpack')
+
+                flat_elems = flatten_list(node)
+
+                self.indent_more(INDENT_PER_LEVEL)
+                sep = ''
+                for elem in flat_elems:
+                    if elem in ('ROT_THREE', 'EXTENDED_ARG'):
+                        continue
+                    assert elem == 'expr'
+                    elem = elem[0]
+                    line_number = self.line_number
+                    value = self.traverse(elem)
+                    if elem == 'tuple':
+                        assert value[0] == '('
+                        assert value[-1] == ')'
+                        value = value[1:-1]
+                        if value[-1] == ',':
+                            # singleton tuple
+                            value = value[:-1]
+                    else:
+                        value = '*' + value
+                    if line_number != self.line_number:
+                        sep += '\n' + self.indent + INDENT_PER_LEVEL[:-1]
+                    else:
+                        if sep != '': sep += ' '
+                    if not last_was_star:
+                        pass
+                    else:
+                        last_was_star = False
+                    self.write(sep, value)
+                    sep = ','
+                if lastnode.attr == 1 and lastnodetype.startswith('BUILD_TUPLE'):
+                    self.write(',')
+                self.write(endchar)
+                self.indent_less(INDENT_PER_LEVEL)
+
+                self.prec = p
+                self.prune()
+                return
+
+            self.n_tuple_unpack = n_list_unpack
+
+
         if version >= 3.6:
             ########################
             # Python 3.6+ Additions

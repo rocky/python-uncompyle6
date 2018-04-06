@@ -679,7 +679,9 @@ class Python3Parser(PythonParser):
                 v = token.attr
                 rule = ('starred ::= %s %s' % ('expr ' * v, opname))
                 self.addRule(rule, nop_func)
-            elif opname_base in ('BUILD_LIST', 'BUILD_SET', 'BUILD_TUPLE'):
+
+            elif opname_base in ('BUILD_LIST', 'BUILD_SET', 'BUILD_TUPLE',
+                                 'BUILD_TUPLE_UNPACK'):
                 v = token.attr
 
                 is_LOAD_CLOSURE = False

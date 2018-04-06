@@ -144,6 +144,8 @@ class Scanner3(Scanner):
             varargs_ops.add(self.opc.CALL_METHOD)
         if self.version >= 3.5:
             varargs_ops |= set([self.opc.BUILD_SET_UNPACK,
+                                # self.opc.BUILD_MAP_UNPACK,   # we will handle this later
+                                self.opc.BUILD_LIST_UNPACK,
                                 self.opc.BUILD_TUPLE_UNPACK])
             if self.version >= 3.6:
                 varargs_ops.add(self.opc.BUILD_CONST_KEY_MAP)
