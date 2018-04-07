@@ -351,6 +351,7 @@ def customize_for_version3(self, version):
             PRECEDENCE['call_ex_kw2'] = 100
             PRECEDENCE['call_ex_kw3'] = 100
             PRECEDENCE['call_ex_kw4'] = 100
+            PRECEDENCE['unmap_dict']  = 0
 
             TABLE_DIRECT.update({
                 'tryfinally36':  ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
