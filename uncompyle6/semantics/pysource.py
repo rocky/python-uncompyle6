@@ -1393,9 +1393,15 @@ class SourceWalker(GenericASTTraversal, object):
     def print_super_classes3(self, node):
         n = len(node) - 1
         if node.kind != 'expr':
-            assert node[n].kind.startswith('CALL_FUNCTION')
+            if node == 'kwarg':
+                self.write('(')
+                self.template_engine(('%[0]{pattr}=%c', 1), node)
+                self.write(')')
+                return
 
             kwargs = None
+            assert node[n].kind.startswith('CALL_FUNCTION')
+
             if node[n].kind.startswith('CALL_FUNCTION_KW'):
                 # 3.6+ starts does this
                 kwargs = node[n-1].attr
