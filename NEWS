@@ -1,3 +1,11 @@
+uncompyle6 3.1.2 2018-04-08 Eastern Orthodox Easter
+
+- Python 3.x subclass and call parsing fixes
+- Allow/note running on Python 3.1
+- improve 3.5+ BUILD_MAP_UNPACK
+- DRY instruction building code between 2.x and 3.x
+- expand testing
+
 uncompyle6 3.1.1 2018-04-01 Easter April Fool's
 
 Jesus on Friday's New York Times puzzle: "I'm stuck on 2A"
