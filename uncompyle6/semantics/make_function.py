@@ -523,7 +523,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
             lc_index = -3
             pass
 
-        if (3.2 <= self.version <= 3.3 and len(node) > 2 and
+        if (3.1 <= self.version <= 3.3 and len(node) > 2 and
                 node[lambda_index] != 'LOAD_LAMBDA' and
                 (have_kwargs or node[lc_index].kind != 'load_closure')):
 
@@ -591,7 +591,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
     paramnames = list(scanner_code.co_varnames[:argc])
 
     # defaults are for last n parameters, thus reverse
-    if not 3.0 <= self.version <= 3.1 or self.version >= 3.6:
+    if not 3.0 == self.version or self.version >= 3.6:
         paramnames.reverse(); defparams.reverse()
 
     try:
@@ -621,7 +621,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
     else:
         params = paramnames
 
-    if not 3.0 <= self.version <= 3.1 or self.version >= 3.6:
+    if not 3.0 == self.version or self.version >= 3.6:
         params.reverse() # back to correct order
 
     if code_has_star_arg(code):
