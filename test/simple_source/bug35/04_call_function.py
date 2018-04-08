@@ -1,5 +1,6 @@
 # From sql/schema.py and 3.5 _strptime.py
-# Note that kwargs comes before "positional" args
+# Bug was code not knowing which Python versions
+# have kwargs coming before positional args in code.
 
 # RUNNABLE!
 
@@ -68,3 +69,13 @@ def assertRaisesConversion(self, *args):
 class BlockingIOError(IOError):
     def __init__(self, errno, strerror, characters_written=5):
         super().__init__(errno, strerror)
+
+# From urllib/parse.py
+# Bug was using a subclass made from a call (to namedtuple)
+from collections import namedtuple
+
+class ResultMixin(object):
+    pass
+
+class SplitResult(namedtuple('SplitResult', 'scheme netloc path query fragment'), ResultMixin):
+    pass

@@ -116,9 +116,14 @@ class Python3Parser(PythonParser):
 
         classdef ::= build_class store
 
+        # FIXME: we need to add these because don't detect this properly
+        # in custom rules. Specifically if one of the exprs is CALL_FUNCTION
+        # then we'll mistake that for the final CALL_FUNCTION.
+        # We can fix by triggering on the CALL_FUNCTION op
         # Python3 introduced LOAD_BUILD_CLASS
         # Other definitions are in a custom rule
         build_class ::= LOAD_BUILD_CLASS mkfunc expr call CALL_FUNCTION_3
+        build_class ::= LOAD_BUILD_CLASS mkfunc expr call expr CALL_FUNCTION_4
 
         stmt ::= classdefdeco
         classdefdeco ::= classdefdeco1 store
@@ -423,7 +428,7 @@ class Python3Parser(PythonParser):
                         LOAD_CONST CALL_FUNCTION_n
         build_class ::= LOAD_BUILD_CLASS mkfunc
                         expr
-                        call_function
+                        call
                         CALL_FUNCTION_3
          '''
         # FIXME: I bet this can be simplified

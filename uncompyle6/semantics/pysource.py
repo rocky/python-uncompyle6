@@ -1409,12 +1409,13 @@ class SourceWalker(GenericASTTraversal, object):
                 i = n - (len(kwargs)+1)
                 j = 1 + n - node[n].attr
             else:
-                for i in range(n-2, 0, -1):
-                    if not node[i].kind in ['expr', 'LOAD_CLASSNAME']:
+                start = n-2
+                for i in range(start, 0, -1):
+                    if not node[i].kind in ['expr', 'call', 'LOAD_CLASSNAME']:
                         break
                     pass
 
-                if i == n-2:
+                if i == start:
                     return
                 i += 2
 
