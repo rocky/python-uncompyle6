@@ -37,6 +37,7 @@ check-3.0: check-bytecode
 #: Run working tests from Python 3.1
 check-3.1: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.1 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.1-run --verify-run
 
 #: Run working tests from Python 3.2
 check-3.2: check-bytecode
@@ -201,6 +202,7 @@ check-bytecode-3.0:
 #: Check deparsing Python 3.1
 check-bytecode-3.1:
 	$(PYTHON) test_pythonlib.py --bytecode-3.1 --weak-verify
+	$(PYTHON) test_pythonlib.py --bytecode-3.1-run --verify-run
 
 #: Check deparsing Python 3.2
 check-bytecode-3.2:

@@ -117,9 +117,14 @@ class Python3Parser(PythonParser):
 
         classdef ::= build_class store
 
+        # FIXME: we need to add these because don't detect this properly
+        # in custom rules. Specifically if one of the exprs is CALL_FUNCTION
+        # then we'll mistake that for the final CALL_FUNCTION.
+        # We can fix by triggering on the CALL_FUNCTION op
         # Python3 introduced LOAD_BUILD_CLASS
         # Other definitions are in a custom rule
         build_class ::= LOAD_BUILD_CLASS mkfunc expr call CALL_FUNCTION_3
+        build_class ::= LOAD_BUILD_CLASS mkfunc expr call expr CALL_FUNCTION_4
 
         stmt ::= classdefdeco
         classdefdeco ::= classdefdeco1 store
@@ -424,7 +429,7 @@ class Python3Parser(PythonParser):
                         LOAD_CONST CALL_FUNCTION_n
         build_class ::= LOAD_BUILD_CLASS mkfunc
                         expr
-                        call_function
+                        call
                         CALL_FUNCTION_3
          '''
         # FIXME: I bet this can be simplified
@@ -627,7 +632,7 @@ class Python3Parser(PythonParser):
                 self.addRule(rule, nop_func)
                 rule = 'expr ::= build_list_unpack'
                 self.addRule(rule, nop_func)
-            elif opname_base == 'BUILD_MAP':
+            elif opname_base in ('BUILD_MAP', 'BUILD_MAP_UNPACK'):
                 kvlist_n = "kvlist_%s" % token.attr
                 if opname == 'BUILD_MAP_n':
                     # PyPy sometimes has no count. Sigh.
@@ -646,23 +651,21 @@ class Python3Parser(PythonParser):
                         # FIXME: Use the attr
                         # so this doesn't run into exponential parsing time.
                         if opname.startswith('BUILD_MAP_UNPACK'):
-                            # FIXME: start here
-                            # rule = "%s ::= %s %s" % (kvlist_n, 'expr ' * (token.attr*2), opname)
-                            rule = kvlist_n + ' ::= ' + 'expr ' * (token.attr*2)
                             self.add_unique_rule(rule, opname, token.attr, customize)
                             rule = 'dict_entry ::= ' + 'expr ' * (token.attr*2)
                             self.add_unique_rule(rule, opname, token.attr, customize)
-                            rule = 'dict ::= %s' % ('dict_entry ' * token.attr)
-                            self.addRule(rule, nop_func)
 
+                            # FIXME: start here. The LHS should be unmap_dict, not dict.
                             # FIXME: really we need a combination of dict_entry-like things.
                             # It just so happens the most common case is not to mix
                             # dictionary comphensions with dictionary, elements
                             if self.seen_LOAD_DICTCOMP:
                                 rule = 'dict ::= %s%s' % ('dict_comp ' * token.attr, opname)
                                 self.addRule(rule, nop_func)
-
-                            rule = 'unmap_dict ::= %s%s' % (('dict ' * token.attr), opname)
+                            rule = """
+                             expr       ::= unmap_dict
+                             unmap_dict ::= %s%s
+                             """ % ('expr ' * token.attr, opname)
                         else:
                             rule = "%s ::= %s %s" % (kvlist_n, 'expr ' * (token.attr*2), opname)
                             self.add_unique_rule(rule, opname, token.attr, customize)
@@ -680,7 +683,9 @@ class Python3Parser(PythonParser):
                 v = token.attr
                 rule = ('starred ::= %s %s' % ('expr ' * v, opname))
                 self.addRule(rule, nop_func)
-            elif opname_base in ('BUILD_LIST', 'BUILD_SET', 'BUILD_TUPLE'):
+
+            elif opname_base in ('BUILD_LIST', 'BUILD_SET', 'BUILD_TUPLE',
+                                 'BUILD_TUPLE_UNPACK'):
                 v = token.attr
 
                 is_LOAD_CLOSURE = False

@@ -506,6 +506,10 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
         lambda_index = None
 
     args_node = node[-1]
+
+    # Get a list of tree nodes that constitute the values for the "default
+    # parameters"; these are default values that appear before any *, and are
+    # not to be confused with keyword parameters which may appear after *.
     if isinstance(args_node.attr, tuple):
         pos_args, kw_args, annotate_argc  = args_node.attr
         # FIXME: there is probably a better way to classify this.
@@ -516,13 +520,23 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
             lc_index = -3
             pass
 
-        if (self.version <= 3.3 and len(node) > 2 and
+        if (3.1 <= self.version <= 3.3 and len(node) > 2 and
                 node[lambda_index] != 'LOAD_LAMBDA' and
                 (have_kwargs or node[lc_index].kind != 'load_closure')):
+
+            # Find the index in "node" where the first default
+            # parameter value is located. Note this is in contrast to
+            # key-word arguments, pairs of (name, value), which appear after "*".
+            # "default_values_start" is this location.
+            default_values_start = 0
+            if node[0] == 'no_kwargs':
+                default_values_start += 1
             # args are after kwargs; kwargs are bundled as one node
-            defparams = node[1:args_node.attr[0]+1]
+            if node[default_values_start] == 'kwargs':
+                default_values_start += 1
+            defparams = node[default_values_start:default_values_start+args_node.attr[0]]
         else:
-            # args are before kwargs; kwags as bundled as one node
+            # args are first, before kwargs. Or there simply are no kwargs.
             defparams = node[:args_node.attr[0]]
             pass
     else:
@@ -581,7 +595,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
     paramnames = list(scanner_code.co_varnames[:argc])
 
     # defaults are for last n parameters, thus reverse
-    if not 3.0 <= self.version <= 3.1 or self.version >= 3.6:
+    if not 3.0 == self.version or self.version >= 3.6:
         paramnames.reverse(); defparams.reverse()
 
     try:
@@ -611,7 +625,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
     else:
         params = paramnames
 
-    if not 3.0 <= self.version <= 3.1 or self.version >= 3.6:
+    if not 3.0 == self.version or self.version >= 3.6:
         params.reverse() # back to correct order
 
         if code_has_star_arg(code):
