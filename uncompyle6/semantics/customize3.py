@@ -42,7 +42,7 @@ def customize_for_version3(self, version):
         # * class_name - the name of the class
         # * subclass_info - the parameters to the class  e.g.
         #      class Foo(bar, baz)
-        #             -----------
+        #               ----------
         # * subclass_code - the code for the subclass body
         subclass_info = None
         if node == 'classdefdeco2':

@@ -1,4 +1,5 @@
 #!/bin/bash
+# Use pycdc to run our test/bytecode* test suite
 bs=${BASH_SOURCE[0]}
 testdir=$(dirname $bs)/../test
 fulldir=$(readlink -f $testdir)
