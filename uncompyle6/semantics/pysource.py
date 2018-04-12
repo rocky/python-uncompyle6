@@ -1234,7 +1234,7 @@ class SourceWalker(GenericASTTraversal, object):
         #             -----------
         # * subclass_code - the code for the subclass body
         subclass_info = None
-        if self.version > 3.0:
+        if self.version >= 3.0:
             if node == 'classdefdeco2':
                 if self.version >= 3.6:
                     class_name = node[1][1].pattr
@@ -1349,7 +1349,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.currentclass = str(class_name)
         self.write(self.indent, 'class ', self.currentclass)
 
-        if self.version > 3.0:
+        if self.version >= 3.0:
             self.print_super_classes3(subclass_info)
         else:
             self.print_super_classes(build_list)

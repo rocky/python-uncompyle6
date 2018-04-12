@@ -32,6 +32,8 @@ def customize_for_version3(self, version):
         'store_locals': ( '%|# inspect.currentframe().f_locals = __locals__\n', ),
         })
 
+    assert version >= 3.0
+
     if version >= 3.3:
         def n_yield_from(node):
             self.write('yield from')
