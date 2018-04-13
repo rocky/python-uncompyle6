@@ -44,6 +44,9 @@ class Python37Parser(Python36Parser):
         call        ::= expr CALL_METHOD_0
         """
 
+    def customize_grammar_rules(self, tokens, customize):
+        super(Python37Parser, self).customize_grammar_rules(tokens, customize)
+
 class Python37ParserSingle(Python37Parser, PythonParserSingle):
     pass
 

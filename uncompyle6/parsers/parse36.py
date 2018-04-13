@@ -177,6 +177,8 @@ class Python36Parser(Python35Parser):
                         'expr32 ' * int((v//32) % 32) +
                         'expr ' * (v % 32) + opname)
                 self.addRule(rule, nop_func)
+                rule = ('starred ::= %s %s' % ('expr ' * v, opname))
+                self.addRule(rule, nop_func)
             elif opname == 'SETUP_WITH':
                 rules_str = """
                 withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST
