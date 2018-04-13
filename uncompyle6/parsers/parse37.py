@@ -35,6 +35,13 @@ class Python37Parser(Python36Parser):
 
         # Is there a pattern here?
         attributes ::= IMPORT_FROM ROT_TWO POP_TOP IMPORT_FROM
+
+        # FIXME: generalize and specialize
+        attribute37   ::= LOAD_NAME LOAD_METHOD
+        expr          ::= attribute37
+
+        # FIXME: generalize and specialize
+        call        ::= expr CALL_METHOD_0
         """
 
 class Python37ParserSingle(Python37Parser, PythonParserSingle):

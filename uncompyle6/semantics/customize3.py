@@ -879,6 +879,13 @@ def customize_for_version3(self, version):
                 self.prune()
                 return
             self.n_return_closure = return_closure
+
+            if version >= 3.7:
+                PRECEDENCE['attribute37'] = 2
+                TABLE_DIRECT.update({
+                    'attribute37':  ( '%c.%[1]{pattr}', 0 ),
+                    })
+                pass
             pass # version >= 3.6
         pass # version >= 3.4
     return
