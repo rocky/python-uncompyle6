@@ -36,7 +36,7 @@ from uncompyle6.show import maybe_show_tree_param_default
 # FIXME: DRY the below code...
 
 def make_function3_annotate(self, node, is_lambda, nested=1,
-                            codeNode=None, annotate_last=-1):
+                            code_node=None, annotate_last=-1):
     """
     Dump function defintion, doc string, and function
     body. This code is specialized for Python 3"""
@@ -102,7 +102,7 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
         assert node[lambda_index].kind == 'LOAD_LAMBDA'
         code = node[lambda_index].attr
     else:
-        code = codeNode.attr
+        code = code_node.attr
 
     assert iscode(code)
     code = Code(code, self.scanner, self.currentclass)
@@ -282,7 +282,7 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
                     returnNone=rn)
     code._tokens = code._customize = None # save memory
 
-def make_function2(self, node, is_lambda, nested=1, codeNode=None):
+def make_function2(self, node, is_lambda, nested=1, code_node=None):
     """
     Dump function defintion, doc string, and function body.
     This code is specialied for Python 2.
@@ -332,7 +332,7 @@ def make_function2(self, node, is_lambda, nested=1, codeNode=None):
         assert node[lambda_index].kind == 'LOAD_LAMBDA'
         code = node[lambda_index].attr
     else:
-        code = codeNode.attr
+        code = code_node.attr
 
     assert iscode(code)
     code = Code(code, self.scanner, self.currentclass)
@@ -443,7 +443,7 @@ def make_function2(self, node, is_lambda, nested=1, codeNode=None):
     code._tokens = None; code._customize = None # save memory
 
 
-def make_function3(self, node, is_lambda, nested=1, codeNode=None):
+def make_function3(self, node, is_lambda, nested=1, code_node=None):
     """Dump function definition, doc string, and function body in
       Python version 3.0 and above
     """
@@ -581,7 +581,7 @@ def make_function3(self, node, is_lambda, nested=1, codeNode=None):
         assert node[lambda_index].kind == 'LOAD_LAMBDA'
         code = node[lambda_index].attr
     else:
-        code = codeNode.attr
+        code = code_node.attr
 
     assert iscode(code)
     scanner_code = Code(code, self.scanner, self.currentclass)

@@ -237,7 +237,7 @@ def customize_for_version3(self, version):
 
         # FIXME: handle and pass full annotate args
         make_function3_annotate(self, node, is_lambda=False,
-                                codeNode=code, annotate_last=annotate_last)
+                                code_node=code, annotate_last=annotate_last)
 
         if len(self.param_stack) > 1:
             self.write('\n\n')
