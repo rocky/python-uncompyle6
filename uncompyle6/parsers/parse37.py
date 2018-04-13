@@ -27,6 +27,15 @@ class Python37Parser(Python36Parser):
         super(Python37Parser, self).__init__(debug_parser)
         self.customized = {}
 
+    def p_37misc(self, args):
+        """
+        # Where does the POP_TOP really belong?
+        stmt     ::= import37
+        import37 ::= import POP_TOP
+
+        # Is there a pattern here?
+        attributes ::= IMPORT_FROM ROT_TWO POP_TOP IMPORT_FROM
+        """
 
 class Python37ParserSingle(Python37Parser, PythonParserSingle):
     pass
