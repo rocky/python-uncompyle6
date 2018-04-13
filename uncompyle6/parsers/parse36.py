@@ -248,6 +248,14 @@ class Python36Parser(Python35Parser):
                          starred     ::= expr
                          call_ex     ::= expr starred CALL_FUNCTION_EX
                          """, nop_func)
+            if self.version > 3.6:
+                self.addRule("""
+                            expr        ::= call_ex_kw3
+                            call_ex_kw3 ::= expr
+                                            build_tuple_unpack_with_call
+                                            expr
+                                            CALL_FUNCTION_EX
+                            """, nop_func)
             pass
         else:
             super(Python36Parser, self).custom_classfunc_rule(opname, token,
