@@ -1421,16 +1421,21 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write('{')
         self.set_pos_info(node[0], start, start+1)
 
-        if self.version > 3.0:
+        if self.version >= 3.0 and not self.is_pypy:
             if node[0].kind.startswith('kvlist'):
                 # Python 3.5+ style key/value list in dict
                 kv_node = node[0]
                 l = list(kv_node)
+                length = len(l)
+                if kv_node[-1].kind.startswith("BUILD_MAP"):
+                    length -= 1
                 i = 0
-                while i < len(l):
+                while i < length:
+                    self.write(sep)
+                    name = self.traverse(l[i], indent='')
                     l[i].parent = kv_node
                     l[i+1].parent = kv_node
-                    name = self.traverse(l[i], indent='')
+                    self.write(name, ': ')
                     value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
                     self.write(sep, name, ': ', value)
                     sep = line_seperator
