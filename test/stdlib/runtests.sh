@@ -78,6 +78,7 @@ case $PYVERSION in
 	    # Fails in crontab environment?
 	    # Figure out what's up here
 	    SKIP_TESTS[test_aifc.py]=1
+	    SKIP_TESTS[test_array.py]=1
 	fi
 	;;
     2.7)
@@ -112,6 +113,7 @@ case $PYVERSION in
 	if (( batch )) ; then
 	    # Fails in crontab environment?
 	    # Figure out what's up here
+	    SKIP_TESTS[test_array.py]=1
 	    SKIP_TESTS[test_ast.py]=1
 	fi
 	;;
