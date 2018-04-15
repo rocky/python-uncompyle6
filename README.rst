@@ -53,8 +53,8 @@ You get the idea. This code pulls all of these forks together and
 code base over those old forks.
 
 This demonstrably does the best in decompiling Python across all
-Python versions. And even where there another project only provides
-decompilation for subset of Python versions, we generally do
+Python versions. And even when there is another project that only
+provides decompilation for subset of Python versions, we generally do
 demonstrably better for those as well.
 
 How can we tell? By taking Python bytecode that comes distributed with
