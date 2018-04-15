@@ -57,11 +57,12 @@ Python versions. And even where there another project only provides
 decompilation for subset of Python versions, we generally do
 demonstrably better for those as well.
 
-How can we tell? By taking the set of Python bytecode that comes
-distributed with that version of Python, decompiling those and see how
-many decompile properly; among that decompile, then make sure the
-programs are syntactically correct, and in cases where the program can
-be check with a provided test case, do that.
+How can we tell? By taking Python bytecode that comes distributed with
+that version of Python and decompiling these.  Among htose that
+successfully decompile, we can then make sure the resulting programs
+are syntactically correct by running the Python interpreter for that
+bytecode version.  Finally, in cases where the program has a test for
+itself, we can run the check on the decompiled code.
 
 We are serious about testing, and use automated processes to find
 bugs. In the issue trackers for other decompilers, you will find a
