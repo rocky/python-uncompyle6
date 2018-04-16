@@ -26,12 +26,13 @@ def test_grammar():
     expect_right_recursive = set([('designList',
                                    ('store', 'DUP_TOP', 'designList'))])
 
+    if PYTHON_VERSION != 3.7:
+        unused_rhs.add('call')
+
     if PYTHON_VERSION > 2.6:
         expect_lhs.add('kvlist')
         expect_lhs.add('kv3')
         unused_rhs.add('dict')
-    elif PYTHON_VERSION == 2.6:
-        unused_rhs.add('call')
 
     if PYTHON3:
         expect_lhs.add('load_genexpr')
@@ -43,8 +44,6 @@ def test_grammar():
             expect_lhs.add("annotate_arg")
             expect_lhs.add("annotate_tuple")
             unused_rhs.add("mkfunc_annotate")
-            if PYTHON_VERSION < 3.7:
-                unused_rhs.add('call')
             unused_rhs.add("dict_comp")
             unused_rhs.add("classdefdeco1")
             if PYTHON_VERSION != 3.6:
@@ -61,7 +60,6 @@ def test_grammar():
         pass
     else:
         expect_lhs.add('kwarg')
-        # unused_rhs.add('call')
 
     assert expect_lhs == set(lhs)
     assert unused_rhs == set(rhs)
