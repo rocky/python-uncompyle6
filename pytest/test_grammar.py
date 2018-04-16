@@ -30,6 +30,8 @@ def test_grammar():
         expect_lhs.add('kvlist')
         expect_lhs.add('kv3')
         unused_rhs.add('dict')
+    elif PYTHON_VERSION == 2.6:
+        unused_rhs.add('call')
 
     if PYTHON3:
         expect_lhs.add('load_genexpr')

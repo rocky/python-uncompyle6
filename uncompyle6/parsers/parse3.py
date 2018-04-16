@@ -595,11 +595,6 @@ class Python3Parser(PythonParser):
                                      return_lambda LAMBDA_MARKER
               """, nop_func)
 
-        if self.version <= 3.6:
-            call_function1 = 'CALL_FUNCTION_1'
-        else:
-            call_function1 = 'CALL_METHOD_1'
-
         has_get_iter_call_function1 = False
         n = len(tokens)
         max_branches = 0
