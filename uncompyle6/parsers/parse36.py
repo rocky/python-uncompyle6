@@ -176,6 +176,8 @@ class Python36Parser(Python35Parser):
                         'expr32 ' * int((v//32) % 32) +
                         'expr ' * (v % 32) + opname)
                 self.addRule(rule, nop_func)
+                rule = ('starred ::= %s %s' % ('expr ' * v, opname))
+                self.addRule(rule, nop_func)
             elif opname == 'SETUP_WITH':
                 rules_str = """
                 withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST
@@ -245,6 +247,17 @@ class Python36Parser(Python35Parser):
                          starred     ::= expr
                          call_ex     ::= expr starred CALL_FUNCTION_EX
                          """, nop_func)
+            if self.version > 3.6:
+                self.addRule("""
+                            expr        ::= call_ex_kw3
+                            expr        ::= call_ex_kw
+                            call_ex_kw3 ::= expr
+                                            build_tuple_unpack_with_call
+                                            expr
+                                            CALL_FUNCTION_EX
+                            call_ex_kw  ::= expr expr
+                                            build_map_unpack_with_call CALL_FUNCTION_EX
+                            """, nop_func)
             pass
         else:
             super(Python36Parser, self).custom_classfunc_rule(opname, token,

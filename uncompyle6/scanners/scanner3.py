@@ -145,7 +145,7 @@ class Scanner3(Scanner):
              self.opc.BUILD_MAP,        self.opc.UNPACK_SEQUENCE,
              self.opc.RAISE_VARARGS])
 
-        if is_pypy:
+        if is_pypy or self.version >= 3.7:
             varargs_ops.add(self.opc.CALL_METHOD)
         if self.version >= 3.5:
             varargs_ops |= set([self.opc.BUILD_SET_UNPACK,
@@ -187,7 +187,7 @@ class Scanner3(Scanner):
 
         bytecode = self.build_instructions(co)
 
-        # show_asm = 'after'
+        # show_asm = 'both'
         if show_asm in ('both', 'before'):
             for instr in bytecode.get_instructions(co):
                 print(instr.disassemble())
@@ -355,9 +355,9 @@ class Scanner3(Scanner):
                 else:
                     opname = '%s_%d' % (opname, pos_args)
 
-            elif self.is_pypy and opname in ('CALL_METHOD', 'JUMP_IF_NOT_DEBUG'):
+            elif self.is_pypy and opname == 'JUMP_IF_NOT_DEBUG':
                 # The value in the dict is in special cases in semantic actions, such
-                # as CALL_FUNCTION. The value is not used in these cases, so we put
+                # as JUMP_IF_NOT_DEBUG. The value is not used in these cases, so we put
                 # in arbitrary value 0.
                 customize[opname] = 0
             elif opname == 'UNPACK_EX':

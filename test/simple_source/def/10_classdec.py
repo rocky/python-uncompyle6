@@ -25,3 +25,7 @@ class MyClass(object):
         pass
 
 x = MyClass()
+
+# Try class without parens
+class Feature:
+    pass

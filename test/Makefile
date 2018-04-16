@@ -2,11 +2,11 @@ PHONY=check clean dist distclean test test-unit test-functional rmChangeLog clea
       check-bytecode-1.5 check-bytecode-1 check-bytecode-2 check-bytecode-3 \
       check-bytecode-2.2 check-byteocde-2.3 check-bytecode-2.4 \
       check-short check-2.6 check-2.7 check-3.0 check-3.1 check-3.2 check-3.3 \
-      check-3.4 check-3.5 check-5.6 5.6 5.8 \
+      check-3.4 check-3.5 check-3.6 check-3.7 check-5.6 5.6 5.8 \
       grammar-coverage-2.5 grammar-coverage-2.6 grammar-coverage-2.7 \
       grammar-coverage-3.1 grammar-coverage-3.2 grammar-coverage-3.3 \
-      grammar-coverage-3.4 grammar-coverage-3.5 grammar-coverage-3.6
-
+      grammar-coverage-3.4 grammar-coverage-3.5 grammar-coverage-3.6 \
+      grammar-coverage-3.7
 
 GIT2CL ?= git2cl
 PYTHON ?= python
@@ -62,6 +62,10 @@ check-3.5: check-bytecode
 #: Run working tests from Python 3.6
 check-3.6: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.6 --weak-verify $(COMPILE)
+
+#: Run working tests from Python 3.7
+check-3.7: check-bytecode
+	$(PYTHON) test_pythonlib.py --bytecode-3.7 --weak-verify $(COMPILE)
 
 # FIXME
 #: this is called when running under pypy3.5-5.8.0 or pypy2-5.6.0
@@ -228,6 +232,10 @@ check-bytecode-3.5:
 check-bytecode-3.6:
 	$(PYTHON) test_pythonlib.py --bytecode-3.6 --weak-verify
 	$(PYTHON) test_pythonlib.py --bytecode-3.6-run --verify-run
+
+#: Check deparsing Python 3.7
+check-bytecode-3.7:
+	$(PYTHON) test_pythonlib.py --bytecode-3.7 --weak-verify
 
 #: short tests for bytecodes only for this version of Python
 check-native-short:

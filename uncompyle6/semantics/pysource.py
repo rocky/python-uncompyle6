@@ -1224,6 +1224,10 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = p
 
     def n_classdef(self, node):
+
+        if self.version >= 3.0:
+            self.n_classdef3(node)
+
         # class definition ('class X(A,B,C):')
         cclass = self.currentclass
 
@@ -1233,113 +1237,25 @@ class SourceWalker(GenericASTTraversal, object):
         #      class Foo(bar, baz)
         #             -----------
         # * subclass_code - the code for the subclass body
-        subclass_info = None
-        if self.version > 3.0:
-            if node == 'classdefdeco2':
-                if self.version >= 3.6:
-                    class_name = node[1][1].pattr
-                elif self.version <= 3.3:
-                    class_name = node[2][0].pattr
-                else:
-                    class_name = node[1][2].pattr
-                build_class = node
-            else:
-                build_class = node[0]
-                if self.version >= 3.6:
-                    if build_class == 'build_class_kw':
-                        mkfunc = build_class[1]
-                        assert mkfunc == 'mkfunc'
-                        subclass_info = build_class
-                        if hasattr(mkfunc[0], 'attr') and iscode(mkfunc[0].attr):
-                            subclass_code = mkfunc[0].attr
-                        else:
-                            assert mkfunc[0] == 'load_closure'
-                            subclass_code = mkfunc[1].attr
-                            assert iscode(subclass_code)
-                    if build_class[1][0] == 'load_closure':
-                        code_node = build_class[1][1]
-                    else:
-                        code_node = build_class[1][0]
-                    class_name = code_node.attr.co_name
-                else:
-                    class_name = node[1][0].pattr
-                    build_class = node[0]
 
-            assert 'mkfunc' == build_class[1]
-            mkfunc = build_class[1]
-            if mkfunc[0] in ('kwargs', 'no_kwargs'):
-                if 3.0 <= self.version <= 3.2:
-                    for n in mkfunc:
-                        if hasattr(n, 'attr') and iscode(n.attr):
-                            subclass_code = n.attr
-                            break
-                        elif n == 'expr':
-                            subclass_code = n[0].attr
-                        pass
-                    pass
-                else:
-                    for n in mkfunc:
-                        if hasattr(n, 'attr') and iscode(n.attr):
-                            subclass_code = n.attr
-                            break
-                        pass
-                    pass
-                if node == 'classdefdeco2':
-                    subclass_info = node
-                else:
-                    subclass_info = node[0]
-            elif build_class[1][0] == 'load_closure':
-                # Python 3 with closures not functions
-                load_closure = build_class[1]
-                if hasattr(load_closure[-3], 'attr'):
-                    # Python 3.3 classes with closures work like this.
-                    # Note have to test before 3.2 case because
-                    # index -2 also has an attr.
-                    subclass_code = load_closure[-3].attr
-                elif hasattr(load_closure[-2], 'attr'):
-                    # Python 3.2 works like this
-                    subclass_code = load_closure[-2].attr
-                else:
-                    raise 'Internal Error n_classdef: cannot find class body'
-                if hasattr(build_class[3], '__len__'):
-                    if not subclass_info:
-                        subclass_info = build_class[3]
-                elif hasattr(build_class[2], '__len__'):
-                    subclass_info = build_class[2]
-                else:
-                    raise 'Internal Error n_classdef: cannot superclass name'
-            elif self.version >= 3.6 and node == 'classdefdeco2':
-                subclass_info = node
-                subclass_code = build_class[1][0].attr
-            elif not subclass_info:
-                if mkfunc[0] in ('no_kwargs', 'kwargs'):
-                    subclass_code = mkfunc[1].attr
-                else:
-                    subclass_code = mkfunc[0].attr
-                if node == 'classdefdeco2':
-                    subclass_info = node
-                else:
-                    subclass_info = node[0]
-
+        if node == 'classdefdeco2':
+            build_class = node
         else:
-            if node == 'classdefdeco2':
-                build_class = node
-            else:
-                build_class = node[0]
-            build_list = build_class[1][0]
-            if hasattr(build_class[-3][0], 'attr'):
-                subclass_code = build_class[-3][0].attr
-                class_name = build_class[0].pattr
-            elif (build_class[-3] == 'mkfunc' and
-                  node == 'classdefdeco2' and
-                  build_class[-3][0] == 'load_closure'):
-                subclass_code = build_class[-3][1].attr
-                class_name = build_class[-3][0][0].pattr
-            elif hasattr(node[0][0], 'pattr'):
-                subclass_code = build_class[-3][1].attr
-                class_name = node[0][0].pattr
-            else:
-                raise 'Internal Error n_classdef: cannot find class name'
+            build_class = node[0]
+        build_list = build_class[1][0]
+        if hasattr(build_class[-3][0], 'attr'):
+            subclass_code = build_class[-3][0].attr
+            class_name = build_class[0].pattr
+        elif (build_class[-3] == 'mkfunc' and
+              node == 'classdefdeco2' and
+              build_class[-3][0] == 'load_closure'):
+            subclass_code = build_class[-3][1].attr
+            class_name = build_class[-3][0][0].pattr
+        elif hasattr(node[0][0], 'pattr'):
+            subclass_code = build_class[-3][1].attr
+            class_name = node[0][0].pattr
+        else:
+            raise 'Internal Error n_classdef: cannot find class name'
 
         if (node == 'classdefdeco2'):
             self.write('\n')
@@ -1349,10 +1265,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.currentclass = str(class_name)
         self.write(self.indent, 'class ', self.currentclass)
 
-        if self.version > 3.0:
-            self.print_super_classes3(subclass_info)
-        else:
-            self.print_super_classes(build_list)
+        self.print_super_classes(build_list)
         self.println(':')
 
         # class body

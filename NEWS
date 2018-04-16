@@ -1,3 +1,9 @@
+uncompyle6 3.1.3 2018-04-16
+
+- Add some Python 3.7 rules, such as for handling LOAD_METHOD (not complete)
+- Fix some fragment bugs
+- small doc changes
+
 uncompyle6 3.1.2 2018-04-08 Eastern Orthodox Easter
 
 - Python 3.x subclass and call parsing fixes

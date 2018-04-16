@@ -52,8 +52,17 @@ You get the idea. This code pulls all of these forks together and
 *moves forward*. There is some serious refactoring and cleanup in this
 code base over those old forks.
 
-This project has the most complete support for Python 3.3 and above
-and the best all-around Python support.
+This demonstrably does the best in decompiling Python across all
+Python versions. And even when there is another project that only
+provides decompilation for subset of Python versions, we generally do
+demonstrably better for those as well.
+
+How can we tell? By taking Python bytecode that comes distributed with
+that version of Python and decompiling these.  Among htose that
+successfully decompile, we can then make sure the resulting programs
+are syntactically correct by running the Python interpreter for that
+bytecode version.  Finally, in cases where the program has a test for
+itself, we can run the check on the decompiled code.
 
 We are serious about testing, and use automated processes to find
 bugs. In the issue trackers for other decompilers, you will find a
@@ -136,26 +145,26 @@ All of the Python decompilers that I have looked at have problems
 decompiling Python's control flow. In some cases we can detect an
 erroneous decompilation and report that.
 
-*Verification* is the process of decompiling bytecode, compiling with
-a Python for that bytecode version, and then comparing the bytecode
-produced by the decompiled/compiled program. Some allowance is made
-for inessential differences. But other semantically equivalent
-differences are not caught. For example ``1 and 0`` is decompiled to
-the equivalent ``0``; remnants of the first true evaluation (1) is
-lost when Python compiles this. When Python next compiles ``0`` the
-resulting code is simpler.
+In older versions of Python it was possible to verify bytecode by
+decompiling bytecode, and then compiling using the Python interpreter
+for that bytecode version. Having done this the bytecode produced
+could be compared with the original bytecode. However as Python's code
+generation got better, this is no longer feasible.
 
-*Weak Verification*
-on the other hand doesn't check bytecode for equivalence but does
-check to see if the resulting decompiled source is a valid Python
-program by running the Python interpreter. Because the Python language
-has changed so much, for best results you should use the same Python
-Version in checking as used in the bytecode.
+There is a kind of *weak verification* that we use that doesn't check
+bytecode for equivalence but does check to see if the resulting
+decompiled source is a valid Python program by running the Python
+interpreter. Because the Python language has changed so much, for best
+results you should use the same Python version in checking as was used
+in creating the bytecode.
 
-Finally, we have automated running the standard Python tests after
-first compiling and decompiling the test program. Results here are a
-bit weak (if not better than most other Python decompilers). But over
-time this will probably get better.
+There are however an interesting class of these programs that is
+readily available give stronger verification: those programs that
+when run check some computation, or even better themselves.
+
+And already Python has a set of programs like this: the test suite
+for the standard library that comes with Python. We have some
+code in `test/stdlib` to facilitate this kind of checking.
 
 Python support is strongest in Python 2 for 2.7 and drops off as you
 get further away from that. Support is also probably pretty good for
@@ -203,7 +212,7 @@ There is lots to do, so please dig in and help.
 See Also
 --------
 
-* https://github.com/zrax/pycdc : supports all versions of Python and is written in C++. Support for later Python 3 versions is a bit lacking though.
+* https://github.com/zrax/pycdc : supports all versions of Python and is written in C++. Support for Python 3 is a bit lacking though.
 * https://code.google.com/archive/p/unpyc3/ : supports Python 3.2 only. The above projects use a different decompiling technique than what is used here.
 * https://github.com/figment/unpyc3/ : fork of above, but supports Python 3.3 only. Includes some fixes like supporting function annotations
 * The HISTORY_ file.

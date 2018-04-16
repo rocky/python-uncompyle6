@@ -1,0 +1,5 @@
+These are byte-compiled programs compiled by Python 3.6.
+
+Furthrmore, the programs here are self-checking: when decompiled and
+then run again in a 3.6 interpreter, they are likely to give an error
+when they are miscompiled.
