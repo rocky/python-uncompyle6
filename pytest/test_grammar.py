@@ -41,14 +41,12 @@ def test_grammar():
             expect_lhs.add("annotate_arg")
             expect_lhs.add("annotate_tuple")
             unused_rhs.add("mkfunc_annotate")
-            unused_rhs.add('call')
+            if PYTHON_VERSION < 3.7:
+                unused_rhs.add('call')
             unused_rhs.add("dict_comp")
             unused_rhs.add("classdefdeco1")
-            if PYTHON_VERSION < 3.6:
-                # 3.6 has at least one non-custom call rule
-                # the others don't
-                unused_rhs.add('call')
-                if PYTHON_VERSION == 3.5:
+            if PYTHON_VERSION != 3.6:
+                if PYTHON_VERSION in (3.5, 3.7):
                     expect_right_recursive.add((('l_stmts',
                                                  ('lastl_stmt', 'come_froms', 'l_stmts'))))
                     pass
@@ -61,7 +59,7 @@ def test_grammar():
         pass
     else:
         expect_lhs.add('kwarg')
-        unused_rhs.add('call')
+        # unused_rhs.add('call')
 
     assert expect_lhs == set(lhs)
     assert unused_rhs == set(rhs)
