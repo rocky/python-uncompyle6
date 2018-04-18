@@ -568,8 +568,9 @@ class Python3Parser(PythonParser):
 
         # A set of instruction operation names that exist in the token stream.
         # We use this customize the grammar that we create.
-        self.seen_ops = {t.kind for t in tokens}
-        self.seen_op_basenames = {opname[:opname.rfind('_')] for opname in self.seen_ops}
+        # 2.6-compatible set comprehensions
+        self.seen_ops = frozenset([t.kind for t in tokens])
+        self.seen_op_basenames = frozenset([opname[:opname.rfind('_')] for opname in self.seen_ops])
 
         # Loop over instructions adding custom grammar rules based on
         # a specific instruction seen.
