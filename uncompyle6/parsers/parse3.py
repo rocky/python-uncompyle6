@@ -476,9 +476,7 @@ class Python3Parser(PythonParser):
         self.addRule(rule, nop_func)
         return
 
-    def custom_classfunc_rule(self, opname, token, customize,
-                              possible_class_decorator,
-                              seen_GET_AWAITABLE_YIELD_FROM, next_token):
+    def custom_classfunc_rule(self, opname, token, customize, next_token):
         """
         call ::= expr {expr}^n CALL_FUNCTION_n
         call ::= expr {expr}^n CALL_FUNCTION_VAR_n
@@ -508,7 +506,7 @@ class Python3Parser(PythonParser):
 
         self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
-        if possible_class_decorator:
+        if 'LOAD_BUILD_CLASS' in self.seen_ops:
             if (next_token == 'CALL_FUNCTION' and next_token.attr == 1
                 and args_pos > 1):
                 rule = ('classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d'
@@ -556,9 +554,9 @@ class Python3Parser(PythonParser):
         customize_instruction_basenames = frozenset(
             ('BUILD', 'CALL', 'CONTINUE', 'DELETE', 'GET',
              'JUMP',  'LOAD', 'LOOKUP',   'MAKE',
-             'RAISE', 'UNPACK'))
+             'RETURN', 'RAISE', 'UNPACK'))
 
-        # Opcode names in the custom_ops_seen set have rules that get added
+        # Opcode names in the custom_ops_processed set have rules that get added
         # unconditionally and the rules are constant. So they need to be done
         # only once and if we see the opcode a second we don't have to consider
         # adding more rules.
@@ -566,18 +564,13 @@ class Python3Parser(PythonParser):
         # Note: BUILD_TUPLE_UNPACK_WITH_CALL gets considered by
         # default because it starts with BUILD. So we'll set to ignore it from
         # the start.
-        custom_ops_seen = set(('BUILD_TUPLE_UNPACK_WITH_CALL',))
+        custom_ops_processed = set(('BUILD_TUPLE_UNPACK_WITH_CALL',))
 
-        # In constrast to custom_ops_seen, seen_xxx rules here are part of some
-        # other rule; so if we see them a second time we still have to loop
-        # over customization
-        seen_LOAD_BUILD_CLASS = False
-        seen_GET_AWAITABLE_YIELD_FROM = False
-
-        # This is used in parse36.py as well as here
-        self.seen_LOAD_DICTCOMP = False
-        self.seen_LOAD_SETCOMP = False
-
+        # A set of instruction operation names that exist in the token stream.
+        # We use this customize the grammar that we create.
+        self.seen_ops = {t.kind for t in tokens}
+        self.seen_op_basenames = {opname[:opname.rfind('_')] for opname in self.seen_ops}
+        from trepan.api import debug; debug()
 
         # Loop over instructions adding custom grammar rules based on
         # a specific instruction seen.
@@ -595,8 +588,10 @@ class Python3Parser(PythonParser):
                                      return_lambda LAMBDA_MARKER
               """, nop_func)
 
-        has_get_iter_call_function1 = False
         n = len(tokens)
+
+        # Determine if we have an iteration CALL_FUNCTION_1.
+        has_get_iter_call_function1 = False
         max_branches = 0
         for i, token in enumerate(tokens):
             if token == 'GET_ITER' and i < n-2 and self.call_fn_name(tokens[i+1]) == 'CALL_FUNCTION_1':
@@ -605,7 +600,6 @@ class Python3Parser(PythonParser):
             elif (token == 'GET_AWAITABLE' and i < n-3
                   and tokens[i+1] == 'LOAD_CONST' and tokens[i+2] == 'YIELD_FROM'):
                 max_branches += 1
-                seen_GET_AWAITABLE_YIELD_FROM = True
             if max_branches > 2:
                 break
 
@@ -615,7 +609,7 @@ class Python3Parser(PythonParser):
             # Do a quick breakout before testing potentially
             # each of the dozen or so instruction in if elif.
             if (opname[:opname.find('_')] not in customize_instruction_basenames
-                    or opname in custom_ops_seen):
+                    or opname in custom_ops_processed):
                 continue
 
             opname_base = opname[:opname.rfind('_')]
@@ -658,7 +652,7 @@ class Python3Parser(PythonParser):
                             # FIXME: really we need a combination of dict_entry-like things.
                             # It just so happens the most common case is not to mix
                             # dictionary comphensions with dictionary, elements
-                            if self.seen_LOAD_DICTCOMP:
+                            if 'LOAD_DICTCOMP' in self.seen_ops:
                                 rule = 'dict ::= %s%s' % ('dict_comp ' * token.attr, opname)
                                 self.addRule(rule, nop_func)
                             rule = """
@@ -737,9 +731,9 @@ class Python3Parser(PythonParser):
                         """
                     self.addRule(rule, nop_func)
 
-                self.custom_classfunc_rule(opname, token, customize,
-                                           seen_LOAD_BUILD_CLASS,
-                                           seen_GET_AWAITABLE_YIELD_FROM, tokens[i+1])
+                self.custom_classfunc_rule(opname, token, customize, tokens[i+1])
+                # Note: don't add to custom_ops_processed.
+
             elif opname_base == 'CALL_METHOD':
                 # PyPy only - DRY with parse2
 
@@ -754,31 +748,31 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname == 'CONTINUE':
                 self.addRule('continue ::= CONTINUE', nop_func)
-                custom_ops_seen.add(opname)
+                custom_ops_processed.add(opname)
             elif opname == 'CONTINUE_LOOP':
                 self.addRule('continue ::= CONTINUE_LOOP', nop_func)
-                custom_ops_seen.add(opname)
+                custom_ops_processed.add(opname)
             elif opname == 'DELETE_ATTR':
                 self.addRule('del_stmt ::= expr DELETE_ATTR', nop_func)
-                custom_ops_seen.add(opname)
+                custom_ops_processed.add(opname)
             elif opname == 'DELETE_DEREF':
                 self.addRule("""
                    stmt           ::= del_deref_stmt
                    del_deref_stmt ::= DELETE_DEREF
                    """, nop_func)
-                custom_ops_seen.add(opname)
+                custom_ops_processed.add(opname)
             elif opname == 'DELETE_SUBSCR':
                 self.addRule("""
                     del_stmt ::= delete_subscr
                     delete_subscr ::= expr expr DELETE_SUBSCR
                    """, nop_func)
-                custom_ops_seen.add(opname)
+                custom_ops_processed.add(opname)
             elif opname == 'GET_ITER':
                 self.addRule("""
                     expr      ::= get_iter
                     attribute ::= expr GET_ITER
                     """, nop_func)
-                custom_ops_seen.add(opname)
+                custom_ops_processed.add(opname)
             elif opname == 'JUMP_IF_NOT_DEBUG':
                 v = token.attr
                 self.addRule("""
@@ -793,40 +787,42 @@ class Python3Parser(PythonParser):
                                      LOAD_ASSERT expr CALL_FUNCTION_1
                                      RAISE_VARARGS_1 COME_FROM,
                     """, nop_func)
-                custom_ops_seen.add(opname)
+                custom_ops_processed.add(opname)
             elif opname == 'LOAD_BUILD_CLASS':
-                seen_LOAD_BUILD_CLASS = True
                 self.custom_build_class_rule(opname, i, token, tokens, customize)
+                # Note: don't add to custom_ops_processed.
             elif opname == 'LOAD_CLASSDEREF':
                 # Python 3.4+
                 self.addRule("expr ::= LOAD_CLASSDEREF", nop_func)
-                custom_ops_seen.add(opname)
+                custom_ops_processed.add(opname)
             elif opname == 'LOAD_CLASSNAME':
                 self.addRule("expr ::= LOAD_CLASSNAME", nop_func)
-                custom_ops_seen.add(opname)
+                custom_ops_processed.add(opname)
             elif opname == 'LOAD_DICTCOMP':
-                self.seen_LOAD_DICTCOMP = True
                 if has_get_iter_call_function1:
                     rule_pat = ("dict_comp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 expr "
                                 "GET_ITER CALL_FUNCTION_1")
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-                            # listcomp is a custom Python3 rule
+                    pass
+                custom_ops_processed.add(opname)
             elif opname == 'LOAD_ATTR':
                 self.addRule("""
                   expr      ::= attribute
                   attribute ::= expr LOAD_ATTR
                   """, nop_func)
-                custom_ops_seen.add(opname)
+                custom_ops_processed.add(opname)
             elif opname == 'LOAD_LISTCOMP':
                 self.add_unique_rule("expr ::= listcomp", opname, token.attr, customize)
+                custom_ops_processed.add(opname)
             elif opname == 'LOAD_SETCOMP':
-                self.seen_LOAD_SETCOMP = True
                 # Should this be generalized and put under MAKE_FUNCTION?
                 if has_get_iter_call_function1:
                     self.addRule("expr ::= set_comp", nop_func)
                     rule_pat = ("set_comp ::= LOAD_SETCOMP %sMAKE_FUNCTION_0 expr "
                                 "GET_ITER CALL_FUNCTION_1")
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                    pass
+                custom_ops_processed.add(opname)
             elif opname == 'LOOKUP_METHOD':
                 # A PyPy speciality - DRY with parse3
                 self.addRule("""
@@ -834,12 +830,12 @@ class Python3Parser(PythonParser):
                              attribute ::= expr LOOKUP_METHOD
                              """,
                              nop_func)
-                custom_ops_seen.add(opname)
+                custom_ops_processed.add(opname)
             elif opname.startswith('MAKE_CLOSURE'):
                 # DRY with MAKE_FUNCTION
                 # Note: this probably doesn't handle kwargs proprerly
 
-                if opname == 'MAKE_CLOSURE_0' and self.seen_LOAD_DICTCOMP:
+                if opname == 'MAKE_CLOSURE_0' and 'LOAD_DICTCOMP' in self.seen_ops:
                     # Is there something general going on here?
                     # Note that 3.6+ doesn't do this, but we'll remove
                     # this rule in parse36.py
@@ -1073,25 +1069,25 @@ class Python3Parser(PythonParser):
                 self.addRule("""
                     return_lambda ::= ret_expr RETURN_VALUE_LAMBDA
                     """, nop_func)
-                custom_ops_seen.add(opname)
+                custom_ops_processed.add(opname)
             elif opname == 'RAISE_VARARGS_0':
                 self.addRule("""
                     stmt        ::= raise_stmt0
                     raise_stmt0 ::= RAISE_VARARGS_0
                     """, nop_func)
-                custom_ops_seen.add(opname)
+                custom_ops_processed.add(opname)
             elif opname == 'RAISE_VARARGS_1':
                 self.addRule("""
                     stmt        ::= raise_stmt1
                     raise_stmt1 ::= expr RAISE_VARARGS_1
                     """, nop_func)
-                custom_ops_seen.add(opname)
+                custom_ops_processed.add(opname)
             elif opname == 'RAISE_VARARGS_2':
                 self.addRule("""
                     stmt        ::= raise_stmt2
                     raise_stmt2 ::= expr expr RAISE_VARARGS_2
                     """, nop_func)
-                custom_ops_seen.add(opname)
+                custom_ops_processed.add(opname)
             elif opname_base in ('UNPACK_EX',):
                 before_count, after_count = token.attr
                 rule = 'unpack ::= ' + opname + ' store' * (before_count + after_count + 1)
@@ -1102,6 +1098,10 @@ class Python3Parser(PythonParser):
             elif opname_base == 'UNPACK_LIST':
                 rule = 'unpack_list ::= ' + opname + ' store' * token.attr
                 self.addRule(rule, nop_func)
+                custom_ops_processed.add(opname)
+                pass
+            pass
+
         self.check_reduce['aug_assign1'] = 'AST'
         self.check_reduce['aug_assign2'] = 'AST'
         self.check_reduce['while1stmt'] = 'noAST'

@@ -200,10 +200,7 @@ class Python35Parser(Python34Parser):
             pass
         return
 
-    def custom_classfunc_rule(self, opname, token, customize,
-                              seen_LOAD_BUILD_CLASS,
-                              seen_GET_AWAITABLE_YIELD_FROM,
-                              *args):
+    def custom_classfunc_rule(self, opname, token, customize, *args):
         args_pos, args_kw = self.get_pos_kw(token)
 
         # Additional exprs for * and ** args:
@@ -214,7 +211,7 @@ class Python35Parser(Python34Parser):
         nak = ( len(opname)-len('CALL_FUNCTION') ) // 3
         uniq_param = args_kw + args_pos
 
-        if seen_GET_AWAITABLE_YIELD_FROM:
+        if frozenset(('GET_AWAITABLE', 'YIELD_FROM')).issubset(self.seen_ops):
             rule = ('async_call ::= expr ' +
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) +
@@ -243,10 +240,7 @@ class Python35Parser(Python34Parser):
             # zero or not in creating a template rule.
             self.add_unique_rule(rule, token.kind, args_pos, customize)
         else:
-            super(Python35Parser, self).custom_classfunc_rule(opname, token, customize,
-                                                              seen_LOAD_BUILD_CLASS,
-                                                              seen_GET_AWAITABLE_YIELD_FROM,
-                                                              *args)
+            super(Python35Parser, self).custom_classfunc_rule(opname, token, customize, *args)
 
 class Python35ParserSingle(Python35Parser, PythonParserSingle):
     pass

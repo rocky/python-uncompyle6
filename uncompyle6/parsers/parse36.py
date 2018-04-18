@@ -108,7 +108,7 @@ class Python36Parser(Python35Parser):
                 """
                 self.add_unique_doc_rules(rules_str, customize)
             elif opname == 'MAKE_FUNCTION_8':
-                if self.seen_LOAD_DICTCOMP:
+                if 'LOAD_DICTCOMP' in self.seen_ops:
                     # Is there something general going on here?
                     rule = """
                        dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST
@@ -116,7 +116,7 @@ class Python36Parser(Python35Parser):
                                      GET_ITER CALL_FUNCTION_1
                        """
                     self.addRule(rule, nop_func)
-                elif self.seen_LOAD_SETCOMP:
+                elif 'LOAD_SETCOMP' in self.seen_ops:
                     rule = """
                        set_comp ::= load_closure LOAD_SETCOMP LOAD_CONST
                                     MAKE_FUNCTION_8 expr
@@ -192,9 +192,7 @@ class Python36Parser(Python35Parser):
                 """
                 self.addRule(rules_str, nop_func)
 
-    def custom_classfunc_rule(self, opname, token, customize,
-                              possible_class_decorator,
-                              seen_GET_AWAITABLE_YIELD_FROM, next_token):
+    def custom_classfunc_rule(self, opname, token, customize, next_token):
 
         args_pos, args_kw = self.get_pos_kw(token)
 
@@ -206,7 +204,7 @@ class Python36Parser(Python35Parser):
         nak = ( len(opname)-len('CALL_FUNCTION') ) // 3
         uniq_param = args_kw + args_pos
 
-        if seen_GET_AWAITABLE_YIELD_FROM:
+        if frozenset(('GET_AWAITABLE', 'YIELD_FROM')).issubset(self.seen_ops):
             rule = ('async_call ::= expr ' +
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) +
@@ -261,11 +259,7 @@ class Python36Parser(Python35Parser):
                             """, nop_func)
             pass
         else:
-            super(Python36Parser, self).custom_classfunc_rule(opname, token,
-                                                              customize,
-                                                              possible_class_decorator,
-                                                              seen_GET_AWAITABLE_YIELD_FROM,
-                                                              next_token)
+            super(Python36Parser, self).custom_classfunc_rule(opname, token, customize, next_token)
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python36Parser,

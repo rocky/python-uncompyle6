@@ -156,6 +156,7 @@ class Scanner3(Scanner):
         self.varargs_ops = frozenset(varargs_ops)
         # FIXME: remove the above in favor of:
         # self.varargs_ops = frozenset(self.opc.hasvargs)
+        return
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
