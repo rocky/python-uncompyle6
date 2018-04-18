@@ -570,7 +570,6 @@ class Python3Parser(PythonParser):
         # We use this customize the grammar that we create.
         self.seen_ops = {t.kind for t in tokens}
         self.seen_op_basenames = {opname[:opname.rfind('_')] for opname in self.seen_ops}
-        from trepan.api import debug; debug()
 
         # Loop over instructions adding custom grammar rules based on
         # a specific instruction seen.
