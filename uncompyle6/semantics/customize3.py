@@ -885,6 +885,12 @@ def customize_for_version3(self, version):
                 PRECEDENCE['attribute37'] = 2
                 TABLE_DIRECT.update({
                     'attribute37':  ( '%c.%[1]{pattr}', 0 ),
+                    'async_forelse_stmt':  (
+                        '%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
+                        7, 1, 17, (25, 'else_suite') ),
+                    'async_for_stmt':  (
+                        '%|async for %c in %c:\n%+%c%-%-\n\n',
+                        7, 1, 17),
                     })
                 pass
             pass # version >= 3.6
