@@ -265,7 +265,8 @@ def customize_for_version3(self, version):
                 'async_for_stmt':      (
                     '%|async for %c in %c:\n%+%c%-\n\n', 9, 1, 25 ),
                 'async_forelse_stmt':  (
-                    '%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 9, 1, 25, 28 ),
+                    '%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
+                    9, 1, 25, (27, 'else_suite') ),
                 'async_with_stmt':     (
                     '%|async with %c:\n%+%c%-', 0, 7),
                 'async_with_as_stmt':  (

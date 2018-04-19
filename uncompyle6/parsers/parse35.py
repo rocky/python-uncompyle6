@@ -16,6 +16,9 @@ class Python35Parser(Python34Parser):
 
     def p_35on(self, args):
         """
+
+        pb_ja ::= POP_BLOCK JUMP_ABSOLUTE
+
         # The number of canned instructions in new statements is mind boggling.
         # I'm sure by the time Python 4 comes around these will be turned
         # into special opcodes
@@ -90,7 +93,7 @@ class Python35Parser(Python34Parser):
                                LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
                                JUMP_ABSOLUTE END_FINALLY COME_FROM
-                               for_block POP_BLOCK JUMP_ABSOLUTE
+                               for_block pb_ja
                                else_suite COME_FROM_LOOP
 
 
