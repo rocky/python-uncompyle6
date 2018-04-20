@@ -350,7 +350,7 @@ def customize_for_version3(self, version):
                 self.n_call = n_call
 
             def n_function_def(node):
-                if self.version == 3.6:
+                if self.version >= 3.6:
                     code_node = node[0][0]
                 else:
                     code_node = node[0][1]
@@ -634,7 +634,8 @@ def customize_for_version3(self, version):
                 if kwargs == 'expr':
                     kwargs = kwargs[0]
                 call_function_ex = node[-1]
-                assert call_function_ex == 'CALL_FUNCTION_EX_KW'
+                assert (call_function_ex == 'CALL_FUNCTION_EX_KW'
+                        or (self.version >= 3.6 and call_function_ex == 'CALL_FUNCTION_EX'))
                 # FIXME: decide if the below test be on kwargs == 'dict'
                 if (call_function_ex.attr & 1 and
                     (not isinstance(kwargs, Token) and kwargs != 'attribute')

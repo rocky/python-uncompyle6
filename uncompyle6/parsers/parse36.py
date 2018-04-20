@@ -295,10 +295,15 @@ class Python36Parser(Python35Parser):
                          """, nop_func)
             if self.version > 3.6:
                 self.addRule("""
-                            expr        ::= call_ex_kw3
                             expr        ::= call_ex_kw
+                            expr        ::= call_ex_kw3
+                            expr        ::= call_ex_kw4
                             call_ex_kw3 ::= expr
                                             build_tuple_unpack_with_call
+                                            expr
+                                            CALL_FUNCTION_EX
+                            call_ex_kw4 ::= expr
+                                            expr
                                             expr
                                             CALL_FUNCTION_EX
                             call_ex_kw  ::= expr expr
