@@ -144,17 +144,20 @@ class Python35Parser(Python34Parser):
         super(Python35Parser, self).customize_grammar_rules(tokens, customize)
         for i, token in enumerate(tokens):
             opname = token.kind
+            # FIXME: I suspect this is wrong for 3.6 and 3.5, but
+            # I haven't verified what the 3.7ish fix is
             if opname == 'BUILD_MAP_UNPACK_WITH_CALL':
-                self.addRule("expr ::= unmapexpr", nop_func)
-                nargs = token.attr % 256
-                map_unpack_n = "map_unpack_%s" % nargs
-                rule = map_unpack_n + ' ::= ' + 'expr ' * (nargs)
-                self.addRule(rule, nop_func)
-                rule = "unmapexpr ::=  %s %s" % (map_unpack_n, opname)
-                self.addRule(rule, nop_func)
-                call_token = tokens[i+1]
-                rule = 'call ::= expr unmapexpr ' + call_token.kind
-                self.addRule(rule, nop_func)
+                if self.version < 3.7:
+                    self.addRule("expr ::= unmapexpr", nop_func)
+                    nargs = token.attr % 256
+                    map_unpack_n = "map_unpack_%s" % nargs
+                    rule = map_unpack_n + ' ::= ' + 'expr ' * (nargs)
+                    self.addRule(rule, nop_func)
+                    rule = "unmapexpr ::=  %s %s" % (map_unpack_n, opname)
+                    self.addRule(rule, nop_func)
+                    call_token = tokens[i+1]
+                    rule = 'call ::= expr unmapexpr ' + call_token.kind
+                    self.addRule(rule, nop_func)
             elif opname == 'BEFORE_ASYNC_WITH':
                 # Some Python 3.5+ async additions
                 rules_str = """
