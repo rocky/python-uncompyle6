@@ -265,7 +265,8 @@ def customize_for_version3(self, version):
                 'async_for_stmt':      (
                     '%|async for %c in %c:\n%+%c%-\n\n', 9, 1, 25 ),
                 'async_forelse_stmt':  (
-                    '%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n', 9, 1, 25, 28 ),
+                    '%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
+                    9, 1, 25, (27, 'else_suite') ),
                 'async_with_stmt':     (
                     '%|async with %c:\n%+%c%-', 0, 7),
                 'async_with_as_stmt':  (
@@ -349,7 +350,7 @@ def customize_for_version3(self, version):
                 self.n_call = n_call
 
             def n_function_def(node):
-                if self.version == 3.6:
+                if self.version >= 3.6:
                     code_node = node[0][0]
                 else:
                     code_node = node[0][1]
@@ -633,7 +634,8 @@ def customize_for_version3(self, version):
                 if kwargs == 'expr':
                     kwargs = kwargs[0]
                 call_function_ex = node[-1]
-                assert call_function_ex == 'CALL_FUNCTION_EX_KW'
+                assert (call_function_ex == 'CALL_FUNCTION_EX_KW'
+                        or (self.version >= 3.6 and call_function_ex == 'CALL_FUNCTION_EX'))
                 # FIXME: decide if the below test be on kwargs == 'dict'
                 if (call_function_ex.attr & 1 and
                     (not isinstance(kwargs, Token) and kwargs != 'attribute')
@@ -884,6 +886,12 @@ def customize_for_version3(self, version):
                 PRECEDENCE['attribute37'] = 2
                 TABLE_DIRECT.update({
                     'attribute37':  ( '%c.%[1]{pattr}', 0 ),
+                    'async_forelse_stmt':  (
+                        '%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
+                        7, 1, 17, (25, 'else_suite') ),
+                    'async_for_stmt':  (
+                        '%|async for %c in %c:\n%+%c%-%-\n\n',
+                        7, 1, 17),
                     })
                 pass
             pass # version >= 3.6

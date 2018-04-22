@@ -55,6 +55,30 @@ class Python36Parser(Python35Parser):
         jf_cf       ::= JUMP_FORWARD COME_FROM
         conditional ::= expr jmp_false expr jf_cf expr COME_FROM
 
+        async_for_stmt     ::= SETUP_LOOP expr
+                               GET_AITER
+                               LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
+                               YIELD_FROM
+                               store
+                               POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
+                               LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
+                               POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
+                               JUMP_ABSOLUTE END_FINALLY COME_FROM
+                               for_block POP_BLOCK
+                               COME_FROM_LOOP
+
+        async_forelse_stmt ::= SETUP_LOOP expr
+                               GET_AITER
+                               LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
+                               YIELD_FROM
+                               store
+                               POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
+                               LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
+                               POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
+                               JUMP_ABSOLUTE END_FINALLY COME_FROM
+                               for_block POP_BLOCK
+                               else_suite COME_FROM_LOOP
+
         # Adds a COME_FROM_ASYNC_WITH over 3.5
         # FIXME: remove corresponding rule for 3.5?
 
@@ -91,9 +115,32 @@ class Python36Parser(Python35Parser):
         """
 
     def customize_grammar_rules(self, tokens, customize):
+        # self.remove_rules("""
+        # """)
         super(Python36Parser, self).customize_grammar_rules(tokens, customize)
         self.remove_rules("""
-           dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST MAKE_CLOSURE_0 expr GET_ITER CALL_FUNCTION_1
+           async_for_stmt     ::= SETUP_LOOP expr
+                                  GET_AITER
+                                  LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
+                                  YIELD_FROM
+                                  store
+                                  POP_BLOCK jump_except COME_FROM_EXCEPT DUP_TOP
+                                  LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
+                                  POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
+                                  JUMP_ABSOLUTE END_FINALLY COME_FROM
+                                  for_block POP_BLOCK JUMP_ABSOLUTE
+                                  COME_FROM_LOOP
+           async_forelse_stmt ::= SETUP_LOOP expr
+                                  GET_AITER
+                                  LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
+                                  YIELD_FROM
+                                  store
+                                  POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
+                                  LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
+                                  POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
+                                  JUMP_ABSOLUTE END_FINALLY COME_FROM
+                                  for_block pb_ja
+                                  else_suite COME_FROM_LOOP
         """)
         self.check_reduce['call_kw'] = 'AST'
 
@@ -107,7 +154,7 @@ class Python36Parser(Python35Parser):
                 """
                 self.add_unique_doc_rules(rules_str, customize)
             elif opname == 'MAKE_FUNCTION_8':
-                if self.seen_LOAD_DICTCOMP:
+                if 'LOAD_DICTCOMP' in self.seen_ops:
                     # Is there something general going on here?
                     rule = """
                        dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST
@@ -115,7 +162,7 @@ class Python36Parser(Python35Parser):
                                      GET_ITER CALL_FUNCTION_1
                        """
                     self.addRule(rule, nop_func)
-                elif self.seen_LOAD_SETCOMP:
+                elif 'LOAD_SETCOMP' in self.seen_ops:
                     rule = """
                        set_comp ::= load_closure LOAD_SETCOMP LOAD_CONST
                                     MAKE_FUNCTION_8 expr
@@ -191,9 +238,7 @@ class Python36Parser(Python35Parser):
                 """
                 self.addRule(rules_str, nop_func)
 
-    def custom_classfunc_rule(self, opname, token, customize,
-                              possible_class_decorator,
-                              seen_GET_AWAITABLE_YIELD_FROM, next_token):
+    def custom_classfunc_rule(self, opname, token, customize, next_token):
 
         args_pos, args_kw = self.get_pos_kw(token)
 
@@ -205,7 +250,7 @@ class Python36Parser(Python35Parser):
         nak = ( len(opname)-len('CALL_FUNCTION') ) // 3
         uniq_param = args_kw + args_pos
 
-        if seen_GET_AWAITABLE_YIELD_FROM:
+        if frozenset(('GET_AWAITABLE', 'YIELD_FROM')).issubset(self.seen_ops):
             rule = ('async_call ::= expr ' +
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) +
@@ -249,10 +294,15 @@ class Python36Parser(Python35Parser):
                          """, nop_func)
             if self.version > 3.6:
                 self.addRule("""
-                            expr        ::= call_ex_kw3
                             expr        ::= call_ex_kw
+                            expr        ::= call_ex_kw3
+                            expr        ::= call_ex_kw4
                             call_ex_kw3 ::= expr
                                             build_tuple_unpack_with_call
+                                            expr
+                                            CALL_FUNCTION_EX
+                            call_ex_kw4 ::= expr
+                                            expr
                                             expr
                                             CALL_FUNCTION_EX
                             call_ex_kw  ::= expr expr
@@ -260,11 +310,7 @@ class Python36Parser(Python35Parser):
                             """, nop_func)
             pass
         else:
-            super(Python36Parser, self).custom_classfunc_rule(opname, token,
-                                                              customize,
-                                                              possible_class_decorator,
-                                                              seen_GET_AWAITABLE_YIELD_FROM,
-                                                              next_token)
+            super(Python36Parser, self).custom_classfunc_rule(opname, token, customize, next_token)
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python36Parser,

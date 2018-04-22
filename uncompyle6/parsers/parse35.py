@@ -15,6 +15,9 @@ class Python35Parser(Python34Parser):
 
     def p_35on(self, args):
         """
+
+        pb_ja ::= POP_BLOCK JUMP_ABSOLUTE
+
         # The number of canned instructions in new statements is mind boggling.
         # I'm sure by the time Python 4 comes around these will be turned
         # into special opcodes
@@ -89,7 +92,7 @@ class Python35Parser(Python34Parser):
                                LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
                                JUMP_ABSOLUTE END_FINALLY COME_FROM
-                               for_block POP_BLOCK JUMP_ABSOLUTE
+                               for_block pb_ja
                                else_suite COME_FROM_LOOP
 
 
@@ -140,17 +143,20 @@ class Python35Parser(Python34Parser):
         super(Python35Parser, self).customize_grammar_rules(tokens, customize)
         for i, token in enumerate(tokens):
             opname = token.kind
+            # FIXME: I suspect this is wrong for 3.6 and 3.5, but
+            # I haven't verified what the 3.7ish fix is
             if opname == 'BUILD_MAP_UNPACK_WITH_CALL':
-                self.addRule("expr ::= unmapexpr", nop_func)
-                nargs = token.attr % 256
-                map_unpack_n = "map_unpack_%s" % nargs
-                rule = map_unpack_n + ' ::= ' + 'expr ' * (nargs)
-                self.addRule(rule, nop_func)
-                rule = "unmapexpr ::=  %s %s" % (map_unpack_n, opname)
-                self.addRule(rule, nop_func)
-                call_token = tokens[i+1]
-                rule = 'call ::= expr unmapexpr ' + call_token.kind
-                self.addRule(rule, nop_func)
+                if self.version < 3.7:
+                    self.addRule("expr ::= unmapexpr", nop_func)
+                    nargs = token.attr % 256
+                    map_unpack_n = "map_unpack_%s" % nargs
+                    rule = map_unpack_n + ' ::= ' + 'expr ' * (nargs)
+                    self.addRule(rule, nop_func)
+                    rule = "unmapexpr ::=  %s %s" % (map_unpack_n, opname)
+                    self.addRule(rule, nop_func)
+                    call_token = tokens[i+1]
+                    rule = 'call ::= expr unmapexpr ' + call_token.kind
+                    self.addRule(rule, nop_func)
             elif opname == 'BEFORE_ASYNC_WITH':
                 # Some Python 3.5+ async additions
                 rules_str = """
@@ -199,10 +205,7 @@ class Python35Parser(Python34Parser):
             pass
         return
 
-    def custom_classfunc_rule(self, opname, token, customize,
-                              seen_LOAD_BUILD_CLASS,
-                              seen_GET_AWAITABLE_YIELD_FROM,
-                              *args):
+    def custom_classfunc_rule(self, opname, token, customize, *args):
         args_pos, args_kw = self.get_pos_kw(token)
 
         # Additional exprs for * and ** args:
@@ -213,7 +216,7 @@ class Python35Parser(Python34Parser):
         nak = ( len(opname)-len('CALL_FUNCTION') ) // 3
         uniq_param = args_kw + args_pos
 
-        if seen_GET_AWAITABLE_YIELD_FROM:
+        if frozenset(('GET_AWAITABLE', 'YIELD_FROM')).issubset(self.seen_ops):
             rule = ('async_call ::= expr ' +
                     ('pos_arg ' * args_pos) +
                     ('kwarg ' * args_kw) +
@@ -242,10 +245,7 @@ class Python35Parser(Python34Parser):
             # zero or not in creating a template rule.
             self.add_unique_rule(rule, token.kind, args_pos, customize)
         else:
-            super(Python35Parser, self).custom_classfunc_rule(opname, token, customize,
-                                                              seen_LOAD_BUILD_CLASS,
-                                                              seen_GET_AWAITABLE_YIELD_FROM,
-                                                              *args)
+            super(Python35Parser, self).custom_classfunc_rule(opname, token, customize, *args)
 
 class Python35ParserSingle(Python35Parser, PythonParserSingle):
     pass

@@ -32,12 +32,36 @@ class Python37Parser(Python36Parser):
         stmt     ::= import37
         import37 ::= import POP_TOP
 
+        async_for_stmt     ::= SETUP_LOOP expr
+                               GET_AITER
+                               SETUP_EXCEPT GET_ANEXT LOAD_CONST
+                               YIELD_FROM
+                               store
+                               POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
+                               LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                               END_FINALLY COME_FROM
+                               for_block
+                               COME_FROM
+                               POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP POP_BLOCK
+                               COME_FROM_LOOP
+
+        async_forelse_stmt ::= SETUP_LOOP expr
+                               GET_AITER
+                               SETUP_EXCEPT GET_ANEXT LOAD_CONST
+                               YIELD_FROM
+                               store
+                               POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
+                               LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                               END_FINALLY COME_FROM
+                               for_block
+                               COME_FROM
+                               POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP POP_BLOCK
+                               else_suite COME_FROM_LOOP
+
         # Is there a pattern here?
         attributes ::= IMPORT_FROM ROT_TWO POP_TOP IMPORT_FROM
 
-        # FIXME: generalize and specialize
-        attribute37   ::= LOAD_FAST LOAD_METHOD
-        attribute37   ::= LOAD_NAME LOAD_METHOD
+        attribute37   ::= expr LOAD_METHOD
         expr          ::= attribute37
 
         # FIXME: generalize and specialize
@@ -45,6 +69,19 @@ class Python37Parser(Python36Parser):
         """
 
     def customize_grammar_rules(self, tokens, customize):
+        self.remove_rules("""
+          async_forelse_stmt ::= SETUP_LOOP expr
+                                 GET_AITER
+                                 LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
+                                 YIELD_FROM
+                                 store
+                                 POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
+                                 LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
+                                 POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
+                                 JUMP_ABSOLUTE END_FINALLY COME_FROM
+                                 for_block POP_BLOCK
+                                 else_suite COME_FROM_LOOP
+        """)
         super(Python37Parser, self).customize_grammar_rules(tokens, customize)
 
 class Python37ParserSingle(Python37Parser, PythonParserSingle):
