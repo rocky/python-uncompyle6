@@ -294,20 +294,30 @@ class Python36Parser(Python35Parser):
                          call_ex     ::= expr starred CALL_FUNCTION_EX
                          """, nop_func)
             if self.version > 3.6:
-                self.addRule("""
-                            expr        ::= call_ex_kw
+                if 'BUILD_TUPLE_UNPACK_WITH_CALL' in self.seen_ops:
+                    self.addRule("""
                             expr        ::= call_ex_kw3
-                            expr        ::= call_ex_kw4
                             call_ex_kw3 ::= expr
                                             build_tuple_unpack_with_call
-                                            expr
+                                            %s
                                             CALL_FUNCTION_EX
+                            """ % 'expr '* token.attr, nop_func)
+                elif 'BUILD_MAP_UNPACK_WITH_CALL' in self.seen_ops:
+                    # FIXME: Is this right?
+                    self.addRule("""
+                            expr        ::= call_ex_kw
+                            call_ex_kw  ::= expr expr
+                                            build_map_unpack_with_call CALL_FUNCTION_EX
+                            """, nop_func)
+                    pass
+
+                # FIXME: Is this right?
+                self.addRule("""
+                            expr        ::= call_ex_kw4
                             call_ex_kw4 ::= expr
                                             expr
                                             expr
                                             CALL_FUNCTION_EX
-                            call_ex_kw  ::= expr expr
-                                            build_map_unpack_with_call CALL_FUNCTION_EX
                             """, nop_func)
             pass
         else:
