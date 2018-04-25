@@ -326,7 +326,7 @@ MAP = {
 # or https://docs.python.org/3/reference/expressions.html
 # for a list.
 
-# Things at the top of this lnist below with low-value precidence will
+# Things at the top of this list below with low-value precidence will
 # tend to have parenthesis around them. Things at the bottom
 # of the list will tend not to have parenthesis around them.
 PRECEDENCE = {
