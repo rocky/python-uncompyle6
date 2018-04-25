@@ -1,4 +1,4 @@
-#  Copyright (c) 2017 Rocky Bernstein
+#  Copyright (c) 2017-2018 Rocky Bernstein
 """
 spark grammar differences over Python2 for Python 2.6.
 """
@@ -289,7 +289,11 @@ class Python26Parser(Python2Parser):
 
         return_if_lambda   ::= RETURN_END_IF_LAMBDA POP_TOP
         stmt               ::= conditional_lambda
+        stmt               ::= conditional_not_lambda
         conditional_lambda ::= expr jmp_false_then expr return_if_lambda
+                               return_stmt_lambda LAMBDA_MARKER
+        conditional_not_lambda ::=
+                               expr jmp_true_then expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
 
         # conditional_true are for conditions which always evaluate true

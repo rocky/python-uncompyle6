@@ -209,7 +209,12 @@ TABLE_DIRECT = {
     'ret_cond':         ( '%p if %p else %p', (2, 27), (0, 27), (-1, 27) ),
     'conditionalnot':   ( '%p if not %p else %p', (2, 27), (0, 22), (4, 27) ),
     'ret_cond_not':     ( '%p if not %p else %p', (2, 27), (0, 22), (-1, 27) ),
-    'conditional_lambda':  ( '%c if %c else %c', 2, 0, 4),
+    'conditional_lambda':
+                        ( '%c if %c else %c',
+                          (2, 'expr'), 0, 4 ),
+    'conditional_not_lambda':
+                        ( '%c if not %c else %c',
+                          (2, 'expr'), 0, 4 ),
 
     'compare_single':	    ( '%p %[-1]{pattr.replace("-", " ")} %p', (0, 19), (1, 19) ),
     'compare_chained':	    ( '%p %p', (0, 29), (1, 30)),
@@ -321,71 +326,69 @@ MAP = {
 # or https://docs.python.org/3/reference/expressions.html
 # for a list.
 
-# Things at the top of this list below with low-value precidence will
+# Things at the top of this lnist below with low-value precidence will
 # tend to have parenthesis around them. Things at the bottom
 # of the list will tend not to have parenthesis around them.
 PRECEDENCE = {
-    'list':                 0,
-    'dict':                 0,
-    'unary_convert':        0,
-    'dict_comp':            0,
-    'set_comp':             0,
-    'set_comp_expr':        0,
-    'list_comp':            0,
-    'generator_exp':        0,
+    'list':                   0,
+    'dict':                   0,
+    'unary_convert':          0,
+    'dict_comp':              0,
+    'set_comp':               0,
+    'set_comp_expr':          0,
+    'list_comp':              0,
+    'generator_exp':          0,
 
-    'attribute':            2,
-    'subscript':            2,
-    'subscript2':           2,
-    'slice0':               2,
-    'slice1':               2,
-    'slice2':               2,
-    'slice3':               2,
-    'buildslice2':          2,
-    'buildslice3':          2,
-    'call':                 2,
+    'attribute':              2,
+    'subscript':              2,
+    'subscript2':             2,
+    'slice0':                 2,
+    'slice1':                 2,
+    'slice2':                 2,
+    'slice3':                 2,
+    'buildslice2':            2,
+    'buildslice3':            2,
+    'call':                   2,
 
-    'BINARY_POWER':         4,
+    'BINARY_POWER':           4,
 
-    'unary_expr':           6,
+    'unary_expr':             6,
 
-    'BINARY_MULTIPLY':      8,
-    'BINARY_DIVIDE':        8,
-    'BINARY_TRUE_DIVIDE':   8,
-    'BINARY_FLOOR_DIVIDE':  8,
-    'BINARY_MODULO':        8,
+    'BINARY_MULTIPLY':        8,
+    'BINARY_DIVIDE':          8,
+    'BINARY_TRUE_DIVIDE':     8,
+    'BINARY_FLOOR_DIVIDE':    8,
+    'BINARY_MODULO':          8,
 
-    'BINARY_ADD':           10,
-    'BINARY_SUBTRACT':      10,
+    'BINARY_ADD':             10,
+    'BINARY_SUBTRACT':        10,
 
-    'BINARY_LSHIFT':        12,
-    'BINARY_RSHIFT':        12,
+    'BINARY_LSHIFT':          12,
+    'BINARY_RSHIFT':          12,
 
-    'BINARY_AND':           14,
+    'BINARY_AND':             14,
+    'BINARY_XOR':             16,
+    'BINARY_OR':              18,
 
-    'BINARY_XOR':           16,
+    'compare':                20,
+    'unary_not':              22,
+    'and':                    24,
+    'ret_and':                24,
 
-    'BINARY_OR':            18,
+    'or':                     26,
+    'ret_or':                 26,
 
-    'compare':              20,
+    'conditional':            28,
+    'conditional_lamdba':     28,
+    'conditional_not_lamdba': 28,
+    'conditionalnot':         28,
+    'ret_cond':               28,
+    'ret_cond_not':           28,
 
-    'unary_not':            22,
+    '_mklambda':              30,
 
-    'and':                  24,
-    'ret_and':              24,
-
-    'or':                   26,
-    'ret_or':               26,
-
-    'conditional':          28,
-    'conditional_lamdba':   28,
-    'conditionalnot':       28,
-    'ret_cond':             28,
-    'ret_cond_not':         28,
-
-    '_mklambda':            30,
-    'yield':               101,
-    'yield_from':          101
+    'yield':                 101,
+    'yield_from':            101
 }
 
 ASSIGN_TUPLE_PARAM = lambda param_name: \

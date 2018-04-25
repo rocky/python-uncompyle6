@@ -36,13 +36,6 @@ class Python36Parser(Python35Parser):
         # 3.6 redoes how return_closure works. FIXME: Isolate to LOAD_CLOSURE
         return_closure   ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
 
-        stmt               ::= conditional_lambda
-        conditional_lambda ::= expr jmp_false expr return_if_lambda
-                               return_stmt_lambda LAMBDA_MARKER
-        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
-        return_if_lambda   ::= RETURN_END_IF_LAMBDA
-
-
         for_block       ::= l_stmts_opt come_from_loops JUMP_BACK
         come_from_loops ::= COME_FROM_LOOP*
 
