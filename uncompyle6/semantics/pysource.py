@@ -999,6 +999,7 @@ class SourceWalker(GenericASTTraversal, object):
         while (len(ast) == 1
                or (ast in ('sstmt', 'return')
                    and ast[-1] in ('RETURN_LAST', 'RETURN_VALUE'))):
+            self.prec=100
             ast = ast[0]
 
         store = None
@@ -1105,6 +1106,7 @@ class SourceWalker(GenericASTTraversal, object):
         while (len(ast) == 1
                or (ast in ('sstmt', 'return')
                    and ast[-1] in ('RETURN_LAST', 'RETURN_VALUE'))):
+            self.prec=100
             ast = ast[0]
 
         n = ast[1]
