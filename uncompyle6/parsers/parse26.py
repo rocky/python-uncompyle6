@@ -1,4 +1,4 @@
-#  Copyright (c) 2017 Rocky Bernstein
+#  Copyright (c) 2017-2018 Rocky Bernstein
 """
 spark grammar differences over Python2 for Python 2.6.
 """
@@ -264,6 +264,9 @@ class Python26Parser(Python2Parser):
         dict ::= BUILD_MAP kvlist
         kvlist ::= kvlist kv3
 
+        expr ::= conditional_not
+        conditional_not ::= expr jmp_true expr _jump COME_FROM POP_TOP expr COME_FROM
+
         conditional  ::= expr jmp_false expr jf_cf_pop expr come_from_opt
         and          ::= expr JUMP_IF_FALSE POP_TOP expr JUMP_IF_FALSE POP_TOP
 
@@ -289,7 +292,11 @@ class Python26Parser(Python2Parser):
 
         return_if_lambda   ::= RETURN_END_IF_LAMBDA POP_TOP
         stmt               ::= conditional_lambda
+        stmt               ::= conditional_not_lambda
         conditional_lambda ::= expr jmp_false_then expr return_if_lambda
+                               return_stmt_lambda LAMBDA_MARKER
+        conditional_not_lambda ::=
+                               expr jmp_true_then expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
 
         # conditional_true are for conditions which always evaluate true

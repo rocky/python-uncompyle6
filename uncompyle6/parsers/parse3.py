@@ -335,6 +335,17 @@ class Python3Parser(PythonParser):
 
     def p_stmt3(self, args):
         """
+        stmt               ::= conditional_lambda
+        stmt               ::= conditional_not_lambda
+        conditional_lambda ::= expr jmp_false expr return_if_lambda
+                               return_stmt_lambda LAMBDA_MARKER
+        conditional_not_lambda
+                           ::= expr jmp_true expr return_if_lambda
+                               return_stmt_lambda LAMBDA_MARKER
+
+        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+        return_if_lambda   ::= RETURN_END_IF_LAMBDA
+
         stmt ::= return_closure
         return_closure ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
 
@@ -581,11 +592,15 @@ class Python3Parser(PythonParser):
             self.addRule("""
               stmt ::= assign3_pypy
               stmt ::= assign2_pypy
-              assign3_pypy     ::= expr expr expr store store store
-              assign2_pypy     ::= expr expr store store
-              return_if_lambda ::= RETURN_END_IF_LAMBDA
-              stmt             ::= conditional_lambda
+              assign3_pypy       ::= expr expr expr store store store
+              assign2_pypy       ::= expr expr store store
+              return_if_lambda   ::= RETURN_END_IF_LAMBDA
+              stmt               ::= conditional_lambda
+              stmt               ::= conditional_not_lambda
               conditional_lambda ::= expr jmp_false expr return_if_lambda
+                                     return_lambda LAMBDA_MARKER
+              conditional_not_lambda
+                                 ::= expr jmp_true expr return_if_lambda
                                      return_lambda LAMBDA_MARKER
               """, nop_func)
 

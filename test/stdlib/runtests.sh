@@ -115,6 +115,7 @@ case $PYVERSION in
 	    # Figure out what's up here
 	    SKIP_TESTS[test_array.py]=1
 	    SKIP_TESTS[test_ast.py]=1
+	    SKIP_TESTS[test_audioop.py]=1
 	fi
 	;;
     3.5)
@@ -171,7 +172,7 @@ if [[ -n $1 ]] ; then
 	SKIP_TESTS=()
     fi
 else
-    files=test_a*.py
+    files=test_*.py
 fi
 
 typeset -i ALL_FILES_STARTTIME=$(date +%s)

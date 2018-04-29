@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017 Rocky Bernstein
+#  Copyright (c) 2016-2018 Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 #  Copyright (c) 1999 John Aycock
 
@@ -31,9 +31,6 @@ class Python23Parser(Python24Parser):
 
         while1stmt ::= _while1test l_stmts_opt JUMP_BACK
                        POP_TOP POP_BLOCK COME_FROM
-
-        while1stmt ::= _while1test l_stmts_opt JUMP_BACK
-                       POP_TOP POP_BLOCK
 
         while1stmt ::= _while1test l_stmts_opt JUMP_BACK
                        COME_FROM POP_TOP POP_BLOCK COME_FROM

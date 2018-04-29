@@ -35,13 +35,6 @@ class Python36Parser(Python35Parser):
         # 3.6 redoes how return_closure works. FIXME: Isolate to LOAD_CLOSURE
         return_closure   ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
 
-        stmt               ::= conditional_lambda
-        conditional_lambda ::= expr jmp_false expr return_if_lambda
-                               return_stmt_lambda LAMBDA_MARKER
-        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
-        return_if_lambda   ::= RETURN_END_IF_LAMBDA
-
-
         for_block       ::= l_stmts_opt come_from_loops JUMP_BACK
         come_from_loops ::= COME_FROM_LOOP*
 
@@ -213,9 +206,7 @@ class Python36Parser(Python35Parser):
                 self.add_unique_doc_rules(rules_str, customize)
             elif opname.startswith('BUILD_MAP_UNPACK_WITH_CALL'):
                 v = token.attr
-                rule = ('build_map_unpack_with_call ::= ' + 'expr1024 ' * int(v//1024) +
-                        'expr32 ' * int((v//32) % 32) +
-                        'expr ' * (v % 32) + opname)
+                rule = 'build_map_unpack_with_call ::= %s%s' % ('expr ' * v, opname)
                 self.addRule(rule, nop_func)
             elif opname.startswith('BUILD_TUPLE_UNPACK_WITH_CALL'):
                 v = token.attr
@@ -265,48 +256,66 @@ class Python36Parser(Python35Parser):
             rule = "call_kw36 ::= expr %s LOAD_CONST %s" % (values, opname)
             self.add_unique_rule(rule, token.kind, token.attr, customize)
         elif opname == 'CALL_FUNCTION_EX_KW':
-            self.addRule("""expr        ::= call_ex_kw
-                            expr        ::= call_ex_kw2
-                            expr        ::= call_ex_kw3
-                            expr        ::= call_ex_kw4
-
-                            call_ex_kw  ::= expr expr build_map_unpack_with_call
-                                            CALL_FUNCTION_EX_KW
-                            call_ex_kw2 ::= expr
-                                            build_tuple_unpack_with_call
-                                            build_map_unpack_with_call
-                                            CALL_FUNCTION_EX_KW
-                            call_ex_kw3 ::= expr
-                                            build_tuple_unpack_with_call
-                                            expr
-                                            CALL_FUNCTION_EX_KW
+            # Note: this doesn't exist in 3.7 and later
+            self.addRule("""expr        ::= call_ex_kw4
                             call_ex_kw4 ::= expr
                                             expr
                                             expr
                                             CALL_FUNCTION_EX_KW
                          """,
                          nop_func)
+            if 'BUILD_MAP_UNPACK_WITH_CALL' in self.seen_op_basenames:
+                self.addRule("""expr        ::= call_ex_kw
+                                call_ex_kw  ::= expr expr build_map_unpack_with_call
+                                                CALL_FUNCTION_EX_KW
+                             """, nop_func)
+            if 'BUILD_TUPLE_UNPACK_WITH_CALL' in self.seen_op_basenames:
+                # FIXME: should this be parameterized by EX value?
+                self.addRule("""expr        ::= call_ex_kw3
+                                call_ex_kw3 ::= expr
+                                                build_tuple_unpack_with_call
+                                                expr
+                                                CALL_FUNCTION_EX_KW
+                             """, nop_func)
+                if 'BUILD_MAP_UNPACK_WITH_CALL' in self.seen_op_basenames:
+                    # FIXME: should this be parameterized by EX value?
+                    self.addRule("""expr        ::= call_ex_kw2
+                                    call_ex_kw2 ::= expr
+                                                    build_tuple_unpack_with_call
+                                                    build_map_unpack_with_call
+                                                    CALL_FUNCTION_EX_KW
+                             """, nop_func)
+
         elif opname == 'CALL_FUNCTION_EX':
             self.addRule("""
                          expr        ::= call_ex
                          starred     ::= expr
                          call_ex     ::= expr starred CALL_FUNCTION_EX
                          """, nop_func)
-            if self.version > 3.6:
-                self.addRule("""
+            if self.version >= 3.6:
+                if 'BUILD_MAP_UNPACK_WITH_CALL' in self.seen_ops:
+                    self.addRule("""
                             expr        ::= call_ex_kw
+                            call_ex_kw  ::= expr expr
+                                            build_map_unpack_with_call CALL_FUNCTION_EX
+                            """, nop_func)
+                if 'BUILD_TUPLE_UNPACK_WITH_CALL' in self.seen_ops:
+                    self.addRule("""
                             expr        ::= call_ex_kw3
-                            expr        ::= call_ex_kw4
                             call_ex_kw3 ::= expr
                                             build_tuple_unpack_with_call
-                                            expr
+                                            %s
                                             CALL_FUNCTION_EX
+                            """ % 'expr '* token.attr, nop_func)
+                    pass
+
+                # FIXME: Is this right?
+                self.addRule("""
+                            expr        ::= call_ex_kw4
                             call_ex_kw4 ::= expr
                                             expr
                                             expr
                                             CALL_FUNCTION_EX
-                            call_ex_kw  ::= expr expr
-                                            build_map_unpack_with_call CALL_FUNCTION_EX
                             """, nop_func)
             pass
         else:

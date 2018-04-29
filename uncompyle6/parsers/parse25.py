@@ -83,7 +83,11 @@ class Python25Parser(Python26Parser):
         setupwithas      ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 setup_finally
         stmt             ::= classdefdeco
         stmt             ::= conditional_lambda
+        stmt             ::= conditional_not_lambda
         conditional_lambda ::= expr jmp_false_then expr return_if_lambda
+                               return_stmt_lambda LAMBDA_MARKER
+        conditional_not_lambda
+                           ::= expr jmp_true_then expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
         """)
         super(Python25Parser, self).customize_grammar_rules(tokens, customize)
