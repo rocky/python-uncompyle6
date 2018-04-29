@@ -264,6 +264,9 @@ class Python26Parser(Python2Parser):
         dict ::= BUILD_MAP kvlist
         kvlist ::= kvlist kv3
 
+        expr ::= conditional_not
+        conditional_not ::= expr jmp_true expr _jump COME_FROM POP_TOP expr COME_FROM
+
         conditional  ::= expr jmp_false expr jf_cf_pop expr come_from_opt
         and          ::= expr JUMP_IF_FALSE POP_TOP expr JUMP_IF_FALSE POP_TOP
 

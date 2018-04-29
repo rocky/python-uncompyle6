@@ -165,6 +165,9 @@ class Python27Parser(Python2Parser):
                            ::= expr jmp_true expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
 
+        expr ::= conditional_not
+        conditional_not ::= expr jmp_true expr _jump expr COME_FROM
+
         kv3 ::= expr expr STORE_MAP
         """
 
@@ -172,12 +175,17 @@ class Python27Parser(Python2Parser):
         # 2.7 changes COME_FROM to COME_FROM_FINALLY
         self.remove_rules("""
         while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK else_suite COME_FROM
-        tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM suite_stmts_opt END_FINALLY
+        tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
+                           POP_BLOCK LOAD_CONST COME_FROM suite_stmts_opt
+                           END_FINALLY
         """)
         super(Python27Parser, self).customize_grammar_rules(tokens, customize)
         self.check_reduce['and'] = 'AST'
+        # self.check_reduce['or'] = 'AST'
         self.check_reduce['raise_stmt1'] = 'AST'
-        # self.check_reduce['conditional_true'] = 'AST'
+        self.check_reduce['list_if_not'] = 'AST'
+        self.check_reduce['list_if'] = 'AST'
+        self.check_reduce['conditional_true'] = 'AST'
         return
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
@@ -195,6 +203,21 @@ class Python27Parser(Python2Parser):
                         tokens[last].pattr == jmp_false.pattr)
         elif rule[0] == ('raise_stmt1'):
             return ast[0] == 'expr' and ast[0][0] == 'or'
+        elif rule == ('list_if_not', ('expr', 'jmp_true', 'list_iter')):
+            jump_inst = ast[1][0]
+            jump_offset = jump_inst.attr
+            return jump_offset > jump_inst.offset and jump_offset < tokens[last].offset
+        elif rule == ('list_if', ('expr', 'jmp_false', 'list_iter')):
+            jump_inst = ast[1][0]
+            jump_offset = jump_inst.attr
+            return jump_offset > jump_inst.offset and jump_offset < tokens[last].offset
+        elif rule == ('or', ('expr', 'jmp_true', 'expr', '\\e_come_from_opt')):
+            # Test that jmp_true doesn't jump inside the middle the "or"
+            # or that it jumps to the same place as the end of "and"
+            jmp_true = ast[1][0]
+            jmp_target = jmp_true.offset + jmp_true.attr + 3
+            return not (jmp_target == tokens[last].offset or
+                        tokens[last].pattr == jmp_true.pattr)
         # elif rule[0] == ('conditional_true'):
         #     # FIXME: the below is a hack: we check expr for
         #     # nodes that could have possibly been a been a Boolean.

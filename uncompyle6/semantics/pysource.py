@@ -784,7 +784,7 @@ class SourceWalker(GenericASTTraversal, object):
     def n_list_comp(self, node):
         """List comprehensions"""
         p = self.prec
-        self.prec = 27
+        self.prec = 100
         if self.version >= 2.7:
             if self.is_pypy:
                 self.n_list_comp_pypy27(node)
