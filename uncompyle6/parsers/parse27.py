@@ -143,6 +143,7 @@ class Python27Parser(Python2Parser):
         # 2.7.5 (and before to 2.7.0?)
         while1stmt        ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM
         while1stmt        ::= SETUP_LOOP l_stmts_opt CONTINUE COME_FROM
+        while1stmt        ::= SETUP_LOOP returns COME_FROM
 
         while1stmt        ::= SETUP_LOOP returns bp_come_from
         while1stmt        ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM
