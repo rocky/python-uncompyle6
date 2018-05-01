@@ -136,6 +136,11 @@ class Python27Parser(Python2Parser):
         whilestmt         ::= SETUP_LOOP testexpr returns
                               _come_froms POP_BLOCK COME_FROM
 
+
+        # 2.7.5 (and before to 2.7.0?)
+        while1stmt        ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM
+        while1stmt        ::= SETUP_LOOP l_stmts_opt CONTINUE COME_FROM
+
         while1stmt        ::= SETUP_LOOP returns bp_come_from
         while1stmt        ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM
         whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK _come_froms
