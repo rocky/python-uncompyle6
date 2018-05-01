@@ -33,6 +33,9 @@ class Python27Parser(Python2Parser):
         set_comp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
                           JUMP_BACK RETURN_VALUE RETURN_LAST
 
+        comp_iter     ::= comp_if_not
+        comp_if_not   ::= expr jmp_true comp_iter
+
         comp_body ::= dict_comp_body
         comp_body ::= set_comp_body
         comp_for ::= expr for_iter store comp_iter JUMP_BACK
