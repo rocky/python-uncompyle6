@@ -51,6 +51,10 @@ class Python27Parser(Python2Parser):
 
     def p_try27(self, args):
         """
+        # If the last except is a "raise" we might not have a final COME_FROM
+        try_except      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                            except_handler
+
         tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
                            POP_BLOCK LOAD_CONST
                            COME_FROM_FINALLY suite_stmts_opt END_FINALLY
@@ -144,6 +148,8 @@ class Python27Parser(Python2Parser):
         while1stmt        ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM
         while1stmt        ::= SETUP_LOOP l_stmts_opt CONTINUE COME_FROM
         while1stmt        ::= SETUP_LOOP returns COME_FROM
+        while1elsestmt    ::= SETUP_LOOP l_stmts JUMP_BACK
+                              else_suitel COME_FROM
 
         while1stmt        ::= SETUP_LOOP returns bp_come_from
         while1stmt        ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM
