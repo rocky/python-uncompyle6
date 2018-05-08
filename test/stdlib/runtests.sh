@@ -114,7 +114,7 @@ case $PYVERSION in
 	    [test_unicode.py]=1  # Too long to run 11 seconds
 	    [test_xpickle.py]=1 # Runs ok but takes 72 seconds
 	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
-	    [test_zipimport]=1  # We can't distinguish try from try/else yet
+	    [test_zipimport.py]=1  # We can't distinguish try from try/else yet
         )
 	if (( batch )) ; then
 	    # Fails in crontab environment?
