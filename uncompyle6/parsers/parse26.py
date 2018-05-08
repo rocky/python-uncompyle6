@@ -323,6 +323,7 @@ class Python26Parser(Python2Parser):
         """)
         super(Python26Parser, self).customize_grammar_rules(tokens, customize)
         self.check_reduce['and'] = 'AST'
+        self.check_reduce['assert_expr_and'] = 'AST'
         self.check_reduce['list_for'] = 'AST'
         self.check_reduce['try_except'] = 'tokens'
         self.check_reduce['tryelsestmt'] = 'AST'
@@ -333,11 +334,19 @@ class Python26Parser(Python2Parser):
                                                 tokens, first, last)
         if invalid or tokens is None:
             return invalid
-        if rule == ('and', ('expr', 'jmp_false', 'expr', '\\e_come_from_opt')):
+        if rule in (
+                ('and', ('expr', 'jmp_false', 'expr', '\\e_come_from_opt')),
+                ('and', ('expr', 'jmp_false', 'expr', 'come_from_opt')),
+                ('assert_expr_and', ('assert_expr', 'jmp_false',  'expr'))
+                ):
 
             # FIXME: workaround profiling bug
             if ast[1] is None:
                 return False
+
+            # For now, we won't let the 2nd 'expr' be a "conditional_not"
+            if ast[2][0] == 'conditional_not':
+                return True
 
             # Test that jmp_false jumps to the end of "and"
             # or that it jumps to the same place as the end of "and"

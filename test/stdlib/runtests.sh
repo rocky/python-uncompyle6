@@ -56,6 +56,8 @@ case $PYVERSION in
     2.6)
 	SKIP_TESTS=(
 	    [test_compile.py]=1  # Intermittent - sometimes works and sometimes doesn't
+	    [test_grammar.py]=1  # Need real flow control. "and" in side "or"
+	                         # "and" inside ifelse need to simulatenously work
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_opcodes.py]=1
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
