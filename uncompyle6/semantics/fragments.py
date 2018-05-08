@@ -1620,12 +1620,14 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 index = entry[arg]
                 if isinstance(index, tuple):
                     assert node[index[0]] == index[1], (
-                        "at %s[%d], %s vs %s" % (
+                        "at %s[%d], expected %s node; got %s" % (
                             node.kind, arg, node[index[0]].kind, index[1])
                         )
                     index = index[0]
-                if isinstance(index, int):
-                    self.preorder(node[index])
+                assert isinstance(index, int), (
+                    "at %s[%d], %s should be int or tuple" % (
+                        node.kind, arg, type(index)))
+                self.preorder(node[index])
 
                 finish = len(self.f.getvalue())
                 self.set_pos_info(node, start, finish)
