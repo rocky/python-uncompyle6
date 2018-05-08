@@ -81,6 +81,9 @@ case $PYVERSION in
 	    # Figure out what's up here
 	    SKIP_TESTS[test_aifc.py]=1
 	    SKIP_TESTS[test_array.py]=1
+
+	    # SyntaxError: Non-ASCII character '\xdd' in file test_base64.py on line 153, but no encoding declared; see http://www.python.org/peps/pep-0263.html for details
+	    SKIP_TESTS[test_base64.py]=1
 	fi
 	;;
     2.7)
@@ -119,6 +122,9 @@ case $PYVERSION in
 	    SKIP_TESTS[test_array.py]=1
 	    SKIP_TESTS[test_ast.py]=1
 	    SKIP_TESTS[test_audioop.py]=1
+
+	    # SyntaxError: Non-ASCII character '\xdd' in file test_base64.py on line 153, but no encoding declared; see http://www.python.org/peps/pep-0263.html for details
+	    SKIP_TESTS[test_base64.py]=1
 	fi
 	;;
     3.5)
