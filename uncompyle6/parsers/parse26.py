@@ -322,7 +322,7 @@ class Python26Parser(Python2Parser):
                 WITH_CLEANUP END_FINALLY
         """)
         super(Python26Parser, self).customize_grammar_rules(tokens, customize)
-        self.check_reduce['and'] = 'AST'
+        # self.check_reduce['and'] = 'AST'
         self.check_reduce['assert_expr_and'] = 'AST'
         self.check_reduce['list_for'] = 'AST'
         self.check_reduce['try_except'] = 'tokens'
@@ -345,7 +345,9 @@ class Python26Parser(Python2Parser):
                 return False
 
             # For now, we won't let the 2nd 'expr' be a "conditional_not"
-            if ast[2][0] == 'conditional_not':
+            # However in < 2.6 where we don't have if/else expression it *can*
+            # be.
+            if self.version >= 2.6 and ast[2][0] == 'conditional_not':
                 return True
 
             # Test that jmp_false jumps to the end of "and"
