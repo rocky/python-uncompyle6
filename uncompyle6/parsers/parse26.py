@@ -264,10 +264,11 @@ class Python26Parser(Python2Parser):
         dict ::= BUILD_MAP kvlist
         kvlist ::= kvlist kv3
 
-        expr ::= conditional_not
-        conditional_not ::= expr jmp_true expr _jump COME_FROM POP_TOP expr COME_FROM
+        # Note: preserve positions 0 2 and 4 for semantic actions
+        conditional_not ::= expr jmp_true  expr jf_cf_pop expr COME_FROM
+        conditional     ::= expr jmp_false expr jf_cf_pop expr come_from_opt
+        expr            ::= conditional_not
 
-        conditional  ::= expr jmp_false expr jf_cf_pop expr come_from_opt
         and          ::= expr JUMP_IF_FALSE POP_TOP expr JUMP_IF_FALSE POP_TOP
 
         # compare_chained is like x <= y <= z
@@ -322,7 +323,8 @@ class Python26Parser(Python2Parser):
                 WITH_CLEANUP END_FINALLY
         """)
         super(Python26Parser, self).customize_grammar_rules(tokens, customize)
-        # self.check_reduce['and'] = 'AST'
+        if self.version >= 2.6:
+            self.check_reduce['and'] = 'AST'
         self.check_reduce['assert_expr_and'] = 'AST'
         self.check_reduce['list_for'] = 'AST'
         self.check_reduce['try_except'] = 'tokens'
@@ -347,14 +349,20 @@ class Python26Parser(Python2Parser):
             # For now, we won't let the 2nd 'expr' be a "conditional_not"
             # However in < 2.6 where we don't have if/else expression it *can*
             # be.
-            if self.version >= 2.6 and ast[2][0] == 'conditional_not':
+            if ast[2][0] == 'conditional_not':
                 return True
+
+            test_index = last
+            while tokens[test_index].kind == 'COME_FROM':
+                test_index += 1
+            if tokens[test_index].kind.startswith('JUMP_IF'):
+                return False
 
             # Test that jmp_false jumps to the end of "and"
             # or that it jumps to the same place as the end of "and"
             jmp_false = ast[1][0]
             jmp_target = jmp_false.offset + jmp_false.attr + 3
-            return not (jmp_target == tokens[last].offset or
+            return not (jmp_target == tokens[test_index].offset or
                         tokens[last].pattr == jmp_false.pattr)
         elif rule == (
                 'list_for',
