@@ -2163,7 +2163,6 @@ class SourceWalker(GenericASTTraversal, object):
         except (python_parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens)
 
-        # from trepan.api import debug; debug()
         maybe_show_tree(self, ast)
 
         checker(ast, False, self.ast_errors)

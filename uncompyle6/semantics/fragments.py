@@ -1103,7 +1103,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 self.p.insts = p_insts
             except (parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
-            maybe_show_tree(self.showast, ast)
+            maybe_show_tree(self, ast)
             return ast
 
         # The bytecode for the end of the main routine has a
@@ -1142,7 +1142,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         except (parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens)
 
-        maybe_show_tree(self.showast, ast)
+        maybe_show_tree(self, ast)
 
         checker(ast, False, self.ast_errors)
 

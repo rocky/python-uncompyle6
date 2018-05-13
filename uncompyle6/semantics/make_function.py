@@ -48,7 +48,7 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
         """
         if default:
             value = self.traverse(default, indent='')
-            maybe_show_tree_param_default(self.showast, name, value)
+            maybe_show_tree_param_default(self, name, value)
             result = '%s=%s' % (name,  value)
             if result[-2:] == '= ':	# default was 'LOAD_CONST None'
                 result += 'None'
