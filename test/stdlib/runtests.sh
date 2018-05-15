@@ -75,6 +75,10 @@ case $PYVERSION in
 	    # .pyenv/versions/2.6.9/lib/python2.6/sre_parse.pyc
 	    # .pyenv/versions/2.6.9/lib/python2.6/tabnanny.pyc
 	    # .pyenv/versions/2.6.9/lib/python2.6/tarfile.pyc
+
+	    # Not getting set by bach below?
+	    [test_pprint.py]=1
+
 	)
 	if (( batch )) ; then
 	    # Fails in crontab environment?
