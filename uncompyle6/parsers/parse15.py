@@ -23,7 +23,7 @@ class Python15Parser(Python21Parser):
         importlist  ::= IMPORT_FROM
         """
 
-class Python15ParserSingle(Python21Parser, PythonParserSingle):
+class Python15ParserSingle(Python15Parser, PythonParserSingle):
     pass
 
 if __name__ == '__main__':

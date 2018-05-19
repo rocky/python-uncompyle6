@@ -37,7 +37,7 @@ from xdis.util import code2num
 
 # The byte code versions we support.
 # Note: these all have to be floats
-PYTHON_VERSIONS = frozenset((1.5,
+PYTHON_VERSIONS = frozenset((1.4, 1.5,
                              2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7,
                              3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7))
 

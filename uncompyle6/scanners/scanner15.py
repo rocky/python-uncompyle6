@@ -1,6 +1,6 @@
-#  Copyright (c) 2016-2017 by Rocky Bernstein
+#  Copyright (c) 2016-2018 by Rocky Bernstein
 """
-Python 1.5 bytecode decompiler scanner.
+Python 1.5 bytecode decompiler massaging.
 
 This massages tokenized 1.5 bytecode to make it more amenable for
 grammar parsing.
