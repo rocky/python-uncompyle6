@@ -1,5 +1,6 @@
 PHONY=check clean dist distclean test test-unit test-functional rmChangeLog clean_pyc nosetests \
-      check-bytecode-1.5 check-bytecode-1 check-bytecode-2 check-bytecode-3 \
+      check-bytecode-1  check-bytecode-1.4 check-bytecode-1.5 \
+      check-bytecode-2 check-bytecode-3 \
       check-bytecode-2.2 check-byteocde-2.3 check-bytecode-2.4 \
       check-short check-2.6 check-2.7 check-3.0 check-3.1 check-3.2 check-3.3 \
       check-3.4 check-3.5 check-3.6 check-3.7 check-5.6 5.6 5.8 \
@@ -76,7 +77,7 @@ check-disasm:
 	$(PYTHON) dis-compare.py
 
 #: Check deparsing bytecode 1.x only
-check-bytecode-1: check-bytecode-1.5
+check-bytecode-1: check-bytecode-1.4 check-bytecode-1.5
 
 #: Check deparsing bytecode 2.x only
 check-bytecode-2:
@@ -93,10 +94,16 @@ check-bytecode-3:
 #: Check deparsing bytecode that works running Python 2 and Python 3
 check-bytecode: check-bytecode-3
 	$(PYTHON) test_pythonlib.py \
+	--bytecode-1.4 --bytecode-1.5 \
+        --bytecode-2.2 --bytecode-2.3 --bytecode-2.4 \
 	--bytecode-2.1 --bytecode-2.2 --bytecode-2.3 --bytecode-2.4 \
         --bytecode-2.5 --bytecode-2.6 --bytecode-2.7 \
         --bytecode-pypy2.7
 
+
+#: Check deparsing bytecode 1.4 only
+check-bytecode-1.4:
+	$(PYTHON) test_pythonlib.py --bytecode-1.4
 
 #: Check deparsing bytecode 1.5 only
 check-bytecode-1.5:

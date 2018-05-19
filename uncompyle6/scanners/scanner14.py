@@ -25,3 +25,12 @@ class Scanner14(scan.Scanner15):
         self.version = 1.4
         self.genexpr_name = '<generator expression>'
         return
+
+    # def ingest22(self, co, classname=None, code_objects={}, show_asm=None):
+    #     tokens, customize = self.parent_ingest(co, classname, code_objects, show_asm)
+    #     tokens = [t for t in tokens if t.kind != 'SET_LINENO']
+
+    #     # for t in tokens:
+    #     #     print(t)
+
+        return tokens, customize

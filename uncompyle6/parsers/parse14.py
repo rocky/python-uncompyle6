@@ -12,6 +12,7 @@ class Python14Parser(Python15Parser):
         # RAISE_EXCEPTION, BUILD_FUNCTION, UNPACK_ARG, UNPACK_VARARG, LOAD_LOCAL,
         # SET_FUNC_ARGS, and RESERVE_FAST
         """
+
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
         super(Python14Parser, self).__init__(debug_parser)
         self.customized = {}
