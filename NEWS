@@ -1,3 +1,10 @@
+uncompyle6 3.2.0 2018-05-19 Rocket Scientist
+
+- Add rudimentary 1.4 support (still a bit buggy)
+- add --tree+ option to show formatting rule, when it is constant
+- Python 2.7.15candidate1 support (via xdis)
+- bug fixes, especially for 3.7 (but 2.7 and 3.6 and others as well)
+
 uncompyle6 3.1.3 2018-04-16
 
 - Add some Python 3.7 rules, such as for handling LOAD_METHOD (not complete)

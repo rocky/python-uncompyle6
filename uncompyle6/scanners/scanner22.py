@@ -1,6 +1,6 @@
-#  Copyright (c) 2016-2017 by Rocky Bernstein
+#  Copyright (c) 2016-2018 by Rocky Bernstein
 """
-Python 2.2 bytecode ingester.
+Python 2.2 bytecode massaging.
 
 This massages tokenized 2.2 bytecode to make it more amenable for
 grammar parsing.

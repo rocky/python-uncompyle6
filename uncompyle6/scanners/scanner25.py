@@ -1,6 +1,6 @@
-#  Copyright (c) 2015-2017 by Rocky Bernstein
+#  Copyright (c) 2015-2018 by Rocky Bernstein
 """
-Python 2.5 bytecode scanner/deparser
+Python 2.5 bytecode massaging.
 
 This overlaps Python's 2.5's dis module, but it can be run from
 Python 3 and other versions of Python. Also, we save token

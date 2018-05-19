@@ -1,6 +1,6 @@
 #  Copyright (c) 2016-2017 by Rocky Bernstein
 """
-Python 2.4 bytecode scanner/deparser
+Python 2.4 bytecode massaging.
 
 This massages tokenized 2.7 bytecode to make it more amenable for
 grammar parsing.

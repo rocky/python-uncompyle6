@@ -251,6 +251,55 @@ class SourceWalker(GenericASTTraversal, object):
 
         return
 
+    def str_with_template(self, ast):
+        stream = sys.stdout
+        stream.write(self.str_with_template1(ast, '', None))
+        stream.write('\n')
+
+    def str_with_template1(self, ast, indent, sibNum=None):
+        rv = str(ast.kind)
+
+        if sibNum is not None:
+            rv = "%2d. %s" % (sibNum, rv)
+        enumerate_children = False
+        if len(ast) > 1:
+            rv += " (%d)" % (len(ast))
+            enumerate_children = True
+
+        mapping = self._get_mapping(ast)
+        table = mapping[0]
+        key = ast
+        for i in mapping[1:]:
+            key = key[i]
+            pass
+
+        if key.kind in table:
+            rv += ": %s" % str(table[key.kind])
+
+        rv = indent + rv
+        indent += '    '
+        i = 0
+        for node in ast:
+            if hasattr(node, '__repr1__'):
+                if enumerate_children:
+                    child =  self.str_with_template1(node, indent, i)
+                else:
+                    child = self.str_with_template1(node, indent, None)
+            else:
+                inst = node.format(line_prefix='L.')
+                if inst.startswith("\n"):
+                    # Nuke leading \n
+                    inst = inst[1:]
+                if enumerate_children:
+                    child = indent + "%2d. %s" % (i, inst)
+                else:
+                    child = indent + inst
+                pass
+            rv += "\n" + child
+            i += 1
+        return rv
+
+
     def indent_if_source_nl(self, line_number, indent):
         if (line_number != self.line_number):
             self.write("\n" + self.indent + INDENT_PER_LEVEL[:-1])
@@ -2083,7 +2132,7 @@ class SourceWalker(GenericASTTraversal, object):
                 raise ParserError(e, tokens)
             except AssertionError, e:
                 raise ParserError(e, tokens)
-            maybe_show_tree(self.showast, ast)
+            maybe_show_tree(self, ast)
             return ast
 
         # The bytecode for the end of the main routine has a
@@ -2116,7 +2165,7 @@ class SourceWalker(GenericASTTraversal, object):
         except python_parser.ParserError, e:
             raise ParserError(e, tokens)
 
-        maybe_show_tree(self.showast, ast)
+        maybe_show_tree(self, ast)
 
         checker(ast, False, self.ast_errors)
 

@@ -39,7 +39,7 @@ else:
 
 # The byte code versions we support.
 # Note: these all have to be floats
-PYTHON_VERSIONS = frozenset((1.5,
+PYTHON_VERSIONS = frozenset((1.4, 1.5,
                              2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7,
                              3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7))
 
@@ -121,7 +121,10 @@ class Scanner(object):
 
         # Offset: lineno pairs, only for offsets which start line.
         # Locally we use list for more convenient iteration using indices
-        linestarts = list(self.opc.findlinestarts(code_obj))
+        if self.version > 1.4:
+            linestarts = list(self.opc.findlinestarts(code_obj))
+        else:
+            linestarts = [[0, 1]]
         self.linestarts = dict(linestarts)
 
         # 'List-map' which shows line number of current op and offset of

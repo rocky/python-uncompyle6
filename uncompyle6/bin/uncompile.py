@@ -45,6 +45,7 @@ Debugging Options:
   --asm     -a  include byte-code         (disables --verify)
   --grammar -g  show matching grammar
   --tree    -t  include syntax tree       (disables --verify)
+  --tree++      add template rules to --tree when possible
 
 Extensions of generated files:
   '.pyc_dis' '.pyo_dis'   successfully decompiled (and verified if --verify)
@@ -60,7 +61,7 @@ from uncompyle6.version import VERSION
 
 def usage():
     print("""usage:
-   %s [--verify | --weak-verify ] [--asm] [--tree] [--grammar] [-o <path>] FILE|DIR...
+    %s [--verify | --weak-verify ] [--asm] [--tree[+]] [--grammar] [-o <path>] FILE|DIR...
    %s [--help | -h | --version | -V]
 """  % (program, program))
     sys.exit(1)
@@ -84,8 +85,10 @@ def main_bin():
 
     try:
         opts, files = getopt.getopt(sys.argv[1:], 'hagtdrVo:c:p:',
-                                    'help asm grammar linemaps recurse timestamp tree '
-                                    'fragments verify verify-run version weak-verify '
+                                    'help asm grammar linemaps recurse '
+                                    'timestamp tree tree+ '
+                                    'fragments verify verify-run version '
+                                    'weak-verify '
                                     'showgrammar'.split(' '))
     except getopt.GetoptError(e):
         sys.stderr.write('%s: %s\n' % (os.path.basename(sys.argv[0]), e))
@@ -114,6 +117,9 @@ def main_bin():
             options['do_verify'] = None
         elif opt in ('--tree', '-t'):
             options['showast'] = True
+            options['do_verify'] = None
+        elif opt in ('--tree+',):
+            options['showast'] = 'Full'
             options['do_verify'] = None
         elif opt in ('--grammar', '-g'):
             options['showgrammar'] = True
