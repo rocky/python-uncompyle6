@@ -349,7 +349,7 @@ class Python26Parser(Python2Parser):
             # For now, we won't let the 2nd 'expr' be a "conditional_not"
             # However in < 2.6 where we don't have if/else expression it *can*
             # be.
-            if ast[2][0] == 'conditional_not':
+            if self.version >= 2.6 and ast[2][0] == 'conditional_not':
                 return True
 
             test_index = last
