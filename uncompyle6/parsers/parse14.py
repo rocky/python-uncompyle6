@@ -11,6 +11,10 @@ class Python14Parser(Python15Parser):
         # Nothing here yet, but will need to add UNARY_CALL, BINARY_CALL,
         # RAISE_EXCEPTION, BUILD_FUNCTION, UNPACK_ARG, UNPACK_VARARG, LOAD_LOCAL,
         # SET_FUNC_ARGS, and RESERVE_FAST
+
+        # FIXME: should check that this indeed around __doc__
+        stmt     ::= doc_junk
+        doc_junk ::= LOAD_CONST POP_TOP
         """
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):

@@ -582,6 +582,8 @@ class PythonParser(GenericASTBuilder):
         ##   designLists ::=
         ## Will need to redo semantic actiion
 
+        stmt ::= LOAD_CONST POP_TOP
+
         store        ::= STORE_FAST
         store        ::= STORE_NAME
         store        ::= STORE_GLOBAL
@@ -620,18 +622,25 @@ def get_python_parser(
     # a lazy way of doing the import?
 
     if version < 3.0:
-        if version == 1.5:
-            import uncompyle6.parsers.parse15 as parse15
-            if compile_mode == 'exec':
-                p = parse15.Python15Parser(debug_parser)
-            else:
-                p = parse15.Python15ParserSingle(debug_parser)
-        elif version == 2.1:
-            import uncompyle6.parsers.parse21 as parse21
-            if compile_mode == 'exec':
-                p = parse21.Python21Parser(debug_parser)
-            else:
-                p = parse21.Python21ParserSingle(debug_parser)
+        if version < 2.2:
+            if version == 1.4:
+                import uncompyle6.parsers.parse15 as parse14
+                if compile_mode == 'exec':
+                    p = parse14.Python15Parser(debug_parser)
+                else:
+                    p = parse14.Python15ParserSingle(debug_parser)
+            elif version == 1.5:
+                import uncompyle6.parsers.parse15 as parse15
+                if compile_mode == 'exec':
+                    p = parse15.Python15Parser(debug_parser)
+                else:
+                    p = parse15.Python15ParserSingle(debug_parser)
+            elif version == 2.1:
+                import uncompyle6.parsers.parse21 as parse21
+                if compile_mode == 'exec':
+                    p = parse21.Python21Parser(debug_parser)
+                else:
+                    p = parse21.Python21ParserSingle(debug_parser)
         elif version == 2.2:
             import uncompyle6.parsers.parse22 as parse22
             if compile_mode == 'exec':

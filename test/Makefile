@@ -270,14 +270,14 @@ check-3.4-ok:
 2.6:
 
 #: PyPy 5.0.x with Python 2.7 ...
-pypy-2.7 5.0 5.3:
+pypy-2.7 5.0 5.3 6.0:
 	$(PYTHON) test_pythonlib.py --bytecode-pypy2.7 --verify
 
 #: PyPy 2.4.x with Python 3.2 ...
 pypy-3.2 2.4:
 	$(PYTHON) test_pythonlib.py --bytecode-pypy3.2 --verify
 
-clean: clean-py-dis clean-dis clean-unverified
+gclean: clean-py-dis clean-dis clean-unverified
 
 clean-dis:
 	find . -name '*_dis' -exec rm -v '{}' ';'
