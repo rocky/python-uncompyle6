@@ -277,7 +277,7 @@ pypy-2.7 5.0 5.3 6.0:
 pypy-3.2 2.4:
 	$(PYTHON) test_pythonlib.py --bytecode-pypy3.2 --verify
 
-gclean: clean-py-dis clean-dis clean-unverified
+clean: clean-py-dis clean-dis clean-unverified
 
 clean-dis:
 	find . -name '*_dis' -exec rm -v '{}' ';'

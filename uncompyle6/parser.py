@@ -582,8 +582,6 @@ class PythonParser(GenericASTBuilder):
         ##   designLists ::=
         ## Will need to redo semantic actiion
 
-        stmt ::= LOAD_CONST POP_TOP
-
         store        ::= STORE_FAST
         store        ::= STORE_NAME
         store        ::= STORE_GLOBAL
