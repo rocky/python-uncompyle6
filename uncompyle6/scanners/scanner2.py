@@ -1081,7 +1081,7 @@ class Scanner2(Scanner):
                 # FIXME FIXME FIXME
                 # All the conditions are horrible, and I am not sure I
                 # undestand fully what's going l
-                # WeR REALLY REALLY  need a better way to handle control flow
+                # We REALLY REALLY  need a better way to handle control flow
                 # Expecially for < 2.7
                 if label is not None and label != -1:
                     if self.version == 2.7:
