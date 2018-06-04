@@ -23,6 +23,8 @@ class Python14Parser(Python15Parser):
                           jb_pop14
                           POP_BLOCK else_suitel COME_FROM
 
+        print_items_nl_stmt ::= expr PRINT_ITEM_CONT print_items_opt PRINT_NEWLINE_CONT
+
         """
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
