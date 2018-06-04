@@ -25,6 +25,10 @@ class Python14Parser(Python15Parser):
 
         print_items_nl_stmt ::= expr PRINT_ITEM_CONT print_items_opt PRINT_NEWLINE_CONT
 
+
+        # 1.4 doesn't have linenotab, and although this shouldn't
+        # be a show stopper, our CONTINUE detection is off here.
+        continue ::= JUMP_BACK
         """
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
