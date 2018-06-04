@@ -15,6 +15,14 @@ class Python14Parser(Python15Parser):
         # FIXME: should check that this indeed around __doc__
         stmt     ::= doc_junk
         doc_junk ::= LOAD_CONST POP_TOP
+
+        # Not sure why later Python's omit the COME_FROM
+        jb_pop14  ::= JUMP_BACK COME_FROM POP_TOP
+
+        whileelsestmt ::= SETUP_LOOP testexpr l_stmts_opt
+                          jb_pop14
+                          POP_BLOCK else_suitel COME_FROM
+
         """
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
