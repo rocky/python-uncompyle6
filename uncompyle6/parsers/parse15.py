@@ -2,7 +2,7 @@
 #  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from uncompyle6.parser import PythonParserSingle
+from uncompyle6.parser import PythonParserSingle, nop_func
 from uncompyle6.parsers.parse21 import Python21Parser
 
 class Python15Parser(Python21Parser):
@@ -22,6 +22,17 @@ class Python15Parser(Python21Parser):
         importlist  ::= importlist IMPORT_FROM
         importlist  ::= IMPORT_FROM
         """
+
+    def customize_grammar_rules(self, tokens, customize):
+        super(Python15Parser, self).customize_grammar_rules(tokens, customize)
+        for i, token in enumerate(tokens):
+            opname = token.kind
+            opname_base = opname[:opname.rfind('_')]
+
+            if opname_base == 'UNPACK_LIST':
+                self.addRule("store ::= unpack_list", nop_func)
+
+
 
 class Python15ParserSingle(Python15Parser, PythonParserSingle):
     pass

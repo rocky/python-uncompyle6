@@ -292,7 +292,6 @@ class Python2Parser(PythonParser):
 
             # The order of opname listed is roughly sorted below
             if opname_base in ('BUILD_LIST', 'BUILD_SET', 'BUILD_TUPLE'):
-                v = token.attr
                 collection = opname_base[opname_base.find('_')+1:].lower()
                 rule = '%s ::= %s%s' % (collection, (token.attr * 'expr '), opname)
                 self.add_unique_rules([
@@ -393,7 +392,6 @@ class Python2Parser(PythonParser):
                     """, nop_func)
                 continue
             elif opname == 'JUMP_IF_NOT_DEBUG':
-                v = token.attr
                 self.addRule("""
                     jmp_true_false ::= POP_JUMP_IF_TRUE
                     jmp_true_false ::= POP_JUMP_IF_FALSE

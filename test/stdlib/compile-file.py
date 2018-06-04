@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""byte compiles a Python program after version 2.2 or so. Also see compile_file_1x.py"""
 import sys
 if len(sys.argv) != 2:
     print("Usage: compile-file.py *python-file*")
