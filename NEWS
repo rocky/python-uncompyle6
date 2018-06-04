@@ -1,3 +1,7 @@
+uncompyle6 3.2.1 2018-06-04 MF
+
+- Python 1.4 and 1.5 bug fixes
+
 uncompyle6 3.2.0 2018-05-19 Rocket Scientist
 
 - Add rudimentary 1.4 support (still a bit buggy)
