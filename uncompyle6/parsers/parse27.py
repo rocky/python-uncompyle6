@@ -52,6 +52,8 @@ class Python27Parser(Python2Parser):
     def p_try27(self, args):
         """
         # If the last except is a "raise" we might not have a final COME_FROM
+        # FIXME: need a check on this rule since this accepts try_except when
+        # we shouldn't
         try_except      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                             except_handler
 
