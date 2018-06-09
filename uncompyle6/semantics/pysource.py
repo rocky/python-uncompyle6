@@ -940,7 +940,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = 27
 
         # FIXME: clean this up
-        if self.version > 3.0 and node == 'dict_comp':
+        if self.version >= 3.0 and node == 'dict_comp':
             cn = node[1]
         elif self.version < 2.7 and node == 'generator_exp':
             if node[0] == 'LOAD_GENEXPR':
@@ -948,7 +948,7 @@ class SourceWalker(GenericASTTraversal, object):
             elif node[0] == 'load_closure':
                 cn = node[1]
 
-        elif self.version > 3.0 and node == 'generator_exp':
+        elif self.version >= 3.0 and node == 'generator_exp':
             if node[0] == 'load_genexpr':
                 load_genexpr = node[0]
             elif node[1] == 'load_genexpr':
