@@ -1052,7 +1052,7 @@ class SourceWalker(GenericASTTraversal, object):
             ast = ast[0]
 
         store = None
-        if ast in ['set_comp_func', 'dict_comp_func']:
+        if ast in ['set_comp_func', 'dict_comp_func', 'set_comp_func_header']:
             for k in ast:
                 if k == 'comp_iter':
                     n = k
@@ -1078,7 +1078,13 @@ class SourceWalker(GenericASTTraversal, object):
 
         have_not = False
         while n in ('list_iter', 'comp_iter'):
-            n = n[0] # iterate one nesting deeper
+            # iterate one nesting deeper
+            if self.version == 3.0 and len(n) == 3:
+                assert n[0] == 'expr' and n[1] == 'expr'
+                n = n[1]
+            else:
+                n = n[0]
+
             if n in ('list_for', 'comp_for'):
                 if n[2] == 'store':
                     store = n[2]
@@ -1094,7 +1100,9 @@ class SourceWalker(GenericASTTraversal, object):
 
         # Python 2.7+ starts including set_comp_body
         # Python 3.5+ starts including set_comp_func
-        assert n.kind in ('lc_body', 'comp_body', 'set_comp_func', 'set_comp_body'), ast
+        # Python 3.0  is yet another snowflake
+        if self.version != 3.0:
+            assert n.kind in ('lc_body', 'comp_body', 'set_comp_func', 'set_comp_body'), ast
         assert store, "Couldn't find store in list/set comprehension"
 
         # A problem created with later Python code generation is that there
@@ -1114,7 +1122,6 @@ class SourceWalker(GenericASTTraversal, object):
             self.preorder(store)
 
         # FIXME this is all merely approximate
-        # from trepan.api import debug; debug()
         self.write(' in ')
         self.preorder(node[-3])
 
@@ -1127,9 +1134,7 @@ class SourceWalker(GenericASTTraversal, object):
                 return
             pass
 
-        if comp_store:
-            self.preorder(comp_for)
-        elif if_node:
+        if if_node:
             self.write(' if ')
             if have_not:
                 self.write('not ')

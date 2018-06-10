@@ -38,6 +38,14 @@ class Python30Parser(Python31Parser):
         setupwithas   ::= DUP_TOP LOAD_ATTR STORE_FAST LOAD_ATTR CALL_FUNCTION_0 setup_finally
         setup_finally ::= STORE_FAST SETUP_FINALLY LOAD_FAST DELETE_FAST
 
+        # Need to keep LOAD_FAST as index 1
+        set_comp_func_header ::=  BUILD_SET_0 DUP_TOP STORE_FAST
+        set_comp_func ::= set_comp_func_header
+                          LOAD_FAST FOR_ITER store comp_iter
+                          JUMP_BACK POP_TOP JUMP_BACK RETURN_VALUE RETURN_LAST
+        comp_if       ::= expr jmp_false comp_iter
+        comp_iter     ::= expr expr SET_ADD
+
         # In many ways 3.0 is like 2.6. The below rules in fact are the same or similar.
 
         jmp_true       ::= JUMP_IF_TRUE POP_TOP
