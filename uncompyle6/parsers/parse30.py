@@ -57,6 +57,7 @@ class Python30Parser(Python31Parser):
         comp_iter     ::= expr expr LIST_APPEND
 
         jump_forward_else ::= JUMP_FORWARD POP_TOP
+        jump_absolute_else ::= JUMP_ABSOLUTE POP_TOP
 
         # In many ways 3.0 is like 2.6. The below rules in fact are the same or similar.
 
