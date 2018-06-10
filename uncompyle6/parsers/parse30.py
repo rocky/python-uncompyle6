@@ -20,6 +20,8 @@ class Python30Parser(Python31Parser):
 
         # In many ways Python 3.0 code generation is more like Python 2.6 than
         # it is 2.7 or 3.1. So we have a number of 2.6ish (and before) rules below
+        # Specifically POP_TOP is more prevelant since there is no POP_JUMP_IF_...
+        # instructions
 
         _ifstmts_jump  ::= c_stmts_opt JUMP_FORWARD _come_froms POP_TOP COME_FROM
 
@@ -54,6 +56,8 @@ class Python30Parser(Python31Parser):
         comp_iter     ::= expr expr SET_ADD
         comp_iter     ::= expr expr LIST_APPEND
 
+        jump_forward_else ::= JUMP_FORWARD POP_TOP
+
         # In many ways 3.0 is like 2.6. The below rules in fact are the same or similar.
 
         jmp_true       ::= JUMP_IF_TRUE POP_TOP
@@ -63,6 +67,8 @@ class Python30Parser(Python31Parser):
                            POP_TOP END_FINALLY come_froms
         return_if_stmt ::= ret_expr RETURN_END_IF POP_TOP
         and            ::= expr JUMP_IF_FALSE POP_TOP expr COME_FROM
+        whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt
+                           JUMP_BACK POP_TOP POP_BLOCK COME_FROM_LOOP
         """
 
     def customize_grammar_rules(self, tokens, customize):
