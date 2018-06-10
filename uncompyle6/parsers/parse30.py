@@ -43,8 +43,16 @@ class Python30Parser(Python31Parser):
         set_comp_func ::= set_comp_func_header
                           LOAD_FAST FOR_ITER store comp_iter
                           JUMP_BACK POP_TOP JUMP_BACK RETURN_VALUE RETURN_LAST
+
+        list_comp_header ::=  BUILD_LIST_0 DUP_TOP STORE_FAST
+        list_comp      ::= list_comp_header
+                           LOAD_FAST FOR_ITER store comp_iter
+                           JUMP_BACK
+
+
         comp_if       ::= expr jmp_false comp_iter
         comp_iter     ::= expr expr SET_ADD
+        comp_iter     ::= expr expr LIST_APPEND
 
         # In many ways 3.0 is like 2.6. The below rules in fact are the same or similar.
 

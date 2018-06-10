@@ -1052,7 +1052,8 @@ class SourceWalker(GenericASTTraversal, object):
             ast = ast[0]
 
         store = None
-        if ast in ['set_comp_func', 'dict_comp_func', 'set_comp_func_header']:
+        if ast in ['set_comp_func', 'dict_comp_func',
+                   'list_comp', 'set_comp_func_header']:
             for k in ast:
                 if k == 'comp_iter':
                     n = k
@@ -1125,7 +1126,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(' in ')
         self.preorder(node[-3])
 
-        if ast == 'list_comp':
+        if ast == 'list_comp' and self.version != 3.0:
             list_iter = ast[1]
             assert list_iter == 'list_iter'
             if list_iter == 'list_for':
