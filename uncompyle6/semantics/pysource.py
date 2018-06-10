@@ -1052,6 +1052,7 @@ class SourceWalker(GenericASTTraversal, object):
             ast = ast[0]
 
         store = None
+        n = ast[iter_index]
         if ast in ['set_comp_func', 'dict_comp_func',
                    'list_comp', 'set_comp_func_header']:
             for k in ast:
@@ -1063,7 +1064,6 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
         else:
-            n = ast[iter_index]
             assert n == 'list_iter', n
 
         # FIXME: I'm not totally sure this is right.
@@ -1071,10 +1071,8 @@ class SourceWalker(GenericASTTraversal, object):
         # Find the list comprehension body. It is the inner-most
         # node that is not list_.. .
         if_node = None
-        comp_for = None
         comp_store = None
         if n == 'comp_iter':
-            comp_for = n
             comp_store = ast[3]
 
         have_not = False
