@@ -73,6 +73,19 @@ def disco_loop(disasm, queue, real_out):
             pass
         pass
 
+def disassemble_fp(fp, outstream=None):
+    """
+    disassemble Python byte-code from an open file
+    """
+    (version, timestamp, magic_int, co, is_pypy,
+     source_size) = load_from_fp(fp)
+    if type(co) == list:
+        for con in co:
+            disco(version, con, outstream)
+    else:
+        disco(version, co, outstream, is_pypy=is_pypy)
+    co = None
+
 def disassemble_file(filename, outstream=None):
     """
     disassemble Python byte-code file (.pyc)

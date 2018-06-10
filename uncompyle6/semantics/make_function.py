@@ -520,7 +520,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             lc_index = -3
             pass
 
-        if (3.1 <= self.version <= 3.3 and len(node) > 2 and
+        if (3.0 <= self.version <= 3.3 and len(node) > 2 and
                 node[lambda_index] != 'LOAD_LAMBDA' and
                 (have_kwargs or node[lc_index].kind != 'load_closure')):
 

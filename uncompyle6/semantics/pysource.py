@@ -940,7 +940,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = 27
 
         # FIXME: clean this up
-        if self.version > 3.0 and node == 'dict_comp':
+        if self.version >= 3.0 and node == 'dict_comp':
             cn = node[1]
         elif self.version < 2.7 and node == 'generator_exp':
             if node[0] == 'LOAD_GENEXPR':
@@ -948,7 +948,7 @@ class SourceWalker(GenericASTTraversal, object):
             elif node[0] == 'load_closure':
                 cn = node[1]
 
-        elif self.version > 3.0 and node == 'generator_exp':
+        elif self.version >= 3.0 and node == 'generator_exp':
             if node[0] == 'load_genexpr':
                 load_genexpr = node[0]
             elif node[1] == 'load_genexpr':
@@ -1052,7 +1052,9 @@ class SourceWalker(GenericASTTraversal, object):
             ast = ast[0]
 
         store = None
-        if ast in ['set_comp_func', 'dict_comp_func']:
+        n = ast[iter_index]
+        if ast in ['set_comp_func', 'dict_comp_func',
+                   'list_comp', 'set_comp_func_header']:
             for k in ast:
                 if k == 'comp_iter':
                     n = k
@@ -1062,7 +1064,6 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
         else:
-            n = ast[iter_index]
             assert n == 'list_iter', n
 
         # FIXME: I'm not totally sure this is right.
@@ -1070,15 +1071,19 @@ class SourceWalker(GenericASTTraversal, object):
         # Find the list comprehension body. It is the inner-most
         # node that is not list_.. .
         if_node = None
-        comp_for = None
         comp_store = None
         if n == 'comp_iter':
-            comp_for = n
             comp_store = ast[3]
 
         have_not = False
         while n in ('list_iter', 'comp_iter'):
-            n = n[0] # iterate one nesting deeper
+            # iterate one nesting deeper
+            if self.version == 3.0 and len(n) == 3:
+                assert n[0] == 'expr' and n[1] == 'expr'
+                n = n[1]
+            else:
+                n = n[0]
+
             if n in ('list_for', 'comp_for'):
                 if n[2] == 'store':
                     store = n[2]
@@ -1094,7 +1099,9 @@ class SourceWalker(GenericASTTraversal, object):
 
         # Python 2.7+ starts including set_comp_body
         # Python 3.5+ starts including set_comp_func
-        assert n.kind in ('lc_body', 'comp_body', 'set_comp_func', 'set_comp_body'), ast
+        # Python 3.0  is yet another snowflake
+        if self.version != 3.0:
+            assert n.kind in ('lc_body', 'comp_body', 'set_comp_func', 'set_comp_body'), ast
         assert store, "Couldn't find store in list/set comprehension"
 
         # A problem created with later Python code generation is that there
@@ -1114,11 +1121,10 @@ class SourceWalker(GenericASTTraversal, object):
             self.preorder(store)
 
         # FIXME this is all merely approximate
-        # from trepan.api import debug; debug()
         self.write(' in ')
         self.preorder(node[-3])
 
-        if ast == 'list_comp':
+        if ast == 'list_comp' and self.version != 3.0:
             list_iter = ast[1]
             assert list_iter == 'list_iter'
             if list_iter == 'list_for':
@@ -1127,9 +1133,7 @@ class SourceWalker(GenericASTTraversal, object):
                 return
             pass
 
-        if comp_store:
-            self.preorder(comp_for)
-        elif if_node:
+        if if_node:
             self.write(' if ')
             if have_not:
                 self.write('not ')
