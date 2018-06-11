@@ -595,8 +595,9 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     paramnames = list(scanner_code.co_varnames[:argc])
 
     # defaults are for last n parameters, thus reverse
-    if not 3.0 == self.version or self.version >= 3.6:
-        paramnames.reverse(); defparams.reverse()
+    if self.version < 3.6:
+        paramnames.reverse();
+        defparams.reverse()
 
     try:
         ast = self.build_ast(scanner_code._tokens,
@@ -625,7 +626,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     else:
         params = paramnames
 
-    if not 3.0 == self.version or self.version >= 3.6:
+    if not 3.1 <= self.version < 3.6:
         params.reverse() # back to correct order
 
         if code_has_star_arg(code):
