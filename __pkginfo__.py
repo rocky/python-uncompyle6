@@ -35,6 +35,7 @@ classifiers =  ['Development Status :: 5 - Production/Stable',
                 'Programming Language :: Python :: 2.5',
                 'Programming Language :: Python :: 2.6',
                 'Programming Language :: Python :: 2.7',
+                'Programming Language :: Python :: 3.0',
                 'Programming Language :: Python :: 3.1',
                 'Programming Language :: Python :: 3.2',
                 'Programming Language :: Python :: 3.3',
@@ -56,7 +57,7 @@ entry_points       = {
     ]}
 ftp_url            = None
 install_requires   = ['spark-parser >= 1.8.5, < 1.9.0',
-                      'xdis >= 3.8.2, < 3.9.0', 'six']
+                      'xdis >= 3.8.2, < 3.9.0']
 
 license            = 'GPL3'
 mailing_list       = 'python-debugger@googlegroups.com'
