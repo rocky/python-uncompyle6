@@ -33,6 +33,7 @@ class Python30Parser(Python31Parser):
 
         ifelsestmtl ::= testexpr c_stmts_opt jb_pop_top else_suitel
         iflaststmtl ::= testexpr c_stmts_opt jb_pop_top
+        iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE POP_TOP
 
         withasstmt    ::= expr setupwithas store suite_stmts_opt
                           POP_BLOCK LOAD_CONST COME_FROM_FINALLY
@@ -75,8 +76,10 @@ class Python30Parser(Python31Parser):
     def customize_grammar_rules(self, tokens, customize):
         super(Python30Parser, self).customize_grammar_rules(tokens, customize)
         self.remove_rules("""
-        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK COME_FROM_LOOP
-        ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
+        iflaststmtl        ::= testexpr c_stmts_opt JUMP_BACK COME_FROM_LOOP
+        ifelsestmtl        ::= testexpr c_stmts_opt JUMP_BACK else_suitel
+        iflaststmt         ::= testexpr c_stmts_opt JUMP_ABSOLUTE
+        _ifstmts_jump      ::= c_stmts_opt JUMP_FORWARD _come_froms
         jump_forward_else  ::= JUMP_FORWARD ELSE
         jump_absolute_else ::= JUMP_ABSOLUTE ELSE
         whilestmt          ::= SETUP_LOOP testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK

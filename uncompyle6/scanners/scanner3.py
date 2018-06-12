@@ -78,8 +78,10 @@ class Scanner3(Scanner):
 
         if self.version == 3.0:
             self.pop_jump_tf = frozenset([self.opc.JUMP_IF_FALSE, self.opc.JUMP_IF_TRUE])
+            self.not_continue_follow = ('END_FINALLY', 'POP_BLOCK', 'POP_TOP')
         else:
             self.pop_jump_tf = frozenset([self.opc.PJIF, self.opc.PJIT])
+            self.not_continue_follow = ('END_FINALLY', 'POP_BLOCK')
 
         self.setup_ops_no_loop = frozenset(setup_ops) - frozenset([self.opc.SETUP_LOOP])
 
@@ -395,13 +397,9 @@ class Scanner3(Scanner):
                                   .opname == 'FOR_ITER'
                                   and self.insts[i+1].opname == 'JUMP_FORWARD')
 
-
                     if (is_continue or
-                        (inst.offset in self.stmts and
-                        (self.version != 3.0 or (hasattr(inst, 'linestart'))) and
-                        (next_opname not in ('END_FINALLY', 'POP_BLOCK',
-                                            # Python 3.0 only uses POP_TOP
-                                            'POP_TOP')))):
+                        (inst.offset in self.stmts and (inst.starts_line and
+                        next_opname not in self.not_continue_follow))):
                         opname = 'CONTINUE'
                     else:
                         opname = 'JUMP_BACK'
