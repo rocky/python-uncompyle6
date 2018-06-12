@@ -219,7 +219,12 @@ class Scanner3(Scanner):
             # If we have a JUMP_FORWARD after the
             # RAISE_VARARGS then we have a "raise" statement
             # else we have an "assert" statement.
-            if inst.opname == 'POP_JUMP_IF_TRUE' and i+1 < n:
+            if self.version == 3.0:
+                # There is a an implied JUMP_IF_TRUE that we are not testing for (yet?) here
+                assert_can_follow = inst.opname == 'POP_TOP' and i+1 < n
+            else:
+                assert_can_follow = inst.opname == 'POP_JUMP_IF_TRUE' and i+1 < n
+            if assert_can_follow:
                 next_inst = self.insts[i+1]
                 if (next_inst.opname == 'LOAD_GLOBAL' and
                     next_inst.argval == 'AssertionError'):

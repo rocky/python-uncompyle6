@@ -505,25 +505,26 @@ def get_scanner(version, is_pypy=False, show_asm=None):
     # Pick up appropriate scanner
     if version in PYTHON_VERSIONS:
         v_str = "%s" % (int(version * 10))
-        if PYTHON3:
-            if version == 3.0:
-                import uncompyle6.scanners.scanner30 as scan
-            else:
-                import importlib
-                if is_pypy:
-                    scan = importlib.import_module("uncompyle6.scanners.pypy%s" % v_str)
-                else:
-                    scan = importlib.import_module("uncompyle6.scanners.scanner%s" % v_str)
-                if False: print(scan)  # Avoid unused scan
-        else:
+        try:
+            import importlib
             if is_pypy:
-                exec("import uncompyle6.scanners.pypy%s as scan" % v_str)
+                scan = importlib.import_module("uncompyle6.scanners.pypy%s" % v_str)
             else:
-                exec("import uncompyle6.scanners.scanner%s as scan" % v_str)
+                scan = importlib.import_module("uncompyle6.scanners.scanner%s" % v_str)
+            if False: print(scan)  # Avoid unused scan
+        except ImportError:
+            if is_pypy:
+                exec("import uncompyle6.scanners.pypy%s as scan" % v_str,
+                     locals(), globals())
+            else:
+                exec("import uncompyle6.scanners.scanner%s as scan" % v_str,
+                      locals(), globals())
         if is_pypy:
-            scanner = eval("scan.ScannerPyPy%s(show_asm=show_asm)" % v_str)
+            scanner = eval("scan.ScannerPyPy%s(show_asm=show_asm)" % v_str,
+                           locals(), globals())
         else:
-            scanner = eval("scan.Scanner%s(show_asm=show_asm)" % v_str)
+            scanner = eval("scan.Scanner%s(show_asm=show_asm)" % v_str,
+                           locals(), globals())
     else:
         raise RuntimeError("Unsupported Python version %s" % version)
     return scanner

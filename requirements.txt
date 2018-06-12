@@ -1,2 +1,4 @@
 # Pick up stuff from setup.py
+hypothesis==2.0.0
+pytest
 -e .

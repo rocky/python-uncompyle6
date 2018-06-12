@@ -1,6 +1,6 @@
 from uncompyle6 import PYTHON_VERSION, deparse_code
 
-if PYTHON_VERSION >= 2.6:
+if PYTHON_VERSION > 2.6:
     def test_single_mode():
         single_expressions = (
             'i = 1',

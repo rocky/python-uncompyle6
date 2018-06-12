@@ -3,8 +3,8 @@ import os
 import difflib
 import subprocess
 import tempfile
-
 from StringIO import StringIO
+
 # uncompyle6 / xdis
 from uncompyle6 import PYTHON_VERSION, IS_PYPY, deparse_code
 # TODO : I think we can get xdis to support the dis api (python 3 version) by doing something like this there
@@ -19,8 +19,6 @@ try:
         return Bytecode(co).dis()
 except:
     pass
-
-
 
 def print_diff(original, uncompyled):
     """

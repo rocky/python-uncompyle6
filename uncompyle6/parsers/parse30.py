@@ -11,6 +11,12 @@ class Python30Parser(Python31Parser):
     def p_30(self, args):
         """
 
+        assert            ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 POP_TOP
+        return_if_lambda  ::= RETURN_END_IF_LAMBDA POP_TOP
+        compare_chained1  ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                              JUMP_IF_FALSE POP_TOP compare_chained2
+        compare_chained2  ::= expr COMPARE_OP RETURN_END_IF_LAMBDA
+
         # FIXME: combine with parse3.2
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK
                               COME_FROM_LOOP
@@ -84,6 +90,9 @@ class Python30Parser(Python31Parser):
         jump_absolute_else ::= JUMP_ABSOLUTE ELSE
         whilestmt          ::= SETUP_LOOP testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
                                COME_FROM_LOOP
+        assert             ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
+        return_if_lambda   ::= RETURN_END_IF_LAMBDA
+        compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP compare_chained2 COME_FROM
         """)
 
         return
