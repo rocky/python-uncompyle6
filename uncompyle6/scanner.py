@@ -514,13 +514,15 @@ def get_scanner(version, is_pypy=False, show_asm=None):
             if is_pypy:
                 exec("import uncompyle6.scanners.pypy%s as scan" % v_str,
                      locals(), globals())
-                scanner = eval("scan.ScannerPyPy%s(show_asm=show_asm)" % v_str,
-                               locals(), globals())
             else:
                 exec("import uncompyle6.scanners.scanner%s as scan" % v_str,
                       locals(), globals())
-                scanner = eval("scan.Scanner%s(show_asm=show_asm)" % v_str,
-                               locals(), globals())
+        if is_pypy:
+            scanner = eval("scan.ScannerPyPy%s(show_asm=show_asm)" % v_str,
+                           locals(), globals())
+        else:
+            scanner = eval("scan.Scanner%s(show_asm=show_asm)" % v_str,
+                           locals(), globals())
     else:
         raise RuntimeError("Unsupported Python version %s" % version)
     return scanner
