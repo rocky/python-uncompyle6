@@ -627,69 +627,35 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
 
     params.reverse() # back to correct order
 
-        if code_has_star_arg(code):
-            if self.version > 3.0:
-                params.append('*%s' % code.co_varnames[argc + kw_pairs])
-            else:
-                params.append('*%s' % code.co_varnames[argc])
-            argc += 1
-
-        # dump parameter list (with default values)
-        if is_lambda:
-            self.write("lambda ", ", ".join(params))
+    if code_has_star_arg(code):
+        if self.version > 3.0:
+            params.append('*%s' % code.co_varnames[argc + kw_pairs])
         else:
-            self.write("(", ", ".join(params))
-        # self.println(indent, '#flags:\t', int(code.co_flags))
+            params.append('*%s' % code.co_varnames[argc])
+        argc += 1
 
+    # dump parameter list (with default values)
+    if is_lambda:
+        self.write("lambda ", ", ".join(params))
+        # If the last statement is None (which is the
+        # same thing as "return None" in a lambda) and the
+        # next to last statement is a "yield". Then we want to
+        # drop the (return) None since that was just put there
+        # to have something to after the yield finishes.
+        # FIXME: this is a bit hoaky and not general
+        if (len(ast) > 1 and
+            self.traverse(ast[-1]) == 'None' and
+            self.traverse(ast[-2]).strip().startswith('yield')):
+            del ast[-1]
+            # Now pick out the expr part of the last statement
+            ast_expr = ast[-1]
+            while ast_expr.kind != 'expr':
+                ast_expr = ast_expr[0]
+            ast[-1] = ast_expr
+            pass
     else:
-        if is_lambda:
-            self.write("lambda ")
-            # If the last statement is None (which is the
-            # same thing as "return None" in a lambda) and the
-            # next to last statement is a "yield". Then we want to
-            # drop the (return) None since that was just put there
-            # to have something to after the yield finishes.
-            # FIXME: this is a bit hoaky and not general
-            if (len(ast) > 1 and
-                self.traverse(ast[-1]) == 'None' and
-                self.traverse(ast[-2]).strip().startswith('yield')):
-                del ast[-1]
-                # Now pick out the expr part of the last statement
-                ast_expr = ast[-1]
-                while ast_expr.kind != 'expr':
-                    ast_expr = ast_expr[0]
-                ast[-1] = ast_expr
-                pass
-            else:
-                self.write("(")
-                pass
-
-        last_line = self.f.getvalue().split("\n")[-1]
-        l = len(last_line)
-        indent = ' ' * l
-        line_number = self.line_number
-
-        if code_has_star_arg(code):
-            self.write('*%s' % code.co_varnames[argc + kw_pairs])
-            argc += 1
-
-        i = len(paramnames) - len(defparams)
-        self.write(", ".join(paramnames[:i]))
-        if i > 0:
-            suffix = ', '
-        else:
-            suffix = ''
-        for n in node:
-            if n == 'pos_arg':
-                self.write(suffix)
-                self.write(paramnames[i] + '=')
-                i += 1
-                self.preorder(n)
-                if (line_number != self.line_number):
-                    suffix = ",\n" + indent
-                    line_number = self.line_number
-                else:
-                    suffix = ', '
+        self.write("(", ", ".join(params))
+    # self.println(indent, '#flags:\t', int(code.co_flags))
 
     ends_in_comma = False
     if kw_args > 0:
