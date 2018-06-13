@@ -619,7 +619,13 @@ def get_python_parser(
 
     if version < 3.0:
         if version < 2.2:
-            if version == 1.4:
+            if version == 1.3:
+                import uncompyle6.parsers.parse13 as parse13
+                if compile_mode == 'exec':
+                    p = parse13.Python14Parser(debug_parser)
+                else:
+                    p = parse13.Python14ParserSingle(debug_parser)
+            elif version == 1.4:
                 import uncompyle6.parsers.parse14 as parse14
                 if compile_mode == 'exec':
                     p = parse14.Python14Parser(debug_parser)

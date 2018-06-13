@@ -11,8 +11,9 @@ Introduction
 ------------
 
 *uncompyle6* translates Python bytecode back into equivalent Python
-source code. It accepts bytecodes from Python version 1.5, and 2.1 to
-3.7 or so, including PyPy bytecode and Dropbox's Python 2.5 bytecode.
+source code. It accepts bytecodes from Python version 1.3 to version
+3.7, spanning over 22 years of Python releases. We include Dropbox's
+Python 2.5 bytecode and some PyPy bytecode.
 
 Why this?
 ---------
@@ -75,7 +76,7 @@ Requirements
 The code here can be run on Python versions 2.6 or later, PyPy 3-2.4,
 or PyPy-5.0.1.  Python versions 2.4-2.7 are supported in the
 python-2.4 branch.  The bytecode files it can read have been tested on
-Python bytecodes from versions 1.5, 2.1-2.7, and 3.0-3.6 and the
+Python bytecodes from versions 1.4, 2.1-2.7, and 3.0-3.6 and the
 above-mentioned PyPy versions.
 
 Installation
@@ -217,7 +218,7 @@ See Also
 * https://github.com/zrax/pycdc : purports to support all versions of Python. It is written in C++ and is most accurate for Python versions around 2.7 and 3.3 when the code was more actively developed. Accuracy for more recent versions of Python 3 and early versions of Python are especially lacking. See its `issue tracker <https://github.com/zrax/pycdc/issues>`_ for details. Currently lightly maintained.
 * https://code.google.com/archive/p/unpyc3/ : supports Python 3.2 only. The above projects use a different decompiling technique than what is used here. Currently unmaintained.
 * https://github.com/figment/unpyc3/ : fork of above, but supports Python 3.3 only. Includes some fixes like supporting function annotations. Currently unmaintained.
-* https://github.com/wibiti/uncompyle2 : supports Python 2.7 only, but does that fairly well. Because of it specificity it can sometimes to better than uncompyle6 which we can't do withouth breaking other 2.7 cases. Currently lightly maintained. See its issue `tracker <https://github.com/wibiti/uncompyle2/issues>`_ for more details
+* https://github.com/wibiti/uncompyle2 : supports Python 2.7 only, but does that fairly well. There situtations where `uncompyle6` results are incorrect while `uncompyle2` results are not, but more often uncompyle6 is correct when uncompyle2 is not. Because `uncompyle6` adheres to accuracy over idiomatic Python, `uncompyle2` can produce more natural-looking code when it is correct. Currently `uncompyle2` is lightly maintained. See its issue `tracker <https://github.com/wibiti/uncompyle2/issues>`_ for more details
 * `How to report a bug <https://github.com/rocky/python-uncompyle6/blob/master/HOW-TO-REPORT-A-BUG.md>`_
 * The HISTORY_ file.
 * https://github.com/rocky/python-xdis : Cross Python version disassembler

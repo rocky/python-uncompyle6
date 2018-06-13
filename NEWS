@@ -1,3 +1,8 @@
+uncompyle6 3.2.3 2018-06-04 Michael Cohen flips and Fleetwood Redux
+
+- Python 1.3 support 3.0 bug and
+- fix botched parameter ordering of 3.x in last release
+
 uncompyle6 3.2.2 2018-06-04 When I'm 64
 
 - Python 3.0 support and bug fixes
