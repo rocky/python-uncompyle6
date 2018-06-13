@@ -1,6 +1,6 @@
 PHONY=check clean dist distclean test test-unit test-functional rmChangeLog clean_pyc nosetests \
-      check-bytecode-1  check-bytecode-1.4 check-bytecode-1.5 \
-      check-bytecode-2 check-bytecode-3 \
+      check-bytecode-1  check-bytecode-1.3 check-bytecode-1.4 check-bytecode-1.5 \
+      check-bytecode-2 check-bytecode-3 check-bytecode-3-short \
       check-bytecode-2.2 check-byteocde-2.3 check-bytecode-2.4 \
       check-short check-2.6 check-2.7 check-3.0 check-3.1 check-3.2 check-3.3 \
       check-3.4 check-3.5 check-3.6 check-3.7 check-5.6 5.6 5.8 \
@@ -34,6 +34,7 @@ check-2.6 check-2.7: check-bytecode-2 check-bytecode-3 check-bytecode-1 check-na
 #: Run working tests from Python 3.0
 check-3.0: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.0 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.0-run --verify-run
 
 #: Run working tests from Python 3.1
 check-3.1: check-bytecode
