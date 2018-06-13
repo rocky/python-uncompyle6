@@ -225,6 +225,11 @@ check-bytecode-2.7:
 check-bytecode-3.0:
 	$(PYTHON) test_pythonlib.py --bytecode-3.0 --weak-verify
 
+#: Check deparsing Python 3.0
+check-bytecode-3.0:
+	$(PYTHON) test_pythonlib.py --bytecode-3.0 --weak-verify
+        # $(PYTHON) test_pythonlib.py --bytecode-3.0-run --verify-run
+
 #: Check deparsing Python 3.1
 check-bytecode-3.1:
 	$(PYTHON) test_pythonlib.py --bytecode-3.1 --weak-verify
