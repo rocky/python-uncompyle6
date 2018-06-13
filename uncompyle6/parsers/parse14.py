@@ -8,12 +8,11 @@ class Python14Parser(Python15Parser):
 
     def p_misc14(self, args):
         """
-        # Nothing here yet, but will need to add UNARY_CALL, BINARY_CALL,
+        # Not much here yet, but will probably need to add UNARY_CALL, BINARY_CALL,
         # RAISE_EXCEPTION, BUILD_FUNCTION, UNPACK_ARG, UNPACK_VARARG, LOAD_LOCAL,
         # SET_FUNC_ARGS, and RESERVE_FAST
 
-        # FIXME: should check that this indeed around __doc__
-        # Possibly not strictly needed
+        # Not strictly needed, but tidies up output
         stmt     ::= doc_junk
         doc_junk ::= LOAD_CONST POP_TOP
 

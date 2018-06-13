@@ -22,7 +22,7 @@ COVER_DIR=../tmp/grammar-cover
 # Run short tests
 check-short:
 	@$(PYTHON) -V && PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2`; \
-	$(MAKE) check-bytecode
+	$(MAKE) check-bytecode-short
 
 # Run all tests
 check:
@@ -91,15 +91,30 @@ check-bytecode-3:
        --bytecode-3.1 --bytecode-3.2 --bytecode-3.3 \
        --bytecode-3.4 --bytecode-3.5 --bytecode-3.6 --bytecode-pypy3.2
 
-#: Check deparsing bytecode that works running Python 2 and Python 3
+#: Check deparsing on selected bytecode 3.x
+check-bytecode-3-short:
+	$(PYTHON) test_pythonlib.py \
+       --bytecode-3.4 --bytecode-3.5 --bytecode-3.6
+
+#: Check deparsing bytecode on all Python 2 and Python 3 versions
 check-bytecode: check-bytecode-3
 	$(PYTHON) test_pythonlib.py \
-	--bytecode-1.4 --bytecode-1.5 \
+	--bytecode-1.3 --bytecode-1.4 --bytecode-1.5 \
         --bytecode-2.2 --bytecode-2.3 --bytecode-2.4 \
 	--bytecode-2.1 --bytecode-2.2 --bytecode-2.3 --bytecode-2.4 \
         --bytecode-2.5 --bytecode-2.6 --bytecode-2.7 \
         --bytecode-pypy2.7
 
+
+#: Check deparsing bytecode on selected Python 2 and Python 3 versions
+check-bytecode-short: check-bytecode-3-short
+	$(PYTHON) test_pythonlib.py \
+        --bytecode-2.6 --bytecode-2.7 --bytecode-pypy2.7
+
+
+#: Check deparsing bytecode 1.3 only
+check-bytecode-1.3:
+	$(PYTHON) test_pythonlib.py --bytecode-1.3
 
 #: Check deparsing bytecode 1.4 only
 check-bytecode-1.4:
