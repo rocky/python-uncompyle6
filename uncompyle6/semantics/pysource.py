@@ -1019,7 +1019,7 @@ class SourceWalker(GenericASTTraversal, object):
     def n_set_comp(self, node):
         self.write('{')
         if node[0] in ['LOAD_SETCOMP', 'LOAD_DICTCOMP']:
-            self.comprehension_walk3(node, 1, 0)
+            self.comprehension_walk_newer(node, 1, 0)
         elif node[0].kind == 'load_closure' and self.version >= 3.0:
             self.setcomprehension_walk3(node, collection_index=4)
         else:
@@ -1028,10 +1028,9 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
     n_dict_comp = n_set_comp
 
-    def comprehension_walk3(self, node, iter_index, code_index=-5):
-        """Non-closure-based comprehensions the way they are done in Python3.
-        They are other comprehensions, e.g. set comprehensions See if
-        we can combine code.
+    def comprehension_walk_newer(self, node, iter_index, code_index=-5):
+        """Non-closure-based comprehensions the way they are done in Python3
+        and some Python 2.7. Note: there are also other set comprehensions.
         """
         p = self.prec
         self.prec = 27
@@ -1071,8 +1070,10 @@ class SourceWalker(GenericASTTraversal, object):
         # Find the list comprehension body. It is the inner-most
         # node that is not list_.. .
         if_node = None
+        comp_for = None
         comp_store = None
         if n == 'comp_iter':
+            comp_for = n
             comp_store = ast[3]
 
         have_not = False
@@ -1133,7 +1134,9 @@ class SourceWalker(GenericASTTraversal, object):
                 return
             pass
 
-        if if_node:
+        if comp_store:
+            self.preorder(comp_for)
+        elif if_node:
             self.write(' if ')
             if have_not:
                 self.write('not ')
@@ -1227,7 +1230,7 @@ class SourceWalker(GenericASTTraversal, object):
         if node[0].kind == 'load_closure':
             self.listcomprehension_walk2(node)
         else:
-            self.comprehension_walk3(node, 1, 0)
+            self.comprehension_walk_newer(node, 1, 0)
         self.write(']')
         self.prune()
 
