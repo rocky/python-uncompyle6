@@ -54,7 +54,7 @@ from uncompyle6.main import decompile_file
 # For compatibility
 uncompyle_file = decompile_file
 
-# Conventience functions so you can say:
+# Convenience functions so you can say:
 # from uncompyle6 import (code_deparse, deparse_code2str)
 
 code_deparse = uncompyle6.semantics.pysource.code_deparse

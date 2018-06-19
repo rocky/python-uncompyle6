@@ -1,5 +1,5 @@
 import pytest
-from uncompyle6 import PYTHON_VERSION, deparse_code
+from uncompyle6 import PYTHON_VERSION, code_deparse
 pytestmark = pytest.mark.skip(PYTHON_VERSION < 2.7,
                               reason="need at least Python 2.7")
 
@@ -19,4 +19,4 @@ if PYTHON_VERSION > 2.6:
 
         for expr in single_expressions:
             code = compile(expr + '\n', '<string>', 'single')
-            assert deparse_code(PYTHON_VERSION, code, compile_mode='single').text == expr + '\n'
+            assert code_deparse(code, compile_mode='single').text == expr + '\n'
