@@ -124,8 +124,9 @@ Python.
 #   evaluating the escape code.
 
 import sys
+IS_PYPY = '__pypy__' in sys.builtin_module_names
+PYTHON3 = (sys.version_info >= (3, 0))
 
-from uncompyle6 import PYTHON3
 from xdis.code import iscode
 from xdis.util import COMPILER_FLAG_BIT
 
@@ -179,7 +180,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def __init__(self, version, out, scanner, showast=False,
                  debug_parser=PARSER_DEFAULT_DEBUG,
-                 compile_mode='exec', is_pypy=False,
+                 compile_mode='exec', is_pypy=IS_PYPY,
                  linestarts={}, tolerate_errors=False):
         """version is the Python version (a float) of the Python dialect
 
@@ -2191,7 +2192,7 @@ DEFAULT_DEBUG_OPTS = {
 # This interface is deprecated. Use simpler code_deparse.
 def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
                  showgrammar=False, code_objects={}, compile_mode='exec',
-                 is_pypy=False, walker=SourceWalker):
+                 is_pypy=IS_PYPY, walker=SourceWalker):
     debug_opts = {
         'asm': showasm,
         'ast': showast,
@@ -2205,7 +2206,7 @@ def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
                         is_pypy=is_pypy, walker=walker)
 
 def code_deparse(co, out=sys.stdout, version=None, debug_opts=DEFAULT_DEBUG_OPTS,
-                 code_objects={}, compile_mode='exec', is_pypy=False, walker=SourceWalker):
+                 code_objects={}, compile_mode='exec', is_pypy=IS_PYPY, walker=SourceWalker):
     """
     ingests and deparses a given code block 'co'. If version is None,
     we will use the current Python interpreter version.
@@ -2285,7 +2286,7 @@ def code_deparse(co, out=sys.stdout, version=None, debug_opts=DEFAULT_DEBUG_OPTS
 def deparse_code2str(code, out=sys.stdout, version=None,
                      debug_opts=DEFAULT_DEBUG_OPTS,
                      code_objects={}, compile_mode='exec',
-                     is_pypy=False, walker=SourceWalker):
+                     is_pypy=IS_PYPY, walker=SourceWalker):
     """Return the deparsed text for a Python code object. `out` is where any intermediate
     output for assembly or tree output will be sent.
     """
