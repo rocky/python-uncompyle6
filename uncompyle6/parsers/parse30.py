@@ -29,7 +29,8 @@ class Python30Parser(Python31Parser):
         # Specifically POP_TOP is more prevelant since there is no POP_JUMP_IF_...
         # instructions
 
-        _ifstmts_jump  ::= c_stmts_opt JUMP_FORWARD _come_froms POP_TOP COME_FROM
+        _ifstmts_jump  ::= c_stmts JUMP_FORWARD _come_froms POP_TOP COME_FROM
+        _ifstmts_jump  ::= c_stmts POP_TOP
 
         # Used to keep index order the same in semantic actions
         jb_pop_top     ::= JUMP_BACK POP_TOP

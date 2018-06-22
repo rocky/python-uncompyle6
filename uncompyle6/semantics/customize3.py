@@ -156,6 +156,22 @@ def customize_for_version3(self, version):
         self.prune()
     self.n_classdef3 = n_classdef3
 
+    if version == 3.0:
+        # In Python 3.0 there is code to move from _[dd] into
+        # the iteration variable. These rules we can ignore
+        # since we pick up the iteration variable some other way and
+        # we definitely don't include in the source  _[dd].
+        def n_comp_iter(node):
+            if node[0] == 'expr':
+                n = node[0][0]
+                if (n == 'LOAD_FAST' and
+                    n.pattr[0:2] == '_['):
+                    self.prune()
+                    pass
+                pass
+            # Not this special case, procede as normal...
+            self.default(node)
+        self.n_comp_iter = n_comp_iter
 
     if version >= 3.3:
         def n_yield_from(node):
