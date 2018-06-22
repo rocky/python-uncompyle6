@@ -65,8 +65,11 @@ class Python30Parser(Python31Parser):
         comp_iter     ::= expr expr SET_ADD
         comp_iter     ::= expr expr LIST_APPEND
 
-        jump_forward_else ::= JUMP_FORWARD POP_TOP
+        jump_forward_else  ::= JUMP_FORWARD POP_TOP
         jump_absolute_else ::= JUMP_ABSOLUTE POP_TOP
+        except_suite       ::= c_stmts POP_EXCEPT jump_except POP_TOP
+        except_suite_finalize ::= SETUP_FINALLY c_stmts_opt except_var_finalize END_FINALLY
+                                  _jump POP_TOP
 
         # In many ways 3.0 is like 2.6. The below rules in fact are the same or similar.
 
@@ -98,7 +101,7 @@ class Python30Parser(Python31Parser):
         return_if_lambda   ::= RETURN_END_IF_LAMBDA
         compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP compare_chained2 COME_FROM
         except_handler     ::= jmp_abs COME_FROM_EXCEPT except_stmts END_FINALLY
-
+        except_suite       ::= c_stmts POP_EXCEPT jump_except
         """)
 
         return
