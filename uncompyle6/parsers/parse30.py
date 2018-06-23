@@ -65,11 +65,12 @@ class Python30Parser(Python31Parser):
         comp_iter     ::= expr expr SET_ADD
         comp_iter     ::= expr expr LIST_APPEND
 
-        jump_forward_else  ::= JUMP_FORWARD POP_TOP
-        jump_absolute_else ::= JUMP_ABSOLUTE POP_TOP
-        except_suite       ::= c_stmts POP_EXCEPT jump_except POP_TOP
+        jump_forward_else     ::= JUMP_FORWARD POP_TOP
+        jump_absolute_else    ::= JUMP_ABSOLUTE POP_TOP
+        except_suite          ::= c_stmts POP_EXCEPT jump_except POP_TOP
         except_suite_finalize ::= SETUP_FINALLY c_stmts_opt except_var_finalize END_FINALLY
                                   _jump POP_TOP
+        jump_except           ::= JUMP_FORWARD POP_TOP
 
         # In many ways 3.0 is like 2.6. The below rules in fact are the same or similar.
 
