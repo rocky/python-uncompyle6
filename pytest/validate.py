@@ -13,6 +13,7 @@ from xdis.bytecode import Bytecode
 from xdis.main import get_opcode
 opc = get_opcode(PYTHON_VERSION, IS_PYPY)
 Bytecode = functools.partial(Bytecode, opc=opc)
+import six
 
 if PYTHON3:
     from io import StringIO

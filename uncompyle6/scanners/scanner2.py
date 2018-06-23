@@ -43,6 +43,10 @@ from xdis.bytecode import (
     _get_const_info)
 from xdis.util import code2num
 
+from uncompyle6 import PYTHON3
+if PYTHON3:
+    from sys import intern
+
 from uncompyle6.scanner import Scanner, Token
 
 class Scanner2(Scanner):
