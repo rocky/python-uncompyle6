@@ -76,10 +76,12 @@ class Python30Parser(Python31Parser):
         jmp_true       ::= JUMP_IF_TRUE POP_TOP
         jmp_false      ::= JUMP_IF_FALSE POP_TOP
         for_block      ::= l_stmts_opt _come_froms POP_TOP JUMP_BACK
+
         except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
                            POP_TOP END_FINALLY come_froms
         except_handler ::= jmp_abs COME_FROM_EXCEPT except_stmts
                            POP_TOP END_FINALLY
+
         return_if_stmt ::= ret_expr RETURN_END_IF POP_TOP
         and            ::= expr JUMP_IF_FALSE POP_TOP expr COME_FROM
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt
@@ -110,7 +112,6 @@ class Python30Parser(Python31Parser):
                                POP_BLOCK COME_FROM_LOOP
         assert             ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
         return_if_lambda   ::= RETURN_END_IF_LAMBDA
-        except_handler     ::= jmp_abs COME_FROM_EXCEPT except_stmts END_FINALLY
         except_suite       ::= c_stmts POP_EXCEPT jump_except
 
         # No JUMP_IF_FALSE_OR_POP
