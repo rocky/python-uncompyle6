@@ -14,8 +14,6 @@ class Python30Parser(Python31Parser):
 
         assert            ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 POP_TOP
         return_if_lambda  ::= RETURN_END_IF_LAMBDA POP_TOP
-        compare_chained1  ::= expr DUP_TOP ROT_THREE COMPARE_OP
-                              JUMP_IF_FALSE POP_TOP compare_chained2
         compare_chained2  ::= expr COMPARE_OP RETURN_END_IF_LAMBDA
 
         # FIXME: combine with parse3.2
@@ -72,6 +70,7 @@ class Python30Parser(Python31Parser):
                                   _jump POP_TOP
         jump_except           ::= JUMP_FORWARD POP_TOP
 
+        ################################################################################
         # In many ways 3.0 is like 2.6. The below rules in fact are the same or similar.
 
         jmp_true       ::= JUMP_IF_TRUE POP_TOP
@@ -87,6 +86,13 @@ class Python30Parser(Python31Parser):
                            JUMP_BACK POP_TOP POP_BLOCK COME_FROM_LOOP
         whilestmt      ::= SETUP_LOOP testexpr returns
                            POP_TOP POP_BLOCK COME_FROM_LOOP
+
+
+        # compare_chained is like x <= y <= z
+        compare_chained1  ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                              jmp_false compare_chained1 _come_froms
+        compare_chained1  ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                              jmp_false compare_chained2 _come_froms
         """
 
     def customize_grammar_rules(self, tokens, customize):
@@ -104,9 +110,15 @@ class Python30Parser(Python31Parser):
                                POP_BLOCK COME_FROM_LOOP
         assert             ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
         return_if_lambda   ::= RETURN_END_IF_LAMBDA
-        compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP compare_chained2 COME_FROM
         except_handler     ::= jmp_abs COME_FROM_EXCEPT except_stmts END_FINALLY
         except_suite       ::= c_stmts POP_EXCEPT jump_except
+
+        # No JUMP_IF_FALSE_OR_POP
+        compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
+                             compare_chained1 COME_FROM
+        compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
+                             compare_chained2 COME_FROM
+
         """)
 
         return
