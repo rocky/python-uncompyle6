@@ -85,6 +85,8 @@ class Python30Parser(Python31Parser):
         and            ::= expr JUMP_IF_FALSE POP_TOP expr COME_FROM
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt
                            JUMP_BACK POP_TOP POP_BLOCK COME_FROM_LOOP
+        whilestmt      ::= SETUP_LOOP testexpr returns
+                           POP_TOP POP_BLOCK COME_FROM_LOOP
         """
 
     def customize_grammar_rules(self, tokens, customize):
@@ -98,6 +100,8 @@ class Python30Parser(Python31Parser):
         jump_absolute_else ::= JUMP_ABSOLUTE ELSE
         whilestmt          ::= SETUP_LOOP testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
                                COME_FROM_LOOP
+        whilestmt          ::= SETUP_LOOP testexpr returns
+                               POP_BLOCK COME_FROM_LOOP
         assert             ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
         return_if_lambda   ::= RETURN_END_IF_LAMBDA
         compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP compare_chained2 COME_FROM

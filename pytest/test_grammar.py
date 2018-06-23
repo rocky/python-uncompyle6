@@ -50,7 +50,7 @@ def test_grammar():
                 expect_right_recursive.add((('l_stmts',
                                              ('lastl_stmt', 'come_froms', 'l_stmts'))))
                 pass
-            elif PYTHON_VERSION < 3.3:
+            elif 3.0 < PYTHON_VERSION < 3.3:
                 expect_right_recursive.add((('l_stmts',
                                              ('lastl_stmt', 'COME_FROM', 'l_stmts'))))
                 pass
