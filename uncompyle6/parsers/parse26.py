@@ -265,7 +265,7 @@ class Python26Parser(Python2Parser):
         kvlist ::= kvlist kv3
 
         # Note: preserve positions 0 2 and 4 for semantic actions
-        conditional_not :  := expr jmp_true  expr jf_cf_pop expr COME_FROM
+        conditional_not    ::= expr jmp_true  expr jf_cf_pop expr COME_FROM
         conditional        ::= expr jmp_false expr jf_cf_pop expr come_from_opt
         expr               ::= conditional_not
 
