@@ -46,11 +46,9 @@ def test_grammar():
             unused_rhs.add("mkfunc_annotate")
             unused_rhs.add("dict_comp")
             unused_rhs.add("classdefdeco1")
-            if PYTHON_VERSION != 3.6:
-                if PYTHON_VERSION in (3.5, 3.7):
-                    expect_right_recursive.add((('l_stmts',
-                                                 ('lastl_stmt', 'come_froms', 'l_stmts'))))
-                    pass
+            if PYTHON_VERSION in (3.5, 3.6, 3.7):
+                expect_right_recursive.add((('l_stmts',
+                                             ('lastl_stmt', 'come_froms', 'l_stmts'))))
                 pass
             else:
                 expect_right_recursive.add((('l_stmts',

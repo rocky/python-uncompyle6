@@ -11,6 +11,7 @@ from uncompyle6 import PYTHON_VERSION, IS_PYPY, deparse_code
 from xdis.bytecode import Bytecode
 from xdis.main import get_opcode
 opc = get_opcode(PYTHON_VERSION, IS_PYPY)
+from StringIO import StringIO
 
 try:
     import functools
