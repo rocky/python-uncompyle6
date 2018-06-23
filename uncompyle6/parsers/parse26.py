@@ -274,13 +274,12 @@ class Python26Parser(Python2Parser):
         # compare_chained is like x <= y <= z
         compare_chained    ::= expr compare_chained1 ROT_TWO COME_FROM POP_TOP _come_froms
         compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
-                               jmp_false_then compare_chained1 _come_froms
-        compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
-                               jmp_false_then compare_chained2 _come_froms
-        compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
                                jmp_false compare_chained1 _come_froms
         compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
                                jmp_false compare_chained2 _come_froms
+
+        compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                               jmp_false_then compare_chained1 _come_froms
         compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
                                jmp_false_then compare_chained2 _come_froms
 
