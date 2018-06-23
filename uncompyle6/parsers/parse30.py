@@ -64,11 +64,12 @@ class Python30Parser(Python31Parser):
         comp_iter     ::= expr expr SET_ADD
         comp_iter     ::= expr expr LIST_APPEND
 
-        jump_forward_else  ::= JUMP_FORWARD POP_TOP
-        jump_absolute_else ::= JUMP_ABSOLUTE POP_TOP
-        except_suite       ::= c_stmts POP_EXCEPT jump_except POP_TOP
+        jump_forward_else     ::= JUMP_FORWARD POP_TOP
+        jump_absolute_else    ::= JUMP_ABSOLUTE POP_TOP
+        except_suite          ::= c_stmts POP_EXCEPT jump_except POP_TOP
         except_suite_finalize ::= SETUP_FINALLY c_stmts_opt except_var_finalize END_FINALLY
                                   _jump POP_TOP
+        jump_except           ::= JUMP_FORWARD POP_TOP
 
         # In many ways 3.0 is like 2.6. The below rules in fact are the same or similar.
 
@@ -83,6 +84,8 @@ class Python30Parser(Python31Parser):
         and            ::= expr JUMP_IF_FALSE POP_TOP expr COME_FROM
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt
                            JUMP_BACK POP_TOP POP_BLOCK COME_FROM_LOOP
+        whilestmt      ::= SETUP_LOOP testexpr returns
+                           POP_TOP POP_BLOCK COME_FROM_LOOP
         """
 
     def customize_grammar_rules(self, tokens, customize):
@@ -96,6 +99,8 @@ class Python30Parser(Python31Parser):
         jump_absolute_else ::= JUMP_ABSOLUTE ELSE
         whilestmt          ::= SETUP_LOOP testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
                                COME_FROM_LOOP
+        whilestmt          ::= SETUP_LOOP testexpr returns
+                               POP_BLOCK COME_FROM_LOOP
         assert             ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
         return_if_lambda   ::= RETURN_END_IF_LAMBDA
         compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP compare_chained2 COME_FROM

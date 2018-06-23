@@ -317,6 +317,13 @@ class Scanner30(Scanner3):
                             pass
                     pass
                 if code[pre_rtarget] == self.opc.RETURN_VALUE:
+                    if self.version == 3.0:
+                        next_op = rtarget
+                        if code[next_op] == self.opc.POP_TOP:
+                            next_op = rtarget
+                        next_op += instruction_size(self.code[next_op], self.opc)
+                        if code[next_op] == self.opc.POP_BLOCK:
+                            return
                     self.return_end_ifs.add(pre_rtarget)
                 else:
                     self.fixed_jumps[offset] = rtarget
