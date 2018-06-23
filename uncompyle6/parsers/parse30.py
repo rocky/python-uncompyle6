@@ -59,6 +59,7 @@ class Python30Parser(Python31Parser):
                            JUMP_BACK
 
 
+        # JUMP_IF_TRUE POP_TOP as a replacement
         comp_if       ::= expr jmp_false comp_iter
         comp_iter     ::= expr expr SET_ADD
         comp_iter     ::= expr expr LIST_APPEND
@@ -69,12 +70,16 @@ class Python30Parser(Python31Parser):
         except_suite_finalize ::= SETUP_FINALLY c_stmts_opt except_var_finalize END_FINALLY
                                   _jump POP_TOP
         jump_except           ::= JUMP_FORWARD POP_TOP
+        or                    ::= expr jmp_false expr jmp_true expr
 
         ################################################################################
-        # In many ways 3.0 is like 2.6. The below rules in fact are the same or similar.
+        # In many ways 3.0 is like 2.6. One similarity is there is no JUMP_IF_TRUE and
+        # JUMP_IF_FALSE
+        # The below rules in fact are the same or similar.
 
         jmp_true       ::= JUMP_IF_TRUE POP_TOP
         jmp_false      ::= JUMP_IF_FALSE POP_TOP
+
         for_block      ::= l_stmts_opt _come_froms POP_TOP JUMP_BACK
 
         except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts

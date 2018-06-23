@@ -1170,6 +1170,11 @@ class SourceWalker(GenericASTTraversal, object):
         # collection = node[-3]
         collections = [node[-3]]
         list_ifs = []
+
+        if self.version == 3.0 and n != 'list_iter':
+            # FIXME 3.0 is a snowflake here. We'll need
+            # special code for this
+            return
         assert n == 'list_iter'
 
         stores = []
