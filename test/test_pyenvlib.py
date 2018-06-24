@@ -111,8 +111,8 @@ def do_tests(src_dir, patterns, target_dir, start_with=None,
         files = [file for file in files if not 'site-packages' in file]
         files = [file for file in files if not 'test' in file]
         if len(files) > max_files:
-            # print("Numer of files %d - truncating to last 200" % len(files))
-            print("Numer of files %d - truncating to first %s" %
+            # print("Number of files %d - truncating to last 200" % len(files))
+            print("Number of files %d - truncating to first %s" %
                   (len(files), max_files))
             files = files[:max_files]
 
