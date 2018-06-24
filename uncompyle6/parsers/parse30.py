@@ -73,6 +73,7 @@ class Python30Parser(Python31Parser):
                                   _jump POP_TOP
         jump_except           ::= JUMP_FORWARD POP_TOP
         or                    ::= expr jmp_false expr jmp_true expr
+        or                    ::= expr jmp_true expr
 
         ################################################################################
         # In many ways 3.0 is like 2.6. One similarity is there is no JUMP_IF_TRUE and
