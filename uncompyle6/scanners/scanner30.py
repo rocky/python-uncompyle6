@@ -85,7 +85,9 @@ class Scanner30(Scanner3):
                 if not jump_back:
                     return
 
-                jump_back += 2  # FIXME ???
+                jb_inst = self.get_inst(jump_back)
+                jump_back = self.next_offset(jb_inst.opcode, jump_back)
+
                 if_offset = None
                 if code[self.prev_op[next_line_byte]] not in JUMP_TF:
                     if_offset = self.prev[next_line_byte]
