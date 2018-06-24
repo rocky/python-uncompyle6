@@ -59,11 +59,22 @@ class Python30Parser(Python31Parser):
                           LOAD_FAST FOR_ITER store comp_iter
                           JUMP_BACK POP_TOP JUMP_BACK RETURN_VALUE RETURN_LAST
 
-        list_comp_header ::=  BUILD_LIST_0 DUP_TOP STORE_FAST
-        list_comp      ::= list_comp_header
-                           LOAD_FAST FOR_ITER store comp_iter
-                           JUMP_BACK
+        list_comp_header ::= BUILD_LIST_0 DUP_TOP STORE_FAST
+        list_comp        ::= list_comp_header
+                             LOAD_FAST FOR_ITER store comp_iter
+                             JUMP_BACK
 
+        set_comp_header  ::= BUILD_SET_0 DUP_TOP STORE_FAST
+        set_comp         ::= set_comp_header
+                             LOAD_FAST FOR_ITER store comp_iter
+                             JUMP_BACK
+
+        dict_comp_header ::= BUILD_MAP_0 DUP_TOP STORE_FAST
+        dict_comp        ::= dict_comp_header
+                             LOAD_FAST FOR_ITER store dict_comp_iter
+                             JUMP_BACK
+
+        dict_comp_iter   ::= expr expr ROT_TWO expr STORE_SUBSCR
 
         # JUMP_IF_TRUE POP_TOP as a replacement
         comp_if       ::= expr jmp_false comp_iter

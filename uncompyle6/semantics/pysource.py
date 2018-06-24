@@ -1051,10 +1051,15 @@ class SourceWalker(GenericASTTraversal, object):
             self.prec=100
             ast = ast[0]
 
+        # Pick out important parts of the comprehension:
+        # * the variable we interate over: "store"
+        # * the results we accumulate: "n"
+
+        is_30_dict_comp = False
         store = None
         n = ast[iter_index]
-        if ast in ['set_comp_func', 'dict_comp_func',
-                   'list_comp', 'set_comp_func_header']:
+        if ast in ('set_comp_func', 'dict_comp_func',
+                   'list_comp', 'set_comp_func_header'):
             for k in ast:
                 if k == 'comp_iter':
                     n = k
@@ -1063,6 +1068,21 @@ class SourceWalker(GenericASTTraversal, object):
                     pass
                 pass
             pass
+        elif ast in ('dict_comp', 'set_comp'):
+            assert self.version == 3.0
+            for k in ast:
+                if k in ('dict_comp_header', 'set_comp_header'):
+                    n = k
+                elif k == 'store':
+                    store = k
+                elif k == 'dict_comp_iter':
+                    is_30_dict_comp = True
+                    n = (k[3], k[1])
+                    pass
+                elif k == 'comp_iter':
+                    n = k[1]
+                    pass
+                pass
         else:
             assert n == 'list_iter', n
 
@@ -1115,7 +1135,12 @@ class SourceWalker(GenericASTTraversal, object):
         # Another approach might be to be able to pass in the source name
         # for the dummy argument.
 
-        self.preorder(n[0])
+        if is_30_dict_comp:
+            self.preorder(n[0])
+            self.write(': ')
+            self.preorder(n[1])
+        else:
+            self.preorder(n[0])
         self.write(' for ')
         if comp_store:
             self.preorder(comp_store)
