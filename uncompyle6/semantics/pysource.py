@@ -1178,6 +1178,26 @@ class SourceWalker(GenericASTTraversal, object):
             stores = [ast[3]]
             assert ast[4] == 'comp_iter'
             n = ast[4]
+            # Find the list comprehension body. It is the inner-most
+            # node that is not comp_.. .
+            while n == 'comp_iter':
+                if n[0] == 'comp_for':
+                    n = n[0]
+                    stores.append(n[2])
+                    n = n[3]
+                elif n[0] in ('comp_if', 'comp_if_not'):
+                    n = n[0]
+                    # FIXME: just a guess
+                    if n[0].kind == 'expr':
+                        list_ifs.append(n)
+                    else:
+                        list_ifs.append([1])
+                    n = n[2]
+                    pass
+                else:
+                    break
+                pass
+
             # Skip over n[0] which is something like: _[1]
             self.preorder(n[1])
 

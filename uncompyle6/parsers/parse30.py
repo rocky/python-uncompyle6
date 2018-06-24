@@ -61,6 +61,7 @@ class Python30Parser(Python31Parser):
 
         # JUMP_IF_TRUE POP_TOP as a replacement
         comp_if       ::= expr jmp_false comp_iter
+        comp_if       ::= expr jmp_false comp_iter JUMP_BACK POP_TOP
         comp_iter     ::= expr expr SET_ADD
         comp_iter     ::= expr expr LIST_APPEND
 
