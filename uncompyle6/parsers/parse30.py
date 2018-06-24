@@ -88,7 +88,7 @@ class Python30Parser(Python31Parser):
                            POP_TOP END_FINALLY
 
         return_if_stmt ::= ret_expr RETURN_END_IF POP_TOP
-        and            ::= expr JUMP_IF_FALSE POP_TOP expr COME_FROM
+        and            ::= expr jmp_false expr come_from_opt
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt
                            JUMP_BACK POP_TOP POP_BLOCK COME_FROM_LOOP
         whilestmt      ::= SETUP_LOOP testexpr returns

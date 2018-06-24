@@ -1172,45 +1172,50 @@ class SourceWalker(GenericASTTraversal, object):
         list_ifs = []
 
         if self.version == 3.0 and n != 'list_iter':
-            # FIXME 3.0 is a snowflake here. We'll need
-            # special code for this
-            return
-        assert n == 'list_iter'
+            # FIXME 3.0 is a snowflake here. We need
+            # special code for this. Not sure if this is totally
+            # correct.
+            stores = [ast[3]]
+            assert ast[4] == 'comp_iter'
+            n = ast[4]
+            # Skip over n[0] which is something like: _[1]
+            self.preorder(n[1])
 
-        stores = []
-
-        # Find the list comprehension body. It is the inner-most
-        # node that is not list_.. .
-        while n == 'list_iter':
-            n = n[0] # recurse one step
-            if n == 'list_for':
-                stores.append(n[2])
-                n = n[3]
-                if self.version >= 3.6 and n[0] == 'list_for':
-                    # Dog-paddle down largely singleton reductions
-                    # to find the collection (expr)
-                    c = n[0][0]
-                    if c == 'expr':
-                        c = c[0]
-                    # FIXME: grammar is wonky here? Is this really an attribute?
-                    if c == 'attribute':
-                        c = c[0]
-                    collections.append(c)
+        else:
+            assert n == 'list_iter'
+            stores = []
+            # Find the list comprehension body. It is the inner-most
+            # node that is not list_.. .
+            while n == 'list_iter':
+                n = n[0] # recurse one step
+                if n == 'list_for':
+                    stores.append(n[2])
+                    n = n[3]
+                    if self.version >= 3.6 and n[0] == 'list_for':
+                        # Dog-paddle down largely singleton reductions
+                        # to find the collection (expr)
+                        c = n[0][0]
+                        if c == 'expr':
+                            c = c[0]
+                        # FIXME: grammar is wonky here? Is this really an attribute?
+                        if c == 'attribute':
+                            c = c[0]
+                        collections.append(c)
+                        pass
+                elif n in ('list_if', 'list_if_not'):
+                    # FIXME: just a guess
+                    if n[0].kind == 'expr':
+                        list_ifs.append(n)
+                    else:
+                        list_ifs.append([1])
+                    n = n[2]
                     pass
-            elif n in ('list_if', 'list_if_not'):
-                # FIXME: just a guess
-                if n[0].kind == 'expr':
-                    list_ifs.append(n)
-                else:
-                    list_ifs.append([1])
-                n = n[2]
                 pass
-            pass
 
-        assert n == 'lc_body', ast
+            assert n == 'lc_body', ast
+            self.preorder(n[0])
 
         # FIXME: add indentation around "for"'s and "in"'s
-        self.preorder(n[0])
         if self.version < 3.6:
             self.write(' for ')
             self.preorder(stores[0])
