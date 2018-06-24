@@ -103,6 +103,7 @@ class Python30Parser(Python31Parser):
                               jmp_false compare_chained1 _come_froms
         compare_chained1  ::= expr DUP_TOP ROT_THREE COMPARE_OP
                               jmp_false compare_chained2 _come_froms
+        compare_chained2 ::= expr COMPARE_OP RETURN_END_IF
         """
 
     def customize_grammar_rules(self, tokens, customize):
