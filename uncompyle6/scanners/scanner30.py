@@ -10,7 +10,7 @@ from __future__ import print_function
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_30 as opc
-from xdis.bytecode import instruction_size, next_offset
+from xdis.bytecode import instruction_size
 import xdis
 
 JUMP_TF = frozenset([opc.JUMP_IF_FALSE, opc.JUMP_IF_TRUE])
@@ -31,12 +31,12 @@ class Scanner30(Scanner3):
         """
 
         code = self.code
-        op = code[offset]
+        op = self.insts[inst_index].opcode
 
         # Detect parent structure
         parent = self.structs[0]
-        start = parent['start']
-        end = parent['end']
+        start  = parent['start']
+        end    = parent['end']
 
         # Pick inner-most parent for our offset
         for struct in self.structs:
@@ -44,8 +44,8 @@ class Scanner30(Scanner3):
             current_end   = struct['end']
             if ((current_start <= offset < current_end)
                 and (current_start >= start and current_end <= end)):
-                start = current_start
-                end = current_end
+                start  = current_start
+                end    = current_end
                 parent = struct
 
         if op == self.opc.SETUP_LOOP:
@@ -57,7 +57,6 @@ class Scanner30(Scanner3):
             start += instruction_size(op, self.opc)
             target = self.get_target(offset)
             end    = self.restrict_to_parent(target, parent)
-            self.setup_loop_targets[offset] = target
             self.setup_loops[target] = offset
 
             if target != end:
@@ -68,7 +67,7 @@ class Scanner30(Scanner3):
                                             next_line_byte, False)
 
             if jump_back:
-                jump_forward_offset = next_offset(code[jump_back], self.opc, jump_back)
+                jump_forward_offset = xdis.next_offset(code[jump_back], self.opc, jump_back)
             else:
                 jump_forward_offset = None
 
@@ -86,7 +85,7 @@ class Scanner30(Scanner3):
                 if not jump_back:
                     return
 
-                jump_back += 2
+                jump_back += 2  # FIXME ???
                 if_offset = None
                 if code[self.prev_op[next_line_byte]] not in JUMP_TF:
                     if_offset = self.prev[next_line_byte]
@@ -98,18 +97,22 @@ class Scanner30(Scanner3):
                 target = next_line_byte
                 end = jump_back + 3
             else:
-                if self.get_target(jump_back, 0) >= next_line_byte:
+                if self.get_target(jump_back) >= next_line_byte:
                     jump_back = self.last_instr(start, end, self.opc.JUMP_ABSOLUTE, start, False)
-                if end > jump_back+4 and self.is_jump_forward(end):
-                    if self.is_jump_forward(jump_back+4):
+
+                jb_inst = self.get_inst(jump_back)
+
+                jb_next_offset = self.next_offset(jb_inst.opcode, jump_back)
+                if end > jb_next_offset and self.is_jump_forward(end):
+                    if self.is_jump_forward(jb_next_offset):
                         if self.get_target(jump_back+4) == self.get_target(end):
                             self.fixed_jumps[offset] = jump_back+4
-                            end = jump_back+4
+                            end = jb_next_offset
                 elif target < offset:
                     self.fixed_jumps[offset] = jump_back+4
-                    end = jump_back+4
+                    end = jb_next_offset
 
-                target = self.get_target(jump_back, 0)
+                target = self.get_target(jump_back)
 
                 if code[target] in (self.opc.FOR_ITER, self.opc.GET_ITER):
                     loop_type = 'for'
@@ -130,6 +133,9 @@ class Scanner30(Scanner3):
                                  'start': target,
                                  'end':   jump_back})
             after_jump_offset = xdis.next_offset(code[jump_back], self.opc, jump_back)
+            if (self.get_inst(after_jump_offset).opname == 'POP_TOP'):
+                after_jump_offset = xdis.next_offset(code[after_jump_offset], self.opc,
+                                                     after_jump_offset)
             if after_jump_offset != end:
                 self.structs.append({'type': loop_type + '-else',
                                      'start': after_jump_offset,
@@ -323,6 +329,9 @@ class Scanner30(Scanner3):
                         next_op = rtarget
                         if code[next_op] == self.opc.POP_TOP:
                             next_op = rtarget
+                        for block in self.structs:
+                            if block['type'] == 'while-loop' and block['end'] == next_op:
+                                return
                         next_op += instruction_size(self.code[next_op], self.opc)
                         if code[next_op] == self.opc.POP_BLOCK:
                             return

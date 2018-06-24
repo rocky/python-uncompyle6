@@ -33,7 +33,13 @@ class Python30Parser(Python31Parser):
         # Used to keep index order the same in semantic actions
         jb_pop_top     ::= JUMP_BACK POP_TOP
 
-        while1stmt ::= SETUP_LOOP l_stmts COME_FROM_LOOP
+        while1stmt     ::= SETUP_LOOP l_stmts COME_FROM_LOOP
+        whileelsestmt  ::= SETUP_LOOP testexpr l_stmts
+                           jb_pop_top POP_BLOCK
+                           else_suitel COME_FROM_LOOP
+        # while1elsestmt ::= SETUP_LOOP l_stmts
+        #                    jb_pop_top POP_BLOCK
+        #                    else_suitel COME_FROM_LOOP
 
         else_suitel ::= l_stmts COME_FROM_LOOP JUMP_BACK
 
@@ -122,13 +128,14 @@ class Python30Parser(Python31Parser):
         assert             ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
         return_if_lambda   ::= RETURN_END_IF_LAMBDA
         except_suite       ::= c_stmts POP_EXCEPT jump_except
+        whileelsestmt      ::= SETUP_LOOP testexpr l_stmts JUMP_BACK POP_BLOCK
+                               else_suitel COME_FROM_LOOP
 
         # No JUMP_IF_FALSE_OR_POP
         compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
                              compare_chained1 COME_FROM
         compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
                              compare_chained2 COME_FROM
-
         """)
 
         return
