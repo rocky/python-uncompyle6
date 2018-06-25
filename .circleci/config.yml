@@ -42,7 +42,7 @@ jobs:
     # This is based on your 1.0 configuration file or project settings
     - run:
         working_directory: ~/rocky/python-uncompyle6
-        command: pyenv install 2.4.6 && pyenv local 2.4.6 && pyenv rehash && pip install virtualenv && pip install nose && pyenv rehash
+        command: pyenv install 2.4.6 && pyenv local 2.4.6 && pyenv rehash && && pip install nose && pyenv rehash
     # Dependencies
     #   This would typically go in either a build or a build-and-test job when using workflows
     # Restore the dependency cache
