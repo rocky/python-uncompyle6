@@ -32,7 +32,13 @@ class Python30Parser(Python31Parser):
         # Used to keep index order the same in semantic actions
         jb_pop_top     ::= JUMP_BACK POP_TOP
 
-        while1stmt ::= SETUP_LOOP l_stmts COME_FROM_LOOP
+        while1stmt     ::= SETUP_LOOP l_stmts COME_FROM_LOOP
+        whileelsestmt  ::= SETUP_LOOP testexpr l_stmts
+                           jb_pop_top POP_BLOCK
+                           else_suitel COME_FROM_LOOP
+        # while1elsestmt ::= SETUP_LOOP l_stmts
+        #                    jb_pop_top POP_BLOCK
+        #                    else_suitel COME_FROM_LOOP
 
         else_suitel ::= l_stmts COME_FROM_LOOP JUMP_BACK
 
@@ -52,14 +58,27 @@ class Python30Parser(Python31Parser):
                           LOAD_FAST FOR_ITER store comp_iter
                           JUMP_BACK POP_TOP JUMP_BACK RETURN_VALUE RETURN_LAST
 
-        list_comp_header ::=  BUILD_LIST_0 DUP_TOP STORE_FAST
-        list_comp      ::= list_comp_header
-                           LOAD_FAST FOR_ITER store comp_iter
-                           JUMP_BACK
+        list_comp_header ::= BUILD_LIST_0 DUP_TOP STORE_FAST
+        list_comp        ::= list_comp_header
+                             LOAD_FAST FOR_ITER store comp_iter
+                             JUMP_BACK
 
+        set_comp_header  ::= BUILD_SET_0 DUP_TOP STORE_FAST
+        set_comp         ::= set_comp_header
+                             LOAD_FAST FOR_ITER store comp_iter
+                             JUMP_BACK
+
+        dict_comp_header ::= BUILD_MAP_0 DUP_TOP STORE_FAST
+        dict_comp        ::= dict_comp_header
+                             LOAD_FAST FOR_ITER store dict_comp_iter
+                             JUMP_BACK
+
+        dict_comp_iter   ::= expr expr ROT_TWO expr STORE_SUBSCR
 
         # JUMP_IF_TRUE POP_TOP as a replacement
         comp_if       ::= expr jmp_false comp_iter
+        comp_if       ::= expr jmp_false comp_iter JUMP_BACK POP_TOP
+        comp_if_not   ::= expr jmp_true  comp_iter JUMP_BACK POP_TOP
         comp_iter     ::= expr expr SET_ADD
         comp_iter     ::= expr expr LIST_APPEND
 
@@ -70,6 +89,7 @@ class Python30Parser(Python31Parser):
                                   _jump POP_TOP
         jump_except           ::= JUMP_FORWARD POP_TOP
         or                    ::= expr jmp_false expr jmp_true expr
+        or                    ::= expr jmp_true expr
 
         ################################################################################
         # In many ways 3.0 is like 2.6. One similarity is there is no JUMP_IF_TRUE and
@@ -88,7 +108,7 @@ class Python30Parser(Python31Parser):
 
         return_if_stmt ::= ret_expr RETURN_END_IF POP_TOP
         and            ::= expr jmp_false expr come_from_opt
-        whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt
+        whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt come_from_opt
                            JUMP_BACK POP_TOP POP_BLOCK COME_FROM_LOOP
         whilestmt      ::= SETUP_LOOP testexpr returns
                            POP_TOP POP_BLOCK COME_FROM_LOOP
@@ -99,6 +119,7 @@ class Python30Parser(Python31Parser):
                               jmp_false compare_chained1 _come_froms
         compare_chained1  ::= expr DUP_TOP ROT_THREE COMPARE_OP
                               jmp_false compare_chained2 _come_froms
+        compare_chained2 ::= expr COMPARE_OP RETURN_END_IF
         """
 
     def customize_grammar_rules(self, tokens, customize):
@@ -117,13 +138,14 @@ class Python30Parser(Python31Parser):
         assert             ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
         return_if_lambda   ::= RETURN_END_IF_LAMBDA
         except_suite       ::= c_stmts POP_EXCEPT jump_except
+        whileelsestmt      ::= SETUP_LOOP testexpr l_stmts JUMP_BACK POP_BLOCK
+                               else_suitel COME_FROM_LOOP
 
         # No JUMP_IF_FALSE_OR_POP
         compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
                              compare_chained1 COME_FROM
         compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
                              compare_chained2 COME_FROM
-
         """)
 
         return

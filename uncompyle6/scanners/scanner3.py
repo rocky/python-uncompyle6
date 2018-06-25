@@ -666,11 +666,14 @@ class Scanner3(Scanner):
                      and code[return_val_offset1] == self.opc.RETURN_VALUE)):
                     jump_back = None
             if not jump_back:
+                # loop suite ends in return
                 jump_back = self.last_instr(start, end, self.opc.RETURN_VALUE)
                 if not jump_back:
                     return
 
-                jump_back += 2  # FIXME ???
+                jb_inst = self.get_inst(jump_back)
+                jump_back = self.next_offset(jb_inst.opcode, jump_back)
+
                 if_offset = None
                 if code[self.prev_op[next_line_byte]] not in self.pop_jump_tf:
                     if_offset = self.prev[next_line_byte]
@@ -703,18 +706,15 @@ class Scanner3(Scanner):
                     loop_type = 'for'
                 else:
                     loop_type = 'while'
-                    if next_line_byte < len(code):
-                        test_inst = self.insts[self.offset2inst_index[next_line_byte]-1]
-                        if test_inst.offset == offset:
-                            loop_type = 'while 1'
-                        elif test_inst.opcode in self.opc.JUMP_OPs:
-                            self.ignore_if.add(test_inst.offset)
-                            test_target = self.get_target(test_inst.offset)
-                            if test_target > (jump_back+3):
-                                jump_back = test_target
-                                pass
-                            pass
-                        pass
+                    test = self.prev_op[next_line_byte]
+
+                    if test == offset:
+                        loop_type = 'while 1'
+                    elif self.code[test] in self.opc.JUMP_OPs:
+                        self.ignore_if.add(test)
+                        test_target = self.get_target(test)
+                        if test_target > (jump_back+3):
+                            jump_back = test_target
                 self.not_continue.add(jump_back)
             self.loops.append(target)
             self.structs.append({'type': loop_type + '-loop',
