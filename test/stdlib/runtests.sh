@@ -35,6 +35,7 @@ case $PYVERSION in
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
+	    [test_pep247.py]=1 # Long test - might work? Control flow?
 	    [test_queue.py]=1 # Control flow?
 	    # [test_threading.py]=1 # Long test - works
 	)
@@ -178,7 +179,7 @@ if [[ -e $TESTDIR ]] ; then
     rm -fr $TESTDIR
 fi
 mkdir $TESTDIR || exit $?
-cp -r ~/.pyenv/versions/${PYVERSION}.${MINOR}/lib/python${PYVERSION}/test $TESTDIR
+cp -r ${PYENV_ROOT}/versions/${PYVERSION}.${MINOR}/lib/python${PYVERSION}/test $TESTDIR
 cd $TESTDIR/test
 export PYTHONPATH=$TESTDIR
 
