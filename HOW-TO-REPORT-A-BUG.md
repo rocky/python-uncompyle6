@@ -33,7 +33,7 @@ prescribed cases, the ill-defined amorphous cases as well will get
 handled as well.
 
 In sum, you may need to do some work to have the bug you have found
-handled before the hundreds of other bugs, and things I could be
+handled before the hundreds of other bugs, and other things I could be
 doing.
 
 No one is getting paid to work to work on this project, let alone the
