@@ -507,6 +507,9 @@ def customize_for_version3(self, version):
                 'try_except36':   ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
                 'except_return':  ( '%|except:\n%+%c%-', 3 ),
                 'unpack_list':    ( '*%c', (0, 'list') ),
+                'tryfinally_return_stmt':
+                      ( '%|try:\n%+%c%-%|finally:\n%+%|return%-\n\n', 1 ),
+
                 'call_ex' : (
                     '%c(%p)',
                     (0, 'expr'), (1, 100)),

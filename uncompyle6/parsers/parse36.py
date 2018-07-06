@@ -105,6 +105,10 @@ class Python36Parser(Python35Parser):
                              COME_FROM_FINALLY suite_stmts_opt END_FINALLY
         except_suite_finalize ::= SETUP_FINALLY returns
                                   COME_FROM_FINALLY suite_stmts_opt END_FINALLY _jump
+
+        stmt ::= tryfinally_return_stmt
+        tryfinally_return_stmt ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK LOAD_CONST
+                                   COME_FROM_FINALLY
         """
 
     def customize_grammar_rules(self, tokens, customize):
