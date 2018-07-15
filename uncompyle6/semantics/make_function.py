@@ -18,7 +18,7 @@ All the crazy things we have to do to handle Python functions
 """
 from xdis.code import iscode, code_has_star_arg, code_has_star_star_arg
 from uncompyle6.scanner import Code
-from uncompyle6.parsers.astnode import AST
+from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6 import PYTHON3
 from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.parser import ParserError as ParserError2
@@ -173,7 +173,7 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
                 if isinstance(aa, tuple):
                     aa = aa[0]
                     self.write(': "%s"' % aa)
-                elif isinstance(aa, AST):
+                elif isinstance(aa, SyntaxTree):
                     self.write(': ')
                     self.preorder(aa)
 

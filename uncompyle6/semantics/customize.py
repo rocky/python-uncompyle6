@@ -19,7 +19,7 @@
 from uncompyle6.semantics.consts import (
     TABLE_R, TABLE_DIRECT)
 
-from uncompyle6.parsers.astnode import AST
+from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanners.tok import Token
 
 def customize_for_version(self, is_pypy, version):
@@ -104,12 +104,12 @@ def customize_for_version(self, is_pypy, version):
             })
 
         global NAME_MODULE
-        NAME_MODULE = AST('stmt',
-                          [ AST('assign',
-                                [ AST('expr',
+        NAME_MODULE = SyntaxTree('stmt',
+                          [ SyntaxTree('assign',
+                                [ SyntaxTree('expr',
                                       [Token('LOAD_GLOBAL', pattr='__name__',
                                              offset=0, has_arg=True)]),
-                                  AST('store',
+                                  SyntaxTree('store',
                                       [ Token('STORE_NAME', pattr='__module__',
                                               offset=3, has_arg=True)])
                                 ])])

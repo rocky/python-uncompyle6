@@ -6,10 +6,10 @@ from spark_parser.ast import AST as spark_AST
 if PYTHON3:
     intern = sys.intern
 
-class AST(spark_AST):
+class SyntaxTree(spark_AST):
     def isNone(self):
-        """An AST None token. We can't use regular list comparisons
-        because AST token offsets might be different"""
+        """An SyntaxTree None token. We can't use regular list comparisons
+        because SyntaxTree token offsets might be different"""
         return len(self.data) == 1 and NoneToken == self.data[0]
 
     def __repr__(self):

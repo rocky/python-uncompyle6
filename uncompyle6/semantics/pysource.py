@@ -131,7 +131,7 @@ from xdis.code import iscode
 from xdis.util import COMPILER_FLAG_BIT
 
 from uncompyle6.parser import get_python_parser
-from uncompyle6.parsers.astnode import AST
+from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.scanner import Code, get_scanner
 import uncompyle6.parser as python_parser
@@ -182,28 +182,28 @@ class SourceWalker(GenericASTTraversal, object):
                  debug_parser=PARSER_DEFAULT_DEBUG,
                  compile_mode='exec', is_pypy=IS_PYPY,
                  linestarts={}, tolerate_errors=False):
-        """version is the Python version (a float) of the Python dialect
+        """`version' is the Python version (a float) of the Python dialect
+        of both the syntax tree and language we should produce.
 
-        of both the AST and language we should produce.
-
-        out is IO-like file pointer to where the output should go. It
+        `out' is IO-like file pointer to where the output should go. It
         whould have a getvalue() method.
 
-        scanner is a method to call when we need to scan tokens. Sometimes
+        `scanner' is a method to call when we need to scan tokens. Sometimes
         in producing output we will run across further tokens that need
         to be scaned.
 
-        If showast is True, we print the AST tree.
+        If `showast' is True, we print the syntax tree.
 
-        compile_mode is is either 'exec' or 'single'. It isthe compile
-        mode that was used to create the AST and specifies a gramar variant within
-        a Python version to use.
+        `compile_mode' is is either 'exec' or 'single'. It isthe compile
+        mode that was used to create the Syntax Tree and specifies a
+        gramar variant within a Python version to use.
 
-        is_pypy should be True if the AST was generated for PyPy.
+        `is_pypy' should be True if the Syntax Tree was generated for PyPy.
 
-        linestarts is a dictionary of line number to bytecode offset. This
+        `linestarts' is a dictionary of line number to bytecode offset. This
         can sometimes assist in determinte which kind of source-code construct
         to use when there is ambiguity.
+
         """
         GenericASTTraversal.__init__(self, ast=None)
         self.scanner = scanner
@@ -408,11 +408,11 @@ class SourceWalker(GenericASTTraversal, object):
         if self.version <= 2.6:
             return ret
         else:
-            # FIXME: should the AST expression be folded into
+            # FIXME: should the SyntaxTree expression be folded into
             # the global RETURN_NONE constant?
             return (ret or
-                    node == AST('return',
-                                [AST('ret_expr', [NONE]), Token('RETURN_VALUE')]))
+                    node == SyntaxTree('return',
+                                [SyntaxTree('ret_expr', [NONE]), Token('RETURN_VALUE')]))
 
     # Python 3.x can have be dead code as a result of its optimization?
     # So we'll add a # at the end of the return lambda so the rest is ignored
@@ -457,7 +457,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.prune() # stop recursing
 
     def n_yield(self, node):
-        if node != AST('yield', [NONE, Token('YIELD_VALUE')]):
+        if node != SyntaxTree('yield', [NONE, Token('YIELD_VALUE')]):
             self.template_engine(( 'yield %c', 0), node)
         elif self.version <= 2.4:
             # Early versions of Python don't allow a plain "yield"
@@ -2087,10 +2087,10 @@ class SourceWalker(GenericASTTraversal, object):
         if self.version < 3.0:
             # Should we ditch this in favor of the "else" case?
             qualname = '.'.join(self.classes)
-            QUAL_NAME = AST('stmt',
-                            [ AST('assign',
-                                  [ AST('expr', [Token('LOAD_CONST', pattr=qualname)]),
-                                    AST('store', [ Token('STORE_NAME', pattr='__qualname__')])
+            QUAL_NAME = SyntaxTree('stmt',
+                            [ SyntaxTree('assign',
+                                  [ SyntaxTree('expr', [Token('LOAD_CONST', pattr=qualname)]),
+                                    SyntaxTree('store', [ Token('STORE_NAME', pattr='__qualname__')])
                                   ])])
             have_qualname = (ast[0][0] == QUAL_NAME)
         else:
@@ -2151,7 +2151,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.classes.pop(-1)
 
     def gen_source(self, ast, name, customize, is_lambda=False, returnNone=False):
-        """convert AST to Python source code"""
+        """convert SyntaxTree to Python source code"""
 
         rn = self.return_none
         self.return_none = returnNone

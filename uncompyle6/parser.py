@@ -41,8 +41,8 @@ nop_func = lambda self, args: None
 
 class PythonParser(GenericASTBuilder):
 
-    def __init__(self, AST, start, debug):
-        super(PythonParser, self).__init__(AST, start, debug)
+    def __init__(self, SyntaxTree, start, debug):
+        super(PythonParser, self).__init__(SyntaxTree, start, debug)
         # FIXME: customize per python parser version
         nt_list = [
             'stmts', 'except_stmts', '_stmts', 'attributes',

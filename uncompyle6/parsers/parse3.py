@@ -27,7 +27,7 @@ that a later phase can turn into a sequence of ASCII text.
 """
 
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
-from uncompyle6.parsers.astnode import AST
+from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from xdis import PYTHON3
 
@@ -35,7 +35,7 @@ class Python3Parser(PythonParser):
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
         self.added_rules = set()
-        super(Python3Parser, self).__init__(AST, 'stmts', debug=debug_parser)
+        super(Python3Parser, self).__init__(SyntaxTree, 'stmts', debug=debug_parser)
         self.new_rules = set()
 
     def p_comprehension3(self, args):
