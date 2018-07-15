@@ -15,7 +15,7 @@
 """Constants and initial table values used in pysource.py and fragments.py"""
 
 import re, sys
-from uncompyle6.parsers.astnode import AST
+from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6 import PYTHON3
 from uncompyle6.scanners.tok import Token, NoneToken
 
@@ -32,33 +32,33 @@ LINE_LENGTH = 80
 # Some parse trees created below are used for comparing code
 # fragments (like 'return None' at the end of functions).
 
-RETURN_LOCALS = AST('return',
-                    [ AST('ret_expr', [AST('expr', [ Token('LOAD_LOCALS') ])]),
+RETURN_LOCALS = SyntaxTree('return',
+                    [ SyntaxTree('ret_expr', [SyntaxTree('expr', [ Token('LOAD_LOCALS') ])]),
                       Token('RETURN_VALUE')])
 
-NONE = AST('expr', [ NoneToken ] )
+NONE = SyntaxTree('expr', [ NoneToken ] )
 
-RETURN_NONE = AST('stmt',
-                  [ AST('return',
+RETURN_NONE = SyntaxTree('stmt',
+                  [ SyntaxTree('return',
                         [ NONE, Token('RETURN_VALUE')]) ])
 
-PASS = AST('stmts',
-           [ AST('sstmt',
-                 [ AST('stmt',
-                       [ AST('pass', [])])])])
+PASS = SyntaxTree('stmts',
+           [ SyntaxTree('sstmt',
+                 [ SyntaxTree('stmt',
+                       [ SyntaxTree('pass', [])])])])
 
 ASSIGN_DOC_STRING = lambda doc_string: \
-  AST('stmt',
-      [ AST('assign',
-            [ AST('expr', [ Token('LOAD_CONST', pattr=doc_string) ]),
-              AST('store', [ Token('STORE_NAME', pattr='__doc__')])
+  SyntaxTree('stmt',
+      [ SyntaxTree('assign',
+            [ SyntaxTree('expr', [ Token('LOAD_CONST', pattr=doc_string) ]),
+              SyntaxTree('store', [ Token('STORE_NAME', pattr='__doc__')])
             ])])
 
-NAME_MODULE = AST('stmt',
-                [ AST('assign',
-                    [ AST('expr',
+NAME_MODULE = SyntaxTree('stmt',
+                [ SyntaxTree('assign',
+                    [ SyntaxTree('expr',
                           [Token('LOAD_NAME', pattr='__name__', offset=0, has_arg=True)]),
-                      AST('store',
+                      SyntaxTree('store',
                           [ Token('STORE_NAME', pattr='__module__', offset=3, has_arg=True)])
                       ])])
 
@@ -392,7 +392,7 @@ PRECEDENCE = {
 }
 
 ASSIGN_TUPLE_PARAM = lambda param_name: \
-             AST('expr', [ Token('LOAD_FAST', pattr=param_name) ])
+             SyntaxTree('expr', [ Token('LOAD_FAST', pattr=param_name) ])
 
 escape = re.compile(r'''
             (?P<prefix> [^%]* )

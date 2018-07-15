@@ -1,6 +1,6 @@
 import sys
 
-from uncompyle6.parsers.astnode import AST
+from uncompyle6.parsers.treenode import SyntaxTree
 
 from uncompyle6 import PYTHON3
 if PYTHON3:
@@ -21,7 +21,7 @@ nonglobal_ops         = frozenset(('STORE_DEREF',  'DELETE_DEREF'))
 def find_all_globals(node, globs):
     """Search Syntax Tree node to find variable names that are global."""
     for n in node:
-        if isinstance(n, AST):
+        if isinstance(n, SyntaxTree):
             globs = find_all_globals(n, globs)
         elif n.kind in read_write_global_ops:
             globs.add(n.pattr)
@@ -31,7 +31,7 @@ def find_globals_and_nonlocals(node, globs, nonlocals, code, version):
     """search a node of parse tree to find variable names that need a
     either 'global' or 'nonlocal' statements added."""
     for n in node:
-        if isinstance(n, AST):
+        if isinstance(n, SyntaxTree):
             globs, nonlocals = find_globals_and_nonlocals(n, globs, nonlocals,
                                                           code, version)
         elif n.kind in read_global_ops:
@@ -48,7 +48,7 @@ def find_globals_and_nonlocals(node, globs, nonlocals, code, version):
 #     """Find globals in this statement."""
 #     for n in node:
 #         # print("XXX", n.kind, global_ops)
-#         if isinstance(n, AST):
+#         if isinstance(n, SyntaxTree):
 #             # FIXME: do I need a caser for n.kind="mkfunc"?
 #             if n.kind in ("conditional_lambda", "return_lambda"):
 #                 globs = find_globals(n, globs, mklambda_globals)
@@ -60,7 +60,7 @@ def find_globals_and_nonlocals(node, globs, nonlocals, code, version):
 
 def find_none(node):
     for n in node:
-        if isinstance(n, AST):
+        if isinstance(n, SyntaxTree):
             if n not in ('return_stmt', 'return_if_stmt'):
                 if find_none(n):
                     return True

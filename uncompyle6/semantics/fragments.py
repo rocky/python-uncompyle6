@@ -79,7 +79,7 @@ from uncompyle6.show import (
     maybe_show_tree,
 )
 
-from uncompyle6.parsers.astnode import AST
+from uncompyle6.parsers.treenode import SyntaxTree
 
 from uncompyle6.semantics.pysource import (
     ParserError, StringIO)
@@ -287,7 +287,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         else:
             start = len(self.f.getvalue()) + len(self.indent)
             self.write(self.indent, 'return')
-            if self.return_none or node != AST('return', [AST('ret_expr', [NONE]),
+            if self.return_none or node != SyntaxTree('return', [SyntaxTree('ret_expr', [NONE]),
                                                           Token('RETURN_VALUE')]):
                 self.write(' ')
                 self.last_finish = len(self.f.getvalue())
@@ -314,7 +314,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         else:
             start = len(self.f.getvalue()) + len(self.indent)
             self.write(self.indent, 'return')
-            if self.return_none or node != AST('return', [AST('ret_expr', [NONE]), Token('RETURN_END_IF')]):
+            if self.return_none or node != SyntaxTree('return', [SyntaxTree('ret_expr', [NONE]), Token('RETURN_END_IF')]):
                 self.write(' ')
                 self.preorder(node[0])
                 if hasattr(node[-1], 'offset'):
@@ -329,7 +329,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             super(FragmentsWalker, self).n_yield(node)
         except GenericASTTraversalPruningException:
             pass
-        if node != AST('yield', [NONE, Token('YIELD_VALUE')]):
+        if node != SyntaxTree('yield', [NONE, Token('YIELD_VALUE')]):
             node[0].parent = node
         self.set_pos_info(node[-1], start, len(self.f.getvalue()))
         self.set_pos_info(node, start, len(self.f.getvalue()))
@@ -1330,7 +1330,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         else:
             nodeInfo = nodeInfo
 
-        if isinstance(nodeInfo, AST):
+        if isinstance(nodeInfo, SyntaxTree):
             nonterminal = nodeInfo[0]
         else:
             nonterminal = nodeInfo.node
@@ -1828,7 +1828,7 @@ def code_deparse(co, out=StringIO(), version=None, is_pypy=None,
                                                co, version))
 
     # Just when you think we've forgotten about what we
-    # were supposed to to: Generate source from AST!
+    # were supposed to to: Generate source from the Syntax ree!
     deparsed.gen_source(deparsed.ast, co.co_name, customize)
 
     deparsed.set_pos_info(deparsed.ast, 0, len(deparsed.text))
