@@ -43,10 +43,19 @@ def customize_for_version(self, is_pypy, version):
             'assert':		( '%|assert %c\n' , 0 ),
             'assert2':		( '%|assert %c, %c\n' , 0, 3 ),
             'try_except':	( '%|try:\n%+%c%-%c\n\n', 1, 3 ),
-            'assign2':      ( '%|%c, %c = %c, %c\n', 3, 4, 0, 1 ),
-            'assign3':      ( '%|%c, %c, %c = %c, %c, %c\n', 5, 6, 7, 0, 1, 2 ),
+            'assign2':          ( '%|%c, %c = %c, %c\n',
+                                  3, 4, 0, 1 ),
+            'assign3':          ( '%|%c, %c, %c = %c, %c, %c\n',
+                                  5, 6, 7, 0, 1, 2 ),
             })
     if version < 3.0:
+        if version == 2.4:
+            def n_iftrue_stmt24(node):
+                self.template_engine(('%|%c', 0), node)
+                self.default(node)
+                self.prune()
+            self.n_iftrue_stmt24 = n_iftrue_stmt24
+
         TABLE_R.update({
             'STORE_SLICE+0':	( '%c[:]', 0 ),
             'STORE_SLICE+1':	( '%c[%p:]', 0, (1, -1) ),
@@ -62,7 +71,7 @@ def customize_for_version(self, is_pypy, version):
         })
 
         # exec as a built-in statement is only in Python 2.x
-        def n_exec_stmt(self, node):
+        def n_exec_stmt(node):
             """
             exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
             exec_stmt ::= expr exprlist EXEC_STMT

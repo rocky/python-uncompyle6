@@ -32,6 +32,11 @@ class Python24Parser(Python25Parser):
         importmultiple ::= filler LOAD_CONST alias imports_cont
         import_cont    ::= filler LOAD_CONST alias
 
+        # Handle "if true else: ..." in Python 2.4
+        stmt            ::= iftrue_stmt24
+        iftrue_stmt24   ::= _ifstmts_jump24 suite_stmts COME_FROM
+        _ifstmts_jump24 ::= c_stmts_opt JUMP_FORWARD POP_TOP
+
         # Python 2.5+ omits POP_TOP POP_BLOCK
         while1stmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_TOP POP_BLOCK COME_FROM
         while1stmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_TOP POP_BLOCK
