@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 
 from uncompyle6 import uncompyle
+from uncompyle6.main import decompile
+from xdis.magics import sysinfo2float
 import sys, inspect
 
 def uncompyle_test():
     frame = inspect.currentframe()
     try:
         co = frame.f_code
-        uncompyle(2.7, co, sys.stdout, 1, 1)
+        decompile(sysinfo2float(), co, sys.stdout, 1, 1)
         print()
     finally:
         del frame

@@ -17,6 +17,7 @@ import datetime, os, subprocess, sys
 
 from uncompyle6 import verify, IS_PYPY
 from xdis.code import iscode
+from xdis.magics import sysinfo2float
 from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource
 from uncompyle6.parser import ParserError
@@ -48,8 +49,14 @@ def decompile(
     """
     ingests and deparses a given code block 'co'
 
+    if `bytecode_version` is None, use the current Python intepreter
+    version.
+
     Caller is responsible for closing `out` and `mapstream`
     """
+    if bytecode_version is None:
+        bytecode_version = sysinfo2float()
+
     # store final output stream for case of error
     real_out = out or sys.stdout
 
