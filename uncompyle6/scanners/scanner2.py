@@ -111,6 +111,17 @@ class Scanner2(Scanner):
 
 
     @staticmethod
+    def extended_arg_val(arg):
+        """Return integer value of an EXTENDED_ARG operand.
+        In Python2 this always the operand value shifted 16 bits since
+        the operand is always 2 bytes. In Python 3.6+ this changes to one byte.
+        """
+        if PYTHON3:
+            return (arg << 16)
+        else:
+            return (arg << long(16))
+
+    @staticmethod
     def unmangle_name(name, classname):
         """Remove __ from the end of _name_ if it starts with __classname__
         return the "unmangled" name.

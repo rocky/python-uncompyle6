@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2017 Rocky Bernstein
+#  Copyright (c) 2015-2018 Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 #  Copyright (c) 1999 John Aycock
@@ -294,8 +294,20 @@ class Python2Parser(PythonParser):
 
             # The order of opname listed is roughly sorted below
             if opname_base in ('BUILD_LIST', 'BUILD_SET', 'BUILD_TUPLE'):
+                # We do this complicated test to speed up parsing of
+                # pathelogically long literals, especially those over 1024.
+                build_count = token.attr
+                thousands = (build_count//1024)
+                thirty32s = ((build_count//32) % 32)
+                if thirty32s > 0:
+                    rule = "expr32 ::=%s" % (' expr' * 32)
+                    self.add_unique_rule(rule, opname_base, build_count, customize)
+                if thousands > 0:
+                    self.add_unique_rule("expr1024 ::=%s" % (' expr32' * 32),
+                                         opname_base, build_count, customize)
                 collection = opname_base[opname_base.find('_')+1:].lower()
-                rule = '%s ::= %s%s' % (collection, (token.attr * 'expr '), opname)
+                rule = (('%s ::= ' % collection) + 'expr1024 '*thousands +
+                        'expr32 '*thirty32s + 'expr '*(build_count % 32) + opname)
                 self.add_unique_rules([
                     "expr ::= %s" % collection,
                     rule], customize)
