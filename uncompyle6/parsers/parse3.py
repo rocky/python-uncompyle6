@@ -709,6 +709,8 @@ class Python3Parser(PythonParser):
                         rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
                 if not is_LOAD_CLOSURE or v == 0:
+                    # We do this complicated test to speed up parsing of
+                    # pathelogically long literals, especially those over 1024.
                     build_count = token.attr
                     thousands = (build_count//1024)
                     thirty32s = ((build_count//32) % 32)
