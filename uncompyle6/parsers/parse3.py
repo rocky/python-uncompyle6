@@ -710,11 +710,26 @@ class Python3Parser(PythonParser):
                         rule = ('load_closure ::= %s%s' % (('LOAD_CLOSURE ' * v), opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
                 if not is_LOAD_CLOSURE or v == 0:
+                    # We do this complicated test to speed up parsing of
+                    # pathelogically long literals, especially those over 1024.
+                    build_count = token.attr
+                    thousands = (build_count//1024)
+                    thirty32s = ((build_count//32) % 32)
+                    if thirty32s > 0:
+                        rule = "expr32 ::=%s" % (' expr' * 32)
+                        self.add_unique_rule(rule, opname_base, build_count, customize)
+                        pass
+                    if thousands > 0:
+                        self.add_unique_rule("expr1024 ::=%s" % (' expr32' * 32),
+                                             opname_base, build_count, customize)
+                        pass
                     collection = opname_base[opname_base.find('_')+1:].lower()
-                    rule = '%s ::= %s%s' % (collection, 'expr ' * v, opname)
+                    rule = (('%s ::= ' % collection) + 'expr1024 '*thousands +
+                            'expr32 '*thirty32s + 'expr '*(build_count % 32) + opname)
                     self.add_unique_rules([
-                        'expr ::= %s' % collection,
+                        "expr ::= %s" % collection,
                         rule], customize)
+                    continue
                 continue
             elif opname_base == 'BUILD_SLICE':
                 if token.attr == 2:

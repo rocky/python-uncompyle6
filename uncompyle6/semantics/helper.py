@@ -148,10 +148,12 @@ def flatten_list(node):
     for elem in node:
         if elem == 'expr1024':
             for subelem in elem:
+                assert subelem == 'expr32'
                 for subsubelem in subelem:
                     flat_elems.append(subsubelem)
         elif elem == 'expr32':
             for subelem in elem:
+                assert subelem == 'expr'
                 flat_elems.append(subelem)
         else:
             flat_elems.append(elem)

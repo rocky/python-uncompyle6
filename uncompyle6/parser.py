@@ -42,6 +42,11 @@ class PythonParser(GenericASTBuilder):
     def __init__(self, SyntaxTree, start, debug):
         super(PythonParser, self).__init__(SyntaxTree, start, debug)
         # FIXME: customize per python parser version
+
+        # These are the non-terminals we should collect into a list.
+        # For example instead of:
+        #   stmts -> stmts stmt -> stmts stmt stmt ...
+        # collect as stmts -> stmt stmt ...
         nt_list = [
             'stmts', 'except_stmts', '_stmts', 'attributes',
             'exprlist', 'kvlist', 'kwargs', 'come_froms', '_come_froms',
