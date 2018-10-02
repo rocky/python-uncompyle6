@@ -12,7 +12,7 @@ Prerequisites
 
 * Make sure the bytecode you have can be disassembled with a
   disassembler.
-* Don't put bytecode and corresponding soruce code on any service that
+* Don't put bytecode and corresponding source code on any service that
   requires registration to download.
 * When you open a bug report there is no privacy. If the legitimacy of
   the activity is deemed suspicous, I may flag it as suspicious,
@@ -46,8 +46,9 @@ $ uncompyle6 <command-line-options>
 $
 ```
 
-If there is a Solidity source code, a truffle project, or bytecode
-that is involved, please provide that or links to it.
+Provide links to the Python bytecode. For example you can create a
+gist with the information. If you have the correct source code, you
+can add that too.
 
 -->
 
