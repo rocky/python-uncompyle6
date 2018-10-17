@@ -51,7 +51,7 @@ def customize_for_version(self, is_pypy, version):
     if version < 3.0:
         if version == 2.4:
             def n_iftrue_stmt24(node):
-                self.template_engine(('%|%c', 0), node)
+                self.template_engine(('%c', 0), node)
                 self.default(node)
                 self.prune()
             self.n_iftrue_stmt24 = n_iftrue_stmt24
