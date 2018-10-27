@@ -31,7 +31,7 @@ decompiler service for versions of Python up to 2.6.
 
 ## Description
 
-<!-- Replace this text with a clear and concise description of the bug. -->
+<!-- Add a clear and concise description of the bug. -->
 
 ## How to Reproduce
 
@@ -54,7 +54,7 @@ can add that too.
 
 ## Expected behavior
 
-<!-- A clear and concise description of what you expected to happen. -->
+<!-- Add a clear and concise description of what you expected to happen. -->
 
 ## Environment
 
