@@ -158,8 +158,10 @@ class Python2Parser(PythonParser):
         try_except      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                             except_handler COME_FROM
 
+        # Note: except_stmts may have many jumps after END_FINALLY
         except_handler  ::= JUMP_FORWARD COME_FROM except_stmts
-                            END_FINALLY COME_FROM
+                            END_FINALLY come_froms
+
         except_handler  ::= jmp_abs COME_FROM except_stmts
                              END_FINALLY
 
