@@ -1779,6 +1779,11 @@ class SourceWalker(GenericASTTraversal, object):
     def n_attribute(self, node):
         if (node[0] == 'LOAD_CONST' or
             node[0] == 'expr' and node[0][0] == 'LOAD_CONST'):
+            # FIXME: I didn't record which constants parenthesis is
+            # necessary. However, I suspect that we could further
+            # refine this by looking at operator precedence and
+            # eval'ing the constant value (pattr) and comparing with
+            # the type of the constant.
             node.kind = 'attribute_w_parens'
         self.default(node)
 
