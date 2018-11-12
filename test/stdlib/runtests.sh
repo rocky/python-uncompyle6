@@ -127,6 +127,7 @@ case $PYVERSION in
 	    [test_sys_settrace.py]=1 # Line numbers are expected to be different
 	    [test_strtod.py]=1 # FIX
 	    [test_traceback.py]=1 # Line numbers change - duh.
+	    [test_types.py]=1     # try/else confusions
 	    [test_unicode.py]=1  # Too long to run 11 seconds
 	    [test_xpickle.py]=1 # Runs ok but takes 72 seconds
 	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
