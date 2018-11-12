@@ -120,6 +120,7 @@ case $PYVERSION in
 	                        # Deal with when we have better flow-control detection
 	    [test_pwd.py]=1     # Takes too long
 	    [test_queue.py]=1   # Control flow?
+	    [test_re.py]=1      # Probably Control flow?
 	    [test_select.py]=1  # Runs okay but takes 11 seconds
 	    [test_socket.py]=1  # Runs ok but takes 22 seconds
 	    [test_subprocess.py]=1 # Runs ok but takes 22 seconds
