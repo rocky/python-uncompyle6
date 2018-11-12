@@ -119,6 +119,7 @@ case $PYVERSION in
 	    [test_posix.py]=1   # Bug in try-else detection inside test_initgroups()
 	                        # Deal with when we have better flow-control detection
 	    [test_pwd.py]=1     # Takes too long
+	    [test_pty.py]=1
 	    [test_queue.py]=1   # Control flow?
 	    [test_re.py]=1      # Probably Control flow?
 	    [test_select.py]=1  # Runs okay but takes 11 seconds
