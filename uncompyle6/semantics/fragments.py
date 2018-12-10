@@ -108,6 +108,9 @@ TABLE_DIRECT_FRAGMENT = {
     'pass':	        ( '%|%rpass\n', ),
     'raise_stmt0':	( '%|%rraise\n', ),
     'import':	        ( '%|import %c%x\n', 2, (2, (0, 1)), ),
+    'import_cont':  ( ', %c%x', (2, 'alias'), (2, (0, 1)), ),
+    'import_from':  ( '%|from %[2]{pattr}%x import %c\n',
+                        (2, (0, 1)), (3, 'importlist'), ),
     'importfrom':	( '%|from %[2]{pattr}%x import %c\n', (2, (0, 1)), 3),
 
     # FIXME only in <= 2.4

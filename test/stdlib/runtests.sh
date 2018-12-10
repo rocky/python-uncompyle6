@@ -119,13 +119,16 @@ case $PYVERSION in
 	    [test_posix.py]=1   # Bug in try-else detection inside test_initgroups()
 	                        # Deal with when we have better flow-control detection
 	    [test_pwd.py]=1     # Takes too long
+	    [test_pty.py]=1
 	    [test_queue.py]=1   # Control flow?
+	    [test_re.py]=1      # Probably Control flow?
 	    [test_select.py]=1  # Runs okay but takes 11 seconds
 	    [test_socket.py]=1  # Runs ok but takes 22 seconds
 	    [test_subprocess.py]=1 # Runs ok but takes 22 seconds
 	    [test_sys_settrace.py]=1 # Line numbers are expected to be different
 	    [test_strtod.py]=1 # FIX
 	    [test_traceback.py]=1 # Line numbers change - duh.
+	    [test_types.py]=1     # try/else confusions
 	    [test_unicode.py]=1  # Too long to run 11 seconds
 	    [test_xpickle.py]=1 # Runs ok but takes 72 seconds
 	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
