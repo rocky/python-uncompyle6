@@ -59,7 +59,7 @@ disassembler called `pydisasm`.
 
 Consider how Python compiles something like "(x*y) + 5". Early on
 Python creates an "abstract syntax tree" (AST) for this. And this is
-"abstract" in the sense that unimportant, redundant or unnecceary
+"abstract" in the sense that unimportant, redundant or unnecessary
 items have been removed. Here, this means that any notion that you
 wrote "x+y" in parenthesis is lost, since in this context they are
 unneeded. Also lost is the fact that the multiplication didn't have
@@ -167,7 +167,7 @@ use `pydisasm` from the [xdis](https://pypi.python.org/pypi/xdis)
 package. Opcodes are described in the documentation for
 the [dis](https://docs.python.org/3.6/library/dis.html) module.
 
-### But I don't *have* the source code and am incapable of figuring how how to do a hand disassembly!
+### But I don't *have* the source code and am incapable of figuring how to do a hand disassembly!
 
 Well, you could learn. No one is born into this world knowing how to
 disassemble Python bytecode. And as Richard Feynman once said, "What
