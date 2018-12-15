@@ -240,7 +240,7 @@ So one factors I may take into consideration is the bug reporter's karma.
   seeking help from? Have you starred _any_ github project? And the above
   two kind of feed into ...
 * Attitude. Some people feel that they are doing me and the world a
-  great favor by just point out that there is a problem whose solution
+  great favor by just pointing out that there is a problem whose solution
   would greatly benefit them. Perhaps this is why they feel that
   instructions are not to be followed by them, nor any need for
   showing evidence gratitude when help is offered them.
