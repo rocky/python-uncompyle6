@@ -41,6 +41,11 @@ class Python36Parser(Python35Parser):
         whilestmt       ::= SETUP_LOOP testexpr l_stmts_opt
                             JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
 
+        # 3.6 due to jump optimization, we sometimes add RETURN_END_IF where
+        # RETURN_VALUE is meant. Specifcally this can happen in
+        # ifelsestmt -> ...else_suite _. suite_stmts... (last) stmt
+        return ::= ret_expr RETURN_END_IF
+
         # A COME_FROM is dropped off because of JUMP-to-JUMP optimization
         and  ::= expr jmp_false expr
         and  ::= expr jmp_false expr jmp_false

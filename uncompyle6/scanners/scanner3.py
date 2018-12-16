@@ -965,8 +965,6 @@ class Scanner3(Scanner):
         elif op == self.opc.POP_EXCEPT:
             next_offset = xdis.next_offset(op, self.opc, offset)
             target = self.get_target(next_offset)
-            if target is None:
-                from trepan.api import debug; debug()
             if target > next_offset:
                 next_op = code[next_offset]
                 if (self.opc.JUMP_ABSOLUTE == next_op and
@@ -994,8 +992,9 @@ class Scanner3(Scanner):
             # In RETURN_VALUE, JUMP_ABSOLUTE, RETURN_VALUE is never RETURN_END_IF
             if op == self.opc.RETURN_VALUE:
                 next_offset = xdis.next_offset(op, self.opc, offset)
-                if (next_offset < len(code) and code[next_offset] == self.opc.JUMP_ABSOLUTE and
-                    offset in self.return_end_ifs):
+                if ( next_offset < len(code) and
+                     (code[next_offset] == self.opc.JUMP_ABSOLUTE and
+                      offset in self.return_end_ifs) ):
                     self.return_end_ifs.remove(offset)
                     pass
                 pass

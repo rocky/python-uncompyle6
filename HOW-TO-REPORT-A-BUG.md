@@ -1,6 +1,21 @@
-# How to report a Bug
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+**Table of Contents**
 
-## The difficulty of the problem
+- [The difficulty of the problem](#the-difficulty-of-the-problem)
+- [Is it really a bug?](#is-it-really-a-bug)
+    - [Do you have valid bytecode?](#do-you-have-valid-bytecode)
+    - [Semantic equivalence vs. exact source code](#semantic-equivalence-vs-exact-source-code)
+- [What to send (minimum requirements)](#what-to-send-minimum-requirements)
+- [What to send (additional helpful information)](#what-to-send-additional-helpful-information)
+    - [But I don't *have* the source code!](#but-i-dont-have-the-source-code)
+    - [But I don't *have* the source code and am incapable of figuring how how to do a hand disassembly!](#but-i-dont-have-the-source-code-and-am-incapable-of-figuring-how-how-to-do-a-hand-disassembly)
+- [Narrowing the problem](#narrowing-the-problem)
+- [Karma](#karma)
+- [Confidentiality of Bug Reports](#confidentiality-of-bug-reports)
+- [Ethics](#ethics)
+
+<!-- markdown-toc end -->
+# The difficulty of the problem
 
 This decompiler is a constant work in progress: Python keeps
 changing, and so does its code generation.
@@ -41,10 +56,10 @@ bugs you may have an interest in. If you require decompiling bytecode
 immediately, consider using a decompilation service, listed further
 down in this document.
 
-## Is it really a bug?
+# Is it really a bug?
 
 
-### Do you have valid bytecode?
+## Do you have valid bytecode?
 
 As mentioned in README.rst, this project doesn't handle obfuscated
 code. See README.rst for suggestions for how to remove some kinds of
@@ -55,11 +70,11 @@ Python comes with a disassembly module called `dis`. A prerequisite
 module for this package, `xdis` has a cross-python version
 disassembler called `pydisasm`.
 
-### Semantic equivalence vs. exact source code
+## Semantic equivalence vs. exact source code
 
 Consider how Python compiles something like "(x*y) + 5". Early on
 Python creates an "abstract syntax tree" (AST) for this. And this is
-"abstract" in the sense that unimportant, redundant or unnecceary
+"abstract" in the sense that unimportant, redundant or unnecessary
 items have been removed. Here, this means that any notion that you
 wrote "x+y" in parenthesis is lost, since in this context they are
 unneeded. Also lost is the fact that the multiplication didn't have
@@ -132,7 +147,7 @@ Python will eliminate the entire "if" statement.
 So just because the text isn't the same, does not
 necessarily mean there's a bug.
 
-## What to send (minimum requirements)
+# What to send (minimum requirements)
 
 The basic requirement is pretty simple:
 
@@ -146,7 +161,7 @@ sending is too large.
 
 Also try to narrow the bug. See below.
 
-## What to send (additional helpful information)
+# What to send (additional helpful information)
 
 Some kind folks also give the invocation they used and the output
 which usually includes an error message produced. This is
@@ -159,7 +174,7 @@ provide the input command and the output from that, please give:
 * Python interpreter version used
 
 
-### But I don't *have* the source code!
+## But I don't *have* the source code!
 
 Sure, I get it. No problem. There is Python assembly code on parse
 errors, so simply by hand decompile that. To get a full disassembly,
@@ -167,7 +182,7 @@ use `pydisasm` from the [xdis](https://pypi.python.org/pypi/xdis)
 package. Opcodes are described in the documentation for
 the [dis](https://docs.python.org/3.6/library/dis.html) module.
 
-### But I don't *have* the source code and am incapable of figuring how how to do a hand disassembly!
+### But I don't *have* the source code and am incapable of figuring how to do a hand disassembly!
 
 Well, you could learn. No one is born into this world knowing how to
 disassemble Python bytecode. And as Richard Feynman once said, "What
@@ -179,7 +194,7 @@ Compilers](http://www.crazy-compilers.com/decompyle/) offers a
 byte-code decompiler service for versions of Python up to 2.6. (If
 there are others around let me know and I'll list them here.)
 
-## Narrowing the problem
+# Narrowing the problem
 
 I don't need or want the entire source code base for the file(s) or
 module(s) can't be decompiled. I just need those file(s) or module(s).
@@ -197,22 +212,53 @@ what doesn't. That is useful. Or maybe the same file will decompile
 properly on a neighboring version of Python. That is helpful too.
 
 In sum, the more you can isolate or narrow the problem, the more
-likley the problem will be fixed and fixed sooner.
+likely the problem will be fixed and fixed sooner.
 
-## Confidentiality of Bug Reports
+# Karma
+
+I realize that following the instructions given herein puts a bit of
+burden on the bug reporter. In my opinion, this is justified as
+attempts to balance somewhat the burden and effort needed to fix the
+bug and the attempts to balance number of would-be bug reporters with
+the number of bug fixers. Better bug reporters are more likely to move
+in the category of bug fixers.
+
+The barrier to reporting a big is pretty small: all you really need is
+a github account, and the ability to type something after clicking
+some buttons. So the reality is that many people just don't bother to
+read these instructions, let alone follow it to any simulacrum.
+
+And the reality is also that bugs sometimes get fixed even though
+these instructions are not followed.
+
+So one factors I may take into consideration is the bug reporter's karma.
+
+* Have you demonstrably contributed to open source? I may look at your
+  github profile to see what contributions you have made, how popular
+  those contributions are, or how popular you are.
+* How appreciative are you? Have you starred this project that you are
+  seeking help from? Have you starred _any_ github project? And the above
+  two kind of feed into ...
+* Attitude. Some people feel that they are doing me and the world a
+  great favor by just pointing out that there is a problem whose solution
+  would greatly benefit them. Perhaps this is why they feel that
+  instructions are not to be followed by them, nor any need for
+  showing evidence gratitude when help is offered them.
+
+# Confidentiality of Bug Reports
 
 When you report a bug, you are giving up confidentiality to the source
 code and the byte code. However, I would imagine that if you have
 narrowed the problem sufficiently, confidentiality of the little that
 remains would not be an issue.
 
-However feel free to remove any commments, and modify variable names
+However feel free to remove any comments, and modify variable names
 or constants in the source code.
 
-## Ethics
+# Ethics
 
 I do not condone using this program for unethical or illegal purposes.
-More detestful, at least to me, is asking for help to assist you in
+More detestable, at least to me, is asking for help to assist you in
 something that might not legitimate.
 
 Don't use the issue tracker for such solicitations. To try to stave
