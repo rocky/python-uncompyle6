@@ -158,8 +158,10 @@ def main(in_base, out_base, files, codes, outfile=None,
     """
     in_base	base directory for input files
     out_base	base directory for output files (ignored when
-    files	list of filenames to be uncompyled (relative to src_base)
+    files	list of filenames to be uncompyled (relative to in_base)
     outfile	write output to this filename (overwrites out_base)
+
+    Note: `codes` is not use. Historical compatability?
 
     For redirecting output to
     - <filename>		outfile=<filename> (out_base is ignored)
