@@ -172,7 +172,7 @@ def main_bin():
 
     if numproc <= 1:
         try:
-            result = main(src_base, out_base, files, codes, outfile,
+            result = main(src_base, out_base, files, None, outfile,
                           **options)
             result = list(result) + [options.get('do_verify', None)]
             if len(files) > 1:
@@ -207,7 +207,7 @@ def main_bin():
                     if f is None:
                         break
                     (t, o, f, v) = \
-                      main(src_base, out_base, [f], codes, outfile, **options)
+                      main(src_base, out_base, [f], None, outfile, **options)
                     tot_files += t
                     okay_files += o
                     failed_files += f

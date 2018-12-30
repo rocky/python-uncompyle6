@@ -1,3 +1,10 @@
+uncompyle6 3.2.5 2019-12-30 Clearout sale
+
+- 3.7.2 Remove deprecation warning on regexp string that isn't raw
+- main.main() parameter `codes` is not used - note that
+- Improve Python 3.6+ control flow detection
+- More complete fragment instruction annotation for `imports`
+
 uncompyle6 3.2.4 2018-10-27 7x9 release
 
 - Bug fixes #180, #182, #187, #192
