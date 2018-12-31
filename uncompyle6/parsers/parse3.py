@@ -26,6 +26,7 @@ If we succeed in creating a parse tree, then we have a Python program
 that a later phase can turn into a sequence of ASCII text.
 """
 
+from uncompyle6.scanners.tok import Token
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -1136,6 +1137,7 @@ class Python3Parser(PythonParser):
         self.check_reduce['aug_assign2'] = 'AST'
         self.check_reduce['while1stmt'] = 'noAST'
         self.check_reduce['while1elsestmt'] = 'noAST'
+        self.check_reduce['ifelsestmt'] = 'AST'
         self.check_reduce['annotate_tuple'] = 'noAST'
         self.check_reduce['kwarg'] = 'noAST'
         # FIXME: remove parser errors caused by the below
@@ -1212,6 +1214,14 @@ class Python3Parser(PythonParser):
                 if offset != tokens[first].attr:
                     return True
             return False
+        elif rule == ('ifelsestmt',
+                      ('testexpr', 'c_stmts_opt', 'jump_forward_else', 'else_suite', '_come_froms')):
+            # Make sure the highest/smallest "come from" offset comes inside the "if".
+            come_froms = ast[-1]
+            if not isinstance(come_froms, Token):
+                return tokens[first].offset > come_froms[-1].attr
+            return False
+
         return False
 
 class Python30Parser(Python3Parser):
