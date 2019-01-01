@@ -851,9 +851,10 @@ class Scanner3(Scanner):
             # For 3.5, in addition the JUMP_FORWARD above we could have
             # JUMP_BACK or CONTINUE
             #
-            # There are other contexts we may need to consider
-            # like whether the target is "END_FINALLY"
-            # or if the condition jump is to a forward location
+            # There are other situations we may need to consider
+            # if the condition jump is to a forward location.
+            # Also the existence of a jump to the instruction after "END_FINALLY"
+            # will distinguish "try/else" from "try".
             if self.is_jump_forward(pre_rtarget) or (rtarget_is_ja and self.version >= 3.5):
                 if_end = self.get_target(pre_rtarget)
 
