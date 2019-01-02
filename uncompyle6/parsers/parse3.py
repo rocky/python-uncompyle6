@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2018 Rocky Bernstein
+#  Copyright (c) 2015-2019 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -185,22 +185,10 @@ class Python3Parser(PythonParser):
         # one COME_FROM for Python 2.7 seems to associate the
         # COME_FROM targets from the wrong places
 
-        try_except     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           except_handler opt_come_from_except
-
         # this is nested inside a try_except
         tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
                            POP_BLOCK LOAD_CONST
                            COME_FROM_FINALLY suite_stmts_opt END_FINALLY
-
-        tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           except_handler else_suite come_from_except_clauses
-
-        tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           except_handler else_suite come_froms
-
-        tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           except_handler else_suitel come_from_except_clauses
 
         except_handler ::= jmp_abs COME_FROM except_stmts
                            END_FINALLY
@@ -564,9 +552,10 @@ class Python3Parser(PythonParser):
         # include instructions that don't need customization,
         # but we'll do a finer check after the rough breakout.
         customize_instruction_basenames = frozenset(
-            ('BUILD', 'CALL', 'CONTINUE', 'DELETE', 'GET',
-             'JUMP',  'LOAD', 'LOOKUP',   'MAKE',
-             'RETURN', 'RAISE', 'UNPACK'))
+            ('BUILD', 'CALL',   'CONTINUE',    'DELETE', 'GET',
+             'JUMP',  'LOAD',   'LOOKUP',      'MAKE',
+             'RETURN', 'RAISE', 'SETUP',
+             'UNPACK'))
 
         # Opcode names in the custom_ops_processed set have rules that get added
         # unconditionally and the rules are constant. So they need to be done
@@ -1119,6 +1108,26 @@ class Python3Parser(PythonParser):
                     raise_stmt2 ::= expr expr RAISE_VARARGS_2
                     """, nop_func)
                 custom_ops_processed.add(opname)
+            elif opname == 'SETUP_EXCEPT':
+                self.addRule("""
+                    try_except     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                                       except_handler opt_come_from_except
+
+                    tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                                       except_handler else_suite come_from_except_clauses
+
+                    tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                                       except_handler else_suite come_froms
+
+                    tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                                       except_handler else_suitel come_from_except_clauses
+
+                    stmt             ::= tryelsestmtl3
+                    tryelsestmtl3    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                                         except_handler COME_FROM else_suitel
+                                         opt_come_from_except
+                    """, nop_func)
+                custom_ops_processed.add(opname)
             elif opname_base in ('UNPACK_EX',):
                 before_count, after_count = token.attr
                 rule = 'unpack ::= ' + opname + ' store' * (before_count + after_count + 1)
@@ -1140,6 +1149,8 @@ class Python3Parser(PythonParser):
         self.check_reduce['ifelsestmt'] = 'AST'
         self.check_reduce['annotate_tuple'] = 'noAST'
         self.check_reduce['kwarg'] = 'noAST'
+        self.check_reduce['try_except'] = 'AST'
+
         # FIXME: remove parser errors caused by the below
         # self.check_reduce['while1elsestmt'] = 'noAST'
         return
@@ -1181,6 +1192,16 @@ class Python3Parser(PythonParser):
             if last == n:
                 return False
             return tokens[first].attr > tokens[last].offset
+        elif rule == ('try_except',
+                      ('SETUP_EXCEPT', 'suite_stmts_opt', 'POP_BLOCK',
+                       'except_handler', 'opt_come_from_except')):
+            come_from_except = ast[-1]
+            if come_from_except[0] == 'COME_FROM':
+                # There should be at last two COME_FROMs, one from an
+                # exception handler and one from the try. Otherwise
+                # we have a try/else.
+                return True
+            pass
         elif lhs == 'while1stmt':
 
             # If there is a fall through to the COME_FROM_LOOP. then this is

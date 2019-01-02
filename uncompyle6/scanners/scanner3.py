@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2018 by Rocky Bernstein
+#  Copyright (c) 2015-2019 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -851,7 +851,7 @@ class Scanner3(Scanner):
             # For 3.5, in addition the JUMP_FORWARD above we could have
             # JUMP_BACK or CONTINUE
             #
-            # There are other situations we may need to consider
+            # There are other situations we may need to consider, like
             # if the condition jump is to a forward location.
             # Also the existence of a jump to the instruction after "END_FINALLY"
             # will distinguish "try/else" from "try".

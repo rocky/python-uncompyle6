@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018 Rocky Bernstein
+#  Copyright (c) 2016-2019 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -122,6 +122,7 @@ class Python36Parser(Python35Parser):
         # """)
         super(Python36Parser, self).customize_grammar_rules(tokens, customize)
         self.remove_rules("""
+           except_handler     ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts END_FINALLY COME_FROM
            async_for_stmt     ::= SETUP_LOOP expr
                                   GET_AITER
                                   LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
@@ -344,7 +345,7 @@ class Python36Parser(Python35Parser):
                 if nt[0] == 'call_kw':
                     return True
                 nt = nt[0]
-
+                pass
         return False
 class Python36ParserSingle(Python36Parser, PythonParserSingle):
     pass
