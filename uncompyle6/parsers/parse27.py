@@ -208,6 +208,8 @@ class Python27Parser(Python2Parser):
         self.check_reduce['and'] = 'AST'
         # self.check_reduce['or'] = 'AST'
         self.check_reduce['raise_stmt1'] = 'AST'
+        self.check_reduce['assert'] = 'AST'
+        self.check_reduce['assert2'] = 'AST'
         self.check_reduce['list_if_not'] = 'AST'
         self.check_reduce['list_if'] = 'AST'
         self.check_reduce['conditional_true'] = 'AST'
@@ -228,6 +230,10 @@ class Python27Parser(Python2Parser):
                         tokens[last].pattr == jmp_false.pattr)
         elif rule[0] == ('raise_stmt1'):
             return ast[0] == 'expr' and ast[0][0] == 'or'
+        elif rule[0] in ('assert', 'assert2'):
+            jump_inst = ast[1][0]
+            jump_target = jump_inst.attr
+            return not (last >= len(tokens) or jump_target == tokens[last].offset)
         elif rule == ('list_if_not', ('expr', 'jmp_true', 'list_iter')):
             jump_inst = ast[1][0]
             jump_offset = jump_inst.attr
