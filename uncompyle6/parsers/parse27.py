@@ -3,6 +3,7 @@
 #  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from xdis import next_offset
 from uncompyle6.parser import PythonParserSingle
 from uncompyle6.parsers.parse2 import Python2Parser
 
@@ -225,7 +226,9 @@ class Python27Parser(Python2Parser):
         elif rule[0] in ('assert', 'assert2'):
             jump_inst = ast[1][0]
             jump_target = jump_inst.attr
-            return not (last >= len(tokens) or jump_target == tokens[last].offset)
+            return not (last >= len(tokens)
+                        or jump_target == tokens[last].offset
+                        or jump_target == next_offset(ast[-1].op, ast[-1].opc, ast[-1].offset))
         elif rule == ('list_if_not', ('expr', 'jmp_true', 'list_iter')):
             jump_inst = ast[1][0]
             jump_offset = jump_inst.attr
