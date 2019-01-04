@@ -233,7 +233,9 @@ class Python27Parser(Python2Parser):
         elif rule[0] in ('assert', 'assert2'):
             jump_inst = ast[1][0]
             jump_target = jump_inst.attr
-            return not (last >= len(tokens) or jump_target == tokens[last].offset)
+            return not (last >= len(tokens)
+                        or jump_target == tokens[last].offset
+                        or jump_target == next_offset(ast[-1].op, ast[-1].opc, ast[-1].offset))
         elif rule == ('list_if_not', ('expr', 'jmp_true', 'list_iter')):
             jump_inst = ast[1][0]
             jump_offset = jump_inst.attr
