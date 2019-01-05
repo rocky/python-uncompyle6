@@ -3,7 +3,8 @@
 #  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from uncompyle6.parser import PythonParserSingle
+from xdis import next_offset
+from uncompyle6.parser import PythonParserSingle, nop_func
 from uncompyle6.parsers.parse2 import Python2Parser
 
 class Python27Parser(Python2Parser):
@@ -196,6 +197,13 @@ class Python27Parser(Python2Parser):
                            POP_BLOCK LOAD_CONST COME_FROM suite_stmts_opt
                            END_FINALLY
         """)
+        if 'PyPy' in customize:
+            # PyPy-specific customizations
+            self.addRule("""
+                        return_if_stmt ::= ret_expr RETURN_END_IF come_froms
+                        """, nop_func)
+
+
         super(Python27Parser, self).customize_grammar_rules(tokens, customize)
         self.check_reduce['and'] = 'AST'
         # self.check_reduce['or'] = 'AST'
