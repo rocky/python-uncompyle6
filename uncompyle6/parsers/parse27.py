@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018 Rocky Bernstein
+#  Copyright (c) 2016-2019 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 
@@ -228,6 +228,12 @@ class Python27Parser(Python2Parser):
                         tokens[last].pattr == jmp_false.pattr)
         elif rule[0] == ('raise_stmt1'):
             return ast[0] == 'expr' and ast[0][0] == 'or'
+        elif rule[0] in ('assert', 'assert2'):
+            jump_inst = ast[1][0]
+            jump_target = jump_inst.attr
+            return not (last >= len(tokens)
+                        or jump_target == tokens[last].offset
+                        or jump_target == next_offset(ast[-1].op, ast[-1].opc, ast[-1].offset))
         elif rule == ('list_if_not', ('expr', 'jmp_true', 'list_iter')):
             jump_inst = ast[1][0]
             jump_offset = jump_inst.attr
