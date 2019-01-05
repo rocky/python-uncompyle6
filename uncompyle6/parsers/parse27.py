@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018 Rocky Bernstein
+#  Copyright (c) 2016-2019 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 
@@ -208,8 +208,6 @@ class Python27Parser(Python2Parser):
         self.check_reduce['and'] = 'AST'
         # self.check_reduce['or'] = 'AST'
         self.check_reduce['raise_stmt1'] = 'AST'
-        self.check_reduce['assert'] = 'AST'
-        self.check_reduce['assert2'] = 'AST'
         self.check_reduce['list_if_not'] = 'AST'
         self.check_reduce['list_if'] = 'AST'
         self.check_reduce['conditional_true'] = 'AST'
