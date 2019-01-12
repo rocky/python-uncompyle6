@@ -107,7 +107,7 @@ class Token():
                         pattr = self.opc.cmp_op[self.attr]
                 # And so on. See xdis/bytecode.py get_instructions_bytes
                 pass
-        elif re.search('_\d+$', self.kind):
+        elif re.search(r'_\d+$', self.kind):
             return "%s%s%s" % (prefix, offset_opname,  argstr)
         else:
             pattr = ''

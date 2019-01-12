@@ -144,7 +144,7 @@ if PYTHON_VERSION > 2.6:
         run_test(fstring)
 
 
-    @pytest.mark.skipif(PYTHON_VERSION != 3.6, reason='need Python 3.6')
+    @pytest.mark.skipif(PYTHON_VERSION < 3.6, reason='need Python 3.6+')
     @pytest.mark.parametrize('fstring', [
         "f'{abc}{abc!s}'",
         "f'{abc}0'",
