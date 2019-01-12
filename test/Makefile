@@ -89,8 +89,9 @@ check-bytecode-2:
 #: Check deparsing bytecode 3.x only
 check-bytecode-3:
 	$(PYTHON) test_pythonlib.py --bytecode-3.0 \
-       --bytecode-3.1 --bytecode-3.2 --bytecode-3.3 \
-       --bytecode-3.4 --bytecode-3.5 --bytecode-3.6 --bytecode-pypy3.2
+	--bytecode-3.1 --bytecode-3.2 --bytecode-3.3 \
+	--bytecode-3.4 --bytecode-3.5 --bytecode-3.6 --bytecode-3.7 \
+	--bytecode-pypy3.2
 
 #: Check deparsing on selected bytecode 3.x
 check-bytecode-3-short:
