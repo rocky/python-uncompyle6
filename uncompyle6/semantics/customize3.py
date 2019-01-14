@@ -917,6 +917,16 @@ def customize_for_version3(self, version):
                     'async_for_stmt':  (
                         '%|async for %c in %c:\n%+%c%-%-\n\n',
                         7, 1, 17),
+                    'compare_chained1a_37': ( ' %[3]{pattr.replace("-", " ")} %p %p',
+                                             (0, 19),
+                                             (-4, 19)),
+                    'compare_chained1b_37': ( ' %[3]{pattr.replace("-", " ")} %p %p',
+                                             (0, 19),
+                                             (-5, 19)),
+                    'compare_chained2a_37': ( '%[1]{pattr.replace("-", " ")} %p', (0, 19)),
+
+                    'compare_chained2b_37': ( '%[1]{pattr.replace("-", " ")} %p', (0, 19)),
+
                     })
                 pass
             pass # version >= 3.6

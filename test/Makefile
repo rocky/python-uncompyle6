@@ -64,10 +64,12 @@ check-3.5: check-bytecode
 #: Run working tests from Python 3.6
 check-3.6: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.6 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.6-run --verify-run
 
 #: Run working tests from Python 3.7
 check-3.7: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.7 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.7-run --verify-run
 
 # FIXME
 #: this is called when running under pypy3.5-5.8.0 or pypy2-5.6.0
