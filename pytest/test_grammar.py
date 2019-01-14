@@ -7,7 +7,7 @@ def test_grammar():
 
     def check_tokens(tokens, opcode_set):
         remain_tokens = set(tokens) - opcode_set
-        remain_tokens = set([re.sub('_\d+$','', t) for t in remain_tokens])
+        remain_tokens = set([re.sub(r'_\d+$','', t) for t in remain_tokens])
         remain_tokens = set([re.sub('_CONT$','', t) for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         assert remain_tokens == set([]), \

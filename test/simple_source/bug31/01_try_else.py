@@ -4,6 +4,7 @@
 # try. In 3.x we not distinguising this jump out of the loop with a jump to the
 # end of the "try".
 
+# RUNNABLE!
 def testit(stmts):
 
     # Bug was confusing When the except jumps back to the beginning of the block
