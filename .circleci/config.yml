@@ -57,7 +57,7 @@ jobs:
     # This is based on your 1.0 configuration file or project settings
     - run: pip install --upgrade setuptools
     - run: pip install -e .
-    - run: pip install pytest==3.2.5 hypothesis
+    - run: pip install pytest==3.2.5 hypothesis==3.0.0
     # Save dependency cache
     - save_cache:
         key: v1-dep-{{ .Branch }}-{{ epoch }}
