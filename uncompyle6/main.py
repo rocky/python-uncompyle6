@@ -43,7 +43,7 @@ def _get_outstream(outfile):
         mode = 'wb'
     else:
         mode = 'w'
-    return open(outfile, mode)
+    return open(outfile, mode, encoding="utf-8")
 
 def decompile(
         bytecode_version, co, out=None, showasm=None, showast=False,
