@@ -40,10 +40,9 @@ def _get_outstream(outfile):
     except OSError:
         pass
     if PYTHON_VERSION < 3.0:
-        kw = {'mode':'wb'}
+        return open(outfile, mode='wb')
     else:
-        kw=  = {'mode':'w', 'encoding':'utf-8'}
-    return open(outfile, **kw)
+        return open(outfile, mode='w', encoding='utf-8')
 
 def decompile(
         bytecode_version, co, out=None, showasm=None, showast=False,
