@@ -239,6 +239,8 @@ class Python36Parser(Python35Parser):
                                WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
                 """
                 self.addRule(rules_str, nop_func)
+                pass
+            pass
 
     def custom_classfunc_rule(self, opname, token, customize, next_token):
 
@@ -346,6 +348,7 @@ class Python36Parser(Python35Parser):
                     return True
                 nt = nt[0]
                 pass
+            pass
         return False
 class Python36ParserSingle(Python36Parser, PythonParserSingle):
     pass
