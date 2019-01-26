@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018 Rocky Bernstein
+#  Copyright (c) 2016-2019 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -121,6 +121,7 @@ class Python36Parser(Python35Parser):
         # """)
         super(Python36Parser, self).customize_grammar_rules(tokens, customize)
         self.remove_rules("""
+           except_handler     ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts END_FINALLY COME_FROM
            async_for_stmt     ::= SETUP_LOOP expr
                                   GET_AITER
                                   LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
@@ -237,6 +238,8 @@ class Python36Parser(Python35Parser):
                                WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
                 """
                 self.addRule(rules_str, nop_func)
+                pass
+            pass
 
     def custom_classfunc_rule(self, opname, token, customize, next_token):
 
@@ -343,7 +346,8 @@ class Python36Parser(Python35Parser):
                 if nt[0] == 'call_kw':
                     return True
                 nt = nt[0]
-
+                pass
+            pass
         return False
 class Python36ParserSingle(Python36Parser, PythonParserSingle):
     pass
@@ -364,7 +368,7 @@ if __name__ == '__main__':
             """.split()))
         remain_tokens = set(tokens) - opcode_set
         import re
-        remain_tokens = set([re.sub('_\d+$', '', t) for t in remain_tokens])
+        remain_tokens = set([re.sub(r'_\d+$', '', t) for t in remain_tokens])
         remain_tokens = set([re.sub('_CONT$', '', t) for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         print(remain_tokens)

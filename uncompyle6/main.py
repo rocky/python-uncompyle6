@@ -323,10 +323,19 @@ def main(in_base, out_base, files, codes, outfile=None,
             sys.stdout.write("%s\r" %
                              status_msg(do_verify, tot_files, okay_files, failed_files,
                                         verify_failed_files, do_verify))
-            sys.stdout.flush()
+            try:
+                # FIXME: Something is weird with Pypy here
+                sys.stdout.flush()
+            except:
+                pass
     if current_outfile:
         sys.stdout.write("\n")
-        sys.stdout.flush()
+        try:
+            # FIXME: Something is weird with Pypy here
+            sys.stdout.flush()
+        except:
+            pass
+        pass
     return (tot_files, okay_files, failed_files, verify_failed_files)
 
 

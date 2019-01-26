@@ -64,10 +64,12 @@ check-3.5: check-bytecode
 #: Run working tests from Python 3.6
 check-3.6: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.6 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.6-run --verify-run
 
 #: Run working tests from Python 3.7
 check-3.7: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.7 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.7-run --verify-run
 
 # FIXME
 #: this is called when running under pypy3.5-5.8.0 or pypy2-5.6.0
@@ -89,8 +91,9 @@ check-bytecode-2:
 #: Check deparsing bytecode 3.x only
 check-bytecode-3:
 	$(PYTHON) test_pythonlib.py --bytecode-3.0 \
-       --bytecode-3.1 --bytecode-3.2 --bytecode-3.3 \
-       --bytecode-3.4 --bytecode-3.5 --bytecode-3.6 --bytecode-pypy3.2
+	--bytecode-3.1 --bytecode-3.2 --bytecode-3.3 \
+	--bytecode-3.4 --bytecode-3.5 --bytecode-3.6 --bytecode-3.7 \
+	--bytecode-pypy3.2
 
 #: Check deparsing on selected bytecode 3.x
 check-bytecode-3-short:

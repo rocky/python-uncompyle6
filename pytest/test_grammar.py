@@ -7,7 +7,7 @@ def test_grammar():
 
     def check_tokens(tokens, opcode_set):
         remain_tokens = set(tokens) - opcode_set
-        remain_tokens = set([re.sub('_\d+$','', t) for t in remain_tokens])
+        remain_tokens = set([re.sub(r'_\d+$','', t) for t in remain_tokens])
         remain_tokens = set([re.sub('_CONT$','', t) for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         assert remain_tokens == set([]), \
@@ -46,6 +46,7 @@ def test_grammar():
             unused_rhs.add("mkfunc_annotate")
             unused_rhs.add("dict_comp")
             unused_rhs.add("classdefdeco1")
+            unused_rhs.add("tryelsestmtl")
             if PYTHON_VERSION >= 3.5:
                 expect_right_recursive.add((('l_stmts',
                                              ('lastl_stmt', 'come_froms', 'l_stmts'))))

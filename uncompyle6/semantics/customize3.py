@@ -1,4 +1,4 @@
-#  Copyright (c) 2018 by Rocky Bernstein
+#  Copyright (c) 2018-2019 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -263,6 +263,12 @@ def customize_for_version3(self, version):
         self.prune() # stop recursing
     self.n_mkfunc_annotate = n_mkfunc_annotate
 
+    TABLE_DIRECT.update({
+                'tryelsestmtl3': ( '%|try:\n%+%c%-%c%|else:\n%+%c%-',
+                                   (1, 'suite_stmts_opt'),
+                                   (3, 'except_handler'),
+                                   (5, 'else_suitel') ),
+        })
     if version >= 3.4:
         ########################
         # Python 3.4+ Additions
@@ -911,6 +917,16 @@ def customize_for_version3(self, version):
                     'async_for_stmt':  (
                         '%|async for %c in %c:\n%+%c%-%-\n\n',
                         7, 1, 17),
+                    'compare_chained1a_37': ( ' %[3]{pattr.replace("-", " ")} %p %p',
+                                             (0, 19),
+                                             (-4, 19)),
+                    'compare_chained1b_37': ( ' %[3]{pattr.replace("-", " ")} %p %p',
+                                             (0, 19),
+                                             (-5, 19)),
+                    'compare_chained2a_37': ( '%[1]{pattr.replace("-", " ")} %p', (0, 19)),
+
+                    'compare_chained2b_37': ( '%[1]{pattr.replace("-", " ")} %p', (0, 19)),
+
                     })
                 pass
             pass # version >= 3.6

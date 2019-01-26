@@ -1,9 +1,12 @@
 language: python
 
-sudo: false
-
 python:
   - '2.7' # this is a cheat here because travis doesn't do 2.4-2.6
+
+matrix:
+  include:
+    - python: '3.7'
+      dist: xenial  # required for Python >= 3.7 (travis-ci/travis-ci#9069)
 
 install:
 - pip install -e .

@@ -739,7 +739,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
                     self.write(sep)
                     self.write("%s=%s" % (n, defaults[i]))
                     sep = ', '
-                    ends_in_comma = True
+                    ends_in_comma = False
                     pass
                 pass
         pass
