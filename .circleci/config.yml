@@ -42,7 +42,7 @@ jobs:
     # This is based on your 1.0 configuration file or project settings
     - run:
         working_directory: ~/rocky/python-uncompyle6
-        command: pyenv install 2.7.13 && pyenv local 2.7.13 && pyenv rehash && pip install virtualenv && pip install nose && pip install pep8 && pip install six && pyenv rehash
+        command: pyenv local 2.7.11 && pyenv rehash && pip install virtualenv && pip install nose && pip install pep8 && pip install six && pyenv rehash
     # Dependencies
     #   This would typically go in either a build or a build-and-test job when using workflows
     # Restore the dependency cache
@@ -57,7 +57,7 @@ jobs:
     # This is based on your 1.0 configuration file or project settings
     - run: pip install --upgrade setuptools
     - run: pip install -e .
-    - run: pip install pytest==3.2.5 hypothesis
+    - run: pip install pytest==3.2.5 hypothesis==3.0.0
     # Save dependency cache
     - save_cache:
         key: v1-dep-{{ .Branch }}-{{ epoch }}
@@ -76,7 +76,7 @@ jobs:
     #   This would typically be a build job when using workflows, possibly combined with build
     # This is based on your 1.0 configuration file or project settings
     - run: python ./setup.py develop && make check-2.7
-    - run: cd ./test/stdlib && pyenv local 2.7.13 && bash ./runtests.sh 'test_[p-z]*.py'
+    - run: cd ./test/stdlib && pyenv local 2.7.11 && bash ./runtests.sh 'test_[p-z]*.py'
     # Teardown
     #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
     # Save test results
