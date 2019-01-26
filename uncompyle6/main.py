@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2019 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 
 import datetime, os, subprocess, sys
 
-from uncompyle6 import verify, IS_PYPY
+from uncompyle6 import verify, IS_PYPY, PYTHON_VERSION
 from xdis.code import iscode
 from xdis.magics import sysinfo2float
 from uncompyle6.disas import check_object_path
@@ -214,10 +214,11 @@ def main(in_base, out_base, files, codes, outfile=None,
                 else:
                     buffering = 0
                 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering)
-                tee = subprocess.Popen(["tee", current_outfile],
-                                       stdin=subprocess.PIPE)
-                os.dup2(tee.stdin.fileno(), sys.stdout.fileno())
-                os.dup2(tee.stdin.fileno(), sys.stderr.fileno())
+                if PYTHON_VERSION > 2.5:
+                    tee = subprocess.Popen(["tee", current_outfile],
+                                           stdin=subprocess.PIPE)
+                    os.dup2(tee.stdin.fileno(), sys.stdout.fileno())
+                    os.dup2(tee.stdin.fileno(), sys.stderr.fileno())
         else:
             if filename.endswith('.pyc'):
                 current_outfile = os.path.join(out_base, filename[0:-1])
