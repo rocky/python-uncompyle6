@@ -156,7 +156,13 @@ class Python27Parser(Python2Parser):
 
         while1stmt        ::= SETUP_LOOP returns bp_come_from
         while1stmt        ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM
+
         whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK _come_froms
+
+        # Should this be JUMP_BACK+ ?
+        # JUMP_BACK should all be to the same location
+        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK JUMP_BACK POP_BLOCK _come_froms
+
         while1elsestmt    ::= SETUP_LOOP l_stmts JUMP_BACK POP_BLOCK
                               else_suitel COME_FROM
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
@@ -211,14 +217,17 @@ class Python27Parser(Python2Parser):
         self.check_reduce['list_if_not'] = 'AST'
         self.check_reduce['list_if'] = 'AST'
         self.check_reduce['conditional_true'] = 'AST'
+        self.check_reduce['whilestmt'] = 'tokens'
         return
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python27Parser,
                         self).reduce_is_invalid(rule, ast,
                                                 tokens, first, last)
+
         if invalid:
             return invalid
+
         if rule == ('and', ('expr', 'jmp_false', 'expr', '\\e_come_from_opt')):
             # Test that jmp_false jumps to the end of "and"
             # or that it jumps to the same place as the end of "and"
@@ -249,6 +258,16 @@ class Python27Parser(Python2Parser):
             jmp_target = jmp_true.offset + jmp_true.attr + 3
             return not (jmp_target == tokens[last].offset or
                         tokens[last].pattr == jmp_true.pattr)
+
+        elif (rule[0] == 'whilestmt' and
+              rule[1][0:-2] ==
+                      ('SETUP_LOOP', 'testexpr', 'l_stmts_opt',
+                       'JUMP_BACK', 'JUMP_BACK')):
+            # Make sure that the jump backs all go to the same place
+            i = last-1
+            while (tokens[i] != 'JUMP_BACK'):
+                i -= 1
+            return tokens[i].attr != tokens[i-1].attr
         # elif rule[0] == ('conditional_true'):
         #     # FIXME: the below is a hack: we check expr for
         #     # nodes that could have possibly been a been a Boolean.
