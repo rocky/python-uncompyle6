@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2019 Rocky Bernstein
 """
 spark grammar differences over Python 3.4 for Python 3.5.
 """
@@ -103,6 +103,8 @@ class Python35Parser(Python34Parser):
         # In <.3.5 the below is a JUMP_FORWARD to a JUMP_ABSOLUTE.
 
         return_if_stmt ::= ret_expr RETURN_END_IF POP_BLOCK
+        return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
+
 
         jb_else     ::= JUMP_BACK ELSE
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
