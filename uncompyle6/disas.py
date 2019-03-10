@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2016, 2818 by Rocky Bernstein
+#  Copyright (c) 2015-2016, 2818-2019 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -77,18 +77,18 @@ def disco_loop(disasm, queue, real_out):
             pass
         pass
 
-def disassemble_fp(fp, outstream=None):
-    """
-    disassemble Python byte-code from an open file
-    """
-    (version, timestamp, magic_int, co, is_pypy,
-     source_size) = load_from_fp(fp)
-    if type(co) == list:
-        for con in co:
-            disco(version, con, outstream)
-    else:
-        disco(version, co, outstream, is_pypy=is_pypy)
-    co = None
+# def disassemble_fp(fp, outstream=None):
+#     """
+#     disassemble Python byte-code from an open file
+#     """
+#     (version, timestamp, magic_int, co, is_pypy,
+#      source_size) = load_from_fp(fp)
+#     if type(co) == list:
+#         for con in co:
+#             disco(version, con, outstream)
+#     else:
+#         disco(version, co, outstream, is_pypy=is_pypy)
+#     co = None
 
 def disassemble_file(filename, outstream=None):
     """
@@ -119,6 +119,7 @@ def _test():
     else:
         fn = sys.argv[1]
     disassemble_file(fn)
+
 
 if __name__ == "__main__":
     _test()

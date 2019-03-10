@@ -920,6 +920,10 @@ class Scanner3(Scanner):
                                 return
                             pass
                     pass
+
+                if self.version >= 3.4:
+                    self.fixed_jumps[offset] = rtarget
+
                 if code[pre_rtarget] == self.opc.RETURN_VALUE:
                     # If we are at some sort of POP_JUMP_IF and the instruction before was
                     # COMPARE_OP exception-match, then pre_rtarget is not an end_if

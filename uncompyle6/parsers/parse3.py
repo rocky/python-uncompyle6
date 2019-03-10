@@ -309,7 +309,7 @@ class Python3Parser(PythonParser):
         # FIXME: Common with 2.7
         ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
         ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
-        ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF ret_expr_or_cond
+        ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
         or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
@@ -583,7 +583,6 @@ class Python3Parser(PythonParser):
               stmt ::= assign2_pypy
               assign3_pypy       ::= expr expr expr store store store
               assign2_pypy       ::= expr expr store store
-              return_if_lambda   ::= RETURN_END_IF_LAMBDA
               stmt               ::= conditional_lambda
               stmt               ::= conditional_not_lambda
               conditional_lambda ::= expr jmp_false expr return_if_lambda

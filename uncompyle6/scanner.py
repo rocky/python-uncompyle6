@@ -351,9 +351,9 @@ class Scanner(object):
 
         return result
 
-
     # FIXME: this is broken on 3.6+. Replace remaining (2.x-based) calls
     # with inst_matches
+
     def all_instr(self, start, end, instr, target=None, include_beyond_target=False):
         """
         Find all `instr` in the block from start to end.
@@ -423,8 +423,8 @@ class Scanner(object):
         last_was_extarg = False
         n = len(instructions)
         for i, inst in enumerate(instructions):
-            if (inst.opname == 'EXTENDED_ARG' and
-                i+1 < n and instructions[i+1].opname != 'MAKE_FUNCTION'):
+            if (inst.opname == 'EXTENDED_ARG'
+                and i+1 < n and instructions[i+1].opname != 'MAKE_FUNCTION'):
                 last_was_extarg = True
                 starts_line = inst.starts_line
                 is_jump_target = inst.is_jump_target
@@ -526,6 +526,7 @@ def get_scanner(version, is_pypy=False, show_asm=None):
     else:
         raise RuntimeError("Unsupported Python version %s" % version)
     return scanner
+
 
 if __name__ == "__main__":
     import inspect, uncompyle6

@@ -37,7 +37,9 @@ class ParserError(Exception):
         return "Parse error at or near `%r' instruction at offset %s\n" % \
                (self.token, self.offset)
 
-nop_func = lambda self, args: None
+
+def nop_func(self, args):
+    return None
 
 class PythonParser(GenericASTBuilder):
 
@@ -791,6 +793,7 @@ def python_parser(version, co, out=sys.stdout, showasm=False,
     #                 'showstack': 'full'}
     p = get_python_parser(version, parser_debug)
     return parse(p, tokens, customize)
+
 
 if __name__ == '__main__':
     def parse_test(co):
