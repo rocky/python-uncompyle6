@@ -1,43 +1,74 @@
-uncompyle6 3.2.5 2019-12-30 Clearout sale
+3.2.6 2019-03-23 Mueller Report
+=======================================
+
+Mostly more of the same: bug fixes and pull requests.
+
+Bug Fixes
+-----------
+
+* [#155: Python 3.x bytecode confusing "try/else" with "try" in a loop](https://github.com/rocky/python-uncompyle6/issues/155),
+* [#200: Python 3 bug in not detecting end bounds of an "if" ... "elif"](https://github.com/rocky/python-uncompyle6/issues/200),
+* [#208: Comma placement in 3.6 and 3.7 **kwargs](https://github.com/rocky/python-uncompyle6/issues/208),
+* [#209: Fix "if" return boundary in 3.6+](https://github.com/rocky/python-uncompyle6/issues/209),
+* [#215: 2.7 can have two JUMP_BACKs at the end of a while loop](https://github.com/rocky/python-uncompyle6/issues/215)
+
+Pull Requests
+----------------
+
+* [#202: Better "assert" statement detemination in Python 2.7](https://github.com/rocky/python-uncompyle6/pull/211)
+* [#204: Python 3.7 testing](https://github.com/rocky/python-uncompyle6/pull/204)
+* [#205: Run more f-string tests on Python 3.7](https://github.com/rocky/python-uncompyle6/pull/205)
+* [#211: support utf-8 chars in Python 3 sourcecode](https://github.com/rocky/python-uncompyle6/pull/202)
+
+
+
+3.2.5 2018-12-30 Clearout sale
+======================================
 
 - 3.7.2 Remove deprecation warning on regexp string that isn't raw
 - main.main() parameter `codes` is not used - note that
 - Improve Python 3.6+ control flow detection
 - More complete fragment instruction annotation for `imports`
 
-uncompyle6 3.2.4 2018-10-27 7x9 release
+3.2.4 2018-10-27 7x9 release
+===================================
 
 - Bug fixes #180, #182, #187, #192
 - Enhancements #189
 - Internal improvements
 
-uncompyle6 3.2.3 2018-06-04 Michael Cohen flips and Fleetwood Redux
-
+3.2.3 2018-06-04 Michael Cohen flips and Fleetwood Redux
+======================================================================
 - Python 1.3 support 3.0 bug and
 - fix botched parameter ordering of 3.x in last release
 
-uncompyle6 3.2.2 2018-06-04 When I'm 64
+3.2.2 2018-06-04 When I'm 64
+===================================
 
 - Python 3.0 support and bug fixes
 
-uncompyle6 3.2.1 2018-06-04 MF
+3.2.1 2018-06-04 MF
+=======================
 
 - Python 1.4 and 1.5 bug fixes
 
-uncompyle6 3.2.0 2018-05-19 Rocket Scientist
+3.2.0 2018-05-19 Rocket Scientist
+=========================================
 
 - Add rudimentary 1.4 support (still a bit buggy)
 - add --tree+ option to show formatting rule, when it is constant
 - Python 2.7.15candidate1 support (via xdis)
 - bug fixes, especially for 3.7 (but 2.7 and 3.6 and others as well)
 
-uncompyle6 3.1.3 2018-04-16
+3.1.3 2018-04-16
+====================
 
 - Add some Python 3.7 rules, such as for handling LOAD_METHOD (not complete)
 - Fix some fragment bugs
 - small doc changes
 
-uncompyle6 3.1.2 2018-04-08 Eastern Orthodox Easter
+3.1.2 2018-04-08 Eastern Orthodox Easter
+==================================================
 
 - Python 3.x subclass and call parsing fixes
 - Allow/note running on Python 3.1
@@ -45,7 +76,8 @@ uncompyle6 3.1.2 2018-04-08 Eastern Orthodox Easter
 - DRY instruction building code between 2.x and 3.x
 - expand testing
 
-uncompyle6 3.1.1 2018-04-01 Easter April Fool's
+3.1.1 2018-04-01 Easter April Fool's
+=============================================
 
 Jesus on Friday's New York Times puzzle: "I'm stuck on 2A"
 
@@ -58,7 +90,8 @@ Jesus on Friday's New York Times puzzle: "I'm stuck on 2A"
 - more runtime testing of decompiled code
 - more removal of parenthesis around calls via setting precidence
 
-uncompyle6 3.1.0 2018-03-21 Equinox
+3.1.0 2018-03-21 Equinox
+==============================
 
 - Add code_deparse_with_offset() fragment function.
 - Correct paramenter call fragment deparse_code()
@@ -66,7 +99,8 @@ uncompyle6 3.1.0 2018-03-21 Equinox
   About 5% of 3.6 fail parsing now. But
   semantics still needs much to be desired.
 
-uncompyle6 3.0.1 2018-02-17
+3.0.1 2018-02-17
+====================
 
 - All Python 2.6.9 standard library files weakly verify
 - Many 3.6 fixes. 84% of the first 200 standard library files weakly compile.
@@ -76,7 +110,8 @@ uncompyle6 3.0.1 2018-02-17
 - And more add tests target previous existing bugs more completely
 - sync recent license changes in metadata
 
-uncompyle6 3.0.0 2018-02-17
+3.0.0 2018-02-17
+====================
 
 - deparse_code() and lookalikes from the various semantic actions are
   now deprecated. Instead use new API code_deparse() which makes the
@@ -98,7 +133,8 @@ A bit more work is still needed for 3.6 especially in the area of
 function calls and definitions.
 
 
-uncompyle6 2.16.0 2018-02-17
+2.16.0 2018-02-17
+=====================
 
 - API additions:
   - add fragments.op_at_code_loc() and
@@ -110,18 +146,21 @@ uncompyle6 2.16.0 2018-02-17
 - Fix Python 3.5+ CALL_FUNCTION_VAR and BUILD_LIST_UNPACK in call; with this
   we can can handle 3.5+ f(a, b, *c, *d, *e) now
 
-uncompyle6 2.15.1 2018-02-05
+2.15.1 2018-02-05
+=====================
 
 - More bug fixes and revert an improper bug fix in 2.15.0
 
-uncompyle6 2.15.0 2018-02-05 pycon2018.co
+2.15.0 2018-02-05 pycon2018.co
+=====================================
 
 - Bug fixes
 - Code fragment improvements
 - Code cleanups
 - Expand testing
 
-uncompyle6 2.15.1 2018-01-27
+2.15.1 2018-01-27
+=====================
 
 - Add --linemap option to give line correspondences
   between original source lines and reconstructed line sources.
@@ -133,7 +172,8 @@ uncompyle6 2.15.1 2018-01-27
 - Correct 3.6+ calls with kwargs
 - Describe the difficulty of 3.6 in README
 
-uncompyle6 2.14.3 2018-01-19
+2.14.3 2018-01-19
+=====================
 
 - Fix bug in 3.5+ await stmt
 - Better version to magic handling; handle 3.5.2 .. 3.5.4 versions
@@ -145,7 +185,8 @@ uncompyle6 2.14.3 2018-01-19
 - better tests in setup.py for running the right version of Python
 - Fix 2.6- parsing of "for .. try/else" ...  with "continue"  inside
 
-uncompyle6 2.14.2 2018-01-09 Samish
+2.14.2 2018-01-09 Samish
+==============================
 
 Decompilation bug fixes, mostly 3.6 and pre 2.7
 
@@ -163,7 +204,8 @@ Decompilation bug fixes, mostly 3.6 and pre 2.7
   Python versions
 - Match Python AST names more closely when possible
 
-uncompyle6 2.14.1 2017-12-10 Dr. Gecko
+2.14.1 2017-12-10 Dr. Gecko
+===================================
 
 - Many decompilation bugfixes
 - Grammar rule reduction and version isolation
@@ -171,7 +213,8 @@ uncompyle6 2.14.1 2017-12-10 Dr. Gecko
   with Python AST
 - Start automated Python stdlib testing - full round trip
 
-uncompyle6 2.14.0 2017-11-26 johnnybamazing
+2.14.0 2017-11-26 johnnybamazing
+=========================================
 
 - Start to isolate grammar rules between versions
   and remove used grammar rules
@@ -179,7 +222,8 @@ uncompyle6 2.14.0 2017-11-26 johnnybamazing
   (many more remain)
 - Add stdlib/runtests.sh for even more rigorous testing
 
-uncompyle6 2.13.3 2017-11-13
+2.13.3 2017-11-13
+=====================
 
 Overall: better 3.6 decompiling and some much needed code refactoring and cleanup
 
@@ -205,22 +249,26 @@ Overall: better 3.6 decompiling and some much needed code refactoring and cleanu
 - reinstate some bytecode tests since decompiling has gotten better
 - Revise how to report a bug
 
-uncompyle6 2.13.2 2017-10-12
+2.13.2 2017-10-12
+=====================
 
 - Re-release using a more automated approach
 
-uncompyle6 2.13.1 2017-10-11
+2.13.1 2017-10-11
+=====================
 
 - Re-release because Python 2.4 source uploaded rather than 2.6-3.6
 
-uncompyle6 2.13.0 2017-10-10
+2.13.0 2017-10-10
+=====================
 
 - Fixes in deparsing lambda expressions
 - Improve table-semantics descriptions
 - Document hacky customize arg count better (until we can remove it)
 - Update to use xdis 3.7.0 or greater
 
-uncompyle6 2.12.0 2017-09-26
+2.12.0 2017-09-26
+=====================
 
 - Use xdis 3.6.0 or greater now
 - Small semantic table cleanups
@@ -228,11 +276,13 @@ uncompyle6 2.12.0 2017-09-26
 - Slightly more Python 3.7, but still failing a lot
 - Cross Python 2/3 compatibility with annotation arguments
 
-uncompyle6 2.11.5 2017-08-31
+2.11.5 2017-08-31
+=====================
 
 - Skeletal support for Python 3.7
 
-uncompyle6 2.11.4 2017-08-15
+2.11.4 2017-08-15
+=====================
 
 * scanner and parser now allow 3-part version string lookups,
   e.g. 2.7.1 We allow a float here, but if passed a string like '2.7'. or
@@ -244,7 +294,8 @@ uncompyle6 2.11.4 2017-08-15
 * Some PyPy tolerance in validate testing.
 * Some pyston tolerance
 
-uncompyle6 2.11.3 2017-08-09
+2.11.3 2017-08-09
+=====================
 
 Very minor changes
 
@@ -253,20 +304,24 @@ Very minor changes
 - use xdis opcode sets
 - xdis "exception match" is now "exception-match"
 
-uncompyle6 2.11.2 2017-07-09
+2.11.2 2017-07-09
+=====================
 
 - Start supporting Pypy 3.5 (5.7.1-beta)
 - use xdis 3.5.0's opcode sets and require xdis 3.5.0
 - Correct some Python 2.4-2.6 loop detection
 - guard against badly formatted bytecode
 
-uncompyle6 2.11.1 2017-06-25
+2.11.1 2017-06-25
+=====================
 
 - Python 3.x annotation and function signature fixes
 - Bump xdis version
 - Small pysource bug fixes
 
-uncompyle6 2.11.0 2017-06-18 Fleetwood
+2.11.0 2017-06-18 Fleetwood
+==================================
+
 - Major improvements in fragment tracking
   * Add nonterminal node in extractInfo
   * tag more offsets in expressions
@@ -276,14 +331,16 @@ uncompyle6 2.11.0 2017-06-18 Fleetwood
 - Fixes yet again for make_function node handling; document what's up here
 - Fix bug in snowflake Python 3.5 *args kwargs
 
-uncompyle6 2.10.1 2017-06-3 Marylin Frankel
+2.10.1 2017-06-3 Marylin Frankel
+========================================
 
 - fix some fragments parsing bugs
   - was returning the wrong type sometimes in deparse_code_around_offset()
   - capture function name in offsets
   - track changes to ifelstrmtr node from pysource into fragments
 
-uncompyle6 2.10.0 2017-05-30 Elaine Gordon
+2.10.0 2017-05-30 Elaine Gordon
+=======================================
 
 - Add fuzzy offset deparse look up
 - 3.6 bug fixes
@@ -303,19 +360,21 @@ uncompyle6 2.10.0 2017-05-30 Elaine Gordon
 - 2.3, 2.4 "if 1 .." fixes
 - 3.x annotation fixes
 
-uncompyle6 2.9.11 2017-04-06
+2.9.11 2017-04-06
+=====================
 
 - Better support for Python 3.5+ BUILD_MAP_UNPACK
 - Start 3.6 CALL_FUNCTION_EX support
 - Many decompilation bug fixes. (Many more remain). See ChangeLog
 
-uncompyle6 2.9.10 2017-02-25
+2.9.10 2017-02-25
+=====================
 
 - Python grammar rule fixes
 - Add ability to get grammar coverage on runs
 - Handle Python 3.6 opcode BUILD_CONST_KEYMAP
 
-uncompyle6 2.9.9 2016-12-16
+2.9.9 2016-12-16
 
 - Remaining Python 3.5 ops handled
   (this also means more Python 3.6 ops are handled)
@@ -325,7 +384,8 @@ uncompyle6 2.9.9 2016-12-16
 - Better control-flow detection
 - Code cleanups and misc bug fixes
 
-uncompyle6 2.9.8 2016-12-16
+2.9.8 2016-12-16
+====================
 
 - Better control-flow detection
 - pseudo instruction THEN in 2.x
@@ -338,7 +398,8 @@ uncompyle6 2.9.8 2016-12-16
 - verify call fixes for Python <= 2.4
 - more Python lint
 
-uncompyle6 2.9.7 2016-12-16
+2.9.7 2016-12-16
+====================
 
 - Start to handle 3.5/3.6 build_map_unpack_with_call
 - Some Python 3.6 bytecode to wordcode conversion fixes
@@ -348,7 +409,8 @@ uncompyle6 2.9.7 2016-12-16
 - some 3.2 compatibility
 - Better Python 3 control flow detection by adding Pseudo ELSE opcodes
 
-uncompyle6 2.9.6 2016-12-04
+2.9.6 2016-12-04
+====================
 
 - Shorten Python3 grammars with + and *
   this requires spark parser 1.5.1
@@ -356,7 +418,8 @@ uncompyle6 2.9.6 2016-12-04
   decompile accuracy. This too requires
   spark parser 1.5.1
 
-uncompyle6 2.9.6 2016-11-20
+2.9.6 2016-11-20
+====================
 
 - Correct MANIFEST.in
 - More AST grammar checking
@@ -373,7 +436,8 @@ uncompyle6 2.9.6 2016-11-20
 - Python 2 and 3 detect structure code is more similar
 - Handle Docstrings with embedded triple quotes (""")
 
-uncompyle6 2.9.5 2016-11-13
+2.9.5 2016-11-13
+====================
 
 - Fix Python 3 bugs:
   * improper while 1 else
@@ -383,13 +447,15 @@ uncompyle6 2.9.5 2016-11-13
 - Start grammar misparse checking
 
 
-uncompyle6 2.9.4 2016-11-02
+2.9.4 2016-11-02
+====================
 
 - Handle Python 3.x function annotations
 - track def keyword-parameter line-splitting in source code better
 - bump min xdis version to mask previous xdis bug
 
-uncompyle6 2.9.3 2016-10-26
+2.9.3 2016-10-26
+====================
 
 Release forced by incompatibility change in xdis 3.2.0.
 
@@ -404,7 +470,8 @@ Release forced by incompatibility change in xdis 3.2.0.
   * Handle 3.6 handle single and multiple fstring better
 
 
-uncompyle6 2.9.2 2016-10-15
+2.9.2 2016-10-15
+====================
 
 - use source-code line breaks to assist in where to break
   in tuples and maps
@@ -412,12 +479,14 @@ uncompyle6 2.9.2 2016-10-15
 - Fix some Python 2.6 and below bugs
 - DRY fragments.py code a little
 
-uncompyle6 2.9.1 2016-10-09
+2.9.1 2016-10-09
+====================
 
 - Improved Python 1.5 decompiling
 - Handle old-style pre Python 2.2 classes
 
-uncompyle6 2.9.0 2016-10-09
+2.9.0 2016-10-09
+====================
 
 - Use xdis 3.0.0 protocol load_module.
   this Forces change in requirements.txt and _pkg_info_.py
@@ -427,7 +496,8 @@ uncompyle6 2.9.0 2016-10-09
 - Fix bug with -t ...  Wasn't showing source text when -t option was given
 - Fix 2.1-2.6 bug in list comprehension
 
-uncompyle6 2.8.4 2016-10-08
+2.8.4 2016-10-08
+====================
 
 - Python 3 disassembly bug fixes
 - Python 3.6 fstring bug fixes (from moagstar)
@@ -435,7 +505,8 @@ uncompyle6 2.8.4 2016-10-08
 - COME_FROM suffixes added in Python3
 - use .py extension in verification disassembly
 
-uncompyle6 2.8.3 2016-09-11 live from NYC!
+2.8.3 2016-09-11 live from NYC!
+=======================================
 
 NOTE: this is possibly the last release before a major reworking of
 control-flow structure detection is done.
@@ -463,14 +534,16 @@ control-flow structure detection is done.
 - bump xdis requirement so we can deparse dropbox 2.5 code
 - Added H. Goebel's changes before 2.4 in DECOMPYLE-2.4-CHANGELOG.txt
 
-uncompyle6 2.8.2 2016-08-29
+2.8.2 2016-08-29
+====================
 
 - Handle Python 3.6 format string conversions !r, !s, !a
 - Start to handle 3.1 bytecode
 - Fix some PyPy translation bugs
 - We now only handle 3.6.0a3+ since that is incompatible with 3.6 before that
 
-uncompyle6 2.8.1 2016-08-20
+2.8.1 2016-08-20
+====================
 
 - Add Python 2.2 decompilation
 
@@ -478,7 +551,8 @@ uncompyle6 2.8.1 2016-08-20
  * PyPy LOOKUP_METHOD bug
  * Python 3.6 FORMAT_VALUE handles expressions now
 
-uncompyle6 2.8.0 2016-08-03
+2.8.0 2016-08-03
+====================
 
 - Start Python 3.6 support (moagstar)
   more work on PEP 498 needed
@@ -489,20 +563,23 @@ uncompyle6 2.8.0 2016-08-03
 - better grammar and semantic action segregation based
   on python bytecode version
 
-uncompyle6 2.7.1 2016-07-26
+2.7.1 2016-07-26
+====================
 
 - PyPy bytecodes for 2.7 and 3.2 added
 - Instruction formatting improved slightly
 - 2.7 bytecode "continue" bug fixed
 
-uncompyle6 2.7.0 2016-07-15
+2.7.0 2016-07-15
+====================
 
 - Many Syntax and verification bugs removed
   tested on standard libraries from 2.3.7 to 3.5.1
   and they all decompile and verify fine.
   I'm sure there are more bugs though.
 
-uncompyle6 2.6.2 2016-07-11 Manhattenhenge
+2.6.2 2016-07-11 Manhattenhenge
+=======================================
 
 - Extend bytecodes back to 2.3
 - Fix bugs:
@@ -511,13 +588,15 @@ uncompyle6 2.6.2 2016-07-11 Manhattenhenge
   * continue statements
 - DRY and segregate grammar more
 
-uncompyle6 2.6.1 2016-07-08
+2.6.1 2016-07-08
+====================
 
 - Go over Python 2.5 bytecode deparsing
   all library programs now deparse
 - Fix a couple bugs in 2.6 deparsing
 
-uncompyle6 2.6.0 2016-07-07
+2.6.0 2016-07-07
+====================
 
 - Improve Python 2.6 bytecode deparsing:
   stdlib now will deparse something
@@ -526,7 +605,8 @@ uncompyle6 2.6.0 2016-07-07
 - Fix bug in installing uncompyle6 script
 - Doc improvements
 
-uncompyle6 2.5.0 2016-06-22  Summer Solstice
+2.5.0 2016-06-22 Summer Solstice
+========================================
 
 - Much better Python 3.2-3.5 coverage.
   3.4.6 is probably the best;3.2 and 3.5 are weaker
@@ -535,7 +615,8 @@ uncompyle6 2.5.0 2016-06-22  Summer Solstice
 - Better fragment offset tracking
 - Some (much-needed) code refactoring
 
-uncompyle6 2.4.0 2016-05-18 (in memory of Lewis Bernstein)
+2.4.0 2016-05-18 (in memory of Lewis Bernstein)
+===========================================================
 
 - Many Python 3 bugs fixed:
   * Python 3.2 to 3.5 libraries largely
@@ -550,7 +631,8 @@ uncompyle6 2.4.0 2016-05-18 (in memory of Lewis Bernstein)
   * handle complex number unmarshaling
   * Running on Python 2 to works on Python 3.5 bytecodes now
 
-uncompyle6 2.3.5 and 2.3.6 2016-05-14
+2.3.5 and 2.3.6 2016-05-14
+=================================
 
 - Python 2 class decorator fix (thanks to Tey)
 - Fix fragment parsing bugs
@@ -562,20 +644,23 @@ uncompyle6 2.3.5 and 2.3.6 2016-05-14
 - Correct history based on info from Dan Pascu
 - Fix up pip packaging, ugh.
 
-uncompyle6 2.3.4 2016-05-5
+2.3.4 2016-05-5
+===================
 
 - More Python 3.5 parsing bugs addressed
 - decompiling Python 3.5 from other Python versions works
 - test from Python 3.2
 - remove "__module__ = __name__" in 3.0 <= Python 3.2
 
-uncompyle6 2.3.3 2016-05-3
+2.3.3 2016-05-3
+===================
 
 - Fix bug in running uncompyle6 script on Python 3
 - Speed up performance on deparsing long lists by grouping in chunks of 32 and 256 items
 - DRY Python expressions between Python 2 and 3
 
-uncompyle6 2.3.2 2016-05-1
+2.3.2 2016-05-1
+===================
 
 - Add --version option standalone scripts
 - Correct License information in package
@@ -584,17 +669,20 @@ uncompyle6 2.3.2 2016-05-1
   specific grammar code
 - Fix bug in 3.5+ constant map parsing
 
-uncompyle6 2.3.0, 2.3.1 2016-04-30
+2.3.0, 2.3.1 2016-04-30
+=============================
 
 - Require spark_parser  >= 1.1.0
 
-uncompyle6 2.2.0 2016-04-30
+2.2.0 2016-04-30
+====================
 
 - Spark is no longer here but pulled separate package spark_parse
 - Python 3 parsing fixes
 - More tests
 
-uncompyle6 2.2.0 2016-04-02
+2.2.0 2016-04-02
+====================
 
 - Support single-mode (in addition to exec-mode) compilation
 - Start to DRY Python 2 and Python 3 grammars
@@ -602,7 +690,8 @@ uncompyle6 2.2.0 2016-04-02
 - Fix bug in uncomplye6 -d and -r options (via lelicopter)
 
 
-uncompyle6 2.1.3 2016-01-02
+2.1.3 2016-01-02
+====================
 
 - Limited support for decompiling Python 3.5
 - Improve Python 3 class deparsing
@@ -611,18 +700,21 @@ uncompyle6 2.1.3 2016-01-02
 - increase test coverage
 - fix misc small bugs and some improvements
 
-uncompyle6 2.1.2 2015-12-31
+2.1.2 2015-12-31
+====================
 
 - Fix cross-version Marshal loading
 - Handle Python 3.3 . dotted class names
 - Limited 3.5 support: allows deparsing other versions
 - Refactor code more, misc bug fixes
 
-uncompyle6 2.1.1 2015-12-27
+2.1.1 2015-12-27
+====================
 
 - packaging issues
 
-uncompyle6 2.1.0 2015-12-27
+2.1.0 2015-12-27
+====================
 
 - Python 3.x deparsing much more solid
 - Better cross-version deparsing
@@ -631,7 +723,8 @@ Some bugs squashed while other run rampant. Some code cleanup while
 much more is yet needed. More tests added, but many more are needed.
 
 
-uncompyle6 2.0.0 2015-12-11
+2.0.0 2015-12-11
+====================
 
 Changes from uncompyle2
 

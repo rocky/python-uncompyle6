@@ -30,9 +30,9 @@
 
     $ make ChangeLog
 
-#  Update NEWS from ChangeLog:
+#  Update NEWS.md from ChangeLog:
 
-    $ emacs NEWS
+    $ emacs NEWS.md
     $ make check
     $ git commit --amend .
     $ git push   # get CI testing going early
