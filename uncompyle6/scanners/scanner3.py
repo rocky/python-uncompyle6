@@ -609,7 +609,9 @@ class Scanner3(Scanner):
         """
 
         code = self.code
-        op = self.insts[inst_index].opcode
+        inst = self.insts[inst_index]
+        op = inst.opcode
+
 
         # Detect parent structure
         parent = self.structs[0]
@@ -632,7 +634,7 @@ class Scanner3(Scanner):
             # Try to find the jump_back instruction of the loop.
             # It could be a return instruction.
 
-            start += instruction_size(op, self.opc)
+            start += inst.inst_size
             target = self.get_target(offset)
             end    = self.restrict_to_parent(target, parent)
             self.setup_loops[target] = offset
@@ -718,8 +720,8 @@ class Scanner3(Scanner):
                                      'start': after_jump_offset,
                                      'end':   end})
         elif op in self.pop_jump_tf:
-            start   = offset + instruction_size(op, self.opc)
-            target  = self.insts[inst_index].argval
+            start   = offset + inst.inst_size
+            target  = inst.argval
             rtarget = self.restrict_to_parent(target, parent)
             prev_op = self.prev_op
 
@@ -757,7 +759,7 @@ class Scanner3(Scanner):
             pre_rtarget = prev_op[rtarget]
 
             # Is it an "and" inside an "if" or "while" block
-            if op == self.opc.POP_JUMP_IF_FALSE and self.version < 3.6:
+            if op == self.opc.POP_JUMP_IF_FALSE:
 
                 # Search for another POP_JUMP_IF_FALSE targetting the same op,
                 # in current statement, starting from current offset, and filter
