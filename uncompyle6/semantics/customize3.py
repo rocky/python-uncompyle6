@@ -922,7 +922,7 @@ def customize_for_version3(self, version):
                                              (-4, 19)),
                     'compare_chained1b_37': ( ' %[3]{pattr.replace("-", " ")} %p %p',
                                              (0, 19),
-                                             (-5, 19)),
+                                             (-4, 19)),
                     'compare_chained2a_37': ( '%[1]{pattr.replace("-", " ")} %p', (0, 19)),
 
                     'compare_chained2b_37': ( '%[1]{pattr.replace("-", " ")} %p', (0, 19)),

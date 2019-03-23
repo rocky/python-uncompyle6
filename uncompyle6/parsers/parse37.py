@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2018 Rocky Bernstein
+#  Copyright (c) 2017-2019 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -73,11 +73,11 @@ class Python37Parser(Python36Parser):
         compare_chained37   ::= expr compare_chained1a_37
         compare_chained37   ::= expr compare_chained1b_37
         compare_chained2a_37 ::= expr COMPARE_OP POP_JUMP_IF_TRUE JUMP_FORWARD
-        compare_chained2b_37 ::= expr COMPARE_OP POP_JUMP_IF_FALSE JUMP_FORWARD
+        compare_chained2b_37 ::= expr COMPARE_OP COME_FROM POP_JUMP_IF_FALSE JUMP_FORWARD ELSE
         compare_chained1a_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
                                  compare_chained2a_37  ELSE POP_TOP COME_FROM
         compare_chained1b_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                 compare_chained2b_37  ELSE POP_TOP JUMP_FORWARD COME_FROM
+                                 compare_chained2b_37 POP_TOP JUMP_FORWARD COME_FROM
         """
 
     def customize_grammar_rules(self, tokens, customize):
