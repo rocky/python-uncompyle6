@@ -58,7 +58,8 @@
     $ git tag release-python-2.4-$VERSION
 
     $ . ./admin-tools/make-dist-newer.sh
-    $ git tag release-$VERSION
+
+Goto https://github.com/rocky/python-uncompyle6/releases
 
 # Upload single package and look at Rst Formating
 
