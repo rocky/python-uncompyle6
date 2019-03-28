@@ -18,7 +18,7 @@ Python 3.7 bytecode decompiler scanner
 Does some additional massaging of xdis-disassembled instructions to
 make things easier for decompilation.
 
-This sets up opcodes Python's 3.6 and calls a generalized
+This sets up opcodes Python's 3.7 and calls a generalized
 scanner routine for Python 3.
 """
 
