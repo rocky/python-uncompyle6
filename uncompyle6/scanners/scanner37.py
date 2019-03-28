@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018 by Rocky Bernstein
+#  Copyright (c) 2016-2019 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -18,14 +18,14 @@ Python 3.7 bytecode decompiler scanner
 Does some additional massaging of xdis-disassembled instructions to
 make things easier for decompilation.
 
-This sets up opcodes Python's 3.6 and calls a generalized
+This sets up opcodes Python's 3.7 and calls a generalized
 scanner routine for Python 3.
 """
 
 from uncompyle6.scanners.scanner3 import Scanner3
 
 # bytecode verification, verify(), uses JUMP_OPs from here
-from xdis.opcodes import opcode_36 as opc
+from xdis.opcodes import opcode_37 as opc
 JUMP_OPs = opc.JUMP_OPS
 
 class Scanner37(Scanner3):
