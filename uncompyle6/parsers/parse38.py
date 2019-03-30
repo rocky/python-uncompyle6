@@ -23,10 +23,39 @@ from uncompyle6.parsers.parse37 import Python37Parser
 
 class Python38Parser(Python37Parser):
 
+    def p_38misc(self, args):
+        """
+        for               ::= expr get_iter store for_block JUMP_BACK
+        forelsestmt       ::= expr for_iter store for_block POP_BLOCK else_suite
+        forelselaststmt   ::= expr for_iter store for_block POP_BLOCK else_suitec
+        forelselaststmtl  ::= expr for_iter store for_block POP_BLOCK else_suitel
+        whilestmt         ::= testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
+        whilestmt         ::= testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+        whilestmt         ::= testexpr returns          POP_BLOCK
+        while1elsestmt    ::=          l_stmts     JUMP_BACK
+        whileelsestmt     ::= testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+        whileTruestmt     ::= l_stmts_opt          JUMP_BACK POP_BLOCK
+        while1stmt        ::= l_stmts COME_FROM_LOOP
+        while1stmt        ::= l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
+        while1elsestmt    ::= l_stmts JUMP_BACK
+        whileTruestmt     ::= l_stmts_opt JUMP_BACK NOP
+        whileTruestmt     ::= l_stmts_opt JUMP_BACK POP_BLOCK NOP
+        """
+
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
         super(Python38Parser, self).__init__(debug_parser)
         self.customized = {}
 
+    def customize_grammar_rules(self, tokens, customize):
+        from trepan.api import debug; debug()
+        self.remove_rules("""
+           for               ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
+           forelsestmt       ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suite
+           forelselaststmt   ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitec
+           forelselaststmtl  ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitel
+           for               ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK NOP
+        """)
+        super(Python37Parser, self).customize_grammar_rules(tokens, customize)
 
 class Python38ParserSingle(Python38Parser, PythonParserSingle):
     pass
