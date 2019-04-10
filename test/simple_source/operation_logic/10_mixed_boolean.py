@@ -1,4 +1,6 @@
 # Self-checking test.
+# Mixed boolean expresions
+
 b = True
 assert b, 'b = True'
 c = False
