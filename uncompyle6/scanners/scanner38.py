@@ -24,10 +24,10 @@ scanner routine for Python 3.
 
 from __future__ import print_function
 
-from uncompyle6.scanners.scanner37 import Scanner3
+from uncompyle6.scanners.scanner3 import Scanner3
 
 # bytecode verification, verify(), uses JUMP_OPs from here
-from xdis.opcodes import opcode_37 as opc
+from xdis.opcodes import opcode_38 as opc
 JUMP_OPs = opc.JUMP_OPS
 
 class Scanner38(Scanner3):
