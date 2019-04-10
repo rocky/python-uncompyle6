@@ -25,7 +25,10 @@ class Python38Parser(Python37Parser):
 
     def p_38misc(self, args):
         """
-        for               ::= expr get_iter store for_block JUMP_BACK
+        stmt              ::= for38
+        for38             ::= expr get_iter store for_block JUMP_BACK
+        for38             ::= expr for_iter store for_block JUMP_BACK
+
         forelsestmt       ::= expr for_iter store for_block POP_BLOCK else_suite
         forelselaststmt   ::= expr for_iter store for_block POP_BLOCK else_suitec
         forelselaststmtl  ::= expr for_iter store for_block POP_BLOCK else_suitel
@@ -40,6 +43,7 @@ class Python38Parser(Python37Parser):
         while1elsestmt    ::= l_stmts JUMP_BACK
         whileTruestmt     ::= l_stmts_opt JUMP_BACK NOP
         whileTruestmt     ::= l_stmts_opt JUMP_BACK POP_BLOCK NOP
+        for_block         ::= l_stmts_opt _come_from_loops JUMP_BACK
         """
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
@@ -47,7 +51,6 @@ class Python38Parser(Python37Parser):
         self.customized = {}
 
     def customize_grammar_rules(self, tokens, customize):
-        from trepan.api import debug; debug()
         self.remove_rules("""
            for               ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
            forelsestmt       ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suite
