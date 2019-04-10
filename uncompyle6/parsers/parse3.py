@@ -1190,7 +1190,9 @@ class Python3Parser(PythonParser):
                 last += 1
             if last == n:
                 return False
-            return tokens[first].attr > tokens[last].offset
+            # 3.8+ Doesn't have SETUP_LOOP
+            return self.version < 3.8 and tokens[first].attr > tokens[last].offset
+
         elif rule == ('try_except',
                       ('SETUP_EXCEPT', 'suite_stmts_opt', 'POP_BLOCK',
                        'except_handler', 'opt_come_from_except')):

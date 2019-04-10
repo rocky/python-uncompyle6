@@ -908,6 +908,10 @@ def customize_for_version3(self, version):
             self.n_return_closure = return_closure
 
             if version >= 3.7:
+                ########################
+                # Python 3.7+ changes
+                #######################
+
                 PRECEDENCE['attribute37'] = 2
                 TABLE_DIRECT.update({
                     'attribute37':  ( '%c.%[1]{pattr}', 0 ),
@@ -928,7 +932,37 @@ def customize_for_version3(self, version):
                     'compare_chained2b_37': ( '%[1]{pattr.replace("-", " ")} %p', (0, 19)),
 
                     })
+                if version >= 3.8:
+                    ########################
+                    # Python 3.8+ changes
+                    #######################
+                    for lhs in 'for forelsestmt forelselaststmt forelselaststmtl'.split():
+                        del TABLE_DIRECT[lhs]
+                    TABLE_DIRECT.update({
+                        'for38':            (
+                            '%|for %c in %c:\n%+%c%-\n\n',
+                            (2, 'store'),
+                            (0, 'expr'),
+                            (3, 'for_block') ),
+                        'forelsestmt38':    (
+                            '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
+                            (2, 'store'),
+                            (0, 'expr'),
+                            (3, 'for_block'), -2 ),
+                        'forelselaststmt38': (
+                            '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-',
+                            (2, 'store'),
+                            (0, 'expr'),
+                            (3, 'for_block'), -2 ),
+                        'forelselaststmtl38':	(
+                            '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
+                            (2, 'store'),
+                            (0, 'expr'),
+                            (3, 'for_block'), -2 ),
+                    })
+                    pass
                 pass
+
             pass # version >= 3.6
         pass # version >= 3.4
     return

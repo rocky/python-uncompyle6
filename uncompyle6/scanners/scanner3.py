@@ -64,8 +64,13 @@ class Scanner3(Scanner):
         # Ops that start SETUP_ ... We will COME_FROM with these names
         # Some blocks and END_ statements. And they can start
         # a new statement
-        setup_ops = [self.opc.SETUP_LOOP, self.opc.SETUP_EXCEPT,
-                      self.opc.SETUP_FINALLY]
+        if self.version < 3.8:
+            setup_ops = [self.opc.SETUP_LOOP, self.opc.SETUP_EXCEPT,
+                         self.opc.SETUP_FINALLY]
+            self.setup_ops_no_loop = frozenset(setup_ops) - frozenset([self.opc.SETUP_LOOP])
+        else:
+            setup_ops = [self.opc.SETUP_FINALLY]
+            self.setup_ops_no_loop = frozenset(setup_ops)
 
         if self.version >= 3.2:
             setup_ops.append(self.opc.SETUP_WITH)
@@ -78,11 +83,9 @@ class Scanner3(Scanner):
             self.pop_jump_tf = frozenset([self.opc.PJIF, self.opc.PJIT])
             self.not_continue_follow = ('END_FINALLY', 'POP_BLOCK')
 
-        self.setup_ops_no_loop = frozenset(setup_ops) - frozenset([self.opc.SETUP_LOOP])
 
         # Opcodes that can start a statement.
         statement_opcodes = [
-            self.opc.BREAK_LOOP,    self.opc.CONTINUE_LOOP,
             self.opc.POP_BLOCK,     self.opc.STORE_FAST,
             self.opc.DELETE_FAST,   self.opc.STORE_DEREF,
 
@@ -96,6 +99,9 @@ class Scanner3(Scanner):
             self.opc.RETURN_VALUE, self.opc.RAISE_VARARGS,
             self.opc.PRINT_EXPR,   self.opc.JUMP_ABSOLUTE
         ]
+
+        if self.version < 3.8:
+            statement_opcodes += [self.opc.BREAK_LOOP, self.opc.CONTINUE_LOOP]
 
         self.statement_opcodes = frozenset(statement_opcodes) | self.setup_ops_no_loop
 
@@ -628,7 +634,7 @@ class Scanner3(Scanner):
                 end    = current_end
                 parent = struct
 
-        if op == self.opc.SETUP_LOOP:
+        if self.version < 3.8 and op == self.opc.SETUP_LOOP:
             # We categorize loop types: 'for', 'while', 'while 1' with
             # possibly suffixes '-loop' and '-else'
             # Try to find the jump_back instruction of the loop.
@@ -857,6 +863,11 @@ class Scanner3(Scanner):
             # if the condition jump is to a forward location.
             # Also the existence of a jump to the instruction after "END_FINALLY"
             # will distinguish "try/else" from "try".
+            if self.version < 3.8:
+                rtarget_break = (self.opc.RETURN_VALUE, self.opc.BREAK_LOOP)
+            else:
+                rtarget_break = (self.opc.RETURN_VALUE,)
+
             if self.is_jump_forward(pre_rtarget) or (rtarget_is_ja and self.version >= 3.5):
                 if_end = self.get_target(pre_rtarget)
 
@@ -891,8 +902,7 @@ class Scanner3(Scanner):
                                      'start': start,
                                      'end': pre_rtarget})
                 self.not_continue.add(pre_rtarget)
-            elif code[pre_rtarget] in (self.opc.RETURN_VALUE,
-                                       self.opc.BREAK_LOOP):
+            elif code[pre_rtarget] in rtarget_break:
                 self.structs.append({'type': 'if-then',
                                      'start': start,
                                      'end': rtarget})
@@ -957,7 +967,7 @@ class Scanner3(Scanner):
                     if rtarget > offset:
                         self.fixed_jumps[offset] = rtarget
 
-        elif op == self.opc.SETUP_EXCEPT:
+        elif self.version < 3.8 and op == self.opc.SETUP_EXCEPT:
             target = self.get_target(offset)
             end    = self.restrict_to_parent(target, parent)
             self.fixed_jumps[offset] = end
