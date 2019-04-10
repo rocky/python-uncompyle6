@@ -1,4 +1,4 @@
-#  Copyright (c) 2018 by Rocky Bernstein
+#  Copyright (c) 2018-2019 by Rocky Bernstein
 """
 Python 1.3 bytecode decompiler massaging.
 
@@ -25,7 +25,7 @@ class Scanner13(scan.Scanner14):
         self.version = 1.3
         return
 
-    # def ingest22(self, co, classname=None, code_objects={}, show_asm=None):
+    # def ingest(self, co, classname=None, code_objects={}, show_asm=None):
     #     tokens, customize = self.parent_ingest(co, classname, code_objects, show_asm)
     #     tokens = [t for t in tokens if t.kind != 'SET_LINENO']
 

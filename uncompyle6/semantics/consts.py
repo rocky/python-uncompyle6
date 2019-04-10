@@ -1,4 +1,4 @@
-#  Copyright (c) 2017, 2018 by Rocky Bernstein
+#  Copyright (c) 2017-2019 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -276,13 +276,28 @@ TABLE_DIRECT = {
     'while1elsestmt':   ( '%|while 1:\n%+%c%-%|else:\n%+%c%-\n\n', 1, -2 ),
     'whileelsestmt':	( '%|while %c:\n%+%c%-%|else:\n%+%c%-\n\n', 1, 2, -2 ),
     'whileelselaststmt':	( '%|while %c:\n%+%c%-%|else:\n%+%c%-', 1, 2, -2 ),
-    'for':              ( '%|for %c in %c:\n%+%c%-\n\n', (3, 'store'), 1, 4 ),
+
+    # Note: Python 3.8+ changes this
+    'for':              ( '%|for %c in %c:\n%+%c%-\n\n',
+                          (3, 'store'),
+                          (1, 'expr'),
+                          (4, 'for_block') ),
     'forelsestmt':	    (
-        '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n', (3, 'store'), 1, 4, -2 ),
+        '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
+                          (3, 'store'),
+                          (1, 'expr'),
+                          (4, 'for_block'), -2 ),
     'forelselaststmt':	(
-        '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-', (3, 'store'), 1, 4, -2 ),
+        '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-',
+                          (3, 'store'),
+                          (1, 'expr'),
+                          (4, 'for_block'), -2 ),
     'forelselaststmtl':	(
-        '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n', (3, 'store'), 1, 4, -2 ),
+        '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
+                          (3, 'store'),
+                          (1, 'expr'),
+                          (4, 'for_block'), -2 ),
+
     'try_except':       ( '%|try:\n%+%c%-%c\n\n', 1, 3 ),
     'tryelsestmt':	    ( '%|try:\n%+%c%-%c%|else:\n%+%c%-\n\n', 1, 3, 4 ),
     'tryelsestmtc':	    ( '%|try:\n%+%c%-%c%|else:\n%+%c%-', 1, 3, 4 ),

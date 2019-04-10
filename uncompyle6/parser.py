@@ -745,6 +745,12 @@ def get_python_parser(
                 p = parse37.Python37Parser(debug_parser)
             else:
                 p = parse37.Python37ParserSingle(debug_parser)
+        elif version == 3.8:
+            import uncompyle6.parsers.parse38 as parse38
+            if compile_mode == 'exec':
+                p = parse38.Python38Parser(debug_parser)
+            else:
+                p = parse38.Python38ParserSingle(debug_parser)
         else:
             if compile_mode == 'exec':
                 p = parse3.Python3Parser(debug_parser)

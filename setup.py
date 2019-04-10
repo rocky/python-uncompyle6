@@ -6,7 +6,7 @@ import sys
 SYS_VERSION = sys.version_info[0:2]
 if not ((2, 4) <= SYS_VERSION  <= (2, 7)):
     mess = "Python Release 2.4 .. 2.7 are supported in this code branch."
-    if ((3, 2) <= SYS_VERSION  <= (3, 7)):
+    if ((3, 2) <= SYS_VERSION  <= (3, 8)):
         mess += ("\nFor your Python, version %s, use the master code/branch." %
                  sys.version[0:3])
     else:
