@@ -25,27 +25,30 @@ class Python38Parser(Python37Parser):
 
     def p_38misc(self, args):
         """
-        stmt              ::= for38
+        stmt               ::= for38
+        stmt               ::= forelsestmt38
+        stmt               ::= forelselaststmt38
+        stmt               ::= forelselaststmtl38
 
-        for38             ::= expr get_iter store for_block JUMP_BACK
-        for38             ::= expr for_iter store for_block JUMP_BACK
-        for38             ::= expr for_iter store for_block JUMP_BACK POP_BLOCK
+        for38              ::= expr get_iter store for_block JUMP_BACK
+        for38              ::= expr for_iter store for_block JUMP_BACK
+        for38              ::= expr for_iter store for_block JUMP_BACK POP_BLOCK
 
-        forelsestmt       ::= expr for_iter store for_block POP_BLOCK else_suite
-        forelselaststmt   ::= expr for_iter store for_block POP_BLOCK else_suitec
-        forelselaststmtl  ::= expr for_iter store for_block POP_BLOCK else_suitel
-        whilestmt         ::= testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
-        whilestmt         ::= testexpr l_stmts_opt JUMP_BACK POP_BLOCK
-        whilestmt         ::= testexpr returns          POP_BLOCK
-        while1elsestmt    ::=          l_stmts     JUMP_BACK
-        whileelsestmt     ::= testexpr l_stmts_opt JUMP_BACK POP_BLOCK
-        whileTruestmt     ::= l_stmts_opt          JUMP_BACK POP_BLOCK
-        while1stmt        ::= l_stmts COME_FROM_LOOP
-        while1stmt        ::= l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
-        while1elsestmt    ::= l_stmts JUMP_BACK
-        whileTruestmt     ::= l_stmts_opt JUMP_BACK NOP
-        whileTruestmt     ::= l_stmts_opt JUMP_BACK POP_BLOCK NOP
-        for_block         ::= l_stmts_opt _come_from_loops JUMP_BACK
+        forelsestmt38      ::= expr for_iter store for_block POP_BLOCK else_suite
+        forelselaststmt38  ::= expr for_iter store for_block POP_BLOCK else_suitec
+        forelselaststmtl38 ::= expr for_iter store for_block POP_BLOCK else_suitel
+        whilestmt          ::= testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
+        whilestmt          ::= testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+        whilestmt          ::= testexpr returns          POP_BLOCK
+        while1elsestmt     ::=          l_stmts     JUMP_BACK
+        whileelsestmt      ::= testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+        whileTruestmt      ::= l_stmts_opt          JUMP_BACK POP_BLOCK
+        while1stmt         ::= l_stmts COME_FROM_LOOP
+        while1stmt         ::= l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
+        while1elsestmt     ::= l_stmts JUMP_BACK
+        whileTruestmt      ::= l_stmts_opt JUMP_BACK NOP
+        whileTruestmt      ::= l_stmts_opt JUMP_BACK POP_BLOCK NOP
+        for_block          ::= l_stmts_opt _come_from_loops JUMP_BACK
         """
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
@@ -54,11 +57,15 @@ class Python38Parser(Python37Parser):
 
     def customize_grammar_rules(self, tokens, customize):
         self.remove_rules("""
-           for               ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
-           forelsestmt       ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suite
-           forelselaststmt   ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitec
-           forelselaststmtl  ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitel
-           for               ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK NOP
+           stmt               ::= for
+           stmt               ::= forelsestmt
+           for                ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
+           for                ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK NOP
+           for_block          ::= l_stmts_opt COME_FROM_LOOP JUMP_BACK
+           forelsestmt38      ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suite
+           forelselaststmt38  ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitec
+           forelselaststmtl38 ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitel
+
         """)
         super(Python37Parser, self).customize_grammar_rules(tokens, customize)
 

@@ -909,7 +909,7 @@ def customize_for_version3(self, version):
 
             if version >= 3.7:
                 ########################
-                # Python 3.7+ Additions
+                # Python 3.7+ changes
                 #######################
 
                 PRECEDENCE['attribute37'] = 2
@@ -934,13 +934,31 @@ def customize_for_version3(self, version):
                     })
                 if version >= 3.8:
                     ########################
-                    # Python 3.8+ Additions
+                    # Python 3.8+ changes
                     #######################
+                    for lhs in 'for forelsestmt forelselaststmt forelselaststmtl'.split():
+                        del TABLE_DIRECT[lhs]
                     TABLE_DIRECT.update({
-                        'for38':            ( '%|for %c in %c:\n%+%c%-\n\n',
-                                              (2, 'store'),
-                                              (0, 'expr'),
-                                              (3, 'for_block') ),
+                        'for38':            (
+                            '%|for %c in %c:\n%+%c%-\n\n',
+                            (2, 'store'),
+                            (0, 'expr'),
+                            (3, 'for_block') ),
+                        'forelsestmt38':    (
+                            '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
+                            (2, 'store'),
+                            (0, 'expr'),
+                            (3, 'for_block'), -2 ),
+                        'forelselaststmt38': (
+                            '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-',
+                            (2, 'store'),
+                            (0, 'expr'),
+                            (3, 'for_block'), -2 ),
+                        'forelselaststmtl38':	(
+                            '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
+                            (2, 'store'),
+                            (0, 'expr'),
+                            (3, 'for_block'), -2 ),
                     })
                     pass
                 pass

@@ -270,6 +270,10 @@ check-bytecode-3.6:
 check-bytecode-3.7:
 	$(PYTHON) test_pythonlib.py --bytecode-3.7 --weak-verify
 
+#: Check deparsing Python 3.8
+check-bytecode-3.8:
+	$(PYTHON) test_pythonlib.py --bytecode-3.8 --weak-verify
+
 #: short tests for bytecodes only for this version of Python
 check-native-short:
 	$(PYTHON) test_pythonlib.py --bytecode-$(PYTHON_VERSION) --weak-verify $(COMPILE)
