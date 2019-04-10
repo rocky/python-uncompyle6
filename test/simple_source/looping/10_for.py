@@ -1,6 +1,10 @@
+# Self-checking test.
 # Tests:
-#  forstmt ::= SETUP_LOOP expr _for store
-#              for_block POP_BLOCK COME_FROM
+#  for ::= SETUP_LOOP expr for_iter store
+#          for_block POP_BLOCK COME_FROM
+# In 3.8+
+#  for ::= expr for_iter store
+#          for_block POP_BLOCK COME_FROM
 
 c = 0
 for a in [1]:

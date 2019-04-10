@@ -1,4 +1,5 @@
-# Self-checking 3.6+ string interpolation tests
+# Self-checking test.
+# String interpolation tests
 
 var1 = 'x'
 var2 = 'y'
