@@ -148,6 +148,7 @@ check-bytecode-2.3:
 
 #: Check deparsing Python 2.4
 check-bytecode-2.4:
+	$(PYTHON) test_pythonlib.py --bytecode-2.4-run --verify-run
 	$(PYTHON) test_pythonlib.py --bytecode-2.4
 
 #: Check deparsing Python 2.5
