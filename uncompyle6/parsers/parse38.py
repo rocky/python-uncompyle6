@@ -49,6 +49,11 @@ class Python38Parser(Python37Parser):
         whileTruestmt      ::= l_stmts_opt JUMP_BACK NOP
         whileTruestmt      ::= l_stmts_opt JUMP_BACK POP_BLOCK NOP
         for_block          ::= l_stmts_opt _come_from_loops JUMP_BACK
+
+        try_except         ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
+                               except_handler38
+        except_handler38   ::= JUMP_FORWARD COME_FROM_FINALLY
+                               except_stmts END_FINALLY opt_come_from_except
         """
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
@@ -62,10 +67,11 @@ class Python38Parser(Python37Parser):
            for                ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
            for                ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK NOP
            for_block          ::= l_stmts_opt COME_FROM_LOOP JUMP_BACK
-           forelsestmt38      ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suite
-           forelselaststmt38  ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitec
-           forelselaststmtl38 ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitel
-
+           forelsestmt        ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suite
+           forelselaststmt    ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitec
+           forelselaststmtl   ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitel
+           try_except         ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                                  except_handler opt_come_from_except
         """)
         super(Python37Parser, self).customize_grammar_rules(tokens, customize)
 
