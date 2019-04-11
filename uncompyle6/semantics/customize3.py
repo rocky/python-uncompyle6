@@ -936,8 +936,11 @@ def customize_for_version3(self, version):
                     ########################
                     # Python 3.8+ changes
                     #######################
-                    for lhs in 'for forelsestmt forelselaststmt forelselaststmtl'.split():
-                        del TABLE_DIRECT[lhs]
+
+                    # FIXME: pytest doesn't add proper keys in testing. Reinstate after we have fixed pytest.
+                    # for lhs in 'for forelsestmt forelselaststmt forelselaststmtl'.split():
+                    #     del TABLE_DIRECT[lhs]
+
                     TABLE_DIRECT.update({
                         'for38':            (
                             '%|for %c in %c:\n%+%c%-\n\n',
