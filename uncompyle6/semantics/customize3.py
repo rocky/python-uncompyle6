@@ -938,7 +938,8 @@ def customize_for_version3(self, version):
                     #######################
 
                     # FIXME: pytest doesn't add proper keys in testing. Reinstate after we have fixed pytest.
-                    # for lhs in 'for forelsestmt forelselaststmt forelselaststmtl'.split():
+                    # for lhs in 'for forelsestmt forelselaststmt '
+                    #             'forelselaststmtl tryfinally38'.split():
                     #     del TABLE_DIRECT[lhs]
 
                     TABLE_DIRECT.update({
@@ -962,6 +963,9 @@ def customize_for_version3(self, version):
                             (2, 'store'),
                             (0, 'expr'),
                             (3, 'for_block'), -2 ),
+                        'tryfinally38':  ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
+                                   (3, 'returns'), 6 ),
+                        'except_ret38':  ( '%|return %c\n', (1, 'expr') ),
                     })
                     pass
                 pass

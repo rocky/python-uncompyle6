@@ -872,7 +872,7 @@ class Scanner3(Scanner):
                 if_end = self.get_target(pre_rtarget)
 
                 # If the jump target is back, we are looping
-                if (if_end < pre_rtarget and
+                if (if_end < pre_rtarget and self.version < 3.8 and
                     (code[prev_op[if_end]] == self.opc.SETUP_LOOP)):
                     if (if_end > start):
                         return
