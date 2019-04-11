@@ -30,6 +30,7 @@ class Python38Parser(Python37Parser):
         stmt               ::= forelselaststmt38
         stmt               ::= forelselaststmtl38
         stmt               ::= tryfinally38
+        stmt               ::= try_except_ret38
 
         # FIXME this should be restricted to being inside a try block
         stmt               ::= except_ret38
@@ -59,9 +60,14 @@ class Python38Parser(Python37Parser):
                                POP_EXCEPT
         try_except         ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                except_handler38
+        try_except_ret38   ::= SETUP_FINALLY expr POP_BLOCK
+                               RETURN_VALUE except_ret38a
         except_ret38       ::= SETUP_FINALLY expr ROT_FOUR POP_BLOCK POP_EXCEPT
                                CALL_FINALLY RETURN_VALUE COME_FROM_FINALLY
                                suite_stmts_opt END_FINALLY
+        except_ret38a      ::= COME_FROM_FINALLY POP_TOP POP_TOP POP_TOP
+                               expr ROT_FOUR
+                               POP_EXCEPT RETURN_VALUE END_FINALLY
         except_handler38   ::= JUMP_FORWARD COME_FROM_FINALLY
                                except_stmts END_FINALLY opt_come_from_except
         tryfinallystmt     ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
@@ -74,6 +80,9 @@ class Python38Parser(Python37Parser):
                                returns
                                COME_FROM_FINALLY POP_FINALLY returns
                                END_FINALLY
+        tryfinally_return_stmt ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
+                                   BEGIN_FINALLY COME_FROM_FINALLY
+                                   POP_FINALLY suite_stmts_opt END_FINALLY
 
         """
 
@@ -85,7 +94,7 @@ class Python38Parser(Python37Parser):
         self.remove_rules("""
            stmt               ::= for
            stmt               ::= forelsestmt
-           stmt               ::= try_except36
+           stmt               ::= try_except38
 
            for                ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
            for                ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK NOP
@@ -101,6 +110,9 @@ class Python38Parser(Python37Parser):
                                   END_FINALLY
            tryfinally36       ::= SETUP_FINALLY returns
                                   COME_FROM_FINALLY suite_stmts_opt END_FINALLY
+           tryfinally_return_stmt ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
+                                      LOAD_CONST COME_FROM_FINALLY
+
 
         """)
         super(Python37Parser, self).customize_grammar_rules(tokens, customize)

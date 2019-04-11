@@ -963,11 +963,17 @@ def customize_for_version3(self, version):
                             (2, 'store'),
                             (0, 'expr'),
                             (3, 'for_block'), -2 ),
-                        'tryfinally38':  ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
+                        'tryfinally38': (
+                            '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
                                    (3, 'returns'), 6 ),
                         'except_ret38':  ( '%|return %c\n', (1, 'expr') ),
+                        'try_except_ret38': (
+                            '%|try:\n%+%|return %c%-\n%|except:\n%+%|%c%-\n\n',
+                                   (1, 'expr'), (-1, 'except_ret38a') ),
+                        'except_ret38a': (
+                            'return %c', (4, 'expr') )
                     })
-                    pass
+                    pass  # version >= 3.8
                 pass
 
             pass # version >= 3.6
