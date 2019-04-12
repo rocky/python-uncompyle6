@@ -967,11 +967,16 @@ def customize_for_version3(self, version):
                             '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
                                    (3, 'returns'), 6 ),
                         'except_ret38':  ( '%|return %c\n', (1, 'expr') ),
+                        'try_except38': (
+                            '%|try:\n%+%c\n%-%|except:\n%|%-%c\n\n',
+                                   (-2, 'suite_stmts_opt'), (-1, 'except_handler38a') ),
                         'try_except_ret38': (
                             '%|try:\n%+%|return %c%-\n%|except:\n%+%|%c%-\n\n',
                                    (1, 'expr'), (-1, 'except_ret38a') ),
                         'except_ret38a': (
-                            'return %c', (4, 'expr') )
+                            'return %c', (4, 'expr') ),
+                        'except_handler38a': (
+                            '%c', (-2, 'stmts') )
                     })
                     pass  # version >= 3.8
                 pass
