@@ -20,11 +20,13 @@ from __future__ import print_function
 from uncompyle6.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parsers.parse37 import Python37Parser
+from uncompyle6.scanners.tok import Token
 
 class Python38Parser(Python37Parser):
 
     def p_38misc(self, args):
         """
+        stmt               ::= async_for_stmt38
         stmt               ::= for38
         stmt               ::= forelsestmt38
         stmt               ::= forelselaststmt38
@@ -36,6 +38,20 @@ class Python38Parser(Python37Parser):
         # FIXME this should be restricted to being inside a try block
         stmt               ::= except_ret38
 
+        async_for_stmt38   ::= expr
+                              GET_AITER
+                              SETUP_FINALLY
+                              GET_ANEXT
+                              LOAD_CONST
+                              YIELD_FROM
+                              POP_BLOCK
+                              store for_block
+                              COME_FROM_FINALLY
+                              END_ASYNC_FOR
+
+
+        return             ::= ret_expr ROT_TWO POP_TOP RETURN_VALUE
+
         for38              ::= expr get_iter store for_block JUMP_BACK
         for38              ::= expr for_iter store for_block JUMP_BACK
         for38              ::= expr for_iter store for_block JUMP_BACK POP_BLOCK
@@ -46,12 +62,11 @@ class Python38Parser(Python37Parser):
         whilestmt          ::= testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
         whilestmt          ::= testexpr l_stmts_opt JUMP_BACK POP_BLOCK
         whilestmt          ::= testexpr returns               POP_BLOCK
-        while1elsestmt     ::=          l_stmts     JUMP_BACK
+        # while1elsestmt   ::=          l_stmts     JUMP_BACK
         whileelsestmt      ::= testexpr l_stmts     JUMP_BACK POP_BLOCK
         whileTruestmt      ::= l_stmts              JUMP_BACK POP_BLOCK
         while1stmt         ::= l_stmts COME_FROM_LOOP
         while1stmt         ::= l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
-        while1elsestmt     ::= l_stmts JUMP_BACK
         whileTruestmt      ::= l_stmts JUMP_BACK NOP
         whileTruestmt      ::= l_stmts JUMP_BACK POP_BLOCK NOP
         for_block          ::= l_stmts_opt _come_from_loops JUMP_BACK
@@ -99,10 +114,22 @@ class Python38Parser(Python37Parser):
 
     def customize_grammar_rules(self, tokens, customize):
         self.remove_rules("""
+           stmt               ::= async_for_stmt37
            stmt               ::= for
            stmt               ::= forelsestmt
            stmt               ::= try_except36
 
+           async_for_stmt37   ::= SETUP_LOOP expr
+                                  GET_AITER
+                                  SETUP_EXCEPT GET_ANEXT
+                                  LOAD_CONST YIELD_FROM
+                                  store
+                                  POP_BLOCK JUMP_BACK COME_FROM_EXCEPT DUP_TOP
+                                  LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                                  END_FINALLY for_block COME_FROM
+                                  POP_TOP POP_TOP POP_TOP POP_EXCEPT
+                                  POP_TOP POP_BLOCK
+                               COME_FROM_LOOP
            for                ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
            for                ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK NOP
 
@@ -123,6 +150,32 @@ class Python38Parser(Python37Parser):
 
         """)
         super(Python37Parser, self).customize_grammar_rules(tokens, customize)
+        self.check_reduce['ifstmt'] = 'tokens'
+
+    def reduce_is_invalid(self, rule, ast, tokens, first, last):
+        invalid = super(Python38Parser,
+                        self).reduce_is_invalid(rule, ast,
+                                                tokens, first, last)
+        if invalid:
+            return invalid
+        if rule[0] == 'ifstmt':
+            # Make sure jumps don't extend beyond the end of the if statement.
+            l = last
+            if l == len(tokens):
+                l -= 1
+            if isinstance(tokens[l].offset, str):
+                last_offset = int(tokens[l].offset.split('_')[0], 10)
+            else:
+                last_offset = tokens[l].offset
+            for i in range(first, l):
+                t = tokens[i]
+                if t.kind == 'POP_JUMP_IF_FALSE':
+                    if t.attr > last_offset:
+                        return True
+                    pass
+                pass
+            pass
+        return False
 
 class Python38ParserSingle(Python38Parser, PythonParserSingle):
     pass

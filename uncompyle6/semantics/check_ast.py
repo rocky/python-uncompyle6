@@ -11,9 +11,10 @@ before reduction and don't reduce when there is a problem.
 def checker(ast, in_loop, errors):
     if ast is None:
         return
-    in_loop = in_loop or ast.kind in ('while1stmt', 'whileTruestmt',
+    in_loop = (in_loop or (ast.kind in ('while1stmt', 'whileTruestmt',
                                       'whilestmt', 'whileelsestmt', 'while1elsestmt',
-                                      'for_block')
+                                      'for_block'))
+               or ast.kind.startswith('async_for'))
     if ast.kind in ('aug_assign1', 'aug_assign2') and ast[0][0] == 'and':
         text = str(ast)
         error_text = '\n# improper augmented assigment (e.g. +=, *=, ...):\n#\t' + '\n# '.join(text.split("\n")) + '\n'
