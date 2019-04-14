@@ -999,15 +999,20 @@ def customize_for_version3(self, version):
                                          (0, 'testexpr'), (1, 'l_stmts') ),
                         'whileTruestmt38': ( '%|while True:\n%+%c%-\n\n',
                                          (0, 'l_stmts') ),
-                        'tryfinally38': (
-                            '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
-                                   (3, 'returns'), 6 ),
+                        'try_elsestmtl38': (
+                            '%|try:\n%+%c%-%c%|else:\n%+%c%-',
+                            (1, 'suite_stmts_opt'),
+                            (3, 'except_handler38'),
+                            (5, 'else_suitel') ),
                         'try_except38': (
                             '%|try:\n%+%c\n%-%|except:\n%|%-%c\n\n',
                                    (-2, 'suite_stmts_opt'), (-1, 'except_handler38a') ),
                         'try_except_ret38': (
                             '%|try:\n%+%|return %c%-\n%|except:\n%+%|%c%-\n\n',
                                    (1, 'expr'), (-1, 'except_ret38a') ),
+                        'tryfinally38': (
+                            '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
+                                   (3, 'returns'), 6 ),
                     })
                     pass  # version >= 3.8
                 pass
