@@ -395,7 +395,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.f.write(out)
 
     def println(self, *data):
-        if data and not(len(data) == 1 and data[0] ==''):
+        if data and not(len(data) == 1 and data[0] == ''):
             self.write(*data)
         self.pending_newlines = max(self.pending_newlines, 1)
 
@@ -855,7 +855,7 @@ class SourceWalker(GenericASTTraversal, object):
             n = n[0]  # iterate one nesting deeper
             if   n == 'list_for':	n = n[3]
             elif n == 'list_if':	n = n[2]
-            elif n == 'list_if_not': n= n[2]
+            elif n == 'list_if_not': n = n[2]
         assert n == 'lc_body'
         self.write( '[ ')
 
@@ -915,7 +915,7 @@ class SourceWalker(GenericASTTraversal, object):
             n = n[0] # iterate one nesting deeper
             if   n == 'list_for':	n = n[3]
             elif n == 'list_if':	n = n[2]
-            elif n == 'list_if_not': n= n[2]
+            elif n == 'list_if_not': n = n[2]
         assert n == 'lc_body'
         self.write( '[ ')
 
@@ -1048,7 +1048,7 @@ class SourceWalker(GenericASTTraversal, object):
         while (len(ast) == 1
                or (ast in ('sstmt', 'return')
                    and ast[-1] in ('RETURN_LAST', 'RETURN_VALUE'))):
-            self.prec=100
+            self.prec = 100
             ast = ast[0]
 
         # Pick out important parts of the comprehension:
@@ -1188,7 +1188,7 @@ class SourceWalker(GenericASTTraversal, object):
         while (len(ast) == 1
                or (ast in ('sstmt', 'return')
                    and ast[-1] in ('RETURN_LAST', 'RETURN_VALUE'))):
-            self.prec=100
+            self.prec = 100
             ast = ast[0]
 
         n = ast[1]

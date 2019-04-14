@@ -3,7 +3,7 @@
 #  while1stmt        ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM
 #  while1stmt        ::= SETUP_LOOP l_stmts_opt CONTINUE COME_FROM
 # which is included in later code generation
-ms=0
-if ms==1:
+ms = 0
+if ms == 1:
     while 1:
         pass

@@ -347,7 +347,7 @@ class Python36Parser(Python35Parser):
                                             build_tuple_unpack_with_call
                                             %s
                                             CALL_FUNCTION_EX
-                            """ % 'expr '* token.attr, nop_func)
+                            """ % 'expr ' * token.attr, nop_func)
                     pass
 
                 # FIXME: Is this right?

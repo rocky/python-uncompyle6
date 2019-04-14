@@ -1077,7 +1077,7 @@ class Scanner3(Scanner):
         optionally <target>ing specified offset, and return list found
         <instr> offsets which are not within any POP_JUMP_IF_TRUE jumps.
         """
-        assert(start>=0 and end<=len(self.code) and start <= end)
+        assert(start >= 0 and end <= len(self.code) and start <= end)
 
         # Find all offsets of requested instructions
         instr_offsets = self.inst_matches(start, end, instr, target,

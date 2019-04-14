@@ -99,7 +99,7 @@ class Token:   # Python 2.4 can't have empty ()
                     if not self.pattr.startswith('to '):
                         pattr = "to " + self.pattr
                 elif self.op in self.opc.JABS_OPS:
-                    self.pattr= str(self.pattr)
+                    self.pattr = str(self.pattr)
                     if not self.pattr.startswith('to '):
                         pattr = "to " + str(self.pattr)
                     pass
