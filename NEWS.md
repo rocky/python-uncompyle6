@@ -1,3 +1,9 @@
+3.3.0 2019-03-23 Holy Week
+==========================
+
+* First cut at Python 3.8 (many bug remain)
+* The usual smattering of bug and doc fixes
+
 3.2.6 2019-03-23 Mueller Report
 =======================================
 
