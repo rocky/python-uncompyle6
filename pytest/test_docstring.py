@@ -47,7 +47,7 @@ class PrintFake():
             out = out[:-self.pending_newlines]
         self.f.write(out)
     def println(self, *data):
-        if data and not(len(data) == 1 and data[0] ==''):
+        if data and not(len(data) == 1 and data[0] == ''):
             self.write(*data)
         self.pending_newlines = max(self.pending_newlines, 1)
         return
