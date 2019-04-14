@@ -160,7 +160,7 @@ class Python35Parser(Python34Parser):
                     call_token = tokens[i+1]
                     rule = 'call ::= expr unmapexpr ' + call_token.kind
                     self.addRule(rule, nop_func)
-            elif opname == 'BEFORE_ASYNC_WITH':
+            elif opname == 'BEFORE_ASYNC_WITH' and self.version < 3.8:
                 # Some Python 3.5+ async additions
                 rules_str = """
                    async_with_stmt ::= expr

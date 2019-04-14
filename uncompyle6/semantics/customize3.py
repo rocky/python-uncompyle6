@@ -285,14 +285,16 @@ def customize_for_version3(self, version):
                 'await_expr':	       ( 'await %c', 0),
                 'await_stmt':	       ( '%|%c\n', 0),
                 'async_for_stmt':      (
-                    '%|async for %c in %c:\n%+%c%-\n\n', 9, 1, 25 ),
+                    '%|async for %c in %c:\n%+%|%c%-\n\n', 9, 1, 25 ),
                 'async_forelse_stmt':  (
                     '%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
                     9, 1, 25, (27, 'else_suite') ),
                 'async_with_stmt':     (
-                    '%|async with %c:\n%+%c%-', 0, 7),
+                    '%|async with %c:\n%+%|%c%-',
+                    (0, 'expr'), 7 ),
                 'async_with_as_stmt':  (
-                    '%|async with %c as %c:\n%+%c%-', 0, 6, 7),
+                    '%|async with %c as %c:\n%+%|%c%-',
+                    (0, 'expr'), (6, 'store'), 7),
                 'unmap_dict':	       ( '{**%C}', (0, -1, ', **') ),
                 # 'unmapexpr':	       ( '{**%c}', 0), # done by n_unmapexpr
 
@@ -952,7 +954,16 @@ def customize_for_version3(self, version):
                     TABLE_DIRECT.update({
                         'async_for_stmt38':  (
                             '%|async for %c in %c:\n%+%c%-%-\n\n',
-                            (0, 'expr'), (7, 'store'), (8, 'for_block') ),
+                            (7, 'store'), (0, 'expr'), (8, 'for_block') ),
+
+                        'async_with_stmt38': (
+                            '%|async with %c:\n%+%|%c%-',
+                            (0, 'expr'), 7),
+
+                        'async_with_as_stmt38':  (
+                            '%|async with %c as %c:\n%+%|%c%-',
+                            (0, 'expr'), (6, 'store'),
+                            (7, 'suite_stmts') ),
 
                         'except_handler38a': (
                             '%c', (-2, 'stmts') ),

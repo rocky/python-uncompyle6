@@ -35,21 +35,40 @@ class Python38Parser(Python37Parser):
         stmt               ::= try_except38
         stmt               ::= whilestmt38
         stmt               ::= whileTruestmt38
+        stmt               ::= call
 
         # FIXME this should be restricted to being inside a try block
         stmt               ::= except_ret38
 
-        async_for_stmt38   ::= expr
-                              GET_AITER
-                              SETUP_FINALLY
-                              GET_ANEXT
-                              LOAD_CONST
-                              YIELD_FROM
-                              POP_BLOCK
-                              store for_block
-                              COME_FROM_FINALLY
-                              END_ASYNC_FOR
+        # FIXME this should be added only when seeing GET_AITER or YIELD_FROM
+        async_for_stmt38    ::= expr
+                               GET_AITER
+                               SETUP_FINALLY
+                               GET_ANEXT
+                               LOAD_CONST
+                               YIELD_FROM
+                               POP_BLOCK
+                               store for_block
+                               COME_FROM_FINALLY
+                               END_ASYNC_FOR
 
+        async_with_stmt    ::= expr BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               SETUP_ASYNC_WITH POP_TOP
+                               suite_stmts
+                               POP_TOP POP_BLOCK
+                               BEGIN_FINALLY
+                               WITH_CLEANUP_START
+                               GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               WITH_CLEANUP_FINISH END_FINALLY
+
+        async_with_as_stmt ::= expr BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               SETUP_ASYNC_WITH store
+                               suite_stmts
+                               POP_TOP POP_BLOCK
+                               BEGIN_FINALLY
+                               WITH_CLEANUP_START
+                               GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               WITH_CLEANUP_FINISH END_FINALLY
 
         return             ::= ret_expr ROT_TWO POP_TOP RETURN_VALUE
 
@@ -132,7 +151,8 @@ class Python38Parser(Python37Parser):
                                   END_FINALLY for_block COME_FROM
                                   POP_TOP POP_TOP POP_TOP POP_EXCEPT
                                   POP_TOP POP_BLOCK
-                               COME_FROM_LOOP
+                                  COME_FROM_LOOP
+
            for                ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
            for                ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK NOP
 
@@ -154,6 +174,7 @@ class Python38Parser(Python37Parser):
         """)
         super(Python37Parser, self).customize_grammar_rules(tokens, customize)
         self.check_reduce['ifstmt'] = 'tokens'
+        self.check_reduce['whileTruestmt38'] = 'tokens'
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python38Parser,
@@ -178,6 +199,12 @@ class Python38Parser(Python37Parser):
                     pass
                 pass
             pass
+        elif rule[0] == 'whileTruestmt38':
+            t = tokens[last-1]
+            if t.kind == 'JUMP_BACK':
+                return t.attr != tokens[first].offset
+            pass
+
         return False
 
 class Python38ParserSingle(Python38Parser, PythonParserSingle):
