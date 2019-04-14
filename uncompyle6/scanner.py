@@ -271,7 +271,7 @@ class Scanner(object):
         code = self.code
         # Make sure requested positions do not go out of
         # code bounds
-        if not (start>=0 and end<=len(code)):
+        if not (start >= 0 and end <= len(code)):
             return None
 
         try:
@@ -435,7 +435,7 @@ class Scanner(object):
                 # j = self.stmts.index(inst.offset)
                 # self.lines[j] = offset
 
-                new_inst= inst._replace(starts_line=starts_line,
+                new_inst = inst._replace(starts_line=starts_line,
                                         is_jump_target=is_jump_target,
                                         offset=offset)
                 inst = new_inst
