@@ -586,7 +586,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             n = n[0] # recurse one step
             if   n == 'list_for':	n = n[3]
             elif n == 'list_if':	n = n[2]
-            elif n == 'list_if_not': n= n[2]
+            elif n == 'list_if_not': n = n[2]
         assert n == 'lc_body'
         if node[0].kind.startswith('BUILD_LIST'):
             start = len(self.f.getvalue())
