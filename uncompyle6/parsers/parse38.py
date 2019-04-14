@@ -26,6 +26,7 @@ class Python38Parser(Python37Parser):
     def p_38misc(self, args):
         """
         stmt               ::= async_for_stmt38
+        stmt               ::= async_forelse_stmt38
         stmt               ::= for38
         stmt               ::= forelsestmt38
         stmt               ::= forelselaststmt38
@@ -37,11 +38,11 @@ class Python38Parser(Python37Parser):
         stmt               ::= whileTruestmt38
         stmt               ::= call
 
-        # FIXME this should be restricted to being inside a try block
+        # FIXME: this should be restricted to being inside a try block
         stmt               ::= except_ret38
 
-        # FIXME this should be added only when seeing GET_AITER or YIELD_FROM
-        async_for_stmt38    ::= expr
+        # FIXME: this should be added only when seeing GET_AITER or YIELD_FROM
+        async_for_stmt38   ::= expr
                                GET_AITER
                                SETUP_FINALLY
                                GET_ANEXT
@@ -51,6 +52,21 @@ class Python38Parser(Python37Parser):
                                store for_block
                                COME_FROM_FINALLY
                                END_ASYNC_FOR
+
+        # FIXME: come froms after the else_suite or END_ASYNC_FOR distinguish which of
+        # for / forelse is used. Add come froms and check of add up control-flow detection phase.
+        async_forelse_stmt38 ::= expr
+                               GET_AITER
+                               SETUP_FINALLY
+                               GET_ANEXT
+                               LOAD_CONST
+                               YIELD_FROM
+                               POP_BLOCK
+                               store for_block
+                               COME_FROM_FINALLY
+                               END_ASYNC_FOR
+                               else_suite
+
 
         async_with_stmt    ::= expr BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
                                SETUP_ASYNC_WITH POP_TOP
@@ -141,6 +157,18 @@ class Python38Parser(Python37Parser):
            stmt               ::= forelsestmt
            stmt               ::= try_except36
 
+           async_for_stmt     ::= SETUP_LOOP expr
+                                  GET_AITER
+                                  SETUP_EXCEPT GET_ANEXT LOAD_CONST
+                                  YIELD_FROM
+                                  store
+                                  POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
+                                  LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                                  END_FINALLY COME_FROM
+                                  for_block
+                                  COME_FROM
+                                  POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP POP_BLOCK
+                                  COME_FROM_LOOP
            async_for_stmt37   ::= SETUP_LOOP expr
                                   GET_AITER
                                   SETUP_EXCEPT GET_ANEXT
@@ -152,6 +180,19 @@ class Python38Parser(Python37Parser):
                                   POP_TOP POP_TOP POP_TOP POP_EXCEPT
                                   POP_TOP POP_BLOCK
                                   COME_FROM_LOOP
+
+          async_forelse_stmt ::= SETUP_LOOP expr
+                                 GET_AITER
+                                 SETUP_EXCEPT GET_ANEXT LOAD_CONST
+                                 YIELD_FROM
+                                 store
+                                 POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
+                                 LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                                 END_FINALLY COME_FROM
+                                 for_block
+                                 COME_FROM
+                                 POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP POP_BLOCK
+                                 else_suite COME_FROM_LOOP
 
            for                ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
            for                ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK NOP

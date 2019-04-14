@@ -956,6 +956,10 @@ def customize_for_version3(self, version):
                             '%|async for %c in %c:\n%+%c%-%-\n\n',
                             (7, 'store'), (0, 'expr'), (8, 'for_block') ),
 
+                        'async_forelse_stmt38':  (
+                            '%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
+                            (7, 'store'), (0, 'expr'), (8, 'for_block'), (-1, 'else_suite') ),
+
                         'async_with_stmt38': (
                             '%|async with %c:\n%+%|%c%-',
                             (0, 'expr'), 7),
