@@ -34,6 +34,7 @@ class Python38Parser(Python37Parser):
         stmt               ::= tryfinally38
         stmt               ::= try_except_ret38
         stmt               ::= try_except38
+        stmt               ::= whilestmt38
 
         # FIXME this should be restricted to being inside a try block
         stmt               ::= except_ret38
@@ -59,9 +60,12 @@ class Python38Parser(Python37Parser):
         forelsestmt38      ::= expr for_iter store for_block POP_BLOCK else_suite
         forelselaststmt38  ::= expr for_iter store for_block POP_BLOCK else_suitec
         forelselaststmtl38 ::= expr for_iter store for_block POP_BLOCK else_suitel
-        whilestmt          ::= testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
-        whilestmt          ::= testexpr l_stmts_opt JUMP_BACK POP_BLOCK
-        whilestmt          ::= testexpr returns               POP_BLOCK
+
+        whilestmt38        ::= testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
+        whilestmt38        ::= testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+        whilestmt38        ::= testexpr returns               POP_BLOCK
+        whilestmt38        ::= testexpr l_stmts     JUMP_BACK
+
         # while1elsestmt   ::=          l_stmts     JUMP_BACK
         whileelsestmt      ::= testexpr l_stmts     JUMP_BACK POP_BLOCK
         whileTruestmt      ::= l_stmts              JUMP_BACK POP_BLOCK

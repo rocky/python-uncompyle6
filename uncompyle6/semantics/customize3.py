@@ -918,13 +918,16 @@ def customize_for_version3(self, version):
 
                 PRECEDENCE['attribute37'] = 2
                 TABLE_DIRECT.update({
-                    'attribute37':  ( '%c.%[1]{pattr}', 0 ),
                     'async_forelse_stmt':  (
                         '%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
                         (7, 'store'), (1, 'expr'), (17, 'for_block'), (25, 'else_suite') ),
                     'async_for_stmt':  (
                         '%|async for %c in %c:\n%+%c%-%-\n\n',
                         (7, 'store'), (1, 'expr'), (17, 'for_block')),
+                    'async_for_stmt37':  (
+                        '%|async for %c in %c:\n%+%c%-%-\n\n',
+                        (7, 'store'), (1, 'expr'), (16, 'for_block') ),
+                    'attribute37':  ( '%c.%[1]{pattr}', 0 ),
                     'compare_chained1a_37': ( ' %[3]{pattr.replace("-", " ")} %p %p',
                                              (0, 19),
                                              (-4, 19)),
@@ -935,9 +938,6 @@ def customize_for_version3(self, version):
 
                     'compare_chained2b_37': ( '%[1]{pattr.replace("-", " ")} %p', (0, 19)),
 
-                    'async_for_stmt37':  (
-                        '%|async for %c in %c:\n%+%c%-%-\n\n',
-                        (7, 'store'), (1, 'expr'), (16, 'for_block') ),
                     })
                 if version >= 3.8:
                     ########################
@@ -954,6 +954,11 @@ def customize_for_version3(self, version):
                             '%|async for %c in %c:\n%+%c%-%-\n\n',
                             (0, 'expr'), (7, 'store'), (8, 'for_block') ),
 
+                        'except_handler38a': (
+                            '%c', (-2, 'stmts') ),
+                        'except_ret38a': (
+                            'return %c', (4, 'expr') ),
+                        'except_ret38':  ( '%|return %c\n', (1, 'expr') ),
                         'for38':            (
                             '%|for %c in %c:\n%+%c%-\n\n',
                             (2, 'store'),
@@ -974,20 +979,18 @@ def customize_for_version3(self, version):
                             (2, 'store'),
                             (0, 'expr'),
                             (3, 'for_block'), -2 ),
+
+                        'whilestmt38': ( '%|while %c:\n%+%c%-\n\n',
+                                         (0, 'testexpr'), (1, 'l_stmts') ),
                         'tryfinally38': (
                             '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
                                    (3, 'returns'), 6 ),
-                        'except_ret38':  ( '%|return %c\n', (1, 'expr') ),
                         'try_except38': (
                             '%|try:\n%+%c\n%-%|except:\n%|%-%c\n\n',
                                    (-2, 'suite_stmts_opt'), (-1, 'except_handler38a') ),
                         'try_except_ret38': (
                             '%|try:\n%+%|return %c%-\n%|except:\n%+%|%c%-\n\n',
                                    (1, 'expr'), (-1, 'except_ret38a') ),
-                        'except_ret38a': (
-                            'return %c', (4, 'expr') ),
-                        'except_handler38a': (
-                            '%c', (-2, 'stmts') )
                     })
                     pass  # version >= 3.8
                 pass
