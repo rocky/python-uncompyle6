@@ -20,7 +20,6 @@ from __future__ import print_function
 from uncompyle6.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parsers.parse37 import Python37Parser
-from uncompyle6.scanners.tok import Token
 
 class Python38Parser(Python37Parser):
 
@@ -35,6 +34,7 @@ class Python38Parser(Python37Parser):
         stmt               ::= try_except_ret38
         stmt               ::= try_except38
         stmt               ::= whilestmt38
+        stmt               ::= whileTruestmt38
 
         # FIXME this should be restricted to being inside a try block
         stmt               ::= except_ret38
@@ -67,12 +67,11 @@ class Python38Parser(Python37Parser):
         whilestmt38        ::= testexpr l_stmts     JUMP_BACK
 
         # while1elsestmt   ::=          l_stmts     JUMP_BACK
-        whileelsestmt      ::= testexpr l_stmts     JUMP_BACK POP_BLOCK
         whileTruestmt      ::= l_stmts              JUMP_BACK POP_BLOCK
         while1stmt         ::= l_stmts COME_FROM_LOOP
         while1stmt         ::= l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
-        whileTruestmt      ::= l_stmts JUMP_BACK NOP
-        whileTruestmt      ::= l_stmts JUMP_BACK POP_BLOCK NOP
+        whileTruestmt38    ::= l_stmts JUMP_BACK
+
         for_block          ::= l_stmts_opt _come_from_loops JUMP_BACK
 
         except_cond1       ::= DUP_TOP expr COMPARE_OP jmp_false

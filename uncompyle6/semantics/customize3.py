@@ -982,6 +982,8 @@ def customize_for_version3(self, version):
 
                         'whilestmt38': ( '%|while %c:\n%+%c%-\n\n',
                                          (0, 'testexpr'), (1, 'l_stmts') ),
+                        'whileTruestmt38': ( '%|while True:\n%+%c%-\n\n',
+                                         (0, 'l_stmts') ),
                         'tryfinally38': (
                             '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
                                    (3, 'returns'), 6 ),
