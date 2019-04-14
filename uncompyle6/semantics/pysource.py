@@ -1815,7 +1815,6 @@ class SourceWalker(GenericASTTraversal, object):
     # except_cond3 is only in Python <= 2.6
     n_except_cond3 = n_except_cond2
 
-
     def template_engine(self, entry, startnode):
         """The format template interpetation engine.  See the comment at the
         beginning of this module for the how we interpret format
@@ -1861,8 +1860,8 @@ class SourceWalker(GenericASTTraversal, object):
                 index = entry[arg]
                 if isinstance(index, tuple):
                     assert node[index[0]] == index[1], (
-                        "at %s[%d], expected %s node; got %s" % (
-                            node.kind, arg, node[index[0]].kind, index[1])
+                        "at %s[%d], expected '%s' node; got '%s'" % (
+                            node.kind, arg,  index[1], node[index[0]].kind)
                         )
                     index = index[0]
                 assert isinstance(index, int), (

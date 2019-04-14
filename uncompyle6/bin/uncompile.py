@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
-# Copyright (c) 2015-2017 by Rocky Bernstein
+# Copyright (c) 2015-2017, 2019 by Rocky Bernstein
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 import sys, os, getopt, time
@@ -29,7 +29,8 @@ Options:
                     -> /tmp/bla/fasel.pyc_dis, /tmp/bar/foo.pyc_dis
                   uncompyle6 -o /tmp /usr/lib/python1.5
                     -> /tmp/smtplib.pyc_dis ... /tmp/lib-tk/FixTk.pyc_dis
-  -c <file>     attempts a disassembly after compiling <file>
+  --compile | -c <python-file>
+                attempts a decompilation after compiling <python-file>
   -d            print timestamps
   -p <integer>  use <integer> number of processes
   -r            recurse directories looking for .pyc and .pyo files
@@ -42,10 +43,10 @@ Options:
   --help        show this message
 
 Debugging Options:
-  --asm     -a  include byte-code         (disables --verify)
-  --grammar -g  show matching grammar
-  --tree    -t  include syntax tree       (disables --verify)
-  --tree++      add template rules to --tree when possible
+  --asm     | -a  include byte-code       (disables --verify)
+  --grammar | -g  show matching grammar
+  --tree    | -t  include syntax tree     (disables --verify)
+  --tree++        add template rules to --tree when possible
 
 Extensions of generated files:
   '.pyc_dis' '.pyo_dis'   successfully decompiled (and verified if --verify)
@@ -60,10 +61,7 @@ from uncompyle6.main import main, status_msg
 from uncompyle6.version import VERSION
 
 def usage():
-    print("""usage:
-    %s [--verify | --weak-verify ] [--asm] [--tree[+]] [--grammar] [-o <path>] FILE|DIR...
-   %s [--help | -h | --version | -V]
-"""  % (program, program))
+    print(__doc__)
     sys.exit(1)
 
 
@@ -77,13 +75,13 @@ def main_bin():
     numproc = 0
     outfile = '-'
     out_base = None
-    codes = []
+    source_paths = []
     timestamp = False
     timestampfmt = "# %Y.%m.%d %H:%M:%S %Z"
 
     try:
-        opts, files = getopt.getopt(sys.argv[1:], 'hagtdrVo:c:p:',
-                                    'help asm grammar linemaps recurse '
+        opts, pyc_paths = getopt.getopt(sys.argv[1:], 'hac:gtdrVo:p:',
+                                    'help asm compile= grammar linemaps recurse '
                                     'timestamp tree tree+ '
                                     'fragments verify verify-run version '
                                     'weak-verify '
@@ -125,8 +123,8 @@ def main_bin():
             outfile = val
         elif opt in ('--timestamp', '-d'):
             timestamp = True
-        elif opt == '-c':
-            codes.append(val)
+        elif opt in ('--compile', '-c'):
+            source_paths.append(val)
         elif opt == '-p':
             numproc = int(val)
         elif opt in ('--recurse', '-r'):
@@ -138,25 +136,25 @@ def main_bin():
     # expand directory if specified
     if recurse_dirs:
         expanded_files = []
-        for f in files:
+        for f in pyc_paths:
             if os.path.isdir(f):
                 for root, _, dir_files in os.walk(f):
                     for df in dir_files:
                         if df.endswith('.pyc') or df.endswith('.pyo'):
                             expanded_files.append(os.path.join(root, df))
-        files = expanded_files
+        pyc_paths = expanded_files
 
     # argl, commonprefix works on strings, not on path parts,
     # thus we must handle the case with files in 'some/classes'
     # and 'some/cmds'
-    src_base = os.path.commonprefix(files)
+    src_base = os.path.commonprefix(pyc_paths)
     if src_base[-1:] != os.sep:
         src_base = os.path.dirname(src_base)
     if src_base:
         sb_len = len( os.path.join(src_base, '') )
-        files = [f[sb_len:] for f in files]
+        pyc_paths = [f[sb_len:] for f in pyc_paths]
 
-    if not files:
+    if not pyc_paths:
         sys.stderr.write("No files given\n")
         usage()
 
@@ -164,7 +162,7 @@ def main_bin():
         outfile = None # use stdout
     elif outfile and os.path.isdir(outfile):
         out_base = outfile; outfile = None
-    elif outfile and len(files) > 1:
+    elif outfile and len(pyc_paths) > 1:
         out_base = outfile; outfile = None
 
     if timestamp:
@@ -172,10 +170,10 @@ def main_bin():
 
     if numproc <= 1:
         try:
-            result = main(src_base, out_base, files, None, outfile,
+            result = main(src_base, out_base, pyc_paths, source_paths, outfile,
                           **options)
             result = list(result) + [options.get('do_verify', None)]
-            if len(files) > 1:
+            if len(pyc_paths) > 1:
                 mess = status_msg(do_verify, *result)
                 print('# ' + mess)
                 pass
@@ -191,8 +189,8 @@ def main_bin():
         except ImportError:
             from queue import Empty
 
-        fqueue = Queue(len(files)+numproc)
-        for f in files:
+        fqueue = Queue(len(pyc_paths)+numproc)
+        for f in pyc_paths:
             fqueue.put(f)
         for i in range(numproc):
             fqueue.put(None)

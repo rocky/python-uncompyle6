@@ -12,7 +12,6 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import datetime, os, subprocess, sys
 
 from uncompyle6 import verify, IS_PYPY, PYTHON_VERSION
@@ -131,6 +130,22 @@ def decompile(
         # deparsing failed
         raise pysource.SourceWalkerError(str(e))
 
+def compile_file(source_path):
+    if source_path.endswith('.py'):
+        basename = source_path[:-3]
+    else:
+        basename = source_path
+
+    if hasattr(sys, 'pypy_version_info'):
+        bytecode_path = "%s-pypy%s.pyc" % (basename, PYTHON_VERSION)
+    else:
+        bytecode_path = "%s-%s.pyc" % (basename, PYTHON_VERSION)
+
+    print("compiling %s to %s" % (source_path, bytecode_path))
+    py_compile.compile(source_path, bytecode_path, 'exec')
+    return bytecode_path
+
+
 def decompile_file(filename, outstream=None, showasm=None, showast=False,
                    showgrammar=False, mapstream=None, do_fragments=False):
     """
@@ -162,7 +177,7 @@ def decompile_file(filename, outstream=None, showasm=None, showast=False,
 
 
 # FIXME: combine into an options parameter
-def main(in_base, out_base, files, codes, outfile=None,
+def main(in_base, out_base, compiled_files, source_files, outfile=None,
          showasm=None, showast=False, do_verify=False,
          showgrammar=False, raise_on_error=False,
          do_linemaps=False, do_fragments=False):
@@ -171,8 +186,6 @@ def main(in_base, out_base, files, codes, outfile=None,
     out_base	base directory for output files (ignored when
     files	list of filenames to be uncompyled (relative to in_base)
     outfile	write output to this filename (overwrites out_base)
-
-    Note: `codes` is not use. Historical compatability?
 
     For redirecting output to
     - <filename>		outfile=<filename> (out_base is ignored)
@@ -183,7 +196,10 @@ def main(in_base, out_base, files, codes, outfile=None,
     current_outfile = outfile
     linemap_stream = None
 
-    for filename in files:
+    for source_path in source_files:
+        compiled_files.append(compile_file(source_path))
+
+    for filename in compiled_files:
         infile = os.path.join(in_base, filename)
         # print("XXX", infile)
         if not os.path.exists(infile):

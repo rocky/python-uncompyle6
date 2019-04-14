@@ -285,14 +285,16 @@ def customize_for_version3(self, version):
                 'await_expr':	       ( 'await %c', 0),
                 'await_stmt':	       ( '%|%c\n', 0),
                 'async_for_stmt':      (
-                    '%|async for %c in %c:\n%+%c%-\n\n', 9, 1, 25 ),
+                    '%|async for %c in %c:\n%+%|%c%-\n\n', 9, 1, 25 ),
                 'async_forelse_stmt':  (
                     '%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
                     9, 1, 25, (27, 'else_suite') ),
                 'async_with_stmt':     (
-                    '%|async with %c:\n%+%c%-', 0, 7),
+                    '%|async with %c:\n%+%|%c%-',
+                    (0, 'expr'), 7 ),
                 'async_with_as_stmt':  (
-                    '%|async with %c as %c:\n%+%c%-', 0, 6, 7),
+                    '%|async with %c as %c:\n%+%|%c%-',
+                    (0, 'expr'), (6, 'store'), 7),
                 'unmap_dict':	       ( '{**%C}', (0, -1, ', **') ),
                 # 'unmapexpr':	       ( '{**%c}', 0), # done by n_unmapexpr
 
@@ -515,6 +517,10 @@ def customize_for_version3(self, version):
                 'unpack_list':    ( '*%c', (0, 'list') ),
                 'tryfinally_return_stmt':
                       ( '%|try:\n%+%c%-%|finally:\n%+%|return%-\n\n', 1 ),
+
+                'async_for_stmt36':  (
+                    '%|async for %c in %c:\n%+%c%-%-\n\n',
+                    (9, 'store'), (1, 'expr'), (18, 'for_block') ),
 
                 'call_ex' : (
                     '%c(%p)',
@@ -914,13 +920,16 @@ def customize_for_version3(self, version):
 
                 PRECEDENCE['attribute37'] = 2
                 TABLE_DIRECT.update({
-                    'attribute37':  ( '%c.%[1]{pattr}', 0 ),
                     'async_forelse_stmt':  (
                         '%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
-                        7, 1, 17, (25, 'else_suite') ),
+                        (7, 'store'), (1, 'expr'), (17, 'for_block'), (25, 'else_suite') ),
                     'async_for_stmt':  (
                         '%|async for %c in %c:\n%+%c%-%-\n\n',
-                        7, 1, 17),
+                        (7, 'store'), (1, 'expr'), (17, 'for_block')),
+                    'async_for_stmt37':  (
+                        '%|async for %c in %c:\n%+%c%-%-\n\n',
+                        (7, 'store'), (1, 'expr'), (16, 'for_block') ),
+                    'attribute37':  ( '%c.%[1]{pattr}', 0 ),
                     'compare_chained1a_37': ( ' %[3]{pattr.replace("-", " ")} %p %p',
                                              (0, 19),
                                              (-4, 19)),
@@ -936,9 +945,31 @@ def customize_for_version3(self, version):
                     ########################
                     # Python 3.8+ changes
                     #######################
-                    for lhs in 'for forelsestmt forelselaststmt forelselaststmtl'.split():
-                        del TABLE_DIRECT[lhs]
+
+                    # FIXME: pytest doesn't add proper keys in testing. Reinstate after we have fixed pytest.
+                    # for lhs in 'for forelsestmt forelselaststmt '
+                    #             'forelselaststmtl tryfinally38'.split():
+                    #     del TABLE_DIRECT[lhs]
+
                     TABLE_DIRECT.update({
+                        'async_for_stmt38':  (
+                            '%|async for %c in %c:\n%+%c%-%-\n\n',
+                            (7, 'store'), (0, 'expr'), (8, 'for_block') ),
+
+                        'async_with_stmt38': (
+                            '%|async with %c:\n%+%|%c%-',
+                            (0, 'expr'), 7),
+
+                        'async_with_as_stmt38':  (
+                            '%|async with %c as %c:\n%+%|%c%-',
+                            (0, 'expr'), (6, 'store'),
+                            (7, 'suite_stmts') ),
+
+                        'except_handler38a': (
+                            '%c', (-2, 'stmts') ),
+                        'except_ret38a': (
+                            'return %c', (4, 'expr') ),
+                        'except_ret38':  ( '%|return %c\n', (1, 'expr') ),
                         'for38':            (
                             '%|for %c in %c:\n%+%c%-\n\n',
                             (2, 'store'),
@@ -959,8 +990,22 @@ def customize_for_version3(self, version):
                             (2, 'store'),
                             (0, 'expr'),
                             (3, 'for_block'), -2 ),
+
+                        'whilestmt38': ( '%|while %c:\n%+%c%-\n\n',
+                                         (0, 'testexpr'), (1, 'l_stmts') ),
+                        'whileTruestmt38': ( '%|while True:\n%+%c%-\n\n',
+                                         (0, 'l_stmts') ),
+                        'tryfinally38': (
+                            '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
+                                   (3, 'returns'), 6 ),
+                        'try_except38': (
+                            '%|try:\n%+%c\n%-%|except:\n%|%-%c\n\n',
+                                   (-2, 'suite_stmts_opt'), (-1, 'except_handler38a') ),
+                        'try_except_ret38': (
+                            '%|try:\n%+%|return %c%-\n%|except:\n%+%|%c%-\n\n',
+                                   (1, 'expr'), (-1, 'except_ret38a') ),
                     })
-                    pass
+                    pass  # version >= 3.8
                 pass
 
             pass # version >= 3.6

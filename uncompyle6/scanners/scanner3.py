@@ -880,7 +880,7 @@ class Scanner3(Scanner):
                 if_end = self.get_target(pre_rtarget)
 
                 # If the jump target is back, we are looping
-                if (if_end < pre_rtarget and
+                if (if_end < pre_rtarget and self.version < 3.8 and
                     (code[prev_op[if_end]] == self.opc.SETUP_LOOP)):
                     if (if_end > start):
                         return
@@ -924,7 +924,7 @@ class Scanner3(Scanner):
                     # Python 3.5 may remove as dead code a JUMP
                     # instruction after a RETURN_VALUE. So we check
                     # based on seeing SETUP_EXCEPT various places.
-                    if code[rtarget] == self.opc.SETUP_EXCEPT:
+                    if self.version < 3.8 and code[rtarget] == self.opc.SETUP_EXCEPT:
                         return
                     # Check that next instruction after pops and jump is
                     # not from SETUP_EXCEPT
@@ -936,7 +936,7 @@ class Scanner3(Scanner):
                     if next_op in targets:
                         for try_op in targets[next_op]:
                             come_from_op = code[try_op]
-                            if come_from_op == self.opc.SETUP_EXCEPT:
+                            if self.version < 3.8 and come_from_op == self.opc.SETUP_EXCEPT:
                                 return
                             pass
                     pass
