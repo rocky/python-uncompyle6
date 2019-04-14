@@ -1179,7 +1179,7 @@ class Scanner2(Scanner):
         Return a list with indexes to them or [] if none found.
         """
 
-        assert(start>=0 and end<=len(self.code) and start <= end)
+        assert(start >= 0 and end <= len(self.code) and start <= end)
 
         try:    None in instr
         except: instr = [instr]
