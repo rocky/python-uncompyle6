@@ -28,7 +28,7 @@ def foo():
 z = {}
 
 def a():
-    b =1
+    b = 1
     global z
     del z
     def b(y):

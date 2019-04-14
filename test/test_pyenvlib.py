@@ -36,7 +36,7 @@ python_versions = [v for v in magics.python_versions if
 # FIXME: we should remove Python versions that we don't support.
 # These include Jython, and Python bytecode changes pre release.
 
-TEST_VERSIONS=(
+TEST_VERSIONS = (
                'pypy-2.4.0', 'pypy-2.6.1',
                'pypy-5.0.1', 'pypy-5.3.1', 'pypy3.5-5.7.1-beta',
                'native') + tuple(python_versions)

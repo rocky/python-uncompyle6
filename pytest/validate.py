@@ -80,7 +80,7 @@ def are_instructions_equal(i1, i2):
 
     :return: True if the two instructions are approximately equal, otherwise False.
     """
-    result = (1==1
+    result = (1 == 1
         and i1.opname == i2.opname
         and i1.opcode == i2.opcode
         and i1.arg == i2.arg

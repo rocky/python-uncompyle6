@@ -467,7 +467,7 @@ class Python2Parser(PythonParser):
                         pass
                 self.add_unique_rules([
                     ('mkfunc ::= %s load_closure LOAD_CONST %s' %
-                     ('expr '* token.attr, opname))], customize)
+                     ('expr ' * token.attr, opname))], customize)
 
                 if self.version >= 2.7:
                     if i > 0:

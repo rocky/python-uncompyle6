@@ -874,12 +874,12 @@ class Python3Parser(PythonParser):
                     j = 2
                 if is_pypy or (i >= j and tokens[i-j] == 'LOAD_LAMBDA'):
                     rule_pat = ('mklambda ::= %sload_closure LOAD_LAMBDA %%s%s' %
-                                ('pos_arg '* args_pos, opname))
+                                ('pos_arg ' * args_pos, opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
                 if has_get_iter_call_function1:
                     rule_pat = ("generator_exp ::= %sload_closure load_genexpr %%s%s expr "
-                                "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
+                                "GET_ITER CALL_FUNCTION_1" % ('pos_arg ' * args_pos, opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
                     if has_get_iter_call_function1:
@@ -899,7 +899,7 @@ class Python3Parser(PythonParser):
                         if (is_pypy or (i >= j and tokens[i-j] == 'LOAD_DICTCOMP')):
                             self.add_unique_rule('dict_comp ::= %sload_closure LOAD_DICTCOMP %s '
                                                  'expr GET_ITER CALL_FUNCTION_1' %
-                                                 ('pos_arg '* args_pos, opname),
+                                                 ('pos_arg ' * args_pos, opname),
                                                  opname, token.attr, customize)
 
                 if args_kw > 0:
@@ -961,10 +961,10 @@ class Python3Parser(PythonParser):
 
                     if has_get_iter_call_function1:
                         rule_pat = ("generator_exp ::= %sload_genexpr %%s%s expr "
-                                "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
+                                "GET_ITER CALL_FUNCTION_1" % ('pos_arg ' * args_pos, opname))
                         self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                         rule_pat = ("generator_exp ::= %sload_closure load_genexpr %%s%s expr "
-                                   "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
+                                   "GET_ITER CALL_FUNCTION_1" % ('pos_arg ' * args_pos, opname))
                         self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                         if is_pypy or (i >= 2 and tokens[i-2] == 'LOAD_LISTCOMP'):
                             if self.version >= 3.6:
@@ -980,8 +980,8 @@ class Python3Parser(PythonParser):
 
                     if is_pypy or (i >= 2 and tokens[i-2] == 'LOAD_LAMBDA'):
                         rule_pat = ('mklambda ::= %s%sLOAD_LAMBDA %%s%s' %
-                                    (('pos_arg '* args_pos),
-                                     ('kwarg '* args_kw),
+                                    (('pos_arg ' * args_pos),
+                                     ('kwarg ' * args_kw),
                                      opname))
                         self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                     continue
@@ -998,7 +998,7 @@ class Python3Parser(PythonParser):
 
                 if has_get_iter_call_function1:
                     rule_pat = ("generator_exp ::= %sload_genexpr %%s%s expr "
-                                "GET_ITER CALL_FUNCTION_1" % ('pos_arg '* args_pos, opname))
+                                "GET_ITER CALL_FUNCTION_1" % ('pos_arg ' * args_pos, opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
                     if is_pypy or (i >= j and tokens[i-j] == 'LOAD_LISTCOMP'):
@@ -1014,8 +1014,8 @@ class Python3Parser(PythonParser):
                 # FIXME: Fold test  into add_make_function_rule
                 if is_pypy or (i >= j and tokens[i-j] == 'LOAD_LAMBDA'):
                     rule_pat = ('mklambda ::= %s%sLOAD_LAMBDA %%s%s' %
-                                (('pos_arg '* args_pos),
-                                ('kwarg '* args_kw),
+                                (('pos_arg ' * args_pos),
+                                ('kwarg ' * args_kw),
                                 opname))
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
