@@ -76,7 +76,7 @@ def get_srcdir():
 src_dir = get_srcdir()
 os.chdir(src_dir)
 
-files=[
+files = [
     'if',
     'ifelse',
     # 'keyword',
