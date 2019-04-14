@@ -30,7 +30,7 @@ class AligningWalker(SourceWalker, object):
         self.current_line_number = 0
 
     def println(self, *data):
-        if data and not(len(data) == 1 and data[0] ==''):
+        if data and not(len(data) == 1 and data[0] == ''):
             self.write(*data)
 
         self.pending_newlines = max(self.pending_newlines, 1)
