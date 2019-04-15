@@ -22,13 +22,16 @@ This sets up opcodes Python's 3.7 and calls a generalized
 scanner routine for Python 3.
 """
 
+from __future__ import print_function
+
+from uncompyle6.scanners.scanner36 import Scanner36
 from uncompyle6.scanners.scanner3 import Scanner3
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_37 as opc
 JUMP_OPs = opc.JUMP_OPS
 
-class Scanner37(Scanner3):
+class Scanner37(Scanner36):
 
     def __init__(self, show_asm=None):
         Scanner3.__init__(self, 3.7, show_asm)

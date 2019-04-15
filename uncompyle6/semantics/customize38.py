@@ -46,8 +46,12 @@ def customize_for_version38(self, version):
             (0, 'expr'), (6, 'store'),
             (7, 'suite_stmts') ),
 
+        'except_handler38': (
+            '%c', (2, 'except_stmts') ),
+
         'except_handler38a': (
             '%c', (-2, 'stmts') ),
+
         'except_ret38a': (
             'return %c', (4, 'expr') ),
         'except_ret38':  ( '%|return %c\n', (1, 'expr') ),

@@ -1825,7 +1825,6 @@ class SourceWalker(GenericASTTraversal, object):
         # print(startnode)
         # print(entry[0])
         # print('======')
-
         fmt = entry[0]
         arg = 1
         i = 0

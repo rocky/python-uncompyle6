@@ -27,7 +27,6 @@ class Python35Parser(Python34Parser):
         while1stmt     ::= SETUP_LOOP l_stmts POP_BLOCK COME_FROM_LOOP
         while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK
                            POP_BLOCK else_suite COME_FROM_LOOP
-        whilestmt      ::= SETUP_LOOP testexpr returns POP_BLOCK COME_FROM_LOOP
 
         # The following rule is for Python 3.5+ where we can have stuff like
         # while ..
@@ -104,7 +103,6 @@ class Python35Parser(Python34Parser):
 
         return_if_stmt ::= ret_expr RETURN_END_IF POP_BLOCK
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
-
 
         jb_else     ::= JUMP_BACK ELSE
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
