@@ -1,28 +1,32 @@
 # From Python 3.4 asynchat.py
 # Tests presence or absense of
 # SETUP_LOOP testexpr return_stmts POP_BLOCK COME_FROM_LOOP
+# Note: that there is no JUMP_BACK because of the return_stmts.
 
-def initiate_send(self, num_sent, first):
-    while self.producer_fifo and self.connected:
+def initiate_send(a, b, c, num_sent):
+    while a and b:
         try:
-            5
-        except OSError:
-            return
+            1 / (b - 1)
+        except ZeroDivisionError:
+            return 1
 
         if num_sent:
-            if first:
-                self.producer_fifo = '6'
-            else:
-                del self.producer_fifo[0]
-        return
+            c = 2
+        return c
 
 
-# FIXME: this causes a parse error:
-# def initiate_send(self):
-#     while self.producer_fifo and self.connected:
-#         try:
-#             6
-#         except OSError:
-#             return
+def initiate_send2(a, b):
+    while a and b:
+        try:
+            1 / (b - 1)
+        except ZeroDivisionError:
+            return 1
 
-#         return
+        return 2
+
+assert initiate_send(1, 1, 2, False) == 1
+assert initiate_send(1, 2, 3, False) == 3
+assert initiate_send(1, 2, 3, True) == 2
+
+assert initiate_send2(1, 1) == 1
+assert initiate_send2(1, 2) == 2

@@ -99,7 +99,8 @@ class Python3Parser(PythonParser):
 
         return_if_stmts ::= return_if_stmt come_from_opt
         return_if_stmts ::= _stmts return_if_stmt
-        return_if_stmt ::= ret_expr RETURN_END_IF
+        return_if_stmt  ::= ret_expr RETURN_END_IF
+        returns         ::= _stmts return_if_stmt
 
         stmt      ::= break
         break     ::= BREAK_LOOP
