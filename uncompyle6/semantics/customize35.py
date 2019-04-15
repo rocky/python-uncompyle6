@@ -21,8 +21,8 @@ from uncompyle6.semantics.consts import (
     INDENT_PER_LEVEL, TABLE_DIRECT)
 from uncompyle6.semantics.helper import flatten_list
 
-########################
-# Python 3.5+ Additions
+#######################
+# Python 3.5+ Changes #
 #######################
 def customize_for_version35(self, version):
     TABLE_DIRECT.update({

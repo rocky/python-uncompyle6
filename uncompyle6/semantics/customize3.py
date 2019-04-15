@@ -269,8 +269,8 @@ def customize_for_version3(self, version):
                                    (5, 'else_suitel') ),
         })
     if version >= 3.4:
-        ########################
-        # Python 3.4+ Additions
+        #######################
+        # Python 3.4+ Changes #
         #######################
         TABLE_DIRECT.update({
             'LOAD_CLASSDEREF':	( '%{pattr}', ),
