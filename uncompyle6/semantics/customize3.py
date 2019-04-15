@@ -27,8 +27,10 @@ from uncompyle6.semantics.customize38 import customize_for_version38
 
 def customize_for_version3(self, version):
     TABLE_DIRECT.update({
+        'except_cond2':	( '%|except %c as %c:\n', 1, 5 ),
         'function_def_annotate': ( '\n\n%|def %c%c\n', -1, 0),
         'store_locals': ( '%|# inspect.currentframe().f_locals = __locals__\n', ),
+        'withstmt':     ( '%|with %c:\n%+%c%-', 0, 3),
         })
 
     assert version >= 3.0
