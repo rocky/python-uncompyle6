@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2018 by Rocky Bernstein
+#  Copyright (c) 2015-2019 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -943,7 +943,7 @@ class SourceWalker(GenericASTTraversal, object):
         # FIXME: clean this up
         if self.version >= 3.0 and node == 'dict_comp':
             cn = node[1]
-        elif self.version < 2.7 and node == 'generator_exp':
+        elif self.version <= 2.7 and node == 'generator_exp':
             if node[0] == 'LOAD_GENEXPR':
                 cn = node[0]
             elif node[0] == 'load_closure':
