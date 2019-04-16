@@ -263,8 +263,8 @@ check-bytecode-3.5:
 
 #: Check deparsing Python 3.6
 check-bytecode-3.6:
-	$(PYTHON) test_pythonlib.py --bytecode-3.6 --weak-verify
 	$(PYTHON) test_pythonlib.py --bytecode-3.6-run --verify-run
+	$(PYTHON) test_pythonlib.py --bytecode-3.6 --weak-verify
 
 #: Check deparsing Python 3.7
 check-bytecode-3.7:
@@ -272,6 +272,7 @@ check-bytecode-3.7:
 
 #: Check deparsing Python 3.8
 check-bytecode-3.8:
+	$(PYTHON) test_pythonlib.py --bytecode-3.8-run --verify-run
 	$(PYTHON) test_pythonlib.py --bytecode-3.8 --weak-verify
 
 #: short tests for bytecodes only for this version of Python

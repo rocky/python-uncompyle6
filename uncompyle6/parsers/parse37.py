@@ -83,15 +83,29 @@ class Python37Parser(Python36Parser):
         call        ::= expr CALL_METHOD_0
 
         testtrue         ::= compare_chained37
+        testfalse        ::= compare_chained37_false
+
 
         compare_chained37   ::= expr compare_chained1a_37
         compare_chained37   ::= expr compare_chained1b_37
-        compare_chained2a_37 ::= expr COMPARE_OP POP_JUMP_IF_TRUE JUMP_FORWARD
-        compare_chained2b_37 ::= expr COMPARE_OP COME_FROM POP_JUMP_IF_FALSE JUMP_FORWARD ELSE
-        compare_chained1a_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                 compare_chained2a_37  ELSE POP_TOP COME_FROM
-        compare_chained1b_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                 compare_chained2b_37 POP_TOP JUMP_FORWARD COME_FROM
+        compare_chained37_false  ::= expr compare_chained1_false_37
+
+        compare_chained1a_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
+        compare_chained1a_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
+                                      compare_chained2a_37 ELSE POP_TOP COME_FROM
+        compare_chained1b_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
+                                      compare_chained2b_37 POP_TOP JUMP_FORWARD COME_FROM
+
+        compare_chained1_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
+                                      compare_chained2c_37 POP_TOP JUMP_FORWARD COME_FROM
+
+        compare_chained2a_37       ::= expr COMPARE_OP POP_JUMP_IF_TRUE JUMP_FORWARD
+        compare_chained2a_false_37 ::= expr COMPARE_OP POP_JUMP_IF_FALSE JUMP_FORWARD
+        compare_chained2b_37       ::= expr COMPARE_OP COME_FROM POP_JUMP_IF_FALSE JUMP_FORWARD ELSE
+        compare_chained2c_37       ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
+                                       compare_chained2a_false_37  ELSE
+
+        _ifstmts_jump        ::= c_stmts_opt come_froms
         """
 
     def customize_grammar_rules(self, tokens, customize):
