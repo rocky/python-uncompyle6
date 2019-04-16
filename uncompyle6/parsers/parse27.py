@@ -41,7 +41,6 @@ class Python27Parser(Python2Parser):
         comp_body ::= set_comp_body
         comp_for ::= expr for_iter store comp_iter JUMP_BACK
 
-        comp_iter     ::= comp_if
         comp_iter     ::= comp_body
 
         dict_comp_body ::= expr expr MAP_ADD

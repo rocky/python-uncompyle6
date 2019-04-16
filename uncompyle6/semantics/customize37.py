@@ -34,14 +34,22 @@ def customize_for_version37(self, version):
             '%|async for %c in %c:\n%+%c%-%-\n\n',
             (7, 'store'), (1, 'expr'), (16, 'for_block') ),
         'attribute37':  ( '%c.%[1]{pattr}', 0 ),
-        'compare_chained1a_37': ( ' %[3]{pattr.replace("-", " ")} %p %p',
-                                 (0, 19),
-                                 (-4, 19)),
-        'compare_chained1b_37': ( ' %[3]{pattr.replace("-", " ")} %p %p',
-                                 (0, 19),
-                                 (-4, 19)),
-        'compare_chained2a_37': ( '%[1]{pattr.replace("-", " ")} %p', (0, 19)),
-
-        'compare_chained2b_37': ( '%[1]{pattr.replace("-", " ")} %p', (0, 19)),
+        'compare_chained1a_37': (
+            ' %[3]{pattr.replace("-", " ")} %p %p',
+            (0, 19), (-4, 19)),
+        'compare_chained1_false_37': (
+            ' %[3]{pattr.replace("-", " ")} %p %p',
+            (0, 19), (-4, 19)),
+        'compare_chained1b_37': (
+            ' %[3]{pattr.replace("-", " ")} %p %p',
+            (0, 19), (-4, 19)),
+        'compare_chained2a_37': (
+            '%[1]{pattr.replace("-", " ")} %p',
+            (0, 19) ),
+        'compare_chained2a_false_37': (
+            '%[1]{pattr.replace("-", " ")} %p',
+            (0, 19 ) ),
+        'compare_chained2c_37': (
+            '%[3]{pattr.replace("-", " ")} %p %p', (0, 19), (6, 19) ),
 
         })
