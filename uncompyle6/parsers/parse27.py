@@ -123,6 +123,7 @@ class Python27Parser(Python2Parser):
         conditional_true ::= expr JUMP_FORWARD expr COME_FROM
 
         conditional      ::= expr jmp_false expr JUMP_FORWARD expr COME_FROM
+        conditional      ::= expr jmp_false expr JUMP_ABSOLUTE expr
         """
 
     def p_stmt27(self, args):
