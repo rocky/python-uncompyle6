@@ -101,9 +101,11 @@ class Python37Parser(Python36Parser):
 
         compare_chained2a_37       ::= expr COMPARE_OP POP_JUMP_IF_TRUE JUMP_FORWARD
         compare_chained2a_false_37 ::= expr COMPARE_OP POP_JUMP_IF_FALSE JUMP_FORWARD
-        compare_chained2b_37       ::= expr COMPARE_OP COME_FROM POP_JUMP_IF_FALSE JUMP_FORWARD ELSE
+
+        compare_chained2b_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE JUMP_FORWARD ELSE
+
         compare_chained2c_37       ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
-                                       compare_chained2a_false_37  ELSE
+                                       compare_chained2a_false_37 ELSE
 
         _ifstmts_jump        ::= c_stmts_opt come_froms
         """
