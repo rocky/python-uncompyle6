@@ -811,6 +811,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(func_name)
 
         self.indent_more()
+
         self.make_function(node, is_lambda=False, code_node=code_node)
 
         if len(self.param_stack) > 1:

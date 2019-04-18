@@ -510,11 +510,47 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
 
     args_node = node[-1]
 
+    annotate_dict = {}
+
     # Get a list of tree nodes that constitute the values for the "default
     # parameters"; these are default values that appear before any *, and are
     # not to be confused with keyword parameters which may appear after *.
-    if isinstance(args_node.attr, tuple):
-        pos_args, kw_args, annotate_argc  = args_node.attr
+    args_attr = args_node.attr
+
+    if isinstance(args_attr, tuple) or (self.version >= 3.6 and isinstance(args_attr, list)):
+        if len(args_attr) == 3:
+            pos_args, kw_args, annotate_argc  = args_attr
+        else:
+            pos_args, kw_args, annotate_argc, closure  = args_attr
+
+            i = -4
+            kw_pairs = 0
+            if closure:
+                # FIXME: fill in
+                i -= 1
+            if annotate_argc:
+                # Turn into subroutine and DRY with other use
+                annotate_node = node[i]
+                if annotate_node == 'expr':
+                    annotate_node = annotate_node[0]
+                    annotate_name_node = annotate_node[-1]
+                    if annotate_node == 'dict' and annotate_name_node.kind.startswith('BUILD_CONST_KEY_MAP'):
+                        types = [self.traverse(n, indent='') for n in annotate_node[:-2]]
+                        names = annotate_node[-2].attr
+                        l = len(types)
+                        assert l == len(names)
+                        annotate_dict = {names[i]:types[i] for i in range(l)}
+                        pass
+                    pass
+                i -= 1
+            if kw_args:
+                kw_node = node[i]
+                if kw_node == 'expr':
+                    kw_node = kw_node[0]
+                if kw_node == 'dict':
+                    kw_pairs = kw_node[-1].attr
+
+
         # FIXME: there is probably a better way to classify this.
         have_kwargs = node[0].kind.startswith('kwarg') or node[0] == 'no_kwargs'
         if len(node) >= 4:
@@ -539,8 +575,21 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
                 default_values_start += 1
             defparams = node[default_values_start:default_values_start+args_node.attr[0]]
         else:
-            # args are first, before kwargs. Or there simply are no kwargs.
-            defparams = node[:args_node.attr[0]]
+            defparams = []
+            # FIXME: DRY with code below
+            default, kw_args, annotate_argc = args_node.attr[0:3]
+            if default:
+                expr_node = node[0]
+                if node[0] == 'pos_arg':
+                    expr_node = expr_node[0]
+                assert expr_node == 'expr', "expecting mkfunc default node to be an expr"
+                if (expr_node[0] == 'LOAD_CONST' and
+                    isinstance(expr_node[0].attr, tuple)):
+                    defparams = [repr(a) for a in expr_node[0].attr]
+                elif expr_node[0] in frozenset(('list', 'tuple', 'dict', 'set')):
+                    defparams =  [self.traverse(n, indent='') for n in expr_node[0][:-1]]
+            else:
+                defparams = []
             pass
     else:
         if self.version < 3.6:
@@ -565,9 +614,22 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             kw_pairs = 0
             if closure:
                 # FIXME: fill in
+                annotate = node[i]
                 i -= 1
-            if annotate:
-                # FIXME: fill in
+            if annotate_argc:
+                # Turn into subroutine and DRY with other use
+                annotate_node = node[i]
+                if annotate_node == 'expr':
+                    annotate_node = annotate_node[0]
+                    annotate_name_node = annotate_node[-1]
+                    if annotate_node == 'dict' and annotate_name_node.kind.startswith('BUILD_CONST_KEY_MAP'):
+                        types = [self.traverse(n, indent='') for n in annotate_node[:-2]]
+                        names = annotate_node[-2].attr
+                        l = len(types)
+                        assert l == len(names)
+                        annotate_dict = {names[i]:types[i] for i in range(l)}
+                        pass
+                    pass
                 i -= 1
             if kw_args:
                 kw_node = node[i]
@@ -650,6 +712,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             ast[-1] = ast_expr
             pass
     else:
+        # FIXME: add annotations here
         self.write("(", ", ".join(params))
     # self.println(indent, '#flags:\t', int(code.co_flags))
 
@@ -748,7 +811,10 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     if is_lambda:
         self.write(": ")
     else:
-        self.println("):")
+        self.write(')')
+        if annotate_dict and 'return' in annotate_dict:
+            self.write(' -> %s' % annotate_dict['return'])
+        self.println(":")
 
     if len(code.co_consts) > 0 and code.co_consts[0] is not None and not is_lambda: # ugly
         # docstring exists, dump it
