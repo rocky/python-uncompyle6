@@ -539,7 +539,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
                         names = annotate_node[-2].attr
                         l = len(types)
                         assert l == len(names)
-                        annotate_dict = {names[i]:types[i] for i in range(l)}
+                        for i in range(l): annotate_dict[names[i]] = types[i]
                         pass
                     pass
                 i -= 1
@@ -575,22 +575,26 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
                 default_values_start += 1
             defparams = node[default_values_start:default_values_start+args_node.attr[0]]
         else:
-            defparams = []
-            # FIXME: DRY with code below
-            default, kw_args, annotate_argc = args_node.attr[0:3]
-            if default:
-                expr_node = node[0]
-                if node[0] == 'pos_arg':
-                    expr_node = expr_node[0]
-                assert expr_node == 'expr', "expecting mkfunc default node to be an expr"
-                if (expr_node[0] == 'LOAD_CONST' and
-                    isinstance(expr_node[0].attr, tuple)):
-                    defparams = [repr(a) for a in expr_node[0].attr]
-                elif expr_node[0] in frozenset(('list', 'tuple', 'dict', 'set')):
-                    defparams =  [self.traverse(n, indent='') for n in expr_node[0][:-1]]
+            if self.version < 3.6:
+                defparams = node[:args_node.attr[0]]
+                kw_args  = 0
             else:
                 defparams = []
-            pass
+                # FIXME: DRY with code below
+                default, kw_args, annotate_argc = args_node.attr[0:3]
+                if default:
+                    expr_node = node[0]
+                    if node[0] == 'pos_arg':
+                        expr_node = expr_node[0]
+                    assert expr_node == 'expr', "expecting mkfunc default node to be an expr"
+                    if (expr_node[0] == 'LOAD_CONST' and
+                        isinstance(expr_node[0].attr, tuple)):
+                        defparams = [repr(a) for a in expr_node[0].attr]
+                    elif expr_node[0] in frozenset(('list', 'tuple', 'dict', 'set')):
+                        defparams =  [self.traverse(n, indent='') for n in expr_node[0][:-1]]
+                else:
+                    defparams = []
+                pass
     else:
         if self.version < 3.6:
             defparams = node[:args_node.attr]
@@ -627,7 +631,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
                         names = annotate_node[-2].attr
                         l = len(types)
                         assert l == len(names)
-                        annotate_dict = {names[i]:types[i] for i in range(l)}
+                        for i in range(l): annotate_dict[names[i]] = types[i]
                         pass
                     pass
                 i -= 1
