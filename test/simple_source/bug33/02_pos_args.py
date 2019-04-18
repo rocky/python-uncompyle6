@@ -1,6 +1,12 @@
 # From Python 3.3.6 hmac.py
-# Problem was getting wrong placement of positional args
+# Problem was getting wrong placement of positional args.
+# In 3.6+ paramter handling changes
+
+# RUNNABLE!
+
 digest_cons = lambda d=b'': 5
 
 # Handle single kwarg
-lambda *, d=0: None
+x = lambda *, d=0: d
+assert x(d=1) == 1
+assert x() == 0

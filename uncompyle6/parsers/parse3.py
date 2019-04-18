@@ -953,11 +953,17 @@ class Python3Parser(PythonParser):
                                         opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
 
+                    else:
+                        rule = ('mklambda ::= %sLOAD_LAMBDA LOAD_CONST %s' %
+                                (('expr ' * stack_count), opname))
+                        self.add_unique_rule(rule, opname, token.attr, customize)
+
+
                     rule = ('mkfunc ::= %s%s%s%s' %
-                                ('expr ' * stack_count,
-                                 'load_closure ' * closure,
-                                 'LOAD_CONST ' * 2,
-                                 opname))
+                            ('expr ' * stack_count,
+                             'load_closure ' * closure,
+                             'LOAD_CONST ' * 2,
+                             opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
 
                     if has_get_iter_call_function1:
