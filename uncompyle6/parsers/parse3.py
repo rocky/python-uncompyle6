@@ -1155,7 +1155,9 @@ class Python3Parser(PythonParser):
         self.check_reduce['ifelsestmt'] = 'AST'
         self.check_reduce['annotate_tuple'] = 'noAST'
         self.check_reduce['kwarg'] = 'noAST'
-        self.check_reduce['try_except'] = 'AST'
+        if self.version < 3.6:
+            # 3.6+ can remove a JUMP_FORWARD which messes up our testing here
+            self.check_reduce['try_except'] = 'AST'
 
         # FIXME: remove parser errors caused by the below
         # self.check_reduce['while1elsestmt'] = 'noAST'
