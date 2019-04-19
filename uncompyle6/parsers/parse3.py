@@ -98,7 +98,7 @@ class Python3Parser(PythonParser):
         sstmt ::= return RETURN_LAST
 
         return_if_stmts ::= return_if_stmt come_from_opt
-        return_if_stmts ::= _stmts return_if_stmt
+        return_if_stmts ::= _stmts return_if_stmt _come_froms
         return_if_stmt  ::= ret_expr RETURN_END_IF
         returns         ::= _stmts return_if_stmt
 

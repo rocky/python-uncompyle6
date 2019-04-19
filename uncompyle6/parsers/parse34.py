@@ -17,14 +17,9 @@ spark grammar differences over Python 3.3 for Python 3.4
 """
 
 from uncompyle6.parser import PythonParserSingle
-from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parsers.parse33 import Python33Parser
 
 class Python34Parser(Python33Parser):
-
-    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
-        super(Python34Parser, self).__init__(debug_parser)
-        self.customized = {}
 
     def p_misc34(self, args):
         """
