@@ -46,6 +46,9 @@ def customize_for_version37(self, version):
         'compare_chained2a_37': (
             '%[1]{pattr.replace("-", " ")} %p',
             (0, 19) ),
+        'compare_chained2b_37': (
+            '%[1]{pattr.replace("-", " ")} %p',
+            (0, 19) ),
         'compare_chained2a_false_37': (
             '%[1]{pattr.replace("-", " ")} %p',
             (0, 19 ) ),

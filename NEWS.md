@@ -1,4 +1,18 @@
-3.3.0 2019-03-23 Holy Week
+3.3.1 2019-04-19 Good Friday
+==========================
+
+Lots of decomplation bugs, especially in the 3.x series fixed. Don't worry though, many more remain.
+
+* Add annotation return values in 3.6+
+* Fix 3.6+ lambda parameter handling decompilation
+* Fix 3.7+ chained comparision decompilation
+* split out semantic-action customization into more separate files
+* Add 3.8 try/else
+* Fix 2.7 generator decompilation
+* Fix some parser failures fixes in 3.4+ using test_pyenvlib
+* Add more run tests
+
+3.3.0 2019-43-14 Holy Week
 ==========================
 
 * First cut at Python 3.8 (many bug remain)

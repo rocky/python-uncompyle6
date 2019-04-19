@@ -99,7 +99,7 @@ class Python3Parser(PythonParser):
         sstmt ::= return RETURN_LAST
 
         return_if_stmts ::= return_if_stmt come_from_opt
-        return_if_stmts ::= _stmts return_if_stmt
+        return_if_stmts ::= _stmts return_if_stmt _come_froms
         return_if_stmt  ::= ret_expr RETURN_END_IF
         returns         ::= _stmts return_if_stmt
 
@@ -954,11 +954,17 @@ class Python3Parser(PythonParser):
                                         opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
 
+                    else:
+                        rule = ('mklambda ::= %sLOAD_LAMBDA LOAD_CONST %s' %
+                                (('expr ' * stack_count), opname))
+                        self.add_unique_rule(rule, opname, token.attr, customize)
+
+
                     rule = ('mkfunc ::= %s%s%s%s' %
-                                ('expr ' * stack_count,
-                                 'load_closure ' * closure,
-                                 'LOAD_CONST ' * 2,
-                                 opname))
+                            ('expr ' * stack_count,
+                             'load_closure ' * closure,
+                             'LOAD_CONST ' * 2,
+                             opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
 
                     if has_get_iter_call_function1:
@@ -1150,7 +1156,9 @@ class Python3Parser(PythonParser):
         self.check_reduce['ifelsestmt'] = 'AST'
         self.check_reduce['annotate_tuple'] = 'noAST'
         self.check_reduce['kwarg'] = 'noAST'
-        self.check_reduce['try_except'] = 'AST'
+        if self.version < 3.6:
+            # 3.6+ can remove a JUMP_FORWARD which messes up our testing here
+            self.check_reduce['try_except'] = 'AST'
 
         # FIXME: remove parser errors caused by the below
         # self.check_reduce['while1elsestmt'] = 'noAST'

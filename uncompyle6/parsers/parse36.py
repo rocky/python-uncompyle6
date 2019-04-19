@@ -132,6 +132,8 @@ class Python36Parser(Python35Parser):
         stmt ::= tryfinally_return_stmt
         tryfinally_return_stmt ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK LOAD_CONST
                                    COME_FROM_FINALLY
+
+        compare_chained2 ::= expr COMPARE_OP come_froms JUMP_FORWARD
         """
 
     def customize_grammar_rules(self, tokens, customize):
