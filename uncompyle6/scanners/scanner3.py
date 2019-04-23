@@ -510,9 +510,9 @@ class Scanner3(Scanner):
                     next_offset = xdis.next_offset(op, self.opc, offset)
 
                 if label is None:
-                    if op in op3.hasjrel and op != self.opc.FOR_ITER:
+                    if op in self.opc.hasjrel and op != self.opc.FOR_ITER:
                         label = next_offset + oparg
-                    elif op in op3.hasjabs:
+                    elif op in self.opc.hasjabs:
                         if op in self.jump_if_pop:
                             if oparg > offset:
                                 label = oparg

@@ -1081,7 +1081,7 @@ class SourceWalker(GenericASTTraversal, object):
                     n = (k[3], k[1])
                     pass
                 elif k == 'comp_iter':
-                    n = k[1]
+                    n = k[0]
                     pass
                 pass
         else:

@@ -11,8 +11,8 @@ class Python30Parser(Python31Parser):
     def p_30(self, args):
         """
 
-        assert            ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 POP_TOP
-        return_if_lambda  ::= RETURN_END_IF_LAMBDA POP_TOP
+        assert            ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM POP_TOP
+        return_if_lambda  ::= RETURN_END_IF_LAMBDA COME_FROM POP_TOP
         compare_chained2  ::= expr COMPARE_OP RETURN_END_IF_LAMBDA
 
         # FIXME: combine with parse3.2
@@ -27,10 +27,10 @@ class Python30Parser(Python31Parser):
         # instructions
 
         _ifstmts_jump  ::= c_stmts JUMP_FORWARD _come_froms POP_TOP COME_FROM
-        _ifstmts_jump  ::= c_stmts POP_TOP
+        _ifstmts_jump  ::= c_stmts COME_FROM POP_TOP
 
         # Used to keep index order the same in semantic actions
-        jb_pop_top     ::= JUMP_BACK POP_TOP
+        jb_pop_top     ::= JUMP_BACK COME_FROM POP_TOP
 
         while1stmt     ::= SETUP_LOOP l_stmts COME_FROM_LOOP
         whileelsestmt  ::= SETUP_LOOP testexpr l_stmts
@@ -44,7 +44,7 @@ class Python30Parser(Python31Parser):
 
         ifelsestmtl ::= testexpr c_stmts_opt jb_pop_top else_suitel
         iflaststmtl ::= testexpr c_stmts_opt jb_pop_top
-        iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE POP_TOP
+        iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE COME_FROM POP_TOP
 
         withasstmt    ::= expr setupwithas store suite_stmts_opt
                           POP_BLOCK LOAD_CONST COME_FROM_FINALLY
@@ -77,17 +77,18 @@ class Python30Parser(Python31Parser):
 
         # JUMP_IF_TRUE POP_TOP as a replacement
         comp_if       ::= expr jmp_false comp_iter
-        comp_if       ::= expr jmp_false comp_iter JUMP_BACK POP_TOP
-        comp_if_not   ::= expr jmp_true  comp_iter JUMP_BACK POP_TOP
+        comp_if       ::= expr jmp_false comp_iter JUMP_BACK COME_FROM POP_TOP
+        comp_if_not   ::= expr jmp_true  comp_iter JUMP_BACK COME_FROM POP_TOP
         comp_iter     ::= expr expr SET_ADD
         comp_iter     ::= expr expr LIST_APPEND
 
-        jump_forward_else     ::= JUMP_FORWARD POP_TOP
-        jump_absolute_else    ::= JUMP_ABSOLUTE POP_TOP
+        jump_forward_else     ::= JUMP_FORWARD COME_FROM POP_TOP
+        jump_absolute_else    ::= JUMP_ABSOLUTE COME_FROM POP_TOP
         except_suite          ::= c_stmts POP_EXCEPT jump_except POP_TOP
         except_suite_finalize ::= SETUP_FINALLY c_stmts_opt except_var_finalize END_FINALLY
-                                  _jump POP_TOP
-        jump_except           ::= JUMP_FORWARD POP_TOP
+                                  _jump COME_FROM POP_TOP
+        jump_except           ::= JUMP_FORWARD COME_FROM POP_TOP
+        jump_except           ::= JUMP_ABSOLUTE COME_FROM POP_TOP
         or                    ::= expr jmp_false expr jmp_true expr
         or                    ::= expr jmp_true expr
 
@@ -109,7 +110,7 @@ class Python30Parser(Python31Parser):
         return_if_stmt ::= ret_expr RETURN_END_IF POP_TOP
         and            ::= expr jmp_false expr come_from_opt
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt come_from_opt
-                           JUMP_BACK POP_TOP POP_BLOCK COME_FROM_LOOP
+                           JUMP_BACK COME_FROM POP_TOP POP_BLOCK COME_FROM_LOOP
         whilestmt      ::= SETUP_LOOP testexpr returns
                            POP_TOP POP_BLOCK COME_FROM_LOOP
 
