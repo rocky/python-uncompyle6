@@ -98,10 +98,6 @@ class Python2Parser(PythonParser):
         for         ::= SETUP_LOOP expr for_iter store
                         for_block POP_BLOCK _come_froms
 
-        del_stmt ::= expr DELETE_SLICE+0
-        del_stmt ::= expr expr DELETE_SLICE+1
-        del_stmt ::= expr expr DELETE_SLICE+2
-        del_stmt ::= expr expr expr DELETE_SLICE+3
         del_stmt ::= delete_subscr
         delete_subscr ::= expr expr DELETE_SUBSCR
         del_stmt ::= expr DELETE_ATTR
@@ -374,6 +370,17 @@ class Python2Parser(PythonParser):
                 self.addRule('del_stmt ::= expr DELETE_ATTR', nop_func)
                 custom_seen_ops.add(opname)
                 continue
+            elif opname.startswith('DELETE_SLICE'):
+                self.addRule("""
+                del_expr ::= expr
+                del_stmt ::= del_expr DELETE_SLICE+0
+                del_stmt ::= del_expr del_expr DELETE_SLICE+1
+                del_stmt ::= del_expr del_expr DELETE_SLICE+2
+                del_stmt ::= del_expr del_expr del_expr DELETE_SLICE+3
+                """, nop_func)
+                custom_seen_ops.add(opname)
+                self.check_reduce['del_expr'] = 'AST'
+                continue
             elif opname == 'DELETE_DEREF':
                 self.addRule("""
                    stmt           ::= del_deref_stmt
@@ -386,6 +393,7 @@ class Python2Parser(PythonParser):
                     del_stmt ::= delete_subscr
                     delete_subscr ::= expr expr DELETE_SUBSCR
                    """, nop_func)
+                self.check_reduce['delete_subscr'] = 'AST'
                 custom_seen_ops.add(opname)
                 continue
             elif opname == 'GET_ITER':
@@ -541,6 +549,10 @@ class Python2Parser(PythonParser):
         elif rule == ('or', ('expr', 'jmp_true', 'expr', '\\e_come_from_opt')):
             expr2 = ast[2]
             return expr2 == 'expr' and expr2[0] == 'LOAD_ASSERT'
+        elif lhs in ('delete_subscr', 'del_expr'):
+            op = ast[0][0]
+            return op.kind in ('and', 'or')
+
         return False
 
 class Python2ParserSingle(Python2Parser, PythonParserSingle):
