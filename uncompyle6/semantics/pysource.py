@@ -1813,9 +1813,6 @@ class SourceWalker(GenericASTTraversal, object):
             node[-2][0].kind = 'unpack_w_parens'
         self.default(node)
 
-    # except_cond3 is only in Python <= 2.6
-    n_except_cond3 = n_except_cond2
-
     def template_engine(self, entry, startnode):
         """The format template interpetation engine.  See the comment at the
         beginning of this module for the how we interpret format
