@@ -1,6 +1,7 @@
 # Bug in 3.3 weakset
 # Bug was not having a rule for 3.x "comp_for"
 
+# RUNNABLE!
 class WeakSet:
     def __init__(self, data=None):
         self.data = set(data)
