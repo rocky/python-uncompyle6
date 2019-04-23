@@ -54,7 +54,11 @@ def customize_for_version38(self, version):
 
         'except_ret38a': (
             'return %c', (4, 'expr') ),
+
+        # Note: there is a suite_stmts_opt which seems
+        # to be bookkeeping which is not expressed in source code
         'except_ret38':  ( '%|return %c\n', (1, 'expr') ),
+
         'for38':            (
             '%|for %c in %c:\n%+%c%-\n\n',
             (2, 'store'),

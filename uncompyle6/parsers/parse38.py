@@ -73,7 +73,7 @@ class Python38Parser(Python37Parser):
                                SETUP_ASYNC_WITH POP_TOP
                                suite_stmts
                                POP_TOP POP_BLOCK
-                               BEGIN_FINALLY
+                               BEGIN_FINALLY COME_FROM_ASYNC_WITH
                                WITH_CLEANUP_START
                                GET_AWAITABLE LOAD_CONST YIELD_FROM
                                WITH_CLEANUP_FINISH END_FINALLY
@@ -82,7 +82,7 @@ class Python38Parser(Python37Parser):
                                SETUP_ASYNC_WITH store
                                suite_stmts
                                POP_TOP POP_BLOCK
-                               BEGIN_FINALLY
+                               BEGIN_FINALLY COME_FROM_ASYNC_WITH
                                WITH_CLEANUP_START
                                GET_AWAITABLE LOAD_CONST YIELD_FROM
                                WITH_CLEANUP_FINISH END_FINALLY
@@ -124,8 +124,11 @@ class Python38Parser(Python37Parser):
         try_except_ret38   ::= SETUP_FINALLY expr POP_BLOCK
                                RETURN_VALUE except_ret38a
 
+        # Note: there is a suite_stmts_opt which seems
+        # to be bookkeeping which is not expressed in source code
         except_ret38       ::= SETUP_FINALLY expr ROT_FOUR POP_BLOCK POP_EXCEPT
-                               CALL_FINALLY RETURN_VALUE COME_FROM_FINALLY
+                               CALL_FINALLY RETURN_VALUE COME_FROM
+                               COME_FROM_FINALLY
                                suite_stmts_opt END_FINALLY
         except_ret38a      ::= COME_FROM_FINALLY POP_TOP POP_TOP POP_TOP
                                expr ROT_FOUR
