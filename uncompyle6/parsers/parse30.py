@@ -31,7 +31,7 @@ class Python30Parser(Python31Parser):
         _ifstmts_jump  ::= c_stmts COME_FROM POP_TOP
 
         # Used to keep index order the same in semantic actions
-        jb_pop_top     ::= JUMP_BACK COME_FROM POP_TOP
+        jb_pop_top     ::= JUMP_BACK _come_froms POP_TOP
 
         while1stmt     ::= SETUP_LOOP l_stmts COME_FROM_LOOP
         whileelsestmt  ::= SETUP_LOOP testexpr l_stmts
