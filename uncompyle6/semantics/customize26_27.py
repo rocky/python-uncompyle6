@@ -34,7 +34,6 @@ def customize_for_version26_27(self, version):
         })
     else:
         TABLE_DIRECT.update({
-            'except_cond3':	 ( '%|except %c, %c:\n', 1, 6 ),
             'testtrue_then': ( 'not %p', (0, 22) ),
 
         })
