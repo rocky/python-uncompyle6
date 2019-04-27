@@ -98,7 +98,7 @@ class Python30Parser(Python31Parser):
         # The below rules in fact are the same or similar.
 
         jmp_true       ::= JUMP_IF_TRUE POP_TOP
-        jmp_false      ::= JUMP_IF_FALSE POP_TOP
+        jmp_false      ::= JUMP_IF_FALSE _come_froms POP_TOP
 
         for_block      ::= l_stmts_opt _come_froms POP_TOP JUMP_BACK
 
@@ -107,7 +107,7 @@ class Python30Parser(Python31Parser):
         except_handler ::= jmp_abs COME_FROM_EXCEPT except_stmts
                            POP_TOP END_FINALLY
 
-        return_if_stmt ::= ret_expr RETURN_END_IF POP_TOP
+        return_if_stmt ::= ret_expr RETURN_END_IF COME_FROM POP_TOP
         and            ::= expr jmp_false expr come_from_opt
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt come_from_opt
                            JUMP_BACK COME_FROM POP_TOP POP_BLOCK COME_FROM_LOOP
