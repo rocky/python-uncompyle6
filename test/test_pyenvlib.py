@@ -39,7 +39,7 @@ python_versions = [v for v in magics.python_versions if
 TEST_VERSIONS = (
                'pypy3-2.4.0', 'pypy-2.6.1',
                'pypy-5.0.1', 'pypy-5.3.1', 'pypy3.5-5.7.1-beta',
-               'pypy3.5-5.9.0',
+               'pypy3.5-5.9.0', 'pypy3.5-6.0.0',
                'native') + tuple(python_versions)
 
 
@@ -60,7 +60,11 @@ test_options = {
 
 for vers in TEST_VERSIONS:
     if vers.startswith('pypy'):
-        short_vers = vers[0:-2]
+        if vers.startswith('pypy3.'):
+            short_vers = vers[4:6]
+        else:
+            short_vers = vers[0:-2]
+
         test_options[vers] = (os.path.join(lib_prefix, vers, 'lib_pypy'),
                               PYC, 'python-lib'+short_vers)
     else:
