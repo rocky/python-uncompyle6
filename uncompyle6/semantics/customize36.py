@@ -124,8 +124,13 @@ def customize_for_version36(self, version):
         tup = btuwc[0]
         if tup == 'expr':
             tup = tup[0]
-        assert tup == 'tuple'
-        self.call36_tuple(tup)
+
+        if tup == 'LOAD_CONST':
+            self.write(', '.join(['"%s"' % t.replace('"','\\"') for t in tup.attr]))
+        else:
+            assert tup == 'tuple'
+            self.call36_tuple(tup)
+
         assert node[2] == 'build_map_unpack_with_call'
 
         self.write(', ')
