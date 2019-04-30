@@ -41,6 +41,8 @@ class Python36Parser(Python35Parser):
 
         whilestmt       ::= SETUP_LOOP testexpr l_stmts_opt
                             JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
+        whilestmt       ::= SETUP_LOOP testexpr l_stmts_opt
+                            come_froms JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
 
         # 3.6 due to jump optimization, we sometimes add RETURN_END_IF where
         # RETURN_VALUE is meant. Specifcally this can happen in
@@ -54,6 +56,8 @@ class Python36Parser(Python35Parser):
         and  ::= expr jmp_false expr jmp_false
 
         jf_cf       ::= JUMP_FORWARD COME_FROM
+        cf_jf_else  ::= come_froms JUMP_FORWARD ELSE
+
         conditional ::= expr jmp_false expr jf_cf expr COME_FROM
 
         async_for_stmt     ::= SETUP_LOOP expr
@@ -103,6 +107,7 @@ class Python36Parser(Python35Parser):
 
         jb_cfs      ::= JUMP_BACK come_froms
         ifelsestmtl ::= testexpr c_stmts_opt jb_cfs else_suitel
+        ifelsestmtl ::= testexpr c_stmts_opt cf_jf_else else_suitel
 
         # In 3.6+, A sequence of statements ending in a RETURN can cause
         # JUMP_FORWARD END_FINALLY to be omitted from try middle
