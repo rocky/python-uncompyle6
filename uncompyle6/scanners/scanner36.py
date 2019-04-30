@@ -19,23 +19,26 @@ JUMP_OPS = opc.JUMP_OPS
 
 class Scanner36(Scanner3):
 
-    def __init__(self, show_asm=None):
-        Scanner3.__init__(self, 3.6, show_asm)
+    def __init__(self, show_asm=None, is_pypy=False):
+        Scanner3.__init__(self, 3.6, show_asm, is_pypy)
         return
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         tokens, customize = Scanner3.ingest(self, co, classname, code_objects, show_asm)
+        not_pypy36 = not (self.version == 3.6 and self.is_pypy)
         for t in tokens:
             # The lowest bit of flags indicates whether the
             # var-keyword argument is placed at the top of the stack
-            if t.op == self.opc.CALL_FUNCTION_EX and t.attr & 1:
+            if ( not_pypy36 and
+                 t.op == self.opc.CALL_FUNCTION_EX and t.attr & 1):
                 t.kind = 'CALL_FUNCTION_EX_KW'
                 pass
             elif t.op == self.opc.CALL_FUNCTION_KW:
                 t.kind = 'CALL_FUNCTION_KW_{t.attr}'.format(**locals())
-            elif t.op == self.opc.BUILD_MAP_UNPACK_WITH_CALL:
+            elif ( not_pypy36 and
+                   t.op == self.opc.BUILD_MAP_UNPACK_WITH_CALL ):
                 t.kind = 'BUILD_MAP_UNPACK_WITH_CALL_%d' % t.attr
-            elif t.op == self.opc.BUILD_TUPLE_UNPACK_WITH_CALL:
+            elif ( not_pypy36 and t.op == self.opc.BUILD_TUPLE_UNPACK_WITH_CALL ):
                 t.kind = 'BUILD_TUPLE_UNPACK_WITH_CALL_%d' % t.attr
             pass
         return tokens, customize

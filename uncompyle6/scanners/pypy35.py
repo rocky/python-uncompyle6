@@ -1,6 +1,6 @@
-#  Copyright (c) 2017 by Rocky Bernstein
+#  Copyright (c) 2017, 2019 by Rocky Bernstein
 """
-Python PyPy 3.2 decompiler scanner.
+Python PyPy 3.5 decompiler scanner.
 
 Does some additional massaging of xdis-disassembled instructions to
 make things easier for decompilation.
