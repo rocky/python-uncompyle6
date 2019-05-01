@@ -253,6 +253,12 @@ class Python36Parser(Python35Parser):
                     %s                   ::= %sBUILD_STRING
                 """ % (joined_str_n, joined_str_n, "formatted_value " * v)
                 self.add_unique_doc_rules(rules_str, customize)
+                if 'FORMAT_VALUE_ATTR' in self.seen_ops:
+                    rules_str = """
+                      formatted_value_attr ::= expr expr FORMAT_VALUE_ATTR expr BUILD_STRING
+                      expr                 ::= formatted_value_attr
+                    """
+                    self.add_unique_doc_rules(rules_str, customize)
             elif opname.startswith('BUILD_MAP_UNPACK_WITH_CALL'):
                 v = token.attr
                 rule = 'build_map_unpack_with_call ::= %s%s' % ('expr ' * v, opname)

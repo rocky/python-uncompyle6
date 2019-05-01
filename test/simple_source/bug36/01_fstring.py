@@ -24,3 +24,9 @@ chunk = ['a', 'b', 'c']
 chunk2 = 'd'
 chunk = f'{len(chunk):X}' + chunk2
 assert chunk == '3d'
+
+chunk = b'abc'
+chunk2 = 'd'
+chunk = f'{len(chunk):X}\r\n'.encode('ascii') + chunk \
+        + b'\r\n'
+assert chunk == b'3\r\nabc\r\n'
