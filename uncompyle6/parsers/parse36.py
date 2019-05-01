@@ -122,9 +122,12 @@ class Python36Parser(Python35Parser):
         try_except36     ::= SETUP_EXCEPT returns except_handler36
                              opt_come_from_except
         try_except36     ::= SETUP_EXCEPT suite_stmts
+        try_except36     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                             except_handler36 opt_come_from_except
 
         # 3.6 omits END_FINALLY sometimes
         except_handler36 ::= COME_FROM_EXCEPT except_stmts
+        except_handler36 ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
         except_handler   ::= jmp_abs COME_FROM_EXCEPT except_stmts
 
         stmt             ::= tryfinally36
@@ -170,6 +173,7 @@ class Python36Parser(Python35Parser):
                                   JUMP_ABSOLUTE END_FINALLY COME_FROM
                                   for_block pb_ja
                                   else_suite COME_FROM_LOOP
+
         """)
         self.check_reduce['call_kw'] = 'AST'
 
