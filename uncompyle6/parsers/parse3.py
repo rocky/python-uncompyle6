@@ -1214,7 +1214,7 @@ class Python3Parser(PythonParser):
             pass
         elif lhs == 'while1stmt':
 
-            # If there is a fall through to the COME_FROM_LOOP. then this is
+            # If there is a fall through to the COME_FROM_LOOP, then this is
             # not a while 1. So the instruction before should either be a
             # JUMP_BACK or the instruction before should not be the target of a
             # jump. (Well that last clause i not quite right; that target could be
@@ -1225,10 +1225,11 @@ class Python3Parser(PythonParser):
                 cfl = last
             assert tokens[cfl] == 'COME_FROM_LOOP'
 
-            if tokens[cfl-1] != 'JUMP_BACK':
-                cfl_offset = tokens[cfl-1].offset
-                insn = next(i for i in self.insts if cfl_offset == i.offset)
-                if insn and  insn.is_jump_target:
+            for i in range(cfl-1, first, -1):
+                if tokens[i] != 'POP_BLOCK':
+                    break
+            if tokens[i].kind not in ('JUMP_BACK', 'RETURN_VALUE'):
+                if not tokens[i].kind.startswith('COME_FROM'):
                     return True
 
             # Check that the SETUP_LOOP jumps to the offset after the
