@@ -40,10 +40,13 @@ def customize_for_version36(self, version):
     TABLE_DIRECT.update({
         'tryfinally36':  ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
                            (1, 'returns'), 3 ),
-        'fstring_expr':   ( "{%c%{conversion}}", 0),
+        'fstring_expr':   ( "{%c%{conversion}}",
+                            (0, 'expr') ),
         # FIXME: the below assumes the format strings
         # don't have ''' in them. Fix this properly
         'fstring_single': ( "f'''{%c%{conversion}}'''", 0),
+        'formatted_value_attr': ( "f'''{%c%{conversion}}%{string}'''",
+                                  (0, 'expr')),
         'fstring_multi':  ( "f'''%c'''", 0),
         'func_args36':    ( "%c(**", 0),
         'try_except36':   ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
@@ -355,7 +358,7 @@ def customize_for_version36(self, version):
         if fmt_node == 'expr' and fmt_node[0] == 'LOAD_CONST':
             data = fmt_node[0].attr
         else:
-            data = fmt_node
+            data = fmt_node.attr
         node.conversion = FSTRING_CONVERSION_MAP.get(data, '')
 
     def fstring_expr(node):
@@ -367,6 +370,17 @@ def customize_for_version36(self, version):
         f_conversion(node)
         self.default(node)
     self.n_fstring_single = fstring_single
+
+    def formatted_value_attr(node):
+        f_conversion(node)
+        fmt_node = node.data[3]
+        if fmt_node == 'expr' and fmt_node[0] == 'LOAD_CONST':
+            node.string = fmt_node[0].attr.replace('\r', '\\r').replace('\n', '\\n')
+        else:
+            node.string = fmt_node
+
+        self.default(node)
+    self.n_formatted_value_attr = formatted_value_attr
 
     # def kwargs_only_36(node):
     #     keys = node[-1].attr
