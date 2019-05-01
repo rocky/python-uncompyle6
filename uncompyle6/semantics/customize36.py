@@ -38,20 +38,20 @@ def customize_for_version36(self, version):
     PRECEDENCE['unmap_dict']  = 0
 
     TABLE_DIRECT.update({
-        'tryfinally36':  ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
-                           (1, 'returns'), 3 ),
-        'fstring_expr':   ( "{%c%{conversion}}",
-                            (0, 'expr') ),
+        'tryfinally36':     ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
+                              (1, 'returns'), 3 ),
+        'fstring_expr':     ( "{%c%{conversion}}",
+                              (0, 'expr') ),
         # FIXME: the below assumes the format strings
         # don't have ''' in them. Fix this properly
-        'fstring_single': ( "f'''{%c%{conversion}}'''", 0),
+        'fstring_single':   ( "f'''{%c%{conversion}}'''", 0),
         'formatted_value_attr': ( "f'''{%c%{conversion}}%{string}'''",
                                   (0, 'expr')),
-        'fstring_multi':  ( "f'''%c'''", 0),
-        'func_args36':    ( "%c(**", 0),
-        'try_except36':   ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
-        'except_return':  ( '%|except:\n%+%c%-', 3 ),
-        'unpack_list':    ( '*%c', (0, 'list') ),
+        'fstring_multi':    ( "f'''%c'''", 0),
+        'func_args36':      ( "%c(**", 0),
+        'try_except36':     ( '%|try:\n%+%c%-%c\n\n', 1, -2 ),
+        'except_return':    ( '%|except:\n%+%c%-', 3 ),
+        'unpack_list':      ( '*%c', (0, 'list') ),
         'tryfinally_return_stmt':
               ( '%|try:\n%+%c%-%|finally:\n%+%|return%-\n\n', 1 ),
 
