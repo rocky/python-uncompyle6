@@ -184,8 +184,17 @@ class Python36Parser(Python35Parser):
                     self.add_unique_doc_rules(rules_str, customize)
             elif opname == 'FORMAT_VALUE':
                 rules_str = """
-                    expr ::= fstring_single
-                    fstring_single ::= expr FORMAT_VALUE
+                    expr            ::= fstring_single
+                    fstring_single  ::= expr FORMAT_VALUE
+                    expr            ::= fstring_expr
+                    fstring_expr    ::= expr FORMAT_VALUE
+
+                    # FIXME: need to look inside FORMAT_VALUE to see if 4
+                    fstring_single  ::= expr expr FORMAT_VALUE
+                    str             ::= LOAD_CONST
+                    formatted_value ::= fstring_expr
+                    formatted_value ::= str
+
                 """
                 self.add_unique_doc_rules(rules_str, customize)
             elif opname == 'MAKE_FUNCTION_8':
@@ -233,12 +242,6 @@ class Python36Parser(Python35Parser):
                 v = token.attr
                 joined_str_n = "formatted_value_%s" % v
                 rules_str = """
-                    expr            ::= fstring_expr
-                    fstring_expr    ::= expr FORMAT_VALUE
-                    str             ::= LOAD_CONST
-                    formatted_value ::= fstring_expr
-                    formatted_value ::= str
-
                     expr                 ::= fstring_multi
                     fstring_multi        ::= joined_str BUILD_STRING
                     joined_str           ::= formatted_value+

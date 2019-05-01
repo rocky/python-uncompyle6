@@ -324,7 +324,7 @@ def customize_for_version36(self, version):
     self.call36_dict = call36_dict
 
 
-    FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a'}
+    FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a', 'X':':X'}
 
     def n_except_suite_finalize(node):
         if node[1] == 'returns' and self.hide_internal:
@@ -351,7 +351,12 @@ def customize_for_version36(self, version):
     self.n_formatted_value = n_formatted_value
 
     def f_conversion(node):
-        node.conversion = FSTRING_CONVERSION_MAP.get(node.data[1].attr, '')
+        fmt_node = node.data[1]
+        if fmt_node == 'expr' and fmt_node[0] == 'LOAD_CONST':
+            data = fmt_node[0].attr
+        else:
+            data = fmt_node
+        node.conversion = FSTRING_CONVERSION_MAP.get(data, '')
 
     def fstring_expr(node):
         f_conversion(node)
