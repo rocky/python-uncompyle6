@@ -17,3 +17,10 @@ x = f"{k}={v!r}"
 y = f"functools.{x}({', '.join(v)})"
 assert x == "1=['2']"
 assert y == "functools.1=['2'](2)"
+
+# From 3.6 http/client.py
+# Bug is in handling  X
+chunk = ['a', 'b', 'c']
+chunk2 = 'd'
+chunk = f'{len(chunk):X}' + chunk2
+assert chunk == '3d'

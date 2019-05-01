@@ -40,6 +40,8 @@ class Python36Parser(Python35Parser):
 
         whilestmt       ::= SETUP_LOOP testexpr l_stmts_opt
                             JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
+        whilestmt       ::= SETUP_LOOP testexpr l_stmts_opt
+                            come_froms JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
 
         # 3.6 due to jump optimization, we sometimes add RETURN_END_IF where
         # RETURN_VALUE is meant. Specifcally this can happen in
@@ -53,6 +55,8 @@ class Python36Parser(Python35Parser):
         and  ::= expr jmp_false expr jmp_false
 
         jf_cf       ::= JUMP_FORWARD COME_FROM
+        cf_jf_else  ::= come_froms JUMP_FORWARD ELSE
+
         conditional ::= expr jmp_false expr jf_cf expr COME_FROM
 
         async_for_stmt     ::= SETUP_LOOP expr
@@ -102,6 +106,7 @@ class Python36Parser(Python35Parser):
 
         jb_cfs      ::= JUMP_BACK come_froms
         ifelsestmtl ::= testexpr c_stmts_opt jb_cfs else_suitel
+        ifelsestmtl ::= testexpr c_stmts_opt cf_jf_else else_suitel
 
         # In 3.6+, A sequence of statements ending in a RETURN can cause
         # JUMP_FORWARD END_FINALLY to be omitted from try middle
@@ -178,8 +183,21 @@ class Python36Parser(Python35Parser):
                     self.add_unique_doc_rules(rules_str, customize)
             elif opname == 'FORMAT_VALUE':
                 rules_str = """
-                    expr ::= fstring_single
-                    fstring_single ::= expr FORMAT_VALUE
+                    expr            ::= fstring_single
+                    fstring_single  ::= expr FORMAT_VALUE
+                    expr            ::= fstring_expr
+                    fstring_expr    ::= expr FORMAT_VALUE
+
+                    str             ::= LOAD_CONST
+                    formatted_value ::= fstring_expr
+                    formatted_value ::= str
+
+                """
+                self.add_unique_doc_rules(rules_str, customize)
+            elif opname == 'FORMAT_VALUE_ATTR':
+                rules_str = """
+                expr            ::= fstring_single
+                fstring_single  ::= expr expr FORMAT_VALUE_ATTR
                 """
                 self.add_unique_doc_rules(rules_str, customize)
             elif opname == 'MAKE_FUNCTION_8':
@@ -227,12 +245,6 @@ class Python36Parser(Python35Parser):
                 v = token.attr
                 joined_str_n = "formatted_value_%s" % v
                 rules_str = """
-                    expr            ::= fstring_expr
-                    fstring_expr    ::= expr FORMAT_VALUE
-                    str             ::= LOAD_CONST
-                    formatted_value ::= fstring_expr
-                    formatted_value ::= str
-
                     expr                 ::= fstring_multi
                     fstring_multi        ::= joined_str BUILD_STRING
                     joined_str           ::= formatted_value+

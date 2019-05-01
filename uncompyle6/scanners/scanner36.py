@@ -33,8 +33,11 @@ class Scanner36(Scanner3):
                 pass
             elif t.op == self.opc.CALL_FUNCTION_KW:
                 t.kind = 'CALL_FUNCTION_KW_%s' % t.attr
-            elif t.op == self.opc.BUILD_MAP_UNPACK_WITH_CALL:
-                t.kind = 'CALL_FUNCTION_KW_%d' % t.attr
+            elif t.op == self.opc.FORMAT_VALUE:
+                if (t.attr & 0x4):
+                    t.kind = 'FORMAT_VALUE_ATTR'
+                    pass
+>>>>>>> master
             elif ( not_pypy36 and
                    t.op == self.opc.BUILD_MAP_UNPACK_WITH_CALL ):
                 t.kind = 'BUILD_MAP_UNPACK_WITH_CALL_%d' % t.attr
