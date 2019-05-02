@@ -336,7 +336,7 @@ TABLE_DIRECT = {
     'iflaststmt':		( '%|if %c:\n%+%c%-', 0, 1 ),
     'iflaststmtl':		( '%|if %c:\n%+%c%-', 0, 1 ),
     'testtrue':         ( 'not %p',
-                          (0, 'expr', PRECEDENCE['unary_not']) ),
+                          (0, PRECEDENCE['unary_not']) ),
 
     'ifelsestmt':	( '%|if %c:\n%+%c%-%|else:\n%+%c%-', 0, 1, 3 ),
     'ifelsestmtc':	( '%|if %c:\n%+%c%-%|else:\n%+%c%-', 0, 1, 3 ),
