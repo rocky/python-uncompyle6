@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2018 Rocky Bernstein
+#  Copyright (c) 2015-2019 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -589,14 +589,14 @@ class PythonParser(GenericASTBuilder):
         ##   designLists ::=
         ## Will need to redo semantic actiion
 
-        store        ::= STORE_FAST
-        store        ::= STORE_NAME
-        store        ::= STORE_GLOBAL
-        store        ::= STORE_DEREF
-        store        ::= expr STORE_ATTR
-        store        ::= store_subscr
-        store_subscr ::= expr expr STORE_SUBSCR
-        store        ::= unpack
+        store           ::= STORE_FAST
+        store           ::= STORE_NAME
+        store           ::= STORE_GLOBAL
+        store           ::= STORE_DEREF
+        store           ::= expr STORE_ATTR
+        store           ::= store_subscript
+        store_subscript ::= expr expr STORE_SUBSCR
+        store           ::= unpack
         '''
 
 

@@ -88,7 +88,8 @@ Python.
 #
 #     %p  like %c but sets the operator precedence.
 #         Its argument then is a tuple indicating the node
-#         index and the precidence value, an integer.
+#         index and the precedence value, an integer. If 3 items are given,
+#         the second item is the nonterminal name and the precedence is given last.
 #
 #     %C  evaluate children recursively, with sibling children separated by the
 #         given string.  It needs a 3-tuple: a starting node, the maximimum
@@ -616,7 +617,7 @@ class SourceWalker(GenericASTTraversal, object):
                 node[-2][0].kind = 'build_tuple2'
         self.default(node)
 
-    n_store_subscr = n_subscript = n_delete_subscr
+    n_store_subscript = n_subscript = n_delete_subscr
 
     # Note: this node is only in Python 2.x
     # FIXME: figure out how to get this into customization
@@ -1873,7 +1874,18 @@ class SourceWalker(GenericASTTraversal, object):
                 arg += 1
             elif typ == 'p':
                 p = self.prec
-                (index, self.prec) = entry[arg]
+                tup = entry[arg]
+                assert isinstance(tup, tuple)
+                if len(tup) == 3:
+                    (index, nonterm_name, self.prec) = tup
+                    assert node[index] == nonterm_name, (
+                        "at %s[%d], expected '%s' node; got '%s'" % (
+                            node.kind, arg,  nonterm_name, node[index].kind)
+                        )
+                else:
+                    assert len(tup) == 2
+                    (index, self.prec) = entry[arg]
+
                 self.preorder(node[index])
                 self.prec = p
                 arg += 1

@@ -127,11 +127,17 @@ def test_tables():
                             "Full entry: %s" %
                             (name, k, arg, typ, entry[arg], type(entry[arg]), entry)
                             )
-                        assert len(tup) == 2
+                        assert 2 <= len(tup) <= 3
                         for j, x in enumerate(tup):
-                            assert isinstance(x, int), (
-                                "%s[%s][%d][%d] type '%s' is '%s should be an int but is %s. Full entry: %s" %
-                                (name, k, arg, j, typ, x, type(x), entry)
+                            if len(tup) == 3 and j == 1:
+                                assert isinstance(x, str), (
+                                    "%s[%s][%d][%d] type '%s' is '%s should be an string but is %s. Full entry: %s" %
+                                    (name, k, arg, j, typ, x, type(x), entry)
+                                    )
+                            else:
+                                assert isinstance(x, int), (
+                                    "%s[%s][%d][%d] type '%s' is '%s should be an int but is %s. Full entry: %s" %
+                                    (name, k, arg, j, typ, x, type(x), entry)
                                 )
                         pass
                     arg += 1
