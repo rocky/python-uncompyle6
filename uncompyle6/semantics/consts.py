@@ -91,7 +91,6 @@ PRECEDENCE = {
     'conditional_not_lamdba': 28,
     'conditionalnot':         28,
     'ret_cond':               28,
-    'ret_cond_not':           28,
 
     '_mklambda':              30,
 
@@ -254,12 +253,15 @@ TABLE_DIRECT = {
     'list_iter':	    ( '%c', 0 ),
     'list_for':		    ( ' for %c in %c%c', 2, 0, 3 ),
     'list_if':		    ( ' if %c%c', 0, 2 ),
-    'list_if_not':		( ' if not %p%c', (0, 22), 2 ),
+    'list_if_not':		( ' if not %p%c',
+                                  (0, 'expr', PRECEDENCE['unary_not']),
+                                  2 ),
     'lc_body':		    ( '', ),	# ignore when recursing
 
     'comp_iter':	    ( '%c', 0 ),
     'comp_if':		    ( ' if %c%c', 0, 2 ),
-    'comp_if_not':	    ( ' if not %p%c', (0, 22), 2 ),
+    'comp_if_not':	    ( ' if not %p%c',
+                              (0, 'expr', PRECEDENCE['unary_not']), 2 ),
     'comp_body':	    ( '', ),	# ignore when recusing
     'set_comp_body':        ( '%c', 0 ),
     'gen_comp_body':        ( '%c', 0 ),
@@ -282,8 +284,10 @@ TABLE_DIRECT = {
     'conditional':      ( '%p if %p else %p', (2, 27), (0, 27), (4, 27) ),
     'conditional_true': ( '%p if 1 else %p', (0, 27), (2, 27) ),
     'ret_cond':         ( '%p if %p else %p', (2, 27), (0, 27), (-1, 27) ),
-    'conditional_not':  ( '%p if not %p else %p', (2, 27), (0, 22), (4, 27) ),
-    'ret_cond_not':     ( '%p if not %p else %p', (2, 27), (0, 22), (-1, 27) ),
+    'conditional_not':  ( '%p if not %p else %p',
+                          (2, 27),
+                          (0, "expr", PRECEDENCE['unary_not']),
+                          (4, 27) ),
     'conditional_lambda':
                         ( '%c if %c else %c',
                           (2, 'expr'), 0, 4 ),
@@ -331,7 +335,8 @@ TABLE_DIRECT = {
     'ifstmt':		    ( '%|if %c:\n%+%c%-', 0, 1 ),
     'iflaststmt':		( '%|if %c:\n%+%c%-', 0, 1 ),
     'iflaststmtl':		( '%|if %c:\n%+%c%-', 0, 1 ),
-    'testtrue':         ( 'not %p', (0, 22) ),
+    'testtrue':         ( 'not %p',
+                          (0, 'expr', PRECEDENCE['unary_not']) ),
 
     'ifelsestmt':	( '%|if %c:\n%+%c%-%|else:\n%+%c%-', 0, 1, 3 ),
     'ifelsestmtc':	( '%|if %c:\n%+%c%-%|else:\n%+%c%-', 0, 1, 3 ),
