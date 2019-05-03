@@ -21,6 +21,11 @@ from uncompyle6.semantics.helper import flatten_list
 from uncompyle6.semantics.consts import (
     INDENT_PER_LEVEL, PRECEDENCE, TABLE_DIRECT, TABLE_R)
 
+def escape_format(s):
+    return s.replace('\r', '\\r').\
+        replace('\n', '\\n').\
+        replace("'''", '"""')
+
 #######################
 # Python 3.6+ Changes #
 #######################
@@ -347,7 +352,7 @@ def customize_for_version36(self, version):
 
     def n_formatted_value(node):
         if node[0] == 'LOAD_CONST':
-            self.write(node[0].attr)
+            self.write(escape_format(node[0].attr))
             self.prune()
         else:
             self.default(node)
@@ -375,7 +380,7 @@ def customize_for_version36(self, version):
         f_conversion(node)
         fmt_node = node.data[3]
         if fmt_node == 'expr' and fmt_node[0] == 'LOAD_CONST':
-            node.string = fmt_node[0].attr.replace('\r', '\\r').replace('\n', '\\n')
+            node.string = escape_format(fmt_node[0].attr)
         else:
             node.string = fmt_node
 

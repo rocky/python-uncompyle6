@@ -30,3 +30,12 @@ chunk2 = 'd'
 chunk = f'{len(chunk):X}\r\n'.encode('ascii') + chunk \
         + b'\r\n'
 assert chunk == b'3\r\nabc\r\n'
+
+# From 3.6.8 idlelib/pyshell.py
+# Bug was handling '''
+import os
+filename = '.'
+source = 'foo'
+source = (f"__file__ = r'''{os.path.abspath(filename)}'''\n"
+          + source + "\ndel __file__")
+print(source)
