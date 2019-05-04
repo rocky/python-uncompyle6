@@ -22,8 +22,6 @@ This sets up opcodes Python's 3.7 and calls a generalized
 scanner routine for Python 3.
 """
 
-from __future__ import print_function
-
 from uncompyle6.scanners.scanner36 import Scanner36
 from uncompyle6.scanners.scanner3 import Scanner3
 
