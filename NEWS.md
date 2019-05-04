@@ -1,3 +1,18 @@
+3.3.2 2019-05-03 Better Friday
+==============================
+
+As before, lots of decomplation bugs fixed. The focus has primarily
+been on Python 3.6. We can now parse the entire 3.6.8 Python library
+and verify that without an error. The same is true for 3.5.8. A number
+of the bugs fixed though are not contained to these versions. In fact
+some span back as far as 2.x
+
+But as before, many more remain in the 3.7 and 3.8 range which will
+get addressed in future releases
+
+Pypy 3.6 support was started. Pypy 3.x detection fixed (via xdis)
+
+
 3.3.1 2019-04-19 Good Friday
 ==========================
 

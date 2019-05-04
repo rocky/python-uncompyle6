@@ -21,6 +21,11 @@ from uncompyle6.semantics.helper import flatten_list
 from uncompyle6.semantics.consts import (
     INDENT_PER_LEVEL, PRECEDENCE, TABLE_DIRECT, TABLE_R)
 
+def escape_format(s):
+    return s.replace('\r', '\\r').\
+        replace('\n', '\\n').\
+        replace("'''", '"""')
+
 #######################
 # Python 3.6+ Changes #
 #######################
@@ -38,20 +43,20 @@ def customize_for_version36(self, version):
     PRECEDENCE['unmap_dict']  = 0
 
     TABLE_DIRECT.update({
-        'tryfinally36':  ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
-                           (1, 'returns'), 3 ),
-        'fstring_expr':   ( "{%c%{conversion}}",
-                            (0, 'expr') ),
+        'tryfinally36':     ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
+                              (1, 'returns'), 3 ),
+        'fstring_expr':     ( "{%c%{conversion}}",
+                              (0, 'expr') ),
         # FIXME: the below assumes the format strings
         # don't have ''' in them. Fix this properly
-        'fstring_single': ( "f'''{%c%{conversion}}'''", 0),
+        'fstring_single':   ( "f'''{%c%{conversion}}'''", 0),
         'formatted_value_attr': ( "f'''{%c%{conversion}}%{string}'''",
                                   (0, 'expr')),
-        'fstring_multi':  ( "f'''%c'''", 0),
-        'func_args36':    ( "%c(**", 0),
-        'try_except36':   ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
-        'except_return':  ( '%|except:\n%+%c%-', 3 ),
-        'unpack_list':    ( '*%c', (0, 'list') ),
+        'fstring_multi':    ( "f'''%c'''", 0),
+        'func_args36':      ( "%c(**", 0),
+        'try_except36':     ( '%|try:\n%+%c%-%c\n\n', 1, -2 ),
+        'except_return':    ( '%|except:\n%+%c%-', 3 ),
+        'unpack_list':      ( '*%c', (0, 'list') ),
         'tryfinally_return_stmt':
               ( '%|try:\n%+%c%-%|finally:\n%+%|return%-\n\n', 1 ),
 
@@ -347,7 +352,11 @@ def customize_for_version36(self, version):
 
     def n_formatted_value(node):
         if node[0] == 'LOAD_CONST':
-            self.write(node[0].attr)
+            value = node[0].attr
+            if isinstance(value, tuple):
+                self.write(node[0].attr)
+            else:
+                self.write(escape_format(node[0].attr))
             self.prune()
         else:
             self.default(node)
@@ -375,7 +384,7 @@ def customize_for_version36(self, version):
         f_conversion(node)
         fmt_node = node.data[3]
         if fmt_node == 'expr' and fmt_node[0] == 'LOAD_CONST':
-            node.string = fmt_node[0].attr.replace('\r', '\\r').replace('\n', '\\n')
+            node.string = escape_format(fmt_node[0].attr)
         else:
             node.string = fmt_node
 

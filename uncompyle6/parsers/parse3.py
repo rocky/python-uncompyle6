@@ -1215,7 +1215,7 @@ class Python3Parser(PythonParser):
             pass
         elif lhs == 'while1stmt':
 
-            # If there is a fall through to the COME_FROM_LOOP. then this is
+            # If there is a fall through to the COME_FROM_LOOP, then this is
             # not a while 1. So the instruction before should either be a
             # JUMP_BACK or the instruction before should not be the target of a
             # jump. (Well that last clause i not quite right; that target could be
