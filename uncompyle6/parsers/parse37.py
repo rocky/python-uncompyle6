@@ -107,7 +107,10 @@ class Python37Parser(Python36Parser):
         compare_chained2c_37       ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
                                        compare_chained2a_false_37 ELSE
 
-        _ifstmts_jump        ::= c_stmts_opt come_froms
+        jf_cfs                     ::= JUMP_FORWARD come_froms
+        ifelsestmt                 ::= testexpr c_stmts_opt jf_cfs else_suite opt_come_from_except
+
+        _ifstmts_jump              ::= c_stmts_opt come_froms
         """
 
     def customize_grammar_rules(self, tokens, customize):
