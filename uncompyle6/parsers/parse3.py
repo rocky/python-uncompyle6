@@ -783,8 +783,8 @@ class Python3Parser(PythonParser):
                 custom_ops_processed.add(opname)
             elif opname == 'DELETE_SUBSCR':
                 self.addRule("""
-                    del_stmt ::= delete_subscr
-                    delete_subscr ::= expr expr DELETE_SUBSCR
+                    del_stmt ::= delete_subscript
+                    delete_subscript ::= expr expr DELETE_SUBSCR
                    """, nop_func)
                 custom_ops_processed.add(opname)
             elif opname == 'GET_ITER':
