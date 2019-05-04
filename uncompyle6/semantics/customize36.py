@@ -352,7 +352,11 @@ def customize_for_version36(self, version):
 
     def n_formatted_value(node):
         if node[0] == 'LOAD_CONST':
-            self.write(escape_format(node[0].attr))
+            value = node[0].attr
+            if isinstance(value, tuple):
+                self.write(node[0].attr)
+            else:
+                self.write(escape_format(node[0].attr))
             self.prune()
         else:
             self.default(node)
