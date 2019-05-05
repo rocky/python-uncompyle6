@@ -111,6 +111,12 @@ class Python37Parser(Python36Parser):
         ifelsestmt                 ::= testexpr c_stmts_opt jf_cfs else_suite opt_come_from_except
 
         _ifstmts_jump              ::= c_stmts_opt come_froms
+
+        and_not                    ::= expr jmp_false expr POP_JUMP_IF_TRUE
+
+        expr                       ::= conditional37
+        conditional37              ::= and_not expr JUMP_FORWARD COME_FROM expr COME_FROM
+
         """
 
     def customize_grammar_rules(self, tokens, customize):

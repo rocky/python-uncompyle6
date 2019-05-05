@@ -24,6 +24,8 @@ def customize_for_version37(self, version):
 
     PRECEDENCE['attribute37'] = 2
     TABLE_DIRECT.update({
+        'and_not':  ( '%c and not %c',
+                      (0, 'expr'), (2, 'expr') ),
         'async_forelse_stmt':  (
             '%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
             (7, 'store'), (1, 'expr'), (17, 'for_block'), (25, 'else_suite') ),
@@ -54,5 +56,6 @@ def customize_for_version37(self, version):
             (0, 19 ) ),
         'compare_chained2c_37': (
             '%[3]{pattr.replace("-", " ")} %p %p', (0, 19), (6, 19) ),
+        'conditional37': ( '%p if %p else %p', (1, 'expr', 27), (0, 27), (4, 'expr', 27) ),
 
         })
