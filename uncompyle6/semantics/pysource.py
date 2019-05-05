@@ -1168,6 +1168,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.write(' if ')
             if have_not:
                 self.write('not ')
+            self.prec = 27
             self.preorder(if_node)
             pass
         self.prec = p

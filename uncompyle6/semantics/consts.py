@@ -35,6 +35,11 @@ else:
 # Things at the top of this list below with low-value precidence will
 # tend to have parenthesis around them. Things at the bottom
 # of the list will tend not to have parenthesis around them.
+
+# Note: The values in this table tend to be even value. Inside
+# various templates we use odd values. Avoiding equal-precident comparisons
+# avoids ambiguity what to do when the precedence is equal.
+
 PRECEDENCE = {
     'list':                   0,
     'dict':                   0,

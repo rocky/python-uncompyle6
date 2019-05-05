@@ -22,7 +22,10 @@ def customize_for_version37(self, version):
     # Python 3.7+ changes
     #######################
 
-    PRECEDENCE['attribute37'] = 2
+    PRECEDENCE['attribute37'] =  2
+    PRECEDENCE['ifexp_37a']   = 28
+    PRECEDENCE['ifexp_37b']   = 28
+
     TABLE_DIRECT.update({
         'and_not':  ( '%c and not %c',
                       (0, 'expr'), (2, 'expr') ),
