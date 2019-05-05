@@ -23,8 +23,8 @@ def customize_for_version37(self, version):
     #######################
 
     PRECEDENCE['attribute37'] =  2
-    PRECEDENCE['ifexp_37a']   = 28
-    PRECEDENCE['ifexp_37b']   = 28
+    PRECEDENCE['if_exp_37a']   = 28
+    PRECEDENCE['if_exp_37b']   = 28
 
     TABLE_DIRECT.update({
         'and_not':  ( '%c and not %c',
@@ -59,7 +59,7 @@ def customize_for_version37(self, version):
             (0, 19 ) ),
         'compare_chained2c_37': (
             '%[3]{pattr.replace("-", " ")} %p %p', (0, 19), (6, 19) ),
-        'ifexp_37a': ( '%p if %p else %p', (1, 'expr', 27), (0, 27), (4, 'expr', 27) ),
-        'ifexp_37b': ( '%p if %p else %p', (2, 'expr', 27), (0, 'expr', 27), (5, 'expr', 27) ),
+        'if_exp_37a': ( '%p if %p else %p', (1, 'expr', 27), (0, 27), (4, 'expr', 27) ),
+        'if_exp_37b': ( '%p if %p else %p', (2, 'expr', 27), (0, 'expr', 27), (5, 'expr', 27) ),
 
         })
