@@ -95,6 +95,7 @@ PRECEDENCE = {
     'conditional_lamdba':     28,
     'conditional_not_lamdba': 28,
     'conditionalnot':         28,
+    'conditional_true':       28,
     'ret_cond':               28,
 
     '_mklambda':              30,
@@ -257,10 +258,11 @@ TABLE_DIRECT = {
 
     'list_iter':	    ( '%c', 0 ),
     'list_for':		    ( ' for %c in %c%c', 2, 0, 3 ),
-    'list_if':		    ( ' if %c%c', 0, 2 ),
-    'list_if_not':		( ' if not %p%c',
-                                  (0, 'expr', PRECEDENCE['unary_not']),
-                                  2 ),
+    'list_if':		    ( ' if %p%c',
+                              (0, 'expr', 27), 2 ),
+    'list_if_not':	    ( ' if not %p%c',
+                              (0, 'expr', PRECEDENCE['unary_not']),
+                              2 ),
     'lc_body':		    ( '', ),	# ignore when recursing
 
     'comp_iter':	    ( '%c', 0 ),
