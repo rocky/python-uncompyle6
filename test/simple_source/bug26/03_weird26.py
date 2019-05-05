@@ -8,7 +8,7 @@ list(x for x in range(10) if x % 2 if x % 3)
 
 # expresion which evaluates True unconditionally,
 # but leave dead code or junk around that we have to match on.
-# Tests "conditional_true" rule
+# Tests "if_expr_true" rule
 5 if 1 else 2
 
 0 or max(5, 3) if 0 else 3

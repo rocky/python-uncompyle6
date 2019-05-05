@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2018 Rocky Bernstein
+#  Copyright (c) 2017-2019 Rocky Bernstein
 """
 spark grammar differences over Python2 for Python 2.6.
 """
@@ -293,19 +293,19 @@ class Python26Parser(Python2Parser):
         compare_chained2   ::= expr COMPARE_OP return_lambda
 
         return_if_lambda   ::= RETURN_END_IF_LAMBDA POP_TOP
-        stmt               ::= conditional_lambda
+        stmt               ::= if_expr_lambda
         stmt               ::= conditional_not_lambda
-        conditional_lambda ::= expr jmp_false_then expr return_if_lambda
+        if_expr_lambda     ::= expr jmp_false_then expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
         conditional_not_lambda ::=
                                expr jmp_true_then expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
 
-        # conditional_true are for conditions which always evaluate true
+        # if_expr_true are for conditions which always evaluate true
         # There is dead or non-optional remnants of the condition code though,
         # and we use that to match on to reconstruct the source more accurately
-        expr               ::= conditional_true
-        conditional_true   ::= expr jf_pop expr COME_FROM
+        expr               ::= if_expr_true
+        if_expr_true       ::= expr jf_pop expr COME_FROM
 
         # This comes from
         #   0 or max(5, 3) if 0 else 3
