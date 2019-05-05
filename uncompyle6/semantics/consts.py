@@ -35,6 +35,11 @@ else:
 # Things at the top of this list below with low-value precidence will
 # tend to have parenthesis around them. Things at the bottom
 # of the list will tend not to have parenthesis around them.
+
+# Note: The values in this table tend to be even value. Inside
+# various templates we use odd values. Avoiding equal-precident comparisons
+# avoids ambiguity what to do when the precedence is equal.
+
 PRECEDENCE = {
     'list':                   0,
     'dict':                   0,
@@ -49,7 +54,7 @@ PRECEDENCE = {
     'subscript':              2,
     'subscript2':             2,
     'store_subscript':        2,
-    'delete_subscr':          2,
+    'delete_subscript':       2,
     'slice0':                 2,
     'slice1':                 2,
     'slice2':                 2,
@@ -90,6 +95,7 @@ PRECEDENCE = {
     'conditional_lamdba':     28,
     'conditional_not_lamdba': 28,
     'conditionalnot':         28,
+    'if_expr_true':           28,
     'ret_cond':               28,
 
     '_mklambda':              30,
@@ -221,7 +227,7 @@ TABLE_DIRECT = {
     'DELETE_FAST':	        ( '%|del %{pattr}\n', ),
     'DELETE_NAME':	        ( '%|del %{pattr}\n', ),
     'DELETE_GLOBAL':	        ( '%|del %{pattr}\n', ),
-    'delete_subscr':            ( '%|del %p[%c]\n',
+    'delete_subscript':         ( '%|del %p[%c]\n',
                                   (0, 'expr', PRECEDENCE['subscript']), (1, 'expr') ),
     'subscript':                ( '%p[%c]',
                                       (0, 'expr', PRECEDENCE['subscript']),
@@ -252,10 +258,11 @@ TABLE_DIRECT = {
 
     'list_iter':	    ( '%c', 0 ),
     'list_for':		    ( ' for %c in %c%c', 2, 0, 3 ),
-    'list_if':		    ( ' if %c%c', 0, 2 ),
-    'list_if_not':		( ' if not %p%c',
-                                  (0, 'expr', PRECEDENCE['unary_not']),
-                                  2 ),
+    'list_if':		    ( ' if %p%c',
+                              (0, 'expr', 27), 2 ),
+    'list_if_not':	    ( ' if not %p%c',
+                              (0, 'expr', PRECEDENCE['unary_not']),
+                              2 ),
     'lc_body':		    ( '', ),	# ignore when recursing
 
     'comp_iter':	    ( '%c', 0 ),
@@ -281,19 +288,19 @@ TABLE_DIRECT = {
     'and2':          	( '%c', 3 ),
     'or':           	( '%c or %c', 0, 2 ),
     'ret_or':           ( '%c or %c', 0, 2 ),
-    'conditional':      ( '%p if %p else %p', (2, 27), (0, 27), (4, 27) ),
-    'conditional_true': ( '%p if 1 else %p', (0, 27), (2, 27) ),
+    'conditional':      ( '%p if %c else %c',
+                          (2, 'expr', 27), 0, 4 ),
+    'if_expr_lambda':   ( '%p if %c else %c',
+                          (2, 'expr', 27), (0, 'expr'), 4 ),
+    'if_expr_true':     ( '%p if 1 else %c', (0, 'expr', 27), 2 ),
     'ret_cond':         ( '%p if %p else %p', (2, 27), (0, 27), (-1, 27) ),
     'conditional_not':  ( '%p if not %p else %p',
                           (2, 27),
                           (0, "expr", PRECEDENCE['unary_not']),
                           (4, 27) ),
-    'conditional_lambda':
-                        ( '%c if %c else %c',
-                          (2, 'expr'), 0, 4 ),
     'conditional_not_lambda':
-                        ( '%c if not %c else %c',
-                          (2, 'expr'), 0, 4 ),
+                        ( '%p if not %c else %c',
+                          (2, 'expr', 27), 0, 4 ),
 
     'compare_single':	    ( '%p %[-1]{pattr.replace("-", " ")} %p', (0, 19), (1, 19) ),
     'compare_chained':	    ( '%p %p', (0, 29), (1, 30)),

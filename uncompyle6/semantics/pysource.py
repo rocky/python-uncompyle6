@@ -611,13 +611,13 @@ class SourceWalker(GenericASTTraversal, object):
         # LOAD_CONST is a terminal, so stop processing/recursing early
         self.prune()
 
-    def n_delete_subscr(self, node):
+    def n_delete_subscript(self, node):
         if node[-2][0] == 'build_list' and node[-2][0][-1].kind.startswith('BUILD_TUPLE'):
             if node[-2][0][-1] != 'BUILD_TUPLE_0':
                 node[-2][0].kind = 'build_tuple2'
         self.default(node)
 
-    n_store_subscript = n_subscript = n_delete_subscr
+    n_store_subscript = n_subscript = n_delete_subscript
 
     # Note: this node is only in Python 2.x
     # FIXME: figure out how to get this into customization
@@ -1168,6 +1168,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.write(' if ')
             if have_not:
                 self.write('not ')
+            self.prec = 27
             self.preorder(if_node)
             pass
         self.prec = p

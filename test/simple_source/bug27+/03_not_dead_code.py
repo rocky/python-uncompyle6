@@ -1,6 +1,6 @@
 # Bug found in 2.7 test_itertools.py
-# Bug was erroneously using reduction to unconditional_true
-# A proper fix would be to use unconditional_true only when we
+# Bug was erroneously using reduction to if_expr_true
+# A proper fix would be to use if_expr_true only when we
 # can determine there is or was dead code.
 from itertools import izip_longest
 for args in [['abc', range(6)]]:
