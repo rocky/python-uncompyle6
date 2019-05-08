@@ -112,14 +112,14 @@ class Python27Parser(Python2Parser):
         compare_chained2 ::= expr COMPARE_OP return_lambda
         compare_chained2 ::= expr COMPARE_OP return_lambda
 
-        # conditional_true are for conditions which always evaluate true
+        # if_expr_true are for conditions which always evaluate true
         # There is dead or non-optional remnants of the condition code though,
         # and we use that to match on to reconstruct the source more accurately.
         # FIXME: we should do analysis and reduce *only* if there is dead code?
         #        right now we check that expr is "or". Any other nodes types?
 
-        expr             ::= conditional_true
-        conditional_true ::= expr JUMP_FORWARD expr COME_FROM
+        expr             ::= if_expr_true
+        if_expr_true     ::= expr JUMP_FORWARD expr COME_FROM
 
         conditional      ::= expr jmp_false expr JUMP_FORWARD expr COME_FROM
         conditional      ::= expr jmp_false expr JUMP_ABSOLUTE expr
@@ -181,9 +181,9 @@ class Python27Parser(Python2Parser):
 
         # Common with 2.6
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
-        stmt ::= conditional_lambda
-        stmt ::= conditional_not_lambda
-        conditional_lambda ::= expr jmp_false expr return_if_lambda
+        stmt               ::= if_expr_lambda
+        stmt               ::= conditional_not_lambda
+        if_expr_lambda     ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
         conditional_not_lambda
                            ::= expr jmp_true expr return_if_lambda
@@ -216,7 +216,7 @@ class Python27Parser(Python2Parser):
         self.check_reduce['raise_stmt1'] = 'AST'
         self.check_reduce['list_if_not'] = 'AST'
         self.check_reduce['list_if'] = 'AST'
-        self.check_reduce['conditional_true'] = 'AST'
+        self.check_reduce['if_expr_true'] = 'tokens'
         self.check_reduce['whilestmt'] = 'tokens'
         return
 
@@ -268,11 +268,8 @@ class Python27Parser(Python2Parser):
             while (tokens[i] != 'JUMP_BACK'):
                 i -= 1
             return tokens[i].attr != tokens[i-1].attr
-        # elif rule[0] == ('conditional_true'):
-        #     # FIXME: the below is a hack: we check expr for
-        #     # nodes that could have possibly been a been a Boolean.
-        #     # We should also look for the presence of dead code.
-        #     return ast[0] == 'expr' and ast[0] == 'or'
+        elif rule[0] == 'if_expr_true':
+            return (first) > 0 and tokens[first-1] == 'POP_JUMP_IF_FALSE'
 
         return False
 
