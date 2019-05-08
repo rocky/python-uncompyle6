@@ -251,7 +251,8 @@ class Python36Parser(Python35Parser):
                 rules_str = """
                     expr                 ::= fstring_multi
                     fstring_multi        ::= joined_str BUILD_STRING
-                    joined_str           ::= formatted_value+
+                    fstr                 ::= expr
+                    joined_str           ::= fstr+
                     fstring_multi        ::= %s BUILD_STRING
                     %s                   ::= %sBUILD_STRING
                 """ % (joined_str_n, joined_str_n, "formatted_value " * v)
