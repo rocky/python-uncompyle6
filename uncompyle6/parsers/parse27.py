@@ -229,6 +229,12 @@ class Python27Parser(Python2Parser):
             return invalid
 
         if rule == ('and', ('expr', 'jmp_false', 'expr', '\\e_come_from_opt')):
+            # If the instruction after the instructions formin "and"  is an "YIELD_VALUE"
+            # then this is probably an "if" inside a comprehension.
+            if tokens[last] == 'YIELD_VALUE':
+                # Note: We might also consider testing last+1 being "POP_TOP"
+                return True
+
             # Test that jmp_false jumps to the end of "and"
             # or that it jumps to the same place as the end of "and"
             jmp_false = ast[1][0]
