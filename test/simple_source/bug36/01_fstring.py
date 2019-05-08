@@ -38,3 +38,7 @@ filename = '.'
 source = 'foo'
 source = (f"__file__ = r'''{os.path.abspath(filename)}'''\n"
           + source + "\ndel __file__")
+
+# From 3.7.3 datalasses.py
+log_rounds  = 5
+assert "05$" == f'{log_rounds:02d}$'

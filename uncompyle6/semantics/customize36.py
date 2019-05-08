@@ -464,7 +464,8 @@ def customize_for_version36(self, version):
             elif subnode == 'fstring_single':
                 f_conversion(subnode)
                 data = self.traverse(subnode, indent='')
-                data = strip_quotes(data[1:])
+                if data[0:1] == 'f':
+                    data = strip_quotes(data[1:])
                 result += data
                 pass
             else:
