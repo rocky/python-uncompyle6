@@ -17,7 +17,9 @@
 
 from spark_parser.ast import GenericASTTraversalPruningException
 from uncompyle6.scanners.tok import Token
-from uncompyle6.semantics.helper import flatten_list
+from uncompyle6.semantics.helper import (
+    flatten_list, escape_string, strip_quotes
+    )
 from uncompyle6.semantics.consts import (
     INDENT_PER_LEVEL, PRECEDENCE, TABLE_DIRECT, TABLE_R)
 
@@ -52,7 +54,6 @@ def customize_for_version36(self, version):
         'fstring_single':   ( "f'''{%c%{conversion}}'''", 0),
         'formatted_value_attr': ( "f'''{%c%{conversion}}%{string}'''",
                                   (0, 'expr')),
-        'fstring_multi':    ( "f'''%c'''", 0),
         'func_args36':      ( "%c(**", 0),
         'try_except36':     ( '%|try:\n%+%c%-%c\n\n', 1, -2 ),
         'except_return':    ( '%|except:\n%+%c%-', 3 ),
@@ -331,79 +332,6 @@ def customize_for_version36(self, version):
         return
     self.call36_dict = call36_dict
 
-
-    FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a', 'X':':X'}
-
-    def n_except_suite_finalize(node):
-        if node[1] == 'returns' and self.hide_internal:
-            # Process node[1] only.
-            # The code after "returns", e.g. node[3], is dead code.
-            # Adding it is wrong as it dedents and another
-            # exception handler "except_stmt" afterwards.
-            # Note it is also possible that the grammar is wrong here.
-            # and this should not be "except_stmt".
-            self.indent_more()
-            self.preorder(node[1])
-            self.indent_less()
-        else:
-            self.default(node)
-        self.prune()
-    self.n_except_suite_finalize = n_except_suite_finalize
-
-    def n_formatted_value(node):
-        if node[0] == 'LOAD_CONST':
-            value = node[0].attr
-            if isinstance(value, tuple):
-                self.write(node[0].attr)
-            else:
-                self.write(escape_format(node[0].attr))
-            self.prune()
-        else:
-            self.default(node)
-    self.n_formatted_value = n_formatted_value
-
-    def f_conversion(node):
-        fmt_node = node.data[1]
-        if fmt_node == 'expr' and fmt_node[0] == 'LOAD_CONST':
-            data = fmt_node[0].attr
-        else:
-            data = fmt_node.attr
-        node.conversion = FSTRING_CONVERSION_MAP.get(data, '')
-
-    def fstring_expr(node):
-        f_conversion(node)
-        self.default(node)
-    self.n_fstring_expr = fstring_expr
-
-    def fstring_single(node):
-        f_conversion(node)
-        self.default(node)
-    self.n_fstring_single = fstring_single
-
-    def formatted_value_attr(node):
-        f_conversion(node)
-        fmt_node = node.data[3]
-        if fmt_node == 'expr' and fmt_node[0] == 'LOAD_CONST':
-            node.string = escape_format(fmt_node[0].attr)
-        else:
-            node.string = fmt_node
-
-        self.default(node)
-    self.n_formatted_value_attr = formatted_value_attr
-
-    # def kwargs_only_36(node):
-    #     keys = node[-1].attr
-    #     num_kwargs = len(keys)
-    #     values = node[:num_kwargs]
-    #     for i, (key, value) in enumerate(zip(keys, values)):
-    #         self.write(key + '=')
-    #         self.preorder(value)
-    #         if i < num_kwargs:
-    #             self.write(',')
-    #     self.prune()
-    #     return
-    # self.n_kwargs_only_36 = kwargs_only_36
-
     def n_call_kw36(node):
         self.template_engine(("%c(", 0), node)
         keys = node[-2].attr
@@ -441,6 +369,125 @@ def customize_for_version36(self, version):
         self.prune()
         return
     self.n_call_kw36 = n_call_kw36
+
+
+    FSTRING_CONVERSION_MAP = {1: '!s', 2: '!r', 3: '!a', 'X':':X'}
+
+    def n_except_suite_finalize(node):
+        if node[1] == 'returns' and self.hide_internal:
+            # Process node[1] only.
+            # The code after "returns", e.g. node[3], is dead code.
+            # Adding it is wrong as it dedents and another
+            # exception handler "except_stmt" afterwards.
+            # Note it is also possible that the grammar is wrong here.
+            # and this should not be "except_stmt".
+            self.indent_more()
+            self.preorder(node[1])
+            self.indent_less()
+        else:
+            self.default(node)
+        self.prune()
+    self.n_except_suite_finalize = n_except_suite_finalize
+
+    def n_formatted_value(node):
+        if node[0] == 'LOAD_CONST':
+            value = node[0].attr
+            if isinstance(value, tuple):
+                self.write(node[0].attr)
+            else:
+                self.write(escape_string(node[0].attr))
+            self.prune()
+        else:
+            self.default(node)
+    self.n_formatted_value = n_formatted_value
+
+    def n_formatted_value_attr(node):
+        f_conversion(node)
+        fmt_node = node.data[3]
+        if fmt_node == 'expr' and fmt_node[0] == 'LOAD_CONST':
+            node.string = escape_format(fmt_node[0].attr)
+        else:
+            node.string = fmt_node
+
+        self.default(node)
+    self.n_formatted_value_attr = n_formatted_value_attr
+
+    def f_conversion(node):
+        fmt_node = node.data[1]
+        if fmt_node == 'expr' and fmt_node[0] == 'LOAD_CONST':
+            data = fmt_node[0].attr
+        else:
+            data = fmt_node.attr
+        node.conversion = FSTRING_CONVERSION_MAP.get(data, '')
+
+    def n_fstring_expr(node):
+        f_conversion(node)
+        self.default(node)
+    self.n_fstring_expr = n_fstring_expr
+
+    def n_fstr(node):
+        if node[0] == 'expr' and node[0][0] == 'fstring_expr':
+            f_conversion(node[0][0])
+            self.default(node[0][0])
+        else:
+            value = strip_quotes(self.traverse(node[0], indent=''))
+            pass
+        self.write(value)
+        self.prune()
+    self.n_fstr = n_fstr
+
+    def n_fstring_single(node):
+        attr4 = len(node) == 3 and node[-1] == 'FORMAT_VALUE_ATTR' and node[-1].attr == 4
+        if attr4 and hasattr(node[0][0], 'attr'):
+            assert node[0] == 'expr'
+            assert node[1] == 'expr'
+            self.write("{%s:%s}" % (node[0][0].attr, node[1][0].attr))
+            self.prune()
+        else:
+            f_conversion(node)
+            self.default(node)
+    self.n_fstring_single = n_fstring_single
+
+    def n_joined_str(node):
+        result = ''
+        for fstr_node in node:
+            assert fstr_node == 'fstr'
+            assert fstr_node[0] == 'expr'
+            subnode = fstr_node[0][0]
+            if subnode.kind == 'fstring_expr':
+                # Don't include outer f'...'
+                f_conversion(subnode)
+                data = strip_quotes(self.traverse(subnode, indent=''))
+                result += data
+            elif subnode == 'LOAD_CONST':
+                result += strip_quotes(escape_string(subnode.attr))
+            elif subnode == 'fstring_single':
+                f_conversion(subnode)
+                data = self.traverse(subnode, indent='')
+                data = strip_quotes(data[1:])
+                result += data
+                pass
+            else:
+                result += strip_quotes(self.traverse(subnode, indent=''))
+                pass
+            pass
+        self.write('f%s' % escape_string(result))
+        self.prune()
+    self.n_joined_str = n_joined_str
+
+
+    # def kwargs_only_36(node):
+    #     keys = node[-1].attr
+    #     num_kwargs = len(keys)
+    #     values = node[:num_kwargs]
+    #     for i, (key, value) in enumerate(zip(keys, values)):
+    #         self.write(key + '=')
+    #         self.preorder(value)
+    #         if i < num_kwargs:
+    #             self.write(',')
+    #     self.prune()
+    #     return
+    # self.n_kwargs_only_36 = kwargs_only_36
 
     def starred(node):
         l = len(node)

@@ -68,6 +68,36 @@ def find_none(node):
             return True
     return False
 
+def escape_string(str, quotes=('"', "'", '"""', "'''")):
+    quote = None
+    for q in quotes:
+        if str.find(q) == -1:
+            quote = q
+            break
+        pass
+    if quote is None:
+        quote = '"""'
+        str = str.replace('"""', '\\"""')
+
+    for (orig, replace) in (('\t', '\\t'),
+                            ('\n', '\\n'),
+                            ('\r', '\\r')):
+        str = str.replace(orig, replace)
+    return "%s%s%s" % (quote, str, quote)
+
+def strip_quotes(str):
+    if str.startswith("'''") and str.endswith("'''"):
+        str = str[3:-3]
+    elif str.startswith('"""') and str.endswith('"""'):
+        str = str[3:-3]
+    elif str.startswith("'") and str.endswith("'"):
+        str = str[1:-1]
+    elif str.startswith('"') and str.endswith('"'):
+        str = str[1:-1]
+        pass
+    return str
+
+
 def print_docstring(self, indent, docstring):
     try:
         if docstring.find('"""') == -1:
