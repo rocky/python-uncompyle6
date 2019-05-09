@@ -69,8 +69,9 @@ def customize_for_version36(self, version):
             '%c(%p)',
             (0, 'expr'), (1, 100)),
         'call_ex_kw' : (
-            '%c(%p)',
-            (0, 'expr'), (2, 100)),
+            '%c(*%c, %p)',
+            (0, 'expr'), (1, 'expr'),
+            (2, 'build_map_unpack_with_call', 100)),
 
     })
 
