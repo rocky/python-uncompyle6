@@ -68,10 +68,6 @@ def customize_for_version36(self, version):
         'call_ex' : (
             '%c(%p)',
             (0, 'expr'), (1, 100)),
-        'call_ex_kw' : (
-            '%c(*%c, %p)',
-            (0, 'expr'), (1, 'expr'),
-            (2, 'build_map_unpack_with_call', 100)),
 
     })
 
@@ -130,6 +126,7 @@ def customize_for_version36(self, version):
         value = self.traverse(expr, indent='')
 
         if value.startswith('('):
+            assert value.endswith(')')
             value = value[1:-1].rstrip(" ") # Remove starting '(' and trailing ')' and additional spaces
             if value == '':
                 fmt = "%c(%p)" # args is empty
