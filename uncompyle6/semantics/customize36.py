@@ -128,22 +128,22 @@ def customize_for_version36(self, version):
         expr = node[1]
         assert expr == 'expr'
         value = self.traverse(expr, indent='')
-        
+
         if value.startswith('('):
             value = value[1:-1].rstrip(" ") # Remove starting '(' and trailing ')' and additional spaces
-            if value == '': 
-                fmt = "%%c(%%p)" % () # args is empty
+            if value == '':
+                fmt = "%c(%p)" # args is empty
             else:
                 if value.endswith(','): # if args has only one item
                     value = value[:-1]
                 fmt = "%%c(%s, %%p)" % value
         else:
             fmt = "%%c(%s, %%p)" % value
-        
+
         self.template_engine(
             (fmt,
             (0, 'expr'), (2, 'build_map_unpack_with_call', 100)), node)
-            
+
         self.prune()
     self.n_call_ex_kw = call_ex_kw
 
