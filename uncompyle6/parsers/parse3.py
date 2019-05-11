@@ -432,7 +432,7 @@ class Python3Parser(PythonParser):
         else:
             return "%s_0" % (token.kind)
 
-    def custom_build_class_rule(self, opname, i, token, tokens, customize):
+    def custom_build_class_rule(self, opname, i, token, tokens, customize, is_pypy):
         """
         # Should the first rule be somehow folded into the 2nd one?
         build_class ::= LOAD_BUILD_CLASS mkfunc
@@ -483,10 +483,18 @@ class Python3Parser(PythonParser):
             call_function = call_fn_tok.kind
             if call_function.startswith("CALL_FUNCTION_KW"):
                 self.addRule("classdef ::= build_class_kw store", nop_func)
-                rule = "build_class_kw ::= LOAD_BUILD_CLASS mkfunc %sLOAD_CONST %s" % (
-                    "expr " * (call_fn_tok.attr - 1),
-                    call_function,
-                )
+                if is_pypy:
+                    args_pos, args_kw = self.get_pos_kw(call_fn_tok)
+                    rule = "build_class_kw ::= LOAD_BUILD_CLASS mkfunc %s%s%s" % (
+                        "expr " * (args_pos - 1),
+                        "kwarg " * (args_kw),
+                        call_function,
+                    )
+                else:
+                    rule = (
+                        "build_class_kw ::= LOAD_BUILD_CLASS mkfunc %sLOAD_CONST %s"
+                        % ("expr " * (call_fn_tok.attr - 1), call_function)
+                    )
             else:
                 call_function = self.call_fn_name(call_fn_tok)
                 rule = "build_class ::= LOAD_BUILD_CLASS mkfunc %s%s" % (
@@ -496,7 +504,7 @@ class Python3Parser(PythonParser):
         self.addRule(rule, nop_func)
         return
 
-    def custom_classfunc_rule(self, opname, token, customize, next_token):
+    def custom_classfunc_rule(self, opname, token, customize, next_token, is_pypy):
         """
         call ::= expr {expr}^n CALL_FUNCTION_n
         call ::= expr {expr}^n CALL_FUNCTION_VAR_n
@@ -514,18 +522,28 @@ class Python3Parser(PythonParser):
         # Yes, this computation based on instruction name is a little bit hoaky.
         nak = (len(opname) - len("CALL_FUNCTION")) // 3
 
-        token.kind = self.call_fn_name(token)
         uniq_param = args_kw + args_pos
 
         # Note: 3.5+ have subclassed this method; so we don't handle
         # 'CALL_FUNCTION_VAR' or 'CALL_FUNCTION_EX' here.
-        rule = (
-            "call ::= expr "
-            + ("pos_arg " * args_pos)
-            + ("kwarg " * args_kw)
-            + "expr " * nak
-            + token.kind
-        )
+        if is_pypy and self.version >= 3.6:
+            if token == "CALL_FUNCTION":
+                token.kind = self.call_fn_name(token)
+            rule = (
+                "call ::= expr "
+                + ("pos_arg " * args_pos)
+                + ("kwarg " * args_kw)
+                + token.kind
+            )
+        else:
+            token.kind = self.call_fn_name(token)
+            rule = (
+                "call ::= expr "
+                + ("pos_arg " * args_pos)
+                + ("kwarg " * args_kw)
+                + "expr " * nak
+                + token.kind
+            )
 
         self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
@@ -821,7 +839,9 @@ class Python3Parser(PythonParser):
                         """
                     self.addRule(rule, nop_func)
 
-                self.custom_classfunc_rule(opname, token, customize, tokens[i + 1])
+                self.custom_classfunc_rule(
+                    opname, token, customize, tokens[i + 1], is_pypy
+                )
                 # Note: don't add to custom_ops_processed.
 
             elif opname_base == "CALL_METHOD":
@@ -880,21 +900,30 @@ class Python3Parser(PythonParser):
                 self.addRule(
                     """
                     stmt        ::= assert_pypy
-                    stmt        ::= assert2_pypy", nop_func)
+                    stmt        ::= assert_not_pypy
+                    stmt        ::= assert2_pypy
+                    stmt        ::= assert2_not_pypy
                     assert_pypy ::=  JUMP_IF_NOT_DEBUG assert_expr jmp_true
+                                     LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
+                    assert_not_pypy ::=  JUMP_IF_NOT_DEBUG assert_expr jmp_false
                                      LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
                     assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true
                                      LOAD_ASSERT expr CALL_FUNCTION_1
                                      RAISE_VARARGS_1 COME_FROM
                     assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true
                                      LOAD_ASSERT expr CALL_FUNCTION_1
-                                     RAISE_VARARGS_1 COME_FROM,
+                                     RAISE_VARARGS_1 COME_FROM
+                    assert2_not_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_false
+                                     LOAD_ASSERT expr CALL_FUNCTION_1
+                                     RAISE_VARARGS_1 COME_FROM
                     """,
                     nop_func,
                 )
                 custom_ops_processed.add(opname)
             elif opname == "LOAD_BUILD_CLASS":
-                self.custom_build_class_rule(opname, i, token, tokens, customize)
+                self.custom_build_class_rule(
+                    opname, i, token, tokens, customize, is_pypy
+                )
                 # Note: don't add to custom_ops_processed.
             elif opname == "LOAD_CLASSDEREF":
                 # Python 3.4+

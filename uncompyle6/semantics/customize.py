@@ -28,8 +28,12 @@ def customize_for_version(self, is_pypy, version):
         # PyPy changes
         #######################
         TABLE_DIRECT.update({
-            'assert_pypy':	( '%|assert %c\n' , 1 ),
-            'assert2_pypy':	( '%|assert %c, %c\n' , 1, 4 ),
+            'assert_pypy':	( '%|assert %c\n' ,     (1, 'assert_expr') ),
+            'assert_not_pypy':	( '%|assert not %c\n' , (1, 'assert_exp') ),
+            'assert2_not_pypy':	( '%|assert not %c, %c\n' , (1, 'assert_exp'),
+                                  (4, 'expr') ),
+            'assert2_pypy':	( '%|assert %c, %c\n' , (1, 'assert_expr'),
+                                  (4, 'expr') ),
             'try_except_pypy':	   ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
             'tryfinallystmt_pypy': ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 3 ),
             'assign3_pypy':        ( '%|%c, %c, %c = %c, %c, %c\n', 5, 4, 3, 0, 1, 2 ),

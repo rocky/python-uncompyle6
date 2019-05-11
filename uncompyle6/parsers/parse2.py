@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2018 Rocky Bernstein
+#  Copyright (c) 2015-2019 Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 #  Copyright (c) 1999 John Aycock
@@ -31,10 +31,10 @@ from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
-class Python2Parser(PythonParser):
 
+class Python2Parser(PythonParser):
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
-        super(Python2Parser, self).__init__(SyntaxTree, 'stmts', debug=debug_parser)
+        super(Python2Parser, self).__init__(SyntaxTree, "stmts", debug=debug_parser)
         self.new_rules = set()
 
     def p_print2(self, args):
@@ -52,7 +52,7 @@ class Python2Parser(PythonParser):
         """
 
     def p_print_to(self, args):
-        '''
+        """
         stmt ::= print_to
         stmt ::= print_to_nl
         stmt ::= print_nl_to
@@ -62,10 +62,10 @@ class Python2Parser(PythonParser):
         print_to_items ::= print_to_items print_to_item
         print_to_items ::= print_to_item
         print_to_item ::= DUP_TOP expr ROT_TWO PRINT_ITEM_TO
-        '''
+        """
 
     def p_grammar(self, args):
-        '''
+        """
         sstmt ::= stmt
         sstmt ::= return RETURN_LAST
 
@@ -176,12 +176,12 @@ class Python2Parser(PythonParser):
         jmp_abs ::= JUMP_ABSOLUTE
         jmp_abs ::= JUMP_BACK
         jmp_abs ::= CONTINUE
-        '''
+        """
 
     def p_generator_exp2(self, args):
-        '''
+        """
         generator_exp ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1
-        '''
+        """
 
     def p_expr2(self, args):
         """
@@ -252,25 +252,41 @@ class Python2Parser(PythonParser):
         this.
         """
 
-        if 'PyPy' in customize:
+        if "PyPy" in customize:
             # PyPy-specific customizations
-            self.addRule("""
+            self.addRule(
+                """
                         stmt ::= assign3_pypy
                         stmt ::= assign2_pypy
                         assign3_pypy ::= expr expr expr store store store
                         assign2_pypy ::= expr expr store store
                         list_comp    ::= expr  BUILD_LIST_FROM_ARG for_iter store list_iter
                                          JUMP_BACK
-                        """, nop_func)
+                        """,
+                nop_func,
+            )
 
         # For a rough break out on the first word. This may
         # include instructions that don't need customization,
         # but we'll do a finer check after the rough breakout.
         customize_instruction_basenames = frozenset(
-            ('BUILD',     'CALL',       'CONTINUE',  'DELETE',
-             'DUP',       'EXEC',       'GET',       'JUMP',
-             'LOAD',      'LOOKUP',     'MAKE',      'SETUP',
-             'RAISE',     'UNPACK'))
+            (
+                "BUILD",
+                "CALL",
+                "CONTINUE",
+                "DELETE",
+                "DUP",
+                "EXEC",
+                "GET",
+                "JUMP",
+                "LOAD",
+                "LOOKUP",
+                "MAKE",
+                "SETUP",
+                "RAISE",
+                "UNPACK",
+            )
+        )
 
         # Opcode names in the custom_seen_ops set have rules that get added
         # unconditionally and the rules are constant. So they need to be done
@@ -284,139 +300,191 @@ class Python2Parser(PythonParser):
 
             # Do a quick breakout before testing potentially
             # each of the dozen or so instruction in if elif.
-            if (opname[:opname.find('_')] not in customize_instruction_basenames
-                    or opname in custom_seen_ops):
+            if (
+                opname[: opname.find("_")] not in customize_instruction_basenames
+                or opname in custom_seen_ops
+            ):
                 continue
 
-            opname_base = opname[:opname.rfind('_')]
+            opname_base = opname[: opname.rfind("_")]
 
             # The order of opname listed is roughly sorted below
-            if opname_base in ('BUILD_LIST', 'BUILD_SET', 'BUILD_TUPLE'):
+            if opname_base in ("BUILD_LIST", "BUILD_SET", "BUILD_TUPLE"):
                 # We do this complicated test to speed up parsing of
                 # pathelogically long literals, especially those over 1024.
                 build_count = token.attr
-                thousands = (build_count//1024)
-                thirty32s = ((build_count//32) % 32)
+                thousands = build_count // 1024
+                thirty32s = (build_count // 32) % 32
                 if thirty32s > 0:
-                    rule = "expr32 ::=%s" % (' expr' * 32)
+                    rule = "expr32 ::=%s" % (" expr" * 32)
                     self.add_unique_rule(rule, opname_base, build_count, customize)
                 if thousands > 0:
-                    self.add_unique_rule("expr1024 ::=%s" % (' expr32' * 32),
-                                         opname_base, build_count, customize)
-                collection = opname_base[opname_base.find('_')+1:].lower()
-                rule = (('%s ::= ' % collection) + 'expr1024 '*thousands +
-                        'expr32 '*thirty32s + 'expr '*(build_count % 32) + opname)
-                self.add_unique_rules([
-                    "expr ::= %s" % collection,
-                    rule], customize)
+                    self.add_unique_rule(
+                        "expr1024 ::=%s" % (" expr32" * 32),
+                        opname_base,
+                        build_count,
+                        customize,
+                    )
+                collection = opname_base[opname_base.find("_") + 1 :].lower()
+                rule = (
+                    ("%s ::= " % collection)
+                    + "expr1024 " * thousands
+                    + "expr32 " * thirty32s
+                    + "expr " * (build_count % 32)
+                    + opname
+                )
+                self.add_unique_rules(["expr ::= %s" % collection, rule], customize)
                 continue
-            elif opname_base == 'BUILD_MAP':
-                if opname == 'BUILD_MAP_n':
+            elif opname_base == "BUILD_MAP":
+                if opname == "BUILD_MAP_n":
                     # PyPy sometimes has no count. Sigh.
-                    self.add_unique_rules([
-                        'kvlist_n ::=  kvlist_n kv3',
-                        'kvlist_n ::=',
-                        'dict ::= BUILD_MAP_n kvlist_n',
-                    ], customize)
+                    self.add_unique_rules(
+                        [
+                            "kvlist_n ::=  kvlist_n kv3",
+                            "kvlist_n ::=",
+                            "dict ::= BUILD_MAP_n kvlist_n",
+                        ],
+                        customize,
+                    )
                     if self.version >= 2.7:
                         self.add_unique_rule(
-                            'dict_comp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER store '
-                            'comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST',
-                            'dict_comp_func', 0, customize)
+                            "dict_comp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER store "
+                            "comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST",
+                            "dict_comp_func",
+                            0,
+                            customize,
+                        )
 
                 else:
-                    kvlist_n =  ' kv3' * token.attr
+                    kvlist_n = " kv3" * token.attr
                     rule = "dict ::= %s%s" % (opname, kvlist_n)
                     self.addRule(rule, nop_func)
                 continue
-            elif opname_base == 'BUILD_SLICE':
-                slice_num  = token.attr
+            elif opname_base == "BUILD_SLICE":
+                slice_num = token.attr
                 if slice_num == 2:
-                     self.add_unique_rules([
-                        'expr ::= build_slice2',
-                        'build_slice2 ::= expr expr BUILD_SLICE_2'
-                        ], customize)
+                    self.add_unique_rules(
+                        [
+                            "expr ::= build_slice2",
+                            "build_slice2 ::= expr expr BUILD_SLICE_2",
+                        ],
+                        customize,
+                    )
                 else:
-                    assert slice_num == 3, ("BUILD_SLICE value must be 2 or 3; is %s" %
-                                            slice_num)
-                    self.add_unique_rules([
-                        'expr ::= build_slice3',
-                        'build_slice3 ::= expr expr expr BUILD_SLICE_3',
-                        ], customize)
+                    assert slice_num == 3, (
+                        "BUILD_SLICE value must be 2 or 3; is %s" % slice_num
+                    )
+                    self.add_unique_rules(
+                        [
+                            "expr ::= build_slice3",
+                            "build_slice3 ::= expr expr expr BUILD_SLICE_3",
+                        ],
+                        customize,
+                    )
                 continue
-            elif opname_base in ('CALL_FUNCTION', 'CALL_FUNCTION_VAR',
-                                 'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
+            elif opname_base in (
+                "CALL_FUNCTION",
+                "CALL_FUNCTION_VAR",
+                "CALL_FUNCTION_VAR_KW",
+                "CALL_FUNCTION_KW",
+            ):
 
                 args_pos, args_kw = self.get_pos_kw(token)
 
                 # number of apply equiv arguments:
-                nak = ( len(opname_base)-len('CALL_FUNCTION') ) // 3
-                rule = 'call ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
-                       + 'expr ' * nak + opname
-            elif opname_base == 'CALL_METHOD':
+                nak = (len(opname_base) - len("CALL_FUNCTION")) // 3
+                rule = (
+                    "call ::= expr "
+                    + "expr " * args_pos
+                    + "kwarg " * args_kw
+                    + "expr " * nak
+                    + opname
+                )
+            elif opname_base == "CALL_METHOD":
                 # PyPy only - DRY with parse3
 
                 args_pos, args_kw = self.get_pos_kw(token)
 
                 # number of apply equiv arguments:
-                nak = ( len(opname_base)-len('CALL_METHOD') ) // 3
-                rule = 'call ::= expr ' + 'expr '*args_pos + 'kwarg '*args_kw \
-                       + 'expr ' * nak + opname
-            elif opname == 'CONTINUE_LOOP':
-                self.addRule('continue ::= CONTINUE_LOOP', nop_func)
+                nak = (len(opname_base) - len("CALL_METHOD")) // 3
+                rule = (
+                    "call ::= expr "
+                    + "expr " * args_pos
+                    + "kwarg " * args_kw
+                    + "expr " * nak
+                    + opname
+                )
+            elif opname == "CONTINUE_LOOP":
+                self.addRule("continue ::= CONTINUE_LOOP", nop_func)
                 custom_seen_ops.add(opname)
                 continue
-            elif opname == 'DELETE_ATTR':
-                self.addRule('del_stmt ::= expr DELETE_ATTR', nop_func)
+            elif opname == "DELETE_ATTR":
+                self.addRule("del_stmt ::= expr DELETE_ATTR", nop_func)
                 custom_seen_ops.add(opname)
                 continue
-            elif opname.startswith('DELETE_SLICE'):
-                self.addRule("""
+            elif opname.startswith("DELETE_SLICE"):
+                self.addRule(
+                    """
                 del_expr ::= expr
                 del_stmt ::= del_expr DELETE_SLICE+0
                 del_stmt ::= del_expr del_expr DELETE_SLICE+1
                 del_stmt ::= del_expr del_expr DELETE_SLICE+2
                 del_stmt ::= del_expr del_expr del_expr DELETE_SLICE+3
-                """, nop_func)
+                """,
+                    nop_func,
+                )
                 custom_seen_ops.add(opname)
-                self.check_reduce['del_expr'] = 'AST'
+                self.check_reduce["del_expr"] = "AST"
                 continue
-            elif opname == 'DELETE_DEREF':
-                self.addRule("""
+            elif opname == "DELETE_DEREF":
+                self.addRule(
+                    """
                    stmt           ::= del_deref_stmt
                    del_deref_stmt ::= DELETE_DEREF
-                   """, nop_func)
+                   """,
+                    nop_func,
+                )
                 custom_seen_ops.add(opname)
                 continue
-            elif opname == 'DELETE_SUBSCR':
-                self.addRule("""
+            elif opname == "DELETE_SUBSCR":
+                self.addRule(
+                    """
                     del_stmt ::= delete_subscript
                     delete_subscript ::= expr expr DELETE_SUBSCR
-                   """, nop_func)
-                self.check_reduce['delete_subscript'] = 'AST'
+                   """,
+                    nop_func,
+                )
+                self.check_reduce["delete_subscript"] = "AST"
                 custom_seen_ops.add(opname)
                 continue
-            elif opname == 'GET_ITER':
-                self.addRule("""
+            elif opname == "GET_ITER":
+                self.addRule(
+                    """
                     expr      ::= get_iter
                     attribute ::= expr GET_ITER
-                    """, nop_func)
+                    """,
+                    nop_func,
+                )
                 custom_seen_ops.add(opname)
                 continue
-            elif opname_base in ('DUP_TOPX', 'RAISE_VARARGS'):
+            elif opname_base in ("DUP_TOPX", "RAISE_VARARGS"):
                 # FIXME: remove these conditions if they are not needed.
                 # no longer need to add a rule
                 continue
-            elif opname == 'EXEC_STMT':
-                self.addRule("""
+            elif opname == "EXEC_STMT":
+                self.addRule(
+                    """
                     stmt      ::= exec_stmt
                     exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
                     exec_stmt ::= expr exprlist EXEC_STMT
                     exprlist  ::= expr+
-                    """, nop_func)
+                    """,
+                    nop_func,
+                )
                 continue
-            elif opname == 'JUMP_IF_NOT_DEBUG':
-                self.addRule("""
+            elif opname == "JUMP_IF_NOT_DEBUG":
+                self.addRule(
+                    """
                     jmp_true_false ::= POP_JUMP_IF_TRUE
                     jmp_true_false ::= POP_JUMP_IF_FALSE
                     stmt ::= assert_pypy
@@ -426,107 +494,152 @@ class Python2Parser(PythonParser):
                     assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true_false
                                      LOAD_ASSERT expr CALL_FUNCTION_1
                                      RAISE_VARARGS_1 COME_FROM
-                     """, nop_func)
+                     """,
+                    nop_func,
+                )
                 continue
-            elif opname == 'LOAD_ATTR':
-                self.addRule("""
+            elif opname == "LOAD_ATTR":
+                self.addRule(
+                    """
                   expr      ::= attribute
                   attribute ::= expr LOAD_ATTR
-                  """, nop_func)
+                  """,
+                    nop_func,
+                )
                 custom_seen_ops.add(opname)
                 continue
-            elif opname == 'LOAD_LISTCOMP':
+            elif opname == "LOAD_LISTCOMP":
                 self.addRule("expr ::= listcomp", nop_func)
                 custom_seen_ops.add(opname)
                 continue
-            elif opname == 'LOAD_SETCOMP':
-                self.add_unique_rules([
-                    "expr ::= set_comp",
-                    "set_comp ::= LOAD_SETCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1"
-                    ], customize)
+            elif opname == "LOAD_SETCOMP":
+                self.add_unique_rules(
+                    [
+                        "expr ::= set_comp",
+                        "set_comp ::= LOAD_SETCOMP MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1",
+                    ],
+                    customize,
+                )
                 custom_seen_ops.add(opname)
                 continue
-            elif opname == 'LOOKUP_METHOD':
+            elif opname == "LOOKUP_METHOD":
                 # A PyPy speciality - DRY with parse3
-                self.addRule("""
+                self.addRule(
+                    """
                              expr      ::= attribute
                              attribute ::= expr LOOKUP_METHOD
                              """,
-                             nop_func)
+                    nop_func,
+                )
                 custom_seen_ops.add(opname)
                 continue
-            elif opname_base == 'MAKE_FUNCTION':
-                if i > 0 and tokens[i-1] == 'LOAD_LAMBDA':
-                    self.addRule('mklambda ::= %s LOAD_LAMBDA %s' %
-                                 ('pos_arg ' * token.attr, opname), nop_func)
-                rule = 'mkfunc ::= %s LOAD_CODE %s' % ('expr ' * token.attr, opname)
-            elif opname_base == 'MAKE_CLOSURE':
+            elif opname_base == "MAKE_FUNCTION":
+                if i > 0 and tokens[i - 1] == "LOAD_LAMBDA":
+                    self.addRule(
+                        "mklambda ::= %s LOAD_LAMBDA %s"
+                        % ("pos_arg " * token.attr, opname),
+                        nop_func,
+                    )
+                rule = "mkfunc ::= %s LOAD_CODE %s" % ("expr " * token.attr, opname)
+            elif opname_base == "MAKE_CLOSURE":
                 # FIXME: use add_unique_rules to tidy this up.
-                if i > 0 and tokens[i-1] == 'LOAD_LAMBDA':
-                    self.addRule('mklambda ::= %s load_closure LOAD_LAMBDA %s' %
-                                 ('expr ' * token.attr, opname),  nop_func)
+                if i > 0 and tokens[i - 1] == "LOAD_LAMBDA":
+                    self.addRule(
+                        "mklambda ::= %s load_closure LOAD_LAMBDA %s"
+                        % ("expr " * token.attr, opname),
+                        nop_func,
+                    )
                 if i > 0:
-                    prev_tok = tokens[i-1]
-                    if prev_tok == 'LOAD_GENEXPR':
-                        self.add_unique_rules([
-                            ('generator_exp ::= %s load_closure LOAD_GENEXPR %s expr'
-                                 ' GET_ITER CALL_FUNCTION_1' %
-                            ('expr ' * token.attr, opname))], customize)
+                    prev_tok = tokens[i - 1]
+                    if prev_tok == "LOAD_GENEXPR":
+                        self.add_unique_rules(
+                            [
+                                (
+                                    "generator_exp ::= %s load_closure LOAD_GENEXPR %s expr"
+                                    " GET_ITER CALL_FUNCTION_1"
+                                    % ("expr " * token.attr, opname)
+                                )
+                            ],
+                            customize,
+                        )
                         pass
-                self.add_unique_rules([
-                    ('mkfunc ::= %s load_closure LOAD_CODE %s' %
-                     ('expr ' * token.attr, opname))], customize)
+                self.add_unique_rules(
+                    [
+                        (
+                            "mkfunc ::= %s load_closure LOAD_CODE %s"
+                            % ("expr " * token.attr, opname)
+                        )
+                    ],
+                    customize,
+                )
 
                 if self.version >= 2.7:
                     if i > 0:
-                        prev_tok = tokens[i-1]
-                        if prev_tok == 'LOAD_DICTCOMP':
-                            self.add_unique_rules([
-                                ('dict_comp ::= %s load_closure LOAD_DICTCOMP %s expr'
-                                 ' GET_ITER CALL_FUNCTION_1' %
-                                ('expr ' * token.attr, opname))], customize)
-                        elif prev_tok == 'LOAD_SETCOMP':
-                            self.add_unique_rules([
-                                "expr ::= set_comp",
-                                ('set_comp ::= %s load_closure LOAD_SETCOMP %s expr'
-                                ' GET_ITER CALL_FUNCTION_1' %
-                                ('expr ' * token.attr, opname))
-                                ], customize)
+                        prev_tok = tokens[i - 1]
+                        if prev_tok == "LOAD_DICTCOMP":
+                            self.add_unique_rules(
+                                [
+                                    (
+                                        "dict_comp ::= %s load_closure LOAD_DICTCOMP %s expr"
+                                        " GET_ITER CALL_FUNCTION_1"
+                                        % ("expr " * token.attr, opname)
+                                    )
+                                ],
+                                customize,
+                            )
+                        elif prev_tok == "LOAD_SETCOMP":
+                            self.add_unique_rules(
+                                [
+                                    "expr ::= set_comp",
+                                    (
+                                        "set_comp ::= %s load_closure LOAD_SETCOMP %s expr"
+                                        " GET_ITER CALL_FUNCTION_1"
+                                        % ("expr " * token.attr, opname)
+                                    ),
+                                ],
+                                customize,
+                            )
                         pass
                     pass
                 continue
-            elif opname == 'SETUP_EXCEPT':
-                if 'PyPy' in customize:
-                    self.add_unique_rules([
-                        "stmt ::= try_except_pypy",
-                        "try_except_pypy ::= SETUP_EXCEPT suite_stmts_opt except_handler_pypy",
-                        "except_handler_pypy ::= COME_FROM except_stmts END_FINALLY COME_FROM"
-                        ], customize)
+            elif opname == "SETUP_EXCEPT":
+                if "PyPy" in customize:
+                    self.add_unique_rules(
+                        [
+                            "stmt ::= try_except_pypy",
+                            "try_except_pypy ::= SETUP_EXCEPT suite_stmts_opt except_handler_pypy",
+                            "except_handler_pypy ::= COME_FROM except_stmts END_FINALLY COME_FROM",
+                        ],
+                        customize,
+                    )
                 custom_seen_ops.add(opname)
                 continue
-            elif opname == 'SETUP_FINALLY':
-                if 'PyPy' in customize:
-                    self.addRule("""
+            elif opname == "SETUP_FINALLY":
+                if "PyPy" in customize:
+                    self.addRule(
+                        """
                         stmt ::= tryfinallystmt_pypy
                         tryfinallystmt_pypy ::= SETUP_FINALLY suite_stmts_opt COME_FROM_FINALLY
-                                                suite_stmts_opt END_FINALLY""", nop_func)
+                                                suite_stmts_opt END_FINALLY""",
+                        nop_func,
+                    )
 
                 custom_seen_ops.add(opname)
                 continue
-            elif opname_base in ('UNPACK_TUPLE', 'UNPACK_SEQUENCE'):
+            elif opname_base in ("UNPACK_TUPLE", "UNPACK_SEQUENCE"):
                 custom_seen_ops.add(opname)
-                rule = 'unpack ::= ' + opname + ' store' * token.attr
-            elif opname_base == 'UNPACK_LIST':
+                rule = "unpack ::= " + opname + " store" * token.attr
+            elif opname_base == "UNPACK_LIST":
                 custom_seen_ops.add(opname)
-                rule = 'unpack_list ::= ' + opname + ' store' * token.attr
+                rule = "unpack_list ::= " + opname + " store" * token.attr
             else:
                 continue
             self.addRule(rule, nop_func)
             pass
 
-        self.check_reduce['raise_stmt1'] = 'tokens'
-        self.check_reduce['aug_assign2'] = 'AST'
-        self.check_reduce['or'] = 'AST'
+        self.check_reduce["raise_stmt1"] = "tokens"
+        self.check_reduce["aug_assign2"] = "AST"
+        self.check_reduce["or"] = "AST"
         # self.check_reduce['_stmts'] = 'AST'
 
         # Dead code testing...
@@ -541,24 +654,30 @@ class Python2Parser(PythonParser):
         # Dead code testing...
         # if lhs == 'while1elsestmt':
         #     from trepan.api import debug; debug()
-        if lhs in ('aug_assign1', 'aug_assign2') and ast[0] and ast[0][0] in ('and', 'or'):
+        if (
+            lhs in ("aug_assign1", "aug_assign2")
+            and ast[0]
+            and ast[0][0] in ("and", "or")
+        ):
             return True
-        elif lhs in ('raise_stmt1',):
+        elif lhs in ("raise_stmt1",):
             # We will assume 'LOAD_ASSERT' will be handled by an assert grammar rule
-            return (tokens[first] == 'LOAD_ASSERT' and (last >= len(tokens)))
-        elif rule == ('or', ('expr', 'jmp_true', 'expr', '\\e_come_from_opt')):
+            return tokens[first] == "LOAD_ASSERT" and (last >= len(tokens))
+        elif rule == ("or", ("expr", "jmp_true", "expr", "\\e_come_from_opt")):
             expr2 = ast[2]
-            return expr2 == 'expr' and expr2[0] == 'LOAD_ASSERT'
-        elif lhs in ('delete_subscript', 'del_expr'):
+            return expr2 == "expr" and expr2[0] == "LOAD_ASSERT"
+        elif lhs in ("delete_subscript", "del_expr"):
             op = ast[0][0]
-            return op.kind in ('and', 'or')
+            return op.kind in ("and", "or")
 
         return False
+
 
 class Python2ParserSingle(Python2Parser, PythonParserSingle):
     pass
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Check grammar
     p = Python2Parser()
     p.check_grammar()

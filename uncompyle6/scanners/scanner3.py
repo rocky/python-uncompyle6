@@ -260,7 +260,10 @@ class Scanner3(Scanner):
                 # There is a an implied JUMP_IF_TRUE that we are not testing for (yet?) here
                 assert_can_follow = inst.opname == "POP_TOP" and i + 1 < n
             else:
-                assert_can_follow = inst.opname == "POP_JUMP_IF_TRUE" and i + 1 < n
+                assert_can_follow = (
+                    inst.opname in ("POP_JUMP_IF_TRUE", "POP_JUMP_IF_FALSE")
+                    and i + 1 < n
+                )
             if assert_can_follow:
                 next_inst = self.insts[i + 1]
                 if (
@@ -270,9 +273,7 @@ class Scanner3(Scanner):
                 ):
                     raise_idx = self.offset2inst_index[self.prev_op[inst.argval]]
                     raise_inst = self.insts[raise_idx]
-                    if raise_inst.opname.startswith(
-                        "RAISE_VARARGS"
-                    ):
+                    if raise_inst.opname.startswith("RAISE_VARARGS"):
                         self.load_asserts.add(next_inst.offset)
                     pass
                 pass
@@ -428,11 +429,16 @@ class Scanner3(Scanner):
                 else:
                     opname = "%s_%d" % (opname, pos_args)
 
-            elif self.is_pypy and opname == "JUMP_IF_NOT_DEBUG":
-                # The value in the dict is in special cases in semantic actions, such
-                # as JUMP_IF_NOT_DEBUG. The value is not used in these cases, so we put
-                # in arbitrary value 0.
-                customize[opname] = 0
+            elif self.is_pypy and opname in ("JUMP_IF_NOT_DEBUG", "CALL_FUNCTION"):
+                if opname == "JUMP_IF_NOT_DEBUG":
+                    # The value in the dict is in special cases in semantic actions, such
+                    # as JUMP_IF_NOT_DEBUG. The value is not used in these cases, so we put
+                    # in arbitrary value 0.
+                    customize[opname] = 0
+                elif self.version >= 3.6 and argval > 255:
+                    opname = "CALL_FUNCTION_KW"
+                    pass
+
             elif opname == "UNPACK_EX":
                 # FIXME: try with scanner and parser by
                 # changing argval
