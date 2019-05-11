@@ -1837,11 +1837,7 @@ class SourceWalker(GenericASTTraversal, object):
             typ = m.group('type') or '{'
             node = startnode
             if m.group('child'):
-                try:
-                    node = node[int(m.group('child'))]
-                except:
-                    from trepan.api import debug; debug()
-                    pass
+                node = node[int(m.group('child'))]
 
             if   typ == '%':	self.write('%')
             elif typ == '+':

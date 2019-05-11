@@ -33,6 +33,8 @@ class Scanner36(Scanner3):
                  t.op == self.opc.CALL_FUNCTION_EX and t.attr & 1):
                 t.kind = 'CALL_FUNCTION_EX_KW'
                 pass
+            elif t.op == self.opc.BUILD_STRING:
+                t.kind = 'BUILD_STRING_%s' % t.attr
             elif t.op == self.opc.CALL_FUNCTION_KW:
                 t.kind = 'CALL_FUNCTION_KW_%s' % t.attr
             elif t.op == self.opc.FORMAT_VALUE:
