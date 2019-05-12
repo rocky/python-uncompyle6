@@ -41,6 +41,7 @@ def customize_for_version36(self, version):
     PRECEDENCE['call_ex_kw3'] = 1
     PRECEDENCE['call_ex_kw4'] = 1
     PRECEDENCE['unmap_dict']  = 0
+    PRECEDENCE['formatted_value1'] = 100
 
     TABLE_DIRECT.update({
         'tryfinally36':     ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
@@ -418,7 +419,6 @@ def customize_for_version36(self, version):
             node.string = escape_format(fmt_node[0].attr)
         else:
             node.string = fmt_node
-
         self.default(node)
     self.n_formatted_value_attr = n_formatted_value_attr
 
@@ -443,6 +443,9 @@ def customize_for_version36(self, version):
     self.n_formatted_value1 = n_formatted_value1
 
     def n_formatted_value2(node):
+        p = self.prec
+        self.prec = 100
+
         expr = node[0]
         assert expr == 'expr'
         value = self.traverse(expr, indent='')
@@ -458,10 +461,15 @@ def customize_for_version36(self, version):
 
         f_str = "f%s" % escape_string("{%s%s}" % (value, conversion))
         self.write(f_str)
+
+        self.prec = p
         self.prune()
     self.n_formatted_value2 = n_formatted_value2
 
     def n_joined_str(node):
+        p = self.prec
+        self.prec = 100
+
         result = ''
         for expr in node[:-1]:
             assert expr == 'expr'
@@ -474,6 +482,8 @@ def customize_for_version36(self, version):
             result += strip_quotes(value)
             pass
         self.write('f%s' % escape_string(result))
+
+        self.prec = p
         self.prune()
     self.n_joined_str = n_joined_str
 

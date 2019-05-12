@@ -33,8 +33,8 @@ else:
 # for a list. The top to down order here is reversed
 # from the list in the above lin.
 
-# Things at the top of this list below with low-value precidence will
-# tend to have parenthesis around them. Things at the bottom
+# Things at the bottom of this list below with low-value precedence will
+# tend to have parenthesis around them. Things at the top
 # of the list will tend not to have parenthesis around them.
 
 # Note: The values in this table tend to be even value. Inside
@@ -43,67 +43,67 @@ else:
 
 
 PRECEDENCE = {
-    'list':                   0,
-    'dict':                   0,
-    'unary_convert':          0,
-    'dict_comp':              0,
-    'set_comp':               0,
-    'set_comp_expr':          0,
-    'list_comp':              0,
-    'generator_exp':          0,
-
-    'attribute':              2,
-    'subscript':              2,
-    'subscript2':             2,
-    'store_subscript':        2,
-    'delete_subscript':       2,
-    'slice0':                 2,
-    'slice1':                 2,
-    'slice2':                 2,
-    'slice3':                 2,
-    'buildslice2':            2,
-    'buildslice3':            2,
-    'call':                   2,
-
-    'BINARY_POWER':           4,
-
-    'unary_expr':             6,
-
-    'BINARY_MULTIPLY':        8,
-    'BINARY_DIVIDE':          8,
-    'BINARY_TRUE_DIVIDE':     8,
-    'BINARY_FLOOR_DIVIDE':    8,
-    'BINARY_MODULO':          8,
-
-    'BINARY_ADD':             10,
-    'BINARY_SUBTRACT':        10,
-
-    'BINARY_LSHIFT':          12, # Shifts <<
-    'BINARY_RSHIFT':          12, # Shifts >>
-
-    'BINARY_AND':             14, # Bitwise AND
-    'BINARY_XOR':             16, # Bitwise XOR
-    'BINARY_OR':              18, # Bitwise OR
-
-    'compare':                20, # in, not in, is, is not, <, <=, >, >=, !=, ==
-    'unary_not':              22, # Boolean NOT
-    'and':                    24, # Boolean AND
-    'ret_and':                24,
-
-    'or':                     26, # Boolean OR
-    'ret_or':                 26,
-
-    'conditional':            28, # Conditional expression
-    'conditional_lamdba':     28, # Lambda expression
-    'conditional_not_lamdba': 28, # Lambda expression
-    'conditionalnot':         28,
-    'if_expr_true':           28,
-    'ret_cond':               28,
+    'yield_from':            102,
+    'yield':                 102,
 
     '_mklambda':              30,
 
-    'yield':                 102,
-    'yield_from':            102
+    'ret_cond':               28,
+    'if_expr_true':           28,
+    'conditionalnot':         28,
+    'conditional_not_lamdba': 28, # Lambda expression
+    'conditional_lamdba':     28, # Lambda expression
+    'conditional':            28, # Conditional expression
+
+    'ret_or':                 26,
+    'or':                     26, # Boolean OR
+
+    'ret_and':                24,
+    'and':                    24, # Boolean AND
+    'unary_not':              22, # Boolean NOT
+    'compare':                20, # in, not in, is, is not, <, <=, >, >=, !=, ==
+
+    'BINARY_OR':              18, # Bitwise OR
+    'BINARY_XOR':             16, # Bitwise XOR
+    'BINARY_AND':             14, # Bitwise AND
+
+    'BINARY_RSHIFT':          12, # Shifts >>
+    'BINARY_LSHIFT':          12, # Shifts <<
+
+    'BINARY_SUBTRACT':        10,
+    'BINARY_ADD':             10,
+
+    'BINARY_MODULO':          8,
+    'BINARY_FLOOR_DIVIDE':    8,
+    'BINARY_TRUE_DIVIDE':     8,
+    'BINARY_DIVIDE':          8,
+    'BINARY_MULTIPLY':        8,
+
+    'unary_expr':             6,
+
+    'BINARY_POWER':           4,
+
+    'call':                   2,
+    'buildslice3':            2,
+    'buildslice2':            2,
+    'slice3':                 2,
+    'slice2':                 2,
+    'slice1':                 2,
+    'slice0':                 2,
+    'delete_subscript':       2,
+    'store_subscript':        2,
+    'subscript2':             2,
+    'subscript':              2,
+    'attribute':              2,
+
+    'generator_exp':          0,
+    'list_comp':              0,
+    'set_comp_expr':          0,
+    'set_comp':               0,
+    'dict_comp':              0,
+    'unary_convert':          0,
+    'dict':                   0,
+    'list':                   0,
 }
 
 LINE_LENGTH = 80
