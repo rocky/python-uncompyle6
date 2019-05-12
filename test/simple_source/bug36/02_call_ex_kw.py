@@ -16,6 +16,9 @@ def f1(c, d, **extra_args):
 def f2(**extra_args):
     return showparams(1, test="C", **extra_args)
 
+def f3(c, *args, **extra_args):
+    return showparams(c, *args, **extra_args)
+
 assert f(1, a=2, b=3) == {'c': 1, 'a': 2, 'b': 3, 'test': 'A'}
 
 a = {'param1': 2}
@@ -35,3 +38,10 @@ assert f1((a.get('a'), a.get('b')), a, test3='A', **a) \
 b = {'b1': 1, 'b2': 2}
 assert f2(**a, **b) == \
     {'c': 1, 'param1': 2, 'b1': 1, 'b2': 2, 'test': 'C'}
+
+c = (2,)
+d = (2, 3)
+assert f(2, **a) == {'c': 2, 'param1': 2, 'test': 'A'}
+assert f3(2, *c, **a) == {'c': 2, 'param1': 2, 'test': 2}
+assert f3(*d, **a) == {'c': 2, 'param1': 2, 'test': 3}
+
