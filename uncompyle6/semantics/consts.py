@@ -30,15 +30,17 @@ else:
 # Operator precidence
 # See https://docs.python.org/2/reference/expressions.html
 # or https://docs.python.org/3/reference/expressions.html
-# for a list.
+# for a list. The top to down order here is reversed
+# from the list in the above lin.
 
 # Things at the top of this list below with low-value precidence will
 # tend to have parenthesis around them. Things at the bottom
 # of the list will tend not to have parenthesis around them.
 
 # Note: The values in this table tend to be even value. Inside
-# various templates we use odd values. Avoiding equal-precident comparisons
+# various templates we use odd values. Avoiding equal-precedent comparisons
 # avoids ambiguity what to do when the precedence is equal.
+
 
 PRECEDENCE = {
     'list':                   0,
@@ -76,32 +78,32 @@ PRECEDENCE = {
     'BINARY_ADD':             10,
     'BINARY_SUBTRACT':        10,
 
-    'BINARY_LSHIFT':          12,
-    'BINARY_RSHIFT':          12,
+    'BINARY_LSHIFT':          12, # Shifts <<
+    'BINARY_RSHIFT':          12, # Shifts >>
 
-    'BINARY_AND':             14,
-    'BINARY_XOR':             16,
-    'BINARY_OR':              18,
+    'BINARY_AND':             14, # Bitwise AND
+    'BINARY_XOR':             16, # Bitwise XOR
+    'BINARY_OR':              18, # Bitwise OR
 
-    'compare':                20,
-    'unary_not':              22,
-    'and':                    24,
+    'compare':                20, # in, not in, is, is not, <, <=, >, >=, !=, ==
+    'unary_not':              22, # Boolean NOT
+    'and':                    24, # Boolean AND
     'ret_and':                24,
 
-    'or':                     26,
+    'or':                     26, # Boolean OR
     'ret_or':                 26,
 
-    'conditional':            28,
-    'conditional_lamdba':     28,
-    'conditional_not_lamdba': 28,
+    'conditional':            28, # Conditional expression
+    'conditional_lamdba':     28, # Lambda expression
+    'conditional_not_lamdba': 28, # Lambda expression
     'conditionalnot':         28,
     'if_expr_true':           28,
     'ret_cond':               28,
 
     '_mklambda':              30,
 
-    'yield':                 101,
-    'yield_from':            101
+    'yield':                 102,
+    'yield_from':            102
 }
 
 LINE_LENGTH = 80
@@ -216,7 +218,7 @@ TABLE_DIRECT = {
 
     'IMPORT_FROM':              ( '%{pattr}', ),
     'attribute':	        ( '%c.%[1]{pattr}',
-                                (0, 'expr')),
+                                  (0, 'expr')),
     'LOAD_FAST':	            ( '%{pattr}', ),
     'LOAD_NAME':	            ( '%{pattr}', ),
     'LOAD_CLASSNAME':	        ( '%{pattr}', ),

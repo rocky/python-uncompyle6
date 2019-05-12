@@ -33,15 +33,13 @@ def escape_format(s):
 #######################
 
 def customize_for_version36(self, version):
-    # Value 100 is important; it is exactly
-    # module/function precidence.
-    PRECEDENCE['call_kw']     = 100
-    PRECEDENCE['call_kw36']   = 100
-    PRECEDENCE['call_ex']     = 100
-    PRECEDENCE['call_ex_kw']  = 100
-    PRECEDENCE['call_ex_kw2'] = 100
-    PRECEDENCE['call_ex_kw3'] = 100
-    PRECEDENCE['call_ex_kw4'] = 100
+    PRECEDENCE['call_kw']     = 0
+    PRECEDENCE['call_kw36']   = 1
+    PRECEDENCE['call_ex']     = 1
+    PRECEDENCE['call_ex_kw']  = 1
+    PRECEDENCE['call_ex_kw2'] = 1
+    PRECEDENCE['call_ex_kw3'] = 1
+    PRECEDENCE['call_ex_kw4'] = 1
     PRECEDENCE['unmap_dict']  = 0
 
     TABLE_DIRECT.update({
@@ -357,7 +355,7 @@ def customize_for_version36(self, version):
     self.call36_dict = call36_dict
 
     def n_call_kw36(node):
-        self.template_engine(("%c(", 0), node)
+        self.template_engine(("%p(", (0, 100)), node)
         keys = node[-2].attr
         num_kwargs = len(keys)
         num_posargs = len(node) - (num_kwargs + 2)
