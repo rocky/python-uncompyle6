@@ -76,20 +76,28 @@ def customize_for_version36(self, version):
         })
 
     def build_unpack_tuple_with_call(node):
-
-        if node[0] == 'expr':
-            tup = node[0][0]
+        n = node[0]
+        if n == 'expr':
+            n = n[0]
+        if n == 'tuple':
+            self.call36_tuple(n)
+            first = 1
+            sep = ', *'
+        elif n == 'LOAD_CONST':
+            value = self.format_pos_args(n)
+            self.f.write(value)
+            first = 1
+            sep = ', *'
         else:
-            tup = node[0]
-            pass
-        assert tup == 'tuple'
-        self.call36_tuple(tup)
+            first = 0
+            sep = '*'
 
         buwc = node[-1]
         assert buwc.kind.startswith('BUILD_TUPLE_UNPACK_WITH_CALL')
-        for n in node[1:-1]:
-            self.f.write(', *')
+        for n in node[first:-1]:
+            self.f.write(sep)
             self.preorder(n)
+            sep = ', *'
             pass
         self.prune()
         return
@@ -121,17 +129,10 @@ def customize_for_version36(self, version):
 
         expr = node[1]
         assert expr == 'expr'
-        value = self.traverse(expr, indent='')
-
-        if value.startswith('('):
-            assert value.endswith(')')
-            value = value[1:-1].rstrip(" ") # Remove starting '(' and trailing ')' and additional spaces
-            if value == '':
-                fmt = "%c(%p)" # args is empty
-            else:
-                if value.endswith(','): # if args has only one item
-                    value = value[:-1]
-                fmt = "%%c(%s, %%p)" % value
+        
+        value = self.format_pos_args(expr)
+        if value == '':
+            fmt = "%c(%p)"
         else:
             fmt = "%%c(%s, %%p)" % value
 
@@ -146,41 +147,17 @@ def customize_for_version36(self, version):
         """Handle CALL_FUNCTION_EX 2  (have KW) but with
         BUILD_{MAP,TUPLE}_UNPACK_WITH_CALL"""
 
-        # This is weird shit. Thanks Python!
-        self.preorder(node[0])
-        self.write('(')
-
         assert node[1] == 'build_tuple_unpack_with_call'
-        btuwc = node[1]
-        tup = btuwc[0]
-        if tup == 'expr':
-            tup = tup[0]
-
-        if tup == 'LOAD_CONST':
-            self.write(', '.join(['"%s"' % t.replace('"','\\"') for t in tup.attr]))
+        value = self.format_pos_args(node[1])
+        if value == '':
+            fmt = "%c(%p)"
         else:
-            assert tup == 'tuple'
-            self.call36_tuple(tup)
+            fmt = "%%c(%s, %%p)" % value
 
-        assert node[2] == 'build_map_unpack_with_call'
-
-        self.write(', ')
-        d = node[2][0]
-        if d == 'expr':
-            d = d[0]
-        assert d == 'dict'
-        self.call36_dict(d)
-
-        args = btuwc[1]
-        self.write(', *')
-        self.preorder(args)
-
-        self.write(', **')
-        star_star_args = node[2][1]
-        if star_star_args == 'expr':
-            star_star_args = star_star_args[0]
-        self.preorder(star_star_args)
-        self.write(')')
+        self.template_engine(
+            (fmt,
+            (0, 'expr'), (2, 'build_map_unpack_with_call', 100)), node)
+        
         self.prune()
     self.n_call_ex_kw2 = call_ex_kw2
 
@@ -189,19 +166,18 @@ def customize_for_version36(self, version):
         BUILD_MAP_UNPACK_WITH_CALL"""
         self.preorder(node[0])
         self.write('(')
-        args = node[1][0]
-        if args == 'expr':
-            args = args[0]
-        if args == 'tuple':
-            if self.call36_tuple(args) > 0:
-                self.write(', ')
-                pass
+        
+        value = self.format_pos_args(node[1][0])
+        if value == '':
             pass
-
+        else:
+            self.write(value)
+            self.write(', ')
+       
         self.write('*')
         self.preorder(node[1][1])
         self.write(', ')
-
+        
         kwargs = node[2]
         if kwargs == 'expr':
             kwargs = kwargs[0]
@@ -248,6 +224,25 @@ def customize_for_version36(self, version):
         self.write(')')
         self.prune()
     self.n_call_ex_kw4 = call_ex_kw4
+
+    def format_pos_args(node):
+        """
+        Positional args should format to:
+        (*(2, ), ...) -> (2, ...)
+        We remove starting and trailing parenthesis and ', ' if
+        tuple has only one element.
+        """
+        value = self.traverse(node, indent='')
+        if value.startswith('('):
+            assert value.endswith(')')
+            value = value[1:-1].rstrip(" ") # Remove starting '(' and trailing ')' and additional spaces
+            if value == '':
+                pass # args is empty
+            else:
+                if value.endswith(','): # if args has only one item
+                    value = value[:-1]
+        return value
+    self.format_pos_args = format_pos_args
 
     def call36_tuple(node):
         """
