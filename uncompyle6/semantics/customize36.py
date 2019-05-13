@@ -476,8 +476,19 @@ def customize_for_version36(self, version):
             value = self.traverse(expr, indent='')
             if expr[0].kind.startswith('formatted_value'):
                 # remove leading 'f'
+                assert value.startswith('f')
                 value = value[1:]
                 pass
+            else:
+                # {{ and }} in Python source-code format strings mean
+                # { and } respectively. But only when *not* part of a
+                # formatted value. However in the LOAD_CONST
+                # bytecode, the escaping of the braces has been
+                # removed. So we need to put back the braces escaping in
+                # reconstructing the source.
+                assert expr[0] == 'LOAD_CONST'
+                value = value.replace("{", "{{").replace("}", "}}")
+
             # Remove leading quotes
             result += strip_quotes(value)
             pass
