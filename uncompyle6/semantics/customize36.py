@@ -41,17 +41,11 @@ def customize_for_version36(self, version):
     PRECEDENCE['call_ex_kw3'] = 1
     PRECEDENCE['call_ex_kw4'] = 1
     PRECEDENCE['unmap_dict']  = 0
+    PRECEDENCE['formatted_value1'] = 100
 
     TABLE_DIRECT.update({
         'tryfinally36':     ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
                               (1, 'returns'), 3 ),
-        'fstring_expr':     ( "{%c%{conversion}}",
-                              (0, 'expr') ),
-        # FIXME: the below assumes the format strings
-        # don't have ''' in them. Fix this properly
-        'fstring_single':   ( "f'''{%c%{conversion}}'''", 0),
-        'formatted_value_attr': ( "f'''{%c%{conversion}}%{string}'''",
-                                  (0, 'expr')),
         'func_args36':      ( "%c(**", 0),
         'try_except36':     ( '%|try:\n%+%c%-%c\n\n', 1, -2 ),
         'except_return':    ( '%|except:\n%+%c%-', 3 ),
@@ -129,7 +123,7 @@ def customize_for_version36(self, version):
 
         expr = node[1]
         assert expr == 'expr'
-        
+
         value = self.format_pos_args(expr)
         if value == '':
             fmt = "%c(%p)"
@@ -157,7 +151,7 @@ def customize_for_version36(self, version):
         self.template_engine(
             (fmt,
             (0, 'expr'), (2, 'build_map_unpack_with_call', 100)), node)
-        
+
         self.prune()
     self.n_call_ex_kw2 = call_ex_kw2
 
@@ -166,18 +160,18 @@ def customize_for_version36(self, version):
         BUILD_MAP_UNPACK_WITH_CALL"""
         self.preorder(node[0])
         self.write('(')
-        
+
         value = self.format_pos_args(node[1][0])
         if value == '':
             pass
         else:
             self.write(value)
             self.write(', ')
-       
+
         self.write('*')
         self.preorder(node[1][1])
         self.write(', ')
-        
+
         kwargs = node[2]
         if kwargs == 'expr':
             kwargs = kwargs[0]
@@ -425,7 +419,6 @@ def customize_for_version36(self, version):
             node.string = escape_format(fmt_node[0].attr)
         else:
             node.string = fmt_node
-
         self.default(node)
     self.n_formatted_value_attr = n_formatted_value_attr
 
@@ -436,60 +429,72 @@ def customize_for_version36(self, version):
         else:
             data = fmt_node.attr
         node.conversion = FSTRING_CONVERSION_MAP.get(data, '')
+        return node.conversion
 
-    def n_fstring_expr(node):
-        f_conversion(node)
-        self.default(node)
-    self.n_fstring_expr = n_fstring_expr
-
-    def n_fstr(node):
-        if node[0] == 'expr' and node[0][0] == 'fstring_expr':
-            f_conversion(node[0][0])
-            self.default(node[0][0])
-        else:
-            value = strip_quotes(self.traverse(node[0], indent=''))
-            pass
-        self.write(value)
+    def n_formatted_value1(node):
+        expr = node[0]
+        assert expr == 'expr'
+        value = self.traverse(expr, indent='')
+        conversion = f_conversion(node)
+        f_str = "f%s" % escape_string("{%s%s}" % (value, conversion))
+        self.write(f_str)
         self.prune()
-    self.n_fstr = n_fstr
 
-    def n_fstring_single(node):
-        attr4 = len(node) == 3 and node[-1] == 'FORMAT_VALUE_ATTR' and node[-1].attr == 4
-        if attr4 and hasattr(node[0][0], 'attr'):
-            assert node[0] == 'expr'
+    self.n_formatted_value1 = n_formatted_value1
+
+    def n_formatted_value2(node):
+        p = self.prec
+        self.prec = 100
+
+        expr = node[0]
+        assert expr == 'expr'
+        value = self.traverse(expr, indent='')
+        format_value_attr = node[-1]
+        assert format_value_attr == 'FORMAT_VALUE_ATTR'
+        attr = format_value_attr.attr
+        if attr == 4:
             assert node[1] == 'expr'
-            self.write("{%s:%s}" % (node[0][0].attr, node[1][0].attr))
-            self.prune()
+            fmt = strip_quotes(self.traverse(node[1], indent=''))
+            conversion = ":%s" % fmt
         else:
-            f_conversion(node)
-            self.default(node)
-    self.n_fstring_single = n_fstring_single
+            conversion = FSTRING_CONVERSION_MAP.get(attr, '')
+
+        f_str = "f%s" % escape_string("{%s%s}" % (value, conversion))
+        self.write(f_str)
+
+        self.prec = p
+        self.prune()
+    self.n_formatted_value2 = n_formatted_value2
 
     def n_joined_str(node):
+        p = self.prec
+        self.prec = 100
+
         result = ''
-        for fstr_node in node:
-            assert fstr_node == 'fstr'
-            assert fstr_node[0] == 'expr'
-            subnode = fstr_node[0][0]
-            if subnode.kind == 'fstring_expr':
-                # Don't include outer f'...'
-                f_conversion(subnode)
-                data = strip_quotes(self.traverse(subnode, indent=''))
-                result += data
-            elif subnode == 'LOAD_CONST':
-                result += strip_quotes(escape_string(subnode.attr))
-            elif subnode == 'fstring_single':
-                f_conversion(subnode)
-                data = self.traverse(subnode, indent='')
-                if data[0:1] == 'f':
-                    data = strip_quotes(data[1:])
-                result += data
+        for expr in node[:-1]:
+            assert expr == 'expr'
+            value = self.traverse(expr, indent='')
+            if expr[0].kind.startswith('formatted_value'):
+                # remove leading 'f'
+                assert value.startswith('f')
+                value = value[1:]
                 pass
             else:
-                result += strip_quotes(self.traverse(subnode, indent=''))
-                pass
+                # {{ and }} in Python source-code format strings mean
+                # { and } respectively. But only when *not* part of a
+                # formatted value. However in the LOAD_CONST
+                # bytecode, the escaping of the braces has been
+                # removed. So we need to put back the braces escaping in
+                # reconstructing the source.
+                assert expr[0] == 'LOAD_CONST'
+                value = value.replace("{", "{{").replace("}", "}}")
+
+            # Remove leading quotes
+            result += strip_quotes(value)
             pass
         self.write('f%s' % escape_string(result))
+
+        self.prec = p
         self.prune()
     self.n_joined_str = n_joined_str
 

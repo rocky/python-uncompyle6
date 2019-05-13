@@ -61,7 +61,6 @@ class PythonParser(GenericASTBuilder):
             'imports_cont',
             'kvlist_n',
             # Python 3.6+
-            'joined_str',
             'come_from_loops',
             ]
         self.collect = frozenset(nt_list)
@@ -83,7 +82,7 @@ class PythonParser(GenericASTBuilder):
         # FIXME: would love to do expr, sstmts, stmts and
         # so on but that would require major changes to the
         # semantic actions
-        self.singleton = frozenset(('str', 'joined_str', 'store', '_stmts', 'suite_stmts_opt',
+        self.singleton = frozenset(('str', 'store', '_stmts', 'suite_stmts_opt',
                                     'inplace_op'))
         # Instructions filled in from scanner
         self.insts = []
