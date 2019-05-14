@@ -1433,7 +1433,7 @@ class SourceWalker(GenericASTTraversal, object):
             assert node[n].kind.startswith('CALL_FUNCTION')
 
             if node[n].kind.startswith('CALL_FUNCTION_KW'):
-                # 3.6+ starts does this
+                # 3.6+ starts doing this
                 kwargs = node[n-1].attr
                 assert isinstance(kwargs, tuple)
                 i = n - (len(kwargs)+1)

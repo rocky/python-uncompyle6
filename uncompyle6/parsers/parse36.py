@@ -33,6 +33,10 @@ class Python36Parser(Python35Parser):
         """
         sstmt ::= sstmt RETURN_LAST
 
+        cf_for_iter  ::= _come_froms FOR_ITER
+        list_for     ::= expr cf_for_iter store list_iter jb_or_c
+        genexpr_func ::= LOAD_FAST cf_for_iter store comp_iter JUMP_BACK
+
         # 3.6 redoes how return_closure works. FIXME: Isolate to LOAD_CLOSURE
         return_closure   ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
 

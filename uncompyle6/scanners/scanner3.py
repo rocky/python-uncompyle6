@@ -811,7 +811,13 @@ class Scanner3(Scanner):
                             self.fixed_jumps[offset] = fix or match[-1]
                             return
                     else:
-                        self.fixed_jumps[offset] = match[-1]
+                        if self.version < 3.6:
+                            # FIXME: this is putting in COME_FROMs in the wrong place.
+                            # Fix up grammar so we don't need to do this.
+                            # See cf_for_iter use in parser36.py
+                            self.fixed_jumps[offset] = match[-1]
+                        else:
+                            self.fixed_jumps[offset] = target
                         return
             # op == POP_JUMP_IF_TRUE
             else:
