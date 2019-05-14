@@ -816,7 +816,8 @@ class Scanner3(Scanner):
                             # Fix up grammar so we don't need to do this.
                             # See cf_for_iter use in parser36.py
                             self.fixed_jumps[offset] = match[-1]
-                        else:
+                        elif target > offset:
+                            # Right now we only add COME_FROMs in forward (not loop) jumps
                             self.fixed_jumps[offset] = target
                         return
             # op == POP_JUMP_IF_TRUE
