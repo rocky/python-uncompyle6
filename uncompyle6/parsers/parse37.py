@@ -73,8 +73,8 @@ class Python37Parser(Python36Parser):
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP POP_BLOCK
                                else_suite COME_FROM_LOOP
 
-        # Is there a pattern here?
         attributes ::= IMPORT_FROM ROT_TWO POP_TOP IMPORT_FROM
+        attributes ::= attributes ROT_TWO POP_TOP IMPORT_FROM
 
         attribute37   ::= expr LOAD_METHOD
         expr          ::= attribute37
