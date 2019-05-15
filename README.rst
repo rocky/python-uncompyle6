@@ -152,7 +152,7 @@ for that bytecode version. Having done this the bytecode produced
 could be compared with the original bytecode. However as Python's code
 generation got better, this is no longer feasible.
 
-There verification that we use that doesn't check bytecode for
+The verification that we use that doesn't check bytecode for
 equivalence but does check to see if the resulting decompiled source
 is a valid Python program by running the Python interpreter. Because
 the Python language has changed so much, for best results you should
