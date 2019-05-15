@@ -197,7 +197,7 @@ some versions of Python, notably Python 3.6, the magic number has
 changes several times within a version. 
 
 **We support only released versions, not candidate versions.** Note however
-that the magic of a released version is usually the same as the *last* candidate version prior to release 
+that the magic of a released version is usually the same as the *last* candidate version prior to release.
 
 There are also customized Python interpreters, notably Dropbox,
 which use their own magic and encrypt bytcode. With the exception of
