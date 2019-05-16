@@ -753,8 +753,10 @@ class Scanner3(Scanner):
                     # FIXME: this is not accurate The commented out below
                     # is what it should be. However grammar rules right now
                     # assume the incorrect offsets.
-                    # self.fixed_jumps[offset] = target
-                    self.fixed_jumps[offset] = pretarget.offset
+                    if self.version < 3.6:
+                        self.fixed_jumps[offset] = pretarget.offset
+                    else:
+                        self.fixed_jumps[offset] = target
                     self.structs.append({'type': 'and/or',
                                          'start': start,
                                          'end': pretarget.offset})
