@@ -268,6 +268,8 @@ class Scanner3(Scanner):
                     if opname.startswith('SETUP_'):
                         come_from_type = opname[len('SETUP_'):]
                         come_from_name = 'COME_FROM_%s' % come_from_type
+                        if self.version > 3.6:
+                            continue
                         pass
                     elif inst.offset in self.except_targets:
                         come_from_name = 'COME_FROM_EXCEPT_CLAUSE'

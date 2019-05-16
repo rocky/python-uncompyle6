@@ -32,6 +32,9 @@ class Python37Parser(Python36Parser):
         # Where does the POP_TOP really belong?
         stmt     ::= import37
         stmt     ::= async_for_stmt37
+        stmt     ::= for37
+
+
         import37 ::= import POP_TOP
 
         async_for_stmt     ::= SETUP_LOOP expr
@@ -132,6 +135,9 @@ class Python37Parser(Python36Parser):
         expr                       ::= if_exp_37b
         if_exp_37a                 ::= and_not expr JUMP_FORWARD COME_FROM expr COME_FROM
         if_exp_37b                 ::= expr jmp_false expr POP_JUMP_IF_FALSE jump_forward_else expr
+
+        for37                      ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
+
         """
 
     def customize_grammar_rules(self, tokens, customize):
