@@ -115,7 +115,7 @@ mechanisms and addressed problems and extensions by some other means.
 Specifically, in `uncompyle`, decompilation of python bytecode 2.5 &
 2.6 is done by transforming the byte code into a pseudo-2.7 Python
 bytecode and is based on code from Eloi Vanderbeken. A bit of this
-could have bene easily added by modifying grammar rules.
+could have been easily added by modifying grammar rules.
 
 This project, `uncompyle6`, abandons that approach for various
 reasons. Having a grammar per Python version is much cleaner and it
