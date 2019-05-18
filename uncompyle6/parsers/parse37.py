@@ -29,12 +29,20 @@ class Python37Parser(Python36Parser):
 
     def p_37misc(self, args):
         """
+        # More honest COME_FROMS
+        # In earlier Python < 3.7 bad grammar creaped in which forced putting in "COME_FROM"s in the
+        # wrong place. These rules attempt to correct that
+
+        or            ::= expr jmp_true expr
+        or            ::= expr JUMP_IF_TRUE_OR_POP COME_FROM expr
+        and           ::= expr jmp_false37a expr
+        comp_if       ::= expr jmp_false37 comp_iter
+        for           ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
+        whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK
+
         # Where does the POP_TOP really belong?
         stmt     ::= import37
         stmt     ::= async_for_stmt37
-        stmt     ::= for37
-
-
         import37 ::= import POP_TOP
 
         async_for_stmt     ::= SETUP_LOOP expr
@@ -125,6 +133,7 @@ class Python37Parser(Python36Parser):
         ifelsestmt                 ::= testexpr c_stmts_opt jf_cfs else_suite opt_come_from_except
 
         jmp_false37                ::= POP_JUMP_IF_FALSE COME_FROM
+        jmp_false37a               ::= POP_JUMP_IF_FALSE_OR_POP COME_FROM
         list_if                    ::= expr jmp_false37 list_iter
 
         _ifstmts_jump              ::= c_stmts_opt come_froms
@@ -135,13 +144,13 @@ class Python37Parser(Python36Parser):
         expr                       ::= if_exp_37b
         if_exp_37a                 ::= and_not expr JUMP_FORWARD COME_FROM expr COME_FROM
         if_exp_37b                 ::= expr jmp_false expr POP_JUMP_IF_FALSE jump_forward_else expr
-
-        for37                      ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
-
         """
 
     def customize_grammar_rules(self, tokens, customize):
         self.remove_rules("""
+          # We now requre an ELSE
+          conditional ::= expr jmp_false expr jf_cf expr COME_FROM
+
           async_forelse_stmt ::= SETUP_LOOP expr
                                  GET_AITER
                                  LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST

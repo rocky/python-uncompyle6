@@ -269,7 +269,13 @@ class Scanner3(Scanner):
                         come_from_type = opname[len('SETUP_'):]
                         come_from_name = 'COME_FROM_%s' % come_from_type
                         if self.version > 3.6:
-                            continue
+                            # Before 3.6 we allowed COME_FROMs appearing in places where they
+                            # weren't supposed to be to cope with our inability to get the grammar right.
+                            # After 3.6 we don't. So make sure the COME_FROM is placed at the location
+                            # where instruction jumping to it says it should be.
+                            if inst.offset != self.insts[self.offset2inst_index[jump_offset]].argval:
+                                continue
+                            pass
                         pass
                     elif inst.offset in self.except_targets:
                         come_from_name = 'COME_FROM_EXCEPT_CLAUSE'
