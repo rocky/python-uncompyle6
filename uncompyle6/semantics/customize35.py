@@ -119,6 +119,12 @@ def customize_for_version35(self, version):
     def n_function_def(node):
         if self.version >= 3.6:
             code_node = node[0][0]
+            for n in node[0]:
+                if hasattr(n, 'attr') and iscode(n.attr):
+                    code_node = n
+                    break
+                pass
+            pass
         else:
             code_node = node[0][1]
 

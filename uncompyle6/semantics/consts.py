@@ -27,81 +27,85 @@ else:
     maxint = sys.maxint
 
 
-# Operator precidence
-# See https://docs.python.org/2/reference/expressions.html
-# or https://docs.python.org/3/reference/expressions.html
-# for a list.
+# Operator precidence See
+# https://docs.python.org/2/reference/expressions.html#operator-precedence
+# or
+# https://docs.python.org/3/reference/expressions.html#operator-precedence
+# for a list. We keep the same top-to-botom order here as in the above links,
+# so we start with low precedence (high values) and go down in value.
 
-# Things at the top of this list below with low-value precidence will
-# tend to have parenthesis around them. Things at the bottom
+# Things at the bottom of this list below with high precedence (low value) will
+# tend to have parenthesis around them. Things at the top
 # of the list will tend not to have parenthesis around them.
 
-# Note: The values in this table tend to be even value. Inside
-# various templates we use odd values. Avoiding equal-precident comparisons
+# Note: The values in this table are even numbers. Inside
+# various templates we use odd values. Avoiding equal-precedent comparisons
 # avoids ambiguity what to do when the precedence is equal.
 
-PRECEDENCE = {
-    'list':                   0,
-    'dict':                   0,
-    'unary_convert':          0,
-    'dict_comp':              0,
-    'set_comp':               0,
-    'set_comp_expr':          0,
-    'list_comp':              0,
-    'generator_exp':          0,
 
-    'attribute':              2,
-    'subscript':              2,
-    'subscript2':             2,
-    'store_subscript':        2,
+PRECEDENCE = {
+    'yield':                 102,
+    'yield_from':            102,
+
+    '_mklambda':              30,
+
+    'conditional':            28, # Conditional expression
+    'conditional_lamdba':     28, # Lambda expression
+    'conditional_not_lamdba': 28, # Lambda expression
+    'conditionalnot':         28,
+    'if_expr_true':           28,
+    'ret_cond':               28,
+
+    'or':                     26, # Boolean OR
+    'ret_or':                 26,
+
+    'and':                    24, # Boolean AND
+    'compare':                20, # in, not in, is, is not, <, <=, >, >=, !=, ==
+    'ret_and':                24,
+    'unary_not':              22, # Boolean NOT
+
+    'BINARY_AND':             14, # Bitwise AND
+    'BINARY_OR':              18, # Bitwise OR
+    'BINARY_XOR':             16, # Bitwise XOR
+
+    'BINARY_LSHIFT':          12, # Shifts <<
+    'BINARY_RSHIFT':          12, # Shifts >>
+
+    'BINARY_ADD':             10, # -
+    'BINARY_SUBTRACT':        10, # +
+
+    'BINARY_DIVIDE':          8,  # /
+    'BINARY_FLOOR_DIVIDE':    8,  # //
+    'BINARY_MATRIX_MULTIPLY': 8,  # @
+    'BINARY_MODULO':          8,  # Remainder, %
+    'BINARY_MULTIPLY':        8,  # *
+    'BINARY_TRUE_DIVIDE':     8,  # Division /
+
+    'unary_expr':             6,  # +x, -x, ~x
+
+    'BINARY_POWER':           4,  # Exponentiation, *
+
+    'attribute':              2,  # x.attribute
+    'buildslice2':            2,  # x[index]
+    'buildslice3':            2,  # x[index:index]
+    'call':                   2,  # x(arguments...)
     'delete_subscript':       2,
     'slice0':                 2,
     'slice1':                 2,
     'slice2':                 2,
     'slice3':                 2,
-    'buildslice2':            2,
-    'buildslice3':            2,
-    'call':                   2,
+    'store_subscript':        2,
+    'subscript':              2,
+    'subscript2':             2,
 
-    'BINARY_POWER':           4,
-
-    'unary_expr':             6,
-
-    'BINARY_MULTIPLY':        8,
-    'BINARY_DIVIDE':          8,
-    'BINARY_TRUE_DIVIDE':     8,
-    'BINARY_FLOOR_DIVIDE':    8,
-    'BINARY_MODULO':          8,
-
-    'BINARY_ADD':             10,
-    'BINARY_SUBTRACT':        10,
-
-    'BINARY_LSHIFT':          12,
-    'BINARY_RSHIFT':          12,
-
-    'BINARY_AND':             14,
-    'BINARY_XOR':             16,
-    'BINARY_OR':              18,
-
-    'compare':                20,
-    'unary_not':              22,
-    'and':                    24,
-    'ret_and':                24,
-
-    'or':                     26,
-    'ret_or':                 26,
-
-    'conditional':            28,
-    'conditional_lamdba':     28,
-    'conditional_not_lamdba': 28,
-    'conditionalnot':         28,
-    'if_expr_true':           28,
-    'ret_cond':               28,
-
-    '_mklambda':              30,
-
-    'yield':                 101,
-    'yield_from':            101
+    'dict':                   0,  # {expressions...}
+    'dict_comp':              0,
+    'generator_exp':          0,  # (expressions...)
+    'list':                   0,  # [expressions...]
+    'list_comp':              0,
+    'set_comp':               0,
+    'set_comp_expr':          0,
+    'unary_convert':          0,
 }
 
 LINE_LENGTH = 80
@@ -216,7 +220,7 @@ TABLE_DIRECT = {
 
     'IMPORT_FROM':              ( '%{pattr}', ),
     'attribute':	        ( '%c.%[1]{pattr}',
-                                (0, 'expr')),
+                                  (0, 'expr')),
     'LOAD_FAST':	            ( '%{pattr}', ),
     'LOAD_NAME':	            ( '%{pattr}', ),
     'LOAD_CLASSNAME':	        ( '%{pattr}', ),

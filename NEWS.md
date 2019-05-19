@@ -1,3 +1,31 @@
+3.3.3 2019-05-19 Henry and Lewis
+================================
+
+As before, decomplation bugs fixed. The focus has primarily been on
+Python 3.7. But with this release, releases will be put on hold,as a
+better control-flow detection is worked on . Tis has been needed for a
+while, and is long overdue. It will probably also take a while to get
+done as good as what we have now.
+
+However this work will be done in a new project
+[decompyle3](https://github.com/rocky/python-decompile3).  In contrast
+to _uncompyle6_ the code wil be written assuming a modern Python 3,
+e.g. 3.7. It is originally intended to decompile Python version 3.7
+and greater.
+
+* A number of Python 3.7+ chained comparisons were fixed
+* Revise Python 3.6ish format string handling
+* Go over operator precedence, e.g. for AST IfExp
+
+Reported Bug Fixes
+------------------
+
+* [#239: 3.7 handling of 4-level attribute import](https://github.com/rocky/python-uncompyle6/issues/239),
+* [#229: Inconsistent if block in python3.6](https://github.com/rocky/python-uncompyle6/issues/229),
+* [#227: Args not appearing in decompiled src when kwargs is specified explicitly (call_ex_kw)](https://github.com/rocky/python-uncompyle6/issues/227)
+2.7 confusion around "and" versus comprehension "if"
+* [#225: 2.7 confusion around "and" vs comprehension "if"](https://github.com/rocky/python-uncompyle6/issues/225)
+
 3.3.2 2019-05-03 Better Friday
 ==============================
 
@@ -11,7 +39,6 @@ But as before, many more remain in the 3.7 and 3.8 range which will
 get addressed in future releases
 
 Pypy 3.6 support was started. Pypy 3.x detection fixed (via xdis)
-
 
 3.3.1 2019-04-19 Good Friday
 ==========================
@@ -27,7 +54,7 @@ Lots of decomplation bugs, especially in the 3.x series fixed. Don't worry thoug
 * Fix some parser failures fixes in 3.4+ using test_pyenvlib
 * Add more run tests
 
-3.3.0 2019-43-14 Holy Week
+3.3.0 2019-04-14 Holy Week
 ==========================
 
 * First cut at Python 3.8 (many bug remain)
@@ -41,11 +68,13 @@ Mostly more of the same: bug fixes and pull requests.
 Bug Fixes
 -----------
 
-* [#155: Python 3.x bytecode confusing "try/else" with "try" in a loop](https://github.com/rocky/python-uncompyle6/issues/155),
-* [#200: Python 3 bug in not detecting end bounds of an "if" ... "elif"](https://github.com/rocky/python-uncompyle6/issues/200),
-* [#208: Comma placement in 3.6 and 3.7 **kwargs](https://github.com/rocky/python-uncompyle6/issues/208),
-* [#209: Fix "if" return boundary in 3.6+](https://github.com/rocky/python-uncompyle6/issues/209),
+* [#221: Wrong grammar for nested ifelsestmt (in Python 3.7 at least)](https://github.com/rocky/python-uncompyle6/issues/221)
 * [#215: 2.7 can have two JUMP_BACKs at the end of a while loop](https://github.com/rocky/python-uncompyle6/issues/215)
+* [#209: Fix "if" return boundary in 3.6+](https://github.com/rocky/python-uncompyle6/issues/209),
+* [#208: Comma placement in 3.6 and 3.7 **kwargs](https://github.com/rocky/python-uncompyle6/issues/208),
+* [#200: Python 3 bug in not detecting end bounds of an "if" ... "elif"](https://github.com/rocky/python-uncompyle6/issues/200),
+* [#155: Python 3.x bytecode confusing "try/else" with "try" in a loop](https://github.com/rocky/python-uncompyle6/issues/155),
+
 
 Pull Requests
 ----------------

@@ -72,8 +72,8 @@ class Python37Parser(Python36Parser):
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP POP_BLOCK
                                else_suite COME_FROM_LOOP
 
-        # Is there a pattern here?
         attributes ::= IMPORT_FROM ROT_TWO POP_TOP IMPORT_FROM
+        attributes ::= attributes ROT_TWO POP_TOP IMPORT_FROM
 
         attribute37   ::= expr LOAD_METHOD
         expr          ::= attribute37
@@ -87,26 +87,37 @@ class Python37Parser(Python36Parser):
 
         compare_chained37   ::= expr compare_chained1a_37
         compare_chained37   ::= expr compare_chained1b_37
+        compare_chained37   ::= expr compare_chained1c_37
+
         compare_chained37_false  ::= expr compare_chained1_false_37
+        compare_chained37_false  ::= expr compare_chained2_false_37
 
         compare_chained1a_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
         compare_chained1a_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
                                       compare_chained2a_37 ELSE POP_TOP COME_FROM
         compare_chained1b_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
                                       compare_chained2b_37 POP_TOP JUMP_FORWARD COME_FROM
+        compare_chained1c_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
+                                      compare_chained2a_37 POP_TOP
 
         compare_chained1_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
                                       compare_chained2c_37 POP_TOP JUMP_FORWARD COME_FROM
+        compare_chained2_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
+                                      compare_chained2a_false_37 ELSE POP_TOP JUMP_BACK COME_FROM
 
         compare_chained2a_37       ::= expr COMPARE_OP POP_JUMP_IF_TRUE JUMP_FORWARD
-        compare_chained2a_false_37 ::= expr COMPARE_OP POP_JUMP_IF_FALSE JUMP_FORWARD
+        compare_chained2a_37       ::= expr COMPARE_OP POP_JUMP_IF_TRUE JUMP_BACK
+        compare_chained2a_false_37 ::= expr COMPARE_OP POP_JUMP_IF_FALSE jf_cfs
 
         compare_chained2b_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE JUMP_FORWARD ELSE
+        compare_chained2b_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE JUMP_FORWARD
 
         compare_chained2c_37       ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
                                        compare_chained2a_false_37 ELSE
+        compare_chained2c_37       ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
+                                       compare_chained2a_false_37
 
-        jf_cfs                     ::= JUMP_FORWARD come_froms
+        jf_cfs                     ::= JUMP_FORWARD _come_froms
         ifelsestmt                 ::= testexpr c_stmts_opt jf_cfs else_suite opt_come_from_except
 
         jmp_false37                ::= POP_JUMP_IF_FALSE COME_FROM

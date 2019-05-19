@@ -152,7 +152,7 @@ for that bytecode version. Having done this the bytecode produced
 could be compared with the original bytecode. However as Python's code
 generation got better, this is no longer feasible.
 
-There verification that we use that doesn't check bytecode for
+The verification that we use that doesn't check bytecode for
 equivalence but does check to see if the resulting decompiled source
 is a valid Python program by running the Python interpreter. Because
 the Python language has changed so much, for best results you should
@@ -194,8 +194,12 @@ Between Python 3.5, 3.6 and 3.7 there have been major changes to the
 
 Currently not all Python magic numbers are supported. Specifically in
 some versions of Python, notably Python 3.6, the magic number has
-changes several times within a version. We support only the released
-magic. There are also customized Python interpreters, notably Dropbox,
+changes several times within a version. 
+
+**We support only released versions, not candidate versions.** Note however
+that the magic of a released version is usually the same as the *last* candidate version prior to release.
+
+There are also customized Python interpreters, notably Dropbox,
 which use their own magic and encrypt bytcode. With the exception of
 the Dropbox's old Python 2.5 interpreter this kind of thing is not
 handled.
@@ -226,7 +230,7 @@ See Also
 * https://github.com/rocky/python-uncompyle6/wiki : Wiki Documents which describe the code and aspects of it in more detail
 
 
-.. _trepan: https://pypi.python.org/pypi/trepan2
+.. _trepan: https://pypi.python.org/pypi/trepan2g
 .. _compiler: https://pypi.python.org/pypi/spark_parser
 .. _HISTORY: https://github.com/rocky/python-uncompyle6/blob/master/HISTORY.md
 .. _debuggers: https://pypi.python.org/pypi/trepan3k

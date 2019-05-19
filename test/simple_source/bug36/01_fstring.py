@@ -39,6 +39,30 @@ source = 'foo'
 source = (f"__file__ = r'''{os.path.abspath(filename)}'''\n"
           + source + "\ndel __file__")
 
-# From 3.7.3 datalasses.py
+# Note how { and } are *not* escaped here
+f = 'one'
+name = 'two'
+assert(f"{f}{'{{name}}'} {f}{'{name}'}") == 'one{{name}} one{name}'
+
+# From 3.7.3 dataclasses.py
 log_rounds  = 5
 assert "05$" == f'{log_rounds:02d}$'
+
+
+def testit(a, b, l):
+    # print(l)
+    return l
+
+# The call below shows the need for BUILD_STRING to count expr arguments.
+# Also note that we use {{ }} to escape braces in contrast to the example
+# above.
+def _repr_fn(fields):
+    return testit('__repr__',
+                  ('self',),
+                  ['return xx + f"(' +
+                   ', '.join([f"{f}={{self.{f}!r}}"
+                              for f in fields]) +
+                   ')"'])
+
+fields = ['a', 'b', 'c']
+assert _repr_fn(fields) == ['return xx + f"(a={self.a!r}, b={self.b!r}, c={self.c!r})"']

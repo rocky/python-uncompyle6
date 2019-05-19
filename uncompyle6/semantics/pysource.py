@@ -1433,13 +1433,13 @@ class SourceWalker(GenericASTTraversal, object):
             assert node[n].kind.startswith('CALL_FUNCTION')
 
             if node[n].kind.startswith('CALL_FUNCTION_KW'):
-                # 3.6+ starts does this
+                # 3.6+ starts doing this
                 kwargs = node[n-1].attr
                 assert isinstance(kwargs, tuple)
                 i = n - (len(kwargs)+1)
                 j = 1 + n - node[n].attr
             else:
-                start = n-2
+                i = start = n-2
                 for i in range(start, 0, -1):
                     if not node[i].kind in ['expr', 'call', 'LOAD_CLASSNAME']:
                         break
@@ -1837,11 +1837,7 @@ class SourceWalker(GenericASTTraversal, object):
             typ = m.group('type') or '{'
             node = startnode
             if m.group('child'):
-                try:
-                    node = node[int(m.group('child'))]
-                except:
-                    from trepan.api import debug; debug()
-                    pass
+                node = node[int(m.group('child'))]
 
             if   typ == '%':	self.write('%')
             elif typ == '+':

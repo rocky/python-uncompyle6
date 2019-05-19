@@ -187,21 +187,14 @@ class Python36Parser(Python35Parser):
                     self.add_unique_doc_rules(rules_str, customize)
             elif opname == 'FORMAT_VALUE':
                 rules_str = """
-                    expr            ::= fstring_single
-                    fstring_single  ::= expr FORMAT_VALUE
-                    expr            ::= fstring_expr
-                    fstring_expr    ::= expr FORMAT_VALUE
-
-                    str             ::= LOAD_CONST
-                    formatted_value ::= fstring_expr
-                    formatted_value ::= str
-
+                    expr              ::= formatted_value1
+                    formatted_value1  ::= expr FORMAT_VALUE
                 """
                 self.add_unique_doc_rules(rules_str, customize)
             elif opname == 'FORMAT_VALUE_ATTR':
                 rules_str = """
-                expr            ::= fstring_single
-                fstring_single  ::= expr expr FORMAT_VALUE_ATTR
+                expr              ::= formatted_value2
+                formatted_value2  ::= expr expr FORMAT_VALUE_ATTR
                 """
                 self.add_unique_doc_rules(rules_str, customize)
             elif opname == 'MAKE_FUNCTION_8':
@@ -245,17 +238,12 @@ class Python36Parser(Python35Parser):
                 """
                 self.addRule(rules_str, nop_func)
 
-            elif opname == 'BUILD_STRING':
+            elif opname.startswith('BUILD_STRING'):
                 v = token.attr
-                joined_str_n = "formatted_value_%s" % v
                 rules_str = """
-                    expr                 ::= fstring_multi
-                    fstring_multi        ::= joined_str BUILD_STRING
-                    fstr                 ::= expr
-                    joined_str           ::= fstr+
-                    fstring_multi        ::= %s BUILD_STRING
-                    %s                   ::= %sBUILD_STRING
-                """ % (joined_str_n, joined_str_n, "formatted_value " * v)
+                    expr                 ::= joined_str
+                    joined_str           ::= %sBUILD_STRING_%d
+                """ % ("expr " * v, v)
                 self.add_unique_doc_rules(rules_str, customize)
                 if 'FORMAT_VALUE_ATTR' in self.seen_ops:
                     rules_str = """
