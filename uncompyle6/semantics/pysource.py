@@ -1100,6 +1100,9 @@ class SourceWalker(GenericASTTraversal, object):
             comp_store = ast[3]
 
         have_not = False
+
+        # Iterate to find the innermost store
+        # We'll come back to the list iteration below.
         while n in ('list_iter', 'comp_iter'):
             # iterate one nesting deeper
             if self.version == 3.0 and len(n) == 3:
@@ -1109,7 +1112,7 @@ class SourceWalker(GenericASTTraversal, object):
                 n = n[0]
 
             if n in ('list_for', 'comp_for'):
-                if n[2] == 'store':
+                if n[2] == 'store' and not store:
                     store = n[2]
                 n = n[3]
             elif n in ('list_if', 'list_if_not', 'comp_if', 'comp_if_not'):
@@ -1153,11 +1156,12 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(' in ')
         self.preorder(node[-3])
 
+        # Here is where we handle nested list iterations.
         if ast == 'list_comp' and self.version != 3.0:
             list_iter = ast[1]
             assert list_iter == 'list_iter'
-            if list_iter == 'list_for':
-                self.preorder(list_iter[3])
+            if list_iter[0] == 'list_for':
+                self.preorder(list_iter[0][3])
                 self.prec = p
                 return
             pass
