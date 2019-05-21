@@ -85,7 +85,7 @@ def main_bin():
     timestampfmt = "# %Y.%m.%d %H:%M:%S %Z"
 
     try:
-        opts, pyc_paths = getopt.getopt(sys.argv[1:], 'hac:gtdrVo:p:',
+        opts, pyc_paths = getopt.getopt(sys.argv[1:], 'hac:gtTdrVo:p:',
                                     'help asm compile= grammar linemaps recurse '
                                     'timestamp tree tree+ '
                                     'fragments verify verify-run version '
@@ -119,7 +119,7 @@ def main_bin():
         elif opt in ('--tree', '-t'):
             options['showast'] = True
             options['do_verify'] = None
-        elif opt in ('--tree+',):
+        elif opt in ('--tree+', '-T'):
             options['showast'] = 'Full'
             options['do_verify'] = None
         elif opt in ('--grammar', '-g'):
