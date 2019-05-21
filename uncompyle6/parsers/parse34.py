@@ -47,7 +47,7 @@ class Python34Parser(Python33Parser):
 
         # Python 3.4+ optimizes the trailing two JUMPS away
 
-        # Is this 3.4 only?
+        # This is 3.4 only
         yield_from ::= expr GET_ITER LOAD_CONST YIELD_FROM
 
         _ifstmts_jump ::= c_stmts_opt JUMP_ABSOLUTE JUMP_FORWARD COME_FROM
@@ -55,6 +55,7 @@ class Python34Parser(Python33Parser):
 
     def customize_grammar_rules(self, tokens, customize):
         self.remove_rules("""
+        yield_from    ::= expr expr YIELD_FROM
         # 3.4.2 has this. 3.4.4 may now
         # while1stmt ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
         """)
