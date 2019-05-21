@@ -93,8 +93,8 @@ This uses setup.py, so it follows the standard Python routine:
 A GNU makefile is also provided so :code:`make install` (possibly as root or
 sudo) will do the steps above.
 
-Testing
--------
+Running Tests
+-------------
 
 ::
 
@@ -133,18 +133,8 @@ You can also cross compare the results with pycdc_ . Since they work
 differently, bugs here often aren't in that, and vice versa.
 
 
-Known Bugs/Restrictions
------------------------
-
-The biggest known and possibly fixable (but hard) problem has to do
-with handling control flow. (Python has probably the most diverse and
-screwy set of compound statements I've ever seen; there
-are "else" clauses on loops and try blocks that I suspect many
-programmers don't know about.)
-
-All of the Python decompilers that I have looked at have problems
-decompiling Python's control flow. In some cases we can detect an
-erroneous decompilation and report that.
+Verification
+------------
 
 In older versions of Python it was possible to verify bytecode by
 decompiling bytecode, and then compiling using the Python interpreter
@@ -166,6 +156,19 @@ when run check some computation, or even better themselves.
 And already Python has a set of programs like this: the test suite
 for the standard library that comes with Python. We have some
 code in `test/stdlib` to facilitate this kind of checking.
+
+Known Bugs/Restrictions
+-----------------------
+
+The biggest known and possibly fixable (but hard) problem has to do
+with handling control flow. (Python has probably the most diverse and
+screwy set of compound statements I've ever seen; there
+are "else" clauses on loops and try blocks that I suspect many
+programmers don't know about.)
+
+All of the Python decompilers that I have looked at have problems
+decompiling Python's control flow. In some cases we can detect an
+erroneous decompilation and report that.
 
 Python support is strongest in Python 2 for 2.7 and drops off as you
 get further away from that. Support is also probably pretty good for
@@ -194,7 +197,7 @@ Between Python 3.5, 3.6 and 3.7 there have been major changes to the
 
 Currently not all Python magic numbers are supported. Specifically in
 some versions of Python, notably Python 3.6, the magic number has
-changes several times within a version. 
+changes several times within a version.
 
 **We support only released versions, not candidate versions.** Note however
 that the magic of a released version is usually the same as the *last* candidate version prior to release.
