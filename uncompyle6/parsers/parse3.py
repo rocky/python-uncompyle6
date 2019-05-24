@@ -650,10 +650,6 @@ class Python3Parser(PythonParser):
                         # FIXME: Use the attr
                         # so this doesn't run into exponential parsing time.
                         if opname.startswith('BUILD_MAP_UNPACK'):
-                            self.add_unique_rule(rule, opname, token.attr, customize)
-                            rule = 'dict_entry ::= ' + 'expr ' * (token.attr*2)
-                            self.add_unique_rule(rule, opname, token.attr, customize)
-
                             # FIXME: start here. The LHS should be unmap_dict, not dict.
                             # FIXME: really we need a combination of dict_entry-like things.
                             # It just so happens the most common case is not to mix

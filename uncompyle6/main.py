@@ -280,6 +280,19 @@ def main(in_base, out_base, compiled_files, source_files, outfile=None,
             sys.stdout.write("\n")
             sys.stderr.write("\nLast file: %s   " % (infile))
             raise
+        except RuntimeError as e:
+            sys.stdout.write("\n%s\n" % str(e))
+            if str(e).startswith('Unsupported Python'):
+                sys.stdout.write("\n")
+                sys.stderr.write("\n# Unsupported bytecode in file %s\n# %s\n" % (infile, e))
+            else:
+                if outfile:
+                    outstream.close()
+                    os.remove(outfile)
+                sys.stdout.write("\n")
+                sys.stderr.write("\nLast file: %s   " % (infile))
+                raise
+
         # except:
         #     failed_files += 1
         #     if current_outfile:
@@ -337,9 +350,9 @@ def main(in_base, out_base, compiled_files, source_files, outfile=None,
                     # mem_usage = __memUsage()
                     print mess, infile
         if current_outfile:
-            sys.stdout.write("%s\r" %
-                             status_msg(do_verify, tot_files, okay_files, failed_files,
-                                        verify_failed_files, do_verify))
+            sys.stdout.write("%s -- %s\r" %
+                             (infile, status_msg(do_verify, tot_files, okay_files, failed_files,
+                                                 verify_failed_files, do_verify)))
             try:
                 # FIXME: Something is weird with Pypy here
                 sys.stdout.flush()

@@ -801,7 +801,6 @@ def python_parser(version, co, out=sys.stdout, showasm=False,
 if __name__ == '__main__':
     def parse_test(co):
         from uncompyle6 import PYTHON_VERSION, IS_PYPY
-        ast = python_parser('2.7.13', co, showasm=True, is_pypy=True)
         ast = python_parser(PYTHON_VERSION, co, showasm=True, is_pypy=IS_PYPY)
         print(ast)
         return
