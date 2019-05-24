@@ -137,19 +137,12 @@ def print_docstring(self, indent, docstring):
 
         # Escape triple quote when needed
         if quote == '"""':
-            if self.version > 2.7:
-                replace_str = '\\"""'
-            else:
-                replace_str = '\\"\\"\\"'
-            docstring = docstring.replace(quote, replace_str)
+            replace_str = '\\"""'
         else:
             assert quote == "'''"
-            if self.version > 2.7:
-                replace_str = "\\'''"
-            else:
-                replace_str = "\\'\\'\\'"
-            docstring = docstring.replace(quote, replace_str)
+            replace_str = "\\'''"
 
+        docstring = docstring.replace(quote, replace_str)
         docstring = docstring.replace('\t', '\\\\')
 
     lines = docstring.split('\n')

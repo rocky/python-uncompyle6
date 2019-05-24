@@ -1,7 +1,16 @@
+# -*- coding: utf-8 -*-
 # uncompyle2 bug was not escaping """ properly
 
 # RUNNABLE!
 r'''func placeholder - with ("""\nstring\n""")'''
+
+def uni(word):
+  u"""        <----- SEE 'u' HERE
+  >>> mylen(u"áéíóú")
+  5
+  """
+
+
 def foo():
     r'''func placeholder - ' and with ("""\nstring\n""")'''
 
@@ -39,5 +48,9 @@ def baz():
         >>> t.rundict(m1.__dict__, 'rundict_test_pvt')  # None are skipped.
         TestResults(failed=0, attempted=8)
     """
+    assert uni.__doc__ ==   u"""        <----- SEE 'u' HERE
+  >>> mylen(u"áéíóú")
+  5
+  """
 
 baz()
