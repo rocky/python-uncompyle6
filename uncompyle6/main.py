@@ -280,7 +280,7 @@ def main(in_base, out_base, compiled_files, source_files, outfile=None,
             sys.stdout.write("\n")
             sys.stderr.write("\nLast file: %s   " % (infile))
             raise
-        except RuntimeError as e:
+        except RuntimeError(e):
             sys.stdout.write("\n%s\n" % str(e))
             if str(e).startswith('Unsupported Python'):
                 sys.stdout.write("\n")
