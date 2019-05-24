@@ -99,14 +99,9 @@ def strip_quotes(str):
 
 
 def print_docstring(self, indent, docstring):
-    try:
-        if docstring.find('"""') == -1:
-            quote = '"""'
-        else:
-            quote = "'''"
-            docstring = docstring.replace("'''", "\\'''")
-    except:
-        return False
+    quote = '"""'
+    if docstring.find("'''") == -1:
+        quote = "'''"
     self.write(indent)
     if not PYTHON3 and not isinstance(docstring, str):
         # Must be unicode in Python2
@@ -132,18 +127,31 @@ def print_docstring(self, indent, docstring):
         and (docstring[-1] != '"'
              or docstring[-2] == '\t')):
         self.write('r') # raw string
-        # restore backslashes unescaped since raw
+        # Restore backslashes unescaped since raw
         docstring = docstring.replace('\t', '\\')
     else:
         # Escape '"' if it's the last character, so it doesn't
         # ruin the ending triple quote
         if len(docstring) and docstring[-1] == '"':
             docstring = docstring[:-1] + '\\"'
-        # Restore escaped backslashes
+
+        # Escape triple quote when needed
+        if quote == '"""':
+            if self.version > 2.7:
+                replace_str = '\\"""'
+            else:
+                replace_str = '\\"\\"\\"'
+            docstring = docstring.replace(quote, replace_str)
+        else:
+            assert quote == "'''"
+            if self.version > 2.7:
+                replace_str = "\\'''"
+            else:
+                replace_str = "\\'\\'\\'"
+            docstring = docstring.replace(quote, replace_str)
+
         docstring = docstring.replace('\t', '\\\\')
-    # Escape triple quote when needed
-    if quote == '""""':
-        docstring = docstring.replace('"""', '\\"\\"\\"')
+
     lines = docstring.split('\n')
     calculate_indent = maxint
     for line in lines[1:]:
@@ -152,6 +160,7 @@ def print_docstring(self, indent, docstring):
             calculate_indent = min(calculate_indent, len(line) - len(stripped))
     calculate_indent = min(calculate_indent, len(lines[-1]) - len(lines[-1].lstrip()))
     # Remove indentation (first line is special):
+
     trimmed = [lines[0]]
     if calculate_indent < maxint:
         trimmed += [line[calculate_indent:] for line in lines[1:]]
@@ -164,7 +173,12 @@ def print_docstring(self, indent, docstring):
     else:
         self.println(trimmed[0])
         for line in trimmed[1:-1]:
-            self.println( indent, line )
+            if line:
+                self.println( indent, line )
+            else:
+                self.println( "\n\n" )
+                pass
+            pass
         self.println(indent, trimmed[-1], quote)
     return True
 
