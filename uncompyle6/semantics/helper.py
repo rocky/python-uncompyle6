@@ -100,8 +100,10 @@ def strip_quotes(str):
 
 def print_docstring(self, indent, docstring):
     quote = '"""'
-    if docstring.find("'''") == -1:
-        quote = "'''"
+    if docstring.find(quote) >= 0:
+        if docstring.find("'''") == -1:
+            quote = "'''"
+
     self.write(indent)
     if not PYTHON3 and not isinstance(docstring, str):
         # Must be unicode in Python2
@@ -110,7 +112,8 @@ def print_docstring(self, indent, docstring):
                 docstring = repr(docstring.expandtabs())[2:-1].decode("unicode-escape")
             else:
                 self.write('u')
-                docstring = repr(docstring.expandtabs())[2:-1].decode("string-escape").decode("utf-8")
+                docstring = repr(docstring.expandtabs())[2:-1].decode("string-escape")\
+                                                              .decode("utf-8", errors="ignore")
         else:
             docstring = repr(docstring.expandtabs())[2:-1]
     elif PYTHON3 and 2.4 <= self.version <= 2.7:
@@ -143,10 +146,11 @@ def print_docstring(self, indent, docstring):
         # Restore backslashes unescaped since raw
         docstring = docstring.replace('\t', '\\')
     else:
-        # Escape '"' if it's the last character, so it doesn't
-        # ruin the ending triple quote
-        if len(docstring) and docstring[-1] == '"':
-            docstring = docstring[:-1] + '\\"'
+        # Escape the last character if it is the same as the
+        # triple quote character.
+        quote1 = quote[-1]
+        if len(docstring) and docstring[-1] == quote1:
+            docstring = docstring[:-1] + '\\' + quote1
 
         # Escape triple quote when needed
         if quote == '"""':
