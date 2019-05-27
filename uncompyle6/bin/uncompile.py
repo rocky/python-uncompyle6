@@ -41,6 +41,8 @@ Options:
   --weak-verify compile generated source
   --linemaps    generated line number correspondencies between byte-code
                 and generated source output
+  --encoding  <encoding>
+                use <encoding> in generated source according to pep-0263
   --help        show this message
 
 Debugging Options:
@@ -90,7 +92,7 @@ def main_bin():
                                     'timestamp tree tree+ '
                                     'fragments verify verify-run version '
                                     'weak-verify '
-                                    'showgrammar'.split(' '))
+                                    'showgrammar encoding='.split(' '))
     except getopt.GetoptError as e:
         print('%s: %s' % (os.path.basename(sys.argv[0]), e),  file=sys.stderr)
         sys.exit(-1)
@@ -134,6 +136,8 @@ def main_bin():
             numproc = int(val)
         elif opt in ('--recurse', '-r'):
             recurse_dirs = True
+        elif opt == '--encoding':
+            options['source_encoding'] = val
         else:
             print(opt, file=sys.stderr)
             usage()

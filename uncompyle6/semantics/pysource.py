@@ -363,7 +363,10 @@ class SourceWalker(GenericASTTraversal, object):
     def write(self, *data):
         if (len(data) == 0) or (len(data) == 1 and data[0] == ''):
             return
-        out = ''.join((str(j) for j in data))
+        if not PYTHON3:
+            out = ''.join((unicode(j) for j in data))
+        else:
+            out = ''.join((str(j) for j in data))
         n = 0
         for i in out:
             if i == '\n':
