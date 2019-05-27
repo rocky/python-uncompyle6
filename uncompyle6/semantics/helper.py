@@ -105,8 +105,21 @@ def print_docstring(self, indent, docstring):
     self.write(indent)
     if not PYTHON3 and not isinstance(docstring, str):
         # Must be unicode in Python2
-        self.write('u')
-        docstring = repr(docstring.expandtabs())[2:-1]
+        if self.version >= 2.4:
+            if self.version > 2.7:
+                docstring = repr(docstring.expandtabs())[2:-1].decode("unicode-escape")
+            else:
+                self.write('u')
+                docstring = repr(docstring.expandtabs())[2:-1].decode("string-escape").decode("utf-8")
+        else:
+            docstring = repr(docstring.expandtabs())[2:-1]
+    elif PYTHON3 and 2.4 <= self.version <= 2.7:
+        # TODO: check for unicode string
+        try:
+            docstring = repr(docstring.expandtabs())[1:-1].encode("latin-1").decode("utf-8")
+        except UnicodeEncodeError:
+            self.write('u')
+            docstring = repr(docstring.expandtabs())[1:-1]
     else:
         docstring = repr(docstring.expandtabs())[1:-1]
 
