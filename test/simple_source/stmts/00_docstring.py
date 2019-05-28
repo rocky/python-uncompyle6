@@ -77,6 +77,5 @@ dq3()
 dq4()
 dq5()
 dq6()
-# FIXME: Reinstate
-# dq7()
+dq7()
 baz()
