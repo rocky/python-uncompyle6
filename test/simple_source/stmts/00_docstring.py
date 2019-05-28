@@ -41,6 +41,16 @@ def dq7():
   5
   """
 
+def dq8():
+  u"""        <----- SEE 'u' HERE
+  >>> mylen(u"تست")
+  5
+  """
+  assert dq8.__doc__ ==   u"""        <----- SEE 'u' HERE
+  >>> mylen(u"تست")
+  5
+  """
+
 def baz():
     """
         ...     '''>>> assert 1 == 1
@@ -78,4 +88,5 @@ dq4()
 dq5()
 dq6()
 dq7()
+dq8()
 baz()

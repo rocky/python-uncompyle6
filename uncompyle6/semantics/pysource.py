@@ -610,6 +610,11 @@ class SourceWalker(GenericASTTraversal, object):
             else:
                 self.write(repr(data))
         else:
+            if not PYTHON3:
+                try:
+                    repr(data).encode("ascii")
+                except UnicodeEncodeError:
+                    self.write('u')
             self.write(repr(data))
         # LOAD_CONST is a terminal, so stop processing/recursing early
         self.prune()
