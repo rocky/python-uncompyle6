@@ -17,6 +17,16 @@ def foo():
 def bar():
     r"""func placeholder - ' and with ('''\nstring\n''') and \"\"\"\nstring\n\"\"\" """
 
+def dq8():
+  u"""        <----- SEE 'u' HERE
+  >>> mylen(u"تست")
+  5
+  """
+  assert dq8.__doc__ ==   u"""        <----- SEE 'u' HERE
+  >>> mylen(u"تست")
+  5
+  """
+
 def baz():
     """
         ...     '''>>> assert 1 == 1

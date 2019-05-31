@@ -100,7 +100,7 @@ def strip_quotes(str):
 
 def print_docstring(self, indent, docstring):
     quote = '"""'
-    if docstring.find("'''") == -1:
+    if docstring.find(quote) != -1:
         quote = "'''"
     self.write(indent)
     if not PYTHON3 and not isinstance(docstring, str):
@@ -143,10 +143,11 @@ def print_docstring(self, indent, docstring):
         # Restore backslashes unescaped since raw
         docstring = docstring.replace('\t', '\\')
     else:
-        # Escape '"' if it's the last character, so it doesn't
-        # ruin the ending triple quote
-        if len(docstring) and docstring[-1] == '"':
-            docstring = docstring[:-1] + '\\"'
+        # Escape quote symbol if it's the last character when it is the same
+        # as the triple quote symbol, so it doesn't ruin the ending triple quote.
+        single_quote = quote[1]
+        if len(docstring) and docstring[-1] == single_quote:
+            docstring = docstring[:-1] + '\\' + single_quote
 
         # Escape triple quote when needed
         if quote == '"""':
@@ -159,33 +160,22 @@ def print_docstring(self, indent, docstring):
         docstring = docstring.replace('\t', '\\\\')
 
     lines = docstring.split('\n')
-    calculate_indent = maxint
-    for line in lines[1:]:
-        stripped = line.lstrip()
-        if len(stripped) > 0:
-            calculate_indent = min(calculate_indent, len(line) - len(stripped))
-    calculate_indent = min(calculate_indent, len(lines[-1]) - len(lines[-1].lstrip()))
-    # Remove indentation (first line is special):
-
-    trimmed = [lines[0]]
-    if calculate_indent < maxint:
-        trimmed += [line[calculate_indent:] for line in lines[1:]]
 
     self.write(quote)
-    if len(trimmed) == 0:
+    if len(lines) == 0:
         self.println(quote)
-    elif len(trimmed) == 1:
-        self.println(trimmed[0], quote)
+    elif len(lines) == 1:
+        self.println(lines[0], quote)
     else:
-        self.println(trimmed[0])
-        for line in trimmed[1:-1]:
+        self.println(lines[0])
+        for line in lines[1:-1]:
             if line:
-                self.println( indent, line )
+                self.println( line )
             else:
                 self.println( "\n\n" )
                 pass
             pass
-        self.println(indent, trimmed[-1], quote)
+        self.println(lines[-1], quote)
     return True
 
 
