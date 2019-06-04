@@ -117,18 +117,14 @@ def customize_for_version35(self, version):
     self.n_call = n_call
 
     def n_function_def(node):
-        if self.version >= 3.6:
-            code_node = node[0][0]
-            for n in node[0]:
-                if hasattr(n, 'attr') and iscode(n.attr):
-                    code_node = n
-                    break
-                pass
-            pass
-        else:
-            code_node = node[0][1]
+        n0 = node[0]
+        is_code = False
+        for i in list(range(len(n0)-2, -1, -1)):
+            code_node = n0[i]
+            if hasattr(code_node, 'attr') and iscode(code_node.attr):
+                is_code = True
+                break
 
-        is_code = hasattr(code_node, 'attr') and iscode(code_node.attr)
         if (is_code and
             (code_node.attr.co_flags & COMPILER_FLAG_BIT['COROUTINE'])):
             self.template_engine(('\n\n%|async def %c\n',
