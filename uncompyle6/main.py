@@ -42,7 +42,7 @@ def _get_outstream(outfile):
 
 def decompile(
         bytecode_version, co, out=None, showasm=None, showast=False,
-        timestamp=None, showgrammar=False, code_objects={},
+        timestamp=None, showgrammar=False, source_encoding=None, code_objects={},
         source_size=None, is_pypy=None, magic_int=None,
         mapstream=None, do_fragments=False):
     """
@@ -81,6 +81,8 @@ def decompile(
         m = ""
 
     sys_version_lines = sys.version.split('\n')
+    if source_encoding:
+        write('# -*- coding: %s -*-' % source_encoding)
     write('# uncompyle6 version %s\n'
           '# %sPython bytecode %s%s\n# Decompiled from: %sPython %s' %
           (VERSION, co_pypy_str, bytecode_version,
@@ -147,7 +149,7 @@ def compile_file(source_path):
 
 
 def decompile_file(filename, outstream=None, showasm=None, showast=False,
-                   showgrammar=False, mapstream=None, do_fragments=False):
+                   showgrammar=False, source_encoding=None, mapstream=None, do_fragments=False):
     """
     decompile Python byte-code file (.pyc). Return objects to
     all of the deparsed objects found in `filename`.
@@ -163,12 +165,12 @@ def decompile_file(filename, outstream=None, showasm=None, showast=False,
         for con in co:
             deparsed.append(
                 decompile(version, con, outstream, showasm, showast,
-                          timestamp, showgrammar, code_objects=code_objects,
+                          timestamp, showgrammar, source_encoding, code_objects=code_objects,
                           is_pypy=is_pypy, magic_int=magic_int),
                           mapstream=mapstream)
     else:
         deparsed = [decompile(version, co, outstream, showasm, showast,
-                              timestamp, showgrammar,
+                              timestamp, showgrammar, source_encoding,
                               code_objects=code_objects, source_size=source_size,
                               is_pypy=is_pypy, magic_int=magic_int,
                               mapstream=mapstream, do_fragments=do_fragments)]
@@ -179,7 +181,7 @@ def decompile_file(filename, outstream=None, showasm=None, showast=False,
 # FIXME: combine into an options parameter
 def main(in_base, out_base, compiled_files, source_files, outfile=None,
          showasm=None, showast=False, do_verify=False,
-         showgrammar=False, raise_on_error=False,
+         showgrammar=False, source_encoding=None, raise_on_error=False,
          do_linemaps=False, do_fragments=False):
     """
     in_base	base directory for input files
@@ -250,7 +252,7 @@ def main(in_base, out_base, compiled_files, source_files, outfile=None,
         # Try to uncompile the input file
         try:
             deparsed = decompile_file(infile, outstream, showasm, showast, showgrammar,
-                                      linemap_stream, do_fragments)
+                                      source_encoding, linemap_stream, do_fragments)
             if do_fragments:
                 for d in deparsed:
                     last_mod = None
