@@ -227,9 +227,38 @@ def customize_for_version3(self, version):
                                     -2, (-2-kwargs, -2, ', '))
                     self.template_engine(template, node)
                     self.prune()
+            elif key.kind == 'CALL_FUNCTION_1':
+                args_node = node[-2]
+                if args_node == 'pos_arg':
+                    assert args_node[0] == 'expr'
+                    n = args_node[0][0]
+                    if n == 'generator_exp':
+                        template = ('%c%P', 0, (1, -1, ', ', 100))
+                        self.template_engine(template, node)
+                        self.prune()
 
             self.default(node)
         self.n_call = n_call
+    elif version < 3.2:
+        def n_call(node):
+            mapping = self._get_mapping(node)
+            key = node
+            for i in mapping[1:]:
+                key = key[i]
+                pass
+            if key.kind == 'CALL_FUNCTION_1':
+                args_node = node[-2]
+                if args_node == 'pos_arg':
+                    assert args_node[0] == 'expr'
+                    n = args_node[0][0]
+                    if n == 'generator_exp':
+                        template = ('%c%P', 0, (1, -1, ', ', 100))
+                        self.template_engine(template, node)
+                        self.prune()
+
+            self.default(node)
+        self.n_call = n_call
+
 
 
     def n_mkfunc_annotate(node):
