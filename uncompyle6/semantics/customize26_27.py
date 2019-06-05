@@ -37,3 +37,22 @@ def customize_for_version26_27(self, version):
             'testtrue_then': ( 'not %p', (0, 22) ),
 
         })
+
+    def n_call(node):
+        mapping = self._get_mapping(node)
+        table = mapping[0]
+        key = node
+        for i in mapping[1:]:
+            key = key[i]
+            pass
+        if key.kind == 'CALL_FUNCTION_1':
+            args_node = node[-2]
+            if args_node == 'expr':
+                n = args_node[0]
+                if n == 'generator_exp':
+                    template = ('%c%P', 0, (1, -1, ', ', 100))
+                    self.template_engine(template, node)
+                    self.prune()
+
+        self.default(node)
+    self.n_call = n_call
