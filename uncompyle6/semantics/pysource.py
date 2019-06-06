@@ -26,7 +26,7 @@ Upper levels of the grammar is a more-or-less conventional grammar for
 Python.
 """
 
-# The below is a bit long, but still it is somehwat abbreviated.
+# The below is a bit long, but still it is somewhat abbreviated.
 # See https://github.com/rocky/python-uncompyle6/wiki/Table-driven-semantic-actions.
 # for a more complete explanation, nicely marked up and with examples.
 #
