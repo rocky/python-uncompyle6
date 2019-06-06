@@ -18,13 +18,29 @@ def div(a: dict(type=float, help='the dividend'),
     """Divide a by b"""
     return a / b
 
-class TestSignatureObject(unittest.TestCase):
+class TestSignatureObject():
     def test_signature_on_wkwonly(self):
         def test(*, a:float, b:str) -> int:
             pass
 
-class SupportsInt(_Protocol):
+class SupportsInt():
 
-    @abstractmethod
     def __int__(self) -> int:
         pass
+
+def foo2(a, b: 'annotating b', c: int, *args: str) -> float:
+    assert foo2.__annotations__['b'] == 'annotating b'
+    assert foo2.__annotations__['c'] == int
+    assert foo2.__annotations__['args'] == str
+    assert foo2.__annotations__['return'] == float
+
+def foo3(a, b: int = 5, **kwargs: float) -> float:
+    assert foo3.__annotations__['b'] == int
+    assert foo3.__annotations__['kwargs'] == float
+    assert foo3.__annotations__['return'] == float
+    assert b == 5
+
+
+
+foo2(1, 'test', 5)
+foo3(1)

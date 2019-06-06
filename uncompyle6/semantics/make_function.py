@@ -687,9 +687,17 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             params.append(build_param(ast, paramnames[i], defparam,
                                       annotate_dict.get(paramnames[i])))
 
-        params += paramnames[i+1:]
+        for param in paramnames[i+1:]:
+            if param in annotate_dict:
+                params.append("%s: %s" % (param, annotate_dict[param]))
+            else:
+                params.append(param)
     else:
-        params = paramnames
+        for param in paramnames:
+            if param in annotate_dict:
+                params.append("%s: %s" % (param, annotate_dict[param]))
+            else:
+                params.append(param)
 
     params.reverse() # back to correct order
 
