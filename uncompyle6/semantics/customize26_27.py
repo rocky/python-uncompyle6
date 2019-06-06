@@ -31,9 +31,31 @@ def customize_for_version26_27(self, version):
     if version > 2.6:
         TABLE_DIRECT.update({
             'except_cond2':	( '%|except %c as %c:\n', 1, 5 ),
+            # When a generator is a single parameter of a function,
+            # it doesn't need the surrounding parenethesis.
+            'call_generator': ('%c%P', 0, (1, -1, ', ', 100)),
         })
     else:
         TABLE_DIRECT.update({
             'testtrue_then': ( 'not %p', (0, 22) ),
-
         })
+
+    def n_call(node):
+        mapping = self._get_mapping(node)
+        key = node
+        for i in mapping[1:]:
+            key = key[i]
+            pass
+        if key.kind == 'CALL_FUNCTION_1':
+            # A function with one argument. If this is a generator,
+            # no parenthesis is needed.
+            args_node = node[-2]
+            if args_node == 'expr':
+                n = args_node[0]
+                if n == 'generator_exp':
+                    node.kind = 'call_generator'
+                    pass
+                pass
+
+        self.default(node)
+    self.n_call = n_call

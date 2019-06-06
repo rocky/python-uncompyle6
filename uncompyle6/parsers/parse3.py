@@ -598,16 +598,9 @@ class Python3Parser(PythonParser):
 
         # Determine if we have an iteration CALL_FUNCTION_1.
         has_get_iter_call_function1 = False
-        max_branches = 0
         for i, token in enumerate(tokens):
             if token == 'GET_ITER' and i < n-2 and self.call_fn_name(tokens[i+1]) == 'CALL_FUNCTION_1':
                 has_get_iter_call_function1 = True
-                max_branches += 1
-            elif (token == 'GET_AWAITABLE' and i < n-3
-                  and tokens[i+1] == 'LOAD_CONST' and tokens[i+2] == 'YIELD_FROM'):
-                max_branches += 1
-            if max_branches > 2:
-                break
 
         for i, token in enumerate(tokens):
             opname = token.kind
