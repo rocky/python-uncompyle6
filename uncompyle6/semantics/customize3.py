@@ -37,7 +37,7 @@ def customize_for_version3(self, version):
 
         # When a generator is a single parameter of a function,
         # it doesn't need the surrounding parenethesis.
-        'generator_no_parens': ('%c%P', 0, (1, -1, ', ', 100)),
+        'call_generator' : ('%c%P', 0, (1, -1, ', ', 100)),
 
         'importmultiple' : ( '%|import %c%c\n', 2, 3 ),
         'import_cont'    : ( ', %c', 2 ),

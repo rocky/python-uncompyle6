@@ -201,7 +201,7 @@ def flatten_list(node):
 def gen_function_parens_adjust(mapping_key, node):
     """If we can avoid the outer parenthesis
     of a generator function, set the node key to
-    'generator_no_parens' and the caller will do the default
+    'call_generator' and the caller will do the default
     action on that. Otherwise we do nothing.
     """
     if mapping_key.kind != 'CALL_FUNCTION_1':
@@ -212,7 +212,7 @@ def gen_function_parens_adjust(mapping_key, node):
         assert args_node[0] == 'expr'
         n = args_node[0][0]
         if n == 'generator_exp':
-            node.kind = 'generator_no_parens'
+            node.kind = 'call_generator'
         pass
     return
 

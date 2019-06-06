@@ -33,7 +33,7 @@ def customize_for_version26_27(self, version):
             'except_cond2':	( '%|except %c as %c:\n', 1, 5 ),
             # When a generator is a single parameter of a function,
             # it doesn't need the surrounding parenethesis.
-            'generator_no_parens': ('%c%P', 0, (1, -1, ', ', 100)),
+            'call_generator': ('%c%P', 0, (1, -1, ', ', 100)),
         })
     else:
         TABLE_DIRECT.update({
@@ -53,7 +53,7 @@ def customize_for_version26_27(self, version):
             if args_node == 'expr':
                 n = args_node[0]
                 if n == 'generator_exp':
-                    node.kind = 'generator_no_parens'
+                    node.kind = 'call_generator'
                     pass
                 pass
 
