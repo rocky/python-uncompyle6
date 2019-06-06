@@ -19,6 +19,7 @@
 from uncompyle6.semantics.consts import TABLE_DIRECT
 
 from xdis.code import iscode
+from uncompyle6.semantics.helper import gen_function_parens_adjust
 from uncompyle6.semantics.make_function import make_function3_annotate
 from uncompyle6.semantics.customize35 import customize_for_version35
 from uncompyle6.semantics.customize36 import customize_for_version36
@@ -33,8 +34,14 @@ def customize_for_version3(self, version):
                             (2, 'expr') , (0, 'expr'), (4, 'expr') ),
         'except_cond2'   : ( '%|except %c as %c:\n', 1, 5 ),
         'function_def_annotate': ( '\n\n%|def %c%c\n', -1, 0),
+
+        # When a generator is a single parameter of a function,
+        # it doesn't need the surrounding parenethesis.
+        'generator_no_parens': ('%c%P', 0, (1, -1, ', ', 100)),
+
         'importmultiple' : ( '%|import %c%c\n', 2, 3 ),
         'import_cont'    : ( ', %c', 2 ),
+        'raise_stmt2'    : ( '%|raise %c from %c\n', 0, 1),
         'store_locals'   : ( '%|# inspect.currentframe().f_locals = __locals__\n', ),
         'withstmt'       : ( '%|with %c:\n%+%c%-', 0, 3),
         'withasstmt'     : ( '%|with %c as (%c):\n%+%c%-', 0, 2, 3),
@@ -195,7 +202,9 @@ def customize_for_version3(self, version):
         self.n_yield_from = n_yield_from
 
     if 3.2 <= version <= 3.4:
+
         def n_call(node):
+
             mapping = self._get_mapping(node)
             key = node
             for i in mapping[1:]:
@@ -227,17 +236,10 @@ def customize_for_version3(self, version):
                                     -2, (-2-kwargs, -2, ', '))
                     self.template_engine(template, node)
                     self.prune()
-            elif key.kind == 'CALL_FUNCTION_1':
-                args_node = node[-2]
-                if args_node == 'pos_arg':
-                    assert args_node[0] == 'expr'
-                    n = args_node[0][0]
-                    if n == 'generator_exp':
-                        template = ('%c%P', 0, (1, -1, ', ', 100))
-                        self.template_engine(template, node)
-                        self.prune()
-
+            else:
+                gen_function_parens_adjust(key, node)
             self.default(node)
+
         self.n_call = n_call
     elif version < 3.2:
         def n_call(node):
@@ -246,20 +248,9 @@ def customize_for_version3(self, version):
             for i in mapping[1:]:
                 key = key[i]
                 pass
-            if key.kind == 'CALL_FUNCTION_1':
-                args_node = node[-2]
-                if args_node == 'pos_arg':
-                    assert args_node[0] == 'expr'
-                    n = args_node[0][0]
-                    if n == 'generator_exp':
-                        template = ('%c%P', 0, (1, -1, ', ', 100))
-                        self.template_engine(template, node)
-                        self.prune()
-
+            gen_function_parens_adjust(key, node)
             self.default(node)
         self.n_call = n_call
-
-
 
     def n_mkfunc_annotate(node):
 
