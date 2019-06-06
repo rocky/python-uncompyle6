@@ -49,11 +49,6 @@ def customize_for_version(self, is_pypy, version):
                                   5, 6, 7, 0, 1, 2 ),
             })
     if  version >= 3.0:
-        TABLE_DIRECT.update({
-            # Gotta love Python for its futzing around with syntax like this
-            'raise_stmt2':	 ( '%|raise %c from %c\n', 0, 1),
-        })
-
         if version >= 3.2:
             TABLE_DIRECT.update({
             'del_deref_stmt': ( '%|del %c\n', 0),

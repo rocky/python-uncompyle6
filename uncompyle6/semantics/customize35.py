@@ -19,7 +19,8 @@ from xdis.code import iscode
 from xdis.util import COMPILER_FLAG_BIT
 from uncompyle6.semantics.consts import (
     INDENT_PER_LEVEL, TABLE_DIRECT)
-from uncompyle6.semantics.helper import flatten_list
+from uncompyle6.semantics.helper import (
+    flatten_list, gen_function_parens_adjust)
 
 #######################
 # Python 3.5+ Changes #
@@ -112,6 +113,8 @@ def customize_for_version35(self, version):
                     template = ('*%c)', nargs+1)
                 self.template_engine(template, node)
             self.prune()
+        else:
+            gen_function_parens_adjust(key, node)
 
         self.default(node)
     self.n_call = n_call
