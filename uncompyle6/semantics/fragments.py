@@ -421,6 +421,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             pass
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune()
+    n_LOAD_STR = n_LOAD_CONST
 
     def n_exec_stmt(self, node):
         """

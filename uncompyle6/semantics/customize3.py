@@ -62,11 +62,11 @@ def customize_for_version3(self, version):
         subclass_info = None
         if node == 'classdefdeco2':
             if self.version >= 3.6:
-                class_name = node[1][1].pattr
+                class_name = node[1][1].attr
             elif self.version <= 3.3:
-                class_name = node[2][0].pattr
+                class_name = node[2][0].attr
             else:
-                class_name = node[1][2].pattr
+                class_name = node[1][2].attr
             build_class = node
         else:
             build_class = node[0]

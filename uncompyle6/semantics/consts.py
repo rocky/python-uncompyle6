@@ -131,7 +131,7 @@ PASS = SyntaxTree('stmts',
 ASSIGN_DOC_STRING = lambda doc_string: \
   SyntaxTree('stmt',
       [ SyntaxTree('assign',
-            [ SyntaxTree('expr', [ Token('LOAD_CONST', pattr=doc_string) ]),
+            [ SyntaxTree('expr', [ Token('LOAD_STR', pattr=doc_string) ]),
               SyntaxTree('store', [ Token('STORE_NAME', pattr='__doc__')])
             ])])
 
@@ -221,8 +221,9 @@ TABLE_DIRECT = {
     'IMPORT_FROM':              ( '%{pattr}', ),
     'attribute':	        ( '%c.%[1]{pattr}',
                                   (0, 'expr')),
-    'LOAD_FAST':	            ( '%{pattr}', ),
-    'LOAD_NAME':	            ( '%{pattr}', ),
+    'LOAD_STR':	                ( '%{pattr}', ),
+    'LOAD_FAST':	        ( '%{pattr}', ),
+    'LOAD_NAME':	        ( '%{pattr}', ),
     'LOAD_CLASSNAME':	        ( '%{pattr}', ),
     'LOAD_GLOBAL':	        ( '%{pattr}', ),
     'LOAD_DEREF':	        ( '%{pattr}', ),
@@ -317,7 +318,7 @@ TABLE_DIRECT = {
     'mkfuncdeco0':  	    ( '%|def %c\n', 0),
     'classdefdeco':  	    ( '\n\n%c', 0),
     'classdefdeco1':  	    ( '%|@%c\n%c', 0, 1),
-    'kwarg':    	    ( '%[0]{pattr}=%c', 1),
+    'kwarg':    	    ( '%[0]{attr}=%c', 1),
     'kwargs':    	    ( '%D', (0, maxint, ', ') ),
     'kwargs1':    	    ( '%D', (0, maxint, ', ') ),
 
