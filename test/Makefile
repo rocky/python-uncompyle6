@@ -71,10 +71,10 @@ check-3.7: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.7-run --verify-run
 	$(PYTHON) test_pythonlib.py --bytecode-3.7 --weak-verify $(COMPILE)
 
-#: Run working tests from Python 3.8
-check-3.8: check-bytecode
-	$(PYTHON) test_pythonlib.py --bytecode-3.8-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.8 --weak-verify $(COMPILE)
+# #: Run working tests from Python 3.8
+# check-3.8: check-bytecode
+# 	$(PYTHON) test_pythonlib.py --bytecode-3.8-run --verify-run
+# 	$(PYTHON) test_pythonlib.py --bytecode-3.8 --weak-verify $(COMPILE)
 
 # FIXME
 #: this is called when running under pypy3.5-5.8.0 or pypy2-5.6.0
@@ -98,7 +98,7 @@ check-bytecode-3:
 	$(PYTHON) test_pythonlib.py --bytecode-3.0 \
 	--bytecode-3.1 --bytecode-3.2 --bytecode-3.3 \
 	--bytecode-3.4 --bytecode-3.5 --bytecode-3.6 \
-        --bytecode-3.7 --bytecode-3.8 \
+        --bytecode-3.7 \
 	--bytecode-pypy3.2
 
 #: Check deparsing on selected bytecode 3.x
@@ -277,10 +277,10 @@ check-bytecode-3.7:
 	$(PYTHON) test_pythonlib.py --bytecode-3.7-run --verify-run
 	$(PYTHON) test_pythonlib.py --bytecode-3.7 --weak-verify
 
-#: Check deparsing Python 3.8
-check-bytecode-3.8:
-	$(PYTHON) test_pythonlib.py --bytecode-3.8-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.8 --weak-verify
+# #: Check deparsing Python 3.8
+# check-bytecode-3.8:
+# 	$(PYTHON) test_pythonlib.py --bytecode-3.8-run --verify-run
+# 	$(PYTHON) test_pythonlib.py --bytecode-3.8 --weak-verify
 
 #: short tests for bytecodes only for this version of Python
 check-native-short:
