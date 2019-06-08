@@ -2331,9 +2331,14 @@ def code_deparse(co, out=sys.stdout, version=None, debug_opts=DEFAULT_DEBUG_OPTS
 
     assert not nonlocals
 
+    if version >= 3.0:
+        load_op = 'LOAD_STR'
+    else:
+        load_op = 'LOAD_CONST'
+
     # convert leading '__doc__ = "..." into doc string
     try:
-        if deparsed.ast[0][0] == ASSIGN_DOC_STRING(co.co_consts[0]):
+        if deparsed.ast[0][0] == ASSIGN_DOC_STRING(co.co_consts[0], load_op):
             print_docstring(deparsed, '', co.co_consts[0])
             del deparsed.ast[0]
         if deparsed.ast[-1] == RETURN_NONE:
