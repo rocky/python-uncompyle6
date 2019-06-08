@@ -187,7 +187,7 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
         star_arg = code.co_varnames[argc + kw_pairs]
         self.write(suffix, '*%s' % star_arg)
         if star_arg in annotate_tuple[0].attr:
-            p = annotate_tuple[0].attr.index(star_arg) + pos_args
+            p = annotate_tuple[0].attr.index(star_arg) + pos_args + kw_args
             self.write(': ')
             self.preorder(node[p])
         argc += 1
@@ -206,25 +206,34 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
                 self.write(", ")
             ends_in_comma = True
 
-            kwargs = node[0]
-            last = len(kwargs)-1
-            i = 0
-            for n in node[0]:
-                if n == 'kwarg':
-                    if (line_number != self.line_number):
-                        self.write("\n" + indent)
-                        line_number = self.line_number
-                    self.write('%s=' % n[0].pattr)
-                    self.preorder(n[1])
-                    if i < last:
-                        self.write(', ')
-                        ends_in_comma = True
-                    else:
-                        ends_in_comma = False
-                    i += 1
-                    pass
+        kwargs = node[1]
+        last = len(kwargs)-1
+        i = 0
+        for n in node[1]:
+            if n == 'kwarg':
+                if argc > 0 and not ends_in_comma:
+                    self.write(', ')
+                if (line_number != self.line_number):
+                    self.write("\n" + indent)
+                    line_number = self.line_number
+                kn = n[0].pattr
+                if kn in annotate_tuple[0].attr:
+                    p = annotate_tuple[0].attr.index(star_arg) + pos_args + kw_args
+                    self.write('%s: ' % kn)
+                    self.preorder(node[p])
+                    self.write('=')
+                else:
+                    self.write('%s=' % kn)
+                self.preorder(n[1])
+                if i < last:
+                    self.write(', ')
+                    ends_in_comma = True
+                else:
+                    ends_in_comma = False
+                i += 1
                 pass
             pass
+        pass
 
 
         if code_has_star_star_arg(code):
@@ -233,7 +242,7 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
             star_star_arg = code.co_varnames[argc + kw_pairs]
             self.write('**%s' % star_star_arg)
             if star_star_arg in annotate_tuple[0].attr:
-                p = annotate_tuple[0].attr.index(star_star_arg) + pos_args
+                p = annotate_tuple[0].attr.index(star_star_arg) + pos_args + kw_args
                 self.write(': ')
                 self.preorder(node[p])
 
