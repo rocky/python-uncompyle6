@@ -60,6 +60,13 @@ def customize_for_version36(self, version):
         'call_ex' : (
             '%c(%p)',
             (0, 'expr'), (1, 100)),
+        'store_annotation': (
+            '%|%[1]{pattr}: %c',
+            0
+            ),
+        'annotated_assign':  (
+            '%|%c = %p\n',
+             (-1, 'store_annotation'), (0, 200))
 
     })
 

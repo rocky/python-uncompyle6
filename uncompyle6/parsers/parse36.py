@@ -143,6 +143,11 @@ class Python36Parser(Python35Parser):
                                    COME_FROM_FINALLY
 
         compare_chained2 ::= expr COMPARE_OP come_froms JUMP_FORWARD
+
+        stmt ::= SETUP_ANNOTATIONS
+        stmt ::= annotated_assign
+        annotated_assign ::= expr store store_annotation
+        store_annotation ::= LOAD_NAME STORE_ANNOTATION
         """
 
     def customize_grammar_rules(self, tokens, customize):
