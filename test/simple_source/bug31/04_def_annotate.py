@@ -1,13 +1,42 @@
-# Python 3 annotations
+# Python 3 positional, kwonly, varargs, and annotations. Ick.
 
-def foo(a, b: 'annotating b', c: int) -> float:
-    print(a + b + c)
+# RUNNABLE!
+def test1(args_1, c: int, w=4, *varargs: int, **kwargs: 'annotating kwargs') -> tuple:
+    return (args_1, c, w, kwargs)
+
+def test2(args_1, args_2, c: int, w=4, *varargs: int, **kwargs: 'annotating kwargs'):
+    return (args_1, args_2, c, w, varargs, kwargs)
+
+def test3(c: int, w=4, *varargs: int, **kwargs: 'annotating kwargs') -> float:
+    return 5.4
+
+def test4(a: float, c: int, *varargs: int, **kwargs: 'annotating kwargs') -> float:
+    return 5.4
+
+def test5(a: float, c: int = 5, *varargs: int, **kwargs: 'annotating kwargs') -> float:
+    return 5.4
+
+def test6(a: float, c: int, test=None):
+    return (a, c, test)
+
+def test7(*varargs: int, **kwargs):
+    return (varargs, kwargs)
+
+def test8(x=55, *varargs: int, **kwargs) -> list:
+    return (x, varargs, kwargs)
+
+def test9(arg_1=55, *varargs: int, y=5, **kwargs):
+    return x, varargs, int, y, kwargs
+
+def test10(args_1, b: 'annotating b', c: int) -> float:
+    return 5.4
+
+class IOBase:
+    pass
 
 # Python 3.1 _pyio.py uses the  -> "IOBase" annotation
-def open(file, mode = "r", buffering = None,
-         encoding = None, errors = None,
-         newline = None, closefd = True) -> "IOBase":
-    return text
+def o(f, mode = "r", buffering = None) -> "IOBase":
+    return (f, mode, buffering)
 
 def foo1(x: 'an argument that defaults to 5' = 5):
     print(x)
@@ -18,29 +47,38 @@ def div(a: dict(type=float, help='the dividend'),
     """Divide a by b"""
     return a / b
 
-class TestSignatureObject():
-    def test_signature_on_wkwonly(self):
-        def test(*, a:float, b:str) -> int:
-            pass
+# FIXME:
+# class TestSignatureObject():
+#     def test_signature_on_wkwonly(self):
+#         def test(*, a:float, b:str) -> int:
+#             pass
 
 class SupportsInt():
 
     def __int__(self) -> int:
         pass
 
-def foo2(a, b: 'annotating b', c: int, *args: str) -> float:
-    assert foo2.__annotations__['b'] == 'annotating b'
-    assert foo2.__annotations__['c'] == int
-    assert foo2.__annotations__['args'] == str
-    assert foo2.__annotations__['return'] == float
+def ann1(args_1, b: 'annotating b', c: int, *varargs: str) -> float:
+    assert ann1.__annotations__['b'] == 'annotating b'
+    assert ann1.__annotations__['c'] == int
+    assert ann1.__annotations__['varargs'] == str
+    assert ann1.__annotations__['return'] == float
 
-def foo3(a, b: int = 5, **kwargs: float) -> float:
-    assert foo3.__annotations__['b'] == int
-    assert foo3.__annotations__['kwargs'] == float
-    assert foo3.__annotations__['return'] == float
+def ann2(args_1, b: int = 5, **kwargs: float) -> float:
+    assert ann2.__annotations__['b'] == int
+    assert ann2.__annotations__['kwargs'] == float
+    assert ann2.__annotations__['return'] == float
     assert b == 5
 
 
+assert test1(1, 5) == (1, 5, 4, {})
+assert test1(1, 5, 6, foo='bar') == (1, 5, 6, {'foo': 'bar'})
+assert test2(2, 3, 4) == (2, 3, 4, 4, (), {})
+assert test3(10, foo='bar') == 5.4
+assert test4(9.5, 7, 6, 4, bar='baz') == 5.4
+### FIXME: fill in...
+assert test6(1.2, 3) == (1.2, 3, None)
+assert test6(2.3, 4, 5) == (2.3, 4, 5)
 
-foo2(1, 'test', 5)
-foo3(1)
+ann1(1, 'test', 5)
+ann2(1)

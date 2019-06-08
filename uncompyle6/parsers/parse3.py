@@ -26,6 +26,7 @@ If we succeed in creating a parse tree, then we have a Python program
 that a later phase can turn into a sequence of ASCII text.
 """
 
+import re
 from uncompyle6.scanners.tok import Token
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.treenode import SyntaxTree
@@ -1050,7 +1051,7 @@ class Python3Parser(PythonParser):
                             (kwargs, 'pos_arg ' * args_pos, opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
 
-                if opname.startswith('MAKE_FUNCTION_A'):
+                if re.search('^MAKE_FUNCTION.*_A', opname):
                     if self.version >= 3.6:
                         rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s' %
                                 (('pos_arg ' * (args_pos)),
@@ -1063,21 +1064,27 @@ class Python3Parser(PythonParser):
                         # Normally we remove EXTENDED_ARG from the opcodes, but in the case of
                         # annotated functions can use the EXTENDED_ARG tuple to signal we have an annotated function.
                         # Yes this is a little hacky
-                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
-                                (('pos_arg ' * (args_pos)),
+                        if self.version < 3.5:
+                            # 3.3 and 3.4 put kwargs before pos_arg
+                            pos_kw_tuple = (('kwargs ' * args_kw), ('pos_arg ' * (args_pos)))
+                        else:
+                            # 3.5 puts pos_arg before kwargs
+                            pos_kw_tuple = (('pos_arg ' * (args_pos), ('kwargs ' * args_kw)))
+                        rule = ('mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
+                                ( pos_kw_tuple[0], pos_kw_tuple[1],
                                  ('call ' * (annotate_args-1)), opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
-                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
-                                (('pos_arg ' * (args_pos)),
+                        rule = ('mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
+                                ( pos_kw_tuple[0], pos_kw_tuple[1],
                                  ('annotate_arg ' * (annotate_args-1)), opname))
                     else:
                         # See above comment about use of EXTENDED_ARG
-                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s' %
-                                (('pos_arg ' * (args_pos)),
+                        rule = ('mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s' %
+                                (('pos_arg ' * (args_pos)),  ('kwargs ' * args_kw),
                                  ('annotate_arg ' * (annotate_args-1)), opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
-                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s' %
-                                (('pos_arg ' * (args_pos)),
+                        rule = ('mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s' %
+                                (('pos_arg ' * (args_pos)),  ('kwargs ' * args_kw),
                                  ('call ' * (annotate_args-1)), opname))
                     self.addRule(rule, nop_func)
             elif opname == 'RETURN_VALUE_LAMBDA':
