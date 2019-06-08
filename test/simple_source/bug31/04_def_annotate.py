@@ -25,9 +25,8 @@ def test7(*varargs: int, **kwargs):
 def test8(x=55, *varargs: int, **kwargs) -> list:
     return (x, varargs, kwargs)
 
-#def test9(x=55, *varargs: int, y=5, **kwargs):
-#    return x, varargs, int, y, kwargs
-
+def test9(arg_1=55, *varargs: int, y=5, **kwargs):
+    return x, varargs, int, y, kwargs
 
 def test10(args_1, b: 'annotating b', c: int) -> float:
     return 5.4
@@ -75,6 +74,8 @@ def ann2(args_1, b: int = 5, **kwargs: float) -> float:
 assert test1(1, 5) == (1, 5, 4, {})
 assert test1(1, 5, 6, foo='bar') == (1, 5, 6, {'foo': 'bar'})
 assert test2(2, 3, 4) == (2, 3, 4, 4, (), {})
+assert test3(10, foo='bar') == 5.4
+assert test4(9.5, 7, 6, 4, bar='baz') == 5.4
 ### FIXME: fill in...
 assert test6(1.2, 3) == (1.2, 3, None)
 assert test6(2.3, 4, 5) == (2.3, 4, 5)
