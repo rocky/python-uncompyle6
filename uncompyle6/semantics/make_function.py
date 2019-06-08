@@ -129,10 +129,6 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
     indent = ' ' * l
     line_number = self.line_number
 
-    if code_has_star_arg(code):
-        self.write('*%s' % code.co_varnames[argc + kw_pairs])
-        argc += 1
-
     i = len(paramnames) - len(defparams)
     suffix = ''
 
@@ -142,7 +138,11 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
         self.write(suffix, param)
         suffix = ', '
         if param in annotate_tuple[0].attr:
-            p = [x for x in annotate_tuple[0].attr].index(param)
+            # p = [x for x in annotate_tuple[0].attr].index(param)
+            l = []
+            for x in annotate_tuple[0].attr:
+                l.append(x)
+            p = l.index(param)
             self.write(': ')
             self.preorder(node[p])
             if (line_number != self.line_number):
@@ -183,7 +183,17 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
                 suffix = ', '
 
 
+    if code_has_star_arg(code):
+        star_arg = code.co_varnames[argc + kw_pairs]
+        self.write(suffix, '*%s' % star_arg)
+        if star_arg in annotate_tuple[0].attr:
+            p = annotate_tuple[0].attr.index(star_arg) + pos_args + kw_args
+            self.write(': ')
+            self.preorder(node[p])
+        argc += 1
+
     # self.println(indent, '#flags:\t', int(code.co_flags))
+    ends_in_comma = False
     if kw_args + annotate_argc > 0:
         if no_paramnames:
             if not code_has_star_arg(code):
@@ -194,49 +204,47 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
                 pass
             else:
                 self.write(", ")
+            ends_in_comma = True
 
-            kwargs = node[0]
-            last = len(kwargs)-1
-            i = 0
-            for n in node[0]:
-                if n == 'kwarg':
-                    if (line_number != self.line_number):
-                        self.write("\n" + indent)
-                        line_number = self.line_number
-                    self.write('%s=' % n[0].pattr)
-                    self.preorder(n[1])
-                    if i < last:
-                        self.write(', ')
-                    i += 1
-                    pass
-                pass
-            annotate_args = []
-            for n in node:
-                if n == 'annotate_arg':
-                    annotate_args.append(n[0])
-                elif n == 'annotate_tuple':
-                    t = n[0].attr
-                    if t[-1] == 'return':
-                        t = t[0:-1]
-                        annotate_args = annotate_args[:-1]
-                        pass
-                    last = len(annotate_args) - 1
-                    for i in range(len(annotate_args)):
-                        self.write("%s: " % (t[i]))
-                        self.preorder(annotate_args[i])
-                        if i < last:
-                            self.write(', ')
-                            pass
-                        pass
-                    break
+        kwargs = node[1]
+        last = len(kwargs)-1
+        i = 0
+        for n in node[1]:
+            if n == 'kwarg':
+                if argc > 0 and not ends_in_comma:
+                    self.write(', ')
+                if (line_number != self.line_number):
+                    self.write("\n" + indent)
+                    line_number = self.line_number
+                kn = n[0].pattr
+                if kn in annotate_tuple[0].attr:
+                    p = annotate_tuple[0].attr.index(star_arg) + pos_args + kw_args
+                    self.write('%s: ' % kn)
+                    self.preorder(node[p])
+                    self.write('=')
+                else:
+                    self.write('%s=' % kn)
+                self.preorder(n[1])
+                if i < last:
+                    self.write(', ')
+                    ends_in_comma = True
+                else:
+                    ends_in_comma = False
+                i += 1
                 pass
             pass
+        pass
 
 
         if code_has_star_star_arg(code):
-            if argc > 0:
+            if argc > 0 and not ends_in_comma:
                 self.write(', ')
-            self.write('**%s' % code.co_varnames[argc + kw_pairs])
+            star_star_arg = code.co_varnames[argc + kw_pairs]
+            self.write('**%s' % star_star_arg)
+            if star_star_arg in annotate_tuple[0].attr:
+                p = annotate_tuple[0].attr.index(star_star_arg) + pos_args + kw_args
+                self.write(': ')
+                self.preorder(node[p])
 
     if is_lambda:
         self.write(": ")
@@ -473,7 +481,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
 
     # Thank you, Python.
 
-    def build_param(ast, name, default):
+    def build_param(ast, name, default, annotation=None):
         """build parameters:
             - handle defaults
             - handle format tuple parameters
@@ -483,7 +491,10 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
         else:
             value = self.traverse(default, indent='')
         maybe_show_tree_param_default(self.showast, name, value)
-        result = '%s=%s' % (name,  value)
+        if annotation:
+            result = '%s: %s=%s' % (name, annotation, value)
+        else:
+            result = '%s=%s' % (name, value)
 
         # The below can probably be removed. This is probably
         # a holdover from days when LOAD_CONST erroneously
@@ -685,17 +696,30 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     params = []
     if defparams:
         for i, defparam in enumerate(defparams):
-            params.append(build_param(ast, paramnames[i], defparam))
+            params.append(build_param(ast, paramnames[i], defparam,
+                                      annotate_dict.get(paramnames[i])))
 
-        params += paramnames[i+1:]
+        for param in paramnames[i+1:]:
+            if param in annotate_dict:
+                params.append("%s: %s" % (param, annotate_dict[param]))
+            else:
+                params.append(param)
     else:
-        params = paramnames
+        for param in paramnames:
+            if param in annotate_dict:
+                params.append("%s: %s" % (param, annotate_dict[param]))
+            else:
+                params.append(param)
 
     params.reverse() # back to correct order
 
     if code_has_star_arg(code):
         if self.version > 3.0:
-            params.append('*%s' % code.co_varnames[argc + kw_pairs])
+            star_arg = code.co_varnames[argc + kw_pairs]
+            if star_arg in annotate_dict:
+                params.append('*%s: %s' %(star_arg, annotate_dict[star_arg]))
+            else:
+                params.append('*%s' % star_arg)
         else:
             params.append('*%s' % code.co_varnames[argc])
         argc += 1
@@ -720,7 +744,6 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             ast[-1] = ast_expr
             pass
     else:
-        # FIXME: add annotations here
         self.write("(", ", ".join(params))
     # self.println(indent, '#flags:\t', int(code.co_flags))
 
@@ -814,7 +837,11 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     if code_has_star_star_arg(code):
         if argc > 0 and not ends_in_comma:
             self.write(', ')
-        self.write('**%s' % code.co_varnames[argc + kw_pairs])
+        star_star_arg = code.co_varnames[argc + kw_pairs]
+        if annotate_dict and star_star_arg and star_star_arg in annotate_dict:
+            self.write('**%s: %s' %(star_star_arg, annotate_dict[star_star_arg]))
+        else:
+            self.write('**%s' % star_star_arg)
 
     if is_lambda:
         self.write(": ")
