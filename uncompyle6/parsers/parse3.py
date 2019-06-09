@@ -113,9 +113,8 @@ class Python3Parser(PythonParser):
         continues ::= continue
 
 
-        kwarg      ::= LOAD_CONST expr
+        kwarg      ::= LOAD_STR expr
         kwargs     ::= kwarg+
-
 
         classdef ::= build_class store
 
@@ -395,11 +394,12 @@ class Python3Parser(PythonParser):
     def p_generator_exp3(self, args):
         '''
         load_genexpr ::= LOAD_GENEXPR
-        load_genexpr ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_CONST
+        load_genexpr ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_STR
         '''
 
     def p_expr3(self, args):
         """
+        expr           ::= LOAD_STR
         expr           ::= conditionalnot
         conditionalnot ::= expr jmp_true  expr jump_forward_else expr COME_FROM
 
@@ -442,7 +442,7 @@ class Python3Parser(PythonParser):
                 break
             pass
         assert i < len(tokens), "build_class needs to find MAKE_FUNCTION or MAKE_CLOSURE"
-        assert tokens[i+1].kind == 'LOAD_CONST', \
+        assert tokens[i+1].kind == 'LOAD_STR', \
           "build_class expecting CONST after MAKE_FUNCTION/MAKE_CLOSURE"
         call_fn_tok = None
         for i in range(i, len(tokens)):
@@ -516,13 +516,13 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
     def add_make_function_rule(self, rule, opname, attr, customize):
-        """Python 3.3 added a an addtional LOAD_CONST before MAKE_FUNCTION and
+        """Python 3.3 added a an addtional LOAD_STR before MAKE_FUNCTION and
         this has an effect on many rules.
         """
         if self.version >= 3.3:
-            new_rule = rule % (('LOAD_CONST ') * 1)
+            new_rule = rule % (('LOAD_STR ') * 1)
         else:
-            new_rule = rule % (('LOAD_CONST ') * 0)
+            new_rule = rule % (('LOAD_STR ') * 0)
         self.add_unique_rule(new_rule, opname, attr, customize)
 
     def customize_grammar_rules(self, tokens, customize):
@@ -731,7 +731,7 @@ class Python3Parser(PythonParser):
 
                 if opname == 'CALL_FUNCTION' and token.attr == 1:
                     rule = """
-                     dict_comp    ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
+                     dict_comp    ::= LOAD_DICTCOMP LOAD_STR MAKE_FUNCTION_0 expr
                                       GET_ITER CALL_FUNCTION_1
                     classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
                     """
@@ -850,7 +850,7 @@ class Python3Parser(PythonParser):
                     # Note that 3.6+ doesn't do this, but we'll remove
                     # this rule in parse36.py
                     rule = """
-                        dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST
+                        dict_comp ::= load_closure LOAD_DICTCOMP LOAD_STR
                                       MAKE_CLOSURE_0 expr
                                       GET_ITER CALL_FUNCTION_1
                     """
@@ -903,10 +903,10 @@ class Python3Parser(PythonParser):
                     rule = ('mkfunc ::= %s%sload_closure LOAD_CONST %s'
                             % (kwargs_str, 'expr ' * args_pos, opname))
                 elif self.version == 3.3:
-                    rule = ('mkfunc ::= %s%sload_closure LOAD_CONST LOAD_CONST %s'
+                    rule = ('mkfunc ::= %s%sload_closure LOAD_CONST LOAD_STR %s'
                             % (kwargs_str, 'expr ' * args_pos, opname))
                 elif self.version >= 3.4:
-                    rule = ('mkfunc ::= %s%s load_closure LOAD_CONST LOAD_CONST %s'
+                    rule = ('mkfunc ::= %s%s load_closure LOAD_CONST LOAD_STR %s'
                             % ('expr ' * args_pos, kwargs_str, opname))
 
                 self.add_unique_rule(rule, opname, token.attr, customize)
@@ -934,17 +934,17 @@ class Python3Parser(PythonParser):
                             rule = ('mklambda ::= %s%s%s%s' %
                                         ('expr ' * stack_count,
                                          'load_closure ' * closure,
-                                         'BUILD_TUPLE_1 LOAD_LAMBDA LOAD_CONST ',
+                                         'BUILD_TUPLE_1 LOAD_LAMBDA LOAD_STR ',
                                         opname))
                         else:
                             rule = ('mklambda ::= %s%s%s' %
                                         ('load_closure ' * closure,
-                                         'LOAD_LAMBDA LOAD_CONST ',
+                                         'LOAD_LAMBDA LOAD_STR ',
                                         opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
 
                     else:
-                        rule = ('mklambda ::= %sLOAD_LAMBDA LOAD_CONST %s' %
+                        rule = ('mklambda ::= %sLOAD_LAMBDA LOAD_STR %s' %
                                 (('expr ' * stack_count), opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
 
@@ -952,7 +952,7 @@ class Python3Parser(PythonParser):
                     rule = ('mkfunc ::= %s%s%s%s' %
                             ('expr ' * stack_count,
                              'load_closure ' * closure,
-                             'LOAD_CONST ' * 2,
+                             'LOAD_CONST LOAD_STR ',
                              opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
 
@@ -1034,17 +1034,17 @@ class Python3Parser(PythonParser):
                 elif self.version == 3.3:
                     # positional args after keyword args
                     rule = ('mkfunc ::= %s %s%s%s' %
-                            (kwargs, 'pos_arg ' * args_pos, 'LOAD_CONST '*2,
+                            (kwargs, 'pos_arg ' * args_pos, 'LOAD_CONST LOAD_STR ',
                              opname))
                 elif self.version > 3.5:
                     # positional args before keyword args
                     rule = ('mkfunc ::= %s%s %s%s' %
-                            ('pos_arg ' * args_pos, kwargs, 'LOAD_CONST '*2,
+                            ('pos_arg ' * args_pos, kwargs, 'LOAD_CONST LOAD_STR ',
                              opname))
                 elif self.version > 3.3:
                     # positional args before keyword args
                     rule = ('mkfunc ::= %s%s %s%s' %
-                            ('pos_arg ' * args_pos, kwargs, 'LOAD_CONST '*2,
+                            ('pos_arg ' * args_pos, kwargs, 'LOAD_CONST LOAD_STR ',
                              opname))
                 else:
                     rule = ('mkfunc ::= %s%sexpr %s' %
@@ -1053,28 +1053,28 @@ class Python3Parser(PythonParser):
 
                 if re.search('^MAKE_FUNCTION.*_A', opname):
                     if self.version >= 3.6:
-                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s' %
+                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_STR %s' %
                                 (('pos_arg ' * (args_pos)),
                                  ('call ' * (annotate_args-1)), opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
-                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s' %
+                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_STR %s' %
                                 (('pos_arg ' * (args_pos)),
                                  ('annotate_arg ' * (annotate_args-1)), opname))
                     if self.version >= 3.3:
                         # Normally we remove EXTENDED_ARG from the opcodes, but in the case of
                         # annotated functions can use the EXTENDED_ARG tuple to signal we have an annotated function.
                         # Yes this is a little hacky
-                        if self.version < 3.5:
-                            # 3.3 and 3.4 put kwargs before pos_arg
+                        if self.version == 3.3:
+                            # 3.3 puts kwargs before pos_arg
                             pos_kw_tuple = (('kwargs ' * args_kw), ('pos_arg ' * (args_pos)))
                         else:
-                            # 3.5 puts pos_arg before kwargs
+                            # 3.4 and 3.5puts pos_arg before kwargs
                             pos_kw_tuple = (('pos_arg ' * (args_pos), ('kwargs ' * args_kw)))
-                        rule = ('mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
+                        rule = ('mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CONST LOAD_STR EXTENDED_ARG %s' %
                                 ( pos_kw_tuple[0], pos_kw_tuple[1],
                                  ('call ' * (annotate_args-1)), opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
-                        rule = ('mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
+                        rule = ('mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CONST LOAD_STR EXTENDED_ARG %s' %
                                 ( pos_kw_tuple[0], pos_kw_tuple[1],
                                  ('annotate_arg ' * (annotate_args-1)), opname))
                     else:
@@ -1150,7 +1150,8 @@ class Python3Parser(PythonParser):
         self.check_reduce['while1elsestmt'] = 'noAST'
         self.check_reduce['ifelsestmt'] = 'AST'
         self.check_reduce['annotate_tuple'] = 'noAST'
-        self.check_reduce['kwarg'] = 'noAST'
+        if not PYTHON3:
+            self.check_reduce['kwarg'] = 'noAST'
         if self.version < 3.6:
             # 3.6+ can remove a JUMP_FORWARD which messes up our testing here
             self.check_reduce['try_except'] = 'AST'
@@ -1167,10 +1168,7 @@ class Python3Parser(PythonParser):
             return not isinstance(tokens[first].attr, tuple)
         elif lhs == 'kwarg':
             arg = tokens[first].attr
-            if PYTHON3:
-                return not isinstance(arg, str)
-            else:
-                return not (isinstance(arg, str) or isinstance(arg, unicode))
+            return not (isinstance(arg, str) or isinstance(arg, unicode))
         elif lhs == 'while1elsestmt':
 
             n  = len(tokens)

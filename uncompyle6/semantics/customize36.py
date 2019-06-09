@@ -77,7 +77,7 @@ def customize_for_version36(self, version):
             self.call36_tuple(n)
             first = 1
             sep = ', *'
-        elif n == 'LOAD_CONST':
+        elif n == 'LOAD_STR':
             value = self.format_pos_args(n)
             self.f.write(value)
             first = 1
@@ -401,7 +401,7 @@ def customize_for_version36(self, version):
     self.n_except_suite_finalize = n_except_suite_finalize
 
     def n_formatted_value(node):
-        if node[0] == 'LOAD_CONST':
+        if node[0] in ('LOAD_STR', 'LOAD_CONST'):
             value = node[0].attr
             if isinstance(value, tuple):
                 self.write(node[0].attr)
@@ -415,7 +415,7 @@ def customize_for_version36(self, version):
     def n_formatted_value_attr(node):
         f_conversion(node)
         fmt_node = node.data[3]
-        if fmt_node == 'expr' and fmt_node[0] == 'LOAD_CONST':
+        if fmt_node == 'expr' and fmt_node[0] == 'LOAD_STR':
             node.string = escape_format(fmt_node[0].attr)
         else:
             node.string = fmt_node
@@ -424,7 +424,7 @@ def customize_for_version36(self, version):
 
     def f_conversion(node):
         fmt_node = node.data[1]
-        if fmt_node == 'expr' and fmt_node[0] == 'LOAD_CONST':
+        if fmt_node == 'expr' and fmt_node[0] == 'LOAD_STR':
             data = fmt_node[0].attr
         else:
             data = fmt_node.attr
@@ -482,11 +482,11 @@ def customize_for_version36(self, version):
             else:
                 # {{ and }} in Python source-code format strings mean
                 # { and } respectively. But only when *not* part of a
-                # formatted value. However in the LOAD_CONST
+                # formatted value. However in the LOAD_STR
                 # bytecode, the escaping of the braces has been
                 # removed. So we need to put back the braces escaping in
                 # reconstructing the source.
-                assert expr[0] == 'LOAD_CONST'
+                assert expr[0] == 'LOAD_STR'
                 value = value.replace("{", "{{").replace("}", "}}")
 
             # Remove leading quotes

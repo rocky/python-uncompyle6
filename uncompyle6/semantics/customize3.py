@@ -41,6 +41,7 @@ def customize_for_version3(self, version):
 
         'importmultiple' : ( '%|import %c%c\n', 2, 3 ),
         'import_cont'    : ( ', %c', 2 ),
+        'kwarg'          : ( '%[0]{attr}=%c', 1),
         'raise_stmt2'    : ( '%|raise %c from %c\n', 0, 1),
         'store_locals'   : ( '%|# inspect.currentframe().f_locals = __locals__\n', ),
         'withstmt'       : ( '%|with %c:\n%+%c%-', 0, 3),
@@ -62,11 +63,11 @@ def customize_for_version3(self, version):
         subclass_info = None
         if node == 'classdefdeco2':
             if self.version >= 3.6:
-                class_name = node[1][1].pattr
+                class_name = node[1][1].attr
             elif self.version <= 3.3:
-                class_name = node[2][0].pattr
+                class_name = node[2][0].attr
             else:
-                class_name = node[1][2].pattr
+                class_name = node[1][2].attr
             build_class = node
         else:
             build_class = node[0]
@@ -87,7 +88,7 @@ def customize_for_version3(self, version):
                     code_node = build_class[1][0]
                 class_name = code_node.attr.co_name
             else:
-                class_name = node[1][0].pattr
+                class_name = node[1][0].attr
                 build_class = node[0]
 
         assert 'mkfunc' == build_class[1]

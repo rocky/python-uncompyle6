@@ -202,14 +202,14 @@ class Python36Parser(Python35Parser):
                 if 'LOAD_DICTCOMP' in self.seen_ops:
                     # Is there something general going on here?
                     rule = """
-                       dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST
+                       dict_comp ::= load_closure LOAD_DICTCOMP LOAD_STR
                                      MAKE_FUNCTION_8 expr
                                      GET_ITER CALL_FUNCTION_1
                        """
                     self.addRule(rule, nop_func)
                 elif 'LOAD_SETCOMP' in self.seen_ops:
                     rule = """
-                       set_comp ::= load_closure LOAD_SETCOMP LOAD_CONST
+                       set_comp ::= load_closure LOAD_SETCOMP LOAD_STR
                                     MAKE_FUNCTION_8 expr
                                     GET_ITER CALL_FUNCTION_1
                        """
