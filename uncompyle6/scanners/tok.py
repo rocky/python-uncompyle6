@@ -98,9 +98,9 @@ class Token():
                         pattr = "to " + str(self.pattr)
                     pass
                 elif self.op in self.opc.CONST_OPS:
-                    # Compare with pysource n_LOAD_CONST
-                    attr = self.attr
-                    if attr is None:
+                    if self.kind == 'LOAD_STR':
+                        pattr = self.attr
+                    elif self.attr is None:
                         pattr = None
                 elif self.op in self.opc.hascompare:
                     if isinstance(self.attr, int):
