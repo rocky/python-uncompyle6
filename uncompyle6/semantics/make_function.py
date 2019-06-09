@@ -784,7 +784,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             i = 0
             for n in node[0]:
                 if n == 'kwarg':
-                    self.write('%s=' % n[0].pattr)
+                    self.write('%s=' % n[0].attr)
                     self.preorder(n[1])
                     if i < last:
                         self.write(', ')
