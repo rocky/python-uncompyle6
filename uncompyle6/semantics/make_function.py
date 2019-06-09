@@ -694,6 +694,9 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     else:
         kw_pairs = 0
 
+    i = len(paramnames) - len(defparams)
+    no_paramnames = len(paramnames[:i]) == 0
+
     # build parameters
     params = []
     if defparams:
@@ -750,17 +753,22 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
         self.write("(", ", ".join(params))
     # self.println(indent, '#flags:\t', int(code.co_flags))
 
-    ends_in_comma = True
+    ends_in_comma = False
     if kwonlyargcount > 0:
-        if not (4 & code.co_flags):
-            if argc > 0:
-                self.write(", *, ")
+        if no_paramnames:
+            if not (4 & code.co_flags):
+                if argc > 0:
+                    self.write(", *, ")
+                else:
+                    self.write("*, ")
+                pass
             else:
-                self.write("*, ")
-            pass
+                self.write(", ")
+                ends_in_comma = True
         else:
-            self.write(", ")
-        ends_in_comma = True
+            if argc > 0:
+                self.write(', ')
+                ends_in_comma = True
 
         # FIXME: this is not correct for 3.5. or 3.6 (which works different)
         # and 3.7?
@@ -855,8 +863,9 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             ends_in_comma = False
 
         pass
-    elif argc > 0:
-        self.write(', ')
+    else:
+        if argc == 0:
+            ends_in_comma = True
 
     if code_has_star_star_arg(code):
         if not ends_in_comma:
