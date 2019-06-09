@@ -83,12 +83,15 @@ class Token():
         prefix = ('\n%s%4d  ' % (line_prefix, self.linestart)
                   if self.linestart else (' ' * (6 + len(line_prefix))))
         offset_opname = '%6s  %-17s' % (self.offset, self.kind)
+
         if not self.has_arg:
             return "%s%s" % (prefix, offset_opname)
         argstr = "%6d " % self.attr if isinstance(self.attr, int) else (' '*7)
         if self.has_arg:
             pattr = self.pattr
             if self.opc:
+                name = self.kind
+                opname_base = name[:name.find('_')]
                 if self.op in self.opc.JREL_OPS:
                     if not self.pattr.startswith('to '):
                         pattr = "to " + self.pattr
@@ -98,13 +101,16 @@ class Token():
                         pattr = "to " + str(self.pattr)
                     pass
                 elif self.op in self.opc.CONST_OPS:
-                    if self.kind == 'LOAD_STR':
+                    if name == 'LOAD_STR':
                         pattr = self.attr
                     elif self.attr is None:
                         pattr = None
                 elif self.op in self.opc.hascompare:
                     if isinstance(self.attr, int):
                         pattr = self.opc.cmp_op[self.attr]
+                        pass
+                elif opname_base in ('CALL', 'BUILD', 'RAISE'):
+                    return "%s%s%s" % (prefix, offset_opname,  argstr)
                 # And so on. See xdis/bytecode.py get_instructions_bytes
                 pass
         elif re.search(r'_\d+$', self.kind):
