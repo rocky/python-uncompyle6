@@ -1080,11 +1080,11 @@ class Python3Parser(PythonParser):
                     else:
                         # See above comment about use of EXTENDED_ARG
                         rule = ('mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s' %
-                                (('pos_arg ' * (args_pos)),  ('kwargs ' * args_kw),
+                                (('kwargs ' * args_kw), ('pos_arg ' * (args_pos)),
                                  ('annotate_arg ' * (annotate_args-1)), opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         rule = ('mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s' %
-                                (('pos_arg ' * (args_pos)),  ('kwargs ' * args_kw),
+                                (('kwargs ' * args_kw), ('pos_arg ' * (args_pos)),
                                  ('call ' * (annotate_args-1)), opname))
                     self.addRule(rule, nop_func)
             elif opname == 'RETURN_VALUE_LAMBDA':

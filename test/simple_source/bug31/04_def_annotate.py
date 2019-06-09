@@ -47,11 +47,50 @@ def div(a: dict(type=float, help='the dividend'),
     """Divide a by b"""
     return a / b
 
-# FIXME:
-# class TestSignatureObject():
-#     def test_signature_on_wkwonly(self):
-#         def test(*, a:float, b:str) -> int:
-#             pass
+class TestSignatureObject1():
+    def test_signature_on_wkwonly(self):
+        def test(*, a:float, b:str, c:str = 'test', **kwargs: int) -> int:
+            pass
+
+class TestSignatureObject2():
+    def test_signature_on_wkwonly(self):
+        def test(*, c='test', a:float, b:str="S", **kwargs: int) -> int:
+            pass
+
+class TestSignatureObject3():
+    def test_signature_on_wkwonly(self):
+        def test(*, c='test', a:float, kwargs:str="S", **b: int) -> int:
+            pass
+
+class TestSignatureObject4():
+    def test_signature_on_wkwonly(self):
+        def test(x=55, *args, c:str='test', a:float, kwargs:str="S", **b: int) -> int:
+            pass
+
+class TestSignatureObject5():
+    def test_signature_on_wkwonly(self):
+        def test(x=55, *args: int, c='test', a:float, kwargs:str="S", **b: int) -> int:
+            pass
+
+class TestSignatureObject5():
+    def test_signature_on_wkwonly(self):
+        def test(x:int=55, *args: (int, str), c='test', a:float, kwargs:str="S", **b: int) -> int:
+            pass
+
+class TestSignatureObject7():
+    def test_signature_on_wkwonly(self):
+        def test(c='test', kwargs:str="S", **b: int) -> int:
+            pass
+
+class TestSignatureObject8():
+    def test_signature_on_wkwonly(self):
+        def test(**b: int) -> int:
+            pass
+
+class TestSignatureObject9():
+    def test_signature_on_wkwonly(self):
+        def test(a, **b: int) -> int:
+            pass
 
 class SupportsInt():
 
