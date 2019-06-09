@@ -1436,7 +1436,7 @@ class SourceWalker(GenericASTTraversal, object):
         n = len(node) - 1
         if node.kind != 'expr':
             if node == 'kwarg':
-                self.template_engine(('(%[0]{pattr}=%c)', 1), node)
+                self.template_engine(('(%[0]{attr}=%c)', 1), node)
                 return
 
             kwargs = None

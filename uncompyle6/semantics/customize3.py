@@ -88,7 +88,7 @@ def customize_for_version3(self, version):
                     code_node = build_class[1][0]
                 class_name = code_node.attr.co_name
             else:
-                class_name = node[1][0].pattr
+                class_name = node[1][0].attr
                 build_class = node[0]
 
         assert 'mkfunc' == build_class[1]

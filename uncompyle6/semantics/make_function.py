@@ -216,7 +216,7 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
                 if (line_number != self.line_number):
                     self.write("\n" + indent)
                     line_number = self.line_number
-                kn = n[0].pattr
+                kn = n[0].attr
                 if kn in annotate_tuple[0].attr:
                     p = annotate_tuple[0].attr.index(star_arg) + pos_args + kw_args
                     self.write('%s: ' % kn)

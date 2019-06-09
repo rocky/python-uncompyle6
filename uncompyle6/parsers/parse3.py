@@ -1064,19 +1064,13 @@ class Python3Parser(PythonParser):
                         # Normally we remove EXTENDED_ARG from the opcodes, but in the case of
                         # annotated functions can use the EXTENDED_ARG tuple to signal we have an annotated function.
                         # Yes this is a little hacky
-                        if self.version < 3.5:
-                            # 3.3 and 3.4 put kwargs before pos_arg
+                        if self.version == 3.3:
+                            # 3.3 puts kwargs before pos_arg
                             pos_kw_tuple = (('kwargs ' * args_kw), ('pos_arg ' * (args_pos)))
                         else:
-                            # 3.5 puts pos_arg before kwargs
+                            # 3.4 and 3.5puts pos_arg before kwargs
                             pos_kw_tuple = (('pos_arg ' * (args_pos), ('kwargs ' * args_kw)))
-                        if self.version < 3.5:
-                            # 3.3 and 3.4 put kwargs before pos_arg
-                            pos_kw_tuple = (('kwargs ' * args_kw), ('pos_arg ' * (args_pos)))
-                        else:
-                            # 3.5 puts pos_arg before kwargs
-                            pos_kw_tuple = (('pos_arg ' * (args_pos), ('kwargs ' * args_kw)))
-                        rule = ('mkfunc_annotate ::= %s%s%s%sannotate_tuple LOAD_CONST LOAD_STR EXTENDED_ARG %s' %
+                        rule = ('mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CONST LOAD_STR EXTENDED_ARG %s' %
                                 ( pos_kw_tuple[0], pos_kw_tuple[1],
                                  ('call ' * (annotate_args-1)), opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
