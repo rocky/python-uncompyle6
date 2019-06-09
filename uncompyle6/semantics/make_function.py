@@ -239,11 +239,13 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
                     kw_args[i] = "%s: %s" %(n, annotate_dict[n])
                 else:
                     kw_args[i] = "%s" % n
-        self.write(', '.join(kw_args))
+
+        self.write(', '.join(kw_args), ', ')
+
+    elif argc > 0:
+        self.write(', ')
 
     if code_has_star_star_arg(code):
-        if argc > 0:
-            self.write(', ')
         star_star_arg = code.co_varnames[argc + kwonlyargcount]
         if annotate_dict and star_star_arg in annotate_dict:
             self.write('**%s: %s' % (star_star_arg, annotate_dict[star_star_arg]))
@@ -748,7 +750,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
         self.write("(", ", ".join(params))
     # self.println(indent, '#flags:\t', int(code.co_flags))
 
-    ends_in_comma = False
+    ends_in_comma = True
     if kwonlyargcount > 0:
         if not (4 & code.co_flags):
             if argc > 0:
@@ -853,6 +855,8 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             ends_in_comma = False
 
         pass
+    elif argc > 0:
+        self.write(', ')
 
     if code_has_star_star_arg(code):
         if not ends_in_comma:
