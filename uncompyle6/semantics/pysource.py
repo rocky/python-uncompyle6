@@ -2122,7 +2122,7 @@ class SourceWalker(GenericASTTraversal, object):
             # which are not simple classes like the < 3 case.
             try:
                 if (first_stmt[0] == 'assign' and
-                    first_stmt[0][0][0] == 'LOAD_CONST' and
+                    first_stmt[0][0][0] == 'LOAD_STR' and
                     first_stmt[0][1] == 'store' and
                     first_stmt[0][1][0] == Token('STORE_NAME', pattr='__qualname__')):
                     have_qualname = True
