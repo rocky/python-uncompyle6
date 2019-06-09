@@ -759,6 +759,9 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
         self.write("(", ", ".join(params))
     # self.println(indent, '#flags:\t', int(code.co_flags))
 
+    # FIXME: Could we remove ends_in_comma and its tests if we just
+    # created a parameter list and at the very end did a join on that?
+    # Unless careful, We might lose line breaks though.
     ends_in_comma = False
     if kwonlyargcount > 0:
         if no_paramnames:
