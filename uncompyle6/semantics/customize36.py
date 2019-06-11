@@ -64,9 +64,12 @@ def customize_for_version36(self, version):
             '%|%[1]{pattr}: %c',
             0
             ),
-        'annotated_assign':  (
+        'ann_assign_init_value':  (
             '%|%c = %p\n',
-             (-1, 'store_annotation'), (0, 200))
+             (-1, 'store_annotation'), (0, 'expr', 200)),
+        'ann_assign_no_init':  (
+            '%|%c\n',
+             (0, 200))
 
     })
 
