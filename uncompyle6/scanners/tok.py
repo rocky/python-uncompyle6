@@ -58,7 +58,10 @@ class Token():
         """ '==' on kind and "pattr" attributes.
             It is okay if offsets and linestarts are different"""
         if isinstance(o, Token):
-            return (self.kind == o.kind) and (self.pattr == o.pattr)
+            return (
+                (self.kind == o.kind)
+                and ((self.pattr == o.pattr) or self.attr == o.attr)
+                )
         else:
             # ?? do we need this?
             return self.kind == o
