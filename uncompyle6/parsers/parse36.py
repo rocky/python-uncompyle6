@@ -276,6 +276,7 @@ class Python36Parser(Python35Parser):
                     ann_assign_init_value ::= expr store store_annotation
                     ann_assign_no_init    ::= store_annotation
                     store_annotation      ::= LOAD_NAME STORE_ANNOTATION
+                    store_annotation      ::= subscript STORE_ANNOTATION
                  """
                 self.addRule(rule, nop_func)
                 # Check to combine assignment + annotation into one statement

@@ -61,7 +61,7 @@ def customize_for_version36(self, version):
             '%c(%p)',
             (0, 'expr'), (1, 100)),
         'store_annotation': (
-            '%|%[1]{pattr}: %c',
+            '%[1]{pattr}: %c',
             0
             ),
         'ann_assign_init_value':  (
