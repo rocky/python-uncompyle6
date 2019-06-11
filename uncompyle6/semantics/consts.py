@@ -131,7 +131,7 @@ PASS = SyntaxTree('stmts',
 ASSIGN_DOC_STRING = lambda doc_string, doc_load: \
   SyntaxTree('stmt',
       [ SyntaxTree('assign',
-            [ SyntaxTree('expr', [ Token(doc_load, pattr=doc_string) ]),
+            [ SyntaxTree('expr', [ Token(doc_load, pattr=doc_string, attr=doc_string) ]),
               SyntaxTree('store', [ Token('STORE_NAME', pattr='__doc__')])
             ])])
 
