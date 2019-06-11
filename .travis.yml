@@ -3,9 +3,9 @@ language: python
 python:
   - '3.5'
   - '2.7'
-  - '2.6'
   - '3.4'
   - '3.6'
+  - '3.7'
 
 matrix:
   include:
