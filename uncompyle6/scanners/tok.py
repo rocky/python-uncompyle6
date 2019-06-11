@@ -118,7 +118,8 @@ class Token():
                 elif self.op in self.opc.hasvargs:
                     return "%s%s%s" % (prefix, offset_opname,  argstr)
                 elif self.op in self.opc.NAME_OPS:
-                    return "%s%s%s %s" % (prefix, offset_opname,  argstr, self.attr)
+                    if self.opc.version >= 3.0:
+                        return "%s%s%s %s" % (prefix, offset_opname,  argstr, self.attr)
                 elif name == 'EXTENDED_ARG':
                     return "%s%s%s 0x%x << %s = %s" % (prefix, offset_opname,  argstr, self.attr,
                                                        self.opc.EXTENDED_ARG_SHIFT, pattr)

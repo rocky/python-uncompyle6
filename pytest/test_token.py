@@ -1,3 +1,4 @@
+from uncompyle6 import PYTHON_VERSION
 from uncompyle6.scanners.tok import Token
 
 def test_token():
@@ -16,7 +17,10 @@ def test_token():
     # Make sure formatting of: LOAD_CONST False. We assume False is the 0th index
     # of co_consts.
     t = Token('LOAD_CONST', offset=1, attr=False, pattr=False, has_arg=True)
-    expect = '           1  LOAD_CONST            0  False'
+    if PYTHON_VERSION >= 3.0:
+        expect = '           1  LOAD_CONST               False'
+    else:
+        expect = '           1  LOAD_CONST            0  False'
     assert t.format() == expect
 
 if __name__ == '__main__':

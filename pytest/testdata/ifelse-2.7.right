@@ -4,12 +4,12 @@
    3       0  LOAD_NAME             0  'True'
            3  POP_JUMP_IF_FALSE    15  'to 15'
 
-   4       6  LOAD_CONST            0  1
+   4       6  LOAD_CONST               1
            9  STORE_NAME            1  'b'
           12  JUMP_FORWARD          6  'to 21'
 
-   6      15  LOAD_CONST            1  2
+   6      15  LOAD_CONST               2
           18  STORE_NAME            2  'd'
         21_0  COME_FROM            12  '12'
-          21  LOAD_CONST            2  None
+          21  LOAD_CONST               None
           24  RETURN_VALUE     

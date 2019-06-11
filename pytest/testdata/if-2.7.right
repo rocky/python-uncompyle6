@@ -8,5 +8,5 @@
            9  STORE_NAME            2  'b'
           12  JUMP_FORWARD          0  'to 15'
         15_0  COME_FROM            12  '12'
-          15  LOAD_CONST            0  None
+          15  LOAD_CONST               None
           18  RETURN_VALUE     
