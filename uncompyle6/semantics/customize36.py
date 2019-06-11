@@ -68,8 +68,7 @@ def customize_for_version36(self, version):
             '%|%c = %p\n',
              (-1, 'store_annotation'), (0, 'expr', 200)),
         'ann_assign_no_init':  (
-            '%|%c\n',
-             (0, 200))
+            '%|%c\n', (0, 'store_annotation')),
 
     })
 
