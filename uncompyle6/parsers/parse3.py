@@ -32,7 +32,6 @@ from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from xdis import PYTHON3
-from itertools import islice,chain,repeat
 
 class Python3Parser(PythonParser):
 
@@ -1081,11 +1080,11 @@ class Python3Parser(PythonParser):
                     else:
                         # See above comment about use of EXTENDED_ARG
                         rule = ('mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s' %
-                                (('kwargs ' * args_kw), ('pos_arg ' * (args_pos)),
+                                (('pos_arg ' * (args_pos)),  ('kwargs ' * args_kw),
                                  ('annotate_arg ' * (annotate_args-1)), opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         rule = ('mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s' %
-                                (('kwargs ' * args_kw), ('pos_arg ' * (args_pos)),
+                                (('pos_arg ' * (args_pos)),  ('kwargs ' * args_kw),
                                  ('call ' * (annotate_args-1)), opname))
                     self.addRule(rule, nop_func)
             elif opname == 'RETURN_VALUE_LAMBDA':
@@ -1220,10 +1219,11 @@ class Python3Parser(PythonParser):
                 cfl = last
             assert tokens[cfl] == 'COME_FROM_LOOP'
 
-            if tokens[cfl-1] != 'JUMP_BACK':
-                cfl_offset = tokens[cfl-1].offset
-                insn = chain((i for i in self.insts if cfl_offset == i.offset), repeat(None)).next()
-                if insn and  insn.is_jump_target:
+            for i in range(cfl-1, first, -1):
+                if tokens[i] != 'POP_BLOCK':
+                    break
+            if tokens[i].kind not in ('JUMP_BACK', 'RETURN_VALUE'):
+                if not tokens[i].kind.startswith('COME_FROM'):
                     return True
 
             # Check that the SETUP_LOOP jumps to the offset after the
