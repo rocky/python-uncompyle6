@@ -1,21 +1,36 @@
+3.3.4 2019-05-19 Fleetwood at 65
+================================
+
+Most of the work in this is release is thanks to x0ret.
+
+- Major work was done by x0ret to correct function signatures and include annotation types
+- Handle Python 3.6 STORE_ANNOTATION [#58](https://github.com/rocky/python-uncompyle6/issues/58)
+- Friendlier assembly output
+- `LOAD_CONST` replaced by `LOAD_STR` where appropriate to simplify parsing and improve clarity
+- remove unneeded parenthesis in a generator expression when it is the single argument to the function [#247](https://github.com/rocky/python-uncompyle6/issues/246)
+- Bug in noting an async function [#246](https://github.com/rocky/python-uncompyle6/issues/246)
+- Handle unicode docstrings and fix docstring bugs [#241](https://github.com/rocky/python-uncompyle6/issues/241)
+- Add short option -T as an alternate for --tree+
+- Some grammar cleanup
+
 3.3.3 2019-05-19 Henry and Lewis
 ================================
 
 As before, decomplation bugs fixed. The focus has primarily been on
 Python 3.7. But with this release, releases will be put on hold,as a
-better control-flow detection is worked on . Tis has been needed for a
+better control-flow detection is worked on . This has been needed for a
 while, and is long overdue. It will probably also take a while to get
 done as good as what we have now.
 
 However this work will be done in a new project
 [decompyle3](https://github.com/rocky/python-decompile3).  In contrast
-to _uncompyle6_ the code wil be written assuming a modern Python 3,
+to _uncompyle6_ the code will be written assuming a modern Python 3,
 e.g. 3.7. It is originally intended to decompile Python version 3.7
 and greater.
 
 * A number of Python 3.7+ chained comparisons were fixed
 * Revise Python 3.6ish format string handling
-* Go over operator precedence, e.g. for AST IfExp
+* Go over operator precedence, e.g. for AST `IfExp`
 
 Reported Bug Fixes
 ------------------
@@ -47,7 +62,7 @@ Lots of decomplation bugs, especially in the 3.x series fixed. Don't worry thoug
 
 * Add annotation return values in 3.6+
 * Fix 3.6+ lambda parameter handling decompilation
-* Fix 3.7+ chained comparision decompilation
+* Fix 3.7+ chained comparison decompilation
 * split out semantic-action customization into more separate files
 * Add 3.8 try/else
 * Fix 2.7 generator decompilation
@@ -80,14 +95,14 @@ Bug Fixes
 Pull Requests
 ----------------
 
-* [#202: Better "assert" statement detemination in Python 2.7](https://github.com/rocky/python-uncompyle6/pull/211)
+* [#202: Better "assert" statement determination in Python 2.7](https://github.com/rocky/python-uncompyle6/pull/211)
 * [#204: Python 3.7 testing](https://github.com/rocky/python-uncompyle6/pull/204)
 * [#205: Run more f-string tests on Python 3.7](https://github.com/rocky/python-uncompyle6/pull/205)
 * [#211: support utf-8 chars in Python 3 sourcecode](https://github.com/rocky/python-uncompyle6/pull/202)
 
 
 
-3.2.5 2018-12-30 Clearout sale
+3.2.5 2018-12-30 Clear-out sale
 ======================================
 
 - 3.7.2 Remove deprecation warning on regexp string that isn't raw
@@ -152,14 +167,14 @@ Jesus on Friday's New York Times puzzle: "I'm stuck on 2A"
 - reduce 3.5, 3.6 control-flow bugs
 - reduce ambiguity in rules that lead to long (exponential?) parses
 - limit/isolate some 2.6/2.7,3.x grammar rules
-- more runtime testing of decompiled code
-- more removal of parenthesis around calls via setting precidence
+- more run-time testing of decompiled code
+- more removal of parenthesis around calls via setting precedence
 
 3.1.0 2018-03-21 Equinox
 ==============================
 
 - Add code_deparse_with_offset() fragment function.
-- Correct paramenter call fragment deparse_code()
+- Correct parameter call fragment deparse_code()
 - Lots of 3.6, 3.x, and 2.7 bug fixes
   About 5% of 3.6 fail parsing now. But
   semantics still needs much to be desired.
