@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018 by Rocky Bernstein
+#  Copyright (c) 2016-2019 by Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 #
@@ -58,7 +58,10 @@ class Token:   # Python 2.4 can't have empty ()
         """ '==' on kind and "pattr" attributes.
             It is okay if offsets and linestarts are different"""
         if isinstance(o, Token):
-            return (self.kind == o.kind) and (self.pattr == o.pattr)
+            return (
+                (self.kind == o.kind)
+                and ((self.pattr == o.pattr) or self.attr == o.attr)
+                )
         else:
             # ?? do we need this?
             return self.kind == o
@@ -85,13 +88,15 @@ class Token:   # Python 2.4 can't have empty ()
         else:
             prefix = ' ' * (6 + len(line_prefix))
         offset_opname = '%6s  %-17s' % (self.offset, self.kind)
+
         if not self.has_arg:
             return "%s%s" % (prefix, offset_opname)
-
         if isinstance(self.attr, int):
             argstr = "%6d " % self.attr
         else:
             argstr = ' '*7
+        name = self.kind
+
         if self.has_arg:
             pattr = self.pattr
             if self.opc:
@@ -104,13 +109,25 @@ class Token:   # Python 2.4 can't have empty ()
                         pattr = "to " + str(self.pattr)
                     pass
                 elif self.op in self.opc.CONST_OPS:
-                    # Compare with pysource n_LOAD_CONST
-                    attr = self.attr
-                    if attr is None:
-                        pattr = None
+                    if name == 'LOAD_STR':
+                        pattr = self.attr
+                    elif name == 'LOAD_CODE':
+                        return "%s%s%s %s" % (prefix, offset_opname,  argstr, pattr)
+                    else:
+                        return "%s%s        %r" % (prefix, offset_opname,  pattr)
+
                 elif self.op in self.opc.hascompare:
                     if isinstance(self.attr, int):
                         pattr = self.opc.cmp_op[self.attr]
+                    return "%s%s%s %s" % (prefix, offset_opname,  argstr, pattr)
+                elif self.op in self.opc.hasvargs:
+                    return "%s%s%s" % (prefix, offset_opname,  argstr)
+                elif self.op in self.opc.NAME_OPS:
+                    if self.opc.version >= 3.0:
+                        return "%s%s%s %s" % (prefix, offset_opname,  argstr, self.attr)
+                elif name == 'EXTENDED_ARG':
+                    return "%s%s%s 0x%x << %s = %s" % (prefix, offset_opname,  argstr, self.attr,
+                                                       self.opc.EXTENDED_ARG_SHIFT, pattr)
                 # And so on. See xdis/bytecode.py get_instructions_bytes
                 pass
         elif re.search(r'_\d+$', self.kind):

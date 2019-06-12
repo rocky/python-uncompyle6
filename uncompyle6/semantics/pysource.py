@@ -1436,7 +1436,7 @@ class SourceWalker(GenericASTTraversal, object):
         n = len(node) - 1
         if node.kind != 'expr':
             if node == 'kwarg':
-                self.template_engine(('(%[0]{pattr}=%c)', 1), node)
+                self.template_engine(('(%[0]{attr}=%c)', 1), node)
                 return
 
             kwargs = None
@@ -2107,6 +2107,7 @@ class SourceWalker(GenericASTTraversal, object):
         except:
             pass
 
+
         have_qualname = False
         if self.version < 3.0:
             # Should we ditch this in favor of the "else" case?
@@ -2122,7 +2123,7 @@ class SourceWalker(GenericASTTraversal, object):
             # which are not simple classes like the < 3 case.
             try:
                 if (first_stmt[0] == 'assign' and
-                    first_stmt[0][0][0] == 'LOAD_CONST' and
+                    first_stmt[0][0][0] == 'LOAD_STR' and
                     first_stmt[0][1] == 'store' and
                     first_stmt[0][1][0] == Token('STORE_NAME', pattr='__qualname__')):
                     have_qualname = True
@@ -2333,13 +2334,28 @@ def code_deparse(co, out=sys.stdout, version=None, debug_opts=DEFAULT_DEBUG_OPTS
 
     assert not nonlocals
 
+    if version >= 3.0:
+        load_op = 'LOAD_STR'
+    else:
+        load_op = 'LOAD_CONST'
+
     # convert leading '__doc__ = "..." into doc string
     try:
-        if deparsed.ast[0][0] == ASSIGN_DOC_STRING(co.co_consts[0]):
+        stmts = deparsed.ast
+        first_stmt = stmts[0][0]
+        if version >= 3.6:
+            if first_stmt[0] == 'SETUP_ANNOTATIONS':
+                del stmts[0]
+                assert stmts[0] == 'sstmt'
+                # Nuke sstmt
+                first_stmt = stmts[0][0]
+                pass
+            pass
+        if first_stmt == ASSIGN_DOC_STRING(co.co_consts[0], load_op):
             print_docstring(deparsed, '', co.co_consts[0])
-            del deparsed.ast[0]
-        if deparsed.ast[-1] == RETURN_NONE:
-            deparsed.ast.pop() # remove last node
+            del stmts[0]
+        if stmts[-1] == RETURN_NONE:
+            stmts.pop() # remove last node
             # todo: if empty, add 'pass'
     except:
         pass
