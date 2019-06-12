@@ -30,8 +30,7 @@ class Python36Parser(Python35Parser):
 
 
     def p_36misc(self, args):
-        """
-        sstmt ::= sstmt RETURN_LAST
+        """sstmt ::= sstmt RETURN_LAST
 
         # 3.6 redoes how return_closure works. FIXME: Isolate to LOAD_CLOSURE
         return_closure   ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
@@ -143,6 +142,7 @@ class Python36Parser(Python35Parser):
                                    COME_FROM_FINALLY
 
         compare_chained2 ::= expr COMPARE_OP come_froms JUMP_FORWARD
+
         """
 
     def customize_grammar_rules(self, tokens, customize):
@@ -264,6 +264,23 @@ class Python36Parser(Python35Parser):
                 self.addRule(rule, nop_func)
                 rule = ('starred ::= %s %s' % ('expr ' * v, opname))
                 self.addRule(rule, nop_func)
+            elif opname == 'SETUP_ANNOTATIONS':
+                # 3.6 Variable Annotations PEP 526
+                # This seems to come before STORE_ANNOTATION, and doesn't
+                # correspond to direct Python source code.
+                rule = """
+                    stmt ::= SETUP_ANNOTATIONS
+                    stmt ::= ann_assign_init_value
+                    stmt ::= ann_assign_no_init
+
+                    ann_assign_init_value ::= expr store store_annotation
+                    ann_assign_no_init    ::= store_annotation
+                    store_annotation      ::= LOAD_NAME STORE_ANNOTATION
+                    store_annotation      ::= subscript STORE_ANNOTATION
+                 """
+                self.addRule(rule, nop_func)
+                # Check to combine assignment + annotation into one statement
+                self.check_reduce['assign'] = 'token'
             elif opname == 'SETUP_WITH':
                 rules_str = """
                 withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt COME_FROM_WITH
@@ -289,6 +306,7 @@ class Python36Parser(Python35Parser):
                 self.addRule(rules_str, nop_func)
                 pass
             pass
+        return
 
     def custom_classfunc_rule(self, opname, token, customize, next_token):
 
@@ -388,6 +406,15 @@ class Python36Parser(Python35Parser):
                                                 tokens, first, last)
         if invalid:
             return invalid
+        if rule[0] == 'assign':
+            # Try to combine assignment + annotation into one statement
+            if (len(tokens) >= last + 1 and
+                tokens[last] == 'LOAD_NAME' and
+                tokens[last+1] == 'STORE_ANNOTATION' and
+                tokens[last-1].pattr == tokens[last+1].pattr):
+                # Will handle as ann_assign_init_value
+                return True
+            pass
         if rule[0] == 'call_kw':
             # Make sure we don't derive call_kw
             nt = ast[0]
