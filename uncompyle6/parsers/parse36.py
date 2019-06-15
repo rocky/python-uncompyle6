@@ -31,6 +31,14 @@ class Python36Parser(Python35Parser):
     def p_36misc(self, args):
         """sstmt ::= sstmt RETURN_LAST
 
+        # long except clauses in a loop can sometimes cause a JUMP_BACK to turn into a
+        # JUMP_FORWARD to a JUMP_BACK. And when this happens there is an additional
+        # ELSE added to the except_suite. With better flow control perhaps we can
+        # sort this out better.
+        except_suite ::= c_stmts_opt POP_EXCEPT jump_except ELSE
+        except_suite_finalize ::= SETUP_FINALLY c_stmts_opt except_var_finalize END_FINALLY
+                                  _jump ELSE
+
         # 3.6 redoes how return_closure works. FIXME: Isolate to LOAD_CLOSURE
         return_closure   ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
 

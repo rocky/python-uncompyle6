@@ -78,6 +78,12 @@ class Python37Parser(Python36Parser):
         attribute37   ::= expr LOAD_METHOD
         expr          ::= attribute37
 
+        # long except clauses in a loop can sometimes cause a JUMP_BACK to turn into a
+        # JUMP_FORWARD to a JUMP_BACK. And when this happens there is an additional
+        # ELSE added to the except_suite. With better flow control perhaps we can
+        # sort this out better.
+        except_suite ::= c_stmts_opt POP_EXCEPT jump_except ELSE
+
         # FIXME: generalize and specialize
         call        ::= expr CALL_METHOD_0
 
