@@ -2271,22 +2271,6 @@ DEFAULT_DEBUG_OPTS = {
     'grammar': False
 }
 
-# This interface is deprecated. Use simpler code_deparse.
-def deparse_code(version, co, out=sys.stdout, showasm=None, showast=False,
-                 showgrammar=False, code_objects={}, compile_mode='exec',
-                 is_pypy=IS_PYPY, walker=SourceWalker):
-    debug_opts = {
-        'asm': showasm,
-        'ast': showast,
-        'grammar': showgrammar
-    }
-    return code_deparse(co, out,
-                        version=version,
-                        debug_opts=debug_opts,
-                        code_objects=code_objects,
-                        compile_mode=compile_mode,
-                        is_pypy=is_pypy, walker=walker)
-
 def code_deparse(co, out=sys.stdout, version=None, debug_opts=DEFAULT_DEBUG_OPTS,
                  code_objects={}, compile_mode='exec', is_pypy=IS_PYPY, walker=SourceWalker):
     """

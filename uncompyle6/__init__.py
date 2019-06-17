@@ -51,14 +51,8 @@ import uncompyle6.semantics.fragments
 # Export some functions
 from uncompyle6.main import decompile_file
 
-# For compatibility
-uncompyle_file = decompile_file
-
 # Convenience functions so you can say:
 # from uncompyle6 import (code_deparse, deparse_code2str)
 
-code_deparse = uncompyle6.semantics.pysource.code_deparse
 deparse_code2str = uncompyle6.semantics.pysource.deparse_code2str
-
-# This is deprecated:
-deparse_code = uncompyle6.semantics.pysource.deparse_code
+code_deparse = uncompyle6.semantics.pysource.code_deparse
