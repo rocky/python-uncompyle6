@@ -2369,7 +2369,7 @@ def deparse_code2str(code, out=sys.stdout, version=None,
     """Return the deparsed text for a Python code object. `out` is where any intermediate
     output for assembly or tree output will be sent.
     """
-    return deparse_code(version, code, out, showasm=debug_opts.get('asm', None),
+    return code_deparse(code, out, version, showasm=debug_opts.get('asm', None),
                         showast=debug_opts.get('tree', None),
                         showgrammar=debug_opts.get('grammar', None), code_objects=code_objects,
                         compile_mode=compile_mode, is_pypy=is_pypy, walker=walker).text
