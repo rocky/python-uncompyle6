@@ -8,4 +8,7 @@ def x(s):
             if not k.startswith('_')
     }
 
-assert x((('_foo', None),)) == {}
+# Yes, the print() is funny. This is
+# to test though a 2-arg assert where
+# the 2nd argument is not a string.
+assert x((('_foo', None),)) == {}, print("See issue #162")
