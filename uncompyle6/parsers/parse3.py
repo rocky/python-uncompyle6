@@ -1230,7 +1230,7 @@ class Python3Parser(PythonParser):
                 if re.search("^MAKE_FUNCTION.*_A", opname):
                     if self.version >= 3.6:
                         rule = (
-                            "mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_STR %s"
+                            "mkfunc_annotate ::= %s%sannotate_tuple LOAD_CODE LOAD_STR %s"
                             % (
                                 ("pos_arg " * (args_pos)),
                                 ("call " * (annotate_args - 1)),
@@ -1239,7 +1239,7 @@ class Python3Parser(PythonParser):
                         )
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         rule = (
-                            "mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_STR %s"
+                            "mkfunc_annotate ::= %s%sannotate_tuple LOAD_CODE LOAD_STR %s"
                             % (
                                 ("pos_arg " * (args_pos)),
                                 ("annotate_arg " * (annotate_args - 1)),
@@ -1263,7 +1263,7 @@ class Python3Parser(PythonParser):
                                 ("kwargs " * args_kw),
                             )
                         rule = (
-                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CONST LOAD_STR EXTENDED_ARG %s"
+                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE LOAD_STR EXTENDED_ARG %s"
                             % (
                                 pos_kw_tuple[0],
                                 pos_kw_tuple[1],
@@ -1273,7 +1273,7 @@ class Python3Parser(PythonParser):
                         )
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         rule = (
-                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CONST LOAD_STR EXTENDED_ARG %s"
+                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE LOAD_STR EXTENDED_ARG %s"
                             % (
                                 pos_kw_tuple[0],
                                 pos_kw_tuple[1],
@@ -1284,7 +1284,7 @@ class Python3Parser(PythonParser):
                     else:
                         # See above comment about use of EXTENDED_ARG
                         rule = (
-                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s"
+                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE EXTENDED_ARG %s"
                             % (
                                 ("kwargs " * args_kw),
                                 ("pos_arg " * (args_pos)),
@@ -1294,7 +1294,7 @@ class Python3Parser(PythonParser):
                         )
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         rule = (
-                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s"
+                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE EXTENDED_ARG %s"
                             % (
                                 ("kwargs " * args_kw),
                                 ("pos_arg " * (args_pos)),
