@@ -361,6 +361,8 @@ class Scanner3(Scanner):
                         opname = "LOAD_SETCOMP"
                     elif const.co_name == "<listcomp>":
                         opname = "LOAD_LISTCOMP"
+                    else:
+                        opname = "LOAD_CODE"
                     # verify() uses 'pattr' for comparison, since 'attr'
                     # now holds Code(const) and thus can not be used
                     # for comparison (todo: think about changing this)

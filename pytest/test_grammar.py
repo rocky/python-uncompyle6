@@ -9,6 +9,7 @@ def test_grammar():
         remain_tokens = set(tokens) - opcode_set
         remain_tokens = set([re.sub(r'_\d+$','', t) for t in remain_tokens])
         remain_tokens = set([re.sub('_CONT$','', t) for t in remain_tokens])
+        remain_tokens = set([re.sub('LOAD_CODE$','', t) for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         assert remain_tokens == set([]), \
             "Remaining tokens %s\n====\n%s" % (remain_tokens, p.dump_grammar())
@@ -88,7 +89,7 @@ def test_grammar():
             COME_FROM_EXCEPT_CLAUSE
             COME_FROM_LOOP COME_FROM_WITH
             COME_FROM_FINALLY ELSE
-            LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_STR
+            LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_STR LOAD_CODE
             LAMBDA_MARKER
             RETURN_END_IF RETURN_END_IF_LAMBDA RETURN_VALUE_LAMBDA RETURN_LAST
             """.split())

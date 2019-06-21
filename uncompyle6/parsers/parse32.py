@@ -75,7 +75,7 @@ class Python32Parser(Python3Parser):
                 args_pos, args_kw, annotate_args  = token.attr
                 # Check that there are 2 annotated params?
                 rule = (('mkfunc_annotate ::= %s%sannotate_tuple '
-                         'LOAD_CONST LOAD_CONST EXTENDED_ARG %s') %
+                         'LOAD_CONST LOAD_CODE EXTENDED_ARG %s') %
                         (('pos_arg ' * (args_pos)),
                          ('annotate_arg ' * (annotate_args-1)), opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
