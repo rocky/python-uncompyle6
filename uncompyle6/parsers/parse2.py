@@ -457,7 +457,7 @@ class Python2Parser(PythonParser):
                 if i > 0 and tokens[i-1] == 'LOAD_LAMBDA':
                     self.addRule('mklambda ::= %s LOAD_LAMBDA %s' %
                                  ('pos_arg ' * token.attr, opname), nop_func)
-                rule = 'mkfunc ::= %s LOAD_CONST %s' % ('expr ' * token.attr, opname)
+                rule = 'mkfunc ::= %s LOAD_CODE %s' % ('expr ' * token.attr, opname)
             elif opname_base == 'MAKE_CLOSURE':
                 # FIXME: use add_unique_rules to tidy this up.
                 if i > 0 and tokens[i-1] == 'LOAD_LAMBDA':
@@ -472,7 +472,7 @@ class Python2Parser(PythonParser):
                             ('expr ' * token.attr, opname))], customize)
                         pass
                 self.add_unique_rules([
-                    ('mkfunc ::= %s load_closure LOAD_CONST %s' %
+                    ('mkfunc ::= %s load_closure LOAD_CODE %s' %
                      ('expr ' * token.attr, opname))], customize)
 
                 if self.version >= 2.7:

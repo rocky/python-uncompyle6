@@ -646,15 +646,31 @@ class SourceWalker(GenericASTTraversal, object):
         self.println()
         self.prune() # stop recursing
 
+    # preprocess is used for handling chains of
+    # if elif elif
     def n_ifelsestmt(self, node, preprocess=False):
+        """
+        Here we turn:
+
+          if ...
+          else
+             if ..
+
+        into:
+
+          if ..
+          elif ...
+
+        where appropriate
+        """
         else_suite = node[3]
 
         n = else_suite[0]
 
-        if len(n) == 1 == len(n[0]) and n[0] == '_stmts':
-            n = n[0][0][0]
-        elif n[0].kind in ('lastc_stmt', 'lastl_stmt'):
+        if len(n) == 1 == len(n[0]) and n[0] == 'stmt':
             n = n[0][0]
+        elif n[0].kind in ('lastc_stmt', 'lastl_stmt'):
+            n = n[0]
         else:
             if not preprocess:
                 self.default(node)

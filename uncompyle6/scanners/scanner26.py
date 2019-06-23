@@ -173,6 +173,8 @@ class Scanner26(scan.Scanner2):
                             op_name = 'LOAD_DICTCOMP'
                         elif const.co_name == '<setcomp>':
                             op_name = 'LOAD_SETCOMP'
+                        else:
+                            op_name = "LOAD_CODE"
                         # verify uses 'pattr' for comparison, since 'attr'
                         # now holds Code(const) and thus can not be used
                         # for comparison (todo: think about changing this)
