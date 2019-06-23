@@ -127,6 +127,8 @@ class Python27Parser(Python2Parser):
 
     def p_stmt27(self, args):
         """
+        stmt ::= ifelsestmtr
+
         # assert condition
         assert        ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
 
@@ -178,6 +180,7 @@ class Python27Parser(Python2Parser):
         ifelsestmtc       ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
         ifelsestmtl       ::= testexpr c_stmts_opt JUMP_BACK else_suitel
         ifelsestmtl       ::= testexpr c_stmts_opt CONTINUE else_suitel
+        ifelsestmtr       ::= testexpr return_if_stmts COME_FROM returns
 
         # Common with 2.6
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
