@@ -102,6 +102,8 @@ class Python26Parser(Python2Parser):
 
     def p_stmt26(self, args):
         """
+        stmt ::= ifelsestmtr
+
         # We use filler as a placeholder to keep nonterminal positions
         # the same across different grammars so that the same semantic actions
         # can be used
@@ -172,6 +174,8 @@ class Python26Parser(Python2Parser):
 
         iflaststmt     ::= testexpr_then c_stmts_opt JUMP_ABSOLUTE come_froms POP_TOP
         iflaststmt     ::= testexpr      c_stmts_opt JUMP_ABSOLUTE come_froms POP_TOP
+
+        ifelsestmtr    ::= testexpr_then return_if_stmts returns
 
         testexpr_then  ::= testtrue_then
         testexpr_then  ::= testfalse_then

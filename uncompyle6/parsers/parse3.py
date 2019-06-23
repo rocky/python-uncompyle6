@@ -95,7 +95,7 @@ class Python3Parser(PythonParser):
     def p_grammar(self, args):
         """
         sstmt ::= stmt
-        sstmt ::= ifelsestmtr
+        stmt  ::= ifelsestmtr
         sstmt ::= return RETURN_LAST
 
         return_if_stmts ::= return_if_stmt come_from_opt
