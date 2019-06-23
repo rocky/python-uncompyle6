@@ -438,7 +438,8 @@ class Python3Parser(PythonParser):
          """
         # FIXME: I bet this can be simplified
         # look for next MAKE_FUNCTION
-        for i in range(i + 1, len(tokens)):
+        j = i
+        for i in range(j + 1, len(tokens)):
             if tokens[i].kind.startswith("MAKE_FUNCTION"):
                 break
             elif tokens[i].kind.startswith("MAKE_CLOSURE"):
@@ -450,6 +451,7 @@ class Python3Parser(PythonParser):
         assert (
             tokens[i + 1].kind == "LOAD_STR"
         ), "build_class expecting CONST after MAKE_FUNCTION/MAKE_CLOSURE"
+
         call_fn_tok = None
         for i in range(i, len(tokens)):
             if tokens[i].kind.startswith("CALL_FUNCTION"):

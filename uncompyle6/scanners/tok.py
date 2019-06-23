@@ -98,12 +98,14 @@ class Token:   # Python 2.4 can't have empty ()
             prefix = "\n%s%4d  " % (line_prefix, self.linestart)
         else:
             prefix = (" " * (6 + len(line_prefix)))
-        )
         offset_opname = "%6s  %-17s" % (self.offset, self.kind)
 
         if not self.has_arg:
             return "%s%s" % (prefix, offset_opname)
-        argstr = "%6d " % self.attr if isinstance(self.attr, int) else (" " * 7)
+        if isinstance(self.attr, int):
+            argstr = "%6d " % self.attr
+        else:
+            argstr = (" " * 7)
         name = self.kind
 
         if self.has_arg:
