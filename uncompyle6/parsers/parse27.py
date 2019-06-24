@@ -180,6 +180,8 @@ class Python27Parser(Python2Parser):
         ifelsestmtc       ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
         ifelsestmtl       ::= testexpr c_stmts_opt JUMP_BACK else_suitel
         ifelsestmtl       ::= testexpr c_stmts_opt CONTINUE else_suitel
+
+        # "if"/"else" statement that ends in a RETURN
         ifelsestmtr       ::= testexpr return_if_stmts COME_FROM returns
 
         # Common with 2.6
