@@ -175,6 +175,7 @@ class Python26Parser(Python2Parser):
         iflaststmt     ::= testexpr_then c_stmts_opt JUMP_ABSOLUTE come_froms POP_TOP
         iflaststmt     ::= testexpr      c_stmts_opt JUMP_ABSOLUTE come_froms POP_TOP
 
+        # "if"/"else" statement that ends in a RETURN
         ifelsestmtr    ::= testexpr_then return_if_stmts returns
 
         testexpr_then  ::= testtrue_then

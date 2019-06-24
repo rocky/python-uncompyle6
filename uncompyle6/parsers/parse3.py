@@ -177,6 +177,7 @@ class Python3Parser(PythonParser):
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
         ifelsestmtc ::= testexpr c_stmts_opt jump_absolute_else else_suitec
 
+        # "if"/"else" statement that ends in a RETURN
         ifelsestmtr ::= testexpr return_if_stmts returns
 
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
