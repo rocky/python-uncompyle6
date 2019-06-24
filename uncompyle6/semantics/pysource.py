@@ -661,21 +661,33 @@ class SourceWalker(GenericASTTraversal, object):
           if ..
           elif ...
 
+          [else ...]
+
         where appropriate
         """
         else_suite = node[3]
 
         n = else_suite[0]
+        old_stmts = None
 
         if len(n) == 1 == len(n[0]) and n[0] == 'stmt':
             n = n[0][0]
         elif n[0].kind in ('lastc_stmt', 'lastl_stmt'):
             n = n[0]
-            if n[0].kind in ('ifstmt', 'iflaststmt', 'ifelsestmtl'):
+            if n[0].kind in ('ifstmt', 'iflaststmt', 'iflaststmtl', 'ifelsestmtl'):
                 # This seems needed for Python 2.5-2.7
                 n = n[0]
                 pass
             pass
+        elif ( len(n) > 1 and 1 == len(n[0]) and n[0] == 'stmt'
+               and n[1].kind == "stmt" ):
+            else_suite_stmts = n[0]
+            if else_suite_stmts.kind not in ('ifstmt', 'iflaststmt', 'ifelsestmtl'):
+                if not preprocess:
+                    self.default(node)
+                return
+            old_stmts = n
+            n = else_suite_stmts[0]
         else:
             if not preprocess:
                 self.default(node)
@@ -695,6 +707,18 @@ class SourceWalker(GenericASTTraversal, object):
             elif n.kind in ('ifelsestmt', 'ifelsestmtc', 'ifelsestmtl'):
                 n.kind = 'elifelsestmt'
         if not preprocess:
+            if old_stmts:
+                if n.kind == "elifstmt":
+                    trailing_else = SyntaxTree("stmts", old_stmts[1:])
+                    # We use elifelsestmtr because it has 3 nodes
+                    elifelse_stmt = SyntaxTree(
+                        'elifelsestmtr', [n[0], n[1], trailing_else])
+                    node[3] = elifelse_stmt
+                    pass
+                else:
+                    # Other cases for n.kind may happen here
+                    return
+                pass
             self.default(node)
 
     n_ifelsestmtc = n_ifelsestmtl = n_ifelsestmt
