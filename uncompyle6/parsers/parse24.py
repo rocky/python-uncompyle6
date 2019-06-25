@@ -30,7 +30,10 @@ class Python24Parser(Python25Parser):
         import_from_star ::= filler LOAD_CONST IMPORT_NAME IMPORT_STAR
 
         importmultiple ::= filler LOAD_CONST alias imports_cont
+
+        # None can appear as a LOAD_CONST
         import_cont    ::= filler LOAD_CONST alias
+        import_cont    ::= filler LOAD_STR alias
 
         # Handle "if true else: ..." in Python 2.4
         stmt            ::= iftrue_stmt24

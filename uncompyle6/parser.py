@@ -496,14 +496,21 @@ class PythonParser(GenericASTBuilder):
         """
 
     def p_expr(self, args):
-        '''
-        expr ::= _mklambda
+        '''expr ::= _mklambda
+
+        # Note: LOAD_ASSERT, LOAD_CODE, and LOAD_STR are our
+        # classifications of LOAD_CODE or LOAD_GLOBAL to make rule classification
+        # more precise.
+
+        expr ::= LOAD_ASSERT
         expr ::= LOAD_CODE
-        expr ::= LOAD_FAST
-        expr ::= LOAD_NAME
         expr ::= LOAD_CONST
-        expr ::= LOAD_GLOBAL
         expr ::= LOAD_DEREF
+        expr ::= LOAD_FAST
+        expr ::= LOAD_GLOBAL
+        expr ::= LOAD_NAME
+        expr ::= LOAD_STR
+
         expr ::= binary_expr
         expr ::= list
         expr ::= compare
@@ -574,6 +581,7 @@ class PythonParser(GenericASTBuilder):
 
         # Positional arguments in make_function
         pos_arg ::= expr
+
         '''
 
     def p_store(self, args):

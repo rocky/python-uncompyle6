@@ -1,4 +1,4 @@
-#  Copyright (c) 2018 Rocky Bernstein
+#  Copyright (c) 2018-2019 Rocky Bernstein
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parser import PythonParserSingle
@@ -14,7 +14,7 @@ class Python14Parser(Python15Parser):
 
         # Not strictly needed, but tidies up output
         stmt     ::= doc_junk
-        doc_junk ::= LOAD_CONST POP_TOP
+        doc_junk ::= LOAD_STR POP_TOP
 
         # Not sure why later Python's omit the COME_FROM
         jb_pop14  ::= JUMP_BACK COME_FROM POP_TOP

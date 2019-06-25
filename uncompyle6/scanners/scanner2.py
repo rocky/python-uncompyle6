@@ -295,6 +295,10 @@ class Scanner2(Scanner):
                         # pattr = 'code_object @ 0x%x %s->%s' %\
                         # (id(const), const.co_filename, const.co_name)
                         pattr = '<code_object ' + const.co_name + '>'
+                    elif isinstance(const, str) or not PYTHON3 and isinstance(const, unicode):
+                        op_name = 'LOAD_STR'
+                        oparg = const
+                        pattr = repr(const)
                     else:
                         if oparg < len(co.co_consts):
                             argval, _ = _get_const_info(oparg, co.co_consts)

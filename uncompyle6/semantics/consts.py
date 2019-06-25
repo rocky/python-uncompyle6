@@ -318,7 +318,7 @@ TABLE_DIRECT = {
     'mkfuncdeco0':  	    ( '%|def %c\n', 0),
     'classdefdeco':  	    ( '\n\n%c', 0),
     'classdefdeco1':  	    ( '%|@%c\n%c', 0, 1),
-    'kwarg':    	    ( '%[0]{pattr}=%c', 1),  # Change when Python 2 does LOAD_STR
+    'kwarg':    	    ( '%[0]{attr}=%c', 1),
     'kwargs':    	    ( '%D', (0, maxint, ', ') ),
     'kwargs1':    	    ( '%D', (0, maxint, ', ') ),
 

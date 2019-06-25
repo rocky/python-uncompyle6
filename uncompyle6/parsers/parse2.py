@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2018 Rocky Bernstein
+#  Copyright (c) 2015-2019 Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 #  Copyright (c) 1999 John Aycock
@@ -103,21 +103,21 @@ class Python2Parser(PythonParser):
         del_stmt         ::= expr DELETE_ATTR
 
         _mklambda ::= load_closure mklambda
-        kwarg     ::= LOAD_CONST expr
+        kwarg     ::= LOAD_STR expr
 
         kv3 ::= expr expr STORE_MAP
 
         classdef ::= buildclass store
 
-        buildclass ::= LOAD_CONST expr mkfunc
-                     CALL_FUNCTION_0 BUILD_CLASS
+        buildclass ::= LOAD_STR expr mkfunc
+                       CALL_FUNCTION_0 BUILD_CLASS
 
         # Class decorators starting in 2.6
         stmt ::= classdefdeco
         classdefdeco ::= classdefdeco1 store
         classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
         classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
-        classdefdeco2 ::= LOAD_CONST expr mkfunc CALL_FUNCTION_0 BUILD_CLASS
+        classdefdeco2 ::= LOAD_STR expr mkfunc CALL_FUNCTION_0 BUILD_CLASS
 
         assert_expr ::= expr
         assert_expr ::= assert_expr_or
@@ -186,7 +186,7 @@ class Python2Parser(PythonParser):
     def p_expr2(self, args):
         """
         expr ::= LOAD_LOCALS
-        expr ::= LOAD_ASSERT
+
         expr ::= slice0
         expr ::= slice1
         expr ::= slice2

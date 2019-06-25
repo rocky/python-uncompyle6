@@ -130,7 +130,6 @@ class Python3Parser(PythonParser):
         stmt ::= classdefdeco
         classdefdeco ::= classdefdeco1 store
 
-        expr    ::= LOAD_ASSERT
         assert  ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
         stmt    ::= assert2
         assert2 ::= assert_expr jmp_true LOAD_ASSERT expr
@@ -403,7 +402,6 @@ class Python3Parser(PythonParser):
 
     def p_expr3(self, args):
         """
-        expr           ::= LOAD_STR
         expr           ::= conditionalnot
         conditionalnot ::= expr jmp_true  expr jump_forward_else expr COME_FROM
 

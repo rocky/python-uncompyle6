@@ -41,7 +41,6 @@ def customize_for_version3(self, version):
 
         'importmultiple' : ( '%|import %c%c\n', 2, 3 ),
         'import_cont'    : ( ', %c', 2 ),
-        'kwarg'          : ( '%[0]{attr}=%c', 1),
         'raise_stmt2'    : ( '%|raise %c from %c\n', 0, 1),
         'store_locals'   : ( '%|# inspect.currentframe().f_locals = __locals__\n', ),
         'withstmt'       : ( '%|with %c:\n%+%c%-', 0, 3),

@@ -1395,12 +1395,12 @@ class SourceWalker(GenericASTTraversal, object):
         build_list = build_class[1][0]
         if hasattr(build_class[-3][0], 'attr'):
             subclass_code = build_class[-3][0].attr
-            class_name = build_class[0].pattr
+            class_name = build_class[0].attr
         elif (build_class[-3] == 'mkfunc' and
               node == 'classdefdeco2' and
               build_class[-3][0] == 'load_closure'):
             subclass_code = build_class[-3][1].attr
-            class_name = build_class[-3][0][0].pattr
+            class_name = build_class[-3][0][0].attr
         elif hasattr(node[0][0], 'pattr'):
             subclass_code = build_class[-3][1].attr
             class_name = node[0][0].pattr
@@ -2337,10 +2337,7 @@ def code_deparse(co, out=sys.stdout, version=None, debug_opts=DEFAULT_DEBUG_OPTS
 
     assert not nonlocals
 
-    if version >= 3.0:
-        load_op = 'LOAD_STR'
-    else:
-        load_op = 'LOAD_CONST'
+    load_op = 'LOAD_STR'
 
     # convert leading '__doc__ = "..." into doc string
     try:
