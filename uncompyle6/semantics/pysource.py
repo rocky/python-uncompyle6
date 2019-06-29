@@ -671,6 +671,11 @@ class SourceWalker(GenericASTTraversal, object):
             n = n[0][0]
         elif n[0].kind in ('lastc_stmt', 'lastl_stmt'):
             n = n[0]
+            if n[0].kind in ('ifstmt', 'iflaststmt', 'ifelsestmtl'):
+                # This seems needed for Python 2.5-2.7
+                n = n[0]
+                pass
+            pass
         else:
             if not preprocess:
                 self.default(node)

@@ -193,12 +193,12 @@ def customize_for_version3(self, version):
         def n_yield_from(node):
             self.write('yield from')
             self.write(' ')
-            if 3.3 <= self.version <= 3.4:
+            if 3.3 == self.version:
                 self.preorder(node[0][0][0][0])
-            elif self.version >= 3.5:
+            elif self.version >= 3.4:
                 self.preorder(node[0])
             else:
-                assert False, "dunno about this python version"
+                assert False, "Don't know how this Python handles 'yield from'."
             self.prune() # stop recursing
         self.n_yield_from = n_yield_from
 

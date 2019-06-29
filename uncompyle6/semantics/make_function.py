@@ -142,8 +142,6 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
     i = len(paramnames) - len(defparams)
     suffix = ''
 
-    no_paramnames = len(paramnames[:i]) == 0
-
     for param in paramnames[:i]:
         self.write(suffix, param)
         suffix = ', '
@@ -164,7 +162,6 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
         suffix = ''
     for n in node:
         if n == 'pos_arg':
-            no_paramnames = False
             self.write(suffix)
             param = paramnames[i]
             self.write(param)
@@ -198,19 +195,16 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
     # self.println(indent, '#flags:\t', int(code.co_flags))
     ends_in_comma = False
     if kwonlyargcount > 0:
-        if no_paramnames:
-            if not code_has_star_arg(code):
-                if argc > 0:
-                    self.write(", *, ")
-                else:
-                    self.write("*, ")
-                pass
+        if not code_has_star_arg(code):
+            if argc > 0:
+                self.write(", *, ")
             else:
-                self.write(", ")
+                self.write("*, ")
+            pass
             ends_in_comma = True
         else:
             if argc > 0:
-                self.write(', ')
+                self.write(", ")
                 ends_in_comma = True
 
         kw_args = [None] * kwonlyargcount
@@ -230,8 +224,8 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
             pass
 
         # handling other args
-        ann_other_kw = [c == None for c in kw_args]
-        for i, flag in enumerate(ann_other_kw):
+        other_kw = [c == None for c in kw_args]
+        for i, flag in enumerate(other_kw):
             if flag:
                 n = kwargs[i]
                 if n in annotate_dict:
@@ -239,7 +233,8 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
                 else:
                     kw_args[i] = "%s" % n
 
-        self.write(', '.join(kw_args), ', ')
+        self.write(', '.join(kw_args))
+        ends_in_comma = False
 
     else:
         if argc == 0:
@@ -705,7 +700,6 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
         kw_pairs = 0
 
     i = len(paramnames) - len(defparams)
-    no_paramnames = len(paramnames[:i]) == 0
 
     # build parameters
     params = []
@@ -768,52 +762,34 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     # Unless careful, We might lose line breaks though.
     ends_in_comma = False
     if kwonlyargcount > 0:
-        if no_paramnames:
-            if not (4 & code.co_flags):
-                if argc > 0:
-                    self.write(", *, ")
-                else:
-                    self.write("*, ")
-                pass
+        if not (4 & code.co_flags):
+            if argc > 0:
+                self.write(", *, ")
             else:
-                self.write(", ")
-                ends_in_comma = True
+                self.write("*, ")
+            pass
+            ends_in_comma = True
         else:
             if argc > 0:
-                self.write(', ')
+                self.write(", ")
                 ends_in_comma = True
 
-        # FIXME: this is not correct for 3.5. or 3.6 (which works different)
-        # and 3.7?
-        if 3.0 <= self.version <= 3.2:
-            kwargs = node[0]
-            last = len(kwargs)-1
-            i = 0
-            for n in node[0]:
-                if n == 'kwarg':
-                    self.write('%s=' % n[0].attr)
-                    self.preorder(n[1])
-                    if i < last:
-                        self.write(', ')
-                        ends_in_comma = True
-                        pass
-                    else:
-                        ends_in_comma = False
-                    pass
-                i += 1
-                pass
-            pass
-        elif self.version <= 3.5:
-            # FIXME this is not qute right for 3.5
-            for n in node:
-                if n == 'pos_arg':
-                    continue
-                elif self.version >= 3.4 and not (n.kind in ('kwargs', 'no_kwargs', 'kwarg')):
-                    continue
-                else:
-                    self.preorder(n)
-                    ends_in_comma = False
-                break
+        if 3.0 <= self.version <= 3.5:
+            kw_args = [None] * kwonlyargcount
+            kw_nodes = node[0]
+            if kw_nodes == "kwargs":
+                for n in kw_nodes:
+                    name = eval(n[0].pattr)
+                    default = self.traverse(n[1], indent='')
+                    idx = kwargs.index(name)
+                    kw_args[idx] = "%s=%s" % (name, default)
+
+            other_kw = [c == None for c in kw_args]
+
+            for i, flag in enumerate(other_kw):
+                if flag:
+                    kw_args[i] = "%s" % kwargs[i]
+            self.write(', '.join(kw_args))
         elif self.version >= 3.6:
             # argc = node[-1].attr
             # co = node[-3].attr
@@ -862,16 +838,16 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
                 pass
 
             # handle others
-            if ann_dict:
-                ann_other_kw = [c == None for c in kw_args]
+            other_kw = [c == None for c in kw_args]
 
-                for i, flag in enumerate(ann_other_kw):
-                    if flag:
-                        n = kwargs[i]
-                        if n in annotate_dict:
-                            kw_args[i] = "%s: %s" %(n, annotate_dict[n])
-                        else:
-                            kw_args[i] = "%s" % n
+            for i, flag in enumerate(other_kw):
+                if flag:
+                    n = kwargs[i]
+                    if ann_dict and n in annotate_dict:
+                        kw_args[i] = "%s: %s" %(n, annotate_dict[n])
+                    else:
+                        kw_args[i] = "%s" % n
+
             self.write(', '.join(kw_args))
             ends_in_comma = False
 
