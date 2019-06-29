@@ -31,8 +31,21 @@ def test9(arg_1=55, *varargs: int, y=5, **kwargs):
 def test10(args_1, b: 'annotating b', c: int) -> float:
     return 5.4
 
-class IOBase:
+def test11(*, name):
+    return args, name
+
+def test12(a, *args, name):
+    return a, args
     pass
+
+def test13(*args, name):
+    return args, name
+
+def test14(*args, name: int=1, qname):
+    return args, name, qname
+
+def test15(*args, name='S', fname, qname=4):
+    return args, name, fname, qname
 
 # Python 3.1 _pyio.py uses the  -> "IOBase" annotation
 def o(f, mode = "r", buffering = None) -> "IOBase":
@@ -121,3 +134,8 @@ assert test6(2.3, 4, 5) == (2.3, 4, 5)
 
 ann1(1, 'test', 5)
 ann2(1)
+
+### FIXME: fill in...
+
+assert test12(1, 2, 3, name='hi') == (1, (2, 3)), "a, *args, name"
+assert test13(1, 2, 3, name='hi') == ((1, 2, 3), 'hi'), "*args, name"
