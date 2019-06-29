@@ -152,11 +152,8 @@ class Python3Parser(PythonParser):
         _ifstmts_jump ::= return_if_stmts
         _ifstmts_jump ::= c_stmts_opt COME_FROM
 
-        iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
-
+        iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
-        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK COME_FROM_LOOP
-        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK POP_BLOCK
 
         # These are used to keep parse tree indices the same
         jump_forward_else  ::= JUMP_FORWARD ELSE
@@ -182,6 +179,8 @@ class Python3Parser(PythonParser):
 
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
         ifelsestmtl ::= testexpr c_stmts_opt cf_jump_back else_suitel
+        ifelsestmtl ::= testexpr c_stmts_opt continue else_suitel
+
 
         cf_jump_back ::= COME_FROM JUMP_BACK
 
@@ -348,6 +347,8 @@ class Python3Parser(PythonParser):
 
     def p_loop_stmt3(self, args):
         """
+        stmt ::= whileelsestmt2
+
         for               ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
                               COME_FROM_LOOP
 
@@ -363,6 +364,8 @@ class Python3Parser(PythonParser):
         whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
+        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK JUMP_BACK
+                              COME_FROM_LOOP
         whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
@@ -374,6 +377,9 @@ class Python3Parser(PythonParser):
 
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suitel COME_FROM_LOOP
+
+        whileelsestmt2     ::= SETUP_LOOP testexpr l_stmts_opt  JUMP_BACK POP_BLOCK
+                              else_suitel JUMP_BACK COME_FROM_LOOP
 
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt          JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
