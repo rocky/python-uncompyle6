@@ -255,12 +255,17 @@ def customize_for_version3(self, version):
 
     def n_mkfunc_annotate(node):
 
-        if self.version >= 3.3 or node[-2] == 'kwargs':
+        # Handling EXTENDED_ARG before MAKE_FUNCTION ...
+        i = -1 if node[-2] == "EXTENDED_ARG" else 0
+
+        if self.version <= 3.2:
+            code = node[-2+i]
+        elif self.version >= 3.3 or node[-2] == 'kwargs':
             # LOAD_CONST code object ..
             # LOAD_CONST        'x0'  if >= 3.3
             # EXTENDED_ARG
             # MAKE_FUNCTION ..
-            code = node[-4]
+            code = node[-3+i]
         elif node[-3] == 'expr':
             code = node[-3][0]
         else:
