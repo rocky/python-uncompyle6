@@ -1016,21 +1016,24 @@ class Python3Parser(PythonParser):
 
                 # Note order of kwargs and pos args changed between 3.3-3.4
                 if self.version <= 3.2:
-                    rule = "mkfunc ::= %s%sload_closure LOAD_CODE %s" % (
+                    rule = "mkfunc ::= %s%s%sload_closure LOAD_CODE %s" % (
                         kwargs_str,
                         "expr " * args_pos,
+                        "expr " * annotate_args,
                         opname,
                     )
                 elif self.version == 3.3:
-                    rule = "mkfunc ::= %s%sload_closure LOAD_CODE LOAD_STR %s" % (
+                    rule = "mkfunc ::= %s%s%sload_closure LOAD_CODE LOAD_STR %s" % (
                         kwargs_str,
                         "expr " * args_pos,
+                        "expr " * annotate_args,
                         opname,
                     )
                 elif self.version >= 3.4:
-                    rule = "mkfunc ::= %s%s load_closure LOAD_CODE LOAD_STR %s" % (
+                    rule = "mkfunc ::= %s%s%s load_closure LOAD_CODE LOAD_STR %s" % (
                         "expr " * args_pos,
                         kwargs_str,
+                        "expr " * annotate_args,
                         opname,
                     )
 
