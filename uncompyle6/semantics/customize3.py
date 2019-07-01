@@ -26,27 +26,31 @@ from uncompyle6.semantics.customize36 import customize_for_version36
 from uncompyle6.semantics.customize37 import customize_for_version37
 from uncompyle6.semantics.customize38 import customize_for_version38
 
+
 def customize_for_version3(self, version):
-    TABLE_DIRECT.update({
-        'comp_for'       : ( ' for %c in %c',
-                            (2, 'store') , (0, 'expr') ),
-        'conditionalnot' : ( '%c if not %c else %c',
-                            (2, 'expr') , (0, 'expr'), (4, 'expr') ),
-        'except_cond2'   : ( '%|except %c as %c:\n', 1, 5 ),
-        'function_def_annotate': ( '\n\n%|def %c%c\n', -1, 0),
-
-        # When a generator is a single parameter of a function,
-        # it doesn't need the surrounding parenethesis.
-        'call_generator' : ('%c%P', 0, (1, -1, ', ', 100)),
-
-        'importmultiple' : ( '%|import %c%c\n', 2, 3 ),
-        'import_cont'    : ( ', %c', 2 ),
-        'kwarg'          : ( '%[0]{attr}=%c', 1),
-        'raise_stmt2'    : ( '%|raise %c from %c\n', 0, 1),
-        'store_locals'   : ( '%|# inspect.currentframe().f_locals = __locals__\n', ),
-        'withstmt'       : ( '%|with %c:\n%+%c%-', 0, 3),
-        'withasstmt'     : ( '%|with %c as (%c):\n%+%c%-', 0, 2, 3),
-        })
+    TABLE_DIRECT.update(
+        {
+            "comp_for": (" for %c in %c", (2, "store"), (0, "expr")),
+            "conditionalnot": (
+                "%c if not %c else %c",
+                (2, "expr"),
+                (0, "expr"),
+                (4, "expr"),
+            ),
+            "except_cond2": ("%|except %c as %c:\n", 1, 5),
+            "function_def_annotate": ("\n\n%|def %c%c\n", -1, 0),
+            # When a generator is a single parameter of a function,
+            # it doesn't need the surrounding parenethesis.
+            "call_generator": ("%c%P", 0, (1, -1, ", ", 100)),
+            "importmultiple": ("%|import %c%c\n", 2, 3),
+            "import_cont": (", %c", 2),
+            "kwarg": ("%[0]{attr}=%c", 1),
+            "raise_stmt2": ("%|raise %c from %c\n", 0, 1),
+            "store_locals": ("%|# inspect.currentframe().f_locals = __locals__\n",),
+            "withstmt": ("%|with %c:\n%+%c%-", 0, 3),
+            "withasstmt": ("%|with %c as (%c):\n%+%c%-", 0, 2, 3),
+        }
+    )
 
     assert version >= 3.0
 
@@ -61,7 +65,7 @@ def customize_for_version3(self, version):
         #               ----------
         # * subclass_code - the code for the subclass body
         subclass_info = None
-        if node == 'classdefdeco2':
+        if node == "classdefdeco2":
             if self.version >= 3.6:
                 class_name = node[1][1].attr
             elif self.version <= 3.3:
@@ -72,17 +76,17 @@ def customize_for_version3(self, version):
         else:
             build_class = node[0]
             if self.version >= 3.6:
-                if build_class == 'build_class_kw':
+                if build_class == "build_class_kw":
                     mkfunc = build_class[1]
-                    assert mkfunc == 'mkfunc'
+                    assert mkfunc == "mkfunc"
                     subclass_info = build_class
-                    if hasattr(mkfunc[0], 'attr') and iscode(mkfunc[0].attr):
+                    if hasattr(mkfunc[0], "attr") and iscode(mkfunc[0].attr):
                         subclass_code = mkfunc[0].attr
                     else:
-                        assert mkfunc[0] == 'load_closure'
+                        assert mkfunc[0] == "load_closure"
                         subclass_code = mkfunc[1].attr
                         assert iscode(subclass_code)
-                if build_class[1][0] == 'load_closure':
+                if build_class[1][0] == "load_closure":
                     code_node = build_class[1][1]
                 else:
                     code_node = build_class[1][0]
@@ -91,72 +95,72 @@ def customize_for_version3(self, version):
                 class_name = node[1][0].attr
                 build_class = node[0]
 
-        assert 'mkfunc' == build_class[1]
+        assert "mkfunc" == build_class[1]
         mkfunc = build_class[1]
-        if mkfunc[0] in ('kwargs', 'no_kwargs'):
+        if mkfunc[0] in ("kwargs", "no_kwargs"):
             if 3.0 <= self.version <= 3.2:
                 for n in mkfunc:
-                    if hasattr(n, 'attr') and iscode(n.attr):
+                    if hasattr(n, "attr") and iscode(n.attr):
                         subclass_code = n.attr
                         break
-                    elif n == 'expr':
+                    elif n == "expr":
                         subclass_code = n[0].attr
                     pass
                 pass
             else:
                 for n in mkfunc:
-                    if hasattr(n, 'attr') and iscode(n.attr):
+                    if hasattr(n, "attr") and iscode(n.attr):
                         subclass_code = n.attr
                         break
                     pass
                 pass
-            if node == 'classdefdeco2':
+            if node == "classdefdeco2":
                 subclass_info = node
             else:
                 subclass_info = node[0]
-        elif build_class[1][0] == 'load_closure':
+        elif build_class[1][0] == "load_closure":
             # Python 3 with closures not functions
             load_closure = build_class[1]
-            if hasattr(load_closure[-3], 'attr'):
+            if hasattr(load_closure[-3], "attr"):
                 # Python 3.3 classes with closures work like this.
                 # Note have to test before 3.2 case because
                 # index -2 also has an attr.
                 subclass_code = load_closure[-3].attr
-            elif hasattr(load_closure[-2], 'attr'):
+            elif hasattr(load_closure[-2], "attr"):
                 # Python 3.2 works like this
                 subclass_code = load_closure[-2].attr
             else:
-                raise 'Internal Error n_classdef: cannot find class body'
-            if hasattr(build_class[3], '__len__'):
+                raise "Internal Error n_classdef: cannot find class body"
+            if hasattr(build_class[3], "__len__"):
                 if not subclass_info:
                     subclass_info = build_class[3]
-            elif hasattr(build_class[2], '__len__'):
+            elif hasattr(build_class[2], "__len__"):
                 subclass_info = build_class[2]
             else:
-                raise 'Internal Error n_classdef: cannot superclass name'
-        elif self.version >= 3.6 and node == 'classdefdeco2':
+                raise "Internal Error n_classdef: cannot superclass name"
+        elif self.version >= 3.6 and node == "classdefdeco2":
             subclass_info = node
             subclass_code = build_class[1][0].attr
         elif not subclass_info:
-            if mkfunc[0] in ('no_kwargs', 'kwargs'):
+            if mkfunc[0] in ("no_kwargs", "kwargs"):
                 subclass_code = mkfunc[1].attr
             else:
                 subclass_code = mkfunc[0].attr
-            if node == 'classdefdeco2':
+            if node == "classdefdeco2":
                 subclass_info = node
             else:
                 subclass_info = node[0]
 
-        if (node == 'classdefdeco2'):
-            self.write('\n')
+        if node == "classdefdeco2":
+            self.write("\n")
         else:
-            self.write('\n\n')
+            self.write("\n\n")
 
         self.currentclass = str(class_name)
-        self.write(self.indent, 'class ', self.currentclass)
+        self.write(self.indent, "class ", self.currentclass)
 
         self.print_super_classes3(subclass_info)
-        self.println(':')
+        self.println(":")
 
         # class body
         self.indent_more()
@@ -165,11 +169,12 @@ def customize_for_version3(self, version):
 
         self.currentclass = cclass
         if len(self.param_stack) > 1:
-            self.write('\n\n')
+            self.write("\n\n")
         else:
-            self.write('\n\n\n')
+            self.write("\n\n\n")
 
         self.prune()
+
     self.n_classdef3 = n_classdef3
 
     if version == 3.0:
@@ -178,28 +183,28 @@ def customize_for_version3(self, version):
         # since we pick up the iteration variable some other way and
         # we definitely don't include in the source  _[dd].
         def n_comp_iter(node):
-            if node[0] == 'expr':
+            if node[0] == "expr":
                 n = node[0][0]
-                if (n == 'LOAD_FAST' and
-                    n.pattr[0:2] == '_['):
+                if n == "LOAD_FAST" and n.pattr[0:2] == "_[":
                     self.prune()
                     pass
                 pass
-            # Not this special case, procede as normal...
+            # Not this special case, proceed as normal...
             self.default(node)
+
         self.n_comp_iter = n_comp_iter
 
-    if version >= 3.3:
+    elif version == 3.3:
+        # FIXME: perhaps this can be folded into the 3.4+ case?
         def n_yield_from(node):
-            self.write('yield from')
-            self.write(' ')
-            if 3.3 == self.version:
-                self.preorder(node[0][0][0][0])
-            elif self.version >= 3.4:
-                self.preorder(node[0])
-            else:
-                assert False, "Don't know how this Python handles 'yield from'."
-            self.prune() # stop recursing
+            assert node[0] == "expr"
+            assert node[0][0] == "get_iter"
+            # Skip over yield_from.expr.get_iter which adds an
+            # extra iter(). Maybe we can do in tranformation phase instead?
+            template = ("yield from %c", (0, "expr"))
+            self.template_engine(template, node[0][0])
+            self.prune()
+
         self.n_yield_from = n_yield_from
 
     if 3.2 <= version <= 3.4:
@@ -211,11 +216,11 @@ def customize_for_version3(self, version):
             for i in mapping[1:]:
                 key = key[i]
                 pass
-            if key.kind.startswith('CALL_FUNCTION_VAR_KW'):
+            if key.kind.startswith("CALL_FUNCTION_VAR_KW"):
                 # We may want to fill this in...
                 # But it is distinct from CALL_FUNCTION_VAR below
                 pass
-            elif key.kind.startswith('CALL_FUNCTION_VAR'):
+            elif key.kind.startswith("CALL_FUNCTION_VAR"):
                 # CALL_FUNCTION_VAR's top element of the stack contains
                 # the variable argument list, then comes
                 # annotation args, then keyword args.
@@ -229,12 +234,15 @@ def customize_for_version3(self, version):
                     # kwargs == 0 is handled by the table entry
                     # Should probably handle it here though.
                     if nargs == 0:
-                        template = ('%c(*%c, %C)',
-                                    0, -2, (1, kwargs+1, ', '))
+                        template = ("%c(*%c, %C)", 0, -2, (1, kwargs + 1, ", "))
                     else:
-                        template = ('%c(%C, *%c, %C)',
-                                    0, (1, nargs+1, ', '),
-                                    -2, (-2-kwargs, -2, ', '))
+                        template = (
+                            "%c(%C, *%c, %C)",
+                            0,
+                            (1, nargs + 1, ", "),
+                            -2,
+                            (-2 - kwargs, -2, ", "),
+                        )
                     self.template_engine(template, node)
                     self.prune()
             else:
@@ -243,6 +251,7 @@ def customize_for_version3(self, version):
 
         self.n_call = n_call
     elif version < 3.2:
+
         def n_call(node):
             mapping = self._get_mapping(node)
             key = node
@@ -251,6 +260,7 @@ def customize_for_version3(self, version):
                 pass
             gen_function_parens_adjust(key, node)
             self.default(node)
+
         self.n_call = n_call
 
     def n_mkfunc_annotate(node):
@@ -259,14 +269,14 @@ def customize_for_version3(self, version):
         i = -1 if node[-2] == "EXTENDED_ARG" else 0
 
         if self.version <= 3.2:
-            code = node[-2+i]
-        elif self.version >= 3.3 or node[-2] == 'kwargs':
+            code = node[-2 + i]
+        elif self.version >= 3.3 or node[-2] == "kwargs":
             # LOAD_CONST code object ..
             # LOAD_CONST        'x0'  if >= 3.3
             # EXTENDED_ARG
             # MAKE_FUNCTION ..
-            code = node[-3+i]
-        elif node[-3] == 'expr':
+            code = node[-3 + i]
+        elif node[-3] == "expr":
             code = node[-3][0]
         else:
             # LOAD_CONST code object ..
@@ -274,42 +284,51 @@ def customize_for_version3(self, version):
             code = node[-3]
 
         self.indent_more()
-        for annotate_last in range(len(node)-1, -1, -1):
-            if node[annotate_last] == 'annotate_tuple':
+        for annotate_last in range(len(node) - 1, -1, -1):
+            if node[annotate_last] == "annotate_tuple":
                 break
 
         # FIXME: the real situation is that when derived from
         # function_def_annotate we the name has been filled in.
         # But when derived from funcdefdeco it hasn't Would like a better
         # way to distinquish.
-        if self.f.getvalue()[-4:] == 'def ':
+        if self.f.getvalue()[-4:] == "def ":
             self.write(code.attr.co_name)
 
         # FIXME: handle and pass full annotate args
-        make_function3_annotate(self, node, is_lambda=False,
-                                code_node=code, annotate_last=annotate_last)
+        make_function3_annotate(
+            self, node, is_lambda=False, code_node=code, annotate_last=annotate_last
+        )
 
         if len(self.param_stack) > 1:
-            self.write('\n\n')
+            self.write("\n\n")
         else:
-            self.write('\n\n\n')
+            self.write("\n\n\n")
         self.indent_less()
-        self.prune() # stop recursing
+        self.prune()  # stop recursing
+
     self.n_mkfunc_annotate = n_mkfunc_annotate
 
-    TABLE_DIRECT.update({
-                'tryelsestmtl3': ( '%|try:\n%+%c%-%c%|else:\n%+%c%-',
-                                   (1, 'suite_stmts_opt'),
-                                   (3, 'except_handler'),
-                                   (5, 'else_suitel') ),
-        })
+    TABLE_DIRECT.update(
+        {
+            "tryelsestmtl3": (
+                "%|try:\n%+%c%-%c%|else:\n%+%c%-",
+                (1, "suite_stmts_opt"),
+                (3, "except_handler"),
+                (5, "else_suitel"),
+            )
+        }
+    )
     if version >= 3.4:
         #######################
         # Python 3.4+ Changes #
         #######################
-        TABLE_DIRECT.update({
-            'LOAD_CLASSDEREF':	( '%{pattr}', ),
-            })
+        TABLE_DIRECT.update(
+            {
+                "LOAD_CLASSDEREF": ("%{pattr}",),
+                "yield_from": ("yield from %c", (0, "expr")),
+            }
+        )
         if version >= 3.5:
             customize_for_version35(self, version)
             if version >= 3.6:
@@ -319,8 +338,8 @@ def customize_for_version3(self, version):
                     if version >= 3.8:
                         customize_for_version38(self, version)
                         pass  # version >= 3.8
-                    pass # 3.7
-                pass # 3.6
-            pass # 3.5
-        pass # 3.4
+                    pass  # 3.7
+                pass  # 3.6
+            pass  # 3.5
+        pass  # 3.4
     return
