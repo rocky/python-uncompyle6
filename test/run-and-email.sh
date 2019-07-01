@@ -42,7 +42,7 @@ for VERSION in $PYVERSION ; do
       echo Python Version $(pyenv local) > $LOGFILE
       echo "" >> $LOGFILE
       typeset -i ALL_FILES_STARTTIME=$(date +%s)
-      python ./test_pyenvlib.py --max ${MAX_TESTS} --weak-verify --$VERSION  >>$LOGFILE 2>&1
+      python ./test_pyenvlib.py --max ${MAX_TESTS} --syntax-verify --$VERSION  >>$LOGFILE 2>&1
       rc=$?
 
       echo Python Version $(pyenv local) >> $LOGFILE

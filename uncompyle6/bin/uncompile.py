@@ -38,7 +38,7 @@ Options:
   --fragments   use fragments deparser
   --verify      compare generated source with input byte-code
   --verify-run  compile generated source, run it and check exit code
-  --weak-verify compile generated source
+  --syntax-verify compile generated source
   --linemaps    generated line number correspondencies between byte-code
                 and generated source output
   --encoding  <encoding>
@@ -91,7 +91,7 @@ def main_bin():
                                     'help asm compile= grammar linemaps recurse '
                                     'timestamp tree tree+ '
                                     'fragments verify verify-run version '
-                                    'weak-verify '
+                                    'syntax-verify '
                                     'showgrammar encoding='.split(' '))
     except getopt.GetoptError as e:
         print('%s: %s' % (os.path.basename(sys.argv[0]), e),  file=sys.stderr)
@@ -107,7 +107,7 @@ def main_bin():
             sys.exit(0)
         elif opt == '--verify':
             options['do_verify'] = 'strong'
-        elif opt == '--weak-verify':
+        elif opt == '--syntax-verify':
             options['do_verify'] = 'weak'
         elif opt == '--fragments':
             options['do_fragments'] = True

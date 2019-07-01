@@ -34,47 +34,47 @@ check-2.6 check-2.7: check-bytecode-2 check-bytecode-3 check-bytecode-1 check-na
 #: Run working tests from Python 3.0
 check-3.0: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.0-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.0 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.0 --syntax-verify $(COMPILE)
 
 #: Run working tests from Python 3.1
 check-3.1: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.1-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.1 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.1 --syntax-verify $(COMPILE)
 
 #: Run working tests from Python 3.2
 check-3.2: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.2-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.2 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.2 --syntax-verify $(COMPILE)
 
 #: Run working tests from Python 3.3
 check-3.3: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.3-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.3 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.3 --syntax-verify $(COMPILE)
 
 #: Run working tests from Python 3.4
 check-3.4: check-bytecode check-3.4-ok check-2.7-ok
 	$(PYTHON) test_pythonlib.py --bytecode-3.4-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.4 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.4 --syntax-verify $(COMPILE)
 
 #: Run working tests from Python 3.5
 check-3.5: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.5-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.5 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.5 --syntax-verify $(COMPILE)
 
 #: Run working tests from Python 3.6
 check-3.6: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.6-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.6 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.6 --syntax-verify $(COMPILE)
 
 #: Run working tests from Python 3.7
 check-3.7: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.7-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.7 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.7 --syntax-verify $(COMPILE)
 
 #: Run working tests from Python 3.8
 check-3.8: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.8-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.8 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.8 --syntax-verify $(COMPILE)
 
 # FIXME
 #: this is called when running under pypy3.5-5.8.0 or pypy2-5.6.0
@@ -229,78 +229,78 @@ grammar-coverage-3.7:
 #: Check deparsing Python 2.6
 check-bytecode-2.6:
 	$(PYTHON) test_pythonlib.py --bytecode-2.6-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-2.6 --weak-verify
+	$(PYTHON) test_pythonlib.py --bytecode-2.6 --syntax-verify
 
 #: Check deparsing Python 2.7
 check-bytecode-2.7:
 	$(PYTHON) test_pythonlib.py --bytecode-2.7-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-2.7 --weak-verify
+	$(PYTHON) test_pythonlib.py --bytecode-2.7 --syntax-verify
 
 #: Check deparsing Python 3.0
 check-bytecode-3.0:
 	$(PYTHON) test_pythonlib.py --bytecode-3.0-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.0 --weak-verify
+	$(PYTHON) test_pythonlib.py --bytecode-3.0 --syntax-verify
 
 #: Check deparsing Python 3.1
 check-bytecode-3.1:
 	$(PYTHON) test_pythonlib.py --bytecode-3.1-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.1 --weak-verify
+	$(PYTHON) test_pythonlib.py --bytecode-3.1 --syntax-verify
 
 #: Check deparsing Python 3.2
 check-bytecode-3.2:
 	$(PYTHON) test_pythonlib.py --bytecode-3.2-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.2 --weak-verify
+	$(PYTHON) test_pythonlib.py --bytecode-3.2 --syntax-verify
 
 #: Check deparsing Python 3.3
 check-bytecode-3.3:
 	$(PYTHON) test_pythonlib.py --bytecode-3.3-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.3 --weak-verify
+	$(PYTHON) test_pythonlib.py --bytecode-3.3 --syntax-verify
 
 #: Check deparsing Python 3.4
 check-bytecode-3.4:
 	$(PYTHON) test_pythonlib.py --bytecode-3.4-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.4 --weak-verify
+	$(PYTHON) test_pythonlib.py --bytecode-3.4 --syntax-verify
 
 #: Check deparsing Python 3.5
 check-bytecode-3.5:
 	$(PYTHON) test_pythonlib.py --bytecode-3.5-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.5 --weak-verify
+	$(PYTHON) test_pythonlib.py --bytecode-3.5 --syntax-verify
 
 #: Check deparsing Python 3.6
 check-bytecode-3.6:
 	$(PYTHON) test_pythonlib.py --bytecode-3.6-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.6 --weak-verify
+	$(PYTHON) test_pythonlib.py --bytecode-3.6 --syntax-verify
 
 #: Check deparsing Python 3.7
 check-bytecode-3.7:
 	$(PYTHON) test_pythonlib.py --bytecode-3.7-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.7 --weak-verify
+	$(PYTHON) test_pythonlib.py --bytecode-3.7 --syntax-verify
 
 #: Check deparsing Python 3.8
 check-bytecode-3.8:
 	$(PYTHON) test_pythonlib.py --bytecode-3.8-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.8 --weak-verify
+	$(PYTHON) test_pythonlib.py --bytecode-3.8 --syntax-verify
 
 #: short tests for bytecodes only for this version of Python
 check-native-short:
-	$(PYTHON) test_pythonlib.py --bytecode-$(PYTHON_VERSION) --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-$(PYTHON_VERSION) --syntax-verify $(COMPILE)
 	$(PYTHON) test_pythonlib.py --bytecode-$(PYTHON_VERSION)-run --verify-run $(COMPILE)
 
 #: Run longer Python 2.6's lib files known to be okay
 check-2.6-ok:
-	$(PYTHON) test_pythonlib.py --ok-2.6 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --ok-2.6 --syntax-verify $(COMPILE)
 
 #: Run longer Python 2.7's lib files known to be okay
 check-2.7-ok:
-	$(PYTHON) test_pythonlib.py --ok-2.7 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --ok-2.7 --syntax-verify $(COMPILE)
 
 #: Run longer Python 3.2's lib files known to be okay
 check-3.2-ok:
-	$(PYTHON) test_pythonlib.py --ok-3.2 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --ok-3.2 --syntax-verify $(COMPILE)
 
 #: Run longer Python 3.4's lib files known to be okay
 check-3.4-ok:
-	$(PYTHON) test_pythonlib.py --ok-3.4 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --ok-3.4 --syntax-verify $(COMPILE)
 
 #: PyPy of some sort. E.g. [PyPy 5.0.1 with GCC 4.8.4]
 # Skip for now
