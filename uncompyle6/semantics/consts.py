@@ -377,6 +377,7 @@ TABLE_DIRECT = {
     'while1stmt':	    ( '%|while 1:\n%+%c%-\n\n', 1 ),
     'while1elsestmt':   ( '%|while 1:\n%+%c%-%|else:\n%+%c%-\n\n', 1, -2 ),
     'whileelsestmt':	( '%|while %c:\n%+%c%-%|else:\n%+%c%-\n\n', 1, 2, -2 ),
+    'whileelsestmt2':	( '%|while %c:\n%+%c%-%|else:\n%+%c%-\n\n', 1, 2, -3 ),
     'whileelselaststmt':	( '%|while %c:\n%+%c%-%|else:\n%+%c%-', 1, 2, -2 ),
 
     # Note: Python 3.8+ changes this
