@@ -26,8 +26,6 @@ def customize_for_version25(self, version):
     # Import style for 2.5+
     ########################
     TABLE_DIRECT.update({
-        'except_cond3'  : ( '%|except %c, %c:\n',
-                            (1, 'expr'), (-2, 'store') ),
         'importmultiple': ( '%|import %c%c\n', 2, 3 ),
         'import_cont'   : ( ', %c', 2 ),
         # With/as is allowed as "from future" thing in 2.5
