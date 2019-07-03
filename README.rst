@@ -122,17 +122,6 @@ For usage help:
 
    $ uncompyle6 -h
 
-If you want strong verification of the correctness of the
-decompilation process, add the `--verify` option. But there are
-situations where this will indicate a failure, although the generated
-program is semantically equivalent. Using option `--weak-verify` will
-tell you if there is something definitely wrong. Generally, large
-swaths of code are decompiled correctly, if not the entire program.
-
-You can also cross compare the results with pycdc_ . Since they work
-differently, bugs here often aren't in that, and vice versa.
-
-
 Verification
 ------------
 
@@ -140,22 +129,25 @@ In older versions of Python it was possible to verify bytecode by
 decompiling bytecode, and then compiling using the Python interpreter
 for that bytecode version. Having done this the bytecode produced
 could be compared with the original bytecode. However as Python's code
-generation got better, this is no longer feasible.
+generation got better, this no longer was feasible.
 
-The verification that we use that doesn't check bytecode for
-equivalence but does check to see if the resulting decompiled source
-is a valid Python program by running the Python interpreter. Because
-the Python language has changed so much, for best results you should
-use the same Python version in checking as was used in creating the
-bytecode.
+If you want Python syntax verification of the correctness of the
+decompilation process, add the `--syntax-verify` option. However since
+Python syntax changes, you should use this option if the bytecode is
+the right bytecode for the Python interpreter that will be checking
+the syntax.
 
-There are however an interesting class of these programs that is
-readily available give stronger verification: those programs that
-when run check some computation, or even better themselves.
+You can also cross compare the results with another python decompiler
+like pycdc_ . Since they work differently, bugs here often aren't in
+that, and vice versa.
 
-And already Python has a set of programs like this: the test suite
-for the standard library that comes with Python. We have some
-code in `test/stdlib` to facilitate this kind of checking.
+There is an interesting class of these programs that is readily
+available give stronger verification: those programs that when run
+test themselves. Our test suite includes these.
+
+And Python comes with another a set of programs like this: its test
+suite for the standard library. We have some code in `test/stdlib` to
+facilitate this kind of checking too.
 
 Known Bugs/Restrictions
 -----------------------
