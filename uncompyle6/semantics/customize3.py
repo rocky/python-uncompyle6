@@ -266,7 +266,10 @@ def customize_for_version3(self, version):
     def n_mkfunc_annotate(node):
 
         # Handling EXTENDED_ARG before MAKE_FUNCTION ...
-        i = -1 if node[-2] == "EXTENDED_ARG" else 0
+        if node[-2] == "EXTENDED_ARG":
+            i = -1
+        else:
+            i = 0
 
         if self.version <= 3.2:
             code = node[-2 + i]
