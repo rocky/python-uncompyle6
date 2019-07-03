@@ -410,6 +410,8 @@ TABLE_DIRECT = {
     'tryfinallystmt':	( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 5 ),
     'except':           ( '%|except:\n%+%c%-', 3 ),
     'except_cond1':	    ( '%|except %c:\n', 1 ),
+    'except_cond2':     ( '%|except %c as %c:\n',
+                          (1, 'expr'), (5, 'store') ),
     'except_suite':     ( '%+%c%-%C', 0, (1, maxint, '') ),
 
     # In Python 3.6, this is more complicated in the presence of "returns"

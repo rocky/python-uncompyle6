@@ -58,8 +58,6 @@ def customize_for_version(self, is_pypy, version):
         customize_for_version3(self, version)
     else:  # < 3.0
         TABLE_DIRECT.update({
-            'except_cond2'  : ( '%|except %c as %c:\n',
-                                (1, 'expr'), (5, 'store') ),
             'except_cond3'  : ( '%|except %c, %c:\n',
                                 (1, 'expr'), (-2, 'store') )
             })
