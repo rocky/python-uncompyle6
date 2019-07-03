@@ -1,4 +1,18 @@
-3.3.4 2019-05-19 Fleetwood at 65
+3.3.5 2019-07-03 Pre Independence Day
+=====================================
+
+Again, most of the work in this is release is thanks to x0ret.
+
+- Handle annotation args in Python 3.x
+- Fix vararg and function signatures in 3.x
+- Some 3.x < 3.6 while(1)/if fixes - others remain
+- Start reinstating else if -> elif
+- LOAD_CONST -> LOAD_CODE where appropriate
+- option `weak-verify` is now `syntax-verify`
+- code cleanups, start using "blacken" to reformat text
+
+
+3.3.4 2019-06-19 Fleetwood at 65
 ================================
 
 Most of the work in this is release is thanks to x0ret.
