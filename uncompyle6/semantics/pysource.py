@@ -1827,9 +1827,15 @@ class SourceWalker(GenericASTTraversal, object):
                     self.write(', ')
             self.prune()
             return
+
         for n in node[1:]:
             if n[0].kind == 'unpack':
                 n[0].kind = 'unpack_w_parens'
+
+        # In Python 2.4, unpack is used in (a, b, c) of:
+        #   except RuntimeError, (a, b, c):
+        if self.version < 2.7:
+            node.kind = 'unpack_w_parens'
         self.default(node)
 
     n_unpack_w_parens = n_unpack

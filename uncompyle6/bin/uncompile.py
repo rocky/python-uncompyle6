@@ -88,7 +88,7 @@ def main_bin():
                                     'fragments verify verify-run version '
                                     'syntax-verify '
                                     'showgrammar encoding='.split(' '))
-    except getopt.GetoptError(e):
+    except getopt.GetoptError, e:
         sys.stderr.write('%s: %s\n' %
                          (os.path.basename(sys.argv[0]), e))
         sys.exit(-1)
