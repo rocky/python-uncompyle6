@@ -1,5 +1,7 @@
 |buildstatus| |Latest Version| |Supported Python Versions|
 
+|packagestatus|
+
 uncompyle6
 ==========
 
@@ -132,7 +134,7 @@ could be compared with the original bytecode. However as Python's code
 generation got better, this no longer was feasible.
 
 If you want Python syntax verification of the correctness of the
-decompilation process, add the `--syntax-verify` option. However since
+decompilation process, add the :code:`--syntax-verify` option. However since
 Python syntax changes, you should use this option if the bytecode is
 the right bytecode for the Python interpreter that will be checking
 the syntax.
@@ -146,7 +148,7 @@ available give stronger verification: those programs that when run
 test themselves. Our test suite includes these.
 
 And Python comes with another a set of programs like this: its test
-suite for the standard library. We have some code in `test/stdlib` to
+suite for the standard library. We have some code in :code:`test/stdlib` to
 facilitate this kind of checking too.
 
 Known Bugs/Restrictions
@@ -177,15 +179,15 @@ In the Python 3 series, Python support is is strongest around 3.4 or
 3.0 is weird in that it in some ways resembles 2.6 more than it does
 3.1 or 2.7. Python 3.6 changes things drastically by using word codes
 rather than byte codes. As a result, the jump offset field in a jump
-instruction argument has been reduced. This makes the `EXTENDED_ARG`
+instruction argument has been reduced. This makes the :code:`EXTENDED_ARG`
 instructions are now more prevalent in jump instruction; previously
 they had been rare.  Perhaps to compensate for the additional
-`EXTENDED_ARG` instructions, additional jump optimization has been
+:code:`EXTENDED_ARG` instructions, additional jump optimization has been
 added. So in sum handling control flow by ad hoc means as is currently
 done is worse.
 
 Between Python 3.5, 3.6 and 3.7 there have been major changes to the
-`MAKE_FUNCTION` and `CALL_FUNCTION` instructions.
+:code:`MAKE_FUNCTION` and :code:`CALL_FUNCTION` instructions.
 
 Currently not all Python magic numbers are supported. Specifically in
 some versions of Python, notably Python 3.6, the magic number has
@@ -217,7 +219,7 @@ See Also
 * https://github.com/zrax/pycdc : purports to support all versions of Python. It is written in C++ and is most accurate for Python versions around 2.7 and 3.3 when the code was more actively developed. Accuracy for more recent versions of Python 3 and early versions of Python are especially lacking. See its `issue tracker <https://github.com/zrax/pycdc/issues>`_ for details. Currently lightly maintained.
 * https://code.google.com/archive/p/unpyc3/ : supports Python 3.2 only. The above projects use a different decompiling technique than what is used here. Currently unmaintained.
 * https://github.com/figment/unpyc3/ : fork of above, but supports Python 3.3 only. Includes some fixes like supporting function annotations. Currently unmaintained.
-* https://github.com/wibiti/uncompyle2 : supports Python 2.7 only, but does that fairly well. There are situations where `uncompyle6` results are incorrect while `uncompyle2` results are not, but more often uncompyle6 is correct when uncompyle2 is not. Because `uncompyle6` adheres to accuracy over idiomatic Python, `uncompyle2` can produce more natural-looking code when it is correct. Currently `uncompyle2` is lightly maintained. See its issue `tracker <https://github.com/wibiti/uncompyle2/issues>`_ for more details
+* https://github.com/wibiti/uncompyle2 : supports Python 2.7 only, but does that fairly well. There are situations where :code:`uncompyle6` results are incorrect while :code:`uncompyle2` results are not, but more often uncompyle6 is correct when uncompyle2 is not. Because :code:`uncompyle6` adheres to accuracy over idiomatic Python, :code:`uncompyle2` can produce more natural-looking code when it is correct. Currently :code:`uncompyle2` is lightly maintained. See its issue `tracker <https://github.com/wibiti/uncompyle2/issues>`_ for more details
 * `How to report a bug <https://github.com/rocky/python-uncompyle6/blob/master/HOW-TO-REPORT-A-BUG.md>`_
 * The HISTORY_ file.
 * https://github.com/rocky/python-xdis : Cross Python version disassembler
@@ -234,6 +236,8 @@ See Also
 .. _this: https://github.com/rocky/python-uncompyle6/wiki/Deparsing-technology-and-its-use-in-exact-location-reporting
 .. |buildstatus| image:: https://travis-ci.org/rocky/python-uncompyle6.svg
 		 :target: https://travis-ci.org/rocky/python-uncompyle6
+.. |packagestatus| image:: https://repology.org/badge/vertical-allrepos/python:uncompyle6.svg
+		 :target: https://repology.org/project/python:uncompyle6/versions
 .. _PJOrion: http://www.koreanrandom.com/forum/topic/15280-pjorion-%D1%80%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F-%D0%B4%D0%B5%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F-%D0%BE%D0%B1%D1%84
 .. _Deobfuscator: https://github.com/extremecoders-re/PjOrion-Deobfuscator
 .. _Py2EXE: https://en.wikipedia.org/wiki/Py2exe

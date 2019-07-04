@@ -33,69 +33,89 @@ from uncompyle6 import PYTHON_VERSION
 from uncompyle6.main import main
 from fnmatch import fnmatch
 
+
 def get_srcdir():
     filename = os.path.normcase(os.path.dirname(__file__))
     return os.path.realpath(filename)
 
+
 src_dir = get_srcdir()
 
 
-#----- configure this for your needs
+# ----- configure this for your needs
 
-lib_prefix = '/usr/lib'
-#lib_prefix = [src_dir, '/usr/lib/', '/usr/local/lib/']
+lib_prefix = "/usr/lib"
+# lib_prefix = [src_dir, '/usr/lib/', '/usr/local/lib/']
 
-target_base = tempfile.mkdtemp(prefix='py-dis-')
+target_base = tempfile.mkdtemp(prefix="py-dis-")
 
-PY = ('*.py', )
-PYC = ('*.pyc', )
-PYO = ('*.pyo', )
-PYOC = ('*.pyc', '*.pyo')
+PY = ("*.py",)
+PYC = ("*.pyc",)
+PYO = ("*.pyo",)
+PYOC = ("*.pyc", "*.pyo")
 
 test_options = {
     # name:   (src_basedir, pattern, output_base_suffix, python_version)
-    'test':
-        ('test', PYC, 'test'),
-
-    'ok-2.6':    (os.path.join(src_dir, 'ok_lib2.6'),
-                 PYOC, 'ok-2.6', 2.6),
-
-    'ok-2.7':    (os.path.join(src_dir, 'ok_lib2.7'),
-                 PYOC, 'ok-2.7', 2.7),
-
-    'ok-3.2':    (os.path.join(src_dir, 'ok_lib3.2'),
-                 PYOC, 'ok-3.2', 3.2),
-
-    'base-2.7':  (os.path.join(src_dir, 'base_tests', 'python2.7'),
-                  PYOC, 'base_2.7', 2.7),
+    "test": ("test", PYC, "test"),
+    "ok-2.6": (os.path.join(src_dir, "ok_lib2.6"), PYOC, "ok-2.6", 2.6),
+    "ok-2.7": (os.path.join(src_dir, "ok_lib2.7"), PYOC, "ok-2.7", 2.7),
+    "ok-3.2": (os.path.join(src_dir, "ok_lib3.2"), PYOC, "ok-3.2", 3.2),
+    "base-2.7": (
+        os.path.join(src_dir, "base_tests", "python2.7"),
+        PYOC,
+        "base_2.7",
+        2.7,
+    ),
 }
 
-for  vers in (2.7, 3.4, 3.5, 3.6):
+for vers in (2.7, 3.4, 3.5, 3.6):
     pythonlib = "ok_lib%s" % vers
     key = "ok-%s" % vers
     test_options[key] = (os.path.join(src_dir, pythonlib), PYOC, key, vers)
     pass
 
-for  vers in (1.3, 1.4, 1.5,
-              2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7,
-              3.0, 3.1, 3.2, 3.3,
-              3.4, 3.5, 3.6, 3.7, 3.8, 'pypy3.2', 'pypy2.7', 'pypy3.6'):
+for vers in (
+    1.3,
+    1.4,
+    1.5,
+    2.1,
+    2.2,
+    2.3,
+    2.4,
+    2.5,
+    2.6,
+    2.7,
+    3.0,
+    3.1,
+    3.2,
+    3.3,
+    3.4,
+    3.5,
+    3.6,
+    3.7,
+    3.8,
+    "pypy3.2",
+    "pypy2.7",
+    "pypy3.6",
+):
     bytecode = "bytecode_%s" % vers
     key = "bytecode-%s" % vers
-    test_options[key] =  (bytecode, PYC, bytecode, vers)
+    test_options[key] = (bytecode, PYC, bytecode, vers)
     bytecode = "bytecode_%s_run" % vers
     key = "bytecode-%s-run" % vers
-    test_options[key] =  (bytecode, PYC, bytecode, vers)
+    test_options[key] = (bytecode, PYC, bytecode, vers)
     key = "%s" % vers
     pythonlib = "python%s" % vers
     if isinstance(vers, float) and vers >= 3.0:
-        pythonlib = os.path.join(pythonlib, '__pycache__')
-    test_options[key] =  (os.path.join(lib_prefix, pythonlib), PYOC, pythonlib, vers)
+        pythonlib = os.path.join(pythonlib, "__pycache__")
+    test_options[key] = (os.path.join(lib_prefix, pythonlib), PYOC, pythonlib, vers)
 
-#-----
+# -----
+
 
 def help():
-    print("""Usage-Examples:
+    print(
+        """Usage-Examples:
 
   # compile, decompyle and verify short tests for Python 2.7:
   test_pythonlib.py --bytecode-2.7 --verify --compile
@@ -105,18 +125,21 @@ def help():
 
   # decompile and verify known good python 2.7
   test_pythonlib.py --ok-2.7 --verify
-""")
+"""
+    )
     sys.exit(1)
 
 
 def do_tests(src_dir, obj_patterns, target_dir, opts):
-
     def file_matches(files, root, basenames, patterns):
         files.extend(
-            [os.path.normpath(os.path.join(root, n))
-                 for n in basenames
-                    for pat in patterns
-                        if fnmatch(n, pat)])
+            [
+                os.path.normpath(os.path.join(root, n))
+                for n in basenames
+                for pat in patterns
+                if fnmatch(n, pat)
+            ]
+        )
 
     files = []
     # Change directories so use relative rather than
@@ -125,8 +148,8 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
     cwd = os.getcwd()
     os.chdir(src_dir)
 
-    if opts['do_compile']:
-        compiled_version = opts['compiled_version']
+    if opts["do_compile"]:
+        compiled_version = opts["compiled_version"]
         if compiled_version and PYTHON_VERSION != compiled_version:
             sys.stderr.write("Not compiling: "
                              "desired Python version is %s "
@@ -143,7 +166,7 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
             pass
         pass
 
-    for root, dirs, basenames in os.walk('.'):
+    for root, dirs, basenames in os.walk("."):
         # Turn root into a relative path
         dirname = root[2:]  # 2 = len('.') + 1
         file_matches(files, dirname, basenames, obj_patterns)
@@ -156,21 +179,21 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
     os.chdir(cwd)
     files.sort()
 
-    if opts['start_with']:
+    if opts["start_with"]:
         try:
-            start_with = files.index(opts['start_with'])
+            start_with = files.index(opts["start_with"])
             files = files[start_with:]
-            print('>>> starting with file', files[0])
+            print(">>> starting with file", files[0])
         except ValueError:
             pass
 
-    print time.ctime()
-    print 'Source directory: ', src_dir
-    print 'Output directory: ', target_dir
+    print(time.ctime())
+    print("Source directory: ", src_dir)
+    print("Output directory: ", target_dir)
     try:
-        _, _, failed_files, failed_verify = \
-          main(src_dir, target_dir, files, [],
-               do_verify=opts['do_verify'])
+        _, _, failed_files, failed_verify = main(
+            src_dir, target_dir, files, [], do_verify=opts["do_verify"]
+        )
         if failed_files != 0:
             sys.exit(2)
         elif failed_verify != 0:
@@ -179,63 +202,74 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
     except (KeyboardInterrupt, OSError):
         print()
         sys.exit(1)
-    if test_opts['rmtree']:
+    if test_opts["rmtree"]:
         parent_dir = os.path.dirname(target_dir)
         print("Everything good, removing %s" % parent_dir)
         shutil.rmtree(parent_dir)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     test_dirs = []
     checked_dirs = []
     start_with = None
 
     test_options_keys = list(test_options.keys())
     test_options_keys.sort()
-    opts, args = getopt.getopt(sys.argv[1:], '',
-                               ['start-with=', 'verify', 'verify-run',
-                                'syntax-verify', 'all',
-                                'compile', 'coverage',
-                                'no-rm'] \
-                               + test_options_keys )
-    if not opts: help()
+    opts, args = getopt.getopt(
+        sys.argv[1:],
+        "",
+        [
+            "start-with=",
+            "verify",
+            "verify-run",
+            "syntax-verify",
+            "all",
+            "compile",
+            "coverage",
+            "no-rm",
+        ]
+        + test_options_keys,
+    )
+    if not opts:
+        help()
 
     test_opts = {
-        'do_compile': False,
-        'do_verify': False,
-        'start_with': None,
-        'rmtree' : True,
-        'coverage' : False
-        }
+        "do_compile": False,
+        "do_verify": False,
+        "start_with": None,
+        "rmtree": True,
+        "coverage": False,
+    }
 
     for opt, val in opts:
-        if opt == '--verify':
-            test_opts['do_verify'] = 'strong'
-        elif opt == '--syntax-verify':
-            test_opts['do_verify'] = 'weak'
-        elif opt == '--verify-run':
-            test_opts['do_verify'] = 'verify-run'
-        elif opt == '--compile':
-            test_opts['do_compile'] = True
-        elif opt == '--start-with':
-            test_opts['start_with'] = val
-        elif opt == '--no-rm':
-            test_opts['rmtree'] = False
+        if opt == "--verify":
+            test_opts["do_verify"] = "strong"
+        elif opt == "--syntax-verify":
+            test_opts["do_verify"] = "weak"
+        elif opt == "--verify-run":
+            test_opts["do_verify"] = "verify-run"
+        elif opt == "--compile":
+            test_opts["do_compile"] = True
+        elif opt == "--start-with":
+            test_opts["start_with"] = val
+        elif opt == "--no-rm":
+            test_opts["rmtree"] = False
         elif opt[2:] in test_options_keys:
             test_dirs.append(test_options[opt[2:]])
-        elif opt == '--all':
+        elif opt == "--all":
             for val in test_options_keys:
                 test_dirs.append(test_options[val])
-        elif opt == '--coverage':
-            test_opts['coverage'] = True
+        elif opt == "--coverage":
+            test_opts["coverage"] = True
         else:
             help()
             pass
         pass
 
-    if test_opts['coverage']:
-        os.environ['SPARK_PARSER_COVERAGE'] = (
-            '/tmp/spark-grammar-python-lib%s.cover' % test_dirs[0][-1]
-            )
+    if test_opts["coverage"]:
+        os.environ["SPARK_PARSER_COVERAGE"] = (
+            "/tmp/spark-grammar-python-lib%s.cover" % test_dirs[0][-1]
+        )
 
     last_compile_version = None
     for src_dir, pattern, target_dir, compiled_version in test_dirs:
@@ -251,7 +285,7 @@ if __name__ == '__main__':
         sys.stderr.write("No directories found to check\n")
         sys.exit(1)
 
-    test_opts['compiled_version'] = last_compile_version
+    test_opts["compiled_version"] = last_compile_version
 
     for src_dir, pattern, target_dir in checked_dirs:
         target_dir = os.path.join(target_base, target_dir)
