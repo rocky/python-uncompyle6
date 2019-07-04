@@ -152,11 +152,8 @@ class Python3Parser(PythonParser):
         _ifstmts_jump ::= return_if_stmts
         _ifstmts_jump ::= c_stmts_opt COME_FROM
 
-        iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
-
+        iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
-        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK COME_FROM_LOOP
-        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK POP_BLOCK
 
         # These are used to keep parse tree indices the same
         jump_forward_else  ::= JUMP_FORWARD ELSE
@@ -182,6 +179,8 @@ class Python3Parser(PythonParser):
 
         ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
         ifelsestmtl ::= testexpr c_stmts_opt cf_jump_back else_suitel
+        ifelsestmtl ::= testexpr c_stmts_opt continue else_suitel
+
 
         cf_jump_back ::= COME_FROM JUMP_BACK
 
@@ -348,6 +347,8 @@ class Python3Parser(PythonParser):
 
     def p_loop_stmt3(self, args):
         """
+        stmt ::= whileelsestmt2
+
         for               ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
                               COME_FROM_LOOP
 
@@ -363,6 +364,8 @@ class Python3Parser(PythonParser):
         whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
+        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK JUMP_BACK
+                              COME_FROM_LOOP
         whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
@@ -374,6 +377,9 @@ class Python3Parser(PythonParser):
 
         whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suitel COME_FROM_LOOP
+
+        whileelsestmt2     ::= SETUP_LOOP testexpr l_stmts_opt  JUMP_BACK POP_BLOCK
+                              else_suitel JUMP_BACK COME_FROM_LOOP
 
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt          JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
@@ -1018,23 +1024,48 @@ class Python3Parser(PythonParser):
 
                 # Note order of kwargs and pos args changed between 3.3-3.4
                 if self.version <= 3.2:
-                    rule = "mkfunc ::= %s%sload_closure LOAD_CODE %s" % (
-                        kwargs_str,
-                        "expr " * args_pos,
-                        opname,
-                    )
+                    if annotate_args > 0:
+                        rule = "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure LOAD_CODE %s" % (
+                            kwargs_str,
+                            "pos_arg " * args_pos,
+                            "annotate_arg " * (annotate_args - 1),
+                            opname,
+                        )
+                    else:
+                        rule = "mkfunc ::= %s%sload_closure LOAD_CODE %s" % (
+                            kwargs_str,
+                            "pos_arg " * args_pos,
+                            opname,
+                        )
                 elif self.version == 3.3:
-                    rule = "mkfunc ::= %s%sload_closure LOAD_CODE LOAD_STR %s" % (
-                        kwargs_str,
-                        "expr " * args_pos,
-                        opname,
-                    )
+                    if annotate_args > 0:
+                        rule = "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure LOAD_CODE LOAD_STR %s" % (
+                            kwargs_str,
+                            "pos_arg " * args_pos,
+                            "annotate_arg " * (annotate_args - 1),
+                            opname,
+                        )
+                    else:
+                        rule = "mkfunc ::= %s%sload_closure LOAD_CODE LOAD_STR %s" % (
+                            kwargs_str,
+                            "pos_arg " * args_pos,
+                            opname,
+                        )
+
                 elif self.version >= 3.4:
-                    rule = "mkfunc ::= %s%s load_closure LOAD_CODE LOAD_STR %s" % (
-                        "expr " * args_pos,
-                        kwargs_str,
-                        opname,
-                    )
+                    if annotate_args > 0:
+                        rule = "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure LOAD_CODE LOAD_STR %s" % (
+                            "pos_arg " * args_pos,
+                            kwargs_str,
+                            "annotate_arg " * (annotate_args - 1),
+                            opname,
+                        )
+                    else:
+                        rule = "mkfunc ::= %s%s load_closure LOAD_CODE LOAD_STR %s" % (
+                            "pos_arg " * args_pos,
+                            kwargs_str,
+                            opname,
+                        )
 
                 self.add_unique_rule(rule, opname, token.attr, customize)
 

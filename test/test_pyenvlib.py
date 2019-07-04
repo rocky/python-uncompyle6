@@ -136,7 +136,7 @@ if __name__ == '__main__':
     test_options_keys = list(test_options.keys())
     test_options_keys.sort()
     opts, args = getopt.getopt(sys.argv[1:], '',
-                               ['start-with=', 'verify', 'verify-run', 'weak-verify',
+                               ['start-with=', 'verify', 'verify-run', 'syntax-verify',
                                 'max=', 'coverage', 'all', ] \
                                + test_options_keys )
     vers = ''
@@ -144,7 +144,7 @@ if __name__ == '__main__':
     for opt, val in opts:
         if opt == '--verify':
             do_verify = 'strong'
-        elif opt == '--weak-verify':
+        elif opt == '--syntax-verify':
             do_verify = 'weak'
         elif opt == '--verify-run':
             do_verify = 'verify-run'

@@ -57,6 +57,10 @@ def customize_for_version(self, is_pypy, version):
         from uncompyle6.semantics.customize3 import customize_for_version3
         customize_for_version3(self, version)
     else:  # < 3.0
+        TABLE_DIRECT.update({
+            'except_cond3'  : ( '%|except %c, %c:\n',
+                                (1, 'expr'), (-2, 'store') )
+            })
         if 2.4 <= version <= 2.6:
             TABLE_DIRECT.update({
                 'comp_for':	( ' for %c in %c', 3, 1 ),

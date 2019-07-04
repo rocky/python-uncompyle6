@@ -11,6 +11,9 @@
 def _walk_dir(dir, dfile, ddir=None):
     yield from _walk_dir(dir, ddir=dfile)
 
+def ybug(g):
+    yield from g
+
 # From 3.5.1 _wakrefset.py
 #
 #  3.5:

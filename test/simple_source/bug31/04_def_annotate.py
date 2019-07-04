@@ -31,8 +31,27 @@ def test9(arg_1=55, *varargs: int, y=5, **kwargs):
 def test10(args_1, b: 'annotating b', c: int) -> float:
     return 5.4
 
-class IOBase:
+def test11(*, name):
+    return args, name
+
+def test12(a, *args, name):
+    return a, args
     pass
+
+def test13(*args, name):
+    return args, name
+
+def test14(*args, name: int=1, qname):
+    return args, name, qname
+
+def test15(*args, name='S', fname, qname=4):
+    return args, name, fname, qname
+
+# From 3.4 /asyncio/streams.py open_connection
+_DEFAULT_LIMIT = 5
+def test16(host=None, port=None, *,
+           loop=None, limit=_DEFAULT_LIMIT, **kwds):
+    return host, port, loop, limit, kwds
 
 # Python 3.1 _pyio.py uses the  -> "IOBase" annotation
 def o(f, mode = "r", buffering = None) -> "IOBase":
@@ -109,6 +128,10 @@ def ann2(args_1, b: int = 5, **kwargs: float) -> float:
     assert ann2.__annotations__['return'] == float
     assert b == 5
 
+class TestSignatureObject():
+    def test_signature_on_wkwonly(self):
+        def test(x:int=55, *args: (int, str), c='test', a:float, kwargs:str="S", **b: int) -> int:
+            pass
 
 assert test1(1, 5) == (1, 5, 4, {})
 assert test1(1, 5, 6, foo='bar') == (1, 5, 6, {'foo': 'bar'})
@@ -121,3 +144,9 @@ assert test6(2.3, 4, 5) == (2.3, 4, 5)
 
 ann1(1, 'test', 5)
 ann2(1)
+
+### FIXME: fill in...
+
+assert test12(1, 2, 3, name='hi') == (1, (2, 3)), "a, *args, name"
+assert test13(1, 2, 3, name='hi') == ((1, 2, 3), 'hi'), "*args, name"
+assert test16('localhost', loop=2, limit=3, a='b') == ('localhost', None, 2, 3, {'a': 'b'})
