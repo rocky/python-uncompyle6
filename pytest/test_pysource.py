@@ -15,7 +15,7 @@ else:
     def iteritems(d):
         return d.iteritems()
 
-from uncompyle6.semantics.pysource import SourceWalker as SourceWalker
+from uncompyle6.semantics.pysource import (SourceWalker, deparse_code2str)
 
 def test_template_engine():
     s = StringIO()
@@ -185,3 +185,11 @@ def test_tables():
             assert arg == len(entry), (
                 "%s[%s] arg %d should be length of entry %d. Full entry: %s" %
                             (name, k, arg, len(entry), entry))
+
+def test_deparse_code2str():
+    def deparse_test(co):
+        "This is a docstring"
+        s = deparse_code2str(co, debug_opts={"asm": "after", "tree": True})
+        assert s
+        return
+    deparse_test(deparse_test.__code__)

@@ -125,8 +125,9 @@ Python.
 #   evaluating the escape code.
 
 import sys
-IS_PYPY = '__pypy__' in sys.builtin_module_names
-PYTHON3 = (sys.version_info >= (3, 0))
+
+IS_PYPY = "__pypy__" in sys.builtin_module_names
+PYTHON3 = sys.version_info >= (3, 0)
 
 from xdis.code import iscode
 from xdis.util import COMPILER_FLAG_BIT
@@ -136,38 +137,51 @@ from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.scanner import Code, get_scanner
 import uncompyle6.parser as python_parser
-from uncompyle6.semantics.make_function import (
-    make_function2, make_function3
-    )
+from uncompyle6.semantics.make_function import make_function2, make_function3
 from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.semantics.check_ast import checker
 from uncompyle6.semantics.customize import customize_for_version
 from uncompyle6.semantics.helper import (
-    print_docstring, find_globals_and_nonlocals, flatten_list)
+    print_docstring,
+    find_globals_and_nonlocals,
+    flatten_list,
+)
 from uncompyle6.scanners.tok import Token
 
 from uncompyle6.semantics.consts import (
-    LINE_LENGTH, RETURN_LOCALS, NONE, RETURN_NONE, PASS,
-    ASSIGN_DOC_STRING, NAME_MODULE, TAB,
-    INDENT_PER_LEVEL, TABLE_R, MAP_DIRECT,
-    MAP, PRECEDENCE, ASSIGN_TUPLE_PARAM, escape, minint)
-
-
-from uncompyle6.show import (
-    maybe_show_tree,
+    LINE_LENGTH,
+    RETURN_LOCALS,
+    NONE,
+    RETURN_NONE,
+    PASS,
+    ASSIGN_DOC_STRING,
+    NAME_MODULE,
+    TAB,
+    INDENT_PER_LEVEL,
+    TABLE_R,
+    MAP_DIRECT,
+    MAP,
+    PRECEDENCE,
+    ASSIGN_TUPLE_PARAM,
+    escape,
+    minint,
 )
+
+
+from uncompyle6.show import maybe_show_tree
 
 if PYTHON3:
     from io import StringIO
 else:
     from StringIO import StringIO
 
+
 def is_docstring(node):
     try:
-        return (node[0][0].kind == 'assign' and
-            node[0][0][1][0].pattr == '__doc__')
+        return node[0][0].kind == "assign" and node[0][0][1][0].pattr == "__doc__"
     except:
         return False
+
 
 class SourceWalkerError(Exception):
     def __init__(self, errmsg):
@@ -176,13 +190,22 @@ class SourceWalkerError(Exception):
     def __str__(self):
         return self.errmsg
 
-class SourceWalker(GenericASTTraversal, object):
-    stacked_params = ('f', 'indent', 'is_lambda', '_globals')
 
-    def __init__(self, version, out, scanner, showast=False,
-                 debug_parser=PARSER_DEFAULT_DEBUG,
-                 compile_mode='exec', is_pypy=IS_PYPY,
-                 linestarts={}, tolerate_errors=False):
+class SourceWalker(GenericASTTraversal, object):
+    stacked_params = ("f", "indent", "is_lambda", "_globals")
+
+    def __init__(
+        self,
+        version,
+        out,
+        scanner,
+        showast=False,
+        debug_parser=PARSER_DEFAULT_DEBUG,
+        compile_mode="exec",
+        is_pypy=IS_PYPY,
+        linestarts={},
+        tolerate_errors=False,
+    ):
         """`version' is the Python version (a float) of the Python dialect
         of both the syntax tree and language we should produce.
 
@@ -208,13 +231,14 @@ class SourceWalker(GenericASTTraversal, object):
         """
         GenericASTTraversal.__init__(self, ast=None)
         self.scanner = scanner
-        params = {
-            'f': out,
-            'indent': '',
-            }
+        params = {"f": out, "indent": ""}
         self.version = version
-        self.p = get_python_parser(version, debug_parser=dict(debug_parser),
-                                   compile_mode=compile_mode, is_pypy=is_pypy)
+        self.p = get_python_parser(
+            version,
+            debug_parser=dict(debug_parser),
+            compile_mode=compile_mode,
+            is_pypy=is_pypy,
+        )
         self.debug_parser = dict(debug_parser)
         self.showast = showast
         self.params = params
@@ -255,8 +279,8 @@ class SourceWalker(GenericASTTraversal, object):
 
     def str_with_template(self, ast):
         stream = sys.stdout
-        stream.write(self.str_with_template1(ast, '', None))
-        stream.write('\n')
+        stream.write(self.str_with_template1(ast, "", None))
+        stream.write("\n")
 
     def str_with_template1(self, ast, indent, sibNum=None):
         rv = str(ast.kind)
@@ -279,16 +303,16 @@ class SourceWalker(GenericASTTraversal, object):
             rv += ": %s" % str(table[key.kind])
 
         rv = indent + rv
-        indent += '    '
+        indent += "    "
         i = 0
         for node in ast:
-            if hasattr(node, '__repr1__'):
+            if hasattr(node, "__repr1__"):
                 if enumerate_children:
-                    child =  self.str_with_template1(node, indent, i)
+                    child = self.str_with_template1(node, indent, i)
                 else:
                     child = self.str_with_template1(node, indent, None)
             else:
-                inst = node.format(line_prefix='L.')
+                inst = node.format(line_prefix="L.")
                 if inst.startswith("\n"):
                     # Nuke leading \n
                     inst = inst[1:]
@@ -301,34 +325,41 @@ class SourceWalker(GenericASTTraversal, object):
             i += 1
         return rv
 
-
     def indent_if_source_nl(self, line_number, indent):
-        if (line_number != self.line_number):
+        if line_number != self.line_number:
             self.write("\n" + self.indent + INDENT_PER_LEVEL[:-1])
         return self.line_number
 
-    f = property(lambda s: s.params['f'],
-                 lambda s, x: s.params.__setitem__('f', x),
-                 lambda s: s.params.__delitem__('f'),
-                 None)
+    f = property(
+        lambda s: s.params["f"],
+        lambda s, x: s.params.__setitem__("f", x),
+        lambda s: s.params.__delitem__("f"),
+        None,
+    )
 
-    indent = property(lambda s: s.params['indent'],
-                      lambda s, x: s.params.__setitem__('indent', x),
-                      lambda s: s.params.__delitem__('indent'),
-                      None)
+    indent = property(
+        lambda s: s.params["indent"],
+        lambda s, x: s.params.__setitem__("indent", x),
+        lambda s: s.params.__delitem__("indent"),
+        None,
+    )
 
-    is_lambda = property(lambda s: s.params['is_lambda'],
-                         lambda s, x: s.params.__setitem__('is_lambda', x),
-                         lambda s: s.params.__delitem__('is_lambda'),
-                         None)
+    is_lambda = property(
+        lambda s: s.params["is_lambda"],
+        lambda s, x: s.params.__setitem__("is_lambda", x),
+        lambda s: s.params.__delitem__("is_lambda"),
+        None,
+    )
 
-    _globals = property(lambda s: s.params['_globals'],
-                        lambda s, x: s.params.__setitem__('_globals', x),
-                        lambda s: s.params.__delitem__('_globals'),
-                        None)
+    _globals = property(
+        lambda s: s.params["_globals"],
+        lambda s, x: s.params.__setitem__("_globals", x),
+        lambda s: s.params.__delitem__("_globals"),
+        None,
+    )
 
     def set_pos_info(self, node):
-        if hasattr(node, 'linestart') and node.linestart:
+        if hasattr(node, "linestart") and node.linestart:
             self.line_number = node.linestart
 
     def preorder(self, node=None):
@@ -339,37 +370,38 @@ class SourceWalker(GenericASTTraversal, object):
         self.indent += indent
 
     def indent_less(self, indent=TAB):
-        self.indent = self.indent[:-len(indent)]
+        self.indent = self.indent[: -len(indent)]
 
     def traverse(self, node, indent=None, is_lambda=False):
         self.param_stack.append(self.params)
-        if indent is None: indent = self.indent
+        if indent is None:
+            indent = self.indent
         p = self.pending_newlines
         self.pending_newlines = 0
         self.params = {
-            '_globals': {},
-            '_nonlocals': {},   # Python 3 has nonlocal
-            'f': StringIO(),
-            'indent': indent,
-            'is_lambda': is_lambda,
-            }
+            "_globals": {},
+            "_nonlocals": {},  # Python 3 has nonlocal
+            "f": StringIO(),
+            "indent": indent,
+            "is_lambda": is_lambda,
+        }
         self.preorder(node)
-        self.f.write('\n'*self.pending_newlines)
+        self.f.write("\n" * self.pending_newlines)
         result = self.f.getvalue()
         self.params = self.param_stack.pop()
         self.pending_newlines = p
         return result
 
     def write(self, *data):
-        if (len(data) == 0) or (len(data) == 1 and data[0] == ''):
+        if (len(data) == 0) or (len(data) == 1 and data[0] == ""):
             return
         if not PYTHON3:
-            out = ''.join((unicode(j) for j in data))
+            out = "".join((unicode(j) for j in data))
         else:
-            out = ''.join((str(j) for j in data))
+            out = "".join((str(j) for j in data))
         n = 0
         for i in out:
-            if i == '\n':
+            if i == "\n":
                 n += 1
                 if n == len(out):
                     self.pending_newlines = max(self.pending_newlines, n)
@@ -382,123 +414,124 @@ class SourceWalker(GenericASTTraversal, object):
                 break
 
         if self.pending_newlines > 0:
-            self.f.write('\n'*self.pending_newlines)
+            self.f.write("\n" * self.pending_newlines)
             self.pending_newlines = 0
 
         for i in out[::-1]:
-            if i == '\n':
+            if i == "\n":
                 self.pending_newlines += 1
             else:
                 break
 
         if self.pending_newlines:
-            out = out[:-self.pending_newlines]
-        if (isinstance(out, str) and
-             not (PYTHON3 or self.FUTURE_UNICODE_LITERALS)):
-            out = unicode(out, 'utf-8')
+            out = out[: -self.pending_newlines]
+        if isinstance(out, str) and not (PYTHON3 or self.FUTURE_UNICODE_LITERALS):
+            out = unicode(out, "utf-8")
         self.f.write(out)
 
     def println(self, *data):
-        if data and not(len(data) == 1 and data[0] == ''):
+        if data and not (len(data) == 1 and data[0] == ""):
             self.write(*data)
         self.pending_newlines = max(self.pending_newlines, 1)
 
     def is_return_none(self, node):
         # Is there a better way?
-        ret = (node[0] == 'ret_expr'
-               and node[0][0] == 'expr'
-               and node[0][0][0] == 'LOAD_CONST'
-               and node[0][0][0].pattr is None)
+        ret = (
+            node[0] == "ret_expr"
+            and node[0][0] == "expr"
+            and node[0][0][0] == "LOAD_CONST"
+            and node[0][0][0].pattr is None
+        )
         if self.version <= 2.6:
             return ret
         else:
             # FIXME: should the SyntaxTree expression be folded into
             # the global RETURN_NONE constant?
-            return (ret or
-                    node == SyntaxTree('return',
-                                [SyntaxTree('ret_expr', [NONE]), Token('RETURN_VALUE')]))
+            return ret or node == SyntaxTree(
+                "return", [SyntaxTree("ret_expr", [NONE]), Token("RETURN_VALUE")]
+            )
 
     # Python 3.x can have be dead code as a result of its optimization?
     # So we'll add a # at the end of the return lambda so the rest is ignored
     def n_return_lambda(self, node):
         if 1 <= len(node) <= 2:
             self.preorder(node[0])
-            self.write(' # Avoid dead code: ')
+            self.write(" # Avoid dead code: ")
             self.prune()
         else:
             # We can't comment out like above because there may be a trailing ')'
             # that needs to be written
-            assert len(node) == 3 and node[2] == 'LAMBDA_MARKER'
+            assert len(node) == 3 and node[2] == "LAMBDA_MARKER"
             self.preorder(node[0])
             self.prune()
 
     def n_return(self, node):
-        if self.params['is_lambda']:
+        if self.params["is_lambda"]:
             self.preorder(node[0])
             self.prune()
         else:
-            self.write(self.indent, 'return')
+            self.write(self.indent, "return")
             # One reason we worry over whether we use "return None" or "return"
             # is that inside a generator, "return None" is illegal.
             # Thank you, Python!
-            if (self.return_none or not self.is_return_none(node)):
-                self.write(' ')
+            if self.return_none or not self.is_return_none(node):
+                self.write(" ")
                 self.preorder(node[0])
             self.println()
-            self.prune() # stop recursing
+            self.prune()  # stop recursing
 
     def n_return_if_stmt(self, node):
-        if self.params['is_lambda']:
-            self.write(' return ')
+        if self.params["is_lambda"]:
+            self.write(" return ")
             self.preorder(node[0])
             self.prune()
         else:
-            self.write(self.indent, 'return')
+            self.write(self.indent, "return")
             if self.return_none or not self.is_return_none(node):
-                self.write(' ')
+                self.write(" ")
                 self.preorder(node[0])
             self.println()
-            self.prune() # stop recursing
+            self.prune()  # stop recursing
 
     def n_yield(self, node):
-        if node != SyntaxTree('yield', [NONE, Token('YIELD_VALUE')]):
-            self.template_engine(( 'yield %c', 0), node)
+        if node != SyntaxTree("yield", [NONE, Token("YIELD_VALUE")]):
+            self.template_engine(("yield %c", 0), node)
         elif self.version <= 2.4:
             # Early versions of Python don't allow a plain "yield"
-            self.write('yield None')
+            self.write("yield None")
         else:
-            self.write('yield')
+            self.write("yield")
 
-        self.prune() # stop recursing
+        self.prune()  # stop recursing
 
     def n_build_slice3(self, node):
         p = self.prec
         self.prec = 100
         if not node[0].isNone():
             self.preorder(node[0])
-        self.write(':')
+        self.write(":")
         if not node[1].isNone():
             self.preorder(node[1])
-        self.write(':')
+        self.write(":")
         if not node[2].isNone():
             self.preorder(node[2])
         self.prec = p
-        self.prune() # stop recursing
+        self.prune()  # stop recursing
 
     def n_build_slice2(self, node):
         p = self.prec
         self.prec = 100
         if not node[0].isNone():
             self.preorder(node[0])
-        self.write(':')
+        self.write(":")
         if not node[1].isNone():
             self.preorder(node[1])
         self.prec = p
-        self.prune() # stop recursing
+        self.prune()  # stop recursing
 
     def n_expr(self, node):
         p = self.prec
-        if node[0].kind.startswith('binary_expr'):
+        if node[0].kind.startswith("binary_expr"):
             n = node[0][-1][0]
         else:
             n = node[0]
@@ -508,20 +541,20 @@ class SourceWalker(GenericASTTraversal, object):
         #     self.source_linemap[self.current_line_number] = n.linestart
 
         self.prec = PRECEDENCE.get(n.kind, -2)
-        if n == 'LOAD_CONST' and repr(n.pattr)[0] == '-':
+        if n == "LOAD_CONST" and repr(n.pattr)[0] == "-":
             self.prec = 6
 
         if p < self.prec:
-            self.write('(')
+            self.write("(")
             self.preorder(node[0])
-            self.write(')')
+            self.write(")")
         else:
             self.preorder(node[0])
         self.prec = p
         self.prune()
 
     def n_ret_expr(self, node):
-        if len(node) == 1 and node[0] == 'expr':
+        if len(node) == 1 and node[0] == "expr":
             self.n_expr(node[0])
         else:
             self.n_expr(node)
@@ -530,9 +563,9 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_binary_expr(self, node):
         self.preorder(node[0])
-        self.write(' ')
+        self.write(" ")
         self.preorder(node[-1])
-        self.write(' ')
+        self.write(" ")
         self.prec -= 1
         self.preorder(node[1])
         self.prec += 1
@@ -545,32 +578,35 @@ class SourceWalker(GenericASTTraversal, object):
     def pp_tuple(self, tup):
         """Pretty print a tuple"""
         last_line = self.f.getvalue().split("\n")[-1]
-        l = len(last_line)+1
-        indent = ' ' * l
-        self.write('(')
-        sep = ''
+        l = len(last_line) + 1
+        indent = " " * l
+        self.write("(")
+        sep = ""
         for item in tup:
             self.write(sep)
             l += len(sep)
             s = repr(item)
             l += len(s)
             self.write(s)
-            sep = ','
+            sep = ","
             if l > LINE_LENGTH:
                 l = 0
-                sep += '\n' + indent
+                sep += "\n" + indent
             else:
-                sep += ' '
+                sep += " "
                 pass
             pass
         if len(tup) == 1:
             self.write(", ")
-        self.write(')')
+        self.write(")")
 
     def n_LOAD_CONST(self, node):
         attr = node.attr
-        data = node.pattr; datatype = type(data)
-        if isinstance(data, float) and str(data) in frozenset(['nan', '-nan', 'inf', '-inf']):
+        data = node.pattr
+        datatype = type(data)
+        if isinstance(data, float) and str(data) in frozenset(
+            ["nan", "-nan", "inf", "-inf"]
+        ):
             # float values 'nan' and 'inf' are not directly representable in Python at least
             # before 3.5 and even there it is via a library constant.
             # So we will canonicalize their representation as float('nan') and float('inf')
@@ -580,14 +616,14 @@ class SourceWalker(GenericASTTraversal, object):
             # would result in 'LOAD_CONST; UNARY_NEGATIVE'
             # change:hG/2002-02-07: this was done for all negative integers
             # todo: check whether this is necessary in Python 2.1
-            self.write( hex(data) )
+            self.write(hex(data))
         elif datatype is type(Ellipsis):
-            self.write('...')
+            self.write("...")
         elif attr is None:
             # LOAD_CONST 'None' only occurs, when None is
             # implicit eg. in 'return' w/o params
             # pass
-            self.write('None')
+            self.write("None")
         elif isinstance(data, tuple):
             self.pp_tuple(data)
         elif isinstance(attr, bool):
@@ -606,7 +642,7 @@ class SourceWalker(GenericASTTraversal, object):
                     pass
                 self.write(repr(data))
             elif isinstance(data, str):
-                self.write('b'+repr(data))
+                self.write("b" + repr(data))
             else:
                 self.write(repr(data))
         else:
@@ -614,15 +650,17 @@ class SourceWalker(GenericASTTraversal, object):
                 try:
                     repr(data).encode("ascii")
                 except UnicodeEncodeError:
-                    self.write('u')
+                    self.write("u")
             self.write(repr(data))
         # LOAD_CONST is a terminal, so stop processing/recursing early
         self.prune()
 
     def n_delete_subscript(self, node):
-        if node[-2][0] == 'build_list' and node[-2][0][-1].kind.startswith('BUILD_TUPLE'):
-            if node[-2][0][-1] != 'BUILD_TUPLE_0':
-                node[-2][0].kind = 'build_tuple2'
+        if node[-2][0] == "build_list" and node[-2][0][-1].kind.startswith(
+            "BUILD_TUPLE"
+        ):
+            if node[-2][0][-1] != "BUILD_TUPLE_0":
+                node[-2][0].kind = "build_tuple2"
         self.default(node)
 
     n_store_subscript = n_subscript = n_delete_subscript
@@ -636,15 +674,16 @@ class SourceWalker(GenericASTTraversal, object):
         exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
         exec_stmt ::= expr exprlist EXEC_STMT
         """
-        self.write(self.indent, 'exec ')
+        self.write(self.indent, "exec ")
         self.preorder(node[0])
         if not node[1][0].isNone():
-            sep = ' in '
+            sep = " in "
             for subnode in node[1]:
-                self.write(sep); sep = ", "
+                self.write(sep)
+                sep = ", "
                 self.preorder(subnode)
         self.println()
-        self.prune() # stop recursing
+        self.prune()  # stop recursing
 
     # preprocess is used for handling chains of
     # if elif elif
@@ -670,19 +709,24 @@ class SourceWalker(GenericASTTraversal, object):
         n = else_suite[0]
         old_stmts = None
 
-        if len(n) == 1 == len(n[0]) and n[0] == 'stmt':
+        if len(n) == 1 == len(n[0]) and n[0] == "stmt":
             n = n[0][0]
-        elif n[0].kind in ('lastc_stmt', 'lastl_stmt'):
+        elif n[0].kind in ("lastc_stmt", "lastl_stmt"):
             n = n[0]
-            if n[0].kind in ('ifstmt', 'iflaststmt', 'iflaststmtl', 'ifelsestmtl', 'ifelsestmtc'):
+            if n[0].kind in (
+                "ifstmt",
+                "iflaststmt",
+                "iflaststmtl",
+                "ifelsestmtl",
+                "ifelsestmtc",
+            ):
                 # This seems needed for Python 2.5-2.7
                 n = n[0]
                 pass
             pass
-        elif ( len(n) > 1 and 1 == len(n[0]) and n[0] == 'stmt'
-               and n[1].kind == "stmt" ):
+        elif len(n) > 1 and 1 == len(n[0]) and n[0] == "stmt" and n[1].kind == "stmt":
             else_suite_stmts = n[0]
-            if else_suite_stmts[0].kind not in ('ifstmt', 'iflaststmt', 'ifelsestmtl'):
+            if else_suite_stmts[0].kind not in ("ifstmt", "iflaststmt", "ifelsestmtl"):
                 if not preprocess:
                     self.default(node)
                 return
@@ -693,26 +737,27 @@ class SourceWalker(GenericASTTraversal, object):
                 self.default(node)
             return
 
-        if n.kind in ('ifstmt', 'iflaststmt', 'iflaststmtl'):
-            node.kind = 'ifelifstmt'
-            n.kind = 'elifstmt'
-        elif n.kind in ('ifelsestmtr',):
-            node.kind = 'ifelifstmt'
-            n.kind = 'elifelsestmtr'
-        elif n.kind in ('ifelsestmt', 'ifelsestmtc', 'ifelsestmtl'):
-            node.kind = 'ifelifstmt'
+        if n.kind in ("ifstmt", "iflaststmt", "iflaststmtl"):
+            node.kind = "ifelifstmt"
+            n.kind = "elifstmt"
+        elif n.kind in ("ifelsestmtr",):
+            node.kind = "ifelifstmt"
+            n.kind = "elifelsestmtr"
+        elif n.kind in ("ifelsestmt", "ifelsestmtc", "ifelsestmtl"):
+            node.kind = "ifelifstmt"
             self.n_ifelsestmt(n, preprocess=True)
-            if n == 'ifelifstmt':
-                n.kind = 'elifelifstmt'
-            elif n.kind in ('ifelsestmt', 'ifelsestmtc', 'ifelsestmtl'):
-                n.kind = 'elifelsestmt'
+            if n == "ifelifstmt":
+                n.kind = "elifelifstmt"
+            elif n.kind in ("ifelsestmt", "ifelsestmtc", "ifelsestmtl"):
+                n.kind = "elifelsestmt"
         if not preprocess:
             if old_stmts:
                 if n.kind == "elifstmt":
                     trailing_else = SyntaxTree("stmts", old_stmts[1:])
                     # We use elifelsestmtr because it has 3 nodes
                     elifelse_stmt = SyntaxTree(
-                        'elifelsestmtr', [n[0], n[1], trailing_else])
+                        "elifelsestmtr", [n[0], n[1], trailing_else]
+                    )
                     node[3] = elifelse_stmt
                     pass
                 else:
@@ -724,60 +769,66 @@ class SourceWalker(GenericASTTraversal, object):
     n_ifelsestmtc = n_ifelsestmtl = n_ifelsestmt
 
     def n_ifelsestmtr(self, node):
-        if node[2] == 'COME_FROM':
+        if node[2] == "COME_FROM":
             return_stmts_node = node[3]
-            node.kind = 'ifelsestmtr2'
+            node.kind = "ifelsestmtr2"
         else:
             return_stmts_node = node[2]
         if len(return_stmts_node) != 2:
             self.default(node)
 
-        if (not (return_stmts_node[0][0][0] == 'ifstmt'
-                 and return_stmts_node[0][0][0][1][0] == 'return_if_stmts')
-            and not (return_stmts_node[0][-1][0] == 'ifstmt'
-                     and return_stmts_node[0][-1][0][1][0] == 'return_if_stmts')):
+        if not (
+            return_stmts_node[0][0][0] == "ifstmt"
+            and return_stmts_node[0][0][0][1][0] == "return_if_stmts"
+        ) and not (
+            return_stmts_node[0][-1][0] == "ifstmt"
+            and return_stmts_node[0][-1][0][1][0] == "return_if_stmts"
+        ):
             self.default(node)
             return
 
-        self.write(self.indent, 'if ')
+        self.write(self.indent, "if ")
         self.preorder(node[0])
-        self.println(':')
+        self.println(":")
         self.indent_more()
         self.preorder(node[1])
         self.indent_less()
 
         if_ret_at_end = False
         if len(return_stmts_node[0]) >= 3:
-            if (return_stmts_node[0][-1][0] == 'ifstmt'
-                and return_stmts_node[0][-1][0][1][0] == 'return_if_stmts'):
+            if (
+                return_stmts_node[0][-1][0] == "ifstmt"
+                and return_stmts_node[0][-1][0][1][0] == "return_if_stmts"
+            ):
                 if_ret_at_end = True
 
         past_else = False
         prev_stmt_is_if_ret = True
         for n in return_stmts_node[0]:
-            if (n[0] == 'ifstmt' and n[0][1][0] == 'return_if_stmts'):
+            if n[0] == "ifstmt" and n[0][1][0] == "return_if_stmts":
                 if prev_stmt_is_if_ret:
-                    n[0].kind = 'elifstmt'
+                    n[0].kind = "elifstmt"
                 prev_stmt_is_if_ret = True
             else:
                 prev_stmt_is_if_ret = False
                 if not past_else and not if_ret_at_end:
-                    self.println(self.indent, 'else:')
+                    self.println(self.indent, "else:")
                     self.indent_more()
                     past_else = True
             self.preorder(n)
         if not past_else or if_ret_at_end:
-            self.println(self.indent, 'else:')
+            self.println(self.indent, "else:")
             self.indent_more()
         self.preorder(return_stmts_node[1])
         self.indent_less()
         self.prune()
+
     n_ifelsestmtr2 = n_ifelsestmtr
 
     def n_elifelsestmtr(self, node):
-        if node[2] == 'COME_FROM':
+        if node[2] == "COME_FROM":
             return_stmts_node = node[3]
-            node.kind = 'elifelsestmtr2'
+            node.kind = "elifelsestmtr2"
         else:
             return_stmts_node = node[2]
 
@@ -785,21 +836,21 @@ class SourceWalker(GenericASTTraversal, object):
             self.default(node)
 
         for n in return_stmts_node[0]:
-            if not (n[0] == 'ifstmt' and n[0][1][0] == 'return_if_stmts'):
+            if not (n[0] == "ifstmt" and n[0][1][0] == "return_if_stmts"):
                 self.default(node)
                 return
 
-        self.write(self.indent, 'elif ')
+        self.write(self.indent, "elif ")
         self.preorder(node[0])
-        self.println(':')
+        self.println(":")
         self.indent_more()
         self.preorder(node[1])
         self.indent_less()
 
         for n in return_stmts_node[0]:
-            n[0].kind = 'elifstmt'
+            n[0].kind = "elifstmt"
             self.preorder(n)
-        self.println(self.indent, 'else:')
+        self.println(self.indent, "else:")
         self.indent_more()
         self.preorder(return_stmts_node[1])
         self.indent_less()
@@ -809,32 +860,30 @@ class SourceWalker(GenericASTTraversal, object):
         if self.version <= 2.1:
             if len(node) == 2:
                 store = node[1]
-                assert store == 'store'
+                assert store == "store"
                 if store[0].pattr == node[0].pattr:
                     self.write("import %s\n" % node[0].pattr)
                 else:
-                    self.write("import %s as %s\n" %
-                               (node[0].pattr, store[0].pattr))
+                    self.write("import %s as %s\n" % (node[0].pattr, store[0].pattr))
                     pass
                 pass
-            self.prune() # stop recursing
-
+            self.prune()  # stop recursing
 
         store_node = node[-1][-1]
-        assert store_node.kind.startswith('STORE_')
+        assert store_node.kind.startswith("STORE_")
         iname = node[0].pattr  # import name
-        sname = store_node.pattr # store_name
-        if iname and iname == sname or iname.startswith(sname + '.'):
+        sname = store_node.pattr  # store_name
+        if iname and iname == sname or iname.startswith(sname + "."):
             self.write(iname)
         else:
-            self.write(iname, ' as ', sname)
-        self.prune() # stop recursing
+            self.write(iname, " as ", sname)
+        self.prune()  # stop recursing
 
     def n_import_from(self, node):
         relative_path_index = 0
         if self.version >= 2.5:
             if node[relative_path_index].pattr > 0:
-                node[2].pattr = ('.' * node[relative_path_index].pattr) + node[2].pattr
+                node[2].pattr = ("." * node[relative_path_index].pattr) + node[2].pattr
             if self.version > 2.7:
                 if isinstance(node[1].pattr, tuple):
                     imports = node[1].pattr
@@ -849,12 +898,12 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_mkfunc(self, node):
 
-        if self.version >= 3.3 or node[-2] in ('kwargs', 'no_kwargs'):
+        if self.version >= 3.3 or node[-2] in ("kwargs", "no_kwargs"):
             # LOAD_CONST code object ..
             # LOAD_CONST        'x0'  if >= 3.3
             # MAKE_FUNCTION ..
             code_node = node[-3]
-        elif node[-2] == 'expr':
+        elif node[-2] == "expr":
             code_node = node[-2][0]
         else:
             # LOAD_CONST code object ..
@@ -869,14 +918,13 @@ class SourceWalker(GenericASTTraversal, object):
         self.make_function(node, is_lambda=False, code_node=code_node)
 
         if len(self.param_stack) > 1:
-            self.write('\n\n')
+            self.write("\n\n")
         else:
-            self.write('\n\n\n')
+            self.write("\n\n\n")
         self.indent_less()
-        self.prune() # stop recursing
+        self.prune()  # stop recursing
 
-    def make_function(self, node, is_lambda, nested=1,
-                      code_node=None, annotate=None):
+    def make_function(self, node, is_lambda, nested=1, code_node=None, annotate=None):
         if self.version >= 3.0:
             make_function3(self, node, is_lambda, nested, code_node)
         else:
@@ -884,7 +932,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_mklambda(self, node):
         self.make_function(node, is_lambda=True, code_node=node[-2])
-        self.prune() # stop recursing
+        self.prune()  # stop recursing
 
     def n_list_comp(self, node):
         """List comprehensions"""
@@ -895,129 +943,135 @@ class SourceWalker(GenericASTTraversal, object):
                 self.n_list_comp_pypy27(node)
                 return
             n = node[-1]
-        elif node[-1] == 'del_stmt':
-            if node[-2] == 'JUMP_BACK':
+        elif node[-1] == "del_stmt":
+            if node[-2] == "JUMP_BACK":
                 n = node[-3]
             else:
                 n = node[-2]
 
-        assert n == 'list_iter'
+        assert n == "list_iter"
 
         # Find the list comprehension body. It is the inner-most
         # node that is not list_.. .
         # FIXME: DRY with other use
-        while n == 'list_iter':
+        while n == "list_iter":
             n = n[0]  # iterate one nesting deeper
-            if   n == 'list_for':	n = n[3]
-            elif n == 'list_if':	n = n[2]
-            elif n == 'list_if_not': n = n[2]
-        assert n == 'lc_body'
-        self.write( '[ ')
+            if n == "list_for":
+                n = n[3]
+            elif n == "list_if":
+                n = n[2]
+            elif n == "list_if_not":
+                n = n[2]
+        assert n == "lc_body"
+        self.write("[ ")
 
         if self.version >= 2.7:
             expr = n[0]
             list_iter = node[-1]
         else:
             expr = n[1]
-            if node[-2] == 'JUMP_BACK':
+            if node[-2] == "JUMP_BACK":
                 list_iter = node[-3]
             else:
                 list_iter = node[-2]
 
-        assert expr == 'expr'
-        assert list_iter == 'list_iter'
+        assert expr == "expr"
+        assert list_iter == "list_iter"
 
         # FIXME: use source line numbers for directing line breaks
 
         line_number = self.line_number
         last_line = self.f.getvalue().split("\n")[-1]
         l = len(last_line)
-        indent = ' ' * (l-1)
+        indent = " " * (l - 1)
 
         self.preorder(expr)
         line_number = self.indent_if_source_nl(line_number, indent)
         self.preorder(list_iter)
         l2 = self.indent_if_source_nl(line_number, indent)
         if l2 != line_number:
-            self.write(' ' * (len(indent) - len(self.indent) - 1) + ']')
+            self.write(" " * (len(indent) - len(self.indent) - 1) + "]")
         else:
-            self.write( ' ]')
+            self.write(" ]")
         self.prec = p
-        self.prune() # stop recursing
+        self.prune()  # stop recursing
 
     def n_list_comp_pypy27(self, node):
         """List comprehensions in PYPY."""
         p = self.prec
         self.prec = 27
-        if node[-1].kind == 'list_iter':
+        if node[-1].kind == "list_iter":
             n = node[-1]
-        elif self.is_pypy and node[-1] == 'JUMP_BACK':
+        elif self.is_pypy and node[-1] == "JUMP_BACK":
             n = node[-2]
         list_expr = node[1]
 
         if len(node) >= 3:
             store = node[3]
-        elif self.is_pypy and n[0] == 'list_for':
+        elif self.is_pypy and n[0] == "list_for":
             store = n[0][2]
 
-        assert n == 'list_iter'
-        assert store == 'store'
+        assert n == "list_iter"
+        assert store == "store"
 
         # Find the list comprehension body. It is the inner-most
         # node.
         # FIXME: DRY with other use
-        while n == 'list_iter':
-            n = n[0] # iterate one nesting deeper
-            if   n == 'list_for':	n = n[3]
-            elif n == 'list_if':	n = n[2]
-            elif n == 'list_if_not': n = n[2]
-        assert n == 'lc_body'
-        self.write( '[ ')
+        while n == "list_iter":
+            n = n[0]  # iterate one nesting deeper
+            if n == "list_for":
+                n = n[3]
+            elif n == "list_if":
+                n = n[2]
+            elif n == "list_if_not":
+                n = n[2]
+        assert n == "lc_body"
+        self.write("[ ")
 
         expr = n[0]
-        if self.is_pypy and node[-1] == 'JUMP_BACK':
+        if self.is_pypy and node[-1] == "JUMP_BACK":
             list_iter = node[-2]
         else:
             list_iter = node[-1]
 
-        assert expr == 'expr'
-        assert list_iter == 'list_iter'
+        assert expr == "expr"
+        assert list_iter == "list_iter"
 
         # FIXME: use source line numbers for directing line breaks
 
         self.preorder(expr)
         self.preorder(list_expr)
-        self.write( ' ]')
+        self.write(" ]")
         self.prec = p
-        self.prune() # stop recursing
+        self.prune()  # stop recursing
 
     def comprehension_walk(self, node, iter_index, code_index=-5):
         p = self.prec
         self.prec = 27
 
         # FIXME: clean this up
-        if self.version >= 3.0 and node == 'dict_comp':
+        if self.version >= 3.0 and node == "dict_comp":
             cn = node[1]
-        elif self.version <= 2.7 and node == 'generator_exp':
-            if node[0] == 'LOAD_GENEXPR':
+        elif self.version <= 2.7 and node == "generator_exp":
+            if node[0] == "LOAD_GENEXPR":
                 cn = node[0]
-            elif node[0] == 'load_closure':
+            elif node[0] == "load_closure":
                 cn = node[1]
 
-        elif self.version >= 3.0 and node == 'generator_exp':
-            if node[0] == 'load_genexpr':
+        elif self.version >= 3.0 and node == "generator_exp":
+            if node[0] == "load_genexpr":
                 load_genexpr = node[0]
-            elif node[1] == 'load_genexpr':
+            elif node[1] == "load_genexpr":
                 load_genexpr = node[1]
             cn = load_genexpr[0]
-        elif hasattr(node[code_index], 'attr'):
+        elif hasattr(node[code_index], "attr"):
             # Python 2.5+ (and earlier?) does this
             cn = node[code_index]
         else:
-            if len(node[1]) > 1 and hasattr(node[1][1], 'attr'):
+            if len(node[1]) > 1 and hasattr(node[1][1], "attr"):
                 # Python 3.3+ does this
                 cn = node[1][1]
-            elif hasattr(node[1][0], 'attr'):
+            elif hasattr(node[1][0], "attr"):
                 # Python 3.2 does this
                 cn = node[1][0]
             else:
@@ -1031,57 +1085,58 @@ class SourceWalker(GenericASTTraversal, object):
         ast = ast[0][0][0]
 
         n = ast[iter_index]
-        assert n == 'comp_iter', n
+        assert n == "comp_iter", n
 
         # Find the comprehension body. It is the inner-most
         # node that is not list_.. .
-        while n == 'comp_iter': # list_iter
-            n = n[0] # recurse one step
-            if n == 'comp_for':
-                if n[0] == 'SETUP_LOOP':
+        while n == "comp_iter":  # list_iter
+            n = n[0]  # recurse one step
+            if n == "comp_for":
+                if n[0] == "SETUP_LOOP":
                     n = n[4]
                 else:
                     n = n[3]
-            elif n == 'comp_if':
+            elif n == "comp_if":
                 n = n[2]
-            elif n == 'comp_if_not':
+            elif n == "comp_if_not":
                 n = n[2]
 
-        assert n == 'comp_body', n
+        assert n == "comp_body", n
 
         self.preorder(n[0])
-        self.write(' for ')
-        self.preorder(ast[iter_index-1])
-        self.write(' in ')
-        if node[2] == 'expr':
+        self.write(" for ")
+        self.preorder(ast[iter_index - 1])
+        self.write(" in ")
+        if node[2] == "expr":
             iter_expr = node[2]
         else:
             iter_expr = node[-3]
-        assert iter_expr == 'expr'
+        assert iter_expr == "expr"
         self.preorder(iter_expr)
         self.preorder(ast[iter_index])
         self.prec = p
 
     def n_generator_exp(self, node):
-        self.write('(')
+        self.write("(")
         if self.version > 3.2:
             code_index = -6
         else:
             code_index = -5
         self.comprehension_walk(node, iter_index=3, code_index=code_index)
-        self.write(')')
+        self.write(")")
         self.prune()
 
     def n_set_comp(self, node):
-        self.write('{')
-        if node[0] in ['LOAD_SETCOMP', 'LOAD_DICTCOMP']:
+        self.write("{")
+        if node[0] in ["LOAD_SETCOMP", "LOAD_DICTCOMP"]:
             self.comprehension_walk_newer(node, 1, 0)
-        elif node[0].kind == 'load_closure' and self.version >= 3.0:
+        elif node[0].kind == "load_closure" and self.version >= 3.0:
             self.setcomprehension_walk3(node, collection_index=4)
         else:
             self.comprehension_walk(node, iter_index=4)
-        self.write('}')
+        self.write("}")
         self.prune()
+
     n_dict_comp = n_set_comp
 
     def comprehension_walk_newer(self, node, iter_index, code_index=-5):
@@ -1100,9 +1155,9 @@ class SourceWalker(GenericASTTraversal, object):
 
         # skip over: sstmt, stmt, return, ret_expr
         # and other singleton derivations
-        while (len(ast) == 1
-               or (ast in ('sstmt', 'return')
-                   and ast[-1] in ('RETURN_LAST', 'RETURN_VALUE'))):
+        while len(ast) == 1 or (
+            ast in ("sstmt", "return") and ast[-1] in ("RETURN_LAST", "RETURN_VALUE")
+        ):
             self.prec = 100
             ast = ast[0]
 
@@ -1113,33 +1168,37 @@ class SourceWalker(GenericASTTraversal, object):
         is_30_dict_comp = False
         store = None
         n = ast[iter_index]
-        if ast in ('set_comp_func', 'dict_comp_func',
-                   'list_comp', 'set_comp_func_header'):
+        if ast in (
+            "set_comp_func",
+            "dict_comp_func",
+            "list_comp",
+            "set_comp_func_header",
+        ):
             for k in ast:
-                if k == 'comp_iter':
+                if k == "comp_iter":
                     n = k
-                elif k == 'store':
+                elif k == "store":
                     store = k
                     pass
                 pass
             pass
-        elif ast in ('dict_comp', 'set_comp'):
+        elif ast in ("dict_comp", "set_comp"):
             assert self.version == 3.0
             for k in ast:
-                if k in ('dict_comp_header', 'set_comp_header'):
+                if k in ("dict_comp_header", "set_comp_header"):
                     n = k
-                elif k == 'store':
+                elif k == "store":
                     store = k
-                elif k == 'dict_comp_iter':
+                elif k == "dict_comp_iter":
                     is_30_dict_comp = True
                     n = (k[3], k[1])
                     pass
-                elif k == 'comp_iter':
+                elif k == "comp_iter":
                     n = k[0]
                     pass
                 pass
         else:
-            assert n == 'list_iter', n
+            assert n == "list_iter", n
 
         # FIXME: I'm not totally sure this is right.
 
@@ -1148,7 +1207,7 @@ class SourceWalker(GenericASTTraversal, object):
         if_node = None
         comp_for = None
         comp_store = None
-        if n == 'comp_iter':
+        if n == "comp_iter":
             comp_for = n
             comp_store = ast[3]
 
@@ -1156,22 +1215,22 @@ class SourceWalker(GenericASTTraversal, object):
 
         # Iterate to find the innermost store
         # We'll come back to the list iteration below.
-        while n in ('list_iter', 'comp_iter'):
+        while n in ("list_iter", "comp_iter"):
             # iterate one nesting deeper
             if self.version == 3.0 and len(n) == 3:
-                assert n[0] == 'expr' and n[1] == 'expr'
+                assert n[0] == "expr" and n[1] == "expr"
                 n = n[1]
             else:
                 n = n[0]
 
-            if n in ('list_for', 'comp_for'):
-                if n[2] == 'store' and not store:
+            if n in ("list_for", "comp_for"):
+                if n[2] == "store" and not store:
                     store = n[2]
                 n = n[3]
-            elif n in ('list_if', 'list_if_not', 'comp_if', 'comp_if_not'):
-                have_not = n in ('list_if_not', 'comp_if_not')
+            elif n in ("list_if", "list_if_not", "comp_if", "comp_if_not"):
+                have_not = n in ("list_if_not", "comp_if_not")
                 if_node = n[0]
-                if n[1] == 'store':
+                if n[1] == "store":
                     store = n[1]
                 n = n[2]
                 pass
@@ -1181,7 +1240,12 @@ class SourceWalker(GenericASTTraversal, object):
         # Python 3.5+ starts including set_comp_func
         # Python 3.0  is yet another snowflake
         if self.version != 3.0:
-            assert n.kind in ('lc_body', 'comp_body', 'set_comp_func', 'set_comp_body'), ast
+            assert n.kind in (
+                "lc_body",
+                "comp_body",
+                "set_comp_func",
+                "set_comp_body",
+            ), ast
         assert store, "Couldn't find store in list/set comprehension"
 
         # A problem created with later Python code generation is that there
@@ -1195,25 +1259,25 @@ class SourceWalker(GenericASTTraversal, object):
 
         if is_30_dict_comp:
             self.preorder(n[0])
-            self.write(': ')
+            self.write(": ")
             self.preorder(n[1])
         else:
             self.preorder(n[0])
-        self.write(' for ')
+        self.write(" for ")
         if comp_store:
             self.preorder(comp_store)
         else:
             self.preorder(store)
 
         # FIXME this is all merely approximate
-        self.write(' in ')
+        self.write(" in ")
         self.preorder(node[-3])
 
         # Here is where we handle nested list iterations.
-        if ast == 'list_comp' and self.version != 3.0:
+        if ast == "list_comp" and self.version != 3.0:
             list_iter = ast[1]
-            assert list_iter == 'list_iter'
-            if list_iter[0] == 'list_for':
+            assert list_iter == "list_iter"
+            if list_iter[0] == "list_for":
                 self.preorder(list_iter[0][3])
                 self.prec = p
                 return
@@ -1222,9 +1286,9 @@ class SourceWalker(GenericASTTraversal, object):
         if comp_store:
             self.preorder(comp_for)
         elif if_node:
-            self.write(' if ')
+            self.write(" if ")
             if have_not:
-                self.write('not ')
+                self.write("not ")
             self.prec = 27
             self.preorder(if_node)
             pass
@@ -1245,9 +1309,9 @@ class SourceWalker(GenericASTTraversal, object):
 
         # skip over: sstmt, stmt, return, ret_expr
         # and other singleton derivations
-        while (len(ast) == 1
-               or (ast in ('sstmt', 'return')
-                   and ast[-1] in ('RETURN_LAST', 'RETURN_VALUE'))):
+        while len(ast) == 1 or (
+            ast in ("sstmt", "return") and ast[-1] in ("RETURN_LAST", "RETURN_VALUE")
+        ):
             self.prec = 100
             ast = ast[0]
 
@@ -1256,24 +1320,24 @@ class SourceWalker(GenericASTTraversal, object):
         collections = [node[-3]]
         list_ifs = []
 
-        if self.version == 3.0 and n != 'list_iter':
+        if self.version == 3.0 and n != "list_iter":
             # FIXME 3.0 is a snowflake here. We need
             # special code for this. Not sure if this is totally
             # correct.
             stores = [ast[3]]
-            assert ast[4] == 'comp_iter'
+            assert ast[4] == "comp_iter"
             n = ast[4]
             # Find the list comprehension body. It is the inner-most
             # node that is not comp_.. .
-            while n == 'comp_iter':
-                if n[0] == 'comp_for':
+            while n == "comp_iter":
+                if n[0] == "comp_for":
                     n = n[0]
                     stores.append(n[2])
                     n = n[3]
-                elif n[0] in ('comp_if', 'comp_if_not'):
+                elif n[0] in ("comp_if", "comp_if_not"):
                     n = n[0]
                     # FIXME: just a guess
-                    if n[0].kind == 'expr':
+                    if n[0].kind == "expr":
                         list_ifs.append(n)
                     else:
                         list_ifs.append([1])
@@ -1287,29 +1351,29 @@ class SourceWalker(GenericASTTraversal, object):
             self.preorder(n[1])
 
         else:
-            assert n == 'list_iter'
+            assert n == "list_iter"
             stores = []
             # Find the list comprehension body. It is the inner-most
             # node that is not list_.. .
-            while n == 'list_iter':
-                n = n[0] # recurse one step
-                if n == 'list_for':
+            while n == "list_iter":
+                n = n[0]  # recurse one step
+                if n == "list_for":
                     stores.append(n[2])
                     n = n[3]
-                    if self.version >= 3.6 and n[0] == 'list_for':
+                    if self.version >= 3.6 and n[0] == "list_for":
                         # Dog-paddle down largely singleton reductions
                         # to find the collection (expr)
                         c = n[0][0]
-                        if c == 'expr':
+                        if c == "expr":
                             c = c[0]
                         # FIXME: grammar is wonky here? Is this really an attribute?
-                        if c == 'attribute':
+                        if c == "attribute":
                             c = c[0]
                         collections.append(c)
                         pass
-                elif n in ('list_if', 'list_if_not'):
+                elif n in ("list_if", "list_if_not"):
                     # FIXME: just a guess
-                    if n[0].kind == 'expr':
+                    if n[0].kind == "expr":
                         list_ifs.append(n)
                     else:
                         list_ifs.append([1])
@@ -1317,23 +1381,23 @@ class SourceWalker(GenericASTTraversal, object):
                     pass
                 pass
 
-            assert n == 'lc_body', ast
+            assert n == "lc_body", ast
             self.preorder(n[0])
 
         # FIXME: add indentation around "for"'s and "in"'s
         if self.version < 3.6:
-            self.write(' for ')
+            self.write(" for ")
             self.preorder(stores[0])
-            self.write(' in ')
+            self.write(" in ")
             self.preorder(collections[0])
             if list_ifs:
                 self.preorder(list_ifs[0])
                 pass
         else:
             for i, store in enumerate(stores):
-                self.write(' for ')
+                self.write(" for ")
                 self.preorder(store)
-                self.write(' in ')
+                self.write(" in ")
                 self.preorder(collections[i])
                 if i < len(list_ifs):
                     self.preorder(list_ifs[i])
@@ -1342,12 +1406,12 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = p
 
     def n_listcomp(self, node):
-        self.write('[')
-        if node[0].kind == 'load_closure':
+        self.write("[")
+        if node[0].kind == "load_closure":
             self.listcomprehension_walk2(node)
         else:
             self.comprehension_walk_newer(node, 1, 0)
-        self.write(']')
+        self.write("]")
         self.prune()
 
     def setcomprehension_walk3(self, node, collection_index):
@@ -1367,18 +1431,18 @@ class SourceWalker(GenericASTTraversal, object):
 
         n = ast[4]
         list_if = None
-        assert n == 'comp_iter'
+        assert n == "comp_iter"
 
         # find innermost node
-        while n == 'comp_iter':
-            n = n[0] # recurse one step
+        while n == "comp_iter":
+            n = n[0]  # recurse one step
             # FIXME: adjust for set comprehension
-            if n == 'list_for':
+            if n == "list_for":
                 store = n[2]
                 n = n[3]
-            elif n in ('list_if', 'list_if_not', 'comp_if', 'comp_if_not'):
+            elif n in ("list_if", "list_if_not", "comp_if", "comp_if_not"):
                 # FIXME: just a guess
-                if n[0].kind == 'expr':
+                if n[0].kind == "expr":
                     list_if = n
                 else:
                     list_if = n[1]
@@ -1386,12 +1450,12 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
 
-        assert n == 'comp_body', ast
+        assert n == "comp_body", ast
 
         self.preorder(n[0])
-        self.write(' for ')
+        self.write(" for ")
         self.preorder(store)
-        self.write(' in ')
+        self.write(" in ")
         self.preorder(collection)
         if list_if:
             self.preorder(list_if)
@@ -1412,35 +1476,37 @@ class SourceWalker(GenericASTTraversal, object):
         #             -----------
         # * subclass_code - the code for the subclass body
 
-        if node == 'classdefdeco2':
+        if node == "classdefdeco2":
             build_class = node
         else:
             build_class = node[0]
         build_list = build_class[1][0]
-        if hasattr(build_class[-3][0], 'attr'):
+        if hasattr(build_class[-3][0], "attr"):
             subclass_code = build_class[-3][0].attr
             class_name = build_class[0].pattr
-        elif (build_class[-3] == 'mkfunc' and
-              node == 'classdefdeco2' and
-              build_class[-3][0] == 'load_closure'):
+        elif (
+            build_class[-3] == "mkfunc"
+            and node == "classdefdeco2"
+            and build_class[-3][0] == "load_closure"
+        ):
             subclass_code = build_class[-3][1].attr
             class_name = build_class[-3][0][0].pattr
-        elif hasattr(node[0][0], 'pattr'):
+        elif hasattr(node[0][0], "pattr"):
             subclass_code = build_class[-3][1].attr
             class_name = node[0][0].pattr
         else:
-            raise 'Internal Error n_classdef: cannot find class name'
+            raise "Internal Error n_classdef: cannot find class name"
 
-        if (node == 'classdefdeco2'):
-            self.write('\n')
+        if node == "classdefdeco2":
+            self.write("\n")
         else:
-            self.write('\n\n')
+            self.write("\n\n")
 
         self.currentclass = str(class_name)
-        self.write(self.indent, 'class ', self.currentclass)
+        self.write(self.indent, "class ", self.currentclass)
 
         self.print_super_classes(build_list)
-        self.println(':')
+        self.println(":")
 
         # class body
         self.indent_more()
@@ -1449,25 +1515,25 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.currentclass = cclass
         if len(self.param_stack) > 1:
-            self.write('\n\n')
+            self.write("\n\n")
         else:
-            self.write('\n\n\n')
+            self.write("\n\n\n")
 
         self.prune()
 
     n_classdefdeco2 = n_classdef
 
     def print_super_classes(self, node):
-        if not (node == 'tuple'):
+        if not (node == "tuple"):
             return
 
         n_subclasses = len(node[:-1])
         if n_subclasses > 0 or self.version > 2.4:
             # Not an old-style pre-2.2 class
-            self.write('(')
+            self.write("(")
 
-        line_separator = ', '
-        sep = ''
+        line_separator = ", "
+        sep = ""
         for elem in node[:-1]:
             value = self.traverse(elem)
             self.write(sep, value)
@@ -1475,28 +1541,28 @@ class SourceWalker(GenericASTTraversal, object):
 
         if n_subclasses > 0 or self.version > 2.4:
             # Not an old-style pre-2.2 class
-            self.write(')')
+            self.write(")")
 
     def print_super_classes3(self, node):
         n = len(node) - 1
-        if node.kind != 'expr':
-            if node == 'kwarg':
-                self.template_engine(('(%[0]{attr}=%c)', 1), node)
+        if node.kind != "expr":
+            if node == "kwarg":
+                self.template_engine(("(%[0]{attr}=%c)", 1), node)
                 return
 
             kwargs = None
-            assert node[n].kind.startswith('CALL_FUNCTION')
+            assert node[n].kind.startswith("CALL_FUNCTION")
 
-            if node[n].kind.startswith('CALL_FUNCTION_KW'):
+            if node[n].kind.startswith("CALL_FUNCTION_KW"):
                 # 3.6+ starts doing this
-                kwargs = node[n-1].attr
+                kwargs = node[n - 1].attr
                 assert isinstance(kwargs, tuple)
-                i = n - (len(kwargs)+1)
+                i = n - (len(kwargs) + 1)
                 j = 1 + n - node[n].attr
             else:
-                i = start = n-2
+                i = start = n - 2
                 for i in range(start, 0, -1):
-                    if not node[i].kind in ['expr', 'call', 'LOAD_CLASSNAME']:
+                    if not node[i].kind in ["expr", "call", "LOAD_CLASSNAME"]:
                         break
                     pass
 
@@ -1504,9 +1570,9 @@ class SourceWalker(GenericASTTraversal, object):
                     return
                 i += 2
 
-            line_separator = ', '
-            sep = ''
-            self.write('(')
+            line_separator = ", "
+            sep = ""
+            self.write("(")
             if kwargs:
                 # Last arg is tuple of keyword values: omit
                 l = n - 1
@@ -1539,14 +1605,14 @@ class SourceWalker(GenericASTTraversal, object):
                     pass
             pass
         else:
-            if self.version >= 3.6 and node[0] == 'LOAD_CONST':
+            if self.version >= 3.6 and node[0] == "LOAD_CONST":
                 return
             value = self.traverse(node[0])
-            self.write('(')
+            self.write("(")
             self.write(value)
             pass
 
-        self.write(')')
+        self.write(")")
 
     def n_dict(self, node):
         """
@@ -1559,12 +1625,12 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.indent_more(INDENT_PER_LEVEL)
         sep = INDENT_PER_LEVEL[:-1]
-        if node[0] != 'dict_entry':
-            self.write('{')
+        if node[0] != "dict_entry":
+            self.write("{")
         line_number = self.line_number
 
         if self.version >= 3.0 and not self.is_pypy:
-            if node[0].kind.startswith('kvlist'):
+            if node[0].kind.startswith("kvlist"):
                 # Python 3.5+ style key/value list in dict
                 kv_node = node[0]
                 l = list(kv_node)
@@ -1576,13 +1642,16 @@ class SourceWalker(GenericASTTraversal, object):
                 # Respect line breaks from source
                 while i < length:
                     self.write(sep)
-                    name = self.traverse(l[i], indent='')
+                    name = self.traverse(l[i], indent="")
                     if i > 0:
-                        line_number = self.indent_if_source_nl(line_number,
-                                                               self.indent + INDENT_PER_LEVEL[:-1])
+                        line_number = self.indent_if_source_nl(
+                            line_number, self.indent + INDENT_PER_LEVEL[:-1]
+                        )
                     line_number = self.line_number
-                    self.write(name, ': ')
-                    value = self.traverse(l[i+1], indent=self.indent+(len(name)+2)*' ')
+                    self.write(name, ": ")
+                    value = self.traverse(
+                        l[i + 1], indent=self.indent + (len(name) + 2) * " "
+                    )
                     self.write(value)
                     sep = ", "
                     if line_number != self.line_number:
@@ -1591,25 +1660,28 @@ class SourceWalker(GenericASTTraversal, object):
                     i += 2
                     pass
                 pass
-            elif len(node) > 1 and node[1].kind.startswith('kvlist'):
+            elif len(node) > 1 and node[1].kind.startswith("kvlist"):
                 # Python 3.0..3.4 style key/value list in dict
                 kv_node = node[1]
                 l = list(kv_node)
-                if len(l) > 0 and l[0].kind == 'kv3':
+                if len(l) > 0 and l[0].kind == "kv3":
                     # Python 3.2 does this
                     kv_node = node[1][0]
                     l = list(kv_node)
                 i = 0
                 while i < len(l):
                     self.write(sep)
-                    name = self.traverse(l[i+1], indent='')
+                    name = self.traverse(l[i + 1], indent="")
                     if i > 0:
-                        line_number = self.indent_if_source_nl(line_number,
-                                                               self.indent + INDENT_PER_LEVEL[:-1])
+                        line_number = self.indent_if_source_nl(
+                            line_number, self.indent + INDENT_PER_LEVEL[:-1]
+                        )
                         pass
                     line_number = self.line_number
-                    self.write(name, ': ')
-                    value = self.traverse(l[i], indent=self.indent+(len(name)+2)*' ')
+                    self.write(name, ": ")
+                    value = self.traverse(
+                        l[i], indent=self.indent + (len(name) + 2) * " "
+                    )
                     self.write(value)
                     sep = ", "
                     if line_number != self.line_number:
@@ -1620,7 +1692,7 @@ class SourceWalker(GenericASTTraversal, object):
                     i += 3
                     pass
                 pass
-            elif node[-1].kind.startswith('BUILD_CONST_KEY_MAP'):
+            elif node[-1].kind.startswith("BUILD_CONST_KEY_MAP"):
                 # Python 3.6+ style const map
                 keys = node[-2].pattr
                 values = node[:-2]
@@ -1629,7 +1701,7 @@ class SourceWalker(GenericASTTraversal, object):
                     self.write(sep)
                     self.write(repr(key))
                     line_number = self.line_number
-                    self.write(':')
+                    self.write(":")
                     self.write(self.traverse(value[0]))
                     sep = ", "
                     if line_number != self.line_number:
@@ -1642,13 +1714,14 @@ class SourceWalker(GenericASTTraversal, object):
                 if sep.startswith(",\n"):
                     self.write(sep[1:])
                 pass
-            elif node[0].kind.startswith('dict_entry'):
+            elif node[0].kind.startswith("dict_entry"):
                 assert self.version >= 3.5
                 template = ("%C", (0, len(node[0]), ", **"))
                 self.template_engine(template, node[0])
-                sep = ''
-            elif (node[-1].kind.startswith('BUILD_MAP_UNPACK')
-                  or node[-1].kind.startswith('dict_entry')):
+                sep = ""
+            elif node[-1].kind.startswith("BUILD_MAP_UNPACK") or node[
+                -1
+            ].kind.startswith("dict_entry"):
                 assert self.version >= 3.5
                 # FIXME: I think we can intermingle dict_comp's with other
                 # dictionary kinds of things. The most common though is
@@ -1656,23 +1729,23 @@ class SourceWalker(GenericASTTraversal, object):
                 kwargs = node[-1].attr
                 template = ("**%C", (0, kwargs, ", **"))
                 self.template_engine(template, node)
-                sep = ''
+                sep = ""
 
             pass
         else:
             # Python 2 style kvlist. Find beginning of kvlist.
             if node[0].kind.startswith("BUILD_MAP"):
-                if len(node) > 1 and node[1].kind in ('kvlist', 'kvlist_n'):
+                if len(node) > 1 and node[1].kind in ("kvlist", "kvlist_n"):
                     kv_node = node[1]
                 else:
                     kv_node = node[1:]
             else:
-                assert node[-1].kind.startswith('kvlist')
+                assert node[-1].kind.startswith("kvlist")
                 kv_node = node[-1]
 
             first_time = True
             for kv in kv_node:
-                assert kv in ('kv', 'kv2', 'kv3')
+                assert kv in ("kv", "kv2", "kv3")
 
                 # kv ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
                 # kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
@@ -1680,37 +1753,43 @@ class SourceWalker(GenericASTTraversal, object):
 
                 # FIXME: DRY this and the above
                 indent = self.indent + "  "
-                if kv == 'kv':
+                if kv == "kv":
                     self.write(sep)
-                    name = self.traverse(kv[-2], indent='')
+                    name = self.traverse(kv[-2], indent="")
                     if first_time:
                         line_number = self.indent_if_source_nl(line_number, indent)
                         first_time = False
                         pass
                     line_number = self.line_number
-                    self.write(name, ': ')
-                    value = self.traverse(kv[1], indent=self.indent+(len(name)+2)*' ')
-                elif kv == 'kv2':
+                    self.write(name, ": ")
+                    value = self.traverse(
+                        kv[1], indent=self.indent + (len(name) + 2) * " "
+                    )
+                elif kv == "kv2":
                     self.write(sep)
-                    name = self.traverse(kv[1], indent='')
+                    name = self.traverse(kv[1], indent="")
                     if first_time:
                         line_number = self.indent_if_source_nl(line_number, indent)
                         first_time = False
                         pass
                     line_number = self.line_number
-                    self.write(name, ': ')
-                    value = self.traverse(kv[-3], indent=self.indent+(len(name)+2)*' ')
-                elif kv == 'kv3':
+                    self.write(name, ": ")
+                    value = self.traverse(
+                        kv[-3], indent=self.indent + (len(name) + 2) * " "
+                    )
+                elif kv == "kv3":
                     self.write(sep)
-                    name = self.traverse(kv[-2], indent='')
+                    name = self.traverse(kv[-2], indent="")
                     if first_time:
                         line_number = self.indent_if_source_nl(line_number, indent)
                         first_time = False
                         pass
                     line_number = self.line_number
-                    self.write(name, ': ')
+                    self.write(name, ": ")
                     line_number = self.line_number
-                    value = self.traverse(kv[0], indent=self.indent+(len(name)+2)*' ')
+                    value = self.traverse(
+                        kv[0], indent=self.indent + (len(name) + 2) * " "
+                    )
                     pass
                 self.write(value)
                 sep = ", "
@@ -1722,8 +1801,8 @@ class SourceWalker(GenericASTTraversal, object):
             pass
         if sep.startswith(",\n"):
             self.write(sep[1:])
-        if node[0] != 'dict_entry':
-            self.write('}')
+        if node[0] != "dict_entry":
+            self.write("}")
         self.indent_less(INDENT_PER_LEVEL)
         self.prec = p
         self.prune()
@@ -1741,68 +1820,76 @@ class SourceWalker(GenericASTTraversal, object):
         # then the first * has already been printed.
         # Until I have a better way to check for CALL_FUNCTION_VAR,
         # will assume that if the text ends in *.
-        last_was_star = self.f.getvalue().endswith('*')
+        last_was_star = self.f.getvalue().endswith("*")
 
-        if lastnodetype.endswith('UNPACK'):
+        if lastnodetype.endswith("UNPACK"):
             # FIXME: need to handle range of BUILD_LIST_UNPACK
             have_star = True
             # endchar = ''
         else:
             have_star = False
 
-        if lastnodetype.startswith('BUILD_LIST'):
-            self.write('['); endchar = ']'
-        elif lastnodetype.startswith('BUILD_TUPLE'):
+        if lastnodetype.startswith("BUILD_LIST"):
+            self.write("[")
+            endchar = "]"
+        elif lastnodetype.startswith("BUILD_TUPLE"):
             # Tuples can appear places that can NOT
             # have parenthesis around them, like array
             # subscripts. We check for that by seeing
             # if a tuple item is some sort of slice.
             no_parens = False
             for n in node:
-                if n == 'expr' and n[0].kind.startswith('build_slice'):
+                if n == "expr" and n[0].kind.startswith("build_slice"):
                     no_parens = True
                     break
                 pass
             if no_parens:
-                endchar = ''
+                endchar = ""
             else:
-                self.write('('); endchar = ')'
+                self.write("(")
+                endchar = ")"
                 pass
 
-        elif lastnodetype.startswith('BUILD_SET'):
-            self.write('{'); endchar = '}'
-        elif lastnodetype.startswith('BUILD_MAP_UNPACK'):
-            self.write('{*'); endchar = '}'
-        elif lastnodetype.startswith('ROT_TWO'):
-            self.write('('); endchar = ')'
+        elif lastnodetype.startswith("BUILD_SET"):
+            self.write("{")
+            endchar = "}"
+        elif lastnodetype.startswith("BUILD_MAP_UNPACK"):
+            self.write("{*")
+            endchar = "}"
+        elif lastnodetype.startswith("ROT_TWO"):
+            self.write("(")
+            endchar = ")"
         else:
-            raise TypeError('Internal Error: n_build_list expects list, tuple, set, or unpack')
+            raise TypeError(
+                "Internal Error: n_build_list expects list, tuple, set, or unpack"
+            )
 
         flat_elems = flatten_list(node)
 
         self.indent_more(INDENT_PER_LEVEL)
-        sep = ''
+        sep = ""
         for elem in flat_elems:
-            if elem in ('ROT_THREE', 'EXTENDED_ARG'):
+            if elem in ("ROT_THREE", "EXTENDED_ARG"):
                 continue
-            assert elem == 'expr'
+            assert elem == "expr"
             line_number = self.line_number
             value = self.traverse(elem)
             if line_number != self.line_number:
-                sep += '\n' + self.indent + INDENT_PER_LEVEL[:-1]
+                sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
             else:
-                if sep != '': sep += ' '
+                if sep != "":
+                    sep += " "
             if not last_was_star:
                 if have_star:
-                    sep += '*'
+                    sep += "*"
                     pass
                 pass
             else:
                 last_was_star = False
             self.write(sep, value)
-            sep = ','
-        if lastnode.attr == 1 and lastnodetype.startswith('BUILD_TUPLE'):
-            self.write(',')
+            sep = ","
+        if lastnode.attr == 1 and lastnodetype.startswith("BUILD_TUPLE"):
+            self.write(",")
         self.write(endchar)
         self.indent_less(INDENT_PER_LEVEL)
 
@@ -1813,67 +1900,69 @@ class SourceWalker(GenericASTTraversal, object):
     n_set = n_tuple = n_build_set = n_list
 
     def n_unpack(self, node):
-        if node[0].kind.startswith('UNPACK_EX'):
+        if node[0].kind.startswith("UNPACK_EX"):
             # Python 3+
             before_count, after_count = node[0].attr
-            for i in range(before_count+1):
+            for i in range(before_count + 1):
                 self.preorder(node[i])
                 if i != 0:
-                    self.write(', ')
-            self.write('*')
-            for i in range(1, after_count+2):
-                self.preorder(node[before_count+i])
+                    self.write(", ")
+            self.write("*")
+            for i in range(1, after_count + 2):
+                self.preorder(node[before_count + i])
                 if i != after_count + 1:
-                    self.write(', ')
+                    self.write(", ")
             self.prune()
             return
 
         for n in node[1:]:
-            if n[0].kind == 'unpack':
-                n[0].kind = 'unpack_w_parens'
+            if n[0].kind == "unpack":
+                n[0].kind = "unpack_w_parens"
 
         # In Python 2.4, unpack is used in (a, b, c) of:
         #   except RuntimeError, (a, b, c):
         if self.version < 2.7:
-            node.kind = 'unpack_w_parens'
+            node.kind = "unpack_w_parens"
         self.default(node)
 
     n_unpack_w_parens = n_unpack
 
     def n_attribute(self, node):
-        if (node[0] == 'LOAD_CONST' or
-            node[0] == 'expr' and node[0][0] == 'LOAD_CONST'):
+        if node[0] == "LOAD_CONST" or node[0] == "expr" and node[0][0] == "LOAD_CONST":
             # FIXME: I didn't record which constants parenthesis is
             # necessary. However, I suspect that we could further
             # refine this by looking at operator precedence and
             # eval'ing the constant value (pattr) and comparing with
             # the type of the constant.
-            node.kind = 'attribute_w_parens'
+            node.kind = "attribute_w_parens"
         self.default(node)
 
     def n_assign(self, node):
         # A horrible hack for Python 3.0 .. 3.2
         if 3.0 <= self.version <= 3.2 and len(node) == 2:
-            if (node[0][0] == 'LOAD_FAST' and node[0][0].pattr == '__locals__' and
-                node[1][0].kind == 'STORE_LOCALS'):
+            if (
+                node[0][0] == "LOAD_FAST"
+                and node[0][0].pattr == "__locals__"
+                and node[1][0].kind == "STORE_LOCALS"
+            ):
                 self.prune()
         self.default(node)
 
     def n_assign2(self, node):
         for n in node[-2:]:
-            if n[0] == 'unpack':
-                n[0].kind = 'unpack_w_parens'
+            if n[0] == "unpack":
+                n[0].kind = "unpack_w_parens"
         self.default(node)
 
     def n_assign3(self, node):
         for n in node[-3:]:
-            if n[0] == 'unpack':
-                n[0].kind = 'unpack_w_parens'
+            if n[0] == "unpack":
+                n[0].kind = "unpack_w_parens"
         self.default(node)
 
     def n_except_cond2(self, node):
-        if node[-2][0] == 'unpack':
-            node[-2][0].kind = 'unpack_w_parens'
+        if node[-2][0] == "unpack":
+            node[-2][0].kind = "unpack_w_parens"
         self.default(node)
 
     def template_engine(self, entry, startnode):
@@ -1893,53 +1982,57 @@ class SourceWalker(GenericASTTraversal, object):
         m = escape.search(fmt)
         while m:
             i = m.end()
-            self.write(m.group('prefix'))
+            self.write(m.group("prefix"))
 
-            typ = m.group('type') or '{'
+            typ = m.group("type") or "{"
             node = startnode
-            if m.group('child'):
-                node = node[int(m.group('child'))]
+            if m.group("child"):
+                node = node[int(m.group("child"))]
 
-            if   typ == '%':	self.write('%')
-            elif typ == '+':
+            if typ == "%":
+                self.write("%")
+            elif typ == "+":
                 self.line_number += 1
                 self.indent_more()
-            elif typ == '-':
+            elif typ == "-":
                 self.line_number += 1
                 self.indent_less()
-            elif typ == '|':
+            elif typ == "|":
                 self.line_number += 1
                 self.write(self.indent)
             # Used mostly on the LHS of an assignment
             # BUILD_TUPLE_n is pretty printed and may take care of other uses.
-            elif typ == ',':
-                if (node.kind in ('unpack', 'unpack_w_parens') and
-                    node[0].attr == 1):
-                    self.write(',')
-            elif typ == 'c':
+            elif typ == ",":
+                if node.kind in ("unpack", "unpack_w_parens") and node[0].attr == 1:
+                    self.write(",")
+            elif typ == "c":
                 index = entry[arg]
                 if isinstance(index, tuple):
                     assert node[index[0]] == index[1], (
-                        "at %s[%d], expected '%s' node; got '%s'" % (
-                            node.kind, arg,  index[1], node[index[0]].kind)
-                        )
+                        "at %s[%d], expected '%s' node; got '%s'"
+                        % (node.kind, arg, index[1], node[index[0]].kind)
+                    )
                     index = index[0]
-                assert isinstance(index, int), (
-                    "at %s[%d], %s should be int or tuple" % (
-                        node.kind, arg, type(index)))
+                assert isinstance(
+                    index, int
+                ), "at %s[%d], %s should be int or tuple" % (
+                    node.kind,
+                    arg,
+                    type(index),
+                )
                 self.preorder(node[index])
 
                 arg += 1
-            elif typ == 'p':
+            elif typ == "p":
                 p = self.prec
                 tup = entry[arg]
                 assert isinstance(tup, tuple)
                 if len(tup) == 3:
                     (index, nonterm_name, self.prec) = tup
                     assert node[index] == nonterm_name, (
-                        "at %s[%d], expected '%s' node; got '%s'" % (
-                            node.kind, arg,  nonterm_name, node[index].kind)
-                        )
+                        "at %s[%d], expected '%s' node; got '%s'"
+                        % (node.kind, arg, nonterm_name, node[index].kind)
+                    )
                 else:
                     assert len(tup) == 2
                     (index, self.prec) = entry[arg]
@@ -1947,7 +2040,7 @@ class SourceWalker(GenericASTTraversal, object):
                 self.preorder(node[index])
                 self.prec = p
                 arg += 1
-            elif typ == 'C':
+            elif typ == "C":
                 low, high, sep = entry[arg]
                 remaining = len(node[low:high])
                 for subnode in node[low:high]:
@@ -1958,7 +2051,7 @@ class SourceWalker(GenericASTTraversal, object):
                         pass
                     pass
                 arg += 1
-            elif typ == 'D':
+            elif typ == "D":
                 low, high, sep = entry[arg]
                 remaining = len(node[low:high])
                 for subnode in node[low:high]:
@@ -1971,11 +2064,11 @@ class SourceWalker(GenericASTTraversal, object):
                         pass
                     pass
                 arg += 1
-            elif typ == 'x':
+            elif typ == "x":
                 # This code is only used in fragments
                 assert isinstance(entry[arg], tuple)
                 arg += 1
-            elif typ == 'P':
+            elif typ == "P":
                 p = self.prec
                 low, high, sep, self.prec = entry[arg]
                 remaining = len(node[low:high])
@@ -1987,13 +2080,16 @@ class SourceWalker(GenericASTTraversal, object):
                         self.write(sep)
                 self.prec = p
                 arg += 1
-            elif typ == '{':
+            elif typ == "{":
                 d = node.__dict__
-                expr = m.group('expr')
+                expr = m.group("expr")
 
                 # Line mapping stuff
-                if (hasattr(node, 'linestart') and node.linestart
-                    and hasattr(node, 'current_line_number')):
+                if (
+                    hasattr(node, "linestart")
+                    and node.linestart
+                    and hasattr(node, "current_line_number")
+                ):
                     self.source_linemap[self.current_line_number] = node.linestart
 
                 try:
@@ -2024,60 +2120,65 @@ class SourceWalker(GenericASTTraversal, object):
         for k, v in list(customize.items()):
             if k in TABLE_R:
                 continue
-            op = k[ :k.rfind('_') ]
+            op = k[: k.rfind("_")]
 
-            if k.startswith('CALL_METHOD'):
+            if k.startswith("CALL_METHOD"):
                 # This happens in PyPy only
-                TABLE_R[k] = ('%c(%P)', 0, (1, -1, ', ', 100))
-            elif self.version >= 3.6 and k.startswith('CALL_FUNCTION_KW'):
-                TABLE_R[k] = ('%c(%P)', 0, (1, -1, ', ', 100))
-            elif op == 'CALL_FUNCTION':
-                TABLE_R[k] = ('%c(%P)', 0, (1, -1, ', ', 100))
-            elif op in ('CALL_FUNCTION_VAR',
-                        'CALL_FUNCTION_VAR_KW', 'CALL_FUNCTION_KW'):
+                TABLE_R[k] = ("%c(%P)", 0, (1, -1, ", ", 100))
+            elif self.version >= 3.6 and k.startswith("CALL_FUNCTION_KW"):
+                TABLE_R[k] = ("%c(%P)", 0, (1, -1, ", ", 100))
+            elif op == "CALL_FUNCTION":
+                TABLE_R[k] = ("%c(%P)", 0, (1, -1, ", ", 100))
+            elif op in (
+                "CALL_FUNCTION_VAR",
+                "CALL_FUNCTION_VAR_KW",
+                "CALL_FUNCTION_KW",
+            ):
 
                 # FIXME: handle everything in customize.
                 # Right now, some of this is here, and some in that.
 
                 if v == 0:
-                    str = '%c(%C' # '%C' is a dummy here ...
-                    p2 = (0, 0, None) # .. because of the None in this
+                    str = "%c(%C"  # '%C' is a dummy here ...
+                    p2 = (0, 0, None)  # .. because of the None in this
                 else:
-                    str = '%c(%C, '
-                    p2 = (1, -2, ', ')
-                if op == 'CALL_FUNCTION_VAR':
+                    str = "%c(%C, "
+                    p2 = (1, -2, ", ")
+                if op == "CALL_FUNCTION_VAR":
                     # Python 3.5 only puts optional args (the VAR part)
                     # lowest down the stack
                     if self.version == 3.5:
-                        if str == '%c(%C, ':
-                            entry = ('%c(*%C, %c)', 0, p2, -2)
-                        elif str == '%c(%C':
-                            entry = ('%c(*%C)', 0, (1, 100, ''))
+                        if str == "%c(%C, ":
+                            entry = ("%c(*%C, %c)", 0, p2, -2)
+                        elif str == "%c(%C":
+                            entry = ("%c(*%C)", 0, (1, 100, ""))
                     elif self.version == 3.4:
                         # CALL_FUNCTION_VAR's top element of the stack contains
                         # the variable argument list
                         if v == 0:
-                            str = '%c(*%c)'
+                            str = "%c(*%c)"
                             entry = (str, 0, -2)
                         else:
-                            str = '%c(%C, *%c)'
+                            str = "%c(%C, *%c)"
                             entry = (str, 0, p2, -2)
                     else:
-                        str += '*%c)'
+                        str += "*%c)"
                         entry = (str, 0, p2, -2)
-                elif op == 'CALL_FUNCTION_KW':
-                    str += '**%c)'
+                elif op == "CALL_FUNCTION_KW":
+                    str += "**%c)"
                     entry = (str, 0, p2, -2)
-                elif op == 'CALL_FUNCTION_VAR_KW':
-                    str += '*%c, **%c)'
+                elif op == "CALL_FUNCTION_VAR_KW":
+                    str += "*%c, **%c)"
                     # Python 3.5 only puts optional args (the VAR part)
                     # lowest down the stack
-                    na = (v & 0xff)  # positional parameters
+                    na = v & 0xFF  # positional parameters
                     if self.version == 3.5 and na == 0:
-                        if p2[2]: p2 = (2, -2, ', ')
+                        if p2[2]:
+                            p2 = (2, -2, ", ")
                         entry = (str, 0, p2, 1, -2)
                     else:
-                        if p2[2]: p2 = (1, -3, ', ')
+                        if p2[2]:
+                            p2 = (1, -3, ", ")
                         entry = (str, 0, p2, -3, -2)
                     pass
                 else:
@@ -2106,23 +2207,22 @@ class SourceWalker(GenericASTTraversal, object):
         we can search for the byte-code equivalent to '(a,b,c) = .1'
         """
 
-        assert ast == 'stmts'
+        assert ast == "stmts"
         for i in range(len(ast)):
             # search for an assign-statement
-            assert ast[i][0] == 'stmt'
+            assert ast[i][0] == "stmt"
             node = ast[i][0][0]
-            if (node == 'assign'
-                and node[0] == ASSIGN_TUPLE_PARAM(name)):
+            if node == "assign" and node[0] == ASSIGN_TUPLE_PARAM(name):
                 # okay, this assigns '.n' to something
                 del ast[i]
                 # walk lhs; this
                 # returns a tuple of identifiers as used
                 # within the function definition
-                assert node[1] == 'store'
+                assert node[1] == "store"
                 # if lhs is not a UNPACK_TUPLE (or equiv.),
                 # add parenteses to make this a tuple
                 # if node[1][0] not in ('unpack', 'unpack_list'):
-                return '(' + self.traverse(node[1]) + ')'
+                return "(" + self.traverse(node[1]) + ")"
             # return self.traverse(node[1])
         raise Exception("Can't find tuple parameter " + name)
 
@@ -2136,13 +2236,13 @@ class SourceWalker(GenericASTTraversal, object):
         indent = self.indent
         # self.println(indent, '#flags:\t', int(code.co_flags))
         ast = self.build_ast(code._tokens, code._customize)
-        code._tokens = None # save memory
-        assert ast == 'stmts'
+        code._tokens = None  # save memory
+        assert ast == "stmts"
 
         first_stmt = ast[0][0]
         if 3.0 <= self.version <= 3.3:
             try:
-                if first_stmt[0] == 'store_locals':
+                if first_stmt[0] == "store_locals":
                     if self.hide_internal:
                         del ast[0]
                         first_stmt = ast[0][0]
@@ -2158,40 +2258,51 @@ class SourceWalker(GenericASTTraversal, object):
         except:
             pass
 
-
         have_qualname = False
         if self.version < 3.0:
             # Should we ditch this in favor of the "else" case?
-            qualname = '.'.join(self.classes)
-            QUAL_NAME = SyntaxTree('stmt',
-                            [ SyntaxTree('assign',
-                                  [ SyntaxTree('expr', [Token('LOAD_CONST', pattr=qualname)]),
-                                    SyntaxTree('store', [ Token('STORE_NAME', pattr='__qualname__')])
-                                  ])])
-            have_qualname = (ast[0][0] == QUAL_NAME)
+            qualname = ".".join(self.classes)
+            QUAL_NAME = SyntaxTree(
+                "stmt",
+                [
+                    SyntaxTree(
+                        "assign",
+                        [
+                            SyntaxTree("expr", [Token("LOAD_CONST", pattr=qualname)]),
+                            SyntaxTree(
+                                "store", [Token("STORE_NAME", pattr="__qualname__")]
+                            ),
+                        ],
+                    )
+                ],
+            )
+            have_qualname = ast[0][0] == QUAL_NAME
         else:
             # Python 3.4+ has constants like 'cmp_to_key.<locals>.K'
             # which are not simple classes like the < 3 case.
             try:
-                if (first_stmt[0] == 'assign' and
-                    first_stmt[0][0][0] == 'LOAD_STR' and
-                    first_stmt[0][1] == 'store' and
-                    first_stmt[0][1][0] == Token('STORE_NAME', pattr='__qualname__')):
+                if (
+                    first_stmt[0] == "assign"
+                    and first_stmt[0][0][0] == "LOAD_STR"
+                    and first_stmt[0][1] == "store"
+                    and first_stmt[0][1][0] == Token("STORE_NAME", pattr="__qualname__")
+                ):
                     have_qualname = True
             except:
                 pass
 
         if have_qualname:
-            if self.hide_internal: del ast[0]
+            if self.hide_internal:
+                del ast[0]
             pass
 
         # if docstring exists, dump it
-        if (code.co_consts and code.co_consts[0] is not None and len(ast) > 0):
+        if code.co_consts and code.co_consts[0] is not None and len(ast) > 0:
             do_doc = False
             if is_docstring(ast[0]):
                 i = 0
                 do_doc = True
-            elif (len(ast) > 1 and is_docstring(ast[1])):
+            elif len(ast) > 1 and is_docstring(ast[1]):
                 i = 1
                 do_doc = True
             if do_doc and self.hide_internal:
@@ -2206,24 +2317,27 @@ class SourceWalker(GenericASTTraversal, object):
         # the function defining a class normally returns locals(); we
         # don't want this to show up in the source, thus remove the node
         if len(ast) > 0 and ast[-1][0] == RETURN_LOCALS:
-            if self.hide_internal: del ast[-1] # remove last node
+            if self.hide_internal:
+                del ast[-1]  # remove last node
         # else:
         #    print ast[-1][-1]
 
-        globals, nonlocals = find_globals_and_nonlocals(ast, set(), set(),
-                                                        code, self.version)
+        globals, nonlocals = find_globals_and_nonlocals(
+            ast, set(), set(), code, self.version
+        )
         # Add "global" declaration statements at the top
         # of the function
         for g in sorted(globals):
-            self.println(indent, 'global ', g)
+            self.println(indent, "global ", g)
 
         for nl in sorted(nonlocals):
-            self.println(indent, 'nonlocal ', nl)
+            self.println(indent, "nonlocal ", nl)
 
         old_name = self.name
         self.gen_source(ast, code.co_name, code._customize)
         self.name = old_name
-        code._tokens = None; code._customize = None # save memory
+        code._tokens = None
+        code._customize = None  # save memory
         self.classes.pop(-1)
 
     def gen_source(self, ast, name, customize, is_lambda=False, returnNone=False):
@@ -2235,7 +2349,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.name = name
         # if code would be empty, append 'pass'
         if len(ast) == 0:
-            self.println(self.indent, 'pass')
+            self.println(self.indent, "pass")
         else:
             self.customize(customize)
             if is_lambda:
@@ -2246,8 +2360,9 @@ class SourceWalker(GenericASTTraversal, object):
         self.name = old_name
         self.return_none = rn
 
-    def build_ast(self, tokens, customize, is_lambda=False,
-                  noneInNames=False, isTopLevel=False):
+    def build_ast(
+        self, tokens, customize, is_lambda=False, noneInNames=False, isTopLevel=False
+    ):
 
         # FIXME: DRY with fragments.py
 
@@ -2255,11 +2370,11 @@ class SourceWalker(GenericASTTraversal, object):
 
         if is_lambda:
             for t in tokens:
-                if t.kind == 'RETURN_END_IF':
-                    t.kind = 'RETURN_END_IF_LAMBDA'
-                elif t.kind == 'RETURN_VALUE':
-                    t.kind = 'RETURN_VALUE_LAMBDA'
-            tokens.append(Token('LAMBDA_MARKER'))
+                if t.kind == "RETURN_END_IF":
+                    t.kind = "RETURN_END_IF_LAMBDA"
+                elif t.kind == "RETURN_VALUE":
+                    t.kind = "RETURN_VALUE_LAMBDA"
+            tokens.append(Token("LAMBDA_MARKER"))
             try:
                 # FIXME: have p.insts update in a better way
                 # modularity is broken here
@@ -2278,16 +2393,16 @@ class SourceWalker(GenericASTTraversal, object):
         # than fight (with the grammar to not emit "return None").
         if self.hide_internal:
             if len(tokens) >= 2 and not noneInNames:
-                if tokens[-1].kind in ('RETURN_VALUE', 'RETURN_VALUE_LAMBDA'):
+                if tokens[-1].kind in ("RETURN_VALUE", "RETURN_VALUE_LAMBDA"):
                     # Python 3.4's classes can add a "return None" which is
                     # invalid syntax.
-                    if tokens[-2].kind == 'LOAD_CONST':
+                    if tokens[-2].kind == "LOAD_CONST":
                         if isTopLevel or tokens[-2].pattr is None:
                             del tokens[-2:]
                         else:
-                            tokens.append(Token('RETURN_LAST'))
+                            tokens.append(Token("RETURN_LAST"))
                     else:
-                        tokens.append(Token('RETURN_LAST'))
+                        tokens.append(Token("RETURN_LAST"))
             if len(tokens) == 0:
                 return PASS
 
@@ -2314,14 +2429,19 @@ class SourceWalker(GenericASTTraversal, object):
 
 
 #
-DEFAULT_DEBUG_OPTS = {
-    'asm': False,
-    'tree': False,
-    'grammar': False
-}
+DEFAULT_DEBUG_OPTS = {"asm": False, "tree": False, "grammar": False}
 
-def code_deparse(co, out=sys.stdout, version=None, debug_opts=DEFAULT_DEBUG_OPTS,
-                 code_objects={}, compile_mode='exec', is_pypy=IS_PYPY, walker=SourceWalker):
+
+def code_deparse(
+    co,
+    out=sys.stdout,
+    version=None,
+    debug_opts=DEFAULT_DEBUG_OPTS,
+    code_objects={},
+    compile_mode="exec",
+    is_pypy=IS_PYPY,
+    walker=SourceWalker,
+):
     """
     ingests and deparses a given code block 'co'. If version is None,
     we will use the current Python interpreter version.
@@ -2335,72 +2455,81 @@ def code_deparse(co, out=sys.stdout, version=None, debug_opts=DEFAULT_DEBUG_OPTS
     # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy)
 
-    tokens, customize = scanner.ingest(co, code_objects=code_objects,
-                                       show_asm=debug_opts['asm'])
+    tokens, customize = scanner.ingest(
+        co, code_objects=code_objects, show_asm=debug_opts["asm"]
+    )
 
     debug_parser = dict(PARSER_DEFAULT_DEBUG)
-    if debug_opts.get('grammar', None):
-        debug_parser['reduce'] = debug_opts['grammar']
-        debug_parser['errorstack'] = 'full'
+    if debug_opts.get("grammar", None):
+        debug_parser["reduce"] = debug_opts["grammar"]
+        debug_parser["errorstack"] = "full"
 
     #  Build Syntax Tree from disassembly.
     linestarts = dict(scanner.opc.findlinestarts(co))
-    deparsed = walker(version, out, scanner, showast=debug_opts.get('ast', None),
-                      debug_parser=debug_parser, compile_mode=compile_mode,
-                      is_pypy=is_pypy, linestarts=linestarts)
+    deparsed = walker(
+        version,
+        out,
+        scanner,
+        showast=debug_opts.get("ast", None),
+        debug_parser=debug_parser,
+        compile_mode=compile_mode,
+        is_pypy=is_pypy,
+        linestarts=linestarts,
+    )
 
-    isTopLevel = co.co_name == '<module>'
+    isTopLevel = co.co_name == "<module>"
     deparsed.ast = deparsed.build_ast(tokens, customize, isTopLevel=isTopLevel)
 
     #### XXX workaround for profiling
     if deparsed.ast is None:
         return None
 
-    assert deparsed.ast == 'stmts', 'Should have parsed grammar start'
+    assert deparsed.ast == "stmts", "Should have parsed grammar start"
 
     # save memory
     del tokens
 
-    deparsed.mod_globs, nonlocals = find_globals_and_nonlocals(deparsed.ast,
-                                                               set(), set(),
-                                                               co, version)
+    deparsed.mod_globs, nonlocals = find_globals_and_nonlocals(
+        deparsed.ast, set(), set(), co, version
+    )
 
     assert not nonlocals
 
     if version >= 3.0:
-        load_op = 'LOAD_STR'
+        load_op = "LOAD_STR"
     else:
-        load_op = 'LOAD_CONST'
+        load_op = "LOAD_CONST"
 
     # convert leading '__doc__ = "..." into doc string
     try:
         stmts = deparsed.ast
         first_stmt = stmts[0][0]
         if version >= 3.6:
-            if first_stmt[0] == 'SETUP_ANNOTATIONS':
+            if first_stmt[0] == "SETUP_ANNOTATIONS":
                 del stmts[0]
-                assert stmts[0] == 'sstmt'
+                assert stmts[0] == "sstmt"
                 # Nuke sstmt
                 first_stmt = stmts[0][0]
                 pass
             pass
         if first_stmt == ASSIGN_DOC_STRING(co.co_consts[0], load_op):
-            print_docstring(deparsed, '', co.co_consts[0])
+            print_docstring(deparsed, "", co.co_consts[0])
             del stmts[0]
         if stmts[-1] == RETURN_NONE:
-            stmts.pop() # remove last node
+            stmts.pop()  # remove last node
             # todo: if empty, add 'pass'
     except:
         pass
 
     deparsed.FUTURE_UNICODE_LITERALS = (
-        COMPILER_FLAG_BIT['FUTURE_UNICODE_LITERALS'] & co.co_flags != 0)
+        COMPILER_FLAG_BIT["FUTURE_UNICODE_LITERALS"] & co.co_flags != 0
+    )
 
     # What we've been waiting for: Generate source from Syntax Tree!
     deparsed.gen_source(deparsed.ast, co.co_name, customize)
 
     for g in sorted(deparsed.mod_globs):
-        deparsed.write('# global %s ## Warning: Unused global\n' % g)
+        deparsed.write("# global %s ## Warning: Unused global\n" % g)
 
     if deparsed.ast_errors:
         deparsed.write("# NOTE: have internal decompilation grammar errors.\n")
@@ -2413,24 +2542,40 @@ def code_deparse(co, out=sys.stdout, version=None, debug_opts=DEFAULT_DEBUG_OPTS
         raise SourceWalkerError("Deparsing stopped due to parse error")
     return deparsed
 
-def deparse_code2str(code, out=sys.stdout, version=None,
-                     debug_opts=DEFAULT_DEBUG_OPTS,
-                     code_objects={}, compile_mode='exec',
-                     is_pypy=IS_PYPY, walker=SourceWalker):
+
+def deparse_code2str(
+    code,
+    out=sys.stdout,
+    version=None,
+    debug_opts=DEFAULT_DEBUG_OPTS,
+    code_objects={},
+    compile_mode="exec",
+    is_pypy=IS_PYPY,
+    walker=SourceWalker,
+):
     """Return the deparsed text for a Python code object. `out` is where any intermediate
     output for assembly or tree output will be sent.
     """
-    return code_deparse(code, out, version, showasm=debug_opts.get('asm', None),
-                        showast=debug_opts.get('tree', None),
-                        showgrammar=debug_opts.get('grammar', None), code_objects=code_objects,
-                        compile_mode=compile_mode, is_pypy=is_pypy, walker=walker).text
+    return code_deparse(
+        code,
+        out,
+        version,
+        debug_opts,
+        code_objects=code_objects,
+        compile_mode=compile_mode,
+        is_pypy=is_pypy,
+        walker=walker,
+    ).text
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
+
     def deparse_test(co):
         "This is a docstring"
-        s = deparse_code2str(co, debug_opts={'asm':'after', 'tree':True})
+        s = deparse_code2str(co, debug_opts={"asm": "after", "tree": True})
         # s = deparse_code2str(co, showasm=None, showast=False,
         #                       showgrammar=True)
         print(s)
         return
+
     deparse_test(deparse_test.__code__)
