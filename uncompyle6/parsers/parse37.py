@@ -130,7 +130,7 @@ class Python37Parser(Python36Parser):
         jmp_false37                ::= POP_JUMP_IF_FALSE COME_FROM
         list_if                    ::= expr jmp_false37 list_iter
 
-        _ifstmts_jump              ::= c_stmts_opt come_froms
+        ifstmt                     ::= testexpr _ifstmts_jump COME_FROM
 
         and_not                    ::= expr jmp_false expr POP_JUMP_IF_TRUE
 
