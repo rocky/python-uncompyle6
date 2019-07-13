@@ -56,7 +56,65 @@ def customize_for_version35(self, version):
         node.kind == 'async_call'
         self.prune()
     self.n_async_call = async_call
-    self.n_build_list_unpack = self.n_list
+
+    def n_build_list_unpack(node):
+        """
+        prettyprint a list or tuple
+        """
+        p = self.prec
+        self.prec = 100
+        lastnode = node.pop()
+        lastnodetype = lastnode.kind
+
+        # If this build list is inside a CALL_FUNCTION_VAR,
+        # then the first * has already been printed.
+        # Until I have a better way to check for CALL_FUNCTION_VAR,
+        # will assume that if the text ends in *.
+        last_was_star = self.f.getvalue().endswith("*")
+
+        if lastnodetype.startswith("BUILD_LIST"):
+            self.write("[")
+            endchar = "]"
+
+        flat_elems = flatten_list(node)
+
+        self.indent_more(INDENT_PER_LEVEL)
+        sep = ""
+        for elem in flat_elems:
+            if elem in ("ROT_THREE", "EXTENDED_ARG"):
+                continue
+            assert elem == "expr"
+            line_number = self.line_number
+            use_star = True
+            value = self.traverse(elem)
+            if value.startswith("("):
+                assert value.endswith(")")
+                use_star = False
+                value = value[1:-1].rstrip(" ") # Remove starting '(' and trailing ')' and additional spaces
+                if value == "":
+                    pass
+                else:
+                    if value.endswith(","): # if args has only one item
+                        value = value[:-1]
+            if line_number != self.line_number:
+                sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+            else:
+                if sep != "":
+                    sep += " "
+            if not last_was_star and use_star:
+                sep += "*"
+                pass
+            else:
+                last_was_star = False
+            self.write(sep, value)
+            sep = ","
+        self.write(endchar)
+        self.indent_less(INDENT_PER_LEVEL)
+
+        self.prec = p
+        self.prune()
+        return
+    self.n_build_list_unpack = n_build_list_unpack
 
     def n_call(node):
         mapping = self._get_mapping(node)

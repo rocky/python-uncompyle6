@@ -1816,19 +1816,6 @@ class SourceWalker(GenericASTTraversal, object):
         lastnode = node.pop()
         lastnodetype = lastnode.kind
 
-        # If this build list is inside a CALL_FUNCTION_VAR,
-        # then the first * has already been printed.
-        # Until I have a better way to check for CALL_FUNCTION_VAR,
-        # will assume that if the text ends in *.
-        last_was_star = self.f.getvalue().endswith("*")
-
-        if lastnodetype.endswith("UNPACK"):
-            # FIXME: need to handle range of BUILD_LIST_UNPACK
-            have_star = True
-            # endchar = ''
-        else:
-            have_star = False
-
         if lastnodetype.startswith("BUILD_LIST"):
             self.write("[")
             endchar = "]"
@@ -1879,13 +1866,6 @@ class SourceWalker(GenericASTTraversal, object):
             else:
                 if sep != "":
                     sep += " "
-            if not last_was_star:
-                if have_star:
-                    sep += "*"
-                    pass
-                pass
-            else:
-                last_was_star = False
             self.write(sep, value)
             sep = ","
         if lastnode.attr == 1 and lastnodetype.startswith("BUILD_TUPLE"):
