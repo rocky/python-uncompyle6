@@ -825,7 +825,7 @@ class Python3Parser(PythonParser):
                 # Note: don't add to custom_ops_processed.
 
             elif opname_base == "CALL_METHOD":
-                # PyPy only - DRY with parse2
+                # PyPy and Python 3.7+ only - DRY with parse2
 
                 args_pos, args_kw = self.get_pos_kw(token)
 
