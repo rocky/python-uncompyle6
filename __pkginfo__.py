@@ -57,7 +57,7 @@ entry_points       = {
         'pydisassemble=uncompyle6.bin.pydisassemble:main',
     ]}
 ftp_url            = None
-install_requires   = ['spark-parser >= 1.8.7, < 1.9.0',
+install_requires   = ['spark-parser >= 1.8.8, < 1.9.0',
                       'xdis >= 4.0.2, < 4.1.0']
 
 license            = 'GPL3'
