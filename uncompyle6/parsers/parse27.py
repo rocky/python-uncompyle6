@@ -234,7 +234,7 @@ class Python27Parser(Python2Parser):
             return invalid
 
         if rule == ('and', ('expr', 'jmp_false', 'expr', '\\e_come_from_opt')):
-            # If the instruction after the instructions formin "and"  is an "YIELD_VALUE"
+            # If the instruction after the instructions forming "and" is a "YIELD_VALUE"
             # then this is probably an "if" inside a comprehension.
             if tokens[last] == 'YIELD_VALUE':
                 # Note: We might also consider testing last+1 being "POP_TOP"
@@ -243,6 +243,9 @@ class Python27Parser(Python2Parser):
             # Test that jmp_false jumps to the end of "and"
             # or that it jumps to the same place as the end of "and"
             jmp_false = ast[1][0]
+
+            # FIXME: if the jmp_false is POP_JUMP_IF_FALSE is the address
+            # is *absoulte* and the calulation below is wrong!
             jmp_target = jmp_false.offset + jmp_false.attr + 3
             return not (jmp_target == tokens[last].offset or
                         tokens[last].pattr == jmp_false.pattr)
