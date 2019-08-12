@@ -43,10 +43,10 @@ case $PYVERSION in
     2.5)
 	SKIP_TESTS=(
 	    [test_contextlib.py]=1 # Syntax error - look at
-	    [test_dis.py]=1   # We change line numbers - duh!
-	    [test_grammar.py]=1  # Too many stmts. Handle large stmts
-	    [test_grp.py]=1      # Long test - might work Control flow?
-	    [test_pdb.py]=1      # Line-number specific
+	    [test_dis.py]=1        # We change line numbers - duh!
+	    [test_grammar.py]=1    # Too many stmts. Handle large stmts
+	    [test_grp.py]=1        # Long test - might work Control flow?
+	    [test_pdb.py]=1        # Line-number specific
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_queue.py]=1 # Control flow?
 	    [test_re.py]=1 # Probably Control flow?
@@ -188,6 +188,7 @@ fi
 mkdir $TESTDIR || exit $?
 cp -r ${PYENV_ROOT}/versions/${PYVERSION}.${MINOR}/lib/python${PYVERSION}/test $TESTDIR
 cd $TESTDIR/test
+pyenv local $FULLVERSION
 export PYTHONPATH=$TESTDIR
 
 # Run tests
