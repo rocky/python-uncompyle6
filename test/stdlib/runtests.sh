@@ -188,6 +188,7 @@ fi
 mkdir $TESTDIR || exit $?
 cp -r ${PYENV_ROOT}/versions/${PYVERSION}.${MINOR}/lib/python${PYVERSION}/test $TESTDIR
 cd $TESTDIR/test
+pyenv local $FULLVERSION
 export PYTHONPATH=$TESTDIR
 
 # Run tests
