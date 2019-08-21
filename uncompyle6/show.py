@@ -26,10 +26,10 @@ def maybe_show_asm(showasm, tokens):
     :param tokens:  The asm tokens to show.
     """
     if showasm:
-        stream = showasm if hasattr(showasm, 'write') else sys.stdout
+        stream = showasm if hasattr(showasm, "write") else sys.stdout
         for t in tokens:
             stream.write(str(t))
-            stream.write('\n')
+            stream.write("\n")
 
 
 def maybe_show_tree(walker, ast):
@@ -43,15 +43,16 @@ def maybe_show_tree(walker, ast):
     :param ast:     The ast to show.
     """
     if walker.showast:
-        if hasattr(walker.showast, 'write'):
+        if hasattr(walker.showast, "write"):
             stream = walker.showast
         else:
             stream = sys.stdout
-        if walker.showast == 'Full':
+        if (isinstance(walker.showast, dict) and walker.showast.get("Full", False)
+            and hasattr(walker, "str_with_template")):
             walker.str_with_template(ast)
         else:
             stream.write(str(ast))
-        stream.write('\n')
+        stream.write("\n")
 
 
 def maybe_show_tree_param_default(show_tree, name, default):
@@ -68,11 +69,11 @@ def maybe_show_tree_param_default(show_tree, name, default):
     :param default: The function parameter default.
     """
     if show_tree:
-        stream = show_tree if hasattr(show_tree, 'write') else sys.stdout
-        stream.write('\n')
-        stream.write('--' + name)
-        stream.write('\n')
+        stream = show_tree if hasattr(show_tree, "write") else sys.stdout
+        stream.write("\n")
+        stream.write("--" + name)
+        stream.write("\n")
         stream.write(str(default))
-        stream.write('\n')
-        stream.write('--')
-        stream.write('\n')
+        stream.write("\n")
+        stream.write("--")
+        stream.write("\n")
