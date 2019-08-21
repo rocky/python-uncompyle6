@@ -27,9 +27,9 @@ jobs:
     # VM instead of a container) see https://circleci.com/docs/2.0/executor-types/
     # To see the list of pre-built images that CircleCI provides for most common languages see
     # https://circleci.com/docs/2.0/circleci-images/
-    docker:
-    - image: circleci/build-image:ubuntu-14.04-XXL-upstart-1189-5614f37
-      command: /sbin/init
+    machine:
+      python:
+        version: 2.7.14
     steps:
     # Machine Setup
     #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
@@ -42,7 +42,7 @@ jobs:
     # This is based on your 1.0 configuration file or project settings
     - run:
         working_directory: ~/rocky/python-uncompyle6
-        command: pyenv local 2.7.11 && pyenv rehash && pip install virtualenv && pip install nose && pip install pep8 && pip install six && pyenv rehash
+        command: pip install virtualenv && pip install nose && pip install pep8 && pyenv rehash
     # Dependencies
     #   This would typically go in either a build or a build-and-test job when using workflows
     # Restore the dependency cache
@@ -60,7 +60,7 @@ jobs:
     - run: pip install pytest==3.2.5 hypothesis==3.0.0
     # Save dependency cache
     - save_cache:
-        key: v1-dep-{{ .Branch }}-{{ epoch }}
+        key: v2-dependencies-{{ .Branch }}-{{ epoch }}
         paths:
         # This is a broad list of cache paths to include many possible development environments
         # You can probably delete some of these entries
@@ -69,8 +69,6 @@ jobs:
         - ~/.m2
         - ~/.ivy2
         - ~/.bundle
-        - ~/.go_workspace
-        - ~/.gradle
         - ~/.cache/bower
     # Test
     #   This would typically be a build job when using workflows, possibly combined with build
