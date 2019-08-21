@@ -48,16 +48,15 @@ jobs:
     # Restore the dependency cache
     - restore_cache:
         keys:
-        # This branch if available
-        - v1-dep-{{ .Branch }}-
-        # Default branch if not
-        - v1-dep-master-
-        # Any branch if there are none on the default branch - this should be unnecessary if you have your default branch configured correctly
-        - v1-dep-
+          - v2-dependencies-{{ .Branch }}-
+          # fallback to using the latest cache if no exact match is found
+          - v2-dependencies-
+
     # This is based on your 1.0 configuration file or project settings
     - run: pip install --upgrade setuptools
     - run: pip install -e .
     - run: pip install pytest==3.2.5 hypothesis==3.0.0
+
     # Save dependency cache
     - save_cache:
         key: v2-dependencies-{{ .Branch }}-{{ epoch }}
@@ -70,6 +69,7 @@ jobs:
         - ~/.ivy2
         - ~/.bundle
         - ~/.cache/bower
+
     # Test
     #   This would typically be a build job when using workflows, possibly combined with build
     # This is based on your 1.0 configuration file or project settings
