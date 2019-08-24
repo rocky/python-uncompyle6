@@ -7,6 +7,10 @@ if PYTHON3:
     intern = sys.intern
 
 class SyntaxTree(spark_AST):
+    def __init__(self, *args, **kwargs):
+        super(SyntaxTree, self).__init__(*args, **kwargs)
+        self.transformed_by = None
+
     def isNone(self):
         """An SyntaxTree None token. We can't use regular list comparisons
         because SyntaxTree token offsets might be different"""
@@ -23,6 +27,11 @@ class SyntaxTree(spark_AST):
         if len(self) > 1:
             rv += " (%d)" % (len(self))
             enumerate_children = True
+        if self.transformed_by is not None:
+            if self.transformed_by is True:
+                rv += " (transformed)"
+            else:
+                rv += " (transformed by %s)" % self.transformed_by
         rv = indent + rv
         indent += '    '
         i = 0

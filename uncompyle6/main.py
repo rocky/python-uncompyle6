@@ -41,10 +41,21 @@ def _get_outstream(outfile):
     return open(outfile, 'wb')
 
 def decompile(
-        bytecode_version, co, out=None, showasm=None, showast=False,
-        timestamp=None, showgrammar=False, source_encoding=None, code_objects={},
-        source_size=None, is_pypy=None, magic_int=None,
-        mapstream=None, do_fragments=False):
+    bytecode_version,
+    co,
+    out=None,
+    showasm=None,
+    showast={},
+    timestamp=None,
+    showgrammar=False,
+    source_encoding=None,
+    code_objects={},
+    source_size=None,
+    is_pypy=None,
+    magic_int=None,
+    mapstream=None,
+    do_fragments=False,
+):
     """
     ingests and deparses a given code block 'co'
 
@@ -299,7 +310,7 @@ def main(in_base, out_base, compiled_files, source_files, outfile=None,
         #     failed_files += 1
         #     if current_outfile:
         #         outstream.close()
-        #         os.rename(current_outfile, current_outfile + '_failed')
+        #         os.rename(current_outfile, current_outfile + "_failed")
         #     else:
         #         sys.stderr.write("\n# %s" % sys.exc_info()[1])
         #         sys.stderr.write("\n# Can't uncompile %s\n" % infile)
