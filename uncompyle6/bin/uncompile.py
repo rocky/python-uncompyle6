@@ -46,10 +46,12 @@ Options:
   --help        show this message
 
 Debugging Options:
-  --asm     | -a  include byte-code       (disables --verify)
-  --grammar | -g  show matching grammar
-  --tree    | -t  include syntax tree     (disables --verify)
-  --tree++        add template rules to --tree when possible
+  --asm     | -a        include byte-code       (disables --verify)
+  --grammar | -g        show matching grammar
+  --tree={before|after}
+  -t {before|after}     include syntax before (or after) tree transformation
+                        (disables --verify)
+  --tree++ | -T         add template rules to --tree=before when possible
 
 Extensions of generated files:
   '.pyc_dis' '.pyo_dis'   successfully decompiled (and verified if --verify)
@@ -89,7 +91,7 @@ def main_bin():
     try:
         opts, pyc_paths = getopt.getopt(sys.argv[1:], 'hac:gtTdrVo:p:',
                                     'help asm compile= grammar linemaps recurse '
-                                    'timestamp tree tree+ '
+                                    'timestamp tree= tree+ '
                                     'fragments verify verify-run version '
                                     'syntax-verify '
                                     'showgrammar encoding='.split(' '))
@@ -119,10 +121,19 @@ def main_bin():
             options['showasm'] = 'after'
             options['do_verify'] = None
         elif opt in ('--tree', '-t'):
-            options['showast'] = True
+            if 'showast' not in options:
+                options['showast'] = {}
+            if val == 'before':
+                options['showast'][val] = True
+            elif val == 'after':
+                options['showast'][val] = True
+            else:
+                options['showast']['before'] = True
             options['do_verify'] = None
         elif opt in ('--tree+', '-T'):
-            options['showast'] = 'Full'
+            if 'showast' not in options:
+                options['showast'] = {}
+            options['showast']['Full'] = True
             options['do_verify'] = None
         elif opt in ('--grammar', '-g'):
             options['showgrammar'] = True

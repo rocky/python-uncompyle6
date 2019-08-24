@@ -146,8 +146,13 @@ from uncompyle6.semantics.helper import (
     find_globals_and_nonlocals,
     flatten_list,
 )
+
 from uncompyle6.scanners.tok import Token
 
+from uncompyle6.semantics.transform import (
+    is_docstring,
+    TreeTransform,
+)
 from uncompyle6.semantics.consts import (
     LINE_LENGTH,
     RETURN_LOCALS,
@@ -174,13 +179,6 @@ if PYTHON3:
     from io import StringIO
 else:
     from StringIO import StringIO
-
-
-def is_docstring(node):
-    try:
-        return node[0][0].kind == "assign" and node[0][0][1][0].pattr == "__doc__"
-    except:
-        return False
 
 
 class SourceWalkerError(Exception):
@@ -230,6 +228,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         """
         GenericASTTraversal.__init__(self, ast=None)
+
         self.scanner = scanner
         params = {"f": out, "indent": ""}
         self.version = version
@@ -239,6 +238,8 @@ class SourceWalker(GenericASTTraversal, object):
             compile_mode=compile_mode,
             is_pypy=is_pypy,
         )
+
+        self.treeTransform = TreeTransform(version, showast)
         self.debug_parser = dict(debug_parser)
         self.showast = showast
         self.params = params
@@ -277,6 +278,19 @@ class SourceWalker(GenericASTTraversal, object):
 
         return
 
+    def maybe_show_tree(self, ast):
+        if self.showast and self.treeTransform.showast:
+            self.println(
+                """
+---- end before transform
+---- begin after transform
+"""
+                + "    "
+            )
+
+        if isinstance(self.showast, dict) and self.showast.get:
+            maybe_show_tree(self, ast)
+
     def str_with_template(self, ast):
         stream = sys.stdout
         stream.write(self.str_with_template1(ast, "", None))
@@ -299,6 +313,13 @@ class SourceWalker(GenericASTTraversal, object):
             key = key[i]
             pass
 
+        if ast.transformed_by is not None:
+            if ast.transformed_by is True:
+                rv += " transformed"
+            else:
+                rv += " transformed by %s" % ast.transformed_by
+                pass
+            pass
         if key.kind in table:
             rv += ": %s" % str(table[key.kind])
 
@@ -306,6 +327,7 @@ class SourceWalker(GenericASTTraversal, object):
         indent += "    "
         i = 0
         for node in ast:
+
             if hasattr(node, "__repr1__"):
                 if enumerate_children:
                     child = self.str_with_template1(node, indent, i)
@@ -685,89 +707,6 @@ class SourceWalker(GenericASTTraversal, object):
         self.println()
         self.prune()  # stop recursing
 
-    # preprocess is used for handling chains of
-    # if elif elif
-    def n_ifelsestmt(self, node, preprocess=False):
-        """
-        Here we turn:
-
-          if ...
-          else
-             if ..
-
-        into:
-
-          if ..
-          elif ...
-
-          [else ...]
-
-        where appropriate
-        """
-        else_suite = node[3]
-
-        n = else_suite[0]
-        old_stmts = None
-
-        if len(n) == 1 == len(n[0]) and n[0] == "stmt":
-            n = n[0][0]
-        elif n[0].kind in ("lastc_stmt", "lastl_stmt"):
-            n = n[0]
-            if n[0].kind in (
-                "ifstmt",
-                "iflaststmt",
-                "iflaststmtl",
-                "ifelsestmtl",
-                "ifelsestmtc",
-            ):
-                # This seems needed for Python 2.5-2.7
-                n = n[0]
-                pass
-            pass
-        elif len(n) > 1 and 1 == len(n[0]) and n[0] == "stmt" and n[1].kind == "stmt":
-            else_suite_stmts = n[0]
-            if else_suite_stmts[0].kind not in ("ifstmt", "iflaststmt", "ifelsestmtl"):
-                if not preprocess:
-                    self.default(node)
-                return
-            old_stmts = n
-            n = else_suite_stmts[0]
-        else:
-            if not preprocess:
-                self.default(node)
-            return
-
-        if n.kind in ("ifstmt", "iflaststmt", "iflaststmtl"):
-            node.kind = "ifelifstmt"
-            n.kind = "elifstmt"
-        elif n.kind in ("ifelsestmtr",):
-            node.kind = "ifelifstmt"
-            n.kind = "elifelsestmtr"
-        elif n.kind in ("ifelsestmt", "ifelsestmtc", "ifelsestmtl"):
-            node.kind = "ifelifstmt"
-            self.n_ifelsestmt(n, preprocess=True)
-            if n == "ifelifstmt":
-                n.kind = "elifelifstmt"
-            elif n.kind in ("ifelsestmt", "ifelsestmtc", "ifelsestmtl"):
-                n.kind = "elifelsestmt"
-        if not preprocess:
-            if old_stmts:
-                if n.kind == "elifstmt":
-                    trailing_else = SyntaxTree("stmts", old_stmts[1:])
-                    # We use elifelsestmtr because it has 3 nodes
-                    elifelse_stmt = SyntaxTree(
-                        "elifelsestmtr", [n[0], n[1], trailing_else]
-                    )
-                    node[3] = elifelse_stmt
-                    pass
-                else:
-                    # Other cases for n.kind may happen here
-                    return
-                pass
-            self.default(node)
-
-    n_ifelsestmtc = n_ifelsestmtl = n_ifelsestmt
-
     def n_ifelsestmtr(self, node):
         if node[2] == "COME_FROM":
             return_stmts_node = node[3]
@@ -899,16 +838,18 @@ class SourceWalker(GenericASTTraversal, object):
     def n_mkfunc(self, node):
 
         if self.version >= 3.3 or node[-2] in ("kwargs", "no_kwargs"):
-            # LOAD_CONST code object ..
-            # LOAD_CONST        'x0'  if >= 3.3
+            # LOAD_CODET code object ..
+            # LOAD_CONST        "x0"  if >= 3.3
             # MAKE_FUNCTION ..
             code_node = node[-3]
         elif node[-2] == "expr":
             code_node = node[-2][0]
         else:
-            # LOAD_CONST code object ..
+            # LOAD_CODE code object ..
             # MAKE_FUNCTION ..
             code_node = node[-2]
+
+        assert iscode(code_node.attr)
 
         func_name = code_node.attr.co_name
         self.write(func_name)
@@ -929,6 +870,75 @@ class SourceWalker(GenericASTTraversal, object):
             make_function3(self, node, is_lambda, nested, code_node)
         else:
             make_function2(self, node, is_lambda, nested, code_node)
+
+    def n_docstring(self, node):
+
+        indent = self.indent
+        docstring = node[0].pattr
+
+        quote = '"""'
+        if docstring.find(quote) >= 0:
+            if docstring.find("'''") == -1:
+                quote = "'''"
+
+        self.write(indent)
+        docstring = repr(docstring.expandtabs())[1:-1]
+
+        for (orig, replace) in (('\\\\', '\t'),
+                                ('\\r\\n', '\n'),
+                                ('\\n', '\n'),
+                                ('\\r', '\n'),
+                                ('\\"', '"'),
+                                ("\\'", "'")):
+            docstring = docstring.replace(orig, replace)
+
+        # Do a raw string if there are backslashes but no other escaped characters:
+        # also check some edge cases
+        if ('\t' in docstring
+            and '\\' not in docstring
+            and len(docstring) >= 2
+            and docstring[-1] != '\t'
+            and (docstring[-1] != '"'
+                or docstring[-2] == '\t')):
+            self.write('r') # raw string
+            # Restore backslashes unescaped since raw
+            docstring = docstring.replace('\t', '\\')
+        else:
+            # Escape the last character if it is the same as the
+            # triple quote character.
+            quote1 = quote[-1]
+            if len(docstring) and docstring[-1] == quote1:
+                docstring = docstring[:-1] + '\\' + quote1
+
+            # Escape triple quote when needed
+            if quote == '"""':
+                replace_str = '\\"""'
+            else:
+                assert quote == "'''"
+                replace_str = "\\'''"
+
+            docstring = docstring.replace(quote, replace_str)
+            docstring = docstring.replace('\t', '\\\\')
+
+        lines = docstring.split('\n')
+
+        self.write(quote)
+        if len(lines) == 0:
+            self.println(quote)
+        elif len(lines) == 1:
+            self.println(lines[0], quote)
+        else:
+            self.println(lines[0])
+            for line in lines[1:-1]:
+                if line:
+                    self.println( line )
+                else:
+                    self.println( "\n\n" )
+                    pass
+                pass
+            self.println(lines[-1], quote)
+        self.prune()
+
 
     def n_mklambda(self, node):
         self.make_function(node, is_lambda=True, code_node=node[-2])
@@ -1816,6 +1826,19 @@ class SourceWalker(GenericASTTraversal, object):
         lastnode = node.pop()
         lastnodetype = lastnode.kind
 
+        # If this build list is inside a CALL_FUNCTION_VAR,
+        # then the first * has already been printed.
+        # Until I have a better way to check for CALL_FUNCTION_VAR,
+        # will assume that if the text ends in *.
+        last_was_star = self.f.getvalue().endswith("*")
+
+        if lastnodetype.endswith("UNPACK"):
+            # FIXME: need to handle range of BUILD_LIST_UNPACK
+            have_star = True
+            # endchar = ''
+        else:
+            have_star = False
+
         if lastnodetype.startswith("BUILD_LIST"):
             self.write("[")
             endchar = "]"
@@ -1866,6 +1889,13 @@ class SourceWalker(GenericASTTraversal, object):
             else:
                 if sep != "":
                     sep += " "
+            if not last_was_star:
+                if have_star:
+                    sep += "*"
+                    pass
+                pass
+            else:
+                last_was_star = False
             self.write(sep, value)
             sep = ","
         if lastnode.attr == 1 and lastnodetype.startswith("BUILD_TUPLE"):
@@ -2219,6 +2249,10 @@ class SourceWalker(GenericASTTraversal, object):
         code._tokens = None  # save memory
         assert ast == "stmts"
 
+        if ast[0] == "docstring":
+            self.println(self.traverse(ast[0]))
+            del ast[0]
+
         first_stmt = ast[0][0]
         if 3.0 <= self.version <= 3.3:
             try:
@@ -2364,8 +2398,10 @@ class SourceWalker(GenericASTTraversal, object):
                 self.p.insts = p_insts
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
-            maybe_show_tree(self, ast)
-            return ast
+            transform_ast = self.treeTransform.transform(ast)
+            self.maybe_show_tree(ast)
+            del ast  # Save memory
+            return transform_ast
 
         # The bytecode for the end of the main routine has a
         # "return None". However you can't issue a "return" statement in
@@ -2397,11 +2433,15 @@ class SourceWalker(GenericASTTraversal, object):
         except (python_parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens)
 
-        maybe_show_tree(self, ast)
-
         checker(ast, False, self.ast_errors)
 
-        return ast
+        self.customize(customize)
+        transform_ast = self.treeTransform.transform(ast)
+
+        self.maybe_show_tree(ast)
+
+        del ast  # Save memory
+        return transform_ast
 
     @classmethod
     def _get_mapping(cls, node):
