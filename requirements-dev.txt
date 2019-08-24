@@ -1,2 +1,4 @@
 flake8
 hypothesis<=3.0.0
+six
+pytest==3.2.5

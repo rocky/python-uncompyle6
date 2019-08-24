@@ -1,3 +1,22 @@
+3.4.0 2019-08-24 Totoro
+=======================
+
+The main change is to add a tree-transformation phase. This simplifies the
+code a little and allows us to turn `if ...: raise AssertionError` into
+`assert`, and many `if ..: else if ...` into `if ... elif ..`
+
+Use options `--show=before` and `--show=after` to see the before the tree transformation phase and after the tree transformation phase.
+
+Most of the heavy lifting for this was done by x0ret.
+
+Other changes:
+
+- Fix issue #275, #283 (process to fix this bug is documented on wiki), #284
+- blacken more code
+- CircleCI adjustments for a changing CircleCi
+- Require more recent `xdis` for Python 3.8
+- Fix bugs in code using `BUILD_LIST_UNPACK` and variants
+
 3.3.5 2019-07-03 Pre Independence Day
 =====================================
 

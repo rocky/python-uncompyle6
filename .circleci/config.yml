@@ -27,9 +27,9 @@ jobs:
     # VM instead of a container) see https://circleci.com/docs/2.0/executor-types/
     # To see the list of pre-built images that CircleCI provides for most common languages see
     # https://circleci.com/docs/2.0/circleci-images/
-    docker:
-    - image: circleci/build-image:ubuntu-14.04-XXL-upstart-1189-5614f37
-      command: /sbin/init
+    machine:
+      python:
+        version: 2.7.14
     steps:
     # Machine Setup
     #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
@@ -48,17 +48,17 @@ jobs:
     # Restore the dependency cache
     - restore_cache:
         keys:
-        # This branch if available
-        - v1-dep-{{ .Branch }}-
-        # Default branch if not
-        - v1-dep-master-
-        # Any branch if there are none on the default branch - this should be unnecessary if you have your default branch configured correctly
-        - v1-dep-
+          - v2-dependencies-{{ .Branch }}-
+          # fallback to using the latest cache if no exact match is found
+          - v2-dependencies-
+
     # This is based on your 1.0 configuration file or project settings
-    - run: easy_install spark_parser==1.8.5 && easy_install xdis==3.8.4
+    - run: pip install -e .
+    - run: pip install -r requirements-dev.txt
+
     # Save dependency cache
     - save_cache:
-        key: v1-dep-{{ .Branch }}-{{ epoch }}
+        key: v2-dependencies-{{ .Branch }}-{{ epoch }}
         paths:
         # This is a broad list of cache paths to include many possible development environments
         # You can probably delete some of these entries
@@ -67,9 +67,8 @@ jobs:
         - ~/.m2
         - ~/.ivy2
         - ~/.bundle
-        - ~/.go_workspace
-        - ~/.gradle
         - ~/.cache/bower
+
     # Test
     #   This would typically be a build job when using workflows, possibly combined with build
     # This is based on your 1.0 configuration file or project settings

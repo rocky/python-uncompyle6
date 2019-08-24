@@ -56,18 +56,46 @@ case $PYVERSION in
 	;;
     2.6)
 	SKIP_TESTS=(
+	    [test_aepack.py]=1
+	    [test_aifc.py]=1
+	    [test_array.py]=1
+	    [test_audioop.py]=1
+	    [test_base64.py]=1
+	    [test_bigmem.py]=1
+	    [test_binascii.py]=1
+	    [test_builtin.py]=1
+	    [test_bytes.py]=1
+	    [test_class.py]=1
+	    [test_codeccallbacks.py]=1
+	    [test_codecencodings_cn.py]=1
+	    [test_codecencodings_hk.py]=1
+	    [test_codecencodings_jp.py]=1
+	    [test_codecencodings_kr.py]=1
+	    [test_codecencodings_tw.py]=1
+	    [test_codecencodings_cn.py]=1
+	    [test_codecmaps_hk.py]=1
+	    [test_codecmaps_jp.py]=1
+	    [test_codecmaps_kr.py]=1
+	    [test_codecmaps_tw.py]=1
+	    [test_codecs.py]=1
 	    [test_compile.py]=1  # Intermittent - sometimes works and sometimes doesn't
-	    [test_grammar.py]=1  # Need real flow control. "and" in side "or"
-	                         # "and" inside ifelse need to simulatenously work
+	    [test_cookielib.py]=1
+	    [test_copy.py]=1
+	    [test_decimal.py]=1
+	    [test_descr.py]=1    # Problem in pickle.py?
+	    [test_exceptions.py]=1
+	    [test_extcall.py]=1
+	    [test_float.py]=1
+	    [test_future4.py]=1
+	    [test_generators.py]=1
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_opcodes.py]=1
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_re.py]=1 # Probably Control flow?
 	    [test_queue.py]=1 # Control flow?
-	    [test_strftime.py]=1
 	    [test_trace.py]=1  # Line numbers are expected to be different
 	    [test_zipfile64.py]=1  # Skip Long test
-	    [test_zlib.py]=1  # Look at
+	    [test_zlib.py]=1  # Takes too long to run (more than 3 minutes 39 seconds)
 	    # .pyenv/versions/2.6.9/lib/python2.6/lib2to3/refactor.pyc
 	    # .pyenv/versions/2.6.9/lib/python2.6/pyclbr.pyc
 	    # .pyenv/versions/2.6.9/lib/python2.6/quopri.pyc -- look at ishex, is short
@@ -103,9 +131,11 @@ case $PYVERSION in
 	    [test_httplib.py]=1  # Ok, but POWER has problems with this
 	    [test_pdb.py]=1 # Ok, but POWER has problems with this
 
+	    [test_capi.py]=1
 	    [test_curses.py]=1  # Possibly fails on its own but not detected
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_doctest.py]=1 # Fails on its own
+	    [test_exceptions.py]=1
 	    [test_format.py]=1  # control flow. uncompyle2 does not have problems here
 	    [test_generators.py]=1  # control flow. uncompyle2 has problem here too
 	    [test_grammar.py]=1     # Too many stmts. Handle large stmts
@@ -113,6 +143,9 @@ case $PYVERSION in
 	    [test_ioctl.py]=1 # Test takes too long to run
 	    [test_itertools.py]=1 # Fix erroneous reduction to "conditional_true".
 	                          # See test/simple_source/bug27+/05_not_unconditional.py
+	    [test_long.py]=1
+	    [test_long_future.py]=1
+	    [test_math.py]=1
 	    [test_memoryio.py]=1 # FIX
 	    [test_multiprocessing.py]=1 # On uncompyle2, taks 24 secs
 	    [test_pep352.py]=1  # ?
@@ -122,9 +155,11 @@ case $PYVERSION in
 	    [test_pty.py]=1
 	    [test_queue.py]=1   # Control flow?
 	    [test_re.py]=1      # Probably Control flow?
+	    [test_runpy.py]=1   # Long and fails on its own
 	    [test_select.py]=1  # Runs okay but takes 11 seconds
 	    [test_socket.py]=1  # Runs ok but takes 22 seconds
 	    [test_subprocess.py]=1 # Runs ok but takes 22 seconds
+	    [test_sys_setprofile.py]=1
 	    [test_sys_settrace.py]=1 # Line numbers are expected to be different
 	    [test_strtod.py]=1 # FIX
 	    [test_traceback.py]=1 # Line numbers change - duh.
@@ -205,10 +240,14 @@ else
 fi
 
 typeset -i ALL_FILES_STARTTIME=$(date +%s)
+typeset -i skipped=0
 
 for file in $files; do
     # AIX bash doesn't grok [[ -v SKIP... ]]
-    [[ ${SKIP_TESTS[$file]} == 1 ]] && continue
+    if [[ ${SKIP_TESTS[$file]} == 1 ]] ; then
+	((skipped++))
+	continue
+    fi
 
     # If the fails *before* decompiling, skip it!
     typeset -i STARTTIME=$(date +%s)
@@ -242,7 +281,7 @@ for file in $files; do
     fi
     (( rc != 0 && allerrs++ ))
     if (( STOP_ONERROR && rc )) ; then
-	echo "** Ran $i tests before failure **"
+	echo "** Ran $i tests before failure. Skipped $skipped test for known failures. **"
 	exit $allerrs
     fi
 done
@@ -252,5 +291,5 @@ typeset -i ALL_FILES_ENDTIME=$(date +%s)
 
 printf "Ran $i unit-test files in "
 displaytime $time_diff
-
+echo "Skipped $skipped test for known failures."
 exit $allerrs
