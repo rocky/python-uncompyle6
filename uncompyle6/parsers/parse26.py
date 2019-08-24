@@ -250,6 +250,9 @@ class Python26Parser(Python2Parser):
         genexpr_func ::= setup_loop_lf FOR_ITER store comp_iter JUMP_ABSOLUTE come_froms
                          POP_TOP jb_pop jb_pb_come_from
 
+        genexpr_func ::= setup_loop_lf FOR_ITER store comp_iter JUMP_BACK come_froms
+                         POP_TOP jb_pb_come_from
+
         generator_exp ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1 COME_FROM
         list_if ::= list_if ::= expr jmp_false_then list_iter
         '''
