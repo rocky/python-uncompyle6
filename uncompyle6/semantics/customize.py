@@ -16,7 +16,7 @@
 """Isolate Python version-specific semantic actions here.
 """
 
-from uncompyle6.semantics.consts import TABLE_R, TABLE_DIRECT
+from uncompyle6.semantics.consts import PRECEDENCE, TABLE_R, TABLE_DIRECT
 
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanners.tok import Token
@@ -27,29 +27,27 @@ def customize_for_version(self, is_pypy, version):
         ########################
         # PyPy changes
         #######################
-        TABLE_DIRECT.update(
-            {
-                "assert2_pypy": ("%|assert %c, %c\n", (1, "assert_expr"), 4),
-                "assert_pypy": ("%|assert %c\n", (1, "assert_expr")),
-                "assign2_pypy": ("%|%c, %c = %c, %c\n", 3, 2, 0, 1),
-                "assign3_pypy": ("%|%c, %c, %c = %c, %c, %c\n", 5, 4, 3, 0, 1, 2),
-                "try_except_pypy": ("%|try:\n%+%c%-%c\n\n", 1, 2),
-                "tryfinallystmt_pypy": ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", 1, 3),
-            }
-        )
+        TABLE_DIRECT.update({
+            'assert_pypy':	( '%|assert %c\n' , 1 ),
+            'assert2_pypy':	( '%|assert %c, %c\n' , 1, 4 ),
+            'try_except_pypy':	   ( '%|try:\n%+%c%-%c\n\n', 1, 2 ),
+            'tryfinallystmt_pypy': ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n', 1, 3 ),
+            'assign3_pypy':        ( '%|%c, %c, %c = %c, %c, %c\n', 5, 4, 3, 0, 1, 2 ),
+            'assign2_pypy':        ( '%|%c, %c = %c, %c\n', 3, 2, 0, 1),
+            })
     else:
         ########################
         # Without PyPy
         #######################
-        TABLE_DIRECT.update(
-            {
-                "assert": ("%|assert %c\n", (0, "assert_expr")),
-                "assert2": ("%|assert %c, %c\n", (0, "assert_expr"), 3),
-                "assign2": ("%|%c, %c = %c, %c\n", 3, 4, 0, 1),
-                "assign3": ("%|%c, %c, %c = %c, %c, %c\n", 5, 6, 7, 0, 1, 2),
-                "try_except": ("%|try:\n%+%c%-%c\n\n", 1, 3),
-            }
-        )
+        TABLE_DIRECT.update({
+            "assert": ("%|assert %c\n", (0, "assert_expr")),
+            "assert2not": ( "%|assert not %p, %c\n" ,
+                            (0, PRECEDENCE['unary_not']), 3 ),
+            "assert2": ("%|assert %c, %c\n", (0, "assert_expr"), 3),
+            "assign2": ("%|%c, %c = %c, %c\n", 3, 4, 0, 1),
+            "assign3": ("%|%c, %c, %c = %c, %c, %c\n", 5, 6, 7, 0, 1, 2),
+            "try_except": ("%|try:\n%+%c%-%c\n\n", 1, 3),
+        })
     if version >= 3.0:
         if version >= 3.2:
             TABLE_DIRECT.update(
