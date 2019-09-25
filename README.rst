@@ -1,4 +1,6 @@
-|buildstatus| |Latest Version| |Supported Python Versions|
+|buildstatus|  |Pypi Installs| |Latest Version| |Supported Python Versions|
+
+
 
 |packagestatus|
 
@@ -244,3 +246,4 @@ See Also
 .. |Supported Python Versions| image:: https://img.shields.io/pypi/pyversions/uncompyle6.svg
 .. |Latest Version| image:: https://badge.fury.io/py/uncompyle6.svg
 		 :target: https://badge.fury.io/py/uncompyle6
+.. |Pypi Installs| image:: https://pepy.tech/badge/uncompyle6/month
