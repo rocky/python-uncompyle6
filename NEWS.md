@@ -5,6 +5,7 @@
 - Fragment parsing fixes:
      * Wasn't handling 3-arg %p
    	 * fielding error in code_deparse()
+- Use newer xdis to better track Python 3.8.0
 
 
 3.4.0 2019-08-24 Totoro
