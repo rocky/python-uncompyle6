@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2018 by Rocky Bernstein
+#  Copyright (c) 2015-2019 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -1636,16 +1636,27 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 finish = len(self.f.getvalue())
                 self.set_pos_info(node, start, finish)
                 arg += 1
-            elif typ == 'p':
+            elif typ == "p":
                 p = self.prec
-                (index, self.prec) = entry[arg]
+                tup = entry[arg]
+                assert isinstance(tup, tuple)
+                if len(tup) == 3:
+                    (index, nonterm_name, self.prec) = tup
+                    assert node[index] == nonterm_name, (
+                        "at %s[%d], expected '%s' node; got '%s'"
+                        % (node.kind, arg, nonterm_name, node[index].kind)
+                    )
+                else:
+                    assert len(tup) == 2
+                    (index, self.prec) = entry[arg]
+
                 node[index].parent = node
                 start = len(self.f.getvalue())
                 self.preorder(node[index])
                 self.set_pos_info(node, start, len(self.f.getvalue()))
                 self.prec = p
                 arg += 1
-            elif typ == 'C':
+            elif typ == "C":
                 low, high, sep = entry[arg]
                 lastC = remaining = len(node[low:high])
                 start = len(self.f.getvalue())
@@ -1657,7 +1668,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
                 self.set_pos_info(node, start, len(self.f.getvalue()))
                 arg += 1
-            elif typ == 'D':
+            elif typ == "D":
                 low, high, sep = entry[arg]
                 lastC = remaining = len(node[low:high])
                 for subnode in node[low:high]:
@@ -1670,13 +1681,13 @@ class FragmentsWalker(pysource.SourceWalker, object):
                         pass
                     pass
                 arg += 1
-            elif typ == 'x':
+            elif typ == "x":
                 src, dest = entry[arg]
                 for d in dest:
                     self.set_pos_info_recurse(node[d], node[src].start, node[src].finish)
                     pass
                 arg += 1
-            elif typ == 'P':
+            elif typ == "P":
                 p = self.prec
                 low, high, sep, self.prec = entry[arg]
                 lastC = remaining = len(node[low:high])
@@ -1689,13 +1700,13 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 self.prec = p
                 arg += 1
 
-            elif typ == '{':
+            elif typ == "{":
                 d = node.__dict__
-                expr = m.group('expr')
+                expr = m.group("expr")
 
                 # Line mapping stuff
-                if (hasattr(node, 'linestart') and node.linestart
-                    and hasattr(node, 'current_line_number')):
+                if (hasattr(node, "linestart") and node.linestart
+                    and hasattr(node, "current_line_number")):
                     self.source_linemap[self.current_line_number] = node.linestart
                 # Additional fragment-position stuff
                 try:
@@ -1766,7 +1777,7 @@ def code_deparse(co, out=StringIO(), version=None, is_pypy=None,
     :param out:             File like object to write the output to.
     :param debug_opts:      A dictionary with keys
        'asm':     value determines whether to show
-                  mangled bytecode disdassembly
+                  mangled bytecode disassembly
        'ast':     value determines whether to show
        'grammar': boolean determining whether to show
                   grammar reduction rules.
@@ -1918,6 +1929,8 @@ def deparsed_find(tup, deparsed, code):
 """
     nodeInfo = None
     name, last_i = tup
+    if not hasattr(deparsed, "offsets"):
+        return None
     if (name, last_i) in deparsed.offsets.keys():
         nodeInfo =  deparsed.offsets[name, last_i]
     else:
