@@ -1,3 +1,12 @@
+3.4.1 2019-10-02
+================
+
+- Correct assert{,2} transforms Fixes #289
+- Fragment parsing fixes:
+     * Wasn't handling 3-arg %p
+   	 * fielding error in code_deparse()
+
+
 3.4.0 2019-08-24 Totoro
 =======================
 
