@@ -1,7 +1,5 @@
 |buildstatus|  |Pypi Installs| |Latest Version| |Supported Python Versions|
 
-
-
 |packagestatus|
 
 uncompyle6
@@ -15,7 +13,7 @@ Introduction
 ------------
 
 *uncompyle6* translates Python bytecode back into equivalent Python
-source code. It accepts bytecodes from Python version 1.3 to version
+source code. It accepts bytecodes from Python version 1.0 to version
 3.8, spanning over 24 years of Python releases. We include Dropbox's
 Python 2.5 bytecode and some PyPy bytecode.
 
@@ -90,9 +88,9 @@ This uses setup.py, so it follows the standard Python routine:
 
 ::
 
-    pip install -e .  # set up to run from source tree
-                      # Or if you want to install instead
-    python setup.py install # may need sudo
+    $ pip install -e .  # set up to run from source tree
+                        # Or if you want to install instead
+    $ python setup.py install # may need sudo
 
 A GNU makefile is also provided so :code:`make install` (possibly as root or
 sudo) will do the steps above.
