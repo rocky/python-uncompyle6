@@ -418,7 +418,6 @@ TABLE_DIRECT = {
     'except_suite_finalize':     ( '%+%c%-%C', 1, (3, maxint, '') ),
 
     'pass':	            ( '%|pass\n', ),
-    'STORE_FAST':	    ( '%{pattr}', ),
     'kv':		    ( '%c: %c', 3, 1 ),
     'kv2':		    ( '%c: %c', 1, 2 ),
     'import':               ( '%|import %c\n', 2),
