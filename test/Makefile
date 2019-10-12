@@ -86,7 +86,7 @@ check-disasm:
 	$(PYTHON) dis-compare.py
 
 #: Check deparsing bytecode 1.x only
-check-bytecode-1: check-bytecode-1.0 check-bytecode-1.1 check-bytecode-1.2 check-bytecode-1.3 check-bytecode-1.4 check-bytecode-1.5 check-byecode-1.4
+check-bytecode-1: check-bytecode-1.0 check-bytecode-1.1 check-bytecode-1.2 check-bytecode-1.3 check-bytecode-1.4 check-bytecode-1.5 check-bytecode-1.6
 
 #: Check deparsing bytecode 2.x only
 check-bytecode-2:
@@ -147,6 +147,10 @@ check-bytecode-1.4:
 #: Check deparsing bytecode 1.5 only
 check-bytecode-1.5:
 	$(PYTHON) test_pythonlib.py --bytecode-1.5
+
+#: Check deparsing bytecode 1.6 only
+check-bytecode-1.6:
+	$(PYTHON) test_pythonlib.py --bytecode-1.6
 
 #: Check deparsing Python 2.1
 check-bytecode-2.1:
