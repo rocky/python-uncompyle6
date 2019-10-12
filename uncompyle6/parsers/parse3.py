@@ -68,11 +68,6 @@ class Python3Parser(PythonParser):
         set_comp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
                           JUMP_BACK RETURN_VALUE RETURN_LAST
 
-        # FIXME: This is used only in the fragment parser
-        # Fix the fragment parser so that it adds RETURN_LAST
-        set_comp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
-                          JUMP_BACK RETURN_VALUE
-
         set_comp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
                           COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
 
@@ -345,10 +340,6 @@ class Python3Parser(PythonParser):
 
         stmt ::= return_closure
         return_closure ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
-
-        # FIXME: This is used only in the fragment parser
-        # Fix the fragment parser so that it adds RETURN_LAST
-        return_closure ::= LOAD_CLOSURE RETURN_VALUE
 
         stmt ::= whileTruestmt
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms

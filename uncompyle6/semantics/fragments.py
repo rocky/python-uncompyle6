@@ -969,7 +969,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             if node[0] == "LOAD_LISTCOMP":
                 start = len(self.f.getvalue())
                 self.set_pos_info(node[0], start - 1, start)
-            self.comprehension_walk3(node, 1, 0)
+            self.comprehension_walk_newer(node, 1, 0)
         self.write("]")
         self.prune()
 
@@ -1163,7 +1163,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 self.p.insts = self.scanner.insts
                 ast = python_parser.parse(self.p, tokens, customize)
                 self.p.insts = p_insts
-            except (parser.ParserError, AssertionError) as e:
+            except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
             maybe_show_tree(self, ast)
             return ast
@@ -1178,20 +1178,19 @@ class FragmentsWalker(pysource.SourceWalker, object):
         #
         # NOTE: this differs from behavior in pysource.py
 
-        if self.hide_internal:
-            if len(tokens) >= 2 and not noneInNames:
-                if tokens[-1].kind in ("RETURN_VALUE", "RETURN_VALUE_LAMBDA"):
-                    # Python 3.4's classes can add a "return None" which is
-                    # invalid syntax.
-                    if tokens[-2].kind == "LOAD_CONST":
-                        if isTopLevel or tokens[-2].pattr is None:
-                            del tokens[-2:]
-                        else:
-                            tokens.append(Token("RETURN_LAST"))
+        if len(tokens) >= 2 and not noneInNames:
+            if tokens[-1].kind in ("RETURN_VALUE", "RETURN_VALUE_LAMBDA"):
+                # Python 3.4's classes can add a "return None" which is
+                # invalid syntax.
+                if tokens[-2].kind == "LOAD_CONST":
+                    if isTopLevel or tokens[-2].pattr is None:
+                        del tokens[-2:]
                     else:
                         tokens.append(Token("RETURN_LAST"))
-            if len(tokens) == 0:
-                return PASS
+                else:
+                    tokens.append(Token("RETURN_LAST"))
+        if len(tokens) == 0:
+            return PASS
 
         # Build parse tree from tokenized and massaged disassembly.
         try:
