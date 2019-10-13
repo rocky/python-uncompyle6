@@ -626,12 +626,30 @@ def get_python_parser(
 
     if version < 3.0:
         if version < 2.2:
+            if version == 1.0:
+                import uncompyle6.parsers.parse10 as parse10
+                if compile_mode == 'exec':
+                    p = parse10.Python10Parser(debug_parser)
+                else:
+                    p = parse10.Python01ParserSingle(debug_parser)
+            elif version == 1.1:
+                import uncompyle6.parsers.parse11 as parse11
+                if compile_mode == 'exec':
+                    p = parse11.Python11Parser(debug_parser)
+                else:
+                    p = parse11.Python11ParserSingle(debug_parser)
+            if version == 1.2:
+                import uncompyle6.parsers.parse12 as parse12
+                if compile_mode == 'exec':
+                    p = parse12.Python12Parser(debug_parser)
+                else:
+                    p = parse12.Python12ParserSingle(debug_parser)
             if version == 1.3:
                 import uncompyle6.parsers.parse13 as parse13
                 if compile_mode == 'exec':
-                    p = parse13.Python14Parser(debug_parser)
+                    p = parse13.Python13Parser(debug_parser)
                 else:
-                    p = parse13.Python14ParserSingle(debug_parser)
+                    p = parse13.Python13ParserSingle(debug_parser)
             elif version == 1.4:
                 import uncompyle6.parsers.parse14 as parse14
                 if compile_mode == 'exec':
@@ -644,6 +662,12 @@ def get_python_parser(
                     p = parse15.Python15Parser(debug_parser)
                 else:
                     p = parse15.Python15ParserSingle(debug_parser)
+            elif version == 1.6:
+                import uncompyle6.parsers.parse16 as parse16
+                if compile_mode == 'exec':
+                    p = parse16.Python16Parser(debug_parser)
+                else:
+                    p = parse16.Python16ParserSingle(debug_parser)
             elif version == 2.1:
                 import uncompyle6.parsers.parse21 as parse21
                 if compile_mode == 'exec':

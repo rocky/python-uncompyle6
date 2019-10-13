@@ -1443,7 +1443,7 @@ class SourceWalker(GenericASTTraversal, object):
         list_if = None
         assert n == "comp_iter"
 
-        # find innermost node
+        # find inner-most node
         while n == "comp_iter":
             n = n[0]  # recurse one step
             # FIXME: adjust for set comprehension
@@ -2232,7 +2232,10 @@ class SourceWalker(GenericASTTraversal, object):
                 # if lhs is not a UNPACK_TUPLE (or equiv.),
                 # add parenteses to make this a tuple
                 # if node[1][0] not in ('unpack', 'unpack_list'):
-                return "(" + self.traverse(node[1]) + ")"
+                result = self.traverse(node[1])
+                if not (result.startswith("(") and result.endswith(")") ):
+                    result = "(%s)" % result
+                return result
             # return self.traverse(node[1])
         raise Exception("Can't find tuple parameter " + name)
 

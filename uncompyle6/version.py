@@ -12,4 +12,4 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # This file is suitable for sourcing inside bash as
 # well as importing into Python
-VERSION="3.4.1"  # noqa
+VERSION="3.5.0"  # noqa

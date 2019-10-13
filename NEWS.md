@@ -1,3 +1,12 @@
+4.1.0 2019-10-12 Stony Brook Ride
+=================================
+
+- Fix fragment bugs
+   * missing RETURN_LAST introduced when adding transformation layer
+   * more parent entries on tokens
+- Preliminary support for decompiling Python 1.0, 1.1. 1.2 and 1.6
+   * Newer xdis version needed
+
 3.4.1 2019-10-02
 ================
 
