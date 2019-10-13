@@ -1095,9 +1095,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 buildclass = node
             else:
                 buildclass = node[0]
-=======
-            buildclass = node if (node == "classdefdeco2") else node[0]
->>>>>>> master
             build_list = buildclass[1][0]
             if hasattr(buildclass[-3][0], "attr"):
                 subclass = buildclass[-3][0].attr
