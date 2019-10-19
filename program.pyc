@@ -1,0 +1,14 @@
+import sys
+a = 'SKY'
+
+def getFlag(uid, mid):
+    return a + '-' + mid + '-' + str(ord(uid[0])).zfill(4)
+
+
+if len(sys.argv) != 2:
+    print ('Usage: python {} <uid>').format(sys.argv[0])
+    exit(1)
+middle = 'CSRC'
+uid = sys.argv[1]
+raw_input("Let's play a game, enter a flag: ")
+print "Honestly, who knows if that's the right flag ¯\\_(ツ)_/¯"
