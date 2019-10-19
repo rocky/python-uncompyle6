@@ -63,6 +63,7 @@ Goto https://github.com/rocky/python-uncompyle6/releases
 
 # Upload single package and look at Rst Formating
 
+	$ twine check dist/xasm-${VERSION}*
     $ twine upload dist/uncompyle6-${VERSION}-py3.3.egg
 
 # Upload rest of versions
