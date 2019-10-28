@@ -29,6 +29,9 @@ def customize_for_version(self, is_pypy, version):
         #######################
         TABLE_DIRECT.update({
             'assert_pypy':	( '%|assert %c\n' ,     (1, 'assert_expr') ),
+            # This is as a result of an if transoration
+            'assert0_pypy':	( '%|assert %c\n' ,     (0, 'assert_expr') ),
+
             'assert_not_pypy':	( '%|assert not %c\n' , (1, 'assert_exp') ),
             'assert2_not_pypy':	( '%|assert not %c, %c\n' , (1, 'assert_exp'),
                                   (4, 'expr') ),

@@ -187,6 +187,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.hide_internal = False
         self.offsets = {}
         self.last_finish = -1
+        self.is_pypy = is_pypy
 
         # FIXME: is there a better way?
         global MAP_DIRECT_FRAGMENT

@@ -239,7 +239,9 @@ class SourceWalker(GenericASTTraversal, object):
             is_pypy=is_pypy,
         )
 
-        self.treeTransform = TreeTransform(version, showast)
+        self.treeTransform = TreeTransform(version=version,
+                                           show_ast=showast,
+                                           is_pypy=is_pypy)
         self.debug_parser = dict(debug_parser)
         self.showast = showast
         self.params = params
