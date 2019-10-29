@@ -561,7 +561,12 @@ class Python3Parser(PythonParser):
         this has an effect on many rules.
         """
         if self.version >= 3.3:
-            new_rule = rule % (("LOAD_STR ") * 1)
+            if PYTHON3 or not self.is_pypy:
+                load_op = "LOAD_STR "
+            else:
+                load_op = "LOAD_CONST "
+
+            new_rule = rule % ((load_op) * 1)
         else:
             new_rule = rule % (("LOAD_STR ") * 0)
         self.add_unique_rule(new_rule, opname, attr, customize)
@@ -589,7 +594,7 @@ class Python3Parser(PythonParser):
 
         """
 
-        is_pypy = False
+        self.is_pypy = False
 
         # For a rough break out on the first word. This may
         # include instructions that don't need customization,
@@ -634,7 +639,7 @@ class Python3Parser(PythonParser):
         # a specific instruction seen.
 
         if "PyPy" in customize:
-            is_pypy = True
+            self.is_pypy = True
             self.addRule(
                 """
               stmt ::= assign3_pypy
@@ -840,7 +845,7 @@ class Python3Parser(PythonParser):
                     self.addRule(rule, nop_func)
 
                 self.custom_classfunc_rule(
-                    opname, token, customize, tokens[i + 1], is_pypy
+                    opname, token, customize, tokens[i + 1], self.is_pypy
                 )
                 # Note: don't add to custom_ops_processed.
 
@@ -922,7 +927,7 @@ class Python3Parser(PythonParser):
                 custom_ops_processed.add(opname)
             elif opname == "LOAD_BUILD_CLASS":
                 self.custom_build_class_rule(
-                    opname, i, token, tokens, customize, is_pypy
+                    opname, i, token, tokens, customize, self.is_pypy
                 )
                 # Note: don't add to custom_ops_processed.
             elif opname == "LOAD_CLASSDEREF":
@@ -996,7 +1001,7 @@ class Python3Parser(PythonParser):
                     j = 1
                 else:
                     j = 2
-                if is_pypy or (i >= j and tokens[i - j] == "LOAD_LAMBDA"):
+                if self.is_pypy or (i >= j and tokens[i - j] == "LOAD_LAMBDA"):
                     rule_pat = "mklambda ::= %sload_closure LOAD_LAMBDA %%s%s" % (
                         "pos_arg " * args_pos,
                         opname,
@@ -1011,7 +1016,7 @@ class Python3Parser(PythonParser):
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
                     if has_get_iter_call_function1:
-                        if is_pypy or (i >= j and tokens[i - j] == "LOAD_LISTCOMP"):
+                        if self.is_pypy or (i >= j and tokens[i - j] == "LOAD_LISTCOMP"):
                             # In the tokens we saw:
                             #   LOAD_LISTCOMP LOAD_CONST MAKE_FUNCTION (>= 3.3) or
                             #   LOAD_LISTCOMP MAKE_FUNCTION (< 3.3) or
@@ -1025,7 +1030,7 @@ class Python3Parser(PythonParser):
                             self.add_make_function_rule(
                                 rule_pat, opname, token.attr, customize
                             )
-                        if is_pypy or (i >= j and tokens[i - j] == "LOAD_SETCOMP"):
+                        if self.is_pypy or (i >= j and tokens[i - j] == "LOAD_SETCOMP"):
                             rule_pat = (
                                 "set_comp ::= %sload_closure LOAD_SETCOMP %%s%s expr "
                                 "GET_ITER CALL_FUNCTION_1"
@@ -1034,7 +1039,7 @@ class Python3Parser(PythonParser):
                             self.add_make_function_rule(
                                 rule_pat, opname, token.attr, customize
                             )
-                        if is_pypy or (i >= j and tokens[i - j] == "LOAD_DICTCOMP"):
+                        if self.is_pypy or (i >= j and tokens[i - j] == "LOAD_DICTCOMP"):
                             self.add_unique_rule(
                                 "dict_comp ::= %sload_closure LOAD_DICTCOMP %s "
                                 "expr GET_ITER CALL_FUNCTION_1"
@@ -1080,17 +1085,24 @@ class Python3Parser(PythonParser):
                         )
 
                 elif self.version >= 3.4:
+                    if PYTHON3 or not self.is_pypy:
+                        load_op = "LOAD_STR"
+                    else:
+                        load_op = "LOAD_CONST"
+
                     if annotate_args > 0:
-                        rule = "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure LOAD_CODE LOAD_STR %s" % (
+                        rule = "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure %s %s %s" % (
                             "pos_arg " * args_pos,
                             kwargs_str,
                             "annotate_arg " * (annotate_args - 1),
+                            load_op,
                             opname,
                         )
                     else:
-                        rule = "mkfunc ::= %s%s load_closure LOAD_CODE LOAD_STR %s" % (
+                        rule = "mkfunc ::= %s%s load_closure LOAD_CODE %s %s" % (
                             "pos_arg " * args_pos,
                             kwargs_str,
+                            load_op,
                             opname,
                         )
 
@@ -1164,7 +1176,7 @@ class Python3Parser(PythonParser):
                         self.add_make_function_rule(
                             rule_pat, opname, token.attr, customize
                         )
-                        if is_pypy or (i >= 2 and tokens[i - 2] == "LOAD_LISTCOMP"):
+                        if self.is_pypy or (i >= 2 and tokens[i - 2] == "LOAD_LISTCOMP"):
                             if self.version >= 3.6:
                                 # 3.6+ sometimes bundles all of the
                                 # 'exprs' in the rule above into a
@@ -1185,7 +1197,7 @@ class Python3Parser(PythonParser):
                                 rule_pat, opname, token.attr, customize
                             )
 
-                    if is_pypy or (i >= 2 and tokens[i - 2] == "LOAD_LAMBDA"):
+                    if self.is_pypy or (i >= 2 and tokens[i - 2] == "LOAD_LAMBDA"):
                         rule_pat = "mklambda ::= %s%sLOAD_LAMBDA %%s%s" % (
                             ("pos_arg " * args_pos),
                             ("kwarg " * args_kw),
@@ -1213,7 +1225,7 @@ class Python3Parser(PythonParser):
                     )
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
-                    if is_pypy or (i >= j and tokens[i - j] == "LOAD_LISTCOMP"):
+                    if self.is_pypy or (i >= j and tokens[i - j] == "LOAD_LISTCOMP"):
                         # In the tokens we saw:
                         #   LOAD_LISTCOMP LOAD_CONST MAKE_FUNCTION (>= 3.3) or
                         #   LOAD_LISTCOMP MAKE_FUNCTION (< 3.3) or
@@ -1228,7 +1240,7 @@ class Python3Parser(PythonParser):
                         )
 
                 # FIXME: Fold test  into add_make_function_rule
-                if is_pypy or (i >= j and tokens[i - j] == "LOAD_LAMBDA"):
+                if self.is_pypy or (i >= j and tokens[i - j] == "LOAD_LAMBDA"):
                     rule_pat = "mklambda ::= %s%sLOAD_LAMBDA %%s%s" % (
                         ("pos_arg " * args_pos),
                         ("kwarg " * args_kw),
