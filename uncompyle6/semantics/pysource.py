@@ -1566,8 +1566,6 @@ class SourceWalker(GenericASTTraversal, object):
             assert node[n].kind.startswith("CALL_FUNCTION")
 
             if node[n].kind.startswith("CALL_FUNCTION_KW"):
-                # 3.6+ starts doing this
-                kwargs = node[n - 1].attr
                 if self.is_pypy:
                     # FIXME: this doesn't handle positional and keyword args
                     # properly. Need to do something more like that below
@@ -1575,7 +1573,7 @@ class SourceWalker(GenericASTTraversal, object):
                     self.template_engine(('(%[0]{attr}=%c)', 1), node[n-1])
                     return
                 else:
-                    kwargs = node[n-1].attr
+                    kwargs = node[n - 1].attr
 
                 assert isinstance(kwargs, tuple)
                 i = n - (len(kwargs) + 1)
