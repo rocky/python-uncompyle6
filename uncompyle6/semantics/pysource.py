@@ -239,7 +239,9 @@ class SourceWalker(GenericASTTraversal, object):
             is_pypy=is_pypy,
         )
 
-        self.treeTransform = TreeTransform(version, showast)
+        self.treeTransform = TreeTransform(version=version,
+                                           show_ast=showast,
+                                           is_pypy=is_pypy)
         self.debug_parser = dict(debug_parser)
         self.showast = showast
         self.params = params
@@ -1564,8 +1566,15 @@ class SourceWalker(GenericASTTraversal, object):
             assert node[n].kind.startswith("CALL_FUNCTION")
 
             if node[n].kind.startswith("CALL_FUNCTION_KW"):
-                # 3.6+ starts doing this
-                kwargs = node[n - 1].attr
+                if self.is_pypy:
+                    # FIXME: this doesn't handle positional and keyword args
+                    # properly. Need to do something more like that below
+                    # in the non-PYPY 3.6 case.
+                    self.template_engine(('(%[0]{attr}=%c)', 1), node[n-1])
+                    return
+                else:
+                    kwargs = node[n - 1].attr
+
                 assert isinstance(kwargs, tuple)
                 i = n - (len(kwargs) + 1)
                 j = 1 + n - node[n].attr
@@ -1750,65 +1759,95 @@ class SourceWalker(GenericASTTraversal, object):
                 else:
                     kv_node = node[1:]
             else:
-                assert node[-1].kind.startswith("kvlist")
-                kv_node = node[-1]
-
-            first_time = True
-            for kv in kv_node:
-                assert kv in ("kv", "kv2", "kv3")
-
-                # kv ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
-                # kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
-                # kv3 ::= expr expr STORE_MAP
-
-                # FIXME: DRY this and the above
                 indent = self.indent + "  "
-                if kv == "kv":
-                    self.write(sep)
-                    name = self.traverse(kv[-2], indent="")
-                    if first_time:
-                        line_number = self.indent_if_source_nl(line_number, indent)
-                        first_time = False
+                line_number = self.line_number
+                sep = ''
+                opname = node[-1].kind
+                if self.is_pypy and self.version >= 3.6:
+                    if opname.startswith('BUILD_CONST_KEY_MAP'):
+                        keys = node[-2].attr
+                        # FIXME: DRY this and the above
+                        for i in range(len(keys)):
+                            key = keys[i]
+                            value = self.traverse(node[i], indent='')
+                            self.write(sep, key, ': ', value)
+                            sep = ", "
+                            if line_number != self.line_number:
+                                sep += "\n" + self.indent + "  "
+                                line_number = self.line_number
+                                pass
+                            pass
                         pass
-                    line_number = self.line_number
-                    self.write(name, ": ")
-                    value = self.traverse(
-                        kv[1], indent=self.indent + (len(name) + 2) * " "
-                    )
-                elif kv == "kv2":
-                    self.write(sep)
-                    name = self.traverse(kv[1], indent="")
-                    if first_time:
-                        line_number = self.indent_if_source_nl(line_number, indent)
-                        first_time = False
+                    else:
+                        if opname.startswith('kvlist'):
+                            list_node = node[0]
+                        else:
+                            list_node = node
+
+                        assert list_node[-1].kind.startswith('BUILD_MAP')
+                        for i in range(0, len(list_node)-1, 2):
+                            key = self.traverse(list_node[i], indent='')
+                            value = self.traverse(list_node[i+1], indent='')
+                            self.write(sep, key, ': ', value)
+                            sep = ", "
+                            if line_number != self.line_number:
+                                sep += "\n" + self.indent + "  "
+                                line_number = self.line_number
+                                pass
+                            pass
                         pass
-                    line_number = self.line_number
-                    self.write(name, ": ")
-                    value = self.traverse(
-                        kv[-3], indent=self.indent + (len(name) + 2) * " "
-                    )
-                elif kv == "kv3":
-                    self.write(sep)
-                    name = self.traverse(kv[-2], indent="")
-                    if first_time:
-                        line_number = self.indent_if_source_nl(line_number, indent)
-                        first_time = False
+                elif opname.startswith('kvlist'):
+                    kv_node = node[-1]
+                    first_time = True
+                    for kv in kv_node:
+                        assert kv in ('kv', 'kv2', 'kv3')
+
+                        # kv ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
+                        # kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
+                        # kv3 ::= expr expr STORE_MAP
+
+                        # FIXME: DRY this and the above
+                        if kv == 'kv':
+                            self.write(sep)
+                            name = self.traverse(kv[-2], indent='')
+                            if first_time:
+                                line_number = self.indent_if_source_nl(line_number, indent)
+                                first_time = False
+                                pass
+                            line_number = self.line_number
+                            self.write(name, ': ')
+                            value = self.traverse(kv[1], indent=self.indent+(len(name)+2)*' ')
+                        elif kv == 'kv2':
+                            self.write(sep)
+                            name = self.traverse(kv[1], indent='')
+                            if first_time:
+                                line_number = self.indent_if_source_nl(line_number, indent)
+                                first_time = False
+                                pass
+                            line_number = self.line_number
+                            self.write(name, ': ')
+                            value = self.traverse(kv[-3], indent=self.indent+(len(name)+2)*' ')
+                        elif kv == 'kv3':
+                            self.write(sep)
+                            name = self.traverse(kv[-2], indent='')
+                            if first_time:
+                                line_number = self.indent_if_source_nl(line_number, indent)
+                                first_time = False
+                                pass
+                            line_number = self.line_number
+                            self.write(name, ': ')
+                            line_number = self.line_number
+                            value = self.traverse(kv[0], indent=self.indent+(len(name)+2)*' ')
+                            pass
+                        self.write(value)
+                        sep = ", "
+                        if line_number != self.line_number:
+                            sep += "\n" + self.indent + "  "
+                            line_number = self.line_number
+                            pass
                         pass
-                    line_number = self.line_number
-                    self.write(name, ": ")
-                    line_number = self.line_number
-                    value = self.traverse(
-                        kv[0], indent=self.indent + (len(name) + 2) * " "
-                    )
-                    pass
-                self.write(value)
-                sep = ", "
-                if line_number != self.line_number:
-                    sep += "\n" + self.indent + "  "
-                    line_number = self.line_number
-                    pass
+
                 pass
-            pass
         if sep.startswith(",\n"):
             self.write(sep[1:])
         if node[0] != "dict_entry":

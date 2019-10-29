@@ -30,9 +30,11 @@ def is_docstring(node):
 
 
 class TreeTransform(GenericASTTraversal, object):
-    def __init__(self, version, show_ast=None):
+    def __init__(self, version, show_ast=None,
+                is_pypy=False):
         self.version = version
         self.showast = show_ast
+        self.is_pypy = is_pypy
         return
 
     def maybe_show_tree(self, ast):
@@ -133,7 +135,10 @@ class TreeTransform(GenericASTTraversal, object):
                     # becomes:
                     # assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
                     if jump_cond == "jmp_true":
-                        kind = "assert"
+                        if self.is_pypy:
+                            kind = "assert0_pypy"
+                        else:
+                            kind = "assert"
                     else:
                         assert jump_cond == "jmp_false"
                         kind = "assertnot"
