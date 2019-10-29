@@ -92,6 +92,7 @@ class Python38Parser(Python37Parser):
         for38              ::= expr get_iter store for_block JUMP_BACK
         for38              ::= expr for_iter store for_block JUMP_BACK
         for38              ::= expr for_iter store for_block JUMP_BACK POP_BLOCK
+        for38              ::= expr for_iter store for_block
 
         forelsestmt38      ::= expr for_iter store for_block POP_BLOCK else_suite
         forelselaststmt38  ::= expr for_iter store for_block POP_BLOCK else_suitec
