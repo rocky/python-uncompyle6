@@ -1160,6 +1160,14 @@ class Python3Parser(PythonParser):
                         opname,
                     )
                     self.add_unique_rule(rule, opname, token.attr, customize)
+                    if not PYTHON3 and self.is_pypy:
+                        rule = "mkfunc ::= %s%s%s%s" % (
+                            "expr " * stack_count,
+                            "load_closure " * closure,
+                            "LOAD_CODE LOAD_CONST ",
+                            opname,
+                        )
+                        self.add_unique_rule(rule, opname, token.attr, customize)
 
                     if has_get_iter_call_function1:
                         rule_pat = (
