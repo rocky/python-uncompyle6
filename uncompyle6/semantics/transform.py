@@ -235,6 +235,15 @@ class TreeTransform(GenericASTTraversal, object):
 
     n_ifelsestmtc = n_ifelsestmtl = n_ifelsestmt
 
+    def n_list_for(self, list_for_node):
+        expr = list_for_node[0]
+        if (expr == "expr" and expr[0] == "get_iter"):
+            # Remove extraneous get_iter() inside the "for" of a comprehension
+            assert expr[0][0] == "expr"
+            list_for_node[0] = expr[0][0]
+            list_for_node.transformed_by="n_list_for",
+        return list_for_node
+
     def traverse(self, node, is_lambda=False):
         node = self.preorder(node)
         return node
