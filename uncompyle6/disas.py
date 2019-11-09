@@ -34,11 +34,10 @@ from __future__ import print_function
 import sys
 from collections import deque
 
-import uncompyle6
-
 from xdis.code import iscode
 from xdis.load import check_object_path, load_module
 from uncompyle6.scanner import get_scanner
+
 
 def disco(version, co, out=None, is_pypy=False):
     """
@@ -49,10 +48,9 @@ def disco(version, co, out=None, is_pypy=False):
 
     # store final output stream for case of error
     real_out = out or sys.stdout
-    print('# Python %s' % version, file=real_out)
+    print("# Python %s" % version, file=real_out)
     if co.co_filename:
-        print('# Embedded file name: %s' % co.co_filename,
-              file=real_out)
+        print("# Embedded file name: %s" % co.co_filename, file=real_out)
 
     scanner = get_scanner(version, is_pypy=is_pypy)
 
@@ -63,10 +61,12 @@ def disco(version, co, out=None, is_pypy=False):
 def disco_loop(disasm, queue, real_out):
     while len(queue) > 0:
         co = queue.popleft()
-        if co.co_name != '<module>':
-            print('\n# %s line %d of %s' %
-                      (co.co_name, co.co_firstlineno, co.co_filename),
-                      file=real_out)
+        if co.co_name != "<module>":
+            print(
+                "\n# %s line %d of %s"
+                % (co.co_name, co.co_firstlineno, co.co_filename),
+                file=real_out,
+            )
         tokens, customize = disasm(co)
         for t in tokens:
             if iscode(t.pattr):
@@ -76,6 +76,7 @@ def disco_loop(disasm, queue, real_out):
             print(t, file=real_out)
             pass
         pass
+
 
 # def disassemble_fp(fp, outstream=None):
 #     """
@@ -90,6 +91,7 @@ def disco_loop(disasm, queue, real_out):
 #         disco(version, co, outstream, is_pypy=is_pypy)
 #     co = None
 
+
 def disassemble_file(filename, outstream=None):
     """
     disassemble Python byte-code file (.pyc)
@@ -98,14 +100,14 @@ def disassemble_file(filename, outstream=None):
     try to find the corresponding compiled object.
     """
     filename = check_object_path(filename)
-    (version, timestamp, magic_int, co, is_pypy,
-     source_size) = load_module(filename)
+    (version, timestamp, magic_int, co, is_pypy, source_size) = load_module(filename)
     if type(co) == list:
         for con in co:
             disco(version, con, outstream)
     else:
         disco(version, co, outstream, is_pypy=is_pypy)
     co = None
+
 
 def _test():
     """Simple test program to disassemble a file."""
