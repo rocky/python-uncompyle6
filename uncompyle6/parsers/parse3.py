@@ -1444,7 +1444,7 @@ class Python3Parser(PythonParser):
                         """
                         tryelsestmtl3    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                                              except_handler COME_FROM else_suitel
-                                             come_froms
+                                             JUMP_FORWARD come_froms POP_TOP
                         """,
                         nop_func
                     )
