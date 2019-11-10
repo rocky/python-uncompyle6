@@ -86,10 +86,8 @@ class Python3Parser(PythonParser):
         dict_comp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
                            comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
 
-        comp_iter     ::= comp_if
         comp_iter     ::= comp_if_not
         comp_if_not   ::= expr jmp_true comp_iter
-        comp_iter     ::= comp_body
         """
 
     def p_grammar(self, args):
