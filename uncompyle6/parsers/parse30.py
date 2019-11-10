@@ -91,6 +91,9 @@ class Python30Parser(Python31Parser):
         except_suite          ::= c_stmts POP_EXCEPT jump_except POP_TOP
         except_suite_finalize ::= SETUP_FINALLY c_stmts_opt except_var_finalize END_FINALLY
                                   _jump COME_FROM POP_TOP
+
+        _ifstmts_jump         ::= c_stmts_opt JUMP_FORWARD COME_FROM POP_TOP
+
         jump_except           ::= JUMP_FORWARD COME_FROM POP_TOP
         jump_except           ::= JUMP_ABSOLUTE COME_FROM POP_TOP
         or                    ::= expr jmp_false expr jmp_true expr
@@ -101,8 +104,22 @@ class Python30Parser(Python31Parser):
         # JUMP_IF_FALSE
         # The below rules in fact are the same or similar.
 
-        jmp_true       ::= JUMP_IF_TRUE POP_TOP
-        jmp_false      ::= JUMP_IF_FALSE _come_froms POP_TOP
+        jmp_true         ::= JUMP_IF_TRUE POP_TOP
+        jmp_false        ::= JUMP_IF_FALSE _come_froms POP_TOP
+        jmp_false_then   ::= JUMP_IF_FALSE POP_TOP
+
+        # We don't have hacky THEN detection, so we do it
+        # in the grammar below which is also somewhat hacky.
+
+        stmt             ::= ifstmt30
+        ifstmt30         ::= testexpr_then _ifstmts_jump30
+
+        testexpr_then    ::= testfalse_then
+        testfalse_then   ::= expr jmp_false_then
+        call_stmt        ::= expr COME_FROM
+        _ifstmts_jump30  ::= c_stmts POP_TOP
+
+        ################################################################################
 
         for_block      ::= l_stmts_opt _come_froms POP_TOP JUMP_BACK
 

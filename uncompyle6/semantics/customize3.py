@@ -181,6 +181,12 @@ def customize_for_version3(self, version):
         # the iteration variable. These rules we can ignore
         # since we pick up the iteration variable some other way and
         # we definitely don't include in the source  _[dd].
+        TABLE_DIRECT.update({
+            'ifstmt30':	( '%|if %c:\n%+%c%-',
+                          (0, "testexpr_then"),
+                          (1, "_ifstmts_jump30") ),
+            })
+
         def n_comp_iter(node):
             if node[0] == "expr":
                 n = node[0][0]
