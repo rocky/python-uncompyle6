@@ -49,7 +49,7 @@ check-2.4 check-2.5:
 2.6 5.0 5.3 5.6 5.8:
 
 #:PyPy pypy3-2.4.0 Python 3:
-pypy-3.2 2.4:
+7.1 pypy-3.2 2.4:
 	$(MAKE) -C test $@
 
 #: Run py.test tests

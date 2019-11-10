@@ -32,11 +32,10 @@ want to run on earlier Python versions.
 import sys
 from collections import deque
 
-import uncompyle6
-
 from xdis.code import iscode
 from xdis.load import check_object_path, load_module
 from uncompyle6.scanner import get_scanner
+
 
 def disco(version, co, out=None, is_pypy=False):
     """
@@ -47,9 +46,9 @@ def disco(version, co, out=None, is_pypy=False):
 
     # store final output stream for case of error
     real_out = out or sys.stdout
-    real_out.write('# Python %s\n' % version)
+    real_out.write("# Python %s\n" % version)
     if co.co_filename:
-        real_out.write('# Embedded file name: %s\n' % co.co_filename)
+        real_out.write("# Embedded file name: %s\n" % co.co_filename)
 
     scanner = get_scanner(version, is_pypy=is_pypy)
 
@@ -60,8 +59,8 @@ def disco(version, co, out=None, is_pypy=False):
 def disco_loop(disasm, queue, real_out):
     while len(queue) > 0:
         co = queue.popleft()
-        if co.co_name != '<module>':
-            real_out.write('\n# %s line %d of %s\n' %
+        if co.co_name != "<module>":
+            real_out.write("\n# %s line %d of %s\n" %
                       (co.co_name, co.co_firstlineno, co.co_filename))
         tokens, customize = disasm(co)
         for t in tokens:
@@ -72,6 +71,7 @@ def disco_loop(disasm, queue, real_out):
             real_out.write(t)
             pass
         pass
+
 
 # def disassemble_fp(fp, outstream=None):
 #     """
@@ -86,6 +86,7 @@ def disco_loop(disasm, queue, real_out):
 #         disco(version, co, outstream, is_pypy=is_pypy)
 #     co = None
 
+
 def disassemble_file(filename, outstream=None):
     """
     disassemble Python byte-code file (.pyc)
@@ -94,14 +95,14 @@ def disassemble_file(filename, outstream=None):
     try to find the corresponding compiled object.
     """
     filename = check_object_path(filename)
-    (version, timestamp, magic_int, co, is_pypy,
-     source_size) = load_module(filename)
+    (version, timestamp, magic_int, co, is_pypy, source_size) = load_module(filename)
     if type(co) == list:
         for con in co:
             disco(version, con, outstream)
     else:
         disco(version, co, outstream, is_pypy=is_pypy)
     co = None
+
 
 def _test():
     """Simple test program to disassemble a file."""

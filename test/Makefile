@@ -100,7 +100,7 @@ check-bytecode-3:
 	--bytecode-3.1 --bytecode-3.2 --bytecode-3.3 \
 	--bytecode-3.4 --bytecode-3.5 --bytecode-3.6 \
         --bytecode-3.7 \
-	--bytecode-pypy3.2
+	--bytecode-pypy3.2 --bytecode-pypy3.6 --bytecode-3.8
 
 #: Check deparsing on selected bytecode 3.x
 check-bytecode-3-short:
@@ -338,7 +338,9 @@ pypy-3.2 2.4:
 	$(PYTHON) test_pythonlib.py --bytecode-pypy3.2 --verify
 
 #: PyPy 5.0.x with Python 3.6 ...
+check-bytecode-pypy3.6: 7.1
 7.1:
+	$(PYTHON) test_pythonlib.py --bytecode-pypy3.6-run --verify-run
 	$(PYTHON) test_pythonlib.py --bytecode-pypy3.6 --verify
 
 

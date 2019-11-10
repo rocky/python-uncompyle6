@@ -189,6 +189,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.hide_internal = False
         self.offsets = {}
         self.last_finish = -1
+        self.is_pypy = is_pypy
 
         # FIXME: is there a better way?
         global MAP_DIRECT_FRAGMENT
@@ -1463,25 +1464,80 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # as a custom rule
         start = len(self.f.getvalue())
         n = len(node) - 1
-        assert node[n].kind.startswith("CALL_FUNCTION")
 
-        for i in range(n - 2, 0, -1):
-            if not node[i].kind in ["expr", "LOAD_CLASSNAME"]:
-                break
-            pass
+        if node.kind != "expr":
+            if node == "kwarg":
+                self.template_engine(("(%[0]{attr}=%c)", 1), node)
+                return
 
-        if i == n - 2:
-            return
-        self.write("(")
-        line_separator = ", "
-        sep = ""
-        i += 1
-        while i < n:
-            value = self.traverse(node[i])
-            self.node_append(sep, value, node[i])
+            kwargs = None
+            assert node[n].kind.startswith("CALL_FUNCTION")
+
+            if node[n].kind.startswith("CALL_FUNCTION_KW"):
+                if self.is_pypy:
+                    # FIXME: this doesn't handle positional and keyword args
+                    # properly. Need to do something more like that below
+                    # in the non-PYPY 3.6 case.
+                    self.template_engine(('(%[0]{attr}=%c)', 1), node[n-1])
+                    return
+                else:
+                    kwargs = node[n - 1].attr
+
+                assert isinstance(kwargs, tuple)
+                i = n - (len(kwargs) + 1)
+                j = 1 + n - node[n].attr
+            else:
+                i = start = n - 2
+                for i in range(start, 0, -1):
+                    if not node[i].kind in ["expr", "call", "LOAD_CLASSNAME"]:
+                        break
+                    pass
+
+                if i == start:
+                    return
+                i += 2
+
+            for i in range(n - 2, 0, -1):
+                if not node[i].kind in ["expr", "LOAD_CLASSNAME"]:
+                    break
+                pass
+
+            line_separator = ", "
+            sep = ""
             i += 1
-            self.write(sep, value)
-            sep = line_separator
+            self.write("(")
+            if kwargs:
+                # 3.6+ does this
+                while j < i:
+                    self.write(sep)
+                    value = self.traverse(node[j])
+                    self.write("%s" % value)
+                    sep = line_separator
+                    j += 1
+
+                j = 0
+                while i < l:
+                    self.write(sep)
+                    value = self.traverse(node[i])
+                    self.write("%s=%s" % (kwargs[j], value))
+                    sep = line_separator
+                    j += 1
+                    i += 1
+            else:
+                while i < l:
+                    value = self.traverse(node[i])
+                    i += 1
+                    self.write(sep, value)
+                    sep = line_separator
+                    pass
+            pass
+        else:
+            if self.version >= 3.6 and node[0] == "LOAD_CONST":
+                return
+            value = self.traverse(node[0])
+            self.write("(")
+            self.write(value)
+            pass
 
         self.write(")")
         self.set_pos_info(node, start, len(self.f.getvalue()))

@@ -187,13 +187,7 @@ class Python36Parser(Python35Parser):
         for i, token in enumerate(tokens):
             opname = token.kind
 
-            if opname == 'LOAD_ASSERT':
-                if 'PyPy' in customize:
-                    rules_str = """
-                    stmt ::= JUMP_IF_NOT_DEBUG stmts COME_FROM
-                    """
-                    self.add_unique_doc_rules(rules_str, customize)
-            elif opname == 'FORMAT_VALUE':
+            if opname == 'FORMAT_VALUE':
                 rules_str = """
                     expr              ::= formatted_value1
                     formatted_value1  ::= expr FORMAT_VALUE
@@ -315,7 +309,7 @@ class Python36Parser(Python35Parser):
             pass
         return
 
-    def custom_classfunc_rule(self, opname, token, customize, next_token):
+    def custom_classfunc_rule(self, opname, token, customize, next_token, is_pypy):
 
         args_pos, args_kw = self.get_pos_kw(token)
 
@@ -337,10 +331,14 @@ class Python36Parser(Python35Parser):
             self.add_unique_rule('expr ::= async_call', token.kind, uniq_param, customize)
 
         if opname.startswith('CALL_FUNCTION_KW'):
-            self.addRule("expr ::= call_kw36", nop_func)
-            values = 'expr ' * token.attr
-            rule = "call_kw36 ::= expr %s LOAD_CONST %s" % (values, opname)
-            self.add_unique_rule(rule, token.kind, token.attr, customize)
+            if is_pypy:
+                # PYPY doesn't follow CPython 3.6 CALL_FUNCTION_KW conventions
+                super(Python36Parser, self).custom_classfunc_rule(opname, token, customize, next_token, is_pypy)
+            else:
+                self.addRule("expr ::= call_kw36", nop_func)
+                values = 'expr ' * token.attr
+                rule = "call_kw36 ::= expr {values} LOAD_CONST {opname}".format(**locals())
+                self.add_unique_rule(rule, token.kind, token.attr, customize)
         elif opname == 'CALL_FUNCTION_EX_KW':
             # Note: this doesn't exist in 3.7 and later
             self.addRule("""expr        ::= call_ex_kw4
@@ -405,7 +403,7 @@ class Python36Parser(Python35Parser):
                             """, nop_func)
             pass
         else:
-            super(Python36Parser, self).custom_classfunc_rule(opname, token, customize, next_token)
+            super(Python36Parser, self).custom_classfunc_rule(opname, token, customize, next_token, is_pypy)
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python36Parser,
