@@ -1437,8 +1437,18 @@ class Python3Parser(PythonParser):
                                          except_handler COME_FROM else_suitel
                                          opt_come_from_except
                     """,
-                    nop_func,
+                    nop_func
                 )
+                if self.version == 3.0:
+                    self.addRule(
+                        """
+                        tryelsestmtl3    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                                             except_handler COME_FROM else_suitel
+                                             come_froms
+                        """,
+                        nop_func
+                    )
+
                 custom_ops_processed.add(opname)
             elif opname_base in ("UNPACK_EX",):
                 before_count, after_count = token.attr
