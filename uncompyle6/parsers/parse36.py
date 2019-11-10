@@ -188,13 +188,7 @@ class Python36Parser(Python35Parser):
         for i, token in enumerate(tokens):
             opname = token.kind
 
-            if opname == 'LOAD_ASSERT':
-                if 'PyPy' in customize:
-                    rules_str = """
-                    stmt ::= JUMP_IF_NOT_DEBUG stmts COME_FROM
-                    """
-                    self.add_unique_doc_rules(rules_str, customize)
-            elif opname == 'FORMAT_VALUE':
+            if opname == 'FORMAT_VALUE':
                 rules_str = """
                     expr              ::= formatted_value1
                     formatted_value1  ::= expr FORMAT_VALUE

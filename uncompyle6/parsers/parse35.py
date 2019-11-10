@@ -144,9 +144,15 @@ class Python35Parser(Python34Parser):
         super(Python35Parser, self).customize_grammar_rules(tokens, customize)
         for i, token in enumerate(tokens):
             opname = token.kind
+            if opname == 'LOAD_ASSERT':
+                if 'PyPy' in customize:
+                    rules_str = """
+                    stmt ::= JUMP_IF_NOT_DEBUG stmts COME_FROM
+                    """
+                    self.add_unique_doc_rules(rules_str, customize)
             # FIXME: I suspect this is wrong for 3.6 and 3.5, but
             # I haven't verified what the 3.7ish fix is
-            if opname == 'BUILD_MAP_UNPACK_WITH_CALL':
+            elif opname == 'BUILD_MAP_UNPACK_WITH_CALL':
                 if self.version < 3.7:
                     self.addRule("expr ::= unmapexpr", nop_func)
                     nargs = token.attr % 256
