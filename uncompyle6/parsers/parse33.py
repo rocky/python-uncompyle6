@@ -14,23 +14,6 @@ class Python33Parser(Python32Parser):
         # Python 3.3+ adds yield from.
         expr          ::= yield_from
         yield_from    ::= expr expr YIELD_FROM
-
-        # We do the grammar hackery below for semantics
-        # actions that want c_stmts_opt at index 1
-
-        # Python 3.5+ has jump optimization to remove the redundant
-        # jump_excepts. But in 3.3 we need them added
-
-        try_except  ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                        except_handler
-                        jump_excepts come_from_except_clauses
-        """
-
-    def p_30to33(self, args):
-        """
-        # Store locals is only in Python 3.0 to 3.3
-        stmt           ::= store_locals
-        store_locals   ::= LOAD_FAST STORE_LOCALS
         """
 
     def customize_grammar_rules(self, tokens, customize):

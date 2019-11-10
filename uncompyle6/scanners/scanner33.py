@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2018 by Rocky Bernstein
+#  Copyright (c) 2015-2019 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ JUMP_OPS = opc.JUMP_OPS
 from uncompyle6.scanners.scanner3 import Scanner3
 class Scanner33(Scanner3):
 
-    def __init__(self, show_asm=False):
+    def __init__(self, show_asm=False, is_pypy=False):
         Scanner3.__init__(self, 3.3, show_asm)
         return
     pass

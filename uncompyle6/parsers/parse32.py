@@ -8,19 +8,21 @@ from uncompyle6.parser import PythonParserSingle
 from uncompyle6.parsers.parse3 import Python3Parser
 
 class Python32Parser(Python3Parser):
+    def p_30to33(self, args):
+        """
+        # Store locals is only in Python 3.0 to 3.3
+        stmt           ::= store_locals
+        store_locals   ::= LOAD_FAST STORE_LOCALS
+        """
+
     def p_32to35(self, args):
         """
-        expr        ::= conditional
         conditional ::= expr jmp_false expr jump_forward_else expr COME_FROM
 
         # compare_chained2 is used in a "chained_compare": x <= y <= z
         # used exclusively in compare_chained
         compare_chained2 ::= expr COMPARE_OP RETURN_VALUE
         compare_chained2 ::= expr COMPARE_OP RETURN_VALUE_LAMBDA
-
-        # Store locals is only in Python 3.0 to 3.3
-        stmt           ::= store_locals
-        store_locals   ::= LOAD_FAST STORE_LOCALS
 
         # Python < 3.5 no POP BLOCK
         whileTruestmt  ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM_LOOP
