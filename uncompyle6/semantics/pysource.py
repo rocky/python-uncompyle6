@@ -1763,7 +1763,7 @@ class SourceWalker(GenericASTTraversal, object):
                 line_number = self.line_number
                 sep = ''
                 opname = node[-1].kind
-                if self.is_pypy and self.version >= 3.6:
+                if self.is_pypy and self.version >= 3.5:
                     if opname.startswith('BUILD_CONST_KEY_MAP'):
                         keys = node[-2].attr
                         # FIXME: DRY this and the above
