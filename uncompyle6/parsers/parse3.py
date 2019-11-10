@@ -1439,15 +1439,6 @@ class Python3Parser(PythonParser):
                     """,
                     nop_func
                 )
-                if self.version == 3.0:
-                    self.addRule(
-                        """
-                        tryelsestmtl3    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                                             except_handler COME_FROM else_suitel
-                                             JUMP_FORWARD come_froms POP_TOP
-                        """,
-                        nop_func
-                    )
 
                 custom_ops_processed.add(opname)
             elif opname_base in ("UNPACK_EX",):

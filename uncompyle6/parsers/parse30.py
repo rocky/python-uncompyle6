@@ -47,6 +47,9 @@ class Python30Parser(Python31Parser):
         iflaststmtl ::= testexpr c_stmts_opt jb_pop_top
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE COME_FROM POP_TOP
 
+        jf_cf_pop   ::= JUMP_FORWARD come_froms POP_TOP
+        ifelsestmt  ::= testexpr c_stmts_opt jf_cf_pop else_suite COME_FROM
+
         withasstmt    ::= expr setupwithas store suite_stmts_opt
                           POP_BLOCK LOAD_CONST COME_FROM_FINALLY
                           LOAD_FAST DELETE_FAST WITH_CLEANUP END_FINALLY
