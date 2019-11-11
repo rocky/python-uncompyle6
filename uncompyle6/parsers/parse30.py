@@ -121,6 +121,9 @@ class Python30Parser(Python31Parser):
 
         gen_comp_body    ::= expr YIELD_VALUE COME_FROM POP_TOP
 
+        except_handler   ::= jmp_abs COME_FROM_EXCEPT except_stmts
+                             COME_FROM POP_TOP END_FINALLY
+
         ################################################################################
         for_block      ::= l_stmts_opt _come_froms POP_TOP JUMP_BACK
 
