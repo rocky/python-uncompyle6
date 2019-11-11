@@ -18,3 +18,13 @@ def parse_marked_section(fn, i, rawdata, report=1):
         j = 1
         fn(rawdata[i: j])
     return 10
+
+# From 3.0.1 _abcoll.py
+# Bug was in genexpr_func which doesn't have a JUMP_BACK but
+# in its gen_comp_body, we can use COME_FROM in its place.
+# As above omission of JUMPs is a feature of 3.0 that doesn't
+# seem to be in later versions (or earlier like 2.6).
+def __and__(self, other):
+    if not isinstance(other, Iterable):
+        return NotImplemented
+    return self._from_iterable(value for value in other if value in self)

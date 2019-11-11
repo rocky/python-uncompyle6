@@ -119,8 +119,9 @@ class Python30Parser(Python31Parser):
         call_stmt        ::= expr COME_FROM
         _ifstmts_jump30  ::= c_stmts POP_TOP
 
-        ################################################################################
+        gen_comp_body    ::= expr YIELD_VALUE COME_FROM POP_TOP
 
+        ################################################################################
         for_block      ::= l_stmts_opt _come_froms POP_TOP JUMP_BACK
 
         except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
