@@ -207,11 +207,14 @@ def customize_for_version3(self, version):
         # FIXME: perhaps this can be folded into the 3.4+ case?
         def n_yield_from(node):
             assert node[0] == "expr"
-            assert node[0][0] == "get_iter"
-            # Skip over yield_from.expr.get_iter which adds an
-            # extra iter(). Maybe we can do in tranformation phase instead?
-            template = ("yield from %c", (0, "expr"))
-            self.template_engine(template, node[0][0])
+            if node[0][0] == "get_iter":
+                # Skip over yield_from.expr.get_iter which adds an
+                # extra iter(). Maybe we can do in tranformation phase instead?
+                template = ("yield from %c", (0, "expr"))
+                self.template_engine(template, node[0][0])
+            else:
+                template = ("yield from %c", (0, "attribute"))
+                self.template_engine(template, node[0][0][0])
             self.prune()
 
         self.n_yield_from = n_yield_from
