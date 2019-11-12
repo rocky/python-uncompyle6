@@ -43,7 +43,11 @@ class Python30Parser(Python31Parser):
 
         else_suitel ::= l_stmts COME_FROM_LOOP JUMP_BACK
 
+        jump_absolute_else ::= COME_FROM JUMP_ABSOLUTE COME_FROM POP_TOP
+
+        ifelsestmtc ::= testexpr c_stmts_opt jump_absolute_else else_suitec
         ifelsestmtl ::= testexpr c_stmts_opt jb_pop_top else_suitel
+
         iflaststmtl ::= testexpr c_stmts_opt jb_pop_top
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE COME_FROM POP_TOP
 
@@ -187,7 +191,7 @@ class Python30Parser(Python31Parser):
 
         self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce['ifstmt'] = "AST"
-        # self.check_reduce["ifelsestmt"] = "AST"
+        self.check_reduce["ifelsestmtc"] = "AST"
         return
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
@@ -197,12 +201,17 @@ class Python30Parser(Python31Parser):
         if invalid:
             return invalid
         if (
-            rule[0] in ("iflaststmtl", "ifstmt") and ast[0] == "testexpr"
+            rule[0] in ("iflaststmtl", "ifstmt", "ifelsestmtc") and ast[0] == "testexpr"
         ):
             testexpr = ast[0]
             if testexpr[0] == "testfalse":
                 testfalse = testexpr[0]
-                if testfalse[1] == "jmp_false":
+                if rule[0] == "ifelsestmtc" and ast[2] == "jump_absolute_else":
+                    jump_absolute_else = ast[2]
+                    come_from = jump_absolute_else[2]
+                    return come_from == "COME_FROM" and come_from.attr < tokens[first].offset
+                    pass
+                elif testfalse[1] == "jmp_false":
                     jmp_false = testfalse[1]
                     if last == len(tokens):
                         last -= 1

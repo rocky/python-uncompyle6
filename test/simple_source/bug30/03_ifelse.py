@@ -35,3 +35,16 @@ def __instancecheck__(subtype, subclass, cls):
     if subtype:
         if (cls and subclass):
             return False
+
+
+# Adapted from 3.0.1 abc.py
+# Bug was rule in "jump_absolute_else" and disasllowing
+# "else" to the wrong place.
+
+def _strptime(locale_time, found_zone, time):
+    for tz_values in locale_time:
+        if found_zone:
+            if (time and found_zone):
+                break
+            else:
+                break
