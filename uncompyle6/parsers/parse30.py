@@ -124,6 +124,10 @@ class Python30Parser(Python31Parser):
         except_handler   ::= jmp_abs COME_FROM_EXCEPT except_stmts
                              COME_FROM POP_TOP END_FINALLY
 
+        expr             ::= or30
+        ret_or           ::= or30
+        or30             ::= expr JUMP_IF_TRUE COME_FROM POP_TOP expr come_from_opt
+
         ################################################################################
         for_block      ::= l_stmts_opt _come_froms POP_TOP JUMP_BACK
 
@@ -168,15 +172,22 @@ class Python30Parser(Python31Parser):
         whileelsestmt      ::= SETUP_LOOP testexpr l_stmts JUMP_BACK POP_BLOCK
                                else_suitel COME_FROM_LOOP
 
-        # No JUMP_IF_FALSE_OR_POP
+        # No JUMP_IF_FALSE_OR_POP, JUMP_IF_TRUE_OR_POP,
+        # POP_JUMP_IF_FALSE, or POP_JUMP_IF_TRUE
+
+        jmp_false        ::= POP_JUMP_IF_FALSE
+        jmp_true         ::= JUMP_IF_TRUE_OR_POP POP_TOP
         compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
                              compare_chained1 COME_FROM
         compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
                              compare_chained2 COME_FROM
+        ret_or           ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
+        or               ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         """)
 
-        self.check_reduce['iflaststmtl'] = 'AST'
-        # self.check_reduce['ifelsestmt'] = 'AST'
+        self.check_reduce["iflaststmtl"] = "AST"
+        self.check_reduce['ifstmt'] = "AST"
+        # self.check_reduce["ifelsestmt"] = "AST"
         return
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
@@ -186,7 +197,7 @@ class Python30Parser(Python31Parser):
         if invalid:
             return invalid
         if (
-            rule[0] in ("iflaststmtl",) and ast[0] == "testexpr"
+            rule[0] in ("iflaststmtl", "ifstmt") and ast[0] == "testexpr"
         ):
             testexpr = ast[0]
             if testexpr[0] == "testfalse":
