@@ -212,7 +212,10 @@ class Python30Parser(Python31Parser):
                         return True
                     while (first < last and isinstance(tokens[last].offset, str)):
                         last -= 1
-                    return not (tokens[first].offset <= jmp_false[0].attr <= tokens[last].offset)
+                    if rule[0] == "iflaststmtl":
+                        return not (jmp_false[0].attr <= tokens[last].offset)
+                    else:
+                        return not (tokens[first].offset <= jmp_false[0].attr <= tokens[last].offset)
 
     pass
 
