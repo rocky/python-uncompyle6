@@ -1,7 +1,7 @@
 # Adapted from 3.0 base64
 # Problem was handling if/else which
 # needs to be like Python 2.6 (and not like 2.7 or 3.1)
-def main(args, f):
+def main(args, f, func, sys):
     """Small main program"""
     if args and args[0] != '-':
         func(f, sys.stdout.buffer)
@@ -24,7 +24,14 @@ def parse_marked_section(fn, i, rawdata, report=1):
 # in its gen_comp_body, we can use COME_FROM in its place.
 # As above omission of JUMPs is a feature of 3.0 that doesn't
 # seem to be in later versions (or earlier like 2.6).
-def __and__(self, other):
+def __and__(self, other, Iterable):
     if not isinstance(other, Iterable):
         return NotImplemented
     return self._from_iterable(value for value in other if value in self)
+
+# Adapted from 3.0.1 abc.py
+# Bug was in handling multiple COME_FROMs in return_if_stmt
+def __instancecheck__(subtype, subclass, cls):
+    if subtype:
+        if (cls and subclass):
+            return False

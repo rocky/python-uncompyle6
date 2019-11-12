@@ -136,7 +136,7 @@ class Python30Parser(Python31Parser):
         except_handler ::= jmp_abs COME_FROM_EXCEPT except_stmts
                            POP_TOP END_FINALLY
 
-        return_if_stmt ::= ret_expr RETURN_END_IF COME_FROM POP_TOP
+        return_if_stmt ::= ret_expr RETURN_END_IF come_froms POP_TOP
         and            ::= expr jmp_false expr come_from_opt
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt come_from_opt
                            JUMP_BACK come_froms POP_TOP POP_BLOCK COME_FROM_LOOP
