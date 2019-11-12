@@ -135,9 +135,10 @@ class Python30Parser(Python31Parser):
         return_if_stmt ::= ret_expr RETURN_END_IF COME_FROM POP_TOP
         and            ::= expr jmp_false expr come_from_opt
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt come_from_opt
-                           JUMP_BACK COME_FROM POP_TOP POP_BLOCK COME_FROM_LOOP
+                           JUMP_BACK come_froms POP_TOP POP_BLOCK COME_FROM_LOOP
         whilestmt      ::= SETUP_LOOP testexpr returns
                            POP_TOP POP_BLOCK COME_FROM_LOOP
+
 
 
         # compare_chained is like x <= y <= z
@@ -174,7 +175,34 @@ class Python30Parser(Python31Parser):
                              compare_chained2 COME_FROM
         """)
 
+        self.check_reduce['iflaststmtl'] = 'AST'
+        # self.check_reduce['ifelsestmt'] = 'AST'
         return
+
+    def reduce_is_invalid(self, rule, ast, tokens, first, last):
+        invalid = super(Python30Parser,
+                        self).reduce_is_invalid(rule, ast,
+                                                tokens, first, last)
+        if invalid:
+            return invalid
+        if (
+            rule[0] in ("iflaststmtl",) and ast[0] == "testexpr"
+        ):
+            testexpr = ast[0]
+            if testexpr[0] == "testfalse":
+                testfalse = testexpr[0]
+                if testfalse[1] == "jmp_false":
+                    jmp_false = testfalse[1]
+                    if last == len(tokens):
+                        last -= 1
+                    while (isinstance(tokens[first].offset, str) and first < last):
+                        first += 1
+                    if first == last:
+                        return True
+                    while (first < last and isinstance(tokens[last].offset, str)):
+                        last -= 1
+                    return not (tokens[first].offset <= jmp_false[0].attr <= tokens[last].offset)
+
     pass
 
 class Python30ParserSingle(Python30Parser, PythonParserSingle):

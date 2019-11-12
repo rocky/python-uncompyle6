@@ -7,3 +7,8 @@ while 1:
             raise RuntimeError
     else:
         raise RuntimeError
+
+# Adapted from 3.0.1 cgi.py
+def _parseparam(s, end):
+    while end > 0 and s.count(''):
+        end = s.find(';')
