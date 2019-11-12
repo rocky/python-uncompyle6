@@ -141,7 +141,9 @@ class Python30Parser(Python31Parser):
                            POP_TOP END_FINALLY
 
         return_if_stmt ::= ret_expr RETURN_END_IF come_froms POP_TOP
+
         and            ::= expr jmp_false expr come_from_opt
+
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt come_from_opt
                            JUMP_BACK come_froms POP_TOP POP_BLOCK COME_FROM_LOOP
         whilestmt      ::= SETUP_LOOP testexpr returns
@@ -192,6 +194,8 @@ class Python30Parser(Python31Parser):
         self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce['ifstmt'] = "AST"
         self.check_reduce["ifelsestmtc"] = "AST"
+        self.check_reduce["ifelsestmt"] = "AST"
+        # self.check_reduce["and"] = "AST"
         return
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
@@ -200,17 +204,25 @@ class Python30Parser(Python31Parser):
                                                 tokens, first, last)
         if invalid:
             return invalid
+        lhs = rule[0]
         if (
-            rule[0] in ("iflaststmtl", "ifstmt", "ifelsestmtc") and ast[0] == "testexpr"
+            lhs in ("iflaststmtl", "ifstmt",
+                        "ifelsestmt", "ifelsestmtc") and ast[0] == "testexpr"
         ):
             testexpr = ast[0]
             if testexpr[0] == "testfalse":
                 testfalse = testexpr[0]
-                if rule[0] == "ifelsestmtc" and ast[2] == "jump_absolute_else":
+                if lhs == "ifelsestmtc" and ast[2] == "jump_absolute_else":
                     jump_absolute_else = ast[2]
                     come_from = jump_absolute_else[2]
                     return come_from == "COME_FROM" and come_from.attr < tokens[first].offset
                     pass
+                elif lhs == "ifelsestmt" and ast[2] == "jf_cf_pop":
+                    come_froms = ast[2][1]
+                    for come_from in come_froms:
+                        if come_from.attr < tokens[first].offset:
+                            return True
+                    return False
                 elif testfalse[1] == "jmp_false":
                     jmp_false = testfalse[1]
                     if last == len(tokens):
@@ -225,6 +237,14 @@ class Python30Parser(Python31Parser):
                         return not (jmp_false[0].attr <= tokens[last].offset)
                     else:
                         return not (tokens[first].offset <= jmp_false[0].attr <= tokens[last].offset)
+                    pass
+                pass
+            pass
+        # elif lhs == "and":
+        #     jmp_false = ast[1]
+        #     if jmp_false == "jmp_false":
+        #         return jmp_false[0].attr > tokens[last].offset
+
 
     pass
 

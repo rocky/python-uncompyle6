@@ -38,7 +38,7 @@ def __instancecheck__(subtype, subclass, cls):
 
 
 # Adapted from 3.0.1 abc.py
-# Bug was rule in "jump_absolute_else" and disasllowing
+# Bug was rule in "jump_absolute_else" and disallowing
 # "else" to the wrong place.
 
 def _strptime(locale_time, found_zone, time):
