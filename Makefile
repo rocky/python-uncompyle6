@@ -47,8 +47,12 @@ check-3.8:
 # Skip for now
 2.6 5.0 5.3 5.6 5.8:
 
-#:PyPy pypy3-2.4.0 Python 3:
+#:PyPy pypy3-2.4.0 Python 3.6.1:
 7.1 pypy-3.2 2.4:
+	$(MAKE) -C test $@
+
+#:PyPy pypy3-2.4.0 Python 3.6.9:
+7.2:
 	$(MAKE) -C test $@
 
 #: Run py.test tests
