@@ -45,14 +45,16 @@ class Python30Parser(Python31Parser):
 
         jump_absolute_else ::= COME_FROM JUMP_ABSOLUTE COME_FROM POP_TOP
 
+        jump_cf_pop   ::= _come_froms _jump  _come_froms POP_TOP
+
+        ifelsestmt  ::= testexpr c_stmts_opt jump_cf_pop else_suite COME_FROM
+        ifelsestmtl ::= testexpr c_stmts_opt jump_cf_pop else_suitel
         ifelsestmtc ::= testexpr c_stmts_opt jump_absolute_else else_suitec
-        ifelsestmtl ::= testexpr c_stmts_opt jb_pop_top else_suitel
+        ifelsestmtc ::= testexpr c_stmts_opt jump_cf_pop else_suitec
 
         iflaststmtl ::= testexpr c_stmts_opt jb_pop_top
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE COME_FROM POP_TOP
 
-        jf_cf_pop   ::= JUMP_FORWARD come_froms POP_TOP
-        ifelsestmt  ::= testexpr c_stmts_opt jf_cf_pop else_suite COME_FROM
 
         withasstmt    ::= expr setupwithas store suite_stmts_opt
                           POP_BLOCK LOAD_CONST COME_FROM_FINALLY
@@ -142,7 +144,7 @@ class Python30Parser(Python31Parser):
 
         return_if_stmt ::= ret_expr RETURN_END_IF come_froms POP_TOP
 
-        and            ::= expr jmp_false expr come_from_opt
+        and            ::= expr jmp_false_then expr come_from_opt
 
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt come_from_opt
                            JUMP_BACK come_froms POP_TOP POP_BLOCK COME_FROM_LOOP
@@ -166,6 +168,7 @@ class Python30Parser(Python31Parser):
         ifelsestmtl        ::= testexpr c_stmts_opt JUMP_BACK else_suitel
         iflaststmt         ::= testexpr c_stmts_opt JUMP_ABSOLUTE
         _ifstmts_jump      ::= c_stmts_opt JUMP_FORWARD _come_froms
+
         jump_forward_else  ::= JUMP_FORWARD ELSE
         jump_absolute_else ::= JUMP_ABSOLUTE ELSE
         whilestmt          ::= SETUP_LOOP testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
@@ -189,13 +192,14 @@ class Python30Parser(Python31Parser):
                              compare_chained2 COME_FROM
         ret_or           ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
         or               ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
+        and              ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         """)
 
         self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce['ifstmt'] = "AST"
         self.check_reduce["ifelsestmtc"] = "AST"
         self.check_reduce["ifelsestmt"] = "AST"
-        # self.check_reduce["and"] = "AST"
+        # self.check_reduce["and"] = "stmt"
         return
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
@@ -217,11 +221,22 @@ class Python30Parser(Python31Parser):
                     come_from = jump_absolute_else[2]
                     return come_from == "COME_FROM" and come_from.attr < tokens[first].offset
                     pass
-                elif lhs == "ifelsestmt" and ast[2] == "jf_cf_pop":
-                    come_froms = ast[2][1]
+                elif lhs in ("ifelsestmt", "ifelsestmtc") and ast[2] == "jump_cf_pop":
+                    jump_cf_pop = ast[2]
+                    come_froms = jump_cf_pop[0]
                     for come_from in come_froms:
                         if come_from.attr < tokens[first].offset:
                             return True
+                    come_froms = jump_cf_pop[2]
+                    if come_froms == "COME_FROM":
+                        if come_froms.attr < tokens[first].offset:
+                            return True
+                        pass
+                    elif come_froms == "_come_froms":
+                        for come_from in come_froms:
+                            if come_from.attr < tokens[first].offset:
+                                return True
+
                     return False
                 elif testfalse[1] == "jmp_false":
                     jmp_false = testfalse[1]
@@ -241,10 +256,7 @@ class Python30Parser(Python31Parser):
                 pass
             pass
         # elif lhs == "and":
-        #     jmp_false = ast[1]
-        #     if jmp_false == "jmp_false":
-        #         return jmp_false[0].attr > tokens[last].offset
-
+        #     return tokens[last+1] == "JUMP_FORWARD"
 
     pass
 
