@@ -258,7 +258,11 @@ class Python30Parser(Python31Parser):
                     if rule[0] == "iflaststmtl":
                         return not (jmp_false[0].attr <= tokens[last].offset)
                     else:
-                        return not (tokens[first].offset <= jmp_false[0].attr <= tokens[last].offset)
+                        jmp_false_target = jmp_false[0].attr
+                        if tokens[first].offset > jmp_false_target:
+                            return True
+                        return (
+                            (jmp_false_target > tokens[last].offset) and tokens[last] != "JUMP_FORWARD")
                     pass
                 pass
             pass
