@@ -100,10 +100,12 @@ class Python30Parser(Python31Parser):
         except_suite_finalize ::= SETUP_FINALLY c_stmts_opt except_var_finalize END_FINALLY
                                   _jump COME_FROM POP_TOP
 
+        except_handler        ::= jmp_abs COME_FROM_EXCEPT except_stmts END_FINALLY
+
         _ifstmts_jump         ::= c_stmts_opt JUMP_FORWARD COME_FROM POP_TOP
 
-        jump_except           ::= JUMP_FORWARD COME_FROM POP_TOP
-        jump_except           ::= JUMP_ABSOLUTE COME_FROM POP_TOP
+        jump_except           ::= _jump COME_FROM POP_TOP
+
         or                    ::= expr jmp_false expr jmp_true expr
         or                    ::= expr jmp_true expr
 

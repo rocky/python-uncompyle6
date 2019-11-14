@@ -45,6 +45,7 @@ TEST_VERSIONS = (
     "pypy3.5-6.0.0",
     "pypy3.6-7.1.0",
     "pypy3.6-7.1.1",
+    "pypy3.6-7.2.0",
     "native",
 ) + tuple(python_versions)
 
