@@ -183,7 +183,10 @@ def customize_for_version3(self, version):
         # we definitely don't include in the source  _[dd].
         TABLE_DIRECT.update({
             'ifstmt30':	( "%|if %c:\n%+%c%-",
-                          (0, "testexpr_then"),
+                          (0, "testfalse_then"),
+                          (1, "_ifstmts_jump30") ),
+            'ifnotstmt30': ( "%|if not %c:\n%+%c%-",
+                          (0, "testtrue_then"),
                           (1, "_ifstmts_jump30") ),
             "or30":    	( "%c or %c",
                           (0, "expr"),

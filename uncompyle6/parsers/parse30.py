@@ -53,6 +53,8 @@ class Python30Parser(Python31Parser):
         ifelsestmtc ::= testexpr c_stmts_opt jump_cf_pop else_suitec
 
         iflaststmtl ::= testexpr c_stmts_opt jb_pop_top
+        iflaststmtl ::= testexpr c_stmts_opt COME_FROM JUMP_BACK COME_FROM POP_TOP
+
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE COME_FROM POP_TOP
 
 
@@ -111,6 +113,7 @@ class Python30Parser(Python31Parser):
         # The below rules in fact are the same or similar.
 
         jmp_true         ::= JUMP_IF_TRUE POP_TOP
+        jmp_true_then    ::= JUMP_IF_TRUE _come_froms POP_TOP
         jmp_false        ::= JUMP_IF_FALSE _come_froms POP_TOP
         jmp_false_then   ::= JUMP_IF_FALSE POP_TOP
 
@@ -118,10 +121,12 @@ class Python30Parser(Python31Parser):
         # in the grammar below which is also somewhat hacky.
 
         stmt             ::= ifstmt30
-        ifstmt30         ::= testexpr_then _ifstmts_jump30
+        stmt             ::= ifnotstmt30
+        ifstmt30         ::= testfalse_then _ifstmts_jump30
+        ifnotstmt30      ::= testtrue_then  _ifstmts_jump30
 
-        testexpr_then    ::= testfalse_then
         testfalse_then   ::= expr jmp_false_then
+        testtrue_then   ::= expr jmp_true_then
         call_stmt        ::= expr COME_FROM
         _ifstmts_jump30  ::= c_stmts POP_TOP
 
