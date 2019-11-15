@@ -109,6 +109,8 @@ class Python30Parser(Python31Parser):
         or                    ::= expr jmp_false expr jmp_true expr
         or                    ::= expr jmp_true expr
 
+        import_from ::= LOAD_CONST LOAD_CONST IMPORT_NAME importlist _come_froms POP_TOP
+
         ################################################################################
         # In many ways 3.0 is like 2.6. One similarity is there is no JUMP_IF_TRUE and
         # JUMP_IF_FALSE
