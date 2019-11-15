@@ -188,10 +188,6 @@ def customize_for_version3(self, version):
             'ifnotstmt30': ( "%|if not %c:\n%+%c%-",
                           (0, "testtrue_then"),
                           (1, "_ifstmts_jump30") ),
-            "or30":    	( "%c or %c",
-                          (0, "expr"),
-                          (4, "expr") ),
-
             })
 
         def n_comp_iter(node):
