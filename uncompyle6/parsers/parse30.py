@@ -52,6 +52,7 @@ class Python30Parser(Python31Parser):
         ifelsestmtc ::= testexpr c_stmts_opt jump_absolute_else else_suitec
         ifelsestmtc ::= testexpr c_stmts_opt jump_cf_pop else_suitec
 
+        iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE COME_FROM
         iflaststmtl ::= testexpr c_stmts_opt jb_pop_top
         iflaststmtl ::= testexpr c_stmts_opt COME_FROM JUMP_BACK COME_FROM POP_TOP
 
