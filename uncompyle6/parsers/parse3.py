@@ -1439,8 +1439,9 @@ class Python3Parser(PythonParser):
                                          except_handler COME_FROM else_suitel
                                          opt_come_from_except
                     """,
-                    nop_func,
+                    nop_func
                 )
+
                 custom_ops_processed.add(opname)
             elif opname_base in ("UNPACK_EX",):
                 before_count, after_count = token.attr
@@ -1543,12 +1544,24 @@ class Python3Parser(PythonParser):
             for i in range(cfl - 1, first, -1):
                 if tokens[i] != "POP_BLOCK":
                     break
-            if tokens[i].kind not in ("JUMP_BACK", "RETURN_VALUE"):
+            if tokens[i].kind not in ("JUMP_BACK", "RETURN_VALUE", "BREAK_LOOP"):
                 if not tokens[i].kind.startswith("COME_FROM"):
                     return True
 
             # Check that the SETUP_LOOP jumps to the offset after the
             # COME_FROM_LOOP
+
+            # Python 3.0 has additional:
+            #     JUMP_FORWARD here
+            #     COME_FROM
+            #     POP_TOP
+            #     COME_FROM
+            #  here:
+            #     (target of SETUP_LOOP)
+            # We won't check this.
+            if self.version == 3.0:
+                return False
+
             if 0 <= last < len(tokens) and tokens[last] in (
                 "COME_FROM_LOOP",
                 "JUMP_BACK",

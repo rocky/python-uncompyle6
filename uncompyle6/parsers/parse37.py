@@ -140,31 +140,6 @@ class Python37Parser(Python36Parser):
         """
 
     def customize_grammar_rules(self, tokens, customize):
-        self.remove_rules("""
-          async_forelse_stmt ::= SETUP_LOOP expr
-                                 GET_AITER
-                                 LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
-                                 YIELD_FROM
-                                 store
-                                 POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
-                                 LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
-                                 POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
-                                 JUMP_ABSOLUTE END_FINALLY COME_FROM
-                                 for_block POP_BLOCK
-                                 else_suite COME_FROM_LOOP
-        stmt      ::= async_for_stmt36
-        async_for_stmt36   ::= SETUP_LOOP expr
-                               GET_AITER
-                               LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
-                               YIELD_FROM
-                               store
-                               POP_BLOCK JUMP_BACK COME_FROM_EXCEPT DUP_TOP
-                               LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
-                               END_FINALLY continues COME_FROM
-                               POP_TOP POP_TOP POP_TOP POP_EXCEPT
-                               POP_TOP POP_BLOCK
-                               COME_FROM_LOOP
-        """)
         super(Python37Parser, self).customize_grammar_rules(tokens, customize)
 
 class Python37ParserSingle(Python37Parser, PythonParserSingle):
@@ -172,22 +147,33 @@ class Python37ParserSingle(Python37Parser, PythonParserSingle):
 
 if __name__ == '__main__':
     # Check grammar
+    # FIXME: DRY this with other parseXX.py routines
     p = Python37Parser()
     p.check_grammar()
     from uncompyle6 import PYTHON_VERSION, IS_PYPY
+
     if PYTHON_VERSION == 3.7:
-        lhs, rhs, tokens, right_recursive = p.check_sets()
+        lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from uncompyle6.scanner import get_scanner
+
         s = get_scanner(PYTHON_VERSION, IS_PYPY)
-        opcode_set = set(s.opc.opname).union(set(
-            """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+        opcode_set = set(s.opc.opname).union(
+            set(
+                """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
                LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
                LAMBDA_MARKER RETURN_LAST
-            """.split()))
+            """.split()
+            )
+        )
         remain_tokens = set(tokens) - opcode_set
         import re
-        remain_tokens = set([re.sub(r'_\d+$', '', t) for t in remain_tokens])
-        remain_tokens = set([re.sub('_CONT$', '', t) for t in remain_tokens])
+
+        remain_tokens = set([re.sub(r"_\d+$", "", t) for t in remain_tokens])
+        remain_tokens = set([re.sub("_CONT$", "", t) for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         print(remain_tokens)
-        # print(sorted(p.rule2name.items()))
+        import sys
+        if len(sys.argv) > 1:
+            from spark_parser.spark import rule2str
+            for rule in sorted(p.rule2name.items()):
+                print(rule2str(rule[0]))

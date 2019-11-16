@@ -254,7 +254,7 @@ class Python26Parser(Python2Parser):
                          POP_TOP jb_pb_come_from
 
         generator_exp ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1 COME_FROM
-        list_if ::= list_if ::= expr jmp_false_then list_iter
+        list_if ::= expr jmp_false_then list_iter
         '''
 
     def p_ret26(self, args):
@@ -467,7 +467,7 @@ if __name__ == '__main__':
     p.check_grammar()
     from uncompyle6 import PYTHON_VERSION, IS_PYPY
     if PYTHON_VERSION == 2.6:
-        lhs, rhs, tokens, right_recursive = p.check_sets()
+        lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from uncompyle6.scanner import get_scanner
         s = get_scanner(PYTHON_VERSION, IS_PYPY)
         opcode_set = set(s.opc.opname).union(set(

@@ -181,6 +181,19 @@ def customize_for_version3(self, version):
         # the iteration variable. These rules we can ignore
         # since we pick up the iteration variable some other way and
         # we definitely don't include in the source  _[dd].
+        TABLE_DIRECT.update({
+            "ifstmt30":	( "%|if %c:\n%+%c%-",
+                          (0, "testfalse_then"),
+                          (1, "_ifstmts_jump30") ),
+            "ifnotstmt30": ( "%|if not %c:\n%+%c%-",
+                             (0, "testtrue_then"),
+                             (1, "_ifstmts_jump30") ),
+            "try_except30": ( "%|try:\n%+%c%-%c\n\n",
+                              (1, "suite_stmts_opt"),
+                              (4, "except_handler") ),
+
+            })
+
         def n_comp_iter(node):
             if node[0] == "expr":
                 n = node[0][0]
@@ -197,11 +210,14 @@ def customize_for_version3(self, version):
         # FIXME: perhaps this can be folded into the 3.4+ case?
         def n_yield_from(node):
             assert node[0] == "expr"
-            assert node[0][0] == "get_iter"
-            # Skip over yield_from.expr.get_iter which adds an
-            # extra iter(). Maybe we can do in tranformation phase instead?
-            template = ("yield from %c", (0, "expr"))
-            self.template_engine(template, node[0][0])
+            if node[0][0] == "get_iter":
+                # Skip over yield_from.expr.get_iter which adds an
+                # extra iter(). Maybe we can do in tranformation phase instead?
+                template = ("yield from %c", (0, "expr"))
+                self.template_engine(template, node[0][0])
+            else:
+                template = ("yield from %c", (0, "attribute"))
+                self.template_engine(template, node[0][0][0])
             self.prune()
 
         self.n_yield_from = n_yield_from

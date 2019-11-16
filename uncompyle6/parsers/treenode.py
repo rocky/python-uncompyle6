@@ -54,3 +54,11 @@ class SyntaxTree(spark_AST):
             rv += "\n" + child
             i += 1
         return rv
+
+    def first_child(self):
+        if len(self) > 0:
+            child = self[0]
+            if not isinstance(child, SyntaxTree):
+                return child
+            return self[0].first_child()
+        return self

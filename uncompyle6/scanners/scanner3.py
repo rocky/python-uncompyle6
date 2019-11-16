@@ -265,21 +265,29 @@ class Scanner3(Scanner):
             # RAISE_VARARGS then we have a "raise" statement
             # else we have an "assert" statement.
             if self.version == 3.0:
-                # There is a an implied JUMP_IF_TRUE that we are not testing for (yet?) here
+                # Like 2.6, 3.0 doesn't have POP_JUMP_IF... so we have
+                # to go through more machinations
                 assert_can_follow = inst.opname == "POP_TOP" and i + 1 < n
+                if assert_can_follow:
+                    prev_inst = self.insts[i - 1]
+                    assert_can_follow = (
+                        prev_inst.opname in ("JUMP_IF_TRUE", "JUMP_IF_FALSE")
+                        and i + 1 < n )
+                    jump_if_inst = prev_inst
             else:
                 assert_can_follow = (
                     inst.opname in ("POP_JUMP_IF_TRUE", "POP_JUMP_IF_FALSE")
                     and i + 1 < n
                 )
+                jump_if_inst = inst
             if assert_can_follow:
                 next_inst = self.insts[i + 1]
                 if (
                     next_inst.opname == "LOAD_GLOBAL"
                     and next_inst.argval == "AssertionError"
-                    and inst.argval
+                    and jump_if_inst.argval
                 ):
-                    raise_idx = self.offset2inst_index[self.prev_op[inst.argval]]
+                    raise_idx = self.offset2inst_index[self.prev_op[jump_if_inst.argval]]
                     raise_inst = self.insts[raise_idx]
                     if raise_inst.opname.startswith("RAISE_VARARGS"):
                         self.load_asserts.add(next_inst.offset)
@@ -481,6 +489,12 @@ class Scanner3(Scanner):
                         self.insts[self.offset2inst_index[target]].opname == "FOR_ITER"
                         and self.insts[i + 1].opname == "JUMP_FORWARD"
                     )
+
+                    if (self.version == 3.0 and self.insts[i + 1].opname == "JUMP_FORWARD"
+                        and not is_continue):
+                        target_prev = self.offset2inst_index[self.prev_op[target]]
+                        is_continue = (
+                            self.insts[target_prev].opname == "SETUP_LOOP")
 
                     if is_continue or (
                         inst.offset in self.stmts

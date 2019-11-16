@@ -115,11 +115,14 @@ class TreeTransform(GenericASTTraversal, object):
 
                     call = expr[0]
                     LOAD_ASSERT = call[0]
-                    expr = call[1][0]
-                    node = SyntaxTree(
-                        kind,
-                        [assert_expr, jump_cond, LOAD_ASSERT, expr, RAISE_VARARGS_1]
-                    )
+                    if isinstance(call[1], SyntaxTree):
+                        expr = call[1][0]
+                        node = SyntaxTree(
+                            kind,
+                            [assert_expr, jump_cond, LOAD_ASSERT, expr, RAISE_VARARGS_1]
+                        )
+                        pass
+                    pass
                 else:
                     # ifstmt
                     #   0. testexpr (2)
