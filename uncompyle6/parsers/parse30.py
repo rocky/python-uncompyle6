@@ -104,6 +104,7 @@ class Python30Parser(Python31Parser):
         except_handler        ::= jmp_abs COME_FROM_EXCEPT except_stmts END_FINALLY
 
         _ifstmts_jump         ::= c_stmts_opt JUMP_FORWARD COME_FROM POP_TOP
+        _ifstmts_jump         ::= c_stmts_opt come_froms POP_TOP JUMP_FORWARD _come_froms
 
         jump_except           ::= _jump COME_FROM POP_TOP
 
