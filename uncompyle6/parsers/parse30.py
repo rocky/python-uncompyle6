@@ -336,6 +336,7 @@ if __name__ == '__main__':
                LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
                LAMBDA_MARKER RETURN_LAST
             """.split()))
+        ## FIXME: try this
         remain_tokens = set(tokens) - opcode_set
         import re
         remain_tokens = set([re.sub(r'_\d+$', '',  t) for t in remain_tokens])
