@@ -17,6 +17,7 @@ class Python30Parser(Python31Parser):
         assert            ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM POP_TOP
         assert2           ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
                               come_froms
+        call_stmt         ::= expr _come_froms POP_TOP
 
         return_if_lambda  ::= RETURN_END_IF_LAMBDA COME_FROM POP_TOP
         compare_chained2  ::= expr COMPARE_OP RETURN_END_IF_LAMBDA
@@ -158,7 +159,7 @@ class Python30Parser(Python31Parser):
         ifnotstmt30      ::= testtrue_then  _ifstmts_jump30
 
         testfalse_then   ::= expr jmp_false_then
-        testtrue_then   ::= expr jmp_true_then
+        testtrue_then    ::= expr jmp_true_then
         call_stmt        ::= expr COME_FROM
         _ifstmts_jump30  ::= c_stmts POP_TOP
 

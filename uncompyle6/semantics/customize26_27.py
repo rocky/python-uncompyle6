@@ -40,6 +40,7 @@ def customize_for_version26_27(self, version):
             'testtrue_then': ( 'not %p', (0, 22) ),
         })
 
+    # FIXME: this should be a transformation
     def n_call(node):
         mapping = self._get_mapping(node)
         key = node
