@@ -15,6 +15,9 @@ class Python30Parser(Python31Parser):
         pt_bp             ::= POP_TOP POP_BLOCK
 
         assert            ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM POP_TOP
+        assert2           ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
+                              come_froms
+
         return_if_lambda  ::= RETURN_END_IF_LAMBDA COME_FROM POP_TOP
         compare_chained2  ::= expr COMPARE_OP RETURN_END_IF_LAMBDA
 
@@ -212,7 +215,9 @@ class Python30Parser(Python31Parser):
                                COME_FROM_LOOP
         whilestmt          ::= SETUP_LOOP testexpr returns
                                POP_BLOCK COME_FROM_LOOP
+
         assert             ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
+
         return_if_lambda   ::= RETURN_END_IF_LAMBDA
         except_suite       ::= c_stmts POP_EXCEPT jump_except
         whileelsestmt      ::= SETUP_LOOP testexpr l_stmts JUMP_BACK POP_BLOCK
