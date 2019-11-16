@@ -75,6 +75,9 @@ class Python30Parser(Python31Parser):
         list_comp        ::= list_comp_header
                              LOAD_FAST FOR_ITER store comp_iter
                              JUMP_BACK
+        list_comp        ::= list_comp_header
+                             LOAD_FAST FOR_ITER store comp_iter
+                             JUMP_BACK _come_froms POP_TOP JUMP_BACK
 
         set_comp_header  ::= BUILD_SET_0 DUP_TOP STORE_FAST
         set_comp         ::= set_comp_header
@@ -85,6 +88,16 @@ class Python30Parser(Python31Parser):
         dict_comp        ::= dict_comp_header
                              LOAD_FAST FOR_ITER store dict_comp_iter
                              JUMP_BACK
+
+        # From Python 2.6
+
+
+        list_iter  ::= list_if JUMP_BACK
+        list_iter  ::= list_if JUMP_BACK _come_froms POP_TOP
+        lc_body    ::= LOAD_NAME expr LIST_APPEND
+	lc_body    ::= LOAD_FAST expr LIST_APPEND
+        list_if    ::= expr jmp_false_then list_iter
+        #############
 
         dict_comp_iter   ::= expr expr ROT_TWO expr STORE_SUBSCR
 

@@ -254,7 +254,7 @@ class Python26Parser(Python2Parser):
                          POP_TOP jb_pb_come_from
 
         generator_exp ::= LOAD_GENEXPR MAKE_FUNCTION_0 expr GET_ITER CALL_FUNCTION_1 COME_FROM
-        list_if ::= list_if ::= expr jmp_false_then list_iter
+        list_if ::= expr jmp_false_then list_iter
         '''
 
     def p_ret26(self, args):
