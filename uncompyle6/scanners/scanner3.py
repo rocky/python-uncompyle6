@@ -482,6 +482,12 @@ class Scanner3(Scanner):
                         and self.insts[i + 1].opname == "JUMP_FORWARD"
                     )
 
+                    if (self.version == 3.0 and self.insts[i + 1].opname == "JUMP_FORWARD"
+                        and not is_continue):
+                        target_prev = self.offset2inst_index[self.prev_op[target]]
+                        is_continue = (
+                            self.insts[target_prev].opname == "SETUP_LOOP")
+
                     if is_continue or (
                         inst.offset in self.stmts
                         and (
