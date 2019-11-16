@@ -182,12 +182,16 @@ def customize_for_version3(self, version):
         # since we pick up the iteration variable some other way and
         # we definitely don't include in the source  _[dd].
         TABLE_DIRECT.update({
-            'ifstmt30':	( "%|if %c:\n%+%c%-",
+            "ifstmt30":	( "%|if %c:\n%+%c%-",
                           (0, "testfalse_then"),
                           (1, "_ifstmts_jump30") ),
-            'ifnotstmt30': ( "%|if not %c:\n%+%c%-",
-                          (0, "testtrue_then"),
-                          (1, "_ifstmts_jump30") ),
+            "ifnotstmt30": ( "%|if not %c:\n%+%c%-",
+                             (0, "testtrue_then"),
+                             (1, "_ifstmts_jump30") ),
+            "try_except30": ( "%|try:\n%+%c%-%c\n\n",
+                              (1, "suite_stmts_opt"),
+                              (4, "except_handler") ),
+
             })
 
         def n_comp_iter(node):

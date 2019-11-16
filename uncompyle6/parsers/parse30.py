@@ -12,6 +12,8 @@ class Python30Parser(Python31Parser):
     def p_30(self, args):
         """
 
+        pt_bp             ::= POP_TOP POP_BLOCK
+
         assert            ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM POP_TOP
         return_if_lambda  ::= RETURN_END_IF_LAMBDA COME_FROM POP_TOP
         compare_chained2  ::= expr COMPARE_OP RETURN_END_IF_LAMBDA
@@ -88,6 +90,11 @@ class Python30Parser(Python31Parser):
         dict_comp        ::= dict_comp_header
                              LOAD_FAST FOR_ITER store dict_comp_iter
                              JUMP_BACK
+
+        stmt         ::= try_except30
+        try_except30 ::= SETUP_EXCEPT suite_stmts_opt
+                        _come_froms pt_bp
+                         except_handler opt_come_from_except
 
         # From Python 2.6
 
