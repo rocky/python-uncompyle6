@@ -23,8 +23,10 @@ class Python30Parser(Python31Parser):
         compare_chained2  ::= expr COMPARE_OP RETURN_END_IF_LAMBDA
 
         # FIXME: combine with parse3.2
-        whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK
-                              COME_FROM_LOOP
+        whileTruestmt     ::= SETUP_LOOP l_stmts_opt
+                              JUMP_BACK COME_FROM_LOOP
+        whileTruestmt     ::= SETUP_LOOP l_stmts_opt
+                              CONTINUE COME_FROM_LOOP
         whileTruestmt     ::= SETUP_LOOP returns
                               COME_FROM_LOOP
 
