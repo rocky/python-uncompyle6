@@ -56,7 +56,7 @@ class Python30Parser(Python31Parser):
 
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE COME_FROM
         iflaststmtl ::= testexpr c_stmts_opt jb_pop_top
-        iflaststmtl ::= testexpr c_stmts_opt COME_FROM JUMP_BACK COME_FROM POP_TOP
+        iflaststmtl ::= testexpr c_stmts_opt come_froms JUMP_BACK COME_FROM POP_TOP
 
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE COME_FROM POP_TOP
 
@@ -90,6 +90,9 @@ class Python30Parser(Python31Parser):
         dict_comp        ::= dict_comp_header
                              LOAD_FAST FOR_ITER store dict_comp_iter
                              JUMP_BACK
+        dict_comp        ::= dict_comp_header
+                             LOAD_FAST FOR_ITER store dict_comp_iter
+                             JUMP_BACK _come_froms POP_TOP JUMP_BACK
 
         stmt         ::= try_except30
         try_except30 ::= SETUP_EXCEPT suite_stmts_opt
