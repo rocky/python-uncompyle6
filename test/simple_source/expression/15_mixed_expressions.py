@@ -11,7 +11,10 @@ PYTHON_VERSION = sys.version_info[0] + (sys.version_info[1] / 10.0)
 x = 1e300
 assert 0.0 == x * 0
 assert x * 1e300 == float("inf")
-assert str(float("inf") * 0.0) == "nan"
+if PYTHON_VERSION > 2.4:
+    assert str(float("inf") * 0.0) == "nan"
+else:
+    assert str(float("inf") * 0.0) == "-nan"
 assert str(float("-inf") * 0.0) == "nan"
 assert -1e300 * 1e300 == float("-inf")
 
@@ -26,7 +29,7 @@ assert y == (-0-125j)
 x = 2
 assert 4 / x == 2
 
-if PYTHON_VERSION >= 2.2:
+if PYTHON_VERSION >= 2.19:
     x = 5
     assert x / 2 == 2.5
     x = 3
