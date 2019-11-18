@@ -214,13 +214,15 @@ class Python27Parser(Python2Parser):
 
 
         super(Python27Parser, self).customize_grammar_rules(tokens, customize)
-        self.check_reduce['and'] = 'AST'
-        # self.check_reduce['or'] = 'AST'
-        self.check_reduce['raise_stmt1'] = 'AST'
-        self.check_reduce['list_if_not'] = 'AST'
-        self.check_reduce['list_if'] = 'AST'
-        self.check_reduce['if_expr_true'] = 'tokens'
-        self.check_reduce['whilestmt'] = 'tokens'
+        self.check_reduce["and"] = "AST"
+        self.check_reduce["conditional"] = "AST"
+        # self.check_reduce["or"] = "AST"
+        self.check_reduce["raise_stmt1"] = "AST"
+        self.check_reduce["list_if_not"] = "AST"
+        self.check_reduce["list_if"] = "AST"
+        self.check_reduce["comp_if"] = "AST"
+        self.check_reduce["if_expr_true"] = "tokens"
+        self.check_reduce["whilestmt"] = "tokens"
         return
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
@@ -231,10 +233,10 @@ class Python27Parser(Python2Parser):
         if invalid:
             return invalid
 
-        if rule == ('and', ('expr', 'jmp_false', 'expr', '\\e_come_from_opt')):
+        if rule == ("and", ("expr", "jmp_false", "expr", "\\e_come_from_opt")):
             # If the instruction after the instructions formin "and"  is an "YIELD_VALUE"
             # then this is probably an "if" inside a comprehension.
-            if tokens[last] == 'YIELD_VALUE':
+            if tokens[last] == "YIELD_VALUE":
                 # Note: We might also consider testing last+1 being "POP_TOP"
                 return True
 
@@ -244,41 +246,57 @@ class Python27Parser(Python2Parser):
             jmp_target = jmp_false.offset + jmp_false.attr + 3
             return not (jmp_target == tokens[last].offset or
                         tokens[last].pattr == jmp_false.pattr)
-        elif rule[0] == ('raise_stmt1'):
-            return ast[0] == 'expr' and ast[0][0] == 'or'
-        elif rule[0] in ('assert', 'assert2'):
+        elif rule == ("comp_if", ("expr", "jmp_false", "comp_iter")):
+            jmp_false = ast[1]
+            if jmp_false[0] == "POP_JUMP_IF_FALSE":
+                return tokens[first].offset < jmp_false[0].attr < tokens[last].offset
+            pass
+        elif (rule[0], rule[1][0:5]) == (
+                "conditional",
+                ("expr", "jmp_false", "expr", "JUMP_ABSOLUTE", "expr")):
+            jmp_false = ast[1]
+            if jmp_false[0] == "POP_JUMP_IF_FALSE":
+                else_instr = ast[4].first_child()
+                if jmp_false[0].attr != else_instr.offset:
+                    return True
+                end_offset = ast[3].attr
+                return end_offset < tokens[last].offset
+            pass
+        elif rule[0] == ("raise_stmt1"):
+            return ast[0] == "expr" and ast[0][0] == "or"
+        elif rule[0] in ("assert", "assert2"):
             jump_inst = ast[1][0]
             jump_target = jump_inst.attr
             return not (last >= len(tokens)
                         or jump_target == tokens[last].offset
                         or jump_target == next_offset(ast[-1].op, ast[-1].opc, ast[-1].offset))
-        elif rule == ('list_if_not', ('expr', 'jmp_true', 'list_iter')):
+        elif rule == ("list_if_not", ("expr", "jmp_true", "list_iter")):
             jump_inst = ast[1][0]
             jump_offset = jump_inst.attr
             return jump_offset > jump_inst.offset and jump_offset < tokens[last].offset
-        elif rule == ('list_if', ('expr', 'jmp_false', 'list_iter')):
+        elif rule == ("list_if", ("expr", "jmp_false", "list_iter")):
             jump_inst = ast[1][0]
             jump_offset = jump_inst.attr
             return jump_offset > jump_inst.offset and jump_offset < tokens[last].offset
-        elif rule == ('or', ('expr', 'jmp_true', 'expr', '\\e_come_from_opt')):
-            # Test that jmp_true doesn't jump inside the middle the "or"
+        elif rule == ("or", ("expr", "jmp_true", "expr", "\\e_come_from_opt")):
+            # Test that jmp_true doesn"t jump inside the middle the "or"
             # or that it jumps to the same place as the end of "and"
             jmp_true = ast[1][0]
             jmp_target = jmp_true.offset + jmp_true.attr + 3
             return not (jmp_target == tokens[last].offset or
                         tokens[last].pattr == jmp_true.pattr)
 
-        elif (rule[0] == 'whilestmt' and
+        elif (rule[0] == "whilestmt" and
               rule[1][0:-2] ==
-                      ('SETUP_LOOP', 'testexpr', 'l_stmts_opt',
-                       'JUMP_BACK', 'JUMP_BACK')):
+                      ("SETUP_LOOP", "testexpr", "l_stmts_opt",
+                       "JUMP_BACK", "JUMP_BACK")):
             # Make sure that the jump backs all go to the same place
             i = last-1
-            while (tokens[i] != 'JUMP_BACK'):
+            while (tokens[i] != "JUMP_BACK"):
                 i -= 1
             return tokens[i].attr != tokens[i-1].attr
-        elif rule[0] == 'if_expr_true':
-            return (first) > 0 and tokens[first-1] == 'POP_JUMP_IF_FALSE'
+        elif rule[0] == "if_expr_true":
+            return (first) > 0 and tokens[first-1] == "POP_JUMP_IF_FALSE"
 
         return False
 
@@ -286,7 +304,7 @@ class Python27Parser(Python2Parser):
 class Python27ParserSingle(Python27Parser, PythonParserSingle):
     pass
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Check grammar
     p = Python27Parser()
     p.check_grammar()
@@ -302,9 +320,9 @@ if __name__ == '__main__':
             """.split()))
         remain_tokens = set(tokens) - opcode_set
         import re
-        remain_tokens = set([re.sub(r'_\d+$', '', t)
+        remain_tokens = set([re.sub(r"_\d+$", "", t)
                              for t in remain_tokens])
-        remain_tokens = set([re.sub('_CONT$', '', t)
+        remain_tokens = set([re.sub("_CONT$", "", t)
                              for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         print(remain_tokens)
