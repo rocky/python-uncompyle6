@@ -14,4 +14,4 @@ for y in (1, 2, 10):
         expected = 3
     result.append(expected)
 
-assert result == [10, 2, 3]
+assert result == [3, 2, 3]
