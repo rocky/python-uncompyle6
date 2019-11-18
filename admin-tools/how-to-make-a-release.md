@@ -56,8 +56,9 @@
 
     $ . ./admin-tools/make-dist-older.sh
     $ git tag release-python-2.4-$VERSION
-
+	$ twine check dist/uncompyle6-$VERSION*
     $ . ./admin-tools/make-dist-newer.sh
+	$ twine check dist/uncompyle6-$VERSION*
 
 Goto https://github.com/rocky/python-uncompyle6/releases
 
