@@ -248,6 +248,8 @@ class Python27Parser(Python2Parser):
             # an optimization where the "and" jump_false is back to a loop.
             jmp_false = ast[1]
             if jmp_false[0] == "POP_JUMP_IF_FALSE":
+                while (first < last and isinstance(tokens[last].offset, str)):
+                    last -= 1
                 if jmp_false[0].attr < tokens[last].offset:
                     return True
 
@@ -295,7 +297,7 @@ class Python27Parser(Python2Parser):
                         return True
                     while (first < last and isinstance(tokens[last].offset, str)):
                         last -= 1
-                    return jmp_false[0].attr < tokens[last].offset
+                    return tokens[first].offset < jmp_false[0].attr < tokens[last].offset
                     pass
                 pass
             pass
