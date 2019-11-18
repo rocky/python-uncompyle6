@@ -60,8 +60,6 @@
     $ . ./admin-tools/make-dist-newer.sh
 	$ twine check dist/uncompyle6-$VERSION*
 
-Goto https://github.com/rocky/python-uncompyle6/releases
-
 # Upload single package and look at Rst Formating
 
 	$ twine check dist/uncompyle6-${VERSION}*
@@ -70,6 +68,8 @@ Goto https://github.com/rocky/python-uncompyle6/releases
 # Upload rest of versions
 
     $ twine upload dist/uncompyle6-${VERSION}*
+
+Goto https://github.com/rocky/python-uncompyle6/releases
 
 # Push tags:
 
