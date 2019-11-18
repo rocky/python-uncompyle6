@@ -1633,6 +1633,57 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.write(")")
 
+    def kv_map(self, kv_node, sep, line_number, indent):
+        first_time = True
+        for kv in kv_node:
+            assert kv in ('kv', 'kv2', 'kv3')
+
+            # kv ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
+            # kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
+            # kv3 ::= expr expr STORE_MAP
+
+            # FIXME: DRY this and the above
+            if kv == 'kv':
+                self.write(sep)
+                name = self.traverse(kv[-2], indent='')
+                if first_time:
+                    line_number = self.indent_if_source_nl(line_number, indent)
+                    first_time = False
+                    pass
+                line_number = self.line_number
+                self.write(name, ': ')
+                value = self.traverse(kv[1], indent=self.indent+(len(name)+2)*' ')
+            elif kv == 'kv2':
+                self.write(sep)
+                name = self.traverse(kv[1], indent='')
+                if first_time:
+                    line_number = self.indent_if_source_nl(line_number, indent)
+                    first_time = False
+                    pass
+                line_number = self.line_number
+                self.write(name, ': ')
+                value = self.traverse(kv[-3], indent=self.indent+(len(name)+2)*' ')
+            elif kv == 'kv3':
+                self.write(sep)
+                name = self.traverse(kv[-2], indent='')
+                if first_time:
+                    line_number = self.indent_if_source_nl(line_number, indent)
+                    first_time = False
+                    pass
+                line_number = self.line_number
+                self.write(name, ': ')
+                line_number = self.line_number
+                value = self.traverse(kv[0], indent=self.indent+(len(name)+2)*' ')
+                pass
+            self.write(value)
+            sep = ", "
+            if line_number != self.line_number:
+                sep += "\n" + self.indent + "  "
+                line_number = self.line_number
+                pass
+            pass
+
+
     def n_dict(self, node):
         """
         prettyprint a dict
@@ -1753,14 +1804,15 @@ class SourceWalker(GenericASTTraversal, object):
             pass
         else:
             # Python 2 style kvlist. Find beginning of kvlist.
+            indent = self.indent + "  "
+            line_number = self.line_number
             if node[0].kind.startswith("BUILD_MAP"):
                 if len(node) > 1 and node[1].kind in ("kvlist", "kvlist_n"):
                     kv_node = node[1]
                 else:
                     kv_node = node[1:]
+                self.kv_map(kv_node, sep, line_number, indent)
             else:
-                indent = self.indent + "  "
-                line_number = self.line_number
                 sep = ''
                 opname = node[-1].kind
                 if self.is_pypy and self.version >= 3.5:
@@ -1798,54 +1850,7 @@ class SourceWalker(GenericASTTraversal, object):
                         pass
                 elif opname.startswith('kvlist'):
                     kv_node = node[-1]
-                    first_time = True
-                    for kv in kv_node:
-                        assert kv in ('kv', 'kv2', 'kv3')
-
-                        # kv ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
-                        # kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
-                        # kv3 ::= expr expr STORE_MAP
-
-                        # FIXME: DRY this and the above
-                        if kv == 'kv':
-                            self.write(sep)
-                            name = self.traverse(kv[-2], indent='')
-                            if first_time:
-                                line_number = self.indent_if_source_nl(line_number, indent)
-                                first_time = False
-                                pass
-                            line_number = self.line_number
-                            self.write(name, ': ')
-                            value = self.traverse(kv[1], indent=self.indent+(len(name)+2)*' ')
-                        elif kv == 'kv2':
-                            self.write(sep)
-                            name = self.traverse(kv[1], indent='')
-                            if first_time:
-                                line_number = self.indent_if_source_nl(line_number, indent)
-                                first_time = False
-                                pass
-                            line_number = self.line_number
-                            self.write(name, ': ')
-                            value = self.traverse(kv[-3], indent=self.indent+(len(name)+2)*' ')
-                        elif kv == 'kv3':
-                            self.write(sep)
-                            name = self.traverse(kv[-2], indent='')
-                            if first_time:
-                                line_number = self.indent_if_source_nl(line_number, indent)
-                                first_time = False
-                                pass
-                            line_number = self.line_number
-                            self.write(name, ': ')
-                            line_number = self.line_number
-                            value = self.traverse(kv[0], indent=self.indent+(len(name)+2)*' ')
-                            pass
-                        self.write(value)
-                        sep = ", "
-                        if line_number != self.line_number:
-                            sep += "\n" + self.indent + "  "
-                            line_number = self.line_number
-                            pass
-                        pass
+                    self.kv_map(node[-1], sep, line_number, indent)
 
                 pass
         if sep.startswith(",\n"):

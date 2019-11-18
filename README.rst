@@ -15,7 +15,7 @@ Introduction
 *uncompyle6* translates Python bytecode back into equivalent Python
 source code. It accepts bytecodes from Python version 1.0 to version
 3.8, spanning over 24 years of Python releases. We include Dropbox's
-Python 2.5 bytecode and some PyPy bytecode.
+Python 2.5 bytecode and some PyPy bytecodes.
 
 Why this?
 ---------
@@ -46,14 +46,15 @@ not exist and there is just bytecode. Again, my debuggers make use of
 this.
 
 There were (and still are) a number of decompyle, uncompyle,
-uncompyle2, uncompyle3 forks around. Almost all of them come basically
-from the same code base, and (almost?) all of them are no longer
-actively maintained. One was really good at decompiling Python 1.5-2.3
-or so, another really good at Python 2.7, but that only. Another
-handles Python 3.2 only; another patched that and handled only 3.3.
-You get the idea. This code pulls all of these forks together and
-*moves forward*. There is some serious refactoring and cleanup in this
-code base over those old forks.
+uncompyle2, uncompyle3 forks around. Many of them come basically from
+the same code base, and (almost?) all of them are no longer actively
+maintained. One was really good at decompiling Python 1.5-2.3, another
+really good at Python 2.7, but that only. Another handles Python 3.2
+only; another patched that and handled only 3.3.  You get the
+idea. This code pulls all of these forks together and *moves
+forward*. There is some serious refactoring and cleanup in this code
+base over those old forks. Even more experimental refactoring is going
+on in decompile3_.
 
 This demonstrably does the best in decompiling Python across all
 Python versions. And even when there is another project that only
@@ -75,11 +76,11 @@ fixed in the other decompilers.
 Requirements
 ------------
 
-The code here can be run on Python versions 2.6 or later, PyPy 3-2.4,
-or PyPy-5.0.1.  Python versions 2.4-2.7 are supported in the
-python-2.4 branch.  The bytecode files it can read have been tested on
-Python bytecodes from versions 1.4, 2.1-2.7, and 3.0-3.8 and the
-above-mentioned PyPy versions.
+The code here can be run on Python versions 2.6 or later, PyPy 3-2.4
+and later.  Python versions 2.4-2.7 are supported in the python-2.4
+branch.  The bytecode files it can read have been tested on Python
+bytecodes from versions 1.4, 2.1-2.7, and 3.0-3.8 and later PyPy
+versions.
 
 Installation
 ------------
@@ -185,15 +186,21 @@ they had been rare.  Perhaps to compensate for the additional
 added. So in sum handling control flow by ad hoc means as is currently
 done is worse.
 
-Between Python 3.5, 3.6 and 3.7 there have been major changes to the
-:code:`MAKE_FUNCTION` and :code:`CALL_FUNCTION` instructions.
+Between Python 3.5, 3.6, 3.7 there have been major changes to the
+:code:`MAKE_FUNCTION` and :code:`CALL_FUNCTION` instructions.  Python
+
+Python 3.8 removes :code:`SETUP_LOOP`, :code:`SETUP_EXCEPT`,
+:code:`BREAK_LOOP`, and :code:`CONTINUE_LOOP`, instructions which may
+make control-flow detection harder, lacking the more sophisticated
+control-flow analysis that is planned. We'll see.
 
 Currently not all Python magic numbers are supported. Specifically in
 some versions of Python, notably Python 3.6, the magic number has
 changes several times within a version.
 
-**We support only released versions, not candidate versions.** Note however
-that the magic of a released version is usually the same as the *last* candidate version prior to release.
+**We support only released versions, not candidate versions.** Note
+however that the magic of a released version is usually the same as
+the *last* candidate version prior to release.
 
 There are also customized Python interpreters, notably Dropbox,
 which use their own magic and encrypt bytcode. With the exception of
@@ -215,7 +222,8 @@ There is lots to do, so please dig in and help.
 See Also
 --------
 
-* https://github.com/zrax/pycdc : purports to support all versions of Python. It is written in C++ and is most accurate for Python versions around 2.7 and 3.3 when the code was more actively developed. Accuracy for more recent versions of Python 3 and early versions of Python are especially lacking. See its `issue tracker <https://github.com/zrax/pycdc/issues>`_ for details. Currently lightly maintained.
+* https://github.com/zrax/pycdc : aims to support all versions of Python, but doesn't currently. It is written in C++ and is most accurate for Python versions around 2.7 and 3.3 when the code was more actively developed. Accuracy for more recent versions of Python 3 and early versions of Python are especially lacking. See its `issue tracker <https://github.com/zrax/pycdc/issues>`_ for details. Currently lightly maintained.
+* https://github.com/rocky/python-decompile3 : Much smaller and more modern code, focusing on 3.7+. Changes in that will get migrated back ehre.
 * https://code.google.com/archive/p/unpyc3/ : supports Python 3.2 only. The above projects use a different decompiling technique than what is used here. Currently unmaintained.
 * https://github.com/figment/unpyc3/ : fork of above, but supports Python 3.3 only. Includes some fixes like supporting function annotations. Currently unmaintained.
 * https://github.com/wibiti/uncompyle2 : supports Python 2.7 only, but does that fairly well. There are situations where :code:`uncompyle6` results are incorrect while :code:`uncompyle2` results are not, but more often uncompyle6 is correct when uncompyle2 is not. Because :code:`uncompyle6` adheres to accuracy over idiomatic Python, :code:`uncompyle2` can produce more natural-looking code when it is correct. Currently :code:`uncompyle2` is lightly maintained. See its issue `tracker <https://github.com/wibiti/uncompyle2/issues>`_ for more details
@@ -232,6 +240,7 @@ See Also
 .. _debuggers: https://pypi.python.org/pypi/trepan3k
 .. _remake: https://bashdb.sf.net/remake
 .. _pycdc: https://github.com/zrax/pycdc
+.. _decompile3: https://github.com/rocky/python-decompile3
 .. _this: https://github.com/rocky/python-uncompyle6/wiki/Deparsing-technology-and-its-use-in-exact-location-reporting
 .. |buildstatus| image:: https://travis-ci.org/rocky/python-uncompyle6.svg :target: https://travis-ci.org/rocky/python-uncompyle6
 .. |packagestatus| image:: https://repology.org/badge/vertical-allrepos/python:uncompyle6.svg :target: https://repology.org/project/python:uncompyle6/versions

@@ -67,7 +67,8 @@ class Scanner3(Scanner):
         # Create opcode classification sets
         # Note: super initilization above initializes self.opc
 
-        # Ops that start SETUP_ ... We will COME_FROM with these names
+        # For ops that start SETUP_ ... we will add COME_FROM with these names
+        # at the their targets.
         # Some blocks and END_ statements. And they can start
         # a new statement
         if self.version < 3.8:
