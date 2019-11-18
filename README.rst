@@ -190,7 +190,7 @@ done is worse.
 Between Python 3.5, 3.6, 3.7 there have been major changes to the
 :code:`MAKE_FUNCTION` and :code:`CALL_FUNCTION` instructions.  Python
 
-Python 3.8 removes :code:`SETUP_LOOP`, :code`SETUP_EXCEPT`,
+Python 3.8 removes :code:`SETUP_LOOP`, :code:`SETUP_EXCEPT`,
 :code:`BREAK_LOOP`, and :code:`CONTINUE_LOOP`, instructions which may
 make control-flow detection harder, lacking the more sophisticated
 control-flow analysis that is planned. We'll see.
