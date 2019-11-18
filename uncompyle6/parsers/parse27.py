@@ -218,11 +218,13 @@ class Python27Parser(Python2Parser):
         self.check_reduce["conditional"] = "AST"
         # self.check_reduce["or"] = "AST"
         self.check_reduce["raise_stmt1"] = "AST"
+        self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["list_if_not"] = "AST"
         self.check_reduce["list_if"] = "AST"
         self.check_reduce["comp_if"] = "AST"
         self.check_reduce["if_expr_true"] = "tokens"
         self.check_reduce["whilestmt"] = "tokens"
+
         return
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
@@ -234,11 +236,20 @@ class Python27Parser(Python2Parser):
             return invalid
 
         if rule == ("and", ("expr", "jmp_false", "expr", "\\e_come_from_opt")):
-            # If the instruction after the instructions formin "and"  is an "YIELD_VALUE"
+            # If the instruction after the instructions forming the "and"  is an "YIELD_VALUE"
             # then this is probably an "if" inside a comprehension.
             if tokens[last] == "YIELD_VALUE":
                 # Note: We might also consider testing last+1 being "POP_TOP"
                 return True
+
+            # Test that jump_false jump somewhere beyond the end of the "and"
+            # it might not be exactly the end of the "and" because this and can
+            # be a part of a larger condition. Oddly in 2.7 there doesn't seem to be
+            # an optimization where the "and" jump_false is back to a loop.
+            jmp_false = ast[1]
+            if jmp_false[0] == "POP_JUMP_IF_FALSE":
+                if jmp_false[0].attr < tokens[last].offset:
+                    return True
 
             # Test that jmp_false jumps to the end of "and"
             # or that it jumps to the same place as the end of "and"
@@ -270,6 +281,24 @@ class Python27Parser(Python2Parser):
             return not (last >= len(tokens)
                         or jump_target == tokens[last].offset
                         or jump_target == next_offset(ast[-1].op, ast[-1].opc, ast[-1].offset))
+        elif rule == ("iflaststmtl", ("testexpr", "c_stmts")):
+            testexpr = ast[0]
+            if testexpr[0] == "testfalse":
+                testfalse = testexpr[0]
+                if testfalse[1] == "jmp_false":
+                    jmp_false = testfalse[1]
+                    if last == len(tokens):
+                        last -= 1
+                    while (isinstance(tokens[first].offset, str) and first < last):
+                        first += 1
+                    if first == last:
+                        return True
+                    while (first < last and isinstance(tokens[last].offset, str)):
+                        last -= 1
+                    return jmp_false[0].attr < tokens[last].offset
+                    pass
+                pass
+            pass
         elif rule == ("list_if_not", ("expr", "jmp_true", "list_iter")):
             jump_inst = ast[1][0]
             jump_offset = jump_inst.attr
