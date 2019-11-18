@@ -190,10 +190,10 @@ done is worse.
 Between Python 3.5, 3.6, 3.7 there have been major changes to the
 :code:`MAKE_FUNCTION` and :code:`CALL_FUNCTION` instructions.  Python
 
-Python 3.8 removes `SETUP_LOOP`, `SETUP_EXCEPT`, `BREAK_LOOP`, and
-`CONTINUE_LOOP`, instructions which may make control-flow detection
-harder, lacking the more sophisticated control-flow analysis that is
-planned. We'll see.
+Python 3.8 removes :code:`SETUP_LOOP`, :code`SETUP_EXCEPT`,
+:code:`BREAK_LOOP`, and :code:`CONTINUE_LOOP`, instructions which may
+make control-flow detection harder, lacking the more sophisticated
+control-flow analysis that is planned. We'll see.
 
 Currently not all Python magic numbers are supported. Specifically in
 some versions of Python, notably Python 3.6, the magic number has
