@@ -23,9 +23,7 @@ class Python30Parser(Python31Parser):
 
         # FIXME: combine with parse3.2
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt
-                              JUMP_BACK COME_FROM_LOOP
-        whileTruestmt     ::= SETUP_LOOP l_stmts_opt
-                              CONTINUE COME_FROM_LOOP
+                              jb_or_c COME_FROM_LOOP
         whileTruestmt     ::= SETUP_LOOP returns
                               COME_FROM_LOOP
 
@@ -204,6 +202,18 @@ class Python30Parser(Python31Parser):
 
     def remove_rules_30(self):
         self.remove_rules("""
+
+        # The were found using grammar coverage
+        while1stmt     ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
+        whileTruestmt  ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM_LOOP
+        whileelsestmt  ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK else_suitel COME_FROM_LOOP
+        whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM_LOOP
+        whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK JUMP_BACK COME_FROM_LOOP
+        whilestmt      ::= SETUP_LOOP testexpr returns POP_TOP POP_BLOCK COME_FROM_LOOP
+        withasstmt     ::= expr SETUP_WITH store suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM_WITH WITH_CLEANUP END_FINALLY
+        withstmt       ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM_WITH WITH_CLEANUP END_FINALLY
+        ##########################################################################################
+
         iflaststmtl        ::= testexpr c_stmts_opt JUMP_BACK COME_FROM_LOOP
         ifelsestmtl        ::= testexpr c_stmts_opt JUMP_BACK else_suitel
         iflaststmt         ::= testexpr c_stmts_opt JUMP_ABSOLUTE
@@ -223,6 +233,7 @@ class Python30Parser(Python31Parser):
         whileelsestmt      ::= SETUP_LOOP testexpr l_stmts JUMP_BACK POP_BLOCK
                                else_suitel COME_FROM_LOOP
 
+        ################################################################
         # No JUMP_IF_FALSE_OR_POP, JUMP_IF_TRUE_OR_POP,
         # POP_JUMP_IF_FALSE, or POP_JUMP_IF_TRUE
 

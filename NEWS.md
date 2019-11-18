@@ -1,3 +1,15 @@
+3.5.1 2019-10-29 JNC
+====================
+
+- Pypy 3.3, 3.5, 3.6, and 3.6.9 support
+- Improve 3.0 decompilation
+    - no parse errors on stlib bytecode. However accurate translation in
+	  control-flow and and/or detection needs work
+- Remove extraneous iter() in "for" of list comprehension  Fixes #272
+- "for" block without a POP_BLOCK and confusing JUMP_BACK for CONTINUE. Fixes #293
+- Fix unmarshal incompletness detected in Pypy 3.6
+- Miscellaneous bugs fixed
+
 3.5.0 2019-10-12 Stony Brook Ride
 =================================
 

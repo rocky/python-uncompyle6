@@ -31,11 +31,45 @@ class Python31Parser(Python32Parser):
         load  ::= LOAD_FAST
         load  ::= LOAD_NAME
         """
+    def remove_rules_31(self):
+        self.remove_rules("""
+        # DUP_TOP_TWO is DUP_TOPX in 3.1 and earlier
+        subscript2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
+        """)
 
     def customize_grammar_rules(self, tokens, customize):
         super(Python31Parser, self).customize_grammar_rules(tokens, customize)
+        self.remove_rules_31()
         return
     pass
 
 class Python31ParserSingle(Python31Parser, PythonParserSingle):
     pass
+
+if __name__ == '__main__':
+    # Check grammar
+    p = Python31Parser()
+    p.remove_rules_31()
+    p.check_grammar()
+    from uncompyle6 import PYTHON_VERSION, IS_PYPY
+    if PYTHON_VERSION == 3.1:
+        lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
+        from uncompyle6.scanner import get_scanner
+        s = get_scanner(PYTHON_VERSION, IS_PYPY)
+        opcode_set = set(s.opc.opname).union(set(
+            """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+               LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
+               LAMBDA_MARKER RETURN_LAST
+            """.split()))
+        ## FIXME: try this
+        remain_tokens = set(tokens) - opcode_set
+        import re
+        remain_tokens = set([re.sub(r'_\d+$', '',  t) for t in remain_tokens])
+        remain_tokens = set([re.sub('_CONT$', '', t) for t in remain_tokens])
+        remain_tokens = set(remain_tokens) - opcode_set
+        print(remain_tokens)
+        import sys
+        if len(sys.argv) > 1:
+            from spark_parser.spark import rule2str
+            for rule in sorted(p.rule2name.items()):
+                print(rule2str(rule[0]))
