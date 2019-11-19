@@ -36,6 +36,10 @@ class Python31Parser(Python32Parser):
         self.remove_rules("""
         # DUP_TOP_TWO is DUP_TOPX in 3.1 and earlier
         subscript2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
+
+        # The were found using grammar coverage
+        list_if     ::= expr jmp_false list_iter COME_FROM
+        list_if_not ::= expr jmp_true list_iter COME_FROM
         """)
 
     def customize_grammar_rules(self, tokens, customize):
