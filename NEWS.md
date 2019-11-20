@@ -2,11 +2,12 @@
 ====================
 
 - Pypy 3.3, 3.5, 3.6, and 3.6.9 support
+- bump xdis version to handle newer Python releases, e.g. 2.7.17, 3.5.8, and 3.5.9
 - Improve 3.0 decompilation
     - no parse errors on stlib bytecode. However accurate translation in
 	  control-flow and and/or detection needs work
 - Remove extraneous iter() in "for" of list comprehension  Fixes #272
-- "for" block without a POP_BLOCK and confusing JUMP_BACK for CONTINUE. Fixes #293
+- "for" block without a `POP_BLOCK `and confusing `JUMP_BACK` for `CONTINUE`. Fixes #293
 - Fix unmarshal incompletness detected in Pypy 3.6
 - Miscellaneous bugs fixed
 
@@ -14,19 +15,19 @@
 =================================
 
 - Fix fragment bugs
-   * missing RETURN_LAST introduced when adding transformation layer
+   * missing `RETURN_LAST` introduced when adding transformation layer
    * more parent entries on tokens
-- Preliminary support for decompiling Python 1.0, 1.1. 1.2 and 1.6
-   * Newer xdis version needed
+- Preliminary support for decompiling Python 1.0, 1.1, 1.2, and 1.6
+   * Newer _xdis_ version needed
 
 3.4.1 2019-10-02
 ================
 
 - Correct assert{,2} transforms Fixes #289
 - Fragment parsing fixes:
-     * Wasn't handling 3-arg %p
-   	 * fielding error in code_deparse()
-- Use newer xdis to better track Python 3.8.0
+     * Wasn't handling 3-arg `%p`
+   	 * fielding error in `code_deparse()`
+- Use newer _xdis_ to better track Python 3.8.0
 
 
 3.4.0 2019-08-24 Totoro
