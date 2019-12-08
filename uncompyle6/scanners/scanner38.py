@@ -75,7 +75,7 @@ class Scanner38(Scanner37):
 
 
 if __name__ == "__main__":
-    from decompyle3 import PYTHON_VERSION
+    from uncompyle6 import PYTHON_VERSION
 
     if PYTHON_VERSION == 3.8:
         import inspect

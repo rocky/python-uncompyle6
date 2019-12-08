@@ -1326,11 +1326,11 @@ def info(args):
     if len(args) > 0:
         arg = args[0]
         if arg == "3.7":
-            from decompyle3.parser.parse37 import Python37Parser
+            from uncompyle6.parser.parse37 import Python37Parser
 
             p = Python37Parser()
         elif arg == "3.8":
-            from decompyle3.parser.parse38 import Python38Parser
+            from uncompyle6.parser.parse38 import Python38Parser
 
             p = Python38Parser()
         else:
