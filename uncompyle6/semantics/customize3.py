@@ -37,6 +37,7 @@ def customize_for_version3(self, version):
                 (0, "expr"),
                 (4, "expr"),
             ),
+            "except_cond2": ("%|except %c as %c:\n", (1, "expr"), (5, "store")),
             "function_def_annotate": ("\n\n%|def %c%c\n", -1, 0),
             # When a generator is a single parameter of a function,
             # it doesn't need the surrounding parenethesis.
@@ -331,7 +332,8 @@ def customize_for_version3(self, version):
                 (1, "suite_stmts_opt"),
                 (3, "except_handler"),
                 (5, "else_suitel"),
-            )
+            ),
+            "LOAD_CLASSDEREF": ("%{pattr}",),
         }
     )
     if version >= 3.4:
