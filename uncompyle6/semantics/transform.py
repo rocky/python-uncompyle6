@@ -181,6 +181,7 @@ class TreeTransform(GenericASTTraversal, object):
 
         n = else_suite[0]
         old_stmts = None
+        else_suite_index = 1
 
         if len(n) == 1 == len(n[0]) and n[0] == "stmt":
             n = n[0][0]
@@ -192,9 +193,12 @@ class TreeTransform(GenericASTTraversal, object):
                 "iflaststmtl",
                 "ifelsestmtl",
                 "ifelsestmtc",
+                "ifpoplaststmtl",
             ):
-                # This seems needed for Python 2.5-2.7
                 n = n[0]
+                if n.kind == "ifpoplaststmtl":
+                    old_stmts = n[2]
+                    else_suite_index = 2
                 pass
             pass
         elif len(n) > 1 and 1 == len(n[0]) and n[0] == "stmt" and n[1].kind == "stmt":
@@ -206,7 +210,7 @@ class TreeTransform(GenericASTTraversal, object):
         else:
             return node
 
-        if n.kind in ("ifstmt", "iflaststmt", "iflaststmtl"):
+        if n.kind in ("ifstmt", "iflaststmt", "iflaststmtl", "ifpoplaststmtl"):
             node.kind = "ifelifstmt"
             n.kind = "elifstmt"
         elif n.kind in ("ifelsestmtr",):
@@ -223,17 +227,24 @@ class TreeTransform(GenericASTTraversal, object):
             if old_stmts:
                 if n.kind == "elifstmt":
                     trailing_else = SyntaxTree("stmts", old_stmts[1:])
-                    # We use elifelsestmtr because it has 3 nodes
-                    elifelse_stmt = SyntaxTree(
-                        "elifelsestmtr", [n[0], n[1], trailing_else]
-                    )
-                    node[3] = elifelse_stmt
+                    if len(trailing_else):
+                        # We use elifelsestmtr because it has 3 nodes
+                        elifelse_stmt = SyntaxTree(
+                            "elifelsestmtr", [n[0], n[else_suite_index], trailing_else]
+                        )
+                        node[3] = elifelse_stmt
+                    else:
+                        elif_stmt = SyntaxTree(
+                            "elifstmt", [n[0], n[else_suite_index]]
+                        )
+                        node[3] = elif_stmt
+
+                    node.transformed_by = "n_ifelsestmt"
                     pass
                 else:
                     # Other cases for n.kind may happen here
                     pass
                 pass
-            node.transformed_by = "n_ifelsestmt"
             return node
 
     n_ifelsestmtc = n_ifelsestmtl = n_ifelsestmt
