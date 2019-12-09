@@ -192,8 +192,8 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
             pass
 
     print(time.ctime())
-    print("Source directory: ", src_dir)
-    print("Output directory: ", target_dir)
+    print "Source directory: ", src_dir
+    print "Output directory: ", target_dir
     try:
         _, _, failed_files, failed_verify = main(
             src_dir, target_dir, files, [], do_verify=opts["do_verify"]

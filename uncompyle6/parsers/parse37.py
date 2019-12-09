@@ -1208,7 +1208,7 @@ class Python37Parser(Python37BaseParser):
         if opname.startswith("CALL_FUNCTION_KW"):
             self.addRule("expr ::= call_kw36", nop_func)
             values = "expr " * token.attr
-            rule = "call_kw36 ::= expr {values} LOAD_CONST {opname}".format(**locals())
+            rule = "call_kw36 ::= expr %s LOAD_CONST %s" % (values, opname)
             self.add_unique_rule(rule, token.kind, token.attr, customize)
         elif opname == "CALL_FUNCTION_EX_KW":
             # Note: this doesn't exist in 3.7 and later
