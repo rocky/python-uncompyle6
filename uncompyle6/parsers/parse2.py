@@ -676,7 +676,7 @@ class Python2Parser(PythonParser):
         elif lhs in ("delete_subscript", "del_expr"):
             op = ast[0][0]
             return op.kind in ("and", "or")
-        elif lhs in ("tryelsestmt", "tryelsetmtl"):
+        elif lhs in ("tryelsestmt", "tryelsestmtl"):
             # Check the end of the except handler that there isn't a jump from
             # inside the except handler to the end. If that happens
             # then this is a "try" with no "else".
