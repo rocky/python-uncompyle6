@@ -36,10 +36,8 @@ case $PYVERSION in
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_pep247.py]=1 # Long test - might work? Control flow?
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
-	    [test_pyclbr.py]=1 # Bug in checkModule()/ismethod() try confused for try-else
-	    [test_pyexpat.py]=1 # Investigate
-	    [test_queue.py]=1 # Control flow?
-	    [test_re.py]=1 # try confused with try-else again
+	    [test_pyclbr.py]=1 # Investigate
+	    [test_re.py]=1 # Investigate produces a Python syntax error
 	    [test_socketserver.py]=1 # -- test takes too long to run: 40 seconds
 	    [test_threading.py]=1 # Line numbers are expected to be different
 	    [test_thread.py]=1 # test takes too long to run: 36 seconds
@@ -49,20 +47,15 @@ case $PYVERSION in
 	;;
     2.5)
 	SKIP_TESTS=(
-	    [test_contextlib.py]=1 # Syntax error - look at
 	    [test_dis.py]=1        # We change line numbers - duh!
 	    [test_grammar.py]=1    # Too many stmts. Handle large stmts
 	    [test_grp.py]=1        # Long test - might work Control flow?
 	    [test_pdb.py]=1        # Line-number specific
 	    [test_pep247.py]=1     # "assert xxx or .." not detected properly in check_hash_module()
-	    [test_pep352.py]=1     # try confused with try-else again; in test_inheritance()
+	    [test_pep352.py]=1     # Investigate
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
-	    [test_pyclbr.py]=1 # Bug in checkModule()/ismethod() try confused for try-else
-	    [test_queue.py]=1 # Control flow?
-	    [test_re.py]=1 # Possibly try confused with try-else again
+	    [test_pyclbr.py]=1 # Investigate
 	    [test_struct.py]=1 # "if and" confused for if .. assert and
-	    [test_sys.py]=1 # try confused with try-else again; in test_current_frames()
-	    [test_tarfile.py]=1  # try confused with try-else again; top-level import
 	    [test_threading.py]=1 # Line numbers are expected to be different
 	    [test_thread.py]=1 # test takes too long to run: 36 seconds
 	    [test_trace.py]=1  # Line numbers are expected to be different
@@ -71,44 +64,16 @@ case $PYVERSION in
 	;;
     2.6)
 	SKIP_TESTS=(
-	    [test_aepack.py]=1
-	    [test_aifc.py]=1
-	    [test_array.py]=1
-	    [test_audioop.py]=1
-	    [test_base64.py]=1
-	    [test_bigmem.py]=1
-	    [test_binascii.py]=1
-	    [test_builtin.py]=1
-	    [test_bytes.py]=1
-	    [test_class.py]=1
-	    [test_codeccallbacks.py]=1
-	    [test_codecencodings_cn.py]=1
-	    [test_codecencodings_hk.py]=1
-	    [test_codecencodings_jp.py]=1
-	    [test_codecencodings_kr.py]=1
-	    [test_codecencodings_tw.py]=1
-	    [test_codecencodings_cn.py]=1
-	    [test_codecmaps_hk.py]=1
-	    [test_codecmaps_jp.py]=1
-	    [test_codecmaps_kr.py]=1
-	    [test_codecmaps_tw.py]=1
-	    [test_codecs.py]=1
+	    [test_aepack.py]=1 # Fails on its own
+	    [test_codeccallbacks.py]=1  # Fails on its own
 	    [test_compile.py]=1  # Intermittent - sometimes works and sometimes doesn't
-	    [test_cookielib.py]=1
-	    [test_copy.py]=1
-	    [test_decimal.py]=1
-	    [test_descr.py]=1    # Problem in pickle.py?
 	    [test_exceptions.py]=1
-	    [test_extcall.py]=1
-	    [test_float.py]=1
-	    [test_future4.py]=1
-	    [test_generators.py]=1
+	    [test_generators.py]=1 # Investigate
 	    [test_grp.py]=1      # Long test - might work Control flow?
-	    [test_opcodes.py]=1
-	    [test_pyclbr.py]=1 # Bug in checkModule()/ismethod() try confused for try-else
+	    [test_pep352.py]=1     # Investigate
+	    [test_pprint.py]=1
+	    [test_pyclbr.py]=1 # Investigate
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
-	    [test_re.py]=1 # try confused with try-else again
-	    [test_queue.py]=1 # Control flow?
 	    [test_trace.py]=1  # Line numbers are expected to be different
 	    [test_urllib2net.py]=1 # Fails on its own. May need interactive input
 	    [test_zipfile64.py]=1  # Skip Long test
@@ -122,8 +87,6 @@ case $PYVERSION in
 	    # .pyenv/versions/2.6.9/lib/python2.6/tabnanny.pyc
 	    # .pyenv/versions/2.6.9/lib/python2.6/tarfile.pyc
 
-	    # Not getting set by bach below?
-	    [test_pprint.py]=1
 
 	)
 	if (( batch )) ; then
@@ -159,7 +122,7 @@ case $PYVERSION in
 	    [test_generators.py]=1  # control flow. uncompyle2 has problem here too
 	    [test_grammar.py]=1     # Too many stmts. Handle large stmts
 	    [test_grp.py]=1     # test takes to long, works interactively though
-	    [test_hashlib.py]=1 # Investiage
+	    [test_hashlib.py]=1 # Investigate
 	    [test_io.py]=1 # Test takes too long to run
 	    [test_ioctl.py]=1 # Test takes too long to run
 	    [test_long.py]=1
@@ -168,26 +131,20 @@ case $PYVERSION in
 	    [test_memoryio.py]=1 # FIX
 	    [test_modulefinder.py]=1 # FIX
 	    [test_multiprocessing.py]=1 # On uncompyle2, takes 24 secs
-	    [test_pep352.py]=1  # ?
 	    [test_posix.py]=1   # Bug in try-else detection inside test_initgroups()
 	                        # Deal with when we have better flow-control detection
 	    [test_pwd.py]=1     # Takes too long
 	    [test_pty.py]=1
-	    [test_queue.py]=1   # Control flow?
-	    [test_re.py]=1      # Probably Control flow?
 	    [test_runpy.py]=1   # Long and fails on its own
 	    [test_select.py]=1  # Runs okay but takes 11 seconds
 	    [test_socket.py]=1  # Runs ok but takes 22 seconds
 	    [test_subprocess.py]=1 # Runs ok but takes 22 seconds
 	    [test_sys_setprofile.py]=1
 	    [test_sys_settrace.py]=1 # Line numbers are expected to be different
-	    [test_strtod.py]=1 # FIX
 	    [test_traceback.py]=1 # Line numbers change - duh.
-	    [test_types.py]=1     # try/else confusions
 	    [test_unicode.py]=1  # Too long to run 11 seconds
 	    [test_xpickle.py]=1 # Runs ok but takes 72 seconds
 	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
-	    [test_zipimport.py]=1  # We can't distinguish try from try/else yet
         )
 	if (( batch )) ; then
 	    # Fails in crontab environment?
