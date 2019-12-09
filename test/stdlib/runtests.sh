@@ -105,8 +105,9 @@ case $PYVERSION in
 	    [test_generators.py]=1
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_opcodes.py]=1
+	    [test_pyclbr.py]=1 # Bug in checkModule()/ismethod() try confused for try-else
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
-	    [test_re.py]=1 # Probably Control flow?
+	    [test_re.py]=1 # try confused with try-else again
 	    [test_queue.py]=1 # Control flow?
 	    [test_trace.py]=1  # Line numbers are expected to be different
 	    [test_urllib2net.py]=1 # Fails on its own. May need interactive input
