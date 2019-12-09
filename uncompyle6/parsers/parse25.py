@@ -25,11 +25,17 @@ class Python25Parser(Python26Parser):
         setupwithas ::= DUP_TOP LOAD_ATTR store LOAD_ATTR CALL_FUNCTION_0
                         setup_finally
         # opcode SETUP_WITH
-        setupwith ::= DUP_TOP LOAD_ATTR STORE_NAME LOAD_ATTR CALL_FUNCTION_0 POP_TOP
-        withstmt ::= expr setupwith SETUP_FINALLY suite_stmts_opt
-                     POP_BLOCK LOAD_CONST COME_FROM with_cleanup
+        setupwith ::= DUP_TOP LOAD_ATTR store LOAD_ATTR CALL_FUNCTION_0 POP_TOP
+        withstmt  ::= expr setupwith SETUP_FINALLY suite_stmts_opt
+                      POP_BLOCK LOAD_CONST COME_FROM with_cleanup
+
+        # Semantic actions want store to be at index 2
+        withasstmt ::= expr setupwithas store suite_stmts_opt
+                       POP_BLOCK LOAD_CONST COME_FROM with_cleanup
+
 
         store ::= STORE_NAME
+        store ::= STORE_FAST
 
         # tryelsetmtl doesn't need COME_FROM since the jump might not
         # be the the join point at the end of the "try" but instead back to the
