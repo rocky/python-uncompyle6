@@ -45,6 +45,7 @@ jobs:
           - v2-dependencies-
 
     # This is based on your 1.0 configuration file or project settings
+    - run: easy_install xdis spark-parser
     - run: pip install -e .
     - run: pip install -r requirements-dev.txt
 
