@@ -664,7 +664,7 @@ class Python2Parser(PythonParser):
         elif lhs == "assert_expr_and":
             jmp_false = ast[1]
             jump_target = jmp_false[0].attr
-            return jump_target > tokens[last].offset
+            return jump_target > tokens[last].off2int()
         elif lhs in ("raise_stmt1",):
             # We will assume 'LOAD_ASSERT' will be handled by an assert grammar rule
             return tokens[first] == "LOAD_ASSERT" and (last >= len(tokens))
