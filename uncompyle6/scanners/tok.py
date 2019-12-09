@@ -161,5 +161,12 @@ class Token:   # Python 2.4 can't have empty ()
     def __getitem__(self, i):
         raise IndexError
 
+    def off2int(self):
+        if isinstance(self.offset, int):
+            return self.offset
+        else:
+            assert isinstance(self.offset, str)
+            return(int(self.offset.split("_")[0]))
+
 
 NoneToken = Token("LOAD_CONST", offset=-1, attr=None, pattr=None)

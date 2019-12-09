@@ -1130,11 +1130,15 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_generator_exp(self, node):
         self.write("(")
+        iter_index = 3
         if self.version > 3.2:
             code_index = -6
+            if self.version > 3.6:
+                # Python 3.7+ adds optional "come_froms" at node[0]
+                iter_index = 4
         else:
             code_index = -5
-        self.comprehension_walk(node, iter_index=3, code_index=code_index)
+        self.comprehension_walk(node, iter_index=iter_index, code_index=code_index)
         self.write(")")
         self.prune()
 
@@ -2015,8 +2019,13 @@ class SourceWalker(GenericASTTraversal, object):
         self.default(node)
 
     def n_except_cond2(self, node):
-        if node[-2][0] == "unpack":
-            node[-2][0].kind = "unpack_w_parens"
+        if node[-1] == "come_from_opt":
+            unpack_node = -3
+        else:
+            unpack_node = -2
+
+        if node[unpack_node][0] == "unpack":
+            node[unpack_node][0].kind = "unpack_w_parens"
         self.default(node)
 
     def template_engine(self, entry, startnode):

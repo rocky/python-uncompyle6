@@ -20,8 +20,12 @@ def test_grammar():
     (lhs, rhs, tokens, right_recursive, dup_rhs) = p.check_sets()
 
     # We have custom rules that create the below
-    expect_lhs = set(["pos_arg", "attribute"])
+    expect_lhs = set(["pos_arg"])
+
     if PYTHON_VERSION < 3.8:
+        if PYTHON_VERSION < 3.7:
+            expect_lhs.add("attribute")
+
         expect_lhs.add("get_iter")
     else:
         expect_lhs.add("async_with_as_stmt")
@@ -31,7 +35,7 @@ def test_grammar():
 
     expect_right_recursive = set([("designList", ("store", "DUP_TOP", "designList"))])
 
-    if PYTHON_VERSION < 3.7:
+    if PYTHON_VERSION <= 3.7:
         unused_rhs.add("call")
 
     if PYTHON_VERSION > 2.6:
@@ -50,9 +54,11 @@ def test_grammar():
             )
         )
         if PYTHON_VERSION >= 3.0:
-            expect_lhs.add("annotate_arg")
-            expect_lhs.add("annotate_tuple")
-            unused_rhs.add("mkfunc_annotate")
+            if PYTHON_VERSION < 3.7:
+                expect_lhs.add("annotate_arg")
+                expect_lhs.add("annotate_tuple")
+                unused_rhs.add("mkfunc_annotate")
+
             unused_rhs.add("dict_comp")
             unused_rhs.add("classdefdeco1")
             unused_rhs.add("tryelsestmtl")
