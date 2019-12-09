@@ -71,6 +71,9 @@ def customize_for_version(self, is_pypy, version):
         TABLE_DIRECT.update(
             {"except_cond3": ("%|except %c, %c:\n", (1, "expr"), (-2, "store"))}
         )
+        if version <= 2.6:
+            TABLE_DIRECT["testtrue_then"] = TABLE_DIRECT["testtrue"]
+
         if 2.4 <= version <= 2.6:
             TABLE_DIRECT.update({"comp_for": (" for %c in %c", 3, 1)})
         else:
@@ -134,7 +137,6 @@ def customize_for_version(self, is_pypy, version):
                 }
             )
             if version == 2.4:
-
                 def n_iftrue_stmt24(node):
                     self.template_engine(("%c", 0), node)
                     self.default(node)
