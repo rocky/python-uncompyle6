@@ -15,7 +15,6 @@ if PYTHON_VERSION > 2.4:
     assert str(float("inf") * 0.0) == "nan"
 else:
     assert str(float("inf") * 0.0) == "-nan"
-assert str(float("-inf") * 0.0) == "nan"
 assert -1e300 * 1e300 == float("-inf")
 
 # Complex (adapted from 02_complex.py)
