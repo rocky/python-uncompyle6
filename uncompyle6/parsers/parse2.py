@@ -638,6 +638,7 @@ class Python2Parser(PythonParser):
             pass
 
         self.check_reduce["raise_stmt1"] = "tokens"
+        self.check_reduce["assert_expr_and"] = "AST"
         self.check_reduce["aug_assign2"] = "AST"
         self.check_reduce["or"] = "AST"
         # self.check_reduce['_stmts'] = 'AST'
@@ -660,6 +661,10 @@ class Python2Parser(PythonParser):
             and ast[0][0] in ("and", "or")
         ):
             return True
+        elif lhs == "assert_expr_and":
+            jmp_false = ast[1]
+            jump_target = jmp_false[0].attr
+            return jump_target > tokens[last].offset
         elif lhs in ("raise_stmt1",):
             # We will assume 'LOAD_ASSERT' will be handled by an assert grammar rule
             return tokens[first] == "LOAD_ASSERT" and (last >= len(tokens))
