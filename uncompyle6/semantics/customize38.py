@@ -89,9 +89,10 @@ def customize_for_version38(self, version):
                             (1, "_ifstmts_jumpl") ),
 
         'whilestmt38': ( '%|while %c:\n%+%c%-\n\n',
-                         (1, 'testexpr'), (2, 'l_stmts') ),
+                         (1, 'testexpr'),
+                         2 ), # "l_stmts" or "pass"
         'whileTruestmt38': ( '%|while True:\n%+%c%-\n\n',
-                         (1, 'l_stmts') ),
+                             1 ), # "l_stmts" or "pass"
         'try_elsestmtl38': (
             '%|try:\n%+%c%-%c%|else:\n%+%c%-',
             (1, 'suite_stmts_opt'),
@@ -106,7 +107,7 @@ def customize_for_version38(self, version):
         'tryfinally38': (
             '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
                    (3, 'returns'), 6 ),
-        "named_expr": ( # AKA "walrus operatotr"
+        "named_expr": ( # AKA "walrus operator"
             "%c := %c", (2, "store"), (0, "expr")
             )
     })

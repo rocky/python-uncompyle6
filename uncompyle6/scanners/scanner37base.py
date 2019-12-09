@@ -775,184 +775,27 @@ class Scanner37Base(Scanner):
                     }
                 )
         elif op in self.pop_jump_tf:
-            start = offset + inst.inst_size
             target = inst.argval
-            rtarget = self.restrict_to_parent(target, parent)
             prev_op = self.prev_op
 
-            # Do not let jump to go out of parent struct bounds
-            if target != rtarget and parent["type"] == "and/or":
-                self.fixed_jumps[offset] = rtarget
-                return
-
-            # Does this jump to right after another conditional jump that is
-            # not myself?  If so, it's part of a larger conditional.
-            # rocky: if we have a conditional jump to the next instruction, then
-            # possibly I am "skipping over" a "pass" or null statement.
+            # FIXME: hack upon hack, test_pysource.py fails with this
+            # Until the grammar is corrected we do this fiction...
             pretarget = self.get_inst(prev_op[target])
-
             if (
                 pretarget.opcode in self.pop_jump_if_pop
                 and (target > offset)
                 and pretarget.offset != offset
             ):
 
-                # FIXME: hack upon hack...
-                # In some cases the pretarget can be a jump to the next instruction
-                # and these aren't and/or's either. We limit to 3.5+ since we experienced there
-                # but it might be earlier versions, or might be a general principle.
                 if pretarget.argval != target:
                     # FIXME: this is not accurate The commented out below
                     # is what it should be. However grammar rules right now
                     # assume the incorrect offsets.
                     # self.fixed_jumps[offset] = target
                     self.fixed_jumps[offset] = pretarget.offset
-                    self.structs.append(
-                        {"type": "and/or", "start": start, "end": pretarget.offset}
-                    )
                     return
 
-            # The opcode *two* instructions before the target jump offset is important
-            # in making a determination of what we have. Save that.
-            pre_rtarget = prev_op[rtarget]
-
-            if op == self.opc.POP_JUMP_IF_FALSE:
-                self.fixed_jumps[offset] = target
-
-            # op == POP_JUMP_IF_TRUE
-            else:
-                next = self.next_stmt[offset]
-                if prev_op[next] == offset:
-                    pass
-                elif self.is_jump_forward(next) and target == self.get_target(next):
-                    if code[prev_op[next]] == self.opc.POP_JUMP_IF_FALSE:
-                        if (
-                            code[next] == self.opc.JUMP_FORWARD
-                            or target != rtarget
-                            or code[prev_op[pre_rtarget]]
-                            not in (self.opc.JUMP_ABSOLUTE, self.opc.RETURN_VALUE)
-                        ):
-                            self.fixed_jumps[offset] = prev_op[next]
-                            return
-                elif (
-                    code[next] == self.opc.JUMP_ABSOLUTE
-                    and self.is_jump_forward(target)
-                    and self.get_target(target) == self.get_target(next)
-                ):
-                    self.fixed_jumps[offset] = prev_op[next]
-                    return
-
-            rtarget_is_ja = code[pre_rtarget] == self.opc.JUMP_ABSOLUTE
-            if (
-                rtarget_is_ja
-                and pre_rtarget in self.stmts
-                and pre_rtarget != offset
-                and prev_op[pre_rtarget] != offset
-                and not (
-                    code[rtarget] == self.opc.JUMP_ABSOLUTE
-                    and code[rtarget + 3] == self.opc.POP_BLOCK
-                    and code[prev_op[pre_rtarget]] != self.opc.JUMP_ABSOLUTE
-                )
-            ):
-                rtarget = pre_rtarget
-
-            # Does the "jump if" jump beyond a jump op?
-            # That is, we have something like:
-            #  POP_JUMP_IF_FALSE HERE
-            #  ...
-            # JUMP_FORWARD
-            # HERE:
-            #
-            # If so, this can be block inside an "if" statement
-            # or a conditional assignment like:
-            #   x = 1 if x else 2
-            #
-            # For 3.5, for JUMP_FORWARD above we could have also
-            # JUMP_BACK or CONTINUE
-            #
-            # There are other situations we may need to consider, like
-            # if the condition jump is to a forward location.
-            # Also the existence of a jump to the instruction after "END_FINALLY"
-            # will distinguish "try/else" from "try".
-            rtarget_break = (self.opc.RETURN_VALUE, self.opc.BREAK_LOOP)
-
-            if self.is_jump_forward(pre_rtarget) or (rtarget_is_ja):
-                if_end = self.get_target(pre_rtarget)
-
-                # If the jump target is back, we are looping
-                if (
-                    if_end < pre_rtarget
-                    and self.version < 3.8
-                    and (code[prev_op[if_end]] == self.opc.SETUP_LOOP)
-                ):
-                    if if_end > start:
-                        return
-
-                end = self.restrict_to_parent(if_end, parent)
-
-                self.structs.append(
-                    {"type": "if-then", "start": start, "end": pre_rtarget}
-                )
-
-                # FIXME: add this
-                # self.fixed_jumps[offset] = rtarget
-                self.not_continue.add(pre_rtarget)
-
-                if rtarget < end and (
-                    code[rtarget] not in (self.opc.END_FINALLY, self.opc.JUMP_ABSOLUTE)
-                    and code[prev_op[pre_rtarget]]
-                    not in (self.opc.POP_EXCEPT, self.opc.END_FINALLY)
-                ):
-                    self.structs.append({"type": "else", "start": rtarget, "end": end})
-                    self.else_start[rtarget] = end
-            elif self.is_jump_back(pre_rtarget, 0):
-                if_end = rtarget
-                self.structs.append(
-                    {"type": "if-then", "start": start, "end": pre_rtarget}
-                )
-                self.not_continue.add(pre_rtarget)
-            elif code[pre_rtarget] in rtarget_break:
-                self.structs.append({"type": "if-then", "start": start, "end": rtarget})
-                # It is important to distingish if this return is inside some sort
-                # except block return
-                jump_prev = prev_op[offset]
-                if self.is_pypy and code[jump_prev] == self.opc.COMPARE_OP:
-                    if self.opc.cmp_op[code[jump_prev + 1]] == "exception-match":
-                        return
-                    pass
-
-                # Check that next instruction after pops and jump is
-                # not from SETUP_EXCEPT
-                next_op = rtarget
-                if code[next_op] == self.opc.POP_BLOCK:
-                    next_op += instruction_size(self.code[next_op], self.opc)
-                if code[next_op] == self.opc.JUMP_ABSOLUTE:
-                    next_op += instruction_size(self.code[next_op], self.opc)
-                if next_op in targets:
-                    for try_op in targets[next_op]:
-                        come_from_op = code[try_op]
-                        if self.version < 3.8 and come_from_op == self.opc.SETUP_EXCEPT:
-                            return
-                        pass
-
-                self.fixed_jumps[offset] = rtarget
-
-                if code[pre_rtarget] == self.opc.RETURN_VALUE:
-                    # If we are at some sort of POP_JUMP_IF and the instruction before was
-                    # COMPARE_OP exception-match, then pre_rtarget is not an end_if
-                    if not (
-                        inst_index > 0
-                        and self.insts[inst_index - 1].argval == "exception-match"
-                    ):
-                        self.return_end_ifs.add(pre_rtarget)
-                else:
-                    self.fixed_jumps[offset] = rtarget
-                    self.not_continue.add(pre_rtarget)
-            else:
-
-                if target > offset:
-                    self.fixed_jumps[offset] = target
-                    pass
+            self.fixed_jumps[offset] = target
 
         elif self.version < 3.8 and op == self.opc.SETUP_EXCEPT:
             target = self.get_target(offset)
