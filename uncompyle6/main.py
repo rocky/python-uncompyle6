@@ -243,7 +243,7 @@ def main(in_base, out_base, compiled_files, source_files, outfile=None,
                 else:
                     buffering = 0
                 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering)
-                if PYTHON_VERSION > 2.5:
+                if PYTHON_VERSION > 2.6:
                     tee = subprocess.Popen(["tee", current_outfile],
                                            stdin=subprocess.PIPE)
                     os.dup2(tee.stdin.fileno(), sys.stdout.fileno())
