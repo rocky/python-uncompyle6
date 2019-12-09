@@ -12,14 +12,13 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
-Python 3.8 bytecode decompiler scanner
+"""Python 3.8 bytecode decompiler scanner
 
-Does some additional massaging of xdis-disassembled instructions to
-make things easier for decompilation.
+Does some token massaging of xdis-disassembled instructions to make
+things easier for decompilation.
 
 This sets up opcodes Python's 3.8 and calls a generalized
-scanner routine for Python 3.
+scanner routine for Python 3.7 and up.
 """
 
 from uncompyle6.scanners.scanner37 import Scanner37

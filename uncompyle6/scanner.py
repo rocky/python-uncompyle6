@@ -60,6 +60,7 @@ PYTHON_VERSIONS = frozenset(
         3.6,
         3.7,
         3.8,
+        3.9,
     )
 )
 
