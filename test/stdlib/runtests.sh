@@ -37,7 +37,13 @@ case $PYVERSION in
 	    [test_pep247.py]=1 # Long test - might work? Control flow?
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_pyclbr.py]=1 # Investigate
+<<<<<<< HEAD
 	    [test_re.py]=1 # Investigate produces a Python syntax error
+=======
+	    [test_pyexpat.py]=1 # Investigate
+	    [test_queue.py]=1 # Control flow?
+	    [test_re.py]=1 # try confused with try-else again
+>>>>>>> master
 	    [test_socketserver.py]=1 # -- test takes too long to run: 40 seconds
 	    [test_threading.py]=1 # Line numbers are expected to be different
 	    [test_thread.py]=1 # test takes too long to run: 36 seconds
@@ -55,7 +61,15 @@ case $PYVERSION in
 	    [test_pep352.py]=1     # Investigate
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_pyclbr.py]=1 # Investigate
+<<<<<<< HEAD
 	    [test_struct.py]=1 # "if and" confused for if .. assert and
+=======
+	    [test_queue.py]=1 # Control flow?
+	    [test_re.py]=1 # Possibly try confused with try-else again
+	    [test_struct.py]=1 # "if and" confused for if .. assert and
+	    [test_sys.py]=1 # try confused with try-else again; in test_current_frames()
+	    [test_tarfile.py]=1  # try confused with try-else again; top-level import
+>>>>>>> master
 	    [test_threading.py]=1 # Line numbers are expected to be different
 	    [test_thread.py]=1 # test takes too long to run: 36 seconds
 	    [test_trace.py]=1  # Line numbers are expected to be different
@@ -118,7 +132,6 @@ case $PYVERSION in
 	    [test_doctest.py]=1 # Fails on its own
 	    [test_exceptions.py]=1
 	    [test_format.py]=1  # control flow. uncompyle2 does not have problems here
-	    [test_frozen.py]=1  # try vs try/else control flow. uncompyle2 does not have problems here
 	    [test_generators.py]=1  # control flow. uncompyle2 has problem here too
 	    [test_grammar.py]=1     # Too many stmts. Handle large stmts
 	    [test_grp.py]=1     # test takes to long, works interactively though
@@ -131,8 +144,6 @@ case $PYVERSION in
 	    [test_memoryio.py]=1 # FIX
 	    [test_modulefinder.py]=1 # FIX
 	    [test_multiprocessing.py]=1 # On uncompyle2, takes 24 secs
-	    [test_posix.py]=1   # Bug in try-else detection inside test_initgroups()
-	                        # Deal with when we have better flow-control detection
 	    [test_pwd.py]=1     # Takes too long
 	    [test_pty.py]=1
 	    [test_runpy.py]=1   # Long and fails on its own

@@ -1,4 +1,23 @@
-3.5.1 2019-10-29 JNC
+3.6.0: 2019-12-10 gecko gecko
+=============================
+
+The main focus in this release was more accurate decompilation especially
+for 3.7 and 3.8. However there are some improvments to Python 2.x as well,
+including one of the long-standing problems of detecting the difference between
+`try ... ` and `try else ...`.
+
+With this release we now rebase Python 3.7 on off of a 3.7 base; This
+is also as it is (now) in decompyle3.  This facilitates removing some of the
+cruft in control-flow detection in the 2.7 uncompyle2 base.
+
+Alas, decompilation speed for 3.7 on is greatly increased. Hopefull
+this is temporary (cough, cough) until we can do a static control flow
+pass.
+
+Finally, runing in 3.9-dev is tolerated. We can disassemble, but no parse tables yet.
+
+
+3.5.1 2019-11-17 JNC
 ====================
 
 - Pypy 3.3, 3.5, 3.6, and 3.6.9 support
