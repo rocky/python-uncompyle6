@@ -77,9 +77,10 @@ class TreeTransform(GenericASTTraversal, object):
             return node
         if node.kind in ("ifstmt", "ifstmtl"):
             ifstmts_jump = node[1]
+
             if ifstmts_jump == "_ifstmts_jumpl" and ifstmts_jump[0] == "_ifstmts_jump":
                 ifstmts_jump = ifstmts_jump[0]
-            elif ifstmts_jump != "_ifstmts_jump":
+            elif ifstmts_jump in ("_ifstmts_jump", "ifstmts_jumpl"):
                 return node
             stmts = ifstmts_jump[0]
         else:
