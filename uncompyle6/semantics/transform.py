@@ -80,7 +80,7 @@ class TreeTransform(GenericASTTraversal, object):
 
             if ifstmts_jump == "_ifstmts_jumpl" and ifstmts_jump[0] == "_ifstmts_jump":
                 ifstmts_jump = ifstmts_jump[0]
-            elif ifstmts_jump in ("_ifstmts_jump", "ifstmts_jumpl"):
+            elif ifstmts_jump not in ("_ifstmts_jump", "ifstmts_jumpl"):
                 return node
             stmts = ifstmts_jump[0]
         else:

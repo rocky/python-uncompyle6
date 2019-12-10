@@ -1,5 +1,7 @@
 # Self-checking test.
 # Python 3 bug in not detecting the end bounds of if elif.
+
+# RUNNABLE!
 def testit(b):
     if b == 1:
         a = 1
