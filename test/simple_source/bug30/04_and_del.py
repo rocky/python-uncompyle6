@@ -1,5 +1,7 @@
 # From 2.5.6 osxemxpath.py
 # Bug is in getting "and" and "del" correct
+
+# This is RUNNABLE!
 def normpath(comps):
     i = 0
     while i < len(comps):

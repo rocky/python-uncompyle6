@@ -75,9 +75,11 @@ class TreeTransform(GenericASTTraversal, object):
 
         if testexpr.kind != "testexpr":
             return node
-        if node.kind == "ifstmt":
+        if node.kind in ("ifstmt", "ifstmtl"):
             ifstmts_jump = node[1]
-            if node[1] != "_ifstmts_jump":
+            if ifstmts_jump == "_ifstmts_jumpl" and ifstmts_jump[0] == "_ifstmts_jump":
+                ifstmts_jump = ifstmts_jump[0]
+            elif ifstmts_jump != "_ifstmts_jump":
                 return node
             stmts = ifstmts_jump[0]
         else:
@@ -156,7 +158,7 @@ class TreeTransform(GenericASTTraversal, object):
             pass
         return node
 
-    n_iflaststmtl = n_ifstmt
+    n_ifstmtl = n_iflaststmtl = n_ifstmt
 
     # preprocess is used for handling chains of
     # if elif elif
