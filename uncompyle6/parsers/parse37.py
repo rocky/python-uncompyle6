@@ -139,7 +139,7 @@ class Python37Parser(Python37BaseParser):
         expr ::= LOAD_GLOBAL
         expr ::= LOAD_NAME
         expr ::= LOAD_STR
-        expr ::= binary_expr
+        expr ::= bin_op
         expr ::= list
         expr ::= compare
         expr ::= dict
@@ -153,7 +153,8 @@ class Python37Parser(Python37BaseParser):
         expr ::= yield
         expr ::= generator_exp
 
-        binary_expr ::= expr expr binary_op
+        # bin_op (formerly "binary_expr") is the Python AST BinOp
+        bin_op      ::= expr expr binary_op
         binary_op   ::= BINARY_ADD
         binary_op   ::= BINARY_MULTIPLY
         binary_op   ::= BINARY_AND

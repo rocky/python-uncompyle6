@@ -504,7 +504,7 @@ class PythonParser(GenericASTBuilder):
         expr ::= LOAD_CONST
         expr ::= LOAD_GLOBAL
         expr ::= LOAD_DEREF
-        expr ::= binary_expr
+        expr ::= bin_op
         expr ::= list
         expr ::= compare
         expr ::= dict
@@ -517,7 +517,8 @@ class PythonParser(GenericASTBuilder):
         expr ::= subscript2
         expr ::= yield
 
-        binary_expr ::= expr expr binary_op
+        # bin_op (formerly "binary_expr") is the Python AST BinOp
+        bin_op ::= expr expr binary_op
         binary_op   ::= BINARY_ADD
         binary_op   ::= BINARY_MULTIPLY
         binary_op   ::= BINARY_AND

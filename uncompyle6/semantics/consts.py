@@ -189,7 +189,9 @@ TABLE_DIRECT = {
     'INPLACE_AND':              ( '&=' ,),
     'INPLACE_OR':               ( '|=' ,),
     'INPLACE_XOR':              ( '^=' ,),
-    'binary_expr':              ( '%c %c %c', 0,
+
+    # bin_op (formerly "binary_expr") is the Python AST BinOp
+    'bin_op':                  ( '%c %c %c', 0,
                                 (-1, 'binary_op'),
                                 ( 1, 'expr' ) ),
 

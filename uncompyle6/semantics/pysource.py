@@ -555,7 +555,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_expr(self, node):
         p = self.prec
-        if node[0].kind.startswith("binary_expr"):
+        if node[0].kind.startswith("bin_op"):
             n = node[0][-1][0]
         else:
             n = node[0]
@@ -585,11 +585,13 @@ class SourceWalker(GenericASTTraversal, object):
 
     n_ret_expr_or_cond = n_expr
 
-    def n_binary_expr(self, node):
+    def n_bin_op(self, node):
+        """bin_op (formerly "binary_expr") is the Python AST BinOp"""
         self.preorder(node[0])
         self.write(" ")
         self.preorder(node[-1])
         self.write(" ")
+        # Try to avoid a trailing parentheses by lowering the priority a little
         self.prec -= 1
         self.preorder(node[1])
         self.prec += 1
