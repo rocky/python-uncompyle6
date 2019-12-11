@@ -111,7 +111,7 @@ def customize_for_version38(self, version):
             '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
             (1, "suite_stmts_opt"),
             (6, "suite_stmts_opt") ),
-        'tryfinally38_return_stmt': (
+        'tryfinally38astmt': (
             '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
             (2, "suite_stmts_opt"),
             (8, "suite_stmts_opt") ),

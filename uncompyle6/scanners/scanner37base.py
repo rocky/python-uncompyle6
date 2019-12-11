@@ -776,25 +776,6 @@ class Scanner37Base(Scanner):
                 )
         elif op in self.pop_jump_tf:
             target = inst.argval
-            prev_op = self.prev_op
-
-            # FIXME: hack upon hack, test_pysource.py fails with this
-            # Until the grammar is corrected we do this fiction...
-            pretarget = self.get_inst(prev_op[target])
-            if (
-                pretarget.opcode in self.pop_jump_if_pop
-                and (target > offset)
-                and pretarget.offset != offset
-            ):
-
-                if pretarget.argval != target:
-                    # FIXME: this is not accurate The commented out below
-                    # is what it should be. However grammar rules right now
-                    # assume the incorrect offsets.
-                    # self.fixed_jumps[offset] = target
-                    self.fixed_jumps[offset] = pretarget.offset
-                    return
-
             self.fixed_jumps[offset] = target
 
         elif self.version < 3.8 and op == self.opc.SETUP_EXCEPT:

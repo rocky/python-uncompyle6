@@ -96,7 +96,8 @@ class TreeTransform(GenericASTTraversal, object):
                 jump_cond = testexpr[0][1]
                 expr = raise_stmt[0]
                 RAISE_VARARGS_1 = raise_stmt[1]
-                if expr[0] == "call":
+                call = expr[0]
+                if call == "call":
                     # ifstmt
                     #     0. testexpr
                     #         testtrue (2)
@@ -116,7 +117,8 @@ class TreeTransform(GenericASTTraversal, object):
                         assert jump_cond == "jmp_false"
                         kind = "assert2not"
 
-                    call = expr[0]
+                    if call[0] != "LOAD_ASSERT":
+                        return node
                     LOAD_ASSERT = call[0]
                     if isinstance(call[1], SyntaxTree):
                         expr = call[1][0]

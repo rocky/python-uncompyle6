@@ -263,10 +263,8 @@ class Python38Parser(Python37Parser):
     def customize_grammar_rules(self, tokens, customize):
         super(Python37Parser, self).customize_grammar_rules(tokens, customize)
         self.remove_rules_38()
-        self.check_reduce["ifstmt"] = "tokens"
         self.check_reduce["whileTruestmt38"] = "tokens"
         self.check_reduce["whilestmt38"] = "tokens"
-        self.check_reduce["ifstmtl"] = "tokens"
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python38Parser,
@@ -276,30 +274,7 @@ class Python38Parser(Python37Parser):
         if invalid:
             return invalid
         lhs = rule[0]
-        if lhs == "ifstmt":
-            # Make sure jumps don't extend beyond the end of the if statement.
-            l = last
-            if l == len(tokens):
-                l -= 1
-            if isinstance(tokens[l].offset, str):
-                last_offset = int(tokens[l].offset.split("_")[0], 10)
-            else:
-                last_offset = tokens[l].offset
-            for i in range(first, l):
-                t = tokens[i]
-                if t.kind == "POP_JUMP_IF_FALSE":
-                    if t.attr > last_offset:
-                        return True
-                    pass
-                pass
-            pass
-        elif lhs == "ifstmtl":
-            if last == len(tokens):
-                last -= 1
-            if (tokens[last].attr and isinstance(tokens[last].attr, int)):
-                return tokens[first].offset < tokens[last].attr
-            pass
-        elif lhs in ("whileTruestmt38", "whilestmt38"):
+        if lhs in ("whileTruestmt38", "whilestmt38"):
             jb_index = last - 1
             while jb_index > 0 and tokens[jb_index].kind.startswith("COME_FROM"):
                 jb_index -= 1
