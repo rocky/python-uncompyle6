@@ -131,7 +131,6 @@ class Python37Parser(Python37BaseParser):
 
     def p_expr(self, args):
         """
-        expr ::= _mklambda
         expr ::= LOAD_CODE
         expr ::= LOAD_CONST
         expr ::= LOAD_DEREF
@@ -139,39 +138,42 @@ class Python37Parser(Python37BaseParser):
         expr ::= LOAD_GLOBAL
         expr ::= LOAD_NAME
         expr ::= LOAD_STR
+        expr ::= _mklambda
+        expr ::= and
         expr ::= bin_op
-        expr ::= list
+        expr ::= call
         expr ::= compare
         expr ::= dict
-        expr ::= and
+        expr ::= generator_exp
+        expr ::= list
         expr ::= or
-        expr ::= unary_expr
-        expr ::= call
-        expr ::= unary_not
         expr ::= subscript
         expr ::= subscript2
+        expr ::= unary_not
+        expr ::= unary_op
         expr ::= yield
-        expr ::= generator_exp
 
         # bin_op (formerly "binary_expr") is the Python AST BinOp
-        bin_op      ::= expr expr binary_op
-        binary_op   ::= BINARY_ADD
-        binary_op   ::= BINARY_MULTIPLY
-        binary_op   ::= BINARY_AND
-        binary_op   ::= BINARY_OR
-        binary_op   ::= BINARY_XOR
-        binary_op   ::= BINARY_SUBTRACT
-        binary_op   ::= BINARY_TRUE_DIVIDE
-        binary_op   ::= BINARY_FLOOR_DIVIDE
-        binary_op   ::= BINARY_MODULO
-        binary_op   ::= BINARY_LSHIFT
-        binary_op   ::= BINARY_RSHIFT
-        binary_op   ::= BINARY_POWER
+        bin_op      ::= expr expr binary_operator
 
-        unary_expr  ::= expr unary_op
-        unary_op    ::= UNARY_POSITIVE
-        unary_op    ::= UNARY_NEGATIVE
-        unary_op    ::= UNARY_INVERT
+        binary_operator   ::= BINARY_ADD
+        binary_operator   ::= BINARY_MULTIPLY
+        binary_operator   ::= BINARY_AND
+        binary_operator   ::= BINARY_OR
+        binary_operator   ::= BINARY_XOR
+        binary_operator   ::= BINARY_SUBTRACT
+        binary_operator   ::= BINARY_TRUE_DIVIDE
+        binary_operator   ::= BINARY_FLOOR_DIVIDE
+        binary_operator   ::= BINARY_MODULO
+        binary_operator   ::= BINARY_LSHIFT
+        binary_operator   ::= BINARY_RSHIFT
+        binary_operator   ::= BINARY_POWER
+
+        # unary_op (formerly "unary_expr") is the Python AST UnaryOp
+        unary_op          ::= expr unary_operator
+        unary_operator    ::= UNARY_POSITIVE
+        unary_operator    ::= UNARY_NEGATIVE
+        unary_operator    ::= UNARY_INVERT
 
         unary_not ::= expr UNARY_NOT
 
@@ -472,7 +474,7 @@ class Python37Parser(Python37BaseParser):
         # Python 3.5+ async additions
 
         inplace_op ::= INPLACE_MATRIX_MULTIPLY
-        binary_op  ::= BINARY_MATRIX_MULTIPLY
+        binary_operator  ::= BINARY_MATRIX_MULTIPLY
 
         # Python 3.5+ does jump optimization
         # In <.3.5 the below is a JUMP_FORWARD to a JUMP_ABSOLUTE.

@@ -96,8 +96,8 @@ class Python35Parser(Python34Parser):
                                else_suite COME_FROM_LOOP
 
 
-        inplace_op ::= INPLACE_MATRIX_MULTIPLY
-        binary_op  ::= BINARY_MATRIX_MULTIPLY
+        inplace_op       ::= INPLACE_MATRIX_MULTIPLY
+        binary_operator  ::= BINARY_MATRIX_MULTIPLY
 
         # Python 3.5+ does jump optimization
         # In <.3.5 the below is a JUMP_FORWARD to a JUMP_ABSOLUTE.

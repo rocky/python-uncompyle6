@@ -81,7 +81,7 @@ PRECEDENCE = {
     'BINARY_MULTIPLY':        8,  # *
     'BINARY_TRUE_DIVIDE':     8,  # Division /
 
-    'unary_expr':             6,  # +x, -x, ~x
+    'unary_op':               6,  # +x, -x, ~x
 
     'BINARY_POWER':           4,  # Exponentiation, *
 
@@ -192,14 +192,16 @@ TABLE_DIRECT = {
 
     # bin_op (formerly "binary_expr") is the Python AST BinOp
     'bin_op':                  ( '%c %c %c', 0,
-                                (-1, 'binary_op'),
+                                (-1, 'binary_operator'),
                                 ( 1, 'expr' ) ),
 
     'UNARY_POSITIVE':           ( '+',),
     'UNARY_NEGATIVE':           ( '-',),
     'UNARY_INVERT':             ( '~'),
-    'unary_expr':               ( '%c%c',
-                                  (1, 'unary_op'),
+
+    # unary_op (formerly "unary_expr") is the Python AST UnaryOp
+    'unary_opr':                ( '%c%c',
+                                  (1, 'unary_operator'),
                                   (0, 'expr') ),
 
     'unary_not':	            ( 'not %c',
