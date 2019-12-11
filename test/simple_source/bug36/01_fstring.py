@@ -1,6 +1,7 @@
 # Self-checking test.
 # String interpolation tests
 
+# RUNNABLE!
 var1 = 'x'
 var2 = 'y'
 abc  = 'def'

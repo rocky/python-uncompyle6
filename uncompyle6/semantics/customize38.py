@@ -104,9 +104,17 @@ def customize_for_version38(self, version):
         'try_except_ret38': (
             '%|try:\n%+%|return %c%-\n%|except:\n%+%|%c%-\n\n',
                    (1, 'expr'), (-1, 'except_ret38a') ),
-        'tryfinally38': (
+        'tryfinally38rstmt': (
             '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
                    (3, 'returns'), 6 ),
+        'tryfinally38stmt': (
+            '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
+            (1, "suite_stmts_opt"),
+            (6, "suite_stmts_opt") ),
+        'tryfinally38_return_stmt': (
+            '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
+            (2, "suite_stmts_opt"),
+            (8, "suite_stmts_opt") ),
         "named_expr": ( # AKA "walrus operator"
             "%c := %c", (2, "store"), (0, "expr")
             )

@@ -4,6 +4,7 @@
 #   showparams(c, test="A", **extra_args)
 # below
 
+# RUNNABLE!
 def showparams(c, test, **extra_args):
     return {'c': c, **extra_args, 'test': test}
 
@@ -44,4 +45,3 @@ d = (2, 3)
 assert f(2, **a) == {'c': 2, 'param1': 2, 'test': 'A'}
 assert f3(2, *c, **a) == {'c': 2, 'param1': 2, 'test': 2}
 assert f3(*d, **a) == {'c': 2, 'param1': 2, 'test': 3}
-

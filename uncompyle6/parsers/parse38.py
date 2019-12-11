@@ -37,7 +37,9 @@ class Python38Parser(Python37Parser):
         stmt               ::= forelsestmt38
         stmt               ::= forelselaststmt38
         stmt               ::= forelselaststmtl38
-        stmt               ::= tryfinally38
+        stmt               ::= tryfinally38stmt
+        stmt               ::= tryfinally38rstmt
+        stmt               ::= tryfinally38astmt
         stmt               ::= try_elsestmtl38
         stmt               ::= try_except_ret38
         stmt               ::= try_except38
@@ -167,17 +169,22 @@ class Python38Parser(Python37Parser):
         tryfinallystmt     ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                BEGIN_FINALLY COME_FROM_FINALLY suite_stmts_opt
                                END_FINALLY
-        tryfinally38       ::= SETUP_FINALLY POP_BLOCK CALL_FINALLY
+        tryfinally38rstmt  ::= SETUP_FINALLY POP_BLOCK CALL_FINALLY
                                returns
                                COME_FROM_FINALLY END_FINALLY suite_stmts
-        tryfinally38       ::= SETUP_FINALLY POP_BLOCK CALL_FINALLY
+        tryfinally38rstmt  ::= SETUP_FINALLY POP_BLOCK CALL_FINALLY
                                returns
                                COME_FROM_FINALLY POP_FINALLY returns
                                END_FINALLY
-        tryfinally_return_stmt ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
-                                   BEGIN_FINALLY COME_FROM_FINALLY
-                                   POP_FINALLY suite_stmts_opt END_FINALLY
-
+        tryfinally38stmt   ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
+                               BEGIN_FINALLY COME_FROM_FINALLY
+                               POP_FINALLY suite_stmts_opt END_FINALLY
+        tryfinally38stmt   ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
+                               BEGIN_FINALLY COME_FROM_FINALLY
+                               POP_FINALLY suite_stmts_opt END_FINALLY
+        tryfinally38astmt  ::= LOAD_CONST SETUP_FINALLY suite_stmts_opt POP_BLOCK
+                               BEGIN_FINALLY COME_FROM_FINALLY
+                               POP_FINALLY POP_TOP suite_stmts_opt END_FINALLY POP_TOP
         """
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
