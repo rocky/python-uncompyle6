@@ -1046,7 +1046,7 @@ class Python37BaseParser(PythonParser):
                     if tokens[last] == "POP_JUMP_IF_FALSE":
                         # Ok if jump_target doesn't jump to last instruction
                         return jmp_target != tokens[last].attr
-                    elif tokens[last] == "JUMP_IF_TRUE_OR_POP":
+                    elif tokens[last] in ("POP_JUMP_IF_TRUE", "JUMP_IF_TRUE_OR_POP"):
                         # Ok if jump_target jumps to a COME_FROM after
                         # the last instruction or jumps right after last instruction
                         if last + 1 < n and tokens[last + 1] == "COME_FROM":
