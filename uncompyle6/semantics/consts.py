@@ -200,9 +200,9 @@ TABLE_DIRECT = {
     'UNARY_INVERT':             ( '~'),
 
     # unary_op (formerly "unary_expr") is the Python AST UnaryOp
-    'unary_opr':                ( '%c%c',
-                                  (1, 'unary_operator'),
-                                  (0, 'expr') ),
+    'unary_op':                 ( '%c%c',
+                                 (1, 'unary_operator'),
+                                 (0, 'expr') ),
 
     'unary_not':	            ( 'not %c',
                                   (0, 'expr' ) ),

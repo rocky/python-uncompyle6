@@ -513,7 +513,7 @@ class PythonParser(GenericASTBuilder):
         expr ::= or
         expr ::= subscript
         expr ::= subscript2
-        expr ::= unary_expr
+        expr ::= unary_op
         expr ::= unary_not
         expr ::= yield
 
@@ -532,7 +532,8 @@ class PythonParser(GenericASTBuilder):
         binary_operator   ::= BINARY_RSHIFT
         binary_operator   ::= BINARY_POWER
 
-        unary_expr  ::= expr unary_operator
+        # unary_op (formerly "unary_expr") is the Python AST BinOp
+        unary_op          ::= expr unary_operator
         unary_operator    ::= UNARY_POSITIVE
         unary_operator    ::= UNARY_NEGATIVE
         unary_operator    ::= UNARY_INVERT
