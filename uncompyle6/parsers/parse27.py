@@ -285,10 +285,10 @@ class Python27Parser(Python2Parser):
                         or jump_target == next_offset(ast[-1].op, ast[-1].opc, ast[-1].offset))
         elif rule == ("iflaststmtl", ("testexpr", "c_stmts")):
             testexpr = ast[0]
-            if testexpr[0] == "testfalse":
-                testfalse = testexpr[0]
-                if testfalse[1] == "jmp_false":
-                    jmp_false = testfalse[1]
+            if testexpr[0] in ("testfalse", "testtrue"):
+                test = testexpr[0]
+                if len(test) > 1 and test[1].kind.startswith("jmp_"):
+                    jmp_target = test[1][0].attr
                     if last == len(tokens):
                         last -= 1
                     while (isinstance(tokens[first].offset, str) and first < last):
@@ -297,7 +297,7 @@ class Python27Parser(Python2Parser):
                         return True
                     while (first < last and isinstance(tokens[last].offset, str)):
                         last -= 1
-                    return tokens[first].offset < jmp_false[0].attr < tokens[last].offset
+                    return tokens[first].off2int() < jmp_target < tokens[last].off2int()
                     pass
                 pass
             pass

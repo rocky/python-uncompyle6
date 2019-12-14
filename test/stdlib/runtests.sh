@@ -75,7 +75,7 @@ case $PYVERSION in
 	    [test_codeccallbacks.py]=1  # Fails on its own
 	    [test_compile.py]=1  # Intermittent - sometimes works and sometimes doesn't
 	    [test_exceptions.py]=1
-	    [test_generators.py]=1 # Investigate
+	    [test_generators.py]=1 # Investigate. Recently fixed in 2.7? Fixed with reduction checks?
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_pep352.py]=1     # Investigate
 	    [test_pprint.py]=1
@@ -125,10 +125,8 @@ case $PYVERSION in
 	    [test_doctest.py]=1 # Fails on its own
 	    [test_exceptions.py]=1
 	    [test_format.py]=1  # control flow. uncompyle2 does not have problems here
-	    [test_generators.py]=1  # control flow. uncompyle2 has problem here too
 	    [test_grammar.py]=1     # Too many stmts. Handle large stmts
 	    [test_grp.py]=1     # test takes to long, works interactively though
-	    [test_hashlib.py]=1 # Investigate
 	    [test_io.py]=1 # Test takes too long to run
 	    [test_ioctl.py]=1 # Test takes too long to run
 	    [test_long.py]=1
