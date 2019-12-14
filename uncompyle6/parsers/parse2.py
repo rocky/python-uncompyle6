@@ -225,7 +225,7 @@ class Python2Parser(PythonParser):
     def p_op2(self, args):
         """
         inplace_op ::= INPLACE_DIVIDE
-        binary_op  ::= BINARY_DIVIDE
+        binary_operator  ::= BINARY_DIVIDE
         """
 
     def customize_grammar_rules(self, tokens, customize):

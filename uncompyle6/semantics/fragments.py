@@ -412,7 +412,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def n_expr(self, node):
         start = len(self.f.getvalue())
         p = self.prec
-        if node[0].kind.startswith("binary_expr"):
+        if node[0].kind.startswith("bin_op"):
             n = node[0][-1][0]
         else:
             n = node[0]
@@ -446,13 +446,14 @@ class FragmentsWalker(pysource.SourceWalker, object):
         super(FragmentsWalker, self).n_ret_expr(node)
         self.set_pos_info(node, start, len(self.f.getvalue()))
 
-    def n_binary_expr(self, node):
+    def n_bin_op(self, node):
+        """bin_op (formerly "binary_expr") is the Python AST BinOp"""
         start = len(self.f.getvalue())
         for n in node:
             n.parent = node
         self.last_finish = len(self.f.getvalue())
         try:
-            super(FragmentsWalker, self).n_binary_expr(node)
+            super(FragmentsWalker, self).n_bin_op(node)
         except GenericASTTraversalPruningException:
             pass
         self.set_pos_info(node, start, len(self.f.getvalue()))

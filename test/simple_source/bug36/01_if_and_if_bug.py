@@ -1,6 +1,7 @@
 # Bug in 3.6 was not taking "else" branch after compond "if"
 # In earlier versions we had else detection needed here.
 
+# RUNNABLE!
 def f(a, b, c):
     if a and b:
         x = 1

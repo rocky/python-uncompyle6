@@ -776,25 +776,6 @@ class Scanner37Base(Scanner):
                 )
         elif op in self.pop_jump_tf:
             target = inst.argval
-            prev_op = self.prev_op
-
-            # FIXME: hack upon hack, test_pysource.py fails with this
-            # Until the grammar is corrected we do this fiction...
-            pretarget = self.get_inst(prev_op[target])
-            if (
-                pretarget.opcode in self.pop_jump_if_pop
-                and (target > offset)
-                and pretarget.offset != offset
-            ):
-
-                if pretarget.argval != target:
-                    # FIXME: this is not accurate The commented out below
-                    # is what it should be. However grammar rules right now
-                    # assume the incorrect offsets.
-                    # self.fixed_jumps[offset] = target
-                    self.fixed_jumps[offset] = pretarget.offset
-                    return
-
             self.fixed_jumps[offset] = target
 
         elif self.version < 3.8 and op == self.opc.SETUP_EXCEPT:
@@ -906,32 +887,6 @@ class Scanner37Base(Scanner):
                 count_END_FINALLY += 1
             elif op in self.setup_opts_no_loop:
                 count_SETUP_ += 1
-
-    def rem_or(self, start, end, instr, target=None, include_beyond_target=False):
-        """
-        Find offsets of all requested <instr> between <start> and <end>,
-        optionally <target>ing specified offset, and return list found
-        <instr> offsets which are not within any POP_JUMP_IF_TRUE jumps.
-        """
-        assert start >= 0 and end <= len(self.code) and start <= end
-
-        # Find all offsets of requested instructions
-        instr_offsets = self.inst_matches(
-            start, end, instr, target, include_beyond_target
-        )
-        # Get all POP_JUMP_IF_TRUE (or) offsets
-        jump_true_op = self.opc.POP_JUMP_IF_TRUE
-        pjit_offsets = self.inst_matches(start, end, jump_true_op)
-        filtered = []
-        for pjit_offset in pjit_offsets:
-            pjit_tgt = self.get_target(pjit_offset) - 3
-            for instr_offset in instr_offsets:
-                if instr_offset <= pjit_offset or instr_offset >= pjit_tgt:
-                    filtered.append(instr_offset)
-            instr_offsets = filtered
-            filtered = []
-        return instr_offsets
-
 
 if __name__ == "__main__":
     from uncompyle6 import PYTHON_VERSION

@@ -936,7 +936,9 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["iflaststmt"] = "AST"
         self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
+        self.check_reduce["ifstmtl"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
+        self.check_reduce["or"] = "tokens"
 
         # FIXME: remove parser errors caused by the below
         # self.check_reduce['while1elsestmt'] = 'noAST'
@@ -1028,7 +1030,6 @@ class Python37BaseParser(PythonParser):
 
         if lhs == "and" and ast:
             # FIXME: put in a routine somewhere
-            # Compare with parse30.py of uncompyle6
             jmp = ast[1]
             if jmp.kind.startswith("jmp_"):
                 if last == n:
@@ -1043,7 +1044,14 @@ class Python37BaseParser(PythonParser):
                     return jmp_target != jmp2_target
                 elif rule == ("and", ("expr", "jmp_false", "expr")):
                     if tokens[last] == "POP_JUMP_IF_FALSE":
+                        # Ok if jump_target doesn't jump to last instruction
                         return jmp_target != tokens[last].attr
+                    elif tokens[last] in ("POP_JUMP_IF_TRUE", "JUMP_IF_TRUE_OR_POP"):
+                        # Ok if jump_target jumps to a COME_FROM after
+                        # the last instruction or jumps right after last instruction
+                        if last + 1 < n and tokens[last + 1] == "COME_FROM":
+                            return jmp_target != tokens[last + 1].off2int()
+                        return jmp_target + 2 != tokens[last].attr
                 elif rule == ("and", ("expr", "jmp_false", "expr", "COME_FROM")):
                     return ast[-1].attr != jmp_offset
                 # elif rule == ("and", ("expr", "jmp_false", "expr", "COME_FROM")):
@@ -1056,6 +1064,12 @@ class Python37BaseParser(PythonParser):
             return True
         elif lhs == "annotate_tuple":
             return not isinstance(tokens[first].attr, tuple)
+        elif lhs == "or":
+            # FIXME: This is a cheap test. Should we do something with an AST like we
+            # do with "and"?
+            # "or"s with constants like this will have "COME_FROM" at the end
+            return tokens[last] in ("LOAD_ASSERT", "LOAD_STR", "LOAD_CODE", "LOAD_CONST",
+                                    "RAISE_VARARGS_1")
         elif lhs == "while1elsestmt":
 
             if last == n:
@@ -1153,36 +1167,65 @@ class Python37BaseParser(PythonParser):
             else:
                 return tokens[pop_jump_index].offset > come_froms[-1].attr
 
-        elif lhs == "ifstmt" and ast:
+        elif lhs in ("ifstmt", "ifstmtl"):
             # FIXME: put in a routine somewhere
-            testexpr = ast[0]
 
-            if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP":
-                # iflastsmtl jumped outside of loop. No good.
-                return True
+            n = len(tokens)
+            if lhs == "ifstmtl":
+                if last == n:
+                    last -= 1
+                    pass
+                if (tokens[last].attr and isinstance(tokens[last].attr, int)):
+                    return tokens[first].offset < tokens[last].attr
+                pass
 
-            if testexpr[0] in ("testtrue", "testfalse"):
-                test = testexpr[0]
-                if len(test) > 1 and test[1].kind.startswith("jmp_"):
-                    if last == n:
-                        last -= 1
-                    jmp_target = test[1][0].attr
-                    if tokens[first].off2int() <= jmp_target < tokens[last].off2int():
+            # Make sure jumps don't extend beyond the end of the if statement.
+            l = last
+            if l == n:
+                l -= 1
+            if isinstance(tokens[l].offset, str):
+                last_offset = int(tokens[l].offset.split("_")[0], 10)
+            else:
+                last_offset = tokens[l].offset
+            for i in range(first, l):
+                t = tokens[i]
+                if t.kind == "POP_JUMP_IF_FALSE":
+                    if t.attr > last_offset:
                         return True
-                    # jmp_target less than tokens[first] is okay - is to a loop
-                    # jmp_target equal tokens[last] is also okay: normal non-optimized non-loop jump
-                    if jmp_target > tokens[last].off2int():
-                        # One more weird case to look out for
-                        #   if c1:
-                        #      if c2:  # Jumps around the *outer* "else"
-                        #       ...
-                        #   else:
-                        if jmp_target == tokens[last - 1].attr:
-                            return False
-                        if last < n and tokens[last].kind.startswith("JUMP"):
-                            return False
-                        return True
+                    pass
+                pass
+            pass
 
+            if ast:
+                testexpr = ast[0]
+
+                if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP":
+                    # iflastsmtl jumped outside of loop. No good.
+                    return True
+
+                if testexpr[0] in ("testtrue", "testfalse"):
+                    test = testexpr[0]
+                    if len(test) > 1 and test[1].kind.startswith("jmp_"):
+                        if last == n:
+                            last -= 1
+                        jmp_target = test[1][0].attr
+                        if tokens[first].off2int() <= jmp_target < tokens[last].off2int():
+                            return True
+                        # jmp_target less than tokens[first] is okay - is to a loop
+                        # jmp_target equal tokens[last] is also okay: normal non-optimized non-loop jump
+                        if jmp_target > tokens[last].off2int():
+                            # One more weird case to look out for
+                            #   if c1:
+                            #      if c2:  # Jumps around the *outer* "else"
+                            #       ...
+                            #   else:
+                            if jmp_target == tokens[last - 1].attr:
+                                return False
+                            if last < n and tokens[last].kind.startswith("JUMP"):
+                                return False
+                            return True
+
+                    pass
                 pass
             return False
         elif lhs in ("iflaststmt", "iflaststmtl") and ast:
