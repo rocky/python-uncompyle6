@@ -90,7 +90,11 @@ class TreeTransform(GenericASTTraversal, object):
         if stmts in ("c_stmts",) and len(stmts) == 1:
             stmt = stmts[0]
             raise_stmt = stmt[0]
-            if raise_stmt == "raise_stmt1" and len(testexpr[0]) == 2:
+            if (
+                raise_stmt == "raise_stmt1"
+                and len(testexpr[0]) == 2
+                and raise_stmt.first_child().pattr == "AssertionError"
+            ):
                 assert_expr = testexpr[0][0]
                 assert_expr.kind = "assert_expr"
                 jump_cond = testexpr[0][1]
