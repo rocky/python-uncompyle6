@@ -71,7 +71,6 @@ case $PYVERSION in
 	    [test_codeccallbacks.py]=1  # Fails on its own
 	    [test_compile.py]=1  # Intermittent - sometimes works and sometimes doesn't
 	    [test_exceptions.py]=1
-	    [test_generators.py]=1 # Investigate
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_pep352.py]=1     # Investigate
 	    [test_pprint.py]=1
@@ -83,14 +82,6 @@ case $PYVERSION in
 	    [test_zlib.py]=1  # Takes too long to run (more than 3 minutes 39 seconds)
 	    # .pyenv/versions/2.6.9/lib/python2.6/lib2to3/refactor.pyc
 	    # .pyenv/versions/2.6.9/lib/python2.6/pyclbr.pyc
-	    # .pyenv/versions/2.6.9/lib/python2.6/quopri.pyc -- look at ishex, is short
-	    # .pyenv/versions/2.6.9/lib/python2.6/random.pyc
-	    # .pyenv/versions/2.6.9/lib/python2.6/smtpd.pyc
-	    # .pyenv/versions/2.6.9/lib/python2.6/sre_parse.pyc
-	    # .pyenv/versions/2.6.9/lib/python2.6/tabnanny.pyc
-	    # .pyenv/versions/2.6.9/lib/python2.6/tarfile.pyc
-
-
 	)
 	if (( batch )) ; then
 	    # Fails in crontab environment?
@@ -121,10 +112,8 @@ case $PYVERSION in
 	    [test_doctest.py]=1 # Fails on its own
 	    [test_exceptions.py]=1
 	    [test_format.py]=1  # control flow. uncompyle2 does not have problems here
-	    [test_generators.py]=1  # control flow. uncompyle2 has problem here too
 	    [test_grammar.py]=1     # Too many stmts. Handle large stmts
 	    [test_grp.py]=1     # test takes to long, works interactively though
-	    [test_hashlib.py]=1 # Investigate
 	    [test_io.py]=1 # Test takes too long to run
 	    [test_ioctl.py]=1 # Test takes too long to run
 	    [test_long.py]=1
