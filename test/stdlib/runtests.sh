@@ -37,11 +37,8 @@ case $PYVERSION in
 	    [test_pep247.py]=1 # Long test - might work? Control flow?
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_pyclbr.py]=1 # Investigate
-	    [test_pyexpat.py]=1 # Investigate
-	    [test_queue.py]=1 # Control flow?
-	    [test_re.py]=1 # try confused with try-else again
 	    [test_socketserver.py]=1 # -- test takes too long to run: 40 seconds
-	    [test_threading.py]=1 # Line numbers are expected to be different
+	    [test_threading.py]=1 # test takes too long to run: 11 seconds
 	    [test_thread.py]=1 # test takes too long to run: 36 seconds
 	    [test_trace.py]=1 # Long test - works
 	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
@@ -63,7 +60,7 @@ case $PYVERSION in
 	    [test_struct.py]=1 # "if and" confused for if .. assert and
 	    [test_sys.py]=1 # try confused with try-else again; in test_current_frames()
 	    [test_tarfile.py]=1  # try confused with try-else again; top-level import
-	    [test_threading.py]=1 # Line numbers are expected to be different
+	    [test_threading.py]=1 # test takes too long to run: 11 seconds
 	    [test_thread.py]=1 # test takes too long to run: 36 seconds
 	    [test_trace.py]=1  # Line numbers are expected to be different
 	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
