@@ -46,7 +46,6 @@ class Python38Parser(Python37Parser):
         stmt               ::= whilestmt38
         stmt               ::= whileTruestmt38
         stmt               ::= call
-        stmt               ::= ifstmtl
 
         break ::= POP_BLOCK BREAK_LOOP
         break ::= POP_BLOCK POP_TOP BREAK_LOOP
@@ -82,35 +81,12 @@ class Python38Parser(Python37Parser):
                                END_ASYNC_FOR
                                else_suite
 
-
-        async_with_stmt    ::= expr BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               SETUP_ASYNC_WITH POP_TOP
-                               suite_stmts
-                               POP_TOP POP_BLOCK
-                               BEGIN_FINALLY COME_FROM_ASYNC_WITH
-                               WITH_CLEANUP_START
-                               GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               WITH_CLEANUP_FINISH END_FINALLY
-
-        async_with_as_stmt ::= expr BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               SETUP_ASYNC_WITH store
-                               suite_stmts
-                               POP_TOP POP_BLOCK
-                               BEGIN_FINALLY COME_FROM_ASYNC_WITH
-                               WITH_CLEANUP_START
-                               GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               WITH_CLEANUP_FINISH END_FINALLY
-
         return             ::= ret_expr ROT_TWO POP_TOP RETURN_VALUE
 
         # 3.8 can push a looping JUMP_BACK into into a JUMP_ from a statement that jumps to it
         lastl_stmt         ::= ifpoplaststmtl
         ifpoplaststmtl     ::= testexpr POP_TOP c_stmts_opt JUMP_BACK
         ifelsestmtl        ::= testexpr c_stmts_opt jb_cfs else_suitel JUMP_BACK come_froms
-
-        _ifstmts_jumpl     ::= c_stmts JUMP_BACK
-        _ifstmts_jumpl     ::= _ifstmts_jump
-        ifstmtl            ::= testexpr _ifstmts_jumpl
 
         for38              ::= expr get_iter store for_block JUMP_BACK
         for38              ::= expr get_for_iter store for_block JUMP_BACK
