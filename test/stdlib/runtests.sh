@@ -188,11 +188,15 @@ TESTDIR=/tmp/test${PYVERSION}
 if [[ -e $TESTDIR ]] ; then
     rm -fr $TESTDIR
 fi
+
+PYENV_ROOT=${PYENV_ROOT:-$HOME/.pyenv}
+pyenv_local=$(pyenv local)
 mkdir $TESTDIR || exit $?
 cp -r ${PYENV_ROOT}/versions/${PYVERSION}.${MINOR}/lib/python${PYVERSION}/test $TESTDIR
 cd $TESTDIR/test
 pyenv local $FULLVERSION
 export PYTHONPATH=$TESTDIR
+export PATH=${PYENV_ROOT}/shims:${PATH}
 
 # Run tests
 typeset -i i=0
@@ -204,7 +208,7 @@ if [[ -n $1 ]] ; then
 	SKIP_TESTS=()
     fi
 else
-    files=test_*.py
+    files=$(echo test_*.py)
 fi
 
 typeset -i ALL_FILES_STARTTIME=$(date +%s)
