@@ -20,3 +20,4 @@ cd $fulldir/..
     (cd ../python-xdis && git checkout master && pyenv local $PYTHON_VERSION) && git pull && \
     git checkout master && pyenv local $PYTHON_VERSION && git pull
 cd $owd
+rm -v */.python-version || true
