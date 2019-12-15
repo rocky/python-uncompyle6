@@ -1,4 +1,4 @@
-# Tests:
+n# Tests:
 #   importstmt ::= LOAD_CONST LOAD_CONST import_as
 #   import_as ::= IMPORT_NAME store
 
