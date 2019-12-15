@@ -15,3 +15,11 @@ class BZ2File(io.BufferedIOBase):
 
 class ABC(metaclass=BZ2File):
     pass
+
+# From 3.3 test_abc
+
+# Bug was class Descriptor("Descriptor"): instead of below
+def test_customdescriptors_with_abstractmethod():
+    class Descriptor:
+        def setter(self):
+            return Descriptor(self._fget)

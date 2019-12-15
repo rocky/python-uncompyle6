@@ -70,4 +70,6 @@ def customize_for_version37(self, version):
         'testfalse_not_or': ( "not %c or %c",
                               (0, "expr"),
                               (2, "expr")  ),
+        'testfalse_not_and': ( "not (%c)", 0 ),
+
         })
