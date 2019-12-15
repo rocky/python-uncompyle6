@@ -341,8 +341,7 @@ class Python26Parser(Python2Parser):
                 WITH_CLEANUP END_FINALLY
         """)
         super(Python26Parser, self).customize_grammar_rules(tokens, customize)
-        if self.version >= 2.6:
-            self.check_reduce['and'] = 'AST'
+        self.check_reduce['and'] = 'AST'
         self.check_reduce['assert_expr_and'] = 'AST'
         self.check_reduce['list_for'] = 'AST'
         self.check_reduce['try_except'] = 'tokens'
@@ -380,6 +379,7 @@ class Python26Parser(Python2Parser):
             # or that it jumps to the same place as the end of "and"
             jmp_false = ast[1][0]
             jmp_target = jmp_false.offset + jmp_false.attr + 3
+
             return not (jmp_target == tokens[test_index].offset or
                         tokens[last].pattr == jmp_false.pattr)
         elif rule == (
