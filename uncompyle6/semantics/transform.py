@@ -243,9 +243,7 @@ class TreeTransform(GenericASTTraversal, object):
                         )
                         node[3] = elifelse_stmt
                     else:
-                        elif_stmt = SyntaxTree(
-                            "elifstmt", [n[0], n[else_suite_index]]
-                        )
+                        elif_stmt = SyntaxTree("elifstmt", [n[0], n[else_suite_index]])
                         node[3] = elif_stmt
 
                     node.transformed_by = "n_ifelsestmt"
@@ -260,11 +258,11 @@ class TreeTransform(GenericASTTraversal, object):
 
     def n_list_for(self, list_for_node):
         expr = list_for_node[0]
-        if (expr == "expr" and expr[0] == "get_iter"):
+        if expr == "expr" and expr[0] == "get_iter":
             # Remove extraneous get_iter() inside the "for" of a comprehension
             assert expr[0][0] == "expr"
             list_for_node[0] = expr[0][0]
-            list_for_node.transformed_by="n_list_for",
+            list_for_node.transformed_by = ("n_list_for",)
         return list_for_node
 
     def traverse(self, node, is_lambda=False):
