@@ -186,8 +186,14 @@ def customize_for_version35(self, version):
                 is_code = True
                 break
 
-        if (is_code and
-            (code_node.attr.co_flags & COMPILER_FLAG_BIT['COROUTINE'])):
+        if is_code and (
+            code_node.attr.co_flags
+            & (
+                COMPILER_FLAG_BIT["COROUTINE"]
+                | COMPILER_FLAG_BIT["ITERABLE_COROUTINE"]
+                | COMPILER_FLAG_BIT["ASYNC_GENERATOR"]
+            )
+        ):
             self.template_engine(('\n\n%|async def %c\n',
                                   -2), node)
         else:
