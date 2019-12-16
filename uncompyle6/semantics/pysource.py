@@ -149,10 +149,7 @@ from uncompyle6.semantics.helper import (
 
 from uncompyle6.scanners.tok import Token
 
-from uncompyle6.semantics.transform import (
-    is_docstring,
-    TreeTransform,
-)
+from uncompyle6.semantics.transform import is_docstring, TreeTransform
 from uncompyle6.semantics.consts import (
     LINE_LENGTH,
     RETURN_LOCALS,
@@ -239,9 +236,9 @@ class SourceWalker(GenericASTTraversal, object):
             is_pypy=is_pypy,
         )
 
-        self.treeTransform = TreeTransform(version=version,
-                                           show_ast=showast,
-                                           is_pypy=is_pypy)
+        self.treeTransform = TreeTransform(
+            version=version, show_ast=showast, is_pypy=is_pypy
+        )
         self.debug_parser = dict(debug_parser)
         self.showast = showast
         self.params = params
@@ -888,31 +885,34 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(indent)
         docstring = repr(docstring.expandtabs())[1:-1]
 
-        for (orig, replace) in (('\\\\', '\t'),
-                                ('\\r\\n', '\n'),
-                                ('\\n', '\n'),
-                                ('\\r', '\n'),
-                                ('\\"', '"'),
-                                ("\\'", "'")):
+        for (orig, replace) in (
+            ("\\\\", "\t"),
+            ("\\r\\n", "\n"),
+            ("\\n", "\n"),
+            ("\\r", "\n"),
+            ('\\"', '"'),
+            ("\\'", "'"),
+        ):
             docstring = docstring.replace(orig, replace)
 
         # Do a raw string if there are backslashes but no other escaped characters:
         # also check some edge cases
-        if ('\t' in docstring
-            and '\\' not in docstring
+        if (
+            "\t" in docstring
+            and "\\" not in docstring
             and len(docstring) >= 2
-            and docstring[-1] != '\t'
-            and (docstring[-1] != '"'
-                or docstring[-2] == '\t')):
-            self.write('r') # raw string
+            and docstring[-1] != "\t"
+            and (docstring[-1] != '"' or docstring[-2] == "\t")
+        ):
+            self.write("r")  # raw string
             # Restore backslashes unescaped since raw
-            docstring = docstring.replace('\t', '\\')
+            docstring = docstring.replace("\t", "\\")
         else:
             # Escape the last character if it is the same as the
             # triple quote character.
             quote1 = quote[-1]
             if len(docstring) and docstring[-1] == quote1:
-                docstring = docstring[:-1] + '\\' + quote1
+                docstring = docstring[:-1] + "\\" + quote1
 
             # Escape triple quote when needed
             if quote == '"""':
@@ -922,9 +922,9 @@ class SourceWalker(GenericASTTraversal, object):
                 replace_str = "\\'''"
 
             docstring = docstring.replace(quote, replace_str)
-            docstring = docstring.replace('\t', '\\\\')
+            docstring = docstring.replace("\t", "\\\\")
 
-        lines = docstring.split('\n')
+        lines = docstring.split("\n")
 
         self.write(quote)
         if len(lines) == 0:
@@ -935,14 +935,13 @@ class SourceWalker(GenericASTTraversal, object):
             self.println(lines[0])
             for line in lines[1:-1]:
                 if line:
-                    self.println( line )
+                    self.println(line)
                 else:
-                    self.println( "\n\n" )
+                    self.println("\n\n")
                     pass
                 pass
             self.println(lines[-1], quote)
         self.prune()
-
 
     def n_mklambda(self, node):
         self.make_function(node, is_lambda=True, code_node=node[-2])
@@ -1072,7 +1071,7 @@ class SourceWalker(GenericASTTraversal, object):
             elif node[0] == "load_closure":
                 cn = node[1]
 
-        elif self.version >= 3.0 and node == "generator_exp":
+        elif self.version >= 3.0 and node in ("generator_exp", "generator_exp_async"):
             if node[0] == "load_genexpr":
                 load_genexpr = node[0]
             elif node[1] == "load_genexpr":
@@ -1118,8 +1117,13 @@ class SourceWalker(GenericASTTraversal, object):
         assert n == "comp_body", n
 
         self.preorder(n[0])
+        if node == "generator_exp_async":
+            self.write(" async")
+            iter_var_index = iter_index - 2
+        else:
+            iter_var_index = iter_index - 1
         self.write(" for ")
-        self.preorder(ast[iter_index - 1])
+        self.preorder(ast[iter_var_index])
         self.write(" in ")
         if node[2] == "expr":
             iter_expr = node[2]
@@ -1143,6 +1147,8 @@ class SourceWalker(GenericASTTraversal, object):
         self.comprehension_walk(node, iter_index=iter_index, code_index=code_index)
         self.write(")")
         self.prune()
+
+    n_generator_exp_async = n_generator_exp
 
     def n_set_comp(self, node):
         self.write("{")
@@ -1576,7 +1582,7 @@ class SourceWalker(GenericASTTraversal, object):
                     # FIXME: this doesn't handle positional and keyword args
                     # properly. Need to do something more like that below
                     # in the non-PYPY 3.6 case.
-                    self.template_engine(('(%[0]{attr}=%c)', 1), node[n-1])
+                    self.template_engine(("(%[0]{attr}=%c)", 1), node[n - 1])
                     return
                 else:
                     kwargs = node[n - 1].attr
@@ -1642,44 +1648,46 @@ class SourceWalker(GenericASTTraversal, object):
     def kv_map(self, kv_node, sep, line_number, indent):
         first_time = True
         for kv in kv_node:
-            assert kv in ('kv', 'kv2', 'kv3')
+            assert kv in ("kv", "kv2", "kv3")
 
             # kv ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
             # kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
             # kv3 ::= expr expr STORE_MAP
 
             # FIXME: DRY this and the above
-            if kv == 'kv':
+            if kv == "kv":
                 self.write(sep)
-                name = self.traverse(kv[-2], indent='')
+                name = self.traverse(kv[-2], indent="")
                 if first_time:
                     line_number = self.indent_if_source_nl(line_number, indent)
                     first_time = False
                     pass
                 line_number = self.line_number
-                self.write(name, ': ')
-                value = self.traverse(kv[1], indent=self.indent+(len(name)+2)*' ')
-            elif kv == 'kv2':
+                self.write(name, ": ")
+                value = self.traverse(kv[1], indent=self.indent + (len(name) + 2) * " ")
+            elif kv == "kv2":
                 self.write(sep)
-                name = self.traverse(kv[1], indent='')
+                name = self.traverse(kv[1], indent="")
                 if first_time:
                     line_number = self.indent_if_source_nl(line_number, indent)
                     first_time = False
                     pass
                 line_number = self.line_number
-                self.write(name, ': ')
-                value = self.traverse(kv[-3], indent=self.indent+(len(name)+2)*' ')
-            elif kv == 'kv3':
+                self.write(name, ": ")
+                value = self.traverse(
+                    kv[-3], indent=self.indent + (len(name) + 2) * " "
+                )
+            elif kv == "kv3":
                 self.write(sep)
-                name = self.traverse(kv[-2], indent='')
+                name = self.traverse(kv[-2], indent="")
                 if first_time:
                     line_number = self.indent_if_source_nl(line_number, indent)
                     first_time = False
                     pass
                 line_number = self.line_number
-                self.write(name, ': ')
+                self.write(name, ": ")
                 line_number = self.line_number
-                value = self.traverse(kv[0], indent=self.indent+(len(name)+2)*' ')
+                value = self.traverse(kv[0], indent=self.indent + (len(name) + 2) * " ")
                 pass
             self.write(value)
             sep = ", "
@@ -1688,7 +1696,6 @@ class SourceWalker(GenericASTTraversal, object):
                 line_number = self.line_number
                 pass
             pass
-
 
     def n_dict(self, node):
         """
@@ -1819,16 +1826,16 @@ class SourceWalker(GenericASTTraversal, object):
                     kv_node = node[1:]
                 self.kv_map(kv_node, sep, line_number, indent)
             else:
-                sep = ''
+                sep = ""
                 opname = node[-1].kind
                 if self.is_pypy and self.version >= 3.5:
-                    if opname.startswith('BUILD_CONST_KEY_MAP'):
+                    if opname.startswith("BUILD_CONST_KEY_MAP"):
                         keys = node[-2].attr
                         # FIXME: DRY this and the above
                         for i in range(len(keys)):
                             key = keys[i]
-                            value = self.traverse(node[i], indent='')
-                            self.write(sep, key, ': ', value)
+                            value = self.traverse(node[i], indent="")
+                            self.write(sep, key, ": ", value)
                             sep = ", "
                             if line_number != self.line_number:
                                 sep += "\n" + self.indent + "  "
@@ -1837,16 +1844,16 @@ class SourceWalker(GenericASTTraversal, object):
                             pass
                         pass
                     else:
-                        if opname.startswith('kvlist'):
+                        if opname.startswith("kvlist"):
                             list_node = node[0]
                         else:
                             list_node = node
 
-                        assert list_node[-1].kind.startswith('BUILD_MAP')
-                        for i in range(0, len(list_node)-1, 2):
-                            key = self.traverse(list_node[i], indent='')
-                            value = self.traverse(list_node[i+1], indent='')
-                            self.write(sep, key, ': ', value)
+                        assert list_node[-1].kind.startswith("BUILD_MAP")
+                        for i in range(0, len(list_node) - 1, 2):
+                            key = self.traverse(list_node[i], indent="")
+                            value = self.traverse(list_node[i + 1], indent="")
+                            self.write(sep, key, ": ", value)
                             sep = ", "
                             if line_number != self.line_number:
                                 sep += "\n" + self.indent + "  "
@@ -1854,7 +1861,7 @@ class SourceWalker(GenericASTTraversal, object):
                                 pass
                             pass
                         pass
-                elif opname.startswith('kvlist'):
+                elif opname.startswith("kvlist"):
                     kv_node = node[-1]
                     self.kv_map(node[-1], sep, line_number, indent)
 
@@ -2288,7 +2295,7 @@ class SourceWalker(GenericASTTraversal, object):
                 # add parenteses to make this a tuple
                 # if node[1][0] not in ('unpack', 'unpack_list'):
                 result = self.traverse(node[1])
-                if not (result.startswith("(") and result.endswith(")") ):
+                if not (result.startswith("(") and result.endswith(")")):
                     result = "(%s)" % result
                 return result
             # return self.traverse(node[1])
