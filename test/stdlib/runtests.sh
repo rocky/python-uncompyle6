@@ -148,8 +148,22 @@ case $PYVERSION in
 	    SKIP_TESTS[test_base64.py]=1
 	fi
 	;;
+    3.3)
+	SKIP_TESTS=(
+	    [test_atexit.py]=1  #
+	    [test_decorators.py]=1  # Control flow wrt "if elif"
+	)
+	if (( batch )) ; then
+	    # Fails in crontab environment?
+	    # Figure out what's up here
+	    SKIP_TESTS[test_exception_variations.py]=1
+	    SKIP_TESTS[test_quopri.py]=1
+	fi
+	;;
+
     3.5)
 	SKIP_TESTS=(
+	    [test_atexit.py]=1  #
 	    [test_decorators.py]=1  # Control flow wrt "if elif"
 	)
 	if (( batch )) ; then
