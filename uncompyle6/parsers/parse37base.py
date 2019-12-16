@@ -514,7 +514,20 @@ class Python37BaseParser(PythonParser):
                                             store func_async_middle comp_iter
                                             JUMP_BACK COME_FROM
                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
-                    """,
+
+                    expr                ::= listcomp_async
+                    listcomp_async      ::= LOAD_LISTCOMP LOAD_STR MAKE_FUNCTION_0
+                                            expr GET_AITER CALL_FUNCTION_1
+                                            GET_AWAITABLE LOAD_CONST
+                                            YIELD_FROM
+
+                    expr                 ::= listcomp_async
+                    listcomp_async       ::= BUILD_LIST_0 LOAD_FAST func_async_prefix
+                                            store func_async_middle list_iter
+                                            JUMP_BACK COME_FROM
+                                            POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
+
+                   """,
                     nop_func,
                 )
                 custom_ops_processed.add(opname)
