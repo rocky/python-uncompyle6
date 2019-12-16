@@ -168,6 +168,14 @@ case $PYVERSION in
 	    [test_quopri.py]=1      # Only fails on POWER
 	)
 	;;
+    3.7)
+	SKIP_TESTS=(
+	    [test_argparse.py]=1  #
+	    [test_ast.py]=1  #
+	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
+ 	    [test_decorators.py]=1  # Control flow wrt "if elif"
+	)
+	;;
     *)
 	SKIP_TESTS=( [test_aepack.py]=1
 		     [audiotests.py]=1

@@ -33,7 +33,7 @@ def customize_for_version37(self, version):
             '%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
             (7, 'store'), (1, 'expr'), (17, 'for_block'), (25, 'else_suite') ),
         'async_for_stmt':  (
-            '%|async for %c in %c:\n%+%c%-%-\n\n',
+            '%|async for %c in %c:\n%+%c%-\n\n',
             (7, 'store'), (1, 'expr'), (17, 'for_block')),
         'async_for_stmt37':  (
             '%|async for %c in %c:\n%+%c%-%-\n\n',
