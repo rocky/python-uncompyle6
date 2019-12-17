@@ -595,9 +595,8 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             pass
 
         if (
-            3.0 <= self.version <= 3.3
+            self.version <= 3.3
             and len(node) > 2
-            and node[lambda_index] != "LOAD_LAMBDA"
             and (have_kwargs or node[lc_index].kind != "load_closure")
         ):
 
@@ -608,12 +607,22 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             default_values_start = 0
             if node[0] == "no_kwargs":
                 default_values_start += 1
-            # args are after kwargs; kwargs are bundled as one node
-            if node[default_values_start] == "kwargs":
-                default_values_start += 1
-            defparams = node[
-                default_values_start : default_values_start + args_node.attr[0]
-            ]
+
+            # If in a lambda named args are a sequence of kwarg, not bundled.
+            # If not in a lambda, named args are after kwargs; kwargs are bundled as one node.
+            if node[default_values_start] == "kwarg":
+                assert node[lambda_index] == "LOAD_LAMBDA"
+                i = default_values_start
+                defparams = []
+                while node[i] == "kwarg":
+                    defparams.append(node[i][1])
+                    i += 1
+            else:
+                if node[default_values_start] == "kwargs":
+                    default_values_start += 1
+                defparams = node[
+                    default_values_start : default_values_start + args_node.attr[0]
+                ]
         else:
             if self.version < 3.6:
                 defparams = node[: args_node.attr[0]]
@@ -718,11 +727,19 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
 
     paramnames = list(scanner_code.co_varnames[:argc])
     if kwonlyargcount > 0:
-        kwargs = list(scanner_code.co_varnames[argc : argc + kwonlyargcount])
+        if self.version <= 3.3 and is_lambda:
+            kwargs = []
+            for i in range(kwonlyargcount):
+                paramnames.append(scanner_code.co_varnames[argc+i])
+                pass
+            pass
+        else:
+            kwargs = list(scanner_code.co_varnames[argc : argc + kwonlyargcount])
 
-    # defaults are for last n parameters, thus reverse
-    paramnames.reverse()
-    defparams.reverse()
+    # defaults are for last n parameters when not in a lambda, thus reverse
+    if not is_lambda:
+        paramnames.reverse()
+        defparams.reverse()
 
     try:
         ast = self.build_ast(scanner_code._tokens,
@@ -768,6 +785,9 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
                 params.append("*%s: %s" % (star_arg, annotate_dict[star_arg]))
             else:
                 params.append("*%s" % star_arg)
+                pass
+            if is_lambda and self.version <= 3.3:
+                params.reverse()
         else:
             params.append("*%s" % code.co_varnames[argc])
         argc += 1
@@ -802,7 +822,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     # created a parameter list and at the very end did a join on that?
     # Unless careful, We might lose line breaks though.
     ends_in_comma = False
-    if kwonlyargcount > 0:
+    if kwonlyargcount > 0 and not is_lambda:
         if not (4 & code.co_flags):
             if argc > 0:
                 self.write(", *, ")
@@ -811,7 +831,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             pass
             ends_in_comma = True
         else:
-            if argc > 0:
+            if argc > 0 and node[0] != "kwarg":
                 self.write(", ")
                 ends_in_comma = True
 
@@ -824,14 +844,18 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
                     default = self.traverse(n[1], indent="")
                     idx = kwargs.index(name)
                     kw_args[idx] = "%s=%s" % (name, default)
+                    pass
+                pass
 
-            other_kw = [c == None for c in kw_args]
+            if kw_nodes != "kwarg":
+                other_kw = [c == None for c in kw_args]
 
-            for i, flag in enumerate(other_kw):
-                if flag:
-                    kw_args[i] = "%s" % kwargs[i]
-            self.write(", ".join(kw_args))
-            ends_in_comma = False
+                for i, flag in enumerate(other_kw):
+                    if flag:
+                        kw_args[i] = "%s" % kwargs[i]
+                self.write(", ".join(kw_args))
+                ends_in_comma = False
+                pass
         elif self.version >= 3.6:
             # argc = node[-1].attr
             # co = node[-3].attr

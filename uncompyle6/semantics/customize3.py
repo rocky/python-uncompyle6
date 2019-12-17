@@ -19,6 +19,7 @@
 from uncompyle6.semantics.consts import TABLE_DIRECT
 
 from xdis.code import iscode
+from uncompyle6.scanner import Code
 from uncompyle6.semantics.helper import gen_function_parens_adjust
 from uncompyle6.semantics.make_function import make_function3_annotate
 from uncompyle6.semantics.customize35 import customize_for_version35
@@ -53,6 +54,108 @@ def customize_for_version3(self, version):
     )
 
     assert version >= 3.0
+
+    def listcomp_closure3(node):
+        """List comprehensions in Python 3 when handled as a closure.
+        See if we can combine code.
+        """
+        p = self.prec
+        self.prec = 27
+
+        code = Code(node[1].attr, self.scanner, self.currentclass)
+        ast = self.build_ast(code._tokens, code._customize)
+        self.customize(code._customize)
+
+        # skip over: sstmt, stmt, return, ret_expr
+        # and other singleton derivations
+        while len(ast) == 1 or (
+            ast in ("sstmt", "return") and ast[-1] in ("RETURN_LAST", "RETURN_VALUE")
+        ):
+            self.prec = 100
+            ast = ast[0]
+
+        n = ast[1]
+
+        # collections is the name of the expression(s) we are iterating over
+        collections = [node[-3]]
+        list_ifs = []
+
+        if self.version == 3.0 and n != "list_iter":
+            # FIXME 3.0 is a snowflake here. We need
+            # special code for this. Not sure if this is totally
+            # correct.
+            stores = [ast[3]]
+            assert ast[4] == "comp_iter"
+            n = ast[4]
+            # Find the list comprehension body. It is the inner-most
+            # node that is not comp_.. .
+            while n == "comp_iter":
+                if n[0] == "comp_for":
+                    n = n[0]
+                    stores.append(n[2])
+                    n = n[3]
+                elif n[0] in ("comp_if", "comp_if_not"):
+                    n = n[0]
+                    # FIXME: just a guess
+                    if n[0].kind == "expr":
+                        list_ifs.append(n)
+                    else:
+                        list_ifs.append([1])
+                    n = n[2]
+                    pass
+                else:
+                    break
+                pass
+
+            # Skip over n[0] which is something like: _[1]
+            self.preorder(n[1])
+
+        else:
+            assert n == "list_iter"
+            stores = []
+            # Find the list comprehension body. It is the inner-most
+            # node that is not list_.. .
+            while n == "list_iter":
+                n = n[0]  # recurse one step
+                if n == "list_for":
+                    stores.append(n[2])
+                    n = n[3]
+                    if n[0] == "list_for":
+                        # Dog-paddle down largely singleton reductions
+                        # to find the collection (expr)
+                        c = n[0][0]
+                        if c == "expr":
+                            c = c[0]
+                        # FIXME: grammar is wonky here? Is this really an attribute?
+                        if c == "attribute":
+                            c = c[0]
+                        collections.append(c)
+                        pass
+                elif n in ("list_if", "list_if_not"):
+                    # FIXME: just a guess
+                    if n[0].kind == "expr":
+                        list_ifs.append(n)
+                    else:
+                        list_ifs.append([1])
+                    n = n[2]
+                    pass
+                pass
+
+            assert n == "lc_body", ast
+            self.preorder(n[0])
+
+        # FIXME: add indentation around "for"'s and "in"'s
+        for i, store in enumerate(stores):
+            self.write(" for ")
+            self.preorder(store)
+            self.write(" in ")
+            self.preorder(collections[i])
+            if i < len(list_ifs):
+                self.preorder(list_ifs[i])
+                pass
+            pass
+        self.prec = p
+    self.listcomp_closure3 = listcomp_closure3
 
     def n_classdef3(node):
         # class definition ('class X(A,B,C):')

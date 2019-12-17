@@ -630,10 +630,19 @@ class SourceWalker(GenericASTTraversal, object):
         if isinstance(data, float) and str(data) in frozenset(
             ["nan", "-nan", "inf", "-inf"]
         ):
-            # float values 'nan' and 'inf' are not directly representable in Python at least
-            # before 3.5 and even there it is via a library constant.
-            # So we will canonicalize their representation as float('nan') and float('inf')
+            # float values 'nan' and 'inf' are not directly
+            # representable in Python before Python 3.5. In Python 3.5
+            # it is accessible via a library constant math.inf.  So we
+            # will canonicalize representation of these value as
+            # float('nan') and float('inf')
             self.write("float('%s')" % data)
+        elif isinstance(data, complex) and str(data.imag) in frozenset(
+            ["nan", "-nan", "inf", "-inf"]
+        ):
+            # Likewise, complex values with 'nan' and 'inf' are not
+            # directly representable in Python.  So we will
+            # canonicalize like we did above.
+            self.write("complex('%s%sj')" % (data.real, data.imag))
         elif isinstance(datatype, int) and data == minint:
             # convert to hex, since decimal representation
             # would result in 'LOAD_CONST; UNARY_NEGATIVE'
@@ -1327,121 +1336,11 @@ class SourceWalker(GenericASTTraversal, object):
             pass
         self.prec = p
 
-    def listcomprehension_walk2(self, node):
-        """List comprehensions the way they are done in Python 2 and
-        sometimes in Python 3.
-        They're more other comprehensions, e.g. set comprehensions
-        See if we can combine code.
-        """
-        p = self.prec
-        self.prec = 27
-
-        code = Code(node[1].attr, self.scanner, self.currentclass)
-        ast = self.build_ast(code._tokens, code._customize)
-        self.customize(code._customize)
-
-        # skip over: sstmt, stmt, return, ret_expr
-        # and other singleton derivations
-        while len(ast) == 1 or (
-            ast in ("sstmt", "return") and ast[-1] in ("RETURN_LAST", "RETURN_VALUE")
-        ):
-            self.prec = 100
-            ast = ast[0]
-
-        n = ast[1]
-        # collection = node[-3]
-        collections = [node[-3]]
-        list_ifs = []
-
-        if self.version == 3.0 and n != "list_iter":
-            # FIXME 3.0 is a snowflake here. We need
-            # special code for this. Not sure if this is totally
-            # correct.
-            stores = [ast[3]]
-            assert ast[4] == "comp_iter"
-            n = ast[4]
-            # Find the list comprehension body. It is the inner-most
-            # node that is not comp_.. .
-            while n == "comp_iter":
-                if n[0] == "comp_for":
-                    n = n[0]
-                    stores.append(n[2])
-                    n = n[3]
-                elif n[0] in ("comp_if", "comp_if_not"):
-                    n = n[0]
-                    # FIXME: just a guess
-                    if n[0].kind == "expr":
-                        list_ifs.append(n)
-                    else:
-                        list_ifs.append([1])
-                    n = n[2]
-                    pass
-                else:
-                    break
-                pass
-
-            # Skip over n[0] which is something like: _[1]
-            self.preorder(n[1])
-
-        else:
-            assert n == "list_iter"
-            stores = []
-            # Find the list comprehension body. It is the inner-most
-            # node that is not list_.. .
-            while n == "list_iter":
-                n = n[0]  # recurse one step
-                if n == "list_for":
-                    stores.append(n[2])
-                    n = n[3]
-                    if self.version >= 3.6 and n[0] == "list_for":
-                        # Dog-paddle down largely singleton reductions
-                        # to find the collection (expr)
-                        c = n[0][0]
-                        if c == "expr":
-                            c = c[0]
-                        # FIXME: grammar is wonky here? Is this really an attribute?
-                        if c == "attribute":
-                            c = c[0]
-                        collections.append(c)
-                        pass
-                elif n in ("list_if", "list_if_not"):
-                    # FIXME: just a guess
-                    if n[0].kind == "expr":
-                        list_ifs.append(n)
-                    else:
-                        list_ifs.append([1])
-                    n = n[2]
-                    pass
-                pass
-
-            assert n == "lc_body", ast
-            self.preorder(n[0])
-
-        # FIXME: add indentation around "for"'s and "in"'s
-        if self.version < 3.6:
-            self.write(" for ")
-            self.preorder(stores[0])
-            self.write(" in ")
-            self.preorder(collections[0])
-            if list_ifs:
-                self.preorder(list_ifs[0])
-                pass
-        else:
-            for i, store in enumerate(stores):
-                self.write(" for ")
-                self.preorder(store)
-                self.write(" in ")
-                self.preorder(collections[i])
-                if i < len(list_ifs):
-                    self.preorder(list_ifs[i])
-                    pass
-                pass
-        self.prec = p
-
     def n_listcomp(self, node):
         self.write("[")
         if node[0].kind == "load_closure":
-            self.listcomprehension_walk2(node)
+            assert self.version >= 3.0
+            self.listcomp_closure3(node)
         else:
             if node == "listcomp_async":
                 list_iter_index = 5
