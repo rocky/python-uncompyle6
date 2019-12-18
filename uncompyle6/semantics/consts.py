@@ -42,6 +42,13 @@ else:
 # various templates we use odd values. Avoiding equal-precedent comparisons
 # avoids ambiguity what to do when the precedence is equal.
 
+# The precidence of a key below applies the key, a node, and the its
+# *parent*. A node however sometimes sets the precidence for its
+# children. For example, "call" has precidence 2 so we don't get
+# additional the additional parenthesis of: ".. op (call())".  However
+# for call's children, it parameters, we set the the precidence high,
+# say to 100, to make sure we avoid additional prenthesis in
+# call((.. op ..)).
 
 PRECEDENCE = {
     'yield':                 102,

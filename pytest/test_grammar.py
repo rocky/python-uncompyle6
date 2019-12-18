@@ -96,8 +96,10 @@ def test_grammar():
         ]
     )
     reduced_dup_rhs = dict((k, dup_rhs[k]) for k in dup_rhs if k not in expect_dup_rhs)
-    for k in reduced_dup_rhs:
-        print(k, reduced_dup_rhs[k])
+    if reduced_dup_rhs:
+        print("\nPossible duplicate RHS that might be folded, into one of the LHS symbols")
+        for k in reduced_dup_rhs:
+            print(k, reduced_dup_rhs[k])
     # assert not reduced_dup_rhs, reduced_dup_rhs
 
     s = get_scanner(PYTHON_VERSION, IS_PYPY)

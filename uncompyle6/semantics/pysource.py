@@ -171,6 +171,8 @@ from uncompyle6.semantics.consts import (
 
 
 from uncompyle6.show import maybe_show_tree
+from uncompyle6.util import better_repr
+
 
 if PYTHON3:
     from io import StringIO
@@ -565,6 +567,9 @@ class SourceWalker(GenericASTTraversal, object):
         if n == "LOAD_CONST" and repr(n.pattr)[0] == "-":
             self.prec = 6
 
+        # print(n.kind, p, "<", self.prec)
+        # print(self.f.getvalue())
+
         if p < self.prec:
             self.write("(")
             self.preorder(node[0])
@@ -608,7 +613,7 @@ class SourceWalker(GenericASTTraversal, object):
         for item in tup:
             self.write(sep)
             l += len(sep)
-            s = repr(item)
+            s = better_repr(item)
             l += len(s)
             self.write(s)
             sep = ","
@@ -627,22 +632,10 @@ class SourceWalker(GenericASTTraversal, object):
         attr = node.attr
         data = node.pattr
         datatype = type(data)
-        if isinstance(data, float) and str(data) in frozenset(
-            ["nan", "-nan", "inf", "-inf"]
-        ):
-            # float values 'nan' and 'inf' are not directly
-            # representable in Python before Python 3.5. In Python 3.5
-            # it is accessible via a library constant math.inf.  So we
-            # will canonicalize representation of these value as
-            # float('nan') and float('inf')
-            self.write("float('%s')" % data)
-        elif isinstance(data, complex) and str(data.imag) in frozenset(
-            ["nan", "-nan", "inf", "-inf"]
-        ):
-            # Likewise, complex values with 'nan' and 'inf' are not
-            # directly representable in Python.  So we will
-            # canonicalize like we did above.
-            self.write("complex('%s%sj')" % (data.real, data.imag))
+        if isinstance(data, float) :
+            self.write(better_repr(data))
+        elif isinstance(data, complex):
+            self.write(better_repr(data))
         elif isinstance(datatype, int) and data == minint:
             # convert to hex, since decimal representation
             # would result in 'LOAD_CONST; UNARY_NEGATIVE'

@@ -123,6 +123,8 @@ def customize_for_version35(self, version):
     self.n_build_list_unpack = n_build_list_unpack
 
     def n_call(node):
+        p = self.prec
+        self.prec = 100
         mapping = self._get_mapping(node)
         table = mapping[0]
         key = node
@@ -159,7 +161,7 @@ def customize_for_version35(self, version):
             kwargs = (argc >> 8) & 0xFF
             # FIXME: handle annotation args
             if nargs > 0:
-                template = ("%c(%C, ", 0, (1, nargs + 1, ", "))
+                template = ("%c(%P, ", 0, (1, nargs + 1, ", ", 100))
             else:
                 template = ("%c(", 0)
             self.template_engine(template, node)
@@ -172,14 +174,16 @@ def customize_for_version35(self, version):
                 self.template_engine(template, args_node)
             else:
                 if len(node) - nargs > 3:
-                    template = ("*%c, %C)", nargs + 1, (nargs + kwargs + 1, -1, ", "))
+                    template = ("*%c, %P)", nargs + 1, (nargs + kwargs + 1, -1, ", ", 100))
                 else:
                     template = ("*%c)", nargs + 1)
                 self.template_engine(template, node)
+            self.prec = p
             self.prune()
         else:
             gen_function_parens_adjust(key, node)
 
+        self.prec = 100
         self.default(node)
 
     self.n_call = n_call

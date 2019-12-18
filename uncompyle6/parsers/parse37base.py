@@ -537,12 +537,12 @@ class Python37BaseParser(PythonParser):
                     """
                     stmt        ::= assert_pypy
                     stmt        ::= assert2_pypy", nop_func)
-                    assert_pypy ::=  JUMP_IF_NOT_DEBUG assert_expr jmp_true
+                    assert_pypy ::=  JUMP_IF_NOT_DEBUG expr jmp_true
                                      LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
                     assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true
                                      LOAD_ASSERT expr CALL_FUNCTION_1
                                      RAISE_VARARGS_1 COME_FROM
-                    assert2_pypy ::= JUMP_IF_NOT_DEBUG assert_expr jmp_true
+                    assert2_pypy ::= JUMP_IF_NOT_DEBUG expr jmp_true
                                      LOAD_ASSERT expr CALL_FUNCTION_1
                                      RAISE_VARARGS_1 COME_FROM,
                     """,

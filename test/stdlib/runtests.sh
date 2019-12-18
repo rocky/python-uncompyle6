@@ -197,7 +197,6 @@ case $PYVERSION in
 	    [test_collections.py]=1  # Investigate syntax error: self.assertEqual(p, Point(**))
 	    [test_compare.py]=1
 	    [test_compile.py]=1
-	    [test_complex.py]=1  # Investigate: NameError: global name 'infj' is not defined
 	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
 	    [test_contextlib_async.py]=1 # Investigate
 	    [test_context.py]=1
@@ -208,6 +207,7 @@ case $PYVERSION in
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    # ...
 	)
+	;;
     3.8)
 	SKIP_TESTS=(
 	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
