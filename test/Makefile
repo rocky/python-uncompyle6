@@ -23,7 +23,7 @@ COVER_DIR=../tmp/grammar-cover
 # Run short tests
 check-short:
 	@$(PYTHON) -V && PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2`; \
-	$(MAKE) check-bytecode-short
+	$(MAKE) check-bytecode-$${PYTHON_VERSION}
 
 # Run all tests
 check:

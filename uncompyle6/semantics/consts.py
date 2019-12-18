@@ -316,10 +316,18 @@ TABLE_DIRECT = {
     'compare_chained1':	    ( '%[3]{pattr.replace("-", " ")} %p %p', (0, 19), (-2, 19)),
     'compare_chained2':	    ( '%[1]{pattr.replace("-", " ")} %p', (0, 19)),
 #   'classdef': 	(), # handled by n_classdef()
+
+    # A custom rule in n_function def distinguishes whether to call this or
+    # function_def_async
     'function_def':         ( '\n\n%|def %c\n', -2), # -2 to handle closures
+
     'function_def_deco':    ( '\n\n%c', 0),
     'mkfuncdeco':  	    ( '%|@%c\n%c', 0, 1),
+
+    # A custom rule in n_function def distinguishes whether to call this or
+    # function_def_async
     'mkfuncdeco0':  	    ( '%|def %c\n', 0),
+
     'classdefdeco':  	    ( '\n\n%c', 0),
     'classdefdeco1':  	    ( '%|@%c\n%c', 0, 1),
     'kwarg':    	    ( '%[0]{pattr}=%c', 1),  # Change when Python 2 does LOAD_STR
