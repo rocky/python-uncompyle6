@@ -11,7 +11,7 @@ Please remove any of the optional sections if they are not applicable.
 Prerequisites
 
 * Make sure the bytecode you have can be disassembled with a
-  disassembler.
+  disassembler and produces valid results.
 * Don't put bytecode and corresponding source code on any service that
   requires registration to download.
 * When you open a bug report there is no privacy. If the legitimacy of
@@ -35,7 +35,7 @@ decompiler service for versions of Python up to 2.6.
 
 ## How to Reproduce
 
-<!-- Please show both the input you gave and the
+<!-- Please show both the *input* you gave and the
 output you got in describing how to reproduce the bug:
 
 or give a complete console log with input and output
@@ -63,7 +63,7 @@ can add that too.
 Please modify for your setup
 
 - Uncompyle6 version: output from  `uncompyle6 --version` or `pip show uncompyle6`
-- Python version: `python -V`
+- Python version for the version of Python the byte-compiled the file: `python -c "import sys; print(sys.version)"` where `python` is the correct Cpython or Pypy binary.
 - OS and Version: [e.g. Ubuntu bionic]
 
 -->
