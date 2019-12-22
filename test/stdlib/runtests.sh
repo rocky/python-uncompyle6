@@ -193,7 +193,6 @@ case $PYVERSION in
 	    [test_builtin.py]=1  #
 	    [test_cmdline.py]=1  # Interactive?
 	    [test_codecs-3.7.py]=1
-	    [test_collections.py]=1  # Investigate syntax error: self.assertEqual(p, Point(**))
 	    [test_compare.py]=1
 	    [test_compile.py]=1
 	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
@@ -210,6 +209,7 @@ case $PYVERSION in
     3.8)
 	SKIP_TESTS=(
 	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
+	    [test_collections.py]=1  # parse error
 	    [test_decorators.py]=1  # Control flow wrt "if elif"
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_pow.py]=1         # Control flow wrt "continue"
