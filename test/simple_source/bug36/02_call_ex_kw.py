@@ -45,3 +45,11 @@ d = (2, 3)
 assert f(2, **a) == {'c': 2, 'param1': 2, 'test': 'A'}
 assert f3(2, *c, **a) == {'c': 2, 'param1': 2, 'test': 2}
 assert f3(*d, **a) == {'c': 2, 'param1': 2, 'test': 3}
+
+# From 3.7 test/test_collections.py
+# Bug was in getting **dict(..) right
+from collections import namedtuple
+
+Point = namedtuple('Point', 'x y')
+p = Point(11, 22)
+assert p == Point(**dict(x=11, y=22))
