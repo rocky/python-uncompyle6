@@ -830,7 +830,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     # created a parameter list and at the very end did a join on that?
     # Unless careful, We might lose line breaks though.
     ends_in_comma = False
-    if kwonlyargcount > 0 and not is_lambda:
+    if kwonlyargcount > 0:
         if not (4 & code.co_flags):
             if argc > 0:
                 self.write(", *, ")
