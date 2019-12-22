@@ -424,6 +424,7 @@ class Python37BaseParser(PythonParser):
                      dict_comp    ::= LOAD_DICTCOMP LOAD_STR MAKE_FUNCTION_0 expr
                                       GET_ITER CALL_FUNCTION_1
                     classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
+                    classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
                     """
                     self.addRule(rule, nop_func)
 

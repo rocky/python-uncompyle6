@@ -191,7 +191,6 @@ case $PYVERSION in
 	    [test_bdb.py]=1  #
 	    [test_buffer.py]=1  #
 	    [test_builtin.py]=1  #
-	    [test_c_locale_coercion.py]=1 # Parse error
 	    [test_cmdline.py]=1  # Interactive?
 	    [test_codecs-3.7.py]=1
 	    [test_collections.py]=1  # Investigate syntax error: self.assertEqual(p, Point(**))
