@@ -860,7 +860,12 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
 
                 for i, flag in enumerate(other_kw):
                     if flag:
-                        kw_args[i] = "%s" % kwargs[i]
+                        if i < len(kwargs):
+                            kw_args[i] = "%s" % kwargs[i]
+                        else:
+                            del kw_args[i]
+                        pass
+
                 self.write(", ".join(kw_args))
                 ends_in_comma = False
                 pass
