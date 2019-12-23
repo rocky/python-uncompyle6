@@ -101,7 +101,6 @@ class PythonParser(GenericASTBuilder):
            many arguments it has. Often it is not used.
         """
         if rule not in self.new_rules:
-            # print("XXX ", rule) # debug
             self.new_rules.add(rule)
             self.addRule(rule, nop_func)
             customize[opname] = arg_count
