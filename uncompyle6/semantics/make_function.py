@@ -798,7 +798,8 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
                 params.reverse()
         else:
             params.append("*%s" % code.co_varnames[argc])
-        argc += 1
+        if not is_lambda:
+            argc += 1
 
     # dump parameter list (with default values)
     if is_lambda:
