@@ -30,8 +30,13 @@ def better_repr(v):
         # The below is however round-tripable, and Python's repr() isn't.
         return "complex(%s, %s)" % (real, imag)
     elif isinstance(v, tuple):
+        if len(v) == 1:
+            return "(%s,)" % better_repr(v[0])
         return "(%s)" % ", ".join(better_repr(i) for i in v)
     elif isinstance(v, list):
+        l = better_repr(v)
+        if len(v) == 1:
+            return "[%s,]" % better_repr(v[0])
         return "[%s]" % ", ".join(better_repr(i) for i in v)
     # TODO: elif deal with sets and dicts
     else:
