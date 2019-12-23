@@ -200,7 +200,6 @@ case $PYVERSION in
 	    [test_context.py]=1
 	    [test_coroutines.py]=1 # Parse error
 	    [test_curses.py]=1 # Parse error
-	    [test_cmath.py]=1  # Syntax error - investigate
 	    [test_decorators.py]=1  # Control flow wrt "if elif"
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    # ...

@@ -890,7 +890,7 @@ class Python3Parser(PythonParser):
                 self.addRule(
                     """
                     expr      ::= get_iter
-                    attribute ::= expr GET_ITER
+                    get_iter ::= expr GET_ITER
                     """,
                     nop_func,
                 )
