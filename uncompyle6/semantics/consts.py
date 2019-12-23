@@ -42,6 +42,13 @@ else:
 # various templates we use odd values. Avoiding equal-precedent comparisons
 # avoids ambiguity what to do when the precedence is equal.
 
+# The precidence of a key below applies the key, a node, and the its
+# *parent*. A node however sometimes sets the precidence for its
+# children. For example, "call" has precidence 2 so we don't get
+# additional the additional parenthesis of: ".. op (call())".  However
+# for call's children, it parameters, we set the the precidence high,
+# say to 100, to make sure we avoid additional prenthesis in
+# call((.. op ..)).
 
 PRECEDENCE = {
     'yield':                 102,
@@ -316,10 +323,18 @@ TABLE_DIRECT = {
     'compare_chained1':	    ( '%[3]{pattr.replace("-", " ")} %p %p', (0, 19), (-2, 19)),
     'compare_chained2':	    ( '%[1]{pattr.replace("-", " ")} %p', (0, 19)),
 #   'classdef': 	(), # handled by n_classdef()
+
+    # A custom rule in n_function def distinguishes whether to call this or
+    # function_def_async
     'function_def':         ( '\n\n%|def %c\n', -2), # -2 to handle closures
+
     'function_def_deco':    ( '\n\n%c', 0),
     'mkfuncdeco':  	    ( '%|@%c\n%c', 0, 1),
+
+    # A custom rule in n_function def distinguishes whether to call this or
+    # function_def_async
     'mkfuncdeco0':  	    ( '%|def %c\n', 0),
+
     'classdefdeco':  	    ( '\n\n%c', 0),
     'classdefdeco1':  	    ( '%|@%c\n%c', 0, 1),
     'kwarg':    	    ( '%[0]{pattr}=%c', 1),  # Change when Python 2 does LOAD_STR

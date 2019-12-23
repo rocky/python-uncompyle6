@@ -47,6 +47,7 @@ def customize_for_version(self, is_pypy, version):
         # Without PyPy
         #######################
         TABLE_DIRECT.update({
+            # "assert" and "assert_expr" are added via transform rules.
             "assert": ("%|assert %c\n", (0, "assert_expr")),
             "assert2": ("%|assert %c, %c\n", (0, "assert_expr"), 3),
 

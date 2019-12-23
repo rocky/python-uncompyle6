@@ -37,5 +37,15 @@ def test_truediv():
         for y in simple_complex:
             check_div(x, y)
 
-z2 = -1e1000j # Check that we can handle -inf as a complex number
+def test_plus_minus_0j():
+    z1, z2 = (0j, (-0 - 0j))
+    assert atan2(z1.imag, -1.0) == atan2(0.0, -1.0)
+    assert atan2(z2.imag, -1.0), atan2(-0.0, -1.0)
+
+# Check that we can handle -inf, and inf as a complex numbers.
+# And put it in a tuple and a list to make it harder.
+z1, z2 = (-1e1000j, 1e1000j)
+assert z1 in [-1e1000j, 1e1000j]
+assert z1 == z2
 test_truediv()
+test_plus_minus0j()

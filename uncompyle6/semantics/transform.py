@@ -121,9 +121,9 @@ class TreeTransform(GenericASTTraversal, object):
                         assert jump_cond == "jmp_false"
                         kind = "assert2not"
 
-                    if call[0] != "LOAD_ASSERT":
+                    LOAD_ASSERT = call[0].first_child()
+                    if LOAD_ASSERT != "LOAD_ASSERT":
                         return node
-                    LOAD_ASSERT = call[0]
                     if isinstance(call[1], SyntaxTree):
                         expr = call[1][0]
                         node = SyntaxTree(
