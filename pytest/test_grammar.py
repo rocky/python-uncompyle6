@@ -67,20 +67,14 @@ def test_grammar():
                     (("l_stmts", ("lastl_stmt", "come_froms", "l_stmts")))
                 )
                 pass
-            elif 3.0 < PYTHON_VERSION < 3.3:
-                expect_right_recursive.add(
-                    (("l_stmts", ("lastl_stmt", "COME_FROM", "l_stmts")))
-                )
-                pass
             pass
         pass
     else:
         expect_lhs.add("kwarg")
 
-    assert expect_lhs == set(lhs)
-
     # FIXME
-    if PYTHON_VERSION != 3.8:
+    if PYTHON_VERSION < 3.8:
+        assert expect_lhs == set(lhs)
         assert unused_rhs == set(rhs)
 
     assert expect_right_recursive == right_recursive
