@@ -20,8 +20,9 @@ for version in $PYVERSIONS; do
 	exit $?
     fi
     make clean && python setup.py develop
-    if ! make check ; then
+    if ! make check-short ; then
 	exit $?
     fi
     echo === $version ===
 done
+make check
