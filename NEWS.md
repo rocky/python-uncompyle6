@@ -28,7 +28,8 @@ too.
 
 A number of small bugs were fixed, and some administrative changes to
 make `make check-short` really be short, but check more throughly what
-it checks. See the `ChangeLog` for details.
+it checks. minimum xdis version needed was bumped to include in the
+newer 3.6-3.9 releases. See the `ChangeLog` for details.
 
 
 3.6.0: 2019-12-10 gecko gecko
