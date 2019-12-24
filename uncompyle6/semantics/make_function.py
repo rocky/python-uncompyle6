@@ -602,7 +602,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             pass
 
         if (
-            self.version <= 3.3
+            self.version <= 3.5
             and len(node) > 2
             and (have_kwargs or node[lc_index].kind != "load_closure")
         ):
@@ -727,11 +727,10 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
 
     paramnames = list(scanner_code.co_varnames[:argc])
     if kwonlyargcount > 0:
-        if self.version <= 3.3 and is_lambda:
+        if self.version <= 3.5 and is_lambda:
             kwargs = []
             for i in range(kwonlyargcount):
                 paramnames.append(scanner_code.co_varnames[argc+i])
-                pass
             pass
         else:
             kwargs = list(scanner_code.co_varnames[argc : argc + kwonlyargcount])
@@ -794,7 +793,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             else:
                 params.append("*%s" % star_arg)
                 pass
-            if is_lambda and self.version <= 3.3:
+            if is_lambda and self.version <= 3.5:
                 params.reverse()
         else:
             params.append("*%s" % code.co_varnames[argc])
@@ -856,7 +855,13 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
                     pass
                 pass
 
-            if kw_nodes != "kwarg":
+            # FIXME: something weird is going on and the below
+            # might not be right. On 3.4 kw_nodes != "kwarg"
+            # because of some sort of type mismatch. I think
+            # the test is for versions earlier than 3.3
+            # on 3.5 if we have "kwarg" we still want to do this.
+            # Perhaps we should be testing that kw_nodes is iterable?
+            if kw_nodes != "kwarg" or self.version == 3.5:
                 other_kw = [c == None for c in kw_args]
 
                 for i, flag in enumerate(other_kw):
