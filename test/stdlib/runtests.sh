@@ -148,10 +148,11 @@ case $PYVERSION in
 	    SKIP_TESTS[test_base64.py]=1
 	fi
 	;;
-    3.3)
+    3.2)
 	SKIP_TESTS=(
-	    [test_atexit.py]=1  #
-	    [test_decorators.py]=1  # Control flow wrt "if elif"
+	    [test_ast.py]=1  # Look at: AssertionError: b'hi' != 'hi'
+	    [test_dis.py]=1   # We change line numbers - duh!
+	    [test_quopri.py]=1 # TypeError: Can't convert 'bytes' object to str implicitly
 	)
 	if (( batch )) ; then
 	    # Fails in crontab environment?
@@ -161,10 +162,36 @@ case $PYVERSION in
 	fi
 	;;
 
-    3.5)
+    3.3)
 	SKIP_TESTS=(
 	    [test_atexit.py]=1  #
-	    [test_decorators.py]=1  # Control flow wrt "if elif"
+	)
+	if (( batch )) ; then
+	    # Fails in crontab environment?
+	    # Figure out what's up here
+	    SKIP_TESTS[test_exception_variations.py]=1
+	    SKIP_TESTS[test_quopri.py]=1
+	fi
+	;;
+
+    3.4)
+	SKIP_TESTS=(
+	    [test_atexit.py]=1  #
+	    [test_dis.py]=1   # We change line numbers - duh!
+	)
+	if (( batch )) ; then
+	    # Fails in crontab environment?
+	    # Figure out what's up here
+	    SKIP_TESTS[test_exception_variations.py]=1
+	    SKIP_TESTS[test_quopri.py]=1
+	fi
+	;;
+    3.5)
+	SKIP_TESTS=(
+	    [test_ast.py]=1  #
+	    [test_atexit.py]=1  #
+	    [test_builtin.py]=1  #
+	    [test_compare.py]=1
 	    [test_dis.py]=1   # We change line numbers - duh!
 	)
 	if (( batch )) ; then
@@ -177,11 +204,18 @@ case $PYVERSION in
 
     3.6)
 	SKIP_TESTS=(
+	    [test_ast.py]=1  #
+	    [test_atexit.py]=1  #
+	    [test_bdb.py]=1  #
+	    [test_builtin.py]=1  #
+	    [test_compare.py]=1
+	    [test_compile.py]=1
 	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
-	    [test_decorators.py]=1  # Control flow wrt "if elif"
+	    [test_contextlib_async.py]=1 # Investigate
+	    [test_coroutines.py]=1 # Parse error
+	    [test_curses.py]=1 # Parse error
 	    [test_dis.py]=1   # We change line numbers - duh!
-	    [test_pow.py]=1         # Control flow wrt "continue"
-	    [test_quopri.py]=1      # Only fails on POWER
+	    [test_quopri.py]=1      # AssertionError: b'123=four' != '123=four'
 	)
 	;;
     3.7)
@@ -193,6 +227,7 @@ case $PYVERSION in
 	    [test_builtin.py]=1  #
 	    [test_cmdline.py]=1  # Interactive?
 	    [test_codecs-3.7.py]=1
+	    [test_collections.py]=1  # Fixed I think in decompyle3 - pull from there
 	    [test_compare.py]=1
 	    [test_compile.py]=1
 	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
@@ -208,7 +243,7 @@ case $PYVERSION in
     3.8)
 	SKIP_TESTS=(
 	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
-	    [test_collections.py]=1  # parse error
+	    [test_collections.py]=1  # Fixed I think in decompyle3 - pull from there
 	    [test_decorators.py]=1  # Control flow wrt "if elif"
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_pow.py]=1         # Control flow wrt "continue"

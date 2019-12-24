@@ -1,3 +1,36 @@
+3.6.1: 2019-12-10 Christmas Hannukah
+====================================
+
+Overall, as in the past, the focus has been on just fixing bugs, more geared
+in the later 3.x range. Handling "async for/with" in 3.8+ works better.
+
+Numerous bugs around handling `lambda` with keyword-only and `*` args in the
+3.0-3.8 have been fixed. However many still remain.
+
+`binary_expr` and `unary_expr` have been renamed to `bin_op` and
+`unary_op` to better correspond the Python AST names.
+
+Some work was done Python 3.7+ to handle `and` better; less was done
+along the lines of handling `or`. Much more is needed to improve
+parsing stability of 3.7+. More of what was done with `and` needs to
+be done with `or` and this will happen first in the "decompyle3"
+project.
+
+Later this will probably be extended backwards to handle the 3.6-
+versions better. This however comes with a big decompilation speed
+penalty. When we redo control flow this should go back to normal, but
+for now, accuracy is more important than speed.
+
+Another `assert` transform rule was added. Parser rules to distingish
+`try/finally` in 3.8 were added and we are more stringent about what
+can be turned into an `assert`. There was some grammar cleanup here
+too.
+
+A number of small bugs were fixed, and some administrative changes to
+make `make check-short` really be short, but check more throughly what
+it checks. See the `ChangeLog` for details.
+
+
 3.6.0: 2019-12-10 gecko gecko
 =============================
 
