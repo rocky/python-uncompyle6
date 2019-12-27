@@ -18,6 +18,7 @@ from uncompyle6.show import maybe_show_tree
 from copy import copy
 from spark_parser import GenericASTTraversal, GenericASTTraversalPruningException
 
+from uncompyle6.semantics.helper import find_code_node
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanners.tok import Token
 from uncompyle6.semantics.consts import RETURN_NONE
@@ -74,13 +75,7 @@ class TreeTransform(GenericASTTraversal, object):
         than the code field is seen and used.
         """
 
-        for i in range(2, len(node) + 1):
-            if node[-i].kind == "LOAD_CODE":
-                break
-
-        code_node = node[-i]
-        code = code_node.attr
-        assert iscode(code)
+        code = find_code_node(node, -2).attr
 
         if (
             node[-1].pattr != "closure"
