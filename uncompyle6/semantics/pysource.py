@@ -137,7 +137,8 @@ from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.scanner import Code, get_scanner
 import uncompyle6.parser as python_parser
-from uncompyle6.semantics.make_function import make_function2, make_function3
+from uncompyle6.semantics.make_function2 import make_function2
+from uncompyle6.semantics.make_function3 import make_function3
 from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.semantics.check_ast import checker
 from uncompyle6.semantics.customize import customize_for_version

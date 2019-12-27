@@ -21,7 +21,7 @@ from uncompyle6.semantics.consts import TABLE_DIRECT
 from xdis.code import iscode
 from uncompyle6.scanner import Code
 from uncompyle6.semantics.helper import gen_function_parens_adjust
-from uncompyle6.semantics.make_function import make_function3_annotate
+from uncompyle6.semantics.make_function3 import make_function3_annotate
 from uncompyle6.semantics.customize35 import customize_for_version35
 from uncompyle6.semantics.customize36 import customize_for_version36
 from uncompyle6.semantics.customize37 import customize_for_version37
