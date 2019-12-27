@@ -139,11 +139,13 @@ from uncompyle6.scanner import Code, get_scanner
 import uncompyle6.parser as python_parser
 from uncompyle6.semantics.make_function2 import make_function2
 from uncompyle6.semantics.make_function3 import make_function3
+from uncompyle6.semantics.make_function36 import make_function36
 from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.semantics.check_ast import checker
 from uncompyle6.semantics.customize import customize_for_version
 from uncompyle6.semantics.helper import (
     print_docstring,
+    find_code_node,
     find_globals_and_nonlocals,
     flatten_list,
 )
@@ -841,23 +843,9 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_mkfunc(self, node):
 
-        if self.version >= 3.3 or node[-2] in ("kwargs", "no_kwargs"):
-            # LOAD_CODET code object ..
-            # LOAD_CONST        "x0"  if >= 3.3
-            # MAKE_FUNCTION ..
-            code_node = node[-3]
-        elif node[-2] == "expr":
-            code_node = node[-2][0]
-        else:
-            # LOAD_CODE code object ..
-            # MAKE_FUNCTION ..
-            code_node = node[-2]
-
-        assert iscode(code_node.attr)
-
-        func_name = code_node.attr.co_name
-        self.write(func_name)
-
+        code_node = find_code_node(node, -2)
+        code = code_node.attr
+        self.write(code.co_name)
         self.indent_more()
 
         self.make_function(node, is_lambda=False, code_node=code_node)
@@ -869,11 +857,15 @@ class SourceWalker(GenericASTTraversal, object):
         self.indent_less()
         self.prune()  # stop recursing
 
+    # Python changes make function this much that we need at least 3 different routines,
+    # and probably more in the future.
     def make_function(self, node, is_lambda, nested=1, code_node=None, annotate=None):
-        if self.version >= 3.0:
-            make_function3(self, node, is_lambda, nested, code_node)
-        else:
+        if self.version <= 2.7:
             make_function2(self, node, is_lambda, nested, code_node)
+        elif 3.0 <= self.version <= 3.5:
+            make_function3(self, node, is_lambda, nested, code_node)
+        elif self.version >= 3.6:
+            make_function36(self, node, is_lambda, nested, code_node)
 
     def n_docstring(self, node):
 
@@ -2211,7 +2203,11 @@ class SourceWalker(GenericASTTraversal, object):
     def build_class(self, code):
         """Dump class definition, doc string and class body."""
 
-        assert iscode(code)
+        try:
+            assert iscode(code)
+        except:
+            from trepan.api import debug; debug()
+
         self.classes.append(self.currentclass)
         code = Code(code, self.scanner, self.currentclass)
 

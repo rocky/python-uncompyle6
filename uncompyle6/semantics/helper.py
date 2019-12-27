@@ -1,5 +1,6 @@
 import sys
 
+from xdis.code import iscode
 from uncompyle6.parsers.treenode import SyntaxTree
 
 from uncompyle6 import PYTHON3
@@ -172,6 +173,15 @@ def print_docstring(self, indent, docstring):
             pass
         self.println(lines[-1], quote)
     return True
+
+def find_code_node(node, start):
+    for i in range(-start, len(node) + 1):
+        if node[-i].kind == "LOAD_CODE":
+            code_node = node[-i]
+            assert iscode(code_node.attr)
+            return code_node
+        pass
+    assert False, "did not find code node starting at %d in %s" % (start, node)
 
 
 def flatten_list(node):

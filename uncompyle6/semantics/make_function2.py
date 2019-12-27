@@ -14,7 +14,8 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-All the crazy things we have to do to handle Python functions
+All the crazy things we have to do to handle Python functions in Python before 3.0.
+The saga of changes continues in 3.0 and above and in other files.
 """
 from xdis.code import iscode, code_has_star_arg, code_has_star_star_arg
 from uncompyle6.scanner import Code

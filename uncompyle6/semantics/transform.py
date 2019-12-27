@@ -13,6 +13,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from xdis.code import iscode
 from uncompyle6.show import maybe_show_tree
 from copy import copy
 from spark_parser import GenericASTTraversal, GenericASTTraversalPruningException
@@ -30,8 +31,7 @@ def is_docstring(node):
 
 
 class TreeTransform(GenericASTTraversal, object):
-    def __init__(self, version, show_ast=None,
-                is_pypy=False):
+    def __init__(self, version, show_ast=None, is_pypy=False):
         self.version = version
         self.showast = show_ast
         self.is_pypy = is_pypy
@@ -65,6 +65,35 @@ class TreeTransform(GenericASTTraversal, object):
 
         for i, kid in enumerate(node):
             node[i] = self.preorder(kid)
+        return node
+
+    def n_mkfunc(self, node):
+        """If the function has a docstring (this is found in the code
+        constants), pull that out and make it part of the syntax
+        tree. When generating the source string that AST node rather
+        than the code field is seen and used.
+        """
+
+        for i in range(2, len(node) + 1):
+            if node[-i].kind == "LOAD_CODE":
+                break
+
+        code_node = node[-i]
+        code = code_node.attr
+        assert iscode(code)
+
+        if (
+            node[-1].pattr != "closure"
+            and len(code.co_consts) > 0
+            and code.co_consts[0] is not None
+        ):
+            docstring_node = SyntaxTree(
+                "docstring", [Token("LOAD_STR", has_arg=True, pattr=code.co_consts[0])]
+            )
+            docstring_node.transformed_by = "n_mkfunc"
+            node = SyntaxTree("mkfunc", node[:-1] + [docstring_node, node[-1]])
+            node.transformed_by = "n_mkfunc"
+
         return node
 
     def n_ifstmt(self, node):
@@ -128,7 +157,13 @@ class TreeTransform(GenericASTTraversal, object):
                         expr = call[1][0]
                         node = SyntaxTree(
                             kind,
-                            [assert_expr, jump_cond, LOAD_ASSERT, expr, RAISE_VARARGS_1]
+                            [
+                                assert_expr,
+                                jump_cond,
+                                LOAD_ASSERT,
+                                expr,
+                                RAISE_VARARGS_1,
+                            ],
                         )
                         pass
                     pass
@@ -157,10 +192,9 @@ class TreeTransform(GenericASTTraversal, object):
 
                     LOAD_ASSERT = expr[0]
                     node = SyntaxTree(
-                        kind,
-                        [assert_expr, jump_cond, LOAD_ASSERT, RAISE_VARARGS_1]
+                        kind, [assert_expr, jump_cond, LOAD_ASSERT, RAISE_VARARGS_1]
                     )
-                node.transformed_by="n_ifstmt",
+                node.transformed_by = ("n_ifstmt",)
                 pass
             pass
         return node
@@ -171,7 +205,9 @@ class TreeTransform(GenericASTTraversal, object):
     # if elif elif
     def n_ifelsestmt(self, node, preprocess=False):
         """
-        Here we turn:
+        Transformation involving if..else statments.
+        For example
+
 
           if ...
           else
@@ -184,7 +220,7 @@ class TreeTransform(GenericASTTraversal, object):
 
           [else ...]
 
-        where appropriate
+        where appropriate.
         """
         else_suite = node[3]
 
@@ -274,9 +310,30 @@ class TreeTransform(GenericASTTraversal, object):
         self.ast = copy(ast)
         self.ast = self.traverse(self.ast, is_lambda=False)
 
-        if self.ast[-1] == RETURN_NONE:
-            self.ast.pop()  # remove last node
-            # todo: if empty, add 'pass'
+        try:
+            for i in range(len(self.ast)):
+                if is_docstring(self.ast[i]):
+                    docstring_ast = SyntaxTree(
+                        "docstring",
+                        [
+                            Token(
+                                "LOAD_STR",
+                                has_arg=True,
+                                offset=0,
+                                pattr=self.ast[i][0][0][0][0].attr,
+                            )
+                        ],
+                        transformed_by="transform",
+                    )
+                    del self.ast[i]
+                    self.ast.insert(0, docstring_ast)
+                    break
+
+            if self.ast[-1] == RETURN_NONE:
+                self.ast.pop()  # remove last node
+                # todo: if empty, add 'pass'
+        except:
+            pass
 
         return self.ast
 

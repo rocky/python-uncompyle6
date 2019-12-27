@@ -1,5 +1,4 @@
 #  Copyright (c) 2015-2019 by Rocky Bernstein
-#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -14,7 +13,8 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-All the crazy things we have to do to handle Python functions
+All the crazy things we have to do to handle Python functions in 3.0-3.5 or so.
+The saga of changes before and after is in other files.
 """
 from xdis.code import iscode, code_has_star_arg, code_has_star_star_arg
 from uncompyle6.scanner import Code
