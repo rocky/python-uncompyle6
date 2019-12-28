@@ -67,6 +67,7 @@ def customize_for_version37(self, version):
             '%[3]{pattr.replace("-", " ")} %p %p', (0, 19), (6, 19) ),
         'if_exp_37a': ( '%p if %p else %p', (1, 'expr', 27), (0, 27), (4, 'expr', 27) ),
         'if_exp_37b': ( '%p if %p else %p', (2, 'expr', 27), (0, 'expr', 27), (5, 'expr', 27) ),
+        'list_if37':  ( " if %p%c", (0, 27), 1 ),
         'testfalse_not_or': ( "not %c or %c",
                               (0, "expr"),
                               (2, "expr")  ),

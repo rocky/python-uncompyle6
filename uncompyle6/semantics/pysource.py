@@ -1263,6 +1263,7 @@ class SourceWalker(GenericASTTraversal, object):
         if self.version != 3.0:
             assert n.kind in (
                 "lc_body",
+                "list_if37",
                 "comp_body",
                 "set_comp_func",
                 "set_comp_body",
@@ -1369,7 +1370,11 @@ class SourceWalker(GenericASTTraversal, object):
                     list_if = n
                 else:
                     list_if = n[1]
-                n = n[2]
+                n = n[-1]
+                pass
+            elif n == "list_if37":
+                list_ifs.append(n)
+                n = n[-1]
                 pass
             pass
 

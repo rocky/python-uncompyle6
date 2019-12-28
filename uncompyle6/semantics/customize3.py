@@ -143,9 +143,14 @@ def customize_for_version3(self, version):
                         list_ifs.append([1])
                     n = n[2]
                     pass
+                elif n == "list_if37":
+                    list_ifs.append(n)
+                    n = n[-1]
+                    pass
                 pass
 
             assert n == "lc_body", ast
+
             self.preorder(n[0])
 
         # FIXME: add indentation around "for"'s and "in"'s

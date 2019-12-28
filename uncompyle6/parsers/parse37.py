@@ -656,6 +656,7 @@ class Python37Parser(Python37BaseParser):
         testtrue         ::= compare_chained37
         testfalse        ::= compare_chained37_false
 
+        compare_chained     ::= compare_chained37
 
         compare_chained37   ::= expr compare_chained1a_37
         compare_chained37   ::= expr compare_chained1b_37
@@ -668,7 +669,8 @@ class Python37Parser(Python37BaseParser):
         compare_chained1a_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
                                       compare_chained2a_37 COME_FROM POP_TOP COME_FROM
         compare_chained1b_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                      compare_chained2b_37 POP_TOP JUMP_FORWARD COME_FROM
+                                      compare_chained2b_37 POP_TOP _jump COME_FROM
+
         compare_chained1c_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
                                       compare_chained2a_37 POP_TOP
 
@@ -697,6 +699,8 @@ class Python37Parser(Python37BaseParser):
 
         jmp_false37                ::= POP_JUMP_IF_FALSE COME_FROM
         list_if                    ::= expr jmp_false37 list_iter
+        list_iter                  ::= list_if37
+        list_if37                  ::= compare_chained37 list_iter
 
         _ifstmts_jump              ::= c_stmts_opt come_froms
 
