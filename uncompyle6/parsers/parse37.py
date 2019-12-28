@@ -598,6 +598,9 @@ class Python37Parser(Python37BaseParser):
 
         # Where does the POP_TOP really belong?
         import37 ::= import POP_TOP
+        alias ::= IMPORT_NAME_ATTR IMPORT_FROM store
+        alias ::= IMPORT_NAME_ATTR attributes store
+        import_from ::= LOAD_CONST LOAD_CONST IMPORT_NAME_ATTR importlist POP_TOP
 
         async_for_stmt     ::= setup_loop expr
                                GET_AITER

@@ -43,9 +43,6 @@ def make_function2(self, node, is_lambda, nested=1, code_node=None):
     This code is specialied for Python 2.
     """
 
-    # FIXME: call make_function3 if we are self.version >= 3.0
-    # and then simplify the below.
-
     def build_param(ast, name, default):
         """build parameters:
             - handle defaults

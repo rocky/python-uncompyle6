@@ -73,3 +73,18 @@ def customize_for_version37(self, version):
         'testfalse_not_and': ( "not (%c)", 0 ),
 
         })
+
+    def n_import_from(node):
+        relative_path_index = 0
+        if node[relative_path_index].pattr > 0:
+            node[2].pattr = ("." * node[relative_path_index].pattr) + node[2].pattr
+        if isinstance(node[1].pattr, tuple):
+            imports = node[1].pattr
+            for pattr in imports:
+                node[1].pattr = pattr
+                self.default(node)
+            return
+        self.default(node)
+
+    self.n_import_from = n_import_from
+    self.n_import_from_star = n_import_from

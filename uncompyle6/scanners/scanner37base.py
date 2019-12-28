@@ -358,6 +358,10 @@ class Scanner37Base(Scanner):
                     # other parts like n_LOAD_CONST in pysource.py for example.
                     pattr = const
                     pass
+            elif opname == "IMPORT_NAME":
+                if "." in inst.argval:
+                    opname = "IMPORT_NAME_ATTR"
+                    pass
             elif opname in ("MAKE_FUNCTION", "MAKE_CLOSURE"):
                 flags = argval
                 opname = "MAKE_FUNCTION_%d" % (flags)
@@ -887,6 +891,7 @@ class Scanner37Base(Scanner):
                 count_END_FINALLY += 1
             elif op in self.setup_opts_no_loop:
                 count_SETUP_ += 1
+
 
 if __name__ == "__main__":
     from uncompyle6 import PYTHON_VERSION
