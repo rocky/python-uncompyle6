@@ -7,8 +7,10 @@
 import os.path as osp
 from sys import path
 from os import sep, name
+import collections.abc
 
 assert osp.basename("a")
 assert path
 assert sep
 assert name
+assert collections.abc
