@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 by Rocky Bernstein
+#  Copyright (c) 2019-2020 by Rocky Bernstein
 
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -295,6 +295,28 @@ class TreeTransform(GenericASTTraversal, object):
             list_for_node[0] = expr[0][0]
             list_for_node.transformed_by = ("n_list_for",)
         return list_for_node
+
+    def n_stmts(self, node):
+        if node.first_child() == "SETUP_ANNOTATIONS":
+            prev = node[0][0][0]
+            new_stmts = [node[0]]
+            for i, sstmt in enumerate(node[1:]):
+                ann_assign = sstmt[0][0]
+                if (sstmt[0] == "stmt" and ann_assign == "ann_assign" and prev == "assign"):
+                    annotate_var = ann_assign[-2]
+                    if annotate_var.attr == prev[-1][0].attr:
+                        del new_stmts[-1]
+                        sstmt[0][0] = SyntaxTree(
+                            "ann_assign_init",
+                            [ann_assign[0], prev[0], annotate_var])
+                        sstmt[0][0].transformed_by="n_stmts"
+                        pass
+                    pass
+                new_stmts.append(sstmt)
+                prev = ann_assign
+                pass
+            node.data = new_stmts
+        return node
 
     def traverse(self, node, is_lambda=False):
         node = self.preorder(node)
