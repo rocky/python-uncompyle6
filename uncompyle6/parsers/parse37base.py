@@ -974,6 +974,7 @@ class Python37BaseParser(PythonParser):
             pass
 
         self.check_reduce["and"] = "AST"
+        self.check_reduce["annotate_tuple"] = "noAST"
         self.check_reduce["aug_assign1"] = "AST"
         self.check_reduce["aug_assign2"] = "AST"
         self.check_reduce["while1stmt"] = "noAST"
@@ -984,7 +985,7 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
         self.check_reduce["ifstmtl"] = "AST"
-        self.check_reduce["annotate_tuple"] = "noAST"
+        self.check_reduce["import_from37"] = "AST"
         self.check_reduce["or"] = "tokens"
 
         # FIXME: remove parser errors caused by the below
@@ -1461,6 +1462,14 @@ class Python37BaseParser(PythonParser):
                         last
                     ] != "JUMP_FORWARD"
 
+            return False
+        elif lhs == "import_from37":
+            importlist37 = ast[3]
+            alias37 = importlist37[0]
+            if importlist37 == "importlist37" and alias37 == "alias37":
+                store = alias37[1]
+                assert store == "store"
+                return alias37[0].attr != store[0].attr
             return False
 
         return False

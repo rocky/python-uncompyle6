@@ -131,6 +131,9 @@ def customize_for_version37(self, version):
             ),
             "ifstmtl": ("%|if %c:\n%+%c%-", (0, "testexpr"), (1, "_ifstmts_jumpl")),
             'import_as37':     ( '%|import %c as %c\n', 2, -2),
+            'import_from37':   ( '%|from %[2]{pattr} import %c\n',
+                                 (3, 'importlist37') ),
+
             "importattr37": ("%c", (0, "IMPORT_NAME_ATTR")),
             'list_if37':  ( " if %p%c", (0, 27), 1 ),
             "testfalse_not_or": ("not %c or %c", (0, "expr"), (2, "expr")),
@@ -142,3 +145,21 @@ def customize_for_version37(self, version):
             "yield_from": ("yield from %c", (0, "expr")),
         }
     )
+
+    # Don't think we need this as long as we disambiguate
+    # in parse37base.py "from ... import" vs. "import .. as"
+    # def n_alias37(node):
+    #     assert len(node) == 2
+    #     import_from = node[0]
+    #     store = node[1]
+    #     assert store == "store"
+    #     if import_from == "IMPORT_FROM" and import_from.attr != store[0].attr:
+    #         template = ("%c as %c ", 0, 1)
+    #     else:
+    #         template = ("%c ", 1)
+    #         pass
+    #     self.template_engine(template, node)
+    #     self.prune()
+    #     return
+
+    # self.n_alias37 = n_alias37
