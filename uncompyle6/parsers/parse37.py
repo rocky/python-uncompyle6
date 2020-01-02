@@ -329,19 +329,18 @@ class Python37Parser(Python37BaseParser):
 
     def p_import37(self, args):
         """
-        stmt     ::= import37
+        stmt     ::= import_as37
+        import_as37  ::= LOAD_CONST LOAD_CONST importlist37 store POP_TOP
 
-        # Where does the POP_TOP really belong?
-        import37 ::= import POP_TOP
-
-        attributes ::= IMPORT_FROM ROT_TWO POP_TOP IMPORT_FROM
-        attributes ::= attributes ROT_TWO POP_TOP IMPORT_FROM
+        importlist37 ::= importlist37 ROT_TWO IMPORT_FROM
+        importlist37 ::= importlist37 ROT_TWO POP_TOP IMPORT_FROM
+        importlist37 ::= importattr37
+        importattr37 ::= IMPORT_NAME_ATTR IMPORT_FROM
 
         # The 3.7base scanner adds IMPORT_NAME_ATTR
-        alias ::= IMPORT_NAME_ATTR IMPORT_FROM store
         alias ::= IMPORT_NAME_ATTR attributes store
         alias ::= IMPORT_NAME_ATTR store
-        import_from ::= LOAD_CONST LOAD_CONST IMPORT_NAME_ATTR importlist POP_TOP
+        import_from ::= LOAD_CONST LOAD_CONST importlist POP_TOP
 
         expr          ::= attribute37
         attribute37   ::= expr LOAD_METHOD

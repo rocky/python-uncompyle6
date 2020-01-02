@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2019 by Rocky Bernstein
+#  Copyright (c) 2015-2020 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -2071,6 +2071,7 @@ class SourceWalker(GenericASTTraversal, object):
                 try:
                     self.write(eval(expr, d, d))
                 except:
+                    from trepan.api import debug; debug()
                     raise
             m = escape.search(fmt, i)
         self.write(fmt[i:])

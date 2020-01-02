@@ -37,6 +37,7 @@ def customize_for_version37(self, version):
 
     TABLE_DIRECT.update(
         {
+            "and_not": ("%c and not %c", (0, "expr"), (2, "expr")),
             "ann_assign": (
                 "%|%[2]{attr}: %c\n", 0,
             ),
@@ -61,7 +62,6 @@ def customize_for_version37(self, version):
                 (1, "expr"),
                 (16, "for_block"),
             ),
-            "and_not": ("%c and not %c", (0, "expr"), (2, "expr")),
             "async_with_stmt": ("%|async with %c:\n%+%c%-", (0, "expr"), 7),
             "async_with_as_stmt": (
                 "%|async with %c as %c:\n%+%c%-",
@@ -77,6 +77,9 @@ def customize_for_version37(self, version):
                 (25, "else_suite"),
             ),
             "attribute37": ("%c.%[1]{pattr}", 0),
+            "attributes37": ("%[0]{pattr} import %c",
+                            (0, "IMPORT_NAME_ATTR"),
+                            (1, "IMPORT_FROM")),
             "await_expr": ("await %c", 0),
             "await_stmt": ("%|%c\n", 0),
             "call_ex": ("%c(%p)", (0, "expr"), (1, 100)),
@@ -127,6 +130,8 @@ def customize_for_version37(self, version):
                 (5, "expr", 27),
             ),
             "ifstmtl": ("%|if %c:\n%+%c%-", (0, "testexpr"), (1, "_ifstmts_jumpl")),
+            'import_as37':     ( '%|import %c as %c\n', 2, -2),
+            "importattr37": ("%c", (0, "IMPORT_NAME_ATTR")),
             'list_if37':  ( " if %p%c", (0, 27), 1 ),
             "testfalse_not_or": ("not %c or %c", (0, "expr"), (2, "expr")),
             "testfalse_not_and": ("not (%c)", 0),
