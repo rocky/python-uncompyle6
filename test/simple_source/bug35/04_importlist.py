@@ -9,7 +9,7 @@ from sys import path
 from os import sep, name
 import collections.abc
 
-assert osp.basename("a")
+assert osp.basename("a") == "a"
 assert path
 assert sep
 assert name
