@@ -582,7 +582,6 @@ class Python37Parser(Python37BaseParser):
         compare_chained     ::= compare_chained37_false
 
         compare_chained37   ::= expr compare_chained1a_37
-        compare_chained37   ::= expr compare_chained1b_37
         compare_chained37   ::= expr compare_chained1c_37
 
         compare_chained37_false  ::= expr compare_chained1_false_37
