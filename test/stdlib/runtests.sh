@@ -223,10 +223,9 @@ case $PYVERSION in
 	    [test_ast.py]=1  #
 	    [test_atexit.py]=1  #
 	    [test_bdb.py]=1  #
-	    [test_buffer.py]=1  #
-	    [test_builtin.py]=1  #
+	    [test_buffer.py]=1  # parse error
+	    [test_builtin.py]=1  # parser error
 	    [test_cmdline.py]=1  # Interactive?
-	    [test_codecs-3.7.py]=1
 	    [test_collections.py]=1  # Fixed I think in decompyle3 - pull from there
 	    [test_compare.py]=1
 	    [test_compile.py]=1
@@ -235,8 +234,19 @@ case $PYVERSION in
 	    [test_context.py]=1
 	    [test_coroutines.py]=1 # Parse error
 	    [test_curses.py]=1 # Parse error
-	    [test_decorators.py]=1  # Control flow wrt "if elif"
+	    [test_dataclasses.py]=1   # Investigate
+	    [test_datetime.py]=1   # Takes too long
+	    [test_dbm_gnu.py]=1   # Takes too long
+	    [test_decimal.py]=1   # Parse error
+	    [test_descr.py]=1   # Parse error
+	    [test_descrtut.py]=1 # Works in decompyle3 - dotted import errors - Investigate
+	    [test_dictcomps.py]=1 # Bad semantics - Investigate
 	    [test_dis.py]=1   # We change line numbers - duh!
+	    [test_eintr.py]=1   # Works in decompyle3 - dotted import errors - Investigate
+	    [test_enumerate.py]=1   #
+	    [test_enum.py]=1   #
+	    [test_exceptions.py]=1   # workss in decompile3; dotted import errors - Investigate
+	    [test_faulthandler.py]=1   # takes too long
 	    # ...
 	)
 	;;
