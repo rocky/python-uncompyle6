@@ -626,8 +626,9 @@ class Python37Parser(Python37BaseParser):
         jmp_false37                ::= POP_JUMP_IF_FALSE COME_FROM
         list_if                    ::= expr jmp_false37 list_iter
         list_iter                  ::= list_if37
-        list_if37                  ::= compare_chained37 list_iter
+        list_iter                  ::= list_if37_not
         list_if37                  ::= compare_chained37_false list_iter
+        list_if37_not              ::= compare_chained37 list_iter
 
         _ifstmts_jump              ::= c_stmts_opt come_froms
 
