@@ -243,7 +243,6 @@ case $PYVERSION in
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_enumerate.py]=1   #
 	    [test_enum.py]=1   #
-	    [test_exceptions.py]=1   # works in decompile3; dotted import errors - Investigate
 	    [test_faulthandler.py]=1   # takes too long
 	    # ...
 	)
@@ -251,8 +250,9 @@ case $PYVERSION in
     3.8)
 	SKIP_TESTS=(
 	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
-	    [test_collections.py]=1  # Fixed I think in decompyle3 - pull from there
+	    [test_collections.py]=1  # Investigate
 	    [test_decorators.py]=1  # Control flow wrt "if elif"
+	    [test_exceptions.py]=1   # parse error
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_pow.py]=1         # Control flow wrt "continue"
 	    [test_quopri.py]=1      # Only fails on POWER

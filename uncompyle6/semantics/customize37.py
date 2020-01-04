@@ -15,7 +15,7 @@
 """Isolate Python 3.7 version-specific semantic actions here.
 """
 
-from uncompyle6.semantics.consts import PRECEDENCE, TABLE_DIRECT
+from uncompyle6.semantics.consts import PRECEDENCE, TABLE_DIRECT, maxint
 
 def customize_for_version37(self, version):
     ########################
@@ -135,6 +135,7 @@ def customize_for_version37(self, version):
                                  (3, 'importlist37') ),
 
             "importattr37": ("%c", (0, "IMPORT_NAME_ATTR")),
+            'importlist37': ("%C", (0, maxint, ', ') ),
             'list_if37':  ( " if %p%c", (0, 27), 1 ),
             'list_if37_not':  ( " if not %p%c", (0, 27), 1 ),
             "testfalse_not_or": ("not %c or %c", (0, "expr"), (2, "expr")),

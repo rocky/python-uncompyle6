@@ -62,6 +62,8 @@ class PythonParser(GenericASTBuilder):
             'kvlist_n',
             # Python 3.6+
             'come_from_loops',
+            # Python 3.7+
+            'importlist37',
             ]
         self.collect = frozenset(nt_list)
 

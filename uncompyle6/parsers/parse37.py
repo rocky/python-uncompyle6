@@ -346,7 +346,7 @@ class Python37Parser(Python37BaseParser):
         attribute37   ::= expr LOAD_METHOD
 
         stmt          ::= import_from37
-        importlist37  ::= importlist37 alias
+        importlist37  ::= importlist37 alias37
         importlist37  ::= alias37
         alias37       ::= IMPORT_NAME store
         alias37       ::= IMPORT_FROM store
