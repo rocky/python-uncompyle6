@@ -239,13 +239,11 @@ case $PYVERSION in
 	    [test_dbm_gnu.py]=1   # Takes too long
 	    [test_decimal.py]=1   # Parse error
 	    [test_descr.py]=1   # Parse error
-	    [test_descrtut.py]=1 # Works in decompyle3 - dotted import errors - Investigate
 	    [test_dictcomps.py]=1 # Bad semantics - Investigate
 	    [test_dis.py]=1   # We change line numbers - duh!
-	    [test_eintr.py]=1   # Works in decompyle3 - dotted import errors - Investigate
 	    [test_enumerate.py]=1   #
 	    [test_enum.py]=1   #
-	    [test_exceptions.py]=1   # workss in decompile3; dotted import errors - Investigate
+	    [test_exceptions.py]=1   # works in decompile3; dotted import errors - Investigate
 	    [test_faulthandler.py]=1   # takes too long
 	    # ...
 	)

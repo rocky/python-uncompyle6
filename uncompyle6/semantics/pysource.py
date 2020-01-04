@@ -823,6 +823,7 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             self.write(iname, " as ", sname)
         self.prune()  # stop recursing
+    n_alias37 = n_alias
 
     def n_import_from(self, node):
         relative_path_index = 0
