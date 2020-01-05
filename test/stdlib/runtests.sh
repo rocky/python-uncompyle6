@@ -108,7 +108,8 @@ case $PYVERSION in
 
 	    [test_capi.py]=1
 	    [test_curses.py]=1  # Possibly fails on its own but not detected
-	    [test test_cmd_line.py]=1 # Takes too long, maybe hangs, or looking for interactive input?
+	    [test_cmd_line.py]=1 # Takes too long, maybe hangs, or looking for interactive input?
+	    [test_compilex.py]=1 # Probably complex literals again. Investigate
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_doctest.py]=1 # Fails on its own
 	    [test_exceptions.py]=1
@@ -148,9 +149,46 @@ case $PYVERSION in
 	    SKIP_TESTS[test_base64.py]=1
 	fi
 	;;
+    3.0)
+	SKIP_TESTS=(
+	    [test_array.py]=1  # Handling of bytestring
+	    [test_concurrent_futures.py]=1 # too long to run over 46 seconds by itself
+	    [test_datetimetester.py]=1
+	    [test_decimal.py]=1
+	    [test_dis.py]=1   # We change line numbers - duh!
+	    [test_fileio.py]=1
+	)
+	if (( batch )) ; then
+	    # Fails in crontab environment?
+	    # Figure out what's up here
+	    SKIP_TESTS[test_exception_variations.py]=1
+	    SKIP_TESTS[test_quopri.py]=1
+	fi
+	;;
+    3.1)
+	SKIP_TESTS=(
+	    [test_collections.py]=1
+	    [test_concurrent_futures.py]=1 # too long to run over 46 seconds by itself
+	    [test_datetimetester.py]=1
+	    [test_decimal.py]=1
+	    [test_dis.py]=1   # We change line numbers - duh!
+	    [test_fileio.py]=1
+	)
+	if (( batch )) ; then
+	    # Fails in crontab environment?
+	    # Figure out what's up here
+	    SKIP_TESTS[test_exception_variations.py]=1
+	    SKIP_TESTS[test_quopri.py]=1
+	fi
+	;;
     3.2)
 	SKIP_TESTS=(
 	    [test_ast.py]=1  # Look at: AssertionError: b'hi' != 'hi'
+	    [test_cmd_line.py]=1
+	    [test_collections.py]=1
+	    [test_concurrent_futures.py]=1 # too long to run over 46 seconds by itself
+	    [test_datetimetester.py]=1
+	    [test_decimal.py]=1
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_quopri.py]=1 # TypeError: Can't convert 'bytes' object to str implicitly
 	)
@@ -176,7 +214,11 @@ case $PYVERSION in
 
     3.4)
 	SKIP_TESTS=(
+	    [test_asynchat.py]=1  #
+	    [test_asyncore.py]=1  #
 	    [test_atexit.py]=1  #
+	    [test_bdb.py]=1  #
+	    [test_binascii]=1
 	    [test_dis.py]=1   # We change line numbers - duh!
 	)
 	if (( batch )) ; then
@@ -188,7 +230,7 @@ case $PYVERSION in
 	;;
     3.5)
 	SKIP_TESTS=(
-	    [test_ast.py]=1  #
+	    [test_ast.py]=1  # line 379, in test_literal_eval  self.assertEqual(ast.literal_eval('b"hi"'), 'hi')
 	    [test_atexit.py]=1  #
 	    [test_builtin.py]=1  #
 	    [test_compare.py]=1

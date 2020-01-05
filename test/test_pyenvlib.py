@@ -135,8 +135,8 @@ def do_tests(
             pass
 
     if len(files) > max_files:
-        files = [file for file in files if not "site-packages" in file]
-        files = [file for file in files if not "test" in file]
+        files = [file for file in files if not "site-packages" in file and (file.endswith(".pyo") or file.endswith(".pyc"))]
+        files = [file for file in files if not "test" in file and (file.endswith(".pyo") or file.endswith(".pyc"))]
         if len(files) > max_files:
             # print("Number of files %d - truncating to last 200" % len(files))
             print(
