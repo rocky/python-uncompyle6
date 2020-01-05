@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 by Rocky Bernstein
+#  Copyright (c) 2019-2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -27,12 +27,8 @@ from uncompyle6.semantics.helper import (
     find_all_globals,
     find_globals_and_nonlocals,
     find_none,
+    zip_longest
 )
-
-if PYTHON3:
-    from itertools import zip_longest
-else:
-    from itertools import izip_longest as zip_longest
 
 from uncompyle6.show import maybe_show_tree_param_default
 
@@ -213,7 +209,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
             is_lambda=is_lambda,
             noneInNames=("None" in code.co_names),
         )
-    except (ParserError, ParserError2) as p:
+    except ParserError, p:
         self.write(str(p))
         if not self.tolerate_errors:
             self.ERROR = p
@@ -300,7 +296,10 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         #  optional docstring
         #  LOAD_CONST qualified name,
         #  LOAD_CONST code object
-        index = -5 if node[-2] == "docstring" else -4
+        if node[-2] == "docstring":
+            index = -5
+        else:
+            index = -4
         if fn_bits[-1]:
             index -= 1
         if fn_bits[-2]:

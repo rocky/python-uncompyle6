@@ -5,11 +5,28 @@ from uncompyle6.parsers.treenode import SyntaxTree
 
 from uncompyle6 import PYTHON3
 if PYTHON3:
+    from itertools import zip_longest
     minint = -sys.maxsize-1
     maxint = sys.maxsize
 else:
     minint = -sys.maxint-1
     maxint = sys.maxint
+    try:
+        from itertools import izip_longest as zip_longest
+    except:
+        from itertools import (chain, izip, repeat)
+        def zip_longest(*args, **kwds):
+            # zip_longest('ABCD', 'xy', fillvalue='-') --> Ax By C- D-
+            fillvalue = kwds.get('fillvalue')
+            def sentinel(counter = ([fillvalue]*(len(args)-1)).pop):
+                yield counter()         # yields the fillvalue, or raises IndexError
+            fillers = repeat(fillvalue)
+            iters = [chain(it, sentinel(), fillers) for it in args]
+            try:
+                for tup in izip(*iters):
+                    yield tup
+            except IndexError:
+                pass
 
 read_write_global_ops = frozenset(('STORE_GLOBAL', 'DELETE_GLOBAL', 'LOAD_GLOBAL'))
 read_global_ops       = frozenset(('STORE_GLOBAL', 'DELETE_GLOBAL'))
