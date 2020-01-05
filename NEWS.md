@@ -1,3 +1,39 @@
+3.6.2: 2020-1-5 Samish
+======================
+
+Yet again the focus has been on just fixing bugs, mostly geared in the
+later 3.x range. To get some sense what sill needs fixing, consult
+test/stdlib/runtests.sh. And that only has a portion of what's known.
+
+`make_function.py` has gotten so complex that it was split out into 3 parts
+to handle different version ranges: Python <3, Python 3.0..3.6 and Python 3.7+.
+
+An important fix is that we had been dropping docstrings in Python 3 code as a result
+of a incomplete merge from the decompile3 base with respect to the transform phase.
+
+Also important (at least to me) is that we can now handle 3.6+
+variable type annotations.  Some of the decompile3 code uses that in
+its source code, and I now use variable annotations in conjunction
+with mypy in some of my other Python projects
+
+Code generation for imports, especially where the import is dotted
+changed a bit in 3.7; with this release are just now tracking that
+change better. For this I've added pseudo instruction
+`IMPORT_NAME_ATTR`, derived from the `IMPORT_NAME` instruction, to
+indicate when an import contains a dotted import. Similarly, code for
+3.7 `import .. as ` is basically the same as `from .. import`, the
+only difference is the target of the name changes to an "alias" in the
+former. As a result, the disambiguation is now done on the semantic
+action side, rathero than in parsing grammar rules.
+
+Some small specific fixes:
+
+* 3.7+ some chained compare parsing has been fixed. Other remain.
+* better if/else rule checking in the 3.4 and below range.
+* 3.4+ keyword-only parameter handling was fixed more generally
+* 3.3 .. 3.5 keyword-only parameter args in lambda was fixed
+
+
 3.6.1: 2019-12-10 Christmas Hannukah
 ====================================
 
