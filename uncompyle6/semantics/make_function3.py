@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2019 by Rocky Bernstein
+#  Copyright (c) 2015-2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -538,6 +538,10 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             params.reverse()
         if not is_lambda:
             argc += 1
+        pass
+    elif is_lambda and kwonlyargcount > 0:
+        params.insert(0, "*")
+        kwonlyargcount = 0
 
     # dump parameter list (with default values)
     if is_lambda:
