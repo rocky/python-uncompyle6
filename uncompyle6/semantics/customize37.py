@@ -147,3 +147,16 @@ def customize_for_version37(self, version):
             "yield_from": ("yield from %c", (0, "expr")),
         }
     )
+
+    def n_importlist37(node):
+        if len(node) == 1:
+            self.default(node)
+            return
+        n = len(node) - 1
+        for i in range(n, -1, -1):
+            if node[i] != "ROT_TWO":
+                break
+        self.template_engine(("%C", (0, i + 1, ', ')), node)
+        self.prune()
+
+    self.n_importlist37 = n_importlist37

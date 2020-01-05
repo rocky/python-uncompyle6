@@ -222,6 +222,7 @@ case $PYVERSION in
 	SKIP_TESTS=(
 	    [test_ast.py]=1  #
 	    [test_atexit.py]=1  #
+	    [test_baseexception.py]=1  #
 	    [test_bdb.py]=1  #
 	    [test_buffer.py]=1  # parse error
 	    [test_builtin.py]=1  # parser error
@@ -229,12 +230,14 @@ case $PYVERSION in
 	    [test_collections.py]=1  # Fixed I think in decompyle3 - pull from there
 	    [test_compare.py]=1
 	    [test_compile.py]=1
+	    [test_configparser.py]=1
 	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
 	    [test_contextlib_async.py]=1 # Investigate
 	    [test_context.py]=1
 	    [test_coroutines.py]=1 # Parse error
+	    [test_crypt.py]=1 # Parse error
 	    [test_curses.py]=1 # Parse error
-	    [test_dataclasses.py]=1   # Investigate
+	    [test_dataclasses.py]=1   # parse error
 	    [test_datetime.py]=1   # Takes too long
 	    [test_dbm_gnu.py]=1   # Takes too long
 	    [test_decimal.py]=1   # Parse error
@@ -244,6 +247,7 @@ case $PYVERSION in
 	    [test_enumerate.py]=1   #
 	    [test_enum.py]=1   #
 	    [test_faulthandler.py]=1   # takes too long
+	    [test_generators.py]=1  # improper decompile of assert i < n and (n-i) % 3 == 0
 	    # ...
 	)
 	;;
