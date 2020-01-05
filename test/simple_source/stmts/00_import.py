@@ -4,6 +4,7 @@ from os import path
 from os import *
 import time as time1, os as os1
 import http.client as httpclient
+from sys import stdin, stdout, stderr
 if len(__file__) == 0:
     # a.b.c should force consecutive LOAD_ATTRs
     import a.b.c as d

@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017, 2019 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2019-2020 Rocky Bernstein
 """
 Python 3.7 base code. We keep non-custom-generated grammar rules out of this file.
 """
@@ -581,6 +581,18 @@ class Python37BaseParser(PythonParser):
             elif opname == "LOAD_LISTCOMP":
                 self.add_unique_rule("expr ::= listcomp", opname, token.attr, customize)
                 custom_ops_processed.add(opname)
+            elif opname == "LOAD_NAME":
+                if token.attr == "__annotations__" and "SETUP_ANNOTATIONS" in self.seen_ops:
+                    token.kind = "LOAD_ANNOTATION"
+                    self.addRule(
+                        """
+                        stmt       ::= SETUP_ANNOTATIONS
+                        stmt       ::= ann_assign
+                        ann_assign ::= expr LOAD_ANNOTATION LOAD_STR STORE_SUBSCR
+                        """,
+                        nop_func,
+                    )
+                    pass
             elif opname == "LOAD_SETCOMP":
                 # Should this be generalized and put under MAKE_FUNCTION?
                 if has_get_iter_call_function1:
@@ -962,6 +974,7 @@ class Python37BaseParser(PythonParser):
             pass
 
         self.check_reduce["and"] = "AST"
+        self.check_reduce["annotate_tuple"] = "noAST"
         self.check_reduce["aug_assign1"] = "AST"
         self.check_reduce["aug_assign2"] = "AST"
         self.check_reduce["while1stmt"] = "noAST"
@@ -972,7 +985,7 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
         self.check_reduce["ifstmtl"] = "AST"
-        self.check_reduce["annotate_tuple"] = "noAST"
+        self.check_reduce["import_from37"] = "AST"
         self.check_reduce["or"] = "tokens"
 
         # FIXME: remove parser errors caused by the below
@@ -1103,8 +1116,13 @@ class Python37BaseParser(PythonParser):
             # FIXME: This is a cheap test. Should we do something with an AST like we
             # do with "and"?
             # "or"s with constants like this will have "COME_FROM" at the end
-            return tokens[last] in ("LOAD_ASSERT", "LOAD_STR", "LOAD_CODE", "LOAD_CONST",
-                                    "RAISE_VARARGS_1")
+            return tokens[last] in (
+                "LOAD_ASSERT",
+                "LOAD_STR",
+                "LOAD_CODE",
+                "LOAD_CONST",
+                "RAISE_VARARGS_1",
+            )
         elif lhs == "while1elsestmt":
 
             if last == n:
@@ -1143,7 +1161,7 @@ class Python37BaseParser(PythonParser):
             for i in range(cfl - 1, first, -1):
                 if tokens[i] != "POP_BLOCK":
                     break
-            if tokens[i].kind not in ("JUMP_BACK", "RETURN_VALUE"):
+            if tokens[i].kind not in ("JUMP_BACK", "RETURN_VALUE", "RAISE_VARARGS_1"):
                 if not tokens[i].kind.startswith("COME_FROM"):
                     return True
 
@@ -1156,9 +1174,8 @@ class Python37BaseParser(PythonParser):
                 last -= 1
             offset = tokens[last].off2int()
             assert tokens[first] == "SETUP_LOOP"
-            if offset != tokens[first].attr:
-                return True
-            return False
+            # SETUP_LOOP location must jump either to the last token or the token after the last one
+            return tokens[first].attr not in (offset, offset + 2)
         elif lhs == "_ifstmts_jump" and len(rule[1]) > 1 and ast:
             come_froms = ast[-1]
             # Make sure all of the "come froms" offset at the
@@ -1192,6 +1209,10 @@ class Python37BaseParser(PythonParser):
                 return False
 
             if isinstance(come_froms, Token):
+                if tokens[pop_jump_index].attr < tokens[pop_jump_index].offset and ast[0] != "pass":
+                    # This is a jump backwards to a loop. All bets are off here when there the
+                    # unless statement is "pass" which has no instructions associated with it.
+                    return False
                 return (
                     come_froms.attr is not None
                     and tokens[pop_jump_index].offset > come_froms.attr
@@ -1210,7 +1231,7 @@ class Python37BaseParser(PythonParser):
                 if last == n:
                     last -= 1
                     pass
-                if (tokens[last].attr and isinstance(tokens[last].attr, int)):
+                if tokens[last].attr and isinstance(tokens[last].attr, int):
                     return tokens[first].offset < tokens[last].attr
                 pass
 
@@ -1225,7 +1246,14 @@ class Python37BaseParser(PythonParser):
             for i in range(first, l):
                 t = tokens[i]
                 if t.kind == "POP_JUMP_IF_FALSE":
-                    if t.attr > last_offset:
+                    pjif_target = t.attr
+                    if pjif_target > last_offset:
+                        # In come cases, where we have long bytecode, a
+                        # "POP_JUMP_IF_FALSE" offset might be too
+                        # large for the instruction; so instead it
+                        # jumps to a JUMP_FORWARD. Allow that here.
+                        if tokens[l] == "JUMP_FORWARD":
+                            return tokens[l].attr != pjif_target
                         return True
                     pass
                 pass
@@ -1244,7 +1272,11 @@ class Python37BaseParser(PythonParser):
                         if last == n:
                             last -= 1
                         jmp_target = test[1][0].attr
-                        if tokens[first].off2int() <= jmp_target < tokens[last].off2int():
+                        if (
+                            tokens[first].off2int()
+                            <= jmp_target
+                            < tokens[last].off2int()
+                        ):
                             return True
                         # jmp_target less than tokens[first] is okay - is to a loop
                         # jmp_target equal tokens[last] is also okay: normal non-optimized non-loop jump
@@ -1279,7 +1311,11 @@ class Python37BaseParser(PythonParser):
                     # jmp_target less than tokens[first] is okay - is to a loop
                     # jmp_target equal tokens[last] is also okay: normal non-optimized non-loop jump
 
-                    if (last + 1) < n and tokens[last - 1] != "JUMP_BACK" and tokens[last + 1] == "COME_FROM_LOOP":
+                    if (
+                        (last + 1) < n
+                        and tokens[last - 1] != "JUMP_BACK"
+                        and tokens[last + 1] == "COME_FROM_LOOP"
+                    ):
                         # iflastsmtl is not at the end of a loop, but jumped outside of loop. No good.
                         # FIXME: check that tokens[last] == "POP_BLOCK"? Or allow for it not to appear?
                         return True
@@ -1328,6 +1364,36 @@ class Python37BaseParser(PythonParser):
                     (
                         "testexpr",
                         "c_stmts_opt",
+                        "jump_forward_else",
+                        "else_suite",
+                        '\\e__come_froms'
+                    ),
+                ),
+                (
+                    "ifelsestmt",
+                    (
+                        "testexpr",
+                        "c_stmts_opt",
+                        "jf_cfs",
+                        "else_suite",
+                        '\\e_opt_come_from_except',
+                    ),
+                ),
+                (
+                    "ifelsestmt",
+                    (
+                        "testexpr",
+                        "c_stmts_opt",
+                        "come_froms",
+                        "else_suite",
+                        'come_froms',
+                    ),
+                ),
+                (
+                    "ifelsestmt",
+                    (
+                        "testexpr",
+                        "c_stmts_opt",
                         "jf_cfs",
                         "else_suite",
                         "opt_come_from_except",
@@ -1345,7 +1411,8 @@ class Python37BaseParser(PythonParser):
             if come_froms == "opt_come_from_except" and len(come_froms) > 0:
                 come_froms = come_froms[0]
             if not isinstance(come_froms, Token):
-                return tokens[first].offset > come_froms[-1].attr
+                if len(come_froms):
+                    return tokens[first].offset > come_froms[-1].attr
             elif tokens[first].offset > come_froms.attr:
                 return True
 
@@ -1363,20 +1430,46 @@ class Python37BaseParser(PythonParser):
 
             # Check that the condition portion of the "if"
             # jumps to the "else" part.
-            # Compare with parse30.py of uncompyle6
             if testexpr[0] in ("testtrue", "testfalse"):
                 test = testexpr[0]
+
+                else_suite = ast[3]
+                assert else_suite == "else_suite"
+
                 if len(test) > 1 and test[1].kind.startswith("jmp_"):
                     if last == n:
                         last -= 1
                     jmp = test[1]
                     jmp_target = jmp[0].attr
+
+                    # FIXME: the jump inside "else" check below should be added.
+                    #
+                    # add this until we can find out what's wrong with
+                    # not being able to parse:
+                    #     if a and b or c:
+                    #         x = 1
+                    #     else:
+                    #         x = 2
+
+                    # FIXME: add this
+                    # if jmp_target < else_suite.first_child().off2int():
+                    #     return True
+
                     if tokens[first].off2int() > jmp_target:
                         return True
+
                     return (jmp_target > tokens[last].off2int()) and tokens[
                         last
                     ] != "JUMP_FORWARD"
 
+            return False
+        elif lhs == "import_from37":
+            importlist37 = ast[3]
+            alias37 = importlist37[0]
+            if importlist37 == "importlist37" and alias37 == "alias37":
+                store = alias37[1]
+                assert store == "store"
+                return alias37[0].attr != store[0].attr
             return False
 
         return False

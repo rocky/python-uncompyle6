@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 by Rocky Bernstein
+#  Copyright (c) 2019-2020 by Rocky Bernstein
 
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -13,10 +13,12 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from xdis.code import iscode
 from uncompyle6.show import maybe_show_tree
 from copy import copy
 from spark_parser import GenericASTTraversal, GenericASTTraversalPruningException
 
+from uncompyle6.semantics.helper import find_code_node
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanners.tok import Token
 from uncompyle6.semantics.consts import RETURN_NONE
@@ -30,8 +32,7 @@ def is_docstring(node):
 
 
 class TreeTransform(GenericASTTraversal, object):
-    def __init__(self, version, show_ast=None,
-                is_pypy=False):
+    def __init__(self, version, show_ast=None, is_pypy=False):
         self.version = version
         self.showast = show_ast
         self.is_pypy = is_pypy
@@ -65,6 +66,29 @@ class TreeTransform(GenericASTTraversal, object):
 
         for i, kid in enumerate(node):
             node[i] = self.preorder(kid)
+        return node
+
+    def n_mkfunc(self, node):
+        """If the function has a docstring (this is found in the code
+        constants), pull that out and make it part of the syntax
+        tree. When generating the source string that AST node rather
+        than the code field is seen and used.
+        """
+
+        code = find_code_node(node, -2).attr
+
+        if (
+            node[-1].pattr != "closure"
+            and len(code.co_consts) > 0
+            and code.co_consts[0] is not None
+        ):
+            docstring_node = SyntaxTree(
+                "docstring", [Token("LOAD_STR", has_arg=True, pattr=code.co_consts[0])]
+            )
+            docstring_node.transformed_by = "n_mkfunc"
+            node = SyntaxTree("mkfunc", node[:-1] + [docstring_node, node[-1]])
+            node.transformed_by = "n_mkfunc"
+
         return node
 
     def n_ifstmt(self, node):
@@ -128,7 +152,13 @@ class TreeTransform(GenericASTTraversal, object):
                         expr = call[1][0]
                         node = SyntaxTree(
                             kind,
-                            [assert_expr, jump_cond, LOAD_ASSERT, expr, RAISE_VARARGS_1]
+                            [
+                                assert_expr,
+                                jump_cond,
+                                LOAD_ASSERT,
+                                expr,
+                                RAISE_VARARGS_1,
+                            ],
                         )
                         pass
                     pass
@@ -157,10 +187,9 @@ class TreeTransform(GenericASTTraversal, object):
 
                     LOAD_ASSERT = expr[0]
                     node = SyntaxTree(
-                        kind,
-                        [assert_expr, jump_cond, LOAD_ASSERT, RAISE_VARARGS_1]
+                        kind, [assert_expr, jump_cond, LOAD_ASSERT, RAISE_VARARGS_1]
                     )
-                node.transformed_by="n_ifstmt",
+                node.transformed_by = ("n_ifstmt",)
                 pass
             pass
         return node
@@ -171,7 +200,9 @@ class TreeTransform(GenericASTTraversal, object):
     # if elif elif
     def n_ifelsestmt(self, node, preprocess=False):
         """
-        Here we turn:
+        Transformation involving if..else statments.
+        For example
+
 
           if ...
           else
@@ -184,7 +215,7 @@ class TreeTransform(GenericASTTraversal, object):
 
           [else ...]
 
-        where appropriate
+        where appropriate.
         """
         else_suite = node[3]
 
@@ -265,6 +296,28 @@ class TreeTransform(GenericASTTraversal, object):
             list_for_node.transformed_by = ("n_list_for",)
         return list_for_node
 
+    def n_stmts(self, node):
+        if node.first_child() == "SETUP_ANNOTATIONS":
+            prev = node[0][0][0]
+            new_stmts = [node[0]]
+            for i, sstmt in enumerate(node[1:]):
+                ann_assign = sstmt[0][0]
+                if (sstmt[0] == "stmt" and ann_assign == "ann_assign" and prev == "assign"):
+                    annotate_var = ann_assign[-2]
+                    if annotate_var.attr == prev[-1][0].attr:
+                        del new_stmts[-1]
+                        sstmt[0][0] = SyntaxTree(
+                            "ann_assign_init",
+                            [ann_assign[0], prev[0], annotate_var])
+                        sstmt[0][0].transformed_by="n_stmts"
+                        pass
+                    pass
+                new_stmts.append(sstmt)
+                prev = ann_assign
+                pass
+            node.data = new_stmts
+        return node
+
     def traverse(self, node, is_lambda=False):
         node = self.preorder(node)
         return node
@@ -274,9 +327,30 @@ class TreeTransform(GenericASTTraversal, object):
         self.ast = copy(ast)
         self.ast = self.traverse(self.ast, is_lambda=False)
 
-        if self.ast[-1] == RETURN_NONE:
-            self.ast.pop()  # remove last node
-            # todo: if empty, add 'pass'
+        try:
+            for i in range(len(self.ast)):
+                if is_docstring(self.ast[i]):
+                    docstring_ast = SyntaxTree(
+                        "docstring",
+                        [
+                            Token(
+                                "LOAD_STR",
+                                has_arg=True,
+                                offset=0,
+                                pattr=self.ast[i][0][0][0][0].attr,
+                            )
+                        ],
+                        transformed_by="transform",
+                    )
+                    del self.ast[i]
+                    self.ast.insert(0, docstring_ast)
+                    break
+
+            if self.ast[-1] == RETURN_NONE:
+                self.ast.pop()  # remove last node
+                # todo: if empty, add 'pass'
+        except:
+            pass
 
         return self.ast
 

@@ -20,8 +20,12 @@ from uncompyle6.semantics.consts import TABLE_DIRECT
 
 from xdis.code import iscode
 from uncompyle6.scanner import Code
-from uncompyle6.semantics.helper import gen_function_parens_adjust
-from uncompyle6.semantics.make_function import make_function3_annotate
+from uncompyle6.semantics.helper import (
+    find_code_node,
+    gen_function_parens_adjust,
+)
+
+from uncompyle6.semantics.make_function3 import make_function3_annotate
 from uncompyle6.semantics.customize35 import customize_for_version35
 from uncompyle6.semantics.customize36 import customize_for_version36
 from uncompyle6.semantics.customize37 import customize_for_version37
@@ -139,9 +143,14 @@ def customize_for_version3(self, version):
                         list_ifs.append([1])
                     n = n[2]
                     pass
+                elif n == "list_if37":
+                    list_ifs.append(n)
+                    n = n[-1]
+                    pass
                 pass
 
             assert n == "lc_body", ast
+
             self.preorder(n[0])
 
         # FIXME: add indentation around "for"'s and "in"'s
@@ -158,6 +167,7 @@ def customize_for_version3(self, version):
     self.listcomp_closure3 = listcomp_closure3
 
     def n_classdef3(node):
+
         # class definition ('class X(A,B,C):')
         cclass = self.currentclass
 
@@ -228,10 +238,10 @@ def customize_for_version3(self, version):
                 # Python 3.3 classes with closures work like this.
                 # Note have to test before 3.2 case because
                 # index -2 also has an attr.
-                subclass_code = load_closure[-3].attr
+                subclass_code = find_code_node(load_closure, -3).attr
             elif hasattr(load_closure[-2], "attr"):
                 # Python 3.2 works like this
-                subclass_code = load_closure[-2].attr
+                subclass_code = find_code_node(load_closure, -2).attr
             else:
                 raise "Internal Error n_classdef: cannot find class body"
             if hasattr(build_class[3], "__len__"):

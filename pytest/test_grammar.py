@@ -35,7 +35,7 @@ def test_grammar():
 
     expect_right_recursive = set([("designList", ("store", "DUP_TOP", "designList"))])
 
-    if PYTHON_VERSION <= 3.7:
+    if PYTHON_VERSION <= 3.6:
         unused_rhs.add("call")
 
     if PYTHON_VERSION > 2.6:

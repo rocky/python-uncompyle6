@@ -1588,6 +1588,12 @@ class Python3Parser(PythonParser):
             if not isinstance(come_froms, Token):
                 return tokens[first].offset > come_froms[-1].attr
             return False
+        elif lhs == "ifelsestmt" and rule[1][2] == "jump_forward_else":
+            last = min(last, len(tokens)-1)
+            if tokens[last].off2int() == -1:
+                last -= 1
+            jump_forward_else = ast[2]
+            return tokens[first].off2int() <= jump_forward_else[0].attr < tokens[last].off2int()
 
         return False
 

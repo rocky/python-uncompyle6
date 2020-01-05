@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2019 by Rocky Bernstein
+#  Copyright (c) 2017-2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -230,6 +230,7 @@ TABLE_DIRECT = {
                                   (1, 100), (2, 100) ),
 
     'IMPORT_FROM':              ( '%{pattr}', ),
+    'IMPORT_NAME_ATTR':         ( '%{pattr}', ),
     'attribute':	        ( '%c.%[1]{pattr}',
                                   (0, 'expr')),
     'LOAD_STR':	                ( '%{pattr}', ),

@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2019 by Rocky Bernstein
+#  Copyright (c) 2015-2020 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -137,12 +137,15 @@ from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.scanner import Code, get_scanner
 import uncompyle6.parser as python_parser
-from uncompyle6.semantics.make_function import make_function2, make_function3
+from uncompyle6.semantics.make_function2 import make_function2
+from uncompyle6.semantics.make_function3 import make_function3
+from uncompyle6.semantics.make_function36 import make_function36
 from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.semantics.check_ast import checker
 from uncompyle6.semantics.customize import customize_for_version
 from uncompyle6.semantics.helper import (
     print_docstring,
+    find_code_node,
     find_globals_and_nonlocals,
     flatten_list,
 )
@@ -820,6 +823,7 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             self.write(iname, " as ", sname)
         self.prune()  # stop recursing
+    n_alias37 = n_alias
 
     def n_import_from(self, node):
         relative_path_index = 0
@@ -840,23 +844,9 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_mkfunc(self, node):
 
-        if self.version >= 3.3 or node[-2] in ("kwargs", "no_kwargs"):
-            # LOAD_CODET code object ..
-            # LOAD_CONST        "x0"  if >= 3.3
-            # MAKE_FUNCTION ..
-            code_node = node[-3]
-        elif node[-2] == "expr":
-            code_node = node[-2][0]
-        else:
-            # LOAD_CODE code object ..
-            # MAKE_FUNCTION ..
-            code_node = node[-2]
-
-        assert iscode(code_node.attr)
-
-        func_name = code_node.attr.co_name
-        self.write(func_name)
-
+        code_node = find_code_node(node, -2)
+        code = code_node.attr
+        self.write(code.co_name)
         self.indent_more()
 
         self.make_function(node, is_lambda=False, code_node=code_node)
@@ -868,11 +858,15 @@ class SourceWalker(GenericASTTraversal, object):
         self.indent_less()
         self.prune()  # stop recursing
 
+    # Python changes make function this much that we need at least 3 different routines,
+    # and probably more in the future.
     def make_function(self, node, is_lambda, nested=1, code_node=None, annotate=None):
-        if self.version >= 3.0:
-            make_function3(self, node, is_lambda, nested, code_node)
-        else:
+        if self.version <= 2.7:
             make_function2(self, node, is_lambda, nested, code_node)
+        elif 3.0 <= self.version <= 3.5:
+            make_function3(self, node, is_lambda, nested, code_node)
+        elif self.version >= 3.6:
+            make_function36(self, node, is_lambda, nested, code_node)
 
     def n_docstring(self, node):
 
@@ -1243,6 +1237,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         # Iterate to find the innermost store
         # We'll come back to the list iteration below.
+
         while n in ("list_iter", "comp_iter"):
             # iterate one nesting deeper
             if self.version == 3.0 and len(n) == 3:
@@ -1255,13 +1250,18 @@ class SourceWalker(GenericASTTraversal, object):
                 if n[2] == "store" and not store:
                     store = n[2]
                 n = n[3]
-            elif n in ("list_if", "list_if_not", "comp_if", "comp_if_not"):
-                have_not = n in ("list_if_not", "comp_if_not")
-                if_node = n[0]
-                if n[1] == "store":
-                    store = n[1]
-                n = n[2]
-                pass
+            elif n in ("list_if", "list_if_not",
+                       "list_if37", "list_if37_not",
+                       "comp_if", "comp_if_not"):
+                have_not = n in ("list_if_not", "comp_if_not", "list_if37_not")
+                if n in ("list_if37", "list_if37_not"):
+                    n = n[1]
+                else:
+                    if_node = n[0]
+                    if n[1] == "store":
+                        store = n[1]
+                    n = n[2]
+                    pass
             pass
 
         # Python 2.7+ starts including set_comp_body
@@ -1270,6 +1270,7 @@ class SourceWalker(GenericASTTraversal, object):
         if self.version != 3.0:
             assert n.kind in (
                 "lc_body",
+                "list_if37",
                 "comp_body",
                 "set_comp_func",
                 "set_comp_body",
@@ -1376,7 +1377,11 @@ class SourceWalker(GenericASTTraversal, object):
                     list_if = n
                 else:
                     list_if = n[1]
-                n = n[2]
+                n = n[-1]
+                pass
+            elif n == "list_if37":
+                list_ifs.append(n)
+                n = n[-1]
                 pass
             pass
 
@@ -1888,6 +1893,11 @@ class SourceWalker(GenericASTTraversal, object):
             self.prune()
             return
 
+        if node[0] == "UNPACK_SEQUENCE_0":
+            self.write("[]")
+            self.prune()
+            return
+
         for n in node[1:]:
             if n[0].kind == "unpack":
                 n[0].kind = "unpack_w_parens"
@@ -2073,6 +2083,7 @@ class SourceWalker(GenericASTTraversal, object):
                 try:
                     self.write(eval(expr, d, d))
                 except:
+                    from trepan.api import debug; debug()
                     raise
             m = escape.search(fmt, i)
         self.write(fmt[i:])
@@ -2210,7 +2221,11 @@ class SourceWalker(GenericASTTraversal, object):
     def build_class(self, code):
         """Dump class definition, doc string and class body."""
 
-        assert iscode(code)
+        try:
+            assert iscode(code)
+        except:
+            from trepan.api import debug; debug()
+
         self.classes.append(self.currentclass)
         code = Code(code, self.scanner, self.currentclass)
 

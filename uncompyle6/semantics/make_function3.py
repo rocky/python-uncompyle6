@@ -1,5 +1,4 @@
-#  Copyright (c) 2015-2019 by Rocky Bernstein
-#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
+#  Copyright (c) 2015-2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -14,7 +13,8 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-All the crazy things we have to do to handle Python functions
+All the crazy things we have to do to handle Python functions in 3.0-3.5 or so.
+The saga of changes before and after is in other files.
 """
 from xdis.code import iscode, code_has_star_arg, code_has_star_star_arg
 from uncompyle6.scanner import Code
@@ -299,176 +299,6 @@ def make_function3_annotate(
     code._tokens = code._customize = None  # save memory
 
 
-def make_function2(self, node, is_lambda, nested=1, code_node=None):
-    """
-    Dump function defintion, doc string, and function body.
-    This code is specialied for Python 2.
-    """
-
-    # FIXME: call make_function3 if we are self.version >= 3.0
-    # and then simplify the below.
-
-    def build_param(ast, name, default):
-        """build parameters:
-            - handle defaults
-            - handle format tuple parameters
-        """
-        # if formal parameter is a tuple, the paramater name
-        # starts with a dot (eg. '.1', '.2')
-        if name.startswith("."):
-            # replace the name with the tuple-string
-            name = self.get_tuple_parameter(ast, name)
-            pass
-
-        if default:
-            value = self.traverse(default, indent="")
-            maybe_show_tree_param_default(self.showast, name, value)
-            result = "%s=%s" % (name, value)
-            if result[-2:] == "= ":  # default was 'LOAD_CONST None'
-                result += "None"
-            return result
-        else:
-            return name
-
-    # MAKE_FUNCTION_... or MAKE_CLOSURE_...
-    assert node[-1].kind.startswith("MAKE_")
-
-    args_node = node[-1]
-    if isinstance(args_node.attr, tuple):
-        # positional args are after kwargs
-        defparams = node[1 : args_node.attr[0] + 1]
-        pos_args, kw_args, annotate_argc = args_node.attr
-    else:
-        defparams = node[: args_node.attr]
-        kw_args = 0
-        pass
-
-    lambda_index = None
-
-    if lambda_index and is_lambda and iscode(node[lambda_index].attr):
-        assert node[lambda_index].kind == "LOAD_LAMBDA"
-        code = node[lambda_index].attr
-    else:
-        code = code_node.attr
-
-    assert iscode(code)
-    code = Code(code, self.scanner, self.currentclass)
-
-    # add defaults values to parameter names
-    argc = code.co_argcount
-    paramnames = list(code.co_varnames[:argc])
-
-    # defaults are for last n parameters, thus reverse
-    paramnames.reverse()
-    defparams.reverse()
-
-    try:
-        ast = self.build_ast(code._tokens,
-                             code._customize,
-                             is_lambda = is_lambda,
-                             noneInNames = ('None' in code.co_names))
-    except ParserError, p:
-        self.write(str(p))
-        if not self.tolerate_errors:
-            self.ERROR = p
-        return
-
-    kw_pairs = 0
-    indent = self.indent
-
-    # build parameters
-    tup = [paramnames, defparams]
-    params = [build_param(ast, name, default) for
-              name, default in map(lambda *tup:tup, *tup)]
-    params.reverse() # back to correct order
-
-    if code_has_star_arg(code):
-        params.append("*%s" % code.co_varnames[argc])
-        argc += 1
-
-    # dump parameter list (with default values)
-    if is_lambda:
-        self.write("lambda ", ", ".join(params))
-        # If the last statement is None (which is the
-        # same thing as "return None" in a lambda) and the
-        # next to last statement is a "yield". Then we want to
-        # drop the (return) None since that was just put there
-        # to have something to after the yield finishes.
-        # FIXME: this is a bit hoaky and not general
-        if (
-            len(ast) > 1
-            and self.traverse(ast[-1]) == "None"
-            and self.traverse(ast[-2]).strip().startswith("yield")
-        ):
-            del ast[-1]
-            # Now pick out the expr part of the last statement
-            ast_expr = ast[-1]
-            while ast_expr.kind != "expr":
-                ast_expr = ast_expr[0]
-            ast[-1] = ast_expr
-            pass
-    else:
-        self.write("(", ", ".join(params))
-
-    if kw_args > 0:
-        if not (4 & code.co_flags):
-            if argc > 0:
-                self.write(", *, ")
-            else:
-                self.write("*, ")
-            pass
-        else:
-            self.write(", ")
-
-        for n in node:
-            if n == "pos_arg":
-                continue
-            else:
-                self.preorder(n)
-            break
-        pass
-
-    if code_has_star_star_arg(code):
-        if argc > 0:
-            self.write(", ")
-        self.write("**%s" % code.co_varnames[argc + kw_pairs])
-
-    if is_lambda:
-        self.write(": ")
-    else:
-        self.println("):")
-
-    if (
-        len(code.co_consts) > 0 and code.co_consts[0] is not None and not is_lambda
-    ):  # ugly
-        # docstring exists, dump it
-        print_docstring(self, indent, code.co_consts[0])
-
-    code._tokens = None  # save memory
-    if not is_lambda:
-        assert ast == "stmts"
-
-    all_globals = find_all_globals(ast, set())
-
-    globals, nonlocals = find_globals_and_nonlocals(
-        ast, set(), set(), code, self.version
-    )
-
-    # Python 2 doesn't support the "nonlocal" statement
-    assert self.version >= 3.0 or not nonlocals
-
-    for g in sorted((all_globals & self.mod_globs) | globals):
-        self.println(self.indent, "global ", g)
-    self.mod_globs -= all_globals
-    has_none = "None" in code.co_names
-    rn = has_none and not find_none(ast)
-    self.gen_source(
-        ast, code.co_name, code._customize, is_lambda=is_lambda, returnNone=rn
-    )
-    code._tokens = None
-    code._customize = None  # save memory
-
-
 def make_function3(self, node, is_lambda, nested=1, code_node=None):
     """Dump function definition, doc string, and function body in
       Python version 3.0 and above
@@ -507,10 +337,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             - handle defaults
             - handle format tuple parameters
         """
-        if self.version >= 3.6:
-            value = default
-        else:
-            value = self.traverse(default, indent="")
+        value = self.traverse(default, indent="")
         maybe_show_tree_param_default(self.showast, name, value)
         if annotation:
             result = "%s: %s=%s" % (name, annotation, value)
@@ -546,9 +373,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     # not to be confused with keyword parameters which may appear after *.
     args_attr = args_node.attr
 
-    if isinstance(args_attr, tuple) or (
-        self.version >= 3.6 and isinstance(args_attr, list)
-    ):
+    if isinstance(args_attr, tuple):
         if len(args_attr) == 3:
             pos_args, kw_args, annotate_argc = args_attr
         else:
@@ -594,9 +419,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             lc_index = -3
             pass
 
-        if (
-            self.version <= 3.5
-            and len(node) > 2
+        if (len(node) > 2
             and (have_kwargs or node[lc_index].kind != "load_closure")
         ):
 
@@ -624,85 +447,11 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
                     default_values_start : default_values_start + args_node.attr[0]
                 ]
         else:
-            if self.version < 3.6:
-                defparams = node[: args_node.attr[0]]
-                kw_args = 0
-            else:
-                defparams = []
-                # FIXME: DRY with code below
-                default, kw_args, annotate_argc = args_node.attr[0:3]
-                if default:
-                    expr_node = node[0]
-                    if node[0] == "pos_arg":
-                        expr_node = expr_node[0]
-                    assert (
-                        expr_node == "expr"
-                    ), "expecting mkfunc default node to be an expr"
-                    if expr_node[0] == "LOAD_CONST" and isinstance(
-                        expr_node[0].attr, tuple
-                    ):
-                        defparams = [repr(a) for a in expr_node[0].attr]
-                    elif expr_node[0] in frozenset(("list", "tuple", "dict", "set")):
-                        defparams = [
-                            self.traverse(n, indent="") for n in expr_node[0][:-1]
-                        ]
-                else:
-                    defparams = []
-                pass
-    else:
-        if self.version < 3.6:
-            defparams = node[: args_node.attr]
+            defparams = node[: args_node.attr[0]]
             kw_args = 0
-        else:
-            default, kw_args, annotate, closure = args_node.attr
-            if default:
-                expr_node = node[0]
-                if node[0] == "pos_arg":
-                    expr_node = expr_node[0]
-                assert (
-                    expr_node == "expr"
-                ), "expecting mkfunc default node to be an expr"
-                if expr_node[0] == "LOAD_CONST" and isinstance(
-                    expr_node[0].attr, tuple
-                ):
-                    defparams = [repr(a) for a in expr_node[0].attr]
-                elif expr_node[0] in frozenset(("list", "tuple", "dict", "set")):
-                    defparams = [self.traverse(n, indent="") for n in expr_node[0][:-1]]
-            else:
-                defparams = []
-
-            i = -4
-            kw_pairs = 0
-            if closure:
-                # FIXME: fill in
-                annotate = node[i]
-                i -= 1
-            if annotate_argc:
-                # Turn into subroutine and DRY with other use
-                annotate_node = node[i]
-                if annotate_node == "expr":
-                    annotate_node = annotate_node[0]
-                    annotate_name_node = annotate_node[-1]
-                    if annotate_node == "dict" and annotate_name_node.kind.startswith(
-                        "BUILD_CONST_KEY_MAP"
-                    ):
-                        types = [
-                            self.traverse(n, indent="") for n in annotate_node[:-2]
-                        ]
-                        names = annotate_node[-2].attr
-                        l = len(types)
-                        assert l == len(names)
-                        for i in range(l):
-                            annotate_dict[names[i]] = types[i]
-                        pass
-                    pass
-                i -= 1
-            if kw_args:
-                kw_node = node[i]
-                if kw_node == "expr":
-                    kw_node = kw_node[0]
-                if kw_node == "dict":
-                    kw_pairs = kw_node[-1].attr
+    else:
+        defparams = node[: args_node.attr]
+        kw_args = 0
         pass
 
     if 3.0 <= self.version <= 3.2:
@@ -727,7 +476,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
 
     paramnames = list(scanner_code.co_varnames[:argc])
     if kwonlyargcount > 0:
-        if self.version <= 3.5 and is_lambda:
+        if is_lambda:
             kwargs = []
             for i in range(kwonlyargcount):
                 paramnames.append(scanner_code.co_varnames[argc+i])
@@ -778,19 +527,20 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     params.reverse()  # back to correct order
 
     if code_has_star_arg(code):
-        if self.version > 3.0:
-            star_arg = code.co_varnames[argc + kwonlyargcount]
-            if annotate_dict and star_arg in annotate_dict:
-                params.append("*%s: %s" % (star_arg, annotate_dict[star_arg]))
-            else:
-                params.append("*%s" % star_arg)
-                pass
-            if is_lambda and self.version <= 3.5:
-                params.reverse()
+        star_arg = code.co_varnames[argc + kwonlyargcount]
+        if annotate_dict and star_arg in annotate_dict:
+            params.append("*%s: %s" % (star_arg, annotate_dict[star_arg]))
         else:
-            params.append("*%s" % code.co_varnames[argc])
-        if not is_lambda or self.version >= 3.6:
+            params.append("*%s" % star_arg)
+            pass
+        if is_lambda:
+            params.reverse()
+        if not is_lambda:
             argc += 1
+        pass
+    elif is_lambda and kwonlyargcount > 0:
+        params.insert(0, "*")
+        kwonlyargcount = 0
 
     # dump parameter list (with default values)
     if is_lambda:
@@ -835,106 +585,37 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
                 self.write(", ")
                 ends_in_comma = True
 
-        if 3.0 <= self.version <= 3.5:
-            kw_args = [None] * kwonlyargcount
-            kw_nodes = node[0]
-            if kw_nodes == "kwargs":
-                for n in kw_nodes:
-                    name = eval(n[0].pattr)
-                    default = self.traverse(n[1], indent="")
-                    idx = kwargs.index(name)
-                    kw_args[idx] = "%s=%s" % (name, default)
-                    pass
+        kw_args = [None] * kwonlyargcount
+        kw_nodes = node[args_node.attr[0]]
+        if kw_nodes == "kwargs":
+            for n in kw_nodes:
+                name = eval(n[0].pattr)
+                default = self.traverse(n[1], indent="")
+                idx = kwargs.index(name)
+                kw_args[idx] = "%s=%s" % (name, default)
                 pass
+            pass
 
-            # FIXME: something weird is going on and the below
-            # might not be right. On 3.4 kw_nodes != "kwarg"
-            # because of some sort of type mismatch. I think
-            # the test is for versions earlier than 3.3
-            # on 3.5 if we have "kwarg" we still want to do this.
-            # Perhaps we should be testing that kw_nodes is iterable?
-            if kw_nodes != "kwarg" or self.version == 3.5:
-                other_kw = [c == None for c in kw_args]
-
-                for i, flag in enumerate(other_kw):
-                    if flag:
-                        if i < len(kwargs):
-                            kw_args[i] = "%s" % kwargs[i]
-                        else:
-                            del kw_args[i]
-                        pass
-
-                self.write(", ".join(kw_args))
-                ends_in_comma = False
-                pass
-        elif self.version >= 3.6:
-            # argc = node[-1].attr
-            # co = node[-3].attr
-            # argcount = co.co_argcount
-            # kwonlyargcount = co.co_kwonlyargcount
-
-            free_tup = ann_dict = kw_dict = default_tup = None
-            fn_bits = node[-1].attr
-
-            # Skip over:
-            #  MAKE_FUNCTION,
-            #  optional docstring
-            #  LOAD_CONST qualified name,
-            #  LOAD_CONST code object
-            index = -4  # Skip over:
-            if node[-2] == "docstring":
-                index = -5
-            else:
-                index = -4
-
-            if fn_bits[-1]:
-                free_tup = node[index]
-                index -= 1
-            if fn_bits[-2]:
-                ann_dict = node[index]
-                index -= 1
-            if fn_bits[-3]:
-                kw_dict = node[index]
-                index -= 1
-            if fn_bits[-4]:
-                default_tup = node[index]
-
-            if kw_dict == "expr":
-                kw_dict = kw_dict[0]
-
-            # FIXME: handle free_tup, annotate_dict, and default_tup
-            kw_args = [None] * kwonlyargcount
-
-            if kw_dict:
-                assert kw_dict == "dict"
-                defaults = [self.traverse(n, indent="") for n in kw_dict[:-2]]
-                names = eval(self.traverse(kw_dict[-2]))
-                assert len(defaults) == len(names)
-                sep = ""
-                # FIXME: possibly handle line breaks
-                for i, n in enumerate(names):
-                    idx = kwargs.index(n)
-                    if annotate_dict and n in annotate_dict:
-                        t = "%s: %s=%s" % (n, annotate_dict[n], defaults[i])
-                    else:
-                        t = "%s=%s" % (n, defaults[i])
-                    kw_args[idx] = t
-                    pass
-                pass
-
-            # handle others
+        # FIXME: something weird is going on and the below
+        # might not be right. On 3.4 kw_nodes != "kwarg"
+        # because of some sort of type mismatch. I think
+        # the test is for versions earlier than 3.3
+        # on 3.5 if we have "kwarg" we still want to do this.
+        # Perhaps we should be testing that kw_nodes is iterable?
+        if kw_nodes != "kwarg" or self.version == 3.5:
             other_kw = [c == None for c in kw_args]
 
             for i, flag in enumerate(other_kw):
                 if flag:
-                    n = kwargs[i]
-                    if ann_dict and n in annotate_dict:
-                        kw_args[i] = "%s: %s" % (n, annotate_dict[n])
+                    if i < len(kwargs):
+                        kw_args[i] = "%s" % kwargs[i]
                     else:
-                        kw_args[i] = "%s" % n
+                        del kw_args[i]
+                    pass
 
             self.write(", ".join(kw_args))
             ends_in_comma = False
+            pass
 
         pass
     else:
