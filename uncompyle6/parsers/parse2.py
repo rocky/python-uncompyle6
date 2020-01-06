@@ -701,6 +701,8 @@ class Python2Parser(PythonParser):
                             else:
                                 return lhs != "except_handler_else"
                             pass
+                        else:
+                            return False
                     pass
                 pass
             pass
