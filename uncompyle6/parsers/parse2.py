@@ -161,6 +161,17 @@ class Python2Parser(PythonParser):
         except_handler  ::= jmp_abs COME_FROM except_stmts
                              END_FINALLY
 
+        # except_handler_else is intended to be used only in a
+        # try_else. The disambiguation comes from reduction rule
+        # checking where we make sure that the JUMP_FORWARD mismatches
+        # the JUMP_FORWARD before the END_FINALLY
+        except_handler_else  ::= JUMP_FORWARD COME_FROM except_stmts
+                                 END_FINALLY come_froms
+
+        except_handler_else  ::= jmp_abs COME_FROM except_stmts
+                                 END_FINALLY
+
+
         except_stmts ::= except_stmt+
 
         except_stmt ::= except_cond1 except_suite
@@ -637,6 +648,8 @@ class Python2Parser(PythonParser):
             self.addRule(rule, nop_func)
             pass
 
+        self.check_reduce["except_handler"] = "tokens"
+        self.check_reduce["except_handler_else"] = "tokens"
         self.check_reduce["raise_stmt1"] = "tokens"
         self.check_reduce["assert_expr_and"] = "AST"
         self.check_reduce["tryelsestmt"] = "AST"
@@ -668,6 +681,29 @@ class Python2Parser(PythonParser):
             jmp_false = ast[1]
             jump_target = jmp_false[0].attr
             return jump_target > tokens[last].off2int()
+        elif lhs in ("except_handler, except_handler_else"):
+
+            # FIXME: expand this to other 2.x version
+            if self.version != 2.7: return False
+
+            if tokens[first] in ("JUMP_FORWARD", "JUMP_ABSOLUTE"):
+                first_jump_target = tokens[first].pattr
+                last = min(last, len(tokens)-1)
+                for i in range(last, first, -1):
+                    if tokens[i] == "END_FINALLY":
+                        i -= 1
+                        second_jump = tokens[i]
+                        if second_jump in ("JUMP_FORWARD", "JUMP_ABSOLUTE"):
+                            second_jump_target = second_jump.pattr
+                            equal_target = second_jump_target == first_jump_target
+                            if equal_target:
+                                return lhs != "except_handler"
+                            else:
+                                return lhs != "except_handler_else"
+                            pass
+                    pass
+                pass
+            pass
         elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
             for i in range(last-1, last-4, -1):
                 t = tokens[i]

@@ -110,11 +110,9 @@ case $PYVERSION in
 	    [test_capi.py]=1
 	    [test_curses.py]=1  # Possibly fails on its own but not detected
 	    [test_cmd_line.py]=1 # Takes too long, maybe hangs, or looking for interactive input?
-	    [test_compilex.py]=1 # Probably complex literals again. Investigate
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_doctest.py]=1 # Fails on its own
 	    [test_exceptions.py]=1
-	    [test_format.py]=1  # control flow. uncompyle2 does not have problems here
 	    [test_grammar.py]=1     # Too many stmts. Handle large stmts
 	    [test_grp.py]=1     # test takes to long, works interactively though
 	    [test_io.py]=1 # Test takes too long to run
@@ -137,7 +135,6 @@ case $PYVERSION in
 	    [test_unicode.py]=1  # Too long to run 11 seconds
 	    [test_xpickle.py]=1 # Runs ok but takes 72 seconds
 	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
-	    [test_zipimport.py]=1  # FIXME: improper try from try/else ?
         )
 	if (( batch )) ; then
 	    # Fails in crontab environment?
