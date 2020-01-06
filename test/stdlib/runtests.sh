@@ -35,6 +35,7 @@ case $PYVERSION in
 	    [test_decimal.py]=1  #
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_generators.py]=1  # Investigate - botched if/elif control flow badly
+	    [test_grammar.py]=1    # Too many stmts. Handle large stmts
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_pep247.py]=1 # Long test - might work? Control flow?
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
@@ -47,8 +48,7 @@ case $PYVERSION in
 	;;
     2.5)
 	SKIP_TESTS=(
-	    [test_contextlib.py]=1 # Syntax error - look at
-	    [test_dis.py]=1        # We change line numbers - duh!
+ 	    [test_dis.py]=1        # We change line numbers - duh!
 	    [test_grammar.py]=1    # Too many stmts. Handle large stmts
 	    [test_grp.py]=1        # Long test - might work Control flow?
 	    [test_pdb.py]=1        # Line-number specific
