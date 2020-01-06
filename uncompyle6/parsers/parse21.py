@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2020 Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -19,9 +19,6 @@ class Python21Parser(Python22Parser):
         for         ::= SETUP_LOOP expr for_iter store
                         l_stmts_opt _jump_back
                         POP_BLOCK COME_FROM
-
-        expr        ::= conditional
-        conditional ::= expr jmp_false expr JUMP_ABSOLUTE expr
         """
 
     def p_import21(self, args):
