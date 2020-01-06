@@ -17,7 +17,7 @@ All the crazy things we have to do to handle Python functions in 3.6 and above.
 The saga of changes before 3.6 is in other files.
 """
 from xdis.code import iscode, code_has_star_arg, code_has_star_star_arg
-from xdis.util import CO_GENERATOR
+from xdis.util import CO_GENERATOR, CO_ASYNC_GENERATOR
 from uncompyle6.scanner import Code
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.semantics.parser_error import ParserError
@@ -397,7 +397,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
     # add in "yield" just so that the compiler will mark
     # the GENERATOR bit of the function. See for example
     # Python 3.x's test_generator.py test program.
-    if code.co_flags & CO_GENERATOR:
+    if code.co_flags & (CO_GENERATOR | CO_ASYNC_GENERATOR):
         need_bogus_yield = True
         for token in scanner_code._tokens:
             if token == "YIELD_VALUE":
