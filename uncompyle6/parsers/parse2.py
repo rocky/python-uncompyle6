@@ -641,6 +641,7 @@ class Python2Parser(PythonParser):
         self.check_reduce["tryelsestmtl"] = "AST"
         self.check_reduce["aug_assign2"] = "AST"
         self.check_reduce["or"] = "AST"
+        self.check_reduce["ifstmt"] = "tokens"
         # self.check_reduce['_stmts'] = 'AST'
 
         # Dead code testing...
@@ -665,6 +666,14 @@ class Python2Parser(PythonParser):
             jmp_false = ast[1]
             jump_target = jmp_false[0].attr
             return jump_target > tokens[last].off2int()
+        elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
+            for i in range(last-1, last-4, -1):
+                t = tokens[i]
+                if t == "JUMP_FORWARD":
+                    return t.attr > tokens[min(last, len(tokens)-1)].off2int()
+                elif t not in ("POP_TOP", "COME_FROM"):
+                    break
+            pass
         elif lhs in ("raise_stmt1",):
             # We will assume 'LOAD_ASSERT' will be handled by an assert grammar rule
             return tokens[first] == "LOAD_ASSERT" and (last >= len(tokens))

@@ -32,11 +32,11 @@ typeset -A SKIP_TESTS
 case $PYVERSION in
     2.4)
 	SKIP_TESTS=(
+	    [test_decimal.py]=1  #
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_pep247.py]=1 # Long test - might work? Control flow?
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
-	    [test_pyclbr.py]=1 # Investigate
 	    [test_socketserver.py]=1 # -- test takes too long to run: 40 seconds
 	    [test_threading.py]=1 # test takes too long to run: 11 seconds
 	    [test_thread.py]=1 # test takes too long to run: 36 seconds
