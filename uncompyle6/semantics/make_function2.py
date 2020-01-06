@@ -204,20 +204,5 @@ def make_function2(self, node, is_lambda, nested=1, code_node=None):
         ast, code.co_name, code._customize, is_lambda=is_lambda, returnNone=rn
     )
 
-    # In obscure cases, a function may be a generator but the "yield"
-    # was optimized away. Here, we need to put in unreachable code to
-    # add in "yield" just so that the compiler will mark
-    # the GENERATOR bit of the function. See for example
-    # Python 3.x's test_generator.py test program.
-    if code.co_flags & CO_GENERATOR:
-        need_bogus_yield = True
-        for token in scanner_code._tokens:
-            if token == "YIELD_VALUE":
-                need_bogus_yield = False
-                break
-            pass
-        if need_bogus_yield:
-            self.template_engine(("%|if False:\n%+%|yield None%-",), node)
-
     code._tokens = None # save memory
     code._customize = None  # save memory
