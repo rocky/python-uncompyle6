@@ -271,7 +271,6 @@ case $PYVERSION in
 	    [test_compare.py]=1 # test assert fail - investigate
 	    [test_compile.py]=1
 	    [test_configparser.py]=1
-	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
 	    [test_contextlib_async.py]=1 # Investigate
 	    [test_context.py]=1
 	    [test_coroutines.py]=1 # Parse error
@@ -293,7 +292,6 @@ case $PYVERSION in
 	;;
     3.8)
 	SKIP_TESTS=(
-	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
 	    [test_collections.py]=1  # Investigate
 	    [test_decorators.py]=1  # Control flow wrt "if elif"
 	    [test_exceptions.py]=1   # parse error
