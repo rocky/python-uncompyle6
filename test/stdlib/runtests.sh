@@ -232,9 +232,8 @@ case $PYVERSION in
     3.5)
 	SKIP_TESTS=(
 	    [test_ast.py]=1  # line 379, in test_literal_eval  self.assertEqual(ast.literal_eval('b"hi"'), 'hi')
-	    [test_atexit.py]=1  #
+	    [test_atexit.py]=1
 	    [test_builtin.py]=1  #
-	    [test_compare.py]=1
 	    [test_dis.py]=1   # We change line numbers - duh!
 	)
 	if (( batch )) ; then
@@ -247,11 +246,9 @@ case $PYVERSION in
 
     3.6)
 	SKIP_TESTS=(
-	    [test_ast.py]=1  #
 	    [test_atexit.py]=1  #
 	    [test_bdb.py]=1  #
-	    [test_builtin.py]=1  #
-	    [test_compare.py]=1
+	    [test_builtin.py]=1  # Fails on its own
 	    [test_compile.py]=1
 	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
 	    [test_contextlib_async.py]=1 # Investigate
@@ -263,7 +260,7 @@ case $PYVERSION in
 	;;
     3.7)
 	SKIP_TESTS=(
-	    [test_ast.py]=1  #
+	    [test_ast.py]=1  # test assertion error
 	    [test_atexit.py]=1  #
 	    [test_baseexception.py]=1  #
 	    [test_bdb.py]=1  #
@@ -271,7 +268,7 @@ case $PYVERSION in
 	    [test_builtin.py]=1  # parser error
 	    [test_cmdline.py]=1  # Interactive?
 	    [test_collections.py]=1  # Fixed I think in decompyle3 - pull from there
-	    [test_compare.py]=1
+	    [test_compare.py]=1 # test assert fail - investigate
 	    [test_compile.py]=1
 	    [test_configparser.py]=1
 	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
