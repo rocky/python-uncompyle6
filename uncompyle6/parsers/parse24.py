@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018 Rocky Bernstein
+#  Copyright (c) 2016-2018, 2020 Rocky Bernstein
 """
 spark grammar differences over Python2.5 for Python 2.4.
 """
@@ -56,6 +56,12 @@ class Python24Parser(Python25Parser):
         kv2    ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
         '''
 
+    def remove_rules_24(self):
+        self.remove_rules("""
+        expr ::= conditional
+        """)
+
+
     def customize_grammar_rules(self, tokens, customize):
         self.remove_rules("""
         gen_comp_body ::= expr YIELD_VALUE POP_TOP
@@ -72,6 +78,7 @@ class Python24Parser(Python25Parser):
         stmt ::= withasstmt
         """)
         super(Python24Parser, self).customize_grammar_rules(tokens, customize)
+        self.remove_rules_24()
         if self.version == 2.4:
             self.check_reduce['nop_stmt'] = 'tokens'
 
