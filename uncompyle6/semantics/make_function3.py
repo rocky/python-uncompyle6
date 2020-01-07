@@ -17,6 +17,7 @@ All the crazy things we have to do to handle Python functions in 3.0-3.5 or so.
 The saga of changes before and after is in other files.
 """
 from xdis.code import iscode, code_has_star_arg, code_has_star_star_arg
+from xdis.util import CO_GENERATOR
 from uncompyle6.scanner import Code
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.semantics.parser_error import ParserError
@@ -485,9 +486,8 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             kwargs = list(scanner_code.co_varnames[argc : argc + kwonlyargcount])
 
     # defaults are for last n parameters when not in a lambda, thus reverse
-    if not is_lambda:
-        paramnames.reverse()
-        defparams.reverse()
+    paramnames.reverse()
+    defparams.reverse()
 
     try:
         ast = self.build_ast(scanner_code._tokens,
@@ -645,7 +645,6 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
         # docstring exists, dump it
         print_docstring(self, self.indent, code.co_consts[0])
 
-    scanner_code._tokens = None  # save memory
     assert ast == "stmts"
 
     all_globals = find_all_globals(ast, set())
@@ -665,5 +664,21 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     self.gen_source(
         ast, code.co_name, scanner_code._customize, is_lambda=is_lambda, returnNone=rn
     )
-    scanner_code._tokens = None
+
+    # In obscure cases, a function may be a generator but the "yield"
+    # was optimized away. Here, we need to put in unreachable code to
+    # add in "yield" just so that the compiler will mark
+    # the GENERATOR bit of the function. See for example
+    # Python 3.x's test_generator.py test program.
+    if code.co_flags & CO_GENERATOR:
+        need_bogus_yield = True
+        for token in scanner_code._tokens:
+            if token in ("YIELD_VALUE", "YIELD_FROM"):
+                need_bogus_yield = False
+                break
+            pass
+        if need_bogus_yield:
+            self.template_engine(("%|if False:\n%+%|yield None%-",), node)
+
+    scanner_code._tokens = None # save memory
     scanner_code._customize = None  # save memory

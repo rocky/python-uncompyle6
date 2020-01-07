@@ -231,7 +231,7 @@ See Also
 * https://github.com/rocky/python-xdis : Cross Python version disassembler
 * https://github.com/rocky/python-xasm : Cross Python version assembler
 * https://github.com/rocky/python-uncompyle6/wiki : Wiki Documents which describe the code and aspects of it in more detail
-* https://github.com/zrax/pycdc : The README for this C++ code syas it aims to support all versions of Python. It is best for Python versions around 2.7 and 3.3 when the code was initially developed. Accuracy for current versions of Python3 and early versions of Python is lacking. Without major effort, it is unlikely it can be made to support current Python 3. See its `issue tracker <https://github.com/zrax/pycdc/issues>`_ for details. Currently lightly maintained.
+* https://github.com/zrax/pycdc : The README for this C++ code says it aims to support all versions of Python. It is best for Python versions around 2.7 and 3.3 when the code was initially developed. Accuracy for current versions of Python3 and early versions of Python is lacking. Without major effort, it is unlikely it can be made to support current Python 3. See its `issue tracker <https://github.com/zrax/pycdc/issues>`_ for details. Currently lightly maintained.
 
 
 .. _trepan: https://pypi.python.org/pypi/trepan2g

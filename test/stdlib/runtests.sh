@@ -48,7 +48,7 @@ case $PYVERSION in
 	;;
     2.5)
 	SKIP_TESTS=(
-	    [test_dis.py]=1        # We change line numbers - duh!
+ 	    [test_dis.py]=1        # We change line numbers - duh!
 	    [test_grammar.py]=1    # Too many stmts. Handle large stmts
 	    [test_grp.py]=1        # Long test - might work Control flow?
 	    [test_pdb.py]=1        # Line-number specific
@@ -110,11 +110,9 @@ case $PYVERSION in
 	    [test_capi.py]=1
 	    [test_curses.py]=1  # Possibly fails on its own but not detected
 	    [test_cmd_line.py]=1 # Takes too long, maybe hangs, or looking for interactive input?
-	    [test_compilex.py]=1 # Probably complex literals again. Investigate
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_doctest.py]=1 # Fails on its own
 	    [test_exceptions.py]=1
-	    [test_format.py]=1  # control flow. uncompyle2 does not have problems here
 	    [test_grammar.py]=1     # Too many stmts. Handle large stmts
 	    [test_grp.py]=1     # test takes to long, works interactively though
 	    [test_io.py]=1 # Test takes too long to run
@@ -137,7 +135,6 @@ case $PYVERSION in
 	    [test_unicode.py]=1  # Too long to run 11 seconds
 	    [test_xpickle.py]=1 # Runs ok but takes 72 seconds
 	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
-	    [test_zipimport.py]=1  # FIXME: improper try from try/else ?
         )
 	if (( batch )) ; then
 	    # Fails in crontab environment?
@@ -232,9 +229,8 @@ case $PYVERSION in
     3.5)
 	SKIP_TESTS=(
 	    [test_ast.py]=1  # line 379, in test_literal_eval  self.assertEqual(ast.literal_eval('b"hi"'), 'hi')
-	    [test_atexit.py]=1  #
+	    [test_atexit.py]=1
 	    [test_builtin.py]=1  #
-	    [test_compare.py]=1
 	    [test_dis.py]=1   # We change line numbers - duh!
 	)
 	if (( batch )) ; then
@@ -247,11 +243,9 @@ case $PYVERSION in
 
     3.6)
 	SKIP_TESTS=(
-	    [test_ast.py]=1  #
 	    [test_atexit.py]=1  #
 	    [test_bdb.py]=1  #
-	    [test_builtin.py]=1  #
-	    [test_compare.py]=1
+	    [test_builtin.py]=1  # Fails on its own
 	    [test_compile.py]=1
 	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
 	    [test_contextlib_async.py]=1 # Investigate
@@ -263,7 +257,7 @@ case $PYVERSION in
 	;;
     3.7)
 	SKIP_TESTS=(
-	    [test_ast.py]=1  #
+	    [test_ast.py]=1  # test assertion error
 	    [test_atexit.py]=1  #
 	    [test_baseexception.py]=1  #
 	    [test_bdb.py]=1  #
@@ -271,10 +265,9 @@ case $PYVERSION in
 	    [test_builtin.py]=1  # parser error
 	    [test_cmdline.py]=1  # Interactive?
 	    [test_collections.py]=1  # Fixed I think in decompyle3 - pull from there
-	    [test_compare.py]=1
+	    [test_compare.py]=1 # test assert fail - investigate
 	    [test_compile.py]=1
 	    [test_configparser.py]=1
-	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
 	    [test_contextlib_async.py]=1 # Investigate
 	    [test_context.py]=1
 	    [test_coroutines.py]=1 # Parse error
@@ -296,7 +289,6 @@ case $PYVERSION in
 	;;
     3.8)
 	SKIP_TESTS=(
-	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
 	    [test_collections.py]=1  # Investigate
 	    [test_decorators.py]=1  # Control flow wrt "if elif"
 	    [test_exceptions.py]=1   # parse error

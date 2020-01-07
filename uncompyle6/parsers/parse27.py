@@ -60,13 +60,13 @@ class Python27Parser(Python2Parser):
                            COME_FROM_FINALLY suite_stmts_opt END_FINALLY
 
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           except_handler else_suite COME_FROM
+                           except_handler_else else_suite COME_FROM
 
         tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           except_handler else_suitel JUMP_BACK COME_FROM
+                           except_handler_else else_suitel JUMP_BACK COME_FROM
 
         tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           except_handler else_suitel
+                           except_handler_else else_suitel
 
         except_stmt ::= except_cond2 except_suite
 
@@ -216,6 +216,10 @@ class Python27Parser(Python2Parser):
         super(Python27Parser, self).customize_grammar_rules(tokens, customize)
         self.check_reduce["and"] = "AST"
         self.check_reduce["conditional"] = "AST"
+
+        self.check_reduce["except_handler"] = "tokens"
+        self.check_reduce["except_handler_else"] = "tokens"
+
         # self.check_reduce["or"] = "AST"
         self.check_reduce["raise_stmt1"] = "AST"
         self.check_reduce["iflaststmtl"] = "AST"

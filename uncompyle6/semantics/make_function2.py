@@ -18,6 +18,7 @@ All the crazy things we have to do to handle Python functions in Python before 3
 The saga of changes continues in 3.0 and above and in other files.
 """
 from xdis.code import iscode, code_has_star_arg, code_has_star_star_arg
+from xdis.util import CO_GENERATOR
 from uncompyle6.scanner import Code
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6 import PYTHON3
@@ -178,7 +179,6 @@ def make_function2(self, node, is_lambda, nested=1, code_node=None):
         # docstring exists, dump it
         print_docstring(self, indent, code.co_consts[0])
 
-    code._tokens = None  # save memory
     if not is_lambda:
         assert ast == "stmts"
 
@@ -199,5 +199,6 @@ def make_function2(self, node, is_lambda, nested=1, code_node=None):
     self.gen_source(
         ast, code.co_name, code._customize, is_lambda=is_lambda, returnNone=rn
     )
-    code._tokens = None
+
+    code._tokens = None # save memory
     code._customize = None  # save memory
