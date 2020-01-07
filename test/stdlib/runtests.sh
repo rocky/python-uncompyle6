@@ -106,7 +106,6 @@ case $PYVERSION in
 	    [test_httplib.py]=1  # Ok, but POWER has problems with this
 	    [test_pdb.py]=1 # Ok, but POWER has problems with this
 
-	    [test_capi.py]=1
 	    [test_curses.py]=1  # Possibly fails on its own but not detected
 	    [test_cmd_line.py]=1 # Takes too long, maybe hangs, or looking for interactive input?
 	    [test_dis.py]=1   # We change line numbers - duh!
@@ -116,19 +115,15 @@ case $PYVERSION in
 	    [test_grp.py]=1     # test takes to long, works interactively though
 	    [test_io.py]=1 # Test takes too long to run
 	    [test_ioctl.py]=1 # Test takes too long to run
-	    [test_long.py]=1
-	    [test_long_future.py]=1
 	    [test_math.py]=1
 	    [test_memoryio.py]=1 # FIX
 	    [test_modulefinder.py]=1 # FIX
 	    [test_multiprocessing.py]=1 # On uncompyle2, takes 24 secs
 	    [test_pwd.py]=1     # Takes too long
-	    [test_pty.py]=1
 	    [test_runpy.py]=1   # Long and fails on its own
 	    [test_select.py]=1  # Runs okay but takes 11 seconds
 	    [test_socket.py]=1  # Runs ok but takes 22 seconds
 	    [test_subprocess.py]=1 # Runs ok but takes 22 seconds
-	    [test_sys_setprofile.py]=1
 	    [test_sys_settrace.py]=1 # Line numbers are expected to be different
 	    [test_traceback.py]=1 # Line numbers change - duh.
 	    [test_unicode.py]=1  # Too long to run 11 seconds
