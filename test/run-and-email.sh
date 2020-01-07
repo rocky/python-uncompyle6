@@ -32,6 +32,14 @@ for VERSION in $PYVERSIONS ; do
 	MAX_TESTS=700
     elif [[ $VERSION == '3.6.9' ]] ; then
 	MAX_TESTS=400
+    elif [[ $VERSION == '3.7.6' ]] ; then
+	continue
+    elif [[ $VERSION == '3.8.1' ]] ; then
+	continue
+    elif [[ $VERSION == '3.1.5' ]] ; then
+	continue
+    elif [[ $VERSION == '3.0.1' ]] ; then
+	continue
     else
 	MAX_TESTS=800
     fi
