@@ -705,12 +705,14 @@ class Python2Parser(PythonParser):
                 pass
             pass
         elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
-            for i in range(last-1, last-4, -1):
-                t = tokens[i]
-                if t == "JUMP_FORWARD":
-                    return t.attr > tokens[min(last, len(tokens)-1)].off2int()
-                elif t not in ("POP_TOP", "COME_FROM"):
-                    break
+            # FIXME: move this into 2.7-specific code?
+            if self.version == 2.7:
+                for i in range(last-1, last-4, -1):
+                    t = tokens[i]
+                    if t == "JUMP_FORWARD":
+                        return t.attr > tokens[min(last, len(tokens)-1)].off2int()
+                    elif t not in ("POP_TOP", "COME_FROM"):
+                        break
             pass
         elif lhs in ("raise_stmt1",):
             # We will assume 'LOAD_ASSERT' will be handled by an assert grammar rule
@@ -734,9 +736,12 @@ class Python2Parser(PythonParser):
                 # ti will be invalid here.
                 if come_from == "COME_FROM":
                     first_come_from = except_handler[-1]
+                elif come_from == "END_FINALLY":
+                    return False
                 else:
                     assert come_from == "come_froms"
                     first_come_from = come_from[0]
+
                 leading_jump = except_handler[0]
 
                 # We really don't care that this is a jump per-se. But
