@@ -646,6 +646,7 @@ class Python2Parser(PythonParser):
             self.addRule(rule, nop_func)
             pass
 
+        self.check_reduce["and"] = "AST"
         self.check_reduce["except_handler"] = "tokens"
         self.check_reduce["except_handler_else"] = "tokens"
         self.check_reduce["raise_stmt1"] = "tokens"
@@ -666,10 +667,34 @@ class Python2Parser(PythonParser):
             return False
         lhs = rule[0]
 
+        if rule == ("and", ("expr", "jmp_false", "expr", "\\e_come_from_opt")):
+            # If the instruction after the instructions forming the "and"  is an "YIELD_VALUE"
+            # then this is probably an "if" inside a comprehension.
+            if tokens[last] == "YIELD_VALUE":
+                # Note: We might also consider testing last+1 being "POP_TOP"
+                return True
+
+            # Test that jump_false jump somewhere beyond the end of the "and"
+            # it might not be exactly the end of the "and" because this and can
+            # be a part of a larger condition. Oddly in 2.7 there doesn't seem to be
+            # an optimization where the "and" jump_false is back to a loop.
+            jmp_false = ast[1]
+            if jmp_false[0] == "POP_JUMP_IF_FALSE":
+                while (first < last and isinstance(tokens[last].offset, str)):
+                    last -= 1
+                if jmp_false[0].attr < tokens[last].offset:
+                    return True
+
+            # Test that jmp_false jumps to the end of "and"
+            # or that it jumps to the same place as the end of "and"
+            jmp_false = ast[1][0]
+            jmp_target = jmp_false.offset + jmp_false.attr + 3
+            return not (jmp_target == tokens[last].offset or
+                        tokens[last].pattr == jmp_false.pattr)
         # Dead code testing...
         # if lhs == 'while1elsestmt':
         #     from trepan.api import debug; debug()
-        if (
+        elif (
             lhs in ("aug_assign1", "aug_assign2")
             and ast[0]
             and ast[0][0] in ("and", "or")
@@ -703,16 +728,6 @@ class Python2Parser(PythonParser):
                             return False
                     pass
                 pass
-            pass
-        elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
-            # FIXME: move this into 2.7-specific code?
-            if self.version == 2.7:
-                for i in range(last-1, last-4, -1):
-                    t = tokens[i]
-                    if t == "JUMP_FORWARD":
-                        return t.attr > tokens[min(last, len(tokens)-1)].off2int()
-                    elif t not in ("POP_TOP", "COME_FROM"):
-                        break
             pass
         elif lhs in ("raise_stmt1",):
             # We will assume 'LOAD_ASSERT' will be handled by an assert grammar rule
