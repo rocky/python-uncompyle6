@@ -74,4 +74,4 @@ done
 typeset -i RUN_ENDTIME=$(date +%s)
 (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
 elapsed_time=$(displaytime $time_diff)
-echo "Run complete $elapsed_time for versions $PYVERSION" | mail -s "pyenv weak verify in $elapsed_time" ${EMAIL}
+echo "Run complete $elapsed_time for versions $PYVERSIONS" | mail -s "pyenv weak verify in $elapsed_time" ${EMAIL}
