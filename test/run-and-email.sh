@@ -14,23 +14,23 @@ function displaytime {
     printf '%d seconds\n' $S
 }
 
-PYVERSION=${PYVERSION:-"3.5.5 2.7.14 3.2.6 3.3.7 3.4.8 2.6.9 3.6.4"}
-# PYVERSION=${PYVERSION:-"3.5.5"}
+. ../admin-tools/pyenv-newer-versions
+# PYVERSIONS=${PYVERSIONS:-"3.7.6"}
 
 USER=${USER:-rocky}
 EMAIL=${EMAIL:-rb@dustyfeet.com}
 MAX_TESTS=${MAX_TESTS:-800}
 typeset -i RUN_STARTTIME=$(date +%s)
 
-for VERSION in $PYVERSION ; do
+for VERSION in $PYVERSIONS ; do
     typeset -i rc=0
     LOGFILE=/tmp/pyenvlib-$VERSION-$$.log
 
-    if [[ $VERSION == '3.5.5' ]] ; then
+    if [[ $VERSION == '3.5.6' ]] ; then
 	MAX_TESTS=224
     elif [[ $VERSION == '3.2.6' ]] ; then
 	MAX_TESTS=700
-    elif [[ $VERSION == '3.6.4' ]] ; then
+    elif [[ $VERSION == '3.6.9' ]] ; then
 	MAX_TESTS=400
     else
 	MAX_TESTS=800
