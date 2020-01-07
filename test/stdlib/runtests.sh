@@ -71,26 +71,16 @@ case $PYVERSION in
     2.6)
 	SKIP_TESTS=(
 	    [test_aepack.py]=1 # Fails on its own
- 	    [test_cmath.py]=1  # Investigate: probably fixable like in later versions
- 	    [test_coercion.py]=1
-	    [test_codeccallbacks.py]=1  # Fails on its own
 	    [test_compile.py]=1  # Intermittent - sometimes works and sometimes doesn't
  	    [test_dis.py]=1        # We change line numbers - duh!
-	    [test_exceptions.py]=1
-	    [test_float.py]=1  # Investigate: probably fixable like in later versions
 	    [test_generators.py]=1 # Investigate
 	    [test_grp.py]=1      # Long test - might work Control flow?
-	    [test_itertools.py]=1  # complex numbers. Fix as we do in later versions
-	    [test_math.py]=1  # Probably fixable like later versions
 	    [test_pep352.py]=1     # Investigate
-	    [test_pprint.py]=1
 	    [test_pyclbr.py]=1 # Investigate
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_trace.py]=1  # Line numbers are expected to be different
-	    [test_types.py]=1  # Probably fixable like later versions
-	    [test_urllib2net.py]=1 # Fails on its own. May need interactive input
 	    [test_zipfile64.py]=1  # Skip Long test
-	    [test_zlib.py]=1  # Takes too long to run (more than 3 minutes 39 seconds)
+	    [test_zlib.py]=1  #
 	    # .pyenv/versions/2.6.9/lib/python2.6/lib2to3/refactor.pyc
 	    # .pyenv/versions/2.6.9/lib/python2.6/pyclbr.pyc
 	)
@@ -362,7 +352,10 @@ for file in $files; do
 
     # If the fails *before* decompiling, skip it!
     typeset -i STARTTIME=$(date +%s)
-    if ! python $file >/dev/null 2>&1 ; then
+    if [ ! -r $file ]; then
+	echo "Skipping test $file -- not readable. Does it exist?"
+	continue
+    elif ! python $file >/dev/null 2>&1 ; then
 	echo "Skipping test $file -- it fails on its own"
 	continue
     fi
