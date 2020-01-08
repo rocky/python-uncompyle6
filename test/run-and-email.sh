@@ -15,13 +15,14 @@ function displaytime {
 }
 
 . ../admin-tools/pyenv-newer-versions
-# PYVERSIONS=${PYVERSIONS:-"3.7.6"}
 
 USER=${USER:-rocky}
 EMAIL=${EMAIL:-rb@dustyfeet.com}
 MAX_TESTS=${MAX_TESTS:-800}
 typeset -i RUN_STARTTIME=$(date +%s)
 
+# PYVERSIONS="3.5.6"
+actual_versions=""
 for VERSION in $PYVERSIONS ; do
     typeset -i rc=0
     LOGFILE=/tmp/pyenvlib-$VERSION-$$.log
@@ -40,9 +41,13 @@ for VERSION in $PYVERSIONS ; do
 	continue
     elif [[ $VERSION == '3.0.1' ]] ; then
 	continue
+    elif [[ $VERSION == '2.6.9' ]] ; then
+	MAX_TESTS=1300
+	continue
     else
 	MAX_TESTS=800
     fi
+    actual_versions="$actual_versions $VERSION"
 
     if ! pyenv local $VERSION ; then
 	rc=1
@@ -50,7 +55,9 @@ for VERSION in $PYVERSIONS ; do
       echo Python Version $(pyenv local) > $LOGFILE
       echo "" >> $LOGFILE
       typeset -i ALL_FILES_STARTTIME=$(date +%s)
-      python ./test_pyenvlib.py --max ${MAX_TESTS} --syntax-verify --$VERSION  >>$LOGFILE 2>&1
+      cmd="python ./test_pyenvlib.py --max ${MAX_TESTS} --syntax-verify --$VERSION"
+      echo "$cmd" >>$LOGFILE 2>&1
+      $cmd >>$LOGFILE 2>&1
       rc=$?
 
       echo Python Version $(pyenv local) >> $LOGFILE
@@ -74,4 +81,4 @@ done
 typeset -i RUN_ENDTIME=$(date +%s)
 (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
 elapsed_time=$(displaytime $time_diff)
-echo "Run complete $elapsed_time for versions $PYVERSIONS" | mail -s "pyenv weak verify in $elapsed_time" ${EMAIL}
+echo "Run complete $elapsed_time for versions $actual_versions" | mail -s "pyenv weak verify in $elapsed_time" ${EMAIL}
