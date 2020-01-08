@@ -71,6 +71,7 @@ case $PYVERSION in
     2.6)
 	SKIP_TESTS=(
 	    [test_aepack.py]=1 # Fails on its own
+ 	    [test_doctest.py]=1    #
  	    [test_dis.py]=1        # We change line numbers - duh!
 	    [test_generators.py]=1 # Investigate
 	    [test_grp.py]=1      # Long test - might work Control flow?
@@ -239,6 +240,7 @@ case $PYVERSION in
 
     3.6)
 	SKIP_TESTS=(
+	    [test_aifc.py]=1  #
 	    [test_atexit.py]=1  #
 	    [test_bdb.py]=1  #
 	    [test_buffer.py]=1  # parse error
