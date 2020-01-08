@@ -71,13 +71,10 @@ case $PYVERSION in
     2.6)
 	SKIP_TESTS=(
 	    [test_aepack.py]=1 # Fails on its own
-	    [test_compile.py]=1  # Intermittent - sometimes works and sometimes doesn't
  	    [test_dis.py]=1        # We change line numbers - duh!
 	    [test_generators.py]=1 # Investigate
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_pep352.py]=1     # Investigate
-	    [test_pprint.py]=1
-	    [test_pty.py]=1
 	    [test_pyclbr.py]=1 # Investigate
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
 	    [test_trace.py]=1  # Line numbers are expected to be different
