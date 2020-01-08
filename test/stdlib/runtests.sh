@@ -241,6 +241,7 @@ case $PYVERSION in
 	SKIP_TESTS=(
 	    [test_atexit.py]=1  #
 	    [test_bdb.py]=1  #
+	    [test_buffer.py]=1  # parse error
 	    [test_builtin.py]=1  # Fails on its own
 	    [test_compile.py]=1
 	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation

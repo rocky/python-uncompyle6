@@ -1459,6 +1459,7 @@ class Python3Parser(PythonParser):
         self.check_reduce["while1stmt"] = "noAST"
         self.check_reduce["while1elsestmt"] = "noAST"
         self.check_reduce["ifelsestmt"] = "AST"
+        self.check_reduce["ifstmt"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
         if not PYTHON3:
             self.check_reduce["kwarg"] = "noAST"
@@ -1479,50 +1480,24 @@ class Python3Parser(PythonParser):
         elif lhs == "kwarg":
             arg = tokens[first].attr
             return not (isinstance(arg, str) or isinstance(arg, unicode))
-        elif lhs == "while1elsestmt":
-
-            n = len(tokens)
-            if last == n:
-                # Adjust for fuzziness in parsing
+        elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
+            condition_jump = ast[0].last_child()
+            if condition_jump.kind.startswith("POP_JUMP_IF"):
+                condition_jump2 = tokens[min(last-1, len(tokens)-1)]
+                if condition_jump2.kind.startswith("POP_JUMP_IF"):
+                    return condition_jump.attr == condition_jump2.attr
+                # if condition_jump.attr < condition_jump2.off2int():
+                #     print("XXX", first, last)
+                #     for t in range(first, last): print(tokens[t])
+                #     from trepan.api import debug; debug()
+                # return condition_jump.attr < condition_jump2.off2int()
+            return False
+        elif lhs == "ifelsestmt" and rule[1][2] == "jump_forward_else":
+            last = min(last, len(tokens)-1)
+            if tokens[last].off2int() == -1:
                 last -= 1
-
-            if tokens[last] == "COME_FROM_LOOP":
-                last -= 1
-            elif tokens[last - 1] == "COME_FROM_LOOP":
-                last -= 2
-            if tokens[last] in ("JUMP_BACK", "CONTINUE"):
-                # These indicate inside a loop, but token[last]
-                # should not be in a loop.
-                # FIXME: Not quite right: refine by using target
-                return True
-
-            # if SETUP_LOOP target spans the else part, then this is
-            # not while1else. Also do for whileTrue?
-            last += 1
-            while last < n and isinstance(tokens[last].offset, str):
-                last += 1
-            if last == n:
-                return False
-            # 3.8+ Doesn't have SETUP_LOOP
-            return self.version < 3.8 and tokens[first].attr > tokens[last].offset
-
-        elif rule == (
-            "try_except",
-            (
-                "SETUP_EXCEPT",
-                "suite_stmts_opt",
-                "POP_BLOCK",
-                "except_handler",
-                "opt_come_from_except",
-            ),
-        ):
-            come_from_except = ast[-1]
-            if come_from_except[0] == "COME_FROM":
-                # There should be at last two COME_FROMs, one from an
-                # exception handler and one from the try. Otherwise
-                # we have a try/else.
-                return True
-            pass
+            jump_forward_else = ast[2]
+            return tokens[first].off2int() <= jump_forward_else[0].attr < tokens[last].off2int()
         elif lhs == "while1stmt":
 
             # If there is a fall through to the COME_FROM_LOOP, then this is
@@ -1571,6 +1546,50 @@ class Python3Parser(PythonParser):
                 if offset != tokens[first].attr:
                     return True
             return False
+        elif lhs == "while1elsestmt":
+
+            n = len(tokens)
+            if last == n:
+                # Adjust for fuzziness in parsing
+                last -= 1
+
+            if tokens[last] == "COME_FROM_LOOP":
+                last -= 1
+            elif tokens[last - 1] == "COME_FROM_LOOP":
+                last -= 2
+            if tokens[last] in ("JUMP_BACK", "CONTINUE"):
+                # These indicate inside a loop, but token[last]
+                # should not be in a loop.
+                # FIXME: Not quite right: refine by using target
+                return True
+
+            # if SETUP_LOOP target spans the else part, then this is
+            # not while1else. Also do for whileTrue?
+            last += 1
+            while last < n and isinstance(tokens[last].offset, str):
+                last += 1
+            if last == n:
+                return False
+            # 3.8+ Doesn't have SETUP_LOOP
+            return self.version < 3.8 and tokens[first].attr > tokens[last].offset
+
+        elif rule == (
+            "try_except",
+            (
+                "SETUP_EXCEPT",
+                "suite_stmts_opt",
+                "POP_BLOCK",
+                "except_handler",
+                "opt_come_from_except",
+            ),
+        ):
+            come_from_except = ast[-1]
+            if come_from_except[0] == "COME_FROM":
+                # There should be at last two COME_FROMs, one from an
+                # exception handler and one from the try. Otherwise
+                # we have a try/else.
+                return True
+            pass
         elif rule == (
             "ifelsestmt",
             (
@@ -1586,12 +1605,6 @@ class Python3Parser(PythonParser):
             if not isinstance(come_froms, Token):
                 return tokens[first].offset > come_froms[-1].attr
             return False
-        elif lhs == "ifelsestmt" and rule[1][2] == "jump_forward_else":
-            last = min(last, len(tokens)-1)
-            if tokens[last].off2int() == -1:
-                last -= 1
-            jump_forward_else = ast[2]
-            return tokens[first].off2int() <= jump_forward_else[0].attr < tokens[last].off2int()
 
         return False
 

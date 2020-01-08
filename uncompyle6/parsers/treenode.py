@@ -60,5 +60,13 @@ class SyntaxTree(spark_AST):
             child = self[0]
             if not isinstance(child, SyntaxTree):
                 return child
-            return self[0].first_child()
+            return child.first_child()
+        return self
+
+    def last_child(self):
+        if len(self) > 0:
+            child = self[-1]
+            if not isinstance(child, SyntaxTree):
+                return child
+            return child.last_child()
         return self
