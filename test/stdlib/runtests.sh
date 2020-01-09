@@ -244,6 +244,7 @@ case $PYVERSION in
     3.6)
 	SKIP_TESTS=(
 	    [test_aifc.py]=1  #
+	    [test_asyncgen.py]=1  # parse error
 	    [test_atexit.py]=1  #
 	    [test_bdb.py]=1  #
 	    [test_buffer.py]=1  # parse error
