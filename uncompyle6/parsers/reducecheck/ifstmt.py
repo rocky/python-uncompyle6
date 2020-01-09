@@ -1,8 +1,6 @@
 #  Copyright (c) 2020 Rocky Bernstein
 
-def ifstmt(
-        self, lhs, n, rule, ast, tokens: list, first, last
-) -> bool:
+def ifstmt(self, lhs, n, rule, ast, tokens, first, last):
     if lhs == "ifstmtl":
         if last == n:
             last -= 1
