@@ -21,7 +21,6 @@ function displaytime {
   printf '%d seconds\n' $S
 }
 
-# Python version setup
 FULLVERSION=$(pyenv local)
 PYVERSION=${FULLVERSION%.*}
 MINOR=${FULLVERSION##?.?.}
@@ -313,6 +312,11 @@ srcdir=$(dirname $me)
 cd $srcdir
 fulldir=$(pwd)
 
+# Python version setup
+for dir in .. ../.. ; do
+    (cd $dir && [[ -r .python-version ]] && rm -v .python-version )
+done
+
 # DECOMPILER=uncompyle2
 DECOMPILER=${DECOMPILER:-"$fulldir/../../bin/uncompyle6"}
 TESTDIR=/tmp/test${PYVERSION}
@@ -398,4 +402,5 @@ typeset -i ALL_FILES_ENDTIME=$(date +%s)
 printf "Ran $i unit-test files in "
 displaytime $time_diff
 echo "Skipped $skipped test for known failures."
+cd $fulldir/../.. && pyenv local $FULLVERSION
 exit $allerrs
