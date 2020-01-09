@@ -209,6 +209,7 @@ case $PYVERSION in
 
     3.4)
 	SKIP_TESTS=(
+	    [test_aifc.py]=1  #
 	    [test_asynchat.py]=1  #
 	    [test_asyncore.py]=1  #
 	    [test_atexit.py]=1  #
@@ -225,6 +226,7 @@ case $PYVERSION in
 	;;
     3.5)
 	SKIP_TESTS=(
+	    [test_aifc.py]=1  #
 	    [test_ast.py]=1  # line 379, in test_literal_eval  self.assertEqual(ast.literal_eval('b"hi"'), 'hi')
 	    [test_atexit.py]=1
 	    [test_builtin.py]=1  #
