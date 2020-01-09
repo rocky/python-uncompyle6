@@ -3,9 +3,7 @@
 from uncompyle6.scanners.tok import Token
 
 
-def ifstmts_jump(
-    self, lhs, n, rule, ast, tokens, first, last
-) -> bool:
+def ifstmts_jump(self, lhs, n, rule, ast, tokens, first, last):
     come_froms = ast[-1]
     # Make sure all of the "come froms" offset at the
     # end of the "if" come from somewhere inside the "if".

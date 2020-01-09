@@ -1,9 +1,7 @@
 #  Copyright (c) 2020 Rocky Bernstein
 
 
-def while1stmt(
-    self, lhs, n, rule, ast, tokens, first, last
-) -> bool:
+def while1stmt(self, lhs, n, rule, ast, tokens, first, last:
 
     # If there is a fall through to the COME_FROM_LOOP, then this is
     # not a while 1. So the instruction before should either be a

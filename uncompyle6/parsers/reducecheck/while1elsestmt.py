@@ -1,9 +1,7 @@
 #  Copyright (c) 2020 Rocky Bernstein
 
 
-def while1elsestmt(
-    self, lhs, n, rule, ast, tokens, first, last
-) -> bool:
+def while1elsestmt(self, lhs, n, rule, ast, tokens, first, last):
     if last == n:
         # Adjust for fuzziness in parsing
         last -= 1
