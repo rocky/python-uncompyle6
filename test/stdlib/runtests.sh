@@ -284,6 +284,8 @@ case $PYVERSION in
 	    [test_fstring.py]=1 # syntax error: Investigate
 	    [test_gc.py]=1 # doesn't terminate (test_trashcan_threads)
 	    [test_generators.py]=1 #
+	    [test_genexps.py]=1 #
+	    [test_glob.py]=1 #
 	    [test_grammar.py]=1 # parse error
 	    [test_imaplib.py]=1
 	    [test_inspect.py]=1 # Syntax error Investigate
@@ -298,6 +300,8 @@ case $PYVERSION in
 	    [test_os.py]=1 # Doesn't terminate
 	    [test_peepholer.py]=1
 	    [test_pickle.py]=1
+	    [test_platform.py]=1
+	    [test_plistlib.py]=1
 	    [test_poplib.py]=1
 	    [test_pulldom.py]=1
 	    [test_quopri.py]=1      # AssertionError: b'123=four' != '123=four'
@@ -468,7 +472,7 @@ for file in $files; do
     fi
     (( rc != 0 && allerrs++ ))
     if (( STOP_ONERROR && rc )) ; then
-	echo "** Ran $i tests before failure. Skipped $skipped test for known failures. **"
+	echo "Ran $i tests before failure. Skipped $skipped test for known failures."
 	exit $allerrs
     fi
 done
