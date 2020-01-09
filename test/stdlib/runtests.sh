@@ -213,7 +213,8 @@ case $PYVERSION in
 	    [test_asyncore.py]=1  #
 	    [test_atexit.py]=1  #
 	    [test_bdb.py]=1  #
-	    [test_binascii]=1
+	    [test_binascii.py]=1 # Doesn't terminate
+	    [test_binop.py]=1 # Doesn't terminate
 	    [test_cmd_line.py]=1
 	    [test_dis.py]=1   # We change line numbers - duh!
 	)
