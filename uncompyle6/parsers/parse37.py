@@ -641,6 +641,9 @@ class Python37Parser(Python37BaseParser):
         expr                       ::= if_exp_37b
         if_exp_37a                 ::= and_not expr JUMP_FORWARD come_froms expr COME_FROM
         if_exp_37b                 ::= expr jmp_false expr POP_JUMP_IF_FALSE jump_forward_else expr
+        or                         ::= expr jmp_true expr
+        jmp_false_cf               ::= POP_JUMP_IF_FALSE COME_FROM
+        comp_if                    ::= or jmp_false_cf comp_iter
         """
 
     def p_comprehension3(self, args):
