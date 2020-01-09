@@ -21,6 +21,7 @@ from uncompyle6.parser import PythonParserSingle, nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parsers.parse35 import Python35Parser
 from uncompyle6.scanners.tok import Token
+from uncompyle6.parsers.reducecheck import ifelsestmt, iflaststmt, and_check
 
 class Python36Parser(Python35Parser):
 
