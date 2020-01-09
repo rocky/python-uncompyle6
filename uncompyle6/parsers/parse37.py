@@ -904,8 +904,8 @@ class Python37Parser(Python37BaseParser):
         ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
         ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
-        jitop_come_from ::= JUMP_IF_TRUE_OR_POP COME_FROM
-        jifop_come_from ::= JUMP_IF_FALSE_OR_POP COME_FROM
+        jitop_come_from ::= JUMP_IF_TRUE_OR_POP come_froms
+        jifop_come_from ::= JUMP_IF_FALSE_OR_POP come_froms
         or        ::= and jitop_come_from expr COME_FROM
         or        ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         or        ::= expr JUMP_IF_TRUE expr COME_FROM
