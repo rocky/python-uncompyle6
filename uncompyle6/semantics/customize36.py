@@ -60,6 +60,12 @@ def customize_for_version36(self, version):
         'call_ex' : (
             '%c(%p)',
             (0, 'expr'), (1, 100)),
+
+        # This comes from 3.7. Eventually we will rebase from 3.7
+        # and then this can go away
+        "conditional37": ( "%p if %c else %c",
+                           (1, 'expr', 27), 0, 3 ),
+
         'store_annotation': (
             '%[1]{pattr}: %c',
             0

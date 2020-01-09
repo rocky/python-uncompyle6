@@ -153,6 +153,16 @@ class Python36Parser(Python35Parser):
 
         """
 
+    # Some of this is duplicated from parse37. Eventually we'll probably rebase from
+    # that and then we can remove this.
+    def p_37conditionals(self, args):
+        """
+        expr                       ::= conditional37
+        conditional37              ::= expr expr jf_cfs expr COME_FROM
+        jf_cfs                     ::= JUMP_FORWARD _come_froms
+        ifelsestmt                 ::= testexpr c_stmts_opt jf_cfs else_suite opt_come_from_except
+        """
+
     def customize_grammar_rules(self, tokens, customize):
         # self.remove_rules("""
         # """)

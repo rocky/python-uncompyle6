@@ -401,7 +401,7 @@ class Python37Parser(Python37BaseParser):
 
     def p_32on(self, args):
         """
-        conditional ::= expr jmp_false expr jump_forward_else expr COME_FROM
+        conditional::= expr jmp_false expr jump_forward_else expr COME_FROM
 
         # compare_chained2 is used in a "chained_compare": x <= y <= z
         # used exclusively in compare_chained
@@ -620,6 +620,8 @@ class Python37Parser(Python37BaseParser):
 
     def p_37conditionals(self, args):
         """
+        expr                       ::= conditional37
+        conditional37              ::= expr expr jf_cfs expr COME_FROM
         jf_cfs                     ::= JUMP_FORWARD _come_froms
         ifelsestmt                 ::= testexpr c_stmts_opt jf_cfs else_suite opt_come_from_except
 

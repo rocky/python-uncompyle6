@@ -1490,7 +1490,7 @@ class Python3Parser(PythonParser):
                 #     print("XXX", first, last)
                 #     for t in range(first, last): print(tokens[t])
                 #     from trepan.api import debug; debug()
-                # return condition_jump.attr < condition_jump2.off2int()
+                return condition_jump.attr < condition_jump2.off2int()
             return False
         elif lhs == "ifelsestmt" and rule[1][2] == "jump_forward_else":
             last = min(last, len(tokens)-1)
