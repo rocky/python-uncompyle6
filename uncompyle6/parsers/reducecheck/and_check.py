@@ -1,3 +1,6 @@
+#  Copyright (c) 2020 Rocky Bernstein
+
+
 def and_check(self, lhs, n, rule, ast, tokens, first, last):
     jmp = ast[1]
     if jmp.kind.startswith("jmp_"):
