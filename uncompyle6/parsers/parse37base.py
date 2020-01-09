@@ -13,6 +13,7 @@ from uncompyle6.parsers.reducecheck import (
     iflaststmt,
     ifstmt,
     ifstmts_jump,
+    or_check,
     while1stmt,
     while1elsestmt,
 )
@@ -999,7 +1000,7 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["ifstmt"] = "AST"
         self.check_reduce["ifstmtl"] = "AST"
         self.check_reduce["import_from37"] = "AST"
-        self.check_reduce["or"] = "tokens"
+        self.check_reduce["or"] = "AST"
         return
 
     def custom_classfunc_rule(self, opname, token, customize, next_token):
@@ -1108,16 +1109,7 @@ class Python37BaseParser(PythonParser):
                 return alias37[0].attr != store[0].attr
             return False
         elif lhs == "or":
-            # FIXME: This is a cheap test. Should we do something with an AST like we
-            # do with "and"?
-            # "or"s with constants like this will have "COME_FROM" at the end
-            return tokens[last] in (
-                "LOAD_ASSERT",
-                "LOAD_STR",
-                "LOAD_CODE",
-                "LOAD_CONST",
-                "RAISE_VARARGS_1",
-            )
+            return or_check(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs == "while1elsestmt":
             return while1elsestmt(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs == "while1stmt":
