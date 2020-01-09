@@ -215,6 +215,7 @@ case $PYVERSION in
 	    [test_atexit.py]=1  #
 	    [test_bdb.py]=1  #
 	    [test_binascii]=1
+	    [test_cmd_line.py]=1
 	    [test_dis.py]=1   # We change line numbers - duh!
 	)
 	if (( batch )) ; then
