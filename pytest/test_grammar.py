@@ -43,7 +43,7 @@ def test_grammar():
         expect_lhs.add("kv3")
         unused_rhs.add("dict")
 
-        if PYTHON_VERSION < 3.7:
+        if PYTHON_VERSION < 3.7 and PYTHON_VERSION != 2.7:
             # NOTE: this may disappear
             expect_lhs.add("except_handler_else")
 
