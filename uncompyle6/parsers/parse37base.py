@@ -14,6 +14,7 @@ from uncompyle6.parsers.reducecheck import (
     ifstmt,
     ifstmts_jump,
     or_check,
+    testtrue,
     while1stmt,
     while1elsestmt,
 )
@@ -1001,6 +1002,7 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["ifstmtl"] = "AST"
         self.check_reduce["import_from37"] = "AST"
         self.check_reduce["or"] = "AST"
+        self.check_reduce["testtrue"] = "tokens"
         return
 
     def custom_classfunc_rule(self, opname, token, customize, next_token):
@@ -1112,6 +1114,8 @@ class Python37BaseParser(PythonParser):
             return or_check(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs == "while1elsestmt":
             return while1elsestmt(self, lhs, n, rule, ast, tokens, first, last)
+        elif lhs == "testtrue":
+            return testtrue(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs == "while1stmt":
             return while1stmt(self, lhs, n, rule, ast, tokens, first, last)
 

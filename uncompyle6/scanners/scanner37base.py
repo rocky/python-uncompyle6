@@ -520,6 +520,7 @@ class Scanner37Base(Scanner):
             offset = inst.offset
             op = inst.opcode
 
+            # FIXME: this code is going to get removed.
             # Determine structures and fix jumps in Python versions
             # since 2.3
             self.detect_control_flow(offset, targets, i)

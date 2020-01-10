@@ -29,7 +29,7 @@ that a later phase can turn into a sequence of ASCII text.
 import re
 from uncompyle6.scanners.tok import Token
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
-from uncompyle6.parsers.reducecheck import except_handler_else
+from uncompyle6.parsers.reducecheck import except_handler_else, testtrue
 from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from xdis import PYTHON3
@@ -317,6 +317,7 @@ class Python3Parser(PythonParser):
         ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
         or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
+        or   ::= expr jmp_true expr
         and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
 
         # compare_chained1 is used exclusively in chained_compare
@@ -1464,6 +1465,7 @@ class Python3Parser(PythonParser):
         self.check_reduce["ifstmt"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
         self.check_reduce["except_handler_else"] = "tokens"
+        self.check_reduce["testtrue"] = "tokens"
         if not PYTHON3:
             self.check_reduce["kwarg"] = "noAST"
         if self.version < 3.6:
@@ -1504,6 +1506,8 @@ class Python3Parser(PythonParser):
                 last -= 1
             jump_forward_else = ast[2]
             return tokens[first].off2int() <= jump_forward_else[0].attr < tokens[last].off2int()
+        elif lhs == "testtrue":
+            return testtrue(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs == "while1stmt":
 
             # If there is a fall through to the COME_FROM_LOOP, then this is

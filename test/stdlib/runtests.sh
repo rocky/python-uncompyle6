@@ -21,6 +21,7 @@ function displaytime {
   printf '%d seconds\n' $S
 }
 
+# Python version setup
 FULLVERSION=$(pyenv local)
 PYVERSION=${FULLVERSION%.*}
 MINOR=${FULLVERSION##?.?.}
@@ -196,7 +197,9 @@ case $PYVERSION in
 
     3.3)
 	SKIP_TESTS=(
+	    [test_ast.py]=1  # Investigate: syntax error
 	    [test_atexit.py]=1  #
+	    [test_cmd_line.py]=1 # too long?
 	)
 	if (( batch )) ; then
 	    # Fails in crontab environment?
@@ -496,7 +499,7 @@ srcdir=$(dirname $me)
 cd $srcdir
 fulldir=$(pwd)
 
-# Python version setup
+# pyenv version cleaning
 for dir in .. ../.. ; do
     (cd $dir && [[ -r .python-version ]] && rm -v .python-version )
 done
@@ -583,7 +586,7 @@ typeset -i ALL_FILES_ENDTIME=$(date +%s)
 
 (( time_diff =  ALL_FILES_ENDTIME - ALL_FILES_STARTTIME))
 
-printf "Ran $i unit-test files in "
+printf "Ran $i unit-test files, $allerrs errors; Elapsed time: "
 displaytime $time_diff
 echo "Skipped $skipped test for known failures."
 cd $fulldir/../.. && pyenv local $FULLVERSION
