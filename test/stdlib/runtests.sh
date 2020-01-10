@@ -234,7 +234,6 @@ case $PYVERSION in
 	    [test_atexit.py]=1
 	    [test_binascii.py]=1 # Doesn't terminate
 	    [test_binop.py]=1 # Doesn't terminate
-	    [test_buffer.py]=1  # Investigate NATIVE['q'] = 0
 	    [test_builtin.py]=1  #
 	    [test_bz2.py]=1  # testSeekBackwardsAcrossStreams (__main__.BZ2FileTest) ...  doesn't terminiate
 	    [test_capi.py]=1
