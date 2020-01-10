@@ -1086,7 +1086,7 @@ class Python3Parser(PythonParser):
                         load_op = "LOAD_CONST"
 
                     if annotate_args > 0:
-                        rule = "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure %s %s %s" % (
+                        rule = "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure %s %s" % (
                             "pos_arg " * args_pos,
                             kwargs_str,
                             "annotate_arg " * (annotate_args - 1),

@@ -269,12 +269,15 @@ def make_function3_annotate(
                 self.write("\n" + indent)
                 line_number = self.line_number
             self.write(" -> ")
-            # value, string = annotate_args['return']
-            # if string:
-            #     self.write(' -> "%s"' % value)
-            # else:
-            #     self.write(' -> %s' % value)
-            self.preorder(node[annotate_last - 1])
+            if 'return' in annotate_dict:
+                self.write(annotate_dict['return'])
+            else:
+                # value, string = annotate_args['return']
+                # if string:
+                #     self.write(' -> "%s"' % value)
+                # else:
+                #     self.write(' -> %s' % value)
+                self.preorder(node[annotate_last - 1])
 
         self.println(":")
 

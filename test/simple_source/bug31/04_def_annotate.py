@@ -150,3 +150,12 @@ ann2(1)
 assert test12(1, 2, 3, name='hi') == (1, (2, 3)), "a, *args, name"
 assert test13(1, 2, 3, name='hi') == ((1, 2, 3), 'hi'), "*args, name"
 assert test16('localhost', loop=2, limit=3, a='b') == ('localhost', None, 2, 3, {'a': 'b'})
+
+# From test 3.5 test_pydoc.py.
+# Bug was in 3.5 and earlier handling of the return type, typing.Tuple[...]
+try:
+    import typing
+    def foo() -> typing.Iterator[typing.Tuple[int, typing.Any]]:
+        ...
+except:
+    pass

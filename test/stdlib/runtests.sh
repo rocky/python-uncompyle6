@@ -290,7 +290,8 @@ case $PYVERSION in
 	    [test_pkgimport.py]=1 # long
 	    [test_poplib.py]=1
 	    [test_print.py]=1
-	    [test_pwd.py]=1     # Takes too long
+	    [test_pwd.py]=1   # Takes too long
+	    [test_pydoc.py]=1 # test assertion: help text difference
 	    [test_queue.py]=1 # Possibly parameter differences - investigate
 	    [test_raise.py]=1 # Test assert error
 	    [test_range.py]=1 # doesn't terminate
@@ -406,7 +407,6 @@ case $PYVERSION in
 	    [test_poll.py]=1 # Takes too long 11 seconds
 	    [test_poplib.py]=1
 	    [test_pulldom.py]=1
-	    [test_pydoc.py]=1 # uncompyle6 error - Internal Error: n_build_list expects list, tuple, set, or unpack" Investigate
 	    [test_quopri.py]=1      # AssertionError: b'123=four' != '123=four'
 	    [test_range.py]=1
 	    [test_robotparser.py]=1
