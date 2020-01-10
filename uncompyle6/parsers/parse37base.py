@@ -988,6 +988,20 @@ class Python37BaseParser(PythonParser):
 
             pass
 
+        self.reduce_check_table = {
+            "_ifstmts_jump": ifstmts_jump,
+            "and": and_check,
+            "ifelsestmt": ifelsestmt,
+            "iflaststmt": iflaststmt,
+            "iflaststmtl": iflaststmt,
+            "ifstmt": ifstmt,
+            "ifstmtl": ifstmt,
+            "or": or_check,
+            "testtrue": testtrue,
+            "while1elsestmt": while1elsestmt,
+            "while1stmt": while1stmt,
+        }
+
         self.check_reduce["and"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
         self.check_reduce["aug_assign1"] = "AST"
@@ -1087,21 +1101,14 @@ class Python37BaseParser(PythonParser):
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         lhs = rule[0]
         n = len(tokens)
+        fn = self.reduce_check_table.get(lhs, None)
+        if fn:
+            return fn(self, lhs, n, rule, ast, tokens, first, last)
 
-        if lhs == "and" and ast:
-            return and_check(self, lhs, n, rule, ast, tokens, first, last)
-        elif lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
+        if lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
             return True
         elif lhs == "annotate_tuple":
             return not isinstance(tokens[first].attr, tuple)
-        elif lhs == "_ifstmts_jump" and len(rule[1]) > 1 and ast:
-            return ifstmts_jump(self, lhs, n, rule, ast, tokens, first, last)
-        elif lhs in ("iflaststmt", "iflaststmtl") and ast:
-            return iflaststmt(self, lhs, n, rule, ast, tokens, first, last)
-        elif lhs == "ifelsestmt":
-            return ifelsestmt(self, lhs, n, rule, ast, tokens, first, last)
-        elif lhs in ("ifstmt", "ifstmtl"):
-            return ifstmt(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs == "import_from37":
             importlist37 = ast[3]
             alias37 = importlist37[0]
@@ -1110,13 +1117,5 @@ class Python37BaseParser(PythonParser):
                 assert store == "store"
                 return alias37[0].attr != store[0].attr
             return False
-        elif lhs == "or":
-            return or_check(self, lhs, n, rule, ast, tokens, first, last)
-        elif lhs == "while1elsestmt":
-            return while1elsestmt(self, lhs, n, rule, ast, tokens, first, last)
-        elif lhs == "testtrue":
-            return testtrue(self, lhs, n, rule, ast, tokens, first, last)
-        elif lhs == "while1stmt":
-            return while1stmt(self, lhs, n, rule, ast, tokens, first, last)
 
         return False
