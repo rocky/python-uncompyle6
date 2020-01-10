@@ -443,7 +443,7 @@ def customize_for_version3(self, version):
             "tryelsestmtl3": (
                 "%|try:\n%+%c%-%c%|else:\n%+%c%-",
                 (1, "suite_stmts_opt"),
-                (3, "except_handler_else"),
+                3, # "except_handler_else" or "except_handler"
                 (5, "else_suitel"),
             ),
             "LOAD_CLASSDEREF": ("%{pattr}",),
