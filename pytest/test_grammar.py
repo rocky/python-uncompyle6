@@ -42,9 +42,10 @@ def test_grammar():
         expect_lhs.add("kvlist")
         expect_lhs.add("kv3")
         unused_rhs.add("dict")
-    else:
-        # NOTE: this may disappear
-        expect_lhs.add("except_handler_else")
+
+        if PYTHON_VERSION < 3.7:
+            # NOTE: this may disappear
+            expect_lhs.add("except_handler_else")
 
     if PYTHON3:
         expect_lhs.add("load_genexpr")
