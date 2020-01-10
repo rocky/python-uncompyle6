@@ -1,5 +1,5 @@
 from uncompyle6.parsers.reducecheck.and_check import *
-from uncompyle6.parsers.reducecheck.except_handler import *
+from uncompyle6.parsers.reducecheck.except_handler_else import *
 from uncompyle6.parsers.reducecheck.ifelsestmt import *
 from uncompyle6.parsers.reducecheck.iflaststmt import *
 from uncompyle6.parsers.reducecheck.ifstmt import *

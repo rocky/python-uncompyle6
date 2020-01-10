@@ -27,7 +27,7 @@ that a later phase can turn into a sequence of ASCII text.
 
 from __future__ import print_function
 
-from uncompyle6.parsers.reducecheck import (except_handler, tryelsestmt)
+from uncompyle6.parsers.reducecheck import (except_handler_else, tryelsestmt)
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -147,10 +147,10 @@ class Python2Parser(PythonParser):
 
         # Move to 2.7? 2.6 may use come_froms
         tryelsestmtc    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                            except_handler else_suitec COME_FROM
+                            except_handler_else else_suitec COME_FROM
 
         tryelsestmtl    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                            except_handler else_suitel COME_FROM
+                            except_handler_else else_suitel COME_FROM
 
         try_except      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                             except_handler COME_FROM
@@ -162,16 +162,7 @@ class Python2Parser(PythonParser):
         except_handler  ::= jmp_abs COME_FROM except_stmts
                              END_FINALLY
 
-        # except_handler_else is intended to be used only in a
-        # try_else. The disambiguation comes from reduction rule
-        # checking where we make sure that the JUMP_FORWARD mismatches
-        # the JUMP_FORWARD before the END_FINALLY
-        except_handler_else  ::= JUMP_FORWARD COME_FROM except_stmts
-                                 END_FINALLY come_froms
-
-        except_handler_else  ::= jmp_abs COME_FROM except_stmts
-                                 END_FINALLY
-
+        except_handler_else  ::= except_handler
 
         except_stmts ::= except_stmt+
 
@@ -650,7 +641,6 @@ class Python2Parser(PythonParser):
             pass
 
         self.check_reduce["and"] = "AST"
-        self.check_reduce["except_handler"] = "tokens"
         self.check_reduce["except_handler_else"] = "tokens"
         self.check_reduce["raise_stmt1"] = "tokens"
         self.check_reduce["assert_expr_and"] = "AST"
@@ -708,8 +698,8 @@ class Python2Parser(PythonParser):
             jmp_false = ast[1]
             jump_target = jmp_false[0].attr
             return jump_target > tokens[last].off2int()
-        elif lhs in ("except_handler, except_handler_else"):
-            return except_handler(self, lhs, n, rule, ast, tokens, first, last)
+        elif lhs == "except_handler_else":
+            return except_handler_else(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs in ("raise_stmt1",):
             # We will assume 'LOAD_ASSERT' will be handled by an assert grammar rule
             return tokens[first] == "LOAD_ASSERT" and (last >= len(tokens))

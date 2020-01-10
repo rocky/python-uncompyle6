@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2019 Rocky Bernstein
+#  Copyright (c) 2015-2020 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -29,6 +29,7 @@ that a later phase can turn into a sequence of ASCII text.
 import re
 from uncompyle6.scanners.tok import Token
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
+from uncompyle6.parsers.reducecheck import except_handler_else
 from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from xdis import PYTHON3
@@ -191,6 +192,8 @@ class Python3Parser(PythonParser):
         tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
                            POP_BLOCK LOAD_CONST
                            COME_FROM_FINALLY suite_stmts_opt END_FINALLY
+
+        except_handler_else ::= except_handler
 
         except_handler ::= jmp_abs COME_FROM except_stmts
                            END_FINALLY
@@ -1419,20 +1422,19 @@ class Python3Parser(PythonParser):
                     """
                     try_except     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                                        except_handler opt_come_from_except
-
-                    tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                                       except_handler else_suite come_from_except_clauses
-
-                    tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                                       except_handler else_suite come_froms
+                    try_except     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                                       except_handler opt_come_from_except
 
                     tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                                        except_handler else_suitel come_from_except_clauses
 
                     stmt             ::= tryelsestmtl3
+
                     tryelsestmtl3    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                                         except_handler COME_FROM else_suitel
+                                         except_handler_else COME_FROM else_suitel
                                          opt_come_from_except
+                    tryelsestmt      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                                         except_handler_else else_suite come_froms
                     """,
                     nop_func
                 )
@@ -1461,6 +1463,7 @@ class Python3Parser(PythonParser):
         self.check_reduce["ifelsestmt"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
+        self.check_reduce["except_handler_else"] = "tokens"
         if not PYTHON3:
             self.check_reduce["kwarg"] = "noAST"
         if self.version < 3.6:
@@ -1473,10 +1476,13 @@ class Python3Parser(PythonParser):
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         lhs = rule[0]
+        n = len(tokens)
         if lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
             return True
         elif lhs == "annotate_tuple":
             return not isinstance(tokens[first].attr, tuple)
+        elif lhs in ("except_handler_else"):
+            return except_handler_else(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs == "kwarg":
             arg = tokens[first].attr
             return not (isinstance(arg, str) or isinstance(arg, unicode))

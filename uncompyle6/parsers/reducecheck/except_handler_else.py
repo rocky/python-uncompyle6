@@ -1,6 +1,6 @@
 #  Copyright (c) 2020 Rocky Bernstein
 
-def except_handler(self, lhs, n, rule, ast, tokens, first, last):
+def except_handler_else(self, lhs, n, rule, ast, tokens, first, last):
     # FIXME: expand this to other versions
     if self.version not in (2.7, 3.5):
         return False
