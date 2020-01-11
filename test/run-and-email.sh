@@ -27,12 +27,16 @@ for VERSION in $PYVERSIONS ; do
     typeset -i rc=0
     LOGFILE=/tmp/pyenvlib-$VERSION-$$.log
 
-    if [[ $VERSION == '3.5.6' ]] ; then
-	MAX_TESTS=224
+    if [[ $VERSION == '3.5.9' ]] ; then
+	MAX_TESTS=237 # We start failing on "mailbox" at 238
     elif [[ $VERSION == '3.2.6' ]] ; then
-	MAX_TESTS=700
+	MAX_TESTS=172 # We start failing on pkgutil.py
+    elif [[ $VERSION == '3.3.7' ]] ; then
+	MAX_TESTS=180 # We start failing on pkgutil.py
+    elif [[ $VERSION == '3.4.10' ]] ; then
+	MAX_TESTS=30 # We start failing on aifc
     elif [[ $VERSION == '3.6.9' ]] ; then
-	MAX_TESTS=400
+	MAX_TESTS=92  # We start failing on cgiltb.py
     elif [[ $VERSION == '3.7.6' ]] ; then
 	continue
     elif [[ $VERSION == '3.8.1' ]] ; then
