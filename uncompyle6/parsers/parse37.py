@@ -913,6 +913,7 @@ class Python37Parser(Python37BaseParser):
         or        ::= and jitop_come_from expr COME_FROM
         or        ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         or        ::= expr JUMP_IF_TRUE expr COME_FROM
+        or        ::= expr POP_JUMP_IF_TRUE expr POP_JUMP_IF_FALSE COME_FROM
 
         testfalse_not_or   ::= expr jmp_false expr jmp_false COME_FROM
         testfalse_not_and ::= and jmp_true come_froms

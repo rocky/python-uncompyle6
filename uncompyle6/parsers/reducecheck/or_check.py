@@ -3,10 +3,7 @@
 
 def or_check(self, lhs, n, rule, ast, tokens, first, last):
     if rule == ("or", ("expr", "jmp_true", "expr")):
-        if tokens[last] in (
-                "LOAD_ASSERT",
-                "RAISE_VARARGS_1",
-        ):
+        if tokens[last] in ("LOAD_ASSERT", "RAISE_VARARGS_1",):
             return True
 
         # The following test is be the most accurate. It prevents "or" from being
@@ -16,7 +13,7 @@ def or_check(self, lhs, n, rule, ast, tokens, first, last):
         # The below then is useful until we get better control-flow analysis.
         # Note it is too hard in the scanner right nowto turn the LOAD_GLOBAL into
         # int LOAD_ASSERT, however in 3.9ish code generation does this by default.
-        load_global = tokens[last-1]
+        load_global = tokens[last - 1]
         if load_global == "LOAD_GLOBAL" and load_global.attr == "AssertionError":
             return True
 
@@ -24,11 +21,14 @@ def or_check(self, lhs, n, rule, ast, tokens, first, last):
         jmp_false = tokens[last]
         # If the jmp is backwards
         if jmp_false == "POP_JUMP_IF_FALSE":
-            if jmp_false.attr < jmp_false.off2int():
+            jmp_false_offset = jmp_false.off2int()
+            if jmp_false.attr < jmp_false_offset:
                 # For a backwards loop, well compare to the instruction *after*
                 # then POP_JUMP...
-                jmp_false = tokens[last+1]
-            return not (jmp_true_target == jmp_false.off2int() or
-                        jmp_true_target < tokens[first].off2int())
+                jmp_false = tokens[last + 1]
+            return not (
+                (jmp_false_offset <= jmp_true_target <= jmp_false_offset + 2)
+                or jmp_true_target < tokens[first].off2int()
+            )
 
     return False

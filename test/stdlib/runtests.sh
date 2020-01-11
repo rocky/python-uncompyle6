@@ -454,7 +454,6 @@ case $PYVERSION in
 	    [test_compare.py]=1 # test assert fail - investigate
 	    [test_compile.py]=1
 	    [test_configparser.py]=1
-	    [test_contextlib_async.py]=1 # Investigate
 	    [test_context.py]=1
 	    [test_coroutines.py]=1 # Parse error
 	    [test_crypt.py]=1 # Parse error
