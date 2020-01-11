@@ -27,30 +27,33 @@ for VERSION in $PYVERSIONS ; do
     typeset -i rc=0
     LOGFILE=/tmp/pyenvlib-$VERSION-$$.log
 
-    if [[ $VERSION == '3.5.9' ]] ; then
-	MAX_TESTS=237 # We start failing on "mailbox" at 238
-    elif [[ $VERSION == '3.2.6' ]] ; then
-	MAX_TESTS=172 # We start failing on pkgutil.py
-    elif [[ $VERSION == '3.3.7' ]] ; then
-	MAX_TESTS=180 # We start failing on pkgutil.py
-    elif [[ $VERSION == '3.4.10' ]] ; then
-	MAX_TESTS=30 # We start failing on aifc
-    elif [[ $VERSION == '3.6.9' ]] ; then
-	MAX_TESTS=92  # We start failing on cgiltb.py
-    elif [[ $VERSION == '3.7.6' ]] ; then
-	continue
-    elif [[ $VERSION == '3.8.1' ]] ; then
-	continue
-    elif [[ $VERSION == '3.1.5' ]] ; then
-	continue
-    elif [[ $VERSION == '3.0.1' ]] ; then
-	continue
-    elif [[ $VERSION == '2.6.9' ]] ; then
-	MAX_TESTS=1300
-	continue
-    else
-	MAX_TESTS=800
-    fi
+    case "$VERSION" in
+	3.7.6 | 3.8.1 | 3.1.5 | 3.0.1 )
+	    continue
+	    ;;
+	3.5.9 )
+	    MAX_TESTS=237 # We start failing on "mailbox" at 238
+	    ;;
+	3.2.6 )
+	    MAX_TESTS=172 # We start failing on pkgutil.py
+	    ;;
+	3.3.7 )
+	    MAX_TESTS=180 # We start failing on pkgutil.py
+	    ;;
+	3.4.10 )
+	    MAX_TESTS=30 # We start failing on aifc
+	    ;;
+	 3.6.9 )
+	     MAX_TESTS=92  # We start failing on cgiltb.py
+	     ;;
+	 2.6.9 )
+	     MAX_TESTS=1300
+	     ;;
+	 * )
+	     MAX_TESTS=800
+	     ;;
+    esac
+
     actual_versions="$actual_versions $VERSION"
 
     if ! pyenv local $VERSION ; then
