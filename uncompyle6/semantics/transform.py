@@ -298,13 +298,12 @@ class TreeTransform(GenericASTTraversal, object):
             import_name_attr = node[2]
             assert import_name_attr == "IMPORT_NAME_ATTR"
             dotted_names = import_name_attr.attr.split(".")
-            if len(dotted_names) > 1:
+            if len(dotted_names) > 1 and dotted_names[-1] == alias_name:
                 # Simulate:
                 # Instead of
                 # import_from37 ::= LOAD_CONST LOAD_CONST IMPORT_NAME_ATTR importlist37 POP_TOP
                 # import_as37   ::= LOAD_CONST LOAD_CONST importlist37 store POP_TOP
                 # 'import_as37':     ( '%|import %c as %c\n', 2, -2),
-                assert dotted_names[-1] == alias_name
                 node = SyntaxTree("import_as37",
                                   [node[0], node[1], import_name_attr, store, node[-1]])
                 node.transformed_by="n_import_from37"
