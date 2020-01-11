@@ -162,10 +162,7 @@ case $PYVERSION in
 	;;
     3.1)
 	SKIP_TESTS=(
-	    [test_collections.py]=1
 	    [test_concurrent_futures.py]=1 # too long to run over 46 seconds by itself
-	    [test_datetimetester.py]=1
-	    [test_decimal.py]=1
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_fileio.py]=1
 	)
@@ -196,14 +193,15 @@ case $PYVERSION in
 
     3.3)
 	SKIP_TESTS=(
-	    [test_atexit.py]=1  #
+	    [test_atexit.py]=1  # The atexit test staring at 3.3 looks for specific comments in error lines
 	    [test_cmd_line.py]=1 # too long?
 	)
 	if (( batch )) ; then
+	    :
 	    # Fails in crontab environment?
 	    # Figure out what's up here
-	    SKIP_TESTS[test_exception_variations.py]=1
-	    SKIP_TESTS[test_quopri.py]=1
+	    # SKIP_TESTS[test_exception_variations.py]=1
+	    # SKIP_TESTS[test_quopri.py]=1
 	fi
 	;;
 
@@ -212,7 +210,7 @@ case $PYVERSION in
 	    [test_aifc.py]=1  #
 	    [test_asynchat.py]=1  #
 	    [test_asyncore.py]=1  #
-	    [test_atexit.py]=1  #
+	    [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
 	    [test_bdb.py]=1  #
 	    [test_binascii.py]=1 # Doesn't terminate
 	    [test_binop.py]=1 # Doesn't terminate
@@ -232,7 +230,7 @@ case $PYVERSION in
 	    [test_ast.py]=1  # line 379, in test_literal_eval  self.assertEqual(ast.literal_eval('b"hi"'), 'hi')
 	    [test_asynchat.py]=1  # doesn't terminate
 	    [test_asyncore.py]=1  # doesn't terminate
-	    [test_atexit.py]=1
+	    [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
 	    [test_binascii.py]=1 # Doesn't terminate
 	    [test_binop.py]=1 # Doesn't terminate
 	    [test_builtin.py]=1  #
@@ -347,7 +345,7 @@ case $PYVERSION in
 	    [test_asynchat.py]=1  # doesn't terminate
 	    [test_asyncgen.py]=1  # parse error
 	    [test_asyncore.py]=1  # doesn't terminate
-	    [test_atexit.py]=1  #
+	    [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
 	    [test_baseexception.py]=1 # test asert error
 	    [test_bdb.py]=1  #
 	    [test_binop.py]=1  # Doesn't terminate
@@ -442,7 +440,7 @@ case $PYVERSION in
     3.7)
 	SKIP_TESTS=(
 	    [test_ast.py]=1  # test assertion error
-	    [test_atexit.py]=1  #
+	    [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
 	    [test_baseexception.py]=1  #
 	    [test_bdb.py]=1  #
 	    [test_buffer.py]=1  # parse error
