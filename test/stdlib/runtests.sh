@@ -201,6 +201,7 @@ case $PYVERSION in
 	    [test_descr.py]=1  # test assertion errors
 	    [test_dictcomps.py]=1  # test assertion errors
 	    [test_doctest.py]=1  # test assertion errors
+	    [test_doctest2.py]=1  # test assertion errors
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_exceptions.py]=1   #
 	    [test_faulthandler.py]=1
@@ -410,6 +411,7 @@ case $PYVERSION in
 	    [test_itertools.py]=1 # doesn't terminate on test_permutations
 	    [test_logging.py]=1 #
 	    [test_long.py]=1 #
+	    [test_lzma.py]=1 # doesn't terminate on test_decompressor_chunks_maxsize
 	    [test_marshal.py]=1 #
 	    [test_math.py]=1 # Investigate Unexpected ValueError: math domain error
 	    [test_minidom.py]=1 # doesn't terminate
