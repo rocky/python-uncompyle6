@@ -178,7 +178,6 @@ case $PYVERSION in
 	;;
     3.2)
 	SKIP_TESTS=(
-	    [test_ast.py]=1  # Look at: AssertionError: b'hi' != 'hi'
 	    [test_cmd_line.py]=1
 	    [test_collections.py]=1
 	    [test_concurrent_futures.py]=1 # too long to run over 46 seconds by itself
@@ -197,7 +196,6 @@ case $PYVERSION in
 
     3.3)
 	SKIP_TESTS=(
-	    [test_ast.py]=1  # Investigate: syntax error
 	    [test_atexit.py]=1  #
 	    [test_cmd_line.py]=1 # too long?
 	)
