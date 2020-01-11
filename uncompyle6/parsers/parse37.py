@@ -760,6 +760,10 @@ class Python37Parser(Python37BaseParser):
         stmt ::= classdefdeco
         classdefdeco ::= classdefdeco1 store
 
+        # In 3.7 there are some LOAD_GLOBALs we don't convert to LOAD_ASSERT
+        stmt    ::= assert2
+        assert2 ::= expr jmp_true LOAD_GLOBAL expr CALL_FUNCTION_1 RAISE_VARARGS_1
+
         expr    ::= LOAD_ASSERT
 
         ifstmt ::= testexpr _ifstmts_jump
