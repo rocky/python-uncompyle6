@@ -590,7 +590,10 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
                 ends_in_comma = True
 
         kw_args = [None] * kwonlyargcount
-        kw_nodes = node[args_node.attr[0]]
+        if self.version <= 3.3:
+            kw_nodes = node[0]
+        else:
+            kw_nodes = node[args_node.attr[0]]
         if kw_nodes == "kwargs":
             for n in kw_nodes:
                 name = eval(n[0].pattr)
