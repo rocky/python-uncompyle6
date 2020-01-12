@@ -555,7 +555,9 @@ case $PYVERSION in
 	    [test_math.py]=1 # call param Investigate
 	    [test_metaclass.py]=1
 	    [test_modulefinder.py]=1  # test assertion error
+	    [test_multiprocessing_main_handling.py]=1 # takes too long -  11 seconds
 	    [test test_nntplib.py]=1 # doesn't terminate
+	    [test_nntplib.py]=1 # test takes too long to run: 31 seconds
 	    [test_optparse.py]=1 # Doesn't terminate test_positional_arg_and_variable_args
 	    [test_os.py]=1 # Doesn't terminate
 	    [test_peepholer.py]=1
@@ -567,10 +569,12 @@ case $PYVERSION in
 	    [test_pulldom.py]=1
 	    [test_quopri.py]=1      # AssertionError: b'123=four' != '123=four'
 	    [test_range.py]=1
+	    [test_regrtest.py]=1 # test takes too long to run: 12 seconds
 	    [test_robotparser.py]=1
 	    [test_runpy.py]=1 # decompile takes too long?
 	    [test_sched.py]=1
 	    [test_scope.py]=1
+	    [test test_select.py] # test takes too long to run: 11 seconds
 	    [test_set.py]=1 # test assert failure and doesn't terminate
 	    [test_shlex.py]=1 # Doesn't terminate
 	    [test_smtpd.py]=1
@@ -584,12 +588,14 @@ case $PYVERSION in
 	    [test_telnetlib.py]=1 # doesn't terminate
 	    [test_threading.py]=1
 	    [test_threadsignals.py]=1
+	    [test_tokenize.py]=1 # test takes too long to run: 80 seconds
 	    [test_timeout.py]=1
 	    [test_traceback.py]=1
 	    [test_tracemalloc.py]=1
 	    [test_typing.py]=1 # investigate syntax error
 	    [test_univnewlines.py]=1 # doesn't terminate
 	    [test_urllib2_localnet.py]=1 # long
+	    [test_venv.py]=1 # test takes too long to run: 13 seconds
 	    [test_weakref.py]=1
 	    [test_zipfile.py]=1 # Too long - 11 seconds
 	    [test_zipfile64.py]=1
@@ -597,7 +603,7 @@ case $PYVERSION in
 	    [test_zipimport_support.py]=1
 	    [test_zlib.py]=1
 	)
-	# 224 remaining unit-test files; about 14 minutes and 46 seconds
+	# 221 unit-test remaining files, Elapsed time about 16 minutes
 	if (( batch )) ; then
 	    SKIP_TESTS[test__locale.py]=1  # Wierd in batch environment
 	fi
