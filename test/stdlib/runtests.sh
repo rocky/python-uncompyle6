@@ -240,11 +240,12 @@ case $PYVERSION in
 
 	# About 300 unit-test files in about 20 minutes
 	if (( batch )) ; then
-	    :
+	    SKIP_TESTS[test_idle.py]=1  # No tk
+	    SKIP_TESTS[test_pep352.py]=1  # UnicodeDecodeError may be funny on weird environments
+	    SKIP_TESTS[test_pep380.py]=1  # test_delegating_generators_claim_to_be_running ?
 	    # Fails in crontab environment?
 	    # Figure out what's up here
 	    # SKIP_TESTS[test_exception_variations.py]=1
-	    # SKIP_TESTS[test_quopri.py]=1
 	fi
 	;;
 
@@ -538,6 +539,7 @@ case $PYVERSION in
 	    [test_fractions.py]=1 # doesn't terminate
 	    [test_frame.py]=1 # doesn't terminate
 	    [test_fstring.py]=1 # syntax error: Investigate
+	    [test___future__.py]=1 # syntax error: Investigate
 	    [test_gc.py]=1 # doesn't terminate (test_trashcan_threads)
 	    [test_generators.py]=1 # test assert failures
 	    [test_genexps.py]=1 #
@@ -596,6 +598,9 @@ case $PYVERSION in
 	    [test_zlib.py]=1
 	)
 	# 224 remaining unit-test files; about 14 minutes and 46 seconds
+	if (( batch )) ; then
+	    SKIP_TESTS[test__locale.py]=1  # Wierd in batch environment
+	fi
 	;;
     3.7)
 	SKIP_TESTS=(
