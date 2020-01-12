@@ -6,7 +6,6 @@ def tryelsestmt(self, lhs, n, rule, ast, tokens, first, last):
     # Check the end of the except handler that there isn't a jump from
     # inside the except handler to the end. If that happens
     # then this is a "try" with no "else".
-    from trepan.api import debug; debug()
     except_handler = ast[3]
     if except_handler == "except_handler":
 
