@@ -461,6 +461,8 @@ case $PYVERSION in
 	    [test_enum.py]=1  #
 	    [test_exceptions.py]=1 # parse error
 	    [test_fileinput.py]=1 # doesn't terminate
+	    [test_format.py]=1
+	    [file_eintr.py]=1
 	    [test_fractions.py]=1 # doesn't terminate
 	    [test_frame.py]=1 # doesn't terminate
 	    [test_ftplib.py]=1 # doesn't terminate
