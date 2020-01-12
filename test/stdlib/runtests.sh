@@ -394,6 +394,7 @@ case $PYVERSION in
 	;;
     3.5)
 	SKIP_TESTS=(
+	    [test___all__.py]=1 # it fails on its own
 	    [test_aifc.py]=1  #
 	    [test_ast.py]=1  # line 379, in test_literal_eval  self.assertEqual(ast.literal_eval('b"hi"'), 'hi')
 	    [test_asynchat.py]=1  # doesn't terminate
@@ -406,6 +407,11 @@ case $PYVERSION in
 	    [test_capi.py]=1 # Doesn't terminate
 	    [test_cmath]=1
 	    [test_cmd_line.py]=1 #
+	    [test_codecmaps_cn.py]=1 # it fails on its own
+	    [test_codecmaps_hk.py]=1 # it fails on its own
+	    [test_codecmaps_jp.py]=1 # it fails on its own
+	    [test_codecmaps_kr.py]=1 # it fails on its own
+	    [test_codecmaps_tw.py]=1 # it fails on its own
 	    [test_codecs.py]=1 # test assertion failure
 	    [test_collections.py]=1
 	    [test_colorsys.py]=1 # Doesn't terminate
@@ -499,7 +505,7 @@ case $PYVERSION in
 	    [test_traceback.py]=1
 	    [test_typing.py]=1 # investigate syntax error
 	    [test_unpack.py]=1 # weird, takes too long? Waiting on input?
-	    [test_unpack_exe.py]=1 # doesn't terminate
+	    [test_unpack_ex.py]=1 # doesn't terminate
 	    [test_univnewlines.py]=1 # doesn't terminate
 	    [test_urlparse.py]=1 # test assert error
 	    [test_weakref.py]=1 # doesn't terminate test_threaded_weak_valued_consistency (__main__.MappingTestCase) ...
@@ -513,8 +519,10 @@ case $PYVERSION in
 	if (( batch )) ; then
 	    # Fails in crontab environment?
 	    # Figure out what's up here
+	    SKIP_TESTS[test_bisect.py]=1
 	    SKIP_TESTS[test_exception_variations.py]=1
 	    SKIP_TESTS[test_quopri.py]=1
+	    SKIP_TESTS[test_ioctl.py]=1 # it fails on its own
 	fi
 	;;
 
