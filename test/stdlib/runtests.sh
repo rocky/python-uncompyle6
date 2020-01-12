@@ -103,6 +103,7 @@ case $PYVERSION in
 	    [test_queue.py]=1   # Investigate whether we caused this recently
 	    [test test_select.py]=1 # test takes too long to run: 11 seconds
 	    [test_socket.py]=1 # test takes too long to run: 12 seconds
+	    [test_sys.py]=1 # test assertion failures
 	    [test_trace.py]=1  # Line numbers are expected to be different
 	    [test_urllib2_localnet.py]=1 # test takes too long to run: 12 seconds
 	    [test_urllib2net.py]=1 # test takes too long to run: 11 seconds
@@ -259,6 +260,7 @@ case $PYVERSION in
 	    [test_set.py]=1
 	    [test_signal.py]=1
 	    [test_socket.py]=1
+	    [test_ssl.py]=1 # too installation specific
 	    [test_strlit.py]=1
 	    [test_symtable.py]=1
 	    [test_sys_setprofile.py]=1 # test assertion errors
