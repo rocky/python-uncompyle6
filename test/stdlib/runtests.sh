@@ -481,7 +481,7 @@ case $PYVERSION in
 	    [test_traceback.py]=1
 	    [test_typing.py]=1 # investigate syntax error
 	    [test_unpack.py]=1 # weird, takes too long? Waiting on input?
-	    [test_unpack.py_ex]=1 #
+	    [test_unpack_exe.py]=1 # doesn't terminate
 	    [test_univnewlines.py]=1 # doesn't terminate
 	    [test_urlparse.py]=1 # test assert error
 	    [test_weakref.py]=1 # doesn't terminate test_threaded_weak_valued_consistency (__main__.MappingTestCase) ...
