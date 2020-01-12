@@ -640,6 +640,13 @@ class Python2Parser(PythonParser):
             self.addRule(rule, nop_func)
             pass
 
+        self.reduce_check_table = {
+            # "and": and_check,
+            "except_handler_else": except_handler_else,
+            # "or": or_check,
+            "try_elsestmt": tryelsestmt,
+            "try_elsestmtl": tryelsestmt,
+        }
         self.check_reduce["and"] = "AST"
         self.check_reduce["except_handler_else"] = "tokens"
         self.check_reduce["raise_stmt1"] = "tokens"
@@ -660,6 +667,10 @@ class Python2Parser(PythonParser):
             return False
         lhs = rule[0]
         n = len(tokens)
+
+        fn = self.reduce_check_table.get(lhs, None)
+        if fn:
+            return fn(self, lhs, n, rule, ast, tokens, first, last)
 
         if rule == ("and", ("expr", "jmp_false", "expr", "\\e_come_from_opt")):
             # If the instruction after the instructions forming the "and"  is an "YIELD_VALUE"
@@ -698,8 +709,6 @@ class Python2Parser(PythonParser):
             jmp_false = ast[1]
             jump_target = jmp_false[0].attr
             return jump_target > tokens[last].off2int()
-        elif lhs == "except_handler_else":
-            return except_handler_else(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs in ("raise_stmt1",):
             # We will assume 'LOAD_ASSERT' will be handled by an assert grammar rule
             return tokens[first] == "LOAD_ASSERT" and (last >= len(tokens))
@@ -709,8 +718,6 @@ class Python2Parser(PythonParser):
         elif lhs in ("delete_subscript", "del_expr"):
             op = ast[0][0]
             return op.kind in ("and", "or")
-        elif lhs in ("tryelsestmt", "tryelsestmtl"):
-            return tryelsestmt(self, lhs, n, rule, ast, tokens, first, last)
 
         return False
 

@@ -78,13 +78,17 @@ case $PYVERSION in
 	    [test_pep352.py]=1     # Investigate
 	    [test_pyclbr.py]=1 # Investigate
 	    [test_pwd.py]=1 # Long test - might work? Control flow?
+	    [test test_select.py]=1 # test takes too long to run: 11 seconds
+	    [test_socket.py]=1 # test takes too long to run: 12 seconds
 	    [test_trace.py]=1  # Line numbers are expected to be different
+	    [test_urllib2_localnet.py]=1 # test takes too long to run: 12 seconds
+	    [test_urllib2net.py]=1 # test takes too long to run: 11 seconds
 	    [test_zipfile64.py]=1  # Skip Long test
 	    [test_zlib.py]=1  #
 	    # .pyenv/versions/2.6.9/lib/python2.6/lib2to3/refactor.pyc
 	    # .pyenv/versions/2.6.9/lib/python2.6/pyclbr.pyc
 	)
-	# About 308 unit-test files, run in about 15 minutes
+	# About 308 unit-test files, run in about 14 minutes
 	if (( batch )) ; then
 	    # Fails in crontab environment?
 	    # Figure out what's up here
