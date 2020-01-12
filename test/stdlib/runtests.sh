@@ -90,10 +90,12 @@ case $PYVERSION in
 	;;
     2.6)
 	SKIP_TESTS=(
+	    [test___all__.py]=1  # it fails on its own
 	    [test_aepack.py]=1 # Fails on its own
 	    [test_descr.py]=1
  	    [test_doctest.py]=1    #
  	    [test_dis.py]=1        # We change line numbers - duh!
+ 	    [test_file.py]=1
 	    [test_generators.py]=1 # Investigate
 	    [test_grp.py]=1      # Long test - might work Control flow?
 	    [test_opcodes.py]=1   # Investigate whether we caused this recently
