@@ -423,7 +423,7 @@ case $PYVERSION in
 	    [test_multiprocessing_fork.py]=1  # long
 	    [test_multiprocessing_forkserver.py]=1  # long
 	    [test_multiprocessing_spawn.py]=1 # long
-	    [test_nntplib.py=1 # too long 25 seconds
+	    [test_nntplib.py]=1 # too long 25 seconds
 	    [test_optparse.py]=1 # Doesn't terminate test_positional_arg_and_variable_args
 	    [test_ordered_dict.py]=1 # Doesn't terminate
 	    [test_os.py]=1 # doesn't terminate
@@ -480,8 +480,8 @@ case $PYVERSION in
 	    [test_zipimport.py]=1
 	    [test_zipimport_support.py]=1
 	    [test_zlib.py]=1
-	    # About 240 remaining which can be done in about 10 minutes
 	)
+	    # About 240 remaining which can be done in about 10 minutes
 	if (( batch )) ; then
 	    # Fails in crontab environment?
 	    # Figure out what's up here
@@ -582,11 +582,13 @@ case $PYVERSION in
 	    [test_univnewlines.py]=1 # doesn't terminate
 	    [test_urllib2_localnet.py]=1 # long
 	    [test_weakref.py]=1
+	    [test_zipfile.py]=1 # Too long - 11 seconds
 	    [test_zipfile64.py]=1
 	    [test_zipimport.py]=1
 	    [test_zipimport_support.py]=1
 	    [test_zlib.py]=1
 	)
+	# 224 remaining unit-test files; about 14 minutes and 46 seconds
 	;;
     3.7)
 	SKIP_TESTS=(
