@@ -204,6 +204,7 @@ case $PYVERSION in
 	    [test_buffer.py]=1  # parse error
 	    [test_cmd_line.py]=1 # too long?
 	    [test_concurrent_futures.py]=1  # too long?
+	    [test_decimal.py]=1 # test takes too long to run: 18 seconds
 	    [test_descr.py]=1  # test assertion errors
 	    [test_dictcomps.py]=1  # test assertion errors
 	    [test_doctest.py]=1  # test assertion errors
@@ -211,13 +212,17 @@ case $PYVERSION in
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_exceptions.py]=1   #
 	    [test_faulthandler.py]=1
+	    [test_fork1.py]=1 # test takes too long to run: 12 seconds
 	    [test_grammar.py]=1
+	    [test_io.py]=1  # test takes too long to run: 34 seconds
 	    [test_lib2to3.py]=1
+	    [test_logging.py]=1 # test takes too long to run: 13 seconds
 	    [test_math.py]=1
 	    [test_modulefinder.py]=1
 	    [test_multiprocessing.py]=1
 	    [test_nntplib.py]=1
 	    [test_peepholer.py]=1
+	    [test_poll.py]=1  # test takes too long to run: 11 seconds
 	    [test_queue.py]=1
 	    [test_raise.py]=1 # test assertion errors
 	    [test_resource.py]=1
@@ -231,6 +236,7 @@ case $PYVERSION in
 	    [test_strlit.py]=1
 	    [test_symtable.py]=1
 	    [test_sys_setprofile.py]=1 # test assertion errors
+	    [test_subprocess.py]=1  # test takes too long to run: 28 seconds
 	    [test_thread.py]=1
 	    [test_timeout.py]=1
 	    [test_traceback.py]=1
@@ -614,7 +620,7 @@ case $PYVERSION in
 	;;
     3.7)
 	SKIP_TESTS=(
-	    [test_ast.py]=1  # test assertion error
+	    [test_ast.py]=1  # Depends on comments in code
 	    [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
 	    [test_baseexception.py]=1  #
 	    [test_bdb.py]=1  #
@@ -646,6 +652,7 @@ case $PYVERSION in
 	;;
     3.8)
 	SKIP_TESTS=(
+	    [test_ast.py]=1  # parse error and then Depends on comments in code
 	    [test_collections.py]=1  # Investigate
 	    [test_decorators.py]=1  # Control flow wrt "if elif"
 	    [test_exceptions.py]=1   # parse error
