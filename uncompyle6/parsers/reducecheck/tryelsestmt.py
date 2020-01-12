@@ -6,13 +6,14 @@ def tryelsestmt(self, lhs, n, rule, ast, tokens, first, last):
     # Check the end of the except handler that there isn't a jump from
     # inside the except handler to the end. If that happens
     # then this is a "try" with no "else".
+    from trepan.api import debug; debug()
     except_handler = ast[3]
     if except_handler == "except_handler":
 
         come_from = except_handler[-1]
         # We only care about the *first* come_from because that is the
         # the innermost one. So if the "tryelse" is invalid (should be a "try")
-        # ti will be invalid here.
+        # it will be invalid here.
         if come_from == "COME_FROM":
             first_come_from = except_handler[-1]
         elif come_from == "END_FINALLY":

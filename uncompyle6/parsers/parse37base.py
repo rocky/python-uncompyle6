@@ -15,6 +15,7 @@ from uncompyle6.parsers.reducecheck import (
     ifstmts_jump,
     or_check,
     testtrue,
+    tryelsestmtl3,
     while1stmt,
     while1elsestmt,
 )
@@ -1000,6 +1001,7 @@ class Python37BaseParser(PythonParser):
             "testtrue": testtrue,
             "while1elsestmt": while1elsestmt,
             "while1stmt": while1stmt,
+            "try_elsestmtl38": tryelsestmtl3,
         }
 
         self.check_reduce["and"] = "AST"

@@ -207,7 +207,6 @@ case $PYVERSION in
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_exceptions.py]=1   #
 	    [test_faulthandler.py]=1
-	    [test_fileio.py]=1
 	    [test_grammar.py]=1
 	    [test_lib2to3.py]=1
 	    [test_math.py]=1
@@ -278,7 +277,6 @@ case $PYVERSION in
 	    [test_enum.py]=1
 	    [test_exceptions.py]=1
 	    [test_faulthandler.py]=1
-	    [test_fileio.py]=1
 	    [test_file_eintr.py]=1   # parse error
 	    [test_fileinput.py]=1 # doesn't terminate
 	    [test_fork1.py]=1 # too long
@@ -406,7 +404,6 @@ case $PYVERSION in
 	    [test_enum.py]=1  #
 	    [test_exceptions.py]=1 # parse error
 	    [test_fileinput.py]=1 # doesn't terminate
-	    [test_fileio.py]=1
 	    [test_fractions.py]=1 # doesn't terminate
 	    [test_frame.py]=1 # doesn't terminate
 	    [test_ftplib.py]=1 # doesn't terminate
@@ -638,6 +635,7 @@ case $PYVERSION in
 	    [test_decorators.py]=1  # Control flow wrt "if elif"
 	    [test_exceptions.py]=1   # parse error
 	    [test_dis.py]=1   # We change line numbers - duh!
+	    [test_fileio.py]=1   # parse error
 	    [test_pow.py]=1         # Control flow wrt "continue"
 	    [test_quopri.py]=1      # Only fails on POWER
 	    # ...

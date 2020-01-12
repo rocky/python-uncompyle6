@@ -29,7 +29,7 @@ that a later phase can turn into a sequence of ASCII text.
 import re
 from uncompyle6.scanners.tok import Token
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
-from uncompyle6.parsers.reducecheck import except_handler_else, testtrue
+from uncompyle6.parsers.reducecheck import except_handler_else, testtrue, tryelsestmtl3
 from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from xdis import PYTHON3
@@ -1015,7 +1015,9 @@ class Python3Parser(PythonParser):
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
                     if has_get_iter_call_function1:
-                        if self.is_pypy or (i >= j and tokens[i - j] == "LOAD_LISTCOMP"):
+                        if self.is_pypy or (
+                            i >= j and tokens[i - j] == "LOAD_LISTCOMP"
+                        ):
                             # In the tokens we saw:
                             #   LOAD_LISTCOMP LOAD_CONST MAKE_FUNCTION (>= 3.3) or
                             #   LOAD_LISTCOMP MAKE_FUNCTION (< 3.3) or
@@ -1038,7 +1040,9 @@ class Python3Parser(PythonParser):
                             self.add_make_function_rule(
                                 rule_pat, opname, token.attr, customize
                             )
-                        if self.is_pypy or (i >= j and tokens[i - j] == "LOAD_DICTCOMP"):
+                        if self.is_pypy or (
+                            i >= j and tokens[i - j] == "LOAD_DICTCOMP"
+                        ):
                             self.add_unique_rule(
                                 "dict_comp ::= %sload_closure LOAD_DICTCOMP %s "
                                 "expr GET_ITER CALL_FUNCTION_1"
@@ -1056,11 +1060,14 @@ class Python3Parser(PythonParser):
                 # Note order of kwargs and pos args changed between 3.3-3.4
                 if self.version <= 3.2:
                     if annotate_args > 0:
-                        rule = "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure LOAD_CODE %s" % (
-                            kwargs_str,
-                            "pos_arg " * args_pos,
-                            "annotate_arg " * (annotate_args - 1),
-                            opname,
+                        rule = (
+                            "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure LOAD_CODE %s"
+                            % (
+                                kwargs_str,
+                                "pos_arg " * args_pos,
+                                "annotate_arg " * (annotate_args - 1),
+                                opname,
+                            )
                         )
                     else:
                         rule = "mkfunc ::= %s%sload_closure LOAD_CODE %s" % (
@@ -1070,11 +1077,14 @@ class Python3Parser(PythonParser):
                         )
                 elif self.version == 3.3:
                     if annotate_args > 0:
-                        rule = "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure LOAD_CODE LOAD_STR %s" % (
-                            kwargs_str,
-                            "pos_arg " * args_pos,
-                            "annotate_arg " * (annotate_args - 1),
-                            opname,
+                        rule = (
+                            "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure LOAD_CODE LOAD_STR %s"
+                            % (
+                                kwargs_str,
+                                "pos_arg " * args_pos,
+                                "annotate_arg " * (annotate_args - 1),
+                                opname,
+                            )
                         )
                     else:
                         rule = "mkfunc ::= %s%sload_closure LOAD_CODE LOAD_STR %s" % (
@@ -1090,12 +1100,15 @@ class Python3Parser(PythonParser):
                         load_op = "LOAD_CONST"
 
                     if annotate_args > 0:
-                        rule = "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure %s %s" % (
-                            "pos_arg " * args_pos,
-                            kwargs_str,
-                            "annotate_arg " * (annotate_args - 1),
-                            load_op,
-                            opname,
+                        rule = (
+                            "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure %s %s"
+                            % (
+                                "pos_arg " * args_pos,
+                                kwargs_str,
+                                "annotate_arg " * (annotate_args - 1),
+                                load_op,
+                                opname,
+                            )
                         )
                     else:
                         rule = "mkfunc ::= %s%s load_closure LOAD_CODE %s %s" % (
@@ -1183,7 +1196,9 @@ class Python3Parser(PythonParser):
                         self.add_make_function_rule(
                             rule_pat, opname, token.attr, customize
                         )
-                        if self.is_pypy or (i >= 2 and tokens[i - 2] == "LOAD_LISTCOMP"):
+                        if self.is_pypy or (
+                            i >= 2 and tokens[i - 2] == "LOAD_LISTCOMP"
+                        ):
                             if self.version >= 3.6:
                                 # 3.6+ sometimes bundles all of the
                                 # 'exprs' in the rule above into a
@@ -1437,7 +1452,7 @@ class Python3Parser(PythonParser):
                     tryelsestmt      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                                          except_handler_else else_suite come_froms
                     """,
-                    nop_func
+                    nop_func,
                 )
 
                 custom_ops_processed.add(opname)
@@ -1472,6 +1487,7 @@ class Python3Parser(PythonParser):
             # 3.6+ can remove a JUMP_FORWARD which messes up our testing here
             self.check_reduce["try_except"] = "AST"
 
+        self.check_reduce["tryelsestmtl3"] = "AST"
         # FIXME: remove parser errors caused by the below
         # self.check_reduce['while1elsestmt'] = 'noAST'
         return
@@ -1491,7 +1507,7 @@ class Python3Parser(PythonParser):
         elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
             condition_jump = ast[0].last_child()
             if condition_jump.kind.startswith("POP_JUMP_IF"):
-                condition_jump2 = tokens[min(last-1, len(tokens)-1)]
+                condition_jump2 = tokens[min(last - 1, len(tokens) - 1)]
                 if condition_jump2.kind.startswith("POP_JUMP_IF"):
                     return condition_jump.attr == condition_jump2.attr
                 # if condition_jump.attr < condition_jump2.off2int():
@@ -1501,13 +1517,19 @@ class Python3Parser(PythonParser):
                 return condition_jump.attr < condition_jump2.off2int()
             return False
         elif lhs == "ifelsestmt" and rule[1][2] == "jump_forward_else":
-            last = min(last, len(tokens)-1)
+            last = min(last, len(tokens) - 1)
             if tokens[last].off2int() == -1:
                 last -= 1
             jump_forward_else = ast[2]
-            return tokens[first].off2int() <= jump_forward_else[0].attr < tokens[last].off2int()
+            return (
+                tokens[first].off2int()
+                <= jump_forward_else[0].attr
+                < tokens[last].off2int()
+            )
         elif lhs == "testtrue":
             return testtrue(self, lhs, n, rule, ast, tokens, first, last)
+        elif lhs == "tryelsestmtl3":
+            return tryelsestmtl3(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs == "while1stmt":
 
             # If there is a fall through to the COME_FROM_LOOP, then this is
