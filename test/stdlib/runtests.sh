@@ -416,12 +416,14 @@ case $PYVERSION in
 	SKIP_TESTS=(
 	    [test___all__.py]=1 # it fails on its own
 	    [test_aifc.py]=1  #
+	    [test_asdl_parser.py]=1 # it fails on its own
 	    [test_ast.py]=1  # line 379, in test_literal_eval  self.assertEqual(ast.literal_eval('b"hi"'), 'hi')
 	    [test_asynchat.py]=1  # doesn't terminate
 	    [test_asyncore.py]=1  # doesn't terminate
 	    [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
 	    [test_binascii.py]=1 # Doesn't terminate
 	    [test_binop.py]=1 # Doesn't terminate
+	    [test_bisect.py]=1  # it fails on its own
 	    [test_builtin.py]=1  #
 	    [test_bz2.py]=1  # testSeekBackwardsAcrossStreams (__main__.BZ2FileTest) ...  doesn't terminiate
 	    [test_capi.py]=1 # Doesn't terminate
@@ -528,6 +530,7 @@ case $PYVERSION in
 	    [test_unpack_ex.py]=1 # doesn't terminate
 	    [test_univnewlines.py]=1 # doesn't terminate
 	    [test_urlparse.py]=1 # test assert error
+	    [test_urllib2_localnet.py]=1  # doesn't terminate
 	    [test_weakref.py]=1 # doesn't terminate test_threaded_weak_valued_consistency (__main__.MappingTestCase) ...
 	    [test_xmlrpc.py]=1
 	    [test_zipfile64.py]=1
@@ -556,6 +559,7 @@ case $PYVERSION in
 	    [test_baseexception.py]=1 # test asert error
 	    [test_bdb.py]=1  #
 	    [test_binop.py]=1  # Doesn't terminate
+	    [test_bisect.py]=1  # it fails on its own
 	    [test_buffer.py]=1  # parse error
 	    [test_builtin.py]=1  # Fails on its own
 	    [test_bz2.py]=1  # testSeekBackwardsAcrossStreams (__main__.BZ2FileTest) ...  doesn't terminiate
