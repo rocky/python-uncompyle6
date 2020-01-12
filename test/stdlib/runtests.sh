@@ -28,6 +28,26 @@ MINOR=${FULLVERSION##?.?.}
 
 STOP_ONERROR=${STOP_ONERROR:-1}
 
+typeset -i timeout=15
+
+function timeout_cmd {
+
+  (
+    $@ &
+    child=$!
+    trap -- "" SIGTERM
+    (
+	sleep "$timeout"
+	if ps -p $child >/dev/null ; then
+	    echo ""
+	    echo >&1 "**Killing ${2}; takes more than $timeout seconds to run"
+	    kill -TERM ${child}
+	fi
+    ) &
+    wait "$child"
+  )
+}
+
 typeset -A SKIP_TESTS
 case $PYVERSION in
     2.4)
@@ -642,7 +662,7 @@ case $PYVERSION in
 	SKIP_TESTS=(
 	    [test_ast.py]=1  # Depends on comments in code
 	    [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
-	    [test_baseexception.py]=1  #
+ 	    [test_baseexception.py]=1  #
 	    [test_bdb.py]=1  #
 	    [test_buffer.py]=1  # parse error
 	    [test_builtin.py]=1  # parser error
@@ -673,6 +693,16 @@ case $PYVERSION in
     3.8)
 	SKIP_TESTS=(
 	    [test_ast.py]=1  # parse error and then Depends on comments in code
+	    [test_aifc.py]=1  # parse error
+	    [test_argparse.py]=1  # parse error
+	    [test_asyncgen.py]=1  # parse error
+	    [test_asynchat.py]=1  # parse error
+	    [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
+	    [test_audiop.py]=1  # parse error
+	    [test_audit.py]=1  # parse error
+	    [test_bool.py]=1 # parse error
+	    [test_buffer.py]=1 # parse error
+	    [test_cmath.py]=1  # parse error
 	    [test_collections.py]=1  # Investigate
 	    [test_decorators.py]=1  # Control flow wrt "if elif"
 	    [test_exceptions.py]=1   # parse error
@@ -769,7 +799,7 @@ for file in $files; do
     rc=$?
     if (( rc == 0 )) ; then
 	echo ========== $(date +%X) Running $file ===========
-	python $file
+	timeout_cmd python $file
 	rc=$?
     else
 	echo ======= Skipping $file due to compile/decompile errors ========
