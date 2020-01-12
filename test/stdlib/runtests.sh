@@ -105,11 +105,7 @@ case $PYVERSION in
 	;;
     2.7)
 	SKIP_TESTS=(
-	    # These are ok, but our test machine POWER has problems
-	    # so we skip..
-	    [test_httplib.py]=1  # Ok, but POWER has problems with this
-	    [test_pdb.py]=1 # Ok, but POWER has problems with this
-
+	    [test_bsddb3.py]=1 # test takes too long to run: 110 seconds
 	    [test_compile.py]=1  # Investigate: unable to find constant 0j in (None, 0.0)
 	    [test_curses.py]=1  # Possibly fails on its own but not detected
 	    [test_cmd_line.py]=1 # Takes too long, maybe hangs, or looking for interactive input?
@@ -121,10 +117,12 @@ case $PYVERSION in
 	    [test_grp.py]=1     # test takes to long, works interactively though
 	    [test_io.py]=1 # Test takes too long to run
 	    [test_ioctl.py]=1 # Test takes too long to run
+	    [test_lib2to3.py]=1 # test takes too long to run: 28 seconds
 	    [test_math.py]=1
 	    [test_memoryio.py]=1 # FIX
 	    [test_modulefinder.py]=1 # FIX
 	    [test_multiprocessing.py]=1 # On uncompyle2, takes 24 secs
+	    [test_poll.py]=1  # test takes too long to run: 11 seconds
 	    [test_pwd.py]=1     # Takes too long
 	    [test_runpy.py]=1   # Long and fails on its own
 	    [test_select.py]=1  # Runs okay but takes 11 seconds
@@ -132,6 +130,7 @@ case $PYVERSION in
 	    [test_ssl.py]=1  #
 	    [test_subprocess.py]=1 # Runs ok but takes 22 seconds
 	    [test_sys_settrace.py]=1 # Line numbers are expected to be different
+	    [test_tokenize.py]=1 # test takes too long to run: 19 seconds
 	    [test_traceback.py]=1 # Line numbers change - duh.
 	    [test_unicode.py]=1  # Too long to run 11 seconds
 	    [test_xpickle.py]=1 # Runs ok but takes 72 seconds
@@ -145,6 +144,8 @@ case $PYVERSION in
 	    SKIP_TESTS[test_array.py]=1
 	    SKIP_TESTS[test_ast.py]=1
 	    SKIP_TESTS[test_audioop.py]=1
+	    SKIP_TESTS[test_httplib.py]=1  # Ok, but POWER has problems with this
+	    SKIP_TESTS[test_pdb.py]=1 # Ok, but POWER has problems with this
 
 	    # SyntaxError: Non-ASCII character '\xdd' in file test_base64.py on line 153, but no encoding declared; see http://www.python.org/peps/pep-0263.html for details
 	    SKIP_TESTS[test_base64.py]=1
@@ -261,6 +262,7 @@ case $PYVERSION in
 
     3.4)
 	SKIP_TESTS=(
+	    [test___all__.py]=1  # it fails on its own
 	    [test_aifc.py]=1  #
 	    [test_asynchat.py]=1  #
 	    [test_asyncore.py]=1  #
@@ -276,12 +278,16 @@ case $PYVERSION in
 	    [test_colorsys.py]=1 # Doesn't terminate
 	    [test_concurrent_futures.py]=1  # too long?
 	    [test_configparser.py]=1  # Doesn't terminate
+	    [test_ctypes.py]=1 # it fails on its own
 	    [test_curses.py]=1 # Investigate
 	    [test_dbm_gnu.py]=1   # Doesn't terminate
+	    [test_decimal.py]=1 # test takes too long to run: 18 seconds
+	    [test_devpoll.py]=1 # it fails on its own
 	    [test_descr.py]=1   # Doesn't terminate
 	    [test_dictcomps.py]=1 # test assertion failure
 	    [test_dict.py]=1   #
 	    [test_dis.py]=1   # We change line numbers - duh!
+	    [test_distutils.py]=1 # it fails on its own
 	    [test_doctest2.py]=1
 	    [test_doctest.py]=1
 	    [test_docxmlrpc.py]=1
@@ -295,6 +301,7 @@ case $PYVERSION in
 	    [test_frame.py]=1 # doesn't terminate
 	    [test_ftplib.py]=1 # doesn't terminate
 	    [test_functools.py]=1 # doesn't terminate
+	    [test_gdb.py]=1 # it fails on its own
 	    [test_gc.py]=1 # doesn't terminate
 	    [test_grammar.py]=1
 	    [test_generators.py]=1 # test assert failures
@@ -302,7 +309,10 @@ case $PYVERSION in
 	    [test_hashlib.py]=1  # doesn't terminate
 	    [test_heapq.py]=1
 	    [test_httpservers.py]=1
+	    [test_httplib.py]=1 # it fails on its ow
+	    [test_import.py]=1 # it fails on its own
 	    [test_io.py]=1
+	    [test_ioctl.py]=1 # it fails on its own
 	    [test_inspect.py]=1 # Syntax error Investigate
 	    [test_itertools.py]=1 # doesn't terminate on test_permutations
 	    [test_logging.py]=1 #
@@ -584,7 +594,7 @@ case $PYVERSION in
 	    [test_runpy.py]=1 # decompile takes too long?
 	    [test_sched.py]=1
 	    [test_scope.py]=1
-	    [test test_select.py] # test takes too long to run: 11 seconds
+	    [test_select.py]=1 # test takes too long to run: 11 seconds
 	    [test_set.py]=1 # test assert failure and doesn't terminate
 	    [test_shlex.py]=1 # Doesn't terminate
 	    [test_smtpd.py]=1
@@ -607,6 +617,8 @@ case $PYVERSION in
 	    [test_urllib2_localnet.py]=1 # long
 	    [test_venv.py]=1 # test takes too long to run: 13 seconds
 	    [test_weakref.py]=1
+	    [test_winreg.py]=1 # it fails on its own
+	    [test_winsound.py]=1 # it fails on its own
 	    [test_zipfile.py]=1 # Too long - 11 seconds
 	    [test_zipfile64.py]=1
 	    [test_zipimport.py]=1
