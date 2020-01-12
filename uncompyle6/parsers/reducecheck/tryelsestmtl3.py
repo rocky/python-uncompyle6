@@ -29,6 +29,8 @@ def tryelsestmtl3(self, lhs, n, rule, ast, tokens, first, last):
             return False
 
     leading_jump = except_handler[0]
+    if not hasattr(leading_jump, "offset"):
+        return False
 
     # We really don't care that this is a jump per-se. But
     # we could also check that this jumps to the end of the except if
