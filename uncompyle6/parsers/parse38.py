@@ -241,6 +241,7 @@ class Python38Parser(Python37Parser):
         self.remove_rules_38()
         self.check_reduce["whileTruestmt38"] = "tokens"
         self.check_reduce["whilestmt38"] = "tokens"
+        self.check_reduce["try_elsestmtl38"] = "AST"
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python38Parser,

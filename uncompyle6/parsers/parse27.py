@@ -67,6 +67,8 @@ class Python27Parser(Python2Parser):
 
         tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                            except_handler_else else_suitel
+        tryelsestmtc   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                           except_handler_else else_suitec COME_FROM
 
         except_stmt ::= except_cond2 except_suite
 

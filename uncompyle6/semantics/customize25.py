@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 by Rocky Bernstein
+#  Copyright (c) 2019-2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -37,7 +37,9 @@ def customize_for_version25(self, version):
 
     # In 2.5+ "except" handlers and the "finally" can appear in one
     # "try" statement. So the below has the effect of combining the
-    # "tryfinally" with statement with the "try_except" statement
+    # "tryfinally" with statement with the "try_except" statement.
+    # FIXME: something doesn't smell right, since the semantics
+    # are different. See test_fileio.py for an example that shows this.
     def tryfinallystmt(node):
         if len(node[1][0]) == 1 and node[1][0][0] == 'stmt':
             if node[1][0][0][0] == 'try_except':

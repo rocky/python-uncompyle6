@@ -400,7 +400,7 @@ class Python37Parser(Python37BaseParser):
 
     def p_32on(self, args):
         """
-        conditional ::= expr jmp_false expr jump_forward_else expr COME_FROM
+        conditional::= expr jmp_false expr jump_forward_else expr COME_FROM
 
         # compare_chained2 is used in a "chained_compare": x <= y <= z
         # used exclusively in compare_chained
@@ -619,6 +619,8 @@ class Python37Parser(Python37BaseParser):
 
     def p_37conditionals(self, args):
         """
+        expr                       ::= conditional37
+        conditional37              ::= expr expr jf_cfs expr COME_FROM
         jf_cfs                     ::= JUMP_FORWARD _come_froms
         ifelsestmt                 ::= testexpr c_stmts_opt jf_cfs else_suite opt_come_from_except
 
@@ -638,6 +640,9 @@ class Python37Parser(Python37BaseParser):
         expr                       ::= if_exp_37b
         if_exp_37a                 ::= and_not expr JUMP_FORWARD come_froms expr COME_FROM
         if_exp_37b                 ::= expr jmp_false expr POP_JUMP_IF_FALSE jump_forward_else expr
+        or                         ::= expr jmp_true expr
+        jmp_false_cf               ::= POP_JUMP_IF_FALSE COME_FROM
+        comp_if                    ::= or jmp_false_cf comp_iter
         """
 
     def p_comprehension3(self, args):
@@ -753,6 +758,10 @@ class Python37Parser(Python37BaseParser):
 
         stmt ::= classdefdeco
         classdefdeco ::= classdefdeco1 store
+
+        # In 3.7 there are some LOAD_GLOBALs we don't convert to LOAD_ASSERT
+        stmt    ::= assert2
+        assert2 ::= expr jmp_true LOAD_GLOBAL expr CALL_FUNCTION_1 RAISE_VARARGS_1
 
         expr    ::= LOAD_ASSERT
 
@@ -898,11 +907,12 @@ class Python37Parser(Python37BaseParser):
         ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
         ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
-        jitop_come_from ::= JUMP_IF_TRUE_OR_POP COME_FROM
-        jifop_come_from ::= JUMP_IF_FALSE_OR_POP COME_FROM
+        jitop_come_from ::= JUMP_IF_TRUE_OR_POP come_froms
+        jifop_come_from ::= JUMP_IF_FALSE_OR_POP come_froms
         or        ::= and jitop_come_from expr COME_FROM
         or        ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         or        ::= expr JUMP_IF_TRUE expr COME_FROM
+        or        ::= expr POP_JUMP_IF_TRUE expr POP_JUMP_IF_FALSE COME_FROM
 
         testfalse_not_or   ::= expr jmp_false expr jmp_false COME_FROM
         testfalse_not_and ::= and jmp_true come_froms

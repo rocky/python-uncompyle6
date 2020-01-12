@@ -343,6 +343,7 @@ class Python26Parser(Python2Parser):
         super(Python26Parser, self).customize_grammar_rules(tokens, customize)
         self.check_reduce['and'] = 'AST'
         self.check_reduce['assert_expr_and'] = 'AST'
+        self.check_reduce["ifstmt"] = "tokens"
         self.check_reduce['list_for'] = 'AST'
         self.check_reduce['try_except'] = 'tokens'
         self.check_reduce['tryelsestmt'] = 'AST'
@@ -382,6 +383,16 @@ class Python26Parser(Python2Parser):
 
             return not (jmp_target == tokens[test_index].offset or
                         tokens[last].pattr == jmp_false.pattr)
+
+        elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
+            for i in range(last-1, last-4, -1):
+                t = tokens[i]
+                if t == "JUMP_FORWARD":
+                    return t.attr > tokens[min(last, len(tokens)-1)].off2int()
+                elif t not in ("POP_TOP", "COME_FROM"):
+                    break
+                pass
+            pass
         elif rule == (
                 'list_for',
                 ('expr', 'for_iter', 'store', 'list_iter',

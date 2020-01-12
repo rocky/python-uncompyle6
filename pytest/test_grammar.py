@@ -46,6 +46,10 @@ def test_grammar():
         # NOTE: this may disappear
         expect_lhs.add("except_handler_else")
 
+        if PYTHON_VERSION < 3.7 and PYTHON_VERSION != 2.7:
+            # NOTE: this may disappear
+            expect_lhs.add("except_handler_else")
+
     if PYTHON3:
         expect_lhs.add("load_genexpr")
 

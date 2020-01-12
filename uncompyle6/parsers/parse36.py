@@ -20,6 +20,7 @@ from uncompyle6.parser import PythonParserSingle, nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parsers.parse35 import Python35Parser
 from uncompyle6.scanners.tok import Token
+from uncompyle6.parsers.reducecheck import ifelsestmt, iflaststmt, and_check
 
 class Python36Parser(Python35Parser):
 
@@ -150,6 +151,16 @@ class Python36Parser(Python35Parser):
 
         compare_chained2 ::= expr COMPARE_OP come_froms JUMP_FORWARD
 
+        """
+
+    # Some of this is duplicated from parse37. Eventually we'll probably rebase from
+    # that and then we can remove this.
+    def p_37conditionals(self, args):
+        """
+        expr                       ::= conditional37
+        conditional37              ::= expr expr jf_cfs expr COME_FROM
+        jf_cfs                     ::= JUMP_FORWARD _come_froms
+        ifelsestmt                 ::= testexpr c_stmts_opt jf_cfs else_suite opt_come_from_except
         """
 
     def customize_grammar_rules(self, tokens, customize):

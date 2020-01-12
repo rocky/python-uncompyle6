@@ -11,8 +11,10 @@ except:
     def is_negative_zero(n):
         return False
 
+from uncompyle6 import PYTHON_VERSION
 
-def better_repr(v):
+
+def better_repr(v, version):
     """Work around Python's unorthogonal and unhelpful repr() for primitive float
     and complex."""
     if isinstance(v, float):
@@ -27,20 +29,26 @@ def better_repr(v):
             return "-0.0"
         return repr(v)
     elif isinstance(v, complex):
-        real = better_repr(v.real)
-        imag = better_repr(v.imag)
+        real = better_repr(v.real, version)
+        imag = better_repr(v.imag, version)
         # FIXME: we could probably use repr() in most cases
         # sort out when that's possible.
         # The below is however round-tripable, and Python's repr() isn't.
         return "complex(%s, %s)" % (real, imag)
     elif isinstance(v, tuple):
         if len(v) == 1:
-            return "(%s,)" % better_repr(v[0])
-        return "(%s)" % ", ".join(better_repr(i) for i in v)
+            return "(%s,)" % better_repr(v[0], version)
+        return "(%s)" % ", ".join(better_repr(i, version) for i in v)
+    elif PYTHON_VERSION < 3.0 and isinstance(v, long):
+        s = repr(v)
+        if version >= 3.0 and s[-1] == "L":
+            return s[:-1]
+        else:
+            return s
     elif isinstance(v, list):
         l = better_repr(v)
         if len(v) == 1:
-            return "[%s,]" % better_repr(v[0])
+            return "[%s,]" % better_repr(v[0], version)
         return "[%s]" % ", ".join(better_repr(i) for i in v)
     # TODO: elif deal with sets and dicts
     else:

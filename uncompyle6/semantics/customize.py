@@ -48,8 +48,8 @@ def customize_for_version(self, is_pypy, version):
         #######################
         TABLE_DIRECT.update({
             # "assert" and "assert_expr" are added via transform rules.
-            "assert": ("%|assert %c\n", (0, "assert_expr")),
-            "assert2": ("%|assert %c, %c\n", (0, "assert_expr"), 3),
+            "assert": ("%|assert %c\n", 0),
+            "assert2": ("%|assert %c, %c\n", 0, 3),
 
             # Created only via transformation
             "assertnot": ("%|assert not %p\n", (0, PRECEDENCE['unary_not'])),

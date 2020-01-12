@@ -251,7 +251,9 @@ class Python35Parser(Python34Parser):
             # zero or not in creating a template rule.
             self.add_unique_rule(rule, token.kind, args_pos, customize)
         else:
-            super(Python35Parser, self).custom_classfunc_rule(opname, token, customize, *args)
+            super(Python35Parser, self).custom_classfunc_rule(opname, token, customize, *args
+            )
+
 
 class Python35ParserSingle(Python35Parser, PythonParserSingle):
     pass

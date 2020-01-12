@@ -616,7 +616,7 @@ class SourceWalker(GenericASTTraversal, object):
         for item in tup:
             self.write(sep)
             l += len(sep)
-            s = better_repr(item)
+            s = better_repr(item, self.version)
             l += len(s)
             self.write(s)
             sep = ","
@@ -636,9 +636,9 @@ class SourceWalker(GenericASTTraversal, object):
         data = node.pattr
         datatype = type(data)
         if isinstance(data, float) :
-            self.write(better_repr(data))
+            self.write(better_repr(data, self.version))
         elif isinstance(data, complex):
-            self.write(better_repr(data))
+            self.write(better_repr(data, self.version))
         elif isinstance(datatype, int) and data == minint:
             # convert to hex, since decimal representation
             # would result in 'LOAD_CONST; UNARY_NEGATIVE'
