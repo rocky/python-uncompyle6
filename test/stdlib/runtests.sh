@@ -267,6 +267,7 @@ case $PYVERSION in
 	    [test_concurrent_futures.py]=1  # too long?
 	    [test_configparser.py]=1  # Doesn't terminate
 	    [test_curses.py]=1 # Investigate
+	    [test_dbm_gnu.py]=1   # Doesn't terminate
 	    [test_descr.py]=1   # Doesn't terminate
 	    [test_dictcomps.py]=1 # test assertion failure
 	    [test_dict.py]=1   #
