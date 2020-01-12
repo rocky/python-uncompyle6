@@ -17,7 +17,7 @@ class TestGrammar(unittest.TestCase):
         p = get_python_parser(PYTHON_VERSION, is_pypy=IS_PYPY)
         (lhs, rhs, tokens,
          right_recursive, dup_rhs) = p.check_sets()
-        expect_lhs = set(['expr1024', 'pos_arg'])
+        expect_lhs = set(['pos_arg', 'get_iter', 'attribute'])
         unused_rhs = set(['list', 'call', 'mkfunc',
                           'mklambda',
                           'unpack',])
