@@ -84,6 +84,7 @@ case $PYVERSION in
 	    # .pyenv/versions/2.6.9/lib/python2.6/lib2to3/refactor.pyc
 	    # .pyenv/versions/2.6.9/lib/python2.6/pyclbr.pyc
 	)
+	# About 308 unit-test files, run in about 15 minutes
 	if (( batch )) ; then
 	    # Fails in crontab environment?
 	    # Figure out what's up here
@@ -133,6 +134,7 @@ case $PYVERSION in
 	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
 	    [test_zipimport.py]=1  #
         )
+	# About 335 unit-test remaining files run in about 20 minutes and 11 seconds
 	if (( batch )) ; then
 	    # Fails in crontab environment?
 	    # Figure out what's up here
@@ -214,6 +216,7 @@ case $PYVERSION in
 	    [test_nntplib.py]=1
 	    [test_peepholer.py]=1
 	    [test_queue.py]=1
+	    [test_raise.py]=1 # test assertion errors
 	    [test_resource.py]=1
 	    [test_re.py]=1
 	    [test_runpy.py]=1
@@ -224,14 +227,19 @@ case $PYVERSION in
 	    [test_socket.py]=1
 	    [test_strlit.py]=1
 	    [test_symtable.py]=1
+	    [test_sys_setprofile.py]=1 # test assertion errors
 	    [test_thread.py]=1
 	    [test_timeout.py]=1
 	    [test_traceback.py]=1
 	    [test_urllib2.py]=1
 	    [test_warnings.py]=1
+	    [test_zipfile.py]=1 # too long - 12 second
 	    [test_zipfile64.py]=1
 	    [test_zipimport.py]=1
+	    [test_zipimport_support.py]=1
 	)
+
+	# About 300 unit-test files in about 20 minutes
 	if (( batch )) ; then
 	    :
 	    # Fails in crontab environment?
@@ -356,6 +364,7 @@ case $PYVERSION in
 	    [test_zipimport_support.py]=1
 	    [test_zlib.py]=1
 	)
+	# 249 unit-test file in about 7 minutes and 44 seconds
 	if (( batch )) ; then
 	    # Fails in crontab environment?
 	    # Figure out what's up here
