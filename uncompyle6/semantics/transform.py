@@ -30,6 +30,13 @@ def is_docstring(node):
     except:
         return False
 
+def is_not_docstring(call_stmt_node):
+    try:
+        return (call_stmt_node == "call_stmt" and
+                call_stmt_node[0][0] == "LOAD_STR" and
+                call_stmt_node[1] == "POP_TOP")
+    except:
+        return False
 
 class TreeTransform(GenericASTTraversal, object):
     def __init__(self, version, show_ast=None, is_pypy=False):
@@ -352,6 +359,17 @@ class TreeTransform(GenericASTTraversal, object):
         self.ast = copy(ast)
         self.ast = self.traverse(self.ast, is_lambda=False)
 
+        try:
+            # Disambiguate a string (expression) which appears as a "call_stmt" at
+            # the beginning of a function versus a docstring. Seems pretty academic,
+            # but this is Python.
+            call_stmt = ast[0][0][0]
+            if is_not_docstring(call_stmt):
+                call_stmt.kind = "string_at_beginning"
+                call_stmt.transformed_by = "transform"
+                pass
+        except:
+            pass
         try:
             for i in range(len(self.ast)):
                 if is_docstring(self.ast[i]):

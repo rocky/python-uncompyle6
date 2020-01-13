@@ -67,3 +67,16 @@ def _repr_fn(fields):
 
 fields = ['a', 'b', 'c']
 assert _repr_fn(fields) == ['return xx + f"(a={self.a!r}, b={self.b!r}, c={self.c!r})"']
+
+
+# From Python 3.7 test_fstring. Why this kind of thing matter seems a bit
+# academic, but decompile an equivalent thing. For compatiblity with older
+# Python we'll use "%" instead of a format string
+def f():
+    f'''Not a docstring'''
+def g():
+    '''Not a docstring''' \
+    f''
+
+assert f.__doc__ is None
+assert g.__doc__ is None
