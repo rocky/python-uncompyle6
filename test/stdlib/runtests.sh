@@ -252,7 +252,7 @@ case $PYVERSION in
 	. ./3.7-exclude.sh
 	;;
     3.8)
-	. ./3.7-exclude.sh
+	. ./3.8-exclude.sh
 	;;
     *)
 	SKIP_TESTS=( [test_aepack.py]=1
