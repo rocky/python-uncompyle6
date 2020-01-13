@@ -15,8 +15,12 @@ SKIP_TESTS=(
     [test_re.py]=1   # probably control flow, uninitialized variable
 
     [test_queue.py]=1   # Investigate whether we caused this recently
+<<<<<<< Updated upstream
     [test test_select.py]=1 # test takes too long to run: 11 seconds
     [test_support.py]=1 #
+=======
+    [test_select.py]=1 # test takes too long to run: 11 seconds
+>>>>>>> Stashed changes
     [test_socket.py]=1 # test takes too long to run: 12 seconds
     [test_sys.py]=1 # test assertion failures
     [test_trace.py]=1  # Line numbers are expected to be different

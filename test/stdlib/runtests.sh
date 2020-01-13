@@ -89,7 +89,7 @@ case $PYVERSION in
 	)
 	;;
     2.6)
-	. ./3.3-exclude.sh
+	. ./2.6-exclude.sh
 	if (( batch )) ; then
 	    # Fails in crontab environment?
 	    # Figure out what's up here
