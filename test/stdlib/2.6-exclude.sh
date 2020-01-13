@@ -16,7 +16,7 @@ SKIP_TESTS=(
 
     [test_queue.py]=1   # Investigate whether we caused this recently
     [test test_select.py]=1 # test takes too long to run: 11 seconds
-    [test test_support.py]=1 #
+    [test_support.py]=1 #
     [test_socket.py]=1 # test takes too long to run: 12 seconds
     [test_sys.py]=1 # test assertion failures
     [test_trace.py]=1  # Line numbers are expected to be different
