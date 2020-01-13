@@ -80,3 +80,15 @@ def g():
 
 assert f.__doc__ is None
 assert g.__doc__ is None
+
+x = 5
+assert f'{(lambda y:x*y)("8")!r}' == "'88888'"
+assert f'{(lambda y:x*y)("8")!r:10}' == "'88888'   "
+assert f'{(lambda y:x*y)("8"):10}' == "88888     "
+
+try:
+    eval("f'{lambda x:x}'")
+except SyntaxError:
+    pass
+else:
+    assert False, "f'{lambda x:x}' should be a syntax error"

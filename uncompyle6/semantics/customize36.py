@@ -449,8 +449,10 @@ def customize_for_version36(self, version):
 
     def n_formatted_value1(node):
         expr = node[0]
-        assert expr == 'expr'
-        value = self.traverse(expr, indent='')
+        assert expr == "expr"
+        self.in_format_string = True
+        value = self.traverse(expr, indent="")
+        self.in_format_string = False
         conversion = f_conversion(node)
         f_str = "f%s" % escape_string("{%s%s}" % (value, conversion))
         self.write(f_str)
@@ -463,23 +465,30 @@ def customize_for_version36(self, version):
         self.prec = 100
 
         expr = node[0]
-        assert expr == 'expr'
-        value = self.traverse(expr, indent='')
+        assert expr == "expr"
+        self.in_format_string = True
+        value = self.traverse(expr, indent="")
+        self.in_format_string = False
         format_value_attr = node[-1]
-        assert format_value_attr == 'FORMAT_VALUE_ATTR'
+        assert format_value_attr == "FORMAT_VALUE_ATTR"
         attr = format_value_attr.attr
-        if attr == 4:
-            assert node[1] == 'expr'
-            fmt = strip_quotes(self.traverse(node[1], indent=''))
-            conversion = ":%s" % fmt
+        if attr & 4:
+            assert node[1] == "expr"
+            fmt = strip_quotes(self.traverse(node[1], indent=""))
+            attr_flags = attr & 3
+            if attr_flags:
+                conversion = "%s:%s" % (FSTRING_CONVERSION_MAP.get(attr_flags, ""), fmt)
+            else:
+                conversion = ":%s" % fmt
         else:
-            conversion = FSTRING_CONVERSION_MAP.get(attr, '')
+            conversion = FSTRING_CONVERSION_MAP.get(attr, "")
 
         f_str = "f%s" % escape_string("{%s%s}" % (value, conversion))
         self.write(f_str)
 
         self.prec = p
         self.prune()
+
     self.n_formatted_value2 = n_formatted_value2
 
     def n_joined_str(node):
