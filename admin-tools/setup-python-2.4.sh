@@ -15,3 +15,4 @@ cd $fulldir/..
     git checkout python-2.4 &&  pyenv local $PYTHON_VERSION && git pull
 cd $owd
 rm -v */.python-version || true
+pyenv local $PYTHON_VERSION

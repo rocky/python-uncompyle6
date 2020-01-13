@@ -269,9 +269,9 @@ cd $srcdir
 fulldir=$(pwd)
 
 # pyenv version cleaning
-for dir in .. ../.. ; do
-    (cd $dir && [[ -r .python-version ]] && rm -v .python-version )
-done
+# for dir in .. ../.. ; do
+#     (cd $dir && [[ -r .python-version ]] && rm -v .python-version )
+# done
 
 # DECOMPILER=uncompyle2
 DECOMPILER=${DECOMPILER:-"$fulldir/../../bin/uncompyle6"}
