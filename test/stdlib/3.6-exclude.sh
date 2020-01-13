@@ -101,7 +101,7 @@ SKIP_TESTS=(
     [test_math.py]=1 # call param Investigate
     [test_metaclass.py]=1
     [test_modulefinder.py]=1  # test assertion error
-    [test_msilib.py] # it fails on its own
+    [test_msilib.py]=1 # it fails on its own
     [test_multiprocessing_fork.py]=1 # it fails on its own
     [test_multiprocessing_forkserver.py]=1 # it fails on its own
     [test_multiprocessing_main_handling.py]=1 # takes too long -  11 seconds
@@ -156,7 +156,7 @@ SKIP_TESTS=(
     [test_statistics.py]=1 # it fails on its own
     [test_string_literals.py]=1
     [test_strptime.py]=1  # Doesn't terminate
-    [test_strtod.py] # it fails on its own
+    [test_strtod.py]=1 # it fails on its own
     [test_struct.py]=1  # Doesn't terminate
     [test_subprocess.py]=1
     [test_sys_settrace.py]=1 # parse error
