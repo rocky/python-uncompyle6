@@ -69,17 +69,8 @@ fields = ['a', 'b', 'c']
 assert _repr_fn(fields) == ['return xx + f"(a={self.a!r}, b={self.b!r}, c={self.c!r})"']
 
 
-# From Python 3.7 test_fstring. Why this kind of thing matter seems a bit
-# academic, but decompile an equivalent thing. For compatiblity with older
-# Python we'll use "%" instead of a format string
-def f():
-    f'''Not a docstring'''
-def g():
-    '''Not a docstring''' \
-    f''
-
-assert f.__doc__ is None
-assert g.__doc__ is None
+#################################
+# From Python 3.7 test_fstring.py
 
 x = 5
 assert f'{(lambda y:x*y)("8")!r}' == "'88888'"
@@ -92,3 +83,19 @@ except SyntaxError:
     pass
 else:
     assert False, "f'{lambda x:x}' should be a syntax error"
+
+(x, y, width) = ("foo", 2, 10)
+assert f'x={x*y:{width}}' == 'x=foofoo    '
+
+# Why the fact that the distinction of docstring versus stmt is a
+# string expression is important academic, but we will decompile an
+# equivalent thing. For compatiblity with older Python we'll use "%"
+# instead of a format string
+def f():
+    f'''Not a docstring'''
+def g():
+    '''Not a docstring''' \
+    f''
+
+assert f.__doc__ is None
+assert g.__doc__ is None
