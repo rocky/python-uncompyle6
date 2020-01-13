@@ -269,7 +269,7 @@ cd $srcdir
 fulldir=$(pwd)
 
 # pyenv version cleaning
-for dir in .. ../.. ; do
+for dir in .. ; do
     (cd $dir && [[ -r .python-version ]] && rm -v .python-version )
 done
 
