@@ -69,7 +69,6 @@ SKIP_TESTS=(
     [test_fractions.py]=1 # doesn't terminate
     [test_float.py]=1 # it fails on its own
     [test_frame.py]=1 # doesn't terminate
-    [test_fstring.py]=1 # syntax error: Investigate
     [test_functools.py]=1 # it fails on its own
     [test___future__.py]=1 # syntax error: Investigate
 

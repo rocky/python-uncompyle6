@@ -102,7 +102,17 @@ assert g.__doc__ is None
 
 import decimal
 width, precision, value = (10, 4, decimal.Decimal('12.34567'))
+
+# Make sure we don't have additional f'..' inside the format strings below.
 assert f'result: {value:{width}.{precision}}' == 'result:      12.35'
 assert f'result: {value:{width:0}.{precision:1}}' == 'result:      12.35'
 assert f'{2}\t' ==  '2\t'
+
+# But below we *do* need the additional f".."
 assert f'{f"{0}"*3}' == "000"
+
+# We need to make sure we have { {x:... not {{x: ...
+#                               ^
+# The former, {{ confuses the format strings so dictionary/set comprehensions
+# don't work.
+assert f'expr={ {x: y for x, y in [(1, 2), ]}}' == 'expr={1: 2}'

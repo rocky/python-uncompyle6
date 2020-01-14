@@ -453,7 +453,13 @@ def customize_for_version36(self, version):
         conversion = f_conversion(node)
         if (self.in_format_string and self.in_format_string != "formatted_value1"):
             value = self.traverse(expr, indent="")
-            es = escape_string("{%s%s}" % (value, conversion))
+            if value[0] == "{":
+                # If we have a set or dictionary comprehension, then we need to add a space
+                # so as not to confuse the format string with {{.
+                fmt = "{ %s%s }"
+            else:
+                fmt = "{%s%s}"
+            es = escape_string( fmt % (value, conversion))
             f_str = "%s" % es
         else:
             old_in_format_string = self.in_format_string
