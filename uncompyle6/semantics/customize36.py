@@ -456,9 +456,10 @@ def customize_for_version36(self, version):
             es = escape_string("{%s%s}" % (value, conversion))
             f_str = "%s" % es
         else:
+            old_in_format_string = self.in_format_string
             self.in_format_string = True
             value = self.traverse(expr, indent="")
-            self.in_format_string = False
+            self.in_format_string = old_in_format_string
             es = escape_string("{%s%s}" % (value, conversion))
             f_str = "f%s" % es
 
@@ -473,6 +474,7 @@ def customize_for_version36(self, version):
 
         expr = node[0]
         assert expr == "expr"
+        old_in_format_string = self.in_format_string
         self.in_format_string = True
         value = self.traverse(expr, indent="")
         format_value_attr = node[-1]
@@ -489,7 +491,7 @@ def customize_for_version36(self, version):
         else:
             conversion = FSTRING_CONVERSION_MAP.get(attr, "")
 
-        self.in_format_string = False
+        self.in_format_string = old_in_format_string
         f_str = "f%s" % escape_string("{%s%s}" % (value, conversion))
         self.write(f_str)
 
@@ -502,6 +504,8 @@ def customize_for_version36(self, version):
         p = self.prec
         self.prec = 100
 
+        old_in_format_string = self.in_format_string
+        self.in_format_string = True
         result = ""
         for expr in node[:-1]:
             assert expr == "expr"
@@ -527,7 +531,11 @@ def customize_for_version36(self, version):
             # Remove leading quotes
             result += strip_quotes(value)
             pass
-        self.write('f%s' % escape_string(result))
+        self.in_format_string = old_in_format_string
+        if self.in_format_string:
+            self.write(result)
+        else:
+            self.write("f%s" % escape_string(result))
 
         self.prec = p
         self.prune()
