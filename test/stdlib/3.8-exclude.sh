@@ -21,7 +21,6 @@ SKIP_TESTS=(
     [test_context.py]=1
     [test_coroutines.py]=1 # Parse error
     [test_codecs.py]=1
-    [test_code.py]=1 # Investigate
     [test_complex.py]=1 # Investigate
     [test_crypt.py]=1 # Parse error
     [test_ctypes.py]=1 # it fails on its own
