@@ -268,11 +268,6 @@ srcdir=$(dirname $me)
 cd $srcdir
 fulldir=$(pwd)
 
-# pyenv version cleaning
-for dir in .. ; do
-    (cd $dir && [[ -r .python-version ]] && rm -v .python-version )
-done
-
 # DECOMPILER=uncompyle2
 DECOMPILER=${DECOMPILER:-"$fulldir/../../bin/uncompyle6"}
 TESTDIR=/tmp/test${PYVERSION}
@@ -282,6 +277,13 @@ fi
 
 PYENV_ROOT=${PYENV_ROOT:-$HOME/.pyenv}
 pyenv_local=$(pyenv local)
+
+# pyenv version cleaning
+for dir in ../ ../../ ; do
+    cp -v .python-version $dir
+done
+
+
 mkdir $TESTDIR || exit $?
 cp -r ${PYENV_ROOT}/versions/${PYVERSION}.${MINOR}/lib/python${PYVERSION}/test $TESTDIR
 cd $TESTDIR/test
