@@ -105,3 +105,4 @@ width, precision, value = (10, 4, decimal.Decimal('12.34567'))
 assert f'result: {value:{width}.{precision}}' == 'result:      12.35'
 assert f'result: {value:{width:0}.{precision:1}}' == 'result:      12.35'
 assert f'{2}\t' ==  '2\t'
+assert f'{f"{0}"*3}' == "000"

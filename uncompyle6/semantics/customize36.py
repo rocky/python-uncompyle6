@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 by Rocky Bernstein
+#  Copyright (c) 2019-2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -451,13 +451,13 @@ def customize_for_version36(self, version):
         expr = node[0]
         assert expr == "expr"
         conversion = f_conversion(node)
-        if (self.in_format_string):
+        if (self.in_format_string and self.in_format_string != "formatted_value1"):
             value = self.traverse(expr, indent="")
             es = escape_string("{%s%s}" % (value, conversion))
             f_str = "%s" % es
         else:
             old_in_format_string = self.in_format_string
-            self.in_format_string = True
+            self.in_format_string = "formatted_value1"
             value = self.traverse(expr, indent="")
             self.in_format_string = old_in_format_string
             es = escape_string("{%s%s}" % (value, conversion))
@@ -475,7 +475,7 @@ def customize_for_version36(self, version):
         expr = node[0]
         assert expr == "expr"
         old_in_format_string = self.in_format_string
-        self.in_format_string = True
+        self.in_format_string = "formatted_value2"
         value = self.traverse(expr, indent="")
         format_value_attr = node[-1]
         assert format_value_attr == "FORMAT_VALUE_ATTR"
@@ -505,7 +505,7 @@ def customize_for_version36(self, version):
         self.prec = 100
 
         old_in_format_string = self.in_format_string
-        self.in_format_string = True
+        self.in_format_string = "joined_str"
         result = ""
         for expr in node[:-1]:
             assert expr == "expr"

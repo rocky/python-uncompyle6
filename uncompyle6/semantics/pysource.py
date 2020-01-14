@@ -271,8 +271,11 @@ class SourceWalker(GenericASTTraversal, object):
         self.tolerate_errors = tolerate_errors
 
         # If we are in a 3.6+ format string, we may need an
-        # extra level of parens when seeing a lambda
-        self.in_format_string = False
+        # extra level of parens when seeing a lambda. We also use
+        # this to understand whether or not to add the "f" prefix.
+        # When not "None" it is a string of the last nonterminal
+        # that started the format string
+        self.in_format_string = None
 
         # hide_internal suppresses displaying the additional instructions that sometimes
         # exist in code but but were not written in the source code.
