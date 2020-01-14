@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2019 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2020 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -100,6 +100,9 @@ def decompile(
             "\n# ".join(sys_version_lines),
         )
     )
+    if PYTHON_VERSION < 3.0 and bytecode_version >= 3.0:
+        write("# Warning: this version has problems handling the Python 3 byte type in contants properly.\n")
+
     if co.co_filename:
         write("# Embedded file name: %s" % co.co_filename,)
     if timestamp:
