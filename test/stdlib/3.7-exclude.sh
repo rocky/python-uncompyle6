@@ -45,7 +45,6 @@ SKIP_TESTS=(
     [test_float.py]=1
     [test_format.py]=1
     [test_frame.py]=1
-    [test_fstring.py]=1 # Investigate
     [test_ftplib.py]=1
     [test_functools.py]=1
     [test_gdb.py]=1 # it fails on its own

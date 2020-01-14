@@ -516,7 +516,7 @@ def customize_for_version36(self, version):
         for expr in node[:-1]:
             assert expr == "expr"
             value = self.traverse(expr, indent="")
-            if expr[0].kind.startswith('formatted_value'):
+            if expr[0].kind.startswith("formatted_value"):
                 # remove leading 'f'
                 if value.startswith("f"):
                     value = value[1:]
