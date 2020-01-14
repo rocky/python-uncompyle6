@@ -641,7 +641,6 @@ class Python37Parser(Python37BaseParser):
         expr                       ::= if_exp_37b
         if_exp_37a                 ::= and_not expr JUMP_FORWARD come_froms expr COME_FROM
         if_exp_37b                 ::= expr jmp_false expr POP_JUMP_IF_FALSE jump_forward_else expr
-        or                         ::= expr jmp_true expr
         jmp_false_cf               ::= POP_JUMP_IF_FALSE COME_FROM
         comp_if                    ::= or jmp_false_cf comp_iter
         """
@@ -922,7 +921,14 @@ class Python37Parser(Python37BaseParser):
         testfalse ::= testfalse_not_or
         testfalse ::= testfalse_not_and
         testfalse ::= or jmp_false COME_FROM
-        or        ::= expr jmp_true expr
+
+        iflaststmtl ::= testexprl c_stmts JUMP_BACK
+        iflaststmtl ::= testexprl c_stmts JUMP_BACK COME_FROM_LOOP
+        iflaststmtl ::= testexprl c_stmts JUMP_BACK POP_BLOCK
+        testexprl   ::= testfalsel
+        testfalsel  ::= expr jmp_true
+
+        or          ::= expr jmp_true expr
 
         and  ::= expr JUMP_IF_FALSE_OR_POP expr come_from_opt
         and  ::= expr jifop_come_from expr
