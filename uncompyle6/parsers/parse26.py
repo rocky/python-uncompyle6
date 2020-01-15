@@ -169,6 +169,7 @@ class Python26Parser(Python2Parser):
         # Semantic actions want the else to be at position 3
         ifelsestmt     ::= testexpr_then c_stmts_opt jf_cf_pop else_suite come_froms
         ifelsestmt     ::= testexpr_then c_stmts_opt filler else_suitel come_froms POP_TOP
+        ifelsestmt     ::= testexpr c_stmts_opt jf_cf_pop else_suite
 
         # We have no jumps to jumps, so no "come_froms" but a single "COME_FROM"
         ifelsestmt     ::= testexpr      c_stmts_opt jf_cf_pop else_suite COME_FROM
