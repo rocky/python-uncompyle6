@@ -21,7 +21,6 @@ SKIP_TESTS=(
     [test_decimal.py]=1 # test takes too long to run: 18 seconds
     [test_devpoll.py]=1 # it fails on its own
     [test_descr.py]=1   # Doesn't terminate
-    [test_dictcomps.py]=1 # test assertion failure
     [test_dict.py]=1   #
     [test_dis.py]=1   # We change line numbers - duh!
     [test_distutils.py]=1 # it fails on its own

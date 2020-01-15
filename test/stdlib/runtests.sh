@@ -274,7 +274,7 @@ fi
 PYENV_ROOT=${PYENV_ROOT:-$HOME/.pyenv}
 pyenv_local=$(pyenv local)
 
-# pyenv version cleaning
+# pyenv version update
 for dir in ../ ../../ ; do
     cp -v .python-version $dir
 done

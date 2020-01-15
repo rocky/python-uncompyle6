@@ -5,7 +5,6 @@ SKIP_TESTS=(
     [test_concurrent_futures.py]=1  # too long?
     [test_decimal.py]=1 # test takes too long to run: 18 seconds
     [test_descr.py]=1  # test assertion errors
-    [test_dictcomps.py]=1  # test assertion errors
     [test_doctest.py]=1  # test assertion errors
     [test_doctest2.py]=1  # test assertion errors
     [test_dis.py]=1   # We change line numbers - duh!

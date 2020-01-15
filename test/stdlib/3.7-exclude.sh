@@ -31,7 +31,6 @@ SKIP_TESTS=(
     [test_decimal.py]=1   # Parse error
     [test_descr.py]=1   # Parse error
     [test_devpoll.py]=1 # it fails on its own
-    [test_dictcomps.py]=1 # Bad semantics - Investigate
     [test_dis.py]=1   # We change line numbers - duh!
     [test_doctest2.py]=1 # assert failure
     [test_docxmlrpc.py]=1

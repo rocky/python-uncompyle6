@@ -51,7 +51,6 @@ SKIP_TESTS=(
     [test_descr.py]=1   # syntax error: Investigate
     [test_devpoll.py]=1 # it fails on its own
     [test_dict.py]=1 # it fails on its own
-    [test_dictcomps.py]=1   # We change line numbers - duh!
     [test_dis.py]=1   # We change line numbers - duh!
     [test_doctest2.py]=1  #
     [test_doctest.py]=1  #
