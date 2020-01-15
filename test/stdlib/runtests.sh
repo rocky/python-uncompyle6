@@ -242,10 +242,6 @@ case $PYVERSION in
 	if (( batch )) ; then
 	    # locale on test machine is probably non-default
 	    SKIP_TESTS[test__locale.py]=1
-
-	    # "test_epoll.py", line 145, in test_control_and_wait
-	    # TypeError: a bytes-like object is required, not 'str'
-	    SKIP_TESTS[test_epol.py]=1  #
 	fi
 	;;
     3.7)

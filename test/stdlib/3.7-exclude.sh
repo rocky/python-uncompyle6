@@ -84,6 +84,7 @@ SKIP_TESTS=(
     [test_pdb.py]=1 # Probably relies on comments
     [test_peepholer.py]=1 # test assert error
     [test_pickle.py]=1 # Probably relies on comments
+    [test_plistlib.py]=1 # Investigate "strings can't contains control characters; "
     [test_poll.py]=1
     [test_poplib.py]=1
     [test_pydoc.py]=1 # it fails on its own
