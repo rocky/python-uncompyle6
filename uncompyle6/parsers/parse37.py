@@ -969,9 +969,22 @@ class Python37Parser(Python37BaseParser):
         stmt ::= whileTruestmt
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms
 
+        ifstmtl            ::= testexpr _ifstmts_jumpl
+
         _ifstmts_jumpl     ::= c_stmts JUMP_BACK
         _ifstmts_jumpl     ::= _ifstmts_jump
-        ifstmtl            ::= testexpr _ifstmts_jumpl
+
+        # The following can happen when the jump offset is large and
+        # Python is looking to do a small jump to a larger jump to get
+        # around the problem that the offset can't be represented in
+        # the size allowed for the jump offset. This is more likely to
+        # happen in wordcode Python since the offset range has been
+        # reduced.  FIXME: We should add a reduction check that the
+        # final jump goes to another jump.
+
+        _ifstmts_jumpl     ::= COME_FROM c_stmts JUMP_BACK
+        _ifstmts_jumpl     ::= COME_FROM c_stmts JUMP_FORWARD
+
         """
 
     def p_loop_stmt3(self, args):
