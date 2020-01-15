@@ -98,6 +98,7 @@ case $PYVERSION in
 
 	    # SyntaxError: Non-ASCII character '\xdd' in file test_base64.py on line 153, but no encoding declared; see http://www.python.org/peps/pep-0263.html for details
 	    SKIP_TESTS[test_base64.py]=1
+	    SKIP_TESTS[test_decimal.py]=1 # Might be a POWER math thing
 
 	    # output indicates expected == output, but this fails anyway.
 	    # Maybe the underlying encoding is subtlely different so it
@@ -235,7 +236,7 @@ case $PYVERSION in
 	    SKIP_TESTS[test_quopri.py]=1
 	    SKIP_TESTS[test_ioctl.py]=1 # it fails on its own
 	fi
-	;;
+s	;;
 
     3.6)
 	. ./3.6-exclude.sh
@@ -246,6 +247,9 @@ case $PYVERSION in
 	;;
     3.7)
 	. ./3.7-exclude.sh
+	if (( batch )) ; then
+	    SKIP_TESTS[test_fileio.py]=1
+	fi
 	;;
     3.8)
 	. ./3.8-exclude.sh
