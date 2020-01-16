@@ -81,7 +81,7 @@ def customize_for_version37(self, version):
                 (17, "for_block"),
                 (25, "else_suite"),
             ),
-            "attribute37": ("%c.%[1]{pattr}", 0),
+            "attribute37": ("%c.%[1]{pattr}", (0, "expr")),
             "attributes37": ("%[0]{pattr} import %c",
                             (0, "IMPORT_NAME_ATTR"),
                             (1, "IMPORT_FROM")),
@@ -174,6 +174,20 @@ def customize_for_version37(self, version):
                 node.kind = "call_generator"
             pass
         return
+
+    def n_attribute37(node):
+        expr = node[0]
+        assert expr == "expr"
+        if expr[0] == "LOAD_CONST":
+            # FIXME: I didn't record which constants parenthesis is
+            # necessary. However, I suspect that we could further
+            # refine this by looking at operator precedence and
+            # eval'ing the constant value (pattr) and comparing with
+            # the type of the constant.
+            node.kind = "attribute_w_parens"
+        self.default(node)
+
+    self.n_attribute37 = n_attribute37
 
     def n_call(node):
         p = self.prec
