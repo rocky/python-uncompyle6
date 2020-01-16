@@ -644,8 +644,8 @@ class Python2Parser(PythonParser):
             # "and": and_check,
             "except_handler_else": except_handler_else,
             # "or": or_check,
-            "try_elsestmt": tryelsestmt,
-            "try_elsestmtl": tryelsestmt,
+            "tryelsestmt": tryelsestmt,
+            "tryelsestmtl": tryelsestmt,
         }
         self.check_reduce["and"] = "AST"
         self.check_reduce["except_handler_else"] = "tokens"
