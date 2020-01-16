@@ -104,7 +104,10 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
             if last == n:
                 last -= 1
             jmp = test[1]
-            jmp_target = int(jmp[0].pattr)
+            if self.version > 2.6:
+                jmp_target = jmp[0].attr
+            else:
+                jmp_target = int(jmp[0].pattr)
 
 
             # Make sure we don't jump at the end of the "then" inside the "else"
@@ -112,6 +115,7 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
             jf_cf_pop = ast[2]
 
             if jf_cf_pop == "jf_cf_pop" and jf_cf_pop[0] == "JUMP_FORWARD":
+                int(jf_cf_pop[0].pattr)
                 if int(jf_cf_pop[0].pattr) < tokens[last-1].off2int():
                     return True
 
