@@ -48,7 +48,6 @@ SKIP_TESTS=(
 
     [test_normalization.py]=1 # it fails on its own
 
-    [test_opcodes.py]=1   # Investigate whether we caused this recently
     [test_ossaudiodev.py]=1 # it fails on its own
 
     [test_pep277.py]=1 # it fails on its own
@@ -57,18 +56,13 @@ SKIP_TESTS=(
     [test_pwd.py]=1 # Long test - might work? Control flow?
     [test_py3kwarn.py]=1 # it fails on its own
 
-    [test_queue.py]=1   # Investigate whether we caused this recently
-
-    [test_re.py]=1   # probably control flow, uninitialized variable
-
     [test_scriptpackages.py]=1 # it fails on its own
     [test_select.py]=1 # test takes too long to run: 11 seconds
     [test_socket.py]=1 # test takes too long to run: 12 seconds
     [test_startfile.py]=1 # it fails on its own
     [test_structmembers.py]=1 # it fails on its own
     [test_sunaudiodev.py]=1 # it fails on its own
-    [test_support.py]=1 #
-    [test_sys.py]=1 # test assertion failures
+    [test_support.py]=1 # # it fails on it s own
 
     [test_trace.py]=1  # Line numbers are expected to be different
 
