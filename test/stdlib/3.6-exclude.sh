@@ -157,8 +157,8 @@ SKIP_TESTS=(
     [test_strtod.py]=1 # it fails on its own
     [test_struct.py]=1  # Doesn't terminate
     [test_subprocess.py]=1
+    [test_sys.py]=1 # Investigate confusing "and" with nested "if" when there is an "else
     [test_sys_settrace.py]=1 # parse error
-
     [test_tarfile.py]=1 # it fails on its own
     [test_telnetlib.py]=1 # doesn't terminate
     [test_thread.py]=1 # it fails on its own
