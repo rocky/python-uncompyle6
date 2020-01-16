@@ -27,7 +27,7 @@ that a later phase can turn into a sequence of ASCII text.
 
 from __future__ import print_function
 
-from uncompyle6.parsers.reducecheck import (except_handler_else, tryelsestmt)
+from uncompyle6.parsers.reducecheck import (except_handler_else, ifelsestmt, tryelsestmt)
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -643,6 +643,7 @@ class Python2Parser(PythonParser):
         self.reduce_check_table = {
             # "and": and_check,
             "except_handler_else": except_handler_else,
+            "ifelsestmt": ifelsestmt,
             # "or": or_check,
             "tryelsestmt": tryelsestmt,
             "tryelsestmtl": tryelsestmt,

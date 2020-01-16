@@ -32,3 +32,21 @@ assert eval_print_amount(True, False, False, False, []) == 0
 assert eval_print_amount(False, True, True, False, []) == 2
 assert eval_print_amount(False, False, True, True, []) == 3
 assert eval_print_amount(False, False, False, True, []) == 0
+
+
+# Bug in 2.6 was in including the part at x = value
+# at the end asa part of the "else"
+def eval_directive(a):
+    if a:
+        value = 2
+    else:
+        try:
+            value = 3
+        except:
+            pass
+
+    x = value
+    return x
+
+assert eval_directive(True)  == 2
+assert eval_directive(False) == 3

@@ -345,6 +345,7 @@ class Python26Parser(Python2Parser):
         self.check_reduce['and'] = 'AST'
         self.check_reduce['assert_expr_and'] = 'AST'
         self.check_reduce["ifstmt"] = "tokens"
+        self.check_reduce["ifelsestmt"] = "AST"
         self.check_reduce['list_for'] = 'AST'
         self.check_reduce['try_except'] = 'tokens'
         self.check_reduce['tryelsestmt'] = 'AST'
