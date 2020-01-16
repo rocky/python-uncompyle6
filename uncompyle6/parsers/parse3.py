@@ -1510,13 +1510,19 @@ class Python3Parser(PythonParser):
                 condition_jump2 = tokens[min(last - 1, len(tokens) - 1)]
                 if condition_jump2.kind.startswith("POP_JUMP_IF"):
                     return condition_jump.attr == condition_jump2.attr
+
+                last = min(last, n-1)
+                if tokens[last] == "COME_FROM" and tokens[last].off2int() != condition_jump.attr:
+                    return False
+
+
                 # if condition_jump.attr < condition_jump2.off2int():
                 #     print("XXX", first, last)
                 #     for t in range(first, last): print(tokens[t])
                 #     from trepan.api import debug; debug()
                 return condition_jump.attr < condition_jump2.off2int()
             return False
-        elif rule == ("ifstmt", ("testexpr", "\\e___ifstmts_jump")):
+        elif rule == ("ifstmt", ("testexpr", "\\e__ifstmts_jump")):
             # I am not sure what to check.
             # Probably needs fixing elsewhere
             return True
