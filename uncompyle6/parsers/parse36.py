@@ -21,7 +21,6 @@ from uncompyle6.parser import PythonParserSingle, nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parsers.parse35 import Python35Parser
 from uncompyle6.scanners.tok import Token
-from uncompyle6.parsers.reducecheck import ifelsestmt, iflaststmt, and_check
 
 class Python36Parser(Python35Parser):
 
@@ -116,6 +115,7 @@ class Python36Parser(Python35Parser):
         jb_cfs      ::= JUMP_BACK come_froms
         ifelsestmtl ::= testexpr c_stmts_opt jb_cfs else_suitel
         ifelsestmtl ::= testexpr c_stmts_opt cf_jf_else else_suitel
+        ifelsestmt ::= testexpr c_stmts_opt cf_jf_else else_suite _come_froms
 
         # In 3.6+, A sequence of statements ending in a RETURN can cause
         # JUMP_FORWARD END_FINALLY to be omitted from try middle

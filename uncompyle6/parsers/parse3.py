@@ -149,7 +149,7 @@ class Python3Parser(PythonParser):
         testtrue ::= expr jmp_true
 
         _ifstmts_jump ::= return_if_stmts
-        _ifstmts_jump ::= c_stmts_opt COME_FROM
+        _ifstmts_jump ::= c_stmts_opt come_froms
 
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
@@ -1516,6 +1516,10 @@ class Python3Parser(PythonParser):
                 #     from trepan.api import debug; debug()
                 return condition_jump.attr < condition_jump2.off2int()
             return False
+        elif rule == ("ifstmt", ("testexpr", "\\e___ifstmts_jump")):
+            # I am not sure what to check.
+            # Probably needs fixing elsewhere
+            return True
         elif lhs == "ifelsestmt" and rule[1][2] == "jump_forward_else":
             last = min(last, len(tokens) - 1)
             if tokens[last].off2int() == -1:
