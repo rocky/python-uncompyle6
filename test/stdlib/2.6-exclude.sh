@@ -45,6 +45,7 @@ SKIP_TESTS=(
 
     [test_macos.py]=1 # it fails on its own
     [test_macostools.py]=1 # it fails on its own
+    [test_mailbox.py]=1 # FIXME: release 3.6.2 may have worked
 
     [test_normalization.py]=1 # it fails on its own
 
