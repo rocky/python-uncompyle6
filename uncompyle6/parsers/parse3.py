@@ -141,18 +141,20 @@ class Python3Parser(PythonParser):
         assert_expr_or ::= assert_expr jmp_true expr
         assert_expr_and ::= assert_expr jmp_false expr
 
-        ifstmt ::= testexpr _ifstmts_jump
+        ifstmt  ::= testexpr _ifstmts_jump
 
         testexpr ::= testfalse
         testexpr ::= testtrue
         testfalse ::= expr jmp_false
         testtrue ::= expr jmp_true
 
-        _ifstmts_jump ::= return_if_stmts
-        _ifstmts_jump ::= c_stmts_opt come_froms
+        _ifstmts_jump  ::= return_if_stmts
+        _ifstmts_jump  ::= c_stmts_opt come_froms
+        _ifstmts_jumpl ::= return_if_stmts
 
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
+        iflaststmtl ::= testexpr _ifstmts_jumpl
 
         # These are used to keep parse tree indices the same
         jump_forward_else  ::= JUMP_FORWARD ELSE
@@ -330,6 +332,10 @@ class Python3Parser(PythonParser):
     def p_stmt3(self, args):
         """
         stmt               ::= if_expr_lambda
+
+        # If statement inside a loop:
+        lastl_stmt         ::= ifstmtl
+
         stmt               ::= conditional_not_lambda
         if_expr_lambda     ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER

@@ -952,6 +952,8 @@ class Python37Parser(Python37BaseParser):
         """
         stmt               ::= if_expr_lambda
         stmt               ::= conditional_not_lambda
+
+        # If statement inside a loop:
         stmt               ::= ifstmtl
 
         if_expr_lambda     ::= expr jmp_false expr return_if_lambda
