@@ -35,13 +35,13 @@ for VERSION in $PYVERSIONS ; do
 	    MAX_TESTS=237 # We start failing on "mailbox" at 238
 	    ;;
 	3.2.6 )
-	    MAX_TESTS=172 # We start failing on pkgutil.py
+	    MAX_TESTS=800
 	    ;;
 	3.3.7 )
-	    MAX_TESTS=180 # We start failing on pkgutil.py
+	    MAX_TESTS=800 # We start failing on pkgutil.py
 	    ;;
 	3.4.10 )
-	    MAX_TESTS=30 # We start failing on aifc
+	    MAX_TESTS=800
 	    ;;
 	 3.6.9 )
 	     MAX_TESTS=92  # We start failing on cgiltb.py
