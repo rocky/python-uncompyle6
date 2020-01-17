@@ -35,7 +35,7 @@ for VERSION in $PYVERSIONS ; do
 	    MAX_TESTS=237 # We start failing on "mailbox" at 238
 	    ;;
 	3.2.6 )
-	    MAX_TESTS=750 # zipfile fails?
+	    MAX_TESTS=900 # zipfile fails?
 	    ;;
 	3.3.7 )
 	    MAX_TESTS=1300 # About 1256 exist
@@ -43,8 +43,8 @@ for VERSION in $PYVERSIONS ; do
 	3.4.10 )
 	    MAX_TESTS=800
 	    ;;
-	3.6.9 )
-	    MAX_TESTS=900
+	3.6.10 )
+	    MAX_TESTS=1300  # about 2139 exist
 	    ;;
 	2.6.9 )
 	    MAX_TESTS=1300
