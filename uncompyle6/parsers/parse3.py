@@ -156,10 +156,10 @@ class Python3Parser(PythonParser):
         _ifstmts_jump  ::= return_if_stmts
         _ifstmts_jump  ::= c_stmts_opt come_froms
 
-        _ifstmts_jumpl ::= return_if_stmts
-        _ifstmts_jumpl ::= c_stmts_opt come_froms
-
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE
+
+        # ifstmts where we are in a loop
+        _ifstmts_jumpl     ::= _ifstmts_jump
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
         iflaststmtl ::= testexpr _ifstmts_jumpl
 
@@ -365,6 +365,10 @@ class Python3Parser(PythonParser):
         lastc_stmt ::= iflaststmtl
         lastc_stmt ::= forelselaststmt
         lastc_stmt ::= ifelsestmtc
+
+        # Statements in a loop
+        lstmt              ::= stmt
+        l_stmts            ::= lstmt+
         """
 
     def p_loop_stmt3(self, args):

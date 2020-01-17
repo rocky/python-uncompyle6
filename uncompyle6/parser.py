@@ -52,7 +52,7 @@ class PythonParser(GenericASTBuilder):
         #   stmts -> stmts stmt -> stmts stmt stmt ...
         # collect as stmts -> stmt stmt ...
         nt_list = [
-            'stmts', 'except_stmts', '_stmts', 'attributes',
+            'stmts', 'except_stmts', '_stmts', 'attributes', "l_stmts",
             'exprlist', 'kvlist', 'kwargs', 'come_froms', '_come_froms',
             'importlist',
             # Python < 3

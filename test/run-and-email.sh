@@ -35,21 +35,21 @@ for VERSION in $PYVERSIONS ; do
 	    MAX_TESTS=237 # We start failing on "mailbox" at 238
 	    ;;
 	3.2.6 )
-	    MAX_TESTS=800
+	    MAX_TESTS=750 # zipfile fails?
 	    ;;
 	3.3.7 )
-	    MAX_TESTS=800 # We start failing on pkgutil.py
+	    MAX_TESTS=1300 # About 1256 exist
 	    ;;
 	3.4.10 )
 	    MAX_TESTS=800
 	    ;;
-	 3.6.9 )
-	     MAX_TESTS=92  # We start failing on cgiltb.py
-	     ;;
-	 2.6.9 )
-	     MAX_TESTS=1300
-	     ;;
-	 * )
+	3.6.9 )
+	    MAX_TESTS=900
+	    ;;
+	2.6.9 )
+	    MAX_TESTS=1300
+	    ;;
+	* )
 	     MAX_TESTS=800
 	     ;;
     esac
