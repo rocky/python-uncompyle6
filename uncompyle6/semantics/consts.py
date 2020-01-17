@@ -268,6 +268,10 @@ TABLE_DIRECT = {
     'attribute_w_parens':	( '(%c).%[1]{pattr}',
                                   (0, 'expr')),
 
+    # This nonterminal we create on the fly in semantic routines
+    'store_w_parens':	( '(%c).%[1]{pattr}',
+                                  (0, 'expr')),
+
     'unpack_list':	        ( '[%C]',
                                       (1, maxint, ', ') ),
     'build_tuple2':	        ( '%P',
