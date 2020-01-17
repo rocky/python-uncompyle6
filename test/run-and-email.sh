@@ -32,10 +32,10 @@ for VERSION in $PYVERSIONS ; do
 	    continue
 	    ;;
 	3.5.9 )
-	    MAX_TESTS=237 # We start failing on "mailbox" at 238
+	    MAX_TESTS=900
 	    ;;
 	3.2.6 )
-	    MAX_TESTS=900 # zipfile fails?
+	    MAX_TESTS=900
 	    ;;
 	3.3.7 )
 	    MAX_TESTS=1300 # About 1256 exist

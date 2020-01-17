@@ -236,7 +236,7 @@ case $PYVERSION in
 	    SKIP_TESTS[test_quopri.py]=1
 	    SKIP_TESTS[test_ioctl.py]=1 # it fails on its own
 	fi
-s	;;
+	;;
 
     3.6)
 	. ./3.6-exclude.sh
