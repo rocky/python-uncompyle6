@@ -31,7 +31,7 @@ from uncompyle6.scanners.tok import Token
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.reducecheck import (
     except_handler_else,
-    iflaststmt,
+    # iflaststmt,
     testtrue,
     tryelsestmtl3
 )
@@ -1498,7 +1498,7 @@ class Python3Parser(PythonParser):
         self.check_reduce["while1elsestmt"] = "noAST"
         self.check_reduce["ifelsestmt"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
-        self.check_reduce["iflaststmtl"] = "AST"
+        # self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
         self.check_reduce["except_handler_else"] = "tokens"
         self.check_reduce["testtrue"] = "tokens"
@@ -1525,8 +1525,8 @@ class Python3Parser(PythonParser):
         elif lhs == "kwarg":
             arg = tokens[first].attr
             return not (isinstance(arg, str) or isinstance(arg, unicode))
-        elif lhs == "iflaststmtl":
-            return iflaststmt(self, lhs, n, rule, ast, tokens, first, last)
+        # elif lhs == "iflaststmtl":
+        #     return iflaststmt(self, lhs, n, rule, ast, tokens, first, last)
         elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
             condition_jump = ast[0].last_child()
             if condition_jump.kind.startswith("POP_JUMP_IF"):
