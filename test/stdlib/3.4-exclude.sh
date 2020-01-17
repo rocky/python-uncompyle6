@@ -101,6 +101,7 @@ SKIP_TESTS=(
     [test_sys.py]=1 # Doesn't terminate
     [test_sys_settrace.py]=1 # Doesn't terminate
     [test_sys_setprofile.py]=1
+    [test_tcl.py]=1 # May be implementation specific. On POWER though it fails
     [test_telnetlib.py]=1 # Doesn't terminate
     [test_thread.py]=1
     [test_threading.py]=1 # Too long
