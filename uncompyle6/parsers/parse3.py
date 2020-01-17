@@ -333,9 +333,6 @@ class Python3Parser(PythonParser):
         """
         stmt               ::= if_expr_lambda
 
-        # If statement inside a loop:
-        lastl_stmt         ::= ifstmtl
-
         stmt               ::= conditional_not_lambda
         if_expr_lambda     ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
