@@ -29,7 +29,12 @@ that a later phase can turn into a sequence of ASCII text.
 import re
 from uncompyle6.scanners.tok import Token
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
-from uncompyle6.parsers.reducecheck import except_handler_else, testtrue, tryelsestmtl3
+from uncompyle6.parsers.reducecheck import (
+    except_handler_else,
+    iflaststmt,
+    testtrue,
+    tryelsestmtl3
+)
 from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from xdis import PYTHON3
@@ -150,7 +155,9 @@ class Python3Parser(PythonParser):
 
         _ifstmts_jump  ::= return_if_stmts
         _ifstmts_jump  ::= c_stmts_opt come_froms
+
         _ifstmts_jumpl ::= return_if_stmts
+        _ifstmts_jumpl ::= c_stmts_opt come_froms
 
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
@@ -348,6 +355,16 @@ class Python3Parser(PythonParser):
 
         stmt ::= whileTruestmt
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms
+
+        # statements with continue and break
+        c_stmts ::= _stmts
+        c_stmts ::= _stmts lastc_stmt
+        c_stmts ::= lastc_stmt
+        c_stmts ::= continues
+
+        lastc_stmt ::= iflaststmtl
+        lastc_stmt ::= forelselaststmt
+        lastc_stmt ::= ifelsestmtc
         """
 
     def p_loop_stmt3(self, args):
@@ -1481,6 +1498,7 @@ class Python3Parser(PythonParser):
         self.check_reduce["while1elsestmt"] = "noAST"
         self.check_reduce["ifelsestmt"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
+        self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
         self.check_reduce["except_handler_else"] = "tokens"
         self.check_reduce["testtrue"] = "tokens"
@@ -1507,6 +1525,8 @@ class Python3Parser(PythonParser):
         elif lhs == "kwarg":
             arg = tokens[first].attr
             return not (isinstance(arg, str) or isinstance(arg, unicode))
+        elif lhs == "iflaststmtl":
+            return iflaststmt(self, lhs, n, rule, ast, tokens, first, last)
         elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
             condition_jump = ast[0].last_child()
             if condition_jump.kind.startswith("POP_JUMP_IF"):

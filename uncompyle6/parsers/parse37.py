@@ -48,7 +48,7 @@ class Python37Parser(Python37BaseParser):
 
         _stmts ::= stmt+
 
-        # statements with continue
+        # statements with continue and break
         c_stmts ::= _stmts
         c_stmts ::= _stmts lastc_stmt
         c_stmts ::= lastc_stmt
