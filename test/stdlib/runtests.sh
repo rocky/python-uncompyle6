@@ -67,26 +67,7 @@ case $PYVERSION in
 	)
 	;;
     2.5)
-	SKIP_TESTS=(
- 	    [test_coercion.py]=1
- 	    [test_decimal.py]=1
- 	    [test_dis.py]=1        # We change line numbers - duh!
-	    [test_generators.py]=1 # Investigate
-	    [test_grammar.py]=1    # Too many stmts. Handle large stmts
-	    [test_grp.py]=1        # Long test - might work Control flow?
-	    [test_pdb.py]=1        # Line-number specific
-	    [test_pep352.py]=1     # Investigate
-	    [test_pwd.py]=1 # Long test - might work? Control flow?
-	    [test_pyclbr.py]=1 # Investigate
-	    [test_queue.py]=1 # Control flow?
-	    [test_socketserver.py]=1 # Too long to run - 42 seconds
-	    [test_struct.py]=1 # "if and" confused for if .. assert and
-	    [test_threading.py]=1 # test takes too long to run: 11 seconds
-	    [test_thread.py]=1 # test takes too long to run: 36 seconds
-	    [test_trace.py]=1  # Line numbers are expected to be different
-	    [test_urllib2net.py]=1 # is interactive?
-	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
-	)
+	. ./2.5-exclude.sh
 	;;
     2.6)
 	. ./2.6-exclude.sh
