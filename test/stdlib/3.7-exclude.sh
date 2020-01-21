@@ -132,6 +132,6 @@ SKIP_TESTS=(
     [test_winreg.py]=1 # it fails on its own
     [test_winsound.py]=1 # it fails on its own
     [test_zipfile.py]=1 # it fails on its own
-    [test_zipfile64.py]=1 #
+    [test_zipfile64.py]=1 # Too long to run
 )
 # 268 Remaining unit-test files, Elapsed time about 11 minutes
