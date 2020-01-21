@@ -88,7 +88,6 @@ SKIP_TESTS=(
     [test_inspect.py]=1 # Syntax error Investigate
     [test_itertools.py]=1 #
 
-    [test_keywordonlyarg.py]=1 # Investigate
     [test_kqueue.py]=1 # it fails on its own
 
     [test_lib2to3.py]=1 # it fails on its own

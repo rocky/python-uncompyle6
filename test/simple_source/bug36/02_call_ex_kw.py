@@ -53,3 +53,9 @@ from collections import namedtuple
 Point = namedtuple('Point', 'x y')
 p = Point(11, 22)
 assert p == Point(**dict(x=11, y=22))
+
+# From 3.7 test/test_keywordonlyarg.py
+# Bug was in handling {"4":4} as a dictionary needing **
+def posonly_sum(pos_arg1, *arg, **kwarg):
+    return pos_arg1 + sum(arg) + sum(kwarg.values())
+assert 1+2+3+4 == posonly_sum(1,*(2,3),**{"4":4})

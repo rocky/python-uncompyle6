@@ -188,7 +188,7 @@ def customize_for_version36(self, version):
         self.write(', ')
 
         kwargs = node[2]
-        if kwargs == 'expr':
+        if kwargs == 'expr' and kwargs[0] != "dict":
             kwargs = kwargs[0]
         if kwargs == 'dict':
             self.call36_dict(kwargs)

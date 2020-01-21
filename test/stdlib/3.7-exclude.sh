@@ -54,7 +54,6 @@ SKIP_TESTS=(
     [test_index.py]=1  # parse error
     [test_inspect.py]=1 # test failures
     [test_itertools.py]=1 # parse error
-    [test_keywordonlyarg.py]=1 # Investigate: parameter handling
     [test_kqueue.py]=1 # it fails on its own
     [test_lib2to3.py]=1 # it fails on its own
     [test_long.py]=1 # investigate
