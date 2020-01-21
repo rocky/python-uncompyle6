@@ -1410,7 +1410,9 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_classdef(self, node):
 
-        if self.version >= 3.0:
+        if self.version >= 3.6:
+            self.n_classdef36(node)
+        elif self.version >= 3.0:
             self.n_classdef3(node)
 
         # class definition ('class X(A,B,C):')
