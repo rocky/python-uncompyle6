@@ -8,8 +8,19 @@
 #   classdef ::= LOAD_CONST expr mkfunc CALL_FUNCTION_0 BUILD_CLASS store
 #   mkfunc ::= LOAD_CONST MAKE_FUNCTION_0
 
+# RUNNABLE!
 class A:
     pass
 
 class B(Exception):
     pass
+
+# From 3.x test_descr.py
+class MyInt(int):
+    class MyInt(int):
+        __slots__ = ()
+    try:
+        (1).__class__ = MyInt
+        assert False, "builtin types don't support __class__ assignment."
+    except TypeError:
+        pass

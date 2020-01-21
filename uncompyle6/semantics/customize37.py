@@ -15,6 +15,7 @@
 """Isolate Python 3.7 version-specific semantic actions here.
 """
 
+import re
 from uncompyle6.semantics.consts import (
     PRECEDENCE,
     TABLE_DIRECT,
@@ -80,7 +81,7 @@ def customize_for_version37(self, version):
                 (17, "for_block"),
                 (25, "else_suite"),
             ),
-            "attribute37": ("%c.%[1]{pattr}", 0),
+            "attribute37": ("%c.%[1]{pattr}", (0, "expr")),
             "attributes37": ("%[0]{pattr} import %c",
                             (0, "IMPORT_NAME_ATTR"),
                             (1, "IMPORT_FROM")),
@@ -147,6 +148,7 @@ def customize_for_version37(self, version):
             "list_if37_not": (" if not %p%c", (0, 27), 1),
             "testfalse_not_or": ("not %c or %c", (0, "expr"), (2, "expr")),
             "testfalse_not_and": ("not (%c)", 0),
+            "testfalsel":  ("not %c", (0, "expr")),
             "try_except36": ("%|try:\n%+%c%-%c\n\n", 1, -2),
             "tryfinally36": ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", (1, "returns"), 3),
             "unmap_dict": ("{**%C}", (0, -1, ", **")),
@@ -154,6 +156,117 @@ def customize_for_version37(self, version):
             "yield_from": ("yield from %c", (0, "expr")),
         }
     )
+
+    def gen_function_parens_adjust(mapping_key, node):
+        """If we can avoid the outer parenthesis
+        of a generator function, set the node key to
+        'call_generator' and the caller will do the default
+        action on that. Otherwise we do nothing.
+        """
+        if mapping_key.kind != "CALL_FUNCTION_1":
+            return
+
+        args_node = node[-2]
+        if args_node == "pos_arg":
+            assert args_node[0] == "expr"
+            n = args_node[0][0]
+            if n == "generator_exp":
+                node.kind = "call_generator"
+            pass
+        return
+
+    def n_attribute37(node):
+        expr = node[0]
+        assert expr == "expr"
+        if expr[0] == "LOAD_CONST":
+            # FIXME: I didn't record which constants parenthesis is
+            # necessary. However, I suspect that we could further
+            # refine this by looking at operator precedence and
+            # eval'ing the constant value (pattr) and comparing with
+            # the type of the constant.
+            node.kind = "attribute_w_parens"
+        self.default(node)
+
+    self.n_attribute37 = n_attribute37
+
+    def n_call(node):
+        p = self.prec
+        self.prec = 100
+        mapping = self._get_mapping(node)
+        table = mapping[0]
+        key = node
+        for i in mapping[1:]:
+            key = key[i]
+            pass
+        opname = key.kind
+        if opname.startswith("CALL_FUNCTION_VAR_KW"):
+            # Python 3.5 changes the stack position of
+            # *args: kwargs come after *args whereas
+            # in earlier Pythons, *args is at the end
+            # which simplifies things from our
+            # perspective.  Python 3.6+ replaces
+            # CALL_FUNCTION_VAR_KW with
+            # CALL_FUNCTION_EX We will just swap the
+            # order to make it look like earlier
+            # Python 3.
+            entry = table[key.kind]
+            kwarg_pos = entry[2][1]
+            args_pos = kwarg_pos - 1
+            # Put last node[args_pos] after subsequent kwargs
+            while node[kwarg_pos] == "kwarg" and kwarg_pos < len(node):
+                # swap node[args_pos] with node[kwargs_pos]
+                node[kwarg_pos], node[args_pos] = node[args_pos], node[kwarg_pos]
+                args_pos = kwarg_pos
+                kwarg_pos += 1
+        elif opname.startswith("CALL_FUNCTION_VAR"):
+            # CALL_FUNCTION_VAR's top element of the stack contains
+            # the variable argument list, then comes
+            # annotation args, then keyword args.
+            # In the most least-top-most stack entry, but position 1
+            # in node order, the positional args.
+            argc = node[-1].attr
+            nargs = argc & 0xFF
+            kwargs = (argc >> 8) & 0xFF
+            # FIXME: handle annotation args
+            if nargs > 0:
+                template = ("%c(%P, ", 0, (1, nargs + 1, ", ", 100))
+            else:
+                template = ("%c(", 0)
+            self.template_engine(template, node)
+
+            args_node = node[-2]
+            if args_node in ("pos_arg", "expr"):
+                args_node = args_node[0]
+            if args_node == "build_list_unpack":
+                template = ("*%P)", (0, len(args_node) - 1, ", *", 100))
+                self.template_engine(template, args_node)
+            else:
+                if len(node) - nargs > 3:
+                    template = (
+                        "*%c, %P)",
+                        nargs + 1,
+                        (nargs + kwargs + 1, -1, ", ", 100),
+                    )
+                else:
+                    template = ("*%c)", nargs + 1)
+                self.template_engine(template, node)
+            self.prec = p
+            self.prune()
+        elif (
+            opname.startswith("CALL_FUNCTION_1")
+            and opname == "CALL_FUNCTION_1"
+            or not re.match("\d", opname[-1])
+        ):
+            self.template_engine(("%c(%c)", (0, "expr"), 1), node)
+            self.prec = p
+            self.prune()
+        else:
+            gen_function_parens_adjust(key, node)
+
+        self.prec = p
+        self.default(node)
+
+    self.n_call = n_call
 
     def n_importlist37(node):
         if len(node) == 1:

@@ -29,7 +29,12 @@ that a later phase can turn into a sequence of ASCII text.
 import re
 from uncompyle6.scanners.tok import Token
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
-from uncompyle6.parsers.reducecheck import except_handler_else, testtrue, tryelsestmtl3
+from uncompyle6.parsers.reducecheck import (
+    except_handler_else,
+    # iflaststmt,
+    testtrue,
+    tryelsestmtl3
+)
 from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from xdis import PYTHON3
@@ -141,18 +146,22 @@ class Python3Parser(PythonParser):
         assert_expr_or ::= assert_expr jmp_true expr
         assert_expr_and ::= assert_expr jmp_false expr
 
-        ifstmt ::= testexpr _ifstmts_jump
+        ifstmt  ::= testexpr _ifstmts_jump
 
         testexpr ::= testfalse
         testexpr ::= testtrue
         testfalse ::= expr jmp_false
         testtrue ::= expr jmp_true
 
-        _ifstmts_jump ::= return_if_stmts
-        _ifstmts_jump ::= c_stmts_opt COME_FROM
+        _ifstmts_jump  ::= return_if_stmts
+        _ifstmts_jump  ::= c_stmts_opt come_froms
 
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE
+
+        # ifstmts where we are in a loop
+        _ifstmts_jumpl     ::= _ifstmts_jump
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
+        iflaststmtl ::= testexpr _ifstmts_jumpl
 
         # These are used to keep parse tree indices the same
         jump_forward_else  ::= JUMP_FORWARD ELSE
@@ -330,6 +339,7 @@ class Python3Parser(PythonParser):
     def p_stmt3(self, args):
         """
         stmt               ::= if_expr_lambda
+
         stmt               ::= conditional_not_lambda
         if_expr_lambda     ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
@@ -345,6 +355,20 @@ class Python3Parser(PythonParser):
 
         stmt ::= whileTruestmt
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms
+
+        # statements with continue and break
+        c_stmts ::= _stmts
+        c_stmts ::= _stmts lastc_stmt
+        c_stmts ::= lastc_stmt
+        c_stmts ::= continues
+
+        lastc_stmt ::= iflaststmtl
+        lastc_stmt ::= forelselaststmt
+        lastc_stmt ::= ifelsestmtc
+
+        # Statements in a loop
+        lstmt              ::= stmt
+        l_stmts            ::= lstmt+
         """
 
     def p_loop_stmt3(self, args):
@@ -1480,6 +1504,7 @@ class Python3Parser(PythonParser):
         self.check_reduce["while1elsestmt"] = "noAST"
         self.check_reduce["ifelsestmt"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
+        # self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
         self.check_reduce["except_handler_else"] = "tokens"
         self.check_reduce["testtrue"] = "tokens"
@@ -1506,18 +1531,30 @@ class Python3Parser(PythonParser):
         elif lhs == "kwarg":
             arg = tokens[first].attr
             return not (isinstance(arg, str) or isinstance(arg, unicode))
+        # elif lhs == "iflaststmtl":
+        #     return iflaststmt(self, lhs, n, rule, ast, tokens, first, last)
         elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
             condition_jump = ast[0].last_child()
             if condition_jump.kind.startswith("POP_JUMP_IF"):
                 condition_jump2 = tokens[min(last - 1, len(tokens) - 1)]
                 if condition_jump2.kind.startswith("POP_JUMP_IF"):
                     return condition_jump.attr == condition_jump2.attr
+
+                last = min(last, n-1)
+                if tokens[last] == "COME_FROM" and tokens[last].off2int() != condition_jump.attr:
+                    return False
+
+
                 # if condition_jump.attr < condition_jump2.off2int():
                 #     print("XXX", first, last)
                 #     for t in range(first, last): print(tokens[t])
                 #     from trepan.api import debug; debug()
                 return condition_jump.attr < condition_jump2.off2int()
             return False
+        elif rule == ("ifstmt", ("testexpr", "\\e__ifstmts_jump")):
+            # I am not sure what to check.
+            # Probably needs fixing elsewhere
+            return True
         elif lhs == "ifelsestmt" and rule[1][2] == "jump_forward_else":
             last = min(last, len(tokens) - 1)
             if tokens[last].off2int() == -1:

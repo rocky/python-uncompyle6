@@ -30,7 +30,7 @@ for VERSION in $PYVERSIONS ; do
     LOGFILE=/tmp/runtests-$VERSION-$$.log
 
     case "$VERSION" in
-	3.0.1 | 3.1.5 | 3.2.6 | 3.7.6 | 3.8.1 )
+	3.0.1 | 3.1.5 | 3.2.6 | 3.8.1 )
 	    continue
 	    ;;
     esac

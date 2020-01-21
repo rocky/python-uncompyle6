@@ -53,6 +53,15 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
                 "opt_come_from_except",
             ),
         ),
+        (
+            "ifelsestmt",
+            (
+                "testexpr",
+                "c_stmts_opt",
+                "jf_cf_pop",
+                "else_suite",
+            ),
+        ),
     ):
         return False
 
@@ -62,13 +71,14 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
     # offset COME_FROM is last, it is sufficient to test
     # just the last one.
     come_froms = ast[-1]
-    if come_froms == "opt_come_from_except" and len(come_froms) > 0:
-        come_froms = come_froms[0]
-    if not isinstance(come_froms, Token):
-        if len(come_froms):
-            return tokens[first].offset > come_froms[-1].attr
-    elif tokens[first].offset > come_froms.attr:
-        return True
+    if come_froms.kind != "else_suite":
+        if come_froms == "opt_come_from_except" and len(come_froms) > 0:
+            come_froms = come_froms[0]
+        if not isinstance(come_froms, Token):
+            if len(come_froms):
+                return tokens[first].offset > come_froms[-1].attr
+        elif tokens[first].offset > come_froms.attr:
+            return True
 
     # For mysterious reasons a COME_FROM in tokens[last+1] might be part of the grammar rule
     # even though it is not found in come_froms.
@@ -94,10 +104,22 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
             if last == n:
                 last -= 1
             jmp = test[1]
-            jmp_target = jmp[0].attr
+            if self.version > 2.6:
+                jmp_target = jmp[0].attr
+            else:
+                jmp_target = int(jmp[0].pattr)
 
-            # FIXME: the jump inside "else" check below should be added.
-            #
+
+            # Make sure we don't jump at the end of the "then" inside the "else"
+            # (jf_cf_pop may be a 2.6ish specific thing.)
+            jf_cf_pop = ast[2]
+
+            if jf_cf_pop == "jf_cf_pop" and jf_cf_pop[0] == "JUMP_FORWARD":
+                int(jf_cf_pop[0].pattr)
+                if int(jf_cf_pop[0].pattr) < tokens[last-1].off2int():
+                    return True
+
+            # The jump inside "else" check below should be added.
             # add this until we can find out what's wrong with
             # not being able to parse:
             #     if a and b or c:

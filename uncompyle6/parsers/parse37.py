@@ -47,7 +47,7 @@ class Python37Parser(Python37BaseParser):
 
         _stmts ::= stmt+
 
-        # statements with continue
+        # statements with continue and break
         c_stmts ::= _stmts
         c_stmts ::= _stmts lastc_stmt
         c_stmts ::= lastc_stmt
@@ -56,6 +56,10 @@ class Python37Parser(Python37BaseParser):
         lastc_stmt ::= iflaststmt
         lastc_stmt ::= forelselaststmt
         lastc_stmt ::= ifelsestmtc
+
+        # Statements in a loop
+        lstmt              ::= stmt
+        l_stmts            ::= lstmt+
 
         c_stmts_opt ::= c_stmts
         c_stmts_opt ::= pass
@@ -424,10 +428,11 @@ class Python37Parser(Python37BaseParser):
 
         subscript2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
 
-        # Python 3.2+ has more loop optimization that removes
-        # JUMP_FORWARD in some cases, and hence we also don't
-        # see COME_FROM
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_froms
+        # FIXME: The below rule was in uncompyle6.
+        # In decompyle6 though "_ifstmts_jump" is part of an "ifstmt"
+        # where as the below rule is appropriate for an "ifelsesmt"
+        # Investigate and reconcile
+        # _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_froms
 
         kv3       ::= expr expr STORE_MAP
         """
@@ -509,6 +514,11 @@ class Python37Parser(Python37BaseParser):
         jb_else     ::= JUMP_BACK COME_FROM
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
         ifelsestmtl ::= testexpr c_stmts_opt jb_else else_suitel
+
+        # We want to keep the positions of the "then" and
+        # "else" statements in "ifelstmtl" similar to others of this ilk.
+        testexpr_cf ::= testexpr come_froms
+        ifelsestmtl ::= testexpr_cf c_stmts_opt jb_else else_suitel
 
         # 3.5 Has jump optimization which can route the end of an
         # "if/then" back to to a loop just before an else.
@@ -640,7 +650,6 @@ class Python37Parser(Python37BaseParser):
         expr                       ::= if_exp_37b
         if_exp_37a                 ::= and_not expr JUMP_FORWARD come_froms expr COME_FROM
         if_exp_37b                 ::= expr jmp_false expr POP_JUMP_IF_FALSE jump_forward_else expr
-        or                         ::= expr jmp_true expr
         jmp_false_cf               ::= POP_JUMP_IF_FALSE COME_FROM
         comp_if                    ::= or jmp_false_cf comp_iter
         """
@@ -763,7 +772,14 @@ class Python37Parser(Python37BaseParser):
         stmt    ::= assert2
         assert2 ::= expr jmp_true LOAD_GLOBAL expr CALL_FUNCTION_1 RAISE_VARARGS_1
 
+        # "assert_invert" tests on the negative of the condition given
+        stmt          ::= assert_invert
+        assert_invert ::= testtrue LOAD_GLOBAL RAISE_VARARGS_1
+
         expr    ::= LOAD_ASSERT
+
+        # FIXME: add this:
+        # expr    ::= assert_expr_or
 
         ifstmt ::= testexpr _ifstmts_jump
 
@@ -921,7 +937,14 @@ class Python37Parser(Python37BaseParser):
         testfalse ::= testfalse_not_or
         testfalse ::= testfalse_not_and
         testfalse ::= or jmp_false COME_FROM
-        or        ::= expr jmp_true expr
+
+        iflaststmtl ::= testexprl c_stmts JUMP_BACK
+        iflaststmtl ::= testexprl c_stmts JUMP_BACK COME_FROM_LOOP
+        iflaststmtl ::= testexprl c_stmts JUMP_BACK POP_BLOCK
+        testexprl   ::= testfalsel
+        testfalsel  ::= expr jmp_true
+
+        or          ::= expr jmp_true expr
 
         and  ::= expr JUMP_IF_FALSE_OR_POP expr come_from_opt
         and  ::= expr jifop_come_from expr
@@ -945,6 +968,8 @@ class Python37Parser(Python37BaseParser):
         """
         stmt               ::= if_expr_lambda
         stmt               ::= conditional_not_lambda
+
+        # If statement inside a loop:
         stmt               ::= ifstmtl
 
         if_expr_lambda     ::= expr jmp_false expr return_if_lambda
@@ -962,9 +987,22 @@ class Python37Parser(Python37BaseParser):
         stmt ::= whileTruestmt
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms
 
+        ifstmtl            ::= testexpr _ifstmts_jumpl
+
         _ifstmts_jumpl     ::= c_stmts JUMP_BACK
         _ifstmts_jumpl     ::= _ifstmts_jump
-        ifstmtl            ::= testexpr _ifstmts_jumpl
+
+        # The following can happen when the jump offset is large and
+        # Python is looking to do a small jump to a larger jump to get
+        # around the problem that the offset can't be represented in
+        # the size allowed for the jump offset. This is more likely to
+        # happen in wordcode Python since the offset range has been
+        # reduced.  FIXME: We should add a reduction check that the
+        # final jump goes to another jump.
+
+        _ifstmts_jumpl     ::= COME_FROM c_stmts JUMP_BACK
+        _ifstmts_jumpl     ::= COME_FROM c_stmts JUMP_FORWARD
+
         """
 
     def p_loop_stmt3(self, args):

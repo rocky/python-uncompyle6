@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2019 Rocky Bernstein
+#  Copyright (c) 2015-2020 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -26,21 +26,24 @@ from xdis.magics import py_str2float
 from spark_parser import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.show import maybe_show_asm
 
+
 class ParserError(Exception):
     def __init__(self, token, offset):
         self.token = token
         self.offset = offset
 
     def __str__(self):
-        return "Parse error at or near `%r' instruction at offset %s\n" % \
-               (self.token, self.offset)
+        return "Parse error at or near `%r' instruction at offset %s\n" % (
+            self.token,
+            self.offset,
+        )
 
 
 def nop_func(self, args):
     return None
 
-class PythonParser(GenericASTBuilder):
 
+class PythonParser(GenericASTBuilder):
     def __init__(self, SyntaxTree, start, debug):
         super(PythonParser, self).__init__(SyntaxTree, start, debug)
         # FIXME: customize per python parser version
@@ -50,24 +53,32 @@ class PythonParser(GenericASTBuilder):
         #   stmts -> stmts stmt -> stmts stmt stmt ...
         # collect as stmts -> stmt stmt ...
         nt_list = [
-            'stmts', 'except_stmts', '_stmts', 'attributes',
-            'exprlist', 'kvlist', 'kwargs', 'come_froms', '_come_froms',
-            'importlist',
+            "_come_froms",
+            "_stmts",
+            "attributes",
+            "come_froms",
+            "except_stmts",
+            "exprlist",
+            "importlist",
+            "kvlist",
+            "kwargs",
+            "l_stmts",
+            "stmts",
             # Python < 3
-            'print_items',
+            "print_items",
             # PyPy:
-            'imports_cont',
-            'kvlist_n',
+            "imports_cont",
+            "kvlist_n",
             # Python 3.6+
-            'come_from_loops',
+            "come_from_loops",
             # Python 3.7+
-            'importlist37',
-            ]
+            "importlist37",
+        ]
         self.collect = frozenset(nt_list)
 
         # For these items we need to keep the 1st epslion reduction since
         # the nonterminal name is used in a semantic action.
-        self.keep_epsilon = frozenset(('kvlist_n', 'kvlist'))
+        self.keep_epsilon = frozenset(("kvlist_n", "kvlist"))
 
         # ??? Do we need a debug option to skip eliding singleton reductions?
         # Time will tell if it if useful in debugging
@@ -75,20 +86,22 @@ class PythonParser(GenericASTBuilder):
         # FIXME: optional_nt is a misnomer. It's really about there being a
         # singleton reduction that we can simplify. It also happens to be optional
         # in its other derivation
-        self.optional_nt |= frozenset(('come_froms', 'suite_stmts', 'l_stmts_opt',
-                                       'c_stmts_opt'))
+        self.optional_nt |= frozenset(
+            ("come_froms", "suite_stmts", "l_stmts_opt", "c_stmts_opt")
+        )
 
         # Reduce singleton reductions in these nonterminals:
         # FIXME: would love to do expr, sstmts, stmts and
         # so on but that would require major changes to the
         # semantic actions
-        self.singleton = frozenset(('str', 'store', '_stmts', 'suite_stmts_opt',
-                                    'inplace_op'))
+        self.singleton = frozenset(
+            ("str", "store", "_stmts", "suite_stmts_opt", "inplace_op")
+        )
         # Instructions filled in from scanner
         self.insts = []
 
     def ast_first_offset(self, ast):
-        if hasattr(ast, 'offset'):
+        if hasattr(ast, "offset"):
             return ast.offset
         else:
             return self.ast_first_offset(ast[0])
@@ -101,6 +114,7 @@ class PythonParser(GenericASTBuilder):
            many arguments it has. Often it is not used.
         """
         if rule not in self.new_rules:
+            # print("XXX ", rule) # debug
             self.new_rules.add(rule)
             self.addRule(rule, nop_func)
             customize[opname] = arg_count
@@ -115,7 +129,7 @@ class PythonParser(GenericASTBuilder):
         for rule in rules:
             if len(rule) == 0:
                 continue
-            opname = rule.split('::=')[0].strip()
+            opname = rule.split("::=")[0].strip()
             self.add_unique_rule(rule, opname, 0, customize)
         return
 
@@ -143,49 +157,52 @@ class PythonParser(GenericASTBuilder):
         """Customized format and print for our kind of tokens
         which gets called in debugging grammar reduce rules
         """
+
         def fix(c):
             s = str(c)
-            last_token_pos = s.find('_')
+            last_token_pos = s.find("_")
             if last_token_pos == -1:
                 return s
             else:
                 return s[:last_token_pos]
 
-        prefix = ''
+        prefix = ""
         if parent and tokens:
             p_token = tokens[parent]
-            if hasattr(p_token, 'linestart') and p_token.linestart:
-                prefix = 'L.%3d: ' % p_token.linestart
+            if hasattr(p_token, "linestart") and p_token.linestart:
+                prefix = "L.%3d: " % p_token.linestart
             else:
-                prefix = '       '
-            if hasattr(p_token, 'offset'):
+                prefix = "       "
+            if hasattr(p_token, "offset"):
                 prefix += "%3s" % fix(p_token.offset)
                 if len(rule[1]) > 1:
-                    prefix += '-%-3s ' % fix(tokens[last_token_pos-1].offset)
+                    prefix += "-%-3s " % fix(tokens[last_token_pos - 1].offset)
                 else:
-                    prefix += '     '
+                    prefix += "     "
         else:
-            prefix = '               '
+            prefix = "               "
 
-        print("%s%s ::= %s (%d)" % (prefix, rule[0], ' '.join(rule[1]), last_token_pos))
+        print("%s%s ::= %s (%d)" % (prefix, rule[0], " ".join(rule[1]), last_token_pos))
 
     def error(self, instructions, index):
         # Find the last line boundary
         start, finish = -1, -1
         for start in range(index, -1, -1):
-            if instructions[start].linestart:  break
+            if instructions[start].linestart:
+                break
             pass
-        for finish in range(index+1, len(instructions)):
-            if instructions[finish].linestart:  break
+        for finish in range(index + 1, len(instructions)):
+            if instructions[finish].linestart:
+                break
             pass
         if start > 0:
             err_token = instructions[index]
             print("Instruction context:")
             for i in range(start, finish):
                 if i != index:
-                    indent = '   '
+                    indent = "   "
                 else:
-                    indent = '-> '
+                    indent = "-> "
                 print "%s%s" % (indent, instructions[i])
             raise ParserError(err_token, err_token.offset)
         else:
@@ -196,8 +213,8 @@ class PythonParser(GenericASTBuilder):
         represented by the attr field of token"""
         # Low byte indicates number of positional paramters,
         # high byte number of keyword parameters
-        args_pos = token.attr & 0xff
-        args_kw = (token.attr >> 8) & 0xff
+        args_pos = token.attr & 0xFF
+        args_kw = (token.attr >> 8) & 0xFF
         return args_pos, args_kw
 
     def nonterminal(self, nt, args):
@@ -213,7 +230,7 @@ class PythonParser(GenericASTBuilder):
             #  stmts -> stmts stmt -> stmts stmt -> ...
             #  stmms -> stmt stmt ...
             #
-            if not hasattr(args[0], 'append'):
+            if not hasattr(args[0], "append"):
                 # Was in self.optional_nt as a single item, but we find we have
                 # more than one now...
                 rv = GenericASTBuilder.nonterminal(self, nt, [args[0]])
@@ -228,7 +245,7 @@ class PythonParser(GenericASTBuilder):
                 rv.append(args[1])
         elif n == 1 and args[0] in self.singleton:
             rv = GenericASTBuilder.nonterminal(self, nt, args[0])
-            del args[0] # save memory
+            del args[0]  # save memory
         elif n == 1 and nt in self.optional_nt:
             rv = args[0]
         else:
@@ -241,10 +258,10 @@ class PythonParser(GenericASTBuilder):
         return GenericASTBuilder.ambiguity(self, children)
 
     def resolve(self, list):
-        if len(list) == 2 and 'function_def' in list and 'assign' in list:
-            return 'function_def'
-        if 'grammar' in list and 'expr' in list:
-            return 'expr'
+        if len(list) == 2 and "function_def" in list and "assign" in list:
+            return "function_def"
+        if "grammar" in list and "expr" in list:
+            return "expr"
         # print >> sys.stderr, 'resolve', str(list)
         return GenericASTBuilder.resolve(self, list)
 
@@ -252,17 +269,17 @@ class PythonParser(GenericASTBuilder):
     #  Common Python 2 and Python 3 grammar rules #
     ###############################################
     def p_start(self, args):
-        '''
+        """
         # The start or goal symbol
         stmts ::= sstmt+
-        '''
+        """
 
     def p_call_stmt(self, args):
-        '''
+        """
         # eval-mode compilation.  Single-mode interactive compilation
         # adds another rule.
         call_stmt ::= expr POP_TOP
-        '''
+        """
 
     def p_stmt(self, args):
         """
@@ -352,7 +369,7 @@ class PythonParser(GenericASTBuilder):
         pass
 
     def p_function_def(self, args):
-        '''
+        """
         stmt               ::= function_def
         function_def       ::= mkfunc store
         stmt               ::= function_def_deco
@@ -362,15 +379,15 @@ class PythonParser(GenericASTBuilder):
         mkfuncdeco0        ::= mkfunc
         load_closure       ::= load_closure LOAD_CLOSURE
         load_closure       ::= LOAD_CLOSURE
-        '''
+        """
 
     def p_generator_exp(self, args):
-        '''
+        """
         expr ::= generator_exp
         stmt ::= genexpr_func
 
         genexpr_func ::= LOAD_FAST FOR_ITER store comp_iter JUMP_BACK
-        '''
+        """
 
     def p_jump(self, args):
         """
@@ -390,7 +407,7 @@ class PythonParser(GenericASTBuilder):
         """
 
     def p_augmented_assign(self, args):
-        '''
+        """
         stmt ::= aug_assign1
         stmt ::= aug_assign2
 
@@ -416,10 +433,10 @@ class PythonParser(GenericASTBuilder):
         inplace_op ::= INPLACE_AND
         inplace_op ::= INPLACE_XOR
         inplace_op ::= INPLACE_OR
-        '''
+        """
 
     def p_assign(self, args):
-        '''
+        """
         stmt ::= assign
         assign ::= expr DUP_TOP designList
         assign ::= expr store
@@ -428,7 +445,7 @@ class PythonParser(GenericASTBuilder):
         stmt ::= assign3
         assign2 ::= expr expr ROT_TWO store store
         assign3 ::= expr expr expr ROT_THREE ROT_TWO store store store
-        '''
+        """
 
     def p_forstmt(self, args):
         """
@@ -609,8 +626,8 @@ def parse(p, tokens, customize):
 
 
 def get_python_parser(
-        version, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode='exec',
-        is_pypy = False):
+    version, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode="exec", is_pypy=False
+):
     """Returns parser object for Python version 2 or 3, 3.2, 3.5on,
     etc., depending on the parameters passed.  *compile_mode* is either
     'exec', 'eval', or 'single'. See
@@ -631,91 +648,106 @@ def get_python_parser(
         if version < 2.2:
             if version == 1.0:
                 import uncompyle6.parsers.parse10 as parse10
-                if compile_mode == 'exec':
+
+                if compile_mode == "exec":
                     p = parse10.Python10Parser(debug_parser)
                 else:
                     p = parse10.Python01ParserSingle(debug_parser)
             elif version == 1.1:
                 import uncompyle6.parsers.parse11 as parse11
-                if compile_mode == 'exec':
+
+                if compile_mode == "exec":
                     p = parse11.Python11Parser(debug_parser)
                 else:
                     p = parse11.Python11ParserSingle(debug_parser)
             if version == 1.2:
                 import uncompyle6.parsers.parse12 as parse12
-                if compile_mode == 'exec':
+
+                if compile_mode == "exec":
                     p = parse12.Python12Parser(debug_parser)
                 else:
                     p = parse12.Python12ParserSingle(debug_parser)
             if version == 1.3:
                 import uncompyle6.parsers.parse13 as parse13
-                if compile_mode == 'exec':
+
+                if compile_mode == "exec":
                     p = parse13.Python13Parser(debug_parser)
                 else:
                     p = parse13.Python13ParserSingle(debug_parser)
             elif version == 1.4:
                 import uncompyle6.parsers.parse14 as parse14
-                if compile_mode == 'exec':
+
+                if compile_mode == "exec":
                     p = parse14.Python14Parser(debug_parser)
                 else:
                     p = parse14.Python14ParserSingle(debug_parser)
             elif version == 1.5:
                 import uncompyle6.parsers.parse15 as parse15
-                if compile_mode == 'exec':
+
+                if compile_mode == "exec":
                     p = parse15.Python15Parser(debug_parser)
                 else:
                     p = parse15.Python15ParserSingle(debug_parser)
             elif version == 1.6:
                 import uncompyle6.parsers.parse16 as parse16
-                if compile_mode == 'exec':
+
+                if compile_mode == "exec":
                     p = parse16.Python16Parser(debug_parser)
                 else:
                     p = parse16.Python16ParserSingle(debug_parser)
             elif version == 2.1:
                 import uncompyle6.parsers.parse21 as parse21
-                if compile_mode == 'exec':
+
+                if compile_mode == "exec":
                     p = parse21.Python21Parser(debug_parser)
                 else:
                     p = parse21.Python21ParserSingle(debug_parser)
         elif version == 2.2:
             import uncompyle6.parsers.parse22 as parse22
-            if compile_mode == 'exec':
+
+            if compile_mode == "exec":
                 p = parse22.Python22Parser(debug_parser)
             else:
                 p = parse22.Python22ParserSingle(debug_parser)
         elif version == 2.3:
             import uncompyle6.parsers.parse23 as parse23
-            if compile_mode == 'exec':
+
+            if compile_mode == "exec":
                 p = parse23.Python23Parser(debug_parser)
             else:
                 p = parse23.Python23ParserSingle(debug_parser)
         elif version == 2.4:
             import uncompyle6.parsers.parse24 as parse24
-            if compile_mode == 'exec':
+
+            if compile_mode == "exec":
                 p = parse24.Python24Parser(debug_parser)
             else:
                 p = parse24.Python24ParserSingle(debug_parser)
         elif version == 2.5:
             import uncompyle6.parsers.parse25 as parse25
-            if compile_mode == 'exec':
+
+            if compile_mode == "exec":
                 p = parse25.Python25Parser(debug_parser)
             else:
                 p = parse25.Python25ParserSingle(debug_parser)
         elif version == 2.6:
             import uncompyle6.parsers.parse26 as parse26
-            if compile_mode == 'exec':
+
+            if compile_mode == "exec":
                 p = parse26.Python26Parser(debug_parser)
             else:
                 p = parse26.Python26ParserSingle(debug_parser)
         elif version == 2.7:
             import uncompyle6.parsers.parse27 as parse27
-            if compile_mode == 'exec':
+
+            if compile_mode == "exec":
                 p = parse27.Python27Parser(debug_parser)
             else:
                 p = parse27.Python27ParserSingle(debug_parser)
         else:
             import uncompyle6.parsers.parse2 as parse2
-            if compile_mode == 'exec':
+
+            if compile_mode == "exec":
                 p = parse2.Python2Parser(debug_parser)
             else:
                 p = parse2.Python2ParserSingle(debug_parser)
@@ -724,62 +756,72 @@ def get_python_parser(
         pass
     else:
         import uncompyle6.parsers.parse3 as parse3
+
         if version == 3.0:
             import uncompyle6.parsers.parse30 as parse30
-            if compile_mode == 'exec':
+
+            if compile_mode == "exec":
                 p = parse30.Python30Parser(debug_parser)
             else:
                 p = parse30.Python30ParserSingle(debug_parser)
         elif version == 3.1:
             import uncompyle6.parsers.parse31 as parse31
-            if compile_mode == 'exec':
+
+            if compile_mode == "exec":
                 p = parse31.Python31Parser(debug_parser)
             else:
                 p = parse31.Python31ParserSingle(debug_parser)
         elif version == 3.2:
             import uncompyle6.parsers.parse32 as parse32
-            if compile_mode == 'exec':
+
+            if compile_mode == "exec":
                 p = parse32.Python32Parser(debug_parser)
             else:
                 p = parse32.Python32ParserSingle(debug_parser)
         elif version == 3.3:
             import uncompyle6.parsers.parse33 as parse33
-            if compile_mode == 'exec':
+
+            if compile_mode == "exec":
                 p = parse33.Python33Parser(debug_parser)
             else:
                 p = parse33.Python33ParserSingle(debug_parser)
         elif version == 3.4:
             import uncompyle6.parsers.parse34 as parse34
-            if compile_mode == 'exec':
+
+            if compile_mode == "exec":
                 p = parse34.Python34Parser(debug_parser)
             else:
                 p = parse34.Python34ParserSingle(debug_parser)
         elif version == 3.5:
             import uncompyle6.parsers.parse35 as parse35
-            if compile_mode == 'exec':
+
+            if compile_mode == "exec":
                 p = parse35.Python35Parser(debug_parser)
             else:
                 p = parse35.Python35ParserSingle(debug_parser)
         elif version == 3.6:
             import uncompyle6.parsers.parse36 as parse36
-            if compile_mode == 'exec':
+
+            if compile_mode == "exec":
                 p = parse36.Python36Parser(debug_parser)
             else:
                 p = parse36.Python36ParserSingle(debug_parser)
         elif version == 3.7:
             import uncompyle6.parsers.parse37 as parse37
-            if compile_mode == 'exec':
+
+            if compile_mode == "exec":
                 p = parse37.Python37Parser(debug_parser)
             else:
                 p = parse37.Python37ParserSingle(debug_parser)
         elif version == 3.8:
             import uncompyle6.parsers.parse38 as parse38
-            if compile_mode == 'exec':
+
+            if compile_mode == "exec":
                 p = parse38.Python38Parser(debug_parser)
             else:
                 p = parse38.Python38ParserSingle(debug_parser)
         else:
-            if compile_mode == 'exec':
+            if compile_mode == "exec":
                 p = parse3.Python3Parser(debug_parser)
             else:
                 p = parse3.Python3ParserSingle(debug_parser)
@@ -787,18 +829,25 @@ def get_python_parser(
     # p.dump_grammar() # debug
     return p
 
+
 class PythonParserSingle(PythonParser):
     def p_call_stmt_single(self, args):
-        '''
+        """
         # single-mode compilation. Eval-mode interactive compilation
         # drops the last rule.
 
         call_stmt ::= expr PRINT_EXPR
-        '''
+        """
 
 
-def python_parser(version, co, out=sys.stdout, showasm=False,
-                  parser_debug=PARSER_DEFAULT_DEBUG, is_pypy=False):
+def python_parser(
+    version,
+    co,
+    out=sys.stdout,
+    showasm=False,
+    parser_debug=PARSER_DEFAULT_DEBUG,
+    is_pypy=False,
+):
     """
     Parse a code object to an abstract syntax tree representation.
 
@@ -815,6 +864,7 @@ def python_parser(version, co, out=sys.stdout, showasm=False,
 
     assert iscode(co)
     from uncompyle6.scanner import get_scanner
+
     scanner = get_scanner(version, is_pypy)
     tokens, customize = scanner.ingest(co)
     maybe_show_asm(showasm, tokens)
@@ -826,10 +876,12 @@ def python_parser(version, co, out=sys.stdout, showasm=False,
     return parse(p, tokens, customize)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+
     def parse_test(co):
         from uncompyle6 import PYTHON_VERSION, IS_PYPY
+
         ast = python_parser(PYTHON_VERSION, co, showasm=True, is_pypy=IS_PYPY)
         print(ast)
         return
-    # parse_test(parse_test.__code__)
+    parse_test(parse_test.func_code)

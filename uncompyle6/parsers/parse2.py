@@ -25,7 +25,7 @@ If we succeed in creating a parse tree, then we have a Python program
 that a later phase can turn into a sequence of ASCII text.
 """
 
-from uncompyle6.parsers.reducecheck import (except_handler_else, tryelsestmt)
+from uncompyle6.parsers.reducecheck import (except_handler_else, ifelsestmt, tryelsestmt)
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -641,9 +641,10 @@ class Python2Parser(PythonParser):
         self.reduce_check_table = {
             # "and": and_check,
             "except_handler_else": except_handler_else,
+            "ifelsestmt": ifelsestmt,
             # "or": or_check,
-            "try_elsestmt": tryelsestmt,
-            "try_elsestmtl": tryelsestmt,
+            "tryelsestmt": tryelsestmt,
+            "tryelsestmtl": tryelsestmt,
         }
         self.check_reduce["and"] = "AST"
         self.check_reduce["except_handler_else"] = "tokens"

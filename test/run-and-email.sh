@@ -32,24 +32,24 @@ for VERSION in $PYVERSIONS ; do
 	    continue
 	    ;;
 	3.5.9 )
-	    MAX_TESTS=237 # We start failing on "mailbox" at 238
+	    MAX_TESTS=900
 	    ;;
 	3.2.6 )
-	    MAX_TESTS=172 # We start failing on pkgutil.py
+	    MAX_TESTS=900
 	    ;;
 	3.3.7 )
-	    MAX_TESTS=180 # We start failing on pkgutil.py
+	    MAX_TESTS=1300 # About 1256 exist
 	    ;;
 	3.4.10 )
-	    MAX_TESTS=30 # We start failing on aifc
+	    MAX_TESTS=800
 	    ;;
-	 3.6.9 )
-	     MAX_TESTS=92  # We start failing on cgiltb.py
-	     ;;
-	 2.6.9 )
-	     MAX_TESTS=1300
-	     ;;
-	 * )
+	3.6.10 )
+	    MAX_TESTS=1300  # about 2139 exist
+	    ;;
+	2.6.9 )
+	    MAX_TESTS=1300
+	    ;;
+	* )
 	     MAX_TESTS=800
 	     ;;
     esac

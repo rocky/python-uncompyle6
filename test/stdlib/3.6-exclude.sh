@@ -10,6 +10,7 @@ SKIP_TESTS=(
 
     [test_baseexception.py]=1 # test asert error
     [test_bdb.py]=1  #
+    [test_binascii.py]=1  # Takes more than 15 seconds to run
     [test_binop.py]=1  # Doesn't terminate
     [test_bisect.py]=1  # it fails on its own
     [test_buffer.py]=1  # parse error
@@ -51,7 +52,6 @@ SKIP_TESTS=(
     [test_descr.py]=1   # syntax error: Investigate
     [test_devpoll.py]=1 # it fails on its own
     [test_dict.py]=1 # it fails on its own
-    [test_dictcomps.py]=1   # We change line numbers - duh!
     [test_dis.py]=1   # We change line numbers - duh!
     [test_doctest2.py]=1  #
     [test_doctest.py]=1  #
@@ -69,7 +69,7 @@ SKIP_TESTS=(
     [test_fractions.py]=1 # doesn't terminate
     [test_float.py]=1 # it fails on its own
     [test_frame.py]=1 # doesn't terminate
-    [test_fstring.py]=1 # syntax error: Investigate
+    [test_ftplib.py]=1 # takes more than 15 seconds to run
     [test_functools.py]=1 # it fails on its own
     [test___future__.py]=1 # syntax error: Investigate
 
@@ -88,7 +88,6 @@ SKIP_TESTS=(
     [test_inspect.py]=1 # Syntax error Investigate
     [test_itertools.py]=1 #
 
-    [test_keywordonlyarg.py]=1 # Investigate
     [test_kqueue.py]=1 # it fails on its own
 
     [test_lib2to3.py]=1 # it fails on its own
@@ -159,10 +158,12 @@ SKIP_TESTS=(
     [test_strtod.py]=1 # it fails on its own
     [test_struct.py]=1  # Doesn't terminate
     [test_subprocess.py]=1
+    [test_sys.py]=1 # Investigate confusing "and" with nested "if" when there is an "else
     [test_sys_settrace.py]=1 # parse error
-
     [test_tarfile.py]=1 # it fails on its own
+    [test_tcl.py]=1 # FIXME parse error. Release 3.6.2 may work though
     [test_telnetlib.py]=1 # doesn't terminate
+    [test_tempfile.py]=1 # FIXME nested "if" is in wrong place. 3.6.2. may work though
     [test_thread.py]=1 # it fails on its own
     [test_threading.py]=1
     [test_threadsignals.py]=1

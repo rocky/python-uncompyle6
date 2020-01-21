@@ -271,8 +271,11 @@ class SourceWalker(GenericASTTraversal, object):
         self.tolerate_errors = tolerate_errors
 
         # If we are in a 3.6+ format string, we may need an
-        # extra level of parens when seeing a lambda
-        self.in_format_string = False
+        # extra level of parens when seeing a lambda. We also use
+        # this to understand whether or not to add the "f" prefix.
+        # When not "None" it is a string of the last nonterminal
+        # that started the format string
+        self.in_format_string = None
 
         # hide_internal suppresses displaying the additional instructions that sometimes
         # exist in code but but were not written in the source code.
@@ -1330,7 +1333,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         if comp_store:
             self.preorder(comp_for)
-        elif if_node:
+        if if_node:
             self.write(" if ")
             if have_not:
                 self.write("not ")
@@ -1407,7 +1410,9 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_classdef(self, node):
 
-        if self.version >= 3.0:
+        if self.version >= 3.6:
+            self.n_classdef36(node)
+        elif self.version >= 3.0:
             self.n_classdef3(node)
 
         # class definition ('class X(A,B,C):')
@@ -1885,6 +1890,17 @@ class SourceWalker(GenericASTTraversal, object):
         return
 
     n_set = n_tuple = n_build_set = n_list
+
+    def n_store(self, node):
+        expr = node[0]
+        if expr == "expr" and expr[0] == "LOAD_CONST" and node[1] == "STORE_ATTR":
+            # FIXME: I didn't record which constants parenthesis is
+            # necessary. However, I suspect that we could further
+            # refine this by looking at operator precedence and
+            # eval'ing the constant value (pattr) and comparing with
+            # the type of the constant.
+            node.kind = "store_w_parens"
+        self.default(node)
 
     def n_unpack(self, node):
         if node[0].kind.startswith("UNPACK_EX"):

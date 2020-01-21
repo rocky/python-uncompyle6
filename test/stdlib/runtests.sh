@@ -98,6 +98,7 @@ case $PYVERSION in
 
 	    # SyntaxError: Non-ASCII character '\xdd' in file test_base64.py on line 153, but no encoding declared; see http://www.python.org/peps/pep-0263.html for details
 	    SKIP_TESTS[test_base64.py]=1
+	    SKIP_TESTS[test_decimal.py]=1 # Might be a POWER math thing
 
 	    # output indicates expected == output, but this fails anyway.
 	    # Maybe the underlying encoding is subtlely different so it
@@ -242,17 +243,16 @@ case $PYVERSION in
 	if (( batch )) ; then
 	    # locale on test machine is probably non-default
 	    SKIP_TESTS[test__locale.py]=1
-
-	    # "test_epoll.py", line 145, in test_control_and_wait
-	    # TypeError: a bytes-like object is required, not 'str'
-	    SKIP_TESTS[test_epol.py]=1  #
 	fi
 	;;
     3.7)
 	. ./3.7-exclude.sh
+	if (( batch )) ; then
+	    SKIP_TESTS[test_fileio.py]=1
+	fi
 	;;
     3.8)
-	. ./3.7-exclude.sh
+	. ./3.8-exclude.sh
 	;;
     *)
 	SKIP_TESTS=( [test_aepack.py]=1
@@ -268,11 +268,6 @@ srcdir=$(dirname $me)
 cd $srcdir
 fulldir=$(pwd)
 
-# pyenv version cleaning
-# for dir in .. ../.. ; do
-#     (cd $dir && [[ -r .python-version ]] && rm -v .python-version )
-# done
-
 # DECOMPILER=uncompyle2
 DECOMPILER=${DECOMPILER:-"$fulldir/../../bin/uncompyle6"}
 TESTDIR=/tmp/test${PYVERSION}
@@ -282,6 +277,13 @@ fi
 
 PYENV_ROOT=${PYENV_ROOT:-$HOME/.pyenv}
 pyenv_local=$(pyenv local)
+
+# pyenv version update
+for dir in ../ ../../ ; do
+    cp -v .python-version $dir
+done
+
+
 mkdir $TESTDIR || exit $?
 cp -r ${PYENV_ROOT}/versions/${PYVERSION}.${MINOR}/lib/python${PYVERSION}/test $TESTDIR
 cd $TESTDIR/test

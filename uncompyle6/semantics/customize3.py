@@ -1,4 +1,4 @@
-#  Copyright (c) 2018-2019 by Rocky Bernstein
+#  Copyright (c) 2018-2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -188,6 +188,10 @@ def customize_for_version3(self, version):
     self.listcomp_closure3 = listcomp_closure3
 
     def n_classdef3(node):
+        """Handle "classdef" nonterminal for 3.0 >= version 3.0 <= 3.5
+        """
+
+        assert 3.0 <= self.version <= 3.5
 
         # class definition ('class X(A,B,C):')
         cclass = self.currentclass
@@ -200,34 +204,15 @@ def customize_for_version3(self, version):
         # * subclass_code - the code for the subclass body
         subclass_info = None
         if node == "classdefdeco2":
-            if self.version >= 3.6:
-                class_name = node[1][1].attr
-            elif self.version <= 3.3:
+            if self.version <= 3.3:
                 class_name = node[2][0].attr
             else:
                 class_name = node[1][2].attr
             build_class = node
         else:
             build_class = node[0]
-            if self.version >= 3.6:
-                if build_class == "build_class_kw":
-                    mkfunc = build_class[1]
-                    assert mkfunc == "mkfunc"
-                    subclass_info = build_class
-                    if hasattr(mkfunc[0], "attr") and iscode(mkfunc[0].attr):
-                        subclass_code = mkfunc[0].attr
-                    else:
-                        assert mkfunc[0] == "load_closure"
-                        subclass_code = mkfunc[1].attr
-                        assert iscode(subclass_code)
-                if build_class[1][0] == "load_closure":
-                    code_node = build_class[1][1]
-                else:
-                    code_node = build_class[1][0]
-                class_name = code_node.attr.co_name
-            else:
-                class_name = node[1][0].attr
-                build_class = node[0]
+            class_name = node[1][0].attr
+            build_class = node[0]
 
         assert "mkfunc" == build_class[1]
         mkfunc = build_class[1]
@@ -272,9 +257,6 @@ def customize_for_version3(self, version):
                 subclass_info = build_class[2]
             else:
                 raise "Internal Error n_classdef: cannot superclass name"
-        elif self.version >= 3.6 and node == "classdefdeco2":
-            subclass_info = node
-            subclass_code = build_class[1][0].attr
         elif not subclass_info:
             if mkfunc[0] in ("no_kwargs", "kwargs"):
                 subclass_code = mkfunc[1].attr

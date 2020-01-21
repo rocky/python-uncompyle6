@@ -268,6 +268,10 @@ TABLE_DIRECT = {
     'attribute_w_parens':	( '(%c).%[1]{pattr}',
                                   (0, 'expr')),
 
+    # This nonterminal we create on the fly in semantic routines
+    'store_w_parens':	( '(%c).%[1]{pattr}',
+                                  (0, 'expr')),
+
     'unpack_list':	        ( '[%C]',
                                       (1, maxint, ', ') ),
     'build_tuple2':	        ( '%P',
@@ -371,14 +375,13 @@ TABLE_DIRECT = {
 #    'return':	        ( '%|return %c\n', 0),
     'return_if_stmt':	( 'return %c\n', 0),
 
-    'ifstmt':		( '%|if %c:\n%+%c%-',
+    "ifstmt":		( "%|if %c:\n%+%c%-",
                             0, # "testexpr" or "testexpr_then"
                             1, # "_ifstmts_jump" or "return_stmts"
                         ),
-
-    'iflaststmt':	( '%|if %c:\n%+%c%-', 0, 1 ),
-    'iflaststmtl':		( '%|if %c:\n%+%c%-', 0, 1 ),
-    'testtrue':         ( 'not %p',
+    'iflaststmt':	( "%|if %c:\n%+%c%-", 0, 1 ),
+    'iflaststmtl':	( "%|if %c:\n%+%c%-", 0, 1 ),
+    'testtrue':         ( "not %p",
                           (0, PRECEDENCE['unary_not']) ),
 
     # Generally the args here are 0: (some sort of) "testexpr",
