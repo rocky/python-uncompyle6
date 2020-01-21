@@ -64,7 +64,6 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
         ),
     ):
         return False
-
     # Make sure all of the "come froms" offset at the
     # end of the "if" come from somewhere inside the "if".
     # Since the come_froms are ordered so that lowest
@@ -115,8 +114,10 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
             jf_cf_pop = ast[2]
 
             if jf_cf_pop == "jf_cf_pop" and jf_cf_pop[0] == "JUMP_FORWARD":
-                int(jf_cf_pop[0].pattr)
-                if int(jf_cf_pop[0].pattr) < tokens[last-1].off2int():
+                jump_forward = jf_cf_pop[0]
+                endif_target = int(jump_forward.pattr)
+                last_offset = tokens[min(last, n-1)].off2int()
+                if endif_target != last_offset:
                     return True
 
             # The jump inside "else" check below should be added.

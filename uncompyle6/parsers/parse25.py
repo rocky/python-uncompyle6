@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018 Rocky Bernstein
+#  Copyright (c) 2016-2018, 2020 Rocky Bernstein
 """
 spark grammar differences over Python2.6 for Python 2.5.
 """
@@ -6,6 +6,7 @@ spark grammar differences over Python2.6 for Python 2.5.
 from uncompyle6.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parsers.parse26 import Python26Parser
+from uncompyle6.parsers.reducecheck import (ifelsestmt)
 
 class Python25Parser(Python26Parser):
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
@@ -90,8 +91,9 @@ class Python25Parser(Python26Parser):
         """)
         super(Python25Parser, self).customize_grammar_rules(tokens, customize)
         if self.version == 2.5:
-            self.check_reduce['try_except'] = 'tokens'
-        self.check_reduce['aug_assign1'] = 'AST'
+            self.check_reduce["try_except"] = "tokens"
+        self.check_reduce["aug_assign1"] = "AST"
+        self.check_reduce["ifelsestmt"] = "AST"
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python25Parser,
@@ -99,15 +101,19 @@ class Python25Parser(Python26Parser):
                                                 tokens, first, last)
         if invalid or tokens is None:
             return invalid
-        if rule == ('aug_assign1', ('expr', 'expr', 'inplace_op', 'store')):
-            return ast[0][0] == 'and'
+        if rule == ("aug_assign1", ("expr", "expr", "inplace_op", "store")):
+            return ast[0][0] == "and"
+        lhs = rule[0]
+        n = len(tokens)
+        if lhs == "ifelsestmt":
+            return ifelsestmt(self, lhs, n, rule, ast, tokens, first, last)
         return False
 
 
 class Python25ParserSingle(Python26Parser, PythonParserSingle):
     pass
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Check grammar
     p = Python25Parser()
     p.check_grammar()
