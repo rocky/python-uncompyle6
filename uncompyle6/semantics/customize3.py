@@ -200,7 +200,7 @@ def customize_for_version3(self, version):
         # * subclass_code - the code for the subclass body
         subclass_info = None
         if node == "classdefdeco2":
-            if self.version >= 3.6:
+            if self.version >= 3.6 and isinstance(node[1][1].attr, str):
                 class_name = node[1][1].attr
             elif self.version <= 3.3:
                 class_name = node[2][0].attr
