@@ -87,40 +87,7 @@ case $PYVERSION in
 	fi
 	;;
     2.7)
-	SKIP_TESTS=(
-	    [test_bsddb3.py]=1 # test takes too long to run: 110 seconds
-	    [test_compile.py]=1  # Investigate: unable to find constant 0j in (None, 0.0)
-	    [test_curses.py]=1  # Possibly fails on its own but not detected
-	    [test_cmd_line.py]=1 # Takes too long, maybe hangs, or looking for interactive input?
-	    [test_dis.py]=1   # We change line numbers - duh!
-	    [test_doctest.py]=1 # Fails on its own
-	    [test_exceptions.py]=1
-	    [test_format.py]=1 # Control flow "and" vs nested "if"
-	    [test_grammar.py]=1     # Too many stmts. Handle large stmts
-	    [test_grp.py]=1     # test takes to long, works interactively though
-	    [test_io.py]=1 # Test takes too long to run
-	    [test_ioctl.py]=1 # Test takes too long to run
-	    [test_lib2to3.py]=1 # test takes too long to run: 28 seconds
-	    [test_math.py]=1
-	    [test_memoryio.py]=1 # FIX
-	    [test_modulefinder.py]=1 # FIX
-	    [test_multiprocessing.py]=1 # On uncompyle2, takes 24 secs
-	    [test_poll.py]=1  # test takes too long to run: 11 seconds
-	    [test_pwd.py]=1     # Takes too long
-	    [test_regrtest.py]=1 #
-	    [test_runpy.py]=1   # Long and fails on its own
-	    [test_select.py]=1  # Runs okay but takes 11 seconds
-	    [test_socket.py]=1  # Runs ok but takes 22 seconds
-	    [test_ssl.py]=1  #
-	    [test_subprocess.py]=1 # Runs ok but takes 22 seconds
-	    [test_sys_settrace.py]=1 # Line numbers are expected to be different
-	    [test_tokenize.py]=1 # test takes too long to run: 19 seconds
-	    [test_traceback.py]=1 # Line numbers change - duh.
-	    [test_unicode.py]=1  # Too long to run 11 seconds
-	    [test_xpickle.py]=1 # Runs ok but takes 72 seconds
-	    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
-	    [test_zipimport.py]=1  #
-        )
+	. ./2.7-exclude.sh
 	# About 335 unit-test remaining files run in about 20 minutes and 11 seconds
 	if (( batch )) ; then
 	    # Fails in crontab environment?

@@ -14,7 +14,7 @@ SKIP_TESTS=(
     [test_cmd_line_script.py]=1
     [test_compare.py]=1 # Weird test assert faiure AssertionError: [1] == [1]
     [test_compileall.py]=1 # fails on its own
-    [test_compile.py]=1 # test assertion failures
+    [test_compile.py]=1  # Code introspects on co_consts in a non-decompilable way
     [test_configparser.py]=1 # takes too long to run. Works on decompyle3 though I think.
     [test_concurrent_futures.py]=1 # too long
     [test_context.py]=1
