@@ -182,7 +182,10 @@ class Token:   # Python 2.4 can't have empty ()
                 # This is an instruction with an extended arg.
                 # For things that compare against offsets, we generally want the
                 # later offset.
-                return offset_2 if prefer_last else offset_1
+                if prefer_last:
+                    return offset_2
+                else:
+                    return offset_1
             else:
                 # Probably a "COME_FROM"-type offset, where the second number
                 # is just a count, and not really an offset.
