@@ -55,7 +55,6 @@ class Token:
         else:
             self.offset = offset
 
-        self.offset = offset
         self.linestart = linestart
         if has_arg is False:
             self.attr = None
@@ -165,7 +164,7 @@ class Token:
     def __getitem__(self, i):
         raise IndexError
 
-    def off2int(self):
+    def off2int(self, prefer_last=True):
         if isinstance(self.offset, int):
             return self.offset
         else:
