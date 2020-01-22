@@ -133,6 +133,7 @@ SKIP_TESTS=(
     [test_sys_setprofile.py]=1 # test assert fail
     [test_sys_settrace.py]=1 # doesn't terminate
 
+    [test_tcl.py]=1  # it fails on its own
     [test_telnetlib.py]=1 # doesn't terminate
     [test_tempfile.py]=1 # FIXME nested "if" is in wrong place. 3.6.2. may work though
     [test_thread.py]=1

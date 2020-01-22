@@ -179,6 +179,7 @@ case $PYVERSION in
 	    # Figure out what's up here
 	    SKIP_TESTS[test_bisect.py]=1
 	    SKIP_TESTS[test_buffer.py]=1  # too long
+	    SKIP_TESTS[test_distutils.py]=1
 
 	    SKIP_TESTS[test_exception_variations.py]=1
 	    SKIP_TESTS[test_quopri.py]=1
@@ -196,7 +197,10 @@ case $PYVERSION in
     3.7)
 	. ./3.7-exclude.sh
 	if (( batch )) ; then
+	    SKIP_TESTS[test_distutils.py]=1
 	    SKIP_TESTS[test_fileio.py]=1
+	    SKIP_TESTS[test_zipimport_support.py]=1
+
 	fi
 	;;
     3.8)
