@@ -39,7 +39,7 @@ for VERSION in $PYVERSIONS ; do
     if ! pyenv local $VERSION ; then
 	rc=1
     else
-      STOP_ONERROR=0 /bin/bash $DEBUG ./runtests.sh  >$LOGFILE 2>&1
+      STOP_ONERROR=1 /bin/bash $DEBUG ./runtests.sh  >$LOGFILE 2>&1
       rc=$?
     fi
     SUBJECT_PREFIX="runtests verify for"
