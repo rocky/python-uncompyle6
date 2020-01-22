@@ -30,7 +30,7 @@ Finally we save token information.
 """
 
 from xdis.code import iscode
-from xdis.bytecode import instruction_size, _get_const_info
+from xdis.bytecode import instruction_size, _get_const_info, Instruction
 
 from uncompyle6.scanner import Token
 import xdis
@@ -253,6 +253,39 @@ class Scanner37Base(Scanner):
                     pass
                 pass
 
+        # Operand values in Python wordcode are small. As a result,
+        # there are these EXTENDED_ARG instructions - way more than
+        # before 3.6. These parsing a lot of pain.
+
+        # To simplify things we want to untangle this. We also
+        # do this loop before we compute jump targets.
+        for i, inst in enumerate(self.insts):
+
+            # One artifact of the "too-small" operand problem, is that
+            # some backward jumps, are turned into forward jumps to another
+            # "extended arg" backward jump to the same location.
+            if inst.opname == "JUMP_FORWARD":
+                jump_inst = self.insts[self.offset2inst_index[inst.argval]]
+                if jump_inst.has_extended_arg:
+                    # Create comination of the jump-to instruction and
+                    # this one. Keep the position information of this instruction,
+                    # but the operator and operand properties come from the other
+                    # instruction
+                    self.insts[i] = Instruction(
+                        jump_inst.opname,
+                        jump_inst.opcode,
+                        jump_inst.optype,
+                        jump_inst.inst_size,
+                        jump_inst.arg,
+                        jump_inst.argval,
+                        jump_inst.argrepr,
+                        jump_inst.has_arg,
+                        inst.offset,
+                        inst.starts_line,
+                        inst.is_jump_target,
+                        inst.has_extended_arg,
+                    )
+
         # Get jump targets
         # Format: {target offset: [jump offsets]}
         jump_targets = self.find_jump_targets(show_asm)
@@ -302,6 +335,7 @@ class Scanner37Base(Scanner):
                             offset="%s_%s" % (inst.offset, jump_idx),
                             has_arg=True,
                             opc=self.opc,
+                            has_extended_arg=False,
                         ),
                     )
                     jump_idx += 1
@@ -318,6 +352,7 @@ class Scanner37Base(Scanner):
                         offset="%s" % (inst.offset),
                         has_arg=True,
                         opc=self.opc,
+                        has_extended_arg=inst.has_extended_arg,
                     ),
                 )
 
@@ -382,6 +417,7 @@ class Scanner37Base(Scanner):
                         op=op,
                         has_arg=inst.has_arg,
                         opc=self.opc,
+                        has_extended_arg=inst.has_extended_arg,
                     ),
                 )
                 continue
@@ -475,6 +511,7 @@ class Scanner37Base(Scanner):
                     op=op,
                     has_arg=inst.has_arg,
                     opc=self.opc,
+                    has_extended_arg=inst.has_extended_arg,
                 ),
             )
             pass

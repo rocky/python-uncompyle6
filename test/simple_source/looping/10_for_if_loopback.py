@@ -37,3 +37,22 @@ assert lasti2lineno([], True) == -1
 assert lasti2lineno([], False) == -1
 assert lasti2lineno([1], False) == -1
 assert lasti2lineno([1], True) == 1
+
+# From 3.7 test_builtin.py
+# Bug was allowing if condition jump back to the
+# "for" loop as an acceptable "ifstmtl" rule.
+
+# RUNNABLE!
+def test_pow(m, b, c):
+    for a in m:
+        if a or \
+           b or \
+           c:
+            c = 1
+
+    return c
+
+assert test_pow([], 2, 3) == 3
+assert test_pow([1], 0, 5) == 1
+assert test_pow([1], 4, 2) == 1
+assert test_pow([0], 0, 0) == 0
