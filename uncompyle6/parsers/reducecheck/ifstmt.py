@@ -29,6 +29,9 @@ def ifstmt(self, lhs, n, rule, ast, tokens, first, last):
                 if tokens[l] == "JUMP_FORWARD":
                     return tokens[l].attr != pjif_target
                 return True
+            elif lhs == "ifstmtl" and tokens[first].off2int() > pjif_target:
+                # A conditional JUMP to the loop is expected for "ifstmtl"
+                return False
             pass
         pass
     pass

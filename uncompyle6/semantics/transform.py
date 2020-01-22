@@ -20,7 +20,7 @@ from spark_parser import GenericASTTraversal, GenericASTTraversalPruningExceptio
 
 from uncompyle6.semantics.helper import find_code_node
 from uncompyle6.parsers.treenode import SyntaxTree
-from uncompyle6.scanners.tok import Token
+from uncompyle6.scanners.tok import NoneToken, Token
 from uncompyle6.semantics.consts import RETURN_NONE
 
 
@@ -104,8 +104,9 @@ class TreeTransform(GenericASTTraversal, object):
 
         testexpr = node[0]
 
-        if testexpr.kind != "testexpr":
+        if testexpr != "testexpr":
             return node
+
         if node.kind in ("ifstmt", "ifstmtl"):
             ifstmts_jump = node[1]
 
@@ -121,14 +122,21 @@ class TreeTransform(GenericASTTraversal, object):
         if stmts in ("c_stmts",) and len(stmts) == 1:
             stmt = stmts[0]
             raise_stmt = stmt[0]
+            testtrue_or_false = testexpr[0]
             if (
                 raise_stmt == "raise_stmt1"
-                and len(testexpr[0]) == 2
+                and 1 <= len(testtrue_or_false) <= 2
                 and raise_stmt.first_child().pattr == "AssertionError"
             ):
-                assert_expr = testexpr[0][0]
-                assert_expr.kind = "assert_expr"
-                jump_cond = testexpr[0][1]
+                if  testtrue_or_false == "testtrue":
+                    # Skip over the testtrue because because it would
+                    # produce a "not" and we don't want that here.
+                    assert_expr = testtrue_or_false[0]
+                    jump_cond = NoneToken
+                else:
+                    assert_expr = testtrue_or_false[0]
+                    jump_cond = testtrue_or_false[1]
+                    assert_expr.kind = "assert_expr"
                 expr = raise_stmt[0]
                 RAISE_VARARGS_1 = raise_stmt[1]
                 call = expr[0]
@@ -146,10 +154,12 @@ class TreeTransform(GenericASTTraversal, object):
                     #                     1. RAISE_VARARGS_1
                     # becomes:
                     # assert2 ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_1 COME_FROM
-                    if jump_cond == "jmp_true":
+                    if jump_cond in ("jmp_true", NoneToken):
                         kind = "assert2"
                     else:
-                        assert jump_cond == "jmp_false"
+                        if jump_cond == "jmp_false":
+                            # FIXME: We don't handle this kind of thing yet.
+                            return node
                         kind = "assert2not"
 
                     LOAD_ASSERT = call[0].first_child()
@@ -183,7 +193,7 @@ class TreeTransform(GenericASTTraversal, object):
                     #             1.   RAISE_VARARGS_1
                     # becomes:
                     # assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
-                    if jump_cond == "jmp_true":
+                    if jump_cond in ("jmp_true", NoneToken):
                         if self.is_pypy:
                             kind = "assert0_pypy"
                         else:

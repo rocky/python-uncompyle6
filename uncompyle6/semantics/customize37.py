@@ -175,6 +175,14 @@ def customize_for_version37(self, version):
             pass
         return
 
+    def n_assert_invert(node):
+        testtrue = node[0]
+        assert testtrue == "testtrue"
+        testtrue.kind = "assert"
+        self.default(testtrue)
+
+    self.n_assert_invert = n_assert_invert
+
     def n_attribute37(node):
         expr = node[0]
         assert expr == "expr"
