@@ -65,3 +65,18 @@ def testAttributes(exceptionList):
         x = 0; x = 1; x = 2; x = 3; x = 4; x = 5; x = 6; x = 7; x = 8; x = 9;
         x = 0; x = 1; x = 2; x = 3; x = 4; x = 5; x = 6; x = 7; x = 8; x = 9;
         x = 0
+
+# From test_urllibnet2.py
+# Bug was in detecting end of "if" flowing into an extended-arg "for".
+def _test_urls(retry, urls):
+    if retry:
+        urlopen = 1
+
+    for url in urls:
+        shape_t = 0; shape_t = 1; shape_t = 2; shape_t = 3; shape_t = 4; shape_t = 5; shape_t = 6; shape_t = 7; shape_t = 8; shape_t = 9
+        shape_t = 0; shape_t = 1; shape_t = 2; shape_t = 3; shape_t = 4; shape_t = 5; shape_t = 6; shape_t = 7; shape_t = 8; shape_t = 9
+        shape_t = 0; shape_t = 1; shape_t = 2; shape_t = 3; shape_t = 4; shape_t = 5; shape_t = 6; shape_t = 7; shape_t = 8; shape_t = 9
+        shape_t = 0; shape_t = 1; shape_t = 2; shape_t = 3; shape_t = 4; shape_t = 5; shape_t = 6; shape_t = 7; shape_t = 8; shape_t = 9
+        shape_t = 0; shape_t = 1; shape_t = 2; shape_t = 3; shape_t = 4; shape_t = 5; shape_t = 6; shape_t = 7; shape_t = 8; shape_t = 9
+        shape_t = 0; shape_t = 1; shape_t = 2; shape_t = 3; shape_t = 4; shape_t = 5; shape_t = 6; shape_t = 7; shape_t = 8; shape_t = 9
+        shape_t = 0
