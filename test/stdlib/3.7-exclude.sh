@@ -6,6 +6,7 @@ SKIP_TESTS=(
     [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
     [test_baseexception.py]=1  # UnboundLocalError: local variable 'exc' referenced before assignment
     [test_bdb.py]=1  #
+    [test_binascii.py]=1  # Takes "while and" miscompiled
     [test_buffer.py]=1  # test assertion errors
     [test_builtin.py]=1  # parse error, but decompyle3 doesn't have this. (It has test assert failures though)
     [test_clinic.py]=1 # it fails on its own
