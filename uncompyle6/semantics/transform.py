@@ -82,7 +82,12 @@ class TreeTransform(GenericASTTraversal, object):
         than the code field is seen and used.
         """
 
-        code = find_code_node(node, -2).attr
+        if self.version >= 3.7:
+            code_index = -3
+        else:
+            code_index = -2
+
+        code = find_code_node(node, code_index).attr
 
         if (
             node[-1].pattr != "closure"
@@ -177,6 +182,7 @@ class TreeTransform(GenericASTTraversal, object):
                                 RAISE_VARARGS_1,
                             ],
                         )
+                        node.transformed_by="n_ifstmt"
                         pass
                     pass
                 else:
