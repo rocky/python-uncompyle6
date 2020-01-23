@@ -46,13 +46,12 @@ def ifstmt(self, lhs, n, rule, ast, tokens, first, last):
         if testexpr[0] in ("testtrue", "testfalse"):
             test = testexpr[0]
             if len(test) > 1 and test[1].kind.startswith("jmp_"):
-                if last == n:
-                    last -= 1
+                last = min(last, n-1)
                 jmp_target = test[1][0].attr
                 if (
-                    tokens[first].off2int()
+                    tokens[first].off2int(True)
                     <= jmp_target
-                    < tokens[last].off2int()
+                    < tokens[last].off2int(False)
                 ):
                     return True
                 # jmp_target less than tokens[first] is okay - is to a loop
