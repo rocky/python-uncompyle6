@@ -818,7 +818,7 @@ class Python37Parser(Python37BaseParser):
 
         # This handles the case where a "JUMP_ABSOLUTE" is part
         # of an inner if in c_stmts_opt
-        ifelsestmt ::= testexpr c_stmts_opt come_froms
+        ifelsestmt ::= testexpr c_stmts come_froms
                        else_suite come_froms
 
         # ifelsestmt ::= testexpr c_stmts_opt jump_forward_else

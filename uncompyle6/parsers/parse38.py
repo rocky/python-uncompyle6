@@ -88,6 +88,10 @@ class Python38Parser(Python37Parser):
         ifpoplaststmtl     ::= testexpr POP_TOP c_stmts_opt JUMP_BACK
         ifelsestmtl        ::= testexpr c_stmts_opt jb_cfs else_suitel JUMP_BACK come_froms
 
+        # Keep indices the same in ifelsestmtl
+        cf_pt              ::= COME_FROM POP_TOP
+        ifelsestmtl        ::= testexpr c_stmts cf_pt else_suite
+
         for38              ::= expr get_iter store for_block JUMP_BACK
         for38              ::= expr get_for_iter store for_block JUMP_BACK
         for38              ::= expr get_for_iter store for_block JUMP_BACK POP_BLOCK
