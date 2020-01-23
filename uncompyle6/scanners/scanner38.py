@@ -60,7 +60,7 @@ class Scanner38(Scanner37):
 
         if self.debug and jump_back_targets:
             print(jump_back_targets)
-        loop_ends: List[int] = []
+        loop_ends = []
         next_end = tokens[len(tokens)-1].off2int() + 10
         for i, token in enumerate(tokens):
             opname = token.kind
