@@ -85,7 +85,7 @@ class Python38Parser(Python37Parser):
 
         # 3.8 can push a looping JUMP_BACK into into a JUMP_ from a statement that jumps to it
         lastl_stmt         ::= ifpoplaststmtl
-        ifpoplaststmtl     ::= testexpr POP_TOP c_stmts_opt JUMP_BACK
+        ifpoplaststmtl     ::= testexpr POP_TOP c_stmts_opt
         ifelsestmtl        ::= testexpr c_stmts_opt jb_cfs else_suitel JUMP_BACK come_froms
 
         # Keep indices the same in ifelsestmtl
