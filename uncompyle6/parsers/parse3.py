@@ -33,7 +33,8 @@ from uncompyle6.parsers.reducecheck import (
     except_handler_else,
     # iflaststmt,
     testtrue,
-    tryelsestmtl3
+    tryelsestmtl3,
+    while1stmt
 )
 from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -1520,6 +1521,7 @@ class Python3Parser(PythonParser):
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         lhs = rule[0]
         n = len(tokens)
+        last = min(last, n-1)
         if lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
             return True
         elif lhs == "annotate_tuple":
@@ -1535,10 +1537,11 @@ class Python3Parser(PythonParser):
             condition_jump = ast[0].last_child()
             if condition_jump.kind.startswith("POP_JUMP_IF"):
                 condition_jump2 = tokens[min(last - 1, len(tokens) - 1)]
-                if condition_jump2.kind.startswith("POP_JUMP_IF"):
+                # If there are two *distinct* condition jumps, they should not jump to the
+                # same place. Otherwise we have some sort of "and"/"or".
+                if condition_jump2.kind.startswith("POP_JUMP_IF") and condition_jump != condition_jump2:
                     return condition_jump.attr == condition_jump2.attr
 
-                last = min(last, n-1)
                 if tokens[last] == "COME_FROM" and tokens[last].off2int() != condition_jump.attr:
                     return False
 
@@ -1569,35 +1572,9 @@ class Python3Parser(PythonParser):
             return tryelsestmtl3(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs == "while1stmt":
 
-            # If there is a fall through to the COME_FROM_LOOP, then this is
-            # not a while 1. So the instruction before should either be a
-            # JUMP_BACK or the instruction before should not be the target of a
-            # jump. (Well that last clause i not quite right; that target could be
-            # from dead code. Ugh. We need a more uniform control flow analysis.)
-            if last == len(tokens) or tokens[last - 1] == "COME_FROM_LOOP":
-                cfl = last - 1
-            else:
-                cfl = last
-            assert tokens[cfl] == "COME_FROM_LOOP"
+            if while1stmt(self, lhs, n, rule, ast, tokens, first, last):
+                return True
 
-            for i in range(cfl - 1, first, -1):
-                if tokens[i] != "POP_BLOCK":
-                    break
-            if tokens[i].kind not in ("JUMP_BACK", "RETURN_VALUE", "BREAK_LOOP"):
-                if not tokens[i].kind.startswith("COME_FROM"):
-                    return True
-
-            # Check that the SETUP_LOOP jumps to the offset after the
-            # COME_FROM_LOOP
-
-            # Python 3.0 has additional:
-            #     JUMP_FORWARD here
-            #     COME_FROM
-            #     POP_TOP
-            #     COME_FROM
-            #  here:
-            #     (target of SETUP_LOOP)
-            # We won't check this.
             if self.version == 3.0:
                 return False
 

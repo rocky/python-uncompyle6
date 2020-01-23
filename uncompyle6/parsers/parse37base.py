@@ -1105,6 +1105,7 @@ class Python37BaseParser(PythonParser):
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         lhs = rule[0]
         n = len(tokens)
+        last = min(last, n-1)
         fn = self.reduce_check_table.get(lhs, None)
         if fn:
             return fn(self, lhs, n, rule, ast, tokens, first, last)
