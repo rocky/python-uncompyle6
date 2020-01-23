@@ -68,14 +68,15 @@ class Scanner38(Scanner37):
             if offset == next_end:
                 loop_ends.pop()
                 if self.debug:
-                    print(f"{'  ' * len(loop_ends)}remove loop offset {offset}")
+                    print("%sremove loop offset %s" % (" " * len(loop_ends), offset))
                     pass
                 next_end = loop_ends[-1] if len(loop_ends) else tokens[len(tokens)-1].off2int() + 10
 
             if offset in jump_back_targets:
                 next_end = off2int(jump_back_targets[offset], prefer_last=False)
                 if self.debug:
-                    print(f"{'  ' * len(loop_ends)}adding loop offset {offset} ending at {next_end}")
+                    print("%sadding loop offset %s ending at %s" %
+                          ('  ' * len(loop_ends), offset, next_end))
                 loop_ends.append(next_end)
 
             # Turn JUMP opcodes into "BREAK_LOOP" opcodes.
