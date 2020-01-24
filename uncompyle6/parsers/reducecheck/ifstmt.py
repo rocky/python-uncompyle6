@@ -1,5 +1,6 @@
 #  Copyright (c) 2020 Rocky Bernstein
 
+
 def ifstmt(self, lhs, n, rule, ast, tokens, first, last):
     if lhs == "ifstmtl":
         if last == n:
@@ -48,9 +49,9 @@ def ifstmt(self, lhs, n, rule, ast, tokens, first, last):
             if len(test) > 1 and test[1].kind.startswith("jmp_"):
                 jmp_target = test[1][0].attr
                 if (
-                    tokens[first].off2int(True)
+                    tokens[first].off2int(prefer_last=True)
                     <= jmp_target
-                    < tokens[last].off2int(False)
+                    < tokens[last].off2int(prefer_last=False)
                 ):
                     return True
                 # jmp_target less than tokens[first] is okay - is to a loop

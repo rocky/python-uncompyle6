@@ -120,7 +120,6 @@ SKIP_TESTS=(
     [test_types.py]=1 # parse error
     [test_unicode.py]=1 # unicode thing
     [test_urllib2.py]=1 #
-    [test_urllib2net.py]=1 # Investigate: Was working in 3.6.2. parse error.
     [test_urllib2_localnet.py]=1 #
     [test_urllibnet.py]=1 # probably control flow - uninitialized variable
     [test_weakref.py]=1 # probably control flow - uninitialized variable

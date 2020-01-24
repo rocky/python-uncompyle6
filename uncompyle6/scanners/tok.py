@@ -187,7 +187,7 @@ class Token:
         raise IndexError
 
     def off2int(self, prefer_last=True):
-        return off2int(self.offset)
+        return off2int(self.offset, prefer_last)
 
 
 NoneToken = Token("LOAD_CONST", offset=-1, attr=None, pattr=None)
