@@ -643,6 +643,7 @@ class Python37Parser(Python37BaseParser):
         list_if37_not              ::= compare_chained37 list_iter
 
         _ifstmts_jump              ::= c_stmts_opt come_froms
+        _ifstmts_jump              ::= COME_FROM c_stmts come_froms
 
         and_not                    ::= expr jmp_false expr POP_JUMP_IF_TRUE
         testfalse                  ::= and_not
@@ -949,12 +950,11 @@ class Python37Parser(Python37BaseParser):
 
         and  ::= expr JUMP_IF_FALSE_OR_POP expr come_from_opt
         and  ::= expr jifop_come_from expr
-        and  ::= expr JUMP_IF_FALSE expr COME_FROM
 
         pjit_come_from ::= POP_JUMP_IF_TRUE COME_FROM
         or  ::= expr pjit_come_from expr
 
-        ## FIXME: Is the below needed or is it covered above??
+        ## Note that "jmp_false" is what we check on in the "and" reduce rule.
         and ::= expr jmp_false expr COME_FROM
         or  ::= expr jmp_true  expr COME_FROM
 
