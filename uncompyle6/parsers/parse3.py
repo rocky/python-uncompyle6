@@ -34,6 +34,7 @@ from uncompyle6.parsers.reducecheck import (
     # iflaststmt,
     testtrue,
     tryelsestmtl3,
+    tryexcept,
     while1stmt
 )
 from uncompyle6.parsers.treenode import SyntaxTree
@@ -217,8 +218,7 @@ class Python3Parser(PythonParser):
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts
                            END_FINALLY COME_FROM_EXCEPT
 
-        except_stmts ::= except_stmts except_stmt
-        except_stmts ::= except_stmt
+        except_stmts ::= except_stmt+
 
         except_stmt ::= except_cond1 except_suite
         except_stmt ::= except_cond2 except_suite
@@ -1509,8 +1509,9 @@ class Python3Parser(PythonParser):
         self.check_reduce["testtrue"] = "tokens"
         if not PYTHON3:
             self.check_reduce["kwarg"] = "noAST"
-        if self.version < 3.6:
+        if self.version < 3.6 and not self.is_pypy:
             # 3.6+ can remove a JUMP_FORWARD which messes up our testing here
+            # Pypy we need to go over in better detail
             self.check_reduce["try_except"] = "AST"
 
         self.check_reduce["tryelsestmtl3"] = "AST"
@@ -1618,24 +1619,8 @@ class Python3Parser(PythonParser):
                 return False
             # 3.8+ Doesn't have SETUP_LOOP
             return self.version < 3.8 and tokens[first].attr > tokens[last].offset
-
-        elif rule == (
-            "try_except",
-            (
-                "SETUP_EXCEPT",
-                "suite_stmts_opt",
-                "POP_BLOCK",
-                "except_handler",
-                "opt_come_from_except",
-            ),
-        ):
-            come_from_except = ast[-1]
-            if come_from_except[0] == "COME_FROM":
-                # There should be at last two COME_FROMs, one from an
-                # exception handler and one from the try. Otherwise
-                # we have a try/else.
-                return True
-            pass
+        elif lhs == "try_except":
+            return tryexcept(self, lhs, n, rule, ast, tokens, first, last)
         elif rule == (
             "ifelsestmt",
             (

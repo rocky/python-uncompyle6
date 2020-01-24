@@ -77,7 +77,6 @@ SKIP_TESTS=(
     [test_socketserver.py]=1 # long 25 seconds
     [test_struct.py]=1  # Doesn't terminate
     [test_strlit.py]=1 # test failure
-    [test_strtod.py]=1 # test assertion error
     [test_subprocess.py]=1 # Too long
     [test_symtable.py]=1 # Investigate bad output
     [test_sys_settrace.py]=1 # test assert failures
