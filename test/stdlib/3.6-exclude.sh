@@ -183,4 +183,4 @@ SKIP_TESTS=(
     [test_zipimport_support.py]=1
     [test_zlib.py]=1
 )
-# 218 unit-test remaining files, Elapsed time about 7 minutes 30 seconds
+# 233 unit-test files in about 13 minutes

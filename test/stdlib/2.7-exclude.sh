@@ -32,3 +32,4 @@ SKIP_TESTS=(
     [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
     [test_zipimport.py]=1  #
 )
+# 335 unit-test files in about 16 minutes
