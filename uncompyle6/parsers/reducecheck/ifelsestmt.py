@@ -41,7 +41,7 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
         ),
         (
             "ifelsestmt",
-            ("testexpr", "c_stmts_opt", "come_froms", "else_suite", "come_froms",),
+            ("testexpr", "c_stmts", "come_froms", "else_suite", "come_froms",),
         ),
         (
             "ifelsestmt",
