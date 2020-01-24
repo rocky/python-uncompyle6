@@ -2,9 +2,6 @@ SKIP_TESTS=(
     [test___all__.py]=1 # it fails on its own
     [test_aifc.py]=1  #
     [test_asdl_parser.py]=1 # it fails on its own
-    [test_ast.py]=1  # line 379, in test_literal_eval  self.assertEqual(ast.literal_eval('b"hi"'), 'hi')
-    [test_asynchat.py]=1  # doesn't terminate
-    [test_asyncore.py]=1  # doesn't terminate
     [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
 
     [test_bisect.py]=1  # it fails on its own
@@ -18,8 +15,7 @@ SKIP_TESTS=(
     [test_codecs.py]=1 # test assertion failure
     [test_collections.py]=1
     [test_compile.py]=1  # Code introspects on co_consts in a non-decompilable way
-    [test_concurrent_futures.py]=1 # Takes long
-    [test_configparser.py]=1  # Doesn't terminate
+    [test_concurrent_futures.py]=1 # Takes long to run
     [test_coroutines.py]=1 # Syntax error Investigate
     [test_curses.py]=1 #
 
@@ -39,25 +35,21 @@ SKIP_TESTS=(
     [test_format.py]=1
 
     [test_gdb.py]=1 # it fails on its own
-    [test_generators.py]=1 # test assert failures
     [test_glob.py]=1 #
     [test_grammar.py]=1 # parse error
     [test_grp.py]=1  # Long test
 
-    [test_heapq.py]=1
-    [test_httplib.py]=1
+    [test_heapq.py]=1 # test assertion failures
     [test_httpservers.py]=1 # test assertion errors
 
     [test_imaplib.py]=1
     [test_inspect.py]=1 # Syntax error Investigate
-    [test_io.py]=1 #
+    [test_io.py]=1 # Long run time.
 
     [test_logging.py]=1 #
-    [test_long.py]=1 #
-    [test_lzma.py]=1 # doesn't terminate on test_decompressor_chunks_maxsize
+    [test_long.py]=1 # too long run time: 20 seconds
 
-    [test_marshal.py]=1 #
-    [test_math.py]=1 # Investigate Unexpected ValueError: math domain error
+    [test_math.py]=1 # test assertion errors TypeError: a float is required
     [test_modulefinder.py]=1  # test assertion error
     [test_msilib.py]=1 # it fails on its own
     [test_multiprocessing_fork.py]=1  # long
@@ -68,22 +60,18 @@ SKIP_TESTS=(
     [test_normalization.py]=1 # it fails on its own
 
     [test_pdb.py]=1 # probably relies on comments in code
-    [test_peepholer.py]=1 # parse error
+    [test_peepholer.py]=1 # parse error; Investigate
     [test_pep352.py]=1 # test assertion error
     [test_pep380.py]=1 # Investigate test assertion differ
-    [test_pickle.py]=1
+    [test_pickle.py]=1 # test assert errors
     [test_pkgimport.py]=1 # long
     [test_pkgutil.py]=1 # it fails on its own
-    [test_poplib.py]=1
-    [test_print.py]=1
-    [test_pwd.py]=1   # Takes too long
+    [test_print.py]=1 # test assert errors
     [test_pydoc.py]=1 # test assertion: help text difference
 
     [test_queue.py]=1 # Possibly parameter differences - investigate
 
     [test_raise.py]=1 # Test assert error
-    [test_range.py]=1 # doesn't terminate
-    [test_readline.py]=1 # doesn't terminate
     [test_regrtest.py]=1 # test assertion errors
     [test_robotparser.py]=1 # fails on its own
     [test_runpy.py]=1 # decompile takes too long?
@@ -93,11 +81,8 @@ SKIP_TESTS=(
     [test_select.py]=1 # Takes too long 11 seconds
     [test_selectors.py]=1 # Takes too long 17 seconds
     [test_set.py]=1 # # test assert failure and doesn't terminate
-    [test_shlex.py]=1 # Doesn't terminate
-    [test_shutil.py]=1 # Doesn't terminate
     [test_signal.py]=1 # too long?
     [test_smtpd.py]=1 # test failures
-    [test_smtplib.py]=1 # doesn't terminate
     [test_socket.py]=1 # long
     [test_socketserver.py]=1
     [test_strtod.py]=1 # Test assert failure
@@ -135,4 +120,4 @@ SKIP_TESTS=(
     [test_zipfile.py]=1 # it fails on its own
     [test_zlib.py]=1
 )
-# About 230 unit-test files remain; about 8 minutes to complete
+# About 260 unit-test in about 16 minutes
