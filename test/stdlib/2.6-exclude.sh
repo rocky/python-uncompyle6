@@ -82,4 +82,4 @@ SKIP_TESTS=(
     # .pyenv/versions/2.6.9/lib/python2.6/lib2to3/refactor.pyc
     # .pyenv/versions/2.6.9/lib/python2.6/pyclbr.pyc
 )
-# About 303 unit-test files in about 7 minutes
+# About 305 unit-test files in about 12 minutes
