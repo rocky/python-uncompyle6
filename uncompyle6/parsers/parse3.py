@@ -31,6 +31,7 @@ from uncompyle6.scanners.tok import Token
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.reducecheck import (
     except_handler_else,
+    ifstmt,
     # iflaststmt,
     testtrue,
     tryelsestmtl3,
@@ -1535,6 +1536,11 @@ class Python3Parser(PythonParser):
         # elif lhs == "iflaststmtl":
         #     return iflaststmt(self, lhs, n, rule, ast, tokens, first, last)
         elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
+            if self.version <= 3.0:
+                return False
+            if ifstmt(self, lhs, n, rule, ast, tokens, first, last):
+                return True
+            # FIXME: do we need the below or is it covered by "ifstmt" above?
             condition_jump = ast[0].last_child()
             if condition_jump.kind.startswith("POP_JUMP_IF"):
                 condition_jump2 = tokens[min(last - 1, len(tokens) - 1)]

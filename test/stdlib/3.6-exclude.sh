@@ -12,7 +12,6 @@ SKIP_TESTS=(
     [test_buffer.py]=1  # parse error
     [test_builtin.py]=1  # Fails on its own
     [test test_capi.py]=1 # it fails on its own
-    [test_cmath.py]=1 # Investigate weird if control flow
     [test_cmd_line.py]=1 # Interactive?
 
     [test_codecencodings_cn.py]=1 # it fails on its own
@@ -30,7 +29,6 @@ SKIP_TESTS=(
     [test_collections.py]= # it fails on its own
     [test_compile.py]=1  # Code introspects on co_consts in a non-decompilable way
     [test_concurrent_futures.py]=1 # Takes long
-    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
     [test_contextlib.py]=1 # test assertion failure
     [test_contextlib_async.py]=1 # Investigate
     [test_coroutines.py]=1 # Parse error
@@ -62,7 +60,7 @@ SKIP_TESTS=(
     [test___future__.py]=1 # syntax error: Investigate
 
     [test_gdb.py]=1 # it fails on its own
-    [test_generators.py]=1 # test assert failures
+    [test_generators.py]=1 # FIXME: Invalid syntax: f2 = lambda : (yield from g())        if False:
     [test_genexps.py]=1 #
     [test_glob.py]=1 #
     [test_grammar.py]=1 # parse error
@@ -73,7 +71,7 @@ SKIP_TESTS=(
     [test_io.py]=1 # it fails on its own
     [test_imaplib.py]=1
     [test_inspect.py]=1 # Syntax error Investigate
-    [test_itertools.py]=1 #
+    [test_itertools.py]=1 # test assertion failures
 
     [test_kqueue.py]=1 # it fails on its own
 
@@ -143,9 +141,8 @@ SKIP_TESTS=(
     [test_sys.py]=1 # Investigate confusing "and" with nested "if" when there is an "else
     [test_sys_settrace.py]=1 # parse error
     [test_tarfile.py]=1 # it fails on its own
-    [test_tcl.py]=1 # FIXME parse error. Release 3.6.2 may work though
+    [test_tcl.py]=1 # Test assert failures
     [test_telnetlib.py]=1 # takes more than 15 seconds to run
-    [test_tempfile.py]=1 # FIXME nested "if" is in wrong place. 3.6.2. may work though
     [test_thread.py]=1 # it fails on its own
     [test_threading.py]=1
     [test_threadsignals.py]=1

@@ -40,7 +40,6 @@ SKIP_TESTS=(
     [test_grp.py]=1  # Long test
 
     [test_heapq.py]=1 # test assertion failures
-    [test_httpservers.py]=1 # test assertion errors
 
     [test_imaplib.py]=1
     [test_inspect.py]=1 # Syntax error Investigate
@@ -91,7 +90,6 @@ SKIP_TESTS=(
     [test_sys_settrace.py]=1 # test assert fail
 
     [test_tcl.py]=1  # it fails on its own
-    [test_tempfile.py]=1 # FIXME nested "if" is in wrong place. 3.6.2. may work though
     [test_thread.py]=1
     [test_threading.py]=1
     [test_timeout.py]=1
@@ -107,7 +105,6 @@ SKIP_TESTS=(
     [test_urllib2net.py]=1 # it fails on its own
     [test_urllibnet.py]=1 # it fails on its own
     [test_urlparse.py]=1 # test assert error
-    [test_uu.py]=1 # May 3.6.2. may work
 
     [test_winreg.py]=1 # it fails on its own
     [test_winsound.py]=1 # it fails on its own

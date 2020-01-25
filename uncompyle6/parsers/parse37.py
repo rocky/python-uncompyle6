@@ -853,13 +853,12 @@ class Python37Parser(Python37BaseParser):
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts
                            come_froms END_FINALLY come_from_opt
 
-        except_stmts ::= except_stmts except_stmt
-        except_stmts ::= except_stmt
+        except_stmts   ::= except_stmt+
 
-        except_stmt ::= except_cond1 except_suite come_from_opt
-        except_stmt ::= except_cond2 except_suite come_from_opt
-        except_stmt ::= except_cond2 except_suite_finalize
-        except_stmt ::= except
+        except_stmt    ::= except_cond1 except_suite come_from_opt
+        except_stmt    ::= except_cond2 except_suite come_from_opt
+        except_stmt    ::= except_cond2 except_suite_finalize
+        except_stmt    ::= except
 
         ## FIXME: what's except_pop_except?
         except_stmt ::= except_pop_except
