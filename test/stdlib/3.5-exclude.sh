@@ -66,6 +66,7 @@ SKIP_TESTS=(
     [test_pkgimport.py]=1 # long
     [test_pkgutil.py]=1 # it fails on its own
     [test_print.py]=1 # test assert errors
+    [test_pty.py]=1  # FIXME: Needs grammar loop isolation separation
     [test_pydoc.py]=1 # test assertion: help text difference
 
     [test_queue.py]=1 # Possibly parameter differences - investigate

@@ -160,7 +160,7 @@ class Python3Parser(PythonParser):
         _ifstmts_jump   ::= stmts_opt come_froms
         _ifstmts_jumpl  ::= c_stmts_opt come_froms
 
-        iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE
+        iflaststmt  ::= testexpr stmts_opt JUMP_ABSOLUTE
 
         # ifstmts where we are in a loop
         _ifstmts_jumpl     ::= _ifstmts_jump
@@ -358,6 +358,24 @@ class Python3Parser(PythonParser):
 
         stmt ::= whileTruestmt
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms
+
+        # FIXME: go over this
+        stmts ::= _stmts last_stmt
+        stmts ::= last_stmt
+        stmts_opt ::= stmts
+        last_stmt ::= iflaststmt
+        last_stmt ::= forelselaststmt
+        iflaststmt ::= testexpr last_stmt JUMP_ABSOLUTE
+        iflaststmt ::= testexpr stmts JUMP_ABSOLUTE
+        _iflaststmts_jump ::= stmts last_stmt
+        iflaststmt ::= testexpr _iflaststmts_jump
+        ifelsestmt ::= testexpr stmts_opt jump_absolute_else else_suite
+        ifelsestmt ::= testexpr stmts_opt jump_forward_else else_suite _come_froms
+        iflaststmt ::= testexpr _ifstmts_jump
+
+        # FIXME: remove this
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_froms
+
 
         # statements with continue and break
         c_stmts ::= _stmts

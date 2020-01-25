@@ -22,6 +22,7 @@ SKIP_TESTS=(
     [test_nntplib.py]=1
     [test_peepholer.py]=1
     [test_poll.py]=1  # test takes too long to run: 11 seconds
+    [test_pty.py]=1  # FIXME: Needs grammar loop isolation separation
     [test_queue.py]=1
     [test_re.py]=1
     [test_resource.py]=1
