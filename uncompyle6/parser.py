@@ -302,6 +302,9 @@ class PythonParser(GenericASTBuilder):
         c_stmts_opt ::= c_stmts
         c_stmts_opt ::= pass
 
+        stmts_opt ::= _stmts
+        stmts_opt ::= pass
+
         # statements inside a loop
         l_stmts ::= _stmts
         l_stmts ::= returns

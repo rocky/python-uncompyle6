@@ -156,8 +156,9 @@ class Python3Parser(PythonParser):
         testfalse ::= expr jmp_false
         testtrue ::= expr jmp_true
 
-        _ifstmts_jump  ::= return_if_stmts
-        _ifstmts_jump  ::= c_stmts_opt come_froms
+        _ifstmts_jump   ::= return_if_stmts
+        _ifstmts_jump   ::= stmts_opt come_froms
+        _ifstmts_jumpl  ::= c_stmts_opt come_froms
 
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE
 
@@ -174,9 +175,9 @@ class Python3Parser(PythonParser):
         # of missing "else" clauses. Therefore we include grammar
         # rules with and without ELSE.
 
-        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD
+        ifelsestmt ::= testexpr stmts_opt JUMP_FORWARD
                        else_suite opt_come_from_except
-        ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
+        ifelsestmt ::= testexpr stmts_opt jump_forward_else
                        else_suite _come_froms
 
         # ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
@@ -1536,7 +1537,8 @@ class Python3Parser(PythonParser):
         # elif lhs == "iflaststmtl":
         #     return iflaststmt(self, lhs, n, rule, ast, tokens, first, last)
         elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
-            if self.version <= 3.0:
+            # FIXME: go over what's up with 3.0. Evetually I'd like to remove RETURN_END_IF
+            if self.version <= 3.0 or tokens[last] == "RETURN_END_IF":
                 return False
             if ifstmt(self, lhs, n, rule, ast, tokens, first, last):
                 return True
