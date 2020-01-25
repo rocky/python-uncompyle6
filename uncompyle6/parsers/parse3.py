@@ -183,7 +183,10 @@ class Python3Parser(PythonParser):
         # ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
         #                pass  _come_froms
 
-        c_stmts     ::= ifelsestmtc
+        # FIXME: remove this
+        stmt         ::= ifelsestmtc
+
+        c_stmts      ::= ifelsestmtc
 
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
         ifelsestmtc ::= testexpr c_stmts_opt jump_absolute_else else_suitec
