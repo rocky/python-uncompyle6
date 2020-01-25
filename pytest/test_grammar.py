@@ -27,6 +27,9 @@ def test_grammar():
             expect_lhs.add("attribute")
 
         expect_lhs.add("get_iter")
+
+        if PYTHON_VERSION > 3.7 or PYTHON_VERSION < 3.0:
+            expect_lhs.add("stmts_opt")
     else:
         expect_lhs.add("async_with_as_stmt")
         expect_lhs.add("async_with_stmt")
