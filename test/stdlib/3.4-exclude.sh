@@ -58,4 +58,4 @@ SKIP_TESTS=(
     [test_zipfile64.py]=1
     [test_zlib.py]=1
 )
-# 272 unit-test file in about 15 minutes
+# 308 unit-test file in about 19 minutes
