@@ -183,8 +183,11 @@ class Python3Parser(PythonParser):
         # ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
         #                pass  _come_froms
 
+        c_stmts     ::= ifelsestmtc
+
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
         ifelsestmtc ::= testexpr c_stmts_opt jump_absolute_else else_suitec
+        ifelsestmtc ::= testexpr c_stmts_opt jump_forward_else else_suitec _come_froms
 
         # "if"/"else" statement that ends in a RETURN
         ifelsestmtr ::= testexpr return_if_stmts returns
@@ -367,11 +370,16 @@ class Python3Parser(PythonParser):
         last_stmt ::= forelselaststmt
         iflaststmt ::= testexpr last_stmt JUMP_ABSOLUTE
         iflaststmt ::= testexpr stmts JUMP_ABSOLUTE
+
         _iflaststmts_jump ::= stmts last_stmt
+        _ifstmts_jump ::= stmts_opt JUMP_FORWARD _come_froms
+
         iflaststmt ::= testexpr _iflaststmts_jump
         ifelsestmt ::= testexpr stmts_opt jump_absolute_else else_suite
         ifelsestmt ::= testexpr stmts_opt jump_forward_else else_suite _come_froms
         iflaststmt ::= testexpr _ifstmts_jump
+        else_suite ::= stmts
+
 
         # FIXME: remove this
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_froms
