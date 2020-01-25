@@ -360,7 +360,7 @@ class Python3Parser(PythonParser):
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms
 
         # FIXME: go over this
-        stmts ::= _stmts last_stmt
+        _stmts ::= _stmts last_stmt
         stmts ::= last_stmt
         stmts_opt ::= stmts
         last_stmt ::= iflaststmt

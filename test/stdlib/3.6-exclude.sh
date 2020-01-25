@@ -57,7 +57,7 @@ SKIP_TESTS=(
     [test_fileinput.py]=1 # doesn't terminate
     [test_finalization.py]=1
     [test_float.py]=1 # it fails on its own
-    [test_format.py]=1  # FIXME: not getting grammar start rule; works on c90ff51
+    [test_format.py]=1  # FIXME: works on c90ff51
     [test_functools.py]=1 # it fails on its own
     [test___future__.py]=1 # syntax error: Investigate
 
@@ -72,7 +72,6 @@ SKIP_TESTS=(
 
     [test_io.py]=1 # it fails on its own
     [test_imaplib.py]=1
-    [test_imp.py]=1  # FIXME: not getting grammar start rule; works on c90ff51
     [test_inspect.py]=1 # Syntax error Investigate
     [test_itertools.py]=1 # test assertion failures
 
@@ -109,7 +108,6 @@ SKIP_TESTS=(
     [test_plistlib.py]=1
     [test_poll.py]=1 # Takes too long 11 seconds
     [test_poplib.py]=1
-    [test_posix.py]=1  # FIXME: not getting grammar start rule; works on c90ff51
     [test_pprint.py]=1 # it fails on its own
     [test_pulldom.py]=1
     [test_pyclbr.py]=1 # it fails on its own
