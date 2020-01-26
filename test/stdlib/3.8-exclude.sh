@@ -4,10 +4,12 @@ SKIP_TESTS=(
     [test_asdl_parser.py]=1 # it fails on its own
     [test_ast.py]=1  # Depends on comments in code
     [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
+
     [test_baseexception.py]=1  #
     [test_bdb.py]=1  #
     [test_buffer.py]=1  # parse error
     [test_builtin.py]=1  # parse error
+
     [test_clinic.py]=1 # it fails on its own
     [test_cmath.py]=1 # test assertion failure
     [test_cmd_line.py]=1  # Interactive?
@@ -26,7 +28,8 @@ SKIP_TESTS=(
     [test_crypt.py]=1 # Parse error
     [test_ctypes.py]=1 # it fails on its own
     [test_curses.py]=1 # Parse error
-    [test_dataclasses.py]=1   # parse error
+
+    [test_dataclasses.py]=1  # test assertion errors
     [test_datetime.py]=1   # Takes too long
     [test_dbm_gnu.py]=1   # Takes too long
     [test_dbm_ndbm.py]=1 # it fails on its own
@@ -36,9 +39,11 @@ SKIP_TESTS=(
     [test_dictcomps.py]=1 # Bad semantics - Investigate
     [test_dis.py]=1   # We change line numbers - duh!
     [test_docxmlrpc.py]=1
+
     [test_exceptions.py]=1   # parse error
     [test_enumerate.py]=1   #
     [test_enum.py]=1   #
+
     [test_faulthandler.py]=1   # takes too long
     [test_fcntl.py]=1
     [test_fileinput.py]=1
@@ -48,12 +53,14 @@ SKIP_TESTS=(
     [test_fstring.py]=1 # Investigate
     [test_ftplib.py]=1
     [test_functools.py]=1
+
     [test_gdb.py]=1 # it fails on its own
     [test_generators.py]=1  # improper decompile of assert i < n and (n-i) % 3 == 0
     [test_glob.py]=1  #
     [test_grammar.py]=1
     [test_grp.py]=1 # Doesn't terminate (killed)
     [test_gzip.py]=1 # parse error
+
     [test_hashlib.py]=1 # test assert failures
     [test_httplib.py]=1 # parse error
     [test_http_cookiejar.py]=1

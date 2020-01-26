@@ -157,15 +157,15 @@ class Python3Parser(PythonParser):
         testtrue ::= expr jmp_true
 
         _ifstmts_jump   ::= return_if_stmts
-        _ifstmts_jump   ::= stmts_opt come_froms
+        _ifstmts_jump   ::= stmts _come_froms
         _ifstmts_jumpl  ::= c_stmts_opt come_froms
 
         iflaststmt  ::= testexpr stmts_opt JUMP_ABSOLUTE
+        iflaststmt  ::= testexpr _ifstmts_jumpl
 
         # ifstmts where we are in a loop
         _ifstmts_jumpl     ::= _ifstmts_jump
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
-        iflaststmtl ::= testexpr _ifstmts_jumpl
 
         # These are used to keep parse tree indices the same
         jump_forward_else  ::= JUMP_FORWARD ELSE
