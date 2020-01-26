@@ -1,3 +1,30 @@
+3.6.3: 2020-1-26 Martin and Susanne
+===================================
+
+Of late, every release fixes major gaps and embarrassments of the last release....
+
+And in some cases, like this one, exposes lacuna and rot.
+
+I now have [control] flow under control, even if it isn't the most optimal way.
+
+I now have greatly expanded automated testing.
+
+On the most recent Python versions I regularly decompile thousands of Python programs that are distributed with Python.  when it is possible, I then decompile Python's standard test suite distributed with Python and run the decompiled source code which basically checks itself. This amounts to about 250 test programs per version. This is in addition to the 3 CI testing services which do different things.
+
+Does this mean the decompiler works perfectly? No. There are still a dozen or so failing programs, although the actual number of bugs is probably smaller though.
+
+However, in perparation of a more major refactoring of the parser grammar, this release was born.
+
+In many cases, decompilation is better. But there are some cases where decompilation has gotten worse. For lack of time (and interest) 3.0 bytecode suffered a hit. Possibly some code in the 3.x range did too. In time and with cleaner refactored code, this will come back.
+
+Commit c90ff51 was a local maxiumum before, I started reworking the grammar to separate productions that were specific to loops versus those that are not in loops.
+In the middle of that I added another grammar simplication to remove singleton productions of the form `sstmts-> stmts`. These were always was a bit ugly, and complicated output.
+
+At any rate if decompilation fails, you can try c90ff51. Or another decompiler. `unpyc37` is pretty good for 3.7. wibiti `uncompyle2` is great for 2.7. `pycdc` is mediocre for Python before 3.5 or so, and not that good for the most recent Python. Geerally these programs will give some sort of answer even if it isn't correct.
+
+decompyle3 isn't that good for 3.7 and worse for 3.8, but right now it does things no other Python decompiler like `unpyc37` or `pycdc` does. For example, `decompyle3` handles variable annotations. As always, the issue trackers for the various programs will give you a sense for what needs to be done. For now, I've given up on reporting issues in the other decompilers because there are already enough issues reported, and they are just not getting fixed anyway.
+
+
 3.6.2: 2020-1-5 Samish
 ======================
 
@@ -226,8 +253,7 @@ Lots of decomplation bugs, especially in the 3.x series fixed. Don't worry thoug
 3.3.0 2019-04-14 Holy Week
 ==========================
 
-* First cut at Python 3.8 (many bugs remain)
-* Reinstate -c | --compile (compile before disassembly) option
+* First cut at Python 3.8 (many bug remain)
 * The usual smattering of bug and doc fixes
 
 3.2.6 2019-03-23 Mueller Report
