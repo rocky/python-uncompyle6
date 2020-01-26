@@ -31,9 +31,12 @@ from uncompyle6.scanners.tok import Token
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.reducecheck import (
     except_handler_else,
+    ifstmt,
     # iflaststmt,
     testtrue,
-    tryelsestmtl3
+    tryelsestmtl3,
+    tryexcept,
+    while1stmt
 )
 from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -153,10 +156,12 @@ class Python3Parser(PythonParser):
         testfalse ::= expr jmp_false
         testtrue ::= expr jmp_true
 
-        _ifstmts_jump  ::= return_if_stmts
-        _ifstmts_jump  ::= c_stmts_opt come_froms
+        _ifstmts_jump   ::= return_if_stmts
+        _ifstmts_jump   ::= stmts _come_froms
+        _ifstmts_jumpl  ::= c_stmts_opt come_froms
 
-        iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE
+        iflaststmt  ::= testexpr stmts_opt JUMP_ABSOLUTE
+        iflaststmt  ::= testexpr _ifstmts_jumpl
 
         # ifstmts where we are in a loop
         _ifstmts_jumpl     ::= _ifstmts_jump
@@ -171,16 +176,22 @@ class Python3Parser(PythonParser):
         # of missing "else" clauses. Therefore we include grammar
         # rules with and without ELSE.
 
-        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD
+        ifelsestmt ::= testexpr stmts_opt JUMP_FORWARD
                        else_suite opt_come_from_except
-        ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
+        ifelsestmt ::= testexpr stmts_opt jump_forward_else
                        else_suite _come_froms
 
         # ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
         #                pass  _come_froms
 
+        # FIXME: remove this
+        stmt         ::= ifelsestmtc
+
+        c_stmts      ::= ifelsestmtc
+
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
         ifelsestmtc ::= testexpr c_stmts_opt jump_absolute_else else_suitec
+        ifelsestmtc ::= testexpr c_stmts_opt jump_forward_else else_suitec _come_froms
 
         # "if"/"else" statement that ends in a RETURN
         ifelsestmtr ::= testexpr return_if_stmts returns
@@ -216,8 +227,7 @@ class Python3Parser(PythonParser):
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts
                            END_FINALLY COME_FROM_EXCEPT
 
-        except_stmts ::= except_stmts except_stmt
-        except_stmts ::= except_stmt
+        except_stmts ::= except_stmt+
 
         except_stmt ::= except_cond1 except_suite
         except_stmt ::= except_cond2 except_suite
@@ -355,6 +365,28 @@ class Python3Parser(PythonParser):
 
         stmt ::= whileTruestmt
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms
+
+        # FIXME: go over this
+        _stmts ::= _stmts last_stmt
+        stmts ::= last_stmt
+        stmts_opt ::= stmts
+        last_stmt ::= iflaststmt
+        last_stmt ::= forelselaststmt
+        iflaststmt ::= testexpr last_stmt JUMP_ABSOLUTE
+        iflaststmt ::= testexpr stmts JUMP_ABSOLUTE
+
+        _iflaststmts_jump ::= stmts last_stmt
+        _ifstmts_jump ::= stmts_opt JUMP_FORWARD _come_froms
+
+        iflaststmt ::= testexpr _iflaststmts_jump
+        ifelsestmt ::= testexpr stmts_opt jump_absolute_else else_suite
+        ifelsestmt ::= testexpr stmts_opt jump_forward_else else_suite _come_froms
+        else_suite ::= stmts
+        else_suitel ::= stmts
+
+        # FIXME: remove this
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_froms
+
 
         # statements with continue and break
         c_stmts ::= _stmts
@@ -1510,8 +1542,9 @@ class Python3Parser(PythonParser):
         self.check_reduce["testtrue"] = "tokens"
         if not PYTHON3:
             self.check_reduce["kwarg"] = "noAST"
-        if self.version < 3.6:
+        if self.version < 3.6 and not self.is_pypy:
             # 3.6+ can remove a JUMP_FORWARD which messes up our testing here
+            # Pypy we need to go over in better detail
             self.check_reduce["try_except"] = "AST"
 
         self.check_reduce["tryelsestmtl3"] = "AST"
@@ -1522,6 +1555,7 @@ class Python3Parser(PythonParser):
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         lhs = rule[0]
         n = len(tokens)
+        last = min(last, n-1)
         if lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
             return True
         elif lhs == "annotate_tuple":
@@ -1534,13 +1568,20 @@ class Python3Parser(PythonParser):
         # elif lhs == "iflaststmtl":
         #     return iflaststmt(self, lhs, n, rule, ast, tokens, first, last)
         elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
+            # FIXME: go over what's up with 3.0. Evetually I'd like to remove RETURN_END_IF
+            if self.version <= 3.0 or tokens[last] == "RETURN_END_IF":
+                return False
+            if ifstmt(self, lhs, n, rule, ast, tokens, first, last):
+                return True
+            # FIXME: do we need the below or is it covered by "ifstmt" above?
             condition_jump = ast[0].last_child()
             if condition_jump.kind.startswith("POP_JUMP_IF"):
                 condition_jump2 = tokens[min(last - 1, len(tokens) - 1)]
-                if condition_jump2.kind.startswith("POP_JUMP_IF"):
+                # If there are two *distinct* condition jumps, they should not jump to the
+                # same place. Otherwise we have some sort of "and"/"or".
+                if condition_jump2.kind.startswith("POP_JUMP_IF") and condition_jump != condition_jump2:
                     return condition_jump.attr == condition_jump2.attr
 
-                last = min(last, n-1)
                 if tokens[last] == "COME_FROM" and tokens[last].off2int() != condition_jump.attr:
                     return False
 
@@ -1571,35 +1612,9 @@ class Python3Parser(PythonParser):
             return tryelsestmtl3(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs == "while1stmt":
 
-            # If there is a fall through to the COME_FROM_LOOP, then this is
-            # not a while 1. So the instruction before should either be a
-            # JUMP_BACK or the instruction before should not be the target of a
-            # jump. (Well that last clause i not quite right; that target could be
-            # from dead code. Ugh. We need a more uniform control flow analysis.)
-            if last == len(tokens) or tokens[last - 1] == "COME_FROM_LOOP":
-                cfl = last - 1
-            else:
-                cfl = last
-            assert tokens[cfl] == "COME_FROM_LOOP"
+            if while1stmt(self, lhs, n, rule, ast, tokens, first, last):
+                return True
 
-            for i in range(cfl - 1, first, -1):
-                if tokens[i] != "POP_BLOCK":
-                    break
-            if tokens[i].kind not in ("JUMP_BACK", "RETURN_VALUE", "BREAK_LOOP"):
-                if not tokens[i].kind.startswith("COME_FROM"):
-                    return True
-
-            # Check that the SETUP_LOOP jumps to the offset after the
-            # COME_FROM_LOOP
-
-            # Python 3.0 has additional:
-            #     JUMP_FORWARD here
-            #     COME_FROM
-            #     POP_TOP
-            #     COME_FROM
-            #  here:
-            #     (target of SETUP_LOOP)
-            # We won't check this.
             if self.version == 3.0:
                 return False
 
@@ -1643,24 +1658,8 @@ class Python3Parser(PythonParser):
                 return False
             # 3.8+ Doesn't have SETUP_LOOP
             return self.version < 3.8 and tokens[first].attr > tokens[last].offset
-
-        elif rule == (
-            "try_except",
-            (
-                "SETUP_EXCEPT",
-                "suite_stmts_opt",
-                "POP_BLOCK",
-                "except_handler",
-                "opt_come_from_except",
-            ),
-        ):
-            come_from_except = ast[-1]
-            if come_from_except[0] == "COME_FROM":
-                # There should be at last two COME_FROMs, one from an
-                # exception handler and one from the try. Otherwise
-                # we have a try/else.
-                return True
-            pass
+        elif lhs == "try_except":
+            return tryexcept(self, lhs, n, rule, ast, tokens, first, last)
         elif rule == (
             "ifelsestmt",
             (

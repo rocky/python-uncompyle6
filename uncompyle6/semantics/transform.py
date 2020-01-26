@@ -26,17 +26,21 @@ from uncompyle6.semantics.consts import RETURN_NONE
 
 def is_docstring(node):
     try:
-        return node[0][0].kind == "assign" and node[0][0][1][0].pattr == "__doc__"
+        return node[0].kind == "assign" and node[0][1][0].pattr == "__doc__"
     except:
         return False
 
+
 def is_not_docstring(call_stmt_node):
     try:
-        return (call_stmt_node == "call_stmt" and
-                call_stmt_node[0][0] == "LOAD_STR" and
-                call_stmt_node[1] == "POP_TOP")
+        return (
+            call_stmt_node == "call_stmt"
+            and call_stmt_node[0][0] == "LOAD_STR"
+            and call_stmt_node[1] == "POP_TOP"
+        )
     except:
         return False
+
 
 class TreeTransform(GenericASTTraversal, object):
     def __init__(self, version, show_ast=None, is_pypy=False):
@@ -82,7 +86,12 @@ class TreeTransform(GenericASTTraversal, object):
         than the code field is seen and used.
         """
 
-        code = find_code_node(node, -2).attr
+        if self.version >= 3.7:
+            code_index = -3
+        else:
+            code_index = -2
+
+        code = find_code_node(node, code_index).attr
 
         if (
             node[-1].pattr != "closure"
@@ -128,7 +137,7 @@ class TreeTransform(GenericASTTraversal, object):
                 and 1 <= len(testtrue_or_false) <= 2
                 and raise_stmt.first_child().pattr == "AssertionError"
             ):
-                if  testtrue_or_false == "testtrue":
+                if testtrue_or_false == "testtrue":
                     # Skip over the testtrue because because it would
                     # produce a "not" and we don't want that here.
                     assert_expr = testtrue_or_false[0]
@@ -177,6 +186,7 @@ class TreeTransform(GenericASTTraversal, object):
                                 RAISE_VARARGS_1,
                             ],
                         )
+                        node.transformed_by = "n_ifstmt"
                         pass
                     pass
                 else:
@@ -258,9 +268,19 @@ class TreeTransform(GenericASTTraversal, object):
                     else_suite_index = 2
                 pass
             pass
-        elif len(n) > 1 and 1 == len(n[0]) and n[0] == "stmt" and n[1].kind == "stmt":
+        elif (
+            len(n) > 1
+            and isinstance(n[0], SyntaxTree)
+            and 1 == len(n[0])
+            and n[0] == "stmt"
+            and n[1].kind == "stmt"
+        ):
             else_suite_stmts = n[0]
-            if else_suite_stmts[0].kind not in ("ifstmt", "iflaststmt", "ifelsestmtl"):
+            if else_suite_stmts[0].kind not in (
+                "ifstmt",
+                "iflaststmt",
+                "ifelsestmtl",
+            ):
                 return node
             old_stmts = n
             n = else_suite_stmts[0]
@@ -321,13 +341,13 @@ class TreeTransform(GenericASTTraversal, object):
                 # import_from37 ::= LOAD_CONST LOAD_CONST IMPORT_NAME_ATTR importlist37 POP_TOP
                 # import_as37   ::= LOAD_CONST LOAD_CONST importlist37 store POP_TOP
                 # 'import_as37':     ( '%|import %c as %c\n', 2, -2),
-                node = SyntaxTree("import_as37",
-                                  [node[0], node[1], import_name_attr, store, node[-1]])
-                node.transformed_by="n_import_from37"
+                node = SyntaxTree(
+                    "import_as37", [node[0], node[1], import_name_attr, store, node[-1]]
+                )
+                node.transformed_by = "n_import_from37"
                 pass
             pass
         return node
-
 
     def n_list_for(self, list_for_node):
         expr = list_for_node[0]
@@ -340,18 +360,22 @@ class TreeTransform(GenericASTTraversal, object):
 
     def n_stmts(self, node):
         if node.first_child() == "SETUP_ANNOTATIONS":
-            prev = node[0][0][0]
+            prev = node[0][0]
             new_stmts = [node[0]]
             for i, sstmt in enumerate(node[1:]):
                 ann_assign = sstmt[0][0]
-                if (sstmt[0] == "stmt" and ann_assign == "ann_assign" and prev == "assign"):
+                if (
+                    sstmt[0] == "stmt"
+                    and ann_assign == "ann_assign"
+                    and prev == "assign"
+                ):
                     annotate_var = ann_assign[-2]
                     if annotate_var.attr == prev[-1][0].attr:
                         del new_stmts[-1]
                         sstmt[0][0] = SyntaxTree(
-                            "ann_assign_init",
-                            [ann_assign[0], prev[0], annotate_var])
-                        sstmt[0][0].transformed_by="n_stmts"
+                            "ann_assign_init", [ann_assign[0], prev[0], annotate_var]
+                        )
+                        sstmt[0][0].transformed_by = "n_stmts"
                         pass
                     pass
                 new_stmts.append(sstmt)
@@ -390,11 +414,11 @@ class TreeTransform(GenericASTTraversal, object):
                                 "LOAD_STR",
                                 has_arg=True,
                                 offset=0,
-                                pattr=self.ast[i][0][0][0][0].attr,
+                                pattr=self.ast[i][0][0][0].pattr,
                             )
                         ],
-                        transformed_by="transform",
                     )
+                    docstring_ast.transformed_by = "transform"
                     del self.ast[i]
                     self.ast.insert(0, docstring_ast)
                     break

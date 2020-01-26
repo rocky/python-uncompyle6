@@ -59,3 +59,14 @@ assert p == Point(**dict(x=11, y=22))
 def posonly_sum(pos_arg1, *arg, **kwarg):
     return pos_arg1 + sum(arg) + sum(kwarg.values())
 assert 1+2+3+4 == posonly_sum(1,*(2,3),**{"4":4})
+
+# From 3.7 test_grammar.py
+# Bug was in handling keyword-only parameters when there are annotations.
+# The stack order from least- to most-recent is:
+# default, keyword, annotation, closure
+# This changes in between Python 3.5 and 3.6.
+def f(a, b: 1, c: 2, d, e: 3=4, f=5, *g: 6, h: 7, i=8, j: 9=10,
+      **k: 11) -> 12: pass
+
+assert f.__annotations__ == {'b': 1, 'c': 2, 'e': 3, 'g': 6, 'h': 7, 'j': 9,
+                             'k': 11, 'return': 12}

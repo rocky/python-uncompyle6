@@ -14,21 +14,38 @@ def while1stmt(self, lhs, n, rule, ast, tokens, first, last):
         cfl = last
     assert tokens[cfl] == "COME_FROM_LOOP"
 
-    for i in range(cfl - 1, first, -1):
-        if tokens[i] != "POP_BLOCK":
+    for loop_end in range(cfl - 1, first, -1):
+        if tokens[loop_end] != "POP_BLOCK":
             break
-    if tokens[i].kind not in ("JUMP_BACK", "RETURN_VALUE", "RAISE_VARARGS_1"):
-        if not tokens[i].kind.startswith("COME_FROM"):
+    if tokens[loop_end].kind not in ("JUMP_BACK", "RETURN_VALUE", "RAISE_VARARGS_1"):
+        if not tokens[loop_end].kind.startswith("COME_FROM"):
             return True
-
     # Check that the SETUP_LOOP jumps to the offset after the
     # COME_FROM_LOOP
-    if 0 <= last < n and tokens[last] in ("COME_FROM_LOOP", "JUMP_BACK"):
+    if 0 <= last and tokens[last] in ("COME_FROM_LOOP", "JUMP_BACK"):
         # jump_back should be right before COME_FROM_LOOP?
         last += 1
     if last == n:
         last -= 1
     offset = tokens[last].off2int()
     assert tokens[first] == "SETUP_LOOP"
+
+    # Scan for jumps out of the loop. Skip the initial "SETUP_LOOP" instruction.
+    # If there is a JUMP_BACK at the end, jumping to that is not breaking out
+    # of the loop. However after that, any "POP_BLOCK"s or "COME_FROM_LOOP"s
+    # are considered to break out of the loop.
+    if tokens[loop_end] == "JUMP_BACK":
+        loop_end += 1
+    loop_end_offset = tokens[loop_end].off2int(prefer_last=False)
+    for t in range(first+1, loop_end):
+        token = tokens[t]
+        # token could be a pseudo-op like "LOAD_STR", which is not in
+        # self.opc.  We will replace that with LOAD_CONST as an
+        # example of an instruction that is not in self.opc.JUMP_OPS
+        if self.opc.opmap.get(token.kind, "LOAD_CONST") in self.opc.JUMP_OPS:
+            if token.attr >= loop_end_offset:
+                return True
+
+
     # SETUP_LOOP location must jump either to the last token or the token after the last one
     return tokens[first].attr not in (offset, offset + 2)

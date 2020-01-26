@@ -71,36 +71,9 @@ case $PYVERSION in
 	;;
     2.6)
 	. ./2.6-exclude.sh
-	if (( batch )) ; then
-	    # Fails in crontab environment?
-	    # Figure out what's up here
-	    SKIP_TESTS[test_aifc.py]=1
-	    SKIP_TESTS[test_array.py]=1
-
-	    # SyntaxError: Non-ASCII character '\xdd' in file test_base64.py on line 153, but no encoding declared; see http://www.python.org/peps/pep-0263.html for details
-	    SKIP_TESTS[test_base64.py]=1
-	    SKIP_TESTS[test_decimal.py]=1 # Might be a POWER math thing
-
-	    # output indicates expected == output, but this fails anyway.
-	    # Maybe the underlying encoding is subtlely different so it
-	    # looks the same?
-	fi
 	;;
     2.7)
 	. ./2.7-exclude.sh
-	# About 335 unit-test remaining files run in about 20 minutes and 11 seconds
-	if (( batch )) ; then
-	    # Fails in crontab environment?
-	    # Figure out what's up here
-	    SKIP_TESTS[test_array.py]=1
-	    SKIP_TESTS[test_ast.py]=1
-	    SKIP_TESTS[test_audioop.py]=1
-	    SKIP_TESTS[test_httplib.py]=1  # Ok, but POWER has problems with this
-	    SKIP_TESTS[test_pdb.py]=1 # Ok, but POWER has problems with this
-
-	    # SyntaxError: Non-ASCII character '\xdd' in file test_base64.py on line 153, but no encoding declared; see http://www.python.org/peps/pep-0263.html for details
-	    SKIP_TESTS[test_base64.py]=1
-	fi
 	;;
     3.0)
 	SKIP_TESTS=(
@@ -133,71 +106,22 @@ case $PYVERSION in
 	fi
 	;;
     3.2)
-	SKIP_TESTS=(
-	    [test_cmd_line.py]=1
-	    [test_collections.py]=1
-	    [test_concurrent_futures.py]=1 # too long to run over 46 seconds by itself
-	    [test_datetimetester.py]=1
-	    [test_decimal.py]=1
-	    [test_dis.py]=1   # We change line numbers - duh!
-	    [test_quopri.py]=1 # TypeError: Can't convert 'bytes' object to str implicitly
-	)
-	if (( batch )) ; then
-	    # Fails in crontab environment?
-	    # Figure out what's up here
-	    SKIP_TESTS[test_exception_variations.py]=1
-	    SKIP_TESTS[test_quopri.py]=1
-	fi
+	. ./3.2-exclude.sh
 	;;
-
     3.3)
 	. ./3.3-exclude.sh
-	if (( batch )) ; then
-	    SKIP_TESTS[test_idle.py]=1  # No tk
-	    SKIP_TESTS[test_pep352.py]=1  # UnicodeDecodeError may be funny on weird environments
-	    SKIP_TESTS[test_pep380.py]=1  # test_delegating_generators_claim_to_be_running ?
-	    # Fails in crontab environment?
-	    # Figure out what's up here
-	    # SKIP_TESTS[test_exception_variations.py]=1
-	fi
 	;;
-
     3.4)
 	. ./3.4-exclude.sh
-	if (( batch )) ; then
-	    # Fails in crontab environment?
-	    # Figure out what's up here
-	    SKIP_TESTS[test_exception_variations.py]=1
-	    SKIP_TESTS[test_quopri.py]=1
-	fi
 	;;
     3.5)
 	. ./3.5-exclude.sh
-	    # About 240 remaining which can be done in about 10 minutes
-	if (( batch )) ; then
-	    # Fails in crontab environment?
-	    # Figure out what's up here
-	    SKIP_TESTS[test_bisect.py]=1
-	    SKIP_TESTS[test_buffer.py]=1  # too long
-
-	    SKIP_TESTS[test_exception_variations.py]=1
-	    SKIP_TESTS[test_quopri.py]=1
-	    SKIP_TESTS[test_ioctl.py]=1 # it fails on its own
-	fi
 	;;
-
     3.6)
 	. ./3.6-exclude.sh
-	if (( batch )) ; then
-	    # locale on test machine is probably non-default
-	    SKIP_TESTS[test__locale.py]=1
-	fi
 	;;
     3.7)
 	. ./3.7-exclude.sh
-	if (( batch )) ; then
-	    SKIP_TESTS[test_fileio.py]=1
-	fi
 	;;
     3.8)
 	. ./3.8-exclude.sh

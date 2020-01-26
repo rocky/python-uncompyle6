@@ -1,24 +1,28 @@
 SKIP_TESTS=(
+    [test_binop.py]=1 # FIXME: Works on c90ff51
+    [test_cmath.py]=1 # FIXME: Works on c90ff51
+    [test_decorators.py]=1 # FIXME: Works on c90ff51
+    [test_format.py]=1  # FIXME: works on c90ff51
+    [test_locale.py]=1 # FIXME: Works on c90ff51
+    [test_optparse.py]=1 # FIXME: Works on c90ff51
+    [test_os.py]=1 # FIXME: Works on c90ff51
+    [test_pyclbr.py]=1 # FIXME: Works on c90ff51
+    [test_sort.py]=1 # FIXME: Works on c90ff51
+    [test_strftime.py]=1 # FIXME: Works on c90ff51
+
     [test___all__.py]=1  # it fails on its own
     [test_aifc.py]=1  #
     [test_argparse.py]=1 # it fails on its own
     [test_asdl_parser.py]=1 # it fails on its own
-    [test_asynchat.py]=1  # doesn't terminate
     [test_asyncgen.py]=1  # parse error
-    [test_asyncore.py]=1  # doesn't terminate
     [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
 
-    [test_baseexception.py]=1 # test asert error
+    [test_baseexception.py]=1 # test assert error
     [test_bdb.py]=1  #
-    [test_binascii.py]=1  # Takes more than 15 seconds to run
-    [test_binop.py]=1  # Doesn't terminate
     [test_bisect.py]=1  # it fails on its own
     [test_buffer.py]=1  # parse error
     [test_builtin.py]=1  # Fails on its own
-    [test_bz2.py]=1  # testSeekBackwardsAcrossStreams (__main__.BZ2FileTest) ...  doesn't terminiate
-
     [test test_capi.py]=1 # it fails on its own
-    [test_cmath.py]=1 # Investigate weird if control flow
     [test_cmd_line.py]=1 # Interactive?
 
     [test_codecencodings_cn.py]=1 # it fails on its own
@@ -33,12 +37,9 @@ SKIP_TESTS=(
     [test_codecmaps_kr.py]=1 # it fails on its own
     [test_codecmaps_tw.py]=1 # it fails on its own
     [test_codecs.py]=1
-    [test_colorsys.py]=1 # Doesn't terminate
     [test_collections.py]= # it fails on its own
     [test_compile.py]=1  # Code introspects on co_consts in a non-decompilable way
     [test_concurrent_futures.py]=1 # Takes long
-    [test_configparser.py]=1  # Doesn't terminate
-    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
     [test_contextlib.py]=1 # test assertion failure
     [test_contextlib_async.py]=1 # Investigate
     [test_coroutines.py]=1 # Parse error
@@ -46,7 +47,6 @@ SKIP_TESTS=(
     [test_ctypes.py]=1 # it fails on its own
 
     [test_datetime.py]=1 # it fails on its own
-    [test_dbm_gnu.py]=1   # Doesn't terminate
     [test_dbm_ndbm.py]=1 # it fails on its own
     [test_decimal.py]=1
     [test_descr.py]=1   # syntax error: Investigate
@@ -66,16 +66,13 @@ SKIP_TESTS=(
     [test_file_eintr.py]=1   # parse error
     [test_fileinput.py]=1 # doesn't terminate
     [test_finalization.py]=1
-    [test_fractions.py]=1 # doesn't terminate
     [test_float.py]=1 # it fails on its own
-    [test_frame.py]=1 # doesn't terminate
-    [test_ftplib.py]=1 # takes more than 15 seconds to run
     [test_functools.py]=1 # it fails on its own
+    [test_fstring.py]=1 # need to disambiguate leading fstrings from docstrings
     [test___future__.py]=1 # syntax error: Investigate
 
-    [test_gc.py]=1 # doesn't terminate (test_trashcan_threads)
     [test_gdb.py]=1 # it fails on its own
-    [test_generators.py]=1 # test assert failures
+    [test_generators.py]=1 # FIXME: Invalid syntax: f2 = lambda : (yield from g())        if False:
     [test_genexps.py]=1 #
     [test_glob.py]=1 #
     [test_grammar.py]=1 # parse error
@@ -86,18 +83,18 @@ SKIP_TESTS=(
     [test_io.py]=1 # it fails on its own
     [test_imaplib.py]=1
     [test_inspect.py]=1 # Syntax error Investigate
-    [test_itertools.py]=1 #
+    [test_itertools.py]=1 # test assertion failures
 
     [test_kqueue.py]=1 # it fails on its own
 
     [test_lib2to3.py]=1 # it fails on its own
     [test_logging.py]=1 # it fails on its own
     [test_long.py]=1 #
-    [test_lzma.py]=1 # doesn't terminate test_decompressor_chunks_maxsize
+    [test_lzma.py]=1 # fails on its own
 
     [test_mailbox.py]=1 # it fails on its own
     [test_marshal.py]=1 #
-    [test_math.py]=1 # call param Investigate
+    [test_math.py]=1 # test assert errors call param Investigate
     [test_metaclass.py]=1
     [test_modulefinder.py]=1  # test assertion error
     [test_msilib.py]=1 # it fails on its own
@@ -109,9 +106,7 @@ SKIP_TESTS=(
     [test_nntplib.py]=1 # test takes too long to run: 31 seconds
     [test_normalization.py]=1 # it fails on its own
 
-    [test_optparse.py]=1 # Doesn't terminate test_positional_arg_and_variable_args
     [test_ordered_dict.py]= # it fails on its own
-    [test_os.py]=1 # Doesn't terminate
     [test_ossaudiodev.py]=1 # it fails on its own
 
     [test_pdb.py]=1 # Probably introspection
@@ -141,8 +136,6 @@ SKIP_TESTS=(
     [test_secrets.py]=1 # it fails on its own
     [test_select.py]=1 # test takes too long to run: 11 seconds
     [test_selectors.py]=1 # it fails on its own
-    [test_set.py]=1 # test assert failure and doesn't terminate
-    [test_shlex.py]=1 # Doesn't terminate
     [test_shutil.py]=1 # it fails on its own
     [test_signal.py]=1 # it fails on its own
     [test_site.py]=1 # it fails on its own
@@ -154,16 +147,15 @@ SKIP_TESTS=(
     [test_startfile.py]=1 # it fails on its own
     [test_statistics.py]=1 # it fails on its own
     [test_string_literals.py]=1
-    [test_strptime.py]=1  # Doesn't terminate
     [test_strtod.py]=1 # it fails on its own
-    [test_struct.py]=1  # Doesn't terminate
+    [test_struct.py]=1  # test assertion errors
     [test_subprocess.py]=1
     [test_sys.py]=1 # Investigate confusing "and" with nested "if" when there is an "else
     [test_sys_settrace.py]=1 # parse error
+
     [test_tarfile.py]=1 # it fails on its own
-    [test_tcl.py]=1 # FIXME parse error. Release 3.6.2 may work though
-    [test_telnetlib.py]=1 # doesn't terminate
-    [test_tempfile.py]=1 # FIXME nested "if" is in wrong place. 3.6.2. may work though
+    [test_tcl.py]=1 # Test assert failures
+    [test_telnetlib.py]=1 # takes more than 15 seconds to run
     [test_thread.py]=1 # it fails on its own
     [test_threading.py]=1
     [test_threadsignals.py]=1
@@ -180,7 +172,6 @@ SKIP_TESTS=(
     [test_typing.py]=1 # investigate syntax error
 
     [test_ucn.py]=1 # it fails on its own
-    [test_univnewlines.py]=1 # doesn't terminate
     [test_urllib2_localnet.py]=1 # long
     [test_urllib2net.py]=1 # it fails on its own
     [test_urllib2.py]=1 # it fails on its own
@@ -202,4 +193,10 @@ SKIP_TESTS=(
     [test_zipimport_support.py]=1
     [test_zlib.py]=1
 )
-# 218 unit-test remaining files, Elapsed time about 7 minutes 30 seconds
+# 236 unit-test files in about 13 minutes
+
+if (( batch )) ; then
+    SKIP_TESTS[test_codeccallbacks.py]=1
+    # locale on test machine is probably customized
+    SKIP_TESTS[test__locale.py]=1
+fi

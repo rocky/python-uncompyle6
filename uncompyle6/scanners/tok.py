@@ -23,6 +23,27 @@ if PYTHON3:
 
 class Token:   # Python 2.4 can't have empty ()
 
+def off2int(offset, prefer_last=True):
+    if isinstance(offset, int):
+        return offset
+    else:
+        assert isinstance(offset, str)
+        offsets = list(map(int, offset.split("_")))
+        if len(offsets) == 1:
+            return offsets[0]
+        else:
+            assert len(offsets) == 2
+            offset_1, offset_2 = offsets
+        if offset_1 + 2 == offset_2:
+            # This is an instruction with an extended arg.
+            # For things that compare against offsets, we generally want the
+            # later offset.
+            return offset_2 if prefer_last else offset_1
+        else:
+            # Probably a "COME_FROM"-type offset, where the second number
+            # is just a count, and not really an offset.
+            return offset_1
+
     """
     Class representing a byte-code instruction.
 
@@ -44,18 +65,17 @@ class Token:   # Python 2.4 can't have empty ()
         op=None,
         has_arg=None,
         opc=None,
-        has_extended_arg=False
+        has_extended_arg=False,
     ):
         self.kind = intern(opname)
         self.has_arg = has_arg
         self.attr = attr
         self.pattr = pattr
         if has_extended_arg:
-            self.offset = "%d_%d" % (offset, offset+2)
+            self.offset = "%d_%d" % (offset, offset + 2)
         else:
             self.offset = offset
 
-        self.offset = offset
         self.linestart = linestart
         if has_arg is False:
             self.attr = None
@@ -167,30 +187,7 @@ class Token:   # Python 2.4 can't have empty ()
     def __getitem__(self, i):
         raise IndexError
 
-    def off2int(self):
-        if isinstance(self.offset, int):
-            return self.offset
-        else:
-            assert isinstance(self.offset, str)
-            offsets = list(map(int, self.offset.split("_")))
-            if len(offsets) == 1:
-                return offsets[0]
-            else:
-                assert len(offsets) == 2
-                offset_1, offset_2 = offsets
-            if offset_1 + 2 == offset_2:
-                # This is an instruction with an extended arg.
-                # For things that compare against offsets, we generally want the
-                # later offset.
-                if prefer_last:
-                    return offset_2
-                else:
-                    return offset_1
-            else:
-                # Probably a "COME_FROM"-type offset, where the second number
-                # is just a count, and not really an offset.
-                return offset_1
-            return(int(self.offset.split("_")[0]))
-
+    def off2int(self, prefer_last=True):
+        return off2int(self.offset, prefer_last)
 
 NoneToken = Token("LOAD_CONST", offset=-1, attr=None, pattr=None)

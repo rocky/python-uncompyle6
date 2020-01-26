@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2019 by Rocky Bernstein
+#  Copyright (c) 2015-2020 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -266,7 +266,7 @@ class Scanner37Base(Scanner):
             # "extended arg" backward jump to the same location.
             if inst.opname == "JUMP_FORWARD":
                 jump_inst = self.insts[self.offset2inst_index[inst.argval]]
-                if jump_inst.has_extended_arg:
+                if jump_inst.has_extended_arg and jump_inst.opname.startswith("JUMP"):
                     # Create comination of the jump-to instruction and
                     # this one. Keep the position information of this instruction,
                     # but the operator and operand properties come from the other

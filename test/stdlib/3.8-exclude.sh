@@ -4,10 +4,12 @@ SKIP_TESTS=(
     [test_asdl_parser.py]=1 # it fails on its own
     [test_ast.py]=1  # Depends on comments in code
     [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
+
     [test_baseexception.py]=1  #
     [test_bdb.py]=1  #
     [test_buffer.py]=1  # parse error
-    [test_builtin.py]=1  # parser error
+    [test_builtin.py]=1  # parse error
+
     [test_clinic.py]=1 # it fails on its own
     [test_cmath.py]=1 # test assertion failure
     [test_cmd_line.py]=1  # Interactive?
@@ -26,7 +28,8 @@ SKIP_TESTS=(
     [test_crypt.py]=1 # Parse error
     [test_ctypes.py]=1 # it fails on its own
     [test_curses.py]=1 # Parse error
-    [test_dataclasses.py]=1   # parse error
+
+    [test_dataclasses.py]=1  # test assertion errors
     [test_datetime.py]=1   # Takes too long
     [test_dbm_gnu.py]=1   # Takes too long
     [test_dbm_ndbm.py]=1 # it fails on its own
@@ -36,9 +39,11 @@ SKIP_TESTS=(
     [test_dictcomps.py]=1 # Bad semantics - Investigate
     [test_dis.py]=1   # We change line numbers - duh!
     [test_docxmlrpc.py]=1
+
     [test_exceptions.py]=1   # parse error
     [test_enumerate.py]=1   #
     [test_enum.py]=1   #
+
     [test_faulthandler.py]=1   # takes too long
     [test_fcntl.py]=1
     [test_fileinput.py]=1
@@ -48,12 +53,14 @@ SKIP_TESTS=(
     [test_fstring.py]=1 # Investigate
     [test_ftplib.py]=1
     [test_functools.py]=1
+
     [test_gdb.py]=1 # it fails on its own
     [test_generators.py]=1  # improper decompile of assert i < n and (n-i) % 3 == 0
     [test_glob.py]=1  #
     [test_grammar.py]=1
     [test_grp.py]=1 # Doesn't terminate (killed)
     [test_gzip.py]=1 # parse error
+
     [test_hashlib.py]=1 # test assert failures
     [test_httplib.py]=1 # parse error
     [test_http_cookiejar.py]=1
@@ -64,7 +71,7 @@ SKIP_TESTS=(
     [test_index.py]=1
     [test_inspect.py]=1
     [test_itertools.py]=1 # parse error
-    [test_keywordonlyarg.py]=1 # Investigate: parameter handling
+    [test_keywordonlyarg.py]=1 # parse error
     [test_kqueue.py]=1 # it fails on its own
     [test_lib2to3.py]=1 # it fails on its own
     [test_long.py]=1 # investigate
@@ -84,34 +91,33 @@ SKIP_TESTS=(
     [test_ossaudiodev.py]=1 # it fails on its own
     [test_pathlib.py]=1 # parse error
     [test_pdb.py]=1 # Probably relies on comments
-    [test_peepholer.py]=1 # test assert error
+    [test_peepholer.py]=1 # decompile takes a long time; then test assert error
     [test_pickle.py]=1 # Probably relies on comments
     [test_poll.py]=1
     [test_poplib.py]=1
     [test_pydoc.py]=1 # it fails on its own
     [test_runpy.py]=1  #
-    [test_pkg.py]=1 # Investigate: lists differ
-    [test_pkgutil.py]=1 # Investigate:
-    [test_platform.py]=1 # probably control flow: uninitialized variable
-    [test_pow.py]=1 # probably control flow: test assertion failure
+    [test_pkg.py]=1 # parse error; Investigate: lists differ
+    [test_pkgutil.py]=1 # parse error
+    [test_platform.py]=1 # parse error
     [test_pwd.py]=1 # killing - doesn't terminate
-    [test_regrtest.py]=1 # lists differ
-    [test_re.py]=1 # test assertion error
-    [test_richcmp.py]=1 # parse error
+    [test_regrtest.py]=1 # parse error; test assertion error: lists differ
+    [test_re.py]=1 # parse error; test assertion error
+    [test_richcmp.py]=1 # Investigate: data[i] index error in semantic handling
     [test_select.py]=1 # test takes too long to run: 11 seconds
     [test_selectors.py]=1
     [test_shutil.py]=1 # fails on its own
     [test_signal.py]=1 #
-    [test_slice.py]=1 # Investigate
+    [test_slice.py]=1 # Investigate: test assertion error
     [test_smtplib.py]=1 #
     [test_socket.py]=1
     [test_socketserver.py]=1
-    [test_sort.py]=1 # Probably control flow; unintialized varaible
-    [test_ssl.py]=1 # Probably control flow; unintialized varaible
+    [test_sort.py]=1 # parse error;
+    [test_ssl.py]=1 # parse error
     [test_startfile.py]=1 # it fails on its own
-    [test_statistics.py]=1 # Probably control flow; unintialized varaible
-    [test_stat.py]=1 # test assertions failed
-    [test_string_literals.py]=1 # Investigate boolean parsing
+    [test_statistics.py]=1 # Takes more than 15 secs to run. Assert failures
+    [test_stat.py]=1 # parse error; test assertions failed
+    [test_string_literals.py]=1 # parse error; Investigate boolean parsing
     [test_strptime.py]=1 # test assertions failed
     [test_strtod.py]=1 # test assertions failed
     [test_structmembers.py]=1 # test assertions failed
@@ -143,4 +149,4 @@ SKIP_TESTS=(
     [test_zipfile.py]=1 # it fails on its own
     [test_zipfile64.py]=1 #
 )
-# 268 Remaining unit-test files, Elapsed time about 11 minutes
+# 268 About unit-test files, in about 11 minutes

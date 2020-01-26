@@ -276,6 +276,13 @@ def customize_for_version37(self, version):
 
     self.n_call = n_call
 
+    def n_compare_chained(node):
+        if node[0] == "compare_chained37":
+            self.default(node[0])
+        else:
+            self.default(node)
+    self.n_compare_chained = n_compare_chained
+
     def n_importlist37(node):
         if len(node) == 1:
             self.default(node)

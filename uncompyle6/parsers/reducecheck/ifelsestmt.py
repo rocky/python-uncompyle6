@@ -41,7 +41,7 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
         ),
         (
             "ifelsestmt",
-            ("testexpr", "c_stmts_opt", "come_froms", "else_suite", "come_froms",),
+            ("testexpr", "c_stmts", "come_froms", "else_suite", "come_froms",),
         ),
         (
             "ifelsestmt",
@@ -116,7 +116,7 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
             if jf_cf_pop == "jf_cf_pop" and jf_cf_pop[0] == "JUMP_FORWARD":
                 jump_forward = jf_cf_pop[0]
                 endif_target = int(jump_forward.pattr)
-                last_offset = tokens[min(last, n-1)].off2int()
+                last_offset = tokens[last].off2int()
                 if endif_target != last_offset:
                     return True
 

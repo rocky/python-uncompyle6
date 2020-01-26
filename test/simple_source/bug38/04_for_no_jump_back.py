@@ -1,6 +1,8 @@
 # from mult_by_const/instruction.py
 # Bug in 3.8 was handling no JUMP_BACK in "for" loop. It is
 # in the "if" instead
+
+# RUNNABLE!
 def instruction_sequence_value(instrs, a, b):
     for instr in instrs:
         if a:

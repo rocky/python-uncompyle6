@@ -44,8 +44,10 @@ class Python32Parser(Python3Parser):
         # Python 3.2+ has more loop optimization that removes
         # JUMP_FORWARD in some cases, and hence we also don't
         # see COME_FROM
-        _ifstmts_jump ::= c_stmts_opt
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_froms
+        _ifstmts_jump ::= stmts_opt
+        _ifstmts_jump ::= stmts_opt JUMP_FORWARD _come_froms
+        _ifstmts_jumpl ::= c_stmts_opt
+        _ifstmts_jumpl ::= c_stmts_opt JUMP_FORWARD _come_froms
 
         kv3       ::= expr expr STORE_MAP
         """

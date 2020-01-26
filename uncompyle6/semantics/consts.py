@@ -471,19 +471,19 @@ MAP_R0 = (TABLE_R0, -1, 0)
 MAP_R = (TABLE_R, -1)
 
 MAP = {
-    'stmt':		MAP_R,
-    'call':	        MAP_R,
-    'del_stmt':		MAP_R,
-    'store':	        MAP_R,
-    'exprlist':		MAP_R0,
+    "stmt":		MAP_R,
+    "call":	        MAP_R,
+    "del_stmt":		MAP_R,
+    "store":	        MAP_R,
+    "exprlist":		MAP_R0,
 }
 
 ASSIGN_TUPLE_PARAM = lambda param_name: \
-             SyntaxTree('expr', [ Token('LOAD_FAST', pattr=param_name) ])
+             SyntaxTree("expr", [ Token("LOAD_FAST", pattr=param_name) ])
 
-escape = re.compile(r'''
+escape = re.compile(r"""
             (?P<prefix> [^%]* )
             % ( \[ (?P<child> -? \d+ ) \] )?
                 ((?P<type> [^{] ) |
                  ( [{] (?P<expr> [^}]* ) [}] ))
-        ''', re.VERBOSE)
+        """, re.VERBOSE)

@@ -1103,7 +1103,10 @@ class SourceWalker(GenericASTTraversal, object):
         code = Code(cn.attr, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
-        ast = ast[0][0][0]
+
+        # Remove single reductions as in ("stmts", "sstmt"):
+        while len(ast) == 1:
+            ast = ast[0]
 
         n = ast[iter_index]
         assert n == "comp_iter", n
@@ -1368,7 +1371,11 @@ class SourceWalker(GenericASTTraversal, object):
         code = Code(node[1].attr, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
-        ast = ast[0][0][0]
+
+        # Remove single reductions as in ("stmts", "sstmt"):
+        while len(ast) == 1:
+            ast = ast[0]
+
         store = ast[3]
         collection = node[collection_index]
 
@@ -2207,6 +2214,7 @@ class SourceWalker(GenericASTTraversal, object):
             pass
         return
 
+    # This code is only for Python 1.x - 2.1 ish!
     def get_tuple_parameter(self, ast, name):
         """
         If the name of the formal parameter starts with dot,
@@ -2223,8 +2231,8 @@ class SourceWalker(GenericASTTraversal, object):
         assert ast == "stmts"
         for i in range(len(ast)):
             # search for an assign-statement
-            assert ast[i][0] == "stmt"
-            node = ast[i][0][0]
+            assert ast[i] == "sstmt"
+            node = ast[i][0]
             if node == "assign" and node[0] == ASSIGN_TUPLE_PARAM(name):
                 # okay, this assigns '.n' to something
                 del ast[i]
@@ -2441,6 +2449,7 @@ class SourceWalker(GenericASTTraversal, object):
             # modularity is broken here
             p_insts = self.p.insts
             self.p.insts = self.scanner.insts
+            self.p.opc = self.scanner.opc
             ast = python_parser.parse(self.p, tokens, customize)
             self.p.insts = p_insts
         except python_parser.ParserError, e:

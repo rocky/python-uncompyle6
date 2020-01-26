@@ -79,37 +79,42 @@ def decompile(
     assert iscode(co)
 
     if is_pypy:
-        co_pypy_str = 'PyPy '
+        co_pypy_str = "PyPy "
     else:
-        co_pypy_str = ''
+        co_pypy_str = ""
 
     if IS_PYPY:
-        run_pypy_str = 'PyPy '
+        run_pypy_str = "PyPy "
     else:
-        run_pypy_str = ''
+        run_pypy_str = ""
 
     if magic_int:
         m = str(magic_int)
     else:
         m = ""
 
-    sys_version_lines = sys.version.split('\n')
+    sys_version_lines = sys.version.split("\n")
     if source_encoding:
-        write('# -*- coding: %s -*-' % source_encoding)
-    write('# uncompyle6 version %s\n'
-          '# %sPython bytecode %s%s\n# Decompiled from: %sPython %s' %
-          (VERSION, co_pypy_str, bytecode_version,
-               " (%s)" % m, run_pypy_str,
-           '\n# '.join(sys_version_lines)))
+        write("# -*- coding: %s -*-" % source_encoding)
+    write(
+        "# uncompyle6 version %s\n"
+        "# %sPython bytecode %s%s\n# Decompiled from: %sPython %s" %
+          (VERSION,
+           co_pypy_str,
+           bytecode_version,
+           " (%s)" % m, run_pypy_str,
+           "\n# ".join(sys_version_lines),
+          )
+    )
     if bytecode_version >= 3.0:
         write("# Warning: this version has problems handling the Python 3 byte type in contants properly.\n")
     if co.co_filename:
         write("# Embedded file name: %s" % co.co_filename,)
     if timestamp:
-        write('# Compiled at: %s' %
+        write("# Compiled at: %s" %
               datetime.datetime.fromtimestamp(timestamp))
     if source_size:
-        real_out.write('# Size of source mod 2**32: %d bytes\n' %
+        real_out.write("# Size of source mod 2**32: %d bytes\n" %
                        source_size)
 
     debug_opts = {"asm": showasm, "ast": showast, "grammar": showgrammar}

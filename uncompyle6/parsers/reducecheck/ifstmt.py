@@ -1,5 +1,6 @@
 #  Copyright (c) 2020 Rocky Bernstein
 
+
 def ifstmt(self, lhs, n, rule, ast, tokens, first, last):
     if lhs == "ifstmtl":
         if last == n:
@@ -19,11 +20,12 @@ def ifstmt(self, lhs, n, rule, ast, tokens, first, last):
         last_offset = tokens[l].offset
     for i in range(first, l):
         t = tokens[i]
-        if t.kind == "POP_JUMP_IF_FALSE":
+        # instead of POP_JUMP_IF, should we use op attributes?
+        if t.kind in ("POP_JUMP_IF_FALSE", "POP_JUMP_IF_TRUE"):
             pjif_target = t.attr
             if pjif_target > last_offset:
                 # In come cases, where we have long bytecode, a
-                # "POP_JUMP_IF_FALSE" offset might be too
+                # "POP_JUMP_IF_TRUE/FALSE" offset might be too
                 # large for the instruction; so instead it
                 # jumps to a JUMP_FORWARD. Allow that here.
                 if tokens[l] == "JUMP_FORWARD":
@@ -46,13 +48,11 @@ def ifstmt(self, lhs, n, rule, ast, tokens, first, last):
         if testexpr[0] in ("testtrue", "testfalse"):
             test = testexpr[0]
             if len(test) > 1 and test[1].kind.startswith("jmp_"):
-                if last == n:
-                    last -= 1
                 jmp_target = test[1][0].attr
                 if (
-                    tokens[first].off2int()
+                    tokens[first].off2int(prefer_last=True)
                     <= jmp_target
-                    < tokens[last].off2int()
+                    < tokens[last].off2int(prefer_last=False)
                 ):
                     return True
                 # jmp_target less than tokens[first] is okay - is to a loop
