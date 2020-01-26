@@ -346,7 +346,7 @@ class TreeTransform(GenericASTTraversal, object):
 
     def n_stmts(self, node):
         if node.first_child() == "SETUP_ANNOTATIONS":
-            prev = node[0][0][0]
+            prev = node[0][0]
             new_stmts = [node[0]]
             for i, sstmt in enumerate(node[1:]):
                 ann_assign = sstmt[0][0]

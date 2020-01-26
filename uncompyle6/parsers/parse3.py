@@ -380,7 +380,6 @@ class Python3Parser(PythonParser):
         iflaststmt ::= testexpr _iflaststmts_jump
         ifelsestmt ::= testexpr stmts_opt jump_absolute_else else_suite
         ifelsestmt ::= testexpr stmts_opt jump_forward_else else_suite _come_froms
-        iflaststmt ::= testexpr _ifstmts_jump
         else_suite ::= stmts
 
 
