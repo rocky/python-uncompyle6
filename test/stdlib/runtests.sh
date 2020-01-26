@@ -95,6 +95,7 @@ case $PYVERSION in
 	    SKIP_TESTS[test_array.py]=1
 	    SKIP_TESTS[test_ast.py]=1
 	    SKIP_TESTS[test_audioop.py]=1
+	    SKIP_TESTS[test_doctest2.py]=1 # a POWER thing?
 	    SKIP_TESTS[test_httplib.py]=1  # Ok, but POWER has problems with this
 	    SKIP_TESTS[test_pdb.py]=1 # Ok, but POWER has problems with this
 
