@@ -68,3 +68,13 @@ SKIP_TESTS=(
     [test_zipfile64.py]=1 # Too long to run
 )
 # About 300 unit-test files in about 20 minutes
+
+if (( batch )) ; then
+    SKIP_TESTS[test_ftplib.py]=1  # Runs too long on POWER; over 15 seconds
+    SKIP_TESTS[test_idle.py]=1  # No tk
+    SKIP_TESTS[test_pep352.py]=1  # UnicodeDecodeError may be funny on weird environments
+    SKIP_TESTS[test_pep380.py]=1  # test_delegating_generators_claim_to_be_running ?
+    # Fails in crontab environment?
+    # Figure out what's up here
+    # SKIP_TESTS[test_exception_variations.py]=1
+fi

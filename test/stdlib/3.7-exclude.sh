@@ -127,3 +127,10 @@ SKIP_TESTS=(
     [test_zipfile64.py]=1 # Too long to run
 )
 # 278 unit-test files in about 15 minutes
+
+if (( batch )) ; then
+    SKIP_TESTS[test_distutils.py]=1
+    SKIP_TESTS[test_fileio.py]=1
+    SKIP_TESTS[test_gc.py]=1
+    SKIP_TESTS[test_zipimport_support.py]=1
+fi

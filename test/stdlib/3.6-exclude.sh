@@ -194,3 +194,9 @@ SKIP_TESTS=(
     [test_zlib.py]=1
 )
 # 236 unit-test files in about 13 minutes
+
+if (( batch )) ; then
+    SKIP_TESTS[test_codeccallbacks.py]=1
+    # locale on test machine is probably customized
+    SKIP_TESTS[test__locale.py]=1
+fi
