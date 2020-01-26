@@ -133,15 +133,7 @@ case $PYVERSION in
 	fi
 	;;
     3.2)
-	SKIP_TESTS=(
-	    [test_cmd_line.py]=1
-	    [test_collections.py]=1
-	    [test_concurrent_futures.py]=1 # too long to run over 46 seconds by itself
-	    [test_datetimetester.py]=1
-	    [test_decimal.py]=1
-	    [test_dis.py]=1   # We change line numbers - duh!
-	    [test_quopri.py]=1 # TypeError: Can't convert 'bytes' object to str implicitly
-	)
+	. ./3.2-exclude.sh
 	if (( batch )) ; then
 	    # Fails in crontab environment?
 	    # Figure out what's up here
