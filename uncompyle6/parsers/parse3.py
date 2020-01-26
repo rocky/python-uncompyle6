@@ -166,6 +166,7 @@ class Python3Parser(PythonParser):
         # ifstmts where we are in a loop
         _ifstmts_jumpl     ::= _ifstmts_jump
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
+        iflaststmtl ::= testexpr _ifstmts_jumpl
 
         # These are used to keep parse tree indices the same
         jump_forward_else  ::= JUMP_FORWARD ELSE
