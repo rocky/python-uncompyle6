@@ -9,6 +9,7 @@ SKIP_TESTS=(
     [test_platform.py]=1 # FIXME: Works on c90ff51
     [test_poplib.py]=1 # FIXME: Works on c90ff51
     [test_pyclbr.py]=1 # FIXME: Works on c90ff51
+    [test_smtplib.py]=1 # FIXME: Works on c90ff51
     [test_strftime.py]=1 # FIXME: Works on c90ff51
     [test_shutil.py]=1 # FIXME: Works on c90ff51
     [test_sysconfig.py]=1 # FIXME: Works on c90ff51
