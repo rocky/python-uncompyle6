@@ -1,5 +1,5 @@
 SKIP_TESTS=(
-    [test_atexit.py]=1  # The atexit test staring at 3.3 looks for specific comments in error lines
+    [test_atexit.py]=1  # The atexit test starting at 3.3 looks for specific comments in error lines
     [test_buffer.py]=1  # parse error
     [test_cmd_line.py]=1 # too long?
     [test_concurrent_futures.py]=1  # too long?

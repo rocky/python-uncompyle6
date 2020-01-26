@@ -19,7 +19,6 @@ class Python35Parser(Python34Parser):
 
         # FIXME! isolate this to only loops!
         _ifstmts_jump  ::= c_stmts_opt come_froms
-        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD
         ifelsestmt ::= testexpr c_stmts_opt jump_forward_else else_suite _come_froms
 
         pb_ja ::= POP_BLOCK JUMP_ABSOLUTE
