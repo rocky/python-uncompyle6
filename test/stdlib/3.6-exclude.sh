@@ -1,5 +1,5 @@
 SKIP_TESTS=(
-    [test_cmd.py]=1 # FIXME: grammar START symbol bug: Works on c90ff51
+    [test_binop.py]=1 # FIXME: grammar START symbol bug: Works on c90ff51
     [test_decorators.py]=1 # FIXME: Works on c90ff51
     [test_format.py]=1  # FIXME: works on c90ff51
     [test_locale.py]=1 # FIXME: Works on c90ff51

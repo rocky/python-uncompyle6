@@ -176,7 +176,8 @@ case $PYVERSION in
 	    SKIP_TESTS[test_exception_variations.py]=1
 	    SKIP_TESTS[test_quopri.py]=1
 	    SKIP_TESTS[test_ioctl.py]=1 # it fails on its own
-	    SKIP_TESTS[test_venv.py]=1 # takes to long 11 seconds
+	    SKIP_TESTS[test_tarfile.py]=1 # too long to run on POWER 15 secs
+	    SKIP_TESTS[test_venv.py]=1 # takes too long 11 seconds
 	fi
 	;;
 
