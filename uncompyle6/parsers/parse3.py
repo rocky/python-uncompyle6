@@ -381,7 +381,7 @@ class Python3Parser(PythonParser):
         ifelsestmt ::= testexpr stmts_opt jump_absolute_else else_suite
         ifelsestmt ::= testexpr stmts_opt jump_forward_else else_suite _come_froms
         else_suite ::= stmts
-
+        else_suitel ::= stmts
 
         # FIXME: remove this
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_froms
