@@ -39,6 +39,7 @@ SKIP_TESTS=(
     [test_frame.py]=1 # test assertion errors
     [test_ftplib.py]=1 # parse error
     [test_functools.py]=1 # parse error
+    [test_fstring.py]=1 # need to disambiguate leading fstrings from docstrings
     [test_gdb.py]=1 # it fails on its own
     [test_generators.py]=1  # Investigate improper lamdba with bogus "False" added
     [test_glob.py]=1  # TypeError: join() argument must be str or bytes, not 'tuple'

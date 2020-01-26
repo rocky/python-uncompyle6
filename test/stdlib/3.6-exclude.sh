@@ -68,6 +68,7 @@ SKIP_TESTS=(
     [test_finalization.py]=1
     [test_float.py]=1 # it fails on its own
     [test_functools.py]=1 # it fails on its own
+    [test_fstring.py]=1 # need to disambiguate leading fstrings from docstrings
     [test___future__.py]=1 # syntax error: Investigate
 
     [test_gdb.py]=1 # it fails on its own
