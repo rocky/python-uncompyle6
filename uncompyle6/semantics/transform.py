@@ -26,7 +26,7 @@ from uncompyle6.semantics.consts import RETURN_NONE
 
 def is_docstring(node):
     try:
-        return node[0][0].kind == "assign" and node[0][0][1][0].pattr == "__doc__"
+        return node[0].kind == "assign" and node[0][1][0].pattr == "__doc__"
     except:
         return False
 
@@ -396,11 +396,11 @@ class TreeTransform(GenericASTTraversal, object):
                                 "LOAD_STR",
                                 has_arg=True,
                                 offset=0,
-                                pattr=self.ast[i][0][0][0][0].attr,
+                                pattr=self.ast[i][0][0][0].pattr,
                             )
                         ],
-                        transformed_by="transform",
                     )
+                    docstring_ast.transformed_by="transform"
                     del self.ast[i]
                     self.ast.insert(0, docstring_ast)
                     break

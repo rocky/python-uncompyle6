@@ -174,6 +174,7 @@ case $PYVERSION in
 	    # Figure out what's up here
 	    SKIP_TESTS[test_bisect.py]=1
 	    SKIP_TESTS[test_buffer.py]=1  # too long
+	    SKIP_TESTS[test_compileall.py]=1  # Something weird on POWER
 	    SKIP_TESTS[test_distutils.py]=1
 
 	    SKIP_TESTS[test_exception_variations.py]=1
