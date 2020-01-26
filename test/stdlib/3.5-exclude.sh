@@ -1,4 +1,5 @@
 SKIP_TESTS=(
+    [test_buffer.py]=1 # FIXME: Works on c90ff51
     [test_decorators.py]=1 # FIXME: Works on c90ff51
     [test_faulthandler.py]=1 # FIXME: too long to run 20 seconds. Works on c90ff51
     [test_ftplib.py]=1 # Works on c90ff51
@@ -9,6 +10,7 @@ SKIP_TESTS=(
     [test_poplib.py]=1 # FIXME: Works on c90ff51
     [test_pyclbr.py]=1 # FIXME: Works on c90ff51
     [test_strftime.py]=1 # FIXME: Works on c90ff51
+    [test_shutil.py]=1 # FIXME: Works on c90ff51
     [test_sysconfig.py]=1 # FIXME: Works on c90ff51
     [test_tempfile.py]=1 # FIXME: Works on c90ff51
     [test_uu.py]=1 # FIXME: Works on c90ff51
