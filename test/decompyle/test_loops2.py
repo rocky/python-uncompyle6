@@ -8,7 +8,7 @@ See http://www.goebel-consult.de/decompyle/ for download and
 for further information
 """
 
-# This is a seperate test pattern, since 'continue' within 'try'
+# This is a separate test pattern, since 'continue' within 'try'
 # was not allowed till Python 2.1
 
 for term in args:

@@ -228,6 +228,6 @@ if __name__ == "__main__":
 
 # Verification notes:
 # - xdrlib fails verification due the same lambda used twice
-#   (verification is successfull when using original .pyo as
+#   (verification is successful when using original .pyo as
 #   input)
 #

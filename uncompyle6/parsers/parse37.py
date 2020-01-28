@@ -321,6 +321,7 @@ class Python37Parser(Python37BaseParser):
 
         import           ::= LOAD_CONST LOAD_CONST alias
         import_from_star ::= LOAD_CONST LOAD_CONST IMPORT_NAME IMPORT_STAR
+        import_from_star ::= LOAD_CONST LOAD_CONST IMPORT_NAME_ATTR IMPORT_STAR
         import_from      ::= LOAD_CONST LOAD_CONST IMPORT_NAME importlist POP_TOP
         importmultiple   ::= LOAD_CONST LOAD_CONST alias imports_cont
 
