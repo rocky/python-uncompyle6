@@ -19,7 +19,7 @@ Usage:
 Disassemble FILE with the instruction mangling that is done to
 assist uncompyle6 in parsing the instruction stream. For example
 instructions with variable-length arguments like CALL_FUNCTION and
-BUILD_LIST have arguement counts appended to the instruction name, and
+BUILD_LIST have argument counts appended to the instruction name, and
 COME_FROM instructions are inserted into the instruction stream.
 
 Examples:
