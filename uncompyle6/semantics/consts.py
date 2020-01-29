@@ -136,25 +136,25 @@ PASS = SyntaxTree('stmts',
                        [ SyntaxTree('pass', [])])])])
 
 ASSIGN_DOC_STRING = lambda doc_string, doc_load: \
-  SyntaxTree('stmt',
-      [ SyntaxTree('assign',
-            [ SyntaxTree('expr', [ Token(doc_load, pattr=doc_string, attr=doc_string) ]),
-              SyntaxTree('store', [ Token('STORE_NAME', pattr='__doc__')])
+  SyntaxTree("stmt",
+      [ SyntaxTree("assign",
+            [ SyntaxTree("expr", [ Token(doc_load, pattr=doc_string, attr=doc_string) ]),
+              SyntaxTree("store", [ Token("STORE_NAME", pattr="__doc__")])
             ])])
 
-NAME_MODULE = SyntaxTree('stmt',
-                [ SyntaxTree('assign',
-                    [ SyntaxTree('expr',
-                          [Token('LOAD_NAME', pattr='__name__', offset=0, has_arg=True)]),
-                      SyntaxTree('store',
-                          [ Token('STORE_NAME', pattr='__module__', offset=3, has_arg=True)])
+NAME_MODULE = SyntaxTree("sstmt",
+                [ SyntaxTree("assign",
+                    [ SyntaxTree("expr",
+                          [Token("LOAD_NAME", pattr="__name__", offset=0, has_arg=True)]),
+                      SyntaxTree("store",
+                          [ Token("STORE_NAME", pattr="__module__", offset=3, has_arg=True)])
                       ])])
 
 # God intended \t, but Python has decided to use 4 spaces.
 # If you want real tabs, use Go.
-# TAB = '\t'
-TAB = ' ' * 4
-INDENT_PER_LEVEL = ' ' # additional intent per pretty-print level
+# TAB = "\t"
+TAB = " " * 4
+INDENT_PER_LEVEL = " " # additional intent per pretty-print level
 
 TABLE_R = {
     'STORE_ATTR':	( '%c.%[1]{pattr}', 0),

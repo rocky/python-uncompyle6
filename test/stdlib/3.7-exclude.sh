@@ -32,14 +32,16 @@ SKIP_TESTS=(
     [test_doctest2.py]=1 # FIXME: assert failure - works on decompyle3
     [test_docxmlrpc.py]=1
     [test_enum.py]=1   # probably bad control flow
+
     [test_faulthandler.py]=1   # takes too long
     [test_fcntl.py]=1
     [test_fileinput.py]=1 # Test assertion failures
     [test_format.py]=1 # Probably not handling bytestrings properly
     [test_frame.py]=1 # test assertion errors
     [test_ftplib.py]=1 # parse error
-    [test_functools.py]=1 # parse error
     [test_fstring.py]=1 # need to disambiguate leading fstrings from docstrings
+    [test_functools.py]=1 # parse error
+
     [test_gdb.py]=1 # it fails on its own
     [test_generators.py]=1  # Investigate improper lamdba with bogus "False" added
     [test_glob.py]=1  # TypeError: join() argument must be str or bytes, not 'tuple'
