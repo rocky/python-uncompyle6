@@ -2115,7 +2115,6 @@ class SourceWalker(GenericASTTraversal, object):
                 try:
                     self.write(eval(expr, d, d))
                 except:
-                    from trepan.api import debug; debug()
                     raise
             m = escape.search(fmt, i)
         self.write(fmt[i:])
@@ -2272,13 +2271,13 @@ class SourceWalker(GenericASTTraversal, object):
             self.println(self.traverse(ast[0]))
             del ast[0]
 
-        first_stmt = ast[0][0]
+        first_stmt = ast[0]
         if 3.0 <= self.version <= 3.3:
             try:
-                if first_stmt[0] == "store_locals":
+                if first_stmt == "store_locals":
                     if self.hide_internal:
                         del ast[0]
-                        first_stmt = ast[0][0]
+                        first_stmt = ast[0]
             except:
                 pass
 
@@ -2286,7 +2285,7 @@ class SourceWalker(GenericASTTraversal, object):
             if first_stmt == NAME_MODULE:
                 if self.hide_internal:
                     del ast[0]
-                    first_stmt = ast[0][0]
+                    first_stmt = ast[0]
             pass
         except:
             pass
@@ -2296,17 +2295,12 @@ class SourceWalker(GenericASTTraversal, object):
             # Should we ditch this in favor of the "else" case?
             qualname = ".".join(self.classes)
             QUAL_NAME = SyntaxTree(
-                "stmt",
+                "assign",
                 [
+                    SyntaxTree("expr", [Token("LOAD_CONST", pattr=qualname)]),
                     SyntaxTree(
-                        "assign",
-                        [
-                            SyntaxTree("expr", [Token("LOAD_CONST", pattr=qualname)]),
-                            SyntaxTree(
-                                "store", [Token("STORE_NAME", pattr="__qualname__")]
-                            ),
-                        ],
-                    )
+                        "store", [Token("STORE_NAME", pattr="__qualname__")]
+                    ),
                 ],
             )
             have_qualname = ast[0][0] == QUAL_NAME
