@@ -152,6 +152,7 @@ SKIP_TESTS=(
     [test_subprocess.py]=1
     [test_sys.py]=1 # Investigate confusing "and" with nested "if" when there is an "else
     [test_sys_settrace.py]=1 # parse error
+    [test_sysconfig.py]=1 # if confused for ifelse in "test_triplet_in_ext_suffix"
 
     [test_tarfile.py]=1 # it fails on its own
     [test_tcl.py]=1 # Test assert failures
