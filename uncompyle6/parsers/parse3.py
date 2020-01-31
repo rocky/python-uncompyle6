@@ -33,7 +33,7 @@ from uncompyle6.parsers.reducecheck import (
     and_check,
     except_handler_else,
     ifstmt,
-    # iflaststmt,
+    iflaststmt,
     testtrue,
     tryelsestmtl3,
     tryexcept,
@@ -1534,6 +1534,7 @@ class Python3Parser(PythonParser):
             "and": and_check,
             "except_handler_else": except_handler_else,
             # "ifstmt": ifstmt,
+            "iflaststmtl": iflaststmt,
             "testtrue": testtrue,
             "tryelsestmtl3": tryelsestmtl3,
             "try_except": tryexcept,
@@ -1580,8 +1581,6 @@ class Python3Parser(PythonParser):
         elif lhs == "kwarg":
             arg = tokens[first].attr
             return not (isinstance(arg, str) or isinstance(arg, unicode))
-        elif lhs in ("iflaststmt", "iflaststmtl")  and self.version >= 3.1:
-            return ifstmt(self, lhs, n, rule, ast, tokens, first, last)
         elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
             # FIXME: go over what's up with 3.0. Evetually I'd like to remove RETURN_END_IF
             if self.version <= 3.0 or tokens[last] == "RETURN_END_IF":
