@@ -41,6 +41,16 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
         ),
         (
             "ifelsestmt",
+            (
+                "testexpr",
+                "c_stmts_opt",
+                "JUMP_FORWARD",
+                "else_suite",
+                "come_froms",
+            ),
+        ),
+        (
+            "ifelsestmt",
             ("testexpr", "c_stmts", "come_froms", "else_suite", "come_froms",),
         ),
         (
@@ -79,14 +89,13 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
         elif tokens[first].offset > come_froms.attr:
             return True
 
-    # For mysterious reasons a COME_FROM in tokens[last+1] might be part of the grammar rule
-    # even though it is not found in come_froms.
-    # Work around this.
-    if (
-        last < n
-        and tokens[last] == "COME_FROM"
-        and tokens[first].offset > tokens[last].attr
-    ):
+    # FIXME: There is weirdness in the grammar we need to work around.
+    # we need to clean up the grammar.
+    if self.version < 3.0:
+        last_token = ast[-1]
+    else:
+        last_token = tokens[last]
+    if last_token == "COME_FROM" and tokens[first].offset > last_token.attr:
         return True
 
     testexpr = ast[0]
