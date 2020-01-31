@@ -1535,7 +1535,6 @@ class Python3Parser(PythonParser):
             "except_handler_else": except_handler_else,
             # "ifstmt": ifstmt,
             "testtrue": testtrue,
-            "testtrue": testtrue,
             "tryelsestmtl3": tryelsestmtl3,
             "try_except": tryexcept,
         }
