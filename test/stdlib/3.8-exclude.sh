@@ -73,11 +73,14 @@ SKIP_TESTS=(
     [test_index.py]=1
     [test_inspect.py]=1
     [test_itertools.py]=1 # parse error
+
     [test_keywordonlyarg.py]=1 # parse error
     [test_kqueue.py]=1 # it fails on its own
+
     [test_lib2to3.py]=1 # it fails on its own
     [test_long.py]=1 # investigate
     [test_logging.py]=1 # test takes too long to run: 20 seconds
+
     [test_mailbox.py]=1
     [test_marshal.py]=1
     [test_math.py]=1
@@ -86,11 +89,14 @@ SKIP_TESTS=(
     [test_multiprocessing_fork.py]=1 # test takes too long to run: 62 seconds
     [test_multiprocessing_forkserver.py]=1
     [test_multiprocessing_spawn.py]=1
+
     [test_normalization.py]=1 # probably control flow (uninitialized variable)
     [test_nntplib.py]=1
+
     [test_optparse.py]=1 # doesn't terminate (killed)
     [test_os.py]=1 # probably control flow (uninitialized variable)
     [test_ossaudiodev.py]=1 # it fails on its own
+
     [test_pathlib.py]=1 # parse error
     [test_pdb.py]=1 # Probably relies on comments
     [test_peepholer.py]=1 # decompile takes a long time; then test assert error
@@ -103,9 +109,11 @@ SKIP_TESTS=(
     [test_pkgutil.py]=1 # parse error
     [test_platform.py]=1 # parse error
     [test_pwd.py]=1 # killing - doesn't terminate
+
     [test_regrtest.py]=1 # parse error; test assertion error: lists differ
     [test_re.py]=1 # parse error; test assertion error
     [test_richcmp.py]=1 # Investigate: data[i] index error in semantic handling
+
     [test_select.py]=1 # test takes too long to run: 11 seconds
     [test_selectors.py]=1
     [test_shutil.py]=1 # fails on its own
@@ -127,6 +135,7 @@ SKIP_TESTS=(
     [test_subprocess.py]=1
     [test_sys_setprofile.py]=1 # test assertions failed
     [test_sys_settrace.py]=1 # parse error
+
     [test_tarfile.py]=1 # parse error
     [test_threading.py]=1 #
     [test_timeit.py]=1 # probably control flow uninitialized variable
@@ -138,16 +147,18 @@ SKIP_TESTS=(
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
     [test_typing.py]=1 # parse error
     [test_types.py]=1 # parse error
+
     [test_unicode.py]=1 # unicode thing
     [test_urllib2.py]=1 #
     [test_urllib2_localnet.py]=1 #
     [test_urllibnet.py]=1 # probably control flow - uninitialized variable
+
     [test_weakref.py]=1 # probably control flow - uninitialized variable
     [test_with.py]=1 # probably control flow - uninitialized variable
-    [test_xml_dom_minicompat.py]=1 # parse error
     [test_winconsoleio.py]=1 # it fails on its own
     [test_winreg.py]=1 # it fails on its own
     [test_winsound.py]=1 # it fails on its own
+
     [test_zipfile.py]=1 # it fails on its own
     [test_zipfile64.py]=1 #
 )

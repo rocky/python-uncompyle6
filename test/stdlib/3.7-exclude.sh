@@ -140,7 +140,7 @@ SKIP_TESTS=(
     [test_zipfile.py]=1 # it fails on its own
     [test_zipfile64.py]=1 # Too long to run
 )
-# 278 unit-test files in about 15 minutes
+# 282 unit-test files in about 19 minutes
 
 if (( batch )) ; then
     SKIP_TESTS[test_distutils.py]=1
