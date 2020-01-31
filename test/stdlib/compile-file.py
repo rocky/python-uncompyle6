@@ -19,6 +19,6 @@ bytecode = "%s-%s.pyc" % (basename, PY_VERSION)
 
 import py_compile
 print("compiling %s to %s" % (source, bytecode))
-py_compile.compile(source, bytecode, 'exec')
+py_compile.compile(source, bytecode, source)
 # import os
 # os.system("../bin/uncompyle6 %s" % bytecode)
