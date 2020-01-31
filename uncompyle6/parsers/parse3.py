@@ -1529,6 +1529,17 @@ class Python3Parser(PythonParser):
                 pass
             pass
 
+        # FIXME: Put more in this table
+        self.reduce_check_table = {
+            "and": and_check,
+            "except_handler_else": except_handler_else,
+            # "ifstmt": ifstmt,
+            "testtrue": testtrue,
+            "testtrue": testtrue,
+            "tryelsestmtl3": tryelsestmtl3,
+            "try_except": tryexcept,
+        }
+
         if self.version >= 3.1:
             self.check_reduce["and"] = "AST"
         self.check_reduce["aug_assign1"] = "AST"
@@ -1560,14 +1571,14 @@ class Python3Parser(PythonParser):
         lhs = rule[0]
         n = len(tokens)
         last = min(last, n-1)
-        if lhs == "and":
-            return and_check(self, lhs, n, rule, ast, tokens, first, last)
+        fn = self.reduce_check_table.get(lhs, None)
+        if fn:
+            return fn(self, lhs, n, rule, ast, tokens, first, last)
+        # FIXME: put more in reduce_check_table
         elif lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
             return True
         elif lhs == "annotate_tuple":
             return not isinstance(tokens[first].attr, tuple)
-        elif lhs in ("except_handler_else"):
-            return except_handler_else(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs == "kwarg":
             arg = tokens[first].attr
             return not (isinstance(arg, str) or isinstance(arg, unicode))
@@ -1612,10 +1623,6 @@ class Python3Parser(PythonParser):
                 <= jump_forward_else[0].attr
                 < tokens[last].off2int()
             )
-        elif lhs == "testtrue":
-            return testtrue(self, lhs, n, rule, ast, tokens, first, last)
-        elif lhs == "tryelsestmtl3":
-            return tryelsestmtl3(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs == "while1stmt":
 
             if while1stmt(self, lhs, n, rule, ast, tokens, first, last):
@@ -1664,8 +1671,6 @@ class Python3Parser(PythonParser):
                 return False
             # 3.8+ Doesn't have SETUP_LOOP
             return self.version < 3.8 and tokens[first].attr > tokens[last].offset
-        elif lhs == "try_except":
-            return tryexcept(self, lhs, n, rule, ast, tokens, first, last)
         elif rule == (
             "ifelsestmt",
             (
