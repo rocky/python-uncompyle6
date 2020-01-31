@@ -2442,7 +2442,6 @@ class SourceWalker(GenericASTTraversal, object):
             # modularity is broken here
             p_insts = self.p.insts
             self.p.insts = self.scanner.insts
-            self.p.insts = self.scanner.insts
             self.p.opc = self.scanner.opc
             self.p.offset2inst_index = self.scanner.offset2inst_index
             ast = python_parser.parse(self.p, tokens, customize)
