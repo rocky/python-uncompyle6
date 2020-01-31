@@ -30,6 +30,7 @@ import re
 from uncompyle6.scanners.tok import Token
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.reducecheck import (
+    and_check,
     except_handler_else,
     ifstmt,
     # iflaststmt,
@@ -1528,13 +1529,18 @@ class Python3Parser(PythonParser):
                 pass
             pass
 
+        if self.version >= 3.1:
+            self.check_reduce["and"] = "AST"
         self.check_reduce["aug_assign1"] = "AST"
         self.check_reduce["aug_assign2"] = "AST"
         self.check_reduce["while1stmt"] = "noAST"
         self.check_reduce["while1elsestmt"] = "noAST"
         self.check_reduce["ifelsestmt"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
-        # self.check_reduce["iflaststmtl"] = "AST"
+        if self.version >= 3.1:
+            if self.version != 3.5:
+                self.check_reduce["iflaststmt"] = "AST"
+            self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
         self.check_reduce["except_handler_else"] = "tokens"
         self.check_reduce["testtrue"] = "tokens"
@@ -1554,7 +1560,9 @@ class Python3Parser(PythonParser):
         lhs = rule[0]
         n = len(tokens)
         last = min(last, n-1)
-        if lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
+        if lhs == "and":
+            return and_check(self, lhs, n, rule, ast, tokens, first, last)
+        elif lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
             return True
         elif lhs == "annotate_tuple":
             return not isinstance(tokens[first].attr, tuple)
@@ -1563,8 +1571,8 @@ class Python3Parser(PythonParser):
         elif lhs == "kwarg":
             arg = tokens[first].attr
             return not (isinstance(arg, str) or isinstance(arg, unicode))
-        # elif lhs == "iflaststmtl":
-        #     return iflaststmt(self, lhs, n, rule, ast, tokens, first, last)
+        elif lhs in ("iflaststmt", "iflaststmtl")  and self.version >= 3.1:
+            return ifstmt(self, lhs, n, rule, ast, tokens, first, last)
         elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
             # FIXME: go over what's up with 3.0. Evetually I'd like to remove RETURN_END_IF
             if self.version <= 3.0 or tokens[last] == "RETURN_END_IF":
