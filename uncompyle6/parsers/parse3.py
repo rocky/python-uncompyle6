@@ -1547,9 +1547,8 @@ class Python3Parser(PythonParser):
         self.check_reduce["while1elsestmt"] = "noAST"
         self.check_reduce["ifelsestmt"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
-        if self.version >= 3.1:
-            if self.version != 3.5:
-                self.check_reduce["iflaststmt"] = "AST"
+        if self.version == 3.6:
+            self.check_reduce["iflaststmt"] = "AST"
             self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
         self.check_reduce["except_handler_else"] = "tokens"

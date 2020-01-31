@@ -138,8 +138,7 @@ SKIP_TESTS=(
 # About 260 unit-test in about 16 minutes
 
 if (( batch )) ; then
-    # Fails in crontab environment?
-    # Figure out what's up here
+    SKIP_TESTS[test_asyncore.py]=1 # Ok, but takes more than 15 seconds to run
     SKIP_TESTS[test_bisect.py]=1
     SKIP_TESTS[test_buffer.py]=1  # too long
     SKIP_TESTS[test_compileall.py]=1  # Something weird on POWER
