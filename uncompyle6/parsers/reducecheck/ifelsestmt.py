@@ -80,7 +80,7 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
     # offset COME_FROM is last, it is sufficient to test
     # just the last one.
     come_froms = ast[-1]
-    if come_froms.kind != "else_suite":
+    if come_froms.kind != "else_suite" and self.version >= 3.0:
         if come_froms == "opt_come_from_except" and len(come_froms) > 0:
             come_froms = come_froms[0]
         if not isinstance(come_froms, Token):
@@ -96,7 +96,8 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
     else:
         last_token = tokens[last]
     if last_token == "COME_FROM" and tokens[first].offset > last_token.attr:
-        return True
+        if self.version < 3.0 and self.insts[self.offset2inst_index[last_token.attr]].opname != "SETUP_LOOP":
+            return True
 
     testexpr = ast[0]
 
