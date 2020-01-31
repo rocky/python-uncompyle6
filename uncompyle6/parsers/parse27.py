@@ -176,7 +176,7 @@ class Python27Parser(Python2Parser):
 
         ifstmt            ::= testexpr return_stmts COME_FROM
         ifstmt            ::= testexpr return_if_stmts COME_FROM
-        ifelsestmt        ::= testexpr c_stmts_opt JUMP_FORWARD else_suite COME_FROM
+        ifelsestmt        ::= testexpr c_stmts_opt JUMP_FORWARD else_suite come_froms
         ifelsestmtc       ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
         ifelsestmtl       ::= testexpr c_stmts_opt JUMP_BACK else_suitel
         ifelsestmtl       ::= testexpr c_stmts_opt CONTINUE else_suitel
