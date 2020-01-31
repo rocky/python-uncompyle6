@@ -135,6 +135,7 @@ SKIP_TESTS=(
     [test_subprocess.py]=1
     [test_sys_setprofile.py]=1 # test assertions failed
     [test_sys_settrace.py]=1 # parse error
+    [test_sysconfig.py]=1 # if confused for ifelse in "test_triplet_in_ext_suffix"
 
     [test_tarfile.py]=1 # parse error
     [test_threading.py]=1 #
