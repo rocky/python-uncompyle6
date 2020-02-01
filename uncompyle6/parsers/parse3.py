@@ -1573,15 +1573,19 @@ class Python3Parser(PythonParser):
         last = min(last, n-1)
         fn = self.reduce_check_table.get(lhs, None)
         if fn:
-            return fn(self, lhs, n, rule, ast, tokens, first, last)
+            if fn(self, lhs, n, rule, ast, tokens, first, last):
+                return True
+            pass
         # FIXME: put more in reduce_check_table
-        elif lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
+        if lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
             return True
         elif lhs == "annotate_tuple":
             return not isinstance(tokens[first].attr, tuple)
         elif lhs == "kwarg":
             arg = tokens[first].attr
             return not (isinstance(arg, str) or isinstance(arg, unicode))
+        elif lhs in ("iflaststmt", "iflaststmtl")  and self.version == 3.6:
+            return ifstmt(self, lhs, n, rule, ast, tokens, first, last)
         elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
             # FIXME: go over what's up with 3.0. Evetually I'd like to remove RETURN_END_IF
             if self.version <= 3.0 or tokens[last] == "RETURN_END_IF":
