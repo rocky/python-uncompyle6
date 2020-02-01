@@ -673,6 +673,7 @@ class Python2Parser(PythonParser):
         if fn:
             if fn(self, lhs, n, rule, ast, tokens, first, last):
                 return True
+            pass
         if rule == ("and", ("expr", "jmp_false", "expr", "\\e_come_from_opt")):
             # If the instruction after the instructions forming the "and"  is an "YIELD_VALUE"
             # then this is probably an "if" inside a comprehension.
