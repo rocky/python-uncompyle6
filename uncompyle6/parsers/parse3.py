@@ -1531,7 +1531,6 @@ class Python3Parser(PythonParser):
 
         # FIXME: Put more in this table
         self.reduce_check_table = {
-            "and": and_check,
             "except_handler_else": except_handler_else,
             # "ifstmt": ifstmt,
             "testtrue": testtrue,
@@ -1539,8 +1538,10 @@ class Python3Parser(PythonParser):
             "try_except": tryexcept,
         }
 
-        if self.version >= 3.1:
+        if self.version == 3.6:
+            self.reduce_check_table["and"] =  and_check
             self.check_reduce["and"] = "AST"
+
         self.check_reduce["aug_assign1"] = "AST"
         self.check_reduce["aug_assign2"] = "AST"
         self.check_reduce["while1stmt"] = "noAST"
