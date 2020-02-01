@@ -1548,7 +1548,7 @@ class Python3Parser(PythonParser):
         self.check_reduce["ifelsestmt"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
         if self.version == 3.6:
-            self.reduce_check_table["iflaststmtl"] = iflaststmt,
+            self.reduce_check_table["iflaststmtl"] = iflaststmt
             self.check_reduce["iflaststmt"] = "AST"
             self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
