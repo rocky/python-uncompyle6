@@ -6,7 +6,10 @@ from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from xdis import next_offset
 from uncompyle6.parser import PythonParserSingle, nop_func
 from uncompyle6.parsers.parse2 import Python2Parser
-from uncompyle6.parsers.reducecheck import ifelsestmt
+from uncompyle6.parsers.reducecheck import (
+    ifelsestmt,
+    tryelsestmt,
+)
 
 class Python27Parser(Python2Parser):
 
@@ -221,6 +224,8 @@ class Python27Parser(Python2Parser):
         # FIXME: Put more in this table
         self.reduce_check_table = {
             "ifelsestmt": ifelsestmt,
+            "tryelsestmt": tryelsestmt,
+            "tryelsestmtl": tryelsestmt,
         }
 
         self.check_reduce["and"] = "AST"
@@ -250,7 +255,7 @@ class Python27Parser(Python2Parser):
         n = len(tokens)
         fn = self.reduce_check_table.get(lhs, None)
         if fn:
-            return fn(self, lhs, n, rule, ast, tokens, first, last)
+            invalid = fn(self, lhs, n, rule, ast, tokens, first, last)
         last = min(last, n-1)
         if invalid:
             return invalid
