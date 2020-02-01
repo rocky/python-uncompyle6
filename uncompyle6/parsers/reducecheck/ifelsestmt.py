@@ -121,10 +121,11 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
 
             # Make sure we don't jump at the end of the "then" inside the "else"
             # (jf_cf_pop may be a 2.6ish specific thing.)
-            jf_cf_pop = ast[2]
-
-            if jf_cf_pop == "jf_cf_pop" and jf_cf_pop[0] == "JUMP_FORWARD":
+            jump_forward = ast[2]
+            if jump_forward == "jf_cf_pop":
                 jump_forward = jf_cf_pop[0]
+
+            if jump_forward == "JUMP_FORWARD":
                 endif_target = int(jump_forward.pattr)
                 last_offset = tokens[last].off2int()
                 if endif_target != last_offset:
