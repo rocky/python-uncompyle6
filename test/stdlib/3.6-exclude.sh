@@ -25,7 +25,7 @@ SKIP_TESTS=(
 
     [test test_capi.py]=1 # it fails on its own
     [test_cmd_line.py]=1 # Interactive?
-    [test_codeccallbacks]=1 # TypeError: ... must return (str/bytes, int) tuple
+    [test_codeccallbacks.py]=1 # TypeError: ... must return (str/bytes, int) tuple
     [test_codecencodings_cn.py]=1 # it fails on its own
     [test_codecencodings_hk.py]=1 # it fails on its own
     [test_codecencodings_iso2022.py]=1 # it fails on its own
