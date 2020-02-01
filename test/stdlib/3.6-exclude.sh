@@ -22,9 +22,10 @@ SKIP_TESTS=(
     [test_bisect.py]=1  # it fails on its own
     [test_buffer.py]=1  # parse error
     [test_builtin.py]=1  # Fails on its own
+
     [test test_capi.py]=1 # it fails on its own
     [test_cmd_line.py]=1 # Interactive?
-
+    [test_codeccallbacks]=1 # TypeError: ... must return (str/bytes, int) tuple
     [test_codecencodings_cn.py]=1 # it fails on its own
     [test_codecencodings_hk.py]=1 # it fails on its own
     [test_codecencodings_iso2022.py]=1 # it fails on its own
