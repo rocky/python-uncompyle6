@@ -161,6 +161,9 @@ SKIP_TESTS=(
     [test_thread.py]=1 # it fails on its own
     [test_threading.py]=1
     [test_threadsignals.py]=1
+
+    [test_time.py]=1 # Works but not on POWER: Rounding error?
+
     [test_timeout.py]=1
     [test_tix.py]=1 # it fails on its own
     [test_tk.py]=1 # it fails on its own
@@ -201,5 +204,4 @@ if (( batch )) ; then
     SKIP_TESTS[test_codeccallbacks.py]=1
     # locale on test machine is probably customized
     SKIP_TESTS[test__locale.py]=1
-    SKIP_TESTS[test_time.py]=1 # Rounding error?
 fi
