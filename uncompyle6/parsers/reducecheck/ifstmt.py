@@ -23,6 +23,9 @@ def ifstmt(self, lhs, n, rule, ast, tokens, first, last):
         # instead of POP_JUMP_IF, should we use op attributes?
         if t.kind in ("POP_JUMP_IF_FALSE", "POP_JUMP_IF_TRUE"):
             pjif_target = t.attr
+            target_instr = self.insts[self.offset2inst_index[pjif_target]]
+            if lhs == "iflaststmtl" and target_instr.opname == "JUMP_ABSOLUTE":
+                pjif_target = target_instr.arg
             if pjif_target > last_offset:
                 # In come cases, where we have long bytecode, a
                 # "POP_JUMP_IF_TRUE/FALSE" offset might be too
