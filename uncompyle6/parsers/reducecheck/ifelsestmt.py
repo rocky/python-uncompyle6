@@ -123,7 +123,7 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
             # (jf_cf_pop may be a 2.6ish specific thing.)
             jump_forward = ast[2]
             if jump_forward == "jf_cf_pop":
-                jump_forward = jf_cf_pop[0]
+                jump_forward = jump_forward[0]
 
             if jump_forward == "JUMP_FORWARD":
                 endif_target = int(jump_forward.pattr)
