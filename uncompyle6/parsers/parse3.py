@@ -1534,7 +1534,6 @@ class Python3Parser(PythonParser):
             "and": and_check,
             "except_handler_else": except_handler_else,
             # "ifstmt": ifstmt,
-            "iflaststmtl": iflaststmt,
             "testtrue": testtrue,
             "tryelsestmtl3": tryelsestmtl3,
             "try_except": tryexcept,
@@ -1549,6 +1548,7 @@ class Python3Parser(PythonParser):
         self.check_reduce["ifelsestmt"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
         if self.version == 3.6:
+            self.reduce_check_table["iflaststmtl"] = iflaststmt,
             self.check_reduce["iflaststmt"] = "AST"
             self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
