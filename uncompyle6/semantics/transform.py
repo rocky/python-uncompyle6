@@ -113,7 +113,7 @@ class TreeTransform(GenericASTTraversal, object):
 
         testexpr = node[0]
 
-        if testexpr.kind != "testexpr":
+        if testexpr not in ("testexpr", "testexprl"):
             return node
 
         if node.kind in ("ifstmt", "ifstmtl"):
@@ -128,8 +128,11 @@ class TreeTransform(GenericASTTraversal, object):
             # iflaststmtl works this way
             stmts = node[1]
 
-        if stmts in ("c_stmts",) and len(stmts) == 1:
+        if stmts in ("c_stmts", "stmts") and len(stmts) == 1:
             raise_stmt = stmts[0]
+            if raise_stmt != "raise_stmt1":
+                raise_stmt = raise_stmt[0]
+
             testtrue_or_false = testexpr[0]
             if (
                 raise_stmt.kind == "raise_stmt1"
@@ -145,6 +148,7 @@ class TreeTransform(GenericASTTraversal, object):
                     assert_expr = testtrue_or_false[0]
                     jump_cond = testtrue_or_false[1]
                     assert_expr.kind = "assert_expr"
+
                 expr = raise_stmt[0]
                 RAISE_VARARGS_1 = raise_stmt[1]
                 call = expr[0]
@@ -171,7 +175,7 @@ class TreeTransform(GenericASTTraversal, object):
                         kind = "assert2not"
 
                     LOAD_ASSERT = call[0].first_child()
-                    if LOAD_ASSERT != "LOAD_ASSERT":
+                    if LOAD_ASSERT not in ( "LOAD_ASSERT", "LOAD_GLOBAL"):
                         return node
                     if isinstance(call[1], SyntaxTree):
                         expr = call[1][0]
