@@ -41,6 +41,16 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
         ),
         (
             "ifelsestmt",
+            (
+                "testexpr",
+                "c_stmts_opt",
+                "JUMP_FORWARD",
+                "else_suite",
+                "come_froms",
+            ),
+        ),
+        (
+            "ifelsestmt",
             ("testexpr", "c_stmts", "come_froms", "else_suite", "come_froms",),
         ),
         (
@@ -70,7 +80,7 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
     # offset COME_FROM is last, it is sufficient to test
     # just the last one.
     come_froms = ast[-1]
-    if come_froms.kind != "else_suite":
+    if come_froms.kind != "else_suite" and self.version >= 3.0:
         if come_froms == "opt_come_from_except" and len(come_froms) > 0:
             come_froms = come_froms[0]
         if not isinstance(come_froms, Token):
@@ -79,15 +89,15 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
         elif tokens[first].offset > come_froms.attr:
             return True
 
-    # For mysterious reasons a COME_FROM in tokens[last+1] might be part of the grammar rule
-    # even though it is not found in come_froms.
-    # Work around this.
-    if (
-        last < n
-        and tokens[last] == "COME_FROM"
-        and tokens[first].offset > tokens[last].attr
-    ):
-        return True
+    # FIXME: There is weirdness in the grammar we need to work around.
+    # we need to clean up the grammar.
+    if self.version < 3.0:
+        last_token = ast[-1]
+    else:
+        last_token = tokens[last]
+    if last_token == "COME_FROM" and tokens[first].offset > last_token.attr:
+        if self.version < 3.0 and self.insts[self.offset2inst_index[last_token.attr]].opname != "SETUP_LOOP":
+            return True
 
     testexpr = ast[0]
 
@@ -111,10 +121,11 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
 
             # Make sure we don't jump at the end of the "then" inside the "else"
             # (jf_cf_pop may be a 2.6ish specific thing.)
-            jf_cf_pop = ast[2]
+            jump_forward = ast[2]
+            if jump_forward == "jf_cf_pop":
+                jump_forward = jump_forward[0]
 
-            if jf_cf_pop == "jf_cf_pop" and jf_cf_pop[0] == "JUMP_FORWARD":
-                jump_forward = jf_cf_pop[0]
+            if jump_forward == "JUMP_FORWARD":
                 endif_target = int(jump_forward.pattr)
                 last_offset = tokens[last].off2int()
                 if endif_target != last_offset:

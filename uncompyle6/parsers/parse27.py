@@ -6,6 +6,10 @@ from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from xdis import next_offset
 from uncompyle6.parser import PythonParserSingle, nop_func
 from uncompyle6.parsers.parse2 import Python2Parser
+from uncompyle6.parsers.reducecheck import (
+    ifelsestmt,
+    tryelsestmt,
+)
 
 class Python27Parser(Python2Parser):
 
@@ -176,7 +180,7 @@ class Python27Parser(Python2Parser):
 
         ifstmt            ::= testexpr return_stmts COME_FROM
         ifstmt            ::= testexpr return_if_stmts COME_FROM
-        ifelsestmt        ::= testexpr c_stmts_opt JUMP_FORWARD else_suite COME_FROM
+        ifelsestmt        ::= testexpr c_stmts_opt JUMP_FORWARD else_suite come_froms
         ifelsestmtc       ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
         ifelsestmtl       ::= testexpr c_stmts_opt JUMP_BACK else_suitel
         ifelsestmtl       ::= testexpr c_stmts_opt CONTINUE else_suitel
@@ -216,6 +220,14 @@ class Python27Parser(Python2Parser):
 
 
         super(Python27Parser, self).customize_grammar_rules(tokens, customize)
+
+        # FIXME: Put more in this table
+        self.reduce_check_table = {
+            "ifelsestmt": ifelsestmt,
+            "tryelsestmt": tryelsestmt,
+            "tryelsestmtl": tryelsestmt,
+        }
+
         self.check_reduce["and"] = "AST"
         self.check_reduce["conditional"] = "AST"
 
@@ -225,6 +237,7 @@ class Python27Parser(Python2Parser):
         # self.check_reduce["or"] = "AST"
         self.check_reduce["raise_stmt1"] = "AST"
         self.check_reduce["iflaststmtl"] = "AST"
+        self.check_reduce["ifelsestmt"] = "AST"
         self.check_reduce["list_if_not"] = "AST"
         self.check_reduce["list_if"] = "AST"
         self.check_reduce["comp_if"] = "AST"
@@ -238,6 +251,12 @@ class Python27Parser(Python2Parser):
                         self).reduce_is_invalid(rule, ast,
                                                 tokens, first, last)
 
+        lhs = rule[0]
+        n = len(tokens)
+        fn = self.reduce_check_table.get(lhs, None)
+        if fn:
+            invalid = fn(self, lhs, n, rule, ast, tokens, first, last)
+        last = min(last, n-1)
         if invalid:
             return invalid
 

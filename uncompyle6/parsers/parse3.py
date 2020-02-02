@@ -30,9 +30,10 @@ import re
 from uncompyle6.scanners.tok import Token
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.reducecheck import (
+    and_check,
     except_handler_else,
     ifstmt,
-    # iflaststmt,
+    iflaststmt,
     testtrue,
     tryelsestmtl3,
     tryexcept,
@@ -1530,13 +1531,29 @@ class Python3Parser(PythonParser):
                 pass
             pass
 
+        # FIXME: Put more in this table
+        self.reduce_check_table = {
+            "except_handler_else": except_handler_else,
+            # "ifstmt": ifstmt,
+            "testtrue": testtrue,
+            "tryelsestmtl3": tryelsestmtl3,
+            "try_except": tryexcept,
+        }
+
+        if self.version == 3.6:
+            self.reduce_check_table["and"] =  and_check
+            self.check_reduce["and"] = "AST"
+
         self.check_reduce["aug_assign1"] = "AST"
         self.check_reduce["aug_assign2"] = "AST"
         self.check_reduce["while1stmt"] = "noAST"
         self.check_reduce["while1elsestmt"] = "noAST"
         self.check_reduce["ifelsestmt"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
-        # self.check_reduce["iflaststmtl"] = "AST"
+        if self.version == 3.6:
+            self.reduce_check_table["iflaststmtl"] = iflaststmt
+            self.check_reduce["iflaststmt"] = "AST"
+            self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
         self.check_reduce["except_handler_else"] = "tokens"
         self.check_reduce["testtrue"] = "tokens"
@@ -1556,17 +1573,21 @@ class Python3Parser(PythonParser):
         lhs = rule[0]
         n = len(tokens)
         last = min(last, n-1)
+        fn = self.reduce_check_table.get(lhs, None)
+        if fn:
+            if fn(self, lhs, n, rule, ast, tokens, first, last):
+                return True
+            pass
+        # FIXME: put more in reduce_check_table
         if lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
             return True
         elif lhs == "annotate_tuple":
             return not isinstance(tokens[first].attr, tuple)
-        elif lhs in ("except_handler_else"):
-            return except_handler_else(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs == "kwarg":
             arg = tokens[first].attr
             return not (isinstance(arg, str) or isinstance(arg, unicode))
-        # elif lhs == "iflaststmtl":
-        #     return iflaststmt(self, lhs, n, rule, ast, tokens, first, last)
+        elif lhs in ("iflaststmt", "iflaststmtl") and self.version == 3.6:
+            return ifstmt(self, lhs, n, rule, ast, tokens, first, last)
         elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
             # FIXME: go over what's up with 3.0. Evetually I'd like to remove RETURN_END_IF
             if self.version <= 3.0 or tokens[last] == "RETURN_END_IF":
@@ -1606,10 +1627,6 @@ class Python3Parser(PythonParser):
                 <= jump_forward_else[0].attr
                 < tokens[last].off2int()
             )
-        elif lhs == "testtrue":
-            return testtrue(self, lhs, n, rule, ast, tokens, first, last)
-        elif lhs == "tryelsestmtl3":
-            return tryelsestmtl3(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs == "while1stmt":
 
             if while1stmt(self, lhs, n, rule, ast, tokens, first, last):
@@ -1658,8 +1675,6 @@ class Python3Parser(PythonParser):
                 return False
             # 3.8+ Doesn't have SETUP_LOOP
             return self.version < 3.8 and tokens[first].attr > tokens[last].offset
-        elif lhs == "try_except":
-            return tryexcept(self, lhs, n, rule, ast, tokens, first, last)
         elif rule == (
             "ifelsestmt",
             (

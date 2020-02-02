@@ -7,6 +7,8 @@ def tryelsestmt(self, lhs, n, rule, ast, tokens, first, last):
     # inside the except handler to the end. If that happens
     # then this is a "try" with no "else".
     except_handler = ast[3]
+    if except_handler == "except_handler_else":
+        except_handler = except_handler[0]
     if except_handler == "except_handler":
 
         come_from = except_handler[-1]
