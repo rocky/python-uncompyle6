@@ -884,7 +884,11 @@ class SourceWalker(GenericASTTraversal, object):
     def n_docstring(self, node):
 
         indent = self.indent
-        docstring = node[0].pattr
+        doc_node = node[0]
+        if doc_node.attr:
+            docstring = doc_node.attr
+        else:
+            docstring = node[0].pattr
 
         quote = '"""'
         if docstring.find(quote) >= 0:
