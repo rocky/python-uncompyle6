@@ -407,8 +407,13 @@ class TreeTransform(GenericASTTraversal, object):
                 pass
         except:
             pass
+
         try:
             for i in range(len(self.ast)):
+                sstmt = ast[i]
+                if len(sstmt) == 1 and sstmt == "sstmt":
+                    ast[i] = ast[i][0]
+
                 if is_docstring(self.ast[i]):
                     docstring_ast = SyntaxTree(
                         "docstring",
