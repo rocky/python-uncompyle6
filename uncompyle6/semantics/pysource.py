@@ -2236,8 +2236,10 @@ class SourceWalker(GenericASTTraversal, object):
         assert ast == "stmts"
         for i in range(len(ast)):
             # search for an assign-statement
-            assert ast[i] == "sstmt"
-            node = ast[i][0]
+            if ast[i] == "sstmt":
+                node = ast[i][0]
+            else:
+                node = ast[i]
             if node == "assign" and node[0] == ASSIGN_TUPLE_PARAM(name):
                 # okay, this assigns '.n' to something
                 del ast[i]
