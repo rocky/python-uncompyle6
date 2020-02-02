@@ -113,7 +113,7 @@ class TreeTransform(GenericASTTraversal, object):
 
         testexpr = node[0]
 
-        if testexpr != "testexpr":
+        if testexpr.kind != "testexpr":
             return node
 
         if node.kind in ("ifstmt", "ifstmtl"):
@@ -129,11 +129,10 @@ class TreeTransform(GenericASTTraversal, object):
             stmts = node[1]
 
         if stmts in ("c_stmts",) and len(stmts) == 1:
-            stmt = stmts[0]
-            raise_stmt = stmt[0]
+            raise_stmt = stmts[0]
             testtrue_or_false = testexpr[0]
             if (
-                raise_stmt == "raise_stmt1"
+                raise_stmt.kind == "raise_stmt1"
                 and 1 <= len(testtrue_or_false) <= 2
                 and raise_stmt.first_child().pattr == "AssertionError"
             ):
