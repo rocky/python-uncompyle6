@@ -57,3 +57,20 @@ assert test_frozen(1, 1) == 4.0
 assert test_frozen(0, 1) == 5.0
 assert test_frozen(0.5, 0) == 6.0
 assert test_frozen(0, 0.5) == 8.0
+
+# From 3.6.10 test_binop.py
+# Bug was getting "other += 3" outside of "if"/"else.
+def __floordiv__(a, b):
+    other = 0
+    if a:
+        other = 1
+    else:
+        if not b:
+            return 2
+    other += 3
+    return other
+
+assert __floordiv__(True, True) == 4
+assert __floordiv__(True, False) == 4
+assert __floordiv__(False, True) == 3
+assert __floordiv__(False, False) == 2

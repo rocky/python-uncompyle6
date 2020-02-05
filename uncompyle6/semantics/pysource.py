@@ -2236,8 +2236,10 @@ class SourceWalker(GenericASTTraversal, object):
         assert ast == "stmts"
         for i in range(len(ast)):
             # search for an assign-statement
-            assert ast[i] == "sstmt"
-            node = ast[i][0]
+            if ast[i] == "sstmt":
+                node = ast[i][0]
+            else:
+                node = ast[i]
             if node == "assign" and node[0] == ASSIGN_TUPLE_PARAM(name):
                 # okay, this assigns '.n' to something
                 del ast[i]
@@ -2308,16 +2310,17 @@ class SourceWalker(GenericASTTraversal, object):
                     ),
                 ],
             )
+            # FIXME: is this right now that we've redone the grammar?
             have_qualname = ast[0][0] == QUAL_NAME
         else:
             # Python 3.4+ has constants like 'cmp_to_key.<locals>.K'
             # which are not simple classes like the < 3 case.
             try:
                 if (
-                    first_stmt[0] == "assign"
-                    and first_stmt[0][0][0] == "LOAD_STR"
-                    and first_stmt[0][1] == "store"
-                    and first_stmt[0][1][0] == Token("STORE_NAME", pattr="__qualname__")
+                    first_stmt == "assign"
+                    and first_stmt[0][0] == "LOAD_STR"
+                    and first_stmt[1] == "store"
+                    and first_stmt[1][0] == Token("STORE_NAME", pattr="__qualname__")
                 ):
                     have_qualname = True
             except:

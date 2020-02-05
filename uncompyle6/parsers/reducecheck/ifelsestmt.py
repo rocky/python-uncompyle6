@@ -125,7 +125,9 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
             if jump_forward == "jf_cf_pop":
                 jump_forward = jump_forward[0]
 
+            jump_to_jump = False
             if jump_forward == "JUMP_FORWARD":
+                jump_to_jump = True
                 endif_target = int(jump_forward.pattr)
                 last_offset = tokens[last].off2int()
                 if endif_target != last_offset:
@@ -143,7 +145,7 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
             # if jmp_target < else_suite.first_child().off2int():
             #     return True
 
-            if tokens[first].off2int() > jmp_target:
+            if tokens[first].off2int() > jmp_target and not jump_to_jump:
                 return True
 
             return (jmp_target > tokens[last].off2int()) and tokens[
