@@ -35,7 +35,11 @@ SKIP_TESTS=(
     [test_urllib2net.py]=1 # is interactive?
     [test_urllibnet.py]=1 # it fails on its own
     [test_winreg.py]=1 # it fails on its own
-    [test_winsound.py[=1 # it fails on its own
+    [test_winsound.py]=1 # it fails on its own
     [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
     [test_zlib]=1  # fails on its own
 )
+
+if (( batch )) ; then
+    SKIP_TESTS[test_doctest.py]=1 # Fails on ppc64le
+fi
