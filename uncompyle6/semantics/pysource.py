@@ -2260,11 +2260,7 @@ class SourceWalker(GenericASTTraversal, object):
     def build_class(self, code):
         """Dump class definition, doc string and class body."""
 
-        try:
-            assert iscode(code)
-        except:
-            from trepan.api import debug; debug()
-
+        assert iscode(code)
         self.classes.append(self.currentclass)
         code = Code(code, self.scanner, self.currentclass)
 
@@ -2274,11 +2270,14 @@ class SourceWalker(GenericASTTraversal, object):
         code._tokens = None  # save memory
         assert ast == "stmts"
 
+        if ast[0] == "sstmt":
+            ast[0] = ast[0][0]
+        first_stmt = ast[0]
+
         if ast[0] == "docstring":
             self.println(self.traverse(ast[0]))
             del ast[0]
 
-        first_stmt = ast[0]
         if 3.0 <= self.version <= 3.3:
             try:
                 if first_stmt == "store_locals":
@@ -2298,6 +2297,10 @@ class SourceWalker(GenericASTTraversal, object):
             pass
 
         have_qualname = False
+        if ast[0] == "sstmt":
+            ast[0] = ast[0][0]
+        first_stmt = ast[0]
+
         if self.version < 3.0:
             # Should we ditch this in favor of the "else" case?
             qualname = ".".join(self.classes)
@@ -2311,7 +2314,7 @@ class SourceWalker(GenericASTTraversal, object):
                 ],
             )
             # FIXME: is this right now that we've redone the grammar?
-            have_qualname = ast[0][0] == QUAL_NAME
+            have_qualname = ast[0] == QUAL_NAME
         else:
             # Python 3.4+ has constants like 'cmp_to_key.<locals>.K'
             # which are not simple classes like the < 3 case.
