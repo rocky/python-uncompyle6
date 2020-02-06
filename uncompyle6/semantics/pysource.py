@@ -2297,9 +2297,10 @@ class SourceWalker(GenericASTTraversal, object):
             pass
 
         have_qualname = False
-        if ast[0] == "sstmt":
-            ast[0] = ast[0][0]
-        first_stmt = ast[0]
+        if len(ast[0]):
+            if ast[0] == "sstmt":
+                ast[0] = ast[0][0]
+            first_stmt = ast[0]
 
         if self.version < 3.0:
             # Should we ditch this in favor of the "else" case?
