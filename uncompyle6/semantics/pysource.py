@@ -2297,7 +2297,7 @@ class SourceWalker(GenericASTTraversal, object):
             pass
 
         have_qualname = False
-        if len(ast[0]):
+        if len(ast):
             if ast[0] == "sstmt":
                 ast[0] = ast[0][0]
             first_stmt = ast[0]
