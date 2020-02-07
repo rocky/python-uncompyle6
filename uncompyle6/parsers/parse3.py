@@ -32,6 +32,7 @@ from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.reducecheck import (
     and_check,
     except_handler_else,
+    ifelsestmt,
     ifstmt,
     iflaststmt,
     testtrue,
@@ -1531,6 +1532,7 @@ class Python3Parser(PythonParser):
         self.reduce_check_table = {
             "except_handler_else": except_handler_else,
             # "ifstmt": ifstmt,
+            "ifelsestmtc": ifstmt,
             "testtrue": testtrue,
             "tryelsestmtl3": tryelsestmtl3,
             "try_except": tryexcept,
@@ -1545,6 +1547,7 @@ class Python3Parser(PythonParser):
         self.check_reduce["while1stmt"] = "noAST"
         self.check_reduce["while1elsestmt"] = "noAST"
         self.check_reduce["ifelsestmt"] = "AST"
+        self.check_reduce["ifelsestmtc"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
         if self.version == 3.6:
             self.reduce_check_table["iflaststmtl"] = iflaststmt
