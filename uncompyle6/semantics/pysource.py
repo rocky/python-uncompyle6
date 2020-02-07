@@ -2354,7 +2354,9 @@ class SourceWalker(GenericASTTraversal, object):
                     self.println()
                     del ast[i]
 
-        # The function defining a class normally returns locals().
+        # The function defining a class returns locals() in Python somewhere less than
+        # 3.7.
+        #
         # We don't want this to show up in the source, so remove the node.
         if len(ast):
             if ast == "stmts" and ast[-1] == "sstmt":
@@ -2372,10 +2374,11 @@ class SourceWalker(GenericASTTraversal, object):
             # else:
             #    print stmt[-1]
 
+
+        # Add "global" declaration statements at the top
         globals, nonlocals = find_globals_and_nonlocals(
             ast, set(), set(), code, self.version
         )
-        # Add "global" declaration statements at the top
         # of the function
         for g in sorted(globals):
             self.println(indent, "global ", g)
