@@ -2356,18 +2356,21 @@ class SourceWalker(GenericASTTraversal, object):
 
         # The function defining a class normally returns locals().
         # We don't want this to show up in the source, so remove the node.
-        if ast == "stmts" and ast[-1] == "sstmt":
-            return_locals_parent = ast[-1]
-            parent_index = 0
-        else:
-            return_locals_parent = ast
-            parent_index = -1
-        return_locals = return_locals_parent[parent_index]
-        if return_locals == RETURN_LOCALS:
-            if self.hide_internal:
-                del return_locals_parent[parent_index]
-        # else:
-        #    print stmt[-1]
+        if len(ast):
+            if ast == "stmts" and ast[-1] == "sstmt":
+                return_locals_parent = ast[-1]
+                parent_index = 0
+            else:
+                return_locals_parent = ast
+                parent_index = -1
+            return_locals = return_locals_parent[parent_index]
+            if return_locals == RETURN_LOCALS:
+                if self.hide_internal:
+                    del return_locals_parent[parent_index]
+                    pass
+                pass
+            # else:
+            #    print stmt[-1]
 
         globals, nonlocals = find_globals_and_nonlocals(
             ast, set(), set(), code, self.version
