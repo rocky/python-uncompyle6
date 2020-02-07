@@ -193,7 +193,7 @@ class Python37Parser(Python37BaseParser):
         ret_expr  ::= ret_or
 
         ret_expr_or_cond ::= ret_expr
-        ret_expr_or_cond ::= ret_cond
+        ret_expr_or_cond ::= if_exp_ret
 
         stmt ::= return_lambda
 
@@ -921,9 +921,9 @@ class Python37Parser(Python37BaseParser):
         jmp_true  ::= POP_JUMP_IF_TRUE
 
         # FIXME: Common with 2.7
-        ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
-        ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
-        ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
+        ret_and    ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
+        ret_or     ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
+        if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
         jitop_come_from ::= JUMP_IF_TRUE_OR_POP come_froms
         jifop_come_from ::= JUMP_IF_FALSE_OR_POP come_froms

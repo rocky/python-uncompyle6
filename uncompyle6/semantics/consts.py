@@ -61,7 +61,7 @@ PRECEDENCE = {
     'if_exp_not_lamdba':      28, # Lambda expression
     'if_exp_not':             28,
     'if_exp_true':            28,
-    'ret_cond':               28,
+    'if_exp_ret':             28,
 
     'or':                     26, # Boolean OR
     'ret_or':                 26,
@@ -313,7 +313,7 @@ TABLE_DIRECT = {
     'if_exp_lambda':    ( '%p if %c else %c',
                           (2, 'expr', 27), (0, 'expr'), 4 ),
     'if_exp_true':      ( '%p if 1 else %c', (0, 'expr', 27), 2 ),
-    'ret_cond':         ( '%p if %p else %p', (2, 27), (0, 27), (-1, 27) ),
+    'if_exp_ret':       ( '%p if %p else %p', (2, 27), (0, 27), (-1, 27) ),
     'if_exp_not':       ( '%p if not %p else %p',
                           (2, 27),
                           (0, "expr", PRECEDENCE['unary_not']),
