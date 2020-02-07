@@ -159,12 +159,11 @@ class Python37BaseParser(PythonParser):
               stmt ::= assign2_pypy
               assign3_pypy       ::= expr expr expr store store store
               assign2_pypy       ::= expr expr store store
-              stmt               ::= if_expr_lambda
-              stmt               ::= conditional_not_lambda
-              if_expr_lambda     ::= expr jmp_false expr return_if_lambda
+              stmt               ::= if_exp_lambda
+              stmt               ::= if_exp_not_lambda
+              if_exp_lambda      ::= expr jmp_false expr return_if_lambda
                                      return_lambda LAMBDA_MARKER
-              conditional_not_lambda
-                                 ::= expr jmp_true expr return_if_lambda
+              if_exp_not_lambda  ::= expr jmp_true expr return_if_lambda
                                      return_lambda LAMBDA_MARKER
               """,
                 nop_func,

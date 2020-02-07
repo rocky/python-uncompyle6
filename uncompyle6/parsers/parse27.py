@@ -97,9 +97,9 @@ class Python27Parser(Python2Parser):
         jmp_false ::= POP_JUMP_IF_FALSE
         jmp_true  ::= POP_JUMP_IF_TRUE
 
-        ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
-        ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
-        ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
+        ret_and    ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
+        ret_or     ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
+        if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
         or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
@@ -116,17 +116,17 @@ class Python27Parser(Python2Parser):
         compare_chained2 ::= expr COMPARE_OP return_lambda
         compare_chained2 ::= expr COMPARE_OP return_lambda
 
-        # if_expr_true are for conditions which always evaluate true
+        # if_exp_true are for conditions which always evaluate true
         # There is dead or non-optional remnants of the condition code though,
         # and we use that to match on to reconstruct the source more accurately.
         # FIXME: we should do analysis and reduce *only* if there is dead code?
         #        right now we check that expr is "or". Any other nodes types?
 
-        expr             ::= if_expr_true
-        if_expr_true     ::= expr JUMP_FORWARD expr COME_FROM
+        expr             ::= if_exp_true
+        if_exp_true      ::= expr JUMP_FORWARD expr COME_FROM
 
-        conditional      ::= expr jmp_false expr JUMP_FORWARD expr COME_FROM
-        conditional      ::= expr jmp_false expr JUMP_ABSOLUTE expr
+        if_exp           ::= expr jmp_false expr JUMP_FORWARD expr COME_FROM
+        if_exp           ::= expr jmp_false expr JUMP_ABSOLUTE expr
         """
 
     def p_stmt27(self, args):
@@ -190,16 +190,15 @@ class Python27Parser(Python2Parser):
 
         # Common with 2.6
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
-        stmt               ::= if_expr_lambda
-        stmt               ::= conditional_not_lambda
-        if_expr_lambda     ::= expr jmp_false expr return_if_lambda
+        stmt               ::= if_exp_lambda
+        stmt               ::= if_exp_not_lambda
+        if_exp_lambda      ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
-        conditional_not_lambda
-                           ::= expr jmp_true expr return_if_lambda
+        if_exp_not_lambda  ::= expr jmp_true expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
 
-        expr ::= conditional_not
-        conditional_not ::= expr jmp_true expr _jump expr COME_FROM
+        expr               ::= if_exp_not
+        if_exp_not         ::= expr jmp_true expr _jump expr COME_FROM
 
         kv3 ::= expr expr STORE_MAP
         """
@@ -229,7 +228,7 @@ class Python27Parser(Python2Parser):
         }
 
         self.check_reduce["and"] = "AST"
-        self.check_reduce["conditional"] = "AST"
+        self.check_reduce["if_exp"] = "AST"
 
         self.check_reduce["except_handler"] = "tokens"
         self.check_reduce["except_handler_else"] = "tokens"
@@ -241,7 +240,7 @@ class Python27Parser(Python2Parser):
         self.check_reduce["list_if_not"] = "AST"
         self.check_reduce["list_if"] = "AST"
         self.check_reduce["comp_if"] = "AST"
-        self.check_reduce["if_expr_true"] = "tokens"
+        self.check_reduce["if_exp_true"] = "tokens"
         self.check_reduce["whilestmt"] = "tokens"
 
         return
@@ -266,7 +265,7 @@ class Python27Parser(Python2Parser):
                 return tokens[first].offset < jmp_false[0].attr < tokens[last].offset
             pass
         elif (rule[0], rule[1][0:5]) == (
-                "conditional",
+                "if_exp",
                 ("expr", "jmp_false", "expr", "JUMP_ABSOLUTE", "expr")):
             jmp_false = ast[1]
             if jmp_false[0] == "POP_JUMP_IF_FALSE":
@@ -336,7 +335,7 @@ class Python27Parser(Python2Parser):
             while (tokens[i] != "JUMP_BACK"):
                 i -= 1
             return tokens[i].attr != tokens[i-1].attr
-        elif rule[0] == "if_expr_true":
+        elif rule[0] == "if_exp_true":
             return (first) > 0 and tokens[first-1] == "POP_JUMP_IF_FALSE"
 
         return False

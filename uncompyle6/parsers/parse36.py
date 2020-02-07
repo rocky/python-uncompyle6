@@ -65,7 +65,7 @@ class Python36Parser(Python35Parser):
         jf_cf       ::= JUMP_FORWARD COME_FROM
         cf_jf_else  ::= come_froms JUMP_FORWARD ELSE
 
-        conditional ::= expr jmp_false expr jf_cf expr COME_FROM
+        if_exp ::= expr jmp_false expr jf_cf expr COME_FROM
 
         async_for_stmt     ::= SETUP_LOOP expr
                                GET_AITER
@@ -158,8 +158,8 @@ class Python36Parser(Python35Parser):
     # that and then we can remove this.
     def p_37conditionals(self, args):
         """
-        expr                       ::= conditional37
-        conditional37              ::= expr expr jf_cfs expr COME_FROM
+        expr                       ::= if_exp37
+        if_exp37                   ::= expr expr jf_cfs expr COME_FROM
         jf_cfs                     ::= JUMP_FORWARD _come_froms
         ifelsestmt                 ::= testexpr c_stmts_opt jf_cfs else_suite opt_come_from_except
         """

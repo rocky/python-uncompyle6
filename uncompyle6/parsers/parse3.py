@@ -332,9 +332,9 @@ class Python3Parser(PythonParser):
         jmp_true  ::= POP_JUMP_IF_TRUE
 
         # FIXME: Common with 2.7
-        ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
-        ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
-        ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
+        ret_and    ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
+        ret_or     ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
+        if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
         or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         or   ::= expr jmp_true expr
@@ -349,13 +349,12 @@ class Python3Parser(PythonParser):
 
     def p_stmt3(self, args):
         """
-        stmt               ::= if_expr_lambda
+        stmt               ::= if_exp_lambda
 
-        stmt               ::= conditional_not_lambda
-        if_expr_lambda     ::= expr jmp_false expr return_if_lambda
+        stmt               ::= if_exp_not_lambda
+        if_exp_lambda      ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
-        conditional_not_lambda
-                           ::= expr jmp_true expr return_if_lambda
+        if_exp_not_lambda  ::= expr jmp_true expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
 
         return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
@@ -469,18 +468,18 @@ class Python3Parser(PythonParser):
     def p_expr3(self, args):
         """
         expr           ::= LOAD_STR
-        expr           ::= conditionalnot
-        conditionalnot ::= expr jmp_true  expr jump_forward_else expr COME_FROM
+        expr           ::= if_exp_not
+        if_exp_not     ::= expr jmp_true  expr jump_forward_else expr COME_FROM
 
         # a JUMP_FORWARD to another JUMP_FORWARD can get turned into
         # a JUMP_ABSOLUTE with no COME_FROM
-        conditional    ::= expr jmp_false expr jump_absolute_else expr
+        if_exp         ::= expr jmp_false expr jump_absolute_else expr
 
-        # if_expr_true are for conditions which always evaluate true
+        # if_exp_true are for conditions which always evaluate true
         # There is dead or non-optional remnants of the condition code though,
         # and we use that to match on to reconstruct the source more accurately
-        expr           ::= if_expr_true
-        if_expr_true   ::= expr JUMP_FORWARD expr COME_FROM
+        expr           ::= if_exp_true
+        if_exp_true    ::= expr JUMP_FORWARD expr COME_FROM
         """
 
     @staticmethod
@@ -705,12 +704,11 @@ class Python3Parser(PythonParser):
               stmt ::= assign2_pypy
               assign3_pypy       ::= expr expr expr store store store
               assign2_pypy       ::= expr expr store store
-              stmt               ::= if_expr_lambda
-              stmt               ::= conditional_not_lambda
+              stmt               ::= if_exp_lambda
+              stmt               ::= if_exp_not_lambda
               if_expr_lambda     ::= expr jmp_false expr return_if_lambda
                                      return_lambda LAMBDA_MARKER
-              conditional_not_lambda
-                                 ::= expr jmp_true expr return_if_lambda
+              if_exp_not_lambda  ::= expr jmp_true expr return_if_lambda
                                      return_lambda LAMBDA_MARKER
               """,
                 nop_func,

@@ -263,9 +263,9 @@ class Python30Parser(Python31Parser):
                              compare_chained2 COME_FROM
         ret_or           ::= expr JUMP_IF_TRUE_OR_POP  ret_expr_or_cond COME_FROM
         ret_and          ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
-        ret_cond         ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF
+        if_exp_ret       ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF
                              COME_FROM ret_expr_or_cond
-        ret_expr_or_cond ::= ret_cond
+        ret_expr_or_cond ::= if_exp_ret
         or               ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         and              ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         and              ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
