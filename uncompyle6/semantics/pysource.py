@@ -2346,6 +2346,7 @@ class SourceWalker(GenericASTTraversal, object):
                 do_doc = True
             if do_doc and self.hide_internal:
                 try:
+                    # FIXME: Is there an extra [0]?
                     docstring = ast[i][0][0][0][0].pattr
                 except:
                     docstring = code.co_consts[0]
@@ -2353,13 +2354,20 @@ class SourceWalker(GenericASTTraversal, object):
                     self.println()
                     del ast[i]
 
-        # the function defining a class normally returns locals(); we
-        # don't want this to show up in the source, thus remove the node
-        if len(ast) > 0 and ast[-1][0] == RETURN_LOCALS:
+        # The function defining a class normally returns locals().
+        # We don't want this to show up in the source, so remove the node.
+        if ast == "stmts" and ast[-1] == "sstmt":
+            return_locals_parent = ast[-1]
+            parent_index = 0
+        else:
+            return_locals_parent = ast
+            parent_index = -1
+        return_locals = return_locals_parent[parent_index]
+        if return_locals == RETURN_LOCALS:
             if self.hide_internal:
-                del ast[-1]  # remove last node
+                del return_locals_parent[parent_index]
         # else:
-        #    print ast[-1][-1]
+        #    print stmt[-1]
 
         globals, nonlocals = find_globals_and_nonlocals(
             ast, set(), set(), code, self.version
@@ -2375,8 +2383,11 @@ class SourceWalker(GenericASTTraversal, object):
         old_name = self.name
         self.gen_source(ast, code.co_name, code._customize)
         self.name = old_name
+
+        # save memory by deleting no-longer-used structures
         code._tokens = None
-        code._customize = None  # save memory
+        code._customize = None
+
         self.classes.pop(-1)
 
     def gen_source(self, ast, name, customize, is_lambda=False, returnNone=False):
