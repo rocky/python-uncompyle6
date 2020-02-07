@@ -283,11 +283,11 @@ class Python26Parser(Python2Parser):
         kvlist ::= kvlist kv3
 
         # Note: preserve positions 0 2 and 4 for semantic actions
-        conditional_not    ::= expr jmp_true  expr jf_cf_pop expr COME_FROM
-        conditional        ::= expr jmp_false expr jf_cf_pop expr come_from_opt
-        conditional        ::= expr jmp_false expr ja_cf_pop expr
+        if_exp_not         ::= expr jmp_true  expr jf_cf_pop expr COME_FROM
+        if_exp             ::= expr jmp_false expr jf_cf_pop expr come_from_opt
+        if_exp             ::= expr jmp_false expr ja_cf_pop expr
 
-        expr               ::= conditional_not
+        expr               ::= if_exp_not
 
         and                ::= expr JUMP_IF_FALSE POP_TOP expr JUMP_IF_FALSE POP_TOP
 
@@ -311,27 +311,27 @@ class Python26Parser(Python2Parser):
         compare_chained2   ::= expr COMPARE_OP return_lambda
 
         return_if_lambda   ::= RETURN_END_IF_LAMBDA POP_TOP
-        stmt               ::= if_expr_lambda
-        stmt               ::= conditional_not_lambda
-        if_expr_lambda     ::= expr jmp_false_then expr return_if_lambda
+        stmt               ::= if_exp_lambda
+        stmt               ::= if_exp_not_lambda
+        if_exp_lambda      ::= expr jmp_false_then expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
-        conditional_not_lambda ::=
+        if_exp_not_lambda ::=
                                expr jmp_true_then expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
 
-        # if_expr_true are for conditions which always evaluate true
+        # if_exp_true are for conditions which always evaluate true
         # There is dead or non-optional remnants of the condition code though,
         # and we use that to match on to reconstruct the source more accurately
-        expr               ::= if_expr_true
-        if_expr_true       ::= expr jf_pop expr COME_FROM
+        expr               ::= if_exp_true
+        if_exp_true        ::= expr jf_pop expr COME_FROM
 
         # This comes from
         #   0 or max(5, 3) if 0 else 3
         # where there seems to be an additional COME_FROM at the
         # end. Not sure if this is appropriately named or
         # is the best way to handle
-        expr               ::= conditional_false
-        conditional_false  ::= conditional COME_FROM
+        expr               ::= if_exp_false
+        if_exp_false  ::= if_exp COME_FROM
 
         """
 
@@ -366,10 +366,10 @@ class Python26Parser(Python2Parser):
             if ast[1] is None:
                 return False
 
-            # For now, we won't let the 2nd 'expr' be a "conditional_not"
+            # For now, we won't let the 2nd 'expr' be a "if_exp_not"
             # However in < 2.6 where we don't have if/else expression it *can*
             # be.
-            if self.version >= 2.6 and ast[2][0] == 'conditional_not':
+            if self.version >= 2.6 and ast[2][0] == "if_exp_not":
                 return True
 
             test_index = last

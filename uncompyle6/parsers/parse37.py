@@ -186,11 +186,11 @@ class Python37Parser(Python37BaseParser):
 
         _mklambda ::= mklambda
 
-        expr ::= conditional
+        expr      ::= if_exp
 
-        ret_expr ::= expr
-        ret_expr ::= ret_and
-        ret_expr ::= ret_or
+        ret_expr  ::= expr
+        ret_expr  ::= ret_and
+        ret_expr  ::= ret_or
 
         ret_expr_or_cond ::= ret_expr
         ret_expr_or_cond ::= ret_cond
@@ -406,7 +406,7 @@ class Python37Parser(Python37BaseParser):
 
     def p_32on(self, args):
         """
-        conditional::= expr jmp_false expr jump_forward_else expr COME_FROM
+        if_exp::= expr jmp_false expr jump_forward_else expr COME_FROM
 
         # compare_chained2 is used in a "chained_compare": x <= y <= z
         # used exclusively in compare_chained
@@ -631,8 +631,8 @@ class Python37Parser(Python37BaseParser):
 
     def p_37conditionals(self, args):
         """
-        expr                       ::= conditional37
-        conditional37              ::= expr expr jf_cfs expr COME_FROM
+        expr                       ::= if_exp37
+        if_exp37              ::= expr expr jf_cfs expr COME_FROM
         jf_cfs                     ::= JUMP_FORWARD _come_froms
         ifelsestmt                 ::= testexpr c_stmts_opt jf_cfs else_suite opt_come_from_except
 
@@ -713,18 +713,18 @@ class Python37Parser(Python37BaseParser):
 
     def p_expr3(self, args):
         """
-        expr           ::= conditionalnot
-        conditionalnot ::= expr jmp_true  expr jump_forward_else expr COME_FROM
+        expr           ::= if_exp_not
+        if_exp_not     ::= expr jmp_true  expr jump_forward_else expr COME_FROM
 
         # a JUMP_FORWARD to another JUMP_FORWARD can get turned into
         # a JUMP_ABSOLUTE with no COME_FROM
-        conditional    ::= expr jmp_false expr jump_absolute_else expr
+        if_exp         ::= expr jmp_false expr jump_absolute_else expr
 
-        # if_expr_true are for conditions which always evaluate true
+        # if_exp_true are for conditions which always evaluate true
         # There is dead or non-optional remnants of the condition code though,
         # and we use that to match on to reconstruct the source more accurately
-        expr           ::= if_expr_true
-        if_expr_true   ::= expr JUMP_FORWARD expr COME_FROM
+        expr           ::= if_exp_true
+        if_exp_true    ::= expr JUMP_FORWARD expr COME_FROM
         """
 
     def p_generator_exp3(self, args):
@@ -967,15 +967,15 @@ class Python37Parser(Python37BaseParser):
 
     def p_stmt3(self, args):
         """
-        stmt               ::= if_expr_lambda
-        stmt               ::= conditional_not_lambda
+        stmt               ::= if_exp_lambda
+        stmt               ::= if_exp_not_lambda
 
         # If statement inside a loop:
         stmt               ::= ifstmtl
 
-        if_expr_lambda     ::= expr jmp_false expr return_if_lambda
+        if_exp_lambda      ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
-        conditional_not_lambda
+        if_exp_not_lambda
                            ::= expr jmp_true expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
 
@@ -1092,7 +1092,7 @@ class Python37Parser(Python37BaseParser):
         jf_cf       ::= JUMP_FORWARD COME_FROM
         cf_jf_else  ::= come_froms JUMP_FORWARD ELSE
 
-        conditional ::= expr jmp_false expr jf_cf expr COME_FROM
+        if_exp ::= expr jmp_false expr jf_cf expr COME_FROM
 
         async_for_stmt     ::= setup_loop expr
                                GET_AITER

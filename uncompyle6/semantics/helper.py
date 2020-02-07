@@ -51,7 +51,7 @@ def find_all_globals(node, globs):
 #         # print("XXX", n.kind, global_ops)
 #         if isinstance(n, SyntaxTree):
 #             # FIXME: do I need a caser for n.kind="mkfunc"?
-#             if n.kind in ("if_expr_lambda", "return_lambda"):
+#             if n.kind in ("if_exp_lambda", "return_lambda"):
 #                 globs = find_globals(n, globs, mklambda_globals)
 #             else:
 #                 globs = find_globals(n, globs, global_ops)

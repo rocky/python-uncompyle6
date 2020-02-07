@@ -36,7 +36,7 @@ def customize_for_version3(self, version):
     TABLE_DIRECT.update(
         {
             "comp_for": (" for %c in %c", (2, "store"), (0, "expr")),
-            "conditionalnot": (
+            "if_exp_not": (
                 "%c if not %c else %c",
                 (2, "expr"),
                 (0, "expr"),

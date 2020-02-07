@@ -58,7 +58,7 @@ class Python24Parser(Python25Parser):
 
     def remove_rules_24(self):
         self.remove_rules("""
-        expr ::= conditional
+        expr ::= if_exp
         """)
 
 
