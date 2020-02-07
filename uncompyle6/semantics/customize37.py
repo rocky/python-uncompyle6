@@ -55,14 +55,8 @@ def customize_for_version37(self, version):
                 (1, "expr"),
                 (17, "for_block"),
             ),
-            "async_for_stmt36": (
-                "%|async for %c in %c:\n%+%c%-%-\n\n",
-                (9, "store"),
-                (1, "expr"),
-                (18, "for_block"),
-            ),
             "async_for_stmt37": (
-                "%|async for %c in %c:\n%+%c%-%-\n\n",
+                "%|async for %c in %c:\n%+%c%-\n\n",
                 (7, "store"),
                 (1, "expr"),
                 (16, "for_block"),
