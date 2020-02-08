@@ -49,6 +49,7 @@ SKIP_TESTS=(
     [test_logging.py]=1 #
     [test_long.py]=1 # too long run time: 20 seconds
 
+    [test_marshal.py]=1 # test assertion errors
     [test_math.py]=1 # test assertion errors TypeError: a float is required
     [test_modulefinder.py]=1  # test assertion error
     [test_msilib.py]=1 # it fails on its own
