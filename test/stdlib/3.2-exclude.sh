@@ -1,14 +1,5 @@
 SKIP_TESTS=(
-    [test_decorators.py]=1 # FIXME: Works on c90ff51
-    [test_optparse.py]=1 # FIXME: Works on c90ff51
-    [test_os.py]=1 # FIXME: Works on c90ff51
-    [test_pyclbr.py]=1 # FIXME: Works on c90ff51
-    [test_strftime.py]=1 # FIXME: Works on c90ff51
-
-    [test_binop.py]=1 # FIXME: Works on c90ff51?
-    [test_cgi.py]=1 # FIXME: Works on c90ff51?
     [test_descr.py]=1 # FIXME: Works on c90ff51?
-    [test_doctest2.py]=1 # FIXME: Works on c90ff51?
 
     [test_cmd_line.py]=1
     [test_collections.py]=1

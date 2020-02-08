@@ -1,21 +1,4 @@
 SKIP_TESTS=(
-    [test_buffer.py]=1 # FIXME: Works on c90ff51
-    [test_decorators.py]=1 # FIXME: Works on c90ff51
-    [test_faulthandler.py]=1 # FIXME: too long to run 20 seconds. Works on c90ff51
-    [test_ftplib.py]=1 # Works on c90ff51
-    [test_marshal.py]=1 # FIXME: Works on c90ff51
-    [test_optparse.py]=1 # FIXME: Works on c90ff51
-    [test_os.py]=1 # FIXME: Works on c90ff51
-    [test_platform.py]=1 # FIXME: Works on c90ff51
-    [test_poplib.py]=1 # FIXME: Works on c90ff51
-    [test_pyclbr.py]=1 # FIXME: Works on c90ff51
-    [test_smtplib.py]=1 # FIXME: Works on c90ff51
-    [test_strftime.py]=1 # FIXME: Works on c90ff51
-    [test_shutil.py]=1 # FIXME: Works on c90ff51
-    [test_sysconfig.py]=1 # FIXME: Works on c90ff51
-    [test_tempfile.py]=1 # FIXME: Works on c90ff51
-    [test_uu.py]=1 # FIXME: Works on c90ff51
-
     [test___all__.py]=1 # it fails on its own
     [test_aifc.py]=1  #
     [test_asdl_parser.py]=1 # it fails on its own
