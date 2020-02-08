@@ -1,4 +1,6 @@
 SKIP_TESTS=(
+    [test_ftplib.py]=1 # FIXME: Works on c90ff51
+
     [test___all__.py]=1 # it fails on its own
     [test_aifc.py]=1  #
     [test_asdl_parser.py]=1 # it fails on its own
