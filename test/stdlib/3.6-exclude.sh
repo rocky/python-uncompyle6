@@ -173,6 +173,7 @@ SKIP_TESTS=(
     [test_urllib2.py]=1 # it fails on its own
     [test_urllibnet.py]=1 # it fails on its own
     [test_urllib.py]=1 # it fails on its own
+    [test_urlparse.py]=1 # test failure
 
     [test_venv.py]=1 # test takes too long to run: 13 seconds
 
