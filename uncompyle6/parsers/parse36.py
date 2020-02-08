@@ -114,7 +114,7 @@ class Python36Parser(Python35Parser):
 
         jb_cfs      ::= JUMP_BACK come_froms
 
-        # If statement inside a loop? FIXME: NO not always - fix this up.
+        # If statement inside a loop.
         stmt                ::= ifstmtl
         ifstmtl            ::= testexpr _ifstmts_jumpl
         _ifstmts_jumpl     ::= c_stmts JUMP_BACK

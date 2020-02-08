@@ -87,6 +87,12 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
     if rule not in IFELSE_STMT_RULES:
         return False
 
+    # Avoid if/else where the "then" is a "raise_stmt1". Parse this
+    # as an "assert" instead.
+    stmts = ast[1]
+    if stmts in ("c_stmts",) and len(stmts) == 1 and stmts[0] == "raise_stmt1":
+        return True
+
     # Make sure all of the "come froms" offset at the
     # end of the "if" come from somewhere inside the "if".
     # Since the come_froms are ordered so that lowest

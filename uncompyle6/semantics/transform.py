@@ -121,14 +121,14 @@ class TreeTransform(GenericASTTraversal, object):
 
             if ifstmts_jump == "_ifstmts_jumpl" and ifstmts_jump[0] == "_ifstmts_jump":
                 ifstmts_jump = ifstmts_jump[0]
-            elif ifstmts_jump not in ("_ifstmts_jump", "ifstmts_jumpl"):
+            elif ifstmts_jump not in ("_ifstmts_jump", "_ifstmts_jumpl", "ifstmts_jumpl"):
                 return node
             stmts = ifstmts_jump[0]
         else:
             # iflaststmtl works this way
             stmts = node[1]
 
-        if stmts in ("c_stmts", "stmts") and len(stmts) == 1:
+        if stmts in ("c_stmts", "stmts", "stmts_opt") and len(stmts) == 1:
             raise_stmt = stmts[0]
             if raise_stmt != "raise_stmt1":
                 raise_stmt = raise_stmt[0]

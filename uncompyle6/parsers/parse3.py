@@ -35,6 +35,7 @@ from uncompyle6.parsers.reducecheck import (
     ifelsestmt,
     ifstmt,
     iflaststmt,
+    or_check,
     testtrue,
     tryelsestmtl3,
     tryexcept,
@@ -1532,7 +1533,10 @@ class Python3Parser(PythonParser):
         self.reduce_check_table = {
             "except_handler_else": except_handler_else,
             # "ifstmt": ifstmt,
+            "ifstmtl": ifstmt,
             "ifelsestmtc": ifstmt,
+            "ifelsestmt": ifelsestmt,
+            "or": or_check,
             "testtrue": testtrue,
             "tryelsestmtl3": tryelsestmtl3,
             "try_except": tryexcept,
@@ -1542,19 +1546,19 @@ class Python3Parser(PythonParser):
             self.reduce_check_table["and"] =  and_check
             self.check_reduce["and"] = "AST"
 
+        self.check_reduce["annotate_tuple"] = "noAST"
         self.check_reduce["aug_assign1"] = "AST"
         self.check_reduce["aug_assign2"] = "AST"
-        self.check_reduce["while1stmt"] = "noAST"
-        self.check_reduce["while1elsestmt"] = "noAST"
+        self.check_reduce["except_handler_else"] = "tokens"
         self.check_reduce["ifelsestmt"] = "AST"
         self.check_reduce["ifelsestmtc"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
+        self.check_reduce["ifstmtl"] = "AST"
         if self.version == 3.6:
             self.reduce_check_table["iflaststmtl"] = iflaststmt
             self.check_reduce["iflaststmt"] = "AST"
             self.check_reduce["iflaststmtl"] = "AST"
-        self.check_reduce["annotate_tuple"] = "noAST"
-        self.check_reduce["except_handler_else"] = "tokens"
+        self.check_reduce["or"] = "AST"
         self.check_reduce["testtrue"] = "tokens"
         if not PYTHON3:
             self.check_reduce["kwarg"] = "noAST"
@@ -1564,8 +1568,8 @@ class Python3Parser(PythonParser):
             self.check_reduce["try_except"] = "AST"
 
         self.check_reduce["tryelsestmtl3"] = "AST"
-        # FIXME: remove parser errors caused by the below
-        # self.check_reduce['while1elsestmt'] = 'noAST'
+        self.check_reduce["while1stmt"] = "noAST"
+        self.check_reduce["while1elsestmt"] = "noAST"
         return
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
