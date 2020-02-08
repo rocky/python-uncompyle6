@@ -87,11 +87,16 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
     if rule not in IFELSE_STMT_RULES:
         return False
 
-    # Avoid if/else where the "then" is a "raise_stmt1". Parse this
-    # as an "assert" instead.
+    # Avoid if/else where the "then" is a "raise_stmt1" for an
+    # assert statemetn. Parse this as an "assert" instead.
     stmts = ast[1]
-    if stmts in ("c_stmts",) and len(stmts) == 1 and stmts[0] == "raise_stmt1":
-        return True
+    if stmts in ("c_stmts",) and len(stmts) == 1:
+        raise_stmt1 = stmts[0]
+        if (
+                raise_stmt1 == "raise_stmt1" and
+                raise_stmt1[0] in ("LOAD_ASSERT",)
+        ):
+            return True
 
     # Make sure all of the "come froms" offset at the
     # end of the "if" come from somewhere inside the "if".
