@@ -1532,7 +1532,7 @@ class Python3Parser(PythonParser):
         # FIXME: Put more in this table
         self.reduce_check_table = {
             "except_handler_else": except_handler_else,
-            "ifstmt": ifstmt,
+            # "ifstmt": ifstmt,
             "ifstmtl": ifstmt,
             "ifelsestmtc": ifstmt,
             "ifelsestmt": ifelsestmt,
