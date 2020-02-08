@@ -25,13 +25,12 @@ IFELSE_STMT_RULES = frozenset(
             ),
         ),
         (
-            "ifelsestmtc",
+            "ifelsestmtl",
             (
                 "testexpr",
                 "c_stmts_opt",
                 "jump_forward_else",
                 "else_suitec",
-                "\\e__come_froms",
             ),
         ),
         (

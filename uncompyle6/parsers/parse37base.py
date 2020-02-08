@@ -992,6 +992,7 @@ class Python37BaseParser(PythonParser):
             "_ifstmts_jump": ifstmts_jump,
             "and": and_check,
             "ifelsestmt": ifelsestmt,
+            "ifelsestmtl": ifelsestmt,
             "iflaststmt": iflaststmt,
             "iflaststmtl": iflaststmt,
             "ifstmt": ifstmt,
@@ -1012,6 +1013,7 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["while1elsestmt"] = "noAST"
         self.check_reduce["_ifstmts_jump"] = "AST"
         self.check_reduce["ifelsestmt"] = "AST"
+        self.check_reduce["ifelsestmtl"] = "AST"
         self.check_reduce["iflaststmt"] = "AST"
         self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
