@@ -113,9 +113,16 @@ class Python36Parser(Python35Parser):
         except_suite ::= c_stmts_opt COME_FROM POP_EXCEPT jump_except COME_FROM
 
         jb_cfs      ::= JUMP_BACK come_froms
+
+        # If statement inside a loop? FIXME: NO not always - fix this up.
+        stmt                ::= ifstmtl
+        ifstmtl            ::= testexpr _ifstmts_jumpl
+        _ifstmts_jumpl     ::= c_stmts JUMP_BACK
+
         ifelsestmtl ::= testexpr c_stmts_opt jb_cfs else_suitel
         ifelsestmtl ::= testexpr c_stmts_opt cf_jf_else else_suitel
-        ifelsestmt ::= testexpr c_stmts_opt cf_jf_else else_suite _come_froms
+        ifelsestmt  ::= testexpr c_stmts_opt cf_jf_else else_suite _come_froms
+        ifelsestmt  ::= testexpr c_stmts come_froms else_suite come_froms
 
         # In 3.6+, A sequence of statements ending in a RETURN can cause
         # JUMP_FORWARD END_FINALLY to be omitted from try middle
@@ -169,6 +176,8 @@ class Python36Parser(Python35Parser):
         # """)
         super(Python36Parser, self).customize_grammar_rules(tokens, customize)
         self.remove_rules("""
+           _ifstmts_jumpl     ::= c_stmts_opt
+           _ifstmts_jumpl     ::= _ifstmts_jump
            except_handler     ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts END_FINALLY COME_FROM
            async_for_stmt     ::= SETUP_LOOP expr
                                   GET_AITER
