@@ -10,3 +10,14 @@ async def test_enter(self):
             x = 1
             y = 2
         assert manager is context
+
+# From 3.7.6 test_coroutines.py
+# Bug was different form of code for "async with" below
+class CoroutineTest():
+    def test_with_8(self):
+        CNT = 0
+        async def foo():
+            nonlocal CNT
+            async with CM():
+                CNT += 1
+                return

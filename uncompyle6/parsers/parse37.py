@@ -1209,25 +1209,31 @@ class Python37Parser(Python37BaseParser):
 
             elif opname == "BEFORE_ASYNC_WITH":
                 rules_str = """
-                  stmt ::= async_with_stmt
+                  stmt               ::= async_with_stmt SETUP_ASYNC_WITH
+                  async_with_pre     ::= BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM SETUP_ASYNC_WITH
+                  async_with_post    ::= COME_FROM_ASYNC_WITH
+                                         WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                         WITH_CLEANUP_FINISH END_FINALLY
+
+                  stmt               ::= async_with_as_stmt
                   async_with_as_stmt ::= expr
-                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               SETUP_ASYNC_WITH store
-                               suite_stmts_opt
-                               POP_BLOCK LOAD_CONST
-                               COME_FROM_ASYNC_WITH
-                               WITH_CLEANUP_START
-                               GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               WITH_CLEANUP_FINISH END_FINALLY
-                 stmt ::= async_with_as_stmt
-                 async_with_stmt ::= expr
-                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               SETUP_ASYNC_WITH POP_TOP suite_stmts_opt
-                               POP_BLOCK LOAD_CONST
-                               COME_FROM_ASYNC_WITH
-                               WITH_CLEANUP_START
-                               GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               WITH_CLEANUP_FINISH END_FINALLY
+                                         async_with_pre
+                                         store
+                                         suite_stmts_opt
+                                         POP_BLOCK LOAD_CONST
+                                         async_with_post
+
+                 async_with_stmt     ::= expr
+                                         async_with_pre
+                                         POP_TOP
+                                         suite_stmts_opt
+                                         POP_BLOCK LOAD_CONST
+                                         async_with_post
+                 async_with_stmt     ::= expr
+                                         async_with_pre
+                                         POP_TOP
+                                         suite_stmts_opt
+                                         async_with_post
                 """
                 self.addRule(rules_str, nop_func)
 
