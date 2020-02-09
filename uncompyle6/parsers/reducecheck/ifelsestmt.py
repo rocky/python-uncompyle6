@@ -34,6 +34,15 @@ IFELSE_STMT_RULES = frozenset(
             ),
         ),
         (
+            "ifelsestmtc",
+            (
+                "testexpr",
+                "c_stmts_opt",
+                "jump_absolute_else",
+                "else_suitec"
+            ),
+        ),
+        (
             "ifelsestmt",
             (
                 "testexpr",
@@ -79,7 +88,8 @@ IFELSE_STMT_RULES = frozenset(
     ])
 
 def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
-    if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP":
+
+    if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP" and lhs != "ifelsestmtc":
         # ifelsestmt jumped outside of loop. No good.
         return True
 
