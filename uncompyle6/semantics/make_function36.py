@@ -356,7 +356,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
     # add in "yield" just so that the compiler will mark
     # the GENERATOR bit of the function. See for example
     # Python 3.x's test_connection.py and test_contexlib_async test programs.
-    if code.co_flags & (CO_GENERATOR | CO_ASYNC_GENERATOR):
+    if not is_lambda and code.co_flags & (CO_GENERATOR | CO_ASYNC_GENERATOR):
         need_bogus_yield = True
         for token in scanner_code._tokens:
             if token == "YIELD_VALUE":
