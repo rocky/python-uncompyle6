@@ -15,9 +15,6 @@ jobs:
     # https://circleci.com/docs/2.0/circleci-images/
     docker:
       - image: circleci/python:2-jessie
-    environment:
-      PYENV_ROOT: "/home/circleci/.pyenv"
-      PATH:       "/home/circleci/bin:/home/circleci/shims:/home/circleci/.pyenv/bin:/home/circleci/.local/bin:/usr/local/bin:/usr/bin:/bin"
     steps:
     # Machine Setup
     #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
@@ -29,6 +26,9 @@ jobs:
     - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
     - run: curl https://pyenv.run | bash
     - run:
+        environment:
+          PYENV_ROOT: "/home/circleci/.pyenv"
+          PATH:       "/home/circleci/bin:/home/circleci/shims:/home/circleci/.pyenv/bin:/home/circleci/.local/bin:/usr/local/bin:/usr/bin:/bin"
         working_directory: ~/rocky/python-uncompyle6
         command: pyenv install 2.4.6 && pyenv local 2.4.6 && pyenv rehash && easy_install nose && pyenv rehash
     # Dependencies
@@ -41,8 +41,12 @@ jobs:
           - v2-dependencies-
 
     # This is based on your 1.0 configuration file or project settings
-    - run: easy_install xdis spark-parser
-    - run: pip install -e .
+    - run:
+        environment:
+          PYENV_ROOT: "/home/circleci/.pyenv"
+          PATH:       "/home/circleci/bin:/home/circleci/shims:/home/circleci/.pyenv/bin:/home/circleci/.local/bin:/usr/local/bin:/usr/bin:/bin"
+        working_directory: ~/rocky/python-uncompyle6
+        command: easy_install xdis spark-parser && pip install -e .
 
     # Save dependency cache
     - save_cache:
@@ -60,8 +64,20 @@ jobs:
     # Test
     #   This would typically be a build job when using workflows, possibly combined with build
     # This is based on your 1.0 configuration file or project settings
-    - run: python ./setup.py develop && make check-2.4
-    - run: cd ./test/stdlib && pyenv local 2.4.6 && bash ./runtests.sh 'test_[p-z]*.py'
+    - run:
+        environment:
+          PYENV_ROOT: "/home/circleci/.pyenv"
+          PATH:       "/home/circleci/bin:/home/circleci/shims:/home/circleci/.pyenv/bin:/home/circleci/.local/bin:/usr/local/bin:/usr/bin:/bin"
+        working_directory: ~/rocky/python-uncompyle6
+        command:
+          python ./setup.py develop && make check-2.4
+    - run:
+        environment:
+          PYENV_ROOT: "/home/circleci/.pyenv"
+          PATH:       "/home/circleci/bin:/home/circleci/shims:/home/circleci/.pyenv/bin:/home/circleci/.local/bin:/usr/local/bin:/usr/bin:/bin"
+        working_directory: ~/rocky/python-uncompyle6
+        command:
+          cd ./test/stdlib && pyenv local 2.4.6 && bash ./runtests.sh 'test_[p-z]*.py'
     # Teardown
     #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
     # Save test results
