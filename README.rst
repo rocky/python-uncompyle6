@@ -140,9 +140,16 @@ Python syntax changes, you should use this option if the bytecode is
 the right bytecode for the Python interpreter that will be checking
 the syntax.
 
-You can also cross compare the results with another python decompiler
-like pycdc_ . Since they work differently, bugs here often aren't in
-that, and vice versa.
+You can also cross compare the results with either another version of
+`uncompyle6` since there are are sometimes regressions in decompiling
+specific bytecode as the overall quality improves.
+
+For Python 3.7 and above, the code in decompyle3_ is generally
+better.
+
+Or try specific another python decompiler like uncompyle2_, unpyc37_,
+or pycdc_.  Since the later two work differently, bugs here often
+aren't in that, and vice versa.
 
 There is an interesting class of these programs that is readily
 available give stronger verification: those programs that when run
@@ -241,7 +248,9 @@ See Also
 .. _debuggers: https://pypi.python.org/pypi/trepan3k
 .. _remake: https://bashdb.sf.net/remake
 .. _pycdc: https://github.com/zrax/pycdc
-.. _decompile3: https://github.com/rocky/python-decompile3
+.. _decompyle3: https://github.com/rocky/python-decompile3
+.. _uncompyle2: https://github.com/wibiti/uncompyle2
+.. _unpyc37: https://github.com/andrew-tavera/unpyc37
 .. _this: https://github.com/rocky/python-uncompyle6/wiki/Deparsing-technology-and-its-use-in-exact-location-reporting
 .. |buildstatus| image:: https://travis-ci.org/rocky/python-uncompyle6.svg
 		 :target: https://travis-ci.org/rocky/python-uncompyle6
