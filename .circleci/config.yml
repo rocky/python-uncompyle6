@@ -57,7 +57,7 @@ jobs:
         command:
           sudo python ./setup.py develop && make check-2.7
     - run:
-        working_directory: ~/rocky/python-uncompyle6
+        working_directory: ~/rocky/python-uncompyle6/test
         command:
           bash ./runtests.sh 'test_[p-z]*.py'
     # Teardown
