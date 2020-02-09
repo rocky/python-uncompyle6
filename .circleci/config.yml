@@ -10,14 +10,17 @@ jobs:
       CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
       CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
       COMPILE: --compile
-      PYENV_ROOT: "/home/circleci/.pyenv"
-      PATH:       "/home/circleci/bin:/home/circleci/shims:/home/circleci/.pyenv/bin:/home/circleci/.local/bin:/usr/local/bin:/usr/bin:/bin"
 
     # To see the list of pre-built images that CircleCI provides for most common languages see
     # https://circleci.com/docs/2.0/circleci-images/
     docker:
       - image: circleci/python:2-jessie
+    environment:
+      PYENV_ROOT: "/home/circleci/.pyenv"
+      PATH:       "/home/circleci/bin:/home/circleci/shims:/home/circleci/.pyenv/bin:/home/circleci/.local/bin:/usr/local/bin:/usr/bin:/bin"
     steps:
+      PYENV_ROOT: "/home/circleci/.pyenv"
+      PATH:       "/home/circleci/bin:/home/circleci/shims:/home/circleci/.pyenv/bin:/home/circleci/.local/bin:/usr/local/bin:/usr/bin:/bin"
     # Machine Setup
     #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
     # The following `checkout` command checks out your code to your working directory. In 1.0 we did this implicitly. In 2.0 you can choose where in the course of a job your code should be checked out.
@@ -29,7 +32,7 @@ jobs:
     - run: curl https://pyenv.run | bash
     - run:
         working_directory: ~/rocky/python-uncompyle6
-        command: sudo /home/circleci/.pyenv/bin/pyenv install 2.4.6 && /home/circleci/.pyenv/bin/pyenv local 2.4.6 && /home/circleci/.pyenv/bin/pyenv rehash && easy_install nose && /home/circleci/.pyenv/bin/pyenv rehash
+        command: pyenv install 2.4.6 && pyenv local 2.4.6 && pyenv rehash && easy_install nose && pyenv rehash
     # Dependencies
     #   This would typically go in either a build or a build-and-test job when using workflows
     # Restore the dependency cache
