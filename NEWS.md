@@ -1,3 +1,53 @@
+3.6.4: 2020-2-9 Plateau
+=======================
+
+The main focus in this release was fix some of the more glaring problems creapt in from the last release due to that refactor.
+
+`uncompyle6` code is at a plateau where what is most needed is a code refactoring. In doing this, until everything refactored and replaced, decomplation may get worse.
+Therefore, this release largely serves as a checkpoint before more major upheaval.
+
+The upheaval, in  started last release, I believe the pinnicle was around c90ff51 which wasn't a release. I suppose I should tag that.
+
+After c90ff5, I started down the road of redoing control flow in a more comprehensible, debuggable, and scalable way. See [The Control Flow Mess](https://github.com/rocky/python-uncompyle6/wiki/The-Control-Flow-Mess)
+
+The bulk of the refactoring going on in the [decompyle3](https://github.com/rocky/python-decompil3) project, but I try to trickle down the changes.
+
+It is tricky because the changes are large and I have to figure decompose things so that little testable pieces can be done. And there is also the problem that what is in decompyle3 is incomplete as well.
+
+Other than control flow, another change that will probably happen in the next release is to redo the grammar for lambda expressions. Right now, we treat them as Python statements, you know, things with compound statements in them. But lambda aren't that. And so there is hackery to paper over difference making a statement out of an expression the wrong thing to do. For example, a return of an "and" expression can be expressed as nested "if" statements with return inside them, but the "if" variant of the bytecode is not valid in a lambda.
+
+In the decompyle3 code, I've gone down the road making the grammar goal symbol be an expression. This also offers the opportunity to split the grammar making parsing inside lambda not only more reliable because the wrong choices don't exist, but also simpler and faster because all those rules just need don't need to exist in parsing.
+
+I cringe in thinking about how the code has lived for so long without noticing such a simple stupidity, and lapse of sufficient thought.
+
+Some stats from testing. The below give numbers of decompiled tests from Python's test suite which succesfully ran
+
+```
+   Version  test-suites passing
+   -------  -------------------
+   2.4.6     243
+   2.5.6     265
+   2.6.9     305
+   3.3.7     300
+   3.4.10    304
+   3.5.9     260
+   3.6.10    236
+   3.7.6     306
+   3.8.1     114
+```
+
+Decompiled bytecode files distributed with Python (syntax check only):
+
+```
+2.7.17  647 files:   0 failed
+3.2.6   900 files:   0 failed
+3.3.7  1256 files:   0 failed
+3.4.10  800 files:   0 failed
+3.5.9   900 files:   0 failed
+3.6.10 1300 files:  28 failed
+```
+
+
 3.6.3: 2020-1-26 Martin and Susanne
 ===================================
 
