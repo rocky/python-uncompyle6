@@ -65,7 +65,7 @@ jobs:
           PATH:       "/home/circleci/bin:/home/circleci/shims:/home/circleci/.pyenv/bin:/home/circleci/.local/bin:/usr/local/bin:/usr/bin:/bin"
         working_directory: ~/rocky/python-uncompyle6
         command:
-&& bash ./runtests.sh 'test_[p-z]*.py'
+          bash ./runtests.sh 'test_[p-z]*.py'
     # Teardown
     #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
     # Save test results
