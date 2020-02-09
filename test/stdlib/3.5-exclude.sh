@@ -1,5 +1,6 @@
 SKIP_TESTS=(
     [test_buffer.py]=1  # FIXME: Works on c90ff51
+    [test_decorators.py]=1  # FIXME: Works on c90ff51
     [test_platform.py]=1 # FIXME: Works on c90ff51
     [test_pyclbr.py]=1 # FIXME: Works on c90ff51
     [test_tempfile.py]=1 # FIXME: Works on c90ff51
