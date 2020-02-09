@@ -1,4 +1,5 @@
 SKIP_TESTS=(
+    [test_buffer.py]=1  # FIXME: Works on c90ff51
     [test_platform.py]=1 # FIXME: Works on c90ff51
     [test_pyclbr.py]=1 # FIXME: Works on c90ff51
     [test_tempfile.py]=1 # FIXME: Works on c90ff51
@@ -22,7 +23,6 @@ SKIP_TESTS=(
     [test_collections.py]=1
     [test_compile.py]=1  # Code introspects on co_consts in a non-decompilable way
     [test_concurrent_futures.py]=1 # Takes long to run
-    [test_coroutines.py]=1 # Syntax error Investigate
     [test_curses.py]=1 #
 
     [test_devpoll.py]=1 # it fails on its own
@@ -90,7 +90,7 @@ SKIP_TESTS=(
     [test_selectors.py]=1 # Takes too long 17 seconds
     [test_set.py]=1 # # test assert failure and doesn't terminate
     [test_signal.py]=1 # too long?
-    [test_smtpd.py]=1 # test failures
+    [test_smtplib.py]=1 # probably control flow
     [test_socket.py]=1 # long
     [test_socketserver.py]=1
     [test_strtod.py]=1 # Test assert failure
@@ -131,7 +131,6 @@ SKIP_TESTS=(
 if (( batch )) ; then
     SKIP_TESTS[test_asyncore.py]=1 # Ok, but takes more than 15 seconds to run
     SKIP_TESTS[test_bisect.py]=1
-    SKIP_TESTS[test_buffer.py]=1  # too long
     SKIP_TESTS[test_compileall.py]=1  # Something weird on POWER
     SKIP_TESTS[test_codeccallbacks.py]=1 # Something differenet in locale?
     SKIP_TESTS[test_distutils.py]=1

@@ -92,6 +92,8 @@ PRECEDENCE = {
 
     'BINARY_POWER':           4,  # Exponentiation, *
 
+    'await_expr':             3,  # await x, *
+
     'attribute':              2,  # x.attribute
     'buildslice2':            2,  # x[index]
     'buildslice3':            2,  # x[index:index]

@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 by Rocky Bernstein
+#  Copyright (c) 2019-2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -17,7 +17,12 @@
 
 from xdis.code import iscode
 from xdis.util import COMPILER_FLAG_BIT
-from uncompyle6.semantics.consts import INDENT_PER_LEVEL, TABLE_DIRECT
+from uncompyle6.semantics.consts import (
+    INDENT_PER_LEVEL,
+    PRECEDENCE,
+    TABLE_DIRECT,
+)
+
 from uncompyle6.semantics.helper import flatten_list, gen_function_parens_adjust
 
 #######################
@@ -26,7 +31,11 @@ from uncompyle6.semantics.helper import flatten_list, gen_function_parens_adjust
 def customize_for_version35(self, version):
     TABLE_DIRECT.update(
         {
-            "await_expr": ("await %c", 0),
+            # nested await expressions like:
+            #   return await (await bar())
+            # need parenthesis.
+            "await_expr": ("await %p", (0, PRECEDENCE["await_expr"]-1)),
+
             "await_stmt": ("%|%c\n", 0),
             "async_for_stmt": ("%|async for %c in %c:\n%+%|%c%-\n\n", 9, 1, 25),
             "async_forelse_stmt": (
@@ -36,12 +45,12 @@ def customize_for_version35(self, version):
                 25,
                 (27, "else_suite"),
             ),
-            "async_with_stmt": ("%|async with %c:\n%+%c%-", (0, "expr"), 7),
+            "async_with_stmt": ("%|async with %c:\n%+%c%-", (0, "expr"), 3),
             "async_with_as_stmt": (
                 "%|async with %c as %c:\n%+%c%-",
                 (0, "expr"),
-                (6, "store"),
-                7,
+                (2, "store"),
+                3,
             ),
             "unmap_dict": ("{**%C}", (0, -1, ", **")),
             # "unmapexpr":	       ( "{**%c}", 0), # done by n_unmapexpr

@@ -41,7 +41,7 @@ SKIP_TESTS=(
     [test_concurrent_futures.py]=1 # Takes long
     [test_contextlib.py]=1 # test assertion failure
     [test_contextlib_async.py]=1 # Investigate
-    [test_coroutines.py]=1 # Parse error
+    [test_coroutines.py]=1 # parse error
     [test_curses.py]=1 # Parse error
     [test_ctypes.py]=1 # it fails on its own
 
