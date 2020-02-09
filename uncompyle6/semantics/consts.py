@@ -56,12 +56,12 @@ PRECEDENCE = {
 
     '_mklambda':              30,
 
-    'conditional':            28, # Conditional expression
-    'conditional_lamdba':     28, # Lambda expression
-    'conditional_not_lamdba': 28, # Lambda expression
-    'conditionalnot':         28,
-    'if_expr_true':           28,
-    'ret_cond':               28,
+    'if_exp':                 28, # If_Exp expression
+    'if_exp_lamdba':          28, # Lambda expression
+    'if_exp_not_lamdba':      28, # Lambda expression
+    'if_exp_not':             28,
+    'if_exp_true':            28,
+    'if_exp_ret':             28,
 
     'or':                     26, # Boolean OR
     'ret_or':                 26,
@@ -91,6 +91,8 @@ PRECEDENCE = {
     'unary_op':               6,  # +x, -x, ~x
 
     'BINARY_POWER':           4,  # Exponentiation, *
+
+    'await_expr':             3,  # await x, *
 
     'attribute':              2,  # x.attribute
     'buildslice2':            2,  # x[index]
@@ -301,24 +303,24 @@ TABLE_DIRECT = {
     # which we don't use here.
     'aug_assign1':      ( '%|%c %c %c\n', 0, 2, 1),
 
-    'aug_assign2':	    ( '%|%c.%[2]{pattr} %c %c\n', 0, -3, -4 ),
-    'designList':	    ( '%c = %c', 0, -1 ),
+    'aug_assign2':      ( '%|%c.%[2]{pattr} %c %c\n', 0, -3, -4 ),
+    'designList':       ( '%c = %c', 0, -1 ),
     'and':          	( '%c and %c', 0, 2 ),
     'ret_and':        	( '%c and %c', 0, 2 ),
     'and2':          	( '%c', 3 ),
     'or':           	( '%c or %c', 0, 2 ),
     'ret_or':           ( '%c or %c', 0, 2 ),
-    'conditional':      ( '%p if %c else %c',
+    'if_exp':           ( '%p if %c else %c',
                           (2, 'expr', 27), 0, 4 ),
-    'if_expr_lambda':   ( '%p if %c else %c',
+    'if_exp_lambda':    ( '%p if %c else %c',
                           (2, 'expr', 27), (0, 'expr'), 4 ),
-    'if_expr_true':     ( '%p if 1 else %c', (0, 'expr', 27), 2 ),
-    'ret_cond':         ( '%p if %p else %p', (2, 27), (0, 27), (-1, 27) ),
-    'conditional_not':  ( '%p if not %p else %p',
+    'if_exp_true':      ( '%p if 1 else %c', (0, 'expr', 27), 2 ),
+    'if_exp_ret':       ( '%p if %p else %p', (2, 27), (0, 27), (-1, 27) ),
+    'if_exp_not':       ( '%p if not %p else %p',
                           (2, 27),
                           (0, "expr", PRECEDENCE['unary_not']),
                           (4, 27) ),
-    'conditional_not_lambda':
+    'if_exp_not_lambda':
                         ( '%p if not %c else %c',
                           (2, 'expr', 27), 0, 4 ),
 

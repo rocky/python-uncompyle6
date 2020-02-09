@@ -49,7 +49,7 @@ class Python23Parser(Python24Parser):
         and2 ::= _jump jmp_false COME_FROM expr COME_FROM
 
         alias       ::= IMPORT_NAME attributes store
-        conditional ::= expr jmp_false expr JUMP_FORWARD expr COME_FROM
+        if_exp      ::= expr jmp_false expr JUMP_FORWARD expr COME_FROM
         '''
 
     def customize_grammar_rules(self, tokens, customize):

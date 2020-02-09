@@ -52,3 +52,4 @@ SKIP_TESTS=(
     [test_trace.py]=1 # Long test - works
     [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
 )
+ # About 243 files, 0 in 19 minutes

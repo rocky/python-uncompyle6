@@ -10,11 +10,13 @@ jobs:
       CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
       CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
       COMPILE: --compile
+      PYENV_ROOT: "$HOME/.pyenv"
+      PATH:       "$PYENV_ROOT/bin:$PYENV_ROOT/shims:/usr/bin:/usr/local/bin:/sbin:/usr/sbin"
+
     # To see the list of pre-built images that CircleCI provides for most common languages see
     # https://circleci.com/docs/2.0/circleci-images/
-    machine:
-      python:
-        version: 2.7.14
+    docker:
+      - image: circleci/jessie
     steps:
     # Machine Setup
     #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
@@ -24,7 +26,7 @@ jobs:
     # In many cases you can simplify this from what is generated here.
     # 'See docs on artifact collection here https://circleci.com/docs/2.0/artifacts/'
     - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
-    # This is based on your 1.0 configuration file or project settings
+    - run: curl https://pyenv.run | bash
     - run:
         working_directory: ~/rocky/python-uncompyle6
         command: pyenv install 2.4.6 && pyenv local 2.4.6 && pyenv rehash && easy_install nose && pyenv rehash

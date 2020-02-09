@@ -2,14 +2,9 @@
 
 from uncompyle6.scanners.tok import Token
 
-
-def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
-    if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP":
-        # ifelsestmt jumped outside of loop. No good.
-        return True
-
-    if rule not in (
-        (
+IFELSE_STMT_RULES = frozenset(
+    [
+                (
             "ifelsestmt",
             (
                 "testexpr",
@@ -27,6 +22,24 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
                 "jump_forward_else",
                 "else_suite",
                 "\\e__come_froms",
+            ),
+        ),
+        (
+            "ifelsestmtl",
+            (
+                "testexpr",
+                "c_stmts_opt",
+                "jump_forward_else",
+                "else_suitec",
+            ),
+        ),
+        (
+            "ifelsestmtc",
+            (
+                "testexpr",
+                "c_stmts_opt",
+                "jump_absolute_else",
+                "else_suitec"
             ),
         ),
         (
@@ -72,84 +85,119 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
                 "else_suite",
             ),
         ),
-    ):
+    ])
+
+def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
+
+    if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP" and lhs != "ifelsestmtc":
+        # ifelsestmt jumped outside of loop. No good.
+        return True
+
+    if rule not in IFELSE_STMT_RULES:
         return False
+
+    # Avoid if/else where the "then" is a "raise_stmt1" for an
+    # assert statemetn. Parse this as an "assert" instead.
+    stmts = ast[1]
+    if stmts in ("c_stmts",) and len(stmts) == 1:
+        raise_stmt1 = stmts[0]
+        if (
+                raise_stmt1 == "raise_stmt1" and
+                raise_stmt1[0] in ("LOAD_ASSERT",)
+        ):
+            return True
+
     # Make sure all of the "come froms" offset at the
     # end of the "if" come from somewhere inside the "if".
     # Since the come_froms are ordered so that lowest
     # offset COME_FROM is last, it is sufficient to test
     # just the last one.
-    come_froms = ast[-1]
-    if come_froms.kind != "else_suite" and self.version >= 3.0:
-        if come_froms == "opt_come_from_except" and len(come_froms) > 0:
-            come_froms = come_froms[0]
-        if not isinstance(come_froms, Token):
-            if len(come_froms):
-                return tokens[first].offset > come_froms[-1].attr
-        elif tokens[first].offset > come_froms.attr:
-            return True
+    if len(ast) == 5:
+        end_come_froms = ast[-1]
+        if end_come_froms.kind != "else_suite" and self.version >= 3.0:
+            if end_come_froms == "opt_come_from_except" and len(end_come_froms) > 0:
+                end_come_froms = end_come_froms[0]
+            if not isinstance(end_come_froms, Token):
+                if len(end_come_froms):
+                    return tokens[first].offset > end_come_froms[-1].attr
+            elif tokens[first].offset > end_come_froms.attr:
+                return True
 
-    # FIXME: There is weirdness in the grammar we need to work around.
-    # we need to clean up the grammar.
-    if self.version < 3.0:
-        last_token = ast[-1]
-    else:
-        last_token = tokens[last]
-    if last_token == "COME_FROM" and tokens[first].offset > last_token.attr:
-        if self.version < 3.0 and self.insts[self.offset2inst_index[last_token.attr]].opname != "SETUP_LOOP":
-            return True
+        # FIXME: There is weirdness in the grammar we need to work around.
+        # we need to clean up the grammar.
+        if self.version < 3.0:
+            last_token = ast[-1]
+        else:
+            last_token = tokens[last]
+        if last_token == "COME_FROM" and tokens[first].offset > last_token.attr:
+            if self.version < 3.0 and self.insts[self.offset2inst_index[last_token.attr]].opname != "SETUP_LOOP":
+                return True
 
     testexpr = ast[0]
 
     # Check that the condition portion of the "if"
     # jumps to the "else" part.
     if testexpr[0] in ("testtrue", "testfalse"):
-        test = testexpr[0]
+        if_condition = testexpr[0]
 
         else_suite = ast[3]
-        assert else_suite == "else_suite"
+        assert else_suite.kind.startswith("else_suite")
 
-        if len(test) > 1 and test[1].kind.startswith("jmp_"):
+        if len(if_condition) > 1 and if_condition[1].kind.startswith("jmp_"):
             if last == n:
                 last -= 1
-            jmp = test[1]
+            jmp = if_condition[1]
             if self.version > 2.6:
                 jmp_target = jmp[0].attr
             else:
                 jmp_target = int(jmp[0].pattr)
 
 
-            # Make sure we don't jump at the end of the "then" inside the "else"
-            # (jf_cf_pop may be a 2.6ish specific thing.)
-            jump_forward = ast[2]
-            if jump_forward == "jf_cf_pop":
-                jump_forward = jump_forward[0]
+            # Below we check that jmp_target is jumping to a feasible
+            # location. It should be to the transition after the "then"
+            # block and to the beginning of the "else" block.
+            # However the "if/else" is inside a loop the false test can be
+            # back to the loop.
+
+            # FIXME: the below logic for jf_cfs could probably be
+            # simplified.
+            jump_else_end = ast[2]
+            if jump_else_end == "jf_cf_pop":
+                jump_else_end = jump_else_end[0]
 
             jump_to_jump = False
-            if jump_forward == "JUMP_FORWARD":
+            if jump_else_end == "JUMP_FORWARD":
                 jump_to_jump = True
-                endif_target = int(jump_forward.pattr)
+                endif_target = int(jump_else_end.pattr)
                 last_offset = tokens[last].off2int()
                 if endif_target != last_offset:
                     return True
+            last_offset = tokens[last].off2int(prefer_last=False)
+            if jmp_target == last_offset:
+                # jmp_target should be jumping to the end of the if/then/else
+                # but is it jumping to the beginning of the "else"
+                return True
+            if (
+                jump_else_end in ("jf_cfs", "jump_forward_else")
+                and jump_else_end[0] == "JUMP_FORWARD"
+            ):
+                # If the "else" jump jumps before the end of the the "if .. else end", then this
+                # is not this kind of "ifelsestmt".
+                jump_else_forward = jump_else_end[0]
+                jump_else_forward_target = jump_else_forward.attr
+                if jump_else_forward_target < last_offset:
+                    return True
+                pass
+            if (
+                jump_else_end in ("jb_elsec", "jb_elsel", "jf_cfs", "jb_cfs")
+                and jump_else_end[-1] == "COME_FROM"
+            ):
+                if jump_else_end[-1].off2int() != jmp_target:
+                    return True
 
-            # The jump inside "else" check below should be added.
-            # add this until we can find out what's wrong with
-            # not being able to parse:
-            #     if a and b or c:
-            #         x = 1
-            #     else:
-            #         x = 2
-
-            # FIXME: add this
-            # if jmp_target < else_suite.first_child().off2int():
-            #     return True
-
-            if tokens[first].off2int() > jmp_target and not jump_to_jump:
+            if tokens[first].off2int() > jmp_target:
                 return True
 
-            return (jmp_target > tokens[last].off2int()) and tokens[
-                last
-            ] != "JUMP_FORWARD"
+            return (jmp_target > last_offset) and tokens[last] != "JUMP_FORWARD"
 
     return False

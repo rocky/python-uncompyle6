@@ -1,20 +1,11 @@
 SKIP_TESTS=(
-    [test_buffer.py]=1 # FIXME: Works on c90ff51
-    [test_decorators.py]=1 # FIXME: Works on c90ff51
-    [test_faulthandler.py]=1 # FIXME: too long to run 20 seconds. Works on c90ff51
-    [test_ftplib.py]=1 # Works on c90ff51
-    [test_marshal.py]=1 # FIXME: Works on c90ff51
-    [test_optparse.py]=1 # FIXME: Works on c90ff51
-    [test_os.py]=1 # FIXME: Works on c90ff51
+    [test_buffer.py]=1  # FIXME: Works on c90ff51
+    [test_decorators.py]=1  # FIXME: Works on c90ff51
     [test_platform.py]=1 # FIXME: Works on c90ff51
-    [test_poplib.py]=1 # FIXME: Works on c90ff51
     [test_pyclbr.py]=1 # FIXME: Works on c90ff51
-    [test_smtplib.py]=1 # FIXME: Works on c90ff51
-    [test_strftime.py]=1 # FIXME: Works on c90ff51
-    [test_shutil.py]=1 # FIXME: Works on c90ff51
-    [test_sysconfig.py]=1 # FIXME: Works on c90ff51
     [test_tempfile.py]=1 # FIXME: Works on c90ff51
     [test_uu.py]=1 # FIXME: Works on c90ff51
+    [test_ftplib.py]=1 # FIXME: Works on c90ff51
 
     [test___all__.py]=1 # it fails on its own
     [test_aifc.py]=1  #
@@ -33,7 +24,6 @@ SKIP_TESTS=(
     [test_collections.py]=1
     [test_compile.py]=1  # Code introspects on co_consts in a non-decompilable way
     [test_concurrent_futures.py]=1 # Takes long to run
-    [test_coroutines.py]=1 # Syntax error Investigate
     [test_curses.py]=1 #
 
     [test_devpoll.py]=1 # it fails on its own
@@ -50,6 +40,7 @@ SKIP_TESTS=(
     [test_exceptions.py]=1 # parse error
 
     [test_format.py]=1
+    [test_ftplib.py]=1 # Test assertion failures
 
     [test_gdb.py]=1 # it fails on its own
     [test_glob.py]=1 #
@@ -65,6 +56,7 @@ SKIP_TESTS=(
     [test_logging.py]=1 #
     [test_long.py]=1 # too long run time: 20 seconds
 
+    [test_marshal.py]=1 # test assertion errors
     [test_math.py]=1 # test assertion errors TypeError: a float is required
     [test_modulefinder.py]=1  # test assertion error
     [test_msilib.py]=1 # it fails on its own
@@ -99,7 +91,7 @@ SKIP_TESTS=(
     [test_selectors.py]=1 # Takes too long 17 seconds
     [test_set.py]=1 # # test assert failure and doesn't terminate
     [test_signal.py]=1 # too long?
-    [test_smtpd.py]=1 # test failures
+    [test_smtplib.py]=1 # probably control flow
     [test_socket.py]=1 # long
     [test_socketserver.py]=1
     [test_strtod.py]=1 # Test assert failure
@@ -140,12 +132,13 @@ SKIP_TESTS=(
 if (( batch )) ; then
     SKIP_TESTS[test_asyncore.py]=1 # Ok, but takes more than 15 seconds to run
     SKIP_TESTS[test_bisect.py]=1
-    SKIP_TESTS[test_buffer.py]=1  # too long
     SKIP_TESTS[test_compileall.py]=1  # Something weird on POWER
     SKIP_TESTS[test_codeccallbacks.py]=1 # Something differenet in locale?
     SKIP_TESTS[test_distutils.py]=1
 
     SKIP_TESTS[test_exception_variations.py]=1
+    SKIP_TESTS[test_poplib.py]=1 # May be a result of POWER installation
+
     SKIP_TESTS[test_quopri.py]=1
     SKIP_TESTS[test_ioctl.py]=1 # it fails on its own
     SKIP_TESTS[test_tarfile.py]=1 # too long to run on POWER 15 secs

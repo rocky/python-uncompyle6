@@ -1,9 +1,9 @@
 #  Copyright (c) 2020 Rocky Bernstein
 
-
+ASSERT_OPS = frozenset(["LOAD_ASSERT", "RAISE_VARARGS_1"])
 def or_check(self, lhs, n, rule, ast, tokens, first, last):
     if rule == ("or", ("expr", "jmp_true", "expr")):
-        if tokens[last] in ("LOAD_ASSERT", "RAISE_VARARGS_1",):
+        if tokens[last] in  ASSERT_OPS or tokens[last-1] in ASSERT_OPS:
             return True
 
         # The following test is be the most accurate. It prevents "or" from being

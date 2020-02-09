@@ -676,7 +676,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     # add in "yield" just so that the compiler will mark
     # the GENERATOR bit of the function. See for example
     # Python 3.x's test_generator.py test program.
-    if code.co_flags & CO_GENERATOR:
+    if not is_lambda and code.co_flags & CO_GENERATOR:
         need_bogus_yield = True
         for token in scanner_code._tokens:
             if token in ("YIELD_VALUE", "YIELD_FROM"):

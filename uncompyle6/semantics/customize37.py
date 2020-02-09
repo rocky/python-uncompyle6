@@ -55,24 +55,18 @@ def customize_for_version37(self, version):
                 (1, "expr"),
                 (17, "for_block"),
             ),
-            "async_for_stmt36": (
-                "%|async for %c in %c:\n%+%c%-%-\n\n",
-                (9, "store"),
-                (1, "expr"),
-                (18, "for_block"),
-            ),
             "async_for_stmt37": (
-                "%|async for %c in %c:\n%+%c%-%-\n\n",
+                "%|async for %c in %c:\n%+%c%-\n\n",
                 (7, "store"),
                 (1, "expr"),
                 (16, "for_block"),
             ),
-            "async_with_stmt": ("%|async with %c:\n%+%c%-", (0, "expr"), 7),
+            "async_with_stmt": ("%|async with %c:\n%+%c%-", (0, "expr"), 3),
             "async_with_as_stmt": (
                 "%|async with %c as %c:\n%+%c%-",
                 (0, "expr"),
-                (6, "store"),
-                7,
+                (2, "store"),
+                3,
             ),
             "async_forelse_stmt": (
                 "%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
@@ -85,7 +79,12 @@ def customize_for_version37(self, version):
             "attributes37": ("%[0]{pattr} import %c",
                             (0, "IMPORT_NAME_ATTR"),
                             (1, "IMPORT_FROM")),
-            "await_expr": ("await %c", 0),
+
+            # nested await expressions like:
+            #   return await (await bar())
+            # need parenthesis.
+            "await_expr": ("await %p", (0, PRECEDENCE["await_expr"]-1)),
+
             "await_stmt": ("%|%c\n", 0),
             "call_ex": ("%c(%p)", (0, "expr"), (1, 100)),
             "compare_chained1a_37": (
@@ -121,8 +120,8 @@ def customize_for_version37(self, version):
                 (0, 19),
                 (6, 19),
             ),
-            'conditional37': ( '%p if %c else %c',
-                               (1, 'expr', 27), 0, 3 ),
+            'if_exp37': ( '%p if %c else %c',
+                          (1, 'expr', 27), 0, 3 ),
 
             "except_return": ("%|except:\n%+%c%-", 3),
             "if_exp_37a": (

@@ -80,7 +80,7 @@ class Python25Parser(Python26Parser):
         classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
         classdefdeco2 ::= LOAD_CONST expr mkfunc CALL_FUNCTION_0 BUILD_CLASS
         kv3 ::= expr expr STORE_MAP
-        ret_cond ::= expr jmp_false_then expr RETURN_END_IF POP_TOP ret_expr_or_cond
+        if_exp_ret       ::= expr jmp_false_then expr RETURN_END_IF POP_TOP ret_expr_or_cond
         return_if_lambda ::= RETURN_END_IF_LAMBDA POP_TOP
         return_if_stmt   ::= ret_expr RETURN_END_IF POP_TOP
         return_if_stmts  ::= return_if_stmt
@@ -89,13 +89,12 @@ class Python25Parser(Python26Parser):
         return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
         setupwithas      ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 setup_finally
         stmt             ::= classdefdeco
-        stmt             ::= if_expr_lambda
-        stmt             ::= conditional_not_lambda
-        if_expr_lambda   ::= expr jmp_false_then expr return_if_lambda
+        stmt             ::= if_exp_lambda
+        stmt             ::= if_exp_not_lambda
+        if_exp_lambda    ::= expr jmp_false_then expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
-        conditional_not_lambda
-                           ::= expr jmp_true_then expr return_if_lambda
-                               return_stmt_lambda LAMBDA_MARKER
+        if_exp_not_lambda ::= expr jmp_true_then expr return_if_lambda
+                              return_stmt_lambda LAMBDA_MARKER
         """)
         super(Python25Parser, self).customize_grammar_rules(tokens, customize)
         if self.version == 2.5:

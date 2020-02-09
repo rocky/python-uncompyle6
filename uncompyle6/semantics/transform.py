@@ -121,14 +121,14 @@ class TreeTransform(GenericASTTraversal, object):
 
             if ifstmts_jump == "_ifstmts_jumpl" and ifstmts_jump[0] == "_ifstmts_jump":
                 ifstmts_jump = ifstmts_jump[0]
-            elif ifstmts_jump not in ("_ifstmts_jump", "ifstmts_jumpl"):
+            elif ifstmts_jump not in ("_ifstmts_jump", "_ifstmts_jumpl", "ifstmts_jumpl"):
                 return node
             stmts = ifstmts_jump[0]
         else:
             # iflaststmtl works this way
             stmts = node[1]
 
-        if stmts in ("c_stmts", "stmts") and len(stmts) == 1:
+        if stmts in ("c_stmts", "stmts", "stmts_opt") and len(stmts) == 1:
             raise_stmt = stmts[0]
             if raise_stmt != "raise_stmt1":
                 raise_stmt = raise_stmt[0]
@@ -139,13 +139,16 @@ class TreeTransform(GenericASTTraversal, object):
                 and 1 <= len(testtrue_or_false) <= 2
                 and raise_stmt.first_child().pattr == "AssertionError"
             ):
-                if testtrue_or_false == "testtrue":
+                if testtrue_or_false in ("testtrue", "testtruel"):
                     # Skip over the testtrue because because it would
                     # produce a "not" and we don't want that here.
                     assert_expr = testtrue_or_false[0]
                     jump_cond = NoneToken
                 else:
-                    assert testtrue_or_false == "testfalse"
+                    try:
+                        assert testtrue_or_false in ("testfalse", "testfalsel")
+                    except:
+                        from trepan.api import debug; debug()
                     assert_expr = testtrue_or_false[0]
                     if assert_expr == "testfalse_not_and":
                         # FIXME: come pack to stuff like this

@@ -7,7 +7,9 @@ def ifstmt(self, lhs, n, rule, ast, tokens, first, last):
             last -= 1
             pass
         if tokens[last].attr and isinstance(tokens[last].attr, int):
-            return tokens[first].offset < tokens[last].attr
+            if tokens[first].offset >= tokens[last].attr:
+                return True
+            pass
         pass
 
     # Make sure jumps don't extend beyond the end of the if statement.

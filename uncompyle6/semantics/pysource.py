@@ -2260,11 +2260,7 @@ class SourceWalker(GenericASTTraversal, object):
     def build_class(self, code):
         """Dump class definition, doc string and class body."""
 
-        try:
-            assert iscode(code)
-        except:
-            from trepan.api import debug; debug()
-
+        assert iscode(code)
         self.classes.append(self.currentclass)
         code = Code(code, self.scanner, self.currentclass)
 
@@ -2274,11 +2270,14 @@ class SourceWalker(GenericASTTraversal, object):
         code._tokens = None  # save memory
         assert ast == "stmts"
 
+        if ast[0] == "sstmt":
+            ast[0] = ast[0][0]
+        first_stmt = ast[0]
+
         if ast[0] == "docstring":
             self.println(self.traverse(ast[0]))
             del ast[0]
 
-        first_stmt = ast[0]
         if 3.0 <= self.version <= 3.3:
             try:
                 if first_stmt == "store_locals":
@@ -2298,6 +2297,11 @@ class SourceWalker(GenericASTTraversal, object):
             pass
 
         have_qualname = False
+        if len(ast):
+            if ast[0] == "sstmt":
+                ast[0] = ast[0][0]
+            first_stmt = ast[0]
+
         if self.version < 3.0:
             # Should we ditch this in favor of the "else" case?
             qualname = ".".join(self.classes)
@@ -2311,7 +2315,7 @@ class SourceWalker(GenericASTTraversal, object):
                 ],
             )
             # FIXME: is this right now that we've redone the grammar?
-            have_qualname = ast[0][0] == QUAL_NAME
+            have_qualname = ast[0] == QUAL_NAME
         else:
             # Python 3.4+ has constants like 'cmp_to_key.<locals>.K'
             # which are not simple classes like the < 3 case.
@@ -2342,6 +2346,7 @@ class SourceWalker(GenericASTTraversal, object):
                 do_doc = True
             if do_doc and self.hide_internal:
                 try:
+                    # FIXME: Is there an extra [0]?
                     docstring = ast[i][0][0][0][0].pattr
                 except:
                     docstring = code.co_consts[0]
@@ -2349,18 +2354,31 @@ class SourceWalker(GenericASTTraversal, object):
                     self.println()
                     del ast[i]
 
-        # the function defining a class normally returns locals(); we
-        # don't want this to show up in the source, thus remove the node
-        if len(ast) > 0 and ast[-1][0] == RETURN_LOCALS:
-            if self.hide_internal:
-                del ast[-1]  # remove last node
-        # else:
-        #    print ast[-1][-1]
+        # The function defining a class returns locals() in Python somewhere less than
+        # 3.7.
+        #
+        # We don't want this to show up in the source, so remove the node.
+        if len(ast):
+            if ast == "stmts" and ast[-1] == "sstmt":
+                return_locals_parent = ast[-1]
+                parent_index = 0
+            else:
+                return_locals_parent = ast
+                parent_index = -1
+            return_locals = return_locals_parent[parent_index]
+            if return_locals == RETURN_LOCALS:
+                if self.hide_internal:
+                    del return_locals_parent[parent_index]
+                    pass
+                pass
+            # else:
+            #    print stmt[-1]
 
+
+        # Add "global" declaration statements at the top
         globals, nonlocals = find_globals_and_nonlocals(
             ast, set(), set(), code, self.version
         )
-        # Add "global" declaration statements at the top
         # of the function
         for g in sorted(globals):
             self.println(indent, "global ", g)
@@ -2371,8 +2389,11 @@ class SourceWalker(GenericASTTraversal, object):
         old_name = self.name
         self.gen_source(ast, code.co_name, code._customize)
         self.name = old_name
+
+        # save memory by deleting no-longer-used structures
         code._tokens = None
-        code._customize = None  # save memory
+        code._customize = None
+
         self.classes.pop(-1)
 
     def gen_source(self, ast, name, customize, is_lambda=False, returnNone=False):

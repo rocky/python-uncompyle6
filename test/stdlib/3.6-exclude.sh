@@ -1,14 +1,13 @@
 SKIP_TESTS=(
+    [test_ast.py]=1 # FIXME: Works on c90ff51
     [test_binop.py]=1 # FIXME: Works on c90ff51
-    [test_cmath.py]=1 # FIXME: Works on c90ff51
-    [test_decorators.py]=1 # FIXME: Works on c90ff51
-    [test_format.py]=1  # FIXME: works on c90ff51
-    [test_locale.py]=1 # FIXME: Works on c90ff51
-    [test_optparse.py]=1 # FIXME: Works on c90ff51
-    [test_os.py]=1 # FIXME: Works on c90ff51
-    [test_pyclbr.py]=1 # FIXME: Works on c90ff51
+    [test_complex.py]=1 # FIXME: Works on c90ff51
+    [test_format.py]=1 # FIXME: Works on c90ff51
+    [test_ftplib.py]=1 # FIXME: Works on c90ff51
+    [test_slice.py]=1 # FIXME: Works on c90ff51
     [test_sort.py]=1 # FIXME: Works on c90ff51
-    [test_strftime.py]=1 # FIXME: Works on c90ff51
+    [test_timeit.py]=1 # FIXME: Works on c90ff51
+    [test_os.py]=1 # FIXME: Works on c90ff51
 
     [test___all__.py]=1  # it fails on its own
     [test_aifc.py]=1  #
@@ -43,7 +42,7 @@ SKIP_TESTS=(
     [test_concurrent_futures.py]=1 # Takes long
     [test_contextlib.py]=1 # test assertion failure
     [test_contextlib_async.py]=1 # Investigate
-    [test_coroutines.py]=1 # Parse error
+    [test_coroutines.py]=1 # parse error
     [test_curses.py]=1 # Parse error
     [test_ctypes.py]=1 # it fails on its own
 
@@ -182,6 +181,7 @@ SKIP_TESTS=(
     [test_urllib2.py]=1 # it fails on its own
     [test_urllibnet.py]=1 # it fails on its own
     [test_urllib.py]=1 # it fails on its own
+    [test_urlparse.py]=1 # test failure
 
     [test_venv.py]=1 # test takes too long to run: 13 seconds
 

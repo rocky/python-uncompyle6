@@ -185,14 +185,14 @@ class Python37Parser(Python37BaseParser):
 
         _mklambda ::= mklambda
 
-        expr ::= conditional
+        expr      ::= if_exp
 
-        ret_expr ::= expr
-        ret_expr ::= ret_and
-        ret_expr ::= ret_or
+        ret_expr  ::= expr
+        ret_expr  ::= ret_and
+        ret_expr  ::= ret_or
 
         ret_expr_or_cond ::= ret_expr
-        ret_expr_or_cond ::= ret_cond
+        ret_expr_or_cond ::= if_exp_ret
 
         stmt ::= return_lambda
 
@@ -405,7 +405,7 @@ class Python37Parser(Python37BaseParser):
 
     def p_32on(self, args):
         """
-        conditional::= expr jmp_false expr jump_forward_else expr COME_FROM
+        if_exp::= expr jmp_false expr jump_forward_else expr COME_FROM
 
         # compare_chained2 is used in a "chained_compare": x <= y <= z
         # used exclusively in compare_chained
@@ -630,8 +630,8 @@ class Python37Parser(Python37BaseParser):
 
     def p_37conditionals(self, args):
         """
-        expr                       ::= conditional37
-        conditional37              ::= expr expr jf_cfs expr COME_FROM
+        expr                       ::= if_exp37
+        if_exp37              ::= expr expr jf_cfs expr COME_FROM
         jf_cfs                     ::= JUMP_FORWARD _come_froms
         ifelsestmt                 ::= testexpr c_stmts_opt jf_cfs else_suite opt_come_from_except
 
@@ -712,18 +712,18 @@ class Python37Parser(Python37BaseParser):
 
     def p_expr3(self, args):
         """
-        expr           ::= conditionalnot
-        conditionalnot ::= expr jmp_true  expr jump_forward_else expr COME_FROM
+        expr           ::= if_exp_not
+        if_exp_not     ::= expr jmp_true  expr jump_forward_else expr COME_FROM
 
         # a JUMP_FORWARD to another JUMP_FORWARD can get turned into
         # a JUMP_ABSOLUTE with no COME_FROM
-        conditional    ::= expr jmp_false expr jump_absolute_else expr
+        if_exp         ::= expr jmp_false expr jump_absolute_else expr
 
-        # if_expr_true are for conditions which always evaluate true
+        # if_exp_true are for conditions which always evaluate true
         # There is dead or non-optional remnants of the condition code though,
         # and we use that to match on to reconstruct the source more accurately
-        expr           ::= if_expr_true
-        if_expr_true   ::= expr JUMP_FORWARD expr COME_FROM
+        expr           ::= if_exp_true
+        if_exp_true    ::= expr JUMP_FORWARD expr COME_FROM
         """
 
     def p_generator_exp3(self, args):
@@ -920,9 +920,9 @@ class Python37Parser(Python37BaseParser):
         jmp_true  ::= POP_JUMP_IF_TRUE
 
         # FIXME: Common with 2.7
-        ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
-        ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
-        ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
+        ret_and    ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
+        ret_or     ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
+        if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
         jitop_come_from ::= JUMP_IF_TRUE_OR_POP come_froms
         jifop_come_from ::= JUMP_IF_FALSE_OR_POP come_froms
@@ -966,26 +966,27 @@ class Python37Parser(Python37BaseParser):
 
     def p_stmt3(self, args):
         """
-        stmt               ::= if_expr_lambda
-        stmt               ::= conditional_not_lambda
+        stmt               ::= if_exp_lambda
+        stmt               ::= if_exp_not_lambda
 
         # If statement inside a loop:
         stmt               ::= ifstmtl
 
-        if_expr_lambda     ::= expr jmp_false expr return_if_lambda
+        if_exp_lambda      ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
-        conditional_not_lambda
+        if_exp_not_lambda
                            ::= expr jmp_true expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
 
         return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
         return_if_lambda   ::= RETURN_END_IF_LAMBDA
 
-        stmt ::= return_closure
-        return_closure ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
+        stmt               ::= return_closure
+        return_closure     ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
 
-        stmt ::= whileTruestmt
-        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms
+        stmt               ::= whileTruestmt
+        ifelsestmt         ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms
+        ifelsestmtl        ::= testexpr c_stmts_opt jump_forward_else else_suitec
 
         ifstmtl            ::= testexpr _ifstmts_jumpl
 
@@ -1091,7 +1092,7 @@ class Python37Parser(Python37BaseParser):
         jf_cf       ::= JUMP_FORWARD COME_FROM
         cf_jf_else  ::= come_froms JUMP_FORWARD ELSE
 
-        conditional ::= expr jmp_false expr jf_cf expr COME_FROM
+        if_exp ::= expr jmp_false expr jf_cf expr COME_FROM
 
         async_for_stmt     ::= setup_loop expr
                                GET_AITER
@@ -1207,25 +1208,31 @@ class Python37Parser(Python37BaseParser):
 
             elif opname == "BEFORE_ASYNC_WITH":
                 rules_str = """
-                  stmt ::= async_with_stmt
+                  stmt               ::= async_with_stmt SETUP_ASYNC_WITH
+                  async_with_pre     ::= BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM SETUP_ASYNC_WITH
+                  async_with_post    ::= COME_FROM_ASYNC_WITH
+                                         WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                         WITH_CLEANUP_FINISH END_FINALLY
+
+                  stmt               ::= async_with_as_stmt
                   async_with_as_stmt ::= expr
-                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               SETUP_ASYNC_WITH store
-                               suite_stmts_opt
-                               POP_BLOCK LOAD_CONST
-                               COME_FROM_ASYNC_WITH
-                               WITH_CLEANUP_START
-                               GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               WITH_CLEANUP_FINISH END_FINALLY
-                 stmt ::= async_with_as_stmt
-                 async_with_stmt ::= expr
-                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               SETUP_ASYNC_WITH POP_TOP suite_stmts_opt
-                               POP_BLOCK LOAD_CONST
-                               COME_FROM_ASYNC_WITH
-                               WITH_CLEANUP_START
-                               GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               WITH_CLEANUP_FINISH END_FINALLY
+                                         async_with_pre
+                                         store
+                                         suite_stmts_opt
+                                         POP_BLOCK LOAD_CONST
+                                         async_with_post
+
+                 async_with_stmt     ::= expr
+                                         async_with_pre
+                                         POP_TOP
+                                         suite_stmts_opt
+                                         POP_BLOCK LOAD_CONST
+                                         async_with_post
+                 async_with_stmt     ::= expr
+                                         async_with_pre
+                                         POP_TOP
+                                         suite_stmts_opt
+                                         async_with_post
                 """
                 self.addRule(rules_str, nop_func)
 

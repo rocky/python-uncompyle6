@@ -79,6 +79,7 @@ SKIP_TESTS=(
     [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
     [test_zlib]=1  # fails on its own
 )
+# About 265 tests in 14 minutes
 
 if (( batch )) ; then
     SKIP_TESTS[test_doctest.py]=1 # Fails on ppc64le

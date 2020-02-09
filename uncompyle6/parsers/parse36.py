@@ -64,7 +64,7 @@ class Python36Parser(Python35Parser):
         jf_cf       ::= JUMP_FORWARD COME_FROM
         cf_jf_else  ::= come_froms JUMP_FORWARD ELSE
 
-        conditional ::= expr jmp_false expr jf_cf expr COME_FROM
+        if_exp ::= expr jmp_false expr jf_cf expr COME_FROM
 
         async_for_stmt     ::= SETUP_LOOP expr
                                GET_AITER
@@ -112,9 +112,16 @@ class Python36Parser(Python35Parser):
         except_suite ::= c_stmts_opt COME_FROM POP_EXCEPT jump_except COME_FROM
 
         jb_cfs      ::= JUMP_BACK come_froms
+
+        # If statement inside a loop.
+        stmt                ::= ifstmtl
+        ifstmtl            ::= testexpr _ifstmts_jumpl
+        _ifstmts_jumpl     ::= c_stmts JUMP_BACK
+
         ifelsestmtl ::= testexpr c_stmts_opt jb_cfs else_suitel
         ifelsestmtl ::= testexpr c_stmts_opt cf_jf_else else_suitel
-        ifelsestmt ::= testexpr c_stmts_opt cf_jf_else else_suite _come_froms
+        ifelsestmt  ::= testexpr c_stmts_opt cf_jf_else else_suite _come_froms
+        ifelsestmt  ::= testexpr c_stmts come_froms else_suite come_froms
 
         # In 3.6+, A sequence of statements ending in a RETURN can cause
         # JUMP_FORWARD END_FINALLY to be omitted from try middle
@@ -157,8 +164,8 @@ class Python36Parser(Python35Parser):
     # that and then we can remove this.
     def p_37conditionals(self, args):
         """
-        expr                       ::= conditional37
-        conditional37              ::= expr expr jf_cfs expr COME_FROM
+        expr                       ::= if_exp37
+        if_exp37                   ::= expr expr jf_cfs expr COME_FROM
         jf_cfs                     ::= JUMP_FORWARD _come_froms
         ifelsestmt                 ::= testexpr c_stmts_opt jf_cfs else_suite opt_come_from_except
         """
@@ -168,6 +175,8 @@ class Python36Parser(Python35Parser):
         # """)
         super(Python36Parser, self).customize_grammar_rules(tokens, customize)
         self.remove_rules("""
+           _ifstmts_jumpl     ::= c_stmts_opt
+           _ifstmts_jumpl     ::= _ifstmts_jump
            except_handler     ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts END_FINALLY COME_FROM
            async_for_stmt     ::= SETUP_LOOP expr
                                   GET_AITER
@@ -230,24 +239,26 @@ class Python36Parser(Python35Parser):
             elif opname == 'BEFORE_ASYNC_WITH':
                 rules_str = """
                   stmt ::= async_with_stmt
+                  async_with_pre     ::= BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM SETUP_ASYNC_WITH
+                  async_with_post    ::= COME_FROM_ASYNC_WITH
+                                         WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                         WITH_CLEANUP_FINISH END_FINALLY
                   async_with_as_stmt ::= expr
-                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               SETUP_ASYNC_WITH store
+                               async_with_pre
+                               store
                                suite_stmts_opt
                                POP_BLOCK LOAD_CONST
-                               COME_FROM_ASYNC_WITH
-                               WITH_CLEANUP_START
-                               GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               WITH_CLEANUP_FINISH END_FINALLY
+                               async_with_post
                  stmt ::= async_with_as_stmt
                  async_with_stmt ::= expr
-                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               SETUP_ASYNC_WITH POP_TOP suite_stmts_opt
+                               POP_TOP
+                               suite_stmts_opt
                                POP_BLOCK LOAD_CONST
-                               COME_FROM_ASYNC_WITH
-                               WITH_CLEANUP_START
-                               GET_AWAITABLE LOAD_CONST YIELD_FROM
-                               WITH_CLEANUP_FINISH END_FINALLY
+                               async_with_post
+                 async_with_stmt ::= expr
+                               POP_TOP
+                               suite_stmts_opt
+                               async_with_post
                 """
                 self.addRule(rules_str, nop_func)
 

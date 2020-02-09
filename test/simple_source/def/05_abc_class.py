@@ -12,3 +12,9 @@ class abstractclassmethod(classmethod):
     def __init__(self, callable):
         callable.__isabstractmethod__ = True
         super().__init__(callable)
+
+# From 2.7.17 test_abc.py
+# Bug was handling OldstyleClass correctly without
+# a "return locals() but with a "pass"
+class OldstyleClass:
+    pass

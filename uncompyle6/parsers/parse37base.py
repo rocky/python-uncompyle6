@@ -159,12 +159,11 @@ class Python37BaseParser(PythonParser):
               stmt ::= assign2_pypy
               assign3_pypy       ::= expr expr expr store store store
               assign2_pypy       ::= expr expr store store
-              stmt               ::= if_expr_lambda
-              stmt               ::= conditional_not_lambda
-              if_expr_lambda     ::= expr jmp_false expr return_if_lambda
+              stmt               ::= if_exp_lambda
+              stmt               ::= if_exp_not_lambda
+              if_exp_lambda      ::= expr jmp_false expr return_if_lambda
                                      return_lambda LAMBDA_MARKER
-              conditional_not_lambda
-                                 ::= expr jmp_true expr return_if_lambda
+              if_exp_not_lambda  ::= expr jmp_true expr return_if_lambda
                                      return_lambda LAMBDA_MARKER
               """,
                 nop_func,
@@ -211,37 +210,57 @@ class Python37BaseParser(PythonParser):
 
                 if self.version < 3.8:
                     rules_str += """
-                       async_with_stmt    ::= expr
-                                              BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                                              SETUP_ASYNC_WITH POP_TOP suite_stmts_opt
-                                              POP_BLOCK LOAD_CONST COME_FROM_ASYNC_WITH
-                                              WITH_CLEANUP_START
-                                              GET_AWAITABLE LOAD_CONST YIELD_FROM
-                                              WITH_CLEANUP_FINISH END_FINALLY
-                       async_with_as_stmt ::= expr
-                                              BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                                              SETUP_ASYNC_WITH store suite_stmts_opt
-                                              POP_BLOCK LOAD_CONST COME_FROM_ASYNC_WITH
-                                              WITH_CLEANUP_START
-                                              GET_AWAITABLE LOAD_CONST YIELD_FROM
-                                              WITH_CLEANUP_FINISH END_FINALLY
+                      stmt                ::= async_with_stmt SETUP_ASYNC_WITH
+                      async_with_stmt     ::= expr
+                                              async_with_pre
+                                              POP_TOP
+                                              suite_stmts_opt
+                                              POP_BLOCK LOAD_CONST
+                                              async_with_post
+                      async_with_stmt     ::= expr
+                                              async_with_pre
+                                              POP_TOP
+                                              suite_stmts_opt
+                                              async_with_post
+                      async_with_as_stmt  ::= expr
+                                              async_with_pre
+                                              store
+                                              suite_stmts_opt
+                                              POP_BLOCK LOAD_CONST
+                                              async_with_post
                     """
                 else:
                     rules_str += """
-                       async_with_stmt    ::= expr
-                                              BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                                              SETUP_ASYNC_WITH POP_TOP suite_stmts
-                                              POP_TOP POP_BLOCK BEGIN_FINALLY COME_FROM_ASYNC_WITH
-                                              WITH_CLEANUP_START
-                                              GET_AWAITABLE LOAD_CONST YIELD_FROM
+                      async_with_pre      ::= BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM SETUP_ASYNC_WITH
+                      async_with_post     ::= BEGIN_FINALLY COME_FROM_ASYNC_WITH
+                                              WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
                                               WITH_CLEANUP_FINISH END_FINALLY
-                       async_with_as_stmt ::= expr
-                                              BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
-                                              SETUP_ASYNC_WITH store suite_stmts
-                                              POP_TOP POP_BLOCK BEGIN_FINALLY COME_FROM_ASYNC_WITH
-                                              WITH_CLEANUP_START
-                                              GET_AWAITABLE LOAD_CONST YIELD_FROM
+                      async_with_stmt     ::= expr
+                                              async_with_pre
+                                              POP_TOP
+                                              suite_stmts
+                                              POP_TOP POP_BLOCK
+                                              async_with_post
+                      async_with_stmt     ::= expr
+                                              async_with_pre
+                                              POP_TOP
+                                              suite_stmts
+                                              POP_BLOCK
+                                              BEGIN_FINALLY
+                                              WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                              WITH_CLEANUP_FINISH POP_FINALLY LOAD_CONST RETURN_VALUE
+                                              COME_FROM_ASYNC_WITH
+                                              WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
                                               WITH_CLEANUP_FINISH END_FINALLY
+                      async_with_as_stmt  ::= expr
+                                              async_with_pre
+                                              store suite_stmts
+                                              POP_TOP POP_BLOCK
+                                              async_with_post
+                      async_with_as_stmt  ::= expr
+                                              async_with_pre
+                                              store suite_stmts
+                                              POP_BLOCK async_with_post
                     """
                 self.addRule(rules_str, nop_func)
 
@@ -993,6 +1012,7 @@ class Python37BaseParser(PythonParser):
             "_ifstmts_jump": ifstmts_jump,
             "and": and_check,
             "ifelsestmt": ifelsestmt,
+            "ifelsestmtl": ifelsestmt,
             "iflaststmt": iflaststmt,
             "iflaststmtl": iflaststmt,
             "ifstmt": ifstmt,
@@ -1013,6 +1033,7 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["while1elsestmt"] = "noAST"
         self.check_reduce["_ifstmts_jump"] = "AST"
         self.check_reduce["ifelsestmt"] = "AST"
+        self.check_reduce["ifelsestmtl"] = "AST"
         self.check_reduce["iflaststmt"] = "AST"
         self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
