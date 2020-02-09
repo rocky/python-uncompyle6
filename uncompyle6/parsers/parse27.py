@@ -185,6 +185,10 @@ class Python27Parser(Python2Parser):
         ifelsestmtl       ::= testexpr c_stmts_opt JUMP_BACK else_suitel
         ifelsestmtl       ::= testexpr c_stmts_opt CONTINUE else_suitel
 
+        # In the future when we have ifelsestmtl checking we should add something like:
+        # ifelsestmtl       ::= testexpr c_stmts_opt JUMP_FORWARD else_suite come_froms
+        # c_stmts           ::= ifelsestmtl
+
         # "if"/"else" statement that ends in a RETURN
         ifelsestmtr       ::= testexpr return_if_stmts COME_FROM returns
 
@@ -222,7 +226,7 @@ class Python27Parser(Python2Parser):
 
         # FIXME: Put more in this table
         self.reduce_check_table = {
-            "ifelsestmt": ifelsestmt,
+            # "ifelsestmt": ifelsestmt,
             "tryelsestmt": tryelsestmt,
             "tryelsestmtl": tryelsestmt,
         }
