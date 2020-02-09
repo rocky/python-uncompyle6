@@ -10,8 +10,8 @@ jobs:
       CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
       CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
       COMPILE: --compile
-      PYENV_ROOT: "$HOME/.pyenv"
-      PATH:       "$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
+      PYENV_ROOT: "/home/circleci/.pyenv"
+      PATH:       "/home/circleci/bin:/home/circleci/shims:/home/circleci/.pyenv/bin:/home/circleci/.local/bin:/usr/local/bin:/usr/bin:/bin"
 
     # To see the list of pre-built images that CircleCI provides for most common languages see
     # https://circleci.com/docs/2.0/circleci-images/
