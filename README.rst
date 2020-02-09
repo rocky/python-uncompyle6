@@ -54,7 +54,7 @@ only; another patched that and handled only 3.3.  You get the
 idea. This code pulls all of these forks together and *moves
 forward*. There is some serious refactoring and cleanup in this code
 base over those old forks. Even more experimental refactoring is going
-on in decompile3_.
+on in decompyle3_.
 
 This demonstrably does the best in decompiling Python across all
 Python versions. And even when there is another project that only
