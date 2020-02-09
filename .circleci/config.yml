@@ -29,7 +29,7 @@ jobs:
     - run: curl https://pyenv.run | bash
     - run:
         working_directory: ~/rocky/python-uncompyle6
-        command: /home/circleci/.pyenv/bin/pyenv install 2.4.6 && /home/circleci/.pyenv/bin/pyenv local 2.4.6 && /home/circleci/.pyenv/bin/pyenv rehash && easy_install nose && /home/circleci/.pyenv/bin/pyenv rehash
+        command: sudo /home/circleci/.pyenv/bin/pyenv install 2.4.6 && /home/circleci/.pyenv/bin/pyenv local 2.4.6 && /home/circleci/.pyenv/bin/pyenv rehash && easy_install nose && /home/circleci/.pyenv/bin/pyenv rehash
     # Dependencies
     #   This would typically go in either a build or a build-and-test job when using workflows
     # Restore the dependency cache
