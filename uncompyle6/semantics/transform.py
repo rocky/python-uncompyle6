@@ -290,8 +290,10 @@ class TreeTransform(GenericASTTraversal, object):
                 and n[1].kind == "stmt"
             ):
                 else_suite_stmts = n[0]
-            else:
+            elif len(n) == 1:
                 else_suite_stmts = n
+            else:
+                return node
 
             if else_suite_stmts[0].kind in (
                 "ifstmt",
