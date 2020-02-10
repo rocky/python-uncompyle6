@@ -107,6 +107,7 @@ SKIP_TESTS=(
     [test_nntplib.py]=1 # test takes too long to run: 31 seconds
     [test_normalization.py]=1 # it fails on its own
 
+    [test_optparse.py]= # test fails
     [test_ordered_dict.py]= # it fails on its own
     [test_ossaudiodev.py]=1 # it fails on its own
 
