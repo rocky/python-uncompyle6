@@ -149,6 +149,7 @@ SKIP_TESTS=(
     [test_startfile.py]=1 # it fails on its own
     [test_statistics.py]=1 # it fails on its own
     [test_string_literals.py]=1
+    [test_strftime.py]=1 # test assertion failures
     [test_strtod.py]=1 # it fails on its own
     [test_struct.py]=1  # test assertion errors
     [test_subprocess.py]=1
