@@ -281,24 +281,28 @@ class TreeTransform(GenericASTTraversal, object):
                     else_suite_index = 2
                 pass
             pass
-        elif (
-            len(n) > 1
-            and isinstance(n[0], SyntaxTree)
-            and 1 == len(n[0])
-            and n[0] == "stmt"
-            and n[1].kind == "stmt"
-        ):
-            else_suite_stmts = n[0]
-            if else_suite_stmts[0].kind not in (
+        else:
+            if (
+                len(n) > 1
+                and isinstance(n[0], SyntaxTree)
+                and 1 == len(n[0])
+                and n[0] == "stmt"
+                and n[1].kind == "stmt"
+            ):
+                else_suite_stmts = n[0]
+            else:
+                else_suite_stmts = n
+
+            if else_suite_stmts[0].kind in (
                 "ifstmt",
                 "iflaststmt",
+                "ifelsestmt",
                 "ifelsestmtl",
             ):
+                old_stmts = n
+                n = else_suite_stmts[0]
+            else:
                 return node
-            old_stmts = n
-            n = else_suite_stmts[0]
-        else:
-            return node
 
         if n.kind in ("ifstmt", "iflaststmt", "iflaststmtl", "ifpoplaststmtl"):
             node.kind = "ifelifstmt"
