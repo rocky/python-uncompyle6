@@ -14,11 +14,29 @@ function displaytime {
     printf '%d seconds\n' $S
 }
 
-. ../../admin-tools/pyenv-newer-versions
+bs=${BASH_SOURCE[0]}
+if [[ $0 != $bs ]] ; then
+    echo "This script should not be *sourced* but run through bash"
+    exit 1
+fi
+
+mydir=$(dirname $bs)
+chdir $mydir
+
+branch=$(cat ../../.git/HEAD | cut -d'/' -f 3)
+if [[ $branch == 'python-2.4' ]]; then
+    . ../../admin-tools/pyenv-older-versions
+elif [[ $branch == 'master' ]]; then
+    . ../../admin-tools/pyenv-newer-versions
+else
+    echo &1>2 "Error git branch should either be 'master' or 'python-2.4'; got: '$branch'"
+    exit 1
+fi
 
 USER=${USER:-rocky}
 EMAIL=${EMAIL:-rb@dustyfeet.com}
 SUBJECT_PREFIX="stdlib unit testing for"
+export BATCH=1
 
 typeset -i RUN_STARTTIME=$(date +%s)
 
@@ -54,4 +72,4 @@ done
 typeset -i RUN_ENDTIME=$(date +%s)
 (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
 elapsed_time=$(displaytime $time_diff)
-echo "Run complete $elapsed_time for versions $actual_versions" | mail -s "runtests in $elapsed_time" ${EMAIL}
+echo "Run complete $elapsed_time for versions $actual_versions" | mail -s "$HOST runtests in $elapsed_time" ${EMAIL}

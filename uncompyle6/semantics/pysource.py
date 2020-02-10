@@ -2283,6 +2283,8 @@ class SourceWalker(GenericASTTraversal, object):
                 if first_stmt == "store_locals":
                     if self.hide_internal:
                         del ast[0]
+                        if ast[0] == "sstmt":
+                            ast[0] = ast[0][0]
                         first_stmt = ast[0]
             except:
                 pass
