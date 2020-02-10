@@ -25,6 +25,8 @@ from uncompyle6.semantics.consts import RETURN_NONE
 
 
 def is_docstring(node):
+    if node == "sstmt":
+        node = node[0]
     try:
         return node.kind == "assign" and node[1][0].pattr == "__doc__"
     except:
