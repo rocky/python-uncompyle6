@@ -19,6 +19,7 @@ function displaytime {
 USER=${USER:-rocky}
 EMAIL=${EMAIL:-rb@dustyfeet.com}
 SUBJECT_PREFIX="stdlib unit testing for"
+export BATCH=1
 
 typeset -i RUN_STARTTIME=$(date +%s)
 
@@ -54,4 +55,4 @@ done
 typeset -i RUN_ENDTIME=$(date +%s)
 (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
 elapsed_time=$(displaytime $time_diff)
-echo "Run complete $elapsed_time for versions $actual_versions" | mail -s "runtests in $elapsed_time" ${EMAIL}
+echo "Run complete $elapsed_time for versions $actual_versions" | mail -s "$HOST runtests in $elapsed_time" ${EMAIL}
