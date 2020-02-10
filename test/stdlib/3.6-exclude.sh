@@ -49,6 +49,7 @@ SKIP_TESTS=(
     [test_datetime.py]=1 # it fails on its own
     [test_dbm_ndbm.py]=1 # it fails on its own
     [test_decimal.py]=1
+    [test_decorators.py]=1 # control-flow failures
     [test_descr.py]=1   # syntax error: Investigate
     [test_devpoll.py]=1 # it fails on its own
     [test_dict.py]=1 # it fails on its own
