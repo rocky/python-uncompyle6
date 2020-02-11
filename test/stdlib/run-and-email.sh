@@ -59,11 +59,20 @@ for VERSION in $PYVERSIONS ; do
     else
       STOP_ONERROR=1 /bin/bash $DEBUG ./runtests.sh  >$LOGFILE 2>&1
       rc=$?
+
+      echo Python Version $(pyenv local) >> $LOGFILE
+      echo "" >>$LOGFILE
+      typeset -i ALL_FILES_ENDTIME=$(date +%s)
+      (( time_diff =  ALL_FILES_ENDTIME - ALL_FILES_STARTTIME))
+      displaytime $time_diff >> $LOGFILE
     fi
+
     SUBJECT_PREFIX="runtests verify for"
     if ((rc == 0)); then
+	actual_versions="$actual_versions ok;"
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION ok" ${USER}@localhost
     else
+	actual_versions="$actual_versions failed;"
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" ${USER}@localhost
 	tail -v $LOGFILE | mail -s "$HOST $SUBJECT_PREFIX $VERSION not ok" $EMAIL
     fi

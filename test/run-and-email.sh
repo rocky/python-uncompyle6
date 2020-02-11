@@ -79,8 +79,10 @@ for VERSION in $PYVERSIONS ; do
 
     SUBJECT_PREFIX="pyenv weak verify (max $MAX_TESTS) for"
     if ((rc == 0)); then
+	actual_versions="$actual_versions ok;"
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION ok" ${USER}@localhost
     else
+	actual_versions="$actual_versions failed;"
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" ${USER}@localhost
 	tail -v $LOGFILE | mail -s "$HOST $SUBJECT_PREFIX $VERSION not ok" ${EMAIL}
     fi
