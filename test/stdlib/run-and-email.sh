@@ -21,7 +21,7 @@ if [[ $0 != $bs ]] ; then
 fi
 
 mydir=$(dirname $bs)
-chdir $mydir
+cd $mydir
 
 branch=$(cat ../../.git/HEAD | cut -d'/' -f 3)
 if [[ $branch == 'python-2.4' ]]; then
