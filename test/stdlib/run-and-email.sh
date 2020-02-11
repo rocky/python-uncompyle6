@@ -65,7 +65,7 @@ for VERSION in $PYVERSIONS ; do
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION ok" ${USER}@localhost
     else
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" ${USER}@localhost
-	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" $EMAIL
+	tail -v $LOGFILE | mail -s "$HOST $SUBJECT_PREFIX $VERSION not ok" $EMAIL
     fi
 done
 
