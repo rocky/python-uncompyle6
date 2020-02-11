@@ -1,6 +1,7 @@
 SKIP_TESTS=(
     [test_builtin.py]=1 # FIXME works on decompyle6
     [test_context.py]=1 # FIXME works on decompyle6
+    [test_doctest2.py]=1 # FIXME works on decompyle6
     [test_format.py]=1 # FIXME works on decompyle6
     [test_marshal.py]=1 # FIXME works on decompyle6
     [test_normalization.py]=1 # FIXME works on decompyle6
