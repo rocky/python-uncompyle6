@@ -1,10 +1,10 @@
 SKIP_TESTS=(
-    [test_buffer.py]=1  # FIXME: Works on c90ff51 ?
+    [test_buffer.py]=1  # FIXME: Works on c90ff51
     [test_decorators.py]=1  # FIXME: Works on c90ff51
     [test_optparse.py]=1  # FIXME: Works on c90ff51
     [test_os.py]=1  # FIXME: Works on c90ff51
     [test_shutil.py]=1  # FIXME: Works on c90ff51
-    [test_strftime.py]=1  # FIXME: Works on c90ff51 ?
+    [test_strftime.py]=1  # FIXME: Works on c90ff51
 
     [test___all__.py]=1  # it fails on its own
     [test_atexit.py]=1  # The atexit test looks for specific comments in error lines

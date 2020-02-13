@@ -1,14 +1,13 @@
 SKIP_TESTS=(
-    [test_binop.py]=1  # FIXME: Works on c90ff51 ?
-    [test_cgi.py]=1  # FIXME: Works on c90ff51 ?
-    [test_buffer.py]=1  # FIXME: Works on c90ff51 ?
+    [test_binop.py]=1  # FIXME: Works on c90ff51
+    [test_cgi.py]=1  # FIXME: Works on c90ff51
+    [test_buffer.py]=1  # FIXME: Works on c90ff51
     [test_decorators.py]=1  # FIXME: Works on c90ff51
     [test_optparse.py]=1  # FIXME: Works on c90ff51
     [test_os.py]=1  # FIXME: Works on c90ff51
-    [test_pep352.py]=1  # FIXME: Works on c90ff51 ?
-    [test_pyclbr.py]=1 # FIXME: Works on c90ff51 ?
+    [test_pyclbr.py]=1 # FIXME: Works on c90ff51
     [test_shutil.py]=1  # FIXME: Works on c90ff51
-    [test_strftime.py]=1  # FIXME: Works on c90ff51 ?
+    [test_strftime.py]=1  # FIXME: Works on c90ff51
 
     [test_atexit.py]=1  # The atexit test starting at 3.3 looks for specific comments in error lines
 
@@ -39,6 +38,7 @@ SKIP_TESTS=(
 
     [test_nntplib.py]=1
 
+    [test_pep352.py]=1  # test failures
     [test_peepholer.py]=1
     [test_poll.py]=1  # test takes too long to run: 11 seconds
     [test_pty.py]=1  # FIXME: Needs grammar loop isolation separation
