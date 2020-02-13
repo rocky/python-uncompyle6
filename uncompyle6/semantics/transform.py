@@ -132,7 +132,7 @@ class TreeTransform(GenericASTTraversal, object):
 
         if stmts in ("c_stmts", "stmts", "stmts_opt") and len(stmts) == 1:
             raise_stmt = stmts[0]
-            if raise_stmt != "raise_stmt1":
+            if raise_stmt != "raise_stmt1" and len(raise_stmt) > 0:
                 raise_stmt = raise_stmt[0]
 
             testtrue_or_false = testexpr[0]
@@ -147,17 +147,15 @@ class TreeTransform(GenericASTTraversal, object):
                     assert_expr = testtrue_or_false[0]
                     jump_cond = NoneToken
                 else:
-                    try:
-                        assert testtrue_or_false in ("testfalse", "testfalsel")
-                    except:
-                        from trepan.api import debug; debug()
+                    assert testtrue_or_false in ("testfalse", "testfalsel")
                     assert_expr = testtrue_or_false[0]
-                    if assert_expr == "testfalse_not_and":
-                        # FIXME: come pack to stuff like this
+                    if assert_expr in ("testfalse_not_and", "and_not"):
+                        # FIXME: come back to stuff like this
                         return node
 
                     jump_cond = testtrue_or_false[1]
                     assert_expr.kind = "assert_expr"
+                    pass
 
                 expr = raise_stmt[0]
                 RAISE_VARARGS_1 = raise_stmt[1]
@@ -257,6 +255,7 @@ class TreeTransform(GenericASTTraversal, object):
 
         where appropriate.
         """
+
         else_suite = node[3]
 
         n = else_suite[0]
