@@ -38,8 +38,18 @@ IFELSE_STMT_RULES = frozenset(
             (
                 "testexpr",
                 "c_stmts_opt",
+                "jump_forward_else",
+                "else_suitec",
+                "\\e__come_froms",
+            ),
+        ),
+        (
+            "ifelsestmtc",
+            (
+                "testexpr",
+                "c_stmts_opt",
                 "jump_absolute_else",
-                "else_suitec"
+                "else_suitec",
             ),
         ),
         (
@@ -94,6 +104,7 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
         return True
 
     if rule not in IFELSE_STMT_RULES:
+        # print("XXX", rule)
         return False
 
     # Avoid if/else where the "then" is a "raise_stmt1" for an
