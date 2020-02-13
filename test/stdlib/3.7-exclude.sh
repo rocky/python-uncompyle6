@@ -1,5 +1,4 @@
 SKIP_TESTS=(
-    [test_builtin.py]=1 # FIXME works on decompyle6
     [test_context.py]=1 # FIXME works on decompyle6
     [test_doctest2.py]=1 # FIXME works on decompyle6
     [test_format.py]=1 # FIXME works on decompyle6
@@ -10,12 +9,11 @@ SKIP_TESTS=(
     [test_slice.py]=1 # FIXME works on decompyle6
     [test_sort.py]=1 # FIXME works on decompyle6
     [test_statistics.py]=1 # FIXME works on decompyle6
-    [test_string_literals.py]=1 # FIXME works on decompyle6
     [test_timeit.py]=1 # FIXME works on decompyle6
     [test_urllib2_localnet.py]=1 # FIXME works on decompyle6
     [test_urllib2.py]=1 # FIXME: works on uncompyle6
-    [test_generators.py]=1  # Investigate improper lamdba with bogus "False" added
-    [test_grammar.py]=1 # investigate: like above: semantic rule missing probably
+    [test_generators.py]=1  # FIXME: works on uncompyle6 - lambda parsing probably
+    [test_grammar.py]=1 # FIXME: works on uncompyle6 - lambda parsing probably
 
     [test___all__.py]=1 # it fails on its own
     [test_argparse.py]=1 #- it fails on its own
