@@ -32,8 +32,19 @@ class Python23Parser(Python24Parser):
         while1stmt ::= _while1test l_stmts_opt JUMP_BACK
                        POP_TOP POP_BLOCK COME_FROM
 
-        while1stmt ::= _while1test l_stmts_opt JUMP_BACK
-                       COME_FROM POP_TOP POP_BLOCK COME_FROM
+        while1stmt ::= _while1test l_stmts_opt JUMP_BACK COME_FROM
+                       POP_TOP POP_BLOCK COME_FROM
+
+        # Python 2.3
+        # The following has no "JUMP_BACK" after l_stmts because
+        # l_stmts ends in a "break", "return", or "continue"
+        while1stmt ::= _while1test l_stmts
+                       POP_TOP POP_BLOCK
+
+        # The following has a "COME_FROM" at the end which comes from
+        # a "break" inside "l_stmts".
+        while1stmt ::= _while1test l_stmts COME_FROM JUMP_BACK
+                       POP_TOP POP_BLOCK COME_FROM
 
         list_comp  ::= BUILD_LIST_0 DUP_TOP LOAD_ATTR store list_iter del_stmt
         list_for   ::= expr for_iter store list_iter JUMP_BACK come_froms POP_TOP JUMP_BACK
