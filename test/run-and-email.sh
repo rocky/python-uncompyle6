@@ -14,20 +14,32 @@ function displaytime {
     printf '%d seconds\n' $S
 }
 
+bs=${BASH_SOURCE[0]}
+if [[ $0 != $bs ]] ; then
+    echo "This script should not be *sourced* but run through bash"
+    exit 1
+fi
+
+mydir=$(dirname $bs)
+cd $mydir
+
 . ../admin-tools/pyenv-newer-versions
+MAIN="test_pyenvlib.py"
 
 USER=${USER:-rocky}
 EMAIL=${EMAIL:-rb@dustyfeet.com}
+SUBJECT_PREFIX="${MAIN} for"
 MAX_TESTS=${MAX_TESTS:-800}
 export BATCH=1
 
 typeset -i RUN_STARTTIME=$(date +%s)
 
 # PYVERSIONS="3.5.6"
-actual_versions=""
+MAILBODY=/tmp/${MAIN}-mailbody-$$.txt
+# for VERSION in 3.3.7 ; do
 for VERSION in $PYVERSIONS ; do
     typeset -i rc=0
-    LOGFILE=/tmp/pyenvlib-$VERSION-$$.log
+    LOGFILE=/tmp/${MAIN}-$VERSION-$$.log
 
     case "$VERSION" in
 	3.7.6 | 3.8.1 | 3.1.5 | 3.0.1 )
@@ -48,6 +60,12 @@ for VERSION in $PYVERSIONS ; do
 	3.6.10 )
 	    MAX_TESTS=1300  # about 2139 exist
 	    ;;
+	2.4.6 )
+	    MAX_TESTS=600
+	    ;;
+	2.5.6 )
+	    MAX_TESTS=600
+	    ;;
 	2.6.9 )
 	    MAX_TESTS=1300
 	    ;;
@@ -58,13 +76,14 @@ for VERSION in $PYVERSIONS ; do
 
     actual_versions="$actual_versions $VERSION"
 
-    if ! pyenv local $VERSION ; then
+    if ! pyenv local $VERSION; then
 	rc=1
+	mailbody_line="pyenv local $VERSION not installed"
     else
       echo Python Version $(pyenv local) > $LOGFILE
       echo "" >> $LOGFILE
       typeset -i ALL_FILES_STARTTIME=$(date +%s)
-      cmd="python ./test_pyenvlib.py --max ${MAX_TESTS} --syntax-verify --$VERSION"
+      cmd="python ./${MAIN} --max ${MAX_TESTS} --syntax-verify --$VERSION"
       echo "$cmd" >>$LOGFILE 2>&1
       $cmd >>$LOGFILE 2>&1
       rc=$?
@@ -79,17 +98,20 @@ for VERSION in $PYVERSIONS ; do
 
     SUBJECT_PREFIX="pyenv weak verify (max $MAX_TESTS) for"
     if ((rc == 0)); then
-	actual_versions="$actual_versions ok;"
+	mailbody_line="Python $VERSION ok; ran in $time_diff"
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION ok" ${USER}@localhost
     else
+	mailbody_line="Python $VERSION failed; ran in $time_diff"
 	actual_versions="$actual_versions failed;"
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" ${USER}@localhost
 	tail -v $LOGFILE | mail -s "$HOST $SUBJECT_PREFIX $VERSION not ok" ${EMAIL}
     fi
+    echo $mailbody_line >> $MAILBODY
     rm .python-version
 done
 
 typeset -i RUN_ENDTIME=$(date +%s)
 (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
 elapsed_time=$(displaytime $time_diff)
-echo "Run complete $elapsed_time for versions $actual_versions" | mail -s "$HOST pyenv weak verify in $elapsed_time" ${EMAIL}
+echo "Run complete in $elapsed_time" >> $MAILBODY
+cat $MAILBODY | mail -s "$HOST $MAIN weak verify in $elapsed_time" ${EMAIL}
