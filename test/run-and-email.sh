@@ -36,7 +36,11 @@ typeset -i RUN_STARTTIME=$(date +%s)
 
 # PYVERSIONS="3.5.6"
 MAILBODY=/tmp/${MAIN}-mailbody-$$.txt
+<<<<<<< HEAD
 # for VERSION in 2.4.6 2.5.9 ; do
+=======
+# for VERSION in 3.3.7 ; do
+>>>>>>> master
 for VERSION in $PYVERSIONS ; do
     typeset -i rc=0
     LOGFILE=/tmp/${MAIN}-$VERSION-$$.log
@@ -99,7 +103,11 @@ for VERSION in $PYVERSIONS ; do
 
     SUBJECT_PREFIX="pyenv weak verify (max $MAX_TESTS) for"
     if ((rc == 0)); then
+<<<<<<< HEAD
 	mailbody_line="Python $VERSION ok; ran in $time_diff seconds"
+=======
+	mailbody_line="Python $VERSION ok; ran in $time_diff"
+>>>>>>> master
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION ok" ${USER}@localhost
     else
 	mailbody_line="Python $VERSION failed; ran in $time_diff"
