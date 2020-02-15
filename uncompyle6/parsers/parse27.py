@@ -139,6 +139,8 @@ class Python27Parser(Python2Parser):
         # assert condition, expr
         assert2    ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
 
+        continue   ::= JUMP_BACK JUMP_ABSOLUTE
+
         for_block  ::= returns _come_froms
 
         withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt
