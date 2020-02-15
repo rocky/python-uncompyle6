@@ -59,7 +59,7 @@ SKIP_TESTS=(
 )
 # About 300 unit-test files in about 20 minutes
 
-if (( batch )) ; then
+if (( BATCH )) ; then
     SKIP_TESTS[test_ftplib.py]=1  # Runs too long on POWER; over 15 seconds
     SKIP_TESTS[test_idle.py]=1  # No tk
     SKIP_TESTS[test_pep352.py]=1  # UnicodeDecodeError may be funny on weird environments

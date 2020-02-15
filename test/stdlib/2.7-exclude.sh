@@ -36,7 +36,7 @@ SKIP_TESTS=(
 )
 # 334 unit-test files in about 15 minutes
 
-if (( batch )) ; then
+if (( BATCH )) ; then
     # Fails in crontab environment?
     # Figure out what's up here
     SKIP_TESTS[test_array.py]=1

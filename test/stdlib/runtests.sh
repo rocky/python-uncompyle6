@@ -1,10 +1,12 @@
 #!/bin/bash
 me=${BASH_SOURCE[0]}
 
-typeset -i batch=1
-isatty=$(/usr/bin/tty 2>/dev/null)
-if [[ -n $isatty ]] && [[ "$isatty" != 'not a tty' ]] ; then
-    batch=0
+typeset -i BATCH=${BATCH:-0}
+if (( ! BATCH )) ; then
+    isatty=$(/usr/bin/tty 2>/dev/null)
+    if [[ -n $isatty ]] && [[ "$isatty" != 'not a tty' ]] ; then
+	BATCH=0
+    fi
 fi
 
 
@@ -72,7 +74,7 @@ case $PYVERSION in
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_fileio.py]=1
 	)
-	if (( batch )) ; then
+	if (( BATCH )) ; then
 	    # Fails in crontab environment?
 	    # Figure out what's up here
 	    SKIP_TESTS[test_exception_variations.py]=1
@@ -85,7 +87,7 @@ case $PYVERSION in
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    [test_fileio.py]=1
 	)
-	if (( batch )) ; then
+	if (( BATCH )) ; then
 	    # Fails in crontab environment?
 	    # Figure out what's up here
 	    SKIP_TESTS[test_exception_variations.py]=1

@@ -202,7 +202,7 @@ SKIP_TESTS=(
 )
 # 236 unit-test files in about 13 minutes
 
-if (( batch )) ; then
+if (( BATCH )) ; then
     SKIP_TESTS[test_codeccallbacks.py]=1
     SKIP_TESTS[test_complex.py]=1 # Something funky with POWER8
 
