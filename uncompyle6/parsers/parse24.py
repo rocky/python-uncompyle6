@@ -42,17 +42,14 @@ class Python24Parser(Python25Parser):
                        POP_TOP POP_BLOCK COME_FROM
         while1stmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK
                        POP_TOP POP_BLOCK
+        while1stmt ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK
+                       POP_TOP POP_BLOCK COME_FROM
 
         # Python 2.4
         # The following has no "JUMP_BACK" after l_stmts because
         # l_stmts ends in a "break", "return", or "continue"
         while1stmt ::= SETUP_LOOP l_stmts
                        POP_TOP POP_BLOCK
-
-        # The following has a "COME_FROM" at the end which comes from
-        # a "break" inside "l_stmts".
-        while1stmt ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK
-                       POP_TOP POP_BLOCK COME_FROM
 
         # Python 2.5+:
         #  call_stmt ::= expr POP_TOP
