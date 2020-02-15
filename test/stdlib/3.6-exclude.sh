@@ -204,6 +204,8 @@ SKIP_TESTS=(
 
 if (( batch )) ; then
     SKIP_TESTS[test_codeccallbacks.py]=1
+    SKIP_TESTS[test_complex.py]=1 # Something funky with POWER8
+
     # locale on test machine is probably customized
     SKIP_TESTS[test__locale.py]=1
 fi
