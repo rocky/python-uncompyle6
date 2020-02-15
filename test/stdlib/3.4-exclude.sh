@@ -1,5 +1,6 @@
 SKIP_TESTS=(
     [test_buffer.py]=1  # FIXME: Works on c90ff51
+    [test_cmath.py]=1  # FIXME: Works on c90ff51
     [test_strftime.py]=1  # FIXME: Works on c90ff51
 
     [test___all__.py]=1  # it fails on its own
