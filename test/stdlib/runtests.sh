@@ -168,9 +168,12 @@ fi
 typeset -i ALL_FILES_STARTTIME=$(date +%s)
 typeset -i skipped=0
 
+NOT_INVERTED_TESTS=${NOT_INVERTED_TESTS:-1}
+
 for file in $files; do
     # AIX bash doesn't grok [[ -v SKIP... ]]
-    if [[ ${SKIP_TESTS[$file]} == 1 ]] ; then
+    [[ -z ${SKIP_TESTS[$file]} ]] && SKIP_TESTS[$file]=0
+    if [[ ${SKIP_TESTS[$file]} == ${NOT_INVERTED_TESTS} ]] ; then
 	((skipped++))
 	continue
     fi
