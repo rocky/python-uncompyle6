@@ -9,7 +9,8 @@ def readline (self):
         return
 
 # From 2.4.6 sre.py
-# Bug in 2.4 and 2.3 was parsing the nested "while 1" with a "break" in it
+# Bug has to do with "break" not being recognized
+# and is a JUMP_FORWARD.
 def _parse(a, b, source, state):
     while 1:
         if b:
@@ -17,3 +18,29 @@ def _parse(a, b, source, state):
                 break
         else:
             raise
+
+def _parse2(source, state):
+    while 1:
+        if a:
+            if b:
+                while 1:
+                    this = 1
+                    break
+                continue
+
+        while 1:
+            if b:
+                break
+
+        x = 3
+
+# Bug was in 2.3 decompilation
+def _parse3(source, state):
+    while 1:
+        if a:
+            if b:
+                x = 1
+                while 1:
+                    if a:
+                        break
+                    raise
