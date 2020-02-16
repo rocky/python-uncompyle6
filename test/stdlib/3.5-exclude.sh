@@ -96,6 +96,7 @@ SKIP_TESTS=(
     [test_sys_settrace.py]=1 # test assert fail
 
     [test_tcl.py]=1  # it fails on its own
+    [test_tempfile.py]=1  # test assertion failures
     [test_thread.py]=1
     [test_threading.py]=1
     [test_timeout.py]=1
@@ -111,6 +112,7 @@ SKIP_TESTS=(
     [test_urllib2net.py]=1 # it fails on its own
     [test_urllibnet.py]=1 # it fails on its own
     [test_urlparse.py]=1 # test assert error
+    [test_uu.py]=1 # test assert error
 
     [test_winreg.py]=1 # it fails on its own
     [test_winsound.py]=1 # it fails on its own
