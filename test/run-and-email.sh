@@ -23,12 +23,21 @@ fi
 mydir=$(dirname $bs)
 cd $mydir
 
-. ../admin-tools/pyenv-newer-versions
+branch=$(cat ../../.git/HEAD | cut -d'/' -f 3)
+if [[ $branch == 'python-2.4' ]]; then
+    . ../../admin-tools/pyenv-older-versions
+elif [[ $branch == 'master' ]]; then
+    . ../../admin-tools/pyenv-newer-versions
+else
+    echo &1>2 "Error git branch should either be 'master' or 'python-2.4'; got: '$branch'"
+    exit 1
+fi
+
 MAIN="test_pyenvlib.py"
 
 USER=${USER:-rocky}
 EMAIL=${EMAIL:-rb@dustyfeet.com}
-WHAT_PREFIX="uncompyle6 ${MAIN}"
+WHAT="uncompyle6 ${MAIN}"
 MAX_TESTS=${MAX_TESTS:-800}
 export BATCH=1
 
