@@ -36,11 +36,7 @@ typeset -i RUN_STARTTIME=$(date +%s)
 
 # PYVERSIONS="3.5.6"
 MAILBODY=/tmp/${MAIN}-mailbody-$$.txt
-<<<<<<< HEAD
 # for VERSION in 2.4.6 2.5.9 ; do
-=======
-# for VERSION in 3.3.7 ; do
->>>>>>> master
 for VERSION in $PYVERSIONS ; do
     typeset -i rc=0
     LOGFILE=/tmp/${MAIN}-$VERSION-$$.log
@@ -103,14 +99,10 @@ for VERSION in $PYVERSIONS ; do
 
     SUBJECT_PREFIX="pyenv weak verify (max $MAX_TESTS) for"
     if ((rc == 0)); then
-<<<<<<< HEAD
 	mailbody_line="Python $VERSION ok; ran in $time_diff seconds"
-=======
-	mailbody_line="Python $VERSION ok; ran in $time_diff"
->>>>>>> master
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION ok" ${USER}@localhost
     else
-	mailbody_line="Python $VERSION failed; ran in $time_diff"
+	mailbody_line="Python $VERSION failed; ran in $time_diff seconds"
 	actual_versions="$actual_versions failed;"
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" ${USER}@localhost
 	tail -v $LOGFILE | mail -s "$HOST $SUBJECT_PREFIX $VERSION not ok" ${EMAIL}
@@ -122,5 +114,5 @@ done
 typeset -i RUN_ENDTIME=$(date +%s)
 (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
 elapsed_time=$(displaytime $time_diff)
-echo "Run complete in $elapsed_time seconds" >> $MAILBODY
+echo "Run complete in $elapsed_time" >> $MAILBODY
 cat $MAILBODY | mail -s "$HOST $MAIN weak verify in $elapsed_time" ${EMAIL}
