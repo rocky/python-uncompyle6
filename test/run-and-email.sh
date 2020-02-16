@@ -122,5 +122,5 @@ done
 typeset -i RUN_ENDTIME=$(date +%s)
 (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
 elapsed_time=$(displaytime $time_diff)
-echo "Run complete in $elapsed_time" >> $MAILBODY
+echo "Run complete in $elapsed_time seconds" >> $MAILBODY
 cat $MAILBODY | mail -s "$HOST $MAIN weak verify in $elapsed_time" ${EMAIL}
