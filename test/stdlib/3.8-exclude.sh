@@ -329,7 +329,7 @@ SKIP_TESTS=(
 )
 # 114 test files, Elapsed time about 7 minutes
 
-if (( batch )) ; then
+if (( BATCH )) ; then
     SKIP_TESTS[test_idle.py]=1 # Probably installation specific
     SKIP_TESTS[test_tix.py]=1 # fails on its own
     SKIP_TESTS[test_ttk_textonly.py]=1 # Installation dependent?

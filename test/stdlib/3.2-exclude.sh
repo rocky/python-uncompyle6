@@ -31,7 +31,7 @@ SKIP_TESTS=(
 
 )
 
-if (( batch )) ; then
+if (( BATCH )) ; then
     # Fails in crontab environment?
     # Figure out what's up here
     SKIP_TESTS[test_exception_variations.py]=1

@@ -3,14 +3,14 @@
 function displaytime {
     printf "ran in "
     local T=$1
-    local D=$((T/60/60/24))
-    local H=$((T/60/60%24))
-    local M=$((T/60%60))
-    local S=$((T%60))
-    (( $D > 0 )) && printf '%d days ' $D
-    (( $H > 0 )) && printf '%d hours ' $H
-    (( $M > 0 )) && printf '%d minutes ' $M
-    (( $D > 0 || $H > 0 || $M > 0 )) && printf 'and '
+    ((D=T/60/60/24))
+    ((H=T/60/60%24))
+    ((M=T/60%60))
+    ((S=T%60))
+    (( D > 0 )) && printf '%d days ' $D
+    (( H > 0 )) && printf '%d hours ' $H
+    (( M > 0 )) && printf '%d minutes ' $M
+    (( D > 0 || H > 0 || M > 0 )) && printf 'and '
     printf '%d seconds\n' $S
 }
 
@@ -33,15 +33,20 @@ else
     exit 1
 fi
 
+MAIN="runtests.sh"
+
+
 USER=${USER:-rocky}
 EMAIL=${EMAIL:-rb@dustyfeet.com}
-SUBJECT_PREFIX="stdlib unit testing for"
+WHAT="uncompyle3 ${MAIN}"
 export BATCH=1
 
 typeset -i RUN_STARTTIME=$(date +%s)
 
 actual_versions=""
 DEBUG=""  # -x
+
+MAILBODY=/tmp/${MAIN}-mailbody-$$.txt
 
 for VERSION in $PYVERSIONS ; do
     typeset -i rc=0
@@ -57,28 +62,32 @@ for VERSION in $PYVERSIONS ; do
     if ! pyenv local $VERSION ; then
 	rc=1
     else
-      STOP_ONERROR=1 /bin/bash $DEBUG ./runtests.sh  >$LOGFILE 2>&1
-      rc=$?
+	typeset -i ALL_FILES_STARTTIME=$(date +%s)
+	STOP_ONERROR=1 /bin/bash $DEBUG ./runtests.sh  >$LOGFILE 2>&1
+	rc=$?
 
-      echo Python Version $(pyenv local) >> $LOGFILE
-      echo "" >>$LOGFILE
-      typeset -i ALL_FILES_ENDTIME=$(date +%s)
-      (( time_diff =  ALL_FILES_ENDTIME - ALL_FILES_STARTTIME))
-      displaytime $time_diff >> $LOGFILE
+	echo Python Version $(pyenv local) >> $LOGFILE
+	echo "" >>$LOGFILE
+	typeset -i ALL_FILES_ENDTIME=$(date +%s)
+	(( time_diff =  ALL_FILES_ENDTIME - ALL_FILES_STARTTIME))
+	time_str=$(displaytime $time_diff)
+	echo ${time_str}. >> $LOGFILE
     fi
 
-    SUBJECT_PREFIX="runtests verify for"
+    SUBJECT_PREFIX="$WHAT for"
     if ((rc == 0)); then
-	actual_versions="$actual_versions ok;"
+	mailbody_line="Python $VERSION ok; ${time_str}."
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION ok" ${USER}@localhost
     else
-	actual_versions="$actual_versions failed;"
+	mailbody_line="Python $VERSION failed; ${time_str}."
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" ${USER}@localhost
 	tail -v $LOGFILE | mail -s "$HOST $SUBJECT_PREFIX $VERSION not ok" $EMAIL
     fi
+    echo $mailbody_line >> $MAILBODY
 done
 
 typeset -i RUN_ENDTIME=$(date +%s)
 (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
 elapsed_time=$(displaytime $time_diff)
-echo "Run complete $elapsed_time for versions $actual_versions" | mail -s "$HOST runtests in $elapsed_time" ${EMAIL}
+echo "${WHAT} complete; ${elapsed_time}." >> $MAILBODY
+cat $MAILBODY | mail -s "$HOST $WHAT $elapsed_time" ${EMAIL}

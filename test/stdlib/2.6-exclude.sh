@@ -85,7 +85,7 @@ SKIP_TESTS=(
 )
 # About 305 unit-test files in about 12 minutes
 
-if (( batch )) ; then
+if (( BATCH )) ; then
     # Fails in crontab environment?
     # Figure out what's up here
     SKIP_TESTS[test_aifc.py]=1

@@ -81,6 +81,6 @@ SKIP_TESTS=(
 )
 # About 265 tests in 14 minutes
 
-if (( batch )) ; then
+if (( BATCH )) ; then
     SKIP_TESTS[test_doctest.py]=1 # Fails on ppc64le
 fi
