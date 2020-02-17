@@ -38,12 +38,11 @@ MAIN="runtests.sh"
 
 USER=${USER:-rocky}
 EMAIL=${EMAIL:-rb@dustyfeet.com}
-WHAT="uncompyle3 ${MAIN}"
+WHAT="uncompyle6 ${MAIN}"
 export BATCH=1
 
 typeset -i RUN_STARTTIME=$(date +%s)
 
-actual_versions=""
 DEBUG=""  # -x
 
 MAILBODY=/tmp/${MAIN}-mailbody-$$.txt
@@ -57,7 +56,6 @@ for VERSION in $PYVERSIONS ; do
 	    continue
 	    ;;
     esac
-    actual_versions="$actual_versions $VERSION"
 
     if ! pyenv local $VERSION ; then
 	rc=1
@@ -90,4 +88,5 @@ typeset -i RUN_ENDTIME=$(date +%s)
 (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
 elapsed_time=$(displaytime $time_diff)
 echo "${WHAT} complete; ${elapsed_time}." >> $MAILBODY
+echo "Full results are in ${LOGFILE}." >> $MAILBODY
 cat $MAILBODY | mail -s "$HOST $WHAT $elapsed_time" ${EMAIL}
