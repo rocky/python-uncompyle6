@@ -23,12 +23,20 @@ fi
 mydir=$(dirname $bs)
 cd $mydir
 
-. ../admin-tools/pyenv-older-versions
-MAIN="test_pyenvlib.py"
+branch=$(cat ../.git/HEAD | cut -d'/' -f 3)
+if [[ $branch == 'python-2.4' ]]; then
+    . ../admin-tools/pyenv-older-versions
+elif [[ $branch == 'master' ]]; then
+    . ../admin-tools/pyenv-newer-versions
+else
+    echo &1>2 "Error git branch should either be 'master' or 'python-2.4'; got: '$branch'"
+    exit 1
+fi
 
+MAIN="test_pyenvlib.py"
 USER=${USER:-rocky}
 EMAIL=${EMAIL:-rb@dustyfeet.com}
-SUBJECT_PREFIX="${MAIN} for"
+WHAT="uncompyle6 2.4 ${MAIN} for"
 MAX_TESTS=${MAX_TESTS:-800}
 export BATCH=1
 
@@ -79,6 +87,7 @@ for VERSION in $PYVERSIONS ; do
     if ! pyenv local $VERSION; then
 	rc=1
 	mailbody_line="pyenv local $VERSION not installed"
+	echo $mailbody_line >> $MAILBODY
     else
       echo Python Version $(pyenv local) > $LOGFILE
       echo "" >> $LOGFILE
@@ -93,17 +102,16 @@ for VERSION in $PYVERSIONS ; do
 
       typeset -i ALL_FILES_ENDTIME=$(date +%s)
       (( time_diff =  ALL_FILES_ENDTIME - ALL_FILES_STARTTIME))
-      displaytime $time_diff >> $LOGFILE
+      tiem_str=$(displaytime $time_diff >> $LOGFILE)
+      echo ${time_str}. >> $LOGFILE
     fi
 
-
-    SUBJECT_PREFIX="pyenv weak verify (max $MAX_TESTS) for"
+    SUBJECT_PREFIX="$WHAT (max $MAX_TESTS) for"
     if ((rc == 0)); then
-	mailbody_line="Python $VERSION ok; ran in $time_diff seconds"
+	mailbody_line="Python $VERSION ok; ran in ${time_str}"
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION ok" ${USER}@localhost
     else
-	mailbody_line="Python $VERSION failed; ran in $time_diff seconds"
-	actual_versions="$actual_versions failed;"
+	mailbody_line="Python $VERSION failed; ran in ${time_str}"
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" ${USER}@localhost
 	tail -v $LOGFILE | mail -s "$HOST $SUBJECT_PREFIX $VERSION not ok" ${EMAIL}
     fi
@@ -114,5 +122,5 @@ done
 typeset -i RUN_ENDTIME=$(date +%s)
 (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
 elapsed_time=$(displaytime $time_diff)
-echo "Run complete in $elapsed_time" >> $MAILBODY
-cat $MAILBODY | mail -s "$HOST $MAIN weak verify in $elapsed_time" ${EMAIL}
+echo "${WHAT} complete in ${elapsed_time}." >> $MAILBODY
+cat $MAILBODY | mail -s "$HOST $MAIN weak verify in ${elapsed_time}." ${EMAIL}
