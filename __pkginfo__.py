@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018, 2020 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ entry_points       = {
     ]}
 ftp_url            = None
 install_requires   = ["spark-parser >= 1.8.9, < 1.9.0",
-                      "xdis >= 4.2.2, < 4.3.0"]
+                      "xdis >= 4.2.3, < 4.3.0"]
 
 license            = "GPL3"
 mailing_list       = "python-debugger@googlegroups.com"

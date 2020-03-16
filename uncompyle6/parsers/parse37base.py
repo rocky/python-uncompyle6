@@ -1091,8 +1091,8 @@ class Python37BaseParser(PythonParser):
                 + token.kind
             )
 
-            # Note: semantic actions make use of the fact of wheter  "args_pos"
-            # zero or not in creating a template rule.
+            # Note: Semantic actions make use of whether or not "args_pos"
+            # is zero when creating a template rule.
             self.add_unique_rule(rule, token.kind, args_pos, customize)
         else:
             token.kind = self.call_fn_name(token)
