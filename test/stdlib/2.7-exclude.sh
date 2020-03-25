@@ -27,6 +27,7 @@ SKIP_TESTS=(
     [test_ssl.py]=1  #
     [test_subprocess.py]=1 # Runs ok but takes 22 seconds
     [test_sys_settrace.py]=1 # Line numbers are expected to be different
+
     [test_tokenize.py]=1 # test takes too long to run: 19 seconds
     [test_traceback.py]=1 # Line numbers change - duh.
     [test_unicode.py]=1  # Too long to run 11 seconds
@@ -45,6 +46,7 @@ if (( BATCH )) ; then
     SKIP_TESTS[test_doctest2.py]=1 # a POWER thing?
     SKIP_TESTS[test_httplib.py]=1  # Ok, but POWER has problems with this
     SKIP_TESTS[test_pdb.py]=1 # Ok, but POWER has problems with this
+    SKIP_TESTS[test_tarfile.py]=1 # test can take over 15 seconds to run on an overloaded POWER7 system
 
     # SyntaxError: Non-ASCII character '\xdd' in file test_base64.py on line 153, but no encoding declared; see http://www.python.org/peps/pep-0263.html for details
     SKIP_TESTS[test_base64.py]=1
