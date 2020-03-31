@@ -92,7 +92,11 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
     else:
         pos_args, kw_args, annotate_argc, closure = args_attr
 
-    i = -4
+    if node[-2] != "docstring":
+        i = -4
+    else:
+        i = -5
+
     kw_pairs = 0
     if annotate_argc:
         # Turn into subroutine and DRY with other use

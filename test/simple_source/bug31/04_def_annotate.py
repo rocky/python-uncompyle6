@@ -66,6 +66,14 @@ def div(a: dict(type=float, help='the dividend'),
     """Divide a by b"""
     return a / b
 
+# From 3.7.6 functools.py
+# Bug is in picking up the annotation.
+def f(a:"This is a new annotation"):
+    """This is a test"""
+    assert f.__annotations__['a'] == "This is a new annotation"
+
+f(5)
+
 class TestSignatureObject1():
     def test_signature_on_wkwonly(self):
         def test(*, a:float, b:str, c:str = 'test', **kwargs: int) -> int:
