@@ -2444,7 +2444,7 @@ class SourceWalker(GenericASTTraversal, object):
                 self.p.insts = p_insts
 
             except (python_parser.ParserError, AssertionError) as e:
-                raise ParserError(e, tokens)
+                raise ParserError(e, tokens, self.p.debug['reduce'])
             transform_ast = self.treeTransform.transform(ast)
             self.maybe_show_tree(ast)
             del ast  # Save memory
