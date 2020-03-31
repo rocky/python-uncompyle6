@@ -209,7 +209,7 @@ class PythonParser(GenericASTBuilder):
                 print("%s%s" % (indent, instructions[i]))
             raise ParserError(err_token, err_token.offset, self.debug["reduce"])
         else:
-            raise ParserError(None, -1)
+            raise ParserError(None, -1, self.debug["reduce"])
 
     def get_pos_kw(self, token):
         """Return then the number of positional parameters and
