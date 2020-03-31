@@ -120,12 +120,19 @@ class Token:
     def __str__(self):
         return self.format(line_prefix="")
 
-    def format(self, line_prefix=""):
-        prefix = (
-            "\n%s%4d  " % (line_prefix, self.linestart)
-            if self.linestart
-            else (" " * (6 + len(line_prefix)))
-        )
+    def format(self, line_prefix="", token_num=None):
+        if token_num is not None:
+            prefix = (
+                "\n(%03d)%s L.%4d  " % (token_num, line_prefix, self.linestart)
+                if self.linestart
+                else ("(%03d)%s" % (token_num, " " * (9 + len(line_prefix))))
+            )
+        else:
+            prefix = (
+                "\n%s L.%4d  " % (line_prefix, self.linestart)
+                if self.linestart
+                else (" " * (9 + len(line_prefix)))
+            )
         offset_opname = "%8s  %-17s" % (self.offset, self.kind)
 
         if not self.has_arg:
