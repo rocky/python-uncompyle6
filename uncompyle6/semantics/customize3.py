@@ -17,6 +17,7 @@
 """
 
 from uncompyle6.semantics.consts import TABLE_DIRECT
+from xdis.util import co_flags_is_async
 
 from xdis.code import iscode
 from uncompyle6.scanner import Code
@@ -87,7 +88,9 @@ def customize_for_version3(self, version):
         p = self.prec
         self.prec = 27
 
-        code = Code(node[1].attr, self.scanner, self.currentclass)
+        code_obj = node[1].attr
+        assert iscode(code_obj)
+        code = Code(code_obj, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
 
@@ -141,7 +144,10 @@ def customize_for_version3(self, version):
             # Find the list comprehension body. It is the inner-most
             # node that is not list_.. .
             while n == "list_iter":
-                n = n[0]  # recurse one step
+
+                # recurse one step
+                n = n[0]
+
                 if n == "list_for":
                     stores.append(n[2])
                     n = n[3]
@@ -168,6 +174,11 @@ def customize_for_version3(self, version):
                     list_ifs.append(n)
                     n = n[-1]
                     pass
+                elif n == "list_afor":
+                    collections.append(n[0][0])
+                    n = n[1]
+                    stores.append(n[1][0])
+                    n = n[3]
                 pass
 
             assert n == "lc_body", ast
@@ -175,7 +186,13 @@ def customize_for_version3(self, version):
             self.preorder(n[0])
 
         # FIXME: add indentation around "for"'s and "in"'s
+        n_colls = len(collections)
         for i, store in enumerate(stores):
+            if i >= n_colls:
+                break
+            if collections[i] == "LOAD_DEREF"  and co_flags_is_async(code_obj.co_flags):
+                self.write(" async")
+                pass
             self.write(" for ")
             self.preorder(store)
             self.write(" in ")
