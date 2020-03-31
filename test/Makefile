@@ -78,7 +78,7 @@ check-3.7: check-bytecode
 # 	$(PYTHON) test_pythonlib.py --bytecode-3.8 --syntax-verify $(COMPILE)
 
 # FIXME
-#: this is called when running under pypy3.5-5.8.0 or pypy2-5.6.0
+#: this is called when running under pypy3.5-5.8.0, pypy2-5.6.0, or pypy3.6-7.3.0
 5.8 5.6:
 
 #: Check deparsing only, but from a different Python version
@@ -344,8 +344,8 @@ check-bytecode-pypy3.6: 7.1
 	$(PYTHON) test_pythonlib.py --bytecode-pypy3.6 --verify
 
 #: PyPy 5.0.x with Python 3.6.9
-check-bytecode-pypy3.6: 7.2
-7.2:
+check-bytecode-pypy3.6: 7.2 7.3
+7.3 7.2:
 	$(PYTHON) test_pythonlib.py --bytecode-pypy3.6-run --verify-run
 	$(PYTHON) test_pythonlib.py --bytecode-pypy3.6 --verify
 

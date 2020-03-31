@@ -1,12 +1,12 @@
 # Python 2.7
 # Embedded file name: simple_source/branching/05_if.py
 
-   6         0  LOAD_NAME             0  'True'
-             3  POP_JUMP_IF_FALSE    15  'to 15'
+ L.   6         0  LOAD_NAME             0  'True'
+                3  POP_JUMP_IF_FALSE    15  'to 15'
 
-   7         6  LOAD_NAME             1  'False'
-             9  STORE_NAME            2  'b'
-            12  JUMP_FORWARD          0  'to 15'
-          15_0  COME_FROM            12  '12'
-            15  LOAD_CONST               None
-            18  RETURN_VALUE
+ L.   7         6  LOAD_NAME             1  'False'
+                9  STORE_NAME            2  'b'
+               12  JUMP_FORWARD          0  'to 15'
+             15_0  COME_FROM            12  '12'
+               15  LOAD_CONST               None
+               18  RETURN_VALUE

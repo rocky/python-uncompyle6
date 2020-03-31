@@ -1,4 +1,4 @@
-#  Copyright (c) 2018 by Rocky Bernstein
+#  Copyright (c) 2018, 2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -13,13 +13,19 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import uncompyle6.parser as python_parser
+
+
 class ParserError(python_parser.ParserError):
-    def __init__(self, error, tokens):
-        self.error = error # previous exception
+    def __init__(self, error, tokens, debug):
+        self.error = error  # previous exception
         self.tokens = tokens
+        self.debug = debug
 
     def __str__(self):
-        lines = ['--- This code section failed: ---']
-        lines.extend([str(i) for i in self.tokens])
-        lines.extend( ['', str(self.error)] )
-        return '\n'.join(lines)
+        lines = ["--- This code section failed: ---"]
+        if self.debug:
+            lines.extend([t.format(token_num=i + 1) for i, t in enumerate(self.tokens)])
+        else:
+            lines.extend([t.format() for t in self.tokens])
+        lines.extend(["", str(self.error)])
+        return "\n".join(lines)

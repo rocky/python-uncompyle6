@@ -2481,7 +2481,7 @@ class SourceWalker(GenericASTTraversal, object):
             ast = python_parser.parse(self.p, tokens, customize)
             self.p.insts = p_insts
         except python_parser.ParserError, e:
-            raise ParserError(e, tokens)
+            raise ParserError(e, tokens, self.p.debug['reduce'])
 
         checker(ast, False, self.ast_errors)
 
