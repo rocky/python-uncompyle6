@@ -1,3 +1,17 @@
+3.6.5: 2020-4-1 April Fool
+==========================
+
+Back port some of the changes in decompile3 here which mostly helps 3.7 and 3.8 decompilation, although this may also help 3.6ish versions too.
+
+- Handle nested `async for in for...`  and Better async comprehension detection via `xdis`.  Still more work is needed.
+- include token number in listings when `-g` and there is a parser error
+- remove unneded `Makefile`s now that remake 4.3+1.5dbg is a thing that has `-c`
+- Bug in finding annotations in functions with docstrings
+- Fix bug found by 2.4 sre_parse.py testing
+- Fix `transform` module's  `ifelseif` bugs
+- Fix bug in 3.0 name module detection
+- Fix docstring detection
+
 3.6.4: 2020-2-9 Plateau
 =======================
 
