@@ -23,11 +23,11 @@ fi
 mydir=$(dirname $bs)
 cd $mydir
 
-branch=$(cat ../../.git/HEAD | cut -d'/' -f 3)
+branch=$(cat ../.git/HEAD | cut -d'/' -f 3)
 if [[ $branch == 'python-2.4' ]]; then
-    . ../../admin-tools/pyenv-older-versions
+    . ../admin-tools/pyenv-older-versions
 elif [[ $branch == 'master' ]]; then
-    . ../../admin-tools/pyenv-newer-versions
+    . ../admin-tools/pyenv-newer-versions
 else
     echo &1>2 "Error git branch should either be 'master' or 'python-2.4'; got: '$branch'"
     exit 1
@@ -51,7 +51,7 @@ for VERSION in $PYVERSIONS ; do
     LOGFILE=/tmp/${MAIN}-$VERSION-$$.log
 
     case "$VERSION" in
-	3.7.6 | 3.8.1 | 3.1.5 | 3.0.1 )
+	3.7.7 | 3.8.2 | 3.1.5 | 3.0.1 )
 	    continue
 	    ;;
 	3.5.9 )
