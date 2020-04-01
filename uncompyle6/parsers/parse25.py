@@ -27,7 +27,7 @@ class Python25Parser(Python26Parser):
                         setup_finally
         # opcode SETUP_WITH
         setupwith ::= DUP_TOP LOAD_ATTR store LOAD_ATTR CALL_FUNCTION_0 POP_TOP
-        withstmt  ::= expr setupwith SETUP_FINALLY suite_stmts_opt
+        with      ::= expr setupwith SETUP_FINALLY suite_stmts_opt
                       POP_BLOCK LOAD_CONST COME_FROM with_cleanup
 
         # Semantic actions want store to be at index 2
@@ -62,7 +62,7 @@ class Python25Parser(Python26Parser):
         # Remove grammar rules inherited from Python 2.6 or Python 2
         self.remove_rules("""
         setupwith  ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 POP_TOP
-        withstmt   ::= expr setupwith SETUP_FINALLY suite_stmts_opt
+        with       ::= expr setupwith SETUP_FINALLY suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
         withasstmt ::= expr setupwithas store suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY

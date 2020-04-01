@@ -143,7 +143,7 @@ class Python27Parser(Python2Parser):
 
         for_block  ::= returns _come_froms
 
-        withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt
+        with       ::= expr SETUP_WITH POP_TOP suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM_WITH
                        WITH_CLEANUP END_FINALLY
 

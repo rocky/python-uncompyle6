@@ -1241,7 +1241,7 @@ class SourceWalker(GenericASTTraversal, object):
                     n = k[0]
                     pass
                 pass
-        elif ast == "listcomp_async":
+        elif ast == "list_comp_async":
             store = ast[2][1]
         else:
             assert n == "list_iter", n
@@ -1291,7 +1291,7 @@ class SourceWalker(GenericASTTraversal, object):
         # Python 2.7+ starts including set_comp_body
         # Python 3.5+ starts including set_comp_func
         # Python 3.0  is yet another snowflake
-        if self.version != 3.0:
+        if self.version != 3.0 and self.version < 3.7:
             assert n.kind in (
                 "lc_body",
                 "list_if37",
@@ -1317,7 +1317,7 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             self.preorder(n[0])
 
-        if node == "listcomp_async":
+        if node == "list_comp_async":
             self.write(" async")
             in_node_index = 3
         else:
@@ -1367,7 +1367,6 @@ class SourceWalker(GenericASTTraversal, object):
             self.comprehension_walk_newer(node, list_iter_index, 0)
         self.write("]")
         self.prune()
-    n_listcomp_async = n_listcomp
 
     def setcomprehension_walk3(self, node, collection_index):
         """Set comprehensions the way they are done in Python3.

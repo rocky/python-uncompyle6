@@ -995,15 +995,15 @@ class Python37BaseParser(PythonParser):
 
             elif opname == "SETUP_WITH":
                 rules_str = """
-                  stmt       ::= withstmt
+                  stmt       ::= with
                   stmt       ::= withasstmt
 
-                  withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt COME_FROM_WITH
+                  with       ::= expr SETUP_WITH POP_TOP suite_stmts_opt COME_FROM_WITH
                                  WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
                   withasstmt ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
                                  WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
-                  withstmt   ::= expr
+                  with       ::= expr
                                  SETUP_WITH POP_TOP suite_stmts_opt
                                  POP_BLOCK LOAD_CONST COME_FROM_WITH
                                  WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
@@ -1012,7 +1012,7 @@ class Python37BaseParser(PythonParser):
                                  POP_BLOCK LOAD_CONST COME_FROM_WITH
                                  WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
-                  withstmt   ::= expr
+                  with       ::= expr
                                  SETUP_WITH POP_TOP suite_stmts_opt
                                  POP_BLOCK LOAD_CONST COME_FROM_WITH
                                  WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
@@ -1023,13 +1023,13 @@ class Python37BaseParser(PythonParser):
                 """
                 if self.version < 3.8:
                     rules_str += """
-                    withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
+                    with     ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
                                    LOAD_CONST
                                    WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
                     """
                 else:
                     rules_str += """
-                      withstmt   ::= expr
+                      with    ::= expr
                                      SETUP_WITH POP_TOP suite_stmts_opt
                                      POP_BLOCK LOAD_CONST COME_FROM_WITH
                                      WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
@@ -1038,7 +1038,7 @@ class Python37BaseParser(PythonParser):
                                      SETUP_WITH store suite_stmts_opt
                                      POP_BLOCK LOAD_CONST COME_FROM_WITH
 
-                       withstmt  ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
+                       with    ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
                                      BEGIN_FINALLY COME_FROM_WITH
                                      WITH_CLEANUP_START WITH_CLEANUP_FINISH
                                      END_FINALLY
@@ -1184,8 +1184,16 @@ class Python37BaseParser(PythonParser):
         n = len(tokens)
         last = min(last, n-1)
         fn = self.reduce_check_table.get(lhs, None)
-        if fn:
-            return fn(self, lhs, n, rule, ast, tokens, first, last)
+        try:
+            if fn:
+                return fn(self, lhs, n, rule, ast, tokens, first, last)
+        except:
+            import sys, traceback
+            print(f"Exception in {fn.__name__} {sys.exc_info()[1]}\n" +
+                  f"rule: {rule2str(rule)}\n" +
+                  f"offsets {tokens[first].offset} .. {tokens[last].offset}")
+            print(traceback.print_tb(sys.exc_info()[2],-1))
+            raise ParserError(tokens[last], tokens[last].off2int(), self.debug["rules"])
 
         if lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
             return True

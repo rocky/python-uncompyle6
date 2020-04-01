@@ -269,9 +269,9 @@ class Python3Parser(PythonParser):
         jmp_abs ::= JUMP_ABSOLUTE
         jmp_abs ::= JUMP_BACK
 
-        withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
-                POP_BLOCK LOAD_CONST COME_FROM_WITH
-                WITH_CLEANUP END_FINALLY
+        with    ::= expr SETUP_WITH POP_TOP suite_stmts_opt
+                    POP_BLOCK LOAD_CONST COME_FROM_WITH
+                    WITH_CLEANUP END_FINALLY
 
         withasstmt ::= expr SETUP_WITH store suite_stmts_opt
                 POP_BLOCK LOAD_CONST COME_FROM_WITH

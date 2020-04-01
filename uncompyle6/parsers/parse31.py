@@ -15,7 +15,7 @@ class Python31Parser(Python32Parser):
 
         setupwith      ::= DUP_TOP LOAD_ATTR store LOAD_ATTR CALL_FUNCTION_0 POP_TOP
         setupwithas    ::= DUP_TOP LOAD_ATTR store LOAD_ATTR CALL_FUNCTION_0 store
-        withstmt       ::= expr setupwith SETUP_FINALLY
+        with           ::= expr setupwith SETUP_FINALLY
                            suite_stmts_opt
                            POP_BLOCK LOAD_CONST COME_FROM_FINALLY
                            load del_stmt WITH_CLEANUP END_FINALLY

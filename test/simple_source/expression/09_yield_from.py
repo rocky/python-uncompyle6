@@ -17,9 +17,9 @@ def ybug(g):
 # From 3.5.1 _wakrefset.py
 #
 #  3.5:
-#  withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
-#              POP_BLOCK LOAD_CONST COME_FROM
-#              WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+#  with ::= expr SETUP_WITH POP_TOP suite_stmts_opt
+#           POP_BLOCK LOAD_CONST COME_FROM
+#           WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
 
 def __iter__(self, IterationGuard):

@@ -119,8 +119,8 @@ class Python26Parser(Python2Parser):
         ifelsestmtc ::= testexpr c_stmts_opt ja_cf_pop    else_suitec
 
         # Semantic actions want suite_stmts_opt to be at index 3
-        withstmt ::= expr setupwith SETUP_FINALLY suite_stmts_opt
-                     POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
+        with        ::= expr setupwith SETUP_FINALLY suite_stmts_opt
+                        POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
 
         # Semantic actions want store to be at index 2
         withasstmt ::= expr setupwithas store suite_stmts_opt

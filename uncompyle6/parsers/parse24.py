@@ -88,8 +88,8 @@ class Python24Parser(Python25Parser):
         with_cleanup  ::= LOAD_FAST DELETE_FAST WITH_CLEANUP END_FINALLY
         with_cleanup  ::= LOAD_NAME DELETE_NAME WITH_CLEANUP END_FINALLY
         withasstmt    ::= expr setupwithas store suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM with_cleanup
-        withstmt      ::= expr setupwith SETUP_FINALLY suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM with_cleanup
-        stmt ::= withstmt
+        with          ::= expr setupwith SETUP_FINALLY suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM with_cleanup
+        stmt ::= with
         stmt ::= withasstmt
         """)
         super(Python24Parser, self).customize_grammar_rules(tokens, customize)

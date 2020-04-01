@@ -295,3 +295,13 @@ def customize_for_version37(self, version):
         return
 
     self.n_importlist37 = n_importlist37
+
+    def n_list_comp_async(node):
+        self.write("[")
+        if node[0].kind == "load_closure":
+            self.listcomp_closure3(node)
+        else:
+            self.comprehension_walk_newer(node, iter_index=3, code_index=0)
+        self.write("]")
+        self.prune()
+    self.n_list_comp_async = n_list_comp_async

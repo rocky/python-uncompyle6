@@ -6,6 +6,7 @@ from spark_parser.ast import AST as spark_AST
 if PYTHON3:
     intern = sys.intern
 
+
 class SyntaxTree(spark_AST):
     def __init__(self, *args, **kwargs):
         super(SyntaxTree, self).__init__(*args, **kwargs)
@@ -17,7 +18,7 @@ class SyntaxTree(spark_AST):
         return len(self.data) == 1 and NoneToken == self.data[0]
 
     def __repr__(self):
-        return self.__repr1__('', None)
+        return self.__repr1__("", None)
 
     def __repr1__(self, indent, sibNum=None):
         rv = str(self.kind)
@@ -33,16 +34,16 @@ class SyntaxTree(spark_AST):
             else:
                 rv += " (transformed by %s)" % self.transformed_by
         rv = indent + rv
-        indent += '    '
+        indent += "    "
         i = 0
         for node in self:
-            if hasattr(node, '__repr1__'):
+            if hasattr(node, "__repr1__"):
                 if enumerate_children:
-                    child =  node.__repr1__(indent, i)
+                    child = node.__repr1__(indent, i)
                 else:
                     child = node.__repr1__(indent, None)
             else:
-                inst = node.format(line_prefix='L.')
+                inst = node.format(line_prefix="")
                 if inst.startswith("\n"):
                     # Nuke leading \n
                     inst = inst[1:]

@@ -352,7 +352,7 @@ class PythonParser(GenericASTBuilder):
         stmt ::= try_except
         stmt ::= tryelsestmt
         stmt ::= tryfinallystmt
-        stmt ::= withstmt
+        stmt ::= with
         stmt ::= withasstmt
 
         stmt ::= del_stmt
