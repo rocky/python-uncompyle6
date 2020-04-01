@@ -211,7 +211,7 @@ class Python30Parser(Python31Parser):
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK JUMP_BACK COME_FROM_LOOP
         whilestmt      ::= SETUP_LOOP testexpr returns POP_TOP POP_BLOCK COME_FROM_LOOP
         withasstmt     ::= expr SETUP_WITH store suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM_WITH WITH_CLEANUP END_FINALLY
-        withstmt       ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM_WITH WITH_CLEANUP END_FINALLY
+        with           ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM_WITH WITH_CLEANUP END_FINALLY
 
         # lc_body ::= LOAD_FAST expr LIST_APPEND
         # lc_body ::= LOAD_NAME expr LIST_APPEND

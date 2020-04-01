@@ -31,7 +31,7 @@ def customize_for_version25(self, version):
         # With/as is allowed as "from future" thing in 2.5
         # Note: It is safe to put the variables after "as" in parenthesis,
         # and sometimes it is needed.
-        'withstmt':     ( '%|with %c:\n%+%c%-', 0, 3),
+        'with':     ( '%|with %c:\n%+%c%-', 0, 3),
         'withasstmt':   ( '%|with %c as (%c):\n%+%c%-', 0, 2, 3),
     })
 

@@ -49,7 +49,7 @@ class Python35Parser(Python34Parser):
 
         # Python 3.5+ has WITH_CLEANUP_START/FINISH
 
-        withstmt   ::= expr
+        with       ::= expr
                        SETUP_WITH POP_TOP suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM_WITH
                        WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
@@ -137,7 +137,7 @@ class Python35Parser(Python34Parser):
         self.remove_rules("""
           yield_from ::= expr GET_ITER LOAD_CONST YIELD_FROM
           yield_from ::= expr expr YIELD_FROM
-          withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt
+          with       ::= expr SETUP_WITH POP_TOP suite_stmts_opt
                          POP_BLOCK LOAD_CONST COME_FROM_WITH
                          WITH_CLEANUP END_FINALLY
           withasstmt ::= expr SETUP_WITH store suite_stmts_opt
@@ -208,10 +208,10 @@ class Python35Parser(Python34Parser):
             elif opname == 'SETUP_WITH':
                 # Python 3.5+ has WITH_CLEANUP_START/FINISH
                 rules_str = """
-                  withstmt   ::= expr
-                       SETUP_WITH POP_TOP suite_stmts_opt
-                       POP_BLOCK LOAD_CONST COME_FROM_WITH
-                       WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                  with ::= expr
+                           SETUP_WITH POP_TOP suite_stmts_opt
+                           POP_BLOCK LOAD_CONST COME_FROM_WITH
+                           WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
                   withasstmt ::= expr
                        SETUP_WITH store suite_stmts_opt

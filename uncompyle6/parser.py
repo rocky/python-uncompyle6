@@ -28,9 +28,10 @@ from uncompyle6.show import maybe_show_asm
 
 
 class ParserError(Exception):
-    def __init__(self, token, offset):
+    def __init__(self, token, offset, debug):
         self.token = token
         self.offset = offset
+        self.debug = debug
 
     def __str__(self):
         return "Parse error at or near `%r' instruction at offset %s\n" % (
@@ -203,10 +204,10 @@ class PythonParser(GenericASTBuilder):
                     indent = "   "
                 else:
                     indent = "-> "
-                print "%s%s" % (indent, instructions[i])
-            raise ParserError(err_token, err_token.offset)
+                print("%s%s" % (indent, instructions[i]))
+            raise ParserError(err_token, err_token.offset, self.debug["reduce"])
         else:
-            raise ParserError(None, -1)
+            raise ParserError(None, -1, self.debug["reduce"])
 
     def get_pos_kw(self, token):
         """Return then the number of positional parameters and
@@ -349,7 +350,7 @@ class PythonParser(GenericASTBuilder):
         stmt ::= try_except
         stmt ::= tryelsestmt
         stmt ::= tryfinallystmt
-        stmt ::= withstmt
+        stmt ::= with
         stmt ::= withasstmt
 
         stmt ::= del_stmt

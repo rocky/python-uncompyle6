@@ -306,7 +306,7 @@ class Python36Parser(Python35Parser):
                 self.check_reduce['assign'] = 'token'
             elif opname == 'SETUP_WITH':
                 rules_str = """
-                withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt COME_FROM_WITH
+                with       ::= expr SETUP_WITH POP_TOP suite_stmts_opt COME_FROM_WITH
                                WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
                 # Removes POP_BLOCK LOAD_CONST from 3.6-
@@ -315,13 +315,13 @@ class Python36Parser(Python35Parser):
                 """
                 if self.version < 3.8:
                     rules_str += """
-                    withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
+                    with       ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
                                    LOAD_CONST
                                    WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
                     """
                 else:
                     rules_str += """
-                    withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
+                    with       ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
                                    BEGIN_FINALLY COME_FROM_WITH
                                    WITH_CLEANUP_START WITH_CLEANUP_FINISH
                                    END_FINALLY

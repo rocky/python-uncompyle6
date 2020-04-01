@@ -210,41 +210,86 @@ class Python37BaseParser(PythonParser):
 
                 if self.version < 3.8:
                     rules_str += """
-                      stmt                ::= async_with_stmt SETUP_ASYNC_WITH
-                      async_with_stmt     ::= expr
+                      stmt                 ::= async_with_stmt SETUP_ASYNC_WITH
+                      c_stmt               ::= c_async_with_stmt SETUP_ASYNC_WITH
+                      async_with_stmt      ::= expr
+                                               async_with_pre
+                                               POP_TOP
+                                               suite_stmts_opt
+                                               POP_BLOCK LOAD_CONST
+                                               async_with_post
+                      c_async_with_stmt    ::= expr
+                                               async_with_pre
+                                               POP_TOP
+                                               c_suite_stmts_opt
+                                               POP_BLOCK LOAD_CONST
+                                               async_with_post
+                      async_with_stmt      ::= expr
+                                               async_with_pre
+                                               POP_TOP
+                                               suite_stmts_opt
+                                               async_with_post
+                      c_async_with_stmt    ::= expr
+                                               async_with_pre
+                                               POP_TOP
+                                               c_suite_stmts_opt
+                                               async_with_post
+                      async_with_as_stmt   ::= expr
+                                               async_with_pre
+                                               store
+                                               suite_stmts_opt
+                                               POP_BLOCK LOAD_CONST
+                                               async_with_post
+                      c_async_with_as_stmt ::= expr
                                               async_with_pre
-                                              POP_TOP
-                                              suite_stmts_opt
+                                              store
+                                              c_suite_stmts_opt
                                               POP_BLOCK LOAD_CONST
                                               async_with_post
-                      async_with_stmt     ::= expr
-                                              async_with_pre
-                                              POP_TOP
-                                              suite_stmts_opt
-                                              async_with_post
-                      async_with_as_stmt  ::= expr
+                      async_with_as_stmt   ::= expr
                                               async_with_pre
                                               store
                                               suite_stmts_opt
-                                              POP_BLOCK LOAD_CONST
+                                              async_with_post
+                      c_async_with_as_stmt ::= expr
+                                              async_with_pre
+                                              store
+                                              suite_stmts_opt
                                               async_with_post
                     """
                 else:
                     rules_str += """
-                      async_with_pre      ::= BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM SETUP_ASYNC_WITH
-                      async_with_post     ::= BEGIN_FINALLY COME_FROM_ASYNC_WITH
-                                              WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
-                                              WITH_CLEANUP_FINISH END_FINALLY
-                      async_with_stmt     ::= expr
+                      async_with_pre       ::= BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM SETUP_ASYNC_WITH
+                      async_with_post      ::= BEGIN_FINALLY COME_FROM_ASYNC_WITH
+                                               WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                               WITH_CLEANUP_FINISH END_FINALLY
+                      async_with_stmt      ::= expr
+                                               async_with_pre
+                                               POP_TOP
+                                               suite_stmts
+                                               POP_TOP POP_BLOCK
+                                               async_with_post
+                      c_async_with_stmt    ::= expr
+                                               async_with_pre
+                                               POP_TOP
+                                               c_suite_stmts
+                                               POP_TOP POP_BLOCK
+                                               async_with_post
+                      async_with_stmt      ::= expr
+                                               async_with_pre
+                                               POP_TOP
+                                               suite_stmts
+                                               POP_BLOCK
+                                               BEGIN_FINALLY
+                                               WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                               WITH_CLEANUP_FINISH POP_FINALLY LOAD_CONST RETURN_VALUE
+                                               COME_FROM_ASYNC_WITH
+                                               WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                               WITH_CLEANUP_FINISH END_FINALLY
+                      c_async_with_stmt   ::= expr
                                               async_with_pre
                                               POP_TOP
-                                              suite_stmts
-                                              POP_TOP POP_BLOCK
-                                              async_with_post
-                      async_with_stmt     ::= expr
-                                              async_with_pre
-                                              POP_TOP
-                                              suite_stmts
+                                              c_suite_stmts
                                               POP_BLOCK
                                               BEGIN_FINALLY
                                               WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
@@ -252,15 +297,24 @@ class Python37BaseParser(PythonParser):
                                               COME_FROM_ASYNC_WITH
                                               WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
                                               WITH_CLEANUP_FINISH END_FINALLY
-                      async_with_as_stmt  ::= expr
-                                              async_with_pre
-                                              store suite_stmts
-                                              POP_TOP POP_BLOCK
-                                              async_with_post
-                      async_with_as_stmt  ::= expr
-                                              async_with_pre
-                                              store suite_stmts
-                                              POP_BLOCK async_with_post
+                      async_with_as_stmt   ::= expr
+                                               async_with_pre
+                                               store suite_stmts
+                                               POP_TOP POP_BLOCK
+                                               async_with_post
+                      c_async_with_as_stmt ::= expr
+                                               async_with_pre
+                                               store suite_stmts
+                                               POP_TOP POP_BLOCK
+                                               async_with_post
+                      async_with_as_stmt   ::= expr
+                                               async_with_pre
+                                               store suite_stmts
+                                               POP_BLOCK async_with_post
+                      c_async_with_as_stmt ::= expr
+                                               async_with_pre
+                                               store suite_stmts
+                                               POP_BLOCK async_with_post
                     """
                 self.addRule(rules_str, nop_func)
 
@@ -539,7 +593,7 @@ class Python37BaseParser(PythonParser):
 
                     stmt                ::= genexpr_func_async
 
-                    func_async_prefix   ::= SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
+                    func_async_prefix   ::= _come_froms SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
                     func_async_middle   ::= POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT
                                             DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
                                             END_FINALLY COME_FROM
@@ -548,22 +602,24 @@ class Python37BaseParser(PythonParser):
                                             JUMP_BACK COME_FROM
                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
-                    expr                ::= listcomp_async
-                    listcomp_async      ::= LOAD_LISTCOMP LOAD_STR MAKE_FUNCTION_0
+                    expr                ::= list_comp_async
+                    list_comp_async     ::= LOAD_LISTCOMP LOAD_STR MAKE_FUNCTION_0
                                             expr GET_AITER CALL_FUNCTION_1
                                             GET_AWAITABLE LOAD_CONST
                                             YIELD_FROM
 
-                    expr                 ::= listcomp_async
-                    listcomp_async       ::= BUILD_LIST_0 LOAD_FAST func_async_prefix
+                    expr                ::= list_comp_async
+                    list_afor2          ::= func_async_prefix
                                             store func_async_middle list_iter
                                             JUMP_BACK COME_FROM
                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
-
+                    list_comp_async     ::= BUILD_LIST_0 LOAD_FAST list_afor2
+                    get_aiter           ::= LOAD_DEREF GET_AITER
+                    list_afor           ::= get_aiter list_afor2
+                    list_iter           ::= list_afor
                    """,
                     nop_func,
                 )
-                custom_ops_processed.add(opname)
             elif opname == "JUMP_IF_NOT_DEBUG":
                 v = token.attr
                 self.addRule(
@@ -939,15 +995,15 @@ class Python37BaseParser(PythonParser):
 
             elif opname == "SETUP_WITH":
                 rules_str = """
-                  stmt       ::= withstmt
+                  stmt       ::= with
                   stmt       ::= withasstmt
 
-                  withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt COME_FROM_WITH
+                  with       ::= expr SETUP_WITH POP_TOP suite_stmts_opt COME_FROM_WITH
                                  WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
                   withasstmt ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
                                  WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
-                  withstmt   ::= expr
+                  with       ::= expr
                                  SETUP_WITH POP_TOP suite_stmts_opt
                                  POP_BLOCK LOAD_CONST COME_FROM_WITH
                                  WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
@@ -956,7 +1012,7 @@ class Python37BaseParser(PythonParser):
                                  POP_BLOCK LOAD_CONST COME_FROM_WITH
                                  WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
-                  withstmt   ::= expr
+                  with       ::= expr
                                  SETUP_WITH POP_TOP suite_stmts_opt
                                  POP_BLOCK LOAD_CONST COME_FROM_WITH
                                  WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
@@ -967,13 +1023,13 @@ class Python37BaseParser(PythonParser):
                 """
                 if self.version < 3.8:
                     rules_str += """
-                    withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
+                    with     ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
                                    LOAD_CONST
                                    WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
                     """
                 else:
                     rules_str += """
-                      withstmt   ::= expr
+                      with    ::= expr
                                      SETUP_WITH POP_TOP suite_stmts_opt
                                      POP_BLOCK LOAD_CONST COME_FROM_WITH
                                      WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
@@ -982,7 +1038,7 @@ class Python37BaseParser(PythonParser):
                                      SETUP_WITH store suite_stmts_opt
                                      POP_BLOCK LOAD_CONST COME_FROM_WITH
 
-                       withstmt  ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
+                       with    ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
                                      BEGIN_FINALLY COME_FROM_WITH
                                      WITH_CLEANUP_START WITH_CLEANUP_FINISH
                                      END_FINALLY
@@ -1128,8 +1184,17 @@ class Python37BaseParser(PythonParser):
         n = len(tokens)
         last = min(last, n-1)
         fn = self.reduce_check_table.get(lhs, None)
-        if fn:
-            return fn(self, lhs, n, rule, ast, tokens, first, last)
+        try:
+            if fn:
+                return fn(self, lhs, n, rule, ast, tokens, first, last)
+        except:
+            import sys, traceback
+            print("Exception in %s %s\n" +
+                  "rule: %s\n" +
+                  "offsets %s .. %s",
+                  (fn.__name__, sys.exc_info()[1], rule2str(rule), tokens[first].offset, otokens[last].offset))
+            print(traceback.print_tb(sys.exc_info()[2],-1))
+            raise ParserError(tokens[last], tokens[last].off2int(), self.debug["rules"])
 
         if lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
             return True
