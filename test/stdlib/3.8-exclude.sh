@@ -96,6 +96,7 @@ SKIP_TESTS=(
     [test_exceptions.py]=1   # parse error
 
     [test_faulthandler.py]=1   # takes too long
+    [test_file_eintr.py]=1 # too long to run test; works on 3.7.7
     [test_fcntl.py]=1
     [test_filecmp.py]=1   # parse error
     [test_fileinput.py]=1
