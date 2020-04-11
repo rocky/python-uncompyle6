@@ -55,6 +55,7 @@ PRECEDENCE = {
     "yield":                  38, # Needs to be below named_expr
     "yield_from":             38,
 
+    "_mklambda":              30,
     "mklambda":               30,
 
     "if_exp":                 28, # IfExp ( a if x else b)
