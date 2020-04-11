@@ -74,6 +74,7 @@ class Python3Parser(PythonParser):
 
         jb_or_c ::= JUMP_BACK
         jb_or_c ::= CONTINUE
+        jb_cfs  ::= JUMP_BACK _come_froms
 
         stmt ::= set_comp_func
 
@@ -435,10 +436,11 @@ class Python3Parser(PythonParser):
         while1elsestmt    ::= SETUP_LOOP          l_stmts     JUMP_BACK
                               else_suitel
 
-        whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+        whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt jb_cfs POP_BLOCK
                               else_suitel COME_FROM_LOOP
 
-        whileelsestmt2     ::= SETUP_LOOP testexpr l_stmts_opt  JUMP_BACK POP_BLOCK
+
+        whileelsestmt2    ::= SETUP_LOOP testexpr l_stmts_opt  JUMP_BACK POP_BLOCK
                               else_suitel JUMP_BACK COME_FROM_LOOP
 
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt          JUMP_BACK POP_BLOCK

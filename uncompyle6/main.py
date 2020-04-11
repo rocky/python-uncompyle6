@@ -107,7 +107,7 @@ def decompile(
           )
     )
     if bytecode_version >= 3.0:
-        write("# Warning: this version has problems handling the Python 3 byte type in contants properly.\n")
+        write("# Warning: this version has problems handling the Python 3 byte type in constants properly.\n")
     if co.co_filename:
         write("# Embedded file name: %s" % co.co_filename,)
     if timestamp:

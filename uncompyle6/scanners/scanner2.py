@@ -396,7 +396,7 @@ class Scanner2(Scanner):
 
         if show_asm in ('both', 'after'):
             for t in tokens:
-                print(t.format(line_prefix='L.'))
+                print(t.format(line_prefix=""))
             print()
         return tokens, customize
 

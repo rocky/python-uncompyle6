@@ -597,7 +597,10 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_ret_expr(self, node):
         if len(node) == 1 and node[0] == "expr":
+            # If expr is yield we want parens.
+            self.prec = PRECEDENCE["yield"] - 1
             self.n_expr(node[0])
+            p = self.prec
         else:
             self.n_expr(node)
 
@@ -1819,7 +1822,7 @@ class SourceWalker(GenericASTTraversal, object):
         prettyprint a list or tuple
         """
         p = self.prec
-        self.prec = 100
+        self.prec = PRECEDENCE["yield"] - 1
         lastnode = node.pop()
         lastnodetype = lastnode.kind
 
@@ -2156,7 +2159,7 @@ class SourceWalker(GenericASTTraversal, object):
             elif self.version >= 3.6 and k.startswith("CALL_FUNCTION_KW"):
                 TABLE_R[k] = ("%c(%P)", 0, (1, -1, ", ", 100))
             elif op == "CALL_FUNCTION":
-                TABLE_R[k] = ("%c(%P)", 0, (1, -1, ", ", 100))
+                TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", PRECEDENCE["yield"]-1))
             elif op in (
                 "CALL_FUNCTION_VAR",
                 "CALL_FUNCTION_VAR_KW",
