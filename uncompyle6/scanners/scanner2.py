@@ -138,14 +138,21 @@ class Scanner2(Scanner):
         if classname:
             classname = '_' + classname.lstrip('_') + '__'
 
-            free = [ self.unmangle_name(name, classname)
+            if hasattr(co, "co_cellvars"):
+                free = [ self.unmangle_name(name, classname)
                      for name in (co.co_cellvars + co.co_freevars) ]
+            else:
+                free = ()
+
             names = [ self.unmangle_name(name, classname)
                       for name in co.co_names ]
             varnames = [ self.unmangle_name(name, classname)
                          for name in co.co_varnames ]
         else:
-            free = co.co_cellvars + co.co_freevars
+            if hasattr(co, "co_cellvars"):
+                free = co.co_cellvars + co.co_freevars
+            else:
+                free = ()
             names = co.co_names
             varnames = co.co_varnames
         return free, names, varnames
