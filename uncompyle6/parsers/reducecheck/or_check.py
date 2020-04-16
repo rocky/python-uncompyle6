@@ -2,7 +2,7 @@
 
 ASSERT_OPS = frozenset(["LOAD_ASSERT", "RAISE_VARARGS_1"])
 def or_check(self, lhs, n, rule, ast, tokens, first, last):
-    if rule == ("or", ("expr", "jmp_true", "expr")):
+    if rule == ("or", ("expr_jt", "expr")):
         if tokens[last] in  ASSERT_OPS or tokens[last-1] in ASSERT_OPS:
             return True
 
@@ -18,7 +18,9 @@ def or_check(self, lhs, n, rule, ast, tokens, first, last):
             return True
 
         first_offset = tokens[first].off2int()
-        jmp_true_target = ast[1][0].attr
+        jmp_true_target = ast[0][1][0].attr
+        jmp_true_target < first_offset
+
         if jmp_true_target < first_offset:
             return False
 

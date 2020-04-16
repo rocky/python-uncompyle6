@@ -631,9 +631,13 @@ class Python37Parser(Python37BaseParser):
     def p_37conditionals(self, args):
         """
         expr                       ::= if_exp37
-        if_exp37              ::= expr expr jf_cfs expr COME_FROM
+        if_exp37                   ::= expr expr jf_cfs expr COME_FROM
         jf_cfs                     ::= JUMP_FORWARD _come_froms
         ifelsestmt                 ::= testexpr c_stmts_opt jf_cfs else_suite opt_come_from_except
+        expr_pjit                  ::= expr POP_JUMP_IF_TRUE
+        expr_jit                   ::= expr JUMP_IF_TRUE
+        expr_jt                    ::= expr jmp_true
+        expr_jitop                 ::= expr JUMP_IF_TRUE_OR_POP
 
         jmp_false37                ::= POP_JUMP_IF_FALSE COME_FROM
         list_if                    ::= expr jmp_false37 list_iter
@@ -928,8 +932,8 @@ class Python37Parser(Python37BaseParser):
         jifop_come_from ::= JUMP_IF_FALSE_OR_POP come_froms
         or        ::= and jitop_come_from expr COME_FROM
         or        ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
-        or        ::= expr JUMP_IF_TRUE expr COME_FROM
-        or        ::= expr POP_JUMP_IF_TRUE expr POP_JUMP_IF_FALSE COME_FROM
+        or        ::= expr_jit expr COME_FROM
+        or        ::= expr_pjit expr POP_JUMP_IF_FALSE COME_FROM
 
         testfalse_not_or   ::= expr jmp_false expr jmp_false COME_FROM
         testfalse_not_and ::= and jmp_true come_froms
@@ -945,7 +949,7 @@ class Python37Parser(Python37BaseParser):
         testexprl   ::= testfalsel
         testfalsel  ::= expr jmp_true
 
-        or          ::= expr jmp_true expr
+        or          ::= expr_jt expr
 
         and  ::= expr JUMP_IF_FALSE_OR_POP expr come_from_opt
         and  ::= expr jifop_come_from expr
