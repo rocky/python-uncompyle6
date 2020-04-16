@@ -27,7 +27,7 @@ from subprocess import call
 import uncompyle6
 from uncompyle6.scanner import (Token as ScannerToken, get_scanner)
 from uncompyle6 import PYTHON3
-from xdis.code import iscode
+from xdis import iscode
 from xdis.magics import PYTHON_MAGIC_INT
 from xdis.load import load_file, load_module
 from xdis.util import pretty_flags

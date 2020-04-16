@@ -16,7 +16,7 @@
 All the crazy things we have to do to handle Python functions in 3.6 and above.
 The saga of changes before 3.6 is in other files.
 """
-from xdis.code import iscode, code_has_star_arg, code_has_star_star_arg
+from xdis import iscode, code_has_star_arg, code_has_star_star_arg
 from xdis.util import CO_GENERATOR, CO_ASYNC_GENERATOR
 from uncompyle6.scanner import Code
 from uncompyle6.parsers.treenode import SyntaxTree

@@ -129,7 +129,7 @@ import sys
 IS_PYPY = "__pypy__" in sys.builtin_module_names
 PYTHON3 = sys.version_info >= (3, 0)
 
-from xdis.code import iscode
+from xdis import iscode
 from xdis.util import COMPILER_FLAG_BIT
 
 from uncompyle6.parser import get_python_parser

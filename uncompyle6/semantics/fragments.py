@@ -67,7 +67,7 @@ from __future__ import print_function
 
 import re
 
-from xdis.code import iscode
+from xdis import iscode
 from xdis.magics import sysinfo2float
 from uncompyle6.semantics import pysource
 from uncompyle6 import parser

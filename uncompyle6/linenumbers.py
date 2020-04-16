@@ -15,7 +15,7 @@
 
 from collections import deque
 
-from xdis.code import iscode
+from xdis import iscode
 from xdis.load import load_file, load_module
 from xdis.main import get_opcode
 from xdis.bytecode import Bytecode, findlinestarts, offset2line

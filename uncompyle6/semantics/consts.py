@@ -285,7 +285,7 @@ TABLE_DIRECT = {
     "and": ("%c and %c", 0, 2),
     "ret_and": ("%c and %c", 0, 2),
     "and2": ("%c", 3),
-    "or": ("%c or %c", 0, 2),
+    "or": ("%p or %p", (0, PRECEDENCE["or"]), (1, PRECEDENCE["or"])),
     "ret_or": ("%c or %c", 0, 2),
     "if_exp": ("%p if %c else %c", (2, "expr", 27), 0, 4),
     "if_exp_lambda": ("%p if %c else %c", (2, "expr", 27), (0, "expr"), 4),

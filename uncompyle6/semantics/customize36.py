@@ -15,7 +15,7 @@
 """Isolate Python 3.6 version-specific semantic actions here.
 """
 
-from xdis.code import iscode
+from xdis import iscode
 from spark_parser.ast import GenericASTTraversalPruningException
 from uncompyle6.scanners.tok import Token
 from uncompyle6.semantics.helper import flatten_list, escape_string, strip_quotes

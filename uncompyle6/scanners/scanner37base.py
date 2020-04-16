@@ -29,7 +29,7 @@ For example:
 Finally we save token information.
 """
 
-from xdis.code import iscode
+from xdis import iscode
 from xdis.bytecode import instruction_size, _get_const_info, Instruction
 
 from uncompyle6.scanner import Token

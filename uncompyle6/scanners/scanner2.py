@@ -37,7 +37,7 @@ from __future__ import print_function
 
 from copy import copy
 
-from xdis.code import iscode
+from xdis import iscode
 from xdis.bytecode import (
     op_has_argument, instruction_size,
     _get_const_info)
