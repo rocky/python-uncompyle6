@@ -262,7 +262,7 @@ def customize_for_version37(self, version):
         elif (
             opname.startswith("CALL_FUNCTION_1")
             and opname == "CALL_FUNCTION_1"
-            or not re.match("\d", opname[-1])
+            or not re.match(r"\d", opname[-1])
         ):
             self.template_engine(
                 ("%c(%p)",

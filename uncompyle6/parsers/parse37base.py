@@ -3,7 +3,7 @@
 Python 3.7 base code. We keep non-custom-generated grammar rules out of this file.
 """
 from uncompyle6.scanners.tok import Token
-from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
+from uncompyle6.parser import ParserError, PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
@@ -1191,8 +1191,8 @@ class Python37BaseParser(PythonParser):
             import sys, traceback
             print("Exception in %s %s\n" +
                   "rule: %s\n" +
-                  "offsets %s .. %s",
-                  (fn.__name__, sys.exc_info()[1], rule2str(rule), tokens[first].offset, otokens[last].offset))
+                  "offsets %s .. %s" %
+                  (fn.__name__, sys.exc_info()[1], rule, tokens[first].offset, tokens[last].offset))
             print(traceback.print_tb(sys.exc_info()[2],-1))
             raise ParserError(tokens[last], tokens[last].off2int(), self.debug["rules"])
 
