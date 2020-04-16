@@ -1,6 +1,6 @@
 import sys
 
-from xdis.code import iscode
+from xdis import iscode
 from uncompyle6.parsers.treenode import SyntaxTree
 
 from uncompyle6 import PYTHON3

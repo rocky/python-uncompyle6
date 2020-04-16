@@ -32,7 +32,7 @@ want to run on earlier Python versions.
 import sys
 from collections import deque
 
-from xdis.code import iscode
+from xdis import iscode
 from xdis.load import check_object_path, load_module
 from uncompyle6.scanner import get_scanner
 

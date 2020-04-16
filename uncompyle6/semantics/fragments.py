@@ -65,7 +65,7 @@ The node position 0 will be associated with "import".
 
 import re
 
-from xdis.code import iscode
+from xdis import iscode
 from xdis.magics import sysinfo2float
 from uncompyle6.semantics import pysource
 from uncompyle6 import parser

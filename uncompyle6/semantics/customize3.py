@@ -19,7 +19,7 @@
 from uncompyle6.semantics.consts import TABLE_DIRECT
 from xdis.util import co_flags_is_async
 
-from xdis.code import iscode
+from xdis import iscode
 from uncompyle6.scanner import Code
 from uncompyle6.semantics.helper import (
     find_code_node,

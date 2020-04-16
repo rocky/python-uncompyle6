@@ -93,7 +93,7 @@ class AligningWalker(SourceWalker, object):
             self.engine(table[key.type], node)
             self.prune()
 
-from xdis.code import iscode
+from xdis import iscode
 from uncompyle6.scanner import get_scanner
 from uncompyle6.show import (
     maybe_show_asm,

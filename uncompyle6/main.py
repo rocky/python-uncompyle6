@@ -15,7 +15,7 @@
 import datetime, os, subprocess, sys
 
 from uncompyle6 import verify, IS_PYPY, PYTHON_VERSION
-from xdis.code import iscode
+from xdis import iscode
 from xdis.magics import sysinfo2float
 from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource

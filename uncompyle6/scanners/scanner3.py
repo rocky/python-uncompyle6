@@ -40,7 +40,7 @@ if PYTHON_VERSION < 2.6:
 else:
     from collections import namedtuple
 
-from xdis.code import iscode
+from xdis import iscode
 from xdis.bytecode import instruction_size, _get_const_info
 
 from uncompyle6.scanner import Token, parse_fn_counts

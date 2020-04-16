@@ -21,7 +21,7 @@ Common uncompyle6 parser routines.
 
 import sys
 
-from xdis.code import iscode
+from xdis import iscode
 from xdis.magics import py_str2float
 from spark_parser import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.show import maybe_show_asm
