@@ -194,8 +194,9 @@ class Python2Parser(PythonParser):
         expr ::= slice3
         expr ::= unary_convert
 
-        and  ::= expr jmp_false expr come_from_opt
-        or   ::= expr jmp_true  expr come_from_opt
+        expr_jit ::= expr jmp_true
+        and      ::= expr jmp_false expr come_from_opt
+        or       ::= expr_jit expr come_from_opt
 
         unary_convert ::= expr UNARY_CONVERT
 
@@ -712,7 +713,7 @@ class Python2Parser(PythonParser):
         elif lhs in ("raise_stmt1",):
             # We will assume 'LOAD_ASSERT' will be handled by an assert grammar rule
             return tokens[first] == "LOAD_ASSERT" and (last >= len(tokens))
-        elif rule == ("or", ("expr", "jmp_true", "expr", "\\e_come_from_opt")):
+        elif rule == ("or", ("expr_jit", "expr", "\\e_come_from_opt")):
             expr2 = ast[2]
             return expr2 == "expr" and expr2[0] == "LOAD_ASSERT"
         elif lhs in ("delete_subscript", "del_expr"):
