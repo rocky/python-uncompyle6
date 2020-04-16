@@ -7,6 +7,7 @@ from xdis import next_offset
 from uncompyle6.parser import PythonParserSingle, nop_func
 from uncompyle6.parsers.parse2 import Python2Parser
 from uncompyle6.parsers.reducecheck import (
+    or_check,
     ifelsestmt,
     tryelsestmt,
 )
@@ -101,8 +102,9 @@ class Python27Parser(Python2Parser):
         ret_or     ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
         if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
-        or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
-        and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
+        expr_jitop ::= expr JUMP_IF_TRUE_OR_POP
+        or         ::= expr_jitop expr COME_FROM
+        and        ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
 
         # compare_chained{1,2} is used exclusively in chained_compare
         compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
@@ -229,6 +231,7 @@ class Python27Parser(Python2Parser):
         # FIXME: Put more in this table
         self.reduce_check_table = {
             # "ifelsestmt": ifelsestmt,
+            "or": or_check,
             "tryelsestmt": tryelsestmt,
             "tryelsestmtl": tryelsestmt,
         }
@@ -239,7 +242,7 @@ class Python27Parser(Python2Parser):
         self.check_reduce["except_handler"] = "tokens"
         self.check_reduce["except_handler_else"] = "tokens"
 
-        # self.check_reduce["or"] = "AST"
+        self.check_reduce["or"] = "AST"
         self.check_reduce["raise_stmt1"] = "AST"
         self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["ifelsestmt"] = "AST"
