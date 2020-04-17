@@ -39,6 +39,5 @@ setup(
        test_suite         = 'nose.collector',
        url                = web,
        tests_require      = ['nose>=1.0'],
-       dependency_links   =['http://github.com/rocky/python-xdis/tarball/master#egg=xdis-4.3.3'],
        version            = VERSION,
        zip_safe           = zip_safe)
