@@ -134,8 +134,9 @@ class Python30Parser(Python31Parser):
 
         jump_except           ::= _jump COME_FROM POP_TOP
 
+        expr_jt               ::= expr jmp_true
         or                    ::= expr jmp_false expr jmp_true expr
-        or                    ::= expr jmp_true expr
+        or                    ::= expr_jt expr
 
         import_from ::= LOAD_CONST LOAD_CONST IMPORT_NAME importlist _come_froms POP_TOP
 
