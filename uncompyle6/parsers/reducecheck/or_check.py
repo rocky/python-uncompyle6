@@ -38,6 +38,7 @@ def or_check(self, lhs, n, rule, ast, tokens, first, last):
         last_token = tokens[last]
         last_token_offset = last_token.off2int()
 
+        # FIXME: use instructions for all of this
         if jmp_true_target < first_offset:
             return False
         elif jmp_true_target < last_token_offset:
@@ -49,8 +50,10 @@ def or_check(self, lhs, n, rule, ast, tokens, first, last):
                 # For a backwards loop, well compare to the instruction *after*
                 # then POP_JUMP...
                 last_token = tokens[last + 1]
+            # HACK alert 3 is the Python < 3.6ish thing.
+            # Convert to using instructions
             return not (
-                (last_token_offset <= jmp_true_target <= last_token_offset + 2)
+                (last_token_offset <= jmp_true_target <= last_token_offset + 3)
                 or jmp_true_target < tokens[first].off2int()
             )
         elif last_token == "JUMP_FORWARD" and expr_jt.kind != "expr_jitop":
