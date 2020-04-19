@@ -8,6 +8,9 @@ def or_check(self, lhs, n, rule, ast, tokens, first, last):
     # for t in range(first, last): print(tokens[t])
     # print("="*40)
 
+    if (first, last) == (2, 6):
+        from trepan.api import debug; debug()
+
     if rhs[0:2] in (("expr_jt", "expr"),
                     ("expr_jitop", "expr"),
                     ("expr_jit", "expr")):
@@ -45,7 +48,7 @@ def or_check(self, lhs, n, rule, ast, tokens, first, last):
             return True
 
         # If the jmp is backwards
-        if last_token == "POP_JUMP_IF_FALSE" and self.version != 2.7:
+        if last_token == "POP_JUMP_IF_FALSE" and not self.version in (2.7, 3.5):
             if last_token.attr < last_token_offset:
                 # For a backwards loop, well compare to the instruction *after*
                 # then POP_JUMP...
