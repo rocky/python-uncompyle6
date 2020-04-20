@@ -183,7 +183,7 @@ def decompile_file(
 
     filename = check_object_path(filename)
     code_objects = {}
-    (version, timestamp, magic_int, co, is_pypy, source_size) = load_module(
+    (version, timestamp, magic_int, co, is_pypy, source_size, sip_hash) = load_module(
         filename, code_objects
     )
 
