@@ -1,3 +1,13 @@
+3.6.6: 2020-4-20 Love in the time of Cholera
+============================================
+
+The main reason for this release is an incompatablity bump in xdis which handles
+3.7 SipHash better.
+
+* Go over "yield" as an expression precidence
+* Some small alignment with code in decompyle3 for "or" and "and" was done
+
+
 3.6.5: 2020-4-1 April Fool
 ==========================
 
