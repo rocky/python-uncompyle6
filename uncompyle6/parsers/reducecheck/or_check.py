@@ -8,9 +8,6 @@ def or_check(self, lhs, n, rule, ast, tokens, first, last):
     # for t in range(first, last): print(tokens[t])
     # print("="*40)
 
-    if (first, last) == (2, 6):
-        from trepan.api import debug; debug()
-
     if rhs[0:2] in (("expr_jt", "expr"),
                     ("expr_jitop", "expr"),
                     ("expr_jit", "expr")):
