@@ -5,6 +5,7 @@ Python 3.7 base code. We keep non-custom-generated grammar rules out of this fil
 from uncompyle6.parser import ParserError, PythonParser, nop_func
 from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from spark_parser.spark import rule2str
 
 from uncompyle6.parsers.reducecheck import (
     and_check,
@@ -1181,18 +1182,27 @@ class Python37BaseParser(PythonParser):
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         lhs = rule[0]
         n = len(tokens)
-        last = min(last, n-1)
+        last = min(last, n - 1)
         fn = self.reduce_check_table.get(lhs, None)
         try:
             if fn:
                 return fn(self, lhs, n, rule, ast, tokens, first, last)
         except:
             import sys, traceback
-            print("Exception in %s %s\n" +
-                  "rule: %s\n" +
-                  "offsets %s .. %s" %
-                  (fn.__name__, sys.exc_info()[1], rule, tokens[first].offset, tokens[last].offset))
-            print(traceback.print_tb(sys.exc_info()[2],-1))
+
+            print(
+                ("Exception in %s %s\n"
+                 + "rule: %s\n"
+                 + "offsets %s .. %s")
+                % (
+                    fn.__name__,
+                    sys.exc_info()[1],
+                    rule2str(rule),
+                    tokens[first].offset,
+                    tokens[last].offset,
+                )
+            )
+            print(traceback.print_tb(sys.exc_info()[2], -1))
             raise ParserError(tokens[last], tokens[last].off2int(), self.debug["rules"])
 
         if lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
