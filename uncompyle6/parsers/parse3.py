@@ -278,10 +278,16 @@ class Python3Parser(PythonParser):
                 POP_BLOCK LOAD_CONST COME_FROM_WITH
                 WITH_CLEANUP END_FINALLY
 
+        expr_jt     ::= expr jmp_true
+        expr_jitop  ::= expr JUMP_IF_TRUE_OR_POP
+
         ## FIXME: Right now we have erroneous jump targets
         ## This below is probably not correct when the COME_FROM is put in the right place
-        and ::= expr jmp_false expr COME_FROM
-        or  ::= expr jmp_true  expr COME_FROM
+        and  ::= expr jmp_false expr COME_FROM
+        or   ::= expr_jt  expr COME_FROM
+        or   ::= expr_jt expr
+        or   ::= expr_jitop expr COME_FROM
+        and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
 
         # # something like the below is needed when the jump targets are fixed
         ## or  ::= expr JUMP_IF_TRUE_OR_POP COME_FROM expr
@@ -339,9 +345,6 @@ class Python3Parser(PythonParser):
         ret_or     ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
         if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
-        or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
-        or   ::= expr jmp_true expr
-        and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
 
         # compare_chained1 is used exclusively in chained_compare
         compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP

@@ -637,7 +637,6 @@ class Python37Parser(Python37BaseParser):
         expr_pjit                  ::= expr POP_JUMP_IF_TRUE
         expr_jit                   ::= expr JUMP_IF_TRUE
         expr_jt                    ::= expr jmp_true
-        expr_jitop                 ::= expr JUMP_IF_TRUE_OR_POP
 
         jmp_false37                ::= POP_JUMP_IF_FALSE COME_FROM
         list_if                    ::= expr jmp_false37 list_iter
@@ -928,9 +927,9 @@ class Python37Parser(Python37BaseParser):
         ret_or     ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
         if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
-        jitop_come_from ::= JUMP_IF_TRUE_OR_POP come_froms
+        jitop_come_from_expr ::= JUMP_IF_TRUE_OR_POP come_froms expr
         jifop_come_from ::= JUMP_IF_FALSE_OR_POP come_froms
-        or        ::= and jitop_come_from expr COME_FROM
+        or        ::= and jitop_come_from_expr COME_FROM
         or        ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         or        ::= expr_jit expr COME_FROM
         or        ::= expr_pjit expr POP_JUMP_IF_FALSE COME_FROM
@@ -959,7 +958,7 @@ class Python37Parser(Python37BaseParser):
 
         ## Note that "jmp_false" is what we check on in the "and" reduce rule.
         and ::= expr jmp_false expr COME_FROM
-        or  ::= expr jmp_true  expr COME_FROM
+        or  ::= expr_jt  expr COME_FROM
 
         # compare_chained1 is used exclusively in chained_compare
         compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP

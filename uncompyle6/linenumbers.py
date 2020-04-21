@@ -22,7 +22,7 @@ from xdis.bytecode import Bytecode, findlinestarts, offset2line
 
 def line_number_mapping(pyc_filename, src_filename):
     (version, timestamp, magic_int, code1, is_pypy,
-     source_size) = load_module(pyc_filename)
+     source_size, sip_hash) = load_module(pyc_filename)
     try:
         code2 = load_file(src_filename)
     except SyntaxError, e:

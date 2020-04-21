@@ -15,7 +15,6 @@
 """
 spark grammar differences over Python 3.7 for Python 3.8
 """
-from __future__ import print_function
 
 from uncompyle6.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG

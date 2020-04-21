@@ -70,7 +70,10 @@ class Scanner38(Scanner37):
                 if self.debug:
                     print("%sremove loop offset %s" % (" " * len(loop_ends), offset))
                     pass
-                next_end = loop_ends[-1] if len(loop_ends) else tokens[len(tokens)-1].off2int() + 10
+                if len(loop_ends):
+                    next_end = loop_ends[-1]
+                else:
+                    next_end = tokens[len(tokens)-1].off2int() + 10
 
             if offset in jump_back_targets:
                 next_end = off2int(jump_back_targets[offset], prefer_last=False)

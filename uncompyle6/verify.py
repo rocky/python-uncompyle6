@@ -394,7 +394,7 @@ def compare_code_with_srcfile(pyc_filename, src_filename, verify):
     is returned. Otherwise a string message describing the mismatch is returned.
     """
     (version, timestamp, magic_int, code_obj1, is_pypy,
-     source_size) = load_module(pyc_filename)
+     source_size, sip_hash) = load_module(pyc_filename)
     if magic_int != PYTHON_MAGIC_INT:
         msg = ("Can't compare code - Python is running with magic %s, but code is magic %s "
                % (PYTHON_MAGIC_INT, magic_int))
@@ -421,9 +421,9 @@ def compare_code_with_srcfile(pyc_filename, src_filename, verify):
 def compare_files(pyc_filename1, pyc_filename2, verify):
     """Compare two .pyc files."""
     (version1, timestamp, magic_int1, code_obj1, is_pypy,
-     source_size) = uncompyle6.load_module(pyc_filename1)
+     source_size, sip_hash) = uncompyle6.load_module(pyc_filename1)
     (version2, timestamp, magic_int2, code_obj2, is_pypy,
-        source_size) = uncompyle6.load_module(pyc_filename2)
+        source_size, sip_hash) = uncompyle6.load_module(pyc_filename2)
     if (magic_int1 != magic_int2) and verify == 'verify':
          verify = 'weak_verify'
     cmp_code_objects(version1, is_pypy, code_obj1, code_obj2, verify)

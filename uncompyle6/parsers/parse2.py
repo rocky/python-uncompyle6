@@ -194,9 +194,9 @@ class Python2Parser(PythonParser):
         expr ::= slice3
         expr ::= unary_convert
 
-        expr_jit ::= expr jmp_true
+        expr_jt  ::= expr jmp_true
+        or       ::= expr_jt  expr come_from_opt
         and      ::= expr jmp_false expr come_from_opt
-        or       ::= expr_jit expr come_from_opt
 
         unary_convert ::= expr UNARY_CONVERT
 
