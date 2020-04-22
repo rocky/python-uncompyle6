@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2015-2018 by Rocky Bernstein
+# (C) Copyright 2015-2018, 2020 by Rocky Bernstein
 # (C) Copyright 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -27,10 +27,8 @@ from subprocess import call
 import uncompyle6
 from uncompyle6.scanner import (Token as ScannerToken, get_scanner)
 from uncompyle6 import PYTHON3
-from xdis import iscode
+from xdis import iscode, load_file, load_module, pretty_code_flags
 from xdis.magics import PYTHON_MAGIC_INT
-from xdis.load import load_file, load_module
-from xdis.util import pretty_flags
 
 # FIXME: DRY
 if PYTHON3:
@@ -352,8 +350,8 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2, verify,
             flags2 &= ~0x000000a0
             if flags1 != flags2:
                 raise CmpErrorMember(name, 'co_flags',
-                                     pretty_flags(flags1),
-                                     pretty_flags(flags2))
+                                     pretty_code_flags(flags1),
+                                     pretty_code_flags(flags2))
         else:
             # all other members must be equal
             if getattr(code_obj1, member) != getattr(code_obj2, member):

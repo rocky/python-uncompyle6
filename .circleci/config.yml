@@ -36,8 +36,8 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v2-dependencies-
 
-    # This is based on your 1.0 configuration file or project settings
     - run: pip install --user --upgrade setuptools
+    - run: pip install --user git+git://github.com/rocky/python-xdis.git#egg=xdis-4.4.1
     - run: pip install --user -e .
     - run: pip install --user -r requirements-dev.txt
 
