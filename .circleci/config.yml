@@ -37,7 +37,6 @@ jobs:
           - v2-dependencies-
 
     - run: pip install --user --upgrade setuptools
-    - run: pip install --user git+git://github.com/rocky/python-xdis.git@task/separate-dis#egg=xdis-4.4.1
     - run: pip install --user -e .
     - run: pip install --user -r requirements-dev.txt
 
