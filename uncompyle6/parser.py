@@ -28,7 +28,7 @@ from uncompyle6.show import maybe_show_asm
 
 
 class ParserError(Exception):
-    def __init__(self, token, offset, debug):
+    def __init__(self, token, offset, debug=PARSER_DEFAULT_DEBUG):
         self.token = token
         self.offset = offset
         self.debug = debug

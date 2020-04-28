@@ -1174,6 +1174,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 # modularity is broken here
                 p_insts = self.p.insts
                 self.p.insts = self.scanner.insts
+                self.p.offset2inst_index = self.scanner.offset2inst_index
                 ast = python_parser.parse(self.p, tokens, customize)
                 self.p.insts = p_insts
             except (parser.ParserError(e), AssertionError(e)):
@@ -1211,10 +1212,11 @@ class FragmentsWalker(pysource.SourceWalker, object):
             # modularity is broken here
             p_insts = self.p.insts
             self.p.insts = self.scanner.insts
+            self.p.offset2inst_index = self.scanner.offset2inst_index
             ast = parser.parse(self.p, tokens, customize)
             self.p.insts = p_insts
         except (parser.ParserError(e), AssertionError(e)):
-            raise ParserError(e, tokens)
+            raise ParserError(e, tokens, {})
 
         maybe_show_tree(self, ast)
 

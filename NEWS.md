@@ -1,3 +1,8 @@
+3.6.7: 2020-4-27 xdis again
+===========================
+
+More upheaval in xdis which we need to track here.
+
 3.6.6: 2020-4-20 Love in the time of Cholera
 ============================================
 

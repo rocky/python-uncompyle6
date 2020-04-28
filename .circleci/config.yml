@@ -31,7 +31,6 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v2-dependencies-
 
-    # This is based on your 1.0 configuration file or project settings
     - run:
         command: sudo easy_install xdis spark-parser && sudo pip install -e . && sudo pip install -r requirements-dev.txt
 

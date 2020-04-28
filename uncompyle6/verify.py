@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2015-2018 by Rocky Bernstein
+# (C) Copyright 2015-2018, 2020 by Rocky Bernstein
 # (C) Copyright 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -25,10 +25,8 @@ from subprocess import call
 import uncompyle6
 from uncompyle6.scanner import (Token as ScannerToken, get_scanner)
 from uncompyle6 import PYTHON3
-from xdis import iscode
+from xdis import iscode, load_file, load_module, pretty_code_flags
 from xdis.magics import PYTHON_MAGIC_INT
-from xdis.load import load_file, load_module
-from xdis.util import pretty_flags
 
 # FIXME: DRY
 if PYTHON3:
@@ -330,7 +328,7 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2, verify,
                 i1 += 1
                 i2 += 1
             del tokens1, tokens2 # save memory
-        elif member == 'co_consts':
+        elif member == "co_consts":
             # partial optimization can make the co_consts look different,
             #   so we'll just compare the code consts
             codes1 = ( c for c in code_obj1.co_consts if hasattr(c, 'co_consts') )
@@ -339,7 +337,7 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2, verify,
             for c1, c2 in zip(codes1, codes2):
                 cmp_code_objects(version, is_pypy, c1, c2, verify,
                                  name=name)
-        elif member == 'co_flags':
+        elif member == "co_flags":
             flags1 = code_obj1.co_flags
             flags2 = code_obj2.co_flags
             if is_pypy or version == 2.4:
@@ -351,11 +349,9 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2, verify,
             flags1 &= ~0x000000a0
             flags2 &= ~0x000000a0
             if flags1 != flags2:
-                raise CmpErrorMember(name, 'co_flags',
-                                     pretty_flags(flags1),
-                                     pretty_flags(flags2))
-
-
+                raise CmpErrorMember(name, "co_flags",
+                                     pretty_code_flags(flags1),
+                                     pretty_code_flags(flags2))
         else:
             # all other members must be equal
             if getattr(code_obj1, member) != getattr(code_obj2, member):
