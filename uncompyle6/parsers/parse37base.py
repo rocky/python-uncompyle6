@@ -614,7 +614,7 @@ class Python37BaseParser(PythonParser):
                                             JUMP_BACK COME_FROM
                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
                     list_comp_async     ::= BUILD_LIST_0 LOAD_FAST list_afor2
-                    get_aiter           ::= LOAD_DEREF GET_AITER
+                    get_aiter           ::= expr GET_AITER
                     list_afor           ::= get_aiter list_afor2
                     list_iter           ::= list_afor
                    """,

@@ -963,7 +963,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         self.prune()
 
-    def n_listcomp(self, node):
+    def n_list_comp(self, node):
         self.write("[")
         if node[0].kind == "load_closure":
             self.listcomprehension_walk2(node)
