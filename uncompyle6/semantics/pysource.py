@@ -80,7 +80,7 @@ Python.
 #
 #   Escapes in the format string are:
 #
-#     %c  evaluate the node recursively. Its argument is a single
+#     %c  evaluate/traverse the node recursively. Its argument is a single
 #         integer or tuple representing a node index.
 #         If a tuple is given, the first item is the node index while
 #         the second item is a string giving the node/noterminal name.
@@ -91,7 +91,7 @@ Python.
 #         index and the precedence value, an integer. If 3 items are given,
 #         the second item is the nonterminal name and the precedence is given last.
 #
-#     %C  evaluate children recursively, with sibling children separated by the
+#     %C  evaluate/travers children recursively, with sibling children separated by the
 #         given string.  It needs a 3-tuple: a starting node, the maximimum
 #         value of an end node, and a string to be inserted between sibling children
 #
@@ -99,7 +99,7 @@ Python.
 #         on the LHS of an assignment statement since BUILD_TUPLE_n pretty-prints
 #         other tuples. The specifier takes no arguments
 #
-#     %P same as %C but sets operator precedence.  Its argument is a 4-tuple:
+#     %P  same as %C but sets operator precedence.  Its argument is a 4-tuple:
 #         the node low and high indices, the separator, a string the precidence
 #         value, an integer.
 #
@@ -115,7 +115,13 @@ Python.
 #
 #     %- decrease current indentation level. Takes no arguments.
 #
-#     %{...} evaluate ... in context of N
+#     %{EXPR} Python eval(EXPR) in context of node. Takes no arguments
+#
+#     %[N]{EXPR} Python eval(EXPR) in context of node[N]. Takes no arguments
+#
+#     %[N]{%X} evaluate/recurse on child node[N], using specifier %X.
+#     %X can be one of the above, e.g. %c, %p, etc. Takes the arguemnts
+#     that the specifier uses.
 #
 #     %% literal '%'. Takes no arguments.
 #
@@ -1205,7 +1211,7 @@ class SourceWalker(GenericASTTraversal, object):
             ast = ast[0]
 
         # Pick out important parts of the comprehension:
-        # * the variable we interate over: "store"
+        # * the variable we iterate over: "store"
         # * the results we accumulate: "n"
 
         is_30_dict_comp = False
@@ -1265,17 +1271,25 @@ class SourceWalker(GenericASTTraversal, object):
         # Iterate to find the innermost store
         # We'll come back to the list iteration below.
 
-        while n in ("list_iter", "comp_iter"):
+        while n in ("list_iter", "list_afor", "list_afor2", "comp_iter"):
             # iterate one nesting deeper
             if self.version == 3.0 and len(n) == 3:
                 assert n[0] == "expr" and n[1] == "expr"
                 n = n[1]
+            elif n == "list_afor":
+                n = n[1]
+            elif n == "list_afor2":
+                if n[1] == "store":
+                    store = n[1]
+                n = n[3]
             else:
                 n = n[0]
 
             if n in ("list_for", "comp_for"):
                 if n[2] == "store" and not store:
                     store = n[2]
+                    if not comp_store:
+                        comp_store = store
                 n = n[3]
             elif n in ("list_if", "list_if_not",
                        "list_if37", "list_if37_not",
@@ -2112,7 +2126,6 @@ class SourceWalker(GenericASTTraversal, object):
                 self.prec = p
                 arg += 1
             elif typ == "{":
-                d = node.__dict__
                 expr = m.group("expr")
 
                 # Line mapping stuff
@@ -2123,10 +2136,16 @@ class SourceWalker(GenericASTTraversal, object):
                 ):
                     self.source_linemap[self.current_line_number] = node.linestart
 
-                try:
-                    self.write(eval(expr, d, d))
-                except:
-                    raise
+                if expr[0] == "%":
+                    index = entry[arg]
+                    self.template_engine((expr, index), node)
+                    arg += 1
+                else:
+                    d = node.__dict__
+                    try:
+                        self.write(eval(expr, d, d))
+                    except:
+                        raise
             m = escape.search(fmt, i)
         self.write(fmt[i:])
 
