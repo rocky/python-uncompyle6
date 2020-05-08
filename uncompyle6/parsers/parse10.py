@@ -7,7 +7,7 @@ from uncompyle6.parsers.parse11 import Python11Parser
 
 class Python10Parser(Python11Parser):
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
-        super(Python11Parser, self).__init__(debug_parser)
+        super(Python10Parser, self).__init__(debug_parser)
         self.customized = {}
 
 

@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2020 Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -8,7 +8,7 @@ from uncompyle6.parsers.parse23 import Python23Parser
 class Python22Parser(Python23Parser):
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
-        super(Python23Parser, self).__init__(debug_parser)
+        super(Python22Parser, self).__init__(debug_parser)
         self.customized = {}
 
     def p_misc22(self, args):
