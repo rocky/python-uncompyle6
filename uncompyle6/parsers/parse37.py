@@ -930,8 +930,10 @@ class Python37Parser(Python37BaseParser):
 
         jitop_come_from_expr ::= JUMP_IF_TRUE_OR_POP come_froms expr
         jifop_come_from ::= JUMP_IF_FALSE_OR_POP come_froms
+        expr_jitop      ::= expr JUMP_IF_TRUE_OR_POP
+
         or        ::= and jitop_come_from_expr COME_FROM
-        or        ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
+        or        ::= expr_jitop  expr COME_FROM
         or        ::= expr_jit expr COME_FROM
         or        ::= expr_pjit expr POP_JUMP_IF_FALSE COME_FROM
 
