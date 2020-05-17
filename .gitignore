@@ -10,6 +10,7 @@
 /.pytest_cache
 /.python-version
 /.tox
+.mypy_cache
 /.venv*
 /README
 /__pkginfo__.pyc

@@ -1,3 +1,6 @@
 /.coverage
 /.python-version
 /nohup.out
+/pycdc
+/test_unpy33.py
+/test_unpy37.py
