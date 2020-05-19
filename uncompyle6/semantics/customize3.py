@@ -17,9 +17,8 @@
 """
 
 from uncompyle6.semantics.consts import TABLE_DIRECT
-from xdis.util import co_flags_is_async
 
-from xdis import iscode
+from xdis import co_flags_is_async, iscode
 from uncompyle6.scanner import Code
 from uncompyle6.semantics.helper import (
     find_code_node,

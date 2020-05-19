@@ -1,4 +1,4 @@
-#  Copyright (c) 2016, 2018-2019 by Rocky Bernstein
+#  Copyright (c) 2016, 2018-2020 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -30,9 +30,7 @@ import sys
 from uncompyle6 import PYTHON3, IS_PYPY
 from uncompyle6.scanners.tok import Token
 import xdis
-from xdis.bytecode import Bytecode, instruction_size, extended_arg_val, next_offset
-from xdis.magics import canonic_python_version
-from xdis.util import code2num
+from xdis import Bytecode, canonic_python_version, code2num, instruction_size, extended_arg_val, next_offset
 
 # The byte code versions we support.
 # Note: these all have to be floats

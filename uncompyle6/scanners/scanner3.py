@@ -35,8 +35,8 @@ Finally we save token information.
 
 from __future__ import print_function
 
-from xdis import iscode
-from xdis.bytecode import instruction_size, _get_const_info
+from xdis import iscode, instruction_size
+from xdis.bytecode import _get_const_info
 
 from uncompyle6.scanner import Token, parse_fn_counts
 import xdis

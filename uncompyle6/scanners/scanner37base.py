@@ -29,8 +29,8 @@ For example:
 Finally we save token information.
 """
 
-from xdis import iscode
-from xdis.bytecode import instruction_size, _get_const_info, Instruction
+from xdis import iscode, instruction_size, Instruction
+from xdis.bytecode import _get_const_info
 
 from uncompyle6.scanner import Token
 import xdis
