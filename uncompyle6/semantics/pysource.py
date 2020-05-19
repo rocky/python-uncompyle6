@@ -510,14 +510,14 @@ class SourceWalker(GenericASTTraversal, object):
             self.preorder(node[0])
             self.prune()
         else:
-            self.write(self.indent, "return")
             # One reason we worry over whether we use "return None" or "return"
             # is that inside a generator, "return None" is illegal.
             # Thank you, Python!
             if self.return_none or not self.is_return_none(node):
-                self.write(" ")
-                self.preorder(node[0])
-            self.println()
+                self.default(node)
+            else:
+                self.template_engine(("return\n"), node)
+
             self.prune()  # stop recursing
 
     def n_return_if_stmt(self, node):

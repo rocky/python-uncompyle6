@@ -47,8 +47,9 @@ class Python38Parser(Python37Parser):
         stmt               ::= try_except38
         stmt               ::= whilestmt38
         stmt               ::= whileTruestmt38
-        stmt               ::= call
+        stmt               ::= call_stmt
 
+        call_stmt          ::= call
         break ::= POP_BLOCK BREAK_LOOP
         break ::= POP_BLOCK POP_TOP BREAK_LOOP
         break ::= POP_TOP BREAK_LOOP

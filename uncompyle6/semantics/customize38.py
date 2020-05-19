@@ -46,6 +46,10 @@ def customize_for_version38(self, version):
             (0, 'expr'), (6, 'store'),
             (7, 'suite_stmts') ),
 
+        "call_stmt": (
+            "%|%c\n", 0
+        ),
+
         'except_handler38': (
             '%c', (2, 'except_stmts') ),
 
