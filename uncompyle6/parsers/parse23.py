@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018 Rocky Bernstein
+#  Copyright (c) 2016-2018, 2020 Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 #  Copyright (c) 1999 John Aycock
 
@@ -9,7 +9,7 @@ from uncompyle6.parsers.parse24 import Python24Parser
 class Python23Parser(Python24Parser):
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
-        super(Python24Parser, self).__init__(debug_parser)
+        super(Python23Parser, self).__init__(debug_parser)
         self.customized = {}
 
     def p_misc23(self, args):

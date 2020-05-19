@@ -8,7 +8,7 @@ from uncompyle6.parsers.parse22 import Python22Parser
 class Python21Parser(Python22Parser):
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
-        super(Python22Parser, self).__init__(debug_parser)
+        super(Python21Parser, self).__init__(debug_parser)
         self.customized = {}
 
     def p_forstmt21(self, args):

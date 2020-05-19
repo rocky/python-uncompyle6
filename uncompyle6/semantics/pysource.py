@@ -510,14 +510,14 @@ class SourceWalker(GenericASTTraversal, object):
             self.preorder(node[0])
             self.prune()
         else:
-            self.write(self.indent, "return")
             # One reason we worry over whether we use "return None" or "return"
             # is that inside a generator, "return None" is illegal.
             # Thank you, Python!
             if self.return_none or not self.is_return_none(node):
-                self.write(" ")
-                self.preorder(node[0])
-            self.println()
+                self.default(node)
+            else:
+                self.template_engine(("%|return\n",), node)
+
             self.prune()  # stop recursing
 
     def n_return_if_stmt(self, node):
@@ -2053,10 +2053,17 @@ class SourceWalker(GenericASTTraversal, object):
             elif typ == "c":
                 index = entry[arg]
                 if isinstance(index, tuple):
-                    assert node[index[0]] == index[1], (
-                        "at %s[%d], expected '%s' node; got '%s'"
-                        % (node.kind, arg, index[1], node[index[0]].kind)
-                    )
+                    if isinstance(index[1], str):
+                        assert node[index[0]] == index[1], (
+                            "at %s[%d], expected '%s' node; got '%s'"
+                            % (node.kind, arg, index[1], node[index[0]].kind)
+                        )
+                    else:
+                        assert node[index[0]] in index[1], (
+                            "at %s[%d], expected to be in '%s' node; got '%s'"
+                            % (node.kind, arg, index[1], node[index[0]].kind)
+                        )
+
                     index = index[0]
                 assert isinstance(
                     index, int
@@ -2065,6 +2072,16 @@ class SourceWalker(GenericASTTraversal, object):
                     arg,
                     type(index),
                 )
+
+                try:
+                    node[index]
+                except IndexError:
+                    raise RuntimeError(
+                        """
+                        Expanding '%' in template '%s[%s]':
+                        %s is invalid; has only %d entries
+                        """ % (node,kind, enty, arg, index, len(node))
+                    )
                 self.preorder(node[index])
 
                 arg += 1

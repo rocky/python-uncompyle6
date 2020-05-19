@@ -339,7 +339,11 @@ TABLE_DIRECT = {
     "raise_stmt1": ("%|raise %c\n", 0),
     "raise_stmt3": ("%|raise %c, %c, %c\n", 0, 1, 2),
     #    "yield":	        ( "yield %c", 0),
-    #    "return":	        ( "%|return %c\n", 0),
+
+    # Note: we have a custom rule, which calls when we don't
+    # have "return None"
+    "return":	( "%|return %c\n", 0),
+
     "return_if_stmt": ("return %c\n", 0),
     "ifstmt": (
         "%|if %c:\n%+%c%-",

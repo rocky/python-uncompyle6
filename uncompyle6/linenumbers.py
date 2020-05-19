@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2016, 2818 by Rocky Bernstein
+#  Copyright (c) 2015-2016, 2818, 2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -15,14 +15,27 @@
 
 from collections import deque
 
-from xdis import iscode
-from xdis.load import load_file, load_module
-from xdis.main import get_opcode
-from xdis.bytecode import Bytecode, findlinestarts, offset2line
+from xdis import (
+    Bytecode,
+    iscode,
+    findlinestarts,
+    get_opcode,
+    offset2line,
+    load_file,
+    load_module,
+)
+
 
 def line_number_mapping(pyc_filename, src_filename):
-    (version, timestamp, magic_int, code1, is_pypy,
-     source_size, sip_hash) = load_module(pyc_filename)
+    (
+        version,
+        timestamp,
+        magic_int,
+        code1,
+        is_pypy,
+        source_size,
+        sip_hash,
+    ) = load_module(pyc_filename)
     try:
         code2 = load_file(src_filename)
     except SyntaxError, e:
@@ -44,7 +57,10 @@ def number_loop(queue, mappings, opc):
         assert code1.co_name == code2.co_name
         linestarts_orig = findlinestarts(code1)
         linestarts_uncompiled = list(findlinestarts(code2))
-        mappings += [[line, offset2line(offset, linestarts_uncompiled)] for offset, line in linestarts_orig]
+        mappings += [
+            [line, offset2line(offset, linestarts_uncompiled)]
+            for offset, line in linestarts_orig
+        ]
         bytecode1 = Bytecode(code1, opc)
         bytecode2 = Bytecode(code2, opc)
         instr2s = bytecode2.get_instructions(code2)

@@ -12,8 +12,7 @@ import functools
 from uncompyle6 import PYTHON_VERSION, PYTHON3, IS_PYPY, code_deparse
 
 # TODO : I think we can get xdis to support the dis api (python 3 version) by doing something like this there
-from xdis.bytecode import Bytecode
-from xdis.main import get_opcode
+from xdis import Bytecode, get_opcode
 
 opc = get_opcode(PYTHON_VERSION, IS_PYPY)
 Bytecode = functools.partial(Bytecode, opc=opc)

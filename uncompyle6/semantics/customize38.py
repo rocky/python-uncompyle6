@@ -29,9 +29,9 @@ def customize_for_version38(self, version):
     #     del TABLE_DIRECT[lhs]
 
     TABLE_DIRECT.update({
-        'async_for_stmt38':  (
-            '%|async for %c in %c:\n%+%c%-%-\n\n',
-            (7, 'store'), (0, 'expr'), (8, 'for_block') ),
+        "async_for_stmt38":  (
+            "%|async for %c in %c:\n%+%c%-%-\n\n",
+            (2, "store"), (0, "expr"), (3, "for_block") ),
 
         'async_forelse_stmt38':  (
             '%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
@@ -45,6 +45,10 @@ def customize_for_version38(self, version):
             '%|async with %c as %c:\n%+%|%c%-',
             (0, 'expr'), (6, 'store'),
             (7, 'suite_stmts') ),
+
+        "call_stmt": (
+            "%|%c\n", 0
+        ),
 
         'except_handler38': (
             '%c', (2, 'except_stmts') ),
@@ -101,12 +105,26 @@ def customize_for_version38(self, version):
         'try_except38': (
             '%|try:\n%+%c\n%-%|except:\n%|%-%c\n\n',
                    (-2, 'suite_stmts_opt'), (-1, 'except_handler38a') ),
-        'try_except_ret38': (
-            '%|try:\n%+%|return %c%-\n%|except:\n%+%|%c%-\n\n',
-                   (1, 'expr'), (-1, 'except_ret38a') ),
+        "try_except_ret38": (
+            "%|try:\n%+%c%-\n%|except:\n%+%|%c%-\n\n",
+            (1, "returns"),
+            (2, "except_ret38a"),
+        ),
         'tryfinally38rstmt': (
             '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
-                   (3, 'returns'), 6 ),
+            (0, "sf_pb_call_returns"),
+            (-1, ("ss_end_finally", "suite_stmts")),
+        ),
+        "tryfinally38rstmt2": (
+            "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
+            (4, "returns"),
+            -2, "ss_end_finally"
+        ),
+        "tryfinally38rstmt3": (
+            "%|try:\n%+%|return %c%-\n%|finally:\n%+%c%-\n\n",
+            (1, "expr"),
+            (-1, "ss_end_finally")
+        ),
         'tryfinally38stmt': (
             '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
             (1, "suite_stmts_opt"),

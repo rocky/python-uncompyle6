@@ -16,8 +16,13 @@
 All the crazy things we have to do to handle Python functions in 3.6 and above.
 The saga of changes before 3.6 is in other files.
 """
-from xdis import iscode, code_has_star_arg, code_has_star_star_arg
-from xdis.util import CO_GENERATOR, CO_ASYNC_GENERATOR
+from xdis import (
+    iscode,
+    code_has_star_arg,
+    code_has_star_star_arg,
+    CO_GENERATOR,
+    CO_ASYNC_GENERATOR,
+)
 from uncompyle6.scanner import Code
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.semantics.parser_error import ParserError
@@ -103,9 +108,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
             if annotate_node == "dict" and annotate_name_node.kind.startswith(
                 "BUILD_CONST_KEY_MAP"
             ):
-                types = [
-                    self.traverse(n, indent="") for n in annotate_node[:-2]
-                ]
+                types = [self.traverse(n, indent="") for n in annotate_node[:-2]]
                 names = annotate_node[-2].attr
                 l = len(types)
                 assert l == len(names)
@@ -328,9 +331,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
             self.write(" -> %s" % annotate_dict["return"])
         self.println(":")
 
-    if (
-        node[-2] == "docstring" and not is_lambda
-    ):
+    if node[-2] == "docstring" and not is_lambda:
         # docstring exists, dump it
         self.println(self.traverse(node[-2]))
 
@@ -369,5 +370,5 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         if need_bogus_yield:
             self.template_engine(("%|if False:\n%+%|yield None%-",), node)
 
-    scanner_code._tokens = None # save memory
+    scanner_code._tokens = None  # save memory
     scanner_code._customize = None  # save memory
