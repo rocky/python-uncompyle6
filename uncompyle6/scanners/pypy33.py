@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 by Rocky Bernstein
+#  Copyright (c) 2019-2020 by Rocky Bernstein
 """
 Python PyPy 3.3 decompiler scanner.
 
@@ -10,6 +10,7 @@ import uncompyle6.scanners.scanner33 as scan
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_33pypy as opc
+
 JUMP_OPs = map(lambda op: opc.opname[op], opc.hasjrel + opc.hasjabs)
 
 # We base this off of 3.3

@@ -34,8 +34,8 @@ from __future__ import print_function
 import sys
 from collections import deque
 
-from xdis import iscode
-from xdis.load import check_object_path, load_module
+from xdis import iscode, load_module
+from xdis.load import check_object_path
 from uncompyle6.scanner import get_scanner
 
 

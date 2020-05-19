@@ -16,8 +16,7 @@
 All the crazy things we have to do to handle Python functions in 3.0-3.5 or so.
 The saga of changes before and after is in other files.
 """
-from xdis import iscode, code_has_star_arg, code_has_star_star_arg
-from xdis.util import CO_GENERATOR
+from xdis import iscode, code_has_star_arg, code_has_star_star_arg, CO_GENERATOR
 from uncompyle6.scanner import Code
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6 import PYTHON3
@@ -38,6 +37,7 @@ else:
 from uncompyle6.show import maybe_show_tree_param_default
 
 # FIXME: DRY the below code...
+
 
 def make_function3_annotate(
     self, node, is_lambda, nested=1, code_node=None, annotate_last=-1
@@ -269,8 +269,8 @@ def make_function3_annotate(
                 self.write("\n" + indent)
                 line_number = self.line_number
             self.write(" -> ")
-            if 'return' in annotate_dict:
-                self.write(annotate_dict['return'])
+            if "return" in annotate_dict:
+                self.write(annotate_dict["return"])
             else:
                 # value, string = annotate_args['return']
                 # if string:
@@ -427,9 +427,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             lc_index = -3
             pass
 
-        if (len(node) > 2
-            and (have_kwargs or node[lc_index].kind != "load_closure")
-        ):
+        if len(node) > 2 and (have_kwargs or node[lc_index].kind != "load_closure"):
 
             # Find the index in "node" where the first default
             # parameter value is located. Note this is in contrast to
@@ -480,7 +478,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
         if is_lambda:
             kwargs = []
             for i in range(kwonlyargcount):
-                paramnames.append(scanner_code.co_varnames[argc+i])
+                paramnames.append(scanner_code.co_varnames[argc + i])
             pass
         else:
             kwargs = list(scanner_code.co_varnames[argc : argc + kwonlyargcount])
@@ -687,5 +685,5 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
         if need_bogus_yield:
             self.template_engine(("%|if False:\n%+%|yield None%-",), node)
 
-    scanner_code._tokens = None # save memory
+    scanner_code._tokens = None  # save memory
     scanner_code._customize = None  # save memory

@@ -67,8 +67,7 @@ from __future__ import print_function
 
 import re
 
-from xdis import iscode
-from xdis.magics import sysinfo2float
+from xdis import iscode, sysinfo2float
 from uncompyle6.semantics import pysource
 from uncompyle6 import parser
 from uncompyle6.scanner import Token, Code, get_scanner
