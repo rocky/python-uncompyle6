@@ -888,7 +888,7 @@ class Scanner3(Scanner):
                     start, self.next_stmt[offset], self.opc.POP_JUMP_IF_FALSE, target
                 )
 
-                # FIXME: Remoeve this whole "if" block
+                # FIXME: Remove this whole "if" block
                 # If we still have any offsets in set, start working on it
                 if match:
                     is_jump_forward = self.is_jump_forward(pre_rtarget)
