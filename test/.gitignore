@@ -2,5 +2,7 @@
 /.python-version
 /nohup.out
 /pycdc
+/test_pycdc_tests.sh
+/test_uncompyle2.py
 /test_unpy33.py
 /test_unpy37.py

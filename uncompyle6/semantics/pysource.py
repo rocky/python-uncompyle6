@@ -516,7 +516,7 @@ class SourceWalker(GenericASTTraversal, object):
             if self.return_none or not self.is_return_none(node):
                 self.default(node)
             else:
-                self.template_engine(("return\n"), node)
+                self.template_engine(("%|return\n",), node)
 
             self.prune()  # stop recursing
 

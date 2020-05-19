@@ -956,8 +956,8 @@ class Python37Parser(Python37BaseParser):
         and  ::= expr JUMP_IF_FALSE_OR_POP expr come_from_opt
         and  ::= expr jifop_come_from expr
 
-        pjit_come_from ::= POP_JUMP_IF_TRUE COME_FROM
-        or  ::= expr pjit_come_from expr
+        expr_pjit_come_from ::= expr POP_JUMP_IF_TRUE COME_FROM
+        or  ::= expr_pjit_come_from expr
 
         ## Note that "jmp_false" is what we check on in the "and" reduce rule.
         and ::= expr jmp_false expr COME_FROM
