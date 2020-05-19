@@ -55,7 +55,7 @@
 # Make packages and tag
 
     $ . ./admin-tools/make-dist-older.sh
-	$ pyenv local 3.8.2
+	$ pyenv local 3.8.3
 	$ twine check dist/uncompyle6-$VERSION*
     $ git tag release-python-2.4-$VERSION
 	$ twine check dist/uncompyle6-$VERSION*
