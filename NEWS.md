@@ -1,3 +1,12 @@
+3.7.0: 2020-5-19 Primidi 1st Prairial - Alfalfa - HF
+====================================================
+
+The main impetus for this release is to pull in the recent changes from xdis.
+We simplify imports using xdis 4.6.0.
+
+There were some bugfixes to Python 3.4-3.8. See the ChangeLog for details
+
+
 3.6.7: 2020-4-27 xdis again
 ===========================
 

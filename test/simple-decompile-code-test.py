@@ -2,7 +2,7 @@
 
 from uncompyle6 import uncompyle
 from uncompyle6.main import decompile
-from xdis.magics import sysinfo2float
+from xdis import sysinfo2float
 import sys, inspect
 
 def uncompyle_test():

@@ -40,8 +40,8 @@ if PYTHON_VERSION < 2.6:
 else:
     from collections import namedtuple
 
-from xdis import iscode
-from xdis.bytecode import instruction_size, _get_const_info
+from xdis import iscode, instruction_size
+from xdis.bytecode import _get_const_info
 
 from uncompyle6.scanner import Token, parse_fn_counts
 import xdis
@@ -896,7 +896,7 @@ class Scanner3(Scanner):
                     start, self.next_stmt[offset], self.opc.POP_JUMP_IF_FALSE, target
                 )
 
-                # FIXME: Remoeve this whole "if" block
+                # FIXME: Remove this whole "if" block
                 # If we still have any offsets in set, start working on it
                 if match:
                     is_jump_forward = self.is_jump_forward(pre_rtarget)

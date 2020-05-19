@@ -15,8 +15,7 @@
 """Isolate Python 3.5 version-specific semantic actions here.
 """
 
-from xdis import iscode
-from xdis.util import co_flags_is_async
+from xdis import co_flags_is_async, iscode
 from uncompyle6.semantics.consts import (
     INDENT_PER_LEVEL,
     PRECEDENCE,
