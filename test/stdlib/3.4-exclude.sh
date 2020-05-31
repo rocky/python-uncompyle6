@@ -98,5 +98,4 @@ if (( batch )) ; then
     # Figure out what's up here
     SKIP_TESTS[test_exception_variations.py]=1
     SKIP_TESTS[test_mailbox.py]=1 # Takes to long on POWER; over 15 secs
-    SKIP_TESTS[test_quopri.py]=1
 fi

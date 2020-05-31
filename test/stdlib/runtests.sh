@@ -78,7 +78,6 @@ case $PYVERSION in
 	    # Fails in crontab environment?
 	    # Figure out what's up here
 	    SKIP_TESTS[test_exception_variations.py]=1
-	    SKIP_TESTS[test_quopri.py]=1
 	fi
 	;;
     3.1)
@@ -91,7 +90,6 @@ case $PYVERSION in
 	    # Fails in crontab environment?
 	    # Figure out what's up here
 	    SKIP_TESTS[test_exception_variations.py]=1
-	    SKIP_TESTS[test_quopri.py]=1
 	fi
 	;;
     3.2)

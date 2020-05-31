@@ -138,7 +138,6 @@ if (( BATCH )) ; then
     SKIP_TESTS[test_ioctl.py]=1 # it fails on its own
     SKIP_TESTS[test_poplib.py]=1 # May be a result of POWER installation
 
-    SKIP_TESTS[test_quopri.py]=1
     SKIP_TESTS[test_sysconfig.py]=1 # POWER extension fails
     SKIP_TESTS[test_tarfile.py]=1 # too long to run on POWER 15 secs
     SKIP_TESTS[test_venv.py]=1 # takes too long 11 seconds
