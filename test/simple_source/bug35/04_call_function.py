@@ -2,6 +2,7 @@
 # Bug was code not knowing which Python versions
 # have kwargs coming before positional args in code.
 
+"""This program is self-checking!"""
 # RUNNABLE!
 
 def tometadata(self, metadata, schema, Table, args, name=None):
