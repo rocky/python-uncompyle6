@@ -14,6 +14,7 @@ def checker(ast, in_loop, errors):
         return
     in_loop = (
         in_loop
+        or ast.kind.startswith("for")
         or ast.kind.startswith("while")
         or ast.kind.startswith("async_for")
     )
