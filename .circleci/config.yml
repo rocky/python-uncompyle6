@@ -36,9 +36,12 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v2-dependencies-
 
-    - run: pip install --user --upgrade setuptools
-    - run: pip install --user -e .
-    - run: pip install --user -r requirements-dev.txt
+    - run:
+        command: | # Use pip int install dependengcies
+          pip install git+git://github.com/rocky/python-xdis.git#egg=xdis
+          pip install --user --upgrade setuptools
+          pip install --user -e .
+          pip install --user -r requirements-dev.txt
 
     # Save dependency cache
     - save_cache:
