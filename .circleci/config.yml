@@ -37,8 +37,8 @@ jobs:
           - v2-dependencies-
 
     - run:
-        command: | # Use pip int install dependengcies
-          pip install git+git://github.com/rocky/python-xdis.git#egg=xdis
+        command: | # Use pip to install dependengcies
+          sudo pip install git+git://github.com/rocky/python-xdis.git#egg=xdis
           pip install --user --upgrade setuptools
           pip install --user -e .
           pip install --user -r requirements-dev.txt
