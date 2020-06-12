@@ -19,6 +19,7 @@ for path in py_source:
     else:
         cfile = "bytecode_%s%s/%s" % (version, suffix, short) + "c"
     print("byte-compiling %s to %s" % (path, cfile))
-    py_compile.compile(path, cfile)
+    optimize = 2
+    py_compile.compile(path, cfile, optimize=optimize)
     if isinstance(version, str) or version >= (2, 6, 0):
         os.system("../bin/uncompyle6 -a -T %s" % cfile)
