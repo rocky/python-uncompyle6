@@ -60,16 +60,38 @@
     $ . ./admin-tools/make-dist-newer.sh
 	$ twine check dist/uncompyle6-$VERSION*
 
+# Check package on github
+
+	$ mkdir /tmp/gittest; pushd /tmp/gittest
+	$ pyenv local 3.7.5
+	$ pip install -e git://github.com/rocky/python-uncompyle6.git#egg=uncompyle6
+	$ uncompyle6 --help
+	$ pip uninstall uncompyle6
+	$ popd
+
+# Release on Github
+
+Goto https://github.com/rocky/python-uncompyle6/releases
+
+Now check the *tagged* release. (Checking the untagged release was previously done).
+
+Todo: turn this into a script in `admin-tools`
+
+	$ pushd /tmp/gittest
+	$ pip install -e git://github.com/rocky/python-uncompyle6.git@$VERSION#egg=uncompyle6
+	$ uncompyle6 --help
+	$ pip uninstall uncompyle6
+	$ popd
+
+
 # Upload single package and look at Rst Formating
 
 	$ twine check dist/uncompyle6-${VERSION}*
-    $ twine upload dist/uncompyle6-${VERSION}-py3.3.egg
 
 # Upload rest of versions
 
     $ twine upload dist/uncompyle6-${VERSION}*
 
-Goto https://github.com/rocky/python-uncompyle6/releases
 
 # Push tags:
 
