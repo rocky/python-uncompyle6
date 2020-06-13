@@ -210,7 +210,7 @@ however that the magic of a released version is usually the same as
 the *last* candidate version prior to release.
 
 There are also customized Python interpreters, notably Dropbox,
-which use their own magic and encrypt bytcode. With the exception of
+which use their own magic and encrypt bytecode. With the exception of
 the Dropbox's old Python 2.5 interpreter this kind of thing is not
 handled.
 
@@ -229,7 +229,7 @@ There is lots to do, so please dig in and help.
 See Also
 --------
 
-* https://github.com/rocky/python-decompile3 : Much smaller and more modern code, focusing on 3.7+. Changes in that will get migrated back ehre.
+* https://github.com/rocky/python-decompile3 : Much smaller and more modern code, focusing on 3.7+. Changes in that will get migrated back here.
 * https://code.google.com/archive/p/unpyc3/ : supports Python 3.2 only. The above projects use a different decompiling technique than what is used here. Currently unmaintained.
 * https://github.com/figment/unpyc3/ : fork of above, but supports Python 3.3 only. Includes some fixes like supporting function annotations. Currently unmaintained.
 * https://github.com/wibiti/uncompyle2 : supports Python 2.7 only, but does that fairly well. There are situations where :code:`uncompyle6` results are incorrect while :code:`uncompyle2` results are not, but more often uncompyle6 is correct when uncompyle2 is not. Because :code:`uncompyle6` adheres to accuracy over idiomatic Python, :code:`uncompyle2` can produce more natural-looking code when it is correct. Currently :code:`uncompyle2` is lightly maintained. See its issue `tracker <https://github.com/wibiti/uncompyle2/issues>`_ for more details

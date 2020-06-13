@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2019 Rocky Bernstein
+#  Copyright (c) 2016-2020 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -304,28 +304,25 @@ class Python36Parser(Python35Parser):
                 self.addRule(rule, nop_func)
                 # Check to combine assignment + annotation into one statement
                 self.check_reduce['assign'] = 'token'
+            elif opname == "WITH_CLEANUP_START":
+                rules_str = """
+                  stmt        ::= with_null
+                  with_null   ::= with_suffix
+                  with_suffix ::= WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                """
+                self.addRule(rules_str, nop_func)
             elif opname == 'SETUP_WITH':
                 rules_str = """
-                with       ::= expr SETUP_WITH POP_TOP suite_stmts_opt COME_FROM_WITH
-                               WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                  with       ::= expr SETUP_WITH POP_TOP suite_stmts_opt COME_FROM_WITH
+                                 with_suffix
 
-                # Removes POP_BLOCK LOAD_CONST from 3.6-
-                withasstmt ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
-                               WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                  # Removes POP_BLOCK LOAD_CONST from 3.6-
+                  withasstmt ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
+                                 with_suffix
+                  with       ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
+                                 BEGIN_FINALLY COME_FROM_WITH
+                                 with_suffix
                 """
-                if self.version < 3.8:
-                    rules_str += """
-                    with       ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
-                                   LOAD_CONST
-                                   WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
-                    """
-                else:
-                    rules_str += """
-                    with       ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
-                                   BEGIN_FINALLY COME_FROM_WITH
-                                   WITH_CLEANUP_START WITH_CLEANUP_FINISH
-                                   END_FINALLY
-                    """
                 self.addRule(rules_str, nop_func)
                 pass
             pass

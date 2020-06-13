@@ -681,6 +681,7 @@ class Python3Parser(PythonParser):
                 "RAISE",
                 "SETUP",
                 "UNPACK",
+                "WITH",
             )
         )
 

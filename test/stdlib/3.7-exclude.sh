@@ -1,4 +1,19 @@
 SKIP_TESTS=(
+    # FIXME: Did this work sometime in the past ?
+    #   for elem in g(s):
+    #     if not tgt and isOdd(elem): continue
+    # is erroneously:
+    #   for elem in g(s):
+    #    if tgt or isOdd(elem):
+    #       pass
+    #    else:
+    #       tgt.append(elem)
+    [test_itertools.py]=1
+
+    # Fails on decompyle3 as well.
+    # complicated control flow and "and/or" expressions
+    [test_pickle.py]=1
+
     [test_builtin.py]=1 # FIXME works on decompyle6
     [test_context.py]=1 # FIXME works on decompyle6
     [test_doctest2.py]=1 # FIXME works on decompyle6

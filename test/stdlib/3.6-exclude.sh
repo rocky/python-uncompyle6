@@ -124,8 +124,6 @@ SKIP_TESTS=(
     [test_pyclbr.py]=1 # it fails on its own
     [test_pydoc.py]=1 # it fails on its own
 
-    [test_quopri.py]=1      # AssertionError: b'123=four' != '123=four'
-
     [test_random.py]=1 # it fails on its own
     [test_range.py]=1
     [test_regrtest.py]=1 # test takes too long to run: 12 seconds

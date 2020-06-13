@@ -17,8 +17,6 @@ SKIP_TESTS=(
     [test_peepholer.py]=1
     [test_pep352.py]=1
 
-    [test_quopri.py]=1 # TypeError: Can't convert 'bytes' object to str implicitly
-
     [test_runpy.py]=1
 
     [test_ssl.py]=1 # too installation specific
@@ -35,5 +33,4 @@ if (( BATCH )) ; then
     # Fails in crontab environment?
     # Figure out what's up here
     SKIP_TESTS[test_exception_variations.py]=1
-    SKIP_TESTS[test_quopri.py]=1
 fi

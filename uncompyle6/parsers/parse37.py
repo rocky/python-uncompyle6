@@ -93,6 +93,9 @@ class Python37Parser(Python37BaseParser):
         else_suitec ::= c_stmts
         else_suitec ::= returns
 
+        else_suite_opt ::= else_suite
+        else_suite_opt ::= pass
+
         stmt ::= classdef
         stmt ::= call_stmt
 
@@ -634,6 +637,12 @@ class Python37Parser(Python37BaseParser):
         if_exp37                   ::= expr expr jf_cfs expr COME_FROM
         jf_cfs                     ::= JUMP_FORWARD _come_froms
         ifelsestmt                 ::= testexpr c_stmts_opt jf_cfs else_suite opt_come_from_except
+
+        # This is probably more realistically an "ifstmt" (with a null else)
+        # see _cmp() of python3.8/distutils/__pycache__/version.cpython-38.opt-1.pyc
+        ifelsestmt                 ::= testexpr stmts jf_cfs else_suite_opt opt_come_from_except
+
+
         expr_pjit                  ::= expr POP_JUMP_IF_TRUE
         expr_jit                   ::= expr JUMP_IF_TRUE
         expr_jt                    ::= expr jmp_true
