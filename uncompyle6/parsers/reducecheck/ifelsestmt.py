@@ -95,6 +95,16 @@ IFELSE_STMT_RULES = frozenset(
                 "else_suite",
             ),
         ),
+        (
+            "ifelsestmt",
+            (
+                "testexpr",
+                "stmts",
+                "jf_cfs",
+                "else_suite_opt",
+                "opt_come_from_except",
+            ),
+        ),
     ])
 
 def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
@@ -108,7 +118,7 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
         return False
 
     # Avoid if/else where the "then" is a "raise_stmt1" for an
-    # assert statemetn. Parse this as an "assert" instead.
+    # assert statement. Parse this as an "assert" instead.
     stmts = ast[1]
     if stmts in ("c_stmts",) and len(stmts) == 1:
         raise_stmt1 = stmts[0]
