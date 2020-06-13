@@ -1,3 +1,12 @@
+3.7.1: 2020-6-12 Fleetwood66
+====================================================
+
+Released to pick up new xdis version which has fixes to read bytestings better on 3.x
+
+* Handle 3.7+ "else" branch removal adAs seen in `_cmp()` of `python3.8/distutils/version.py` with optimization `-O2`
+* 3.6+ "with" and "with .. as" grammar improvements
+* ast-check for "for" loop was missing some grammar rules
+
 3.7.0: 2020-5-19 Primidi 1st Prairial - Alfalfa - HF
 ====================================================
 

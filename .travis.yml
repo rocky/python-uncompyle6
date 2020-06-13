@@ -13,7 +13,6 @@ matrix:
       dist: xenial  # required for Python >= 3.7 (travis-ci/travis-ci#9069)
 
 install:
-- sudo pip install git+git://github.com/rocky/python-xdis.git#egg=xdis
 - pip install -e .
 - pip install -r requirements-dev.txt
 
