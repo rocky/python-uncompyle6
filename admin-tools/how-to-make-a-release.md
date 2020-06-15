@@ -2,17 +2,17 @@
 **Table of Contents**
 
 - [Get latest sources:](#get-latest-sources)
-- [Change version in uncompyle6/version.py](#change-version-in-uncompyle6versionpy)
+- [Change version in uncompyle6/version.py:](#change-version-in-uncompyle6versionpy)
 - [Update ChangeLog:](#update-changelog)
-- [Update NEWS from ChangeLog:](#update-news-from-changelog)
+- [Update NEWS.md from ChangeLog:](#update-newsmd-from-changelog)
 - [Make sure pyenv is running and check newer versions](#make-sure-pyenv-is-running-and-check-newer-versions)
 - [Switch to python-2.4, sync that up and build that first since it creates a tarball which we don't want.](#switch-to-python-24-sync-that-up-and-build-that-first-since-it-creates-a-tarball-which-we-dont-want)
-- [Update NEWS from master branch](#update-news-from-master-branch)
-- [Check against all versions](#check-against-all-versions)
+- [Check against older versions](#check-against-older-versions)
 - [Make packages and tag](#make-packages-and-tag)
-- [Upload single package and look at Rst Formating](#upload-single-package-and-look-at-rst-formating)
-- [Upload rest of versions](#upload-rest-of-versions)
-- [Push tags:](#push-tags)
+- [Check package on github](#check-package-on-github)
+- [Release on Github](#release-on-github)
+- [Get onto PyPI](#get-onto-pypi)
+- [Update tags:](#update-tags)
 
 <!-- markdown-toc end -->
 # Get latest sources:
@@ -84,25 +84,12 @@ Todo: turn this into a script in `admin-tools`
 	$ popd
 
 
-# Upload single package and look at Rst Formating
-
-	$ twine check dist/uncompyle6-${VERSION}*
-
-# Upload rest of versions
+# Get onto PyPI
 
     $ twine upload dist/uncompyle6-${VERSION}*
 
 
-# Push tags:
+# Update tags:
 
     $ git push --tags
-
-# Check on a VM
-
-    $ cd /virtual/vagrant/virtual/vagrant/ubuntu-zesty
-	$ vagrant up
-	$ vagrant ssh
-	$ pyenv local 3.5.2
-	$ pip install --upgrade uncompyle6
-	$ exit
-	$ vagrant halt
+    $ git pull --tags

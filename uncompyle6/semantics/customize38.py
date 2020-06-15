@@ -50,11 +50,23 @@ def customize_for_version38(self, version):
             "%|%c\n", 0
         ),
 
+        "except_cond_as": (
+            "%|except %c as %c:\n",
+            (1, "expr"),
+            (-2, "STORE_FAST"),
+            ),
+
         'except_handler38': (
             '%c', (2, 'except_stmts') ),
 
         'except_handler38a': (
             '%c', (-2, 'stmts') ),
+
+        "except_handler_as": (
+            "%c%+\n%+%c%-",
+            (1, "except_cond_as"),
+            (2, "tryfinallystmt"),
+        ),
 
         'except_ret38a': (
             'return %c', (4, 'expr') ),
@@ -105,6 +117,13 @@ def customize_for_version38(self, version):
         'try_except38': (
             '%|try:\n%+%c\n%-%|except:\n%|%-%c\n\n',
                    (-2, 'suite_stmts_opt'), (-1, 'except_handler38a') ),
+
+        "try_except_as": (
+            "%|try:\n%+%c%-\n%|%-%c\n\n",
+            (-4, "suite_stmts"),  # Go from the end because of POP_BLOCK variation
+            (-3, "except_handler_as"),
+        ),
+
         "try_except_ret38": (
             "%|try:\n%+%c%-\n%|except:\n%+%|%c%-\n\n",
             (1, "returns"),
