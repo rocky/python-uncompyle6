@@ -63,6 +63,7 @@ SKIP_TESTS=(
 
     [test_faulthandler.py]=1   # test takes too long before decompiling
     [test_fileinput.py]=1 # Test assertion failures
+    [test_finalization.py]=1 # if/else logic
     [test_frame.py]=1 # test assertion errors
     [test_ftplib.py]=1 # parse error
     [test_fstring.py]=1 # need to disambiguate leading fstrings from docstrings
