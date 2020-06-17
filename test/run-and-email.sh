@@ -51,7 +51,7 @@ for VERSION in $PYVERSIONS ; do
     LOGFILE=/tmp/${MAIN}-$VERSION-$$.log
 
     case "$VERSION" in
-	3.7.7 | 3.8.2 | 3.1.5 | 3.0.1 )
+	3.7.7 | 3.8.3 | 3.1.5 | 3.0.1 )
 	    continue
 	    ;;
 	3.5.9 )
