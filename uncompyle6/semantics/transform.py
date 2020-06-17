@@ -433,6 +433,7 @@ class TreeTransform(GenericASTTraversal, object):
                     ast[i] = ast[i][0]
 
                 if is_docstring(self.ast[i]):
+                    load_const = self.ast[i].first_child()
                     docstring_ast = SyntaxTree(
                         "docstring",
                         [
@@ -440,8 +441,8 @@ class TreeTransform(GenericASTTraversal, object):
                                 "LOAD_STR",
                                 has_arg=True,
                                 offset=0,
-                                attr=self.ast[i][0][0].attr,
-                                pattr=self.ast[i][0][0].pattr,
+                                attr=load_const.attr,
+                                pattr=load_const.pattr,
                             )
                         ],
                     )
