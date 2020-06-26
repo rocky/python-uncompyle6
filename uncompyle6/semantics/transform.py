@@ -95,10 +95,18 @@ class TreeTransform(GenericASTTraversal, object):
 
         code = find_code_node(node, code_index).attr
 
+        mkfunc_pattr = node[-1].pattr
+        if isinstance(mkfunc_pattr, tuple):
+            assert len(mkfunc_pattr, 4) and isinstance(mkfunc_pattr, int)
+            is_closure = node[-1].pattr[3] != 0
+        else:
+            # FIXME: This is what we had before. It is hoaky and probably wrong.
+            is_closure = mkfunc_pattr == "closure"
+
         if (
-            node[-1].pattr != "closure"
+            (not is_closure)
             and len(code.co_consts) > 0
-            and code.co_consts[0] is not None
+            and isinstance(code.co_consts[0], str)
         ):
             docstring_node = SyntaxTree(
                 "docstring", [Token("LOAD_STR", has_arg=True, pattr=code.co_consts[0])]
