@@ -124,12 +124,10 @@ def decompile(
                 mapstream = _get_outstream(mapstream)
 
             deparsed = deparse_code_with_map(
-                bytecode_version,
                 co,
                 out,
-                showasm,
-                showast,
-                showgrammar,
+                bytecode_version,
+                debug_opts,
                 code_objects=code_objects,
                 is_pypy=is_pypy,
             )

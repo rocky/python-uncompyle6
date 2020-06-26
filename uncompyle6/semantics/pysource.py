@@ -895,6 +895,12 @@ class SourceWalker(GenericASTTraversal, object):
         doc_node = node[0]
         if doc_node.attr:
             docstring = doc_node.attr
+            if not isinstance(docstring, str):
+                # FIXME: we have mistakenly tagged something as a doc
+                # string in transform when it isn't one.
+                # The rule in n_mkfunc is pretty flaky.
+                self.prune()
+                return
         else:
             docstring = node[0].pattr
 
