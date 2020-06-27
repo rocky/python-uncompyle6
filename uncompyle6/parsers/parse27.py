@@ -8,7 +8,6 @@ from uncompyle6.parser import PythonParserSingle, nop_func
 from uncompyle6.parsers.parse2 import Python2Parser
 from uncompyle6.parsers.reducecheck import (
     or_check,
-    ifelsestmt,
     tryelsestmt,
 )
 

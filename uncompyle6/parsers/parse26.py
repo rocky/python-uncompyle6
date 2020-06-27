@@ -232,7 +232,10 @@ class Python26Parser(Python2Parser):
 
         comp_for ::= SETUP_LOOP expr for_iter store comp_iter jb_pb_come_from
 
-        comp_body ::= gen_comp_body
+        comp_iter   ::= comp_if_not
+        comp_if_not ::= expr jmp_true comp_iter
+
+        comp_body   ::= gen_comp_body
 
         for_block ::= l_stmts_opt _come_froms POP_TOP JUMP_BACK
 
