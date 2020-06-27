@@ -105,6 +105,24 @@ IFELSE_STMT_RULES = frozenset(
                 "opt_come_from_except",
             ),
         ),
+        (
+            "ifelsestmt",
+            (
+                "testexpr",
+                "stmts",
+                "jf_cfs",
+                "\\e_else_suite_opt",
+                "\\e_opt_come_from_except")
+        ),
+        (
+            "ifelsestmt",
+            (
+                "testexpr",
+                "stmts",
+                "jf_cfs",
+                "\\e_else_suite_opt",
+                "opt_come_from_except")
+        ),
     ])
 
 def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
@@ -112,6 +130,11 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
     if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP" and lhs != "ifelsestmtc":
         # ifelsestmt jumped outside of loop. No good.
         return True
+
+    # print("XXX", first, last)
+    # for t in range(first, last):
+    #     print(tokens[t])
+    # print("=" * 30)
 
     if rule not in IFELSE_STMT_RULES:
         # print("XXX", rule)
@@ -186,9 +209,7 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
             if jump_else_end == "jf_cf_pop":
                 jump_else_end = jump_else_end[0]
 
-            jump_to_jump = False
             if jump_else_end == "JUMP_FORWARD":
-                jump_to_jump = True
                 endif_target = int(jump_else_end.pattr)
                 last_offset = tokens[last].off2int()
                 if endif_target != last_offset:
