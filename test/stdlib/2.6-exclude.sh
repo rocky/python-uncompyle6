@@ -60,7 +60,6 @@ SKIP_TESTS=(
     [test_ossaudiodev.py]=1 # it fails on its own
 
     [test_pep277.py]=1 # it fails on its own
-    [test_pep352.py]=1     # Investigate
     [test_pyclbr.py]=1 # Investigate
     [test_pwd.py]=1 # Long test - might work? Control flow?
     [test_py3kwarn.py]=1 # it fails on its own
