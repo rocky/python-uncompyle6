@@ -33,8 +33,7 @@ def or_check(self, lhs, n, rule, ast, tokens, first, last):
         else:
             jump_true = expr_jt[1][0]
 
-        jump_inst = self.insts[self.offset2inst_index[jump_true.offset]]
-        jmp_true_target = jump_inst.argval
+        jmp_true_target = jump_true.attr
 
         last_token = tokens[last]
         last_token_offset = last_token.off2int()
