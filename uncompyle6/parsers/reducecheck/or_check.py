@@ -43,8 +43,6 @@ def or_check(self, lhs, n, rule, ast, tokens, first, last):
             return False
         elif jmp_true_target < last_token_offset:
             return True
-        elif expr_jt.kind == "expr_jt" and jmp_true_target > last_token_offset:
-            return True
 
         # If the jmp is backwards
         if last_token == "POP_JUMP_IF_FALSE" and not self.version in (2.7, 3.5, 3.6):
