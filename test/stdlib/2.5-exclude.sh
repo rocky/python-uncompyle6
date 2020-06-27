@@ -55,7 +55,6 @@ SKIP_TESTS=(
     [test_ossaudiodev.py]=1 # it fails on its own
     [test_pdb.py]=1        # Line-number specific
     [test_pep277.py]=1    # it fails on its own
-    [test_pep352.py]=1     # Investigate
     [test_plistlib.py]=1 # it fails on its own
     [test_pwd.py]=1 # Long test - might work? Control flow?
     [test_pyclbr.py]=1 # Investigate
