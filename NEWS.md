@@ -1,3 +1,12 @@
+3.7.2: 2020-6-27
+================
+
+* Use newer xdis
+* Docstrings (again) which were broken again on earlier Python
+* Fix 2.6 and 2.7 decompilation bug in handling "list if" comprehensions
+
+
+
 3.7.1: 2020-6-12 Fleetwood66
 ====================================================
 
