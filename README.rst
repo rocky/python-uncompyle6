@@ -262,6 +262,8 @@ See Also
 * https://github.com/zrax/pycdc : The README for this C++ code says it aims to support all versions of Python. It is best for Python versions around 2.7 and 3.3 when the code was initially developed. Accuracy for current versions of Python3 and early versions of Python is lacking. Without major effort, it is unlikely it can be made to support current Python 3. See its `issue tracker <https://github.com/zrax/pycdc/issues>`_ for details. Currently lightly maintained.
 
 
+.. _Cython: https://en.wikipedia.org/wiki/Cython
+.. _MicroPython: https://micropotyon.org
 .. _trepan: https://pypi.python.org/pypi/trepan2g
 .. _compiler: https://pypi.python.org/pypi/spark_parser
 .. _HISTORY: https://github.com/rocky/python-uncompyle6/blob/master/HISTORY.md
