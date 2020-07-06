@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2019 Rocky Bernstein
+#  Copyright (c) 2017-2020 Rocky Bernstein
 """
 spark grammar differences over Python2 for Python 2.6.
 """
@@ -6,9 +6,7 @@ spark grammar differences over Python2 for Python 2.6.
 from uncompyle6.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parsers.parse2 import Python2Parser
-from uncompyle6.parsers.reducecheck import (
-    except_handler,
-)
+from uncompyle6.parsers.reducecheck import (except_handler, tryelsestmt)
 
 class Python26Parser(Python2Parser):
 
@@ -27,7 +25,11 @@ class Python26Parser(Python2Parser):
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts
                            come_froms_pop END_FINALLY come_froms
 
-        except_handler ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY
+        except_handler ::= JUMP_FORWARD COME_FROM except_stmts
+                           END_FINALLY
+
+        except_handler ::= JUMP_FORWARD COME_FROM except_stmts
+                           POP_TOP END_FINALLY
                            come_froms
 
         except_handler ::= jmp_abs COME_FROM except_stmts
@@ -35,6 +37,7 @@ class Python26Parser(Python2Parser):
 
         except_handler ::= jmp_abs COME_FROM except_stmts
                            END_FINALLY JUMP_FORWARD
+
 
         # Sometimes we don't put in COME_FROM to the next statement
         # like we do in 2.7. Perhaps we should?
@@ -350,21 +353,28 @@ class Python26Parser(Python2Parser):
         super(Python26Parser, self).customize_grammar_rules(tokens, customize)
         self.reduce_check_table = {
             "except_handler": except_handler,
+            "tryelsestmt": tryelsestmt,
+            "tryelsestmtl": tryelsestmt,
         }
 
 
         self.check_reduce['and'] = 'AST'
         self.check_reduce['assert_expr_and'] = 'AST'
+        self.check_reduce["except_handler"] = "tokens"
         self.check_reduce["ifstmt"] = "tokens"
         self.check_reduce["ifelsestmt"] = "AST"
+        self.check_reduce["forelselaststmtl"] = "tokens"
+        self.check_reduce["forelsestmt"] = "tokens"
         self.check_reduce['list_for'] = 'AST'
         self.check_reduce['try_except'] = 'tokens'
         self.check_reduce['tryelsestmt'] = 'AST'
+        self.check_reduce['tryelsestmtl'] = 'AST'
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python26Parser,
                         self).reduce_is_invalid(rule, ast,
                                                 tokens, first, last)
+        lhs = rule[0]
         if invalid or tokens is None:
             return invalid
         if rule in (
@@ -397,6 +407,16 @@ class Python26Parser(Python2Parser):
             return not (jmp_target == tokens[test_index].offset or
                         tokens[last].pattr == jmp_false.pattr)
 
+        elif lhs in ("forelselaststmtl", "forelsestmt"):
+            # print("XXX", first, last)
+            # for t in range(first, last):
+            #     print(tokens[t])
+            # print("=" * 30)
+            # FIXME: Figure out why this doesn't work on
+            # bytecode-1.4/anydbm.pyc
+            if self.version == 1.4:
+                return False
+            return tokens[last-1].off2int() > tokens[first].attr
         elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
             for i in range(last-1, last-4, -1):
                 t = tokens[i]
@@ -413,7 +433,11 @@ class Python26Parser(Python2Parser):
             # The JUMP_ABSOLUTE has to be to the last POP_TOP or this is invalid
             ja_attr = ast[4].attr
             return tokens[last].offset != ja_attr
-        elif rule[0] == 'try_except':
+        elif lhs == 'try_except':
+            # FIXME: Figure out why this doesn't work on
+            # bytecode-1.4/anydbm.pyc
+            if self.version == 1.4:
+                return False
             # We need to distingush try_except from tryelsestmt and we do that
             # by checking the jump before the END_FINALLY
             # If we have:
@@ -430,12 +454,12 @@ class Python26Parser(Python2Parser):
                 last -= 1
             if (tokens[last] == 'COME_FROM'
                 and tokens[last-1] == 'END_FINALLY'
-                    and tokens[last-2] == 'POP_TOP'):
+                   and tokens[last-2] == 'POP_TOP'):
                 # A jump of 2 is a jump around POP_TOP, END_FINALLY which
                 # would indicate try/else rather than try
                 return (tokens[last-3].kind not in frozenset(('JUMP_FORWARD', 'RETURN_VALUE'))
                         or (tokens[last-3] == 'JUMP_FORWARD' and tokens[last-3].attr != 2))
-        elif rule[0] == 'tryelsestmt':
+        elif lhs == 'tryelsestmt':
 
             # We need to distingush try_except from tryelsestmt and we do that
             # by making sure that the jump before the except handler jumps to
