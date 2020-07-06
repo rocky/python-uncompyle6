@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2019 Rocky Bernstein
+#  Copyright (c) 2016-2020 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 
@@ -92,7 +92,7 @@ class Python27Parser(Python2Parser):
         iflaststmtl     ::= testexpr c_stmts
 
         _ifstmts_jump   ::= c_stmts_opt JUMP_FORWARD come_froms
-        bp_come_from    ::= POP_BLOCK COME_FROM
+        pb_come_from    ::= POP_BLOCK COME_FROM
 
         # FIXME: Common with 3.0+
         jmp_false ::= POP_JUMP_IF_FALSE
@@ -164,7 +164,7 @@ class Python27Parser(Python2Parser):
         while1elsestmt    ::= SETUP_LOOP l_stmts JUMP_BACK
                               else_suitel COME_FROM
 
-        while1stmt        ::= SETUP_LOOP returns bp_come_from
+        while1stmt        ::= SETUP_LOOP returns pb_come_from
         while1stmt        ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM
 
         whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK _come_froms

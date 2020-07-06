@@ -172,9 +172,9 @@ erroneous decompilation and report that.
 
 Python support is pretty good for Python 2
 
-There is some work to do on the lower end Python versions which is
-more difficult for us to handle since we don't have a Python
-interpreter for versions 1.6, and 2.0.
+On the lower end of Python versions, decompilation seems pretty good although
+we don't have any automated testing in place for Python's distributed tests.
+Also, we don't have a Python interpreter for versions 1.6, and 2.0.
 
 In the Python 3 series, Python support is is strongest around 3.4 or
 3.3 and drops off as you move further away from those versions. Python
@@ -189,7 +189,7 @@ added. So in sum handling control flow by ad hoc means as is currently
 done is worse.
 
 Between Python 3.5, 3.6, 3.7 there have been major changes to the
-:code:`MAKE_FUNCTION` and :code:`CALL_FUNCTION` instructions.  Python
+:code:`MAKE_FUNCTION` and :code:`CALL_FUNCTION` instructions.
 
 Python 3.8 removes :code:`SETUP_LOOP`, :code:`SETUP_EXCEPT`,
 :code:`BREAK_LOOP`, and :code:`CONTINUE_LOOP`, instructions which may
