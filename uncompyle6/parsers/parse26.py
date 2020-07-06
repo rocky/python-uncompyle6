@@ -93,8 +93,8 @@ class Python26Parser(Python2Parser):
 
         cf_jb_cf_pop ::= _come_froms JUMP_BACK come_froms POP_TOP
 
-        bp_come_from    ::= POP_BLOCK COME_FROM
-        jb_pb_come_from ::= JUMP_BACK bp_come_from
+        pb_come_from    ::= POP_BLOCK COME_FROM
+        jb_pb_come_from ::= JUMP_BACK pb_come_from
 
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD COME_FROM POP_TOP
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD come_froms POP_TOP COME_FROM
@@ -148,7 +148,7 @@ class Python26Parser(Python2Parser):
         while1stmt     ::= SETUP_LOOP l_stmts_opt CONTINUE _come_froms
 
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt jb_pop POP_BLOCK _come_froms
-        whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt jb_cf_pop bp_come_from
+        whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt jb_cf_pop pb_come_from
         whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt jb_cf_pop POP_BLOCK
         whilestmt      ::= SETUP_LOOP testexpr returns POP_BLOCK COME_FROM
 
@@ -412,11 +412,22 @@ class Python26Parser(Python2Parser):
             # for t in range(first, last):
             #     print(tokens[t])
             # print("=" * 30)
-            # FIXME: Figure out why this doesn't work on
-            # bytecode-1.4/anydbm.pyc
-            if self.version == 1.4:
-                return False
-            return tokens[last-1].off2int() > tokens[first].attr
+
+            # If the SETUP_LOOP jumps to the tokens[last] then
+            # this is a "for" not a "for else".
+
+            # However, in Python 2.2 and before there is a SET_LINENO
+            # instruction which might have gotten removed. So we need
+            # to account for that.  bytecode-1.4/anydbm.pyc exhibits
+            # this behavior.
+
+            # Also we need to use the setup_loop instruction (not opcode)
+            # since the operand can be a relative offset rather than
+            # an absolute offset.
+            setup_inst = self.insts[self.offset2inst_index[tokens[first].offset]]
+            if self.version <= 2.2 and tokens[last] == "COME_FROM":
+                last += 1
+            return tokens[last-1].off2int() > setup_inst.argval
         elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
             for i in range(last-1, last-4, -1):
                 t = tokens[i]
@@ -434,10 +445,6 @@ class Python26Parser(Python2Parser):
             ja_attr = ast[4].attr
             return tokens[last].offset != ja_attr
         elif lhs == 'try_except':
-            # FIXME: Figure out why this doesn't work on
-            # bytecode-1.4/anydbm.pyc
-            if self.version == 1.4:
-                return False
             # We need to distingush try_except from tryelsestmt and we do that
             # by checking the jump before the END_FINALLY
             # If we have:
