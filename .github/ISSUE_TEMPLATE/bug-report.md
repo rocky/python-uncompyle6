@@ -4,7 +4,8 @@ about: Tell us about uncompyle6 bugs
 
 ---
 
-<!-- __Note:__ Have you read https://github.com/rocky/python-uncompyle6/blob/master/HOW-TO-REPORT-A-BUG.md ?
+<!-- __Note:__ unless you are a sponsor of the project, it may take a while, maybe a week or so, before the bug report is noticed, let alone acted upon. Have you read https://github.com/rocky/python-uncompyle6/blob/master/HOW-TO-REPORT-A-BUG.md ?
+
 
 Please remove any of the optional sections if they are not applicable.
 
@@ -19,13 +20,6 @@ Prerequisites
   making the issue even more easy to detect.
 
 Bug reports that violate a prerequisite may be discarded.
-
-Note that there are way more bug-fix requestors than there are bug
-fixers. If you want you need more immediate, confidential or urgent
-assistance
-
-http://www.crazy-compilers.com/decompyle/ offers a byte-code
-decompiler service for versions of Python up to 2.6.
 
 -->
 
