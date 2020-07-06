@@ -30,31 +30,9 @@ files that I know of that will cause problems. See, for example, the
 list in
 [`test/stdlib/runtests.sh`](https://github.com/rocky/python-uncompyle6/blob/master/test/stdlib/runtests.sh).
 
-But I understand: you would the bugs _you_ encounter addressed before
-all the other known bugs.
+There are far more bug reporters than there are bug fixers.
 
-From my standpoint, the good thing about the bugs listed in
-`runtests.sh` is that each test case is small and isolated to a single
-kind of problem. And I'll tend to fix easier, more isolated cases than
-generic "something's wrong" kinds of bugs where I'd have to do a bit
-of work to figure out what's up, if not use some sort of mind reading,
-make some guesses, and perform some experiments to see if the guesses
-are correct. I can't read minds, nor am I into guessing games; I'd
-rather devote the effort spent instead towards fixing bugs that are
-precisely defined.
-
-And it often turns out that by just fixing the well-defined and
-prescribed cases, the ill-defined amorphous cases as well will get
-handled as well.
-
-In sum, you may need to do some work to have the bug you have found
-handled before the hundreds of other bugs, and other things I could be
-doing.
-
-No one is getting paid to work to work on this project, let alone the
-bugs you may have an interest in. If you require decompiling bytecode
-immediately, consider using a decompilation service, listed further
-down in this document.
+Unless you are a sponsor of this project, it may take a while, maybe a week or so, before the bug report is noticed, let alone acted upon. Things eventually get fixed, but it may take years.
 
 # Is it really a bug?
 
@@ -189,7 +167,7 @@ disassemble Python bytecode. And as Richard Feynman once said, "What
 one fool can learn, so can another."
 
 If this is too difficult, or too time consuming, or not of interest to
-you, then perhaps what require is a decompilation service. [Crazy
+you, then you might consider sponsoring the project. [Crazy
 Compilers](http://www.crazy-compilers.com/decompyle/) offers a
 byte-code decompiler service for versions of Python up to 2.6. (If
 there are others around let me know and I'll list them here.)
@@ -217,10 +195,7 @@ likely the problem will be fixed and fixed sooner.
 # Karma
 
 I realize that following the instructions given herein puts a bit of
-burden on the bug reporter. In my opinion, this is justified as
-attempts to balance somewhat the burden and effort needed to fix the
-bug and the attempts to balance number of would-be bug reporters with
-the number of bug fixers. Better bug reporters are more likely to move
+burden on the bug reporter. This is justified as attempts to balance somewhat the burden and effort needed to fix the bug and the attempts to balance number of would-be bug reporters with the number of bug fixers. Better bug reporters are more likely to move
 in the category of bug fixers.
 
 The barrier to reporting a big is pretty small: all you really need is
@@ -228,22 +203,14 @@ a github account, and the ability to type something after clicking
 some buttons. So the reality is that many people just don't bother to
 read these instructions, let alone follow it to any simulacrum.
 
-And the reality is also that bugs sometimes get fixed even though
-these instructions are not followed.
+That said, bugs sometimes get fixed even though these instructions are not followed.
 
-So one factors I may take into consideration is the bug reporter's karma.
+I may take into consideration is the bug reporter's karma.
 
-* Have you demonstrably contributed to open source? I may look at your
-  github profile to see what contributions you have made, how popular
-  those contributions are, or how popular you are.
-* How appreciative are you? Have you starred this project that you are
-  seeking help from? Have you starred _any_ github project? And the above
-  two kind of feed into ...
-* Attitude. Some people feel that they are doing me and the world a
-  great favor by just pointing out that there is a problem whose solution
-  would greatly benefit them. Perhaps this is why they feel that
-  instructions are not to be followed by them, nor any need for
-  showing evidence gratitude when help is offered them.
+* Have you demonstrably contributed to open source? I may look at your  github profile to see what contributions you have made, how popular those contributions are, or how popular you are.
+* How appreciative are you? Have you starred this project that you are   seeking help from? Have you starred _any_ github project? And the above  two kind of feed into ...
+* Attitude. Some people feel that they are doing me and the world a great favor by just pointing out that there is a problem whose solution would greatly benefit them. (This might account partially those that have this attitude often don't read or follow instructions such as those given here.)
+
 
 # Confidentiality of Bug Reports
 
@@ -254,6 +221,8 @@ remains would not be an issue.
 
 However feel free to remove any comments, and modify variable names
 or constants in the source code.
+
+If there is some legitimate reason to keep confidentiality, you can contact me by email to explain the extenuating circumstances. However I tend to discard without reading anonymous email.
 
 # Ethics
 
