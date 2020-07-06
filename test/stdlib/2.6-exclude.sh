@@ -7,7 +7,6 @@ SKIP_TESTS=(
     #   assert 0  # shouldn't reach here.
     [test_shutil.py]=1
 
-
     [test___all__.py]=1  # it fails on its own
     [test___all__.py]=1 # it fails on its own
     [test_aepack.py]=1 # Fails on its own
@@ -61,7 +60,6 @@ SKIP_TESTS=(
 
     [test_pep277.py]=1 # it fails on its own
     [test_pyclbr.py]=1 # Investigate
-    [test_pwd.py]=1 # Long test - might work? Control flow?
     [test_py3kwarn.py]=1 # it fails on its own
 
     [test_scriptpackages.py]=1 # it fails on its own

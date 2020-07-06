@@ -45,7 +45,6 @@ SKIP_TESTS=(
     [test_grammar.py]=1    # Too many stmts. Handle large stmts
     [test_grp.py]=1      # Long test - might work Control flow?
     [test_pep247.py]=1 # Long test - might work? Control flow?
-    [test_pwd.py]=1 # Long test - might work? Control flow?
     [test_socketserver.py]=1 # -- test takes too long to run: 40 seconds
     [test_threading.py]=1 # test takes too long to run: 11 seconds
     [test_thread.py]=1 # test takes too long to run: 36 seconds
