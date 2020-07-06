@@ -19,7 +19,6 @@ SKIP_TESTS=(
     [test_modulefinder.py]=1 # FIX
     [test_multiprocessing.py]=1 # On uncompyle2, takes 24 secs
     [test_poll.py]=1  # test takes too long to run: 11 seconds
-    [test_pwd.py]=1     # Takes too long
     [test_regrtest.py]=1 #
     [test_runpy.py]=1   # Long and fails on its own
     [test_select.py]=1  # Runs okay but takes 11 seconds
