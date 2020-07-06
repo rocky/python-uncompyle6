@@ -9,6 +9,7 @@ from uncompyle6.parsers.parse2 import Python2Parser
 from uncompyle6.parsers.reducecheck import (
     or_check,
     tryelsestmt,
+    except_handler,
 )
 
 class Python27Parser(Python2Parser):
@@ -230,6 +231,7 @@ class Python27Parser(Python2Parser):
         # FIXME: Put more in this table
         self.reduce_check_table = {
             # "ifelsestmt": ifelsestmt,
+            "except_handler": except_handler,
             "or": or_check,
             "tryelsestmt": tryelsestmt,
             "tryelsestmtl": tryelsestmt,

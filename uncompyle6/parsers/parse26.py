@@ -6,6 +6,9 @@ spark grammar differences over Python2 for Python 2.6.
 from uncompyle6.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parsers.parse2 import Python2Parser
+from uncompyle6.parsers.reducecheck import (
+    except_handler,
+)
 
 class Python26Parser(Python2Parser):
 
@@ -345,6 +348,11 @@ class Python26Parser(Python2Parser):
                 WITH_CLEANUP END_FINALLY
         """)
         super(Python26Parser, self).customize_grammar_rules(tokens, customize)
+        self.reduce_check_table = {
+            "except_handler": except_handler,
+        }
+
+
         self.check_reduce['and'] = 'AST'
         self.check_reduce['assert_expr_and'] = 'AST'
         self.check_reduce["ifstmt"] = "tokens"

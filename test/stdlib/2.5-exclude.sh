@@ -59,7 +59,6 @@ SKIP_TESTS=(
     [test_pwd.py]=1 # Long test - might work? Control flow?
     [test_pyclbr.py]=1 # Investigate
     [test_rgbimg.py]=1 #  it fails on its own
-    [test_queue.py]=1 # Control flow?
     [test_scriptpackages.py]=1 # it fails on its own
     [test_socketserver.py]=1 # Too long to run - 42 seconds
     [test_sqlite.py]=1 # it fails on its own
