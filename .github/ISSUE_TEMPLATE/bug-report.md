@@ -4,7 +4,7 @@ about: Tell us about uncompyle6 bugs
 
 ---
 
-<!-- __Note:__ unless you are a sponsor of the project, it may take a while, maybe a week or so, before the bug report is noticed, let alone acted upon. Have you read https://github.com/rocky/python-uncompyle6/blob/master/HOW-TO-REPORT-A-BUG.md ?
+<!-- __Note:__ Bugs are not for asking questions about a problem you are trying to solve that involve the use of uncompyle6 along the way, although I may be more tolerent of this if you sponser the project. Also, the unless you are a sponsor of the project, it may take a while, maybe a week or so, before the bug report is noticed, let alone acted upon. To set expectations, some legitimate bugs can take years to fix. Funding the project was added to address the problem that there are lots of help and bug seekers but few people who are willing to provide support. Have you read https://github.com/rocky/python-uncompyle6/blob/master/HOW-TO-REPORT-A-BUG.md ?
 
 
 Please remove any of the optional sections if they are not applicable.
