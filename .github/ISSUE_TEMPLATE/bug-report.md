@@ -4,7 +4,7 @@ about: Tell us about uncompyle6 bugs
 
 ---
 
-<!-- __Note:__ unless you are a sponsor of the project, it may take a while, maybe a week or so, before the bug report is noticed, let alone acted upon. Have you read https://github.com/rocky/python-uncompyle6/blob/master/HOW-TO-REPORT-A-BUG.md ?
+<!-- __Note:__ Bugs are not for asking questions about a problem you are trying to solve that involve the use of uncompyle6 along the way, although I may be more tolerent of this if you sponsor the project. Also, the unless you are a sponsor of the project, it may take a while, maybe a week or so, before the bug report is noticed, let alone acted upon. To set expectations, some legitimate bugs can take years to fix. But they eventually do get fixed. Funding the project was added to address the problem that there are lots of people seeking help and reporting bugs, but few people who are willing to provide support on the other side. Have you read https://github.com/rocky/python-uncompyle6/blob/master/HOW-TO-REPORT-A-BUG.md ?
 
 
 Please remove any of the optional sections if they are not applicable.
@@ -15,8 +15,11 @@ Prerequisites
   disassembler and produces valid results.
 * Don't put bytecode and corresponding source code on any service that
   requires registration to download.
-* When you open a bug report there is no privacy. If the legitimacy of
-  the activity is deemed suspicous, I may flag it as suspicious,
+* When you open a bug report there is no privacy. If you need privacy then
+  contact me by email and explain who you are and why you need privacy.
+  But you may mindful that you may be asked to sponsor the project for the
+  personal and private help that you are seeking.
+* If the legitimacy ofthe activity is deemed suspicous, I may flag it as suspicious,
   making the issue even more easy to detect.
 
 Bug reports that violate a prerequisite may be discarded.

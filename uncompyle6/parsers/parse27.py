@@ -7,6 +7,7 @@ from xdis import next_offset
 from uncompyle6.parser import PythonParserSingle, nop_func
 from uncompyle6.parsers.parse2 import Python2Parser
 from uncompyle6.parsers.reducecheck import (
+    aug_assign1_check,
     or_check,
     tryelsestmt,
     except_handler,
@@ -231,6 +232,7 @@ class Python27Parser(Python2Parser):
         # FIXME: Put more in this table
         self.reduce_check_table = {
             # "ifelsestmt": ifelsestmt,
+            "aug_assign1": aug_assign1_check,
             "except_handler": except_handler,
             "or": or_check,
             "tryelsestmt": tryelsestmt,
@@ -238,6 +240,7 @@ class Python27Parser(Python2Parser):
         }
 
         self.check_reduce["and"] = "AST"
+        self.check_reduce["aug_assign1"] = "AST"
         self.check_reduce["if_exp"] = "AST"
 
         self.check_reduce["except_handler"] = "tokens"
