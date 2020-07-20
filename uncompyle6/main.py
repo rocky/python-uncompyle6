@@ -101,7 +101,7 @@ def decompile(
     )
     if PYTHON_VERSION < 3.0 and bytecode_version >= 3.0:
         write(
-            '# Warning: this version has problems handling the Python 3 "byte" type in constants properly.\n'
+            '# Warning: this version of Python has problems handling the Python 3 "byte" type in constants properly.\n'
         )
 
     if co.co_filename:
