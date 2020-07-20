@@ -21,7 +21,7 @@ for path in py_source:
         cfile = "bytecode_%s%s/%s" % (version, suffix, short) + "c"
     print("byte-compiling %s to %s" % (path, cfile))
     optimize = 2
-    if vers >= (3, 0):
+    if vers > (3, 1):
         py_compile.compile(path, cfile, optimize=optimize)
     else:
         py_compile.compile(path, cfile)

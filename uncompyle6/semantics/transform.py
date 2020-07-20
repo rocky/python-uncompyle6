@@ -13,7 +13,6 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from xdis import iscode
 from uncompyle6.show import maybe_show_tree
 from copy import copy
 from spark_parser import GenericASTTraversal, GenericASTTraversalPruningException
@@ -21,16 +20,35 @@ from spark_parser import GenericASTTraversal, GenericASTTraversalPruningExceptio
 from uncompyle6.semantics.helper import find_code_node
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanners.tok import NoneToken, Token
-from uncompyle6.semantics.consts import RETURN_NONE
+from uncompyle6.semantics.consts import RETURN_NONE, ASSIGN_DOC_STRING
 
 
 def is_docstring(node):
     if node == "sstmt":
         node = node[0]
-    try:
-        return node.kind == "assign" and node[1][0].pattr == "__doc__"
-    except:
-        return False
+    # TODO: the test below on 2.7 succeeds for
+    #   class OldClass:
+    #     __doc__ = DocDescr()
+    # which produces:
+    #
+    #   assign (2)
+    #      0. expr
+    #         call (2)
+    #              0. expr
+    #                  L.  16         6  LOAD_DEREF            0  'DocDescr'
+    #              1.                 9  CALL_FUNCTION_0       0  None
+    #      1. store
+    #
+    # See Python 2.7 test_descr.py
+
+    # If ASSIGN_DOC_STRING doesn't work we need something like the below
+    # but more elaborate to address the above.
+
+    # try:
+    #     return node.kind == "assign" and node[1][0].pattr == "__doc__"
+    # except:
+    #     return False
+    return node == ASSIGN_DOC_STRING
 
 
 def is_not_docstring(call_stmt_node):

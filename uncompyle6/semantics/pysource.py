@@ -164,7 +164,6 @@ from uncompyle6.semantics.consts import (
     NONE,
     RETURN_NONE,
     PASS,
-    ASSIGN_DOC_STRING,
     NAME_MODULE,
     TAB,
     INDENT_PER_LEVEL,
@@ -2324,6 +2323,7 @@ class SourceWalker(GenericASTTraversal, object):
         if ast[0] == "docstring":
             self.println(self.traverse(ast[0]))
             del ast[0]
+            first_stmt = ast[0]
 
         if 3.0 <= self.version <= 3.3:
             try:
