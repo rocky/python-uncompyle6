@@ -96,6 +96,7 @@ def make_function2(self, node, is_lambda, nested=1, code_node=None):
         ast = self.build_ast(
             code._tokens,
             code._customize,
+            code,
             is_lambda=is_lambda,
             noneInNames=("None" in code.co_names),
         )

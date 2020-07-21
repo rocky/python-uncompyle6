@@ -683,7 +683,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         assert iscode(cn.attr)
 
         code = Code(cn.attr, self.scanner, self.currentclass)
-        ast = self.build_ast(code._tokens, code._customize)
+        ast = self.build_ast(code._tokens, code._customize, code)
         self.customize(code._customize)
         ast = ast[0][0][0]
 
@@ -730,7 +730,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         code_name = code.co_name
         code = Code(code, self.scanner, self.currentclass)
 
-        ast = self.build_ast(code._tokens, code._customize)
+        ast = self.build_ast(code._tokens, code._customize, code)
 
         self.customize(code._customize)
         if ast[0] == "sstmt":
@@ -852,7 +852,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prec = 27
 
         code = Code(node[1].attr, self.scanner, self.currentclass)
-        ast = self.build_ast(code._tokens, code._customize)
+        ast = self.build_ast(code._tokens, code._customize, code)
         self.customize(code._customize)
         if node == "set_comp":
             ast = ast[0][0][0]
@@ -997,7 +997,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prec = 27
 
         code = Code(node[1].attr, self.scanner, self.currentclass)
-        ast = self.build_ast(code._tokens, code._customize)
+        ast = self.build_ast(code._tokens, code._customize, code)
         self.customize(code._customize)
         ast = ast[0][0][0]
         store = ast[3]
@@ -1153,9 +1153,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.name = old_name
         self.return_none = rn
 
-    def build_ast(
-        self, tokens, customize, is_lambda=False, noneInNames=False, isTopLevel=False
-    ):
+    def build_ast(self, tokens, customize, code, is_lambda=False,
+                  noneInNames=False, isTopLevel=False):
 
         # FIXME: DRY with pysource.py
 

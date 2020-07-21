@@ -90,7 +90,7 @@ def customize_for_version3(self, version):
         code_obj = node[1].attr
         assert iscode(code_obj)
         code = Code(code_obj, self.scanner, self.currentclass)
-        ast = self.build_ast(code._tokens, code._customize)
+        ast = self.build_ast(code._tokens, code._customize, code)
         self.customize(code._customize)
 
         # skip over: sstmt, stmt, return, ret_expr
