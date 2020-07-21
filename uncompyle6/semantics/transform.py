@@ -23,7 +23,7 @@ from uncompyle6.scanners.tok import NoneToken, Token
 from uncompyle6.semantics.consts import RETURN_NONE, ASSIGN_DOC_STRING
 
 
-def is_docstring(node):
+def is_docstring(node, version, co_consts):
     if node == "sstmt":
         node = node[0]
     # TODO: the test below on 2.7 succeeds for
@@ -48,7 +48,11 @@ def is_docstring(node):
     #     return node.kind == "assign" and node[1][0].pattr == "__doc__"
     # except:
     #     return False
-    return node == ASSIGN_DOC_STRING
+    if version <= 2.7:
+        doc_load = "LOAD_CONST"
+    else:
+        doc_load = "LOAD_STR"
+    return node == ASSIGN_DOC_STRING(co_consts[0], doc_load)
 
 
 def is_not_docstring(call_stmt_node):
@@ -435,7 +439,7 @@ class TreeTransform(GenericASTTraversal, object):
         node = self.preorder(node)
         return node
 
-    def transform(self, ast):
+    def transform(self, ast, code):
         self.maybe_show_tree(ast)
         self.ast = copy(ast)
         self.ast = self.traverse(self.ast, is_lambda=False)
@@ -456,9 +460,9 @@ class TreeTransform(GenericASTTraversal, object):
             for i in range(len(self.ast)):
                 sstmt = ast[i]
                 if len(sstmt) == 1 and sstmt == "sstmt":
-                    ast[i] = ast[i][0]
+                    self.ast[i] = self.ast[i][0]
 
-                if is_docstring(self.ast[i]):
+                if is_docstring(self.ast[i], self.version, code.co_consts):
                     load_const = self.ast[i].first_child()
                     docstring_ast = SyntaxTree(
                         "docstring",

@@ -623,7 +623,7 @@ class PythonParser(GenericASTBuilder):
         """
 
 
-def parse(p, tokens, customize):
+def parse(p, tokens, customize, code):
     p.customize_grammar_rules(tokens, customize)
     ast = p.parse(tokens)
     #  p.cleanup()
@@ -878,7 +878,7 @@ def python_parser(
     # parser_debug = {'rules': True, 'transition': True, 'reduce' : True,
     #                 'showstack': 'full'}
     p = get_python_parser(version, parser_debug)
-    return parse(p, tokens, customize)
+    return parse(p, tokens, customize, co)
 
 
 if __name__ == "__main__":

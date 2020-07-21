@@ -132,6 +132,7 @@ def make_function3_annotate(
         ast = self.build_ast(
             code._tokens,
             code._customize,
+            code,
             is_lambda=is_lambda,
             noneInNames=("None" in code.co_names),
         )
@@ -491,6 +492,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
         ast = self.build_ast(
             scanner_code._tokens,
             scanner_code._customize,
+            scanner_code,
             is_lambda=is_lambda,
             noneInNames=("None" in code.co_names),
         )

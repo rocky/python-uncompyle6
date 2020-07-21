@@ -216,7 +216,8 @@ valid bytecode before trying this tool. This program can't decompile
 Microsoft Windows EXE files created by Py2EXE_, although we can
 probably decompile the code after you extract the bytecode
 properly. Handling pathologically long lists of expressions or
-statements is slow. We don't handle Cython_ or MicroPython_ which don't use bytecode.
+statements is slow. We don't handle Cython_ or MicroPython which don't
+use bytecode.
 
 There are numerous bugs in decompilation. And that's true for every
 other CPython decompiler I have encountered, even the ones that
@@ -263,7 +264,6 @@ See Also
 
 
 .. _Cython: https://en.wikipedia.org/wiki/Cython
-.. _MicroPython: https://micropotyon.org
 .. _trepan: https://pypi.python.org/pypi/trepan2g
 .. _compiler: https://pypi.python.org/pypi/spark_parser
 .. _HISTORY: https://github.com/rocky/python-uncompyle6/blob/master/HISTORY.md

@@ -142,17 +142,12 @@ PASS = SyntaxTree(
 )
 
 ASSIGN_DOC_STRING = lambda doc_string, doc_load: SyntaxTree(
-    "stmt",
+    "assign",
     [
         SyntaxTree(
-            "assign",
-            [
-                SyntaxTree(
-                    "expr", [Token(doc_load, pattr=doc_string, attr=doc_string)]
-                ),
-                SyntaxTree("store", [Token("STORE_NAME", pattr="__doc__")]),
-            ],
-        )
+            "expr", [Token(doc_load, pattr=doc_string, attr=doc_string)]
+        ),
+        SyntaxTree("store", [Token("STORE_NAME", pattr="__doc__")]),
     ],
 )
 

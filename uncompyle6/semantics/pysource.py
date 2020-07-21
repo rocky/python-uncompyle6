@@ -1119,7 +1119,7 @@ class SourceWalker(GenericASTTraversal, object):
         assert iscode(cn.attr)
 
         code = Code(cn.attr, self.scanner, self.currentclass)
-        ast = self.build_ast(code._tokens, code._customize)
+        ast = self.build_ast(code._tokens, code._customize, code)
         self.customize(code._customize)
 
         # Remove single reductions as in ("stmts", "sstmt"):
@@ -1203,7 +1203,7 @@ class SourceWalker(GenericASTTraversal, object):
         assert iscode(code), node[code_index]
         code = Code(code, self.scanner, self.currentclass)
 
-        ast = self.build_ast(code._tokens, code._customize)
+        ast = self.build_ast(code._tokens, code._customize, code)
         self.customize(code._customize)
 
         # skip over: sstmt, stmt, return, ret_expr
@@ -1398,7 +1398,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = 27
 
         code = Code(node[1].attr, self.scanner, self.currentclass)
-        ast = self.build_ast(code._tokens, code._customize)
+        ast = self.build_ast(code._tokens, code._customize, code)
         self.customize(code._customize)
 
         # Remove single reductions as in ("stmts", "sstmt"):
@@ -2312,7 +2312,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         indent = self.indent
         # self.println(indent, '#flags:\t', int(code.co_flags))
-        ast = self.build_ast(code._tokens, code._customize)
+        ast = self.build_ast(code._tokens, code._customize, code)
         code._tokens = None  # save memory
         assert ast == "stmts"
 
@@ -2387,10 +2387,10 @@ class SourceWalker(GenericASTTraversal, object):
         # if docstring exists, dump it
         if code.co_consts and code.co_consts[0] is not None and len(ast) > 0:
             do_doc = False
-            if is_docstring(ast[0]):
+            if is_docstring(ast[0], self.version, code.co_consts):
                 i = 0
                 do_doc = True
-            elif len(ast) > 1 and is_docstring(ast[1]):
+            elif len(ast) > 1 and is_docstring(ast[1], self.version, code.co_consts):
                 i = 1
                 do_doc = True
             if do_doc and self.hide_internal:
@@ -2466,7 +2466,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.return_none = rn
 
     def build_ast(
-        self, tokens, customize, is_lambda=False, noneInNames=False, isTopLevel=False
+        self, tokens, customize, code, is_lambda=False, noneInNames=False, isTopLevel=False
     ):
 
         # FIXME: DRY with fragments.py
@@ -2486,13 +2486,13 @@ class SourceWalker(GenericASTTraversal, object):
                 p_insts = self.p.insts
                 self.p.insts = self.scanner.insts
                 self.p.offset2inst_index = self.scanner.offset2inst_index
-                ast = python_parser.parse(self.p, tokens, customize)
+                ast = python_parser.parse(self.p, tokens, customize, code)
                 self.customize(customize)
                 self.p.insts = p_insts
 
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens, self.p.debug['reduce'])
-            transform_ast = self.treeTransform.transform(ast)
+            transform_ast = self.treeTransform.transform(ast, code)
             self.maybe_show_tree(ast)
             del ast  # Save memory
             return transform_ast
@@ -2524,7 +2524,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.p.insts = self.scanner.insts
             self.p.offset2inst_index = self.scanner.offset2inst_index
             self.p.opc = self.scanner.opc
-            ast = python_parser.parse(self.p, tokens, customize)
+            ast = python_parser.parse(self.p, tokens, customize, code)
             self.p.insts = p_insts
         except (python_parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens, self.p.debug['reduce'])
@@ -2532,7 +2532,7 @@ class SourceWalker(GenericASTTraversal, object):
         checker(ast, False, self.ast_errors)
 
         self.customize(customize)
-        transform_ast = self.treeTransform.transform(ast)
+        transform_ast = self.treeTransform.transform(ast, code)
 
         self.maybe_show_tree(ast)
 
@@ -2594,7 +2594,7 @@ def code_deparse(
     )
 
     isTopLevel = co.co_name == "<module>"
-    deparsed.ast = deparsed.build_ast(tokens, customize, isTopLevel=isTopLevel)
+    deparsed.ast = deparsed.build_ast(tokens, customize, co, isTopLevel=isTopLevel)
 
     #### XXX workaround for profiling
     if deparsed.ast is None:
