@@ -32,6 +32,7 @@ __docformat__ = "restructuredtext"
 
 from uncompyle6.version import VERSION
 
+# This ensures VERSION will appear in pydoc
 __version__  = VERSION
 
 PYTHON3 = sys.version_info >= (3, 0)
