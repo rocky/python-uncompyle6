@@ -59,11 +59,12 @@
 	$ twine check dist/uncompyle6-$VERSION*
     $ ./admin-tools/make-dist-newer.sh
 	$ twine check dist/uncompyle6-$VERSION*
+    $ git tag release-python-2.4-$VERSION
 
 # Check package on github
 
 	$ [[ ! -d /tmp/gittest ]] && mkdir /tmp/gittest; pushd /tmp/gittest
-	$ pyenv local 3.7.5
+	$ pyenv local 3.8.3
 	$ pip install -e git://github.com/rocky/python-uncompyle6.git#egg=uncompyle6
 	$ uncompyle6 --help
 	$ pip uninstall uncompyle6
@@ -93,3 +94,7 @@ Todo: turn this into a script in `admin-tools`
 
     $ git push --tags
     $ git pull --tags
+
+# Move dist files to uploaded
+
+	$ mv -v dist/uncompyle6-${VERSION}* dist/uploaded
