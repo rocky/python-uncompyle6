@@ -93,3 +93,7 @@ Todo: turn this into a script in `admin-tools`
 
     $ git push --tags
     $ git pull --tags
+
+# Move dist files to uploaded
+
+	$ mv -v dist/uncompyle6-${VERSION}* dist/uploaded
