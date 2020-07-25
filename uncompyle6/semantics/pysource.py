@@ -587,8 +587,7 @@ class SourceWalker(GenericASTTraversal, object):
         if n == "LOAD_CONST" and repr(n.pattr)[0] == "-":
             self.prec = 6
 
-        # print(n.kind, p, "<", self.prec)
-        # print(self.f.getvalue())
+        # print("XXX", n.kind, p, "<", self.prec)
 
         if p < self.prec:
             self.write("(")
@@ -604,7 +603,6 @@ class SourceWalker(GenericASTTraversal, object):
             # If expr is yield we want parens.
             self.prec = PRECEDENCE["yield"] - 1
             self.n_expr(node[0])
-            p = self.prec
         else:
             self.n_expr(node)
 
