@@ -39,7 +39,7 @@
 
 # Make sure pyenv is running and check newer versions
 
-    $ pyenv local && source admin-tools/check-newer-versions.sh
+    $ admin-tools/check-newer-versions.sh
 
 # Switch to python-2.4, sync that up and build that first since it creates a tarball which we don't want.
 
@@ -50,20 +50,20 @@
 
 # Check against older versions
 
-    $ source admin-tools/check-older-versions.sh
+    $ admin-tools/check-older-versions.sh
 
 # Make packages and tag
 
     $ . ./admin-tools/make-dist-older.sh
-	$ pyenv local 3.8.3
+	$ pyenv local 3.8.4
 	$ twine check dist/uncompyle6-$VERSION*
-    $ . ./admin-tools/make-dist-newer.sh
+    $ ./admin-tools/make-dist-newer.sh
 	$ twine check dist/uncompyle6-$VERSION*
 
 # Check package on github
 
-	$ mkdir /tmp/gittest; pushd /tmp/gittest
-	$ pyenv local 3.7.5
+	$ [[ ! -d /tmp/gittest ]] && mkdir /tmp/gittest; pushd /tmp/gittest
+	$ pyenv local 3.8.3
 	$ pip install -e git://github.com/rocky/python-uncompyle6.git#egg=uncompyle6
 	$ uncompyle6 --help
 	$ pip uninstall uncompyle6

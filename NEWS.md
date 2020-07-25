@@ -1,3 +1,15 @@
+3.7.3: 2020-7-25
+================
+
+Mostly small miscellaneous bug fixes
+
+* `__doc__ = DocDescr()` from `test_descr.py` was getting confused as a docstring.
+* detect 2.7 exchandler range better
+* Add for .. else reduction checks on 2.6 and before
+* Add reduce check for 2.7 augmented assign
+* Add VERSION in a pydoc-friendly way
+
+
 3.7.2: 2020-6-27
 ================
 
