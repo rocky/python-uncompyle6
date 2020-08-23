@@ -1931,7 +1931,7 @@ def code_deparse(
     co,
     out=StringIO(),
     version=None,
-    is_pypy=None,
+    is_pypy=IS_PYPY,
     debug_opts=DEFAULT_DEBUG_OPTS,
     code_objects={},
     compile_mode="exec",
@@ -1960,9 +1960,8 @@ def code_deparse(
 
     if version is None:
         version = sysinfo2float()
-    if is_pypy is None:
-        is_pypy = IS_PYPY
 
+    # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy)
 
     show_asm = debug_opts.get("asm", None)
@@ -1989,14 +1988,17 @@ def code_deparse(
         is_pypy=is_pypy,
     )
 
-    deparsed.ast = deparsed.build_ast(tokens, customize)
+    isTopLevel = co.co_name == "<module>"
+    deparsed.ast = deparsed.build_ast(tokens, customize, co, isTopLevel=isTopLevel)
 
     assert deparsed.ast == "stmts", "Should have parsed grammar start"
 
-    del tokens  # save memory
+    # save memory
+    del tokens
 
     # convert leading '__doc__ = "..." into doc string
     assert deparsed.ast == "stmts"
+
     (deparsed.mod_globs, nonlocals) = pysource.find_globals_and_nonlocals(
         deparsed.ast, set(), set(), co, version
     )
