@@ -41,7 +41,6 @@ def better_repr(v, version):
         else:
             return s
     elif isinstance(v, list):
-        better_repr(v)
         if len(v) == 1:
             return "[%s,]" % better_repr(v[0], version)
         return "[%s]" % ", ".join(better_repr(i) for i in v)
