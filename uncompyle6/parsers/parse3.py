@@ -254,7 +254,7 @@ class Python3Parser(PythonParser):
                                   END_FINALLY _jump
 
         except_var_finalize ::= POP_BLOCK POP_EXCEPT LOAD_CONST COME_FROM_FINALLY
-                                LOAD_CONST store del_stmt
+                                LOAD_CONST store delete
 
         except_suite ::= returns
 
@@ -933,7 +933,7 @@ class Python3Parser(PythonParser):
                 self.addRule("continue ::= CONTINUE_LOOP", nop_func)
                 custom_ops_processed.add(opname)
             elif opname == "DELETE_ATTR":
-                self.addRule("del_stmt ::= expr DELETE_ATTR", nop_func)
+                self.addRule("delete ::= expr DELETE_ATTR", nop_func)
                 custom_ops_processed.add(opname)
             elif opname == "DELETE_DEREF":
                 self.addRule(
@@ -947,7 +947,7 @@ class Python3Parser(PythonParser):
             elif opname == "DELETE_SUBSCR":
                 self.addRule(
                     """
-                    del_stmt ::= delete_subscript
+                    delete ::= delete_subscript
                     delete_subscript ::= expr expr DELETE_SUBSCR
                    """,
                     nop_func,

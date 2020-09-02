@@ -230,9 +230,9 @@ class Python26Parser(Python2Parser):
         list_iter  ::= list_if JUMP_BACK
         list_iter  ::= list_if JUMP_BACK COME_FROM POP_TOP
         list_comp  ::= BUILD_LIST_0 DUP_TOP
-                       store list_iter del_stmt
+                       store list_iter delete
         list_comp  ::= BUILD_LIST_0 DUP_TOP
-	               store list_iter JUMP_BACK del_stmt
+	               store list_iter JUMP_BACK delete
         lc_body    ::= LOAD_NAME expr LIST_APPEND
 	lc_body    ::= LOAD_FAST expr LIST_APPEND
 

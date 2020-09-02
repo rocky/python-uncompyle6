@@ -354,10 +354,10 @@ class PythonParser(GenericASTBuilder):
         stmt ::= with
         stmt ::= withasstmt
 
-        stmt ::= del_stmt
-        del_stmt ::= DELETE_FAST
-        del_stmt ::= DELETE_NAME
-        del_stmt ::= DELETE_GLOBAL
+        stmt   ::= delete
+        delete ::= DELETE_FAST
+        delete ::= DELETE_NAME
+        delete ::= DELETE_GLOBAL
 
 
         stmt   ::= return

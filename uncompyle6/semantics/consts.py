@@ -433,7 +433,7 @@ MAP_R = (TABLE_R, -1)
 MAP = {
     "stmt": MAP_R,
     "call": MAP_R,
-    "del_stmt": MAP_R,
+    "delete": MAP_R,
     "store": MAP_R,
     "exprlist": MAP_R0,
 }

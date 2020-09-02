@@ -18,15 +18,15 @@ class Python31Parser(Python32Parser):
         with           ::= expr setupwith SETUP_FINALLY
                            suite_stmts_opt
                            POP_BLOCK LOAD_CONST COME_FROM_FINALLY
-                           load del_stmt WITH_CLEANUP END_FINALLY
+                           load delete WITH_CLEANUP END_FINALLY
 
         # Keeps Python 3.1 withas desigator in the same position as it is in other version
-        setupwithas31  ::= setupwithas SETUP_FINALLY load del_stmt
+        setupwithas31  ::= setupwithas SETUP_FINALLY load delete
 
         withasstmt     ::= expr setupwithas31 store
                            suite_stmts_opt
                            POP_BLOCK LOAD_CONST COME_FROM_FINALLY
-                           load del_stmt WITH_CLEANUP END_FINALLY
+                           load delete WITH_CLEANUP END_FINALLY
 
         store ::= STORE_NAME
         load  ::= LOAD_FAST

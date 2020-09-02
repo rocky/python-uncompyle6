@@ -980,7 +980,7 @@ class SourceWalker(GenericASTTraversal, object):
                 self.n_list_comp_pypy27(node)
                 return
             n = node[-1]
-        elif node[-1] == "del_stmt":
+        elif node[-1] == "delete":
             if node[-2] == "JUMP_BACK":
                 n = node[-3]
             else:
