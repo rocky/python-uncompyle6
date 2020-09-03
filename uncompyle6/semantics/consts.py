@@ -327,7 +327,10 @@ TABLE_DIRECT = {
     # For compatibility with older Python, we'll use "%" instead of
     # a format string.
     "string_at_beginning": ('%|"%%s" %% %c\n', 0),
-    "call_stmt": ("%|%p\n", (0, 200)),
+    "call_stmt":	   ( "%|%p\n",
+                             # When a call statement contains only a named_expr (:=)
+                             # the named_expr should have parenthesis around it.
+                             (0, PRECEDENCE["named_expr"]-1)),
     "break": ("%|break\n",),
     "continue": ("%|continue\n",),
     "raise_stmt0": ("%|raise\n",),
