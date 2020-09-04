@@ -1660,7 +1660,7 @@ class SourceWalker(GenericASTTraversal, object):
         """
         prettyprint a dict
         'dict' is something like k = {'a': 1, 'b': 42}"
-        We will source-code use line breaks to guide us when to break.
+        We will use source-code line breaks to guide us when to break.
         """
         p = self.prec
         self.prec = 100
