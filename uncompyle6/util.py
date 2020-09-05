@@ -5,9 +5,11 @@
 from math import copysign
 from uncompyle6 import PYTHON_VERSION
 
+
 def is_negative_zero(n):
     """Returns true if n is -0.0"""
     return n == 0.0 and copysign(1, n) == -1
+
 
 def better_repr(v, version):
     """Work around Python's unorthogonal and unhelpful repr() for primitive float
