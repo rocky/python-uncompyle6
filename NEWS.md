@@ -1,3 +1,14 @@
+3.7.4: 2020-8-05
+================
+
+* Fragment parsing was borked. This means deparsing in trepan2/trepan3k was broken
+* 3.7+: narrow precedence for call tatement
+* del_stmt -> delete to better match Python AST
+* 3.8+ Add another `forelsestmt` (found only in a loop)
+* 3.8+ Add precedence on walrus operator
+* More files blackened
+* bump min xdis version
+
 3.7.3: 2020-7-25
 ================
 

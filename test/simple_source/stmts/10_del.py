@@ -8,7 +8,7 @@ b = [4, 5, 6]
 del b[1]
 del b[:]
 
-# del_stmt ::= expr expr DELETE_SLICE+1
+# delete ::= expr expr DELETE_SLICE+1
 l = [None] * 10
 del l[-2:]
 

@@ -260,7 +260,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             raise GenericASTTraversalPruningException
 
     n_slice0 = n_slice1 = n_slice2 = n_slice3 = n_subscript = table_r_node
-    n_aug_assign_1 = n_print_item = exec_stmt = print_to_item = del_stmt = table_r_node
+    n_aug_assign_1 = n_print_item = exec_stmt = print_to_item = delete = table_r_node
     n_classdefco1 = n_classdefco2 = except_cond1 = except_cond2 = table_r_node
 
     def n_pass(self, node):
@@ -1211,7 +1211,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             p_insts = self.p.insts
             self.p.insts = self.scanner.insts
             self.p.offset2inst_index = self.scanner.offset2inst_index
-            ast = parser.parse(self.p, tokens, customize)
+            ast = parser.parse(self.p, tokens, customize, code)
             self.p.insts = p_insts
         except (parser.ParserError(e), AssertionError(e)):
             raise ParserError(e, tokens, {})
@@ -1555,7 +1555,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         line_seperator = ",\n" + self.indent
         sep = INDENT_PER_LEVEL[:-1]
         start = len(self.f.getvalue())
-        self.write("{")
+        if node[0] != "dict_entry":
+            self.write("{")
         self.set_pos_info(node[0], start, start + 1)
 
         if self.version >= 3.0 and not self.is_pypy:
@@ -1581,7 +1582,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     i += 2
                     pass
                 pass
-            elif node[1].kind.startswith("kvlist"):
+            elif len(node) > 1 and node[1].kind.startswith("kvlist"):
                 # Python 3.0..3.4 style key/value list in dict
                 kv_node = node[1]
                 l = list(kv_node)
@@ -1607,37 +1608,98 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     i += 3
                     pass
                 pass
+            elif node[-1].kind.startswith("BUILD_CONST_KEY_MAP"):
+                # Python 3.6+ style const map
+                keys = node[-2].pattr
+                values = node[:-2]
+                # FIXME: Line numbers?
+                for key, value in zip(keys, values):
+                    self.write(sep)
+                    self.write(repr(key))
+                    line_number = self.line_number
+                    self.write(":")
+                    self.write(self.traverse(value[0]))
+                    sep = ", "
+                    if line_number != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        line_number = self.line_number
+                    else:
+                        sep += " "
+                        pass
+                    pass
+                if sep.startswith(",\n"):
+                    self.write(sep[1:])
+                pass
+            elif node[0].kind.startswith("dict_entry"):
+                assert self.version >= 3.5
+                template = ("%C", (0, len(node[0]), ", **"))
+                self.template_engine(template, node[0])
+                sep = ""
+            elif node[-1].kind.startswith("BUILD_MAP_UNPACK") or node[
+                -1
+            ].kind.startswith("dict_entry"):
+                assert self.version >= 3.5
+                # FIXME: I think we can intermingle dict_comp's with other
+                # dictionary kinds of things. The most common though is
+                # a sequence of dict_comp's
+                kwargs = node[-1].attr
+                template = ("**%C", (0, kwargs, ", **"))
+                self.template_engine(template, node)
+                sep = ""
+
             pass
         else:
-            # Python 2 style kvlist
-            assert node[-1].kind.startswith("kvlist")
-            kv_node = node[-1]  # goto kvlist
+            # Python 2 style kvlist. Find beginning of kvlist.
+            indent = self.indent + "  "
+            line_number = self.line_number
+            if node[0].kind.startswith("BUILD_MAP"):
+                if len(node) > 1 and node[1].kind in ("kvlist", "kvlist_n"):
+                    kv_node = node[1]
+                else:
+                    kv_node = node[1:]
+                self.kv_map(kv_node, sep, line_number, indent)
 
-            for kv in kv_node:
-                assert kv in ("kv", "kv2", "kv3")
-                # kv ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
-                # kv2 ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
-                # kv3 ::= expr expr STORE_MAP
-                if kv == "kv":
-                    name = self.traverse(kv[-2], indent="")
-                    kv[1].parent = kv_node
-                    value = self.traverse(
-                        kv[1], indent=self.indent + (len(name) + 2) * " "
-                    )
-                elif kv == "kv2":
-                    name = self.traverse(kv[1], indent="")
-                    kv[-3].parent = kv_node
-                    value = self.traverse(
-                        kv[-3], indent=self.indent + (len(name) + 2) * " "
-                    )
-                elif kv == "kv3":
-                    name = self.traverse(kv[-2], indent="")
-                    kv[0].parent = kv_node
-                    value = self.traverse(
-                        kv[0], indent=self.indent + (len(name) + 2) * " "
-                    )
-                self.write(sep, name, ": ", value)
-                sep = line_seperator
+            else:
+                sep = ""
+                opname = node[-1].kind
+                if self.is_pypy and self.version >= 3.5:
+                    if opname.startswith("BUILD_CONST_KEY_MAP"):
+                        keys = node[-2].attr
+                        # FIXME: DRY this and the above
+                        for i in range(len(keys)):
+                            key = keys[i]
+                            value = self.traverse(node[i], indent="")
+                            self.write(sep, key, ": ", value)
+                            sep = ", "
+                            if line_number != self.line_number:
+                                sep += "\n" + self.indent + "  "
+                                line_number = self.line_number
+                                pass
+                            pass
+                        pass
+                    else:
+                        if opname.startswith("kvlist"):
+                            list_node = node[0]
+                        else:
+                            list_node = node
+
+                        assert list_node[-1].kind.startswith("BUILD_MAP")
+                        for i in range(0, len(list_node) - 1, 2):
+                            key = self.traverse(list_node[i], indent="")
+                            value = self.traverse(list_node[i + 1], indent="")
+                            self.write(sep, key, ": ", value)
+                            sep = ", "
+                            if line_number != self.line_number:
+                                sep += "\n" + self.indent + "  "
+                                line_number = self.line_number
+                                pass
+                            pass
+                        pass
+                elif opname.startswith("kvlist"):
+                    kv_node = node[-1]
+                    self.kv_map(node[-1], sep, line_number, indent)
+
+                pass
         self.write("}")
         finish = len(self.f.getvalue())
         self.set_pos_info(node, start, finish)
@@ -1942,7 +2004,7 @@ def code_deparse(
     co,
     out=StringIO(),
     version=None,
-    is_pypy=None,
+    is_pypy=IS_PYPY,
     debug_opts=DEFAULT_DEBUG_OPTS,
     code_objects={},
     compile_mode="exec",
@@ -1971,9 +2033,8 @@ def code_deparse(
 
     if version is None:
         version = sysinfo2float()
-    if is_pypy is None:
-        is_pypy = IS_PYPY
 
+    # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy)
 
     show_asm = debug_opts.get("asm", None)
@@ -2000,14 +2061,17 @@ def code_deparse(
         is_pypy=is_pypy,
     )
 
-    deparsed.ast = deparsed.build_ast(tokens, customize)
+    isTopLevel = co.co_name == "<module>"
+    deparsed.ast = deparsed.build_ast(tokens, customize, co, isTopLevel=isTopLevel)
 
     assert deparsed.ast == "stmts", "Should have parsed grammar start"
 
-    del tokens  # save memory
+    # save memory
+    del tokens
 
     # convert leading '__doc__ = "..." into doc string
     assert deparsed.ast == "stmts"
+
     (deparsed.mod_globs, nonlocals) = pysource.find_globals_and_nonlocals(
         deparsed.ast, set(), set(), co, version
     )

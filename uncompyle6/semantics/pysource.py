@@ -135,7 +135,7 @@ import sys
 IS_PYPY = "__pypy__" in sys.builtin_module_names
 PYTHON3 = sys.version_info >= (3, 0)
 
-from xdis import iscode, COMPILER_FLAG_BIT
+from xdis import iscode, COMPILER_FLAG_BIT, sysinfo2float
 
 from uncompyle6.parser import get_python_parser
 from uncompyle6.parsers.treenode import SyntaxTree
@@ -980,7 +980,7 @@ class SourceWalker(GenericASTTraversal, object):
                 self.n_list_comp_pypy27(node)
                 return
             n = node[-1]
-        elif node[-1] == "del_stmt":
+        elif node[-1] == "delete":
             if node[-2] == "JUMP_BACK":
                 n = node[-3]
             else:
@@ -1660,7 +1660,7 @@ class SourceWalker(GenericASTTraversal, object):
         """
         prettyprint a dict
         'dict' is something like k = {'a': 1, 'b': 42}"
-        We will source-code use line breaks to guide us when to break.
+        We will use source-code line breaks to guide us when to break.
         """
         p = self.prec
         self.prec = 100
@@ -2565,7 +2565,7 @@ def code_deparse(
     assert iscode(co)
 
     if version is None:
-        version = float(sys.version[0:3])
+        version = sysinfo2float()
 
     # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy)

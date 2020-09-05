@@ -97,9 +97,9 @@ class Python2Parser(PythonParser):
         for         ::= SETUP_LOOP expr for_iter store
                         for_block POP_BLOCK _come_froms
 
-        del_stmt         ::= delete_subscript
+        delete           ::= delete_subscript
         delete_subscript ::= expr expr DELETE_SUBSCR
-        del_stmt         ::= expr DELETE_ATTR
+        delete           ::= expr DELETE_ATTR
 
         _mklambda ::= load_closure mklambda
         kwarg     ::= LOAD_CONST expr
@@ -421,17 +421,17 @@ class Python2Parser(PythonParser):
                 custom_seen_ops.add(opname)
                 continue
             elif opname == "DELETE_ATTR":
-                self.addRule("del_stmt ::= expr DELETE_ATTR", nop_func)
+                self.addRule("delete ::= expr DELETE_ATTR", nop_func)
                 custom_seen_ops.add(opname)
                 continue
             elif opname.startswith("DELETE_SLICE"):
                 self.addRule(
                     """
                 del_expr ::= expr
-                del_stmt ::= del_expr DELETE_SLICE+0
-                del_stmt ::= del_expr del_expr DELETE_SLICE+1
-                del_stmt ::= del_expr del_expr DELETE_SLICE+2
-                del_stmt ::= del_expr del_expr del_expr DELETE_SLICE+3
+                delete   ::= del_expr DELETE_SLICE+0
+                delete   ::= del_expr del_expr DELETE_SLICE+1
+                delete   ::= del_expr del_expr DELETE_SLICE+2
+                delete   ::= del_expr del_expr del_expr DELETE_SLICE+3
                 """,
                     nop_func,
                 )
@@ -451,7 +451,7 @@ class Python2Parser(PythonParser):
             elif opname == "DELETE_SUBSCR":
                 self.addRule(
                     """
-                    del_stmt ::= delete_subscript
+                    delete ::= delete_subscript
                     delete_subscript ::= expr expr DELETE_SUBSCR
                    """,
                     nop_func,

@@ -50,7 +50,7 @@ for VERSION in $PYVERSIONS ; do
     LOGFILE=/tmp/${MAIN}-$VERSION-$$.log
 
     case "$VERSION" in
-	3.7.7 | 3.8.3 | 3.1.5 | 3.0.1 )
+	3.7.8 | 3.8.5 | 3.1.5 | 3.0.1 )
 	    continue
 	    ;;
 	3.5.9 )
@@ -65,7 +65,7 @@ for VERSION in $PYVERSIONS ; do
 	3.4.10 )
 	    MAX_TESTS=800
 	    ;;
-	3.6.10 )
+	3.6.11 )
 	    # MAX_TESTS=1300  # about 2139 exist
 	    # fails on _pyio.cpython-36.opt-1.pyc
 	    MAX_TESTS=34

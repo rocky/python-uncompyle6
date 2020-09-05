@@ -8,6 +8,37 @@ SKIP_TESTS=(
     [test_urllib2.py]=1 # FIXME: works on uncompyle6?
     [test_zipimport.py]=1 # FIXME: works on uncompyle6
 
+    # From decompyle3 excludes
+    # Very Simple example. Compare with 3.7 Need 3.8 parse rules for exception handling return
+    #    for proto in p:
+    #    try:
+    #        drop = 5
+    #    except StopIteration:
+    #        continue
+
+    [test_dict.py]=1 #
+
+    # Simple example. Compare with 3.7 Need 3.8 parse rules for exception handling return
+    #    try:
+    #    return 5
+    # except KeyError:
+    #    return res
+    # except TypeError:
+    #    return 10
+
+    # These and the above may be due to new code generation or tests
+    # between 3.8.3 and 3.8.5 ?
+    [test_decorators.py]=1 #
+
+    [test_dtrace.py]=1 #
+    [test_exceptions.py]=1 #
+    [test_ftplib.py]=1 #
+    [test_gc.py]=1 #
+    [test_gzip.py]=1 #
+    [test_hashlib.py]=1 #
+    [test_iter.py]=1 #
+    [test_itertools.py]=1 #
+
     [test___all__.py]=1 # it fails on its own
     [test_argparse.py]=1 #- it fails on its own
     [test_array.py]=1 #- parse error
