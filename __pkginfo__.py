@@ -33,65 +33,71 @@
 # 3.4            | pip     | 19.1.1       |
 
 # Things that change more often go here.
-copyright   = """
+copyright = """
 Copyright (C) 2015-2020 Rocky Bernstein <rb@dustyfeet.com>.
 """
 
-classifiers =  ["Development Status :: 5 - Production/Stable",
-                "Intended Audience :: Developers",
-                "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-                "Operating System :: OS Independent",
-                "Programming Language :: Python",
-                "Programming Language :: Python :: 2.4",
-                "Programming Language :: Python :: 2.5",
-                "Programming Language :: Python :: 2.6",
-                "Programming Language :: Python :: 2.7",
-                "Programming Language :: Python :: 3.0",
-                "Programming Language :: Python :: 3.1",
-                "Programming Language :: Python :: 3.2",
-                "Programming Language :: Python :: 3.3",
-                "Programming Language :: Python :: 3.4",
-                "Programming Language :: Python :: 3.5",
-                "Programming Language :: Python :: 3.6",
-                "Programming Language :: Python :: 3.7",
-                "Programming Language :: Python :: 3.8",
-                "Topic :: Software Development :: Debuggers",
-                "Topic :: Software Development :: Libraries :: Python Modules",
-                ]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 2.4",
+    "Programming Language :: Python :: 2.5",
+    "Programming Language :: Python :: 2.6",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3.0",
+    "Programming Language :: Python :: 3.1",
+    "Programming Language :: Python :: 3.2",
+    "Programming Language :: Python :: 3.3",
+    "Programming Language :: Python :: 3.4",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Topic :: Software Development :: Debuggers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 
 # The rest in alphabetic order
-author             = "Rocky Bernstein, Hartmut Goebel, John Aycock, and others"
-author_email       = "rb@dustyfeet.com"
-entry_points       = {
+author = "Rocky Bernstein, Hartmut Goebel, John Aycock, and others"
+author_email = "rb@dustyfeet.com"
+entry_points = {
     "console_scripts": [
         "uncompyle6=uncompyle6.bin.uncompile:main_bin",
         "pydisassemble=uncompyle6.bin.pydisassemble:main",
-    ]}
-ftp_url            = None
-install_requires   = ["spark-parser >= 1.8.9, < 1.9.0",
-                      "xdis >= 4.7.0, <5.1.0"]
+    ]
+}
+ftp_url = None
+install_requires = ["spark-parser >= 1.8.9, < 1.9.0", "xdis >= 5.0.4, <5.1.0"]
 
-license            = "GPL3"
-mailing_list       = "python-debugger@googlegroups.com"
-modname            = "uncompyle6"
-py_modules         = None
-short_desc         = "Python cross-version byte-code decompiler"
-web                = "https://github.com/rocky/python-uncompyle6/"
+license = "GPL3"
+mailing_list = "python-debugger@googlegroups.com"
+modname = "uncompyle6"
+py_modules = None
+short_desc = "Python cross-version byte-code decompiler"
+web = "https://github.com/rocky/python-uncompyle6/"
 
 # tracebacks in zip files are funky and not debuggable
 zip_safe = True
 
 
 import os.path
+
+
 def get_srcdir():
     filename = os.path.normcase(os.path.dirname(os.path.abspath(__file__)))
     return os.path.realpath(filename)
 
+
 srcdir = get_srcdir()
+
 
 def read(*rnames):
     return open(os.path.join(srcdir, *rnames)).read()
 
+
 # Get info from files; set: long_description and VERSION
-long_description   = ( read("README.rst") + "\n" )
+long_description = read("README.rst") + "\n"
 exec(read("uncompyle6/version.py"))
