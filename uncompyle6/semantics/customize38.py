@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 by Rocky Bernstein
+#  Copyright (c) 2019-2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 # Python 3.8+ changes
 #######################
 
-from uncompyle6.semantics.consts import TABLE_DIRECT
+from uncompyle6.semantics.consts import PRECEDENCE, TABLE_DIRECT
 
 def customize_for_version38(self, version):
 
@@ -37,14 +37,15 @@ def customize_for_version38(self, version):
             '%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
             (7, 'store'), (0, 'expr'), (8, 'for_block'), (-1, 'else_suite') ),
 
-        'async_with_stmt38': (
-            '%|async with %c:\n%+%|%c%-',
-            (0, 'expr'), 7),
+        "async_with_stmt38": (
+            "%|async with %c:\n%+%|%c%-",
+            (0, "expr"), 7),
 
-        'async_with_as_stmt38':  (
-            '%|async with %c as %c:\n%+%|%c%-',
-            (0, 'expr'), (6, 'store'),
-            (7, 'suite_stmts') ),
+        "async_with_as_stmt38":  (
+            "%|async with %c as %c:\n%+%|%c%-",
+            (0, "expr"), (6, "store"),
+            (7, "suite_stmts")
+        ),
 
         "call_stmt": (
             "%|%c\n", 0
@@ -80,11 +81,13 @@ def customize_for_version38(self, version):
             (2, 'store'),
             (0, 'expr'),
             (3, 'for_block') ),
-        'forelsestmt38':    (
-            '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
-            (2, 'store'),
-            (0, 'expr'),
-            (3, 'for_block'), -2 ),
+
+        "forelsestmt38":    (
+            "%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
+            (2, "store"),
+            (0, "expr"),
+            (3, "for_block"), -1 ),
+
         'forelselaststmt38': (
             '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-',
             (2, 'store'),
@@ -153,6 +156,6 @@ def customize_for_version38(self, version):
             (2, "suite_stmts_opt"),
             (8, "suite_stmts_opt") ),
         "named_expr": ( # AKA "walrus operator"
-            "%c := %c", (2, "store"), (0, "expr")
+            "%c := %p", (2, "store"), (0, "expr", PRECEDENCE["named_expr"]-1)
             )
     })

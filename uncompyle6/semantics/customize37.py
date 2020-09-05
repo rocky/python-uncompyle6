@@ -149,6 +149,11 @@ def customize_for_version37(self, version):
                 (1, "store"), (0, "get_aiter"), (3, "list_iter"),
             ),
 
+            "list_afor": (
+                " async for %[1]{%c} in %c%[1]{%c}",
+                (1, "store"), (0, "get_aiter"), (3, "list_iter"),
+            ),
+
             "list_if37": (" if %p%c", (0, 27), 1),
             "list_if37_not": (" if not %p%c", (0, 27), 1),
             "testfalse_not_or": ("not %c or %c", (0, "expr"), (2, "expr")),

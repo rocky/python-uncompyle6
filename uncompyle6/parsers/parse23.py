@@ -48,7 +48,7 @@ class Python23Parser(Python24Parser):
         while1stmt ::= _while1test l_stmts JUMP_BACK
                        POP_TOP POP_BLOCK
 
-        list_comp  ::= BUILD_LIST_0 DUP_TOP LOAD_ATTR store list_iter del_stmt
+        list_comp  ::= BUILD_LIST_0 DUP_TOP LOAD_ATTR store list_iter delete
         list_for   ::= expr for_iter store list_iter JUMP_BACK come_froms POP_TOP JUMP_BACK
 
         lc_body ::= LOAD_NAME expr CALL_FUNCTION_1 POP_TOP

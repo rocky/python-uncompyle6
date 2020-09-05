@@ -76,8 +76,8 @@ if PYTHON3:
     intern = sys.intern
     L65536 = 65536
 
-    def long(l):
-        return l
+    def long(num):
+        return num
 
 
 else:

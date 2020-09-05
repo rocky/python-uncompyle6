@@ -112,10 +112,10 @@ class Python37Parser(Python37BaseParser):
         stmt ::= tryelsestmt
         stmt ::= tryfinallystmt
 
-        stmt ::= del_stmt
-        del_stmt ::= DELETE_FAST
-        del_stmt ::= DELETE_NAME
-        del_stmt ::= DELETE_GLOBAL
+        stmt   ::= delete
+        delete ::= DELETE_FAST
+        delete ::= DELETE_NAME
+        delete ::= DELETE_GLOBAL
 
         stmt   ::= return
         return ::= ret_expr RETURN_VALUE
@@ -888,7 +888,7 @@ class Python37Parser(Python37BaseParser):
                                   END_FINALLY _jump
 
         except_var_finalize ::= POP_BLOCK POP_EXCEPT LOAD_CONST COME_FROM_FINALLY
-                                LOAD_CONST store del_stmt
+                                LOAD_CONST store delete
 
         except_suite ::= returns
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018, 2020 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -50,8 +50,11 @@ def maybe_show_tree(walker, ast):
             stream = walker.showast
         else:
             stream = sys.stdout
-        if (isinstance(walker.showast, dict) and walker.showast.get("Full", False)
-            and hasattr(walker, "str_with_template")):
+        if (
+            isinstance(walker.showast, dict)
+            and walker.showast.get("Full", False)
+            and hasattr(walker, "str_with_template")
+        ):
             walker.str_with_template(ast)
         else:
             stream.write(str(ast))
