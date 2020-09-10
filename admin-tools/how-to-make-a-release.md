@@ -55,11 +55,11 @@
 # Make packages and tag
 
     $ . ./admin-tools/make-dist-older.sh
-	$ pyenv local 3.8.4
-	$ twine check dist/uncompyle6-$VERSION*
-    $ ./admin-tools/make-dist-newer.sh
+	$ pyenv local 3.8.5
 	$ twine check dist/uncompyle6-$VERSION*
     $ git tag release-python-2.4-$VERSION
+    $ ./admin-tools/make-dist-newer.sh
+	$ twine check dist/uncompyle6-$VERSION*
 
 # Check package on github
 
