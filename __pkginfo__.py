@@ -98,6 +98,6 @@ def read(*rnames):
     return open(os.path.join(srcdir, *rnames)).read()
 
 
-# Get info from files; set: long_description and VERSION
+# Get info from files; set: long_description and __version__
 long_description = read("README.rst") + "\n"
 exec(read("uncompyle6/version.py"))
