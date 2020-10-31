@@ -102,8 +102,7 @@ def decompile(
             __version__,
             co_pypy_str,
             bytecode_version,
-            " (%s)" % str(magic_int) if magic_int else "",
-            run_pypy_str,
+           " (%s)" % m, run_pypy_str,
             "\n# ".join(sys_version_lines),
         )
     )
