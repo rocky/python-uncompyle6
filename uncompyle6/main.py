@@ -19,7 +19,7 @@ from xdis import iscode, sysinfo2float
 from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource
 from uncompyle6.parser import ParserError
-from uncompyle6.version import VERSION
+from uncompyle6.version import __version__
 
 # from uncompyle6.linenumbers import line_number_mapping
 
@@ -97,13 +97,15 @@ def decompile(
         write("# -*- coding: %s -*-" % source_encoding)
     write(
         "# uncompyle6 version %s\n"
-        "# %sPython bytecode %s%s\n# Decompiled from: %sPython %s" %
-          (VERSION,
-           co_pypy_str,
-           bytecode_version,
-           " (%s)" % m, run_pypy_str,
-           "\n# ".join(sys_version_lines),
-          )
+        "# %sPython bytecode %s%s\n# Decompiled from: %sPython %s"
+        % (
+            __version__,
+            co_pypy_str,
+            bytecode_version,
+            " (%s)" % str(magic_int) if magic_int else "",
+            run_pypy_str,
+            "\n# ".join(sys_version_lines),
+        )
     )
     if bytecode_version >= 3.0:
         write(

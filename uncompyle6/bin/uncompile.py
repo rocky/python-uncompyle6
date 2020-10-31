@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
-# Copyright (c) 2015-2017, 2019 by Rocky Bernstein
+# Copyright (c) 2015-2017, 2019-2020 by Rocky Bernstein
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 import sys, os, getopt, time
@@ -62,7 +62,7 @@ program = 'uncompyle6'
 
 from uncompyle6 import verify
 from uncompyle6.main import main, status_msg
-from uncompyle6.version import VERSION
+from uncompyle6.version import __version__
 
 def usage():
     print(__doc__)
@@ -101,7 +101,7 @@ def main_bin():
             print(__doc__)
             sys.exit(0)
         elif opt in ('-V', '--version'):
-            print("%s %s" % (program, VERSION))
+            print("%s %s" % (program, __version__))
             sys.exit(0)
         elif opt == '--verify':
             options['do_verify'] = 'strong'
