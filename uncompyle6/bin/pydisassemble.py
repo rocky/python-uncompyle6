@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
-# Copyright (c) 2015-2016, 2018 by Rocky Bernstein <rb@dustyfeet.com>
+# Copyright (c) 2015-2016, 2018, 2020 by Rocky Bernstein <rb@dustyfeet.com>
 #
 from __future__ import print_function
 import sys, os, getopt
 
 from uncompyle6.disas import disassemble_file
-from uncompyle6.version import VERSION
+from uncompyle6.version import __version__
 
 program, ext = os.path.splitext(os.path.basename(__file__))
 
@@ -58,7 +58,7 @@ Type -h for for full help.""" % program
             print(__doc__)
             sys.exit(1)
         elif opt in ('-V', '--version'):
-            print("%s %s" % (program, VERSION))
+            print("%s %s" % (program, __version__))
             sys.exit(0)
         else:
             print(opt)

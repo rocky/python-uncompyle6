@@ -12,6 +12,5 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # This file is suitable for sourcing inside POSIX shell as
-# well as importing into Python. That's why there is no
-# space around "=" below.
-VERSION="3.7.4"  # noqa
+# well as importing into Python
+__version__="3.7.4"  # noqa
