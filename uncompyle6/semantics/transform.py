@@ -414,10 +414,9 @@ class TreeTransform(GenericASTTraversal, object):
             prev = node[0][0]
             new_stmts = [node[0]]
             for i, sstmt in enumerate(node[1:]):
-                ann_assign = sstmt[0][0]
+                ann_assign = sstmt[0]
                 if (
-                    sstmt[0] == "stmt"
-                    and ann_assign == "ann_assign"
+                    ann_assign == "ann_assign"
                     and prev == "assign"
                 ):
                     annotate_var = ann_assign[-2]
@@ -426,7 +425,7 @@ class TreeTransform(GenericASTTraversal, object):
                         sstmt[0][0] = SyntaxTree(
                             "ann_assign_init", [ann_assign[0], prev[0], annotate_var]
                         )
-                        sstmt[0][0].transformed_by = "n_stmts"
+                        sstmt[0].transformed_by = "n_stmts"
                         pass
                     pass
                 new_stmts.append(sstmt)
