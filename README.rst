@@ -241,7 +241,7 @@ be solved if one were to put in the time to do so. The problem is that
 there aren't that many people who have been working on bug fixing.
 
 Some of the bugs in 3.7 and 3.8 are simply a matter of back-porting
-the fixes in decmopyle3.
+the fixes in decompyle3.
 
 You may run across a bug, that you want to report. Please do so. But
 be aware that it might not get my attention for a while. If you
