@@ -421,10 +421,15 @@ class TreeTransform(GenericASTTraversal, object):
                 ):
                     annotate_var = ann_assign[-2]
                     if annotate_var.attr == prev[-1][0].attr:
+                        node[i].kind = "deleted " + node[i].kind
                         del new_stmts[-1]
-                        sstmt[0][0] = SyntaxTree(
-                            "ann_assign_init", [ann_assign[0], prev[0], annotate_var]
-                        )
+                        ann_assign_init = SyntaxTree(
+                            "ann_assign_init", [ann_assign[0], copy(prev[0]), annotate_var]
+                            )
+                        if sstmt[0] == "ann_assign":
+                            sstmt[0] = ann_assign_init
+                        else:
+                            sstmt[0][0] = ann_assing_init
                         sstmt[0].transformed_by = "n_stmts"
                         pass
                     pass
