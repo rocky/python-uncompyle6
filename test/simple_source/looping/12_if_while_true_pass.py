@@ -1,5 +1,5 @@
 # Python 3.3 pyclbr.py
-# Note that Python 3 adds a lot of unecessary "continues"
+# Note that Python 3 adds a lot of unnecessary "continues"
 # and puts that in for "pass"
 def _readmodule(g, token, path):
     for tokentype in g:
