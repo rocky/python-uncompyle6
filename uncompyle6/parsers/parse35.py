@@ -170,7 +170,6 @@ class Python35Parser(Python34Parser):
             elif opname == 'BEFORE_ASYNC_WITH' and self.version < 3.8:
                 # Some Python 3.5+ async additions
                 rules_str = """
-                   async_with_stmt    ::= expr
                    stmt               ::= async_with_stmt
                    async_with_pre     ::= BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM SETUP_ASYNC_WITH
                    async_with_post    ::= COME_FROM_ASYNC_WITH
