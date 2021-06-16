@@ -846,7 +846,7 @@ class Python3Parser(PythonParser):
                     build_count = token.attr
                     thousands = build_count // 1024
                     thirty32s = (build_count // 32) % 32
-                    if thirty32s > 0:
+                    if thirty32s > 0 or thousands > 0:
                         rule = "expr32 ::=%s" % (" expr" * 32)
                         self.add_unique_rule(rule, opname_base, build_count, customize)
                         pass

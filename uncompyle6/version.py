@@ -10,6 +10,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 # This file is suitable for sourcing inside POSIX shell as
 # well as importing into Python
 __version__="3.7.4"  # noqa
