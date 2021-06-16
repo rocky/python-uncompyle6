@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2020 by Rocky Bernstein
+#  Copyright (c) 2019-2021 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -275,11 +275,16 @@ def customize_for_version37(self, version):
             and opname == "CALL_FUNCTION_1"
             or not re.match(r"\d", opname[-1])
         ):
+            if node[0][0] == "_mklambda":
+                template = "(%c)(%p)"
+            else:
+                template = "%c(%p)"
             self.template_engine(
-                ("%c(%p)",
+                (template,
                  (0, "expr"),
                  (1, PRECEDENCE["yield"]-1)),
-                node)
+                node
+                )
             self.prec = p
             self.prune()
         else:
