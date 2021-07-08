@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2020 by Rocky Bernstein
+#  Copyright (c) 2015-2021 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -142,11 +142,12 @@ from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.scanner import Code, get_scanner
 import uncompyle6.parser as python_parser
+from uncompyle6.semantics.check_ast import checker
+
 from uncompyle6.semantics.make_function2 import make_function2
 from uncompyle6.semantics.make_function3 import make_function3
 from uncompyle6.semantics.make_function36 import make_function36
 from uncompyle6.semantics.parser_error import ParserError
-from uncompyle6.semantics.check_ast import checker
 from uncompyle6.semantics.customize import customize_for_version
 from uncompyle6.semantics.helper import (
     print_docstring,
@@ -159,19 +160,20 @@ from uncompyle6.scanners.tok import Token
 
 from uncompyle6.semantics.transform import is_docstring, TreeTransform
 from uncompyle6.semantics.consts import (
-    LINE_LENGTH,
-    RETURN_LOCALS,
-    NONE,
-    RETURN_NONE,
-    PASS,
-    NAME_MODULE,
-    TAB,
-    INDENT_PER_LEVEL,
-    TABLE_R,
-    MAP_DIRECT,
-    MAP,
-    PRECEDENCE,
+    ASSIGN_DOC_STRING,
     ASSIGN_TUPLE_PARAM,
+    INDENT_PER_LEVEL,
+    LINE_LENGTH,
+    MAP,
+    MAP_DIRECT,
+    NAME_MODULE,
+    NONE,
+    PASS,
+    PRECEDENCE,
+    RETURN_LOCALS,
+    RETURN_NONE,
+    TAB,
+    TABLE_R,
     escape,
     minint,
 )
@@ -182,6 +184,7 @@ from uncompyle6.util import better_repr
 
 
 if PYTHON3:
+    def unicode(x): return x
     from io import StringIO
 else:
     from StringIO import StringIO
@@ -1426,7 +1429,7 @@ class SourceWalker(GenericASTTraversal, object):
                 n = n[-1]
                 pass
             elif n == "list_if37":
-                list_ifs.append(n)
+                list_if.append(n)
                 n = n[-1]
                 pass
             pass
@@ -2080,9 +2083,9 @@ class SourceWalker(GenericASTTraversal, object):
                 except IndexError:
                     raise RuntimeError(
                         """
-                        Expanding '%' in template '%s[%s]':
+                        Expanding '%s' in template '%s[%s]':
                         %s is invalid; has only %d entries
-                        """ % (node,kind, enty, arg, index, len(node))
+                        """ % (node.kind, entry, arg, index, len(node))
                     )
                 self.preorder(node[index])
 
