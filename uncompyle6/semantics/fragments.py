@@ -683,9 +683,13 @@ class FragmentsWalker(pysource.SourceWalker, object):
         code = Code(cn.attr, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize, code)
         self.customize(code._customize)
-        ast = ast[0][0][0]
+
+        # Remove single reductions as in ("stmts", "sstmt"):
+        while len(ast) == 1:
+            ast = ast[0]
 
         n = ast[iter_index]
+
         assert n == "comp_iter"
         # Find the comprehension body. It is the inner-most
         # node that is not list_.. .
@@ -924,7 +928,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         start = len(self.f.getvalue())
         self.write("(")
         code_index = -6 if self.version > 3.2 else -5
-        self.comprehension_walk(node, iter_index=3, code_index=code_index)
+        self.comprehension_walk(node, iter_index=4, code_index=code_index)
         self.write(")")
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune()
