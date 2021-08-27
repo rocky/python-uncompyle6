@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2020 Rocky Bernstein
+#  Copyright (c) 2015-2021 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -877,7 +877,14 @@ def python_parser(
     # For heavy grammar debugging
     # parser_debug = {'rules': True, 'transition': True, 'reduce' : True,
     #                 'showstack': 'full'}
+
     p = get_python_parser(version, parser_debug)
+
+    # FIXME: have p.insts update in a better way
+    # modularity is broken here
+    p.insts = scanner.insts
+    p.offset2inst_index = scanner.offset2inst_index
+
     return parse(p, tokens, customize, co)
 
 
