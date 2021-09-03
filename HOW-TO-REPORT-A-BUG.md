@@ -20,14 +20,9 @@
 This decompiler is a constant work in progress: Python keeps
 changing, and so does its code generation.
 
-There is no Python decompiler yet that I know about that will
-decompile everything. Overall, I think this one probably does the best
-job of *any* Python decompiler that handles such a wide range of
-versions.
+There is no Python decompiler yet that I know about that will decompile everything. Overall, I think this one probably does the best job of *any* Python decompiler that handles such a wide range of versions.
 
-But at any given time, there are a number of valid Python bytecode
-files that I know of that will cause problems. See, for example, the
-list in
+But at any given time, there are a number of valid Python bytecode files that I know of that will cause problems. See, for example, the list in
 [`test/stdlib/runtests.sh`](https://github.com/rocky/python-uncompyle6/blob/master/test/stdlib/runtests.sh).
 
 There are far more bug reporters than there are bug fixers.
@@ -122,8 +117,7 @@ if False:
 
 Python will eliminate the entire "if" statement.
 
-So just because the text isn't the same, does not
-necessarily mean there's a bug.
+So just because the text isn't the same, this does not necessarily mean there's a bug.
 
 # What to send (minimum requirements)
 
@@ -158,22 +152,14 @@ There is Python assembly code on parse errors, so simply by hand decompile that.
 
 ### But I don't *have* the source code and am incapable of figuring how to do a hand disassembly!
 
-Well, you could learn. No one is born into this world knowing how to
-disassemble Python bytecode. And as Richard Feynman once said, "What
-one fool can learn, so can another."
+Well, you could learn. No one is born into this world knowing how to disassemble Python bytecode. And as Richard Feynman once said, "What one fool can learn, so can another."
 
-If this is too difficult, or too time consuming, or not of interest to
-you, then you might consider [sponsoring](https://github.com/sponsors/rocky) the project. [Crazy
-Compilers](http://www.crazy-compilers.com/decompyle/) offers a
-byte-code decompiler service for versions of Python up to 2.6. (If
-there are others around let me know and I'll list them here.)
+If this is too difficult, or too time consuming, or not of interest to you, then you might consider [sponsoring](https://github.com/sponsors/rocky) the project. [Crazy
+Compilers](http://www.crazy-compilers.com/decompyle/) offers a byte-code decompiler service for versions of Python up to 2.6. (If there are others around let me know and I'll list them here.)
 
 # Narrowing the problem
 
-I don't need or want the entire source code base for the file(s) or
-module(s) can't be decompiled. I just need those file(s) or module(s).
-If there are problems in several files, file a bug report for each
-file.
+I don't need or want the entire source code base for the file(s) or module(s) can't be decompiled. I just need those file(s) or module(s). If there are problems in several files, file a bug report for each file.
 
 Python modules can get quite large, and usually decompilation problems
 occur in a single function or maybe the main-line code but not any of
