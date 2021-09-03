@@ -154,7 +154,7 @@ provide the input command and the output from that, please give:
 
 ## But I don't *have* the source code!
 
-There is Python assembly code on parse errors, so simply by hand decompile that. To get a full disassembly, use `pydisasm` from the [xdis](https://pypi.python.org/pypi/xdis) package. Opcodes are described in the documentation for the[dis](https://docs.python.org/3.6/library/dis.html) module.
+There is Python assembly code on parse errors, so simply by hand decompile that. To get a full disassembly, use `pydisasm` from the [xdis](https://pypi.python.org/pypi/xdis) package. Opcodes are described in the documentation for the [dis](https://docs.python.org/3.6/library/dis.html) module.
 
 ### But I don't *have* the source code and am incapable of figuring how to do a hand disassembly!
 
