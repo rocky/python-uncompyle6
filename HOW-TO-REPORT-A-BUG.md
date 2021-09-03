@@ -163,7 +163,7 @@ disassemble Python bytecode. And as Richard Feynman once said, "What
 one fool can learn, so can another."
 
 If this is too difficult, or too time consuming, or not of interest to
-you, then you might consider sponsoring the project. [Crazy
+you, then you might consider [sponsoring](https://github.com/sponsors/rocky) the project. [Crazy
 Compilers](http://www.crazy-compilers.com/decompyle/) offers a
 byte-code decompiler service for versions of Python up to 2.6. (If
 there are others around let me know and I'll list them here.)
