@@ -35,7 +35,7 @@ Unless you are a sponsor of this project, it may take a while, maybe a week or s
 ## Do you have valid bytecode?
 
 As mentioned in README.rst, this project doesn't handle obfuscated
-code. See README.rst for suggestions for how to remove some kinds of
+code or release candidates. See README.rst for suggestions for how to remove some kinds of
 obfuscation.
 
 Checking if bytecode is valid is pretty simple: disassemble the code.
