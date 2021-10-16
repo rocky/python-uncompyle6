@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020-2021 Rocky Bernstein
 
 from uncompyle6.scanners.tok import Token
 
@@ -158,7 +158,7 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
     # just the last one.
     if len(ast) == 5:
         end_come_froms = ast[-1]
-        if end_come_froms.kind != "else_suite" and self.version >= 3.0:
+        if end_come_froms.kind != "else_suite" and self.version >= (3, 0):
             if end_come_froms == "opt_come_from_except" and len(end_come_froms) > 0:
                 end_come_froms = end_come_froms[0]
             if not isinstance(end_come_froms, Token):
@@ -169,12 +169,12 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
 
         # FIXME: There is weirdness in the grammar we need to work around.
         # we need to clean up the grammar.
-        if self.version < 3.0:
+        if self.version < (3, 0):
             last_token = ast[-1]
         else:
             last_token = tokens[last]
         if last_token == "COME_FROM" and tokens[first].offset > last_token.attr:
-            if self.version < 3.0 and self.insts[self.offset2inst_index[last_token.attr]].opname != "SETUP_LOOP":
+            if self.version < (3, 0) and self.insts[self.offset2inst_index[last_token.attr]].opname != "SETUP_LOOP":
                 return True
 
     testexpr = ast[0]
@@ -191,7 +191,7 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
             if last == n:
                 last -= 1
             jmp = if_condition[1]
-            if self.version > 2.6:
+            if self.version > (2, 6):
                 jmp_target = jmp[0].attr
             else:
                 jmp_target = int(jmp[0].pattr)

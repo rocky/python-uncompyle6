@@ -34,7 +34,7 @@
 
 # Things that change more often go here.
 copyright = """
-Copyright (C) 2015-2020 Rocky Bernstein <rb@dustyfeet.com>.
+Copyright (C) 2015-2021 Rocky Bernstein <rb@dustyfeet.com>.
 """
 
 classifiers = [
@@ -70,7 +70,7 @@ entry_points = {
     ]
 }
 ftp_url = None
-install_requires = ["spark-parser >= 1.8.9, < 1.9.0", "xdis >= 5.9.0, <= 6.0.1"]
+install_requires = ["spark-parser >= 1.8.9, < 1.9.0", "xdis >= 6.0.0, < 6.1.0"]
 
 license = "GPL3"
 mailing_list = "python-debugger@googlegroups.com"

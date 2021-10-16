@@ -1,4 +1,4 @@
-#  Copyright (c) 2018-2020 by Rocky Bernstein
+#  Copyright (c) 2018-2021 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ def customize_for_version3(self, version):
         }
     )
 
-    assert version >= 3.0
+    assert version >= (3, 0)
 
     # In 2.5+ and 3.0+ "except" handlers and the "finally" can appear in one
     # "try" statement. So the below has the effect of combining the
@@ -107,7 +107,7 @@ def customize_for_version3(self, version):
         collections = [node[-3]]
         list_ifs = []
 
-        if self.version == 3.0 and n != "list_iter":
+        if self.version == (3, 0) and n != "list_iter":
             # FIXME 3.0 is a snowflake here. We need
             # special code for this. Not sure if this is totally
             # correct.
@@ -207,7 +207,7 @@ def customize_for_version3(self, version):
         """Handle "classdef" nonterminal for 3.0 >= version 3.0 <= 3.5
         """
 
-        assert 3.0 <= self.version <= 3.5
+        assert (3, 0) <= self.version <= (3, 5)
 
         # class definition ('class X(A,B,C):')
         cclass = self.currentclass
@@ -220,7 +220,7 @@ def customize_for_version3(self, version):
         # * subclass_code - the code for the subclass body
         subclass_info = None
         if node == "classdefdeco2":
-            if self.version <= 3.3:
+            if self.version <= (3, 3):
                 class_name = node[2][0].attr
             else:
                 class_name = node[1][2].attr
@@ -233,7 +233,7 @@ def customize_for_version3(self, version):
         assert "mkfunc" == build_class[1]
         mkfunc = build_class[1]
         if mkfunc[0] in ("kwargs", "no_kwargs"):
-            if 3.0 <= self.version <= 3.2:
+            if (3, 0) <= self.version <= (3, 2):
                 for n in mkfunc:
                     if hasattr(n, "attr") and iscode(n.attr):
                         subclass_code = n.attr
@@ -355,7 +355,7 @@ def customize_for_version3(self, version):
 
         self.n_yield_from = n_yield_from
 
-    if 3.2 <= version <= 3.4:
+    if (3, 2) <= version <= (3, 4):
 
         def n_call(node):
 
@@ -416,9 +416,9 @@ def customize_for_version3(self, version):
         # Handling EXTENDED_ARG before MAKE_FUNCTION ...
         i = -1 if node[-2] == "EXTENDED_ARG" else 0
 
-        if self.version <= 3.2:
+        if self.version <= (3, 2):
             code = node[-2 + i]
-        elif self.version >= 3.3 or node[-2] == "kwargs":
+        elif self.version >= (3, 3) or node[-2] == "kwargs":
             # LOAD_CONST code object ..
             # LOAD_CONST        'x0'  if >= 3.3
             # EXTENDED_ARG
@@ -468,7 +468,7 @@ def customize_for_version3(self, version):
             "LOAD_CLASSDEREF": ("%{pattr}",),
         }
     )
-    if version >= 3.4:
+    if version >= (3, 4):
         #######################
         # Python 3.4+ Changes #
         #######################
@@ -478,13 +478,13 @@ def customize_for_version3(self, version):
                 "yield_from": ("yield from %c", (0, "expr")),
             }
         )
-        if version >= 3.5:
+        if version >= (3, 5):
             customize_for_version35(self, version)
-            if version >= 3.6:
+            if version >= (3, 6):
                 customize_for_version36(self, version)
-                if version >= 3.7:
+                if version >= (3, 7):
                     customize_for_version37(self, version)
-                    if version >= 3.8:
+                    if version >= (3, 8):
                         customize_for_version38(self, version)
                         pass  # version >= 3.8
                     pass  # 3.7

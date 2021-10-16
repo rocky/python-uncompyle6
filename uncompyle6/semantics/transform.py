@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2020 by Rocky Bernstein
+#  Copyright (c) 2019-2021 by Rocky Bernstein
 
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ def is_docstring(node, version, co_consts):
     #     return node.kind == "assign" and node[1][0].pattr == "__doc__"
     # except:
     #     return False
-    if version <= 2.7:
+    if version <= (2, 7):
         doc_load = "LOAD_CONST"
     else:
         doc_load = "LOAD_STR"
@@ -110,7 +110,7 @@ class TreeTransform(GenericASTTraversal, object):
         than the code field is seen and used.
         """
 
-        if self.version >= 3.7:
+        if self.version >= (3, 7):
             code_index = -3
         else:
             code_index = -2

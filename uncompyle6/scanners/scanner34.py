@@ -34,7 +34,7 @@ from uncompyle6.scanners.scanner3 import Scanner3
 class Scanner34(Scanner3):
 
     def __init__(self, show_asm=None):
-        Scanner3.__init__(self, 3.4, show_asm)
+        Scanner3.__init__(self, (3, 4), show_asm)
         return
     pass
 

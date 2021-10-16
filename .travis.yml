@@ -14,7 +14,7 @@ matrix:
 
 install:
 # Remove the next line when xdis 6.0.0 is released
-- pip install git://github.com/rocky/python-xdis.git#egg=xdis
+# - pip install git://github.com/rocky/python-xdis.git#egg=xdis
 - pip install -e .
 - pip install -r requirements-dev.txt
 
