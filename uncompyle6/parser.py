@@ -642,7 +642,7 @@ def get_python_parser(
 
     # If version is a string, turn that into the corresponding float.
     if isinstance(version, str):
-        version = py_str2float(version)
+        version = tuple([int(v) for v in version.split(".")[:3]])
 
     # FIXME: there has to be a better way...
     # We could do this as a table lookup, but that would force us

@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018 by Rocky Bernstein
+#  Copyright (c) 2016-2018, 2021 by Rocky Bernstein
 """
 Python 2.2 bytecode massaging.
 

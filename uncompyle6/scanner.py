@@ -1,4 +1,4 @@
-#  Copyright (c) 2016, 2018-2020 by Rocky Bernstein
+#  Copyright (c) 2016, 2018-2021 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -105,7 +105,7 @@ class Scanner(object):
         self.show_asm = show_asm
         self.is_pypy = is_pypy
 
-        if version in PYTHON_VERSIONS:
+        if version[:2] in PYTHON_VERSIONS:
             if is_pypy:
                 v_str = "opcode_%spypy" % ("".join([str(v) for v in version]))
             else:
@@ -113,7 +113,7 @@ class Scanner(object):
             exec("from xdis.opcodes import %s" % v_str)
             exec("self.opc = %s" % v_str)
         else:
-            raise TypeError("%s is not a Python version I know about" % version)
+            raise TypeError("%s is not a Python version I know about" % ".".join([str(v) for v in version]))
 
         self.opname = self.opc.opname
 

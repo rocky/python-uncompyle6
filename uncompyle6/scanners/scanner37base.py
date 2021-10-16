@@ -55,7 +55,7 @@ class Scanner37Base(Scanner):
         # Ops that start SETUP_ ... We will COME_FROM with these names
         # Some blocks and END_ statements. And they can start
         # a new statement
-        if self.version < 3.8:
+        if self.version < (3, 8):
             setup_ops = [
                 self.opc.SETUP_LOOP,
                 self.opc.SETUP_EXCEPT,
@@ -468,7 +468,7 @@ class Scanner37Base(Scanner):
                         and self.insts[i + 1].opname == "JUMP_FORWARD"
                     )
 
-                    if self.version < 3.8 and (
+                    if self.version < (3, 8) and (
                         is_continue
                         or (
                             inst.offset in self.stmts
@@ -712,7 +712,7 @@ class Scanner37Base(Scanner):
                 end = current_end
                 parent = struct
 
-        if self.version < 3.8 and op == self.opc.SETUP_LOOP:
+        if self.version < (3, 8) and op == self.opc.SETUP_LOOP:
             # We categorize loop types: 'for', 'while', 'while 1' with
             # possibly suffixes '-loop' and '-else'
             # Try to find the jump_back instruction of the loop.
@@ -820,7 +820,7 @@ class Scanner37Base(Scanner):
             target = inst.argval
             self.fixed_jumps[offset] = target
 
-        elif self.version < 3.8 and op == self.opc.SETUP_EXCEPT:
+        elif self.version < (3, 8) and op == self.opc.SETUP_EXCEPT:
             target = self.get_target(offset)
             end = self.restrict_to_parent(target, parent)
             self.fixed_jumps[offset] = end

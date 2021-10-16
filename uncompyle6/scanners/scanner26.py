@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2017 by Rocky Bernstein
+#  Copyright (c) 2015-2017, 2021 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -40,7 +40,7 @@ JUMP_OPS = opcode_26.JUMP_OPS
 
 class Scanner26(scan.Scanner2):
     def __init__(self, show_asm=False):
-        super(Scanner26, self).__init__(2.6, show_asm)
+        super(Scanner26, self).__init__((2, 6), show_asm)
 
         # "setup" opcodes
         self.setup_ops = frozenset([

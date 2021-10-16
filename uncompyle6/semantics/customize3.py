@@ -398,7 +398,7 @@ def customize_for_version3(self, version):
             self.default(node)
 
         self.n_call = n_call
-    elif version < 3.2:
+    elif version < (3, 2):
 
         def n_call(node):
             mapping = self._get_mapping(node)
