@@ -1361,7 +1361,7 @@ class Python3Parser(PythonParser):
                         "LOAD_CODE LOAD_STR ",
                         opname,
                     )
-                elif self.version > (3, 5):
+                elif self.version >= (3, 6):
                     # positional args before keyword args
                     rule = "mkfunc ::= %s%s %s%s" % (
                         "pos_arg " * args_pos,
@@ -1369,7 +1369,7 @@ class Python3Parser(PythonParser):
                         "LOAD_CODE LOAD_STR ",
                         opname,
                     )
-                elif self.version > (3, 3):
+                elif self.version >= (3, 4):
                     # positional args before keyword args
                     rule = "mkfunc ::= %s%s %s%s" % (
                         "pos_arg " * args_pos,
@@ -1595,7 +1595,7 @@ class Python3Parser(PythonParser):
         elif lhs == "kwarg":
             arg = tokens[first].attr
             return not (isinstance(arg, str) or isinstance(arg, unicode))
-        elif lhs in ("iflaststmt", "iflaststmtl") and self.version == (3, 6):
+        elif lhs in ("iflaststmt", "iflaststmtl") and self.version[:2] == (3, 6):
             return ifstmt(self, lhs, n, rule, ast, tokens, first, last)
         elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
             # FIXME: go over what's up with 3.0. Evetually I'd like to remove RETURN_END_IF

@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2020 Rocky Bernstein
+#  Copyright (c) 2015-2021 Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 #  Copyright (c) 1999 John Aycock
@@ -350,7 +350,7 @@ class Python2Parser(PythonParser):
                         ],
                         customize,
                     )
-                    if self.version >= 2.7:
+                    if self.version >= (2, 7):
                         self.add_unique_rule(
                             "dict_comp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER store "
                             "comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST",
@@ -577,7 +577,7 @@ class Python2Parser(PythonParser):
                     customize,
                 )
 
-                if self.version >= 2.7:
+                if self.version >= (2, 7):
                     if i > 0:
                         prev_tok = tokens[i - 1]
                         if prev_tok == "LOAD_DICTCOMP":

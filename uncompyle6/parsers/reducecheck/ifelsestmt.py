@@ -191,7 +191,7 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
             if last == n:
                 last -= 1
             jmp = if_condition[1]
-            if self.version > (2, 6):
+            if self.version >= (2, 7):
                 jmp_target = jmp[0].attr
             else:
                 jmp_target = int(jmp[0].pattr)

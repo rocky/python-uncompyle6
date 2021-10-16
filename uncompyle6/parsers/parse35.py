@@ -157,7 +157,7 @@ class Python35Parser(Python34Parser):
             # FIXME: I suspect this is wrong for 3.6 and 3.5, but
             # I haven't verified what the 3.7ish fix is
             elif opname == 'BUILD_MAP_UNPACK_WITH_CALL':
-                if self.version < 3.7:
+                if self.version < (3, 7):
                     self.addRule("expr ::= unmapexpr", nop_func)
                     nargs = token.attr % 256
                     map_unpack_n = "map_unpack_%s" % nargs

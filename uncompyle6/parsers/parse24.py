@@ -94,7 +94,7 @@ class Python24Parser(Python25Parser):
         """)
         super(Python24Parser, self).customize_grammar_rules(tokens, customize)
         self.remove_rules_24()
-        if self.version == 2.4:
+        if self.version[:2] == (2, 4):
             self.check_reduce['nop_stmt'] = 'tokens'
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
