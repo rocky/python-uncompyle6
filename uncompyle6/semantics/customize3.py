@@ -107,7 +107,7 @@ def customize_for_version3(self, version):
         collections = [node[-3]]
         list_ifs = []
 
-        if self.version == (3, 0) and n != "list_iter":
+        if self.version[:2] == (3, 0) and n != "list_iter":
             # FIXME 3.0 is a snowflake here. We need
             # special code for this. Not sure if this is totally
             # correct.
@@ -204,10 +204,10 @@ def customize_for_version3(self, version):
     self.listcomp_closure3 = listcomp_closure3
 
     def n_classdef3(node):
-        """Handle "classdef" nonterminal for 3.0 >= version 3.0 <= 3.5
+        """Handle "classdef" nonterminal for 3.0 >= version 3.0 < 3.6
         """
 
-        assert (3, 0) <= self.version <= (3, 5)
+        assert (3, 0) <= self.version < (3, 6)
 
         # class definition ('class X(A,B,C):')
         cclass = self.currentclass
@@ -220,7 +220,7 @@ def customize_for_version3(self, version):
         # * subclass_code - the code for the subclass body
         subclass_info = None
         if node == "classdefdeco2":
-            if self.version <= (3, 3):
+            if self.version < (3, 4):
                 class_name = node[2][0].attr
             else:
                 class_name = node[1][2].attr
@@ -233,7 +233,7 @@ def customize_for_version3(self, version):
         assert "mkfunc" == build_class[1]
         mkfunc = build_class[1]
         if mkfunc[0] in ("kwargs", "no_kwargs"):
-            if (3, 0) <= self.version <= (3, 2):
+            if (3, 0) <= self.version < (3, 3):
                 for n in mkfunc:
                     if hasattr(n, "attr") and iscode(n.attr):
                         subclass_code = n.attr
@@ -416,7 +416,7 @@ def customize_for_version3(self, version):
         # Handling EXTENDED_ARG before MAKE_FUNCTION ...
         i = -1 if node[-2] == "EXTENDED_ARG" else 0
 
-        if self.version <= (3, 2):
+        if self.version < (3, 3):
             code = node[-2 + i]
         elif self.version >= (3, 3) or node[-2] == "kwargs":
             # LOAD_CONST code object ..
