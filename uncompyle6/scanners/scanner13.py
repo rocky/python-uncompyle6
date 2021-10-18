@@ -1,4 +1,4 @@
-#  Copyright (c) 2018-2019 by Rocky Bernstein
+#  Copyright (c) 2018-2019, 2021 by Rocky Bernstein
 """
 Python 1.3 bytecode decompiler massaging.
 
@@ -24,7 +24,7 @@ class Scanner13(scan.Scanner14):
         scan.Scanner14.__init__(self, show_asm)
         self.opc = opcode_13
         self.opname = opcode_13.opname
-        self.version = 1.3
+        self.version = (1, 3)
         return
 
     # def ingest(self, co, classname=None, code_objects={}, show_asm=None):

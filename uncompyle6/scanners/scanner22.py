@@ -22,7 +22,7 @@ class Scanner22(scan.Scanner23):
         scan.Scanner23.__init__(self, show_asm)
         self.opc = opcode_22
         self.opname = opcode_22.opname
-        self.version = 2.2
+        self.version = (2, 2)
         self.genexpr_name = '<generator expression>'
         self.parent_ingest = self.ingest
         self.ingest = self.ingest22

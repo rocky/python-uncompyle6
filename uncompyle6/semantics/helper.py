@@ -149,7 +149,7 @@ def print_docstring(self, indent, docstring):
         # Must be unicode in Python2
         self.write('u')
         docstring = repr(docstring.expandtabs())[2:-1]
-    elif PYTHON3 and 2.4 <= self.version <= 2.7:
+    elif PYTHON3 and (2, 4) <= self.version[:2] <= (2, 7):
         try:
             repr(docstring.expandtabs())[1:-1].encode("ascii")
         except UnicodeEncodeError:

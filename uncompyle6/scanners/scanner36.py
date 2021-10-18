@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018 by Rocky Bernstein
+#  Copyright (c) 2016-2018, 2021 by Rocky Bernstein
 """
 Python 3.6 bytecode decompiler scanner
 
@@ -20,7 +20,7 @@ JUMP_OPS = opc.JUMP_OPS
 class Scanner36(Scanner3):
 
     def __init__(self, show_asm=None, is_pypy=False):
-        Scanner3.__init__(self, 3.6, show_asm, is_pypy)
+        Scanner3.__init__(self, (3, 6), show_asm, is_pypy)
         return
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
