@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017, 2019 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2019, 2021 Rocky Bernstein
 """
 spark grammar differences over Python 3.4 for Python 3.5.
 """
@@ -168,7 +168,7 @@ class Python35Parser(Python34Parser):
                     call_token = tokens[i+1]
                     rule = 'call ::= expr unmapexpr ' + call_token.kind
                     self.addRule(rule, nop_func)
-            elif opname == 'BEFORE_ASYNC_WITH' and self.version < 3.8:
+            elif opname == 'BEFORE_ASYNC_WITH' and self.version < (3, 8):
                 # Some Python 3.5+ async additions
                 rules_str = """
                    stmt               ::= async_with_stmt

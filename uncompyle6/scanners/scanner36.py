@@ -20,6 +20,7 @@ JUMP_OPS = opc.JUMP_OPS
 class Scanner36(Scanner3):
 
     def __init__(self, show_asm=None, is_pypy=False):
+        Scanner3.__init__(self, (3, 6), show_asm, is_pypy)
         return
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
