@@ -209,7 +209,7 @@ class Python37BaseParser(PythonParser):
                    stmt            ::= async_with_as_stmt
                 """
 
-                if self.version < 3.8:
+                if self.version < (3, 8):
                     rules_str += """
                       stmt                 ::= async_with_stmt SETUP_ASYNC_WITH
                       c_stmt               ::= c_async_with_stmt SETUP_ASYNC_WITH

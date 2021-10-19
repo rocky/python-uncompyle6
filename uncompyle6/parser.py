@@ -644,6 +644,8 @@ def get_python_parser(
     if isinstance(version, str):
         version = tuple([int(v) for v in version.split(".")[:2]])
 
+    version = version[:2]
+
     # FIXME: there has to be a better way...
     # We could do this as a table lookup, but that would force us
     # in import all of the parsers all of the time. Perhaps there is
