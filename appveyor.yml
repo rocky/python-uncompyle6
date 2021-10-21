@@ -6,26 +6,12 @@ environment:
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\appveyor\\run_with_env.cmd"
 
   matrix:
-
     # Pre-installed Python versions, which Appveyor may upgrade to
     # a later point release.
     # See: http://www.appveyor.com/docs/installed-software#python
 
-    # - PYTHON: "C:\\Python27"
-    #   PYTHON_VERSION: "2.7.x"
-    #   PYTHON_ARCH: "32"
-
-    - PYTHON: "C:\\Python27-x64"
-      PYTHON_VERSION: "2.7.x"
-      PYTHON_ARCH: "64"
-
-    # - PYTHON: "C:\\Python26"
-    #   PYTHON_VERSION: "2.6.x"
-    #   PYTHON_ARCH: "32"
-
-    # - PYTHON: "C:\\Python26-x64"
-    #   PYTHON_VERSION: "2.6.x"
-    #   PYTHON_ARCH: "64"
+    - TOXENV: py36
+    - TOXENV: py37
 
 install:
   # We need wheel installed to build wheels
