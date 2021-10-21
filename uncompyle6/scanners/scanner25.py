@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2018 by Rocky Bernstein
+#  Copyright (c) 2015-2018, 2021 by Rocky Bernstein
 """
 Python 2.5 bytecode massaging.
 
@@ -24,5 +24,5 @@ class Scanner25(scan.Scanner26):
         self.opc = opcode_25
         self.opname = opcode_25.opname
         scan.Scanner26.__init__(self, show_asm)
-        self.version = 2.5
+        self.version = (2, 5)
         return

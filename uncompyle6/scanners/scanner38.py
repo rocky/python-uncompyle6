@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2020 by Rocky Bernstein
+#  Copyright (c) 2019-2021 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ JUMP_OPs = opc.JUMP_OPS
 
 class Scanner38(Scanner37):
     def __init__(self, show_asm=None):
-        Scanner37Base.__init__(self, 3.8, show_asm)
+        Scanner37Base.__init__(self, (3, 8), show_asm)
         self.debug = False
         return
 
@@ -61,7 +61,7 @@ class Scanner38(Scanner37):
         if self.debug and jump_back_targets:
             print(jump_back_targets)
         loop_ends = []
-        next_end = tokens[len(tokens)-1].off2int() + 10
+        next_end = tokens[len(tokens) - 1].off2int() + 10
         for i, token in enumerate(tokens):
             opname = token.kind
             offset = token.offset
@@ -70,13 +70,19 @@ class Scanner38(Scanner37):
                 if self.debug:
                     print("%sremove loop offset %s" % (" " * len(loop_ends), offset))
                     pass
-                next_end = loop_ends[-1] if len(loop_ends) else tokens[len(tokens)-1].off2int() + 10
+                next_end = (
+                    loop_ends[-1]
+                    if len(loop_ends)
+                    else tokens[len(tokens) - 1].off2int() + 10
+                )
 
             if offset in jump_back_targets:
                 next_end = off2int(jump_back_targets[offset], prefer_last=False)
                 if self.debug:
-                    print("%sadding loop offset %s ending at %s" %
-                          ('  ' * len(loop_ends), offset, next_end))
+                    print(
+                        "%sadding loop offset %s ending at %s"
+                        % ("  " * len(loop_ends), offset, next_end)
+                    )
                 loop_ends.append(next_end)
 
             # Turn JUMP opcodes into "BREAK_LOOP" opcodes.
@@ -107,10 +113,7 @@ class Scanner38(Scanner37):
                 jump_back_token = tokens[jump_back_index]
 
                 # Is this a forward jump not next to a JUMP_BACK ? ...
-                break_loop = (
-                    token.linestart
-                    and jump_back_token != "JUMP_BACK"
-                )
+                break_loop = token.linestart and jump_back_token != "JUMP_BACK"
 
                 # or if there is looping jump back, then that loop
                 # should start before where the "break" instruction sits.
@@ -136,5 +139,4 @@ if __name__ == "__main__":
             print(t.format())
         pass
     else:
-        print("Need to be Python 3.8 to demo; I am %s." %
-              PYTHON_VERSION)
+        print("Need to be Python 3.8 to demo; I am %s." % PYTHON_VERSION)

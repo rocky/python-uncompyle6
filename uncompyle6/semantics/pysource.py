@@ -483,7 +483,7 @@ class SourceWalker(GenericASTTraversal, object):
             and node[0][0][0] == "LOAD_CONST"
             and node[0][0][0].pattr is None
         )
-        if self.version <= 2.6:
+        if self.version <= (2, 6):
             return ret
         else:
             # FIXME: should the SyntaxTree expression be folded into
@@ -537,7 +537,7 @@ class SourceWalker(GenericASTTraversal, object):
     def n_yield(self, node):
         if node != SyntaxTree("yield", [NONE, Token("YIELD_VALUE")]):
             self.template_engine(("yield %c", 0), node)
-        elif self.version <= 2.4:
+        elif self.version <= (2, 4):
             # Early versions of Python don't allow a plain "yield"
             self.write("yield None")
         else:
@@ -823,7 +823,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
 
     def n_alias(self, node):
-        if self.version <= 2.1:
+        if self.version <= (2, 1):
             if len(node) == 2:
                 store = node[1]
                 assert store == "store"
@@ -848,10 +848,10 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_import_from(self, node):
         relative_path_index = 0
-        if self.version >= 2.5:
+        if self.version >= (2, 5):
             if node[relative_path_index].pattr > 0:
                 node[2].pattr = ("." * node[relative_path_index].pattr) + node[2].pattr
-            if self.version > 2.7:
+            if self.version > (2, 7):
                 if isinstance(node[1].pattr, tuple):
                     imports = node[1].pattr
                     for pattr in imports:
@@ -882,11 +882,11 @@ class SourceWalker(GenericASTTraversal, object):
     # Python changes make function this much that we need at least 3 different routines,
     # and probably more in the future.
     def make_function(self, node, is_lambda, nested=1, code_node=None, annotate=None):
-        if self.version <= 2.7:
+        if self.version <= (2, 7):
             make_function2(self, node, is_lambda, nested, code_node)
-        elif 3.0 <= self.version <= 3.5:
+        elif (3, 0) <= self.version <= (3, 5):
             make_function3(self, node, is_lambda, nested, code_node)
-        elif self.version >= 3.6:
+        elif self.version >= (3, 6):
             make_function36(self, node, is_lambda, nested, code_node)
 
     def n_docstring(self, node):
@@ -978,7 +978,7 @@ class SourceWalker(GenericASTTraversal, object):
         """List comprehensions"""
         p = self.prec
         self.prec = 100
-        if self.version >= 2.7:
+        if self.version >= (2, 7):
             if self.is_pypy:
                 self.n_list_comp_pypy27(node)
                 return
@@ -1005,7 +1005,7 @@ class SourceWalker(GenericASTTraversal, object):
         assert n == "lc_body"
         self.write("[ ")
 
-        if self.version >= 2.7:
+        if self.version >= (2, 7):
             expr = n[0]
             list_iter = node[-1]
         else:
@@ -1090,15 +1090,15 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = 27
 
         # FIXME: clean this up
-        if self.version >= 3.0 and node == "dict_comp":
+        if self.version >= (3, 0) and node == "dict_comp":
             cn = node[1]
-        elif self.version <= 2.7 and node == "generator_exp":
+        elif self.version <= (2, 7) and node == "generator_exp":
             if node[0] == "LOAD_GENEXPR":
                 cn = node[0]
             elif node[0] == "load_closure":
                 cn = node[1]
 
-        elif self.version >= 3.0 and node in ("generator_exp", "generator_exp_async"):
+        elif self.version >= (3, 0) and node in ("generator_exp", "generator_exp_async"):
             if node[0] == "load_genexpr":
                 load_genexpr = node[0]
             elif node[1] == "load_genexpr":
@@ -1167,9 +1167,9 @@ class SourceWalker(GenericASTTraversal, object):
     def n_generator_exp(self, node):
         self.write("(")
         iter_index = 3
-        if self.version > 3.2:
+        if self.version > (3, 2):
             code_index = -6
-            if self.version > 3.6:
+            if self.version > (3, 6):
                 # Python 3.7+ adds optional "come_froms" at node[0]
                 iter_index = 4
         else:
@@ -1184,7 +1184,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write("{")
         if node[0] in ["LOAD_SETCOMP", "LOAD_DICTCOMP"]:
             self.comprehension_walk_newer(node, 1, 0)
-        elif node[0].kind == "load_closure" and self.version >= 3.0:
+        elif node[0].kind == "load_closure" and self.version >= (3, 0):
             self.setcomprehension_walk3(node, collection_index=4)
         else:
             self.comprehension_walk(node, iter_index=4)
@@ -1241,7 +1241,7 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
         elif ast in ("dict_comp", "set_comp"):
-            assert self.version == 3.0
+            assert self.version == (3, 0)
             for k in ast:
                 if k in ("dict_comp_header", "set_comp_header"):
                     n = k
@@ -1313,7 +1313,7 @@ class SourceWalker(GenericASTTraversal, object):
         # Python 2.7+ starts including set_comp_body
         # Python 3.5+ starts including set_comp_func
         # Python 3.0  is yet another snowflake
-        if self.version != 3.0 and self.version < 3.7:
+        if self.version != (3, 0) and self.version < (3, 7):
             assert n.kind in (
                 "lc_body",
                 "list_if37",
@@ -1356,7 +1356,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.preorder(node[in_node_index])
 
         # Here is where we handle nested list iterations.
-        if ast == "list_comp" and self.version != 3.0:
+        if ast == "list_comp" and self.version != (3, 0):
             list_iter = ast[1]
             assert list_iter == "list_iter"
             if list_iter[0] == "list_for":
@@ -1379,7 +1379,7 @@ class SourceWalker(GenericASTTraversal, object):
     def n_listcomp(self, node):
         self.write("[")
         if node[0].kind == "load_closure":
-            assert self.version >= 3.0
+            assert self.version >= (3, 0)
             self.listcomp_closure3(node)
         else:
             if node == "listcomp_async":
@@ -1447,9 +1447,9 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_classdef(self, node):
 
-        if self.version >= 3.6:
+        if self.version >= (3, 6):
             self.n_classdef36(node)
-        elif self.version >= 3.0:
+        elif self.version >= (3, 0):
             self.n_classdef3(node)
 
         # class definition ('class X(A,B,C):')
@@ -1514,7 +1514,7 @@ class SourceWalker(GenericASTTraversal, object):
             return
 
         n_subclasses = len(node[:-1])
-        if n_subclasses > 0 or self.version > 2.4:
+        if n_subclasses > 0 or self.version > (2, 4):
             # Not an old-style pre-2.2 class
             self.write("(")
 
@@ -1525,7 +1525,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.write(sep, value)
             sep = line_separator
 
-        if n_subclasses > 0 or self.version > 2.4:
+        if n_subclasses > 0 or self.version > (2, 4):
             # Not an old-style pre-2.2 class
             self.write(")")
 
@@ -1674,7 +1674,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.write("{")
         line_number = self.line_number
 
-        if self.version >= 3.0 and not self.is_pypy:
+        if self.version >= (3, 0) and not self.is_pypy:
             if node[0].kind.startswith("kvlist"):
                 # Python 3.5+ style key/value list in dict
                 kv_node = node[0]
@@ -1760,14 +1760,14 @@ class SourceWalker(GenericASTTraversal, object):
                     self.write(sep[1:])
                 pass
             elif node[0].kind.startswith("dict_entry"):
-                assert self.version >= 3.5
+                assert self.version >= (3, 5)
                 template = ("%C", (0, len(node[0]), ", **"))
                 self.template_engine(template, node[0])
                 sep = ""
             elif node[-1].kind.startswith("BUILD_MAP_UNPACK") or node[
                 -1
             ].kind.startswith("dict_entry"):
-                assert self.version >= 3.5
+                assert self.version >= (3, 5)
                 # FIXME: I think we can intermingle dict_comp's with other
                 # dictionary kinds of things. The most common though is
                 # a sequence of dict_comp's
@@ -1790,7 +1790,7 @@ class SourceWalker(GenericASTTraversal, object):
             else:
                 sep = ""
                 opname = node[-1].kind
-                if self.is_pypy and self.version >= 3.5:
+                if self.is_pypy and self.version >= (3, 5):
                     if opname.startswith("BUILD_CONST_KEY_MAP"):
                         keys = node[-2].attr
                         # FIXME: DRY this and the above
@@ -1966,7 +1966,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         # In Python 2.4, unpack is used in (a, b, c) of:
         #   except RuntimeError, (a, b, c):
-        if self.version < 2.7:
+        if self.version < (2, 7):
             node.kind = "unpack_w_parens"
         self.default(node)
 
@@ -1984,7 +1984,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_assign(self, node):
         # A horrible hack for Python 3.0 .. 3.2
-        if 3.0 <= self.version <= 3.2 and len(node) == 2:
+        if (3, 0) <= self.version <= (3, 2) and len(node) == 2:
             if (
                 node[0][0] == "LOAD_FAST"
                 and node[0][0].pattr == "__locals__"
@@ -2197,7 +2197,7 @@ class SourceWalker(GenericASTTraversal, object):
             if k.startswith("CALL_METHOD"):
                 # This happens in PyPy and Python 3.7+
                 TABLE_R[k] = ("%c(%P)", 0, (1, -1, ", ", 100))
-            elif self.version >= 3.6 and k.startswith("CALL_FUNCTION_KW"):
+            elif self.version >= (3, 6) and k.startswith("CALL_FUNCTION_KW"):
                 TABLE_R[k] = ("%c(%P)", 0, (1, -1, ", ", 100))
             elif op == "CALL_FUNCTION":
                 TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", PRECEDENCE["yield"]-1))
@@ -2219,12 +2219,12 @@ class SourceWalker(GenericASTTraversal, object):
                 if op == "CALL_FUNCTION_VAR":
                     # Python 3.5 only puts optional args (the VAR part)
                     # lowest down the stack
-                    if self.version == 3.5:
+                    if self.version == (3, 5):
                         if str == "%c(%C, ":
                             entry = ("%c(*%C, %c)", 0, p2, -2)
                         elif str == "%c(%C":
                             entry = ("%c(*%C)", 0, (1, 100, ""))
-                    elif self.version == 3.4:
+                    elif self.version == (3, 4):
                         # CALL_FUNCTION_VAR's top element of the stack contains
                         # the variable argument list
                         if v == 0:
@@ -2244,7 +2244,7 @@ class SourceWalker(GenericASTTraversal, object):
                     # Python 3.5 only puts optional args (the VAR part)
                     # lowest down the stack
                     na = v & 0xFF  # positional parameters
-                    if self.version == 3.5 and na == 0:
+                    if self.version == (3, 5) and na == 0:
                         if p2[2]:
                             p2 = (2, -2, ", ")
                         entry = (str, 0, p2, 1, -2)
@@ -2326,7 +2326,7 @@ class SourceWalker(GenericASTTraversal, object):
             del ast[0]
             first_stmt = ast[0]
 
-        if 3.0 <= self.version <= 3.3:
+        if (3, 0) <= self.version <= (3, 3):
             try:
                 if first_stmt == "store_locals":
                     if self.hide_internal:
@@ -2352,7 +2352,7 @@ class SourceWalker(GenericASTTraversal, object):
                 ast[0] = ast[0][0]
             first_stmt = ast[0]
 
-        if self.version < 3.0:
+        if self.version < (3, 0):
             # Should we ditch this in favor of the "else" case?
             qualname = ".".join(self.classes)
             QUAL_NAME = SyntaxTree(
@@ -2612,7 +2612,7 @@ def code_deparse(
 
     assert not nonlocals
 
-    if version >= 3.0:
+    if version >= (3, 0):
         load_op = "LOAD_STR"
     else:
         load_op = "LOAD_CONST"

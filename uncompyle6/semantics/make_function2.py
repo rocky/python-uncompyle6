@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2020 by Rocky Bernstein
+#  Copyright (c) 2015-2021 by Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -192,7 +192,7 @@ def make_function2(self, node, is_lambda, nested=1, code_node=None):
     )
 
     # Python 2 doesn't support the "nonlocal" statement
-    assert self.version >= 3.0 or not nonlocals
+    assert self.version >= (3, 0) or not nonlocals
 
     for g in sorted((all_globals & self.mod_globs) | globals):
         self.println(self.indent, "global ", g)

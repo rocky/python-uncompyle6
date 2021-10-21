@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2017 by Rocky Bernstein
+#  Copyright (c) 2015-2017, 2021 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -40,7 +40,7 @@ JUMP_OPS = opcode_26.JUMP_OPS
 
 class Scanner26(scan.Scanner2):
     def __init__(self, show_asm=False):
-        super(Scanner26, self).__init__(2.6, show_asm)
+        super(Scanner26, self).__init__((2, 6), show_asm)
 
         # "setup" opcodes
         self.setup_ops = frozenset([
@@ -213,13 +213,13 @@ class Scanner26(scan.Scanner2):
                 # CE - Hack for >= 2.5
                 #      Now all values loaded via LOAD_CLOSURE are packed into
                 #      a tuple before calling MAKE_CLOSURE.
-                if (self.version >= 2.5 and op == self.opc.BUILD_TUPLE and
+                if (self.version >= (2, 5) and op == self.opc.BUILD_TUPLE and
                     self.code[self.prev[offset]] == self.opc.LOAD_CLOSURE):
                     continue
                 else:
                     op_name = '%s_%d' % (op_name, oparg)
                     customize[op_name] = oparg
-            elif self.version > 2.0 and op == self.opc.CONTINUE_LOOP:
+            elif self.version > (2, 0) and op == self.opc.CONTINUE_LOOP:
                 customize[op_name] = 0
             elif op_name in """
                  CONTINUE_LOOP EXEC_STMT LOAD_LISTCOMP LOAD_SETCOMP

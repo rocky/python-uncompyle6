@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2020 by Rocky Bernstein
+#  Copyright (c) 2015-2021 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -366,9 +366,9 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
 
     # Python 3.3+ adds a qualified name at TOS (-1)
     # moving down the LOAD_LAMBDA instruction
-    if 3.0 <= self.version <= 3.2:
+    if (3, 0) <= self.version <= (3, 2):
         lambda_index = -2
-    elif 3.03 <= self.version:
+    elif (3, 3) <= self.version:
         lambda_index = -3
     else:
         lambda_index = None
@@ -590,7 +590,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
                 ends_in_comma = True
 
         kw_args = [None] * kwonlyargcount
-        if self.version <= 3.3:
+        if self.version <= (3, 3):
             kw_nodes = node[0]
         else:
             kw_nodes = node[args_node.attr[0]]

@@ -20,4 +20,4 @@ def while1elsestmt(self, lhs, n, rule, ast, tokens, first, last):
     # not while1else. Also do for whileTrue?
     last += 1
     # 3.8+ Doesn't have SETUP_LOOP
-    return self.version < 3.8 and tokens[first].attr > tokens[last].off2int()
+    return self.version < (3, 8) and tokens[first].attr > tokens[last].off2int()

@@ -31,6 +31,8 @@ import xdis.magics as magics
 # ----- configure this for your needs
 
 python_versions = [v for v in magics.python_versions if re.match("^[0-9.]+$", v)]
+print(python_versions)
+sys.exit(0)
 
 # FIXME: we should remove Python versions that we don't support.
 # These include Jython, and Python bytecode changes pre release.

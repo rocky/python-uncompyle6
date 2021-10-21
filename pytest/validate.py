@@ -9,12 +9,13 @@ import tempfile
 import functools
 
 # uncompyle6 / xdis
-from uncompyle6 import PYTHON_VERSION, PYTHON3, IS_PYPY, code_deparse
+from uncompyle6 import code_deparse
+from xdis.version_info import PYTHON_VERSION_TRIPLE, PYTHON3, IS_PYPY
 
 # TODO : I think we can get xdis to support the dis api (python 3 version) by doing something like this there
 from xdis import Bytecode, get_opcode
 
-opc = get_opcode(PYTHON_VERSION, IS_PYPY)
+opc = get_opcode(PYTHON_VERSION_TRIPLE, IS_PYPY)
 Bytecode = functools.partial(Bytecode, opc=opc)
 import six
 
@@ -127,7 +128,7 @@ def validate_uncompyle(text, mode="exec"):
     original_text = text
 
     deparsed = code_deparse(
-        original_code, out=six.StringIO(), version=PYTHON_VERSION, compile_mode=mode
+        original_code, out=six.StringIO(), version=PYTHON_VERSION_TRIPLE, compile_mode=mode
     )
     uncompyled_text = deparsed.text
     uncompyled_code = compile(uncompyled_text, "<string>", "exec")

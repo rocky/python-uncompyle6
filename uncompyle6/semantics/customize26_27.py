@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 by Rocky Bernstein
+#  Copyright (c) 2019 2021 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ def customize_for_version26_27(self, version):
     # For 2.6 we use the older syntax which
     # matches how we parse this in bytecode
     ########################################
-    if version > 2.6:
+    if version > (2, 6):
         TABLE_DIRECT.update({
             'except_cond2':	( '%|except %c as %c:\n', 1, 5 ),
             # When a generator is a single parameter of a function,

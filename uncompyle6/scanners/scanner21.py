@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018 by Rocky Bernstein
+#  Copyright (c) 2016-2018, 2021 by Rocky Bernstein
 """
 Python 2.1 bytecode massaging.
 
@@ -22,6 +22,6 @@ class Scanner21(scan.Scanner22):
         scan.Scanner22.__init__(self, show_asm)
         self.opc = opcode_21
         self.opname = opcode_21.opname
-        self.version = 2.1
+        self.version = (2, 1)
         self.genexpr_name = '<generator expression>'
         return
