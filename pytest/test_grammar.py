@@ -38,10 +38,10 @@ def test_grammar():
 
     expect_right_recursive = set([("designList", ("store", "DUP_TOP", "designList"))])
 
-    if PYTHON_VERSION_TRIPLE <= (3, 6):
+    if PYTHON_VERSION_TRIPLE[:2] <= (3, 6):
         unused_rhs.add("call")
 
-    if PYTHON_VERSION_TRIPLE >= (3, 0):
+    if PYTHON_VERSION_TRIPLE >= (2, 7):
         expect_lhs.add("kvlist")
         expect_lhs.add("kv3")
         unused_rhs.add("dict")
@@ -69,7 +69,7 @@ def test_grammar():
             unused_rhs.add("dict_comp")
             unused_rhs.add("classdefdeco1")
             unused_rhs.add("tryelsestmtl")
-            if PYTHON_VERSION_TRIPLE >= (3, 7):
+            if PYTHON_VERSION_TRIPLE >= (3, 5):
                 expect_right_recursive.add(
                     (("l_stmts", ("lastl_stmt", "come_froms", "l_stmts")))
                 )
@@ -116,6 +116,7 @@ def test_grammar():
             RETURN_END_IF RETURN_END_IF_LAMBDA RETURN_VALUE_LAMBDA RETURN_LAST
             """.split()
     )
+
     if (2, 6) <= PYTHON_VERSION_TRIPLE <= (2, 7):
         opcode_set = set(s.opc.opname).union(ignore_set)
         if PYTHON_VERSION_TRIPLE[:2] == (2, 6):
