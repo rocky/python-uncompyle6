@@ -95,7 +95,7 @@ def make_function3_annotate(
         n = self.traverse(annotate_args[name], indent="")
         annotate_dict[name] = n
 
-    if 3.0 <= self.version < (3, 3):
+    if (3, 0) <= self.version < (3, 3):
         lambda_index = -2
     elif self.version < (3, 4):
         lambda_index = -3
