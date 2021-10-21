@@ -19,7 +19,6 @@ The saga of changes before and after is in other files.
 from xdis import iscode, code_has_star_arg, code_has_star_star_arg, CO_GENERATOR
 from uncompyle6.scanner import Code
 from uncompyle6.parsers.treenode import SyntaxTree
-from uncompyle6 import PYTHON3
 from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.parser import ParserError as ParserError2
 from uncompyle6.semantics.helper import (
@@ -28,11 +27,6 @@ from uncompyle6.semantics.helper import (
     find_globals_and_nonlocals,
     find_none,
 )
-
-if PYTHON3:
-    from itertools import zip_longest
-else:
-    from itertools import izip_longest as zip_longest
 
 from uncompyle6.show import maybe_show_tree_param_default
 
@@ -90,12 +84,9 @@ def make_function3_annotate(
         # positional args are before kwargs
         defparams = node[: args_node.attr[0]]
         pos_args, kw_args, annotate_argc = args_node.attr
-        if "return" in annotate_args.keys():
-            annotate_argc = len(annotate_args) - 1
     else:
         defparams = node[: args_node.attr]
         kw_args = 0
-        annotate_argc = 0
         pass
 
     annotate_dict = {}
@@ -104,9 +95,9 @@ def make_function3_annotate(
         n = self.traverse(annotate_args[name], indent="")
         annotate_dict[name] = n
 
-    if 3.0 <= self.version <= 3.2:
+    if 3.0 <= self.version < (3, 3):
         lambda_index = -2
-    elif 3.03 <= self.version:
+    elif self.version < (3, 4):
         lambda_index = -3
     else:
         lambda_index = None
@@ -142,7 +133,6 @@ def make_function3_annotate(
             self.ERROR = p
         return
 
-    kw_pairs = args_node.attr[1]
     indent = self.indent
 
     if is_lambda:
