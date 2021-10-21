@@ -2,16 +2,16 @@ name: uncompyle6 (ubuntu)
 
 on:
   push:
-    branches: [ master ]
+    branches: [ python-3.3-to-3.5 ]
   pull_request:
-    branches: [ master ]
+    branches: [ python-3.3-to-3.5 ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8]
+        python-version: [3.3, 3.4, 3.5]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}

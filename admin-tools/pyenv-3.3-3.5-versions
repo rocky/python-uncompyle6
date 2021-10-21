@@ -1,0 +1,9 @@
+# -*- shell-script -*-
+# Sets PYVERSIONS to be pyenv versions that
+# we can use in the python-2.4 branch.
+
+if [[ $0 == ${BASH_SOURCE[0]} ]] ; then
+    echo "This script should be *sourced* rather than run directly through bash"
+    exit 1
+fi
+export PYVERSIONS=' 3.3.7 3.4.10 3.5.10 '
