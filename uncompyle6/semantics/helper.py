@@ -78,7 +78,7 @@ def find_globals_and_nonlocals(node, globs, nonlocals, code, version):
                                                           code, version)
         elif n.kind in read_global_ops:
             globs.add(n.pattr)
-        elif (version >= 3.0
+        elif (version >= (3, 0)
               and n.kind in nonglobal_ops
               and n.pattr in code.co_freevars
               and n.pattr != code.co_name
@@ -149,7 +149,7 @@ def print_docstring(self, indent, docstring):
         # Must be unicode in Python2
         self.write('u')
         docstring = repr(docstring.expandtabs())[2:-1]
-    elif PYTHON3 and 2.4 <= self.version <= 2.7:
+    elif PYTHON3 and (2, 4) <= self.version[:2] <= (2, 7):
         try:
             repr(docstring.expandtabs())[1:-1].encode("ascii")
         except UnicodeEncodeError:

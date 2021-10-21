@@ -1,4 +1,4 @@
-#  Copyright (c) 2016, 2018-2020 by Rocky Bernstein
+#  Copyright (c) 2016, 2018-2021 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -33,36 +33,38 @@ import xdis
 from xdis import Bytecode, canonic_python_version, code2num, instruction_size, extended_arg_val, next_offset
 
 # The byte code versions we support.
-# Note: these all have to be floats
+# Note: these all have to be tuples of 2 ints
 PYTHON_VERSIONS = frozenset(
     (
-        1.0,
-        1.1,
-        1.3,
-        1.4,
-        1.5,
-        1.6,
-        2.1,
-        2.2,
-        2.3,
-        2.4,
-        2.5,
-        2.6,
-        2.7,
-        3.0,
-        3.1,
-        3.2,
-        3.3,
-        3.4,
-        3.5,
-        3.6,
-        3.7,
-        3.8,
-        3.9,
+        (1, 0),
+        (1, 1),
+        (1, 3),
+        (1, 4),
+        (1, 5),
+        (1, 6),
+        (2, 1),
+        (2, 2),
+        (2, 3),
+        (2, 4),
+        (2, 5),
+        (2, 6),
+        (2, 7),
+        (3, 0),
+        (3, 1),
+        (3, 2),
+        (3, 3),
+        (3, 4),
+        (3, 5),
+        (3, 6),
+        (3, 7),
+        (3, 8),
     )
 )
 
-CANONIC2VERSION = dict((canonic_python_version[str(v)], v) for v in PYTHON_VERSIONS)
+CANONIC2VERSION = dict(
+    (canonic_python_version[".".join(str(v) for v in python_version)], python_version)
+    for python_version in PYTHON_VERSIONS
+)
 
 # Magic changed mid version for Python 3.5.2. Compatibility was added for
 # the older 3.5 interpreter magic.
@@ -103,15 +105,15 @@ class Scanner(object):
         self.show_asm = show_asm
         self.is_pypy = is_pypy
 
-        if version in PYTHON_VERSIONS:
+        if version[:2] in PYTHON_VERSIONS:
             if is_pypy:
-                v_str = "opcode_%spypy" % (int(version * 10))
+                v_str = "opcode_%spypy" % ("".join([str(v) for v in version]))
             else:
-                v_str = "opcode_%s" % (int(version * 10))
+                v_str = "opcode_%s" % ("".join([str(v) for v in version]))
             exec("from xdis.opcodes import %s" % v_str)
             exec("self.opc = %s" % v_str)
         else:
-            raise TypeError("%s is not a Python version I know about" % version)
+            raise TypeError("%s is not a Python version I know about" % ".".join([str(v) for v in version]))
 
         self.opname = self.opc.opname
 
@@ -144,7 +146,7 @@ class Scanner(object):
 
         # Offset: lineno pairs, only for offsets which start line.
         # Locally we use list for more convenient iteration using indices
-        if self.version > 1.4:
+        if self.version > (1, 4):
             linestarts = list(self.opc.findlinestarts(code_obj))
         else:
             linestarts = [[0, 1]]
@@ -533,8 +535,8 @@ def get_scanner(version, is_pypy=False, show_asm=None):
         version = CANONIC2VERSION[canonic_version]
 
     # Pick up appropriate scanner
-    if version in PYTHON_VERSIONS:
-        v_str = "%s" % (int(version * 10))
+    if version[:2] in PYTHON_VERSIONS:
+        v_str = "".join([str(v) for v in version[:2]])
         try:
             import importlib
 

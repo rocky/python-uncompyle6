@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from uncompyle6 import PYTHON_VERSION, IS_PYPY
+from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
 from uncompyle6.scanner import get_scanner
 def bug(state, slotstate):
     if state:
@@ -21,8 +21,8 @@ def bug_loop(disassemble, tb=None):
 
 def test_if_in_for():
     code = bug.__code__
-    scan = get_scanner(PYTHON_VERSION)
-    if 2.7 <= PYTHON_VERSION <= 3.0 and not IS_PYPY:
+    scan = get_scanner(PYTHON_VERSION_TRIPLE)
+    if (2, 7) <= PYTHON_VERSION_TRIPLE < (3, 1) and not IS_PYPY:
         scan.build_instructions(code)
         fjt = scan.find_jump_targets(False)
 
@@ -51,7 +51,7 @@ def test_if_in_for():
             # previous bug was not mistaking while-loop for if-then
             {'start': 48, 'end': 67, 'type': 'while-loop'}]
 
-    elif 3.2 < PYTHON_VERSION <= 3.4:
+    elif (3, 2) < PYTHON_VERSION_TRIPLE <= (3, 4):
         scan.build_instructions(code)
         fjt  = scan.find_jump_targets(False)
         assert {69: [66], 63: [18]} == fjt
@@ -62,6 +62,6 @@ def test_if_in_for():
            {'end': 59, 'type': 'for-loop', 'start': 31},
            {'end': 63, 'type': 'for-else', 'start': 62}]
     else:
-        print("FIXME: should fix for %s" % PYTHON_VERSION)
+        print("FIXME: should fix for %s" % ".".join([str(v) for v in PYTHON_VERSION_TRIPLE]))
         assert True
     return

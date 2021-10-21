@@ -642,107 +642,109 @@ def get_python_parser(
 
     # If version is a string, turn that into the corresponding float.
     if isinstance(version, str):
-        version = py_str2float(version)
+        version = tuple([int(v) for v in version.split(".")[:2]])
+
+    version = version[:2]
 
     # FIXME: there has to be a better way...
     # We could do this as a table lookup, but that would force us
     # in import all of the parsers all of the time. Perhaps there is
     # a lazy way of doing the import?
 
-    if version < 3.0:
-        if version < 2.2:
-            if version == 1.0:
+    if version < (3, 0):
+        if version < (2, 2):
+            if version == (1, 0):
                 import uncompyle6.parsers.parse10 as parse10
 
                 if compile_mode == "exec":
                     p = parse10.Python10Parser(debug_parser)
                 else:
                     p = parse10.Python01ParserSingle(debug_parser)
-            elif version == 1.1:
+            elif version == (1, 1):
                 import uncompyle6.parsers.parse11 as parse11
 
                 if compile_mode == "exec":
                     p = parse11.Python11Parser(debug_parser)
                 else:
                     p = parse11.Python11ParserSingle(debug_parser)
-            if version == 1.2:
+            if version == (1, 2):
                 import uncompyle6.parsers.parse12 as parse12
 
                 if compile_mode == "exec":
                     p = parse12.Python12Parser(debug_parser)
                 else:
                     p = parse12.Python12ParserSingle(debug_parser)
-            if version == 1.3:
+            if version == (1, 3):
                 import uncompyle6.parsers.parse13 as parse13
 
                 if compile_mode == "exec":
                     p = parse13.Python13Parser(debug_parser)
                 else:
                     p = parse13.Python13ParserSingle(debug_parser)
-            elif version == 1.4:
+            elif version == (1, 4):
                 import uncompyle6.parsers.parse14 as parse14
 
                 if compile_mode == "exec":
                     p = parse14.Python14Parser(debug_parser)
                 else:
                     p = parse14.Python14ParserSingle(debug_parser)
-            elif version == 1.5:
+            elif version == (1, 5):
                 import uncompyle6.parsers.parse15 as parse15
 
                 if compile_mode == "exec":
                     p = parse15.Python15Parser(debug_parser)
                 else:
                     p = parse15.Python15ParserSingle(debug_parser)
-            elif version == 1.6:
+            elif version == (1, 6):
                 import uncompyle6.parsers.parse16 as parse16
 
                 if compile_mode == "exec":
                     p = parse16.Python16Parser(debug_parser)
                 else:
                     p = parse16.Python16ParserSingle(debug_parser)
-            elif version == 2.1:
+            elif version == (2, 1):
                 import uncompyle6.parsers.parse21 as parse21
 
                 if compile_mode == "exec":
                     p = parse21.Python21Parser(debug_parser)
                 else:
                     p = parse21.Python21ParserSingle(debug_parser)
-        elif version == 2.2:
+        elif version == (2, 2):
             import uncompyle6.parsers.parse22 as parse22
 
             if compile_mode == "exec":
                 p = parse22.Python22Parser(debug_parser)
             else:
                 p = parse22.Python22ParserSingle(debug_parser)
-        elif version == 2.3:
+        elif version == (2, 3):
             import uncompyle6.parsers.parse23 as parse23
 
             if compile_mode == "exec":
                 p = parse23.Python23Parser(debug_parser)
             else:
                 p = parse23.Python23ParserSingle(debug_parser)
-        elif version == 2.4:
+        elif version == (2, 4):
             import uncompyle6.parsers.parse24 as parse24
 
             if compile_mode == "exec":
                 p = parse24.Python24Parser(debug_parser)
             else:
                 p = parse24.Python24ParserSingle(debug_parser)
-        elif version == 2.5:
+        elif version == (2, 5):
             import uncompyle6.parsers.parse25 as parse25
 
             if compile_mode == "exec":
                 p = parse25.Python25Parser(debug_parser)
             else:
                 p = parse25.Python25ParserSingle(debug_parser)
-        elif version == 2.6:
+        elif version == (2, 6):
             import uncompyle6.parsers.parse26 as parse26
 
             if compile_mode == "exec":
                 p = parse26.Python26Parser(debug_parser)
             else:
                 p = parse26.Python26ParserSingle(debug_parser)
-        elif version == 2.7:
+        elif version == (2, 7):
             import uncompyle6.parsers.parse27 as parse27
 
             if compile_mode == "exec":
@@ -762,63 +764,63 @@ def get_python_parser(
     else:
         import uncompyle6.parsers.parse3 as parse3
 
-        if version == 3.0:
+        if version == (3, 0):
             import uncompyle6.parsers.parse30 as parse30
 
             if compile_mode == "exec":
                 p = parse30.Python30Parser(debug_parser)
             else:
                 p = parse30.Python30ParserSingle(debug_parser)
-        elif version == 3.1:
+        elif version == (3, 1):
             import uncompyle6.parsers.parse31 as parse31
 
             if compile_mode == "exec":
                 p = parse31.Python31Parser(debug_parser)
             else:
                 p = parse31.Python31ParserSingle(debug_parser)
-        elif version == 3.2:
+        elif version == (3, 2):
             import uncompyle6.parsers.parse32 as parse32
 
             if compile_mode == "exec":
                 p = parse32.Python32Parser(debug_parser)
             else:
                 p = parse32.Python32ParserSingle(debug_parser)
-        elif version == 3.3:
+        elif version == (3, 3):
             import uncompyle6.parsers.parse33 as parse33
 
             if compile_mode == "exec":
                 p = parse33.Python33Parser(debug_parser)
             else:
                 p = parse33.Python33ParserSingle(debug_parser)
-        elif version == 3.4:
+        elif version == (3, 4):
             import uncompyle6.parsers.parse34 as parse34
 
             if compile_mode == "exec":
                 p = parse34.Python34Parser(debug_parser)
             else:
                 p = parse34.Python34ParserSingle(debug_parser)
-        elif version == 3.5:
+        elif version == (3, 5):
             import uncompyle6.parsers.parse35 as parse35
 
             if compile_mode == "exec":
                 p = parse35.Python35Parser(debug_parser)
             else:
                 p = parse35.Python35ParserSingle(debug_parser)
-        elif version == 3.6:
+        elif version == (3, 6):
             import uncompyle6.parsers.parse36 as parse36
 
             if compile_mode == "exec":
                 p = parse36.Python36Parser(debug_parser)
             else:
                 p = parse36.Python36ParserSingle(debug_parser)
-        elif version == 3.7:
+        elif version == (3, 7):
             import uncompyle6.parsers.parse37 as parse37
 
             if compile_mode == "exec":
                 p = parse37.Python37Parser(debug_parser)
             else:
                 p = parse37.Python37ParserSingle(debug_parser)
-        elif version == 3.8:
+        elif version == (3, 8):
             import uncompyle6.parsers.parse38 as parse38
 
             if compile_mode == "exec":

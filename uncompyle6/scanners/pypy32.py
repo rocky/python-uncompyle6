@@ -1,4 +1,4 @@
-#  Copyright (c) 2017 by Rocky Bernstein
+#  Copyright (c) 2017, 2021 by Rocky Bernstein
 """
 Python PyPy 3.2 decompiler scanner.
 
@@ -18,6 +18,6 @@ class ScannerPyPy32(scan.Scanner32):
         # There are no differences in initialization between
         # pypy 3.2 and 3.2
         scan.Scanner32.__init__(self, show_asm, is_pypy=True)
-        self.version = 3.2
+        self.version = (3, 2)
         self.opc = opc
         return

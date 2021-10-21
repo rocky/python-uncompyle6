@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 by Rocky Bernstein
+#  Copyright (c) 2019, 2021 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ JUMP_OPs = opc.JUMP_OPS
 
 class Scanner39(Scanner38):
     def __init__(self, show_asm=None):
-        Scanner37Base.__init__(self, 3.9, show_asm)
+        Scanner37Base.__init__(self, (3, 9), show_asm)
         return
 
     pass

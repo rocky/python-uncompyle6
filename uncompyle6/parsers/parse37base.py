@@ -209,7 +209,7 @@ class Python37BaseParser(PythonParser):
                    stmt            ::= async_with_as_stmt
                 """
 
-                if self.version < 3.8:
+                if self.version < (3, 8):
                     rules_str += """
                       stmt                 ::= async_with_stmt SETUP_ASYNC_WITH
                       c_stmt               ::= c_async_with_stmt SETUP_ASYNC_WITH
@@ -1034,7 +1034,7 @@ class Python37BaseParser(PythonParser):
                                  POP_BLOCK LOAD_CONST COME_FROM_WITH
                                  with_suffix
                 """
-                if self.version < 3.8:
+                if self.version < (3, 8):
                     rules_str += """
                     with     ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
                                    LOAD_CONST

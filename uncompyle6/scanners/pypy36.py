@@ -18,5 +18,5 @@ class ScannerPyPy36(scan.Scanner36):
         # There are no differences in initialization between
         # pypy 3.6 and 3.6
         scan.Scanner36.__init__(self, show_asm, is_pypy=True)
-        self.version = 3.6
+        self.version = (3, 6)
         return

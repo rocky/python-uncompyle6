@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017, 2019 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2019, 2021 Rocky Bernstein
 """
 spark grammar differences over Python 3.4 for Python 3.5.
 """
@@ -157,7 +157,7 @@ class Python35Parser(Python34Parser):
             # FIXME: I suspect this is wrong for 3.6 and 3.5, but
             # I haven't verified what the 3.7ish fix is
             elif opname == 'BUILD_MAP_UNPACK_WITH_CALL':
-                if self.version < 3.7:
+                if self.version < (3, 7):
                     self.addRule("expr ::= unmapexpr", nop_func)
                     nargs = token.attr % 256
                     map_unpack_n = "map_unpack_%s" % nargs
@@ -168,7 +168,7 @@ class Python35Parser(Python34Parser):
                     call_token = tokens[i+1]
                     rule = 'call ::= expr unmapexpr ' + call_token.kind
                     self.addRule(rule, nop_func)
-            elif opname == 'BEFORE_ASYNC_WITH' and self.version < 3.8:
+            elif opname == 'BEFORE_ASYNC_WITH' and self.version < (3, 8):
                 # Some Python 3.5+ async additions
                 rules_str = """
                    stmt               ::= async_with_stmt

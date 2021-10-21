@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017, 2020 by Rocky Bernstein
+#  Copyright (c) 2016-2017, 2020-2021 by Rocky Bernstein
 """
 Python 3.0 bytecode scanner/deparser
 
@@ -20,7 +20,7 @@ from uncompyle6.scanners.scanner3 import Scanner3
 
 class Scanner30(Scanner3):
     def __init__(self, show_asm=None, is_pypy=False):
-        Scanner3.__init__(self, 3.0, show_asm, is_pypy)
+        Scanner3.__init__(self, (3, 0), show_asm, is_pypy)
         return
 
     pass
@@ -473,7 +473,7 @@ class Scanner30(Scanner3):
 if __name__ == "__main__":
     from uncompyle6 import PYTHON_VERSION
 
-    if PYTHON_VERSION == 3.0:
+    if PYTHON_VERSION == (3, 0):
         import inspect
 
         co = inspect.currentframe().f_code

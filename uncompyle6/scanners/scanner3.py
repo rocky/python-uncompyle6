@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2019 by Rocky Bernstein
+#  Copyright (c) 2015-2019, 2021 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -66,7 +66,7 @@ class Scanner3(Scanner):
         # at the their targets.
         # Some blocks and END_ statements. And they can start
         # a new statement
-        if self.version < 3.8:
+        if self.version < (3, 8):
             setup_ops = [
                 self.opc.SETUP_LOOP,
                 self.opc.SETUP_EXCEPT,
@@ -79,11 +79,11 @@ class Scanner3(Scanner):
             setup_ops = [self.opc.SETUP_FINALLY]
             self.setup_ops_no_loop = frozenset(setup_ops)
 
-        if self.version >= 3.2:
+        if self.version >= (3, 2):
             setup_ops.append(self.opc.SETUP_WITH)
         self.setup_ops = frozenset(setup_ops)
 
-        if self.version == 3.0:
+        if self.version[:2] == (3, 0):
             self.pop_jump_tf = frozenset(
                 [self.opc.JUMP_IF_FALSE, self.opc.JUMP_IF_TRUE]
             )
@@ -114,7 +114,7 @@ class Scanner3(Scanner):
             self.opc.JUMP_ABSOLUTE,
         ]
 
-        if self.version < 3.8:
+        if self.version < (3, 8):
             statement_opcodes += [self.opc.BREAK_LOOP, self.opc.CONTINUE_LOOP]
 
         self.statement_opcodes = frozenset(statement_opcodes) | self.setup_ops_no_loop
@@ -135,7 +135,7 @@ class Scanner3(Scanner):
             ]
         )
 
-        if self.version > 3.0:
+        if self.version > (3, 0):
             self.jump_if_pop = frozenset(
                 [self.opc.JUMP_IF_FALSE_OR_POP, self.opc.JUMP_IF_TRUE_OR_POP]
             )
@@ -182,9 +182,9 @@ class Scanner3(Scanner):
             ]
         )
 
-        if is_pypy or self.version >= 3.7:
+        if is_pypy or self.version >= (3, 7):
             varargs_ops.add(self.opc.CALL_METHOD)
-        if self.version >= 3.5:
+        if self.version >= (3, 5):
             varargs_ops |= set(
                 [
                     self.opc.BUILD_SET_UNPACK,
@@ -193,7 +193,7 @@ class Scanner3(Scanner):
                     self.opc.BUILD_TUPLE_UNPACK,
                 ]
             )
-            if self.version >= 3.6:
+            if self.version >= (3, 6):
                 varargs_ops.add(self.opc.BUILD_CONST_KEY_MAP)
                 # Below is in bit order, "default = bit 0, closure = bit 3
                 self.MAKE_FUNCTION_FLAGS = tuple(
@@ -257,7 +257,7 @@ class Scanner3(Scanner):
             # If we have a JUMP_FORWARD after the
             # RAISE_VARARGS then we have a "raise" statement
             # else we have an "assert" statement.
-            if self.version == 3.0:
+            if self.version[:2] == (3, 0):
                 # Like 2.6, 3.0 doesn't have POP_JUMP_IF... so we have
                 # to go through more machinations
                 assert_can_follow = inst.opname == "POP_TOP" and i + 1 < n
@@ -390,7 +390,7 @@ class Scanner3(Scanner):
                     pattr = const
                     pass
             elif opname in ("MAKE_FUNCTION", "MAKE_CLOSURE"):
-                if self.version >= 3.6:
+                if self.version >= (3, 6):
                     # 3.6+ doesn't have MAKE_CLOSURE, so opname == 'MAKE_FUNCTION'
                     flags = argval
                     opname = "MAKE_FUNCTION_%d" % (flags)
@@ -444,7 +444,7 @@ class Scanner3(Scanner):
                     # as JUMP_IF_NOT_DEBUG. The value is not used in these cases, so we put
                     # in arbitrary value 0.
                     customize[opname] = 0
-                elif self.version >= 3.6 and argval > 255:
+                elif self.version >= (3, 6) and argval > 255:
                     opname = "CALL_FUNCTION_KW"
                     pass
 
@@ -483,7 +483,7 @@ class Scanner3(Scanner):
                         and self.insts[i + 1].opname == "JUMP_FORWARD"
                     )
 
-                    if (self.version == 3.0 and self.insts[i + 1].opname == "JUMP_FORWARD"
+                    if (self.version[:2] == (3, 0) and self.insts[i + 1].opname == "JUMP_FORWARD"
                         and not is_continue):
                         target_prev = self.offset2inst_index[self.prev_op[target]]
                         is_continue = (
@@ -585,7 +585,7 @@ class Scanner3(Scanner):
             if inst.has_arg:
                 label = self.fixed_jumps.get(offset)
                 oparg = inst.arg
-                if self.version >= 3.6 and self.code[offset] == self.opc.EXTENDED_ARG:
+                if self.version >= (3, 6) and self.code[offset] == self.opc.EXTENDED_ARG:
                     j = xdis.next_offset(op, self.opc, offset)
                     next_offset = xdis.next_offset(op, self.opc, j)
                 else:
@@ -732,7 +732,7 @@ class Scanner3(Scanner):
                 end = current_end
                 parent = struct
 
-        if self.version < 3.8 and op == self.opc.SETUP_LOOP:
+        if self.version < (3, 8) and op == self.opc.SETUP_LOOP:
             # We categorize loop types: 'for', 'while', 'while 1' with
             # possibly suffixes '-loop' and '-else'
             # Try to find the jump_back instruction of the loop.
@@ -863,7 +863,7 @@ class Scanner3(Scanner):
                 # In some cases the pretarget can be a jump to the next instruction
                 # and these aren't and/or's either. We limit to 3.5+ since we experienced there
                 # but it might be earlier versions, or might be a general principle.
-                if self.version < 3.5 or pretarget.argval != target:
+                if self.version < (3, 5) or pretarget.argval != target:
                     # FIXME: this is not accurate The commented out below
                     # is what it should be. However grammar rules right now
                     # assume the incorrect offsets.
@@ -957,7 +957,7 @@ class Scanner3(Scanner):
                             )
                         ):
                             pass
-                        elif self.version <= 3.2:
+                        elif self.version <= (3, 2):
                             fix = None
                             jump_ifs = self.inst_matches(
                                 start,
@@ -976,7 +976,7 @@ class Scanner3(Scanner):
                             self.fixed_jumps[offset] = fix or match[-1]
                             return
                     else:
-                        if self.version < 3.6:
+                        if self.version < (3, 6):
                             # FIXME: this is putting in COME_FROMs in the wrong place.
                             # Fix up grammar so we don't need to do this.
                             # See cf_for_iter use in parser36.py
@@ -1044,20 +1044,20 @@ class Scanner3(Scanner):
             # if the condition jump is to a forward location.
             # Also the existence of a jump to the instruction after "END_FINALLY"
             # will distinguish "try/else" from "try".
-            if self.version < 3.8:
+            if self.version < (3, 8):
                 rtarget_break = (self.opc.RETURN_VALUE, self.opc.BREAK_LOOP)
             else:
                 rtarget_break = (self.opc.RETURN_VALUE,)
 
             if self.is_jump_forward(pre_rtarget) or (
-                rtarget_is_ja and self.version >= 3.5
+                rtarget_is_ja and self.version >= (3, 5)
             ):
                 if_end = self.get_target(pre_rtarget)
 
                 # If the jump target is back, we are looping
                 if (
                     if_end < pre_rtarget
-                    and self.version < 3.8
+                    and self.version < (3, 8)
                     and (code[prev_op[if_end]] == self.opc.SETUP_LOOP)
                 ):
                     if if_end > start:
@@ -1094,11 +1094,11 @@ class Scanner3(Scanner):
                 if self.is_pypy and code[jump_prev] == self.opc.COMPARE_OP:
                     if self.opc.cmp_op[code[jump_prev + 1]] == "exception-match":
                         return
-                if self.version >= 3.5:
+                if self.version >= (3, 5):
                     # Python 3.5 may remove as dead code a JUMP
                     # instruction after a RETURN_VALUE. So we check
                     # based on seeing SETUP_EXCEPT various places.
-                    if self.version < 3.6 and code[rtarget] == self.opc.SETUP_EXCEPT:
+                    if self.version < (3, 6) and code[rtarget] == self.opc.SETUP_EXCEPT:
                         return
                     # Check that next instruction after pops and jump is
                     # not from SETUP_EXCEPT
@@ -1111,14 +1111,14 @@ class Scanner3(Scanner):
                         for try_op in targets[next_op]:
                             come_from_op = code[try_op]
                             if (
-                                self.version < 3.8
+                                self.version < (3, 8)
                                 and come_from_op == self.opc.SETUP_EXCEPT
                             ):
                                 return
                             pass
                     pass
 
-                if self.version >= 3.4:
+                if self.version >= (3, 4):
                     self.fixed_jumps[offset] = rtarget
 
                 if code[pre_rtarget] == self.opc.RETURN_VALUE:
@@ -1137,8 +1137,8 @@ class Scanner3(Scanner):
                 # FIXME: this is very convoluted and based on rather hacky
                 # empirical evidence. It should go a way when
                 # we have better control-flow analysis
-                normal_jump = self.version >= 3.6
-                if self.version == 3.5:
+                normal_jump = self.version >= (3, 6)
+                if self.version[:2] == (3, 5):
                     j = self.offset2inst_index[target]
                     if j + 2 < len(self.insts) and self.insts[j + 2].is_jump_target:
                         normal_jump = self.insts[j + 1].opname == "POP_BLOCK"
@@ -1155,7 +1155,7 @@ class Scanner3(Scanner):
                     if rtarget > offset:
                         self.fixed_jumps[offset] = rtarget
 
-        elif self.version < 3.8 and op == self.opc.SETUP_EXCEPT:
+        elif self.version < (3, 8) and op == self.opc.SETUP_EXCEPT:
             target = self.get_target(offset)
             end = self.restrict_to_parent(target, parent)
             self.fixed_jumps[offset] = end
@@ -1188,7 +1188,7 @@ class Scanner3(Scanner):
                     self.fixed_jumps[offset] = self.restrict_to_parent(target, parent)
                     pass
                 pass
-        elif self.version >= 3.5:
+        elif self.version >= (3, 5):
             # 3.5+ has Jump optimization which too often causes RETURN_VALUE to get
             # misclassified as RETURN_END_IF. Handle that here.
             # In RETURN_VALUE, JUMP_ABSOLUTE, RETURN_VALUE is never RETURN_END_IF
@@ -1278,7 +1278,7 @@ class Scanner3(Scanner):
             start, end, instr, target, include_beyond_target
         )
         # Get all POP_JUMP_IF_TRUE (or) offsets
-        if self.version == 3.0:
+        if self.version[:2] == (3, 0):
             jump_true_op = self.opc.JUMP_IF_TRUE
         else:
             jump_true_op = self.opc.POP_JUMP_IF_TRUE
@@ -1295,17 +1295,16 @@ class Scanner3(Scanner):
 
 
 if __name__ == "__main__":
-    from uncompyle6 import PYTHON_VERSION
+    from xdis.version_info import PYTHON_VERSION_TRIPLE
 
-    if PYTHON_VERSION >= 3.2:
+    if PYTHON_VERSION_TRIPLE >= (3, 2):
         import inspect
 
         co = inspect.currentframe().f_code
-        from uncompyle6 import PYTHON_VERSION
 
-        tokens, customize = Scanner3(PYTHON_VERSION).ingest(co)
+        tokens, customize = Scanner3(PYTHON_VERSION_TRIPLE).ingest(co)
         for t in tokens:
             print(t)
     else:
-        print("Need to be Python 3.2 or greater to demo; I am %s." % PYTHON_VERSION)
+        print("Need to be Python 3.2 or greater to demo; I am %s." % sys.version)
     pass

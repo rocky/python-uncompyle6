@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2020 by Rocky Bernstein
+#  Copyright (c) 2019-2021 by Rocky Bernstein
 """
 Python PyPy 3.3 decompiler scanner.
 
@@ -19,6 +19,6 @@ class ScannerPyPy33(scan.Scanner33):
         # There are no differences in initialization between
         # pypy 3.3 and 3.3
         scan.Scanner33.__init__(self, show_asm, is_pypy=True)
-        self.version = 3.3
+        self.version = (3, 3)
         self.opc = opc
         return

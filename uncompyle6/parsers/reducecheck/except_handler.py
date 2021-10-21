@@ -10,7 +10,7 @@ def except_handler(self, lhs, n, rule, ast, tokens, first, last):
 
     # FIXME: Figure out why this doesn't work on
     # bytecode-1.4/anydbm.pyc
-    if self.version == 1.4:
+    if self.version[:2] == (1, 4):
         return False
 
     # Make sure come froms all come from within "except_handler".

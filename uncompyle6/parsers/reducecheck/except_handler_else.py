@@ -1,8 +1,8 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020-2021 Rocky Bernstein
 
 def except_handler_else(self, lhs, n, rule, ast, tokens, first, last):
     # FIXME: expand this to other versions
-    if self.version not in (2.7, 3.5):
+    if self.version[:2] not in ((2, 7), (3, 5)):
         return False
 
     if tokens[first] in ("JUMP_FORWARD", "JUMP_ABSOLUTE"):

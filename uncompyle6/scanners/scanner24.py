@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017 by Rocky Bernstein
+#  Copyright (c) 2016-2017, 2021 by Rocky Bernstein
 """
 Python 2.4 bytecode massaging.
 
@@ -10,6 +10,7 @@ import uncompyle6.scanners.scanner25 as scan
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_24
+
 JUMP_OPS = opcode_24.JUMP_OPS
 
 # We base this off of 2.5 instead of the other way around
@@ -23,6 +24,6 @@ class Scanner24(scan.Scanner25):
         # 2.4, 2.5 and 2.6
         self.opc = opcode_24
         self.opname = opcode_24.opname
-        self.version = 2.4
-        self.genexpr_name = '<generator expression>'
+        self.version = (2, 4)
+        self.genexpr_name = "<generator expression>"
         return
