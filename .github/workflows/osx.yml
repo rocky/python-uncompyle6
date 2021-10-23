@@ -21,8 +21,10 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        pip install --disable-version-check -e .
-        pip install --disable-version-check -r requirements-dev.txt
+        # Until the next xdis release
+        pip install git+git://github.com/rocky/python-xdis.git@python-3.3-to-3.5#egg=xdis
+        pip install  -e .
+        pip install -r requirements-dev.txt
     - name: Test uncompyle6
       run: |
         make check
