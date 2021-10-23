@@ -1,4 +1,7 @@
 version: 2
+filters:
+  branches:
+    only: python-2.4
 jobs:
   build:
     parallelism: 1
