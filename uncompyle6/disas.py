@@ -29,12 +29,11 @@ Second, we need structured instruction information for the
 want to run on earlier Python versions.
 """
 
-from __future__ import print_function
-
 import sys
 from collections import deque
 
 from xdis import check_object_path, iscode, load_module
+from xdis.version_info import version_tuple_to_str
 from uncompyle6.scanner import get_scanner
 
 
@@ -47,7 +46,7 @@ def disco(version, co, out=None, is_pypy=False):
 
     # store final output stream for case of error
     real_out = out or sys.stdout
-    print("# Python %s" % ".".join([str(v) for v in version]), file=real_out)
+    print("# Python %s" % version_tuple_to_str(version), file=real_out)
     if co.co_filename:
         print("# Embedded file name: %s" % co.co_filename, file=real_out)
 

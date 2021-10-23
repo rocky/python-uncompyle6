@@ -7,11 +7,9 @@ grammar parsing.
 """
 
 
-from __future__ import print_function
-
 from uncompyle6.scanners.scanner2 import Scanner2
 
-from uncompyle6 import PYTHON3
+from xdis.version_info import PYTHON3, version_tuple_to_str
 
 if PYTHON3:
     import sys
@@ -123,4 +121,4 @@ if __name__ == "__main__":
             print(t)
         pass
     else:
-        print("Need to be Python 2.7 to demo; I am %s." % ".".join(str(v) for v in PYTHON_VERSION_TRIPLE))
+        print("Need to be Python 2.7 to demo; I am %s." % version_tuple_to_str())

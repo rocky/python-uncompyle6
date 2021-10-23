@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
+from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY, version_tuple_to_str
 from uncompyle6.scanner import get_scanner
 def bug(state, slotstate):
     if state:
@@ -62,6 +62,6 @@ def test_if_in_for():
            {'end': 59, 'type': 'for-loop', 'start': 31},
            {'end': 63, 'type': 'for-else', 'start': 62}]
     else:
-        print("FIXME: should fix for %s" % ".".join([str(v) for v in PYTHON_VERSION_TRIPLE]))
+        print("FIXME: should fix for %s" % version_tuple_to_str())
         assert True
     return

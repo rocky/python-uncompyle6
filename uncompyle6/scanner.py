@@ -21,14 +21,12 @@ scanner/ingestion module. From here we call various version-specific
 scanners, e.g. for Python 2.7 or 3.4.
 """
 
-from __future__ import print_function
-
 from array import array
 from collections import namedtuple
 import sys
 
-from uncompyle6 import PYTHON3, IS_PYPY
 from uncompyle6.scanners.tok import Token
+from xdis.version_info import PYTHON3, IS_PYPY, version_tuple_to_str
 import xdis
 from xdis import Bytecode, canonic_python_version, code2num, instruction_size, extended_arg_val, next_offset
 
@@ -62,7 +60,7 @@ PYTHON_VERSIONS = frozenset(
 )
 
 CANONIC2VERSION = dict(
-    (canonic_python_version[".".join(str(v) for v in python_version)], python_version)
+    (canonic_python_version[version_tuple_to_str(python_version)], python_version)
     for python_version in PYTHON_VERSIONS
 )
 
@@ -113,7 +111,7 @@ class Scanner(object):
             exec("from xdis.opcodes import %s" % v_str)
             exec("self.opc = %s" % v_str)
         else:
-            raise TypeError("%s is not a Python version I know about" % ".".join([str(v) for v in version]))
+            raise TypeError("%s is not a Python version I know about" % version_tuple_to_str(version))
 
         self.opname = self.opc.opname
 
