@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2020 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2021 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -14,8 +14,9 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import datetime, os, subprocess, sys
 
-from uncompyle6 import verify, IS_PYPY, PYTHON_VERSION
-from xdis import iscode, sysinfo2float
+from uncompyle6 import verify
+from xdis import iscode
+from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, version_tuple_to_str
 from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource
 from uncompyle6.parser import ParserError
@@ -66,7 +67,7 @@ def decompile(
     Caller is responsible for closing `out` and `mapstream`
     """
     if bytecode_version is None:
-        bytecode_version = sysinfo2float()
+        bytecode_version = PYTHON_VERSION_TRIPLE
 
     # store final output stream for case of error
     real_out = out or sys.stdout
@@ -101,7 +102,7 @@ def decompile(
         % (
             __version__,
             co_pypy_str,
-            bytecode_version,
+            version_tuple_to_str(bytecode_version),
            " (%s)" % m, run_pypy_str,
             "\n# ".join(sys_version_lines),
         )
@@ -162,9 +163,9 @@ def compile_file(source_path):
         basename = source_path
 
     if hasattr(sys, "pypy_version_info"):
-        bytecode_path = "%s-pypy%s.pyc" % (basename, PYTHON_VERSION)
+        bytecode_path = "%s-pypy%s.pyc" % (basename, version_tuple_to_str())
     else:
-        bytecode_path = "%s-%s.pyc" % (basename, PYTHON_VERSION)
+        bytecode_path = "%s-%s.pyc" % (basename, version_tuple_to_str())
 
     print("compiling %s to %s" % (source_path, bytecode_path))
     py_compile.compile(source_path, bytecode_path, "exec")
