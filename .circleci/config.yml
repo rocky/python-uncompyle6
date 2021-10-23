@@ -1,4 +1,7 @@
 version: 2
+filters:
+  branches:
+    only: master
 jobs:
   build:
     working_directory: ~/rocky/python-uncompyle6
