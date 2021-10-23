@@ -23,7 +23,6 @@ def test_if_in_for():
     code = bug.func_code
     scan = get_scanner(PYTHON_VERSION_TRIPLE)
     if (2, 7) <= PYTHON_VERSION_TRIPLE < (3, 1) and not IS_PYPY:
->>>>>>> python-3.3-to-3.5
         scan.build_instructions(code)
         fjt = scan.find_jump_targets(False)
 

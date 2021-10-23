@@ -24,16 +24,12 @@ scanners, e.g. for Python 2.7 or 3.4.
 from array import array
 import sys
 
-<<<<<<< HEAD
-from uncompyle6 import PYTHON3, IS_PYPY, PYTHON_VERSION
-=======
->>>>>>> python-3.3-to-3.5
 from uncompyle6.scanners.tok import Token
-from xdis.version_info import PYTHON3, IS_PYPY, version_tuple_to_str
+from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, PYTHON3, version_tuple_to_str
 import xdis
 from xdis import Bytecode, canonic_python_version, code2num, instruction_size, extended_arg_val, next_offset
 
-if PYTHON_VERSION < 2.6:
+if PYTHON_VERSION_TRIPLE < (2, 6):
     from xdis.namedtuple24 import namedtuple
 else:
     from collections import namedtuple
