@@ -35,7 +35,10 @@ jobs:
           - v2-dependencies-
 
     - run:
-        command: sudo easy_install xdis spark-parser && sudo pip install -e . && sudo pip install -r requirements-dev.txt
+        command: | # Use pip to install dependengcies
+          sudo easy_install click==7.1.2
+          sudo pip install -e .
+          sudo pip install -r requirements-dev.txt
 
     # Save dependency cache
     - save_cache:
