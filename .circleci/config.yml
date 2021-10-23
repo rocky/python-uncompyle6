@@ -1,4 +1,7 @@
 version: 2
+filters:
+  branches:
+    only: python-3.3-to-3.5
 jobs:
   build:
     working_directory: ~/rocky/python-uncompyle6

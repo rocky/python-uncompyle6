@@ -598,7 +598,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def n_mkfunc(self, node):
         start = len(self.f.getvalue())
 
-        if self.version >= 3.3 or node[-2] == "kwargs":
+        if self.version >= (3, 3) or node[-2] == "kwargs":
             # LOAD_CONST code object ..
             # LOAD_CONST        'x0'  if >= 3.3
             # MAKE_FUNCTION ..
@@ -657,9 +657,9 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prec = 27
 
         # FIXME: clean this up
-        if self.version > 3.0 and node == "dict_comp":
+        if self.version >= (3, 1) and node == "dict_comp":
             cn = node[1]
-        elif self.version > 3.0 and node in ("generator_exp", "generator_exp_async"):
+        elif self.version > (3, 1) and node in ("generator_exp", "generator_exp_async"):
             if node[0] == "load_genexpr":
                 load_genexpr = node[0]
             elif node[1] == "load_genexpr":
@@ -927,7 +927,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def n_generator_exp(self, node):
         start = len(self.f.getvalue())
         self.write("(")
-        code_index = -6 if self.version > 3.2 else -5
+        code_index = -6 if self.version >= (3, 3) else -5
         self.comprehension_walk(node, iter_index=4, code_index=code_index)
         self.write(")")
         self.set_pos_info(node, start, len(self.f.getvalue()))
@@ -1063,7 +1063,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # class definition ('class X(A,B,C):')
         cclass = self.currentclass
 
-        if self.version > 3.0:
+        if self.version >= (3, 1):
             if node == "classdefdeco2":
                 currentclass = node[1][2].pattr
                 buildclass = node
@@ -1127,7 +1127,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         start = len(self.f.getvalue())
         self.write(self.indent, "class ", self.currentclass)
 
-        if self.version > 3.0:
+        if self.version >= (3, 1):
             self.print_super_classes3(subclass_info)
         else:
             self.print_super_classes(build_list)
@@ -1520,6 +1520,12 @@ class FragmentsWalker(pysource.SourceWalker, object):
             i += 1
             self.write("(")
             if kwargs:
+                # Last arg is tuple of keyword values: omit
+                l = n - 1
+            else:
+                l = n
+
+            if kwargs:
                 # 3.6+ does this
                 while j < i:
                     self.write(sep)
@@ -1545,7 +1551,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     pass
             pass
         else:
-            if self.version >= 3.6 and node[0] == "LOAD_CONST":
+            if self.version >= (3, 6) and node[0] == "LOAD_CONST":
                 return
             value = self.traverse(node[0])
             self.write("(")
@@ -1571,7 +1577,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.write("{")
         self.set_pos_info(node[0], start, start + 1)
 
-        if self.version >= 3.0 and not self.is_pypy:
+        if self.version >= (3, 0) and not self.is_pypy:
             if node[0].kind.startswith("kvlist"):
                 # Python 3.5+ style key/value list in dict
                 kv_node = node[0]
@@ -1643,14 +1649,14 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     self.write(sep[1:])
                 pass
             elif node[0].kind.startswith("dict_entry"):
-                assert self.version >= 3.5
+                assert self.version >= (3, 5)
                 template = ("%C", (0, len(node[0]), ", **"))
                 self.template_engine(template, node[0])
                 sep = ""
             elif node[-1].kind.startswith("BUILD_MAP_UNPACK") or node[
                 -1
             ].kind.startswith("dict_entry"):
-                assert self.version >= 3.5
+                assert self.version >= (3, 5)
                 # FIXME: I think we can intermingle dict_comp's with other
                 # dictionary kinds of things. The most common though is
                 # a sequence of dict_comp's
@@ -1674,7 +1680,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             else:
                 sep = ""
                 opname = node[-1].kind
-                if self.is_pypy and self.version >= 3.5:
+                if self.is_pypy and self.version >= (3, 5):
                     if opname.startswith("BUILD_CONST_KEY_MAP"):
                         keys = node[-2].attr
                         # FIXME: DRY this and the above
