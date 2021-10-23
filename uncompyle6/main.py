@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2020 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2021 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -15,8 +15,9 @@
 from __future__ import print_function
 import datetime, py_compile, os, subprocess, sys, tempfile
 
-from uncompyle6 import verify, IS_PYPY, PYTHON_VERSION
-from xdis import iscode, sysinfo2float
+from uncompyle6 import verify
+from xdis import iscode
+from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, version_tuple_to_str
 from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource
 from uncompyle6.parser import ParserError
@@ -40,7 +41,7 @@ def _get_outstream(outfile):
         os.makedirs(dir)
     except OSError:
         pass
-    if PYTHON_VERSION < 3.0:
+    if PYTHON_VERSION_TRIPLE < (3, 0):
         return open(outfile, mode="wb")
     else:
         return open(outfile, mode="w", encoding="utf-8")
@@ -71,7 +72,7 @@ def decompile(
     Caller is responsible for closing `out` and `mapstream`
     """
     if bytecode_version is None:
-        bytecode_version = sysinfo2float()
+        bytecode_version = PYTHON_VERSION_TRIPLE
 
     # store final output stream for case of error
     real_out = out or sys.stdout
@@ -93,13 +94,13 @@ def decompile(
         % (
             __version__,
             co_pypy_str,
-            bytecode_version,
+            version_tuple_to_str(bytecode_version),
             " (%s)" % str(magic_int) if magic_int else "",
             run_pypy_str,
             "\n# ".join(sys_version_lines),
         )
     )
-    if PYTHON_VERSION < 3.0 and bytecode_version >= 3.0:
+    if PYTHON_VERSION_TRIPLE < (3, 0) and bytecode_version >= (3, 0):
         write(
             '# Warning: this version of Python has problems handling the Python 3 "byte" type in constants properly.\n'
         )
@@ -154,9 +155,9 @@ def compile_file(source_path):
         basename = source_path
 
     if hasattr(sys, "pypy_version_info"):
-        bytecode_path = "%s-pypy%s.pyc" % (basename, PYTHON_VERSION)
+        bytecode_path = "%s-pypy%s.pyc" % (basename, version_tuple_to_str())
     else:
-        bytecode_path = "%s-%s.pyc" % (basename, PYTHON_VERSION)
+        bytecode_path = "%s-%s.pyc" % (basename, version_tuple_to_str())
 
     print("compiling %s to %s" % (source_path, bytecode_path))
     py_compile.compile(source_path, bytecode_path, "exec")

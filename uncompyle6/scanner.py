@@ -26,7 +26,7 @@ from collections import namedtuple
 import sys
 
 from uncompyle6.scanners.tok import Token
-from xdis.version_info import PYTHON3, IS_PYPY, version_tuple_to_str
+from xdis.version_info import IS_PYPY, PYTHON3, version_tuple_to_str
 import xdis
 from xdis import Bytecode, canonic_python_version, code2num, instruction_size, extended_arg_val, next_offset
 
