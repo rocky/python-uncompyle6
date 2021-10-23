@@ -11,7 +11,8 @@ mydir=$(dirname $bs)
 fulldir=$(readlink -f $mydir)
 cd $fulldir/..
 (cd ../python-spark && git checkout python-2.4 && pyenv local $PYTHON_VERSION) && git pull && \
-    (cd ../python-xdis && git checkout python-2.4 && pyenv local $PYTHON_VERSION) && git pull && \
+    (cd ../python-xdis && . ./admin-tools/setup-python-2.4.sh) && \
     git checkout python-2.4 &&  pyenv local $PYTHON_VERSION && git pull
 cd $owd
 rm -v */.python-version || true
+pyenv local $PYTHON_VERSION
