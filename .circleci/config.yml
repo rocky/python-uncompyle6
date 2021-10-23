@@ -13,7 +13,7 @@ jobs:
     # To see the list of pre-built images that CircleCI provides for most common languages see
     # https://circleci.com/docs/2.0/circleci-images/
     docker:
-      - image: circleci/python:3.6.9
+      - image: circleci/python:3.5
     steps:
     # Machine Setup
     #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
@@ -38,7 +38,6 @@ jobs:
 
     - run:
         command: | # Use pip to install dependengcies
-          pip install --user --upgrade setuptools
           pip install --user -e .
           pip install --user -r requirements-dev.txt
 
@@ -58,8 +57,7 @@ jobs:
     # Test
     #   This would typically be a build job when using workflows, possibly combined with build
     # This is based on your 1.0 configuration file or project settings
-    - run: sudo python ./setup.py develop && make check-3.6
-    - run: cd ./test/stdlib && bash ./runtests.sh 'test_[p-z]*.py'
+    - run: sudo python ./setup.py develop && make check
     # Teardown
     #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
     # Save test results
