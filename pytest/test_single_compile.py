@@ -1,6 +1,7 @@
-from uncompyle6 import PYTHON_VERSION, code_deparse
+from uncompyle6 import code_deparse
+from xdis.version_info import PYTHON_VERSION_TRIPLE
 
-if PYTHON_VERSION > 2.6:
+if PYTHON_VERSION_TRIPLE >= (2, 7):
     def test_single_mode():
         single_expressions = (
             'i = 1',

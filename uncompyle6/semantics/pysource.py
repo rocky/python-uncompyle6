@@ -135,7 +135,8 @@ import sys
 IS_PYPY = "__pypy__" in sys.builtin_module_names
 PYTHON3 = sys.version_info >= (3, 0)
 
-from xdis import iscode, COMPILER_FLAG_BIT, sysinfo2float
+from xdis import iscode, COMPILER_FLAG_BIT
+from xdis.version_info import PYTHON_VERSION_TRIPLE
 
 from uncompyle6.parser import get_python_parser
 from uncompyle6.parsers.treenode import SyntaxTree
@@ -2568,7 +2569,7 @@ def code_deparse(
     assert iscode(co)
 
     if version is None:
-        version = sysinfo2float()
+        version = PYTHON_VERSION_TRIPLE
 
     # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy)
