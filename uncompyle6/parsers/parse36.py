@@ -395,7 +395,7 @@ class Python36Parser(Python35Parser):
                          starred     ::= expr
                          call_ex     ::= expr starred CALL_FUNCTION_EX
                          """, nop_func)
-            if self.version >= 3.6:
+            if self.version >= (3, 6):
                 if 'BUILD_MAP_UNPACK_WITH_CALL' in self.seen_ops:
                     self.addRule("""
                             expr        ::= call_ex_kw

@@ -1,7 +1,7 @@
 import re
-from uncompyle6 import PYTHON_VERSION, PYTHON3, IS_PYPY  # , PYTHON_VERSION
 from uncompyle6.parser import get_python_parser, python_parser
 from uncompyle6.scanner import get_scanner
+from xdis.version_info import PYTHON_VERSION_TRIPLE, PYTHON3, IS_PYPY
 
 
 def test_grammar():
@@ -16,19 +16,19 @@ def test_grammar():
             p.dump_grammar(),
         )
 
-    p = get_python_parser(PYTHON_VERSION, is_pypy=IS_PYPY)
+    p = get_python_parser(PYTHON_VERSION_TRIPLE, is_pypy=IS_PYPY)
     (lhs, rhs, tokens, right_recursive, dup_rhs) = p.check_sets()
 
     # We have custom rules that create the below
     expect_lhs = set(["pos_arg"])
 
-    if PYTHON_VERSION < 3.8:
-        if PYTHON_VERSION < 3.7:
+    if PYTHON_VERSION_TRIPLE < (3, 8):
+        if PYTHON_VERSION_TRIPLE < (3, 7):
             expect_lhs.add("attribute")
 
         expect_lhs.add("get_iter")
 
-        if PYTHON_VERSION > 3.7 or PYTHON_VERSION < 3.0:
+        if PYTHON_VERSION_TRIPLE >= (3, 8) or PYTHON_VERSION_TRIPLE < (3, 0):
             expect_lhs.add("stmts_opt")
     else:
         expect_lhs.add("async_with_as_stmt")
@@ -38,10 +38,10 @@ def test_grammar():
 
     expect_right_recursive = set([("designList", ("store", "DUP_TOP", "designList"))])
 
-    if PYTHON_VERSION <= 3.6:
+    if PYTHON_VERSION_TRIPLE[:2] <= (3, 6):
         unused_rhs.add("call")
 
-    if PYTHON_VERSION > 2.6:
+    if PYTHON_VERSION_TRIPLE >= (2, 7):
         expect_lhs.add("kvlist")
         expect_lhs.add("kv3")
         unused_rhs.add("dict")
@@ -49,7 +49,7 @@ def test_grammar():
         # NOTE: this may disappear
         expect_lhs.add("except_handler_else")
 
-        if PYTHON_VERSION < 3.7 and PYTHON_VERSION != 2.7:
+        if PYTHON_VERSION_TRIPLE < (3, 7) and PYTHON_VERSION_TRIPLE[:2] != (2, 7):
             # NOTE: this may disappear
             expect_lhs.add("except_handler_else")
 
@@ -63,8 +63,8 @@ def test_grammar():
         """.split()
             )
         )
-        if PYTHON_VERSION >= 3.0:
-            if PYTHON_VERSION < 3.7:
+        if PYTHON_VERSION_TRIPLE >= (3, 0):
+            if PYTHON_VERSION_TRIPLE < (3, 7):
                 expect_lhs.add("annotate_arg")
                 expect_lhs.add("annotate_tuple")
                 unused_rhs.add("mkfunc_annotate")
@@ -72,7 +72,7 @@ def test_grammar():
             unused_rhs.add("dict_comp")
             unused_rhs.add("classdefdeco1")
             unused_rhs.add("tryelsestmtl")
-            if PYTHON_VERSION >= 3.5:
+            if PYTHON_VERSION_TRIPLE >= (3, 5):
                 expect_right_recursive.add(
                     (("l_stmts", ("lastl_stmt", "come_froms", "l_stmts")))
                 )
@@ -83,7 +83,7 @@ def test_grammar():
         expect_lhs.add("kwarg")
 
     # FIXME
-    if PYTHON_VERSION < 3.8:
+    if PYTHON_VERSION_TRIPLE < (3, 8):
         assert expect_lhs == set(lhs)
         assert unused_rhs == set(rhs)
 
@@ -106,7 +106,7 @@ def test_grammar():
             print(k, reduced_dup_rhs[k])
     # assert not reduced_dup_rhs, reduced_dup_rhs
 
-    s = get_scanner(PYTHON_VERSION, IS_PYPY)
+    s = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY)
     ignore_set = set(
         """
             JUMP_BACK CONTINUE
@@ -119,12 +119,13 @@ def test_grammar():
             RETURN_END_IF RETURN_END_IF_LAMBDA RETURN_VALUE_LAMBDA RETURN_LAST
             """.split()
     )
-    if 2.6 <= PYTHON_VERSION <= 2.7:
+
+    if (2, 6) <= PYTHON_VERSION_TRIPLE <= (2, 7):
         opcode_set = set(s.opc.opname).union(ignore_set)
-        if PYTHON_VERSION == 2.6:
+        if PYTHON_VERSION_TRIPLE[:2] == (2, 6):
             opcode_set.add("THEN")
         check_tokens(tokens, opcode_set)
-    elif PYTHON_VERSION == 3.4:
+    elif PYTHON_VERSION_TRIPLE[:2] == (3, 4):
         ignore_set.add("LOAD_CLASSNAME")
         ignore_set.add("STORE_LOCALS")
         opcode_set = set(s.opc.opname).union(ignore_set)
@@ -135,7 +136,7 @@ def test_dup_rule():
     import inspect
 
     python_parser(
-        PYTHON_VERSION,
+        PYTHON_VERSION_TRIPLE,
         inspect.currentframe().f_code,
         is_pypy=IS_PYPY,
         parser_debug={

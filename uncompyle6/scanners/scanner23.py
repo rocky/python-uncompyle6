@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018 by Rocky Bernstein
+#  Copyright (c) 2016-2018, 2021 by Rocky Bernstein
 """
 Python 2.3 bytecode massaging.
 
@@ -23,6 +23,6 @@ class Scanner23(scan.Scanner24):
         self.opname = opcode_23.opname
         # These are the only differences in initialization between
         # 2.3-2.6
-        self.version = 2.3
+        self.version = (2, 3)
         self.genexpr_name = '<generator expression>'
         return

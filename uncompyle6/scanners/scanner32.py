@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2017 by Rocky Bernstein
+#  Copyright (c) 2015-2017, 2021 by Rocky Bernstein
 """
 Python 3.2 bytecode decompiler scanner.
 
@@ -17,7 +17,7 @@ from uncompyle6.scanners.scanner3 import Scanner3
 class Scanner32(Scanner3):
 
     def __init__(self, show_asm=None, is_pypy=False):
-        Scanner3.__init__(self, 3.2, show_asm, is_pypy)
+        Scanner3.__init__(self, (3, 2), show_asm, is_pypy)
         return
     pass
 

@@ -44,7 +44,7 @@ def or_check(self, lhs, n, rule, ast, tokens, first, last):
             return True
 
         # If the jmp is backwards
-        if last_token == "POP_JUMP_IF_FALSE" and not self.version in (2.7, 3.5, 3.6):
+        if last_token == "POP_JUMP_IF_FALSE" and not self.version[:2] in ((2, 7), (3, 5), (3, 6)):
             if last_token.attr < last_token_offset:
                 # For a backwards loop, well compare to the instruction *after*
                 # then POP_JUMP...

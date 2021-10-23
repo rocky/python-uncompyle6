@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2020 by Rocky Bernstein
+#  Copyright (c) 2015-2021 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -288,7 +288,7 @@ class Scanner2(Scanner):
                     # last_offset = jump_offset
                     come_from_name = "COME_FROM"
                     op_name = self.opname_for_offset(jump_offset)
-                    if op_name.startswith("SETUP_") and self.version == 2.7:
+                    if op_name.startswith("SETUP_") and self.version[:2] == (2, 7):
                         come_from_type = op_name[len("SETUP_") :]
                         if come_from_type not in ("LOOP", "EXCEPT"):
                             come_from_name = "COME_FROM_%s" % come_from_type
@@ -350,12 +350,12 @@ class Scanner2(Scanner):
                     pattr = names[oparg]
                 elif op in self.opc.JREL_OPS:
                     #  use instead: hasattr(self, 'patch_continue'): ?
-                    if self.version == 2.7:
+                    if self.version[:2] == (2, 7):
                         self.patch_continue(tokens, offset, op)
                     pattr = repr(offset + 3 + oparg)
                 elif op in self.opc.JABS_OPS:
                     # use instead: hasattr(self, 'patch_continue'): ?
-                    if self.version == 2.7:
+                    if self.version[:2] == (2, 7):
                         self.patch_continue(tokens, offset, op)
                     pattr = repr(oparg)
                 elif op in self.opc.LOCAL_OPS:
@@ -515,7 +515,7 @@ class Scanner2(Scanner):
                 while code[j] == self.opc.JUMP_ABSOLUTE:
                     j = self.prev[j]
                 if (
-                    self.version >= 2.3 and self.opname_for_offset(j) == "LIST_APPEND"
+                    self.version >= (2, 3) and self.opname_for_offset(j) == "LIST_APPEND"
                 ):  # list comprehension
                     stmts.remove(s)
                     continue
@@ -529,7 +529,7 @@ class Scanner2(Scanner):
                 prev = code[self.prev[s]]
                 if (
                     prev == self.opc.ROT_TWO
-                    or self.version < 2.7
+                    or self.version < (2, 7)
                     and prev
                     in (
                         self.opc.JUMP_IF_FALSE,
@@ -543,7 +543,7 @@ class Scanner2(Scanner):
                 j = self.prev[s]
                 while code[j] in self.designator_ops:
                     j = self.prev[j]
-                if self.version > 2.1 and code[j] == self.opc.FOR_ITER:
+                if self.version > (2, 1) and code[j] == self.opc.FOR_ITER:
                     stmts.remove(s)
                     continue
             last_stmt = s
@@ -563,7 +563,7 @@ class Scanner2(Scanner):
                 jmp = self.prev[self.get_target(except_match)]
 
                 # In Python < 2.7 we may have jumps to jumps
-                if self.version < 2.7 and self.code[jmp] in self.jump_forward:
+                if self.version < (2, 7) and self.code[jmp] in self.jump_forward:
                     self.not_continue.add(jmp)
                     jmp = self.get_target(jmp)
                     prev_offset = self.prev[except_match]
@@ -587,7 +587,7 @@ class Scanner2(Scanner):
             op = self.code[i]
             if op == self.opc.END_FINALLY:
                 if count_END_FINALLY == count_SETUP_:
-                    if self.version == 2.7:
+                    if self.version[:2] == (2, 7):
                         assert self.code[self.prev[i]] in self.jump_forward | frozenset(
                             [self.opc.RETURN_VALUE]
                         )
@@ -649,7 +649,7 @@ class Scanner2(Scanner):
                 # Account for the fact that < 2.7 has an explicit
                 # POP_TOP instruction in the equivalate POP_JUMP_IF
                 # construct
-                if self.version < 2.7:
+                if self.version < (2, 7):
                     jump_forward_offset = jump_back_offset + 4
                     return_val_offset1 = self.prev[
                         self.prev[self.prev[loop_end_offset]]
@@ -691,7 +691,7 @@ class Scanner2(Scanner):
                 jump_back_offset += 1
 
                 if_offset = None
-                if self.version < 2.7:
+                if self.version < (2, 7):
                     # Look for JUMP_IF POP_TOP ...
                     if code[self.prev[next_line_byte]] == self.opc.POP_TOP and (
                         code[self.prev[self.prev[next_line_byte]]] in self.pop_jump_if
@@ -703,7 +703,7 @@ class Scanner2(Scanner):
                 if if_offset:
                     loop_type = "while"
                     self.ignore_if.add(if_offset)
-                    if self.version < 2.7 and (
+                    if self.version < (2, 7) and (
                         code[self.prev[jump_back_offset]] == self.opc.RETURN_VALUE
                     ):
                         self.ignore_if.add(self.prev[jump_back_offset])
@@ -735,7 +735,7 @@ class Scanner2(Scanner):
 
                 setup_target = self.get_target(jump_back_offset, self.opc.JUMP_ABSOLUTE)
 
-                if self.version > 2.1 and code[setup_target] in (
+                if self.version > (2, 1) and code[setup_target] in (
                     self.opc.FOR_ITER,
                     self.opc.GET_ITER,
                 ):
@@ -745,7 +745,7 @@ class Scanner2(Scanner):
                     # Look for a test condition immediately after the
                     # SETUP_LOOP while
                     if (
-                        self.version < 2.7
+                        self.version < (2, 7)
                         and self.code[self.prev[next_line_byte]] == self.opc.POP_TOP
                     ):
                         test_op_offset = self.prev[self.prev[next_line_byte]]
@@ -822,7 +822,7 @@ class Scanner2(Scanner):
                     if target != start_else:
                         end_else = self.get_target(jmp)
                     if self.code[jmp] == self.opc.JUMP_FORWARD:
-                        if self.version <= 2.6:
+                        if self.version <= (2, 6):
                             self.fixed_jumps[jmp] = target
                         else:
                             self.fixed_jumps[jmp] = -1
@@ -833,7 +833,7 @@ class Scanner2(Scanner):
             if end_else != start_else:
                 r_end_else = self.restrict_to_parent(end_else, parent)
                 # May be able to drop the 2.7 test.
-                if self.version == 2.7:
+                if self.version[:2] == (2, 7):
                     self.structs.append(
                         {"type": "try-else", "start": i + 1, "end": r_end_else}
                     )
@@ -861,7 +861,7 @@ class Scanner2(Scanner):
             # possibly I am "skipping over" a "pass" or null statement.
 
             test_target = target
-            if self.version < 2.7:
+            if self.version < (2, 7):
                 # Before 2.7 we have to deal with the fact that there is an extra
                 # POP_TOP that is logically associated with the JUMP_IF's (even though
                 # the instance set is called "self.pop_jump_if")
@@ -981,7 +981,7 @@ class Scanner2(Scanner):
                             self.fixed_jumps[offset] = fix or match[-1]
                             return
                     else:
-                        if self.version < 2.7 and parent["type"] in (
+                        if self.version < (2, 7) and parent["type"] in (
                             "root",
                             "for-loop",
                             "if-then",
@@ -997,7 +997,7 @@ class Scanner2(Scanner):
                             self.fixed_jumps[offset] = match[-1]
                         return
             else:  # op != self.opc.PJIT
-                if self.version < 2.7 and code[offset + 3] == self.opc.POP_TOP:
+                if self.version < (2, 7) and code[offset + 3] == self.opc.POP_TOP:
                     assert_offset = offset + 4
                 else:
                     assert_offset = offset + 3
@@ -1039,7 +1039,7 @@ class Scanner2(Scanner):
             if offset in self.ignore_if:
                 return
 
-            if self.version == 2.7:
+            if self.version == (2, 7):
                 if (
                     code[pre_rtarget] == self.opc.JUMP_ABSOLUTE
                     and pre_rtarget in self.stmts
@@ -1109,7 +1109,7 @@ class Scanner2(Scanner):
 
                 if_then_maybe = None
 
-                if 2.2 <= self.version <= 2.6:
+                if (2, 2) <= self.version <= (2, 6):
                     # Take the JUMP_IF target. In an "if/then", it will be
                     # a POP_TOP instruction and the instruction before it
                     # will be a JUMP_FORWARD to just after the POP_TOP.
@@ -1159,13 +1159,13 @@ class Scanner2(Scanner):
                                     "end": pre_rtarget,
                                 }
 
-                elif self.version == 2.7:
+                elif self.version[:2] == (2, 7):
                     self.structs.append(
                         {"type": "if-then", "start": start - 3, "end": pre_rtarget}
                     )
 
                 # FIXME: this is yet another case were we need dominators.
-                if pre_rtarget not in self.linestarts or self.version < 2.7:
+                if pre_rtarget not in self.linestarts or self.version < (2, 7):
                     self.not_continue.add(pre_rtarget)
 
                 if rtarget < end_offset:
@@ -1194,7 +1194,7 @@ class Scanner2(Scanner):
                         {"type": "else", "start": rtarget, "end": end_offset}
                     )
             elif code_pre_rtarget == self.opc.RETURN_VALUE:
-                if self.version == 2.7 or pre_rtarget not in self.ignore_if:
+                if self.version[:2] == (2, 7) or pre_rtarget not in self.ignore_if:
                     # Below, 10 is exception-match. If there is an exception
                     # match in the compare, then this is an exception
                     # clause not an if-then clause
@@ -1207,7 +1207,7 @@ class Scanner2(Scanner):
                         )
                         self.thens[start] = rtarget
                         if (
-                            self.version == 2.7
+                            self.version[:2] == (2, 7)
                             or code[pre_rtarget + 1] != self.opc.JUMP_FORWARD
                         ):
                             # The below is a big hack until we get
@@ -1220,7 +1220,7 @@ class Scanner2(Scanner):
                             # instruction before.
                             self.fixed_jumps[offset] = rtarget
                             if (
-                                self.version == 2.7
+                                self.version[:2] == (2, 7)
                                 and self.insts[
                                     self.offset2inst_index[pre[pre_rtarget]]
                                 ].is_jump_target
@@ -1291,7 +1291,7 @@ class Scanner2(Scanner):
                         # if (op in self.opc.JREL_OPS and
                         #     (self.version < 2.0 or op != self.opc.FOR_ITER)):
                         label = offset + 3 + oparg
-                    elif self.version == 2.7 and op in self.opc.JABS_OPS:
+                    elif self.version[:2] == (2, 7) and op in self.opc.JABS_OPS:
                         if op in (
                             self.opc.JUMP_IF_FALSE_OR_POP,
                             self.opc.JUMP_IF_TRUE_OR_POP,
@@ -1307,7 +1307,7 @@ class Scanner2(Scanner):
                 # We REALLY REALLY  need a better way to handle control flow
                 # Expecially for < 2.7
                 if label is not None and label != -1:
-                    if self.version == 2.7:
+                    if self.version[:2] == (2, 7):
                         # FIXME: rocky: I think we need something like this...
                         if label in self.setup_loops:
                             source = self.setup_loops[label]
@@ -1342,7 +1342,7 @@ class Scanner2(Scanner):
                                 # handle COME_FROM's from a loop inside if's
                                 # It probably should.
                                 if (
-                                    self.version > 2.6
+                                    self.version > (2, 6)
                                     or self.code[source] != self.opc.SETUP_LOOP
                                     or self.code[label] != self.opc.JUMP_FORWARD
                                 ):
@@ -1354,7 +1354,7 @@ class Scanner2(Scanner):
             elif (
                 op == self.opc.END_FINALLY
                 and offset in self.fixed_jumps
-                and self.version == 2.7
+                and self.version[:2] == (2, 7)
             ):
                 label = self.fixed_jumps[offset]
                 targets[label] = targets.get(label, []) + [offset]

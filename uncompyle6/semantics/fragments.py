@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2019 by Rocky Bernstein
+#  Copyright (c) 2015-2019, 2021 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -661,7 +661,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # FIXME: clean this up
         if self.version > 3.0 and node == "dict_comp":
             cn = node[1]
-        elif self.version > 3.0 and node == "generator_exp":
+        elif self.version > 3.0 and node in ("generator_exp", "generator_exp_async"):
             if node[0] == "load_genexpr":
                 load_genexpr = node[0]
             elif node[1] == "load_genexpr":
@@ -685,15 +685,23 @@ class FragmentsWalker(pysource.SourceWalker, object):
         code = Code(cn.attr, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize, code)
         self.customize(code._customize)
-        ast = ast[0][0][0]
+
+        # Remove single reductions as in ("stmts", "sstmt"):
+        while len(ast) == 1:
+            ast = ast[0]
 
         n = ast[iter_index]
+
         assert n == "comp_iter"
-        # find innermost node
-        while n == "comp_iter":
+        # Find the comprehension body. It is the inner-most
+        # node that is not list_.. .
+        while n == "comp_iter":   # list_iter
             n = n[0]  # recurse one step
             if n == "comp_for":
-                n = n[3]
+                if n[0] == "SETUP_LOOP":
+                    n = n[4]
+                else:
+                    n = n[3]
             elif n == "comp_if":
                 n = n[2]
             elif n == "comp_ifnot":
@@ -701,16 +709,31 @@ class FragmentsWalker(pysource.SourceWalker, object):
         assert n == "comp_body", ast
 
         self.preorder(n[0])
+        if node == "generator_exp_async":
+            self.write(" async")
+            iter_var_index = iter_index - 2
+        else:
+            iter_var_index = iter_index - 1
         self.write(" for ")
         start = len(self.f.getvalue())
-        store = ast[iter_index - 1]
+        store = ast[iter_var_index]
         self.preorder(store)
         self.set_pos_info(ast[iter_index - 1], start, len(self.f.getvalue()))
         self.write(" in ")
         start = len(self.f.getvalue())
+
         node[-3].parent = node
         self.preorder(node[-3])
         self.set_pos_info(node[-3], start, len(self.f.getvalue()))
+
+        if node[2] == "expr":
+            iter_expr = node[2]
+        else:
+            iter_expr = node[-3]
+        assert iter_expr == "expr"
+        iter_expr.parent = node
+        self.preorder(iter_expr)
+        self.set_pos_info(iter_expr, start, len(self.f.getvalue()))
         start = len(self.f.getvalue())
         self.preorder(ast[iter_index])
         self.set_pos_info(ast[iter_index], start, len(self.f.getvalue()))
@@ -906,7 +929,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def n_generator_exp(self, node):
         start = len(self.f.getvalue())
         self.write('(')
-        if self.version > 3.2:
+        if self.version > (3, 2):
             code_index = -6
         else:
             code_index = -5

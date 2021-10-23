@@ -13,4 +13,5 @@
 
 # This file is suitable for sourcing inside POSIX shell as
 # well as importing into Python
-__version__="3.7.4"  # noqa
+# fmt: off
+__version__="3.7.5.dev0"  # noqa

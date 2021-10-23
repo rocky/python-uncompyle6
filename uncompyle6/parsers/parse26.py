@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2020 Rocky Bernstein
+#  Copyright (c) 2017-2021 Rocky Bernstein
 """
 spark grammar differences over Python2 for Python 2.6.
 """
@@ -390,7 +390,7 @@ class Python26Parser(Python2Parser):
             # For now, we won't let the 2nd 'expr' be a "if_exp_not"
             # However in < 2.6 where we don't have if/else expression it *can*
             # be.
-            if self.version >= 2.6 and ast[2][0] == "if_exp_not":
+            if self.version >= (2, 6) and ast[2][0] == "if_exp_not":
                 return True
 
             test_index = last
@@ -424,7 +424,7 @@ class Python26Parser(Python2Parser):
             # since the operand can be a relative offset rather than
             # an absolute offset.
             setup_inst = self.insts[self.offset2inst_index[tokens[first].offset]]
-            if self.version <= 2.2 and tokens[last] == "COME_FROM":
+            if self.version <= (2, 2) and tokens[last] == "COME_FROM":
                 last += 1
             return tokens[last-1].off2int() > setup_inst.argval
         elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):

@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017 by Rocky Bernstein
+#  Copyright (c) 2016-2017, 2021 by Rocky Bernstein
 """
 Python PyPy 2.7 bytecode scanner/deparser
 
@@ -22,5 +22,5 @@ class ScannerPyPy27(scan.Scanner27):
         # There are no differences in initialization between
         # pypy 2.7 and 2.7
         scan.Scanner27.__init__(self, show_asm, is_pypy=True)
-        self.version = 2.7
+        self.version = (2, 7)
         return

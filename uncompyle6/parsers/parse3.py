@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2020 Rocky Bernstein
+#  Copyright (c) 2015-2021 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -538,7 +538,7 @@ class Python3Parser(PythonParser):
         # FIXME: What's the deal with the two rules? Different Python versions?
         # Different situations? Note that the above rule is based on the CALL_FUNCTION
         # token found, while this one doesn't.
-        if self.version < 3.6:
+        if self.version < (3, 6):
             call_function = self.call_fn_name(call_fn_tok)
             args_pos, args_kw = self.get_pos_kw(call_fn_tok)
             rule = "build_class ::= LOAD_BUILD_CLASS mkfunc %s" "%s" % (
@@ -593,7 +593,7 @@ class Python3Parser(PythonParser):
 
         # Note: 3.5+ have subclassed this method; so we don't handle
         # 'CALL_FUNCTION_VAR' or 'CALL_FUNCTION_EX' here.
-        if is_pypy and self.version >= 3.6:
+        if is_pypy and self.version >= (3, 6):
             if token == "CALL_FUNCTION":
                 token.kind = self.call_fn_name(token)
             rule = (
@@ -627,7 +627,7 @@ class Python3Parser(PythonParser):
         """Python 3.3 added a an addtional LOAD_STR before MAKE_FUNCTION and
         this has an effect on many rules.
         """
-        if self.version >= 3.3:
+        if self.version >= (3, 3):
             if PYTHON3 or not self.is_pypy:
                 load_op = "LOAD_STR "
             else:
@@ -776,7 +776,7 @@ class Python3Parser(PythonParser):
                     rule = "kvlist_n ::="
                     self.add_unique_rule(rule, "kvlist_n", 1, customize)
                     rule = "dict ::=  BUILD_MAP_n kvlist_n"
-                elif self.version >= 3.5:
+                elif self.version >= (3, 5):
                     if not opname.startswith("BUILD_MAP_WITH_CALL"):
                         # FIXME: Use the attr
                         # so this doesn't run into exponential parsing time.
@@ -1061,7 +1061,7 @@ class Python3Parser(PythonParser):
                 args_pos, args_kw, annotate_args = token.attr
 
                 # FIXME: Fold test  into add_make_function_rule
-                if self.version < 3.3:
+                if self.version < (3, 3):
                     j = 1
                 else:
                     j = 2
@@ -1123,7 +1123,7 @@ class Python3Parser(PythonParser):
                     kwargs_str = ""
 
                 # Note order of kwargs and pos args changed between 3.3-3.4
-                if self.version <= 3.2:
+                if self.version <= (3, 2):
                     if annotate_args > 0:
                         rule = (
                             "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure LOAD_CODE %s"
@@ -1140,7 +1140,7 @@ class Python3Parser(PythonParser):
                             "pos_arg " * args_pos,
                             opname,
                         )
-                elif self.version == 3.3:
+                elif self.version == (3, 3):
                     if annotate_args > 0:
                         rule = (
                             "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure LOAD_CODE LOAD_STR %s"
@@ -1158,7 +1158,7 @@ class Python3Parser(PythonParser):
                             opname,
                         )
 
-                elif self.version >= 3.4:
+                elif self.version >= (3, 4):
                     if PYTHON3 or not self.is_pypy:
                         load_op = "LOAD_STR"
                     else:
@@ -1192,7 +1192,7 @@ class Python3Parser(PythonParser):
                     )
                     self.add_unique_rule(rule, opname, token.attr, customize)
 
-                if self.version < 3.4:
+                if self.version < (3, 4):
                     rule = "mkfunc ::= %sload_closure LOAD_CODE %s" % (
                         "expr " * args_pos,
                         opname,
@@ -1202,7 +1202,7 @@ class Python3Parser(PythonParser):
                 pass
             elif opname_base.startswith("MAKE_FUNCTION"):
                 # DRY with MAKE_CLOSURE
-                if self.version >= 3.6:
+                if self.version >= (3, 6):
                     # The semantics of MAKE_FUNCTION in 3.6 are totally different from
                     # before.
                     args_pos, args_kw, annotate_args, closure = token.attr
@@ -1264,7 +1264,7 @@ class Python3Parser(PythonParser):
                         if self.is_pypy or (
                             i >= 2 and tokens[i - 2] == "LOAD_LISTCOMP"
                         ):
-                            if self.version >= 3.6:
+                            if self.version >= (3, 6):
                                 # 3.6+ sometimes bundles all of the
                                 # 'exprs' in the rule above into a
                                 # tuple.
@@ -1295,12 +1295,12 @@ class Python3Parser(PythonParser):
                         )
                     continue
 
-                if self.version < 3.6:
+                if self.version < (3, 6):
                     args_pos, args_kw, annotate_args = token.attr
                 else:
                     args_pos, args_kw, annotate_args, closure = token.attr
 
-                if self.version < 3.3:
+                if self.version < (3, 3):
                     j = 1
                 else:
                     j = 2
@@ -1341,7 +1341,7 @@ class Python3Parser(PythonParser):
                 else:
                     kwargs = "kwargs"
 
-                if self.version < 3.3:
+                if self.version < (3, 3):
                     # positional args after keyword args
                     rule = "mkfunc ::= %s %s%s%s" % (
                         kwargs,
@@ -1355,7 +1355,7 @@ class Python3Parser(PythonParser):
                         "LOAD_CODE ",
                         opname,
                     )
-                elif self.version == 3.3:
+                elif self.version == (3, 3):
                     # positional args after keyword args
                     rule = "mkfunc ::= %s %s%s%s" % (
                         kwargs,
@@ -1363,7 +1363,7 @@ class Python3Parser(PythonParser):
                         "LOAD_CODE LOAD_STR ",
                         opname,
                     )
-                elif self.version > 3.5:
+                elif self.version >= (3, 6):
                     # positional args before keyword args
                     rule = "mkfunc ::= %s%s %s%s" % (
                         "pos_arg " * args_pos,
@@ -1371,7 +1371,7 @@ class Python3Parser(PythonParser):
                         "LOAD_CODE LOAD_STR ",
                         opname,
                     )
-                elif self.version > 3.3:
+                elif self.version >= (3, 4):
                     # positional args before keyword args
                     rule = "mkfunc ::= %s%s %s%s" % (
                         "pos_arg " * args_pos,
@@ -1388,7 +1388,7 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
 
                 if re.search("^MAKE_FUNCTION.*_A", opname):
-                    if self.version >= 3.6:
+                    if self.version >= (3, 6):
                         rule = (
                             "mkfunc_annotate ::= %s%sannotate_tuple LOAD_CODE LOAD_STR %s"
                             % (
@@ -1406,11 +1406,11 @@ class Python3Parser(PythonParser):
                                 opname,
                             )
                         )
-                    if self.version >= 3.3:
+                    if self.version >= (3, 3):
                         # Normally we remove EXTENDED_ARG from the opcodes, but in the case of
                         # annotated functions can use the EXTENDED_ARG tuple to signal we have an annotated function.
                         # Yes this is a little hacky
-                        if self.version == 3.3:
+                        if self.version == (3, 3):
                             # 3.3 puts kwargs before pos_arg
                             pos_kw_tuple = (
                                 ("kwargs " * args_kw),
@@ -1550,7 +1550,7 @@ class Python3Parser(PythonParser):
             "try_except": tryexcept,
         }
 
-        if self.version == 3.6:
+        if self.version == (3, 6):
             self.reduce_check_table["and"] =  and_check
             self.check_reduce["and"] = "AST"
 
@@ -1562,7 +1562,7 @@ class Python3Parser(PythonParser):
         self.check_reduce["ifelsestmtc"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
         self.check_reduce["ifstmtl"] = "AST"
-        if self.version == 3.6:
+        if self.version == (3, 6):
             self.reduce_check_table["iflaststmtl"] = iflaststmt
             self.check_reduce["iflaststmt"] = "AST"
             self.check_reduce["iflaststmtl"] = "AST"
@@ -1570,7 +1570,7 @@ class Python3Parser(PythonParser):
         self.check_reduce["testtrue"] = "tokens"
         if not PYTHON3:
             self.check_reduce["kwarg"] = "noAST"
-        if self.version < 3.6 and not self.is_pypy:
+        if self.version < (3, 6) and not self.is_pypy:
             # 3.6+ can remove a JUMP_FORWARD which messes up our testing here
             # Pypy we need to go over in better detail
             self.check_reduce["try_except"] = "AST"
@@ -1597,11 +1597,11 @@ class Python3Parser(PythonParser):
         elif lhs == "kwarg":
             arg = tokens[first].attr
             return not (isinstance(arg, str) or isinstance(arg, unicode))
-        elif lhs in ("iflaststmt", "iflaststmtl") and self.version == 3.6:
+        elif lhs in ("iflaststmt", "iflaststmtl") and self.version[:2] == (3, 6):
             return ifstmt(self, lhs, n, rule, ast, tokens, first, last)
         elif rule == ("ifstmt", ("testexpr", "_ifstmts_jump")):
             # FIXME: go over what's up with 3.0. Evetually I'd like to remove RETURN_END_IF
-            if self.version <= 3.0 or tokens[last] == "RETURN_END_IF":
+            if self.version <= (3, 0) or tokens[last] == "RETURN_END_IF":
                 return False
             if ifstmt(self, lhs, n, rule, ast, tokens, first, last):
                 return True
@@ -1643,7 +1643,7 @@ class Python3Parser(PythonParser):
             if while1stmt(self, lhs, n, rule, ast, tokens, first, last):
                 return True
 
-            if self.version == 3.0:
+            if self.version == (3, 0):
                 return False
 
             if 0 <= last < len(tokens) and tokens[last] in (
@@ -1685,7 +1685,7 @@ class Python3Parser(PythonParser):
             if last == n:
                 return False
             # 3.8+ Doesn't have SETUP_LOOP
-            return self.version < 3.8 and tokens[first].attr > tokens[last].offset
+            return self.version < (3, 8) and tokens[first].attr > tokens[last].offset
         elif rule == (
             "ifelsestmt",
             (

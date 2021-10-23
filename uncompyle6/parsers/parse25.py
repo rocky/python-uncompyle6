@@ -97,7 +97,7 @@ class Python25Parser(Python26Parser):
                               return_stmt_lambda LAMBDA_MARKER
         """)
         super(Python25Parser, self).customize_grammar_rules(tokens, customize)
-        if self.version == 2.5:
+        if self.version[:2] == (2, 5):
             self.check_reduce["try_except"] = "tokens"
         self.check_reduce["aug_assign1"] = "AST"
         self.check_reduce["ifelsestmt"] = "AST"

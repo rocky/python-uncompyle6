@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2016, 2818-2020 by Rocky Bernstein
+#  Copyright (c) 2015-2016, 2818-2021 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -33,6 +33,7 @@ import sys
 from collections import deque
 
 from xdis import check_object_path, iscode, load_module
+from xdis.version_info import version_tuple_to_str
 from uncompyle6.scanner import get_scanner
 
 
@@ -45,7 +46,7 @@ def disco(version, co, out=None, is_pypy=False):
 
     # store final output stream for case of error
     real_out = out or sys.stdout
-    real_out.write("# Python %s\n" % version)
+    real_out.write("# Python %s\n" % version_tuple_to_str(version))
     if co.co_filename:
         real_out.write("# Embedded file name: %s\n" % co.co_filename)
 

@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018 by Rocky Bernstein
+#  Copyright (c) 2016-2018, 2021 by Rocky Bernstein
 """
 Python 3.6 bytecode decompiler scanner
 
@@ -18,12 +18,12 @@ JUMP_OPS = opc.JUMP_OPS
 class Scanner36(Scanner3):
 
     def __init__(self, show_asm=None, is_pypy=False):
-        Scanner3.__init__(self, 3.6, show_asm, is_pypy)
+        Scanner3.__init__(self, (3, 6), show_asm, is_pypy)
         return
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         tokens, customize = Scanner3.ingest(self, co, classname, code_objects, show_asm)
-        not_pypy36 = not (self.version == 3.6 and self.is_pypy)
+        not_pypy36 = not (self.version[:2] == (3, 6) and self.is_pypy)
         for t in tokens:
             # The lowest bit of flags indicates whether the
             # var-keyword argument is placed at the top of the stack

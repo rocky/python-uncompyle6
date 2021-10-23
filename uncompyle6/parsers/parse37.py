@@ -1291,7 +1291,7 @@ class Python37Parser(Python37BaseParser):
                 withasstmt ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
                                WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
                 """
-                if self.version < 3.8:
+                if self.version < (3, 8):
                     rules_str += """
                     with       ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
                                    LOAD_CONST

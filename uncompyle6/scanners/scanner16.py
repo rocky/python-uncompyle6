@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 by Rocky Bernstein
+#  Copyright (c) 2019, 2021 by Rocky Bernstein
 """
 Python 1.6 bytecode decompiler massaging.
 
@@ -22,7 +22,7 @@ class Scanner16(scan.Scanner21):
         scan.Scanner21.__init__(self, show_asm)
         self.opc = opcode_16
         self.opname = opcode_16.opname
-        self.version = 1.6
+        self.version = (1, 6)
         self.genexpr_name = '<generator expression>'
         return
 

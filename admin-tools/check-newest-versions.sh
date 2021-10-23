@@ -8,7 +8,7 @@ owd=$(pwd)
 trap finish EXIT
 
 cd $(dirname ${BASH_SOURCE[0]})
-if ! source ./pyenv-newer-versions ; then
+if ! source ./pyenv-newest-versions ; then
     exit $?
 fi
 if ! source ./setup-master.sh ; then

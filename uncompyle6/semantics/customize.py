@@ -1,4 +1,4 @@
-#  Copyright (c) 2018-2019 by Rocky Bernstein
+#  Copyright (c) 2018-2019, 2021 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -60,8 +60,8 @@ def customize_for_version(self, is_pypy, version):
             "assign3": ("%|%c, %c, %c = %c, %c, %c\n", 5, 6, 7, 0, 1, 2),
             "try_except": ("%|try:\n%+%c%-%c\n\n", 1, 3),
         })
-    if version >= 3.0:
-        if version >= 3.2:
+    if version >= (3, 0):
+        if version >= (3, 2):
             TABLE_DIRECT.update(
                 {"del_deref_stmt": ("%|del %c\n", 0), "DELETE_DEREF": ("%{pattr}", 0)}
             )
@@ -72,20 +72,20 @@ def customize_for_version(self, is_pypy, version):
         TABLE_DIRECT.update(
             {"except_cond3": ("%|except %c, %c:\n", (1, "expr"), (-2, "store"))}
         )
-        if version <= 2.6:
+        if version <= (2, 6):
             TABLE_DIRECT["testtrue_then"] = TABLE_DIRECT["testtrue"]
 
-        if 2.4 <= version <= 2.6:
+        if (2, 4) <= version <= (2, 6):
             TABLE_DIRECT.update({"comp_for": (" for %c in %c", 3, 1)})
         else:
             TABLE_DIRECT.update({"comp_for": (" for %c in %c%c", 2, 0, 3)})
 
-        if version >= 2.5:
+        if version >= (2, 5):
             from uncompyle6.semantics.customize25 import customize_for_version25
 
             customize_for_version25(self, version)
 
-            if version >= 2.6:
+            if version >= (2, 6):
                 from uncompyle6.semantics.customize26_27 import (
                     customize_for_version26_27,
                 )
@@ -137,7 +137,7 @@ def customize_for_version(self, is_pypy, version):
                     ),
                 }
             )
-            if version == 2.4:
+            if version == (2, 4):
                 def n_iftrue_stmt24(node):
                     self.template_engine(("%c", 0), node)
                     self.default(node)
@@ -146,7 +146,7 @@ def customize_for_version(self, is_pypy, version):
                 self.n_iftrue_stmt24 = n_iftrue_stmt24
             else:  # version <= 2.3:
                 TABLE_DIRECT.update({"if1_stmt": ("%|if 1\n%+%c%-", 5)})
-                if version <= 2.1:
+                if version <= (2, 1):
                     TABLE_DIRECT.update(
                         {
                             "importmultiple": ("%c", 2),

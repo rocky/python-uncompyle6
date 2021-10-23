@@ -1,4 +1,4 @@
-#  Copyright (c) 2017, 2019 by Rocky Bernstein
+#  Copyright (c) 2017, 2019, 2021 by Rocky Bernstein
 """
 Python PyPy 3.5 decompiler scanner.
 
@@ -18,5 +18,5 @@ class ScannerPyPy35(scan.Scanner35):
         # There are no differences in initialization between
         # pypy 3.5 and 3.5
         scan.Scanner35.__init__(self, show_asm, is_pypy=True)
-        self.version = 3.5
+        self.version = (3, 5)
         return
