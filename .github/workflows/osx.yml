@@ -12,11 +12,7 @@ jobs:
     strategy:
       matrix:
         os: [macOS]
-<<<<<<< HEAD
         python-version: [3.5]
-=======
-        python-version: [3.6, 3.7, 3.8]
->>>>>>> master
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
