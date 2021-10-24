@@ -67,7 +67,6 @@ from __future__ import print_function
 
 import re
 
-from xdis import iscode, sysinfo2float
 from uncompyle6.semantics import pysource
 from uncompyle6 import parser
 from uncompyle6.scanner import Token, Code, get_scanner
@@ -80,6 +79,8 @@ from uncompyle6.show import maybe_show_asm, maybe_show_tree
 from uncompyle6.parsers.treenode import SyntaxTree
 
 from uncompyle6.semantics.pysource import ParserError, StringIO
+from xdis import iscode
+from xdis.version_info import PYTHON_VERSION_TRIPLE
 
 from uncompyle6.semantics.consts import (
     INDENT_PER_LEVEL,
@@ -1185,7 +1186,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 p_insts = self.p.insts
                 self.p.insts = self.scanner.insts
                 self.p.offset2inst_index = self.scanner.offset2inst_index
-                ast = python_parser.parse(self.p, tokens, customize)
+                ast = python_parser.parse(self.p, tokens, customize, code)
                 self.p.insts = p_insts
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
@@ -2050,7 +2051,7 @@ def code_deparse(
     assert iscode(co)
 
     if version is None:
-        version = sysinfo2float()
+        version = PYTHON_VERSION_TRIPLE
 
     # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy)
