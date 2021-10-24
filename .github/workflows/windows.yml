@@ -2,9 +2,9 @@ name: uncompyle6 (windows)
 
 on:
   push:
-    branches: [ python-3.3-to-3.5 ]
+    branches: [ python-2.4 ]
   pull_request:
-    branches: [ python-3.3-to-3.5 ]
+    branches: [ python-2.4 ]
 
 jobs:
   build:
@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         os: [windows]
-        python-version: [3.5]
+        python-version: [2.7]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -22,7 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         # Until the next xdis release
-        pip install git+git://github.com/rocky/python-xdis.git@python-3.3-to-3.5#egg=xdis
+        pip install git+git://github.com/rocky/python-xdis.git@python-2.4-to-2.7#egg=xdis
         pip install -e .
         pip install -r requirements-dev.txt
     - name: Test uncompyle6
