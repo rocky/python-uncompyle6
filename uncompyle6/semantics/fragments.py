@@ -72,7 +72,6 @@ from uncompyle6 import parser
 from uncompyle6.scanner import Token, Code, get_scanner
 import uncompyle6.parser as python_parser
 from uncompyle6.semantics.check_ast import checker
-from uncompyle6 import IS_PYPY
 
 from uncompyle6.show import maybe_show_asm, maybe_show_tree
 
@@ -80,7 +79,7 @@ from uncompyle6.parsers.treenode import SyntaxTree
 
 from uncompyle6.semantics.pysource import ParserError, StringIO
 from xdis import iscode
-from xdis.version_info import PYTHON_VERSION_TRIPLE
+from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
 
 from uncompyle6.semantics.consts import (
     INDENT_PER_LEVEL,
@@ -1166,8 +1165,15 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.name = old_name
         self.return_none = rn
 
-    def build_ast(self, tokens, customize, code, is_lambda=False,
-                  noneInNames=False, isTopLevel=False):
+    def build_ast(
+        self,
+        tokens,
+        customize,
+        code,
+        is_lambda=False,
+        noneInNames=False,
+        isTopLevel=False,
+    ):
 
         # FIXME: DRY with pysource.py
 
@@ -1731,7 +1737,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         prettyprint a list or tuple
         """
         p = self.prec
-        self.prec = 100
+        self.prec = PRECEDENCE["yield"] - 1
         n = node.pop()
         lastnode = n.kind
         start = len(self.f.getvalue())
@@ -1811,6 +1817,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         fmt = entry[0]
         arg = 1
         i = 0
+
         lastC = -1
         recurse_node = False
 
@@ -2052,6 +2059,8 @@ def code_deparse(
 
     if version is None:
         version = PYTHON_VERSION_TRIPLE
+    if is_pypy is None:
+        is_pypy = IS_PYPY
 
     # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy)
