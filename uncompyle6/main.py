@@ -81,7 +81,7 @@ def decompile(
         s += "\n"
         real_out.write(s)
 
-    assert iscode(co)
+    assert iscode(co), ("%s does not smell like code" % co)
 
     co_pypy_str = "PyPy " if is_pypy else ""
     run_pypy_str = "PyPy " if IS_PYPY else ""
@@ -287,14 +287,9 @@ def main(
 
                 # Unbuffer output if possible
                 buffering = -1 if sys.stdout.isatty() else 0
-                if PYTHON_VERSION >= 3.5:
-                    t = tempfile.NamedTemporaryFile(
-                        mode="w+b", buffering=buffering, suffix=".py", prefix=prefix
-                    )
-                else:
-                    t = tempfile.NamedTemporaryFile(
-                        mode="w+b", suffix=".py", prefix=prefix
-                    )
+                t = tempfile.NamedTemporaryFile(
+                    mode="w+b", suffix=".py", prefix=prefix
+                )
                 current_outfile = t.name
                 sys.stdout = os.fdopen(sys.stdout.fileno(), "w", buffering)
                 tee = subprocess.Popen(["tee", current_outfile], stdin=subprocess.PIPE)
