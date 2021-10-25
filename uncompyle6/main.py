@@ -12,7 +12,8 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import print_function
+
+from typing import Any, Tuple
 import datetime, py_compile, os, subprocess, sys, tempfile
 
 from uncompyle6 import verify
@@ -31,8 +32,7 @@ from uncompyle6.semantics.linemap import deparse_code_with_map
 
 from xdis.load import load_module
 
-
-def _get_outstream(outfile):
+def _get_outstream(outfile: str) -> Any:
     dir = os.path.dirname(outfile)
     failed_file = outfile + "_failed"
     if os.path.exists(failed_file):
@@ -41,14 +41,11 @@ def _get_outstream(outfile):
         os.makedirs(dir)
     except OSError:
         pass
-    if PYTHON_VERSION_TRIPLE < (3, 0):
-        return open(outfile, mode="wb")
-    else:
-        return open(outfile, mode="w", encoding="utf-8")
+    return open(outfile, mode="w", encoding="utf-8")
 
 
 def decompile(
-    bytecode_version,
+    bytecode_version: str,
     co,
     out=None,
     showasm=None,
@@ -62,7 +59,7 @@ def decompile(
     magic_int=None,
     mapstream=None,
     do_fragments=False,
-):
+) -> Any:
     """
     ingests and deparses a given code block 'co'
 
@@ -81,7 +78,7 @@ def decompile(
         s += "\n"
         real_out.write(s)
 
-    assert iscode(co)
+    assert iscode(co), f"""{co} does not smell like code"""
 
     co_pypy_str = "PyPy " if is_pypy else ""
     run_pypy_str = "PyPy " if IS_PYPY else ""
@@ -100,13 +97,8 @@ def decompile(
             "\n# ".join(sys_version_lines),
         )
     )
-    if PYTHON_VERSION_TRIPLE < (3, 0) and bytecode_version >= (3, 0):
-        write(
-            '# Warning: this version of Python has problems handling the Python 3 "byte" type in constants properly.\n'
-        )
-
     if co.co_filename:
-        write("# Embedded file name: %s" % co.co_filename,)
+        write("# Embedded file name: %s" % co.co_filename)
     if timestamp:
         write("# Compiled at: %s" % datetime.datetime.fromtimestamp(timestamp))
     if source_size:
@@ -148,7 +140,7 @@ def decompile(
         raise pysource.SourceWalkerError(str(e))
 
 
-def compile_file(source_path):
+def compile_file(source_path: str) -> str:
     if source_path.endswith(".py"):
         basename = source_path[:-3]
     else:
@@ -173,7 +165,7 @@ def decompile_file(
     source_encoding=None,
     mapstream=None,
     do_fragments=False,
-):
+) -> Any:
     """
     decompile Python byte-code file (.pyc). Return objects to
     all of the deparsed objects found in `filename`.
@@ -229,10 +221,10 @@ def decompile_file(
 
 # FIXME: combine into an options parameter
 def main(
-    in_base,
-    out_base,
-    compiled_files,
-    source_files,
+    in_base: str,
+    out_base: str,
+    compiled_files: list,
+    source_files: list,
     outfile=None,
     showasm=None,
     showast=False,
@@ -242,7 +234,7 @@ def main(
     raise_on_error=False,
     do_linemaps=False,
     do_fragments=False,
-):
+) -> Tuple[int, int, int, int]:
     """
     in_base	base directory for input files
     out_base	base directory for output files (ignored when
@@ -287,13 +279,8 @@ def main(
 
                 # Unbuffer output if possible
                 buffering = -1 if sys.stdout.isatty() else 0
-                if PYTHON_VERSION >= 3.5:
-                    t = tempfile.NamedTemporaryFile(
-                        mode="w+b", buffering=buffering, suffix=".py", prefix=prefix
-                    )
-                else:
-                    t = tempfile.NamedTemporaryFile(
-                        mode="w+b", suffix=".py", prefix=prefix
+                t = tempfile.NamedTemporaryFile(
+                    mode="w+b", buffering=buffering, suffix=".py", prefix=prefix
                     )
                 current_outfile = t.name
                 sys.stdout = os.fdopen(sys.stdout.fileno(), "w", buffering)
