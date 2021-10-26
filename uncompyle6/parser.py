@@ -21,9 +21,9 @@ Common uncompyle6 parser routines.
 
 import sys
 
-from xdis import iscode
 from spark_parser import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.show import maybe_show_asm
+from xdis import iscode
 
 
 class ParserError(Exception):

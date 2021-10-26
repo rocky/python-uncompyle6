@@ -70,9 +70,14 @@ def usage():
 
 
 def main_bin():
-    if not (sys.version_info[0:2] in ((2, 4), (2, 5), (2, 6), (2, 7))):
-        sys.stderr.write('Error: this branch of %s requires Python 2.4, 2.5, 2.6 or 2.7'
-                         % program)
+    if not (sys.version_info[0:2] in ((2, 4), (2, 5), (2, 6), (2, 7), (3, 0),
+                                      (3, 1), (3, 2), (3, 3),
+                                      (3, 4), (3, 5), (3, 6),
+                                      (3, 7), (3, 8), (3, 9), (3, 10)
+        )):
+        print('Error: %s requires Python 2.4-3.10' % program,
+              file=sys.stderr)
+>>>>>>> python-3.3-to-3.5
         sys.exit(-1)
 
     do_verify = recurse_dirs = False

@@ -27,7 +27,14 @@ import sys
 from uncompyle6.scanners.tok import Token
 from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, PYTHON3, version_tuple_to_str
 import xdis
-from xdis import Bytecode, canonic_python_version, code2num, instruction_size, extended_arg_val, next_offset
+from xdis import (
+    Bytecode,
+    canonic_python_version,
+    code2num,
+    instruction_size,
+    extended_arg_val,
+    next_offset,
+)
 
 if PYTHON_VERSION_TRIPLE < (2, 6):
     from xdis.namedtuple24 import namedtuple
@@ -115,7 +122,10 @@ class Scanner(object):
             exec("from xdis.opcodes import %s" % v_str)
             exec("self.opc = %s" % v_str)
         else:
-            raise TypeError("%s is not a Python version I know about" % version_tuple_to_str(version))
+            raise TypeError(
+                "%s is not a Python version I know about"
+                % version_tuple_to_str(version)
+            )
 
         self.opname = self.opc.opname
 
@@ -570,7 +580,10 @@ def get_scanner(version, is_pypy=False, show_asm=None):
                 "scan.Scanner%s(show_asm=show_asm)" % v_str, locals(), globals()
             )
     else:
-        raise RuntimeError("Unsupported Python version %s" % version)
+        raise RuntimeError(
+            "Unsupported Python version, %s, for decompilation"
+            % version_tuple_to_str(version)
+        )
     return scanner
 
 

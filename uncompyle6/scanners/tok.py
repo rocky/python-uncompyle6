@@ -86,7 +86,20 @@ class Token:   # Python 2.4 can't have empty ()
             self.pattr = None
 
         if opc is None:
-            from xdis.std import _std_api
+            try:
+                from xdis.std import _std_api
+            except KeyError as e:
+                print("I don't know about Python version %s yet." % e)
+                try:
+                    version_tuple = tuple(int(i) for i in str(e)[1:-1].split("."))
+                except:
+                    pass
+                else:
+                    if version_tuple > (3, 9):
+                        print("Python versions 3.9 and greater are not supported.")
+                    else:
+                        print("xdis might need to be informed about version {e}" % e)
+                return
 
             self.opc = _std_api.opc
         else:

@@ -30,8 +30,7 @@ from uncompyle6.semantics.linemap import deparse_code_with_map
 
 from xdis.load import load_module
 
-
-def _get_outstream(outfile):
+def _get_outstream(outfile: str):
     dir = os.path.dirname(outfile)
     failed_file = outfile + "_failed"
     if os.path.exists(failed_file):
@@ -43,7 +42,7 @@ def _get_outstream(outfile):
     return open(outfile, 'wb')
 
 def decompile(
-    bytecode_version,
+    bytecode_version: str,
     co,
     out=None,
     showasm=None,
@@ -76,7 +75,7 @@ def decompile(
         s += "\n"
         real_out.write(s)
 
-    assert iscode(co)
+    assert iscode(co), ("%s does not smell like code" % co)
 
     if is_pypy:
         co_pypy_str = "PyPy "
@@ -112,7 +111,7 @@ def decompile(
             "# Warning: this version of Python has problems handling the Python 3 byte type in constants properly.\n"
         )
     if co.co_filename:
-        write("# Embedded file name: %s" % co.co_filename,)
+        write("# Embedded file name: %s" % co.co_filename)
     if timestamp:
         write("# Compiled at: %s" %
               datetime.datetime.fromtimestamp(timestamp))
@@ -156,7 +155,7 @@ def decompile(
         raise pysource.SourceWalkerError(str(e))
 
 
-def compile_file(source_path):
+def compile_file(source_path: str) -> str:
     if source_path.endswith(".py"):
         basename = source_path[:-3]
     else:
@@ -237,10 +236,10 @@ def decompile_file(
 
 # FIXME: combine into an options parameter
 def main(
-    in_base,
-    out_base,
-    compiled_files,
-    source_files,
+    in_base: str,
+    out_base: str,
+    compiled_files: list,
+    source_files: list,
     outfile=None,
     showasm=None,
     showast=False,
