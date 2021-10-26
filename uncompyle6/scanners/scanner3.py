@@ -387,7 +387,7 @@ class Scanner3(Scanner):
                     # pattr = 'code_object @ 0x%x %s->%s' %\
                     # (id(const), const.co_filename, const.co_name)
                     pattr = "<code_object " + const.co_name + ">"
-                elif isinstance(const, str) or xdis.PYTHON_VERSION <= 2.7 and isinstance(const, unicode):
+                elif isinstance(const, str) or PYTHON_VERSION <= 2.7 and isinstance(const, unicode):
                     opname = "LOAD_STR"
                 else:
                     if isinstance(inst.arg, int) and inst.arg < len(co.co_consts):
