@@ -18,7 +18,7 @@ fi
 
 cd ..
 source $PACKAGE/version.py
-echo $VERSION
+echo $__version__
 
 for pyversion in $PYVERSIONS; do
     if ! pyenv local $pyversion ; then
@@ -29,11 +29,15 @@ for pyversion in $PYVERSIONS; do
     python setup.py bdist_egg
 done
 
+pyenv local 2.7.18
+python setup.py bdist_wheel
+mv -v dist/${PACKAGE}-$__version__-py2{.py3,}-none-any.whl
+
 # Pypi can only have one source tarball.
 # Tarballs can get created from the above setup, so make sure to remove them since we want
 # the tarball from master.
 
-tarball=dist/${PACKAGE}-$VERSION-tar.gz
+tarball=dist/${PACKAGE}-${__version_}_-tar.gz
 if [[ -f $tarball ]]; then
-    rm -v dist/${PACKAGE}-$VERSION-tar.gz
+    rm -v dist/${PACKAGE}-${__version__}-tar.gz
 fi
