@@ -12,7 +12,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import print_function
+
 import datetime, py_compile, os, subprocess, sys, tempfile
 
 from uncompyle6 import verify
@@ -31,8 +31,7 @@ from uncompyle6.semantics.linemap import deparse_code_with_map
 
 from xdis.load import load_module
 
-
-def _get_outstream(outfile):
+def _get_outstream(outfile: str):
     dir = os.path.dirname(outfile)
     failed_file = outfile + "_failed"
     if os.path.exists(failed_file):
@@ -41,14 +40,11 @@ def _get_outstream(outfile):
         os.makedirs(dir)
     except OSError:
         pass
-    if PYTHON_VERSION_TRIPLE < (3, 0):
-        return open(outfile, mode="wb")
-    else:
-        return open(outfile, mode="w", encoding="utf-8")
+    return open(outfile, mode="w", encoding="utf-8")
 
 
 def decompile(
-    bytecode_version,
+    bytecode_version: str,
     co,
     out=None,
     showasm=None,
@@ -100,13 +96,8 @@ def decompile(
             "\n# ".join(sys_version_lines),
         )
     )
-    if PYTHON_VERSION_TRIPLE < (3, 0) and bytecode_version >= (3, 0):
-        write(
-            '# Warning: this version of Python has problems handling the Python 3 "byte" type in constants properly.\n'
-        )
-
     if co.co_filename:
-        write("# Embedded file name: %s" % co.co_filename,)
+        write("# Embedded file name: %s" % co.co_filename)
     if timestamp:
         write("# Compiled at: %s" % datetime.datetime.fromtimestamp(timestamp))
     if source_size:
@@ -148,7 +139,7 @@ def decompile(
         raise pysource.SourceWalkerError(str(e))
 
 
-def compile_file(source_path):
+def compile_file(source_path: str) -> str:
     if source_path.endswith(".py"):
         basename = source_path[:-3]
     else:
@@ -229,10 +220,10 @@ def decompile_file(
 
 # FIXME: combine into an options parameter
 def main(
-    in_base,
-    out_base,
-    compiled_files,
-    source_files,
+    in_base: str,
+    out_base: str,
+    compiled_files: list,
+    source_files: list,
     outfile=None,
     showasm=None,
     showast=False,
