@@ -74,9 +74,9 @@ def main_bin():
     if not (sys.version_info[0:2] in ((2, 6), (2, 7), (3, 0),
                                       (3, 1), (3, 2), (3, 3),
                                       (3, 4), (3, 5), (3, 6),
-                                      (3, 7), (3, 8)
+                                      (3, 7), (3, 8), (3, 9), (3, 10)
         )):
-        print('Error: %s requires Python 2.6-3.8' % program,
+        print('Error: %s requires Python 2.4-3.10' % program,
               file=sys.stderr)
         sys.exit(-1)
 

@@ -19,13 +19,11 @@
 Common uncompyle6 parser routines.
 """
 
-from __future__ import print_function
-
 import sys
 
-from xdis import iscode, py_str2float
 from spark_parser import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.show import maybe_show_asm
+from xdis import iscode
 
 
 class ParserError(Exception):
