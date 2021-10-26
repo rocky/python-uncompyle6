@@ -593,5 +593,5 @@ if __name__ == "__main__":
     co = inspect.currentframe().f_code
     # scanner = get_scanner('2.7.13', True)
     # scanner = get_scanner(sys.version[:5], False)
-    scanner = get_scanner(uncompyle6.PYTHON_VERSION, IS_PYPY, True)
+    scanner = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY, True)
     tokens, customize = scanner.ingest(co, {}, show_asm="after")

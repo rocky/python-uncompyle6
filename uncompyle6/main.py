@@ -30,7 +30,7 @@ from uncompyle6.semantics.linemap import deparse_code_with_map
 
 from xdis.load import load_module
 
-def _get_outstream(outfile: str):
+def _get_outstream(outfile):
     dir = os.path.dirname(outfile)
     failed_file = outfile + "_failed"
     if os.path.exists(failed_file):
@@ -42,7 +42,7 @@ def _get_outstream(outfile: str):
     return open(outfile, 'wb')
 
 def decompile(
-    bytecode_version: str,
+    bytecode_version,
     co,
     out=None,
     showasm=None,
@@ -155,7 +155,7 @@ def decompile(
         raise pysource.SourceWalkerError(str(e))
 
 
-def compile_file(source_path: str) -> str:
+def compile_file(source_path):
     if source_path.endswith(".py"):
         basename = source_path[:-3]
     else:
@@ -236,10 +236,10 @@ def decompile_file(
 
 # FIXME: combine into an options parameter
 def main(
-    in_base: str,
-    out_base: str,
-    compiled_files: list,
-    source_files: list,
+    in_base,
+    out_base,
+    compiled_files,
+    source_files,
     outfile=None,
     showasm=None,
     showast=False,

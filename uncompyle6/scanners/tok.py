@@ -88,7 +88,8 @@ class Token:   # Python 2.4 can't have empty ()
         if opc is None:
             try:
                 from xdis.std import _std_api
-            except KeyError as e:
+            except KeyError:
+                e = sys.exec_info()[1]
                 print("I don't know about Python version %s yet." % e)
                 try:
                     version_tuple = tuple(int(i) for i in str(e)[1:-1].split("."))

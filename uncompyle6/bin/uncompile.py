@@ -75,9 +75,7 @@ def main_bin():
                                       (3, 4), (3, 5), (3, 6),
                                       (3, 7), (3, 8), (3, 9), (3, 10)
         )):
-        print('Error: %s requires Python 2.4-3.10' % program,
-              file=sys.stderr)
->>>>>>> python-3.3-to-3.5
+        print('Error: %s requires Python 2.4-3.10' % program)
         sys.exit(-1)
 
     do_verify = recurse_dirs = False
