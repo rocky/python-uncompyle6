@@ -5,6 +5,7 @@
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 import sys, os, getopt, time
+from xdis.version_info import version_tuple_to_str
 
 program = 'uncompyle6'
 
@@ -196,6 +197,9 @@ def main_bin():
                 mess = status_msg(do_verify, *result)
                 print('# ' + mess)
                 pass
+        except ImportError:
+            print(str(sys.exc_info()[1]))
+            sys.exit(2)
         except (KeyboardInterrupt):
             pass
         except verify.VerifyCmpError:

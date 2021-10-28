@@ -6,12 +6,18 @@ import sys
 SYS_VERSION = sys.version_info[0:2]
 if not ((2, 4) <= SYS_VERSION  <= (2, 7)):
     mess = "Python Release 2.4 .. 2.7 are supported in this code branch."
-    if ((3, 2) <= SYS_VERSION  <= (3, 8)):
+    if ((3, 6) <= SYS_VERSION  < (3, 9)):
         mess += ("\nFor your Python, version %s, use the master code/branch." %
                  sys.version[0:3])
-    else:
-        mess += ("\nThis package is not supported before Python 2.4. Your Python version is %s."
-                 % sys.version[0:3])
+    elif (3, 3) <= SYS_VERSION <= (3, 6):
+        mess += (
+            "\nFor your Python, version %s, use the python-3.3-3.5 code/branch."
+            % sys.version[0:3]
+        )
+    elif SYS_VERSION < (2, 4):
+        mess += (
+            "\nThis package is not supported for Python before Python 2.4 version %s." % sys.version[0:3]
+        )
     print(mess)
     raise Exception(mess)
 
