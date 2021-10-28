@@ -6,6 +6,7 @@
 #
 from __future__ import print_function
 import sys, os, getopt, time
+from xdis.version_info import version_tuple_to_str
 
 program = 'uncompyle6'
 
@@ -76,8 +77,10 @@ def main_bin():
                                       (3, 4), (3, 5), (3, 6),
                                       (3, 7), (3, 8), (3, 9), (3, 10)
         )):
-        print('Error: %s requires Python 2.4-3.10' % program,
-              file=sys.stderr)
+        print(
+            f"Error: {program} can decompile only bytecode from Python 3.7"
+            f""" to 3.8.\n\tYou have version: {version_tuple_to_str()}."""
+        )
         sys.exit(-1)
 
     do_verify = recurse_dirs = False
@@ -197,6 +200,9 @@ def main_bin():
                 mess = status_msg(do_verify, *result)
                 print('# ' + mess)
                 pass
+        except ImportError as e:
+            print(str(e))
+            sys.exit(2)
         except (KeyboardInterrupt):
             pass
         except verify.VerifyCmpError:
