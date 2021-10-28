@@ -6,6 +6,7 @@
 #
 from __future__ import print_function
 import sys, os, getopt, time
+from xdis.version_info import version_tuple_to_str
 
 program = 'uncompyle6'
 
@@ -197,6 +198,9 @@ def main_bin():
                 mess = status_msg(do_verify, *result)
                 print('# ' + mess)
                 pass
+        except ImportError as e:
+            print(str(e))
+            sys.exit(2)
         except (KeyboardInterrupt):
             pass
         except verify.VerifyCmpError:
