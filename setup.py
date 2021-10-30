@@ -4,7 +4,7 @@ import sys
 """Setup script for the 'uncompyle6' distribution."""
 
 SYS_VERSION = sys.version_info[0:2]
-if not ((3, 3) <= SYS_VERSION <= (3, 5)):
+if not ((3, 3) <= SYS_VERSION < (3, 6)):
     mess = "Python Release 3.3 .. 3.5 are supported in this code branch."
     if (2, 4) <= SYS_VERSION <= (2, 7):
         mess += (
