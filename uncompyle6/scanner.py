@@ -111,7 +111,9 @@ class Scanner(object):
         self.is_pypy = is_pypy
 
         if version[:2] in PYTHON_VERSIONS:
-            v_str = f"""opcode_{version_tuple_to_str(version, start=0, end=2, delimiter="")}"""
+            v_str = "opcode_%s" % version_tuple_to_str(
+                version, start=0, end=2, delimiter=""
+            )
             if is_pypy:
                 v_str += "pypy"
             exec("from xdis.opcodes import %s" % v_str)
