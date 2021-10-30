@@ -1,3 +1,14 @@
+3.8.0: 2020-10-29
+=================
+
+* Better handling of invalid bytecode magic
+* Support running from 3.9 and 3.10 although we do not support those bytecodes
+* Redo version comparisons using tuples instead of floats. This is needed for Python 3.10
+* Split out into 3 branches so that the master branch can assume Python 3.6+ conventions, especially type annotations
+* Source Fragment fixes
+* Lambda-bug fixes #360
+* Bug fixes
+
 3.7.4: 2020-8-05
 ================
 
