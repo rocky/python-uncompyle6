@@ -14,11 +14,11 @@ def a():
         def c():
             k = 34
             global i
-            i += k
+            i = i+k
         l = 42
         c()
         global j
-        j += l
+        j = j+l
     b()
     print i, j # should print 35, 49
 

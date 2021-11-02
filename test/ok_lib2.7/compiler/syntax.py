@@ -30,7 +30,7 @@ class SyntaxErrorChecker:
         self.errors = 0
 
     def error(self, node, msg):
-        self.errors += 1
+        self.errors = self.errors + 1
         if self.multi is not None:
             print "%s:%s: %s" % (node.filename, node.lineno, msg)
         else:

@@ -1,5 +1,5 @@
 """
-  Copyright (c) 2015, 2018 by Rocky Bernstein
+  Copyright (c) 2015, 2018, 2021 by Rocky Bernstein
   Copyright (c) 2000 by hartmut Goebel <h.goebel@crazy-compilers.com>
   Copyright (c) 1999 John Aycock
 
@@ -30,18 +30,7 @@ import sys
 
 __docformat__ = "restructuredtext"
 
-from uncompyle6.version import __version__
-
-PYTHON3 = sys.version_info >= (3, 0)
-
-# We do this crazy way to support Python 2.6 which
-# doesn't support version_major, and has a bug in
-# floating point so we can't divide 26 by 10 and get
-# 2.6
-PYTHON_VERSION = sys.version_info[0] + (sys.version_info[1] / 10.0)
-PYTHON_VERSION_STR = "%s.%s" % (sys.version_info[0], sys.version_info[1])
-
-IS_PYPY = "__pypy__" in sys.builtin_module_names
+from uncompyle6.version import __version__  # noqa
 
 if hasattr(sys, "setrecursionlimit"):
     # pyston doesn't have setrecursionlimit
@@ -51,7 +40,7 @@ import uncompyle6.semantics.pysource
 import uncompyle6.semantics.fragments
 
 # Export some functions
-from uncompyle6.main import decompile_file
+from uncompyle6.main import decompile_file  # noqa
 
 # Convenience functions so you can say:
 # from uncompyle6 import (code_deparse, deparse_code2str)

@@ -1,11 +1,11 @@
 import sys
-from uncompyle6 import PYTHON3
 from uncompyle6.scanner import get_scanner
 from uncompyle6.semantics.consts import (
     escape, NONE,
     # RETURN_NONE, PASS, RETURN_LOCALS
 )
 
+from xdis.version_info import PYTHON3
 if PYTHON3:
     from io import StringIO
     def iteritems(d):
