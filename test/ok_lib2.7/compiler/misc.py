@@ -3,7 +3,7 @@ def flatten(tup):
     elts = []
     for elt in tup:
         if isinstance(elt, tuple):
-            elts = elts + flatten(elt)
+            elts += flatten(elt)
         else:
             elts.append(elt)
     return elts
@@ -53,7 +53,7 @@ def mangle(name, klass):
     try:
         i = 0
         while klass[i] == '_':
-            i = i + 1
+            i += 1
     except IndexError:
         return name
     klass = klass[i:]

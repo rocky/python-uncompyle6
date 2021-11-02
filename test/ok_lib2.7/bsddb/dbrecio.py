@@ -55,9 +55,9 @@ class DBRecIO:
         if self.closed:
             raise ValueError, "I/O operation on closed file"
         if mode == 1:
-            pos = pos + self.pos
+            pos += self.pos
         elif mode == 2:
-            pos = pos + self.len
+            pos += self.len
         self.pos = max(0, pos)
 
     def tell(self):
@@ -84,7 +84,7 @@ class DBRecIO:
         if self.closed:
             raise ValueError, "I/O operation on closed file"
         if self.buflist:
-            self.buf = self.buf + string.joinfields(self.buflist, '')
+            self.buf += string.joinfields(self.buflist, '')
             self.buflist = []
         i = string.find(self.buf, '\n', self.pos)
         if i < 0:
