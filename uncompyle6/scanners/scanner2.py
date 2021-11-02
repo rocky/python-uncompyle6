@@ -40,7 +40,7 @@ from copy import copy
 from xdis import code2num, iscode, op_has_argument, instruction_size
 from xdis.bytecode import _get_const_info
 
-from uncompyle6 import PYTHON3
+from xdis.version_info import PYTHON3
 
 if PYTHON3:
     from sys import intern

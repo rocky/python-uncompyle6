@@ -26,8 +26,8 @@ from subprocess import call
 
 import uncompyle6
 from uncompyle6.scanner import Token as ScannerToken, get_scanner
-from uncompyle6 import PYTHON3
 from xdis import iscode, load_file, load_module, pretty_code_flags, PYTHON_MAGIC_INT
+from xdis.version_info import PYTHON3
 
 # FIXME: DRY
 if PYTHON3:

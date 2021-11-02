@@ -3,7 +3,7 @@
 # More could be done here though.
 
 from math import copysign
-from uncompyle6 import PYTHON_VERSION
+from xdis.version_info import PYTHON_VERSION
 
 
 def is_negative_zero(n):

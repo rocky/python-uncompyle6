@@ -84,8 +84,8 @@ check-3.10: check-bytecode
 	@echo "Note that we do not support decompiling Python 3.10 bytecode - no 3.10 tests run"
 
 # FIXME
-#: this is called when running under pypy3.5-5.8.0, pypy2-5.6.0, or pypy3.6-7.3.0
-5.8 5.6:
+#: this is called when running under pypy3.5-5.8.0, pypy2-5.6.0, pypy3.6-7.3.0 or pypy3.8-7.3.7
+5.8 5.6 7.3:
 
 #: Check deparsing only, but from a different Python version
 check-disasm:
