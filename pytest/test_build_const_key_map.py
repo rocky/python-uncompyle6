@@ -1,10 +1,10 @@
 import pytest
 # uncompyle6
-from uncompyle6 import PYTHON_VERSION
+from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
 from validate import validate_uncompyle
 
 
-@pytest.mark.skipif(PYTHON_VERSION < 3.6, reason='need at least python 3.6')
+@pytest.mark.skipif(PYTHON_VERSION_TRIPLE < (3, 6) or IS_PYPY, reason="need at least Python 3.6 and not PyPY")
 @pytest.mark.parametrize('text', (
     "{0.: 'a', -1: 'b'}",   # BUILD_MAP
     "{'a':'b'}",            # BUILD_MAP
