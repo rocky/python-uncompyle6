@@ -2,7 +2,7 @@
 # messing up control flow detection
 def _format_usage(self, usage, actions, groups, prefix):
     if usage:
-        usage = usage % dict(prog=self._prog)
+        usage %= dict(prog=self._prog)
 
     elif usage is None:
         prog = 5

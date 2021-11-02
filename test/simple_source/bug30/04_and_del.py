@@ -9,11 +9,11 @@ def normpath(comps):
             del comps[i]
         elif comps[i] == '..' and i > 0 and comps[i-1] not in ('', '..'):
             del comps[i-1:i+1]
-            i = i - 1
+            i -= 1
         elif comps[i] == '' and i > 0 and comps[i-1] != '':
             del comps[i]
         else:
-            i = i + 1
+            i += 1
     return comps
 
 assert normpath(['.']) == []

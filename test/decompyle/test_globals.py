@@ -8,7 +8,7 @@
 
 def f():
     print x  # would result in a 'NameError' or 'UnboundLocalError'
-    x = x+1
+    x += 1
     print x
 
 raise "This program can't be run"
