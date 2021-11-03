@@ -5,15 +5,9 @@ from uncompyle6.semantics.consts import (
     # RETURN_NONE, PASS, RETURN_LOCALS
 )
 
-from xdis.version_info import PYTHON3
-if PYTHON3:
-    from io import StringIO
-    def iteritems(d):
-        return d.items()
-else:
-    from StringIO import StringIO
-    def iteritems(d):
-        return d.iteritems()
+from io import StringIO
+def iteritems(d):
+    return d.items()
 
 from uncompyle6.semantics.pysource import (SourceWalker, deparse_code2str)
 

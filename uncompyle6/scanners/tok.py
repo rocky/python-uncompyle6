@@ -16,10 +16,8 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re, sys
-from xdis.version_info import PYTHON3
 
-if PYTHON3:
-    intern = sys.intern
+intern = sys.intern
 
 
 def off2int(offset, prefer_last=True):
@@ -93,7 +91,7 @@ class Token:
                     pass
                 else:
                     if version_tuple > (3, 9):
-                        print(f"Python versions 3.9 and greater are not supported.")
+                        print("Python versions 3.9 and greater are not supported.")
                     else:
                         print(f"xdis might need to be informed about version {e}")
                 return

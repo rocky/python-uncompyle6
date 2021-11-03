@@ -27,12 +27,8 @@ from uncompyle6.semantics.helper import (
     find_none,
 )
 from xdis import iscode, code_has_star_arg, code_has_star_star_arg
-from xdis.version_info import PYTHON3
 
-if PYTHON3:
-    from itertools import zip_longest
-else:
-    from itertools import izip_longest as zip_longest
+from itertools import zip_longest
 
 from uncompyle6.show import maybe_show_tree_param_default
 

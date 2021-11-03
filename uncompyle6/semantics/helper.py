@@ -3,13 +3,8 @@ import sys
 from xdis import iscode
 from uncompyle6.parsers.treenode import SyntaxTree
 
-from xdis.version_info import PYTHON3
-if PYTHON3:
-    minint = -sys.maxsize-1
-    maxint = sys.maxsize
-else:
-    minint = -sys.maxint-1
-    maxint = sys.maxint
+minint = -sys.maxsize-1
+maxint = sys.maxsize
 
 read_write_global_ops = frozenset(('STORE_GLOBAL', 'DELETE_GLOBAL', 'LOAD_GLOBAL'))
 read_global_ops       = frozenset(('STORE_GLOBAL', 'DELETE_GLOBAL'))
@@ -145,18 +140,7 @@ def print_docstring(self, indent, docstring):
             quote = "'''"
 
     self.write(indent)
-    if not PYTHON3 and not isinstance(docstring, str):
-        # Must be unicode in Python2
-        self.write('u')
-        docstring = repr(docstring.expandtabs())[2:-1]
-    elif PYTHON3 and (2, 4) <= self.version[:2] <= (2, 7):
-        try:
-            repr(docstring.expandtabs())[1:-1].encode("ascii")
-        except UnicodeEncodeError:
-            self.write('u')
-        docstring = repr(docstring.expandtabs())[1:-1]
-    else:
-        docstring = repr(docstring.expandtabs())[1:-1]
+    docstring = repr(docstring.expandtabs())[1:-1]
 
     for (orig, replace) in (('\\\\', '\t'),
                             ('\\r\\n', '\n'),

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2015-2018, 2020 by Rocky Bernstein
+# (C) Copyright 2015-2018, 2020-2021 by Rocky Bernstein
 # (C) Copyright 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -27,14 +27,9 @@ from subprocess import call
 import uncompyle6
 from uncompyle6.scanner import Token as ScannerToken, get_scanner
 from xdis import iscode, load_file, load_module, pretty_code_flags, PYTHON_MAGIC_INT
-from xdis.version_info import PYTHON3
 
-# FIXME: DRY
-if PYTHON3:
-    truediv = operator.truediv
-    from functools import reduce
-else:
-    truediv = operator.div
+truediv = operator.truediv
+from functools import reduce
 
 
 def code_equal(a, b):
@@ -230,7 +225,7 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2, verify, name=""):
             scanner = get_scanner(version, is_pypy, show_asm=False)
 
             global JUMP_OPS
-            JUMP_OPS = list(scan.JUMP_OPS) + ["JUMP_BACK"]
+            JUMP_OPS = list(JUMP_OPS) + ["JUMP_BACK"]
 
             # use changed Token class
             # We (re)set this here to save exception handling,
