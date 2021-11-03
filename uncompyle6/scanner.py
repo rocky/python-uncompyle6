@@ -24,7 +24,7 @@ scanners, e.g. for Python 2.7 or 3.4.
 from typing import Optional
 from array import array
 from collections import namedtuple
-from sys import intern
+from sys import intern  # noqa
 
 from uncompyle6.scanners.tok import Token
 from xdis.version_info import IS_PYPY, version_tuple_to_str
@@ -586,5 +586,5 @@ if __name__ == "__main__":
     # scanner = get_scanner('2.7.13', True)
     # scanner = get_scanner(sys.version[:5], False)
     from xdis.version_info import PYTHON_VERSION_TRIPLE
-    scanner = get_scanner(uncompyle6.PYTHON_VERSION_TRIPLE, IS_PYPY, True)
+    scanner = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY, True)
     tokens, customize = scanner.ingest(co, {}, show_asm="after")
