@@ -21,9 +21,10 @@ scanner/ingestion module. From here we call various version-specific
 scanners, e.g. for Python 2.7 or 3.4.
 """
 
+from typing import Optional
 from array import array
 from collections import namedtuple
-import sys
+from sys import intern
 
 from uncompyle6.scanners.tok import Token
 from xdis.version_info import IS_PYPY, version_tuple_to_str
@@ -32,8 +33,8 @@ from xdis import (
     Bytecode,
     canonic_python_version,
     code2num,
-    instruction_size,
     extended_arg_val,
+    instruction_size,
     next_offset,
 )
 
@@ -77,7 +78,6 @@ CANONIC2VERSION["3.5.2"] = 3.5
 
 
 # FIXME: DRY
-intern = sys.intern
 L65536 = 65536
 
 def long(num):
@@ -100,7 +100,7 @@ class Code(object):
 
 
 class Scanner(object):
-    def __init__(self, version, show_asm=None, is_pypy=False):
+    def __init__(self, version: tuple, show_asm=None, is_pypy=False):
         self.version = version
         self.show_asm = show_asm
         self.is_pypy = is_pypy
@@ -109,7 +109,7 @@ class Scanner(object):
             v_str = f"""opcode_{version_tuple_to_str(version, start=0, end=2, delimiter="")}"""
             if is_pypy:
                 v_str += "pypy"
-            exec("from xdis.opcodes import %s" % v_str)
+            exec(f"""from xdis.opcodes import {v_str}""")
             exec("self.opc = %s" % v_str)
         else:
             raise TypeError(
@@ -193,7 +193,7 @@ class Scanner(object):
             for _ in range(instruction_size(op, self.opc)):
                 self.prev_op.append(offset)
 
-    def is_jump_forward(self, offset):
+    def is_jump_forward(self, offset: int) -> bool:
         """
         Return True if the code at offset is some sort of jump forward.
         That is, it is ether "JUMP_FORWARD" or an absolute jump that
@@ -206,10 +206,10 @@ class Scanner(object):
             return False
         return offset < self.get_target(offset)
 
-    def prev_offset(self, offset):
+    def prev_offset(self, offset: int) -> int:
         return self.insts[self.offset2inst_index[offset] - 1].offset
 
-    def get_inst(self, offset):
+    def get_inst(self, offset: int):
         # Instructions can get moved as a result of EXTENDED_ARGS removal.
         # So if "offset" is not in self.offset2inst_index, then
         # we assume that it was an instruction moved back.
@@ -220,7 +220,7 @@ class Scanner(object):
             assert self.code[offset] == self.opc.EXTENDED_ARG
         return self.insts[self.offset2inst_index[offset]]
 
-    def get_target(self, offset, extended_arg=0):
+    def get_target(self, offset: int, extended_arg: int = 0) -> int:
         """
         Get next instruction offset for op located at given <offset>.
         NOTE: extended_arg is no longer used
@@ -233,11 +233,11 @@ class Scanner(object):
             target = next_offset(inst.opcode, self.opc, inst.offset)
         return target
 
-    def get_argument(self, pos):
+    def get_argument(self, pos: int):
         arg = self.code[pos + 1] + self.code[pos + 2] * 256
         return arg
 
-    def next_offset(self, op, offset):
+    def next_offset(self, op, offset: int) -> int:
         return xdis.next_offset(op, self.opc, offset)
 
     def print_bytecode(self):
@@ -249,7 +249,7 @@ class Scanner(object):
             else:
                 print("%i\t%s\t" % (i, self.opname[op]))
 
-    def first_instr(self, start, end, instr, target=None, exact=True):
+    def first_instr(self, start: int, end: int, instr, target=None, exact=True):
         """
         Find the first <instr> in the block from start to end.
         <instr> is any python bytecode instruction or a list of opcodes
@@ -283,7 +283,9 @@ class Scanner(object):
                         result_offset = offset
         return result_offset
 
-    def last_instr(self, start, end, instr, target=None, exact=True):
+    def last_instr(
+        self, start: int, end: int, instr, target=None, exact=True
+    ) -> Optional[int]:
         """
         Find the last <instr> in the block from start to end.
         <instr> is any python bytecode instruction or a list of opcodes
@@ -379,7 +381,9 @@ class Scanner(object):
     # FIXME: this is broken on 3.6+. Replace remaining (2.x-based) calls
     # with inst_matches
 
-    def all_instr(self, start, end, instr, target=None, include_beyond_target=False):
+    def all_instr(
+        self, start: int, end: int, instr, target=None, include_beyond_target=False
+    ):
         """
         Find all `instr` in the block from start to end.
         `instr` is any Python opcode or a list of opcodes
@@ -506,14 +510,13 @@ class Scanner(object):
     def resetTokenClass(self):
         return self.setTokenClass(Token)
 
-    def restrict_to_parent(self, target, parent):
+    def restrict_to_parent(self, target: int, parent) -> int:
         """Restrict target to parent structure boundaries."""
         if not (parent["start"] < target < parent["end"]):
             target = parent["end"]
         return target
 
-    def setTokenClass(self, tokenClass):
-        # assert isinstance(tokenClass, types.ClassType)
+    def setTokenClass(self, tokenClass) -> Token:
         self.Token = tokenClass
         return self.Token
 
@@ -571,8 +574,7 @@ def get_scanner(version, is_pypy=False, show_asm=None):
             )
     else:
         raise RuntimeError(
-            "Unsupported Python version, %s, for decompilation"
-            % version_tuple_to_str(version)
+            f"Unsupported Python version, {version_tuple_to_str(version)}, for decompilation"
         )
     return scanner
 
@@ -583,5 +585,6 @@ if __name__ == "__main__":
     co = inspect.currentframe().f_code
     # scanner = get_scanner('2.7.13', True)
     # scanner = get_scanner(sys.version[:5], False)
-    scanner = get_scanner(uncompyle6.PYTHON_VERSION, IS_PYPY, True)
+    from xdis.version_info import PYTHON_VERSION_TRIPLE
+    scanner = get_scanner(uncompyle6.PYTHON_VERSION_TRIPLE, IS_PYPY, True)
     tokens, customize = scanner.ingest(co, {}, show_asm="after")
