@@ -5,7 +5,6 @@ from uncompyle6.semantics.consts import (
     # RETURN_NONE, PASS, RETURN_LOCALS
 )
 
-from xdis.version_info import PYTHON3
 from StringIO import StringIO
 
 from uncompyle6.semantics.pysource import (SourceWalker, deparse_code2str)

@@ -1,7 +1,7 @@
 import re
 import unittest
-from uncompyle6 import PYTHON_VERSION, IS_PYPY # , PYTHON_VERSION
 from uncompyle6.parser import get_python_parser, python_parser
+from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
 
 class TestGrammar(unittest.TestCase):
     def test_grammar(self):
@@ -14,7 +14,7 @@ class TestGrammar(unittest.TestCase):
             self.assertEqual(remain_tokens, set([]),
                     "Remaining tokens %s\n====\n%s" % (remain_tokens, p.dump_grammar()))
 
-        p = get_python_parser(PYTHON_VERSION, is_pypy=IS_PYPY)
+        p = get_python_parser(PYTHON_VERSION_TRIPLE, is_pypy=IS_PYPY)
         (lhs, rhs, tokens,
          right_recursive, dup_rhs) = p.check_sets()
         expect_lhs = set(['pos_arg', 'get_iter', 'attribute'])
@@ -47,7 +47,7 @@ class TestGrammar(unittest.TestCase):
     # FIXME: Something got borked here
     def no_test_dup_rule(self):
         import inspect
-        python_parser(PYTHON_VERSION, inspect.currentframe().f_code,
+        python_parser(PYTHON_VERSION_TRIPLE, inspect.currentframe().f_code,
                       is_pypy=IS_PYPY,
                       parser_debug={
                           'dups': True, 'transition': False, 'reduce': False,
