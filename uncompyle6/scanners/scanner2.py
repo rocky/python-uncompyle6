@@ -140,7 +140,7 @@ class Scanner2(Scanner):
         In Python2 this always the operand value shifted 16 bits since
         the operand is always 2 bytes. In Python 3.6+ this changes to one byte.
         """
-        return arg << 16
+        return arg << long(16)
 
     @staticmethod
     def unmangle_name(name, classname):
