@@ -133,7 +133,6 @@ Python.
 import sys
 
 IS_PYPY = "__pypy__" in sys.builtin_module_names
-PYTHON3 = sys.version_info >= (3, 0)
 
 from xdis import iscode, COMPILER_FLAG_BIT
 from xdis.version_info import PYTHON_VERSION_TRIPLE
@@ -182,13 +181,7 @@ from uncompyle6.semantics.consts import (
 
 from uncompyle6.show import maybe_show_tree
 from uncompyle6.util import better_repr
-
-
-if PYTHON3:
-    def unicode(x): return x
-    from io import StringIO
-else:
-    from StringIO import StringIO
+from StringIO import StringIO
 
 
 class SourceWalkerError(Exception):
@@ -437,10 +430,7 @@ class SourceWalker(GenericASTTraversal, object):
     def write(self, *data):
         if (len(data) == 0) or (len(data) == 1 and data[0] == ""):
             return
-        if not PYTHON3:
-            out = "".join((unicode(j) for j in data))
-        else:
-            out = "".join((str(j) for j in data))
+        out = "".join((str(j) for j in data))
         n = 0
         for i in out:
             if i == "\n":
@@ -467,8 +457,6 @@ class SourceWalker(GenericASTTraversal, object):
 
         if self.pending_newlines:
             out = out[: -self.pending_newlines]
-        if isinstance(out, str) and not (PYTHON3 or self.FUTURE_UNICODE_LITERALS):
-            out = unicode(out, "utf-8")
         self.f.write(out)
 
     def println(self, *data):
@@ -684,23 +672,11 @@ class SourceWalker(GenericASTTraversal, object):
             # strings are interpreted:
             #    u'xxx' -> 'xxx'
             #    xxx'   -> b'xxx'
-            if not PYTHON3 and isinstance(data, unicode):
-                try:
-                    data = str(data)
-                except UnicodeEncodeError:
-                    # Have to keep data as it is: in Unicode.
-                    pass
-                self.write(repr(data))
-            elif isinstance(data, str):
+            if isinstance(data, str):
                 self.write("b" + repr(data))
             else:
                 self.write(repr(data))
         else:
-            if not PYTHON3:
-                try:
-                    repr(data).encode("ascii")
-                except UnicodeEncodeError:
-                    self.write("u")
             self.write(repr(data))
         # LOAD_CONST is a terminal, so stop processing/recursing early
         self.prune()

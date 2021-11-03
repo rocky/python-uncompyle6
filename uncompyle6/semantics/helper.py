@@ -233,10 +233,7 @@ def strip_quotes(s):
 
 
 # if __name__ == '__main__':
-#     if PYTHON3:
-#         from io import StringIO
-#     else:
-#         from StringIO import StringIO
+#     from io import StringIO
 #     class PrintFake():
 #         def __init__(self):
 #             self.pending_newlines = 0

@@ -25,7 +25,7 @@ from array import array
 import sys
 
 from uncompyle6.scanners.tok import Token
-from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, PYTHON3, version_tuple_to_str
+from xdis.version_info import IS_PYPY, version_tuple_to_str
 import xdis
 from xdis import (
     Bytecode,
@@ -35,6 +35,7 @@ from xdis import (
     extended_arg_val,
     next_offset,
 )
+from xdis.version_info import PYTHON_VERSION_TRIPLE
 
 if PYTHON_VERSION_TRIPLE < (2, 6):
     from xdis.namedtuple24 import namedtuple
@@ -78,19 +79,10 @@ CANONIC2VERSION = dict(
 # Magic changed mid version for Python 3.5.2. Compatibility was added for
 # the older 3.5 interpreter magic.
 CANONIC2VERSION["3.5.2"] = 3.5
+L65536 = 65536
 
-
-# FIXME: DRY
-if PYTHON3:
-    intern = sys.intern
-    L65536 = 65536
-
-    def long(num):
-        return num
-
-
-else:
-    L65536 = long(65536)  # NOQA
+def long(num):
+    return num
 
 
 class Code(object):

@@ -43,7 +43,6 @@ from uncompyle6.parsers.reducecheck import (
 )
 from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from xdis import PYTHON3
 
 
 class Python3Parser(PythonParser):
@@ -628,10 +627,7 @@ class Python3Parser(PythonParser):
         this has an effect on many rules.
         """
         if self.version >= (3, 3):
-            if PYTHON3 or not self.is_pypy:
-                load_op = "LOAD_STR "
-            else:
-                load_op = "LOAD_CONST "
+            load_op = "LOAD_STR "
 
             new_rule = rule % ((load_op) * 1)
         else:
@@ -1159,7 +1155,7 @@ class Python3Parser(PythonParser):
                         )
 
                 elif self.version >= (3, 4):
-                    if PYTHON3 or not self.is_pypy:
+                    if not self.is_pypy:
                         load_op = "LOAD_STR"
                     else:
                         load_op = "LOAD_CONST"
@@ -1237,14 +1233,6 @@ class Python3Parser(PythonParser):
                         opname,
                     )
                     self.add_unique_rule(rule, opname, token.attr, customize)
-                    if not PYTHON3 and self.is_pypy:
-                        rule = "mkfunc ::= %s%s%s%s" % (
-                            "expr " * stack_count,
-                            "load_closure " * closure,
-                            "LOAD_CODE LOAD_CONST ",
-                            opname,
-                        )
-                        self.add_unique_rule(rule, opname, token.attr, customize)
 
                     if has_get_iter_call_function1:
                         rule_pat = (
@@ -1568,8 +1556,6 @@ class Python3Parser(PythonParser):
             self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["or"] = "AST"
         self.check_reduce["testtrue"] = "tokens"
-        if not PYTHON3:
-            self.check_reduce["kwarg"] = "noAST"
         if self.version < (3, 6) and not self.is_pypy:
             # 3.6+ can remove a JUMP_FORWARD which messes up our testing here
             # Pypy we need to go over in better detail

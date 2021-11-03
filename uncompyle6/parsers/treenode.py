@@ -1,4 +1,3 @@
-import sys
 from uncompyle6.scanners.tok import NoneToken
 from spark_parser.ast import AST as spark_AST
 
