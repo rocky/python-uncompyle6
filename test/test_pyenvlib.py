@@ -25,7 +25,7 @@ from __future__ import print_function
 import os, time, re, shutil, sys
 from fnmatch import fnmatch
 
-from uncompyle6 import main, PYTHON3
+from uncompyle6 import main
 import xdis.magics as magics
 
 # ----- configure this for your needs
@@ -111,20 +111,16 @@ def do_tests(
     files = []
     cwd = os.getcwd()
     os.chdir(src_dir)
-    if PYTHON3:
-        for root, dirname, names in os.walk(os.curdir):
-            files.extend(
-                [
-                    os.path.normpath(os.path.join(root, n))
-                    for n in names
-                    for pat in patterns
-                    if fnmatch(n, pat)
-                ]
-            )
-            pass
+    for root, dirname, names in os.walk(os.curdir):
+        files.extend(
+            [
+                os.path.normpath(os.path.join(root, n))
+                for n in names
+                for pat in patterns
+                if fnmatch(n, pat)
+            ]
+        )
         pass
-    else:
-        os.path.walk(os.curdir, visitor, files)
     os.chdir(cwd)
     files.sort()
 
