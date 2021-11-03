@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2020 by Rocky Bernstein
+#  Copyright (c) 2019-2021 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -32,8 +32,6 @@ from uncompyle6.semantics.helper import (
     find_none,
     zip_longest
 )
-from xdis.version_info import PYTHON3
-
 from uncompyle6.show import maybe_show_tree_param_default
 
 
@@ -265,13 +263,14 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         if fn_bits[-1]:
             index -= 1
         if fn_bits[-2]:
-            ann_dict = node[index]
+            # ann_dict = node[index]
             index -= 1
         if fn_bits[-3]:
             kw_dict = node[index]
             index -= 1
         if fn_bits[-4]:
-            default_tup = node[index]
+            # default_tup = node[index]
+            pass
 
         if kw_dict == "expr":
             kw_dict = kw_dict[0]
@@ -284,7 +283,6 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
             defaults = [self.traverse(n, indent="") for n in kw_dict[:-2]]
             names = eval(self.traverse(kw_dict[-2]))
             assert len(defaults) == len(names)
-            sep = ""
             # FIXME: possibly handle line breaks
             for i, n in enumerate(names):
                 idx = kwargs.index(n)

@@ -23,7 +23,6 @@ use in deparsing.
 """
 
 import sys
-
 import uncompyle6.scanners.scanner2 as scan
 from uncompyle6.scanner import L65536
 
