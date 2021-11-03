@@ -279,13 +279,3 @@ class Scanner26(scan.Scanner2):
                 print(t.format(line_prefix=""))
             print()
         return tokens, customize
-
-if __name__ == "__main__":
-    from uncompyle6 import PYTHON_VERSION
-    if PYTHON_VERSION == 2.6:
-        import inspect
-        co = inspect.currentframe().f_code
-        tokens, customize = Scanner26(show_asm=True).ingest(co)
-    else:
-        print("Need to be Python 2.6 to demo; I am %s." %
-              PYTHON_VERSION)

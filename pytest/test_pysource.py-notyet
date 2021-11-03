@@ -6,10 +6,7 @@ from uncompyle6.semantics.consts import (
 )
 
 from xdis.version_info import PYTHON3
-if PYTHON3:
-    from io import StringIO
-else:
-    from StringIO import StringIO
+from StringIO import StringIO
 
 from uncompyle6.semantics.pysource import (SourceWalker, deparse_code2str)
 
