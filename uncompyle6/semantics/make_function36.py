@@ -24,17 +24,15 @@ from xdis import (
     CO_ASYNC_GENERATOR,
 )
 from uncompyle6.scanner import Code
-from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.parser import ParserError as ParserError2
-from uncompyle6 import PYTHON3
 from uncompyle6.semantics.helper import (
-    print_docstring,
     find_all_globals,
     find_globals_and_nonlocals,
     find_none,
     zip_longest
 )
+from xdis.version_info import PYTHON3
 
 from uncompyle6.show import maybe_show_tree_param_default
 

@@ -1,6 +1,5 @@
-import pytest
-from uncompyle6.semantics.fragments import code_deparse as deparse, deparsed_find
-from uncompyle6 import PYTHON_VERSION, PYTHON3
+from uncompyle6.semantics.fragments import code_deparse as deparse
+from xdis.version_info import PYTHON_VERSION_TRIPLE
 
 def map_stmts(x, y):
     x = []
@@ -31,19 +30,17 @@ def list_comp():
 
 def get_parsed_for_fn(fn):
     code = fn.func_code
-    return deparse(code, version=PYTHON_VERSION)
+    return deparse(code, version=PYTHON_VERSION_TRIPLE)
 
 def check_expect(expect, parsed, fn_name):
     debug = False
     i = 2
     max_expect = len(expect)
-    code = get_parsed_for_fn(fn_name)
     for name, offset in sorted(parsed.offsets.keys()):
         assert i+1 <= max_expect, (
             "%s: ran out if items in testing node" % fn_name)
         nodeInfo = parsed.offsets[name, offset]
         node = nodeInfo.node
-        nodeInfo2 = deparsed_find((name, offset), parsed, code)
         extractInfo = parsed.extract_node_info(node)
 
         assert expect[i] == extractInfo.selectedLine, \
@@ -319,5 +316,4 @@ for i in range(2): ...
 .
 """.split("\n")
     parsed = get_parsed_for_fn(for_range_stmt)
-    if not PYTHON3:
-        check_expect(expect, parsed, 'range_stmt')
+    check_expect(expect, parsed, 'range_stmt')

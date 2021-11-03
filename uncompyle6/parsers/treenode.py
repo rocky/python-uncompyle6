@@ -1,5 +1,5 @@
 import sys
-from uncompyle6 import PYTHON3
+from xdis.version_info import PYTHON3
 from uncompyle6.scanners.tok import NoneToken
 from spark_parser.ast import AST as spark_AST
 

@@ -92,8 +92,8 @@ from uncompyle6.semantics.consts import (
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from spark_parser.ast import GenericASTTraversalPruningException
 
-from uncompyle6 import PYTHON_VERSION
-if PYTHON_VERSION < 2.6:
+from xdis.version_info import PYTHON_VERSION_TRIPLE
+if PYTHON_VERSION_TRIPLE < (2, 6):
     from xdis.namedtuple24 import namedtuple
 else:
     from collections import namedtuple

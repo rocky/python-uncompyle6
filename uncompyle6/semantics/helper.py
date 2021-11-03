@@ -3,30 +3,24 @@ import sys
 from xdis import iscode
 from uncompyle6.parsers.treenode import SyntaxTree
 
-from uncompyle6 import PYTHON3
-if PYTHON3:
-    from itertools import zip_longest
-    minint = -sys.maxsize-1
-    maxint = sys.maxsize
-else:
-    minint = -sys.maxint-1
-    maxint = sys.maxint
-    try:
-        from itertools import izip_longest as zip_longest
-    except:
-        from itertools import (chain, izip, repeat)
-        def zip_longest(*args, **kwds):
-            # zip_longest('ABCD', 'xy', fillvalue='-') --> Ax By C- D-
-            fillvalue = kwds.get('fillvalue')
-            def sentinel(counter = ([fillvalue]*(len(args)-1)).pop):
-                yield counter()         # yields the fillvalue, or raises IndexError
-            fillers = repeat(fillvalue)
-            iters = [chain(it, sentinel(), fillers) for it in args]
-            try:
-                for tup in izip(*iters):
-                    yield tup
-            except IndexError:
-                pass
+minint = -sys.maxint-1
+maxint = sys.maxint
+try:
+    from itertools import izip_longest as zip_longest
+except:
+    from itertools import (chain, izip, repeat)
+    def zip_longest(*args, **kwds):
+        # zip_longest('ABCD', 'xy', fillvalue='-') --> Ax By C- D-
+        fillvalue = kwds.get('fillvalue')
+        def sentinel(counter = ([fillvalue]*(len(args)-1)).pop):
+            yield counter()         # yields the fillvalue, or raises IndexError
+        fillers = repeat(fillvalue)
+        iters = [chain(it, sentinel(), fillers) for it in args]
+        try:
+            for tup in izip(*iters):
+                yield tup
+        except IndexError:
+            pass
 
 read_write_global_ops = frozenset(('STORE_GLOBAL', 'DELETE_GLOBAL', 'LOAD_GLOBAL'))
 read_global_ops       = frozenset(('STORE_GLOBAL', 'DELETE_GLOBAL'))
@@ -162,16 +156,10 @@ def print_docstring(self, indent, docstring):
             quote = "'''"
 
     self.write(indent)
-    if not PYTHON3 and not isinstance(docstring, str):
+    if not isinstance(docstring, str):
         # Must be unicode in Python2
         self.write('u')
         docstring = repr(docstring.expandtabs())[2:-1]
-    elif PYTHON3 and (2, 4) <= self.version[:2] <= (2, 7):
-        try:
-            repr(docstring.expandtabs())[1:-1].encode("ascii")
-        except UnicodeEncodeError:
-            self.write('u')
-        docstring = repr(docstring.expandtabs())[1:-1]
     else:
         docstring = repr(docstring.expandtabs())[1:-1]
 

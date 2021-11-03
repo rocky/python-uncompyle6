@@ -33,9 +33,9 @@ For example:
 Finally we save token information.
 """
 
-from uncompyle6 import PYTHON_VERSION
+from xdis.version_info import PYTHON_VERSION_TRIPLE
 
-if PYTHON_VERSION < 2.6:
+if PYTHON_VERSION_TRIPLE < (2, 6):
     from xdis.namedtuple24 import namedtuple
 else:
     from collections import namedtuple
@@ -52,10 +52,6 @@ import xdis.opcodes.opcode_33 as op3
 from uncompyle6.scanner import Scanner
 
 import sys
-from uncompyle6 import PYTHON3
-
-if PYTHON3:
-    intern = sys.intern
 
 globals().update(op3.opmap)
 
@@ -387,7 +383,7 @@ class Scanner3(Scanner):
                     # pattr = 'code_object @ 0x%x %s->%s' %\
                     # (id(const), const.co_filename, const.co_name)
                     pattr = "<code_object " + const.co_name + ">"
-                elif isinstance(const, str) or PYTHON_VERSION <= 2.7 and isinstance(const, unicode):
+                elif isinstance(const, str) or isinstance(const, unicode):
                     opname = "LOAD_STR"
                 else:
                     if isinstance(inst.arg, int) and inst.arg < len(co.co_consts):
@@ -1300,19 +1296,3 @@ class Scanner3(Scanner):
             instr_offsets = filtered
             filtered = []
         return instr_offsets
-
-
-if __name__ == "__main__":
-    from xdis.version_info import PYTHON_VERSION_TRIPLE
-
-    if PYTHON_VERSION_TRIPLE >= (3, 2):
-        import inspect
-
-        co = inspect.currentframe().f_code
-
-        tokens, customize = Scanner3(PYTHON_VERSION_TRIPLE).ingest(co)
-        for t in tokens:
-            print(t)
-    else:
-        print("Need to be Python 3.2 or greater to demo; I am %s." % sys.version)
-    pass

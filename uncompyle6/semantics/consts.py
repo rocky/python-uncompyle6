@@ -16,8 +16,8 @@
 
 import re, sys
 from uncompyle6.parsers.treenode import SyntaxTree
-from uncompyle6 import PYTHON3
 from uncompyle6.scanners.tok import Token, NoneToken
+from xdis.version_info import PYTHON3
 
 if PYTHON3:
     minint = -sys.maxsize - 1

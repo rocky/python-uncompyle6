@@ -33,14 +33,12 @@ For example:
 Finally we save token information.
 """
 
-from uncompyle6 import PYTHON_VERSION
-
 from copy import copy
 
 from xdis import code2num, iscode, op_has_argument, instruction_size
 from xdis.bytecode import _get_const_info
 
-from uncompyle6 import PYTHON3
+from xdis.version_info import PYTHON3, PYTHON_VERSION_TRIPLE
 
 if PYTHON3:
     from sys import intern
@@ -1431,17 +1429,11 @@ class Scanner2(Scanner):
 
 
 if __name__ == "__main__":
-    from uncompyle6 import PYTHON_VERSION
+    import inspect
 
-    if 2.0 <= PYTHON_VERSION < 3.0:
-        import inspect
+    co = inspect.currentframe().f_code
 
-        co = inspect.currentframe().f_code
-        from uncompyle6 import PYTHON_VERSION
-
-        tokens, customize = Scanner2(PYTHON_VERSION).ingest(co)
-        for t in tokens:
+    tokens, customize = Scanner2(PYTHON_VERSION_TRIPLE).ingest(co)
+    for t in tokens:
             print(t)
-    else:
-        print("Need to be Python 2.x to demo; I am %s." % PYTHON_VERSION)
     pass

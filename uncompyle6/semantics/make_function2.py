@@ -17,9 +17,7 @@
 All the crazy things we have to do to handle Python functions in Python before 3.0.
 The saga of changes continues in 3.0 and above and in other files.
 """
-from xdis import iscode, code_has_star_arg, code_has_star_star_arg
 from uncompyle6.scanner import Code
-from uncompyle6 import PYTHON3
 from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.parser import ParserError as ParserError2
 from uncompyle6.semantics.helper import (
@@ -29,6 +27,7 @@ from uncompyle6.semantics.helper import (
     find_none,
     zip_longest
 )
+from xdis import iscode, code_has_star_arg, code_has_star_star_arg
 
 from uncompyle6.show import maybe_show_tree_param_default
 

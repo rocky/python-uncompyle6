@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2020 by Rocky Bernstein
+#  Copyright (c) 2016-2021 by Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 #
@@ -16,7 +16,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re, sys
-from uncompyle6 import PYTHON3
+from xdis.version_info import PYTHON3
 
 if PYTHON3:
     intern = sys.intern

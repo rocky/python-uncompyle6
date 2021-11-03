@@ -24,15 +24,9 @@ from subprocess import call
 
 import uncompyle6
 from uncompyle6.scanner import Token as ScannerToken, get_scanner
-from uncompyle6 import PYTHON3
 from xdis import iscode, load_file, load_module, pretty_code_flags, PYTHON_MAGIC_INT
 
-# FIXME: DRY
-if PYTHON3:
-    truediv = operator.truediv
-    from functools import reduce
-else:
-    truediv = operator.div
+truediv = operator.div
 
 
 def code_equal(a, b):
