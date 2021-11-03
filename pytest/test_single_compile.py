@@ -1,9 +1,10 @@
 import pytest
-from uncompyle6 import PYTHON_VERSION, code_deparse
-pytestmark = pytest.mark.skip(PYTHON_VERSION < 2.7,
+from uncompyle6 import code_deparse
+from xdis.version_info import PYTHON_VERSION_TRIPLE
+pytestmark = pytest.mark.skip(PYTHON_VERSION_TRIPLE < (2, 7),
                               reason="need at least Python 2.7")
 
-if PYTHON_VERSION > 2.6:
+if PYTHON_VERSION_TRIPLE > (2, 6):
     def test_single_mode():
         single_expressions = (
             'i = 1',

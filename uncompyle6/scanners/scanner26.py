@@ -23,7 +23,7 @@ use in deparsing.
 """
 
 import sys
-from uncompyle6 import PYTHON3
+from xdis.version_info import PYTHON3
 if PYTHON3:
     intern = sys.intern
 

@@ -47,7 +47,7 @@ import xdis.opcodes.opcode_33 as op3
 from uncompyle6.scanner import Scanner
 
 import sys
-from uncompyle6 import PYTHON3
+from xdis.version_info import PYTHON3
 
 if PYTHON3:
     intern = sys.intern
