@@ -26,7 +26,7 @@ from collections import namedtuple
 import sys
 
 from uncompyle6.scanners.tok import Token
-from xdis.version_info import IS_PYPY, PYTHON3, version_tuple_to_str
+from xdis.version_info import IS_PYPY, version_tuple_to_str
 import xdis
 from xdis import (
     Bytecode,
@@ -77,16 +77,11 @@ CANONIC2VERSION["3.5.2"] = 3.5
 
 
 # FIXME: DRY
-if PYTHON3:
-    intern = sys.intern
-    L65536 = 65536
+intern = sys.intern
+L65536 = 65536
 
-    def long(num):
-        return num
-
-
-else:
-    L65536 = long(65536)  # NOQA
+def long(num):
+    return num
 
 
 class Code(object):

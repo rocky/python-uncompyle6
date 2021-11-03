@@ -9,12 +9,10 @@ grammar parsing.
 
 from uncompyle6.scanners.scanner2 import Scanner2
 
-from xdis.version_info import PYTHON3, version_tuple_to_str
+from xdis.version_info import version_tuple_to_str
+import sys
 
-if PYTHON3:
-    import sys
-
-    intern = sys.intern
+intern = sys.intern
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_27
