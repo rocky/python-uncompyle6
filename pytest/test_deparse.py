@@ -1,5 +1,5 @@
 from uncompyle6.semantics.fragments import code_deparse as deparse
-from xdis.version_info import PYTHON_VERSION, PYTHON3
+from xdis.version_info import PYTHON_VERSION_TRIPLE
 
 def map_stmts(x, y):
     x = []
@@ -29,8 +29,8 @@ def list_comp():
     [y for y in range(3)]
 
 def get_parsed_for_fn(fn):
-    code = fn.__code__ if PYTHON3 else fn.func_code
-    return deparse(code, version=PYTHON_VERSION)
+    code = fn.__code__
+    return deparse(code, version=PYTHON_VERSION_TRIPLE)
 
 def check_expect(expect, parsed, fn_name):
     debug = False
@@ -316,5 +316,3 @@ for i in range(2): ...
 .
 """.split("\n")
     parsed = get_parsed_for_fn(for_range_stmt)
-    if not PYTHON3:
-        check_expect(expect, parsed, 'range_stmt')

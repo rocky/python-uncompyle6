@@ -47,10 +47,8 @@ import xdis.opcodes.opcode_33 as op3
 from uncompyle6.scanner import Scanner
 
 import sys
-from xdis.version_info import PYTHON3
 
-if PYTHON3:
-    intern = sys.intern
+intern = sys.intern
 
 globals().update(op3.opmap)
 
@@ -379,7 +377,7 @@ class Scanner3(Scanner):
                     # pattr = 'code_object @ 0x%x %s->%s' %\
                     # (id(const), const.co_filename, const.co_name)
                     pattr = "<code_object " + const.co_name + ">"
-                elif isinstance(const, str) or xdis.PYTHON_VERSION <= 2.7 and isinstance(const, unicode):
+                elif isinstance(const, str):
                     opname = "LOAD_STR"
                 else:
                     if isinstance(inst.arg, int) and inst.arg < len(co.co_consts):
@@ -1297,14 +1295,10 @@ class Scanner3(Scanner):
 if __name__ == "__main__":
     from xdis.version_info import PYTHON_VERSION_TRIPLE
 
-    if PYTHON_VERSION_TRIPLE >= (3, 2):
-        import inspect
+    import inspect
 
-        co = inspect.currentframe().f_code
+    co = inspect.currentframe().f_code
 
-        tokens, customize = Scanner3(PYTHON_VERSION_TRIPLE).ingest(co)
-        for t in tokens:
-            print(t)
-    else:
-        print("Need to be Python 3.2 or greater to demo; I am %s." % sys.version)
-    pass
+    tokens, customize = Scanner3(PYTHON_VERSION_TRIPLE).ingest(co)
+    for t in tokens:
+        print(t)

@@ -1,10 +1,9 @@
 import sys
-from xdis.version_info import PYTHON3
 from uncompyle6.scanners.tok import NoneToken
 from spark_parser.ast import AST as spark_AST
 
-if PYTHON3:
-    intern = sys.intern
+
+intern = sys.intern
 
 
 class SyntaxTree(spark_AST):

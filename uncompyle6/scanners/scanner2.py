@@ -40,10 +40,7 @@ from copy import copy
 from xdis import code2num, iscode, op_has_argument, instruction_size
 from xdis.bytecode import _get_const_info
 
-from xdis.version_info import PYTHON3
-
-if PYTHON3:
-    from sys import intern
+from sys import intern
 
 from uncompyle6.scanner import Scanner, Token
 
@@ -147,10 +144,7 @@ class Scanner2(Scanner):
         In Python2 this always the operand value shifted 16 bits since
         the operand is always 2 bytes. In Python 3.6+ this changes to one byte.
         """
-        if PYTHON3:
-            return arg << 16
-        else:
-            return arg << long(16)
+        return arg << 16
 
     @staticmethod
     def unmangle_name(name, classname):
@@ -1428,20 +1422,3 @@ class Scanner2(Scanner):
             instr_offsets = filtered
             filtered = []
         return instr_offsets
-
-
-if __name__ == "__main__":
-    from uncompyle6 import PYTHON_VERSION
-
-    if 2.0 <= PYTHON_VERSION < 3.0:
-        import inspect
-
-        co = inspect.currentframe().f_code
-        from uncompyle6 import PYTHON_VERSION
-
-        tokens, customize = Scanner2(PYTHON_VERSION).ingest(co)
-        for t in tokens:
-            print(t)
-    else:
-        print("Need to be Python 2.x to demo; I am %s." % PYTHON_VERSION)
-    pass
