@@ -39,10 +39,9 @@ from copy import copy
 
 from xdis import code2num, iscode, op_has_argument, instruction_size
 from xdis.bytecode import _get_const_info
+from uncompyle6.scanner import Scanner, Token
 
 from sys import intern
-
-from uncompyle6.scanner import Scanner, Token
 
 
 class Scanner2(Scanner):

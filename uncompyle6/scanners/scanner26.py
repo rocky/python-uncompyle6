@@ -23,8 +23,6 @@ use in deparsing.
 """
 
 import sys
-intern = sys.intern
-
 import uncompyle6.scanners.scanner2 as scan
 from uncompyle6.scanner import L65536
 
@@ -33,6 +31,8 @@ from xdis.opcodes import opcode_26
 from xdis.bytecode import _get_const_info
 
 from uncompyle6.scanner import Token
+
+intern = sys.intern
 
 JUMP_OPS = opcode_26.JUMP_OPS
 

@@ -16,10 +16,8 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re, sys
-from xdis.version_info import PYTHON3
 
-if PYTHON3:
-    intern = sys.intern
+intern = sys.intern
 
 
 def off2int(offset, prefer_last=True):

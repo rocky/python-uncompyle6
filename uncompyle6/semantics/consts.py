@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2020 by Rocky Bernstein
+#  Copyright (c) 2017-2021 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -17,14 +17,9 @@
 import re, sys
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanners.tok import Token, NoneToken
-from xdis.version_info import PYTHON3
 
-if PYTHON3:
-    minint = -sys.maxsize - 1
-    maxint = sys.maxsize
-else:
-    minint = -sys.maxint - 1
-    maxint = sys.maxint
+minint = -sys.maxsize - 1
+maxint = sys.maxsize
 
 
 # Operator precidence See
