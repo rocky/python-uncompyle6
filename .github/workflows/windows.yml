@@ -22,7 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         # Until the next xdis release
-        pip install git+git://github.com/rocky/python-xdis.git@python-3.3-to-3.5#egg=xdis
+        # pip install git+git://github.com/rocky/python-xdis.git@python-3.3-to-3.5#egg=xdis
         pip install -e .
         pip install -r requirements-dev.txt
     - name: Test uncompyle6
