@@ -116,6 +116,12 @@ for vers in (
         pythonlib = os.path.join(pythonlib, "__pycache__")
     test_options[key] = (os.path.join(lib_prefix, pythonlib), PYOC, pythonlib, vers)
 
+vers = 3.7
+bytecode = "bytecode_pypy%s_run" % vers
+key = "bytecode-pypy37"
+test_options[key] = (bytecode, PYC, bytecode, vers)
+
+
 # -----
 
 

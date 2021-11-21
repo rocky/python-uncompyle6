@@ -523,15 +523,30 @@ class Python37BaseParser(PythonParser):
 
                 args_pos, args_kw = self.get_pos_kw(token)
 
-                # number of apply equiv arguments:
-                nak = (len(opname_base) - len("CALL_METHOD")) // 3
-                rule = (
-                    "call ::= expr "
-                    + ("pos_arg " * args_pos)
-                    + ("kwarg " * args_kw)
-                    + "expr " * nak
-                    + opname
-                )
+                if opname == "CALL_METHOD_KW":
+                    args_kw = token.attr
+                    rules_str = """
+                         expr ::= call_kw_pypy37
+                         pypy_kw_keys ::= LOAD_CONST
+                    """
+                    self.add_unique_doc_rules(rules_str, customize)
+                    rule = (
+                        "call_kw_pypy37 ::= expr "
+                        + ("expr " * args_kw)
+                        + " pypy_kw_keys "
+                        + opname
+                    )
+                else:
+                    args_pos, args_kw = self.get_pos_kw(token)
+                    # number of apply equiv arguments:
+                    nak = (len(opname_base) - len("CALL_METHOD")) // 3
+                    rule = (
+                        "call ::= expr "
+                        + ("expr " * args_pos)
+                        + ("kwarg " * args_kw)
+                        + "expr " * nak
+                        + opname
+                    )
                 self.add_unique_rule(rule, opname, token.attr, customize)
 
             elif opname == "CONTINUE":
