@@ -76,6 +76,8 @@ check-3.7: check-bytecode
 # check-3.8: check-bytecode
 # 	$(PYTHON) test_pythonlib.py --bytecode-3.8-run --verify-run
 # 	$(PYTHON) test_pythonlib.py --bytecode-3.8 --syntax-verify $(COMPILE)
+check-pypy37: check-bytecode
+	$(PYTHON) test_pythonlib.py --bytecode-pypy37 --verify-run
 
 check-3.9: check-bytecode
 	@echo "Note that we do not support decompiling Python 3.9 bytecode - no 3.9 tests run"
@@ -358,9 +360,13 @@ check-bytecode-pypy3.6: 7.1
 
 #: PyPy 5.0.x with Python 3.6.9
 check-bytecode-pypy3.6: 7.2 7.3
-7.3 7.2:
+
+7.2:
 	$(PYTHON) test_pythonlib.py --bytecode-pypy3.6-run --verify-run
 	$(PYTHON) test_pythonlib.py --bytecode-pypy3.6 --verify
+
+7.3:
+	$(PYTHON) test_pythonlib.py --bytecode-pypy3.7 --verify-run
 
 
 

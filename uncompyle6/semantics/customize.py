@@ -16,9 +16,9 @@
 """Isolate Python version-specific semantic actions here.
 """
 
-from uncompyle6.semantics.consts import PRECEDENCE, TABLE_R, TABLE_DIRECT
-
 from uncompyle6.parsers.treenode import SyntaxTree
+from uncompyle6.semantics.consts import INDENT_PER_LEVEL, PRECEDENCE, TABLE_R, TABLE_DIRECT
+from uncompyle6.semantics.helper import flatten_list
 from uncompyle6.scanners.tok import Token
 
 
@@ -28,9 +28,10 @@ def customize_for_version(self, is_pypy, version):
         # PyPy changes
         #######################
         TABLE_DIRECT.update({
-            'assert_pypy':	( '%|assert %c\n' ,     (1, 'assert_expr') ),
-            # This is as a result of an if transoration
-            'assert0_pypy':	( '%|assert %c\n' ,     (0, 'assert_expr') ),
+            "assert": ("%|assert %c\n", 0),
+            "assert_pypy":	( '%|assert %c\n' ,     (1, 'assert_expr') ),
+            # This is as a result of an if transformation
+            'assert0_pypy':	( '%|assert %c\n' ,     0),
 
             'assert_not_pypy':	( '%|assert not %c\n' , (1, 'assert_exp') ),
             'assert2_not_pypy':	( '%|assert not %c, %c\n' , (1, 'assert_exp'),
@@ -42,6 +43,42 @@ def customize_for_version(self, is_pypy, version):
             'assign3_pypy':        ( '%|%c, %c, %c = %c, %c, %c\n', 5, 4, 3, 0, 1, 2 ),
             'assign2_pypy':        ( '%|%c, %c = %c, %c\n', 3, 2, 0, 1),
             })
+
+        if version[:2] == (3, 7):
+
+            def n_call_kw_pypy37(node):
+                self.template_engine(("%p(", (0, 100)), node)
+                assert node[-1] == "CALL_METHOD_KW"
+                pypy_kw_keys = node[-2]
+                assert pypy_kw_keys == "pypy_kw_keys"
+
+                flat_elems = flatten_list(node[1:-2])
+                # FIXME zip pypy_kw_keys and elems
+
+                self.indent_more(INDENT_PER_LEVEL)
+                sep = ""
+
+                n = len(flat_elems)
+                kw_keys_tuple = pypy_kw_keys[0].attr
+                assert n == len(kw_keys_tuple)
+                for i in range(n):
+                    elem = flat_elems[i]
+                    assert elem == "expr"
+                    line_number = self.line_number
+                    value = self.traverse(elem)
+                    if line_number != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        pass
+                    self.write(sep)
+                    self.write("%s=%s" % (kw_keys_tuple[i], value))
+                    sep = ", "
+                    pass
+
+                self.write(")")
+                self.prune()
+
+            self.n_call_kw_pypy37 = n_call_kw_pypy37
+
     else:
         ########################
         # Without PyPy
