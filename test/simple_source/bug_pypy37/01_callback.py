@@ -15,7 +15,7 @@ def lcase(s):
 x = C()
 l = ["xyz", "ABC"]
 
-# Another PyPy example of CALL_METHOD_KW 2
+# An PyPy example of CALL_METHOD_KW 3
 # 2 keyword arguments and one positional argument
 x.sort(l, reverse=False, key_fn=lcase)
 assert l == ["ABC", "xyz"]
