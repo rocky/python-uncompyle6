@@ -49,27 +49,40 @@ def customize_for_version(self, is_pypy, version):
             def n_call_kw_pypy37(node):
                 self.template_engine(("%p(", (0, 100)), node)
                 assert node[-1] == "CALL_METHOD_KW"
+                arg_count = node[-1].attr
                 kw_names = node[-2]
                 assert kw_names == "pypy_kw_keys"
 
                 flat_elems = flatten_list(node[1:-2])
-
-                self.indent_more(INDENT_PER_LEVEL)
+                n = len(flat_elems)
+                assert n == arg_count
+                kwargs_names = kw_names[0].attr
+                kwarg_count = len(kwargs_names)
+                pos_argc = arg_count - kwarg_count
                 sep = ""
 
-                n = len(flat_elems)
-                kwargs_names = kw_names[0].attr
-                assert n == len(kwargs_names)
-                for i in range(n):
+                for i in range(pos_argc):
                     elem = flat_elems[i]
+                    line_number = self.line_number
+                    value = self.traverse(elem)
+                    if line_number != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        pass
+                    self.write(f"{sep}{value}")
+                    sep = ", "
+
+                assert n >= len(kwargs_names)
+                j = pos_argc
+                for i in range(kwarg_count):
+                    elem = flat_elems[j]
+                    j += 1
                     assert elem == "expr"
                     line_number = self.line_number
                     value = self.traverse(elem)
                     if line_number != self.line_number:
                         sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
                         pass
-                    self.write(sep)
-                    self.write(f"{kwargs_names[i]}={value}")
+                    self.write(f"{sep}{kwargs_names[i]}={value}")
                     sep = ", "
                     pass
 
