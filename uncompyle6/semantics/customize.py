@@ -44,7 +44,7 @@ def customize_for_version(self, is_pypy, version):
             'assign2_pypy':        ( '%|%c, %c = %c, %c\n', 3, 2, 0, 1),
             })
 
-        if version[:2] == (3, 7):
+        if version[:2] >= (3, 7):
 
             def n_call_kw_pypy37(node):
                 self.template_engine(("%p(", (0, 100)), node)
