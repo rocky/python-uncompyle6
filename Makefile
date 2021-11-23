@@ -11,7 +11,10 @@ RM      ?= rm
 LINT    = flake8
 
 #EXTRA_DIST=ipython/ipy_trepan.py trepan
-PHONY=all check clean distcheck pytest check-long dist distclean lint flake8 test rmChangeLog clean_pyc
+PHONY=all check check-2.7 check-3.4 \
+     clean distcheck pytest check-long check-short \
+     dist distclean lint flake8 test rmChangeLog clean_pyc \
+     2.6 5.0 5.3 5.6 5.8 7.2 7.3 check-short
 
 TEST_TYPES=check-long check-short check-2.7 check-3.4
 
@@ -51,8 +54,8 @@ check-3.8:
 7.1 pypy-3.2 2.4:
 	$(MAKE) -C test $@
 
-#:PyPy pypy3-2.4.0 Python 3.6.9:
-7.2:
+#:PyPy versions
+7.2 7.3:
 	$(MAKE) -C test $@
 
 #: Run py.test tests

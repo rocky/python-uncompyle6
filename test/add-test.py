@@ -2,6 +2,7 @@
 """ Trivial helper program to bytecompile and run an uncompile
 """
 import os, sys, py_compile
+from xdis.version_info import version_tuple_to_str, PYTHON_VERSION_TRIPLE
 
 assert (2 <= len(sys.argv) <= 4)
 version = sys.version[0:3]
@@ -23,14 +24,17 @@ except:
 for path in py_source:
     short = os.path.basename(path)
     if hasattr(sys, "pypy_version_info"):
-        cfile = "bytecode_pypy%s%s/%s" % (version, suffix, short) + "c"
+        version = version_tuple_to_str(end=2, delimiter="")
+        bytecode = "bytecode_pypy%s%s/%spy%s.pyc" % (version, suffix, short, version)
     else:
-        cfile = "bytecode_%s%s/%s" % (version, suffix, short) + "c"
-    print("byte-compiling %s to %s" % (path, cfile))
-    optimize = optimize
+        version = version_tuple_to_str(end=2)
+        bytecode = "bytecode_%s%s/%s.pyc" % (version, suffix, short)
+
+    print("byte-compiling %s to %s" % (path, bytecode))
+    py_compile.compile(path, bytecode, optimize=optimize)
     if vers > (3, 1):
-        py_compile.compile(path, cfile, optimize=optimize)
+        py_compile.compile(path, bytecode, optimize=optimize)
     else:
-        py_compile.compile(path, cfile)
-    if vers >= (2, 6):
-        os.system("../bin/uncompyle6 -a -T %s" % cfile)
+        py_compile.compile(path, bytecode)
+    if PYTHON_VERSION_TRIPLE >= (2, 6):
+        os.system("../bin/uncompyle6 -a -t %s" % bytecode)

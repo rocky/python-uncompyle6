@@ -580,7 +580,7 @@ def get_scanner(version, is_pypy=False, show_asm=None):
 
 
 if __name__ == "__main__":
-    import inspect, uncompyle6
+    import inspect
 
     co = inspect.currentframe().f_code
     # scanner = get_scanner('2.7.13', True)
