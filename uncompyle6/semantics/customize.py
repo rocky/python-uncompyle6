@@ -68,7 +68,7 @@ def customize_for_version(self, is_pypy, version):
                     if line_number != self.line_number:
                         sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
                         pass
-                    self.write(f"{sep}{value}")
+                    self.write("%s%s" (sep, value))
                     sep = ", "
 
                 assert n >= len(kwargs_names)
@@ -83,7 +83,7 @@ def customize_for_version(self, is_pypy, version):
                         sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
                         pass
                     self.write(sep)
-                    self.write("%s=%s" % (kw_keys_tuple[i], value))
+                    self.write("%s=%s" % (kwargs_names[i], value))
                     sep = ", "
                     pass
 
