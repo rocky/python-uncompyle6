@@ -44,25 +44,38 @@ def customize_for_version(self, is_pypy, version):
             'assign2_pypy':        ( '%|%c, %c = %c, %c\n', 3, 2, 0, 1),
             })
 
-        if version[:2] == (3, 7):
+        if version[:2] >= (3, 7):
 
             def n_call_kw_pypy37(node):
                 self.template_engine(("%p(", (0, 100)), node)
                 assert node[-1] == "CALL_METHOD_KW"
-                pypy_kw_keys = node[-2]
-                assert pypy_kw_keys == "pypy_kw_keys"
+                arg_count = node[-1].attr
+                kw_names = node[-2]
+                assert kw_names == "pypy_kw_keys"
 
                 flat_elems = flatten_list(node[1:-2])
-                # FIXME zip pypy_kw_keys and elems
-
-                self.indent_more(INDENT_PER_LEVEL)
+                n = len(flat_elems)
+                assert n == arg_count
+                kwargs_names = kw_names[0].attr
+                kwarg_count = len(kwargs_names)
+                pos_argc = arg_count - kwarg_count
                 sep = ""
 
-                n = len(flat_elems)
-                kw_keys_tuple = pypy_kw_keys[0].attr
-                assert n == len(kw_keys_tuple)
-                for i in range(n):
+                for i in range(pos_argc):
                     elem = flat_elems[i]
+                    line_number = self.line_number
+                    value = self.traverse(elem)
+                    if line_number != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        pass
+                    self.write("%s%s" (sep, value))
+                    sep = ", "
+
+                assert n >= len(kwargs_names)
+                j = pos_argc
+                for i in range(kwarg_count):
+                    elem = flat_elems[j]
+                    j += 1
                     assert elem == "expr"
                     line_number = self.line_number
                     value = self.traverse(elem)
@@ -70,7 +83,7 @@ def customize_for_version(self, is_pypy, version):
                         sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
                         pass
                     self.write(sep)
-                    self.write("%s=%s" % (kw_keys_tuple[i], value))
+                    self.write("%s=%s" % (kwargs_names[i], value))
                     sep = ", "
                     pass
 
