@@ -1,6 +1,15 @@
 #!/bin/bash
 PYTHON_VERSION=2.4.6
 
+function checkout_version {
+    local repo=$1
+    version=${2:-python-2.4}
+    echo Checking out $version.4 on $repo ...
+    (cd ../$repo && git checkout $version && pyenv local $PYTHON_VERSION) && \
+	git pull
+    return $?
+}
+
 owd=$(pwd)
 bs=${BASH_SOURCE[0]}
 if [[ $0 == $bs ]] ; then
@@ -9,10 +18,7 @@ if [[ $0 == $bs ]] ; then
 fi
 mydir=$(dirname $bs)
 fulldir=$(readlink -f $mydir)
-cd $fulldir/..
-(cd ../python-spark && git checkout python-2.4 && pyenv local $PYTHON_VERSION) && git pull && \
-    (cd ../python-xdis && . ./admin-tools/setup-python-2.4.sh) && \
-    git checkout python-2.4 &&  pyenv local $PYTHON_VERSION && git pull
+(cd $fulldir/.. && checkout_version python-spark && checkout_version python-xdis python-2.4-to-2.7 &&
+      checkout_version python_uncompyle6)
 cd $owd
 rm -v */.python-version || true
-pyenv local $PYTHON_VERSION
