@@ -19,6 +19,6 @@ fi
 mydir=$(dirname $bs)
 fulldir=$(readlink -f $mydir)
 (cd $fulldir/.. && checkout_version python-spark && checkout_version python-xdis python-2.4-to-2.7 &&
-      checkout_version python_uncompyle6)
+      checkout_version python-uncompyle6)
 cd $owd
 rm -v */.python-version || true
