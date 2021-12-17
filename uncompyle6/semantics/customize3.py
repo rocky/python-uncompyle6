@@ -84,12 +84,15 @@ def customize_for_version3(self, version):
         """List comprehensions in Python 3 when handled as a closure.
         See if we can combine code.
         """
+
+        # FIXME: DRY with comprehension_walk_newer
         p = self.prec
         self.prec = 27
 
         code_obj = node[1].attr
-        assert iscode(code_obj)
-        code = Code(code_obj, self.scanner, self.currentclass)
+        assert iscode(code_obj), node[1]
+        code = Code(code_obj, self.scanner, self.currentclass, self.debug_opts["asm"])
+
         ast = self.build_ast(code._tokens, code._customize, code)
         self.customize(code._customize)
 
@@ -102,6 +105,10 @@ def customize_for_version3(self, version):
             ast = ast[0]
 
         n = ast[1]
+
+        # Pick out important parts of the comprehension:
+        # * the variables we iterate over: "stores"
+        # * the results we accumulate: "n"
 
         # collections is the name of the expression(s) we are iterating over
         collections = [node[-3]]

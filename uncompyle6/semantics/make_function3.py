@@ -659,7 +659,12 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     has_none = "None" in code.co_names
     rn = has_none and not find_none(ast)
     self.gen_source(
-        ast, code.co_name, scanner_code._customize, is_lambda=is_lambda, returnNone=rn
+        ast,
+        code.co_name,
+        scanner_code._customize,
+        is_lambda=is_lambda,
+        returnNone=rn,
+        debug_opts=self.debug_opts,
     )
 
     # In obscure cases, a function may be a generator but the "yield"

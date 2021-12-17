@@ -4,7 +4,10 @@ about: Tell us about uncompyle6 bugs
 
 ---
 
-<!-- __Note:__ Bugs are not for asking questions about a problem you
+<!-- __Note:__ If you are using this program to do something illegal - don't.
+The issue may flagged to make it easier for those looking for illegal activity.
+
+Bugs are not for asking questions about a problem you
 are trying to solve that involve the use of uncompyle6 along the way,
 although I may be more tolerent of this if you sponsor the project.
 
@@ -12,16 +15,22 @@ Also, the unless you are a sponsor of the project, it may take a
 while, maybe a week or so, before the bug report is noticed, let alone
 acted upon.
 
-To set expectations, some legitimate bugs can take years
-to fix, but they eventually do get fixed. Funding the project was
-added to address the problem that there are lots of people seeking
-help and reporting bugs, but few people who are willing or capable of
-providing help or fixing bugs.
+To set expectations, some legitimate bugs can take years to fix, but
+they eventually do get fixed.
 
-Finally, have you read https://github.com/rocky/python-uncompyle6/blob/master/HOW-TO-REPORT-A-BUG.md
-?
+Funding the project was added to partially address the problem that there are
+lots of people seeking help and reporting bugs, but few people who are
+willing or capable of providing help or fixing bugs.
 
+Tasks or the kinds of things others can do but you can't do or don't
+want to do yourself are typically the kind of thing that you pay
+someone to do, especially when you are the primary beneficiary of the
+work, or the task is complex, long, or tedious. If your code is over
+30 lines long, it fits into this category.
 
+-->
+
+<!--
 Please remove any of the optional sections if they are not applicable.
 
 Prerequisites/Caveats

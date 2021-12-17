@@ -92,11 +92,11 @@ class Code(object):
     the diassembled code is stored in the attribute '_tokens'.
     """
 
-    def __init__(self, co, scanner, classname=None):
+    def __init__(self, co, scanner, classname=None, show_asm=None):
         for i in dir(co):
             if i.startswith("co_"):
                 setattr(self, i, getattr(co, i))
-        self._tokens, self._customize = scanner.ingest(co, classname)
+        self._tokens, self._customize = scanner.ingest(co, classname, show_asm=show_asm)
 
 
 class Scanner(object):
