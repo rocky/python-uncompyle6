@@ -183,6 +183,8 @@ from uncompyle6.show import maybe_show_tree
 from uncompyle6.util import better_repr
 from StringIO import StringIO
 
+DEFAULT_DEBUG_OPTS = {"asm": False, "tree": False, "grammar": False}
+
 
 class SourceWalkerError(Exception):
     def __init__(self, errmsg):
@@ -645,7 +647,7 @@ class SourceWalker(GenericASTTraversal, object):
         attr = node.attr
         data = node.pattr
         datatype = type(data)
-        if isinstance(data, float) :
+        if isinstance(data, float):
             self.write(better_repr(data, self.version))
         elif isinstance(data, complex):
             self.write(better_repr(data, self.version))
@@ -1176,10 +1178,11 @@ class SourceWalker(GenericASTTraversal, object):
         """
         p = self.prec
         self.prec = 27
-        code = node[code_index].attr
 
-        assert iscode(code), node[code_index]
-        code = Code(code, self.scanner, self.currentclass)
+        code_obj = node[code_index].attr
+        assert iscode(code_obj), node[code_index]
+
+        code = Code(code_obj, self.scanner, self.currentclass, self.debug_opts["asm"])
 
         ast = self.build_ast(code._tokens, code._customize, code)
         self.customize(code._customize)
@@ -2423,13 +2426,22 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.classes.pop(-1)
 
-    def gen_source(self, ast, name, customize, is_lambda=False, returnNone=False):
+    def gen_source(
+        self,
+        ast,
+        name,
+        customize,
+        is_lambda=False,
+        returnNone=False,
+        debug_opts=DEFAULT_DEBUG_OPTS,
+    ):
         """convert SyntaxTree to Python source code"""
 
         rn = self.return_none
         self.return_none = returnNone
         old_name = self.name
         self.name = name
+        self.debug_opts = debug_opts
         # if code would be empty, append 'pass'
         if len(ast) == 0:
             self.println(self.indent, "pass")
@@ -2521,10 +2533,6 @@ class SourceWalker(GenericASTTraversal, object):
     @classmethod
     def _get_mapping(cls, node):
         return MAP.get(node, MAP_DIRECT)
-
-
-#
-DEFAULT_DEBUG_OPTS = {"asm": False, "tree": False, "grammar": False}
 
 
 def code_deparse(
@@ -2621,7 +2629,9 @@ def code_deparse(
     )
 
     # What we've been waiting for: Generate source from Syntax Tree!
-    deparsed.gen_source(deparsed.ast, co.co_name, customize)
+    deparsed.gen_source(
+        deparsed.ast, name=co.co_name, customize=customize, debug_opts=debug_opts
+    )
 
     for g in sorted(deparsed.mod_globs):
         deparsed.write("# global %s ## Warning: Unused global\n" % g)

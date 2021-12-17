@@ -37,7 +37,7 @@ from uncompyle6.show import maybe_show_tree_param_default
 
 def make_function36(self, node, is_lambda, nested=1, code_node=None):
     """Dump function definition, doc string, and function body in
-      Python version 3.6 and above.
+    Python version 3.6 and above.
     """
     # MAKE_CLOSURE adds an additional closure slot
 
@@ -50,8 +50,8 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
 
     def build_param(ast, name, default, annotation=None):
         """build parameters:
-            - handle defaults
-            - handle format tuple parameters
+        - handle defaults
+        - handle format tuple parameters
         """
         value = default
         maybe_show_tree_param_default(self.showast, name, value)
@@ -123,8 +123,6 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         kw_node = node[pos_args]
         if kw_node == "expr":
             kw_node = kw_node[0]
-        if kw_node == "dict":
-            kw_pairs = kw_node[-1].attr
 
     defparams = []
     # FIXME: DRY with code below
@@ -149,7 +147,8 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         code = code_node.attr
 
     assert iscode(code)
-    scanner_code = Code(code, self.scanner, self.currentclass)
+    debug_opts = self.debug_opts["asm"] if self.debug_opts else None
+    scanner_code = Code(code, self.scanner, self.currentclass, debug_opts)
 
     # add defaults values to parameter names
     argc = code.co_argcount
@@ -349,7 +348,12 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
     has_none = "None" in code.co_names
     rn = has_none and not find_none(ast)
     self.gen_source(
-        ast, code.co_name, scanner_code._customize, is_lambda=is_lambda, returnNone=rn
+        ast,
+        code.co_name,
+        scanner_code._customize,
+        is_lambda=is_lambda,
+        returnNone=rn,
+        debug_opts=self.debug_opts,
     )
 
     # In obscure cases, a function may be a generator but the "yield"
