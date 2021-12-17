@@ -1149,13 +1149,15 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     n_classdefdeco2 = n_classdef
 
-    def gen_source(self, ast, name, customize, is_lambda=False, returnNone=False):
+    def gen_source(self, ast, name, customize, is_lambda=False, returnNone=False,
+                   debug_opts=None):
         """convert parse tree to Python source code"""
 
         rn = self.return_none
         self.return_none = returnNone
         old_name = self.name
         self.name = name
+        self.debug_opts = debug_opts
         # if code would be empty, append 'pass'
         if len(ast) == 0:
             self.println(self.indent, "pass")

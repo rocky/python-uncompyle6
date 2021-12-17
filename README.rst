@@ -264,7 +264,7 @@ See Also
 
 
 .. _Cython: https://en.wikipedia.org/wiki/Cython
-.. _trepan: https://pypi.python.org/pypi/trepan2g
+.. _trepan: https://pypi.python.org/pypi/trepan3k
 .. _compiler: https://pypi.python.org/pypi/spark_parser
 .. _HISTORY: https://github.com/rocky/python-uncompyle6/blob/master/HISTORY.md
 .. _debuggers: https://pypi.python.org/pypi/trepan3k
