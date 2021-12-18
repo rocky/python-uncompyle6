@@ -1328,6 +1328,7 @@ class SourceWalker(GenericASTTraversal, object):
             in_node_index = -3
 
         self.write(" for ")
+
         if comp_store:
             self.preorder(comp_store)
         else:
@@ -1395,7 +1396,7 @@ class SourceWalker(GenericASTTraversal, object):
         list_if = None
         assert n == "comp_iter"
 
-        # find inner-most node
+        # find innermost node
         while n == "comp_iter":
             n = n[0]  # recurse one step
             # FIXME: adjust for set comprehension
@@ -2178,11 +2179,15 @@ class SourceWalker(GenericASTTraversal, object):
 
             if k.startswith("CALL_METHOD"):
                 # This happens in PyPy and Python 3.7+
-                TABLE_R[k] = ("%c(%P)", 0, (1, -1, ", ", 100))
+                TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", 100))
             elif self.version >= (3, 6) and k.startswith("CALL_FUNCTION_KW"):
-                TABLE_R[k] = ("%c(%P)", 0, (1, -1, ", ", 100))
+                TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", 100))
             elif op == "CALL_FUNCTION":
-                TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", PRECEDENCE["yield"]-1))
+                TABLE_R[k] = (
+                    "%c(%P)",
+                    (0, "expr"),
+                    (1, -1, ", ", PRECEDENCE["yield"] - 1),
+                )
             elif op in (
                 "CALL_FUNCTION_VAR",
                 "CALL_FUNCTION_VAR_KW",
@@ -2296,8 +2301,9 @@ class SourceWalker(GenericASTTraversal, object):
         indent = self.indent
         # self.println(indent, '#flags:\t', int(code.co_flags))
         ast = self.build_ast(code._tokens, code._customize, code)
-        code._tokens = None  # save memory
-        assert ast == "stmts"
+
+        # save memory by deleting no-longer-used structures
+        code._tokens = None
 
         if ast[0] == "sstmt":
             ast[0] = ast[0][0]
@@ -2458,7 +2464,13 @@ class SourceWalker(GenericASTTraversal, object):
         self.return_none = rn
 
     def build_ast(
-        self, tokens, customize, code, is_lambda=False, noneInNames=False, isTopLevel=False
+        self,
+        tokens,
+        customize,
+        code,
+        is_lambda=False,
+        noneInNames=False,
+        isTopLevel=False,
     ):
 
         # FIXME: DRY with fragments.py
@@ -2483,7 +2495,7 @@ class SourceWalker(GenericASTTraversal, object):
                 self.p.insts = p_insts
 
             except (python_parser.ParserError, AssertionError) as e:
-                raise ParserError(e, tokens, self.p.debug['reduce'])
+                raise ParserError(e, tokens, self.p.debug["reduce"])
             transform_ast = self.treeTransform.transform(ast, code)
             self.maybe_show_tree(ast)
             del ast  # Save memory
@@ -2519,7 +2531,7 @@ class SourceWalker(GenericASTTraversal, object):
             ast = python_parser.parse(self.p, tokens, customize, code)
             self.p.insts = p_insts
         except (python_parser.ParserError, AssertionError) as e:
-            raise ParserError(e, tokens, self.p.debug['reduce'])
+            raise ParserError(e, tokens, self.p.debug["reduce"])
 
         checker(ast, False, self.ast_errors)
 
@@ -2582,13 +2594,18 @@ def code_deparse(
     )
 
     isTopLevel = co.co_name == "<module>"
+    if compile_mode == "eval":
+        deparsed.hide_internal = False
     deparsed.ast = deparsed.build_ast(tokens, customize, co, isTopLevel=isTopLevel)
 
     #### XXX workaround for profiling
     if deparsed.ast is None:
         return None
 
-    assert deparsed.ast == "stmts", "Should have parsed grammar start"
+    if compile_mode != "eval":
+        assert deparsed.ast == "stmts", "Should have parsed grammar start"
+    else:
+        assert deparsed.ast == "eval_expr", "Should have parsed grammar start"
 
     # save memory
     del tokens
