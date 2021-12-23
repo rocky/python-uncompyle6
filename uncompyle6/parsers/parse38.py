@@ -48,12 +48,19 @@ class Python38Parser(Python37Parser):
         stmt               ::= whilestmt38
         stmt               ::= whileTruestmt38
         stmt               ::= call_stmt
+        stmt               ::= continue
 
         call_stmt          ::= call
         break ::= POP_BLOCK BREAK_LOOP
         break ::= POP_BLOCK POP_TOP BREAK_LOOP
         break ::= POP_TOP BREAK_LOOP
         break ::= POP_EXCEPT BREAK_LOOP
+
+        # The "continue" rule is a weird one. In 3.8, CONTINUE_LOOP was removed.
+        # Inside an loop we can have this, which can only appear in side a try/except
+        # And it can also appear at the end of the try except.
+        continue           ::= POP_EXCEPT JUMP_BACK
+
 
         # FIXME: this should be restricted to being inside a try block
         stmt               ::= except_ret38

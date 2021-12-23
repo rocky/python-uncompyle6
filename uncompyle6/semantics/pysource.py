@@ -221,7 +221,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         If `showast' is True, we print the syntax tree.
 
-        `compile_mode' is is either 'exec' or 'single'. It isthe compile
+        `compile_mode' is is either 'exec' or 'single'. It is the compile
         mode that was used to create the Syntax Tree and specifies a
         gramar variant within a Python version to use.
 
@@ -286,6 +286,7 @@ class SourceWalker(GenericASTTraversal, object):
         # An example is:
         # __module__ = __name__
         self.hide_internal = True
+        self.compile_mode = "exec"
         self.name = None
         self.version = version
         self.is_pypy = is_pypy
@@ -320,6 +321,9 @@ class SourceWalker(GenericASTTraversal, object):
         if len(ast) > 1:
             rv += " (%d)" % (len(ast))
             enumerate_children = True
+
+        if ast in PRECEDENCE:
+            rv += ", precedence %s" % PRECEDENCE[ast]
 
         mapping = self._get_mapping(ast)
         table = mapping[0]
@@ -2072,6 +2076,7 @@ class SourceWalker(GenericASTTraversal, object):
                 arg += 1
             elif typ == "p":
                 p = self.prec
+                # entry[arg]
                 tup = entry[arg]
                 assert isinstance(tup, tuple)
                 if len(tup) == 3:
@@ -2176,11 +2181,15 @@ class SourceWalker(GenericASTTraversal, object):
 
             if k.startswith("CALL_METHOD"):
                 # This happens in PyPy and Python 3.7+
-                TABLE_R[k] = ("%c(%P)", 0, (1, -1, ", ", 100))
+                TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", 100))
             elif self.version >= (3, 6) and k.startswith("CALL_FUNCTION_KW"):
-                TABLE_R[k] = ("%c(%P)", 0, (1, -1, ", ", 100))
+                TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", 100))
             elif op == "CALL_FUNCTION":
-                TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", PRECEDENCE["yield"]-1))
+                TABLE_R[k] = (
+                    "%c(%P)",
+                    (0, "expr"),
+                    (1, -1, ", ", PRECEDENCE["yield"] - 1),
+                )
             elif op in (
                 "CALL_FUNCTION_VAR",
                 "CALL_FUNCTION_VAR_KW",
@@ -2294,8 +2303,9 @@ class SourceWalker(GenericASTTraversal, object):
         indent = self.indent
         # self.println(indent, '#flags:\t', int(code.co_flags))
         ast = self.build_ast(code._tokens, code._customize, code)
-        code._tokens = None  # save memory
-        assert ast == "stmts"
+
+        # save memory by deleting no-longer-used structures
+        code._tokens = None
 
         if ast[0] == "sstmt":
             ast[0] = ast[0][0]
@@ -2435,7 +2445,7 @@ class SourceWalker(GenericASTTraversal, object):
         returnNone=False,
         debug_opts=DEFAULT_DEBUG_OPTS,
     ):
-        """convert SyntaxTree to Python source code"""
+        """convert parse tree to Python source code"""
 
         rn = self.return_none
         self.return_none = returnNone
@@ -2456,7 +2466,13 @@ class SourceWalker(GenericASTTraversal, object):
         self.return_none = rn
 
     def build_ast(
-        self, tokens, customize, code, is_lambda=False, noneInNames=False, isTopLevel=False
+        self,
+        tokens,
+        customize,
+        code,
+        is_lambda=False,
+        noneInNames=False,
+        isTopLevel=False,
     ):
 
         # FIXME: DRY with fragments.py
@@ -2480,9 +2496,9 @@ class SourceWalker(GenericASTTraversal, object):
                 self.customize(customize)
                 self.p.insts = p_insts
             except python_parser.ParserError, e:
-                raise ParserError(e, tokens, self.p.debug['reduce'])
+                raise ParserError(e, tokens, self.p.debug["reduce"])
             except AssertionError, e:
-                raise ParserError(e, tokens, self.p.debug['reduce'])
+                raise ParserError(e, tokens, self.p.debug["reduce"])
             transform_ast = self.treeTransform.transform(ast, code)
             self.maybe_show_tree(ast)
             del ast  # Save memory
@@ -2518,7 +2534,7 @@ class SourceWalker(GenericASTTraversal, object):
             ast = python_parser.parse(self.p, tokens, customize, code)
             self.p.insts = p_insts
         except python_parser.ParserError, e:
-            raise ParserError(e, tokens, self.p.debug['reduce'])
+            raise ParserError(e, tokens, self.p.debug["reduce"])
 
         checker(ast, False, self.ast_errors)
 
@@ -2581,13 +2597,18 @@ def code_deparse(
     )
 
     isTopLevel = co.co_name == "<module>"
+    if compile_mode == "eval":
+        deparsed.hide_internal = False
     deparsed.ast = deparsed.build_ast(tokens, customize, co, isTopLevel=isTopLevel)
 
     #### XXX workaround for profiling
     if deparsed.ast is None:
         return None
 
-    assert deparsed.ast == "stmts", "Should have parsed grammar start"
+    if compile_mode != "eval":
+        assert deparsed.ast == "stmts", "Should have parsed grammar start"
+    else:
+        assert deparsed.ast == "eval_expr", "Should have parsed grammar start"
 
     # save memory
     del tokens
