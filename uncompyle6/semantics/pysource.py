@@ -1332,6 +1332,7 @@ class SourceWalker(GenericASTTraversal, object):
             in_node_index = -3
 
         self.write(" for ")
+
         if comp_store:
             self.preorder(comp_store)
         else:
@@ -1399,7 +1400,7 @@ class SourceWalker(GenericASTTraversal, object):
         list_if = None
         assert n == "comp_iter"
 
-        # find inner-most node
+        # Find inner-most node.
         while n == "comp_iter":
             n = n[0]  # recurse one step
             # FIXME: adjust for set comprehension
