@@ -1259,7 +1259,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         have_not = False
 
-        # Iterate to find the innermost store
+        # Iterate to find the inner-most "store".
         # We'll come back to the list iteration below.
 
         while n in ("list_iter", "list_afor", "list_afor2", "comp_iter"):
