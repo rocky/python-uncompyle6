@@ -223,7 +223,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         If `showast' is True, we print the syntax tree.
 
-        `compile_mode' is is either 'exec' or 'single'. It isthe compile
+        `compile_mode' is is either 'exec' or 'single'. It is the compile
         mode that was used to create the Syntax Tree and specifies a
         gramar variant within a Python version to use.
 
@@ -288,6 +288,7 @@ class SourceWalker(GenericASTTraversal, object):
         # An example is:
         # __module__ = __name__
         self.hide_internal = True
+        self.compile_mode = "exec"
         self.name = None
         self.version = version
         self.is_pypy = is_pypy
@@ -308,20 +309,23 @@ class SourceWalker(GenericASTTraversal, object):
         if isinstance(self.showast, dict) and self.showast.get:
             maybe_show_tree(self, ast)
 
-    def str_with_template(self, ast):
+    def str_with_template(self, ast) -> str:
         stream = sys.stdout
         stream.write(self.str_with_template1(ast, "", None))
         stream.write("\n")
 
-    def str_with_template1(self, ast, indent, sibNum=None):
+    def str_with_template1(self, ast, indent, sibNum=None) -> str:
         rv = str(ast.kind)
 
         if sibNum is not None:
             rv = "%2d. %s" % (sibNum, rv)
         enumerate_children = False
         if len(ast) > 1:
-            rv += " (%d)" % (len(ast))
+            rv += f" ({len(ast)})"
             enumerate_children = True
+
+        if ast in PRECEDENCE:
+            rv += f", precedence {PRECEDENCE[ast]}"
 
         mapping = self._get_mapping(ast)
         table = mapping[0]
@@ -2075,6 +2079,7 @@ class SourceWalker(GenericASTTraversal, object):
                 arg += 1
             elif typ == "p":
                 p = self.prec
+                # entry[arg]
                 tup = entry[arg]
                 assert isinstance(tup, tuple)
                 if len(tup) == 3:
@@ -2443,7 +2448,7 @@ class SourceWalker(GenericASTTraversal, object):
         returnNone=False,
         debug_opts=DEFAULT_DEBUG_OPTS,
     ):
-        """convert SyntaxTree to Python source code"""
+        """convert parse tree to Python source code"""
 
         rn = self.return_none
         self.return_none = returnNone
