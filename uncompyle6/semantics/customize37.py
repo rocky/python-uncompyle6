@@ -38,7 +38,7 @@ def customize_for_version37(self, version):
     PRECEDENCE["formatted_value1"] = 100
     PRECEDENCE["if_exp_37a"] = 28
     PRECEDENCE["if_exp_37b"] = 28
-    PRECEDENCE["unmap_dict"] = 0
+    PRECEDENCE["dict_unmap"] = 0
 
     TABLE_DIRECT.update(
         {
@@ -161,7 +161,7 @@ def customize_for_version37(self, version):
             "testfalsel":  ("not %c", (0, "expr")),
             "try_except36": ("%|try:\n%+%c%-%c\n\n", 1, -2),
             "tryfinally36": ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", (1, "returns"), 3),
-            "unmap_dict": ("{**%C}", (0, -1, ", **")),
+            "dict_unmap": ("{**%C}", (0, -1, ", **")),
             "unpack_list": ("*%c", (0, "list")),
             "yield_from": ("yield from %c", (0, "expr")),
         }
