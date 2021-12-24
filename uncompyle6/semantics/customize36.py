@@ -44,7 +44,7 @@ def customize_for_version36(self, version):
     PRECEDENCE["call_ex_kw2"] = 1
     PRECEDENCE["call_ex_kw3"] = 1
     PRECEDENCE["call_ex_kw4"] = 1
-    PRECEDENCE["unmap_dict"] = 0
+    PRECEDENCE["dict_doublestar"] = 0  # **{ ... }
     PRECEDENCE["formatted_value1"] = 100
 
     TABLE_DIRECT.update(
