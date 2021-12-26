@@ -1,5 +1,5 @@
 # From Python 3.6 hmac.py
-# needed to change mklambda rule
+# needed to change lambda_body rule
 def __init__(self, msg = None, digestmod = None):
     self.digest_cons = lambda d='': digestmod.new(d)
 

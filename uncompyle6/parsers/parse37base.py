@@ -741,7 +741,7 @@ class Python37BaseParser(PythonParser):
                 # FIXME: Fold test  into add_make_function_rule
                 j = 2
                 if is_pypy or (i >= j and tokens[i - j] == "LOAD_LAMBDA"):
-                    rule_pat = "mklambda ::= %sload_closure LOAD_LAMBDA %%s%s" % (
+                    rule_pat = "lambda_body ::= %sload_closure LOAD_LAMBDA %%s%s" % (
                         "pos_arg " * args_pos,
                         opname,
                     )
@@ -815,14 +815,14 @@ class Python37BaseParser(PythonParser):
                 stack_count = args_pos + args_kw + annotate_args
                 if closure:
                     if args_pos:
-                        rule = "mklambda ::= %s%s%s%s" % (
+                        rule = "lambda_body ::= %s%s%s%s" % (
                             "expr " * stack_count,
                             "load_closure " * closure,
                             "BUILD_TUPLE_1 LOAD_LAMBDA LOAD_STR ",
                             opname,
                         )
                     else:
-                        rule = "mklambda ::= %s%s%s" % (
+                        rule = "lambda_body ::= %s%s%s" % (
                             "load_closure " * closure,
                             "LOAD_LAMBDA LOAD_STR ",
                             opname,
@@ -830,7 +830,7 @@ class Python37BaseParser(PythonParser):
                     self.add_unique_rule(rule, opname, token.attr, customize)
 
                 else:
-                    rule = "mklambda ::= %sLOAD_LAMBDA LOAD_STR %s" % (
+                    rule = "lambda_body ::= %sLOAD_LAMBDA LOAD_STR %s" % (
                         ("expr " * stack_count),
                         opname,
                     )
@@ -875,7 +875,7 @@ class Python37BaseParser(PythonParser):
                         )
 
                 if is_pypy or (i >= 2 and tokens[i - 2] == "LOAD_LAMBDA"):
-                    rule_pat = "mklambda ::= %s%sLOAD_LAMBDA %%s%s" % (
+                    rule_pat = "lambda_body ::= %s%sLOAD_LAMBDA %%s%s" % (
                         ("pos_arg " * args_pos),
                         ("kwarg " * args_kw),
                         opname,
@@ -910,7 +910,7 @@ class Python37BaseParser(PythonParser):
 
                 # FIXME: Fold test  into add_make_function_rule
                 if is_pypy or (i >= j and tokens[i - j] == "LOAD_LAMBDA"):
-                    rule_pat = "mklambda ::= %s%sLOAD_LAMBDA %%s%s" % (
+                    rule_pat = "lambda_body ::= %s%sLOAD_LAMBDA %%s%s" % (
                         ("pos_arg " * args_pos),
                         ("kwarg " * args_kw),
                         opname,

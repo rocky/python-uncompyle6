@@ -274,7 +274,7 @@ def customize_for_version37(self, version):
             and opname == "CALL_FUNCTION_1"
             or not re.match(r"\d", opname[-1])
         ):
-            if node[0][0] == "_mklambda":
+            if node[0][0] == "_lambda_body":
                 template = "(%c)(%p)"
             else:
                 template = "%c(%p)"

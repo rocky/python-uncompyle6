@@ -47,7 +47,7 @@ def find_all_globals(node, globs):
 #         if isinstance(n, SyntaxTree):
 #             # FIXME: do I need a caser for n.kind="mkfunc"?
 #             if n.kind in ("if_exp_lambda", "return_lambda"):
-#                 globs = find_globals(n, globs, mklambda_globals)
+#                 globs = find_globals(n, globs, lambda_body_globals)
 #             else:
 #                 globs = find_globals(n, globs, global_ops)
 #         elif n.kind in frozenset(global_ops):
