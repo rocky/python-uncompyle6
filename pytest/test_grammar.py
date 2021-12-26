@@ -34,7 +34,7 @@ def test_grammar():
         expect_lhs.add("async_with_as_stmt")
         expect_lhs.add("async_with_stmt")
 
-    unused_rhs = set(["list", "mkfunc", "mklambda", "unpack"])
+    unused_rhs = set(["list", "mkfunc", "lambda_body", "unpack"])
 
     expect_right_recursive = set([("designList", ("store", "DUP_TOP", "designList"))])
 

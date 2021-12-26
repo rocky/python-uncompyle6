@@ -143,7 +143,7 @@ class Python37Parser(Python37BaseParser):
         expr ::= LOAD_GLOBAL
         expr ::= LOAD_NAME
         expr ::= LOAD_STR
-        expr ::= _mklambda
+        expr ::= _lambda_body
         expr ::= and
         expr ::= bin_op
         expr ::= call
@@ -188,7 +188,7 @@ class Python37Parser(Python37BaseParser):
 
         yield ::= expr YIELD_VALUE
 
-        _mklambda ::= mklambda
+        _lambda_body ::= lambda_body
 
         expr      ::= if_exp
 

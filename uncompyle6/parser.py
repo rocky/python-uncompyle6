@@ -522,7 +522,7 @@ class PythonParser(GenericASTBuilder):
         expr ::= LOAD_FAST
         expr ::= LOAD_GLOBAL
         expr ::= LOAD_NAME
-        expr ::= _mklambda
+        expr ::= _lambda_body
         expr ::= and
         expr ::= bin_op
         expr ::= call
@@ -566,7 +566,7 @@ class PythonParser(GenericASTBuilder):
 
         yield ::= expr YIELD_VALUE
 
-        _mklambda ::= mklambda
+        _lambda_body ::= lambda_body
 
         expr ::= if_exp
 

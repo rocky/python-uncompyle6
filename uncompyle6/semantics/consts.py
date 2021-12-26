@@ -50,8 +50,8 @@ PRECEDENCE = {
     "yield":                  38, # Needs to be below named_expr
     "yield_from":             38,
 
-    "_mklambda":              30,
-    "mklambda":               30,
+    "_lambda_body":           30,
+    "lambda_body":            30, # lambda ... : lambda_body
 
     "if_exp":                 28, # IfExp ( a if x else b)
     "if_exp_lambda":          28, # IfExp involving a lambda expression
