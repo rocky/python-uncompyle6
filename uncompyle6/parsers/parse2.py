@@ -101,7 +101,7 @@ class Python2Parser(PythonParser):
         delete_subscript ::= expr expr DELETE_SUBSCR
         delete           ::= expr DELETE_ATTR
 
-        _mklambda ::= load_closure mklambda
+        _lambda_body ::= load_closure lambda_body
         kwarg     ::= LOAD_CONST expr
 
         kv3 ::= expr expr STORE_MAP
@@ -538,7 +538,7 @@ class Python2Parser(PythonParser):
             elif opname_base == "MAKE_FUNCTION":
                 if i > 0 and tokens[i - 1] == "LOAD_LAMBDA":
                     self.addRule(
-                        "mklambda ::= %s LOAD_LAMBDA %s"
+                        "lambda_body ::= %s LOAD_LAMBDA %s"
                         % ("pos_arg " * token.attr, opname),
                         nop_func,
                     )
@@ -547,7 +547,7 @@ class Python2Parser(PythonParser):
                 # FIXME: use add_unique_rules to tidy this up.
                 if i > 0 and tokens[i - 1] == "LOAD_LAMBDA":
                     self.addRule(
-                        "mklambda ::= %s load_closure LOAD_LAMBDA %s"
+                        "lambda_body ::= %s load_closure LOAD_LAMBDA %s"
                         % ("expr " * token.attr, opname),
                         nop_func,
                     )

@@ -38,7 +38,6 @@ def customize_for_version37(self, version):
     PRECEDENCE["formatted_value1"] = 100
     PRECEDENCE["if_exp_37a"] = 28
     PRECEDENCE["if_exp_37b"] = 28
-    PRECEDENCE["dict_unmap"] = 0
 
     TABLE_DIRECT.update(
         {
@@ -275,7 +274,7 @@ def customize_for_version37(self, version):
             and opname == "CALL_FUNCTION_1"
             or not re.match(r"\d", opname[-1])
         ):
-            if node[0][0] == "_mklambda":
+            if node[0][0] == "_lambda_body":
                 template = "(%c)(%p)"
             else:
                 template = "%c(%p)"
