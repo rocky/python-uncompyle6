@@ -51,7 +51,7 @@ def customize_for_version35(self, version):
                 (2, "store"),
                 3,
             ),
-            "dict_unmap": ("{**%C}", (0, -1, ", **")),
+            "dict_unpack": ("{**%C}", (0, -1, ", **")),
             # "unmapexpr":	       ( "{**%c}", 0), # done by n_unmapexpr
         }
     )

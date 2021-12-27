@@ -22,22 +22,24 @@ from uncompyle6.semantics.consts import (
     maxint,
 )
 
+
 def customize_for_version37(self, version):
     ########################
     # Python 3.7+ changes
     #######################
 
-    PRECEDENCE["attribute37"] = 2
-    PRECEDENCE["call_ex"] = 1
-    PRECEDENCE["call_ex_kw"] = 1
-    PRECEDENCE["call_ex_kw2"] = 1
-    PRECEDENCE["call_ex_kw3"] = 1
-    PRECEDENCE["call_ex_kw4"] = 1
-    PRECEDENCE["call_kw"] = 0
-    PRECEDENCE["call_kw36"] = 1
+    # fmt: off
+    PRECEDENCE["attribute37"]      =   2
+    PRECEDENCE["call_ex"]          =   1
+    PRECEDENCE["call_ex_kw"]       =   1
+    PRECEDENCE["call_ex_kw2"]      =   1
+    PRECEDENCE["call_ex_kw3"]      =   1
+    PRECEDENCE["call_ex_kw4"]      =   1
+    PRECEDENCE["call_kw"]          =   0
+    PRECEDENCE["call_kw36"]        =   1
     PRECEDENCE["formatted_value1"] = 100
-    PRECEDENCE["if_exp_37a"] = 28
-    PRECEDENCE["if_exp_37b"] = 28
+    PRECEDENCE["if_exp_37a"]       =  28
+    PRECEDENCE["if_exp_37b"]       =  28
 
     TABLE_DIRECT.update(
         {
@@ -160,11 +162,12 @@ def customize_for_version37(self, version):
             "testfalsel":  ("not %c", (0, "expr")),
             "try_except36": ("%|try:\n%+%c%-%c\n\n", 1, -2),
             "tryfinally36": ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", (1, "returns"), 3),
-            "dict_unmap": ("{**%C}", (0, -1, ", **")),
+            "dict_unpack": ("{**%C}", (0, -1, ", **")),
             "unpack_list": ("*%c", (0, "list")),
             "yield_from": ("yield from %c", (0, "expr")),
         }
     )
+    # fmt: on
 
     def gen_function_parens_adjust(mapping_key, node):
         """If we can avoid the outer parenthesis
@@ -279,11 +282,8 @@ def customize_for_version37(self, version):
             else:
                 template = "%c(%p)"
             self.template_engine(
-                (template,
-                 (0, "expr"),
-                 (1, PRECEDENCE["yield"]-1)),
-                node
-                )
+                (template, (0, "expr"), (1, PRECEDENCE["yield"] - 1)), node
+            )
             self.prec = p
             self.prune()
         else:
@@ -299,6 +299,7 @@ def customize_for_version37(self, version):
             self.default(node[0])
         else:
             self.default(node)
+
     self.n_compare_chained = n_compare_chained
 
     def n_importlist37(node):
@@ -309,7 +310,7 @@ def customize_for_version37(self, version):
         for i in range(n, -1, -1):
             if node[i] != "ROT_TWO":
                 break
-        self.template_engine(("%C", (0, i + 1, ', ')), node)
+        self.template_engine(("%C", (0, i + 1, ", ")), node)
         self.prune()
         return
 
@@ -323,4 +324,5 @@ def customize_for_version37(self, version):
             self.comprehension_walk_newer(node, iter_index=3, code_index=0)
         self.write("]")
         self.prune()
+
     self.n_list_comp_async = n_list_comp_async

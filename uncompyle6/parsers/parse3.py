@@ -775,7 +775,7 @@ class Python3Parser(PythonParser):
                         # FIXME: Use the attr
                         # so this doesn't run into exponential parsing time.
                         if opname.startswith("BUILD_MAP_UNPACK"):
-                            # FIXME: start here. The LHS should be dict_unmap, not dict.
+                            # FIXME: start here. The LHS should be dict_unpack, not dict.
                             # FIXME: really we need a combination of dict_entry-like things.
                             # It just so happens the most common case is not to mix
                             # dictionary comphensions with dictionary, elements
@@ -786,8 +786,8 @@ class Python3Parser(PythonParser):
                                 )
                                 self.addRule(rule, nop_func)
                             rule = """
-                             expr       ::= dict_unmap
-                             dict_unmap ::= %s%s
+                             expr        ::= dict_unpack
+                             dict_unpack ::= %s%s
                              """ % (
                                 "expr " * token.attr,
                                 opname,
