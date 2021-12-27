@@ -336,8 +336,8 @@ class Python37BaseParser(PythonParser):
                 if opname == "BUILD_MAP_UNPACK":
                     self.addRule(
                         """
-                        expr       ::= dict_unmap
-                        dict_unmap ::= dict_comp BUILD_MAP_UNPACK
+                        expr        ::= dict_unpack
+                        dict_unpack ::= dict_comp BUILD_MAP_UNPACK
                         """,
                         nop_func,
                     )
@@ -367,7 +367,7 @@ class Python37BaseParser(PythonParser):
                     # FIXME: Use the attr
                     # so this doesn't run into exponential parsing time.
                     if opname.startswith("BUILD_MAP_UNPACK"):
-                        # FIXME: start here. The LHS should be dict_unmap, not dict.
+                        # FIXME: start here. The LHS should be dict_unpack, not dict.
                         # FIXME: really we need a combination of dict_entry-like things.
                         # It just so happens the most common case is not to mix
                         # dictionary comphensions with dictionary, elements
@@ -375,8 +375,8 @@ class Python37BaseParser(PythonParser):
                             rule = "dict ::= %s%s" % ("dict_comp " * token.attr, opname)
                             self.addRule(rule, nop_func)
                         rule = """
-                         expr       ::= dict_unmap
-                         dict_unmap ::= %s%s
+                         expr        ::= dict_unpack
+                         dict_unpack ::= %s%s
                          """ % (
                             "expr " * token.attr,
                             opname,

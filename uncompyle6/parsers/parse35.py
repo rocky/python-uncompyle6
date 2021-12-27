@@ -201,8 +201,8 @@ class Python35Parser(Python34Parser):
                 self.addRule(rules_str, nop_func)
             elif opname == 'BUILD_MAP_UNPACK':
                 self.addRule("""
-                   expr       ::= dict_unmap
-                   dict_unmap ::= dict_comp BUILD_MAP_UNPACK
+                   expr        ::= dict_unpack
+                   dict_unpack ::= dict_comp BUILD_MAP_UNPACK
                    """, nop_func)
 
             elif opname == 'SETUP_WITH':
