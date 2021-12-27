@@ -42,8 +42,7 @@ I started working on this late 2015, mostly to add fragment support. In that, I 
 
 Having a grammar per Python version is simpler to maintain, cleaner and it scales indefinitely.
 
-Over the many years, code styles and Python features have changed. However brilliant the code was and still is, it hasn't really
-had a single public active maintainer. And there have been many forks of the code.
+Over the many years, code styles and Python features have changed. However brilliant the code was and still is, it hasn't really had a single public active maintainer. And there have been many forks of the code.
 
 That this code has been in need of an overhaul has been recognized by the Hartmut more than two decades ago.
 
@@ -52,7 +51,7 @@ That this code has been in need of an overhaul has been recognized by the Hartmu
     NB. This is not a masterpiece of software, but became more like a hack.
     Probably a complete rewrite would be sensefull. hG/2000-12-27
 
-In 2021, I created three git branches in order to allow the decompiler to run on a wide variety of Python versions from 2.4 up to 3.10. (Note this doesn't mean we decompile these versions. In fact we decompile starting from Python 1.0 up to Python 3.8 and no later than that)
+In 2021, I created three git branches in order to allow the decompiler to run on a wide variety of Python versions from 2.4 up to 3.10. (Note this doesn't mean we decompile these versions. In fact we decompile starting from Python 1.0 up to Python 3.8 and no later than that.)
 
 Using the separate git branches allows me to continually improve the coding style and add feature support while still supporting older Pythons. Supporting older Pythons is nice (but not strictly necessary) when you want to debug decompilation on older Pythons.
 
@@ -75,7 +74,9 @@ Writing a decompiler for Python gets harder as it Python progresses. Writing dec
 
 In Python 3.10 I am seeing (for the first time?) bytecode getting moved around so that it is no longer the case that line numbers have to be strictly increasing as bytecode offsets increase. And I am seeing dead code appear as well.
 
-That said, if you still feel you want to write a single version decompiler, look at the test cases in this project and talk to me. I may have some ideas that I haven't made public yet.
+That said, if you still feel you want to write a single version decompiler, look at the test cases in this project and talk to me. I may have some ideas that I haven't made public yet. See also what I've wrtten about the on how this code works and on [decompilation in dynamic runtime languages](http://rocky.github.io/Deparsing-Paper.pdf) in general.
+
+
 
 # Earley Algorithm Parser
 
