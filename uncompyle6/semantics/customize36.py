@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2020 by Rocky Bernstein
+#  Copyright (c) 2019-2021 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -37,14 +37,16 @@ def escape_format(s):
 
 
 def customize_for_version36(self, version):
-    PRECEDENCE["call_kw"] = 0
-    PRECEDENCE["call_kw36"] = 1
-    PRECEDENCE["call_ex"] = 1
-    PRECEDENCE["call_ex_kw"] = 1
-    PRECEDENCE["call_ex_kw2"] = 1
-    PRECEDENCE["call_ex_kw3"] = 1
-    PRECEDENCE["call_ex_kw4"] = 1
-    PRECEDENCE["dict_unmap"] = 0  # **{ ... }
+
+    # fmt: off
+    PRECEDENCE["call_kw"]          =   0
+    PRECEDENCE["call_kw36"]        =   1
+    PRECEDENCE["call_ex"]          =   1
+    PRECEDENCE["call_ex_kw"]       =   1
+    PRECEDENCE["call_ex_kw2"]      =   1
+    PRECEDENCE["call_ex_kw3"]      =   1
+    PRECEDENCE["call_ex_kw4"]      =   1
+    PRECEDENCE["dict_pack"]        =   0  # **{ ... }
     PRECEDENCE["formatted_value1"] = 100
 
     TABLE_DIRECT.update(
@@ -52,7 +54,7 @@ def customize_for_version36(self, version):
             "ann_assign_init_value": (
                 "%|%c = %p\n",
                 (-1, "store_annotation"),
-                (0, "expr", 200),
+                (0,  "expr", 200),
             ),
             "ann_assign_no_init": ("%|%c\n", (0, "store_annotation")),
             "async_for_stmt36": (
@@ -61,28 +63,32 @@ def customize_for_version36(self, version):
                 (1, "expr"),
                 (18, "for_block"),
             ),
-            "call_ex": ("%c(%p)", (0, "expr"), (1, 100)),
-            "except_return": ("%|except:\n%+%c%-", 3),
-            "func_args36": ("%c(**", 0),
+            "call_ex":            ("%c(%p)", (0, "expr"), (1, 100)),
+            "except_return":      ("%|except:\n%+%c%-", 3),
+            "func_args36":        ("%c(**", 0),
+
             # This comes from 3.7. Eventually we will rebase from 3.7
             # and then this can go away
-            "if_exp37": ("%p if %c else %c", (1, "expr", 27), 0, 3),
-            "ifstmtl": ("%|if %c:\n%+%c%-", (0, "testexpr"), (1, "_ifstmts_jumpl")),
-            "try_except36": ("%|try:\n%+%c%-%c\n\n", 1, -2),
-            "tryfinally36": ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", (1, "returns"), 3),
+            "if_exp37":           ("%p if %c else %c", (1, "expr", 27), 0, 3),
+
+            "ifstmtl":            ("%|if %c:\n%+%c%-",
+                                   (0, "testexpr"), (1, "_ifstmts_jumpl")),
+            "try_except36":       ("%|try:\n%+%c%-%c\n\n", 1, -2),
+            "tryfinally36":       ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", (1, "returns"), 3),
             "tryfinally_return_stmt": ("%|try:\n%+%c%-%|finally:\n%+%|return%-\n\n", 1),
-            "unpack_list": ("*%c", (0, "list")),
-            "store_annotation": ("%[1]{pattr}: %c", 0),
+            "unpack_list":        ("*%c", (0, "list")),
+            "store_annotation":   ("%[1]{pattr}: %c", 0),
         }
     )
 
     TABLE_R.update(
         {
-            "CALL_FUNCTION_EX": ("%c(*%P)", 0, (1, 2, ", ", 100)),
+            "CALL_FUNCTION_EX":    ("%c(*%P)", 0, (1, 2, ", ", 100)),
             # Not quite right
             "CALL_FUNCTION_EX_KW": ("%c(**%C)", 0, (2, 3, ",")),
         }
     )
+    # fmt: on
 
     def build_unpack_tuple_with_call(node):
         n = node[0]
