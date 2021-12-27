@@ -9,7 +9,7 @@ Here I will largely give what are the major improvements over old code.
 
 This also serves to outline a little bit about what is in this code.
 
-See also `How does this code work? <https://github.com/rocky/python-uncompyle6/wiki/How-does-this-code-work%3F>`.
+See also `How does this code work? <https://github.com/rocky/python-uncompyle6/wiki/How-does-this-code-work%3F>`_.
 
 Old Cool Features
 ==================
@@ -17,7 +17,7 @@ Old Cool Features
 Before getting to the new stuff, I'll describe cool things that was there before.
 
 I particularly liked the ability to show the assembly, grammar
-reduction rules as they occured, and the resulting parse tree. It is
+reduction rules as they occurred, and the resulting parse tree. It is
 neat that you could follow the process and steps that deparser takes,
 and in this not only see the result how the bytecode corresponds to
 the resulting source. Compare this with other Python decompilers.
@@ -26,7 +26,7 @@ And of course also neat was that this used a grammar and table-driven
 approach to decompile.
 
 
-Expanding decomplation to multiple Python Versions
+Expanding decompilation to multiple Python Versions
 ==================================================
 
 Aside from ``pycdc``, most of the Python decompilers handle a small
@@ -44,21 +44,21 @@ versions running from an interpreter different from the one that was
 running the decompiler. That however used compiled code in the process
 was tied a bit to the Python C headers for a particular version.
 
-You need to not only, account for different "marshal" and "unmarshal"
-routines for the different Python versions, but as the Python versions
-extend you need a different code type as well.
+You need to not only to account for different "marshal" and "unmarshal"
+routines for the different Python versions, but also, as the Python versions
+extend, you need a different code type as well.
 
 Enter ``xdis``
 --------------
 
 To handle all of these problems, I split off the marshal loading
 portion and disassembly routines into a separate module,
-``xdis``. This also allows older Pythons to have access to features
+`xdis <https://pypi.org/project/xdis/>`_. This also allows older Pythons to have access to features
 found in newer Pythons, such as parsing the bytecode, a uniform stream
 of bytes, into a list of structured bytecode instructions.
 
 Python 2.7's ``dis`` module doesn't has provide a instruction abstraction.
-THerefore in ``uncompyle2`` and other earlier decompilers you see code with magic numbers like 4 in::
+Therefore in ``uncompyle2`` and other earlier decompilers you see code with magic numbers like 4 in::
 
     if end > jump_back+4 and code[end] in (JF, JA):
         if code[jump_back+4] in (JA, JF):
@@ -90,12 +90,12 @@ isn't a single comment in there about what specifically it is trying
 to do, the logic or that would lead one to be confident that this is
 correct, let alone assumptions that are needed for this to be true.
 
-While this might largely work for Python 2.7 (and ``uncompyle2`` does
-get control flow wrong sometimes``, It is impossible to adapt code for
+While this might largely work for Python 2.7, and ``uncompyle2`` does
+get control flow wrong sometimes, it is impossible to adapt code for
 other versions of Python.
 
 In addition adding an instruction structure, ``xdis`` adds various
-flags and features that assist in working with instructionso. In the
+flags and features that assist in working with instructions. In the
 example above this replaces code like ``... in (JF, JA)`` which is
 some sort of unconditional jump instruction.
 
@@ -120,17 +120,17 @@ this decompiler did this.
 
 If you look at the changes in this code, right now there are no
 grammar changes needed between 1.0 to 1.3. (Some of this may be wrong
-though since we haven't extensively tested these ealiest Python versions
+though since we haven't extensively tested these earliest Python versions
 
 For Python 1.4 which is based off of the grammar for 1.5 though there
 are number of changes, about 6 grammar rules. Later versions of though
 we start to see larger upheaval and at certain places, especially
 those where new opcodes are introduced, especially those that change
-the way calls or execptions get handled, we have major upheaval in the
+the way calls or exceptions get handled, we have major upheaval in the
 grammar. It is not just that some rules get added, but we also need to
 *remove* some grammar rules as well.
 
-I have been largely managing this as incremental diffences between versions.
+I have been largely managing this as incremental differences between versions.
 However in the future I am leaning more towards totally separate grammars.
 A well constructed grammar doesn't need to be that large.
 
@@ -144,9 +144,9 @@ compilation modes like "single" versus "exec".
 
 Another nice natural self-contain grammar section is what can appear
 in list comprehensions and generators. The bodies of these are
-generally reprecented in a self-contained code block.
+generally represented in a self-contained code block.
 
-Often in decomplation you may be interested not just in decompiling
+Often in decompilation you may be interested not just in decompiling
 the entire code but you may be interested in only focusing on a
 specific part of the code. And if there is a problem in decompiling
 the entire piece of code, having these smaller breaking points can be
@@ -186,13 +186,13 @@ whether a program has decompiled correctly.
 
 Aside from this, debugging can be easier as well. To assist
 understanding bytcode and single stepping it see `x-python
-<https://pypi.org/project/x-python/>` and the debugger for it
-`trepan-xpy <https://pypi.org/project/trepanxpy/>`.
+<https://pypi.org/project/x-python/>`_ and the debugger for it
+`trepan-xpy <https://pypi.org/project/trepanxpy/>`_.
 
 Handling Language Drift
 -----------------------
 
-Given the desirablility of having this code running on logs of Python
+Given the desirability of having this code running on logs of Python
 versions, how can we get this done?
 
 The solution used here is to have several git branches of the
@@ -214,7 +214,8 @@ Cool features of the Parser
 Cool features Semantic Analysis
 ===============================
 
-* ``-T`` option and transformation phase
-* showing precedence and rule pattern
+* ``--tree++`` (``-T``) option
+* showing precedence
+* See `Adding a tree transformation phase to uncompyle6 <https://github.com/rocky/python-uncompyle6/wiki/Adding-a-tree-transformation-phase-to-uncompyle6>`_
 * following AST
 * Fragment deparsing
