@@ -182,11 +182,23 @@ check-bytecode-2.3:
 
 #: Check deparsing Python 2.4
 check-bytecode-2.4:
+	$(PYTHON) test_pythonlib.py --bytecode-2.4-run --verify-run
 	$(PYTHON) test_pythonlib.py --bytecode-2.4
 
 #: Check deparsing Python 2.5
 check-bytecode-2.5:
+	$(PYTHON) test_pythonlib.py --bytecode-2.5-run --verify-run
 	$(PYTHON) test_pythonlib.py --bytecode-2.5
+
+#: Check deparsing Python 2.6
+check-bytecode-2.6:
+	$(PYTHON) test_pythonlib.py --bytecode-2.6-run --verify-run
+	$(PYTHON) test_pythonlib.py --bytecode-2.6 --syntax-verify
+
+#: Check deparsing Python 2.7
+check-bytecode-2.7:
+	$(PYTHON) test_pythonlib.py --bytecode-2.7-run --verify-run
+	$(PYTHON) test_pythonlib.py --bytecode-2.7 --syntax-verify
 
 #: Get grammar coverage for Python 2.4
 grammar-coverage-2.4:
@@ -259,16 +271,6 @@ grammar-coverage-3.6:
 grammar-coverage-3.7:
 	rm $(COVER_DIR)/spark-grammar-3.7.cover || /bin/true
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-3.7.cover $(PYTHON) test_pyenvlib.py --3.7.3 --max=500
-
-#: Check deparsing Python 2.6
-check-bytecode-2.6:
-	$(PYTHON) test_pythonlib.py --bytecode-2.6-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-2.6 --syntax-verify
-
-#: Check deparsing Python 2.7
-check-bytecode-2.7:
-	$(PYTHON) test_pythonlib.py --bytecode-2.7-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-2.7 --syntax-verify
 
 #: Check deparsing Python 3.0
 check-bytecode-3.0:
