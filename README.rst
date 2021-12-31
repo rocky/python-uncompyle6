@@ -75,24 +75,39 @@ the way. Very few to none of them are fixed in the other decompilers.
 Requirements
 ------------
 
-The code here can be run on Python versions 2.6 or later, PyPy 3-2.4
-and later.  Python versions 2.4-2.7 are supported in the python-2.4
-branch.  The bytecode files it can read have been tested on Python
+The code in the git repository can be run from Python 2.4 to the
+latest Python version, with the exception of Python 3.0 through
+3.2. Volunteers are welcome to address these deficiencies if there a
+desire to do so.
+
+nThe way it does this though is by segregating consecutive Python versions into
+git branches:
+
+master
+   Python 3.6 and up (uses type annotations)
+python-3.3-to-3.5
+   Python 3.3 through 3.5 (Generic Python 3)
+python-2.4
+   Python 2.4 through 2.7 (Generic Python 2)
+
+PyPy 3-2.4 and later works as well.
+
+The bytecode files it can read have been tested on Python
 bytecodes from versions 1.4, 2.1-2.7, and 3.0-3.8 and later PyPy
 versions.
 
 Installation
 ------------
 
-This uses setup.py, so it follows the standard Python routine:
-
-::
+This uses setup.py, so it follows the standard Python routine::
 
     $ pip install -e .  # set up to run from source tree
-                        # Or if you want to install instead
+
+or::
+
     $ python setup.py install # may need sudo
 
-A GNU makefile is also provided so :code:`make install` (possibly as root or
+A GNU Makefile is also provided so :code:`make install` (possibly as root or
 sudo) will do the steps above.
 
 Running Tests
@@ -231,7 +246,7 @@ because it is harder to do so. The good news, at least from my
 standpoint, is that I think I understand what's needed to address the
 problems in a more robust way. But right now until such time as
 project is better funded, I do not intend to make any serious effort
-to support Python versions 3.8 or 3.9, including bugs that might come
+to support Python versions 3.8 and above here, including bugs that might come
 in. I imagine at some point I may be interested in it.
 
 You can easily find bugs by running the tests against the standard
@@ -241,10 +256,14 @@ be solved if one were to put in the time to do so. The problem is that
 there aren't that many people who have been working on bug fixing.
 
 Some of the bugs in 3.7 and 3.8 are simply a matter of back-porting
-the fixes in decompyle3.
+the fixes in decompyle3. Volunteers are welcome to do so.
 
-You may run across a bug, that you want to report. Please do so. But
-be aware that it might not get my attention for a while. If you
+You may run across a bug, that you want to report. Please do so after
+reading `How to report a bug
+<https://github.com/rocky/python-uncompyle6/blob/master/HOW-TO-REPORT-A-BUG.md>`_ and
+follow the `instructions when opening an issue <https://github.com/rocky/python-uncompyle6/issues/new?assignees=&labels=&template=bug-report.md>`_.
+
+Be aware that it might not get my attention for a while. If you
 sponsor or support the project in some way, I'll prioritize your
 issues above the queue of other things I might be doing instead.
 
@@ -267,6 +286,7 @@ See Also
 .. _trepan: https://pypi.python.org/pypi/trepan3k
 .. _compiler: https://pypi.python.org/pypi/spark_parser
 .. _HISTORY: https://github.com/rocky/python-uncompyle6/blob/master/HISTORY.md
+.. _report_bug: https://github.com/rocky/python-uncompyle6/blob/master/HOW-TO-REPORT-A-BUG.md
 .. _debuggers: https://pypi.python.org/pypi/trepan3k
 .. _remake: https://bashdb.sf.net/remake
 .. _pycdc: https://github.com/zrax/pycdc
