@@ -293,7 +293,8 @@ class TreeTransform(GenericASTTraversal, object):
         else_suite_index = 1
 
         len_n = len(n)
-        if len_n == 1 and type(n[0]) is SyntaxTree and len(n[0]) == 1 and n[0] == "stmt":
+        # Sometimes stmt  is reduced away and n[0] can be a single reduction like continue -> CONTINUE.
+        if len_n == 1 and isinstance(n[0], SyntaxTree) and len(n[0]) == 1 and n[0] == "stmt":
             n = n[0][0]
         elif len_n == 0:
             return node
