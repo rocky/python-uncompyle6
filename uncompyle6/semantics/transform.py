@@ -293,7 +293,7 @@ class TreeTransform(GenericASTTraversal, object):
         else_suite_index = 1
 
         len_n = len(n)
-        if len_n == 1 == len(n[0]) and n[0] == "stmt":
+        if len_n == 1 and type(n[0]) is SyntaxTree and len(n[0]) == 1 and n[0] == "stmt":
             n = n[0][0]
         elif len_n == 0:
             return node
