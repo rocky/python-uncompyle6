@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2020 Rocky Bernstein
+#  Copyright (c) 2017-2020, 2022 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -199,10 +199,10 @@ class Python37Parser(Python37BaseParser):
         ret_expr_or_cond ::= ret_expr
         ret_expr_or_cond ::= if_exp_ret
 
-        stmt ::= return_lambda
+        stmt ::= return_expr_lambda
 
-        return_lambda ::= ret_expr RETURN_VALUE_LAMBDA LAMBDA_MARKER
-        return_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+        return_expr_lambda ::= ret_expr RETURN_VALUE_LAMBDA LAMBDA_MARKER
+        return_expr_lambda ::= ret_expr RETURN_VALUE_LAMBDA
 
         compare        ::= compare_chained
         compare        ::= compare_single
