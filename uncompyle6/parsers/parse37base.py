@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017, 2019-2020 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2019-2020, 2022 Rocky Bernstein
 """
 Python 3.7 base code. We keep non-custom-generated grammar rules out of this file.
 """
@@ -163,9 +163,9 @@ class Python37BaseParser(PythonParser):
               stmt               ::= if_exp_lambda
               stmt               ::= if_exp_not_lambda
               if_exp_lambda      ::= expr jmp_false expr return_if_lambda
-                                     return_lambda LAMBDA_MARKER
+                                     return_expr_lambda LAMBDA_MARKER
               if_exp_not_lambda  ::= expr jmp_true expr return_if_lambda
-                                     return_lambda LAMBDA_MARKER
+                                     return_expr_lambda LAMBDA_MARKER
               """,
                 nop_func,
             )
@@ -952,7 +952,7 @@ class Python37BaseParser(PythonParser):
             elif opname == "RETURN_VALUE_LAMBDA":
                 self.addRule(
                     """
-                    return_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+                    return_expr_lambda ::= ret_expr RETURN_VALUE_LAMBDA
                     """,
                     nop_func,
                 )

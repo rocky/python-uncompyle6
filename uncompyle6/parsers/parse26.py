@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2021 Rocky Bernstein
+#  Copyright (c) 2017-2022 Rocky Bernstein
 """
 spark grammar differences over Python2 for Python 2.6.
 """
@@ -317,7 +317,7 @@ class Python26Parser(Python2Parser):
         return_lambda      ::= RETURN_END_IF_LAMBDA
         return_lambda      ::= RETURN_VALUE_LAMBDA
 
-        compare_chained2   ::= expr COMPARE_OP return_lambda
+        compare_chained2   ::= expr COMPARE_OP return_expr_lambda
 
         return_if_lambda   ::= RETURN_END_IF_LAMBDA POP_TOP
         stmt               ::= if_exp_lambda
