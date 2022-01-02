@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2021 Rocky Bernstein
+#  Copyright (c) 2015-2022 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -577,10 +577,10 @@ class PythonParser(GenericASTBuilder):
         ret_expr_or_cond ::= ret_expr
         ret_expr_or_cond ::= if_exp_ret
 
-        stmt ::= return_lambda
+        stmt ::= return_expr_lambda
 
-        return_lambda ::= ret_expr RETURN_VALUE_LAMBDA LAMBDA_MARKER
-        return_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+        return_expr_lambda ::= ret_expr RETURN_VALUE_LAMBDA LAMBDA_MARKER
+        return_expr_lambda ::= ret_expr RETURN_VALUE_LAMBDA
 
         compare        ::= compare_chained
         compare        ::= compare_single

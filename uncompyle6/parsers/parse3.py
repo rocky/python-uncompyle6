@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2021 Rocky Bernstein
+#  Copyright (c) 2015-2022 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -713,9 +713,9 @@ class Python3Parser(PythonParser):
               stmt               ::= if_exp_lambda
               stmt               ::= if_exp_not_lambda
               if_expr_lambda     ::= expr jmp_false expr return_if_lambda
-                                     return_lambda LAMBDA_MARKER
+                                     return_expr_lambda LAMBDA_MARKER
               if_exp_not_lambda  ::= expr jmp_true expr return_if_lambda
-                                     return_lambda LAMBDA_MARKER
+                                     return_expr_lambda LAMBDA_MARKER
               """,
                 nop_func,
             )
@@ -1454,7 +1454,7 @@ class Python3Parser(PythonParser):
             elif opname == "RETURN_VALUE_LAMBDA":
                 self.addRule(
                     """
-                    return_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+                    return_expr_lambda ::= ret_expr RETURN_VALUE_LAMBDA
                     """,
                     nop_func,
                 )
