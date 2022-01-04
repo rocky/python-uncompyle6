@@ -952,7 +952,7 @@ class Python37BaseParser(PythonParser):
             elif opname == "RETURN_VALUE_LAMBDA":
                 self.addRule(
                     """
-                    return_expr_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+                    return_expr_lambda ::= return_expr RETURN_VALUE_LAMBDA
                     """,
                     nop_func,
                 )
