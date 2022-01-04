@@ -99,9 +99,9 @@ class Python27Parser(Python2Parser):
         jmp_false ::= POP_JUMP_IF_FALSE
         jmp_true  ::= POP_JUMP_IF_TRUE
 
-        ret_and    ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
-        ret_or     ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
-        if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
+        ret_and    ::= expr JUMP_IF_FALSE_OR_POP return_expr_or_cond COME_FROM
+        ret_or     ::= expr JUMP_IF_TRUE_OR_POP return_expr_or_cond COME_FROM
+        if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM return_expr_or_cond
 
         expr_jitop ::= expr JUMP_IF_TRUE_OR_POP
         or         ::= expr_jitop expr COME_FROM
@@ -223,7 +223,7 @@ class Python27Parser(Python2Parser):
         if 'PyPy' in customize:
             # PyPy-specific customizations
             self.addRule("""
-                        return_if_stmt ::= ret_expr RETURN_END_IF come_froms
+                        return_if_stmt ::= return_expr RETURN_END_IF come_froms
                         """, nop_func)
 
 

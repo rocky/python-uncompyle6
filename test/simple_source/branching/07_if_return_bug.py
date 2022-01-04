@@ -5,7 +5,7 @@
 # fully handle Python 3.5's jump optimization
 # So in 3.5, for now, we allow:
 #
-#    return_stmt ::= ret_expr RETURN_END_IF
+#    return_stmt ::= return_expr RETURN_END_IF
 # and you see that in the grammar rules for below.
 
 # For other pythons the RETURN_END_IF may be a

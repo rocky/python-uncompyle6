@@ -54,9 +54,9 @@ class Python36Parser(Python35Parser):
         # 3.6 due to jump optimization, we sometimes add RETURN_END_IF where
         # RETURN_VALUE is meant. Specifcally this can happen in
         # ifelsestmt -> ...else_suite _. suite_stmts... (last) stmt
-        return ::= ret_expr RETURN_END_IF
-        return ::= ret_expr RETURN_VALUE COME_FROM
-        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA COME_FROM
+        return             ::= return_expr RETURN_END_IF
+        return             ::= return_expr RETURN_VALUE COME_FROM
+        return_stmt_lambda ::= return_expr RETURN_VALUE_LAMBDA COME_FROM
 
         # A COME_FROM is dropped off because of JUMP-to-JUMP optimization
         and  ::= expr jmp_false expr

@@ -120,7 +120,7 @@ class Python37Parser(Python37BaseParser):
         delete ::= DELETE_GLOBAL
 
         stmt   ::= return
-        return ::= ret_expr RETURN_VALUE
+        return ::= return_expr RETURN_VALUE
 
         # "returns" nonterminal is a sequence of statements that ends in a RETURN statement.
         # In later Python versions with jump optimization, this can cause JUMPs
@@ -192,17 +192,17 @@ class Python37Parser(Python37BaseParser):
 
         expr      ::= if_exp
 
-        ret_expr  ::= expr
-        ret_expr  ::= ret_and
-        ret_expr  ::= ret_or
+        return_expr  ::= expr
+        return_expr  ::= ret_and
+        return_expr  ::= ret_or
 
-        ret_expr_or_cond ::= ret_expr
-        ret_expr_or_cond ::= if_exp_ret
+        return_expr_or_cond ::= return_expr
+        return_expr_or_cond ::= if_exp_ret
 
         stmt ::= return_expr_lambda
 
-        return_expr_lambda ::= ret_expr RETURN_VALUE_LAMBDA LAMBDA_MARKER
-        return_expr_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+        return_expr_lambda ::= return_expr RETURN_VALUE_LAMBDA LAMBDA_MARKER
+        return_expr_lambda ::= return_expr RETURN_VALUE_LAMBDA
 
         compare        ::= compare_chained
         compare        ::= compare_single
@@ -513,7 +513,7 @@ class Python37Parser(Python37BaseParser):
         # Python 3.5+ does jump optimization
         # In <.3.5 the below is a JUMP_FORWARD to a JUMP_ABSOLUTE.
 
-        return_if_stmt ::= ret_expr RETURN_END_IF POP_BLOCK
+        return_if_stmt ::= return_expr RETURN_END_IF POP_BLOCK
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
 
         jb_else     ::= JUMP_BACK ELSE
@@ -754,7 +754,7 @@ class Python37Parser(Python37BaseParser):
 
         return_if_stmts ::= return_if_stmt come_from_opt
         return_if_stmts ::= _stmts return_if_stmt _come_froms
-        return_if_stmt  ::= ret_expr RETURN_END_IF
+        return_if_stmt  ::= return_expr RETURN_END_IF
         returns         ::= _stmts return_if_stmt
 
         stmt      ::= break
@@ -934,9 +934,9 @@ class Python37Parser(Python37BaseParser):
         jmp_true  ::= POP_JUMP_IF_TRUE
 
         # FIXME: Common with 2.7
-        ret_and    ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
-        ret_or     ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
-        if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
+        ret_and    ::= expr JUMP_IF_FALSE_OR_POP return_expr_or_cond COME_FROM
+        ret_or     ::= expr JUMP_IF_TRUE_OR_POP return_expr_or_cond COME_FROM
+        if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM return_expr_or_cond
 
         jitop_come_from_expr ::= JUMP_IF_TRUE_OR_POP come_froms expr
         jifop_come_from ::= JUMP_IF_FALSE_OR_POP come_froms
@@ -994,7 +994,7 @@ class Python37Parser(Python37BaseParser):
                            ::= expr jmp_true expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
 
-        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+        return_stmt_lambda ::= return_expr RETURN_VALUE_LAMBDA
         return_if_lambda   ::= RETURN_END_IF_LAMBDA
 
         stmt               ::= return_closure
@@ -1097,9 +1097,9 @@ class Python37Parser(Python37BaseParser):
         # 3.6 due to jump optimization, we sometimes add RETURN_END_IF where
         # RETURN_VALUE is meant. Specifcally this can happen in
         # ifelsestmt -> ...else_suite _. suite_stmts... (last) stmt
-        return ::= ret_expr RETURN_END_IF
-        return ::= ret_expr RETURN_VALUE COME_FROM
-        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA COME_FROM
+        return ::= return_expr RETURN_END_IF
+        return ::= return_expr RETURN_VALUE COME_FROM
+        return_stmt_lambda ::= return_expr RETURN_VALUE_LAMBDA COME_FROM
 
         # A COME_FROM is dropped off because of JUMP-to-JUMP optimization
         and  ::= expr jmp_false expr
