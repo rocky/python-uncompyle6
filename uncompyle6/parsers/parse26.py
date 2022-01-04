@@ -161,9 +161,9 @@ class Python26Parser(Python2Parser):
                            else_suitel COME_FROM
         while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK else_suitel COME_FROM
 
-        return         ::= ret_expr RETURN_END_IF POP_TOP
-        return         ::= ret_expr RETURN_VALUE POP_TOP
-        return_if_stmt ::= ret_expr RETURN_END_IF POP_TOP
+        return         ::= return_expr RETURN_END_IF POP_TOP
+        return         ::= return_expr RETURN_VALUE POP_TOP
+        return_if_stmt ::= return_expr RETURN_END_IF POP_TOP
 
         iflaststmtl ::= testexpr c_stmts_opt jb_cf_pop
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE come_from_pop
@@ -269,16 +269,16 @@ class Python26Parser(Python2Parser):
 
     def p_ret26(self, args):
         '''
-        ret_and      ::= expr jmp_false ret_expr_or_cond COME_FROM
-        ret_or       ::= expr jmp_true ret_expr_or_cond COME_FROM
-        if_exp_ret   ::= expr jmp_false_then expr RETURN_END_IF POP_TOP ret_expr_or_cond
-        if_exp_ret   ::= expr jmp_false_then expr ret_expr_or_cond
+        ret_and      ::= expr jmp_false return_expr_or_cond COME_FROM
+        ret_or       ::= expr jmp_true return_expr_or_cond COME_FROM
+        if_exp_ret   ::= expr jmp_false_then expr RETURN_END_IF POP_TOP return_expr_or_cond
+        if_exp_ret   ::= expr jmp_false_then expr return_expr_or_cond
 
-        return_if_stmt ::= ret_expr RETURN_END_IF POP_TOP
-        return ::= ret_expr RETURN_VALUE POP_TOP
+        return_if_stmt ::= return_expr RETURN_END_IF POP_TOP
+        return ::= return_expr RETURN_VALUE POP_TOP
 
         # FIXME: split into Python 2.5
-        ret_or   ::= expr jmp_true ret_expr_or_cond come_froms
+        ret_or   ::= expr jmp_true return_expr_or_cond come_froms
         '''
 
     def p_except26(self, args):
