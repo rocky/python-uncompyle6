@@ -122,7 +122,7 @@ LINE_LENGTH = 80
 RETURN_LOCALS = SyntaxTree(
     "return",
     [
-        SyntaxTree("ret_expr", [SyntaxTree("expr", [Token("LOAD_LOCALS")])]),
+        SyntaxTree("return_expr", [SyntaxTree("expr", [Token("LOAD_LOCALS")])]),
         Token("RETURN_VALUE"),
     ],
 )

@@ -70,9 +70,9 @@ class Python2Parser(PythonParser):
 
         return_if_stmts ::= return_if_stmt
         return_if_stmts ::= _stmts return_if_stmt
-        return_if_stmt ::= ret_expr RETURN_END_IF
+        return_if_stmt ::= return_expr RETURN_END_IF
 
-        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+        return_stmt_lambda ::= return_expr RETURN_VALUE_LAMBDA
 
         stmt      ::= break
         break     ::= BREAK_LOOP

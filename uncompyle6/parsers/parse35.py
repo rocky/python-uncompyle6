@@ -105,8 +105,8 @@ class Python35Parser(Python34Parser):
         # Python 3.5+ does jump optimization
         # In <.3.5 the below is a JUMP_FORWARD to a JUMP_ABSOLUTE.
 
-        return_if_stmt ::= ret_expr RETURN_END_IF POP_BLOCK
-        return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
+        return_if_stmt    ::= return_expr RETURN_END_IF POP_BLOCK
+        return_if_lambda  ::= RETURN_END_IF_LAMBDA COME_FROM
 
         jb_else     ::= JUMP_BACK ELSE
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec

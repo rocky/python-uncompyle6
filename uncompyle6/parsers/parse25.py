@@ -18,7 +18,7 @@ class Python25Parser(Python26Parser):
         # If "return_if_stmt" is in a loop, a JUMP_BACK can be emitted. In 2.6 the
         # JUMP_BACK doesn't appear
 
-        return_if_stmt ::= ret_expr  RETURN_END_IF JUMP_BACK
+        return_if_stmt ::= return_expr  RETURN_END_IF JUMP_BACK
 
         # We have no jumps to jumps, so no "come_froms" but a single "COME_FROM"
         ifelsestmt ::= testexpr c_stmts_opt jf_cf_pop else_suite COME_FROM
@@ -80,13 +80,13 @@ class Python25Parser(Python26Parser):
         classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
         classdefdeco2 ::= LOAD_CONST expr mkfunc CALL_FUNCTION_0 BUILD_CLASS
         kv3 ::= expr expr STORE_MAP
-        if_exp_ret       ::= expr jmp_false_then expr RETURN_END_IF POP_TOP ret_expr_or_cond
+        if_exp_ret       ::= expr jmp_false_then expr RETURN_END_IF POP_TOP return_expr_or_cond
         return_if_lambda ::= RETURN_END_IF_LAMBDA POP_TOP
-        return_if_stmt   ::= ret_expr RETURN_END_IF POP_TOP
+        return_if_stmt   ::= return_expr RETURN_END_IF POP_TOP
         return_if_stmts  ::= return_if_stmt
-        return           ::= ret_expr RETURN_END_IF POP_TOP
-        return           ::= ret_expr RETURN_VALUE POP_TOP
-        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+        return           ::= return_expr RETURN_END_IF POP_TOP
+        return           ::= return_expr RETURN_VALUE POP_TOP
+        return_stmt_lambda ::= return_expr RETURN_VALUE_LAMBDA
         setupwithas      ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 setup_finally
         stmt             ::= classdefdeco
         stmt             ::= if_exp_lambda

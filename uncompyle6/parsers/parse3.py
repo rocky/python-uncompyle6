@@ -110,7 +110,7 @@ class Python3Parser(PythonParser):
 
         return_if_stmts ::= return_if_stmt come_from_opt
         return_if_stmts ::= _stmts return_if_stmt _come_froms
-        return_if_stmt  ::= ret_expr RETURN_END_IF
+        return_if_stmt  ::= return_expr RETURN_END_IF
         returns         ::= _stmts return_if_stmt
 
         stmt      ::= break
@@ -340,9 +340,9 @@ class Python3Parser(PythonParser):
         jmp_true  ::= POP_JUMP_IF_TRUE
 
         # FIXME: Common with 2.7
-        ret_and    ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
-        ret_or     ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
-        if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
+        ret_and    ::= expr JUMP_IF_FALSE_OR_POP return_expr_or_cond COME_FROM
+        ret_or     ::= expr JUMP_IF_TRUE_OR_POP return_expr_or_cond COME_FROM
+        if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM return_expr_or_cond
 
 
         # compare_chained1 is used exclusively in chained_compare
@@ -362,7 +362,7 @@ class Python3Parser(PythonParser):
         if_exp_not_lambda  ::= expr jmp_true expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
 
-        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+        return_stmt_lambda ::= return_expr RETURN_VALUE_LAMBDA
         return_if_lambda   ::= RETURN_END_IF_LAMBDA
 
         stmt ::= return_closure
@@ -1454,7 +1454,7 @@ class Python3Parser(PythonParser):
             elif opname == "RETURN_VALUE_LAMBDA":
                 self.addRule(
                     """
-                    return_expr_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+                    return_expr_lambda ::= return_expr RETURN_VALUE_LAMBDA
                     """,
                     nop_func,
                 )

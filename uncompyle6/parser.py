@@ -359,7 +359,7 @@ class PythonParser(GenericASTBuilder):
 
 
         stmt   ::= return
-        return ::= ret_expr RETURN_VALUE
+        return ::= return_expr RETURN_VALUE
 
         # "returns" nonterminal is a sequence of statements that ends in a RETURN statement.
         # In later Python versions with jump optimization, this can cause JUMPs
@@ -570,17 +570,17 @@ class PythonParser(GenericASTBuilder):
 
         expr ::= if_exp
 
-        ret_expr ::= expr
-        ret_expr ::= ret_and
-        ret_expr ::= ret_or
+        return_expr ::= expr
+        return_expr ::= ret_and
+        return_expr ::= ret_or
 
-        ret_expr_or_cond ::= ret_expr
-        ret_expr_or_cond ::= if_exp_ret
+        return_expr_or_cond ::= return_expr
+        return_expr_or_cond ::= if_exp_ret
 
         stmt ::= return_expr_lambda
 
-        return_expr_lambda ::= ret_expr RETURN_VALUE_LAMBDA LAMBDA_MARKER
-        return_expr_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+        return_expr_lambda ::= return_expr RETURN_VALUE_LAMBDA LAMBDA_MARKER
+        return_expr_lambda ::= return_expr RETURN_VALUE_LAMBDA
 
         compare        ::= compare_chained
         compare        ::= compare_single

@@ -96,7 +96,7 @@ def customize_for_version3(self, version):
         ast = self.build_ast(code._tokens, code._customize, code)
         self.customize(code._customize)
 
-        # skip over: sstmt, stmt, return, ret_expr
+        # skip over: sstmt, stmt, return, return_expr
         # and other singleton derivations
         while len(ast) == 1 or (
             ast in ("sstmt", "return") and ast[-1] in ("RETURN_LAST", "RETURN_VALUE")

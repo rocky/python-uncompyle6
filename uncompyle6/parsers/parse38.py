@@ -92,16 +92,16 @@ class Python38Parser(Python37Parser):
         discard_top        ::= ROT_TWO POP_TOP
         discard_tops       ::= discard_top+
 
-        return             ::= ret_expr
+        return             ::= return_expr
                                discard_tops RETURN_VALUE
 
         return             ::= popb_return
         return             ::= pop_return
         return             ::= pop_ex_return
         except_stmt        ::= pop_ex_return
-        pop_return         ::= POP_TOP ret_expr RETURN_VALUE
-        popb_return        ::= ret_expr POP_BLOCK RETURN_VALUE
-        pop_ex_return      ::= ret_expr ROT_FOUR POP_EXCEPT RETURN_VALUE
+        pop_return         ::= POP_TOP return_expr RETURN_VALUE
+        popb_return        ::= return_expr POP_BLOCK RETURN_VALUE
+        pop_ex_return      ::= return_expr ROT_FOUR POP_EXCEPT RETURN_VALUE
 
         # 3.8 can push a looping JUMP_BACK into into a JUMP_ from a statement that jumps to it
         lastl_stmt         ::= ifpoplaststmtl
