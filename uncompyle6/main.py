@@ -111,6 +111,7 @@ def decompile(
     grammar = dict(PARSER_DEFAULT_DEBUG)
     if showgrammar:
         grammar["reduce"] = True
+
     debug_opts = {"asm": asm, "tree": showast, "grammar": grammar}
 
     try:
