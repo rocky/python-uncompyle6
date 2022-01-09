@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2021 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2022 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -14,13 +14,13 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from typing import Any, Tuple
-import datetime, py_compile, os, subprocess, sys, tempfile
+import datetime, py_compile, os, sys
 
-from uncompyle6 import verify
 from xdis import iscode
 from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, version_tuple_to_str
 from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource
+from uncompyle6.semantics.pysource import PARSER_DEFAULT_DEBUG
 from uncompyle6.parser import ParserError
 from uncompyle6.version import __version__
 
@@ -45,9 +45,9 @@ def _get_outstream(outfile: str) -> Any:
 
 
 def decompile(
-    bytecode_version: str,
     co,
-    out=None,
+    bytecode_version: str = PYTHON_VERSION_TRIPLE,
+    out=sys.stdout,
     showasm=None,
     showast={},
     timestamp=None,
@@ -59,6 +59,7 @@ def decompile(
     magic_int=None,
     mapstream=None,
     do_fragments=False,
+    compile_mode="exec",
 ) -> Any:
     """
     ingests and deparses a given code block 'co'
@@ -87,7 +88,7 @@ def decompile(
         write("# -*- coding: %s -*-" % source_encoding)
     write(
         "# uncompyle6 version %s\n"
-        "# %sPython bytecode %s%s\n# Decompiled from: %sPython %s"
+        "# %sPython bytecode version base %s%s\n# Decompiled from: %sPython %s"
         % (
             __version__,
             co_pypy_str,
@@ -104,7 +105,13 @@ def decompile(
     if source_size:
         write("# Size of source mod 2**32: %d bytes" % source_size)
 
-    debug_opts = {"asm": showasm, "ast": showast, "grammar": showgrammar}
+    # maybe a second -a will do before as well
+    asm = "after" if showasm else None
+
+    grammar = dict(PARSER_DEFAULT_DEBUG)
+    if showgrammar:
+        grammar["reduce"] = True
+    debug_opts = {"asm": asm, "tree": showast, "grammar": grammar}
 
     try:
         if mapstream:
@@ -112,10 +119,12 @@ def decompile(
                 mapstream = _get_outstream(mapstream)
 
             deparsed = deparse_code_with_map(
+                bytecode_version,
                 co,
                 out,
-                bytecode_version,
-                debug_opts,
+                showasm,
+                showast,
+                showgrammar,
                 code_objects=code_objects,
                 is_pypy=is_pypy,
             )
@@ -131,7 +140,12 @@ def decompile(
             else:
                 deparse_fn = code_deparse
             deparsed = deparse_fn(
-                co, out, bytecode_version, debug_opts=debug_opts, is_pypy=is_pypy
+                co,
+                out,
+                bytecode_version,
+                debug_opts=debug_opts,
+                is_pypy=is_pypy,
+                compile_mode=compile_mode,
             )
             pass
         return deparsed
@@ -157,10 +171,10 @@ def compile_file(source_path: str) -> str:
 
 
 def decompile_file(
-    filename,
+    filename: str,
     outstream=None,
     showasm=None,
-    showast=False,
+    showast={},
     showgrammar=False,
     source_encoding=None,
     mapstream=None,
@@ -179,11 +193,11 @@ def decompile_file(
 
     if isinstance(co, list):
         deparsed = []
-        for con in co:
+        for bytecode in co:
             deparsed.append(
                 decompile(
+                    bytecode,
                     version,
-                    con,
                     outstream,
                     showasm,
                     showast,
@@ -193,14 +207,14 @@ def decompile_file(
                     code_objects=code_objects,
                     is_pypy=is_pypy,
                     magic_int=magic_int,
+                    mapstream=mapstream,
                 ),
-                mapstream=mapstream,
             )
     else:
         deparsed = [
             decompile(
-                version,
                 co,
+                version,
                 outstream,
                 showasm,
                 showast,
@@ -213,6 +227,7 @@ def decompile_file(
                 magic_int=magic_int,
                 mapstream=mapstream,
                 do_fragments=do_fragments,
+                compile_mode="exec",
             )
         ]
     co = None
@@ -227,7 +242,7 @@ def main(
     source_files: list,
     outfile=None,
     showasm=None,
-    showast=False,
+    showast={},
     do_verify=False,
     showgrammar=False,
     source_encoding=None,
@@ -272,21 +287,6 @@ def main(
             outstream = sys.stdout
             if do_linemaps:
                 linemap_stream = sys.stdout
-            if do_verify:
-                prefix = os.path.basename(filename) + "-"
-                if prefix.endswith(".py"):
-                    prefix = prefix[: -len(".py")]
-
-                # Unbuffer output if possible
-                buffering = -1 if sys.stdout.isatty() else 0
-                t = tempfile.NamedTemporaryFile(
-                    mode="w+b", buffering=buffering, suffix=".py", prefix=prefix
-                    )
-                current_outfile = t.name
-                sys.stdout = os.fdopen(sys.stdout.fileno(), "w", buffering)
-                tee = subprocess.Popen(["tee", current_outfile], stdin=subprocess.PIPE)
-                os.dup2(tee.stdin.fileno(), sys.stdout.fileno())
-                os.dup2(tee.stdin.fileno(), sys.stderr.fileno())
         else:
             if filename.endswith(".pyc"):
                 current_outfile = os.path.join(out_base, filename[0:-1])
@@ -332,7 +332,7 @@ def main(
             tot_files += 1
         except (ValueError, SyntaxError, ParserError, pysource.SourceWalkerError) as e:
             sys.stdout.write("\n")
-            sys.stderr.write("\n# file %s\n# %s\n" % (infile, e))
+            sys.stderr.write(f"\n# file {infile}\n# {e}\n")
             failed_files += 1
             tot_files += 1
         except KeyboardInterrupt:
@@ -340,10 +340,10 @@ def main(
                 outstream.close()
                 os.remove(outfile)
             sys.stdout.write("\n")
-            sys.stderr.write("\nLast file: %s   " % (infile))
+            sys.stderr.write(f"\nLast file: {infile}   ")
             raise
         except RuntimeError as e:
-            sys.stdout.write("\n%s\n" % str(e))
+            sys.stdout.write(f"\n{str(e)}\n")
             if str(e).startswith("Unsupported Python"):
                 sys.stdout.write("\n")
                 sys.stderr.write(
@@ -368,42 +368,7 @@ def main(
         else:  # uncompile successful
             if current_outfile:
                 outstream.close()
-
-                if do_verify:
-                    try:
-                        msg = verify.compare_code_with_srcfile(
-                            infile, current_outfile, do_verify
-                        )
-                        if not current_outfile:
-                            if not msg:
-                                print("\n# okay decompiling %s" % infile)
-                                okay_files += 1
-                            else:
-                                verify_failed_files += 1
-                                print("\n# %s\n\t%s", infile, msg)
-                                pass
-                        else:
-                            okay_files += 1
-                            pass
-                    except verify.VerifyCmpError as e:
-                        print(e)
-                        verify_failed_files += 1
-                        os.rename(current_outfile, current_outfile + "_unverified")
-                        sys.stderr.write("### Error Verifying %s\n" % filename)
-                        sys.stderr.write(str(e) + "\n")
-                        if not outfile:
-                            if raise_on_error:
-                                raise
-                            pass
-                        pass
-                    pass
-                else:
-                    okay_files += 1
-                pass
-            elif do_verify:
-                sys.stderr.write(
-                    "\n### uncompile successful, but no file to compare against\n"
-                )
+                okay_files += 1
                 pass
             else:
                 okay_files += 1
@@ -422,7 +387,6 @@ def main(
                         okay_files,
                         failed_files,
                         verify_failed_files,
-                        do_verify,
                     ),
                 )
             )
@@ -459,29 +423,15 @@ else:
         return ""
 
 
-def status_msg(
-    do_verify, tot_files, okay_files, failed_files, verify_failed_files, weak_verify
-):
-    if weak_verify == "weak":
-        verification_type = "weak "
-    elif weak_verify == "verify-run":
-        verification_type = "run "
-    else:
-        verification_type = ""
+def status_msg(do_verify, tot_files, okay_files, failed_files, verify_failed_files):
     if tot_files == 1:
         if failed_files:
             return "\n# decompile failed"
         elif verify_failed_files:
-            return "\n# decompile %sverification failed" % verification_type
+            return "\n# decompile run verification failed"
         else:
             return "\n# Successfully decompiled file"
             pass
         pass
-    mess = "decompiled %i files: %i okay, %i failed" % (
-        tot_files,
-        okay_files,
-        failed_files,
-    )
-    if do_verify:
-        mess += ", %i %sverification failed" % (verify_failed_files, verification_type)
+    mess = f"decompiled {tot_files} files: {okay_files} okay, {failed_files} failed"
     return mess
