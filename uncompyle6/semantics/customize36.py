@@ -338,7 +338,7 @@ def customize_for_version36(self, version):
             kwargs = kwargs[0]
         call_function_ex = node[-1]
         assert call_function_ex == "CALL_FUNCTION_EX_KW" or (
-            self.version >= 3.6 and call_function_ex == "CALL_FUNCTION_EX"
+            self.version >= (3, 6) and call_function_ex == "CALL_FUNCTION_EX"
         )
         # FIXME: decide if the below test be on kwargs == 'dict'
         if (
