@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2019, 2021 by Rocky Bernstein
+#  Copyright (c) 2015-2019, 2021-2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -626,32 +626,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.indent_less()
         self.prune()  # stop recursing
 
-    def n_list_comp(self, node):
-        """List comprehensions"""
-        p = self.prec
-        self.prec = 27
-        n = node[-1]
-        assert n == "list_iter"
-        # find innermost node
-        while n == "list_iter":
-            n = n[0]  # recurse one step
-            if n == "list_for":
-                n = n[3]
-            elif n == "list_if":
-                n = n[2]
-            elif n == "list_if_not":
-                n = n[2]
-        assert n == "lc_body"
-        if node[0].kind.startswith("BUILD_LIST"):
-            start = len(self.f.getvalue())
-            self.set_pos_info(node[0], start, start + 1)
-        self.write("[ ")
-        self.preorder(n[0])  # lc_body
-        self.preorder(node[-1])  # for/if parts
-        self.write(" ]")
-        self.prec = p
-        self.prune()  # stop recursing
-
     def comprehension_walk(self, node, iter_index, code_index=-5):
         p = self.prec
         self.prec = 27
@@ -941,7 +915,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.set_pos_info(node[0], start - 1, start)
             self.comprehension_walk3(node, 1, 0)
         elif node[0].kind == "load_closure":
-            self.setcomprehension_walk3(node, collection_index=4)
+            self.closure_walk(node, collection_index=4)
         else:
             self.comprehension_walk(node, iter_index=4)
         self.write("}")
@@ -1006,7 +980,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             ):
                 self.set_pos_info(node[1], node[0][0].start, node[0][0].finish)
 
-    def setcomprehension_walk3(self, node, collection_index):
+    def closure_walk(self, node, collection_index):
         """Set comprehensions the way they are done in Python3.
         They're more other comprehensions, e.g. set comprehensions
         See if we can combine code.
