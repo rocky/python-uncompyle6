@@ -13,7 +13,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import datetime, py_compile, os, subprocess, sys, tempfile
+import datetime, py_compile, os, sys
 
 from xdis import iscode
 from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, version_tuple_to_str
@@ -58,6 +58,7 @@ def decompile(
     magic_int=None,
     mapstream=None,
     do_fragments=False,
+    compile_mode="exec",
 ):
     """
     ingests and deparses a given code block 'co'
@@ -331,7 +332,7 @@ def main(
             tot_files += 1
         except (ValueError, SyntaxError, ParserError, pysource.SourceWalkerError) as e:
             sys.stdout.write("\n")
-            sys.stderr.write(f"\n# file {infile}\n# {e}\n")
+            sys.stderr.write("\n# file %s\n# %s\n" % (infile, e))
             failed_files += 1
             tot_files += 1
         except KeyboardInterrupt:
@@ -339,10 +340,10 @@ def main(
                 outstream.close()
                 os.remove(outfile)
             sys.stdout.write("\n")
-            sys.stderr.write(f"\nLast file: {infile}   ")
+            sys.stderr.write("\nLast file: %s   " % (infile))
             raise
         except RuntimeError as e:
-            sys.stdout.write(f"\n{str(e)}\n")
+            sys.stdout.write("\n%s\n" % str(e))
             if str(e).startswith("Unsupported Python"):
                 sys.stdout.write("\n")
                 sys.stderr.write(
@@ -432,5 +433,9 @@ def status_msg(do_verify, tot_files, okay_files, failed_files, verify_failed_fil
             return "\n# Successfully decompiled file"
             pass
         pass
-    mess = f"decompiled {tot_files} files: {okay_files} okay, {failed_files} failed"
+    mess = "decompiled %i files: %i okay, %i failed" % (
+        tot_files,
+        okay_files,
+        failed_files,
+    )
     return mess

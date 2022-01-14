@@ -1201,7 +1201,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     n_dict_comp = n_set_comp
 
-    def comprehension_walk_newer(self, node, iter_index: int, code_index: int = -5):
+    def comprehension_walk_newer(self, node, iter_index, code_index=-5):
         """Non-closure-based comprehensions the way they are done in Python3
         and some Python 2.7. Note: there are also other set comprehensions.
         """
@@ -2095,10 +2095,10 @@ class SourceWalker(GenericASTTraversal, object):
                     node[index]
                 except IndexError:
                     raise RuntimeError(
-                        f"""
-                        Expanding '{node.kind}' in template '{entry}[{arg}]':
-                        {index} is invalid; has only {len(node)} entries
                         """
+                        Expanding '%s' in template '%s[%s]':
+                        %s is invalid; has only %d entries
+                        """ % (node.kind, entry, arg, index, len(node))
                     )
                 self.preorder(node[index])
 
@@ -2657,7 +2657,10 @@ def code_deparse(
     if expected_start:
         assert (
             deparsed.ast == expected_start
-        ), f"Should have parsed grammar start to '{expected_start}'; got: {deparsed.ast.kind}"
+        ), (
+            "Should have parsed grammar start to '%s'; got: %s" %
+            (expected_start, deparsed.ast.kind)
+            )
     # save memory
     del tokens
 
