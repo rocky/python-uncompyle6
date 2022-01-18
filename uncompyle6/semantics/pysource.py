@@ -1183,7 +1183,6 @@ class SourceWalker(GenericASTTraversal, object):
                     is_lambda = self.is_lambda
                     if node[0].kind == "load_genexpr":
                         self.is_lambda = False
-                        self.closure_walk(node, collection_index=4)
                     self.closure_walk(node, collection_index=4)
                     self.is_lambda = is_lambda
                 else:
@@ -1416,31 +1415,79 @@ class SourceWalker(GenericASTTraversal, object):
         self.write("]")
         self.prune()
 
+    def get_comprehension_function(self, node, code_index: int):
+        """
+        Build the body of a comprehension function and then
+        find the comprehension node buried in the tree which may
+        be surrounded with start-like symbols or dominiators,.
+        """
+        self.prec = 27
+        code_node = node[code_index]
+        if code_node == "load_genexpr":
+            code_node = code_node[0]
+
+        code_obj = code_node.attr
+        assert iscode(code_obj), code_node
+
+        code = Code(code_obj, self.scanner, self.currentclass, self.debug_opts["asm"])
+
+        # FIXME: is there a way we can avoid this?
+        # The problem is that in filterint top-level list comprehensions we can
+        # encounter comprehensions of other kinds, and lambdas
+        if self.compile_mode in ("listcomp",):  # add other comprehensions to this list
+            p_save = self.p
+            self.p = get_python_parser(
+                self.version, compile_mode="exec", is_pypy=self.is_pypy,
+            )
+            tree = self.build_ast(
+                code._tokens, code._customize, code, is_lambda=self.is_lambda
+            )
+            self.p = p_save
+        else:
+            tree = self.build_ast(
+                code._tokens, code._customize, code, is_lambda=self.is_lambda
+            )
+
+        self.customize(code._customize)
+
+        # skip over: sstmt, stmt, return, return_expr
+        # and other singleton derivations
+        if tree == "lambda_start":
+            if tree[0] in ("dom_start", "dom_start_opt"):
+                tree = tree[1]
+
+        while len(tree) == 1 or (
+            tree in ("stmt", "sstmt", "return", "return_expr", "return_expr_lambda")
+        ):
+            self.prec = 100
+            tree = tree[1] if tree[0] in ("dom_start", "dom_start_opt") else tree[0]
+        return tree
+
     def closure_walk(self, node, collection_index):
         """Dictionary and comprehensions using closure the way they are done in Python3.
         """
         p = self.prec
         self.prec = 27
 
-        code = Code(node[1].attr, self.scanner, self.currentclass)
-        ast = self.build_ast(code._tokens, code._customize, code)
-        self.customize(code._customize)
+        code_index = 0 if node[0] == "load_genexpr" else 1
+        tree = self.get_comprehension_function(node, code_index=code_index)
 
         # Remove single reductions as in ("stmts", "sstmt"):
-        while len(ast) == 1:
-            ast = ast[0]
+        while len(tree) == 1:
+            tree = tree[0]
 
-        store = ast[3]
+        store = tree[3]
         collection = node[collection_index]
 
-        iter_index = 3 if ast == "genexpr_func_async" else 4
-        n = ast[iter_index]
+        iter_index = 3 if tree == "genexpr_func_async" else 4
+        n = tree[iter_index]
         list_if = None
         assert n == "comp_iter"
 
         # Find inner-most node.
         while n == "comp_iter":
             n = n[0]  # recurse one step
+
             # FIXME: adjust for set comprehension
             if n == "list_for":
                 store = n[2]
@@ -1459,7 +1506,7 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
 
-        assert n == "comp_body", ast
+        assert n == "comp_body", tree
 
         self.preorder(n[0])
         self.write(" for ")
