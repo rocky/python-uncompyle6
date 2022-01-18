@@ -1179,10 +1179,22 @@ class SourceWalker(GenericASTTraversal, object):
             code_index = -6
             if self.version > (3, 6):
                 # Python 3.7+ adds optional "come_froms" at node[0]
-                iter_index = 4
+                if node[0].kind in ("load_closure", "load_genexpr") and self.version >= (3, 8):
+                    is_lambda = self.is_lambda
+                    if node[0].kind == "load_genexpr":
+                        self.is_lambda = False
+                        self.closure_walk(node, collection_index=4)
+                    self.closure_walk(node, collection_index=4)
+                    self.is_lambda = is_lambda
+                else:
+                    code_index = -6
+                    iter_index = 4 if self.version < (3, 8) else 3
+                    self.comprehension_walk(node, iter_index=iter_index, code_index=code_index)
+                    pass
+                pass
         else:
             code_index = -5
-        self.comprehension_walk(node, iter_index=iter_index, code_index=code_index)
+            self.comprehension_walk(node, iter_index=iter_index, code_index=code_index)
         self.write(")")
         self.prune()
 
@@ -1421,7 +1433,8 @@ class SourceWalker(GenericASTTraversal, object):
         store = ast[3]
         collection = node[collection_index]
 
-        n = ast[4]
+        iter_index = 3 if ast == "genexpr_func_async" else 4
+        n = ast[iter_index]
         list_if = None
         assert n == "comp_iter"
 
