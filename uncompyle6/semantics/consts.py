@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2021 by Rocky Bernstein
+#  Copyright (c) 2017-2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -169,11 +169,14 @@ TABLE_R = {
     "DELETE_ATTR": ("%|del %c.%[-1]{pattr}\n", 0),
 }
 
-TABLE_R0 = {
-    #    "BUILD_LIST":	( "[%C]",      (0,-1,", ") ),
-    #    "BUILD_TUPLE":	( "(%C)",      (0,-1,", ") ),
-    #    "CALL_FUNCTION":	( "%c(%P)", 0, (1,-1,", ") ),
-}
+# I'll leave this in for historical interest.
+# TABLE_R0 it was like TABLE_R but the key was the *child* of the last child,
+# or a grandchild of the node that this is considered.
+# TABLE_R0 = {
+#        "BUILD_LIST":	( "[%C]",      (0,-1,", ") ),
+#        "BUILD_TUPLE":	( "(%C)",      (0,-1,", ") ),
+#        "CALL_FUNCTION":	( "%c(%P)", 0, (1,-1,", ") ),
+# }
 
 TABLE_DIRECT = {
     "BINARY_ADD": ("+",),
@@ -425,7 +428,6 @@ TABLE_DIRECT = {
 
 
 MAP_DIRECT = (TABLE_DIRECT,)
-MAP_R0 = (TABLE_R0, -1, 0)
 MAP_R = (TABLE_R, -1)
 
 MAP = {
@@ -433,7 +435,6 @@ MAP = {
     "call": MAP_R,
     "delete": MAP_R,
     "store": MAP_R,
-    "exprlist": MAP_R0,
 }
 
 ASSIGN_TUPLE_PARAM = lambda param_name: SyntaxTree(

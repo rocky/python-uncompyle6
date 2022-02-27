@@ -43,7 +43,7 @@ Python.
 # describe rules and not have to create methods at all.
 #
 # So another other way to specify a semantic rule for a nonterminal is via
-# one of the tables MAP_R0, MAP_R, or MAP_DIRECT where the key is the
+# either tables MAP_R, or MAP_DIRECT where the key is the
 # nonterminal name.
 #
 # These dictionaries use a printf-like syntax to direct substitution
@@ -63,15 +63,14 @@ Python.
 # parse tree for N.
 #
 #
-#          N&K               N                  N
-#         / | ... \        / | ... \          / | ... \
-#        O  O      O      O  O      K         O O      O
-#                                                      |
-#                                                      K
-#      TABLE_DIRECT      TABLE_R             TABLE_R0
+#          N&K               N
+#         / | ... \        / | ... \
+#        O  O      O      O  O      K
+#
+#
+#      TABLE_DIRECT      TABLE_R
 #
 #   The default table is TABLE_DIRECT mapping By far, most rules used work this way.
-#   TABLE_R0 is rarely used.
 #
 #   The key K is then extracted from the subtree and used to find one
 #   of the tables, T listed above.  The result after applying T[K] is
