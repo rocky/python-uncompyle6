@@ -391,7 +391,13 @@ class Scanner3(Scanner):
                 if self.version >= (3, 6):
                     # 3.6+ doesn't have MAKE_CLOSURE, so opname == 'MAKE_FUNCTION'
                     flags = argval
-                    opname = "MAKE_FUNCTION_%d" % (flags)
+                    # FIXME: generalize this
+                    if flags == 8:
+                        opname = "MAKE_FUNCTION_CLOSURE"
+                    elif flags == 9:
+                        opname = "MAKE_FUNCTION_CLOSURE_POS"
+                    else:
+                        opname = f"MAKE_FUNCTION_{flags}"
                     attr = []
                     for flag in self.MAKE_FUNCTION_FLAGS:
                         bit = flags & 1
