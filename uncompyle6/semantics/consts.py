@@ -45,6 +45,9 @@ maxint = sys.maxsize
 # say to 100, to make sure we avoid additional prenthesis in
 # call((.. op ..)).
 
+NO_PARENTHESIS_EVER = 100
+
+# fmt: off
 PRECEDENCE = {
     "named_expr":             40, # :=
     "yield":                  38, # Needs to be below named_expr
@@ -240,8 +243,19 @@ TABLE_DIRECT = {
         (0, "expr", PRECEDENCE["subscript"]),
         (1, "expr"),
     ),
-    "subscript": ("%p[%c]", (0, "expr", PRECEDENCE["subscript"]), (1, "expr")),
-    "subscript2": ("%p[%c]", (0, "expr", PRECEDENCE["subscript"]), (1, "expr")),
+
+    "subscript": (
+        "%p[%p]",
+        (0, "expr", PRECEDENCE["subscript"]),
+        (1, "expr", NO_PARENTHESIS_EVER)
+    ),
+
+    "subscript2": (
+        "%p[%p]",
+        (0, "expr", PRECEDENCE["subscript"]),
+        (1, "expr", NO_PARENTHESIS_EVER)
+    ),
+
     "store_subscript": ("%p[%c]", (0, "expr", PRECEDENCE["subscript"]), (1, "expr")),
     "STORE_FAST": ("%{pattr}",),
     "STORE_NAME": ("%{pattr}",),
