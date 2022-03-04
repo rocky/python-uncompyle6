@@ -1148,7 +1148,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         code,
         is_lambda=False,
         noneInNames=False,
-        isTopLevel=False,
+        is_top_level_module=False,
     ):
 
         # FIXME: DRY with pysource.py
@@ -1190,7 +1190,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 # Python 3.4's classes can add a "return None" which is
                 # invalid syntax.
                 if tokens[-2].kind == "LOAD_CONST":
-                    if isTopLevel or tokens[-2].pattr is None:
+                    if is_top_level_module or tokens[-2].pattr is None:
                         del tokens[-2:]
                     else:
                         tokens.append(Token("RETURN_LAST"))
@@ -2065,8 +2065,8 @@ def code_deparse(
         is_pypy=is_pypy,
     )
 
-    isTopLevel = co.co_name == "<module>"
-    deparsed.ast = deparsed.build_ast(tokens, customize, co, isTopLevel=isTopLevel)
+    is_top_level_module = co.co_name == "<module>"
+    deparsed.ast = deparsed.build_ast(tokens, customize, co, is_top_level_module=is_top_level_module)
 
     assert deparsed.ast == "stmts", "Should have parsed grammar start"
 
