@@ -397,7 +397,7 @@ class Scanner3(Scanner):
                     elif flags == 9:
                         opname = "MAKE_FUNCTION_CLOSURE_POS"
                     else:
-                        opname = f"MAKE_FUNCTION_{flags}"
+                        opname = "MAKE_FUNCTION_%d" % (flags)
                     attr = []
                     for flag in self.MAKE_FUNCTION_FLAGS:
                         bit = flags & 1
