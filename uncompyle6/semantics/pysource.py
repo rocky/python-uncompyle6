@@ -43,7 +43,7 @@ Python.
 # describe rules and not have to create methods at all.
 #
 # So another other way to specify a semantic rule for a nonterminal is via
-# one of the tables MAP_R0, MAP_R, or MAP_DIRECT where the key is the
+# either tables MAP_R, or MAP_DIRECT where the key is the
 # nonterminal name.
 #
 # These dictionaries use a printf-like syntax to direct substitution
@@ -63,15 +63,14 @@ Python.
 # parse tree for N.
 #
 #
-#          N&K               N                  N
-#         / | ... \        / | ... \          / | ... \
-#        O  O      O      O  O      K         O O      O
-#                                                      |
-#                                                      K
-#      TABLE_DIRECT      TABLE_R             TABLE_R0
+#          N&K               N
+#         / | ... \        / | ... \
+#        O  O      O      O  O      K
+#
+#
+#      TABLE_DIRECT      TABLE_R
 #
 #   The default table is TABLE_DIRECT mapping By far, most rules used work this way.
-#   TABLE_R0 is rarely used.
 #
 #   The key K is then extracted from the subtree and used to find one
 #   of the tables, T listed above.  The result after applying T[K] is
@@ -1179,10 +1178,21 @@ class SourceWalker(GenericASTTraversal, object):
             code_index = -6
             if self.version > (3, 6):
                 # Python 3.7+ adds optional "come_froms" at node[0]
-                iter_index = 4
+                if node[0].kind in ("load_closure", "load_genexpr") and self.version >= (3, 8):
+                    is_lambda = self.is_lambda
+                    if node[0].kind == "load_genexpr":
+                        self.is_lambda = False
+                    self.closure_walk(node, collection_index=4)
+                    self.is_lambda = is_lambda
+                else:
+                    code_index = -6
+                    iter_index = 4 if self.version < (3, 8) else 3
+                    self.comprehension_walk(node, iter_index=iter_index, code_index=code_index)
+                    pass
+                pass
         else:
             code_index = -5
-        self.comprehension_walk(node, iter_index=iter_index, code_index=code_index)
+            self.comprehension_walk(node, iter_index=iter_index, code_index=code_index)
         self.write(")")
         self.prune()
 
@@ -1404,30 +1414,79 @@ class SourceWalker(GenericASTTraversal, object):
         self.write("]")
         self.prune()
 
+    def get_comprehension_function(self, node, code_index: int):
+        """
+        Build the body of a comprehension function and then
+        find the comprehension node buried in the tree which may
+        be surrounded with start-like symbols or dominiators,.
+        """
+        self.prec = 27
+        code_node = node[code_index]
+        if code_node == "load_genexpr":
+            code_node = code_node[0]
+
+        code_obj = code_node.attr
+        assert iscode(code_obj), code_node
+
+        code = Code(code_obj, self.scanner, self.currentclass, self.debug_opts["asm"])
+
+        # FIXME: is there a way we can avoid this?
+        # The problem is that in filterint top-level list comprehensions we can
+        # encounter comprehensions of other kinds, and lambdas
+        if self.compile_mode in ("listcomp",):  # add other comprehensions to this list
+            p_save = self.p
+            self.p = get_python_parser(
+                self.version, compile_mode="exec", is_pypy=self.is_pypy,
+            )
+            tree = self.build_ast(
+                code._tokens, code._customize, code, is_lambda=self.is_lambda
+            )
+            self.p = p_save
+        else:
+            tree = self.build_ast(
+                code._tokens, code._customize, code, is_lambda=self.is_lambda
+            )
+
+        self.customize(code._customize)
+
+        # skip over: sstmt, stmt, return, return_expr
+        # and other singleton derivations
+        if tree == "lambda_start":
+            if tree[0] in ("dom_start", "dom_start_opt"):
+                tree = tree[1]
+
+        while len(tree) == 1 or (
+            tree in ("stmt", "sstmt", "return", "return_expr", "return_expr_lambda")
+        ):
+            self.prec = 100
+            tree = tree[1] if tree[0] in ("dom_start", "dom_start_opt") else tree[0]
+        return tree
+
     def closure_walk(self, node, collection_index):
         """Dictionary and comprehensions using closure the way they are done in Python3.
         """
         p = self.prec
         self.prec = 27
 
-        code = Code(node[1].attr, self.scanner, self.currentclass)
-        ast = self.build_ast(code._tokens, code._customize, code)
-        self.customize(code._customize)
+        code_index = 0 if node[0] == "load_genexpr" else 1
+        tree = self.get_comprehension_function(node, code_index=code_index)
 
         # Remove single reductions as in ("stmts", "sstmt"):
-        while len(ast) == 1:
-            ast = ast[0]
+        while len(tree) == 1:
+            tree = tree[0]
 
-        store = ast[3]
+        store = tree[3]
         collection = node[collection_index]
 
-        n = ast[4]
+        iter_index = 3 if tree == "genexpr_func_async" else 4
+        n = tree[iter_index]
         list_if = None
         assert n == "comp_iter"
 
         # Find inner-most node.
         while n == "comp_iter":
             n = n[0]  # recurse one step
+
             # FIXME: adjust for set comprehension
             if n == "list_for":
                 store = n[2]
@@ -1446,7 +1505,7 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
 
-        assert n == "comp_body", ast
+        assert n == "comp_body", tree
 
         self.preorder(n[0])
         self.write(" for ")
@@ -2505,7 +2564,7 @@ class SourceWalker(GenericASTTraversal, object):
         code,
         is_lambda=False,
         noneInNames=False,
-        isTopLevel=False,
+        is_top_level_module=False,
     ):
 
         # FIXME: DRY with fragments.py
@@ -2531,10 +2590,10 @@ class SourceWalker(GenericASTTraversal, object):
 
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens, self.p.debug["reduce"])
-            transform_ast = self.treeTransform.transform(ast, code)
+            transform_tree = self.treeTransform.transform(ast, code)
             self.maybe_show_tree(ast, phase="after")
             del ast  # Save memory
-            return transform_ast
+            return transform_tree
 
         # The bytecode for the end of the main routine has a
         # "return None". However you can't issue a "return" statement in
@@ -2546,7 +2605,7 @@ class SourceWalker(GenericASTTraversal, object):
                     # Python 3.4's classes can add a "return None" which is
                     # invalid syntax.
                     if tokens[-2].kind == "LOAD_CONST":
-                        if isTopLevel or tokens[-2].pattr is None:
+                        if is_top_level_module or tokens[-2].pattr is None:
                             del tokens[-2:]
                         else:
                             tokens.append(Token("RETURN_LAST"))
@@ -2571,12 +2630,12 @@ class SourceWalker(GenericASTTraversal, object):
         checker(ast, False, self.ast_errors)
 
         self.customize(customize)
-        transform_ast = self.treeTransform.transform(ast, code)
+        transform_tree = self.treeTransform.transform(ast, code)
 
         self.maybe_show_tree(ast, phase="before")
 
         del ast  # Save memory
-        return transform_ast
+        return transform_tree
 
     @classmethod
     def _get_mapping(cls, node):
@@ -2625,7 +2684,7 @@ def code_deparse(
         linestarts=linestarts,
     )
 
-    isTopLevel = co.co_name == "<module>"
+    is_top_level_module = co.co_name == "<module>"
     if compile_mode == "eval":
         deparsed.hide_internal = False
     deparsed.compile_mode = compile_mode
@@ -2634,7 +2693,7 @@ def code_deparse(
         customize,
         co,
         is_lambda=(compile_mode == "lambda"),
-        isTopLevel=isTopLevel,
+        is_top_level_module=is_top_level_module,
     )
 
     #### XXX workaround for profiling

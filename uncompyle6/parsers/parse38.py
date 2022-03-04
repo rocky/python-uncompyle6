@@ -75,6 +75,11 @@ class Python38Parser(Python37Parser):
                                COME_FROM_FINALLY
                                END_ASYNC_FOR
 
+       genexpr_func_async  ::= LOAD_FAST func_async_prefix
+                               store comp_iter
+                               JUMP_BACK COME_FROM_FINALLY
+                               END_ASYNC_FOR
+
         # FIXME: come froms after the else_suite or END_ASYNC_FOR distinguish which of
         # for / forelse is used. Add come froms and check of add up control-flow detection phase.
         async_forelse_stmt38 ::= expr

@@ -584,6 +584,21 @@ class Python37BaseParser(PythonParser):
                 """
                 self.add_unique_doc_rules(rules_str, customize)
 
+            elif opname == "GET_ANEXT":
+                self.addRule(
+                    """
+                    func_async_prefix   ::= _come_froms SETUP_FINALLY GET_ANEXT LOAD_CONST YIELD_FROM POP_BLOCK
+                    func_async_middle   ::= JUMP_FORWARD COME_FROM_EXCEPT
+                                            DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                    list_afor2          ::= func_async_prefix
+                                            store list_iter
+                                            JUMP_BACK COME_FROM_FINALLY
+                                            END_ASYNC_FOR
+                   """,
+                    nop_func,
+                )
+                custom_ops_processed.add(opname)
+
             elif opname == "FORMAT_VALUE_ATTR":
                 rules_str = """
                 expr              ::= formatted_value2
@@ -932,19 +947,19 @@ class Python37BaseParser(PythonParser):
                 )
                 self.add_unique_rule(rule, opname, token.attr, customize)
 
-            elif opname == "MAKE_FUNCTION_8":
+            elif opname == "MAKE_FUNCTION_CLOSURE":
                 if "LOAD_DICTCOMP" in self.seen_ops:
                     # Is there something general going on here?
                     rule = """
                        dict_comp ::= load_closure LOAD_DICTCOMP LOAD_STR
-                                     MAKE_FUNCTION_8 expr
+                                     MAKE_FUNCTION_CLOSURE expr
                                      GET_ITER CALL_FUNCTION_1
                        """
                     self.addRule(rule, nop_func)
                 elif "LOAD_SETCOMP" in self.seen_ops:
                     rule = """
                        set_comp ::= load_closure LOAD_SETCOMP LOAD_STR
-                                    MAKE_FUNCTION_8 expr
+                                    MAKE_FUNCTION_CLOSURE expr
                                     GET_ITER CALL_FUNCTION_1
                        """
                     self.addRule(rule, nop_func)
