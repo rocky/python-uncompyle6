@@ -3,7 +3,7 @@
 
 def and_not_check(
     self, lhs, n, rule, ast, tokens, first, last
-) -> bool:
+):
     jmp = ast[1]
     if jmp.kind.startswith("jmp_"):
         if last == n:

@@ -2276,7 +2276,7 @@ def deparsed_find(tup, deparsed, code):
 #     def test():
 #         import os, sys
 
-#     def get_dups(li: list) -> set:
+#     def get_dups(li: list):
 #         dups = {}
 #         for item in li:
 #             dups[item] = dups.get(item, -1) + 1

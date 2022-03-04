@@ -45,7 +45,7 @@ def _get_outstream(outfile):
 
 def decompile(
     co,
-    bytecode_version: str = PYTHON_VERSION_TRIPLE,
+    bytecode_version = PYTHON_VERSION_TRIPLE,
     out=sys.stdout,
     showasm=None,
     showast={},
@@ -171,7 +171,7 @@ def compile_file(source_path):
 
 
 def decompile_file(
-    filename: str,
+    filename,
     outstream=None,
     showasm=None,
     showast={},

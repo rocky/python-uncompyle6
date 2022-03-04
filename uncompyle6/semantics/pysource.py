@@ -1414,7 +1414,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write("]")
         self.prune()
 
-    def get_comprehension_function(self, node, code_index: int):
+    def get_comprehension_function(self, node, code_index):
         """
         Build the body of a comprehension function and then
         find the comprehension node buried in the tree which may
