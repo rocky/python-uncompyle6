@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2021 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2022 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ from xdis import iscode
 from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, version_tuple_to_str
 from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource
+from uncompyle6.semantics.pysource import PARSER_DEFAULT_DEBUG
 from uncompyle6.parser import ParserError
 from uncompyle6.version import __version__
 
@@ -42,9 +43,9 @@ def _get_outstream(outfile):
     return open(outfile, 'wb')
 
 def decompile(
-    bytecode_version,
     co,
-    out=None,
+    bytecode_version = PYTHON_VERSION_TRIPLE,
+    out=sys.stdout,
     showasm=None,
     showast={},
     timestamp=None,
@@ -98,7 +99,7 @@ def decompile(
         write("# -*- coding: %s -*-" % source_encoding)
     write(
         "# uncompyle6 version %s\n"
-        "# %sPython bytecode %s%s\n# Decompiled from: %sPython %s"
+        "# %sPython bytecode version base %s%s\n# Decompiled from: %sPython %s"
         % (
             __version__,
             co_pypy_str,
@@ -107,10 +108,6 @@ def decompile(
             "\n# ".join(sys_version_lines),
         )
     )
-    if bytecode_version >= 3.0:
-        write(
-            "# Warning: this version of Python has problems handling the Python 3 byte type in constants properly.\n"
-        )
     if co.co_filename:
         write("# Embedded file name: %s" % co.co_filename)
     if timestamp:
@@ -120,7 +117,17 @@ def decompile(
         real_out.write("# Size of source mod 2**32: %d bytes\n" %
                        source_size)
 
-    debug_opts = {"asm": showasm, "ast": showast, "grammar": showgrammar}
+    # maybe a second -a will do before as well
+    if showasm:
+        asm = "after"
+    else:
+        asm = None
+
+    grammar = dict(PARSER_DEFAULT_DEBUG)
+    if showgrammar:
+        grammar["reduce"] = True
+
+    debug_opts = {"asm": asm, "tree": showast, "grammar": grammar}
 
     try:
         if mapstream:
@@ -128,10 +135,12 @@ def decompile(
                 mapstream = _get_outstream(mapstream)
 
             deparsed = deparse_code_with_map(
+                bytecode_version,
                 co,
                 out,
-                bytecode_version,
-                debug_opts,
+                showasm,
+                showast,
+                showgrammar,
                 code_objects=code_objects,
                 is_pypy=is_pypy,
                 compile_mode=compile_mode,
@@ -182,7 +191,7 @@ def decompile_file(
     filename,
     outstream=None,
     showasm=None,
-    showast=False,
+    showast={},
     showgrammar=False,
     source_encoding=None,
     mapstream=None,
@@ -201,11 +210,11 @@ def decompile_file(
 
     if isinstance(co, list):
         deparsed = []
-        for con in co:
+        for bytecode in co:
             deparsed.append(
                 decompile(
+                    bytecode,
                     version,
-                    con,
                     outstream,
                     showasm,
                     showast,
@@ -215,14 +224,14 @@ def decompile_file(
                     code_objects=code_objects,
                     is_pypy=is_pypy,
                     magic_int=magic_int,
+                    mapstream=mapstream,
                 ),
-                mapstream=mapstream,
             )
     else:
         deparsed = [
             decompile(
-                version,
                 co,
+                version,
                 outstream,
                 showasm,
                 showast,
@@ -235,6 +244,7 @@ def decompile_file(
                 magic_int=magic_int,
                 mapstream=mapstream,
                 do_fragments=do_fragments,
+                compile_mode="exec",
             )
         ]
     co = None
@@ -249,7 +259,7 @@ def main(
     source_files,
     outfile=None,
     showasm=None,
-    showast=False,
+    showast={},
     do_verify=False,
     showgrammar=False,
     source_encoding=None,

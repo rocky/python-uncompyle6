@@ -154,6 +154,7 @@ def customize_for_version3(self, version):
                 # recurse one step
                 n = n[0]
 
+                # FIXME: adjust for set comprehension
                 if n == "list_for":
                     stores.append(n[2])
                     n = n[3]
@@ -168,13 +169,12 @@ def customize_for_version3(self, version):
                             c = c[0]
                         collections.append(c)
                         pass
-                elif n in ("list_if", "list_if_not"):
-                    # FIXME: just a guess
+                elif n in ("list_if", "list_if_not", "list_if_or_not"):
                     if n[0].kind == "expr":
                         list_ifs.append(n)
                     else:
                         list_ifs.append([1])
-                    n = n[2]
+                    n = n[-2] if n[-1] == "come_from_opt" else n[-1]
                     pass
                 elif n == "list_if37":
                     list_ifs.append(n)
@@ -184,7 +184,7 @@ def customize_for_version3(self, version):
                     collections.append(n[0][0])
                     n = n[1]
                     stores.append(n[1][0])
-                    n = n[3]
+                    n = n[2] if n[2].kind == "list_iter" else n[3]
                 pass
 
             assert n == "lc_body", ast

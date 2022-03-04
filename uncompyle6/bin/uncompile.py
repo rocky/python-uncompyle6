@@ -133,7 +133,8 @@ def main_bin():
         elif opt in ('--tree+', '-T'):
             if 'showast' not in options:
                 options['showast'] = {}
-            options['showast']['Full'] = True
+            options['showast']['after'] = True
+            options['showast']['before'] = True
             options['do_verify'] = None
         elif opt in ('--grammar', '-g'):
             options['showgrammar'] = True

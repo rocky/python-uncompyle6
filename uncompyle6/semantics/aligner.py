@@ -1,4 +1,4 @@
-#  Copyright (c) 2018 by Rocky Bernstein
+#  Copyright (c) 2018, 2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -141,8 +141,8 @@ def code_deparse_align(co, out=sys.stderr, version=None, is_pypy=None,
                             debug_parser=debug_parser, compile_mode=compile_mode,
                             is_pypy = is_pypy)
 
-    isTopLevel = co.co_name == '<module>'
-    deparsed.ast = deparsed.build_ast(tokens, customize, co, isTopLevel=isTopLevel)
+    is_top_level_module = co.co_name == '<module>'
+    deparsed.ast = deparsed.build_ast(tokens, customize, co, is_top_level_module=is_top_level_module)
 
     assert deparsed.ast == 'stmts', 'Should have parsed grammar start'
 

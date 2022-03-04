@@ -43,7 +43,7 @@ Python.
 # describe rules and not have to create methods at all.
 #
 # So another other way to specify a semantic rule for a nonterminal is via
-# one of the tables MAP_R0, MAP_R, or MAP_DIRECT where the key is the
+# either tables MAP_R, or MAP_DIRECT where the key is the
 # nonterminal name.
 #
 # These dictionaries use a printf-like syntax to direct substitution
@@ -63,15 +63,14 @@ Python.
 # parse tree for N.
 #
 #
-#          N&K               N                  N
-#         / | ... \        / | ... \          / | ... \
-#        O  O      O      O  O      K         O O      O
-#                                                      |
-#                                                      K
-#      TABLE_DIRECT      TABLE_R             TABLE_R0
+#          N&K               N
+#         / | ... \        / | ... \
+#        O  O      O      O  O      K
+#
+#
+#      TABLE_DIRECT      TABLE_R
 #
 #   The default table is TABLE_DIRECT mapping By far, most rules used work this way.
-#   TABLE_R0 is rarely used.
 #
 #   The key K is then extracted from the subtree and used to find one
 #   of the tables, T listed above.  The result after applying T[K] is
@@ -139,7 +138,7 @@ from xdis.version_info import PYTHON_VERSION_TRIPLE
 
 from uncompyle6.parser import get_python_parser
 from uncompyle6.parsers.treenode import SyntaxTree
-from spark_parser import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from spark_parser import GenericASTTraversal
 from uncompyle6.scanner import Code, get_scanner
 import uncompyle6.parser as python_parser
 from uncompyle6.semantics.check_ast import checker
@@ -185,6 +184,25 @@ from StringIO import StringIO
 
 DEFAULT_DEBUG_OPTS = {"asm": False, "tree": False, "grammar": False}
 
+def unicode(x): return x
+from StringIO import StringIO
+
+PARSER_DEFAULT_DEBUG = {
+    "rules": False,
+    "transition": False,
+    "reduce": False,
+    "errorstack": "full",
+    "context": True,
+    "dups": False,
+}
+
+TREE_DEFAULT_DEBUG = {"before": False, "after": False}
+
+DEFAULT_DEBUG_OPTS = {
+    "asm": False,
+    "tree": TREE_DEFAULT_DEBUG,
+    "grammar": dict(PARSER_DEFAULT_DEBUG),
+}
 
 class SourceWalkerError(Exception):
     def __init__(self, errmsg):
@@ -202,7 +220,7 @@ class SourceWalker(GenericASTTraversal, object):
         version,
         out,
         scanner,
-        showast=False,
+        showast=TREE_DEFAULT_DEBUG,
         debug_parser=PARSER_DEFAULT_DEBUG,
         compile_mode="exec",
         is_pypy=IS_PYPY,
@@ -225,9 +243,9 @@ class SourceWalker(GenericASTTraversal, object):
         mode that was used to create the Syntax Tree and specifies a
         gramar variant within a Python version to use.
 
-        `is_pypy' should be True if the Syntax Tree was generated for PyPy.
+        `is_pypy` should be True if the Syntax Tree was generated for PyPy.
 
-        `linestarts' is a dictionary of line number to bytecode offset. This
+        `linestarts` is a dictionary of line number to bytecode offset. This
         can sometimes assist in determinte which kind of source-code construct
         to use when there is ambiguity.
 
@@ -244,9 +262,10 @@ class SourceWalker(GenericASTTraversal, object):
             is_pypy=is_pypy,
         )
 
-        self.treeTransform = TreeTransform(
-            version=version, show_ast=showast, is_pypy=is_pypy
-        )
+        # Initialize p_lambda on demand
+        self.p_lambda = None
+
+        self.treeTransform = TreeTransform(version=self.version, show_ast=showast)
         self.debug_parser = dict(debug_parser)
         self.showast = showast
         self.params = params
@@ -286,25 +305,28 @@ class SourceWalker(GenericASTTraversal, object):
         # An example is:
         # __module__ = __name__
         self.hide_internal = True
-        self.compile_mode = "exec"
+        self.compile_mode = compile_mode
         self.name = None
         self.version = version
         self.is_pypy = is_pypy
         customize_for_version(self, is_pypy, version)
-
         return
 
-    def maybe_show_tree(self, ast):
-        if self.showast and self.treeTransform.showast:
+    def maybe_show_tree(self, ast, phase):
+        if self.showast.get("before", False):
             self.println(
                 """
 ---- end before transform
+"""
+            )
+        if self.showast.get("after", False):
+            self.println(
+                """
 ---- begin after transform
 """
-                + "    "
+                + " "
             )
-
-        if isinstance(self.showast, dict) and self.showast.get:
+        if self.showast.get(phase, False):
             maybe_show_tree(self, ast)
 
     def str_with_template(self, ast):
@@ -586,8 +608,10 @@ class SourceWalker(GenericASTTraversal, object):
             self.prec = 6
 
         # print("XXX", n.kind, p, "<", self.prec)
+        # print(self.f.getvalue())
 
         if p < self.prec:
+            # print(f"PREC {p}, {node[0].kind}")
             self.write("(")
             self.preorder(node[0])
             self.write(")")
@@ -1111,8 +1135,8 @@ class SourceWalker(GenericASTTraversal, object):
             ast = ast[0]
 
         n = ast[iter_index]
-        assert n == "comp_iter", n
 
+        assert n == "comp_iter", n.kind
         # Find the comprehension body. It is the inner-most
         # node that is not list_.. .
         while n == "comp_iter":  # list_iter
@@ -1154,10 +1178,24 @@ class SourceWalker(GenericASTTraversal, object):
             code_index = -6
             if self.version > (3, 6):
                 # Python 3.7+ adds optional "come_froms" at node[0]
-                iter_index = 4
+                if node[0].kind in ("load_closure", "load_genexpr") and self.version >= (3, 8):
+                    is_lambda = self.is_lambda
+                    if node[0].kind == "load_genexpr":
+                        self.is_lambda = False
+                    self.closure_walk(node, collection_index=4)
+                    self.is_lambda = is_lambda
+                else:
+                    code_index = -6
+                    if self.version < (3, 8):
+                        iter_index = 4
+                    else:
+                        iter_index = 3
+                    self.comprehension_walk(node, iter_index=iter_index, code_index=code_index)
+                    pass
+                pass
         else:
             code_index = -5
-        self.comprehension_walk(node, iter_index=iter_index, code_index=code_index)
+            self.comprehension_walk(node, iter_index=iter_index, code_index=code_index)
         self.write(")")
         self.prune()
 
@@ -1168,7 +1206,7 @@ class SourceWalker(GenericASTTraversal, object):
         if node[0] in ["LOAD_SETCOMP", "LOAD_DICTCOMP"]:
             self.comprehension_walk_newer(node, 1, 0)
         elif node[0].kind == "load_closure" and self.version >= (3, 0):
-            self.setcomprehension_walk3(node, collection_index=4)
+            self.closure_walk(node, collection_index=4)
         else:
             self.comprehension_walk(node, iter_index=4)
         self.write("}")
@@ -1180,15 +1218,19 @@ class SourceWalker(GenericASTTraversal, object):
         """Non-closure-based comprehensions the way they are done in Python3
         and some Python 2.7. Note: there are also other set comprehensions.
         """
+        # FIXME: DRY with listcomp_closure3
         p = self.prec
         self.prec = 27
 
         code_obj = node[code_index].attr
         assert iscode(code_obj), node[code_index]
+        self.debug_opts["asm"]
 
         code = Code(code_obj, self.scanner, self.currentclass, self.debug_opts["asm"])
 
-        ast = self.build_ast(code._tokens, code._customize, code)
+        ast = self.build_ast(
+            code._tokens, code._customize, code, is_lambda=self.is_lambda
+        )
         self.customize(code._customize)
 
         # skip over: sstmt, stmt, return, return_expr
@@ -1336,7 +1378,6 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             self.preorder(store)
 
-        # FIXME this is all merely approximate
         self.write(" in ")
         self.preorder(node[in_node_index])
 
@@ -1356,6 +1397,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.write(" if ")
             if have_not:
                 self.write("not ")
+                pass
             self.prec = 27
             self.preorder(if_node)
             pass
@@ -1375,32 +1417,86 @@ class SourceWalker(GenericASTTraversal, object):
         self.write("]")
         self.prune()
 
-    def setcomprehension_walk3(self, node, collection_index):
-        """Set comprehensions the way they are done in Python3.
-        They're more other comprehensions, e.g. set comprehensions
-        See if we can combine code.
+    def get_comprehension_function(self, node, code_index):
+        """
+        Build the body of a comprehension function and then
+        find the comprehension node buried in the tree which may
+        be surrounded with start-like symbols or dominiators,.
+        """
+        self.prec = 27
+        code_node = node[code_index]
+        if code_node == "load_genexpr":
+            code_node = code_node[0]
+
+        code_obj = code_node.attr
+        assert iscode(code_obj), code_node
+
+        code = Code(code_obj, self.scanner, self.currentclass, self.debug_opts["asm"])
+
+        # FIXME: is there a way we can avoid this?
+        # The problem is that in filterint top-level list comprehensions we can
+        # encounter comprehensions of other kinds, and lambdas
+        if self.compile_mode in ("listcomp",):  # add other comprehensions to this list
+            p_save = self.p
+            self.p = get_python_parser(
+                self.version, compile_mode="exec", is_pypy=self.is_pypy,
+            )
+            tree = self.build_ast(
+                code._tokens, code._customize, code, is_lambda=self.is_lambda
+            )
+            self.p = p_save
+        else:
+            tree = self.build_ast(
+                code._tokens, code._customize, code, is_lambda=self.is_lambda
+            )
+
+        self.customize(code._customize)
+
+        # skip over: sstmt, stmt, return, return_expr
+        # and other singleton derivations
+        if tree == "lambda_start":
+            if tree[0] in ("dom_start", "dom_start_opt"):
+                tree = tree[1]
+
+        while len(tree) == 1 or (
+            tree in ("stmt", "sstmt", "return", "return_expr", "return_expr_lambda")
+        ):
+            self.prec = 100
+            tree = tree[0]
+        return tree
+
+    def closure_walk(self, node, collection_index):
+        """Dictionary and comprehensions using closure the way they are done in Python3.
         """
         p = self.prec
         self.prec = 27
 
-        code = Code(node[1].attr, self.scanner, self.currentclass)
-        ast = self.build_ast(code._tokens, code._customize, code)
-        self.customize(code._customize)
+        if node[0] == "load_genexpr":
+            code_index = 0
+        else:
+            code_index = 1
+        tree = self.get_comprehension_function(node, code_index=code_index)
 
         # Remove single reductions as in ("stmts", "sstmt"):
-        while len(ast) == 1:
-            ast = ast[0]
+        while len(tree) == 1:
+            tree = tree[0]
 
-        store = ast[3]
+        store = tree[3]
         collection = node[collection_index]
 
-        n = ast[4]
+        if tree == "genexpr_func_async":
+            iter_index = 3
+        else:
+            iter_index = 4
+
+        n = tree[iter_index]
         list_if = None
         assert n == "comp_iter"
 
         # Find inner-most node.
         while n == "comp_iter":
             n = n[0]  # recurse one step
+
             # FIXME: adjust for set comprehension
             if n == "list_for":
                 store = n[2]
@@ -1419,7 +1515,7 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
 
-        assert n == "comp_body", ast
+        assert n == "comp_body", tree
 
         self.preorder(n[0])
         self.write(" for ")
@@ -1813,6 +1909,7 @@ class SourceWalker(GenericASTTraversal, object):
                     self.kv_map(node[-1], sep, line_number, indent)
 
                 pass
+            pass
         if sep.startswith(",\n"):
             self.write(sep[1:])
         if node[0] != "dict_entry":
@@ -1874,6 +1971,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.write("(")
             endchar = ")"
         else:
+            # from trepan.api import debug; debug()
             raise TypeError(
                 "Internal Error: n_build_list expects list, tuple, set, or unpack"
             )
@@ -2044,23 +2142,22 @@ class SourceWalker(GenericASTTraversal, object):
                 index = entry[arg]
                 if isinstance(index, tuple):
                     if isinstance(index[1], str):
+                        # if node[index[0]] != index[1]:
+                        #     from trepan.api import debug; debug()
                         assert node[index[0]] == index[1], (
                             "at %s[%d], expected '%s' node; got '%s'"
-                            % (node.kind, arg, index[1], node[index[0]].kind)
+                            % (node.kind, arg, index[1], node[index[0]].kind,)
                         )
                     else:
                         assert node[index[0]] in index[1], (
                             "at %s[%d], expected to be in '%s' node; got '%s'"
-                            % (node.kind, arg, index[1], node[index[0]].kind)
+                            % (node.kind, arg, index[1], node[index[0]].kind,)
                         )
 
                     index = index[0]
-                assert isinstance(
-                    index, int
-                ), "at %s[%d], %s should be int or tuple" % (
-                    node.kind,
-                    arg,
-                    type(index),
+                assert isinstance(index, int), (
+                    "at %s[%d], %s should be int or tuple"
+                    % (node.kind, arg, type(index),)
                 )
 
                 try:
@@ -2082,10 +2179,17 @@ class SourceWalker(GenericASTTraversal, object):
                 assert isinstance(tup, tuple)
                 if len(tup) == 3:
                     (index, nonterm_name, self.prec) = tup
-                    assert node[index] == nonterm_name, (
-                        "at %s[%d], expected '%s' node; got '%s'"
-                        % (node.kind, arg, nonterm_name, node[index].kind)
-                    )
+                    if isinstance(tup[1], str):
+                        assert node[index] == nonterm_name, (
+                            "at %s[%d], expected '%s' node; got '%s'"
+                            % (node.kind, arg, nonterm_name, node[index].kind,)
+                        )
+                    else:
+                        assert node[tup[0]] in tup[1], (
+                            "at %s[%d], expected to be in '%s' node; got '%s'"
+                            % (node.kind, arg, index[1], node[index[0]].kind,)
+                        )
+
                 else:
                     assert len(tup) == 2
                     (index, self.prec) = entry[arg]
@@ -2416,10 +2520,10 @@ class SourceWalker(GenericASTTraversal, object):
             #    print stmt[-1]
 
 
-        # Add "global" declaration statements at the top
         globals, nonlocals = find_globals_and_nonlocals(
             ast, set(), set(), code, self.version
         )
+        # Add "global" declaration statements at the top
         # of the function
         for g in sorted(globals):
             self.println(indent, "global ", g)
@@ -2458,11 +2562,8 @@ class SourceWalker(GenericASTTraversal, object):
             self.println(self.indent, "pass")
         else:
             self.customize(customize)
-            if is_lambda:
-                self.write(self.traverse(ast, is_lambda=is_lambda))
-            else:
-                self.text = self.traverse(ast, is_lambda=is_lambda)
-                self.println(self.text)
+            self.text = self.traverse(ast, is_lambda=is_lambda)
+            self.println(self.text)
         self.name = old_name
         self.return_none = rn
 
@@ -2473,7 +2574,7 @@ class SourceWalker(GenericASTTraversal, object):
         code,
         is_lambda=False,
         noneInNames=False,
-        isTopLevel=False,
+        is_top_level_module=False,
     ):
 
         # FIXME: DRY with fragments.py
@@ -2500,10 +2601,10 @@ class SourceWalker(GenericASTTraversal, object):
                 raise ParserError(e, tokens, self.p.debug["reduce"])
             except AssertionError, e:
                 raise ParserError(e, tokens, self.p.debug["reduce"])
-            transform_ast = self.treeTransform.transform(ast, code)
-            self.maybe_show_tree(ast)
+            transform_tree = self.treeTransform.transform(ast, code)
+            self.maybe_show_tree(ast, phase="after")
             del ast  # Save memory
-            return transform_ast
+            return transform_tree
 
         # The bytecode for the end of the main routine has a
         # "return None". However you can't issue a "return" statement in
@@ -2515,7 +2616,7 @@ class SourceWalker(GenericASTTraversal, object):
                     # Python 3.4's classes can add a "return None" which is
                     # invalid syntax.
                     if tokens[-2].kind == "LOAD_CONST":
-                        if isTopLevel or tokens[-2].pattr is None:
+                        if is_top_level_module or tokens[-2].pattr is None:
                             del tokens[-2:]
                         else:
                             tokens.append(Token("RETURN_LAST"))
@@ -2540,12 +2641,12 @@ class SourceWalker(GenericASTTraversal, object):
         checker(ast, False, self.ast_errors)
 
         self.customize(customize)
-        transform_ast = self.treeTransform.transform(ast, code)
+        transform_tree = self.treeTransform.transform(ast, code)
 
-        self.maybe_show_tree(ast)
+        self.maybe_show_tree(ast, phase="before")
 
         del ast  # Save memory
-        return transform_ast
+        return transform_tree
 
     @classmethod
     def _get_mapping(cls, node):
@@ -2573,16 +2674,13 @@ def code_deparse(
         version = PYTHON_VERSION_TRIPLE
 
     # store final output stream for case of error
-    scanner = get_scanner(version, is_pypy=is_pypy)
+    scanner = get_scanner(version, is_pypy=is_pypy, show_asm=debug_opts["asm"])
 
     tokens, customize = scanner.ingest(
         co, code_objects=code_objects, show_asm=debug_opts["asm"]
     )
 
-    debug_parser = dict(PARSER_DEFAULT_DEBUG)
-    if debug_opts.get("grammar", None):
-        debug_parser["reduce"] = debug_opts["grammar"]
-        debug_parser["errorstack"] = "full"
+    debug_parser = debug_opts.get("grammar", dict(PARSER_DEFAULT_DEBUG))
 
     #  Build Syntax Tree from disassembly.
     linestarts = dict(scanner.opc.findlinestarts(co))
@@ -2590,27 +2688,49 @@ def code_deparse(
         version,
         out,
         scanner,
-        showast=debug_opts.get("ast", None),
+        showast=debug_opts.get("tree", TREE_DEFAULT_DEBUG),
         debug_parser=debug_parser,
         compile_mode=compile_mode,
         is_pypy=is_pypy,
         linestarts=linestarts,
     )
 
-    isTopLevel = co.co_name == "<module>"
+    is_top_level_module = co.co_name == "<module>"
     if compile_mode == "eval":
         deparsed.hide_internal = False
-    deparsed.ast = deparsed.build_ast(tokens, customize, co, isTopLevel=isTopLevel)
+    deparsed.compile_mode = compile_mode
+    deparsed.ast = deparsed.build_ast(
+        tokens,
+        customize,
+        co,
+        is_lambda=(compile_mode == "lambda"),
+        is_top_level_module=is_top_level_module,
+    )
 
     #### XXX workaround for profiling
     if deparsed.ast is None:
         return None
 
-    if compile_mode != "eval":
-        assert deparsed.ast == "stmts", "Should have parsed grammar start"
+    # FIXME use a lookup table here.
+    if compile_mode == "lambda":
+        expected_start = "lambda_start"
+    elif compile_mode == "eval":
+        expected_start = "expr_start"
+    elif compile_mode == "expr":
+        expected_start = "expr_start"
+    elif compile_mode == "exec":
+        expected_start = "stmts"
+    elif compile_mode == "single":
+        expected_start = "single_start"
     else:
-        assert deparsed.ast == "eval_expr", "Should have parsed grammar start"
-
+        expected_start = None
+    if expected_start:
+        assert (
+            deparsed.ast == expected_start
+        ), (
+            "Should have parsed grammar start to '%s'; got: %s" %
+            (expected_start, deparsed.ast.kind)
+            )
     # save memory
     del tokens
 
@@ -2652,7 +2772,11 @@ def code_deparse(
 
     # What we've been waiting for: Generate source from Syntax Tree!
     deparsed.gen_source(
-        deparsed.ast, name=co.co_name, customize=customize, debug_opts=debug_opts
+        deparsed.ast,
+        name=co.co_name,
+        customize=customize,
+        is_lambda=compile_mode == "lambda",
+        debug_opts=debug_opts,
     )
 
     for g in sorted(deparsed.mod_globs):
@@ -2660,7 +2784,7 @@ def code_deparse(
 
     if deparsed.ast_errors:
         deparsed.write("# NOTE: have internal decompilation grammar errors.\n")
-        deparsed.write("# Use -t option to show full context.")
+        deparsed.write("# Use -T option to show full context.")
         for err in deparsed.ast_errors:
             deparsed.write(err)
         raise SourceWalkerError("Deparsing hit an internal grammar-rule bug")
