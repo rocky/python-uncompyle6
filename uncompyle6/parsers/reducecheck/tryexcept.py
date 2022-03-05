@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020, 2022 Rocky Bernstein
 
 def tryexcept(self, lhs, n, rule, ast, tokens, first, last):
     come_from_except = ast[-1]
@@ -13,11 +13,23 @@ def tryexcept(self, lhs, n, rule, ast, tokens, first, last):
             ),
     ):
         if come_from_except[0] == "COME_FROM":
-            # There should be at last two COME_FROMs, one from an
+            # There should be at least two COME_FROMs, one from an
             # exception handler and one from the try. Otherwise
             # we have a try/else.
             return True
         pass
+
+    elif rule == (
+            "try_except",
+            (
+                "SETUP_EXCEPT",
+                "suite_stmts_opt",
+                "POP_BLOCK",
+                "except_handler",
+                "COME_FROM",
+            ),
+    ):
+        return come_from_except.attr < tokens[first].offset
 
     elif rule == (
             'try_except',
