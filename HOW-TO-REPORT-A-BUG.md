@@ -1,14 +1,15 @@
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
-- [The difficulty of the problem](#the-difficulty-of-the-problem)
+- [The importance of your bug report](#the-importance-of-your-bug-report)
+- [The difficulty of the problem and your bug](#the-difficulty-of-the-problem-and-your-bug)
 - [Is it really a bug?](#is-it-really-a-bug)
     - [Do you have valid bytecode?](#do-you-have-valid-bytecode)
     - [Semantic equivalence vs. exact source code](#semantic-equivalence-vs-exact-source-code)
 - [What to send (minimum requirements)](#what-to-send-minimum-requirements)
 - [What to send (additional helpful information)](#what-to-send-additional-helpful-information)
     - [But I don't *have* the source code!](#but-i-dont-have-the-source-code)
-    - [But I don't *have* the source code and am incapable of figuring how how to do a hand disassembly!](#but-i-dont-have-the-source-code-and-am-incapable-of-figuring-how-how-to-do-a-hand-disassembly)
+        - [But I don't *have* the source code and am incapable of figuring how to do a hand disassembly!](#but-i-dont-have-the-source-code-and-am-incapable-of-figuring-how-to-do-a-hand-disassembly)
 - [Narrowing the problem](#narrowing-the-problem)
 - [Karma](#karma)
 - [Confidentiality of Bug Reports](#confidentiality-of-bug-reports)
