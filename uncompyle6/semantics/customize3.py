@@ -174,7 +174,10 @@ def customize_for_version3(self, version):
                         list_ifs.append(n)
                     else:
                         list_ifs.append([1])
-                    n = n[-2] if n[-1] == "come_from_opt" else n[-1]
+                    if n[-1] == "come_from_opt":
+                        n = n[-2]
+                    else:
+                        n = n[-1]
                     pass
                 elif n == "list_if37":
                     list_ifs.append(n)
@@ -184,7 +187,10 @@ def customize_for_version3(self, version):
                     collections.append(n[0][0])
                     n = n[1]
                     stores.append(n[1][0])
-                    n = n[2] if n[2].kind == "list_iter" else n[3]
+                    if n[2].kind == "list_iter":
+                        n = n[2]
+                    else:
+                        n = n[3]
                 pass
 
             assert n == "lc_body", ast
