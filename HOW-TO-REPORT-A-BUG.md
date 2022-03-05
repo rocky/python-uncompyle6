@@ -28,7 +28,7 @@ This project already has an infinite supply of bugs that have been narrowed to t
 
 In this project the task of justifying why addressing your bug is of use to the community, and why it should be prioritized over the others, is the bug reporter's responsibility.
 
-While in the abstract, I have no problem answering questions about how to read a Python traceback or install Python software, or trying to understand what is going wrong in your particular setup, I am not a paid support person and there other things I'd rather be doing with my limited volunteer time. So save us both time, effort and aggravation and use other avenues like StackOverflow. Again, justifying why you should receive unpaid help is the help requester's responsibility.
+While in the abstract, I have no problem answering questions about how to read a Python traceback or install Python software, or trying to understand what is going wrong in your particular setup, I am not a paid support person and there other things I'd rather be doing with my limited volunteer time. So save us both time, effort, and aggravation: use other avenues like StackOverflow. Again, justifying why you should receive unpaid help is the help requester's responsibility.
 
 
 # The difficulty of the problem and your bug
