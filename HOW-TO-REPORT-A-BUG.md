@@ -18,7 +18,7 @@
 <!-- markdown-toc end -->
 # The importance of your bug report
 
-For many open-source projects bugs where the expectation is that bugs are rare, reporting bugs in a *thoughtful* way can be helpful. (See also [How to Ask Questions the Smart Way](https://www.osadl.org/Eric-Raymond-How-to-ask-questions-the-s.questions-the-smart-way.0.html).
+For many open-source projects bugs where the expectation is that bugs are rare, reporting bugs in a *thoughtful* way can be helpful. See also [How to Ask Questions the Smart Way](https://www.osadl.org/Eric-Raymond-How-to-ask-questions-the-s.questions-the-smart-way.0.html).
 
 In this project though, most of the bug reports boil down to the something like: I have I am trying to reverse engineer some code that I am not the author/onwer and that person doesn't want me to have access to. I am hitting a problem somewhere along the line which might have to do with decompilation, but it could be something else like how I extracted the bytecode, or some problem in deliberately obfuscated code, or the use some kind of Python bytecode version that isn't supported by the decompiler.
 
