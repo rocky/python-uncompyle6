@@ -20,15 +20,15 @@
 
 For many open-source projects bugs where the expectation is that bugs are rare, reporting bugs in a *thoughtful* way can be helpful. See also [How to Ask Questions the Smart Way](https://www.osadl.org/Eric-Raymond-How-to-ask-questions-the-s.questions-the-smart-way.0.html).
 
-In this project though, most of the bug reports boil down to the something like: I have I am trying to reverse engineer some code that I am not the author/onwer and that person doesn't want me to have access to. I am hitting a problem somewhere along the line which might have to do with decompilation, but it could be something else like how I extracted the bytecode, or some problem in deliberately obfuscated code, or the use some kind of Python bytecode version that isn't supported by the decompiler.
+In this project though, most of the bug reports boil down to the something like: I have I am trying to reverse engineer some code that I am not the author/owner and that person doesn't want me to have access to. I am hitting a problem somewhere along the line which might have to do with decompilation, but it could be something else like how the bytecode was extracted, some problem in deliberately obfuscated code, or the use some kind of Python bytecode version that isn't supported by the decompiler.
 
-While you are free to report these, unless you sponsor the project, I may close them with about the same amount of effort spent that I think was used to open the report them. And if you spent a considerable amount of time to create the bug report but didn't follow instructions given here and in the issue template - I am sorry in advance. Just go back, read and follow instructions.
+While you are free to report these, unless you sponsor the project, I may close them with about the same amount of effort spent that I think was used to open the report them. And if you spent a considerable amount of time to create the bug report but didn't follow instructions given here and in the issue template, I am sorry in advance. Just go back, read, and follow instructions.
 
 This project already has an infinite supply of bugs that have been narrowed to the most minimal form and where I have source code to compare against. And in the unlikely event this supply runs out, I have automated means for generating *another* infinite supply.
 
-In this project the task of justifying why addressing your bug is of use to the community and why it should be prioritized over the others is the bug reporter's responsibility.
+In this project the task of justifying why addressing your bug is of use to the community, and why it should be prioritized over the others, is the bug reporter's responsibility.
 
-While in the abstract, I have no problem answering questions about how to read a Python traceback or install Python software, or try to understand what is going wrong in your particular setup, I am not a paid support person. So save us both time, effort and aggrivation and use other avenues like StackOverflow. Again, justifying why you should receive unpaid help is the help requester's responsibility.
+While in the abstract, I have no problem answering questions about how to read a Python traceback or install Python software, or trying to understand what is going wrong in your particular setup, I am not a paid support person. So save us both time, effort and aggravation and use other avenues like StackOverflow. Again, justifying why you should receive unpaid help is the help requester's responsibility.
 
 
 # The difficulty of the problem and your bug
@@ -43,7 +43,7 @@ But at any given time, there are a number of valid Python bytecode files that I 
 
 There are far more bug reporters than there are bug fixers.
 
-Unless you are a sponsor of this project, it may take a while, maybe a week or so, before the bug report is noticed, let alone acted upon. Things eventually get fixed, but it may take years. And if your bug hasn't been narrowed it might happen as a result of some other bug fix.
+Unless you are a sponsor of this project, it may take a while, maybe a week or so, before the bug report is noticed, let alone acted upon. Things eventually get fixed, but it may take years. And if your bug hasn't been narrowed, it might happen as a result of some other bug fix.
 
 # Is it really a bug?
 
@@ -193,8 +193,11 @@ likely the problem will be fixed and fixed sooner.
 # Karma
 
 I realize that following the instructions given herein puts a bit of
-burden on the bug reporter. This is justified as attempts to balance somewhat the burden and effort needed to fix the bug and the attempts to balance number of would-be bug reporters with the number of bug fixers. Better bug reporters are more likely to move
-in the category of bug fixers.
+burden on the bug reporter. This is justified as attempts to balance
+somewhat the burden and effort needed to fix the bug and the attempts
+to balance number of would-be bug reporters with the number of bug
+fixers. Better bug reporters are more likely to move in the category
+of bug fixers.
 
 The barrier to reporting a big is pretty small: all you really need is
 a github account, and the ability to type something after clicking
@@ -207,7 +210,11 @@ I may take into consideration is the bug reporter's karma.
 
 * Have you demonstrably contributed to open source? I may look at your github profile to see what contributions you have made, how popular those contributions are, or how popular you are.
 * How appreciative are you? Have you starred this project that you are seeking help from? Have you starred _any_ github project? And the above two kind of feed into ...
-* Attitude. Some people feel that they are doing me and the world a great favor by just pointing out that there is a problem whose solution would greatly benefit them. (This might account partially those that have this attitude often don't read or follow instructions such as those given here.)
+* Attitude. Some people feel that they are doing me and the world a
+  great favor by just pointing out that there is a problem whose
+  solution would greatly benefit them. (This might account partially
+  for the fact that those that have this attitude often don't read or
+  follow instructions such as those given here.)
 
 
 # Confidentiality of Bug Reports
