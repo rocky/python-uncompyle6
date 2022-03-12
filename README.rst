@@ -99,7 +99,12 @@ versions.
 Installation
 ------------
 
-This uses setup.py, so it follows the standard Python routine::
+You can install from PyPI using the name ``uncompyle6``::
+
+    pip install uncompyle6
+
+
+To install from source code, this project uses setup.py, so it follows the standard Python routine::
 
     $ pip install -e .  # set up to run from source tree
 
@@ -248,7 +253,7 @@ because it is harder to do so. The good news, at least from my
 standpoint, is that I think I understand what's needed to address the
 problems in a more robust way. But right now until such time as
 project is better funded, I do not intend to make any serious effort
-to support Python versions 3.8 and above here, including bugs that might come
+to support Python versions 3.8 or 3.9, including bugs that might come
 in. I imagine at some point I may be interested in it.
 
 You can easily find bugs by running the tests against the standard

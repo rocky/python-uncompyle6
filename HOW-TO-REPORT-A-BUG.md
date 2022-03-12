@@ -1,6 +1,7 @@
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
+- [Ethics](#ethics)
 - [The importance of your bug report](#the-importance-of-your-bug-report)
 - [The difficulty of the problem and your bug](#the-difficulty-of-the-problem-and-your-bug)
 - [Is it really a bug?](#is-it-really-a-bug)
@@ -13,9 +14,25 @@
 - [Narrowing the problem](#narrowing-the-problem)
 - [Karma](#karma)
 - [Confidentiality of Bug Reports](#confidentiality-of-bug-reports)
-- [Ethics](#ethics)
 
 <!-- markdown-toc end -->
+
+TL;DR (too long; didn't read)
+
+* Don't do something illegal. And don't ask me to do something illegal or help you do something illegal
+* We already have an infinite supply of decompilation bugs that need fixing, and an automated mechanism for finding more. Decompilation bugs get addressed by easiness to fix and by whim. If you expect yours to be fixed ahead of those, you need to justify why.
+* When asking for help, you may be asked for what you've tried on your own first. There are plenty of sources of information about this code.
+* If you are looking for *timely* help or support, well, that is typically known paid service. I don't really have a mechanism for that since I have a full-time job. But supporting the project is an approximation.
+* Submitting a bug or issue report that is likely to get acted upon may require a bit of effort on your part to make it easy for the problem solver. If you are not willing to do that, please don't waste our time. As indicated above, supporting the project will increase the likelihood of your issue getting noticed and acted upon.
+
+# Ethics
+
+I do not condone using this program for unethical or illegal purposes. More detestable, at least to me, is asking for help to assist you in something that might not legitimate.
+
+Don't use the issue tracker for such solicitations. To try to stave off illegitimate behavior, you should note that the issue tracker, the code, and bugs mentioned in that are in the open: there is no
+confidentiality. You may be asked about the authorship or claimed ownership of the bytecode. If I think something is not quite right, I may label the issue questionable which may make the it easier those who are looking for illegal activity.
+
+
 # The importance of your bug report
 
 For many open-source projects bugs where the expectation is that bugs are rare, reporting bugs in a *thoughtful* way can be helpful. See also [How to Ask Questions the Smart Way](https://www.osadl.org/Eric-Raymond-How-to-ask-questions-the-s.questions-the-smart-way.0.html).
@@ -61,18 +78,7 @@ disassembler called `pydisasm`.
 
 ## Semantic equivalence vs. exact source code
 
-Consider how Python compiles something like "(x*y) + 5". Early on
-Python creates an "abstract syntax tree" (AST) for this. And this is
-"abstract" in the sense that unimportant, redundant or unnecessary
-items have been removed. Here, this means that any notion that you
-wrote "x+y" in parenthesis is lost, since in this context they are
-unneeded. Also lost is the fact that the multiplication didn't have
-spaces around it while the addition did. It should not come as a
-surprise then that the bytecode which is derived from the AST also has
-no notion of such possible variation. Generally this kind of thing
-isn't noticed since the Python community has laid out a very rigid set
-of formatting guidelines; and it has largely beaten the community into
-compliance.
+Consider how Python compiles something like "(x*y) + 5". Early on Python creates an "abstract syntax tree" (AST) for this. And this is "abstract" in the sense that unimportant, redundant or unnecessary items have been removed. Here, this means that any notion that you wrote "x+y" in parenthesis is lost, since in this context they are unneeded. Also lost is the fact that the multiplication didn't have spaces around it while the addition did. It should not come as a surprise then that the bytecode which is derived from the AST also has no notion of such possible variation. Generally this kind of thing isn't noticed since the Python community has laid out a very rigid set of formatting guidelines; and it has largely beaten the community into compliance.
 
 Almost all versions of Python can perform some sort of code
 improvement that can't be undone. In earlier versions of Python it is
@@ -154,7 +160,7 @@ Also try to narrow the bug. See below.
 Some kind folks also give the invocation they used and the output
 which usually includes an error message produced. This is
 helpful. From this, I can figure out what OS you are running this on
-and what version of *uncomplye6* was used. Therefore, if you _don't_
+and what version of *uncompyle6* was used. Therefore, if you _don't_
 provide the input command and the output from that, please give:
 
 * _uncompyle6_ version used
@@ -228,17 +234,3 @@ However feel free to remove any comments, and modify variable names
 or constants in the source code.
 
 If there is some legitimate reason to keep confidentiality, you can contact me by email to explain the extenuating circumstances. However I tend to discard without reading anonymous email.
-
-# Ethics
-
-I do not condone using this program for unethical or illegal purposes.
-More detestable, at least to me, is asking for help to assist you in
-something that might not legitimate.
-
-Don't use the issue tracker for such solicitations. To try to stave
-off illegitimate behavior, you should note that the issue tracker, the
-code, and bugs mentioned in that are in the open: there is no
-confidentiality. You may be asked about the authorship or claimed
-ownership of the bytecode. If I think something is not quite right, I
-may label the issue questionable which may make the it easier those
-who are looking for illegal activity.
