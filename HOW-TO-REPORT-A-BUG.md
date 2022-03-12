@@ -51,7 +51,7 @@ Unless you are a sponsor of this project, it may take a while, maybe a week or s
 ## Do you have valid bytecode?
 
 As mentioned in README.rst, this project doesn't handle obfuscated
-code, release candidates and the most recent versions of Python. See README.rst for suggestions for how to remove some kinds of
+code, release candidates, and the most recent versions of Python: version 3.9 and up. See README.rst for suggestions for how to remove some kinds of
 obfuscation.
 
 Checking if bytecode is valid is pretty simple: disassemble the code.
