@@ -171,7 +171,7 @@ There is Python assembly code on parse errors, so simply by hand decompile that.
 Well, you could learn. No one is born into this world knowing how to disassemble Python bytecode. And as Richard Feynman once said, "What one fool can learn, so can another."
 
 If this is too difficult, or too time consuming, or not of interest to you, then you might consider [sponsoring](https://github.com/sponsors/rocky) the project. [Crazy
-Compilers](http://www.crazy-compilers.com/decompyle/) offers a byte-code decompiler service for versions of Python up to 2.6. (If there are others around let me know and I'll list them here.)
+Compilers](http://www.crazy-compilers.com/decompyle/) offers a byte-code decompiler service for versions of Python up to 2.6. (If there are others around let me know and I'll list them here.) Don't be surprised if I ask you to pay for work (if I think the work is ethical) when you want me to work on your problem that I think isn't of interest or benefit to anyone but yourself or a small limited number of people, or I think the need is questionable.
 
 # Narrowing the problem
 
