@@ -2,6 +2,8 @@
 
 |packagestatus|
 
+.. contents::
+
 uncompyle6
 ==========
 
