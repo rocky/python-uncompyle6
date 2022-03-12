@@ -22,7 +22,7 @@ For many open-source projects bugs where the expectation is that bugs are rare, 
 
 In this project though, most of the bug reports boil down to the something like: I have I am trying to reverse engineer some code that I am not the author/owner and that person doesn't want me to have access to. I am hitting a problem somewhere along the line which might have to do with decompilation, but it could be something else like how the bytecode was extracted, some problem in deliberately obfuscated code, or the use some kind of Python bytecode version that isn't supported by the decompiler.
 
-While you are free to report these, unless you sponsor the project, I may close them with about the same amount of effort spent that I think was used to open the report them. And if you spent a considerable amount of time to create the bug report but didn't follow instructions given here and in the issue template, I am sorry in advance. Just go back, read, and follow instructions.
+While you are free to report these, unless you sponsor the project, I may close them with about the same amount of effort spent that I think was used to open the report for them. And if you spent a considerable amount of time to create the bug report but didn't follow instructions given here and in the issue template, I am sorry in advance. Just go back, read, and follow instructions.
 
 This project already has an infinite supply of bugs that have been narrowed to the most minimal form and where I have source code to compare against. And in the unlikely event this supply runs out, I have automated means for generating *another* infinite supply.
 
