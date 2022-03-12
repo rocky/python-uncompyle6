@@ -231,9 +231,10 @@ valid bytecode before trying this tool; pydecipher_ might help with that.
 
 This program can't decompile Microsoft Windows EXE files created by
 Py2EXE_, although we can probably decompile the code after you extract
-the bytecode properly. Handling pathologically long lists of
-expressions or statements is slow. We don't handle Cython_ or
-MicroPython which don't use bytecode.
+the bytecode properly. `Pydeinstaller <https://github.com/charles-dyfis-net/pydeinstaller>`_ may help with unpacking Pyinstaller bundlers.
+
+Handling pathologically long lists of expressions or statements is
+slow. We don't handle Cython_ or MicroPython which don't use bytecode.
 
 There are numerous bugs in decompilation. And that's true for every
 other CPython decompiler I have encountered, even the ones that
