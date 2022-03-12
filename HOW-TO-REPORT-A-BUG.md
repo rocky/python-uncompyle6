@@ -194,7 +194,7 @@ likely the problem will be fixed and fixed sooner.
 
 I realize that following the instructions given herein puts a bit of
 burden on the bug reporter. This is justified since it attempts to balance
-somewhat the burden and effort needed to fix the bug and the attempts
+the burden and effort needed to fix the bug with the amount of effort to report the problem. And it attempts
 to balance number of would-be bug reporters with the number of bug
 fixers. Better bug reporters are more likely to move in the category
 of bug fixers.
