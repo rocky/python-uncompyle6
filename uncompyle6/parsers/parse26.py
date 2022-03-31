@@ -6,7 +6,7 @@ spark grammar differences over Python2 for Python 2.6.
 from uncompyle6.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parsers.parse2 import Python2Parser
-from uncompyle6.parsers.reducecheck import (except_handler, tryelsestmt)
+from uncompyle6.parsers.reducecheck import (except_handler, tryexcept, tryelsestmt)
 
 class Python26Parser(Python2Parser):
 
@@ -318,6 +318,8 @@ class Python26Parser(Python2Parser):
         return_lambda      ::= RETURN_VALUE_LAMBDA
 
         compare_chained2   ::= expr COMPARE_OP return_expr_lambda
+        compare_chained2   ::= expr COMPARE_OP RETURN_END_IF_LAMBDA
+        compare_chained2   ::= expr COMPARE_OP RETURN_END_IF COME_FROM
 
         return_if_lambda   ::= RETURN_END_IF_LAMBDA POP_TOP
         stmt               ::= if_exp_lambda
@@ -354,6 +356,7 @@ class Python26Parser(Python2Parser):
         self.reduce_check_table = {
             "except_handler": except_handler,
             "tryelsestmt": tryelsestmt,
+            "try_except": tryexcept,
             "tryelsestmtl": tryelsestmt,
         }
 
@@ -366,7 +369,7 @@ class Python26Parser(Python2Parser):
         self.check_reduce["forelselaststmtl"] = "tokens"
         self.check_reduce["forelsestmt"] = "tokens"
         self.check_reduce['list_for'] = 'AST'
-        self.check_reduce['try_except'] = 'tokens'
+        self.check_reduce['try_except'] = 'AST'
         self.check_reduce['tryelsestmt'] = 'AST'
         self.check_reduce['tryelsestmtl'] = 'AST'
 
