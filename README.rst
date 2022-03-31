@@ -2,6 +2,8 @@
 
 |packagestatus|
 
+.. contents::
+
 uncompyle6
 ==========
 
@@ -80,7 +82,7 @@ latest Python version, with the exception of Python 3.0 through
 3.2. Volunteers are welcome to address these deficiencies if there a
 desire to do so.
 
-nThe way it does this though is by segregating consecutive Python versions into
+The way it does this though is by segregating consecutive Python versions into
 git branches:
 
 master
@@ -99,7 +101,12 @@ versions.
 Installation
 ------------
 
-This uses setup.py, so it follows the standard Python routine::
+You can install from PyPI using the name ``uncompyle6``::
+
+    pip install uncompyle6
+
+
+To install from source code, this project uses setup.py, so it follows the standard Python routine::
 
     $ pip install -e .  # set up to run from source tree
 
@@ -144,7 +151,7 @@ Verification
 
 In older versions of Python it was possible to verify bytecode by
 decompiling bytecode, and then compiling using the Python interpreter
-for that bytecode version. Having done this the bytecode produced
+for that bytecode version. Having done this, the bytecode produced
 could be compared with the original bytecode. However as Python's code
 generation got better, this no longer was feasible.
 
@@ -158,7 +165,7 @@ You can also cross compare the results with either another version of
 `uncompyle6` since there are are sometimes regressions in decompiling
 specific bytecode as the overall quality improves.
 
-For Python 3.7 and above, the code in decompyle3_ is generally
+For Python 3.7 and 3.8, the code in decompyle3_ is generally
 better.
 
 Or try specific another python decompiler like uncompyle2_, unpyc37_,
@@ -227,12 +234,14 @@ handled.
 
 We also don't handle PJOrion_ or otherwise obfuscated code. For
 PJOrion try: PJOrion Deobfuscator_ to unscramble the bytecode to get
-valid bytecode before trying this tool. This program can't decompile
-Microsoft Windows EXE files created by Py2EXE_, although we can
-probably decompile the code after you extract the bytecode
-properly. Handling pathologically long lists of expressions or
-statements is slow. We don't handle Cython_ or MicroPython which don't
-use bytecode.
+valid bytecode before trying this tool; pydecipher_ might help with that.
+
+This program can't decompile Microsoft Windows EXE files created by
+Py2EXE_, although we can probably decompile the code after you extract
+the bytecode properly. `Pydeinstaller <https://github.com/charles-dyfis-net/pydeinstaller>`_ may help with unpacking Pyinstaller bundlers.
+
+Handling pathologically long lists of expressions or statements is
+slow. We don't handle Cython_ or MicroPython which don't use bytecode.
 
 There are numerous bugs in decompilation. And that's true for every
 other CPython decompiler I have encountered, even the ones that
@@ -246,7 +255,7 @@ because it is harder to do so. The good news, at least from my
 standpoint, is that I think I understand what's needed to address the
 problems in a more robust way. But right now until such time as
 project is better funded, I do not intend to make any serious effort
-to support Python versions 3.8 and above here, including bugs that might come
+to support Python versions 3.8 or 3.9, including bugs that might come
 in. I imagine at some point I may be interested in it.
 
 You can easily find bugs by running the tests against the standard
@@ -270,21 +279,21 @@ issues above the queue of other things I might be doing instead.
 See Also
 --------
 
-* https://github.com/rocky/python-decompile3 : Much smaller and more modern code, focusing on 3.7+. Changes in that will get migrated back here.
+* https://github.com/rocky/python-decompile3 : Much smaller and more modern code, focusing on 3.7 and 3.8. Changes in that will get migrated back here.
 * https://code.google.com/archive/p/unpyc3/ : supports Python 3.2 only. The above projects use a different decompiling technique than what is used here. Currently unmaintained.
 * https://github.com/figment/unpyc3/ : fork of above, but supports Python 3.3 only. Includes some fixes like supporting function annotations. Currently unmaintained.
-* https://github.com/wibiti/uncompyle2 : supports Python 2.7 only, but does that fairly well. There are situations where :code:`uncompyle6` results are incorrect while :code:`uncompyle2` results are not, but more often uncompyle6 is correct when uncompyle2 is not. Because :code:`uncompyle6` adheres to accuracy over idiomatic Python, :code:`uncompyle2` can produce more natural-looking code when it is correct. Currently :code:`uncompyle2` is lightly maintained. See its issue `tracker <https://github.com/wibiti/uncompyle2/issues>`_ for more details
+* https://github.com/wibiti/uncompyle2 : supports Python 2.7 only, but does that fairly well. There are situations where :code:`uncompyle6` results are incorrect while :code:`uncompyle2` results are not, but more often uncompyle6 is correct when uncompyle2 is not. Because :code:`uncompyle6` adheres to accuracy over idiomatic Python, :code:`uncompyle2` can produce more natural-looking code when it is correct. Currently :code:`uncompyle2` is lightly maintained. See its issue `tracker <https://github.com/wibiti/uncompyle2/issues>`_ for more details.
 * `How to report a bug <https://github.com/rocky/python-uncompyle6/blob/master/HOW-TO-REPORT-A-BUG.md>`_
 * The HISTORY_ file.
 * https://github.com/rocky/python-xdis : Cross Python version disassembler
 * https://github.com/rocky/python-xasm : Cross Python version assembler
 * https://github.com/rocky/python-uncompyle6/wiki : Wiki Documents which describe the code and aspects of it in more detail
-* https://github.com/zrax/pycdc : The README for this C++ code says it aims to support all versions of Python. It is best for Python versions around 2.7 and 3.3 when the code was initially developed. Accuracy for current versions of Python3 and early versions of Python is lacking. Without major effort, it is unlikely it can be made to support current Python 3. See its `issue tracker <https://github.com/zrax/pycdc/issues>`_ for details. Currently lightly maintained.
+* https://github.com/zrax/pycdc : The README for this C++ code says it aims to support all versions of Python. You can aim your slign shot for the moon too, but I doubt you are going to hit it. This code is best for Python versions around 2.7 and 3.3 when the code was initially developed. Accuracy for current versions of Python3 and early versions of Python is lacking. Without major effort, it is unlikely it can be made to support current Python 3. See its `issue tracker <https://github.com/zrax/pycdc/issues>`_ for details. Currently lightly maintained.
 
 
 .. _Cython: https://en.wikipedia.org/wiki/Cython
 .. _trepan: https://pypi.python.org/pypi/trepan3k
-.. _compiler: https://pypi.python.org/pypi/spark_parser
+.. _compiler: https://github.com/rocky/python-uncompyle6/wiki/How-does-this-code-work%3F
 .. _HISTORY: https://github.com/rocky/python-uncompyle6/blob/master/HISTORY.md
 .. _report_bug: https://github.com/rocky/python-uncompyle6/blob/master/HOW-TO-REPORT-A-BUG.md
 .. _debuggers: https://pypi.python.org/pypi/trepan3k
@@ -297,6 +306,7 @@ See Also
 .. |buildstatus| image:: https://travis-ci.org/rocky/python-uncompyle6.svg :target: https://travis-ci.org/rocky/python-uncompyle6
 .. |packagestatus| image:: https://repology.org/badge/vertical-allrepos/python:uncompyle6.svg :target: https://repology.org/project/python:uncompyle6/versions
 .. _PJOrion: http://www.koreanrandom.com/forum/topic/15280-pjorion-%D1%80%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F-%D0%B4%D0%B5%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F-%D0%BE%D0%B1%D1%84
+.. _pydecipher: https://github.com/mitre/pydecipher
 .. _Deobfuscator: https://github.com/extremecoders-re/PjOrion-Deobfuscator
 .. _Py2EXE: https://en.wikipedia.org/wiki/Py2exe
 .. |Supported Python Versions| image:: https://img.shields.io/pypi/pyversions/uncompyle6.svg

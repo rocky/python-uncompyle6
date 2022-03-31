@@ -12,15 +12,15 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-import datetime, os, subprocess, sys
+import datetime, os, py_compile, subprocess, sys
 
-from uncompyle6 import verify
 from xdis import iscode
 from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, version_tuple_to_str
 from uncompyle6.disas import check_object_path
 from uncompyle6.semantics import pysource
 from uncompyle6.semantics.pysource import PARSER_DEFAULT_DEBUG
 from uncompyle6.parser import ParserError
+from uncompyle6 import verify
 from uncompyle6.version import __version__
 
 # from uncompyle6.linenumbers import line_number_mapping
@@ -401,7 +401,6 @@ def main(
         else:  # uncompile successful
             if current_outfile:
                 outstream.close()
-
                 if do_verify:
                     try:
                         msg = verify.compare_code_with_srcfile(
@@ -457,7 +456,6 @@ def main(
                         okay_files,
                         failed_files,
                         verify_failed_files,
-                        do_verify,
                     ),
                 )
             )
@@ -494,20 +492,12 @@ else:
         return ""
 
 
-def status_msg(
-    do_verify, tot_files, okay_files, failed_files, verify_failed_files, weak_verify
-):
-    if weak_verify == "weak":
-        verification_type = "weak "
-    elif weak_verify == "verify-run":
-        verification_type = "run "
-    else:
-        verification_type = ""
+def status_msg(do_verify, tot_files, okay_files, failed_files, verify_failed_files):
     if tot_files == 1:
         if failed_files:
             return "\n# decompile failed"
         elif verify_failed_files:
-            return "\n# decompile %sverification failed" % verification_type
+            return "\n# decompile run verification failed"
         else:
             return "\n# Successfully decompiled file"
             pass
@@ -517,6 +507,4 @@ def status_msg(
         okay_files,
         failed_files,
     )
-    if do_verify:
-        mess += ", %i %sverification failed" % (verify_failed_files, verification_type)
     return mess

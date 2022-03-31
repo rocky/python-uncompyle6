@@ -196,6 +196,15 @@ PARSER_DEFAULT_DEBUG = {
     "dups": False,
 }
 
+PARSER_DEFAULT_DEBUG = {
+    "rules": False,
+    "transition": False,
+    "reduce": False,
+    "errorstack": "full",
+    "context": True,
+    "dups": False,
+}
+
 TREE_DEFAULT_DEBUG = {"before": False, "after": False}
 
 DEFAULT_DEBUG_OPTS = {
@@ -203,6 +212,7 @@ DEFAULT_DEBUG_OPTS = {
     "tree": TREE_DEFAULT_DEBUG,
     "grammar": dict(PARSER_DEFAULT_DEBUG),
 }
+
 
 class SourceWalkerError(Exception):
     def __init__(self, errmsg):
@@ -1462,7 +1472,10 @@ class SourceWalker(GenericASTTraversal, object):
             tree in ("stmt", "sstmt", "return", "return_expr", "return_expr_lambda")
         ):
             self.prec = 100
-            tree = tree[0]
+            if tree[0] in ("dom_start", "dom_start_opt"):
+                tree = tree[1]
+            else:
+                tree = tree[0]
         return tree
 
     def closure_walk(self, node, collection_index):
