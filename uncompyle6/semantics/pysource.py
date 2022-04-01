@@ -2809,9 +2809,8 @@ if __name__ == "__main__":
 
     def deparse_test(co):
         "This is a docstring"
-        s = deparse_code2str(co, debug_opts={"asm": "after", "tree": True})
-        # s = deparse_code2str(co, showasm=None, showast=False,
-        #                       showgrammar=True)
+        s = deparse_code2str(co)
+        # s = deparse_code2str(co, debug_opts={"asm": "after", "tree": {'before': False, 'after': False}})
         print(s)
         return
 
