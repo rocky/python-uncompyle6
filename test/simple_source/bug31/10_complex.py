@@ -2,6 +2,8 @@
 from math import atan2
 
 # RUNNABLE!
+"""This program is self-checking!"""
+
 def assertCloseAbs(x, y, eps=1e-09):
     """Return true iff floats x and y "are close\""""
     if abs(x) > abs(y):
@@ -32,7 +34,7 @@ def check_div(x, y):
         assertClose(q, x)
 
 def test_truediv():
-    simple_real = [float(i) for i in range(-5, 6)]
+    simple_real = [float(i) for i in range(-3, 3)]
     simple_complex = [complex(x, y) for x in simple_real for y in simple_real]
     for x in simple_complex:
         for y in simple_complex:
@@ -43,7 +45,7 @@ def test_plus_minus_0j():
     assert -0-0j == -0j == complex(0.0, 0.0)
     z1, z2 = (0j, -0j)
     assert atan2(z1.imag, -1.0) == atan2(0.0, -1.0)
-    # assert atan2(z2.imag, -1.0), atan2(-0.0, -1.0)
+    assert atan2(z2.imag, -1.0), atan2(-0.0, -1.0)
 
 # Check that we can handle -inf, and inf as a complex numbers.
 # And put it in a tuple and a list to make it harder.
