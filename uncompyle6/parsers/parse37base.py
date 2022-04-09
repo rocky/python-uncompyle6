@@ -196,7 +196,10 @@ class Python37BaseParser(PythonParser):
             opname_base = opname[: opname.rfind("_")]
 
             # The order of opname listed is roughly sorted below
-
+            try:
+                v = token.attr
+            except:
+                v = "token.attr miss"
             if opname == "LOAD_ASSERT" and "PyPy" in customize:
                 rules_str = """
                 stmt ::= JUMP_IF_NOT_DEBUG stmts COME_FROM
@@ -325,7 +328,7 @@ class Python37BaseParser(PythonParser):
                 self.addRule(rule, nop_func)
 
             elif opname.startswith("BUILD_LIST_UNPACK"):
-                v = token.attr
+                
                 rule = "build_list_unpack ::= %s%s" % ("expr " * v, opname)
                 self.addRule(rule, nop_func)
                 rule = "expr ::= build_list_unpack"
@@ -343,7 +346,7 @@ class Python37BaseParser(PythonParser):
                     )
                     pass
                 elif opname.startswith("BUILD_MAP_UNPACK_WITH_CALL"):
-                    v = token.attr
+                    
                     rule = "build_map_unpack_with_call ::= %s%s" % ("expr " * v, opname)
                     self.addRule(rule, nop_func)
 
@@ -392,12 +395,12 @@ class Python37BaseParser(PythonParser):
                 self.add_unique_rule(rule, opname, token.attr, customize)
 
             elif opname.startswith("BUILD_MAP_UNPACK_WITH_CALL"):
-                v = token.attr
+                
                 rule = "build_map_unpack_with_call ::= %s%s" % ("expr " * v, opname)
                 self.addRule(rule, nop_func)
 
             elif opname.startswith("BUILD_TUPLE_UNPACK_WITH_CALL"):
-                v = token.attr
+                
                 rule = (
                     "build_tuple_unpack_with_call ::= "
                     + "expr1024 " * int(v // 1024)
@@ -415,7 +418,7 @@ class Python37BaseParser(PythonParser):
                 "BUILD_TUPLE",
                 "BUILD_TUPLE_UNPACK",
             ):
-                v = token.attr
+                
 
                 is_LOAD_CLOSURE = False
                 if opname_base == "BUILD_TUPLE":
@@ -480,7 +483,7 @@ class Python37BaseParser(PythonParser):
                     )
 
             elif opname.startswith("BUILD_STRING"):
-                v = token.attr
+                
                 rules_str = """
                     expr                 ::= joined_str
                     joined_str           ::= %sBUILD_STRING_%d
@@ -652,7 +655,7 @@ class Python37BaseParser(PythonParser):
                     nop_func,
                 )
             elif opname == "JUMP_IF_NOT_DEBUG":
-                v = token.attr
+                
                 self.addRule(
                     """
                     stmt        ::= assert_pypy
