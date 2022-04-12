@@ -47,10 +47,6 @@ def customize_for_version38(self, version):
             (7, "suite_stmts")
         ),
 
-        "call_stmt": (
-            "%|%c\n", 0
-        ),
-
         "except_cond_as": (
             "%|except %c as %c:\n",
             (1, "expr"),

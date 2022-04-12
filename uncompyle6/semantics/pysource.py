@@ -2710,7 +2710,8 @@ def code_deparse(
     elif compile_mode == "exec":
         expected_start = "stmts"
     elif compile_mode == "single":
-        expected_start = "single_start"
+        # expected_start = "single_start"
+        expected_start = None
     else:
         expected_start = None
     if expected_start:
