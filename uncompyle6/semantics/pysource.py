@@ -2553,7 +2553,16 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             self.customize(customize)
             self.text = self.traverse(ast, is_lambda=is_lambda)
-            self.println(self.text)
+            # In a formatted string using "lambda',  we should not add "\n".
+            # For example in:
+            #    f'{(lambda x:x)("8")!r}'
+            # Adding a "\n" after "lambda x: x" will give an error message:
+            #    SyntaxError: f-string expression part cannot include a backslash
+            # So avoid that.
+            printfn = (
+                self.write if self.in_format_string and is_lambda else self.println
+            )
+            printfn(self.text)
         self.name = old_name
         self.return_none = rn
 
