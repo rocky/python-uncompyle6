@@ -28,6 +28,8 @@ someone to do, especially when you are the primary beneficiary of the
 work, or the task is complex, long, or tedious. If your code is over
 30 lines long, it fits into this category.
 
+
+See also https://github.com/rocky/python-uncomp[yle6/blob/master/HOW-TO-REPORT-A-BUG.md ?
 -->
 
 <!--
@@ -52,7 +54,7 @@ Bug reports that violate the above may be discarded.
 
 ## Description
 
-<!-- Add a clear and concise description of the bug. -->
+<!-- Please add a clear and concise description of the bug. -->
 
 ## How to Reproduce
 
@@ -73,6 +75,16 @@ can add that too.
 
 -->
 
+## Output Given
+
+<!--
+Please include not just the error message but all output leading to the message which includes echoing input and messages up to the error.
+For a command-line environment include command invocation and all the output produced.
+
+If this is too long, then try narrowing the problem to something short.
+-->
+
+
 ## Expected behavior
 
 <!-- Add a clear and concise description of what you expected to happen. -->
@@ -84,12 +96,20 @@ can add that too.
 Please modify for your setup
 
 - Uncompyle6 version: output from  `uncompyle6 --version` or `pip show uncompyle6`
-- Python version for the version of Python the byte-compiled the file: `python -c "import sys; print(sys.version)"` where `python` is the correct Cpython or Pypy binary.
+- Python version for the version of Python the byte-compiled the file: `python -c "import sys; print(sys.version)"` where `python` is the correct CPython or PyPy binary.
 - OS and Version: [e.g. Ubuntu bionic]
 
 -->
 
-## Additional Environment or Context
+## Workarounds
+
+<!-- If there is a workaround for the problem, describe that here. -->
+
+## Priority
+
+<!-- If this is blocking some important activity let us know what activity it blocks. -->
+
+## Additional Context
 
 <!-- _This section is optional._
 

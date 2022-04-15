@@ -17,5 +17,6 @@ if PYTHON_VERSION_TRIPLE == (2, 7):
         )
 
     for expr in single_expressions:
-        code = compile(expr + '\n', '<string>', 'single')
-        assert code_deparse(code, compile_mode='single').text == expr + '\n'
+        code = compile(expr + "\n", "<string>", "single")
+        got = code_deparse(code, compile_mode="single").text
+        assert got == expr + "\n"

@@ -48,56 +48,59 @@ NO_PARENTHESIS_EVER = 100
 
 # fmt: off
 PRECEDENCE = {
-    "named_expr":             40, # :=
-    "yield":                  38, # Needs to be below named_expr
+    "named_expr":             40,  # :=
+    "yield":                  38,  # Needs to be below named_expr
     "yield_from":             38,
+    "tuple_list_starred":     38,  # *x, *y, *z - about at the level of yield?
+    "dict_unpack":            38,  # **kwargs
+    "list_unpack":            38,  # *args
 
     "_lambda_body":           30,
-    "lambda_body":            30, # lambda ... : lambda_body
+    "lambda_body":            30,  # lambda ... : lambda_body
 
-    "if_exp":                 28, # IfExp ( a if x else b)
-    "if_exp_lambda":          28, # IfExp involving a lambda expression
-    "if_exp_not_lambda":      28, # negated IfExp involving a lambda expression
-    "if_exp_not":             28,
-    "if_exp_true":            28, # (a if True else b)
+    "if_exp":                 28,  # IfExp ( a if x else b)
+    "if_exp_lambda":          28,  # IfExp involving a lambda expression
+    "if_exp_not_lambda":      28,  # negated IfExp involving a lambda expression
+    "if_exp_not":             28,  # IfExp ( a if not x else b)
+    "if_exp_true":            28,  # (a if True else b)
     "if_exp_ret":             28,
 
-    "or":                     26, # Boolean OR
+    "or":                     26,  # Boolean OR
     "ret_or":                 26,
 
-    "and":                    24, # Boolean AND
+    "and":                    24,  # Boolean AND
     "ret_and":                24,
-    "not":                    22, # Boolean NOT
-    "unary_not":              22, # Boolean NOT
-    "compare":                20, # in, not in, is, is not, <, <=, >, >=, !=, ==
+    "not":                    22,  # Boolean NOT
+    "unary_not":              22,  # Boolean NOT
+    "compare":                20,  # in, not in, is, is not, <, <=, >, >=, !=, ==
 
-    "BINARY_AND":             14, # Bitwise AND
-    "BINARY_OR":              18, # Bitwise OR
-    "BINARY_XOR":             16, # Bitwise XOR
+    "BINARY_AND":             14,  # Bitwise AND
+    "BINARY_OR":              18,  # Bitwise OR
+    "BINARY_XOR":             16,  # Bitwise XOR
 
-    "BINARY_LSHIFT":          12, # Shifts <<
-    "BINARY_RSHIFT":          12, # Shifts >>
+    "BINARY_LSHIFT":          12,  # Shifts <<
+    "BINARY_RSHIFT":          12,  # Shifts >>
 
-    "BINARY_ADD":             10, # -
-    "BINARY_SUBTRACT":        10, # +
+    "BINARY_ADD":             10,  # -
+    "BINARY_SUBTRACT":        10,  # +
 
-    "BINARY_DIVIDE":          8,  # /
-    "BINARY_FLOOR_DIVIDE":    8,  # //
-    "BINARY_MATRIX_MULTIPLY": 8,  # @
-    "BINARY_MODULO":          8,  # Remainder, %
-    "BINARY_MULTIPLY":        8,  # *
-    "BINARY_TRUE_DIVIDE":     8,  # Division /
+    "BINARY_DIVIDE":          8,   # /
+    "BINARY_FLOOR_DIVIDE":    8,   # //
+    "BINARY_MATRIX_MULTIPLY": 8,   # @
+    "BINARY_MODULO":          8,   # Remainder, %
+    "BINARY_MULTIPLY":        8,   # *
+    "BINARY_TRUE_DIVIDE":     8,   # Division /
 
-    "unary_op":               6,  # +x, -x, ~x
+    "unary_op":               6,   # Positive, negative, bitwise NOT: +x, -x, ~x
 
-    "BINARY_POWER":           4,  # Exponentiation, *
+    "BINARY_POWER":           4,   # Exponentiation: **
 
-    "await_expr":             3,  # await x, *
+    "await_expr":             3,   # await x, *
 
-    "attribute":              2,  # x.attribute
-    "buildslice2":            2,  # x[index]
-    "buildslice3":            2,  # x[index:index]
-    "call":                   2,  # x(arguments...)
+    "attribute":              2,   # x.attribute
+    "buildslice2":            2,   # x[index]
+    "buildslice3":            2,   # x[index:index]
+    "call":                   2,   # x(arguments...)
     "delete_subscript":       2,
     "slice0":                 2,
     "slice1":                 2,
@@ -107,10 +110,10 @@ PRECEDENCE = {
     "subscript":              2,
     "subscript2":             2,
 
-    "dict":                   0,  # {expressions...}
+    "dict":                   0,   # {expressions...}
     "dict_comp":              0,
-    "generator_exp":          0,  # (expressions...)
-    "list":                   0,  # [expressions...]
+    "generator_exp":          0,   # (expressions...)
+    "list":                   0,   # [expressions...]
     "list_comp":              0,
     "set_comp":               0,
     "set_comp_expr":          0,
@@ -122,22 +125,6 @@ LINE_LENGTH = 80
 # Some parse trees created below are used for comparing code
 # fragments (like "return None" at the end of functions).
 
-RETURN_LOCALS = SyntaxTree(
-    "return",
-    [
-        SyntaxTree("return_expr", [SyntaxTree("expr", [Token("LOAD_LOCALS")])]),
-        Token("RETURN_VALUE"),
-    ],
-)
-
-NONE = SyntaxTree("expr", [NoneToken])
-
-RETURN_NONE = SyntaxTree("stmt", [SyntaxTree("return", [NONE, Token("RETURN_VALUE")])])
-
-PASS = SyntaxTree(
-    "stmts", [SyntaxTree("sstmt", [SyntaxTree("stmt", [SyntaxTree("pass", [])])])]
-)
-
 ASSIGN_DOC_STRING = lambda doc_string, doc_load: SyntaxTree(
     "assign",
     [
@@ -146,6 +133,10 @@ ASSIGN_DOC_STRING = lambda doc_string, doc_load: SyntaxTree(
         ),
         SyntaxTree("store", [Token("STORE_NAME", pattr="__doc__")]),
     ],
+)
+
+PASS = SyntaxTree(
+    "stmts", [SyntaxTree("sstmt", [SyntaxTree("stmt", [SyntaxTree("pass", [])])])]
 )
 
 NAME_MODULE = SyntaxTree(
@@ -157,6 +148,18 @@ NAME_MODULE = SyntaxTree(
         SyntaxTree(
             "store", [Token("STORE_NAME", pattr="__module__", offset=3, has_arg=True)]
         ),
+    ],
+)
+
+NONE = SyntaxTree("expr", [NoneToken])
+
+RETURN_NONE = SyntaxTree("stmt", [SyntaxTree("return", [NONE, Token("RETURN_VALUE")])])
+
+RETURN_LOCALS = SyntaxTree(
+    "return",
+    [
+        SyntaxTree("return_expr", [SyntaxTree("expr", [Token("LOAD_LOCALS")])]),
+        Token("RETURN_VALUE"),
     ],
 )
 
@@ -311,6 +314,7 @@ TABLE_DIRECT = {
     #   "classdef": 	(), # handled by n_classdef()
     # A custom rule in n_function def distinguishes whether to call this or
     # function_def_async
+
     "function_def": ("\n\n%|def %c\n", -2),  # -2 to handle closures
     "function_def_deco": ("\n\n%c", 0),
     "mkfuncdeco": ("%|@%c\n%c", 0, 1),
@@ -392,8 +396,17 @@ TABLE_DIRECT = {
     "whileelsestmt": ("%|while %c:\n%+%c%-%|else:\n%+%c%-\n\n", 1, 2, -2),
     "whileelsestmt2": ("%|while %c:\n%+%c%-%|else:\n%+%c%-\n\n", 1, 2, -3),
     "whileelselaststmt": ("%|while %c:\n%+%c%-%|else:\n%+%c%-", 1, 2, -2),
+
+    "expr_stmt": (
+        "%|%p\n",
+        # When a statment contains only a named_expr (:=)
+        # the named_expr should have parenthesis around it.
+        (0, "expr", PRECEDENCE["named_expr"] - 1)
+        ),
+
     # Note: Python 3.8+ changes this
     "for": ("%|for %c in %c:\n%+%c%-\n\n", (3, "store"), (1, "expr"), (4, "for_block")),
+
     "forelsestmt": (
         "%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
         (3, "store"),
