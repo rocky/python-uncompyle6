@@ -2553,7 +2553,16 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             self.customize(customize)
             self.text = self.traverse(ast, is_lambda=is_lambda)
-            self.println(self.text)
+            # In a formatted string using "lambda',  we should not add "\n".
+            # For example in:
+            #    f'{(lambda x:x)("8")!r}'
+            # Adding a "\n" after "lambda x: x" will give an error message:
+            #    SyntaxError: f-string expression part cannot include a backslash
+            # So avoid that.
+            printfn = (
+                self.write if self.in_format_string and is_lambda else self.println
+            )
+            printfn(self.text)
         self.name = old_name
         self.return_none = rn
 
@@ -2710,7 +2719,8 @@ def code_deparse(
     elif compile_mode == "exec":
         expected_start = "stmts"
     elif compile_mode == "single":
-        expected_start = "single_start"
+        # expected_start = "single_start"
+        expected_start = None
     else:
         expected_start = None
     if expected_start:
@@ -2812,9 +2822,8 @@ if __name__ == "__main__":
 
     def deparse_test(co):
         "This is a docstring"
-        s = deparse_code2str(co, debug_opts={"asm": "after", "tree": True})
-        # s = deparse_code2str(co, showasm=None, showast=False,
-        #                       showgrammar=True)
+        s = deparse_code2str(co)
+        # s = deparse_code2str(co, debug_opts={"asm": "after", "tree": {'before': False, 'after': False}})
         print(s)
         return
 

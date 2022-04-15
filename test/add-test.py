@@ -13,7 +13,7 @@ version = sys.version[0:3]
 vers = sys.version_info[:2]
 if sys.argv[1] in ("--run", "-r"):
     suffix = "_run"
-    assert sys.argv >= 3
+    assert len(sys.argv) >= 3
     py_source = sys.argv[2:]
     i = 2
 else:

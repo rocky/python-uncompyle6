@@ -43,6 +43,13 @@ class Python37Parser(Python37BaseParser):
         call_stmt ::= expr POP_TOP
         """
 
+    def p_eval_mode(self, args):
+        """
+        # eval-mode compilation.  Single-mode interactive compilation
+        # adds another rule.
+        expr_stmt ::= expr POP_TOP
+        """
+
     def p_stmt(self, args):
         """
         pass ::=
@@ -99,6 +106,7 @@ class Python37Parser(Python37BaseParser):
         else_suite_opt ::= pass
 
         stmt ::= classdef
+        stmt ::= expr_stmt
         stmt ::= call_stmt
 
         stmt ::= ifstmt

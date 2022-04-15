@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 by Rocky Bernstein
+#  Copyright (c) 2021-2022 by Rocky Bernstein
 """
 Python PyPy 3.7 decompiler scanner.
 
@@ -6,7 +6,7 @@ Does some additional massaging of xdis-disassembled instructions to
 make things easier for decompilation.
 """
 
-import decompyle3.scanners.scanner37 as scan
+import uncompyle6.scanners.scanner37 as scan
 
 # bytecode verification, verify(), uses JUMP_OPS from here
 from xdis.opcodes import opcode_37pypy as opc  # is this right?
