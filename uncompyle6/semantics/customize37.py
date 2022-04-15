@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2021 by Rocky Bernstein
+#  Copyright (c) 2019-2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -19,10 +19,12 @@ import re
 from uncompyle6.semantics.consts import (
     PRECEDENCE,
     TABLE_DIRECT,
-    maxint,
+    INDENT_PER_LEVEL,
 )
 
+from uncompyle6.semantics.helper import flatten_list
 
+#######################
 def customize_for_version37(self, version):
     ########################
     # Python 3.7+ changes
@@ -40,7 +42,9 @@ def customize_for_version37(self, version):
     PRECEDENCE["formatted_value1"] = 100
     PRECEDENCE["if_exp_37a"]       =  28
     PRECEDENCE["if_exp_37b"]       =  28
+    PRECEDENCE["dict_unpack"]      =   0  # **{...}
 
+    # fmt: on
     TABLE_DIRECT.update(
         {
             "and_not": ("%c and not %c", (0, "expr"), (2, "expr")),
@@ -84,42 +88,45 @@ def customize_for_version37(self, version):
             # nested await expressions like:
             #   return await (await bar())
             # need parenthesis.
+            # Note there are async dictionary expressions are like await expr's
+            # the below is just the default fersion
             "await_expr": ("await %p", (0, PRECEDENCE["await_expr"]-1)),
 
             "await_stmt": ("%|%c\n", 0),
+            "c_async_with_stmt": ("%|async with %c:\n%+%c%-", (0, "expr"), 3),
             "call_ex": ("%c(%p)", (0, "expr"), (1, 100)),
             "compare_chained1a_37": (
                 ' %[3]{pattr.replace("-", " ")} %p %p',
-                (0, 19),
-                (-4, 19),
+                (0, PRECEDENCE["compare"] - 1),
+                (-4, PRECEDENCE["compare"] - 1),
             ),
             "compare_chained1_false_37": (
                 ' %[3]{pattr.replace("-", " ")} %p %p',
-                (0, 19),
-                (-4, 19),
+                (0, PRECEDENCE["compare"] - 1),
+                (-4, PRECEDENCE["compare"] - 1),
             ),
             "compare_chained2_false_37": (
                 ' %[3]{pattr.replace("-", " ")} %p %p',
-                (0, 19),
-                (-5, 19),
+                (0, PRECEDENCE["compare"] - 1),
+                (-5, PRECEDENCE["compare"] - 1),
             ),
             "compare_chained1b_false_37": (
                 ' %[3]{pattr.replace("-", " ")} %p %p',
-                (0, 19),
-                (-4, 19),
+                (0, PRECEDENCE["compare"] - 1),
+                (-4, PRECEDENCE["compare"] - 1),
             ),
             "compare_chained1c_37": (
                 ' %[3]{pattr.replace("-", " ")} %p %p',
-                (0, 19),
-                (-2, 19),
+                (0, PRECEDENCE["compare"] - 1),
+                (-2, PRECEDENCE["compare"] - 1),
             ),
-            "compare_chained2a_37": ('%[1]{pattr.replace("-", " ")} %p', (0, 19)),
-            "compare_chained2b_false_37": ('%[1]{pattr.replace("-", " ")} %p', (0, 19)),
-            "compare_chained2a_false_37": ('%[1]{pattr.replace("-", " ")} %p', (0, 19)),
+            "compare_chained2a_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"] - 1)),
+            "compare_chained2b_false_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"] - 1)),
+            "compare_chained2a_false_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"] - 1)),
             "compare_chained2c_37": (
                 '%[3]{pattr.replace("-", " ")} %p %p',
-                (0, 19),
-                (6, 19),
+                (0, PRECEDENCE["compare"] - 1),
+                (6, PRECEDENCE["compare"] - 1),
             ),
             'if_exp37': ( '%p if %c else %c',
                           (1, 'expr', 27), 0, 3 ),
@@ -143,7 +150,6 @@ def customize_for_version37(self, version):
                                  (3, 'importlist37') ),
 
             "importattr37": ("%c", (0, "IMPORT_NAME_ATTR")),
-            "importlist37": ("%C", (0, maxint, ", ")),
 
             "list_afor": (
                 " async for %[1]{%c} in %c%[1]{%c}",
@@ -195,6 +201,18 @@ def customize_for_version37(self, version):
 
     self.n_assert_invert = n_assert_invert
 
+    def n_async_call(node):
+        self.f.write("async ")
+        node.kind == "call"
+        p = self.prec
+        self.prec = 80
+        self.template_engine(("%c(%P)", 0, (1, -4, ", ", 100)), node)
+        self.prec = p
+        node.kind == "async_call"
+        self.prune()
+
+    self.n_async_call = n_async_call
+
     def n_attribute37(node):
         expr = node[0]
         assert expr == "expr"
@@ -208,6 +226,92 @@ def customize_for_version37(self, version):
         self.default(node)
 
     self.n_attribute37 = n_attribute37
+
+    def n_build_list_unpack(node):
+        """
+        prettyprint a list or tuple
+        """
+        p = self.prec
+        self.prec = 100
+        lastnode = node.pop()
+        lastnodetype = lastnode.kind
+
+        # If this build list is inside a CALL_FUNCTION_VAR,
+        # then the first * has already been printed.
+        # Until I have a better way to check for CALL_FUNCTION_VAR,
+        # will assume that if the text ends in *.
+        last_was_star = self.f.getvalue().endswith("*")
+
+        if lastnodetype.startswith("BUILD_LIST"):
+            self.write("[")
+            endchar = "]"
+
+        flat_elems = flatten_list(node)
+
+        self.indent_more(INDENT_PER_LEVEL)
+        sep = ""
+        for elem in flat_elems:
+            if elem in ("ROT_THREE", "EXTENDED_ARG"):
+                continue
+            assert elem == "expr"
+            line_number = self.line_number
+            use_star = True
+            value = self.traverse(elem)
+            if value.startswith("("):
+                assert value.endswith(")")
+                use_star = False
+                value = value[1:-1].rstrip(
+                    " "
+                )  # Remove starting '(' and trailing ')' and additional spaces
+                if value == "":
+                    pass
+                else:
+                    if value.endswith(","):  # if args has only one item
+                        value = value[:-1]
+            if line_number != self.line_number:
+                sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+            else:
+                if sep != "":
+                    sep += " "
+            if not last_was_star and use_star:
+                sep += "*"
+                pass
+            else:
+                last_was_star = False
+            self.write(sep, value)
+            sep = ","
+        self.write(endchar)
+        self.indent_less(INDENT_PER_LEVEL)
+
+        self.prec = p
+        self.prune()
+        return
+
+    self.n_build_list_unpack = n_build_list_unpack
+
+    def n_c_with(node):
+        if len(node) == 1 and node[0] == "with":
+            node = node[0]
+        else:
+            node.kind = "with"
+        self.default(node)
+
+    self.n_c_with = n_c_with
+
+    def n_c_except_suite(node):
+        node_len = len(node)
+        if node_len == 1 and node[0] in ("except_suite", "c_returns"):
+            node = node[0]
+            self.default(node)
+        elif node[1] in ("c_suite_stmts", "c_except_suite"):
+            node = node[1][0]
+            template = ("%+%c%-", 0)
+            self.template_engine(template, node)
+            self.prune()
+
+    self.n_c_except_suite = n_c_except_suite
+
+    self.n_c_with = n_c_with
 
     def n_call(node):
         p = self.prec
@@ -277,10 +381,7 @@ def customize_for_version37(self, version):
             and opname == "CALL_FUNCTION_1"
             or not re.match(r"\d", opname[-1])
         ):
-            if node[0][0] == "_lambda_body":
-                template = "(%c)(%p)"
-            else:
-                template = "%c(%p)"
+            template = "(%c)(%p)" if node[0][0] == "lambda_body" else "%c(%p)"
             self.template_engine(
                 (template, (0, "expr"), (1, PRECEDENCE["yield"] - 1)), node
             )
