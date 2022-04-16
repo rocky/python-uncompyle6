@@ -32,7 +32,7 @@ JUMP_OPs = opc.JUMP_OPS
 
 
 class Scanner37(Scanner37Base):
-    def __init__(self, show_asm=None, is_pypy: bool=False):
+    def __init__(self, show_asm=None, is_pypy=False):
         Scanner37Base.__init__(self, (3, 7), show_asm)
         self.is_pypy = is_pypy
         return

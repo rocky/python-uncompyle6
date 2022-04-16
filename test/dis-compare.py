@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
-# Copyright (c) 2015, 2017 by Rocky Bernstein <rb@dustyfeet.com>
+# Copyright (c) 2015, 2017, 2022 by Rocky Bernstein <rb@dustyfeet.com>
 #
 
-
 import dis, os.path
+from xdis import PYTHON_VERSION_TRIPL< PYTHON_VERSION_STR
 
-try:
+if PYTHON_VERSION_TRIPLE < (2, 5):
+    from cStringIO import StringIO
+else:
     from StringIO import StringIO
-except ImportError:
-    from io import StringIO
 
 program =  os.path.basename(__file__)
 
@@ -22,7 +22,7 @@ Usage: %s [OPTIONS]... FILE
 usage_short = "Usage: %s [OPTIONS]... FILE" % program
 
 import uncompyle6
-from uncompyle6 import PYTHON_VERSION_STR, check_python_version
+from uncompyle6 check_python_version
 from uncompyle6.disas import disco
 
 def inst_fmt(inst):

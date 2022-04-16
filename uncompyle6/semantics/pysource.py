@@ -180,12 +180,14 @@ from uncompyle6.semantics.consts import (
 
 from uncompyle6.show import maybe_show_tree
 from uncompyle6.util import better_repr
-from StringIO import StringIO
+if PYTHON_VERSION_TRIPLE < (2, 5):
+    from cStringIO import StringIO
+else:
+    from StringIO import StringIO
 
 DEFAULT_DEBUG_OPTS = {"asm": False, "tree": False, "grammar": False}
 
 def unicode(x): return x
-from StringIO import StringIO
 
 PARSER_DEFAULT_DEBUG = {
     "rules": False,
@@ -2773,7 +2775,7 @@ def code_deparse(
     try:
         stmts = deparsed.ast
         first_stmt = stmts[0][0]
-        if version >= 3.6:
+        if (version >= (3, 6, 0)):
             if first_stmt[0] == "SETUP_ANNOTATIONS":
                 del stmts[0]
                 assert stmts[0] == "sstmt"

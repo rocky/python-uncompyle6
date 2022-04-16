@@ -64,7 +64,6 @@ The node position 0 will be associated with "import".
 # FIXME: DRY code with pysource
 
 import re
-from StringIO import StringIO
 
 from uncompyle6.semantics import pysource
 from uncompyle6 import parser
@@ -79,6 +78,11 @@ from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.semantics.pysource import ParserError
 from xdis import iscode
 from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
+
+if PYTHON_VERSION_TRIPLE < (2, 5):
+    from cStringIO import StringIO
+else:
+    from StringIO import StringIO
 
 from uncompyle6.semantics.consts import (
     INDENT_PER_LEVEL,

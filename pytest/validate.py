@@ -17,6 +17,12 @@ from xdis import Bytecode, get_opcode
 
 opc = get_opcode(PYTHON_VERSION_TRIPLE, IS_PYPY)
 Bytecode = functools.partial(Bytecode, opc=opc)
+
+if PYTHON_VERSION_TRIPLE < (2, 5):
+    from cStringIO import StringIO
+else:
+    from StringIO import StringIO
+
 import six
 
 def _dis_to_text(co):
@@ -122,7 +128,7 @@ def validate_uncompyle(text, mode="exec"):
     original_text = text
 
     deparsed = code_deparse(
-        original_code, out=six.StringIO(), version=PYTHON_VERSION_TRIPLE, compile_mode=mode
+        original_code, out=StringIO(), version=PYTHON_VERSION_TRIPLE, compile_mode=mode
     )
     uncompyled_text = deparsed.text
     uncompyled_code = compile(uncompyled_text, "<string>", "exec")

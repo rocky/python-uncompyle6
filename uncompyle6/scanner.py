@@ -542,36 +542,26 @@ def get_scanner(version, is_pypy=False, show_asm=None):
     # Pick up appropriate scanner
     if version[:2] in PYTHON_VERSIONS:
         v_str = version_tuple_to_str(version, start=0, end=2, delimiter="")
-        try:
-            import importlib
-
-            if is_pypy:
-                scan = importlib.import_module("uncompyle6.scanners.pypy%s" % v_str)
-            else:
-                scan = importlib.import_module("uncompyle6.scanners.scanner%s" % v_str)
-            if False:
-                print(scan)  # Avoid unused scan
-        except ImportError:
-            if is_pypy:
-                exec(
-                    "import uncompyle6.scanners.pypy%s as scan" % v_str,
-                    locals(),
-                    globals(),
-                )
-            else:
-                exec(
-                    "import uncompyle6.scanners.scanner%s as scan" % v_str,
-                    locals(),
-                    globals(),
-                )
         if is_pypy:
-            scanner = eval(
-                "scan.ScannerPyPy%s(show_asm=show_asm)" % v_str, locals(), globals()
-            )
+            import_name = "pypy%s" % v_str
         else:
-            scanner = eval(
-                "scan.Scanner%s(show_asm=show_asm)" % v_str, locals(), globals()
-            )
+            import_name = "scanner%s" % v_str
+
+        scan_toplevel = __import__("uncompyle6.scanners.%s" % import_name)
+        if scan_toplevel is None:
+            raise RuntimeError(
+                "Import Python version, %s, for decompilation failed"
+                % version_tuple_to_str(version)
+                )
+
+        if is_pypy:
+            scanner_class_name = "ScannerPyPy%s" % v_str
+        else:
+            scanner_class_name = "Scanner%s" % v_str
+        scanners = scan_toplevel.scanners
+        specific_scanners_module = getattr(scanners, import_name)
+        scanner_class = getattr(specific_scanners_module, scanner_class_name)
+        scanner = scanner_class(show_asm=show_asm)
     else:
         raise RuntimeError(
             "Unsupported Python version, %s, for decompilation"
