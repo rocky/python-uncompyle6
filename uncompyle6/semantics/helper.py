@@ -163,6 +163,10 @@ def gen_function_parens_adjust(mapping_key, node):
         pass
     return
 
+def is_lambda_mode(compile_mode: str) -> bool:
+    return compile_mode in ("dictcomp", "genexpr", "lambda", "listcomp", "setcomp")
+
+
 def print_docstring(self, indent, docstring):
     quote = '"""'
     if docstring.find(quote) >= 0:

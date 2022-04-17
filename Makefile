@@ -59,6 +59,10 @@ check-2.4 check-2.5:
 7.2 7.3:
 	$(MAKE) -C test $@
 
+#:pyston versions
+2.3:
+	$(MAKE) -C test $@
+
 #: Run py.test tests
 pytest:
 	$(MAKE) -C pytest check

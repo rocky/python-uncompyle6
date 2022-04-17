@@ -361,7 +361,8 @@ check-bytecode-pypy3.6: 7.2 7.3
 7.3:
 	$(PYTHON) test_pythonlib.py --bytecode-pypy3.7 --verify-run
 
-
+# Pyston 2.3
+2.3: check-3.8
 
 clean: clean-py-dis clean-dis clean-unverified
 
