@@ -127,6 +127,8 @@ class Scanner38(Scanner37):
 
 
 if __name__ == "__main__":
+    from xdis.version_info import PYTHON_VERSION_TRIPLE, version_tuple_to_str
+
     if PYTHON_VERSION_TRIPLE[:2] == (3, 8):
         import inspect
 
@@ -136,4 +138,4 @@ if __name__ == "__main__":
             print(t.format())
         pass
     else:
-        print("Need to be Python 3.8 to demo; I am version" % version_tuple_to_str)
+        print("Need to be Python 3.8 to demo; I am version %s." % version_tuple_to_str())

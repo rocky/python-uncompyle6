@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017, 2020-2021 by Rocky Bernstein
+#  Copyright (c) 2016-2017, 2020-2022 by Rocky Bernstein
 """
 Python 3.0 bytecode scanner/deparser
 
@@ -480,5 +480,4 @@ if __name__ == "__main__":
             print(t.format())
         pass
     else:
-        print("Need to be Python 3.0 to demo; I am version %s" % version_tuple_to_str)
-[w
+        print("Need to be Python 3.0 to demo; I am version %s." % version_tuple_to_str())

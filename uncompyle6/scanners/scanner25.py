@@ -40,4 +40,4 @@ if __name__ == "__main__":
             print(t.format())
         pass
     else:
-        print("Need to be Python 2.5 to demo; I am version %s" % version_tuple_to_str)
+        print("Need to be Python 2.5 to demo; I am version %s." % version_tuple_to_str())
