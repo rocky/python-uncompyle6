@@ -17,8 +17,6 @@ Generators and comprehenison functions
 """
 
 
-from typing import Optional
-
 from xdis import iscode
 
 from uncompyle6.parser import get_python_parser
@@ -38,11 +36,11 @@ class ComprehensionMixin:
     Python source code. In source code, the implicit function calls
     are not seen.
     """
+
     def closure_walk(self, node, collection_index):
-        """Dictionary and comprehensions using closure the way they are done in Python3.
-        """
+        """Dictionary and comprehensions using closure the way they are done in Python3."""
         p = self.prec
-        self.prec = 27
+        self.prec = PRECEDENCE["lambda_body"] - 1
 
         code_index = 0 if node[0] == "load_genexpr" else 1
         tree = self.get_comprehension_function(node, code_index=code_index)
@@ -93,7 +91,10 @@ class ComprehensionMixin:
         self.prec = p
 
     def comprehension_walk(
-        self, node, iter_index: Optional[int], code_index: int = -5,
+        self,
+        node,
+        iter_index,
+        code_index: int = -5,
     ):
         p = self.prec
         self.prec = PRECEDENCE["lambda_body"] - 1
@@ -107,7 +108,10 @@ class ComprehensionMixin:
             elif node[0] == "load_closure":
                 cn = node[1]
 
-        elif self.version >= (3, 0) and node in ("generator_exp", "generator_exp_async"):
+        elif self.version >= (3, 0) and node in (
+            "generator_exp",
+            "generator_exp_async",
+        ):
             if node[0] == "load_genexpr":
                 load_genexpr = node[0]
             elif node[1] == "load_genexpr":
@@ -136,7 +140,9 @@ class ComprehensionMixin:
         if is_lambda_mode(self.compile_mode):
             p_save = self.p
             self.p = get_python_parser(
-                self.version, compile_mode="exec", is_pypy=self.is_pypy,
+                self.version,
+                compile_mode="exec",
+                is_pypy=self.is_pypy,
             )
             tree = self.build_ast(code._tokens, code._customize, code)
             self.p = p_save
@@ -185,7 +191,7 @@ class ComprehensionMixin:
         self.preorder(tree[iter_index])
         self.prec = p
 
-    def comprehension_walk_newer(self, node, iter_index: int, code_index: int = -5):
+    def comprehension_walk_newer(self, node, iter_index, code_index=-5):
         """Non-closure-based comprehensions the way they are done in Python3
         and some Python 2.7. Note: there are also other set comprehensions.
         """
@@ -301,9 +307,14 @@ class ComprehensionMixin:
                     if not comp_store:
                         comp_store = store
                 n = n[3]
-            elif n in ("list_if", "list_if_not",
-                       "list_if37", "list_if37_not",
-                       "comp_if", "comp_if_not"):
+            elif n in (
+                "list_if",
+                "list_if_not",
+                "list_if37",
+                "list_if37_not",
+                "comp_if",
+                "comp_if_not",
+            ):
                 have_not = n in ("list_if_not", "comp_if_not", "list_if37_not")
                 if n in ("list_if37", "list_if37_not"):
                     n = n[1]
@@ -377,18 +388,18 @@ class ComprehensionMixin:
             if have_not:
                 self.write("not ")
                 pass
-            self.prec = 27
+            self.prec = PRECEDENCE["lambda_body"] - 1
             self.preorder(if_node)
             pass
         self.prec = p
 
-    def get_comprehension_function(self, node, code_index: int):
+    def get_comprehension_function(self, node, code_index):
         """
         Build the body of a comprehension function and then
         find the comprehension node buried in the tree which may
         be surrounded with start-like symbols or dominiators,.
         """
-        self.prec = 27
+        self.prec = PRECEDENCE["lambda_body"] - 1
         code_node = node[code_index]
         if code_node == "load_genexpr":
             code_node = code_node[0]
@@ -404,7 +415,9 @@ class ComprehensionMixin:
         if self.compile_mode in ("listcomp",):  # add other comprehensions to this list
             p_save = self.p
             self.p = get_python_parser(
-                self.version, compile_mode="exec", is_pypy=self.is_pypy,
+                self.version,
+                compile_mode="exec",
+                is_pypy=self.is_pypy,
             )
             tree = self.build_ast(
                 code._tokens, code._customize, code, is_lambda=self.is_lambda
