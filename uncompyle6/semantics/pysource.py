@@ -1541,7 +1541,7 @@ class SourceWalker(GenericASTTraversal, ComprehensionMixin):
 
     def n_list(self, node):
         """
-        prettyprint a list or tuple
+        prettyprint a dict, list, set or tuple.
         """
         p = self.prec
         self.prec = PRECEDENCE["yield"] - 1
@@ -1564,6 +1564,12 @@ class SourceWalker(GenericASTTraversal, ComprehensionMixin):
         if lastnodetype.startswith("BUILD_LIST"):
             self.write("[")
             endchar = "]"
+        elif lastnodetype.startswith("BUILD_MAP_UNPACK"):
+            self.write("{*")
+            endchar = "}"
+        elif lastnodetype.startswith("BUILD_SET"):
+            self.write("{")
+            endchar = "}"
         elif lastnodetype.startswith("BUILD_TUPLE"):
             # Tuples can appear places that can NOT
             # have parenthesis around them, like array
@@ -1582,12 +1588,6 @@ class SourceWalker(GenericASTTraversal, ComprehensionMixin):
                 endchar = ")"
                 pass
 
-        elif lastnodetype.startswith("BUILD_SET"):
-            self.write("{")
-            endchar = "}"
-        elif lastnodetype.startswith("BUILD_MAP_UNPACK"):
-            self.write("{*")
-            endchar = "}"
         elif lastnodetype.startswith("ROT_TWO"):
             self.write("(")
             endchar = ")"
