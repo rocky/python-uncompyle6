@@ -13,7 +13,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Generators and comprehenison functions
+Generators and comprehension functions
 """
 
 
@@ -199,7 +199,13 @@ class ComprehensionMixin(object):
         self.preorder(tree[iter_index])
         self.prec = p
 
-    def comprehension_walk_newer(self, node, iter_index, code_index=-5):
+    def comprehension_walk_newer(
+        self,
+        node,
+        iter_index,
+        code_index=-5,
+        collection_node=None,
+    ):
         """Non-closure-based comprehensions the way they are done in Python3
         and some Python 2.7. Note: there are also other set comprehensions.
         """
