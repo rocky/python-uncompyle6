@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017, 2021 by Rocky Bernstein
+#  Copyright (c) 2016-2017, 2021-2022 by Rocky Bernstein
 """
 Python 2.4 bytecode massaging.
 
@@ -27,3 +27,18 @@ class Scanner24(scan.Scanner25):
         self.version = (2, 4)
         self.genexpr_name = "<generator expression>"
         return
+
+
+if __name__ == "__main__":
+    from xdis.version_info import PYTHON_VERSION_TRIPLE, version_tuple_to_str
+
+    if PYTHON_VERSION_TRIPLE[:2] == (2, 4):
+        import inspect
+
+        co = inspect.currentframe().f_code  # type: ignore
+        tokens, customize = Scanner24().ingest(co)
+        for t in tokens:
+            print(t.format())
+        pass
+    else:
+        print("Need to be Python 2.4 to demo; I am version %s" % version_tuple_to_str)

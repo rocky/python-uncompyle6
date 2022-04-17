@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2018 by Rocky Bernstein
+#  Copyright (c) 2015-2018, 2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -37,14 +37,15 @@ class Scanner34(Scanner3):
     pass
 
 if __name__ == "__main__":
-    from uncompyle6 import PYTHON_VERSION
-    if PYTHON_VERSION == 3.4:
+    from xdis.version_info import PYTHON_VERSION_TRIPLE, version_tuple_to_str
+
+    if PYTHON_VERSION_TRIPLE[:2] == (3, 4):
         import inspect
-        co = inspect.currentframe().f_code
+
+        co = inspect.currentframe().f_code  # type: ignore
         tokens, customize = Scanner34().ingest(co)
         for t in tokens:
-            print(t)
+            print(t.format())
         pass
     else:
-        print("Need to be Python 3.4 to demo; I am %s." %
-              PYTHON_VERSION)
+        print("Need to be Python 3.4 to demo; I am version %s" % version_tuple_to_str)

@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2017, 2021 by Rocky Bernstein
+#  Copyright (c) 2015-2017, 2021-2022 by Rocky Bernstein
 """
 Python 3.2 bytecode decompiler scanner.
 
@@ -22,14 +22,15 @@ class Scanner32(Scanner3):
     pass
 
 if __name__ == "__main__":
-    from uncompyle6 import PYTHON_VERSION
-    if PYTHON_VERSION == 3.2:
+    from xdis.version_info import PYTHON_VERSION_TRIPLE, version_tuple_to_str
+
+    if PYTHON_VERSION_TRIPLE[:2] == (3, 2):
         import inspect
-        co = inspect.currentframe().f_code
+
+        co = inspect.currentframe().f_code  # type: ignore
         tokens, customize = Scanner32().ingest(co)
         for t in tokens:
-            print(t)
+            print(t.format())
         pass
     else:
-        print("Need to be Python 3.2 to demo; I am %s." %
-              PYTHON_VERSION)
+        print("Need to be Python 3.2 to demo; I am version %s" % version_tuple_to_str)

@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2018, 2021 by Rocky Bernstein
+# Copyright (c) 2015-2018, 2021-2022 by Rocky Bernstein
 """
 Python 2.7 bytecode ingester.
 
@@ -106,15 +106,15 @@ class Scanner27(Scanner2):
 
 
 if __name__ == "__main__":
-    from xdis.version_info import PYTHON_VERSION_TRIPLE
+    from xdis.version_info import PYTHON_VERSION_TRIPLE, version_tuple_to_str
 
     if PYTHON_VERSION_TRIPLE[:2] == (2, 7):
         import inspect
 
-        co = inspect.currentframe().f_code
+        co = inspect.currentframe().f_code  # type: ignore
         tokens, customize = Scanner27().ingest(co)
         for t in tokens:
-            print(t)
+            print(t.format())
         pass
     else:
-        print("Need to be Python 2.7 to demo; I am %s." % version_tuple_to_str())
+        print("Need to be Python 2.7 to demo; I am version %s" % version_tuple_to_str)

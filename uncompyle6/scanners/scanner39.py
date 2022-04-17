@@ -1,4 +1,4 @@
-#  Copyright (c) 2019, 2021 by Rocky Bernstein
+#  Copyright (c) 2019, 2021-2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -40,16 +40,4 @@ class Scanner39(Scanner38):
 
 
 if __name__ == "__main__":
-    from uncompyle6 import PYTHON_VERSION
-
-    if PYTHON_VERSION == 3.9:
-        import inspect
-
-        co = inspect.currentframe().f_code
-        tokens, customize = Scanner39().ingest(co)
-        for t in tokens:
-            print(t.format())
-        pass
-    else:
-        print("Need to be Python 3.9 to demo; I am %s." %
-              PYTHON_VERSION)
+    print("Note: Python 3.9 decompilation not supported")

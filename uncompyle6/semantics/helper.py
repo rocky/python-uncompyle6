@@ -17,17 +17,20 @@ import sys
 from xdis import iscode
 from uncompyle6.parsers.treenode import SyntaxTree
 
-minint = -sys.maxint-1
+minint = -sys.maxint - 1
 maxint = sys.maxint
 try:
     from itertools import izip_longest as zip_longest
 except:
-    from itertools import (chain, izip, repeat)
+    from itertools import chain, izip, repeat
+
     def zip_longest(*args, **kwds):
         # zip_longest('ABCD', 'xy', fillvalue='-') --> Ax By C- D-
-        fillvalue = kwds.get('fillvalue')
-        def sentinel(counter = ([fillvalue]*(len(args)-1)).pop):
-            yield counter()         # yields the fillvalue, or raises IndexError
+        fillvalue = kwds.get("fillvalue")
+
+        def sentinel(counter=([fillvalue] * (len(args) - 1)).pop):
+            yield counter()  # yields the fillvalue, or raises IndexError
+
         fillers = repeat(fillvalue)
         iters = [chain(it, sentinel(), fillers) for it in args]
         try:
@@ -36,11 +39,13 @@ except:
         except IndexError:
             pass
 
-read_write_global_ops = frozenset(('STORE_GLOBAL', 'DELETE_GLOBAL', 'LOAD_GLOBAL'))
-read_global_ops       = frozenset(('STORE_GLOBAL', 'DELETE_GLOBAL'))
+
+read_write_global_ops = frozenset(("STORE_GLOBAL", "DELETE_GLOBAL", "LOAD_GLOBAL"))
+read_global_ops = frozenset(("STORE_GLOBAL", "DELETE_GLOBAL"))
 
 # NOTE: we also need to check that the variable name is a free variable, not a cell variable.
-nonglobal_ops         = frozenset(('STORE_DEREF',  'DELETE_DEREF'))
+nonglobal_ops = frozenset(("STORE_DEREF", "DELETE_DEREF"))
+
 
 def escape_string(s, quotes=('"', "'", '"""', "'''")):
     quote = None
@@ -53,11 +58,10 @@ def escape_string(s, quotes=('"', "'", '"""', "'''")):
         quote = '"""'
         s = s.replace('"""', '\\"""')
 
-    for (orig, replace) in (('\t', '\\t'),
-                            ('\n', '\\n'),
-                            ('\r', '\\r')):
+    for (orig, replace) in (("\t", "\\t"), ("\n", "\\n"), ("\r", "\\r")):
         s = s.replace(orig, replace)
     return "%s%s%s" % (quote, s, quote)
+
 
 # FIXME: this and find_globals could be paramaterized with one of the
 # above global ops
@@ -69,6 +73,7 @@ def find_all_globals(node, globs):
         elif n.kind in read_write_global_ops:
             globs.add(n.pattr)
     return globs
+
 
 # def find_globals(node, globs, global_ops=mkfunc_globals):
 #     """Find globals in this statement."""
@@ -83,6 +88,7 @@ def find_all_globals(node, globs):
 #         elif n.kind in frozenset(global_ops):
 #             globs.add(n.pattr)
 #     return globs
+
 
 def find_code_node(node, start):
     for i in range(-start, len(node) + 1):
@@ -99,27 +105,32 @@ def find_globals_and_nonlocals(node, globs, nonlocals, code, version):
     either 'global' or 'nonlocal' statements added."""
     for n in node:
         if isinstance(n, SyntaxTree):
-            globs, nonlocals = find_globals_and_nonlocals(n, globs, nonlocals,
-                                                          code, version)
+            globs, nonlocals = find_globals_and_nonlocals(
+                n, globs, nonlocals, code, version
+            )
         elif n.kind in read_global_ops:
             globs.add(n.pattr)
-        elif (version >= (3, 0)
-              and n.kind in nonglobal_ops
-              and n.pattr in code.co_freevars
-              and n.pattr != code.co_name
-              and code.co_name != '<lambda>'):
+        elif (
+            version >= (3, 0)
+            and n.kind in nonglobal_ops
+            and n.pattr in code.co_freevars
+            and n.pattr != code.co_name
+            and code.co_name != "<lambda>"
+        ):
             nonlocals.add(n.pattr)
     return globs, nonlocals
+
 
 def find_none(node):
     for n in node:
         if isinstance(n, SyntaxTree):
-            if n not in ('return_stmt', 'return_if_stmt'):
+            if n not in ("return_stmt", "return_if_stmt"):
                 if find_none(n):
                     return True
-        elif n.kind == 'LOAD_CONST' and n.pattr is None:
+        elif n.kind == "LOAD_CONST" and n.pattr is None:
             return True
     return False
+
 
 def flatten_list(node):
     """
@@ -128,20 +139,21 @@ def flatten_list(node):
     """
     flat_elems = []
     for elem in node:
-        if elem == 'expr1024':
+        if elem == "expr1024":
             for subelem in elem:
-                assert subelem == 'expr32'
+                assert subelem == "expr32"
                 for subsubelem in subelem:
                     flat_elems.append(subsubelem)
-        elif elem == 'expr32':
+        elif elem == "expr32":
             for subelem in elem:
-                assert subelem == 'expr'
+                assert subelem == "expr"
                 flat_elems.append(subelem)
         else:
             flat_elems.append(elem)
             pass
         pass
     return flat_elems
+
 
 # Note: this is only used in Python > 3.0
 # Should move this somewhere more specific?
@@ -151,19 +163,20 @@ def gen_function_parens_adjust(mapping_key, node):
     'call_generator' and the caller will do the default
     action on that. Otherwise we do nothing.
     """
-    if mapping_key.kind != 'CALL_FUNCTION_1':
+    if mapping_key.kind != "CALL_FUNCTION_1":
         return
 
     args_node = node[-2]
-    if args_node == 'pos_arg':
-        assert args_node[0] == 'expr'
+    if args_node == "pos_arg":
+        assert args_node[0] == "expr"
         n = args_node[0][0]
-        if n == 'generator_exp':
-            node.kind = 'call_generator'
+        if n == "generator_exp":
+            node.kind = "call_generator"
         pass
     return
 
-def is_lambda_mode(compile_mode: str) -> bool:
+
+def is_lambda_mode(compile_mode):
     return compile_mode in ("dictcomp", "genexpr", "lambda", "listcomp", "setcomp")
 
 
@@ -176,36 +189,39 @@ def print_docstring(self, indent, docstring):
     self.write(indent)
     if not isinstance(docstring, str):
         # Must be unicode in Python2
-        self.write('u')
+        self.write("u")
         docstring = repr(docstring.expandtabs())[2:-1]
     else:
         docstring = repr(docstring.expandtabs())[1:-1]
 
-    for (orig, replace) in (('\\\\', '\t'),
-                            ('\\r\\n', '\n'),
-                            ('\\n', '\n'),
-                            ('\\r', '\n'),
-                            ('\\"', '"'),
-                            ("\\'", "'")):
+    for (orig, replace) in (
+        ("\\\\", "\t"),
+        ("\\r\\n", "\n"),
+        ("\\n", "\n"),
+        ("\\r", "\n"),
+        ('\\"', '"'),
+        ("\\'", "'"),
+    ):
         docstring = docstring.replace(orig, replace)
 
     # Do a raw string if there are backslashes but no other escaped characters:
     # also check some edge cases
-    if ('\t' in docstring
-        and '\\' not in docstring
+    if (
+        "\t" in docstring
+        and "\\" not in docstring
         and len(docstring) >= 2
-        and docstring[-1] != '\t'
-        and (docstring[-1] != '"'
-             or docstring[-2] == '\t')):
-        self.write('r') # raw string
+        and docstring[-1] != "\t"
+        and (docstring[-1] != '"' or docstring[-2] == "\t")
+    ):
+        self.write("r")  # raw string
         # Restore backslashes unescaped since raw
-        docstring = docstring.replace('\t', '\\')
+        docstring = docstring.replace("\t", "\\")
     else:
         # Escape the last character if it is the same as the
         # triple quote character.
         quote1 = quote[-1]
         if len(docstring) and docstring[-1] == quote1:
-            docstring = docstring[:-1] + '\\' + quote1
+            docstring = docstring[:-1] + "\\" + quote1
 
         # Escape triple quote when needed
         if quote == '"""':
@@ -215,9 +231,9 @@ def print_docstring(self, indent, docstring):
             replace_str = "\\'''"
 
         docstring = docstring.replace(quote, replace_str)
-        docstring = docstring.replace('\t', '\\\\')
+        docstring = docstring.replace("\t", "\\\\")
 
-    lines = docstring.split('\n')
+    lines = docstring.split("\n")
 
     self.write(quote)
     if len(lines) == 0:
@@ -228,13 +244,14 @@ def print_docstring(self, indent, docstring):
         self.println(lines[0])
         for line in lines[1:-1]:
             if line:
-                self.println( line )
+                self.println(line)
             else:
-                self.println( "\n\n" )
+                self.println("\n\n")
                 pass
             pass
         self.println(lines[-1], quote)
     return True
+
 
 def strip_quotes(s):
     if s.startswith("'''") and s.endswith("'''"):
@@ -247,7 +264,6 @@ def strip_quotes(s):
         s = s[1:-1]
         pass
     return s
-
 
 
 # if __name__ == '__main__':
