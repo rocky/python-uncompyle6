@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2018, 2021 by Rocky Bernstein
+#  Copyright (c) 2015-2018, 2021-2022 by Rocky Bernstein
 """
 Python 2.5 bytecode massaging.
 
@@ -26,3 +26,18 @@ class Scanner25(scan.Scanner26):
         scan.Scanner26.__init__(self, show_asm)
         self.version = (2, 5)
         return
+
+
+if __name__ == "__main__":
+    from xdis.version_info import PYTHON_VERSION_TRIPLE, version_tuple_to_str
+
+    if PYTHON_VERSION_TRIPLE[:2] == (2, 5):
+        import inspect
+
+        co = inspect.currentframe().f_code  # type: ignore
+        tokens, customize = Scanner25().ingest(co)
+        for t in tokens:
+            print(t.format())
+        pass
+    else:
+        print("Need to be Python 2.5 to demo; I am version %s" % version_tuple_to_str())
