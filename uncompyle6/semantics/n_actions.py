@@ -394,7 +394,10 @@ class NonterminalActions:
                     self.is_lambda = is_lambda
                 else:
                     code_index = -6
-                    iter_index = 4 if self.version < (3, 8) else 3
+                    if self.version < (3, 8):
+                        iter_index = 4
+                    else:
+                        iter_index = 3
                     self.comprehension_walk(node, iter_index=iter_index, code_index=code_index)
                     pass
                 pass
