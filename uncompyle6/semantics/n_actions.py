@@ -13,7 +13,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Custom Nonterminal action functions
+Custom Nonterminal action functions. See NonterminalActions docstring.
 """
 
 from uncompyle6.semantics.consts import (
@@ -33,6 +33,16 @@ from uncompyle6.semantics.helper import (
 )
 
 class NonterminalActions:
+    """
+    Methods here all start with n_ and the remaining portion should be a nonterminal
+    name defined by some rule.
+
+    These methods take priority over names defined in table constants.
+    All of the methods should have the same signature: (self, node) and return None.
+
+    node is the subtree of the parse tree the that nonterminal name as the root.
+    """
+
     def n_alias(self, node):
         if self.version <= (2, 1):
             if len(node) == 2:

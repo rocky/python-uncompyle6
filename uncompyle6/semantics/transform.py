@@ -378,8 +378,9 @@ class TreeTransform(GenericASTTraversal, object):
 
     def n_import_from37(self, node):
         importlist37 = node[3]
-        assert importlist37 == "importlist37"
-        if len(importlist37) == 1:
+        if importlist37 != "importlist37":
+            return node
+        if len(importlist37) == 1 and importlist37 == "importlist37":
             alias37 = importlist37[0]
             store = alias37[1]
             assert store == "store"
@@ -394,9 +395,10 @@ class TreeTransform(GenericASTTraversal, object):
                 # import_as37   ::= LOAD_CONST LOAD_CONST importlist37 store POP_TOP
                 # 'import_as37':     ( '%|import %c as %c\n', 2, -2),
                 node = SyntaxTree(
-                    "import_as37", [node[0], node[1], import_name_attr, store, node[-1]]
+                    "import_as37",
+                    [node[0], node[1], import_name_attr, store, node[-1]],
+                    transformed_by="n_import_from37",
                 )
-                node.transformed_by = "n_import_from37"
                 pass
             pass
         return node
