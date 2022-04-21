@@ -14,7 +14,8 @@ import os.path as osp
 
 assert osp == path
 from os.path import join as jj
-assert path.join == jj
+
+assert path.join("a", "b") == jj("a", "b")
 
 if len(__file__) == 0:
     # a.b.c should force consecutive LOAD_ATTRs
