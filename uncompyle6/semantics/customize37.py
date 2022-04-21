@@ -146,11 +146,18 @@ def customize_for_version37(self, version):
             ),
             "ifstmtl": ("%|if %c:\n%+%c%-", (0, "testexpr"), (1, "_ifstmts_jumpl")),
             'import_as37':     ( '%|import %c as %c\n', 2, -2),
-            'import_from37':   ( '%|from %[2]{pattr} import %c\n',
-                                 (3, 'importlist37') ),
-
+            "import_from_as37": (
+                "%|from %c as %c\n",
+                (2, "import_from_attr37"),
+                (3, "store"),
+            ),
+            "import_one": ("%c", (0, "importlists"),),
             "importattr37": ("%c", (0, "IMPORT_NAME_ATTR")),
-
+            "import_from_attr37": (
+                "%c import %c",
+                (0, "IMPORT_NAME_ATTR"),
+                (1, "IMPORT_FROM"),
+            ),
             "list_afor": (
                 " async for %[1]{%c} in %c%[1]{%c}",
                 (1, "store"), (0, "get_aiter"), (3, "list_iter"),

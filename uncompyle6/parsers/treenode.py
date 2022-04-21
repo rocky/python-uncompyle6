@@ -4,8 +4,10 @@ from spark_parser.ast import AST as spark_AST
 
 class SyntaxTree(spark_AST):
     def __init__(self, *args, **kwargs):
+        self.transformed_by = kwargs.get("transformed_by", None)
+        if "transformed_by" in kwargs:
+            kwargs.pop("transformed_by")
         spark_AST.__init__(self, *args, **kwargs)
-        self.transformed_by = None
 
     def isNone(self):
         """An SyntaxTree None token. We can't use regular list comparisons
