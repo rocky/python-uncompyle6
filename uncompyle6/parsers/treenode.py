@@ -6,9 +6,9 @@ intern = sys.intern
 
 
 class SyntaxTree(spark_AST):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, transformed_by=None, **kwargs):
+        self.transformed_by = transformed_by
         super(SyntaxTree, self).__init__(*args, **kwargs)
-        self.transformed_by = None
 
     def isNone(self):
         """An SyntaxTree None token. We can't use regular list comparisons
