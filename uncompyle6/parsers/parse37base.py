@@ -1134,6 +1134,9 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["while1stmt"] = "noAST"
         self.check_reduce["while1elsestmt"] = "noAST"
         self.check_reduce["_ifstmts_jump"] = "AST"
+        self.check_reduce["import_as37"] = "tokens"
+        self.check_reduce["import_from_as37"] = "tokens"
+        self.check_reduce["import_from_as37"] = "tokens"
         self.check_reduce["ifelsestmt"] = "AST"
         self.check_reduce["ifelsestmtl"] = "AST"
         self.check_reduce["iflaststmt"] = "AST"
@@ -1263,5 +1266,9 @@ class Python37BaseParser(PythonParser):
                 assert store == "store"
                 return alias37[0].attr != store[0].attr
             return False
+        elif lhs == "import_as37":
+            return tokens[first + 1].pattr is not None
+        elif lhs == "import_from_as37":
+            return tokens[first + 1].pattr is None
 
         return False

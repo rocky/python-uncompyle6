@@ -152,7 +152,10 @@ class Python37Parser(Python37BaseParser):
         expr ::= LOAD_NAME
         expr ::= LOAD_STR
         expr ::= _lambda_body
+
         expr ::= and
+        expr ::= attribute37
+
         expr ::= bin_op
         expr ::= call
         expr ::= compare
@@ -346,28 +349,43 @@ class Python37Parser(Python37BaseParser):
 
     def p_import37(self, args):
         """
-        stmt          ::= import_as37
-        import_as37   ::= LOAD_CONST LOAD_CONST importlist37 store POP_TOP
-
-        importlist37  ::= importlist37 ROT_TWO IMPORT_FROM
-        importlist37  ::= importlist37 ROT_TWO POP_TOP IMPORT_FROM
-        importlist37  ::= importattr37
-        importattr37  ::= IMPORT_NAME_ATTR IMPORT_FROM
-
         # The 3.7base scanner adds IMPORT_NAME_ATTR
-        alias         ::= IMPORT_NAME_ATTR attributes store
-        alias         ::= IMPORT_NAME_ATTR store
+        alias            ::= IMPORT_NAME_ATTR attributes store
+        alias            ::= IMPORT_NAME_ATTR store
+
+        alias37          ::= IMPORT_NAME store
+        alias37          ::= IMPORT_FROM store
+
+        attribute37      ::= expr LOAD_METHOD
+
+        import_as37      ::= LOAD_CONST LOAD_CONST importlist37 store POP_TOP
         import_from   ::= LOAD_CONST LOAD_CONST importlist POP_TOP
+        import_from37    ::= LOAD_CONST LOAD_CONST IMPORT_NAME_ATTR importlist37 POP_TOP
+        import_from_as37 ::= LOAD_CONST LOAD_CONST import_from_attr37 store POP_TOP
 
-        expr          ::= attribute37
-        attribute37   ::= expr LOAD_METHOD
 
+        # A single entry in a dotted import a.b.c.d
+        import_one       ::= importlists ROT_TWO IMPORT_FROM
+        import_one       ::= importlists ROT_TWO POP_TOP IMPORT_FROM
+
+        # Semantic checks distinguish importattr37 from import_from_attr37
+        # in the former the "from" slot in a prior LOAD_CONST is null.
+
+        # Used in: import .. as ..
+        importattr37      ::= IMPORT_NAME_ATTR IMPORT_FROM
+
+        # Used in: from xx import .. as ..
+        import_from_attr37 ::= IMPORT_NAME_ATTR IMPORT_FROM
+
+        importlist37  ::= import_one
+        importlist37  ::= importattr37
+        importlist37  ::= alias37+
+
+        importlists   ::= importlist37+
+
+        stmt          ::= import_as37
         stmt          ::= import_from37
-        importlist37  ::= importlist37 alias37
-        importlist37  ::= alias37
-        alias37       ::= IMPORT_NAME store
-        alias37       ::= IMPORT_FROM store
-        import_from37 ::= LOAD_CONST LOAD_CONST IMPORT_NAME_ATTR importlist37 POP_TOP
+        stmt          ::= import_from_as37
 
         """
 
