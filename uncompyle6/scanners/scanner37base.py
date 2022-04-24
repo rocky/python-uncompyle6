@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2020 by Rocky Bernstein
+#  Copyright (c) 2015-2020, 2022 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -28,6 +28,8 @@ For example:
 
 Finally we save token information.
 """
+
+from typing import Any, Dict, List, Set
 
 from xdis import iscode, instruction_size, Instruction
 from xdis.bytecode import _get_const_info
@@ -212,7 +214,7 @@ class Scanner37Base(Scanner):
         # show_asm = 'both'
         if show_asm in ("both", "before"):
             for instr in bytecode.get_instructions(co):
-                print(instr.disassemble())
+                print(instr.disassemble(self.opc))
 
         # "customize" is in the process of going away here
         customize = {}
@@ -316,6 +318,7 @@ class Scanner37Base(Scanner):
                 # "loop" tag last so the grammar rule matches that properly.
                 for jump_offset in sorted(jump_targets[inst.offset], reverse=True):
                     come_from_name = "COME_FROM"
+
                     opname = self.opname_for_offset(jump_offset)
                     if opname == "EXTENDED_ARG":
                         k = xdis.next_offset(op, self.opc, jump_offset)
@@ -341,22 +344,6 @@ class Scanner37Base(Scanner):
                     )
                     jump_idx += 1
                     pass
-                pass
-            elif inst.offset in self.else_start:
-                end_offset = self.else_start[inst.offset]
-                j = tokens_append(
-                    j,
-                    Token(
-                        "ELSE",
-                        None,
-                        repr(end_offset),
-                        offset="%s" % (inst.offset),
-                        has_arg=True,
-                        opc=self.opc,
-                        has_extended_arg=inst.has_extended_arg,
-                    ),
-                )
-
                 pass
 
             pattr = inst.argrepr
@@ -444,17 +431,24 @@ class Scanner37Base(Scanner):
                 opname = "%s_%d+%d" % (opname, before_args, after_args)
 
             elif op == self.opc.JUMP_ABSOLUTE:
-                # Further classify JUMP_ABSOLUTE into backward jumps
-                # which are used in loops, and "CONTINUE" jumps which
-                # may appear in a "continue" statement.  The loop-type
-                # and continue-type jumps will help us classify loop
-                # boundaries The continue-type jumps help us get
-                # "continue" statements with would otherwise be turned
-                # into a "pass" statement because JUMPs are sometimes
-                # ignored in rules as just boundary overhead. In
-                # comprehensions we might sometimes classify JUMP_BACK
-                # as CONTINUE, but that's okay since we add a grammar
-                # rule for that.
+                #  Refine JUMP_ABSOLUTE further in into:
+                #
+                # * "JUMP_LOOP"    - which are are used in loops. This is sometimes
+                #                   found at the end of a looping construct
+                # * "BREAK_LOOP"  - which are are used to break loops.
+                # * "CONTINUE"    - jumps which may appear in a "continue" statement.
+                #                   It is okay to confuse this with JUMP_LOOP. The
+                #                   grammar should tolerate this.
+                # * "JUMP_FORWARD - forward jumps that are not BREAK_LOOP jumps.
+                #
+                # The loop-type and continue-type jumps will help us
+                # classify loop boundaries The continue-type jumps
+                # help us get "continue" statements with would
+                # otherwise be turned into a "pass" statement because
+                # JUMPs are sometimes ignored in rules as just
+                # boundary overhead. Again, in comprehensions we might
+                # sometimes classify JUMP_LOOP as CONTINUE, but that's
+                # okay since grammar rules should tolerate that.
                 pattr = argval
                 target = inst.argval
                 if target <= inst.offset:
@@ -523,7 +517,7 @@ class Scanner37Base(Scanner):
             print()
         return tokens, customize
 
-    def find_jump_targets(self, debug):
+    def find_jump_targets(self, debug: str) -> dict:
         """
         Detect all offsets in a byte code which are jump targets
         where we might insert a COME_FROM instruction.
@@ -538,18 +532,17 @@ class Scanner37Base(Scanner):
         self.structs = [{"type": "root", "start": 0, "end": n - 1}]
 
         # All loop entry points
-        self.loops = []
+        self.loops: List[int] = []
 
         # Map fixed jumps to their real destination
-        self.fixed_jumps = {}
+        self.fixed_jumps: Dict[int, int] = {}
         self.except_targets = {}
-        self.ignore_if = set()
+        self.ignore_if: Set[int] = set()
         self.build_statement_indices()
-        self.else_start = {}
 
         # Containers filled by detect_control_flow()
-        self.not_continue = set()
-        self.return_end_ifs = set()
+        self.not_continue: Set[int] = set()
+        self.return_end_ifs: Set[int] = set()
         self.setup_loop_targets = {}  # target given setup_loop offset
         self.setup_loops = {}  # setup_loop offset given target
 
@@ -655,9 +648,9 @@ class Scanner37Base(Scanner):
                 ):
                     stmts.remove(stmt_offset)
                     continue
-                # Rewing ops till we encounter non-JUMP_ABSOLUTE one
+                # Scan back bytecode ops till we encounter non-JUMP_ABSOLUTE op
                 j = self.prev_op[stmt_offset]
-                while code[j] == self.opc.JUMP_ABSOLUTE:
+                while code[j] == self.opc.JUMP_ABSOLUTE and j > 0:
                     j = self.prev_op[j]
                 # If we got here, then it's list comprehension which
                 # is not a statement too
@@ -687,7 +680,9 @@ class Scanner37Base(Scanner):
         # Finish filling the list for last statement
         slist += [codelen] * (codelen - len(slist))
 
-    def detect_control_flow(self, offset, targets, inst_index):
+    def detect_control_flow(
+        self, offset: int, targets: Dict[Any, Any], inst_index: int
+    ):
         """
         Detect type of block structures and their boundaries to fix optimized jumps
         in python2.3+
@@ -698,9 +693,9 @@ class Scanner37Base(Scanner):
         op = inst.opcode
 
         # Detect parent structure
-        parent = self.structs[0]
-        start = parent["start"]
-        end = parent["end"]
+        parent: Dict[str, Any] = self.structs[0]
+        start: int = parent["start"]
+        end: int = parent["end"]
 
         # Pick inner-most parent for our offset
         for struct in self.structs:
@@ -933,20 +928,16 @@ class Scanner37Base(Scanner):
 
 
 if __name__ == "__main__":
-    from uncompyle6 import PYTHON_VERSION
+    from xdis.version_info import PYTHON_VERSION_TRIPLE, version_tuple_to_str
 
-    if PYTHON_VERSION >= 3.7:
+    if PYTHON_VERSION_TRIPLE[:2] == (3, 7):
         import inspect
 
-        co = inspect.currentframe().f_code
-        from uncompyle6 import PYTHON_VERSION
+        co = inspect.currentframe().f_code  # type: ignore
 
-        tokens, customize = Scanner37Base(PYTHON_VERSION).ingest(co)
+        tokens, customize = Scanner37Base(PYTHON_VERSION_TRIPLE).ingest(co)
         for t in tokens:
             print(t)
     else:
-        print(
-            "Need to be Python 3.7 or greater to demo; I am version {PYTHON_VERSION}."
-            % PYTHON_VERSION
-        )
+        print(f"Need to be Python 3.7 to demo; I am version {version_tuple_to_str()}.")
     pass

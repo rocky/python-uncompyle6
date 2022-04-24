@@ -62,6 +62,8 @@ class Scanner38(Scanner37):
             print(jump_back_targets)
         loop_ends = []
         next_end = tokens[len(tokens) - 1].off2int() + 10
+
+        new_tokens = []
         for i, token in enumerate(tokens):
             opname = token.kind
             offset = token.offset
@@ -75,6 +77,8 @@ class Scanner38(Scanner37):
                     if len(loop_ends)
                     else tokens[len(tokens) - 1].off2int() + 10
                 )
+
+            # things that smash new_tokens like BUILD_LIST have to come first.
 
             if offset in jump_back_targets:
                 next_end = off2int(jump_back_targets[offset], prefer_last=False)
@@ -93,6 +97,7 @@ class Scanner38(Scanner37):
                 if opname == "JUMP_ABSOLUTE" and jump_target <= next_end:
                     # Not a forward-enough jump to break out of the next loop, so continue.
                     # FIXME: Do we need "continue" detection?
+                    new_tokens.append(token)
                     continue
 
                 # We also want to avoid confusing BREAK_LOOPS with parts of the
@@ -123,8 +128,8 @@ class Scanner38(Scanner37):
                 ):
                     token.kind = "BREAK_LOOP"
                 pass
-            pass
-        return tokens, customize
+            new_tokens.append(token)
+        return new_tokens, customize
 
 
 if __name__ == "__main__":

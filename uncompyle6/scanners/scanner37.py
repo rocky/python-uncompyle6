@@ -22,6 +22,7 @@ This sets up opcodes Python's 3.7 and calls a generalized
 scanner routine for Python 3.
 """
 
+from typing import Tuple
 from uncompyle6.scanners.scanner37base import Scanner37Base
 
 # bytecode verification, verify(), uses JUMP_OPs from here
@@ -29,6 +30,8 @@ from xdis.opcodes import opcode_37 as opc
 
 # bytecode verification, verify(), uses JUMP_OPS from here
 JUMP_OPs = opc.JUMP_OPS
+
+CONST_COLLECTIONS = ("CONST_LIST", "CONST_SET", "CONST_DICT")
 
 
 class Scanner37(Scanner37Base):
@@ -39,9 +42,28 @@ class Scanner37(Scanner37Base):
 
     pass
 
-    def ingest(self, co, classname=None, code_objects={}, show_asm=None):
+    def ingest(
+        self, co, classname=None, code_objects={}, show_asm=None
+    ) -> Tuple[list, dict]:
         tokens, customize = Scanner37Base.ingest(self, co, classname, code_objects, show_asm)
-        for t in tokens:
+        new_tokens = []
+        for i, t in enumerate(tokens):
+            # things that smash new_tokens like BUILD_LIST have to come first.
+            if t.op in (
+                self.opc.BUILD_CONST_KEY_MAP,
+                self.opc.BUILD_LIST,
+                self.opc.BUILD_SET,
+            ):
+                collection_type = (
+                    "DICT"
+                    if t.kind.startswith("BUILD_CONST_KEY_MAP")
+                    else t.kind.split("_")[1]
+                )
+                new_tokens = self.bound_collection(
+                    tokens, new_tokens, t, i, f"CONST_{collection_type}"
+                )
+                continue
+
             # The lowest bit of flags indicates whether the
             # var-keyword argument is placed at the top of the stack
             if t.op == self.opc.CALL_FUNCTION_EX and t.attr & 1:
@@ -59,8 +81,9 @@ class Scanner37(Scanner37Base):
                 t.kind = "BUILD_MAP_UNPACK_WITH_CALL_%d" % t.attr
             elif not self.is_pypy and t.op == self.opc.BUILD_TUPLE_UNPACK_WITH_CALL:
                 t.kind = "BUILD_TUPLE_UNPACK_WITH_CALL_%d" % t.attr
-            pass
-        return tokens, customize
+            new_tokens.append(t)
+
+        return new_tokens, customize
 
 if __name__ == "__main__":
     from xdis.version_info import PYTHON_VERSION_TRIPLE, version_tuple_to_str

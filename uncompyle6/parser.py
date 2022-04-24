@@ -56,6 +56,7 @@ class PythonParser(GenericASTBuilder):
             "_come_froms",
             "_stmts",
             "attributes",
+            "add_consts",
             "come_froms",
             "except_stmts",
             "exprlist",

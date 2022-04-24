@@ -319,6 +319,22 @@ class Python37BaseParser(PythonParser):
                     """
                 self.addRule(rules_str, nop_func)
 
+            elif opname in ("BUILD_CONST_LIST", "BUILD_CONST_DICT", "BUILD_CONST_SET"):
+                if opname == "BUILD_CONST_DICT":
+                    rule = f"""
+                            add_consts          ::= ADD_VALUE*
+                            const_list          ::= COLLECTION_START add_consts {opname}
+                            dict                ::= const_list
+                            expr                ::= dict
+                        """
+                else:
+                    rule = f"""
+                            add_consts          ::= ADD_VALUE*
+                            const_list          ::= COLLECTION_START add_consts {opname}
+                            expr                ::= const_list
+                        """
+                self.addRule(rule, nop_func)
+
             elif opname_base == "BUILD_CONST_KEY_MAP":
                 kvlist_n = "expr " * (token.attr)
                 rule = "dict ::= %sLOAD_CONST %s" % (kvlist_n, opname)
