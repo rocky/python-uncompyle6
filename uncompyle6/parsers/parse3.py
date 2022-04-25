@@ -814,6 +814,22 @@ class Python3Parser(PythonParser):
                 rule = "starred ::= %s %s" % ("expr " * v, opname)
                 self.addRule(rule, nop_func)
 
+            elif opname in ("BUILD_CONST_LIST", "BUILD_CONST_DICT", "BUILD_CONST_SET"):
+                if opname == "BUILD_CONST_DICT":
+                    rule = f"""
+                           add_consts          ::= ADD_VALUE*
+                           const_list          ::= COLLECTION_START add_consts {opname}
+                           dict                ::= const_list
+                           expr                ::= dict
+                           """
+                else:
+                    rule = f"""
+                           add_consts          ::= ADD_VALUE*
+                           const_list          ::= COLLECTION_START add_consts {opname}
+                           expr                ::= const_list
+                           """
+                self.addRule(rule, nop_func)
+
             elif opname_base in (
                 "BUILD_LIST",
                 "BUILD_SET",

@@ -35,16 +35,19 @@ Finally we save token information.
 
 from __future__ import print_function
 
-from xdis import iscode, instruction_size
+from typing import Tuple
+
+from xdis import iscode, instruction_size, Instruction
 from xdis.bytecode import _get_const_info
 
-from uncompyle6.scanner import Token, parse_fn_counts
+from uncompyle6.scanners.tok import Token
+from uncompyle6.scanner import parse_fn_counts
 import xdis
 
 # Get all the opcodes into globals
 import xdis.opcodes.opcode_33 as op3
 
-from uncompyle6.scanner import Scanner
+from uncompyle6.scanner import Scanner, CONST_COLLECTIONS
 
 import sys
 
@@ -204,17 +207,108 @@ class Scanner3(Scanner):
         # self.varargs_ops = frozenset(self.opc.hasvargs)
         return
 
-    def ingest(self, co, classname=None, code_objects={}, show_asm=None):
+    def bound_collection_from_inst(
+        self, insts: list, next_tokens: list, inst: Instruction, i: int, collection_type: str
+    ) -> list:
+        t = Token(
+                opname=inst.opname,
+                attr=inst.argval,
+                pattr=inst.argrepr,
+                offset=inst.offset,
+                linestart=inst.starts_line,
+                op=inst.opcode,
+                has_arg=inst.has_arg,
+                has_extended_arg=inst.has_extended_arg,
+                opc=self.opc,
+            )
+
+        count = t.attr
+        assert isinstance(count, int)
+
+        assert count <= i
+
+        if collection_type == "CONST_DICT":
+            # constant dictonaries work via BUILD_CONST_KEY_MAP and
+            # handle the values() like sets and lists.
+            # However the keys() are an LOAD_CONST of the keys.
+            # adjust offset to account for this
+            count += 1
+
+        # For small lists don't bother
+        if count < 5:
+            return next_tokens + [t]
+
+        collection_start = i - count
+
+        for j in range(collection_start, i):
+            if insts[j].opname not in (
+                "LOAD_CONST",
+                "LOAD_FAST",
+                "LOAD_GLOBAL",
+                "LOAD_NAME",
+            ):
+                return next_tokens + [t]
+
+        collection_enum = CONST_COLLECTIONS.index(collection_type)
+
+        # If we get here, all instructions before tokens[i] are LOAD_CONST and we can replace
+        # add a boundary marker and change LOAD_CONST to something else
+        new_tokens = next_tokens[:-count]
+        start_offset = insts[collection_start].offset
+        new_tokens.append(
+            Token(
+                opname="COLLECTION_START",
+                attr=collection_enum,
+                pattr=collection_type,
+                offset=f"{start_offset}_0",
+                linestart=False,
+                has_arg=True,
+                has_extended_arg=False,
+                opc=self.opc,
+            )
+        )
+        for j in range(collection_start, i):
+            new_tokens.append(
+                Token(
+                    opname="ADD_VALUE",
+                    attr=insts[j].argval,
+                    pattr=insts[j].argrepr,
+                    offset=insts[j].offset,
+                    linestart=insts[j].starts_line,
+                    has_arg=True,
+                    has_extended_arg=False,
+                    opc=self.opc,
+                )
+            )
+        new_tokens.append(
+            Token(
+                opname=f"BUILD_{collection_type}",
+                attr=t.attr,
+                pattr=t.pattr,
+                offset=t.offset,
+                linestart=t.linestart,
+                has_arg=t.has_arg,
+                has_extended_arg=False,
+                opc=t.opc,
+            )
+        )
+        return new_tokens
+
+    def ingest(self, co, classname=None, code_objects={}, show_asm=None
+        ) -> Tuple[list, dict]:
         """
-        Pick out tokens from an uncompyle6 code object, and transform them,
+        Create "tokens" the bytecode of an Python code object. Largely these
+        are the opcode name, but in some cases that has been modified to make parsing
+        easier.
         returning a list of uncompyle6 Token's.
 
-        The transformations are made to assist the deparsing grammar.
-        Specificially:
+        Some transformations are made to assist the deparsing grammar:
            -  various types of LOAD_CONST's are categorized in terms of what they load
            -  COME_FROM instructions are added to assist parsing control structures
-           -  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional arguments
-           -  some EXTENDED_ARGS instructions are removed
+           -  operands with stack argument counts or flag masks are appended to the opcode name, e.g.:
+              *  BUILD_LIST, BUILD_SET
+              *  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional arguments
+           -  EXTENDED_ARGS instructions are removed
 
         Also, when we encounter certain tokens, we add them to a set which will cause custom
         grammar rules. Specifically, variable arg tokens like MAKE_FUNCTION or BUILD_LIST
@@ -231,9 +325,6 @@ class Scanner3(Scanner):
             for instr in bytecode.get_instructions(co):
                 print(instr.disassemble())
 
-        # list of tokens/instructions
-        tokens = []
-
         # "customize" is in the process of going away here
         customize = {}
 
@@ -248,6 +339,7 @@ class Scanner3(Scanner):
         n = len(self.insts)
         for i, inst in enumerate(self.insts):
 
+            opname = inst.opname
             # We need to detect the difference between:
             #   raise AssertionError
             #  and
@@ -258,7 +350,7 @@ class Scanner3(Scanner):
             if self.version[:2] == (3, 0):
                 # Like 2.6, 3.0 doesn't have POP_JUMP_IF... so we have
                 # to go through more machinations
-                assert_can_follow = inst.opname == "POP_TOP" and i + 1 < n
+                assert_can_follow = opname == "POP_TOP" and i + 1 < n
                 if assert_can_follow:
                     prev_inst = self.insts[i - 1]
                     assert_can_follow = (
@@ -267,7 +359,7 @@ class Scanner3(Scanner):
                     jump_if_inst = prev_inst
             else:
                 assert_can_follow = (
-                    inst.opname in ("POP_JUMP_IF_TRUE", "POP_JUMP_IF_FALSE")
+                    opname in ("POP_JUMP_IF_TRUE", "POP_JUMP_IF_FALSE")
                     and i + 1 < n
                 )
                 jump_if_inst = inst
@@ -291,13 +383,32 @@ class Scanner3(Scanner):
         # print("XXX2", jump_targets)
 
         last_op_was_break = False
+        new_tokens = []
 
         for i, inst in enumerate(self.insts):
+
+            opname = inst.opname
+
+            # things that smash new_tokens like BUILD_LIST have to come first.
+            if opname in (
+                "BUILD_CONST_KEY_MAP",
+                "BUILD_LIST",
+                "BUILD_SET",
+            ):
+                collection_type = (
+                    "DICT"
+                    if opname.startswith("BUILD_CONST_KEY_MAP")
+                    else opname.split("_")[1]
+                )
+                new_tokens = self.bound_collection_from_inst(
+                    self.insts, new_tokens, inst, i, f"CONST_{collection_type}"
+                )
+                continue
 
             argval = inst.argval
             op = inst.opcode
 
-            if inst.opname == "EXTENDED_ARG":
+            if opname == "EXTENDED_ARG":
                 # FIXME: The EXTENDED_ARG is used to signal annotation
                 # parameters
                 if i + 1 < n and self.insts[i + 1].opcode != self.opc.MAKE_FUNCTION:
@@ -324,7 +435,7 @@ class Scanner3(Scanner):
                         pass
                     elif inst.offset in self.except_targets:
                         come_from_name = "COME_FROM_EXCEPT_CLAUSE"
-                    tokens.append(
+                    new_tokens.append(
                         Token(
                             come_from_name,
                             jump_offset,
@@ -339,7 +450,7 @@ class Scanner3(Scanner):
                 pass
             elif inst.offset in self.else_start:
                 end_offset = self.else_start[inst.offset]
-                tokens.append(
+                new_tokens.append(
                     Token(
                         "ELSE",
                         None,
@@ -353,7 +464,6 @@ class Scanner3(Scanner):
                 pass
 
             pattr = inst.argrepr
-            opname = inst.opname
 
             if op in self.opc.CONST_OPS:
                 const = argval
@@ -422,7 +532,7 @@ class Scanner3(Scanner):
                         pass
                     opname = "%s_%d" % (opname, pos_args)
                     attr = (pos_args, name_pair_args, annotate_args)
-                tokens.append(
+                new_tokens.append(
                     Token(
                         opname=opname,
                         attr=attr,
@@ -508,12 +618,12 @@ class Scanner3(Scanner):
                         # the "continue" is not on a new line.
                         # There are other situations where we don't catch
                         # CONTINUE as well.
-                        if tokens[-1].kind == "JUMP_BACK" and tokens[-1].attr <= argval:
-                            if tokens[-2].kind == "BREAK_LOOP":
-                                del tokens[-1]
+                        if new_tokens[-1].kind == "JUMP_BACK" and new_tokens[-1].attr <= argval:
+                            if new_tokens[-2].kind == "BREAK_LOOP":
+                                del new_tokens[-1]
                             else:
                                 # intern is used because we are changing the *previous* token
-                                tokens[-1].kind = intern("CONTINUE")
+                                new_tokens[-1].kind = intern("CONTINUE")
                     if last_op_was_break and opname == "CONTINUE":
                         last_op_was_break = False
                         continue
@@ -527,7 +637,7 @@ class Scanner3(Scanner):
                 opname = "LOAD_ASSERT"
 
             last_op_was_break = opname == "BREAK_LOOP"
-            tokens.append(
+            new_tokens.append(
                 Token(
                     opname=opname,
                     attr=argval,
@@ -542,10 +652,10 @@ class Scanner3(Scanner):
             pass
 
         if show_asm in ("both", "after"):
-            for t in tokens:
+            for t in new_tokens:
                 print(t.format(line_prefix=""))
             print()
-        return tokens, customize
+        return new_tokens, customize
 
     def find_jump_targets(self, debug):
         """
