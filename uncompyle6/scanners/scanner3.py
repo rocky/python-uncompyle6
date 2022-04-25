@@ -35,7 +35,7 @@ Finally we save token information.
 
 from __future__ import print_function
 
-from typing import Tuple
+from typing import Optional, Tuple
 
 from xdis import iscode, instruction_size, Instruction
 from xdis.bytecode import _get_const_info
@@ -208,20 +208,8 @@ class Scanner3(Scanner):
         return
 
     def bound_collection_from_inst(
-        self, insts: list, next_tokens: list, inst: Instruction, i: int, collection_type: str
-    ) -> list:
-        t = Token(
-                opname=inst.opname,
-                attr=inst.argval,
-                pattr=inst.argrepr,
-                offset=inst.offset,
-                linestart=inst.starts_line,
-                op=inst.opcode,
-                has_arg=inst.has_arg,
-                has_extended_arg=inst.has_extended_arg,
-                opc=self.opc,
-            )
-
+        self, insts: list, next_tokens: list, inst: Instruction, t: Token, i: int, collection_type: str
+    ) -> Optional[list]:
         count = t.attr
         assert isinstance(count, int)
 
@@ -236,7 +224,7 @@ class Scanner3(Scanner):
 
         # For small lists don't bother
         if count < 5:
-            return next_tokens + [t]
+            return None
 
         collection_start = i - count
 
@@ -247,7 +235,7 @@ class Scanner3(Scanner):
                 "LOAD_GLOBAL",
                 "LOAD_NAME",
             ):
-                return next_tokens + [t]
+                return None
 
         collection_enum = CONST_COLLECTIONS.index(collection_type)
 
@@ -389,6 +377,18 @@ class Scanner3(Scanner):
 
             opname = inst.opname
 
+            t = Token(
+                    opname=opname,
+                    attr=inst.argval,
+                    pattr=inst.argrepr,
+                    offset=inst.offset,
+                    linestart=inst.starts_line,
+                    op=inst.opcode,
+                    has_arg=inst.has_arg,
+                    has_extended_arg=inst.has_extended_arg,
+                    opc=self.opc,
+                )
+
             # things that smash new_tokens like BUILD_LIST have to come first.
             if opname in (
                 "BUILD_CONST_KEY_MAP",
@@ -400,10 +400,12 @@ class Scanner3(Scanner):
                     if opname.startswith("BUILD_CONST_KEY_MAP")
                     else opname.split("_")[1]
                 )
-                new_tokens = self.bound_collection_from_inst(
-                    self.insts, new_tokens, inst, i, f"CONST_{collection_type}"
+                try_tokens = self.bound_collection_from_inst(
+                    self.insts, new_tokens, inst, t, i, f"CONST_{collection_type}"
                 )
-                continue
+                if try_tokens is not None:
+                    new_tokens = try_tokens
+                    continue
 
             argval = inst.argval
             op = inst.opcode
@@ -424,10 +426,10 @@ class Scanner3(Scanner):
                 # "loop" tag last so the grammar rule matches that properly.
                 for jump_offset in sorted(jump_targets[inst.offset], reverse=True):
                     come_from_name = "COME_FROM"
-                    opname = self.opname_for_offset(jump_offset)
-                    if opname == "EXTENDED_ARG":
+                    come_from_opname = self.opname_for_offset(jump_offset)
+                    if come_from_opname == "EXTENDED_ARG":
                         j = xdis.next_offset(op, self.opc, jump_offset)
-                        opname = self.opname_for_offset(j)
+                        come_from_opname = self.opname_for_offset(j)
 
                     if opname.startswith("SETUP_"):
                         come_from_type = opname[len("SETUP_") :]
@@ -637,18 +639,8 @@ class Scanner3(Scanner):
                 opname = "LOAD_ASSERT"
 
             last_op_was_break = opname == "BREAK_LOOP"
-            new_tokens.append(
-                Token(
-                    opname=opname,
-                    attr=argval,
-                    pattr=pattr,
-                    offset=inst.offset,
-                    linestart=inst.starts_line,
-                    op=op,
-                    has_arg=inst.has_arg,
-                    opc=self.opc,
-                )
-            )
+            t.kind = opname
+            new_tokens.append(t)
             pass
 
         if show_asm in ("both", "after"):
