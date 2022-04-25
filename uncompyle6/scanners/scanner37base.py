@@ -29,8 +29,6 @@ For example:
 Finally we save token information.
 """
 
-from typing import Any, Dict, List, Set
-
 from xdis import iscode, instruction_size, Instruction
 from xdis.bytecode import _get_const_info
 
@@ -534,17 +532,17 @@ class Scanner37Base(Scanner):
         self.structs = [{"type": "root", "start": 0, "end": n - 1}]
 
         # All loop entry points
-        self.loops: List[int] = []
+        self.loops = []
 
         # Map fixed jumps to their real destination
-        self.fixed_jumps: Dict[int, int] = {}
+        self.fixed_jumps = {}
         self.except_targets = {}
-        self.ignore_if: Set[int] = set()
+        self.ignore_if = set()
         self.build_statement_indices()
 
         # Containers filled by detect_control_flow()
-        self.not_continue: Set[int] = set()
-        self.return_end_ifs: Set[int] = set()
+        self.not_continue = set()
+        self.return_end_ifs = set()
         self.setup_loop_targets = {}  # target given setup_loop offset
         self.setup_loops = {}  # setup_loop offset given target
 
@@ -683,7 +681,7 @@ class Scanner37Base(Scanner):
         slist += [codelen] * (codelen - len(slist))
 
     def detect_control_flow(
-        self, offset: int, targets: Dict[Any, Any], inst_index: int
+        self, offset, targets, inst_index
     ):
         """
         Detect type of block structures and their boundaries to fix optimized jumps
@@ -695,9 +693,9 @@ class Scanner37Base(Scanner):
         op = inst.opcode
 
         # Detect parent structure
-        parent: Dict[str, Any] = self.structs[0]
-        start: int = parent["start"]
-        end: int = parent["end"]
+        parent = self.structs[0]
+        start = parent["start"]
+        end = parent["end"]
 
         # Pick inner-most parent for our offset
         for struct in self.structs:
@@ -941,5 +939,5 @@ if __name__ == "__main__":
         for t in tokens:
             print(t)
     else:
-        print(f"Need to be Python 3.7 to demo; I am version {version_tuple_to_str()}.")
+        print("Need to be Python 3.7 to demo; I am version %s." % version_tuple_to_str())
     pass

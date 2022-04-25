@@ -1,4 +1,4 @@
-#  Copyright (c) 2016, 2018-2021 by Rocky Bernstein
+#  Copyright (c) 2016, 2018-2022 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -168,7 +168,7 @@ class Scanner(object):
                 opname="COLLECTION_START",
                 attr=collection_enum,
                 pattr=collection_type,
-                offset=f"{start_offset}_0",
+               offset="%s_0" % start_offset,
                 has_arg=True,
                 opc=self.opc,
                 has_extended_arg=False,
@@ -189,7 +189,7 @@ class Scanner(object):
             )
         new_tokens.append(
             Token(
-                opname=f"BUILD_{collection_type}",
+                opname="BUILD_%s" % collection_type,
                 attr=t.attr,
                 pattr=t.pattr,
                 offset=t.offset,

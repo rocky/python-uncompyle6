@@ -22,7 +22,6 @@ This sets up opcodes Python's 3.7 and calls a generalized
 scanner routine for Python 3.
 """
 
-from typing import Tuple
 from uncompyle6.scanners.scanner37base import Scanner37Base
 
 # bytecode verification, verify(), uses JUMP_OPs from here
@@ -44,7 +43,7 @@ class Scanner37(Scanner37Base):
 
     def ingest(
         self, co, classname=None, code_objects={}, show_asm=None
-    ) -> Tuple[list, dict]:
+    ):
         """
         Create "tokens" the bytecode of an Python code object. Largely these
         are the opcode name, but in some cases that has been modified to make parsing
@@ -78,7 +77,7 @@ class Scanner37(Scanner37Base):
                     else t.kind.split("_")[1]
                 )
                 new_tokens = self.bound_collection(
-                    tokens, new_tokens, t, i, f"CONST_{collection_type}"
+                    tokens, new_tokens, t, i, "CONST_%s" % collection_type
                 )
                 continue
 

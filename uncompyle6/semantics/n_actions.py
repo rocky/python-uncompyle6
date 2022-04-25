@@ -221,7 +221,7 @@ class NonterminalActions:
         else:
             # from trepan.api import debug; debug()
             raise TypeError(
-                f"Internal Error: n_const_list expects dict, list set, or set; got {lastnodetype}"
+                "Internal Error: n_const_list expects dict, list set, or set; got %s" % lastnodetype
             )
 
         self.indent_more(INDENT_PER_LEVEL)
@@ -240,7 +240,7 @@ class NonterminalActions:
                     else:
                         if sep != "":
                             sep += " "
-                self.write(f"{sep} {repr(keys[i])}: {value}")
+                self.write("%s %s: %s" % (sep, repr(keys[i]), value))
                 sep = ","
         else:
             for elem in flat_elems:
