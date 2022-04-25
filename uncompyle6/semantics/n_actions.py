@@ -202,6 +202,68 @@ class NonterminalActions:
 
     n_classdefdeco2 = n_classdef
 
+    def n_const_list(self, node):
+        """
+        prettyprint a constant dict, list, set or tuple.
+        """
+        p = self.prec
+
+        lastnodetype = node[2].kind
+        flat_elems = node[1]
+        is_dict = lastnodetype.endswith("DICT")
+
+        if lastnodetype.endswith("LIST"):
+            self.write("[")
+            endchar = "]"
+        elif lastnodetype.endswith("SET") or is_dict:
+            self.write("{")
+            endchar = "}"
+        else:
+            # from trepan.api import debug; debug()
+            raise TypeError(
+                f"Internal Error: n_const_list expects dict, list set, or set; got {lastnodetype}"
+            )
+
+        self.indent_more(INDENT_PER_LEVEL)
+        sep = ""
+        if is_dict:
+            keys = flat_elems[-1].pattr
+            assert isinstance(keys, tuple)
+            assert len(keys) == len(flat_elems) - 1
+            for i, elem in enumerate(flat_elems[:-1]):
+                assert elem.kind == "ADD_VALUE"
+                value = elem.pattr
+                if elem.linestart is not None:
+                    if elem.linestart != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        self.line_number = elem.linestart
+                    else:
+                        if sep != "":
+                            sep += " "
+                self.write(f"{sep} {repr(keys[i])}: {value}")
+                sep = ","
+        else:
+            for elem in flat_elems:
+                if elem.kind != "ADD_VALUE":
+                    from trepan.api import debug; debug()
+                assert elem.kind == "ADD_VALUE"
+                value = elem.pattr
+                if elem.linestart is not None:
+                    if elem.linestart != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        self.line_number = elem.linestart
+                    else:
+                        if sep != "":
+                            sep += " "
+                self.write(sep, value)
+                sep = ","
+        self.write(endchar)
+        self.indent_less(INDENT_PER_LEVEL)
+
+        self.prec = p
+        self.prune()
+        return
+
     def n_delete_subscript(self, node):
         if node[-2][0] == "build_list" and node[-2][0][-1].kind.startswith(
             "BUILD_TUPLE"
@@ -211,6 +273,189 @@ class NonterminalActions:
         self.default(node)
 
     n_store_subscript = n_subscript = n_delete_subscript
+
+    def n_dict(self, node):
+        """
+        Prettyprint a dict.
+        'dict' is something like k = {'a': 1, 'b': 42}"
+        We will use source-code line breaks to guide us when to break.
+        """
+        if len(node) == 1 and node[0] == "const_list":
+            self.preorder(node[0])
+            self.prune()
+            return
+
+        p = self.prec
+        self.prec = 100
+
+        self.indent_more(INDENT_PER_LEVEL)
+        sep = INDENT_PER_LEVEL[:-1]
+        if node[0] != "dict_entry":
+            self.write("{")
+        line_number = self.line_number
+
+        if self.version >= (3, 0) and not self.is_pypy:
+            if node[0].kind.startswith("kvlist"):
+                # Python 3.5+ style key/value list in dict
+                kv_node = node[0]
+                l = list(kv_node)
+                length = len(l)
+                if kv_node[-1].kind.startswith("BUILD_MAP"):
+                    length -= 1
+                i = 0
+
+                # Respect line breaks from source
+                while i < length:
+                    self.write(sep)
+                    name = self.traverse(l[i], indent="")
+                    if i > 0:
+                        line_number = self.indent_if_source_nl(
+                            line_number, self.indent + INDENT_PER_LEVEL[:-1]
+                        )
+                    line_number = self.line_number
+                    self.write(name, ": ")
+                    value = self.traverse(
+                        l[i + 1], indent=self.indent + (len(name) + 2) * " "
+                    )
+                    self.write(value)
+                    sep = ", "
+                    if line_number != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        line_number = self.line_number
+                    i += 2
+                    pass
+                pass
+            elif len(node) > 1 and node[1].kind.startswith("kvlist"):
+                # Python 3.0..3.4 style key/value list in dict
+                kv_node = node[1]
+                l = list(kv_node)
+                if len(l) > 0 and l[0].kind == "kv3":
+                    # Python 3.2 does this
+                    kv_node = node[1][0]
+                    l = list(kv_node)
+                i = 0
+                while i < len(l):
+                    self.write(sep)
+                    name = self.traverse(l[i + 1], indent="")
+                    if i > 0:
+                        line_number = self.indent_if_source_nl(
+                            line_number, self.indent + INDENT_PER_LEVEL[:-1]
+                        )
+                        pass
+                    line_number = self.line_number
+                    self.write(name, ": ")
+                    value = self.traverse(
+                        l[i], indent=self.indent + (len(name) + 2) * " "
+                    )
+                    self.write(value)
+                    sep = ", "
+                    if line_number != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        line_number = self.line_number
+                    else:
+                        sep += " "
+                    i += 3
+                    pass
+                pass
+            elif node[-1].kind.startswith("BUILD_CONST_KEY_MAP"):
+                # Python 3.6+ style const map
+                keys = node[-2].pattr
+                values = node[:-2]
+                # FIXME: Line numbers?
+                for key, value in zip(keys, values):
+                    self.write(sep)
+                    self.write(repr(key))
+                    line_number = self.line_number
+                    self.write(":")
+                    self.write(self.traverse(value[0]))
+                    sep = ", "
+                    if line_number != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        line_number = self.line_number
+                    else:
+                        sep += " "
+                        pass
+                    pass
+                if sep.startswith(",\n"):
+                    self.write(sep[1:])
+                pass
+            elif node[0].kind.startswith("dict_entry"):
+                assert self.version >= (3, 5)
+                template = ("%C", (0, len(node[0]), ", **"))
+                self.template_engine(template, node[0])
+                sep = ""
+            elif node[-1].kind.startswith("BUILD_MAP_UNPACK") or node[
+                -1
+            ].kind.startswith("dict_entry"):
+                assert self.version >= (3, 5)
+                # FIXME: I think we can intermingle dict_comp's with other
+                # dictionary kinds of things. The most common though is
+                # a sequence of dict_comp's
+                kwargs = node[-1].attr
+                template = ("**%C", (0, kwargs, ", **"))
+                self.template_engine(template, node)
+                sep = ""
+
+            pass
+        else:
+            # Python 2 style kvlist. Find beginning of kvlist.
+            indent = self.indent + "  "
+            line_number = self.line_number
+            if node[0].kind.startswith("BUILD_MAP"):
+                if len(node) > 1 and node[1].kind in ("kvlist", "kvlist_n"):
+                    kv_node = node[1]
+                else:
+                    kv_node = node[1:]
+                self.kv_map(kv_node, sep, line_number, indent)
+            else:
+                sep = ""
+                opname = node[-1].kind
+                if self.is_pypy and self.version >= (3, 5):
+                    if opname.startswith("BUILD_CONST_KEY_MAP"):
+                        keys = node[-2].attr
+                        # FIXME: DRY this and the above
+                        for i in range(len(keys)):
+                            key = keys[i]
+                            value = self.traverse(node[i], indent="")
+                            self.write(sep, key, ": ", value)
+                            sep = ", "
+                            if line_number != self.line_number:
+                                sep += "\n" + self.indent + "  "
+                                line_number = self.line_number
+                                pass
+                            pass
+                        pass
+                    else:
+                        if opname.startswith("kvlist"):
+                            list_node = node[0]
+                        else:
+                            list_node = node
+
+                        assert list_node[-1].kind.startswith("BUILD_MAP")
+                        for i in range(0, len(list_node) - 1, 2):
+                            key = self.traverse(list_node[i], indent="")
+                            value = self.traverse(list_node[i + 1], indent="")
+                            self.write(sep, key, ": ", value)
+                            sep = ", "
+                            if line_number != self.line_number:
+                                sep += "\n" + self.indent + "  "
+                                line_number = self.line_number
+                                pass
+                            pass
+                        pass
+                elif opname.startswith("kvlist"):
+                    kv_node = node[-1]
+                    self.kv_map(node[-1], sep, line_number, indent)
+
+                pass
+            pass
+        if sep.startswith(",\n"):
+            self.write(sep[1:])
+        if node[0] != "dict_entry":
+            self.write("}")
+        self.indent_less(INDENT_PER_LEVEL)
+        self.prec = p
+        self.prune()
 
     def n_docstring(self, node):
 
@@ -498,6 +743,11 @@ class NonterminalActions:
         """
         prettyprint a dict, list, set or tuple.
         """
+        if len(node) == 1 and node[0] == "const_list":
+            self.preorder(node[0])
+            self.prune()
+            return
+
         p = self.prec
         self.prec = PRECEDENCE["yield"] - 1
         lastnode = node.pop()
@@ -547,7 +797,6 @@ class NonterminalActions:
             self.write("(")
             endchar = ")"
         else:
-            # from trepan.api import debug; debug()
             raise TypeError(
                 "Internal Error: n_build_list expects list, tuple, set, or unpack"
             )

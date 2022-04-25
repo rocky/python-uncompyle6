@@ -42,6 +42,24 @@ class Scanner38(Scanner37):
     pass
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
+        """
+        Create "tokens" the bytecode of an Python code object. Largely these
+        are the opcode name, but in some cases that has been modified to make parsing
+        easier.
+        returning a list of uncompyle6 Token's.
+
+        Some transformations are made to assist the deparsing grammar:
+           -  various types of LOAD_CONST's are categorized in terms of what they load
+           -  COME_FROM instructions are added to assist parsing control structures
+           -  operands with stack argument counts or flag masks are appended to the opcode name, e.g.:
+              *  BUILD_LIST, BUILD_SET
+              *  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional arguments
+           -  EXTENDED_ARGS instructions are removed
+
+        Also, when we encounter certain tokens, we add them to a set which will cause custom
+        grammar rules. Specifically, variable arg tokens like MAKE_FUNCTION or BUILD_LIST
+        cause specific rules for the specific number of arguments they take.
+        """
         tokens, customize = super(Scanner38, self).ingest(
             co, classname, code_objects, show_asm
         )
@@ -62,6 +80,8 @@ class Scanner38(Scanner37):
             print(jump_back_targets)
         loop_ends = []
         next_end = tokens[len(tokens) - 1].off2int() + 10
+
+        new_tokens = []
         for i, token in enumerate(tokens):
             opname = token.kind
             offset = token.offset
@@ -75,6 +95,8 @@ class Scanner38(Scanner37):
                     if len(loop_ends)
                     else tokens[len(tokens) - 1].off2int() + 10
                 )
+
+            # things that smash new_tokens like BUILD_LIST have to come first.
 
             if offset in jump_back_targets:
                 next_end = off2int(jump_back_targets[offset], prefer_last=False)
@@ -93,6 +115,7 @@ class Scanner38(Scanner37):
                 if opname == "JUMP_ABSOLUTE" and jump_target <= next_end:
                     # Not a forward-enough jump to break out of the next loop, so continue.
                     # FIXME: Do we need "continue" detection?
+                    new_tokens.append(token)
                     continue
 
                 # We also want to avoid confusing BREAK_LOOPS with parts of the
@@ -123,8 +146,8 @@ class Scanner38(Scanner37):
                 ):
                     token.kind = "BREAK_LOOP"
                 pass
-            pass
-        return tokens, customize
+            new_tokens.append(token)
+        return new_tokens, customize
 
 
 if __name__ == "__main__":

@@ -84,6 +84,9 @@ def long(num):
     return num
 
 
+CONST_COLLECTIONS = ("CONST_LIST", "CONST_SET", "CONST_DICT")
+
+
 class Code(object):
     """
     Class for representing code-objects.
@@ -123,6 +126,80 @@ class Scanner(object):
 
         # FIXME: This weird Python2 behavior is not Python3
         self.resetTokenClass()
+
+    def bound_collection(
+        self, tokens: list, next_tokens: list, t: Token, i: int, collection_type: str
+    ):
+        count = t.attr
+        assert isinstance(count, int)
+
+        assert count <= i
+
+        if collection_type == "CONST_DICT":
+            # constant dictonaries work via BUILD_CONST_KEY_MAP and
+            # handle the values() like sets and lists.
+            # However the keys() are an LOAD_CONST of the keys.
+            # adjust offset to account for this
+            count += 1
+
+        # For small lists don't bother
+        if count < 5:
+            return next_tokens + [t]
+
+        collection_start = i - count
+
+        for j in range(collection_start, i):
+            if tokens[j].kind not in (
+                "LOAD_CONST",
+                "LOAD_FAST",
+                "LOAD_GLOBAL",
+                "LOAD_NAME",
+            ):
+                return next_tokens + [t]
+
+        collection_enum = CONST_COLLECTIONS.index(collection_type)
+
+        # If we go there all instructions before tokens[i] are LOAD_CONST and we can replace
+        # add a boundary marker and change LOAD_CONST to something else
+        new_tokens = next_tokens[:-count]
+        start_offset = tokens[collection_start].offset
+        new_tokens.append(
+            Token(
+                opname="COLLECTION_START",
+                attr=collection_enum,
+                pattr=collection_type,
+                offset=f"{start_offset}_0",
+                has_arg=True,
+                opc=self.opc,
+                has_extended_arg=False,
+            )
+        )
+        for j in range(collection_start, i):
+            new_tokens.append(
+                Token(
+                    opname="ADD_VALUE",
+                    attr=tokens[j].attr,
+                    pattr=tokens[j].pattr,
+                    offset=tokens[j].offset,
+                    has_arg=True,
+                    linestart=tokens[j].linestart,
+                    opc=self.opc,
+                    has_extended_arg=False,
+                )
+            )
+        new_tokens.append(
+            Token(
+                opname=f"BUILD_{collection_type}",
+                attr=t.attr,
+                pattr=t.pattr,
+                offset=t.offset,
+                has_arg=t.has_arg,
+                linestart=t.linestart,
+                opc=t.opc,
+                has_extended_arg=False,
+            )
+        )
+        return new_tokens
 
     def build_instructions(self, co):
         """
