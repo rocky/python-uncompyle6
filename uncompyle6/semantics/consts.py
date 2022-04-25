@@ -281,6 +281,7 @@ TABLE_DIRECT = {
     "comp_if": (" if %c%c", 0, 2),
     "comp_if_not": (" if not %p%c", (0, "expr", PRECEDENCE["unary_not"]), 2),
     "comp_body": ("",),  # ignore when recusing
+
     "set_comp_body": ("%c", 0),
     "gen_comp_body": ("%c", 0),
     "dict_comp_body": ("%c:%c", 1, 0),

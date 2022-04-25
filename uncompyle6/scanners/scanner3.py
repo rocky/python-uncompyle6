@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2019, 2021 by Rocky Bernstein
+#  Copyright (c) 2015-2019, 2021-2022 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #

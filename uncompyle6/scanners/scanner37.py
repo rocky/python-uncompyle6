@@ -30,6 +30,8 @@ from xdis.opcodes import opcode_37 as opc
 # bytecode verification, verify(), uses JUMP_OPS from here
 JUMP_OPs = opc.JUMP_OPS
 
+CONST_COLLECTIONS = ("CONST_LIST", "CONST_SET", "CONST_DICT")
+
 
 class Scanner37(Scanner37Base):
     def __init__(self, show_asm=None, is_pypy=False):
@@ -39,9 +41,45 @@ class Scanner37(Scanner37Base):
 
     pass
 
-    def ingest(self, co, classname=None, code_objects={}, show_asm=None):
+    def ingest(
+        self, co, classname=None, code_objects={}, show_asm=None
+    ):
+        """
+        Create "tokens" the bytecode of an Python code object. Largely these
+        are the opcode name, but in some cases that has been modified to make parsing
+        easier.
+        returning a list of uncompyle6 Token's.
+
+        Some transformations are made to assist the deparsing grammar:
+           -  various types of LOAD_CONST's are categorized in terms of what they load
+           -  COME_FROM instructions are added to assist parsing control structures
+           -  operands with stack argument counts or flag masks are appended to the opcode name, e.g.:
+              *  BUILD_LIST, BUILD_SET
+              *  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional arguments
+           -  EXTENDED_ARGS instructions are removed
+
+        Also, when we encounter certain tokens, we add them to a set which will cause custom
+        grammar rules. Specifically, variable arg tokens like MAKE_FUNCTION or BUILD_LIST
+        cause specific rules for the specific number of arguments they take.
+        """
         tokens, customize = Scanner37Base.ingest(self, co, classname, code_objects, show_asm)
-        for t in tokens:
+        new_tokens = []
+        for i, t in enumerate(tokens):
+            # things that smash new_tokens like BUILD_LIST have to come first.
+            if t.op in (
+                self.opc.BUILD_CONST_KEY_MAP,
+                self.opc.BUILD_LIST,
+                self.opc.BUILD_SET,
+            ):
+                if t.kind.startswith("BUILD_CONST_KEY_MAP"):
+                    collection_type = "DICT"
+                else:
+                    collection_type = t.kind.split("_")[1]
+                new_tokens = self.bound_collection(
+                    tokens, new_tokens, t, i, "CONST_%s" % collection_type
+                )
+                continue
+
             # The lowest bit of flags indicates whether the
             # var-keyword argument is placed at the top of the stack
             if t.op == self.opc.CALL_FUNCTION_EX and t.attr & 1:
@@ -59,8 +97,9 @@ class Scanner37(Scanner37Base):
                 t.kind = "BUILD_MAP_UNPACK_WITH_CALL_%d" % t.attr
             elif not self.is_pypy and t.op == self.opc.BUILD_TUPLE_UNPACK_WITH_CALL:
                 t.kind = "BUILD_TUPLE_UNPACK_WITH_CALL_%d" % t.attr
-            pass
-        return tokens, customize
+            new_tokens.append(t)
+
+        return new_tokens, customize
 
 if __name__ == "__main__":
     from xdis.version_info import PYTHON_VERSION_TRIPLE, version_tuple_to_str

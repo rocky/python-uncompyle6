@@ -279,8 +279,16 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         # FIXME: handle free_tup, ann_dict, and default_tup
         if kw_dict:
             assert kw_dict == "dict"
-            defaults = [self.traverse(n, indent="") for n in kw_dict[:-2]]
-            names = eval(self.traverse(kw_dict[-2]))
+            const_list = kw_dict[0]
+            if kw_dict[0] == "const_list":
+                add_consts = const_list[1]
+                assert add_consts == "add_consts"
+                names = add_consts[-1].attr
+                defaults = [v.pattr for v in add_consts[:-1]]
+            else:
+                defaults = [self.traverse(n, indent="") for n in kw_dict[:-2]]
+                names = eval(self.traverse(kw_dict[-2]))
+
             assert len(defaults) == len(names)
             # FIXME: possibly handle line breaks
             for i, n in enumerate(names):

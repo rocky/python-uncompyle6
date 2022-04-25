@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2020 by Rocky Bernstein
+#  Copyright (c) 2015-2020, 2022 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -181,20 +181,22 @@ class Scanner37Base(Scanner):
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
-        Pick out tokens from an uncompyle6 code object, and transform them,
+        Create "tokens" the bytecode of an Python code object. Largely these
+        are the opcode name, but in some cases that has been modified to make parsing
+        easier.
         returning a list of uncompyle6 Token's.
 
-        The transformations are made to assist the deparsing grammar.
-        Specificially:
+        Some transformations are made to assist the deparsing grammar:
            -  various types of LOAD_CONST's are categorized in terms of what they load
            -  COME_FROM instructions are added to assist parsing control structures
-           -  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional arguments
-           -  some EXTENDED_ARGS instructions are removed
+           -  operands with stack argument counts or flag masks are appended to the opcode name, e.g.:
+              *  BUILD_LIST, BUILD_SET
+              *  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional arguments
+           -  EXTENDED_ARGS instructions are removed
 
         Also, when we encounter certain tokens, we add them to a set which will cause custom
         grammar rules. Specifically, variable arg tokens like MAKE_FUNCTION or BUILD_LIST
         cause specific rules for the specific number of arguments they take.
-
         """
 
         def tokens_append(j, token):
@@ -212,7 +214,7 @@ class Scanner37Base(Scanner):
         # show_asm = 'both'
         if show_asm in ("both", "before"):
             for instr in bytecode.get_instructions(co):
-                print(instr.disassemble())
+                print(instr.disassemble(self.opc))
 
         # "customize" is in the process of going away here
         customize = {}
@@ -316,6 +318,7 @@ class Scanner37Base(Scanner):
                 # "loop" tag last so the grammar rule matches that properly.
                 for jump_offset in sorted(jump_targets[inst.offset], reverse=True):
                     come_from_name = "COME_FROM"
+
                     opname = self.opname_for_offset(jump_offset)
                     if opname == "EXTENDED_ARG":
                         k = xdis.next_offset(op, self.opc, jump_offset)
@@ -341,22 +344,6 @@ class Scanner37Base(Scanner):
                     )
                     jump_idx += 1
                     pass
-                pass
-            elif inst.offset in self.else_start:
-                end_offset = self.else_start[inst.offset]
-                j = tokens_append(
-                    j,
-                    Token(
-                        "ELSE",
-                        None,
-                        repr(end_offset),
-                        offset="%s" % (inst.offset),
-                        has_arg=True,
-                        opc=self.opc,
-                        has_extended_arg=inst.has_extended_arg,
-                    ),
-                )
-
                 pass
 
             pattr = inst.argrepr
@@ -444,17 +431,24 @@ class Scanner37Base(Scanner):
                 opname = "%s_%d+%d" % (opname, before_args, after_args)
 
             elif op == self.opc.JUMP_ABSOLUTE:
-                # Further classify JUMP_ABSOLUTE into backward jumps
-                # which are used in loops, and "CONTINUE" jumps which
-                # may appear in a "continue" statement.  The loop-type
-                # and continue-type jumps will help us classify loop
-                # boundaries The continue-type jumps help us get
-                # "continue" statements with would otherwise be turned
-                # into a "pass" statement because JUMPs are sometimes
-                # ignored in rules as just boundary overhead. In
-                # comprehensions we might sometimes classify JUMP_BACK
-                # as CONTINUE, but that's okay since we add a grammar
-                # rule for that.
+                #  Refine JUMP_ABSOLUTE further in into:
+                #
+                # * "JUMP_LOOP"    - which are are used in loops. This is sometimes
+                #                   found at the end of a looping construct
+                # * "BREAK_LOOP"  - which are are used to break loops.
+                # * "CONTINUE"    - jumps which may appear in a "continue" statement.
+                #                   It is okay to confuse this with JUMP_LOOP. The
+                #                   grammar should tolerate this.
+                # * "JUMP_FORWARD - forward jumps that are not BREAK_LOOP jumps.
+                #
+                # The loop-type and continue-type jumps will help us
+                # classify loop boundaries The continue-type jumps
+                # help us get "continue" statements with would
+                # otherwise be turned into a "pass" statement because
+                # JUMPs are sometimes ignored in rules as just
+                # boundary overhead. Again, in comprehensions we might
+                # sometimes classify JUMP_LOOP as CONTINUE, but that's
+                # okay since grammar rules should tolerate that.
                 pattr = argval
                 target = inst.argval
                 if target <= inst.offset:
@@ -545,7 +539,6 @@ class Scanner37Base(Scanner):
         self.except_targets = {}
         self.ignore_if = set()
         self.build_statement_indices()
-        self.else_start = {}
 
         # Containers filled by detect_control_flow()
         self.not_continue = set()
@@ -655,9 +648,9 @@ class Scanner37Base(Scanner):
                 ):
                     stmts.remove(stmt_offset)
                     continue
-                # Rewing ops till we encounter non-JUMP_ABSOLUTE one
+                # Scan back bytecode ops till we encounter non-JUMP_ABSOLUTE op
                 j = self.prev_op[stmt_offset]
-                while code[j] == self.opc.JUMP_ABSOLUTE:
+                while code[j] == self.opc.JUMP_ABSOLUTE and j > 0:
                     j = self.prev_op[j]
                 # If we got here, then it's list comprehension which
                 # is not a statement too
@@ -687,7 +680,9 @@ class Scanner37Base(Scanner):
         # Finish filling the list for last statement
         slist += [codelen] * (codelen - len(slist))
 
-    def detect_control_flow(self, offset, targets, inst_index):
+    def detect_control_flow(
+        self, offset, targets, inst_index
+    ):
         """
         Detect type of block structures and their boundaries to fix optimized jumps
         in python2.3+
@@ -933,20 +928,16 @@ class Scanner37Base(Scanner):
 
 
 if __name__ == "__main__":
-    from uncompyle6 import PYTHON_VERSION
+    from xdis.version_info import PYTHON_VERSION_TRIPLE, version_tuple_to_str
 
-    if PYTHON_VERSION >= 3.7:
+    if PYTHON_VERSION_TRIPLE[:2] == (3, 7):
         import inspect
 
-        co = inspect.currentframe().f_code
-        from uncompyle6 import PYTHON_VERSION
+        co = inspect.currentframe().f_code  # type: ignore
 
-        tokens, customize = Scanner37Base(PYTHON_VERSION).ingest(co)
+        tokens, customize = Scanner37Base(PYTHON_VERSION_TRIPLE).ingest(co)
         for t in tokens:
             print(t)
     else:
-        print(
-            "Need to be Python 3.7 or greater to demo; I am version {PYTHON_VERSION}."
-            % PYTHON_VERSION
-        )
+        print("Need to be Python 3.7 to demo; I am version %s." % version_tuple_to_str())
     pass
