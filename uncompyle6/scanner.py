@@ -168,7 +168,7 @@ class Scanner(object):
                 opname="COLLECTION_START",
                 attr=collection_enum,
                 pattr=collection_type,
-               offset="%s_0" % start_offset,
+                offset="%s_0" % start_offset,
                 has_arg=True,
                 opc=self.opc,
                 has_extended_arg=False,
