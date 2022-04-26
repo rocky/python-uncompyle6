@@ -209,7 +209,7 @@ class Scanner3(Scanner):
         return
 
     def bound_collection_from_inst(
-        self, insts: list, next_tokens: list, inst: Instruction, t: Token, i: int, collection_type: str
+        self, insts, next_tokens, inst, t, i, collection_type
     ):
         count = t.attr
         assert isinstance(count, int)
@@ -401,11 +401,10 @@ class Scanner3(Scanner):
                 "BUILD_LIST",
                 "BUILD_SET",
             ):
-                collection_type = (
-                    "DICT"
-                    if opname.startswith("BUILD_CONST_KEY_MAP")
-                    else opname.split("_")[1]
-                )
+                if opname.startswith("BUILD_CONST_KEY_MAP"):
+                    collection_type = "DICT"
+                else:
+                    collection_type = opname.split("_")[1]
                 try_tokens = self.bound_collection_from_inst(
                     self.insts, new_tokens, inst, t, i, "CONST_%s" % collection_type
                 )

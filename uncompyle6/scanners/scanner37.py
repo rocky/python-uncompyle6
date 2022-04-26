@@ -41,8 +41,8 @@ class Scanner37(Scanner37Base):
     pass
 
     def bound_collection_from_tokens(
-        self, tokens: list, next_tokens: list, t: Token, i: int, collection_type: str
-    ) -> list:
+        self, tokens, next_tokens, t, i, collection_type
+    ):
         count = t.attr
         assert isinstance(count, int)
 
