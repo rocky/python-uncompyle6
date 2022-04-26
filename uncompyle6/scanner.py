@@ -84,7 +84,7 @@ def long(num):
     return num
 
 
-CONST_COLLECTIONS = ("CONST_LIST", "CONST_SET", "CONST_DICT")
+CONST_COLLECTIONS = ("CONST_LIST", "CONST_SET", "CONST_DICT", "CONST_MAP")
 
 
 class Code(object):
