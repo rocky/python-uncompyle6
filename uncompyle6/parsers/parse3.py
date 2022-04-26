@@ -816,18 +816,18 @@ class Python3Parser(PythonParser):
 
             elif opname in ("BUILD_CONST_LIST", "BUILD_CONST_DICT", "BUILD_CONST_SET"):
                 if opname == "BUILD_CONST_DICT":
-                    rule = f"""
+                    rule = """
                            add_consts          ::= ADD_VALUE*
-                           const_list          ::= COLLECTION_START add_consts {opname}
+                           const_list          ::= COLLECTION_START add_consts %s
                            dict                ::= const_list
                            expr                ::= dict
-                           """
+                           """ % opname
                 else:
-                    rule = f"""
+                    rule = """
                            add_consts          ::= ADD_VALUE*
-                           const_list          ::= COLLECTION_START add_consts {opname}
+                           const_list          ::= COLLECTION_START add_consts %s
                            expr                ::= const_list
-                           """
+                           """ % opname
                 self.addRule(rule, nop_func)
 
             elif opname_base in (

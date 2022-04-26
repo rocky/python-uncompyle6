@@ -22,13 +22,8 @@ This sets up opcodes Python's 3.7 and calls a generalized
 scanner routine for Python 3.
 """
 
-<<<<<<< HEAD
-=======
-from typing import Tuple
-
 from uncompyle6.scanner import CONST_COLLECTIONS
 from uncompyle6.scanners.tok import Token
->>>>>>> long-collection-python3
 from uncompyle6.scanners.scanner37base import Scanner37Base
 
 # bytecode verification, verify(), uses JUMP_OPs from here
@@ -86,7 +81,7 @@ class Scanner37(Scanner37Base):
                 opname="COLLECTION_START",
                 attr=collection_enum,
                 pattr=collection_type,
-                offset=f"{start_offset}_0",
+                offset="%s_0" % start_offset,
                 linestart=False,
                 has_arg=True,
                 has_extended_arg=False,
@@ -108,7 +103,7 @@ class Scanner37(Scanner37Base):
             )
         new_tokens.append(
             Token(
-                opname=f"BUILD_{collection_type}",
+                opname="BUILD_%s" % collection_type,
                 attr=t.attr,
                 pattr=t.pattr,
                 offset=t.offset,

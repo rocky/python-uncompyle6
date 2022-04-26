@@ -35,8 +35,6 @@ Finally we save token information.
 
 from __future__ import print_function
 
-from typing import Optional, Tuple
-
 from xdis import iscode, instruction_size, Instruction
 from xdis.bytecode import _get_const_info
 
@@ -209,7 +207,7 @@ class Scanner3(Scanner):
 
     def bound_collection_from_inst(
         self, insts: list, next_tokens: list, inst: Instruction, t: Token, i: int, collection_type: str
-    ) -> Optional[list]:
+    ):
         count = t.attr
         assert isinstance(count, int)
 
@@ -248,7 +246,7 @@ class Scanner3(Scanner):
                 opname="COLLECTION_START",
                 attr=collection_enum,
                 pattr=collection_type,
-                offset=f"{start_offset}_0",
+                offset= "%s_0" % start_offset,
                 linestart=False,
                 has_arg=True,
                 has_extended_arg=False,
@@ -270,7 +268,7 @@ class Scanner3(Scanner):
             )
         new_tokens.append(
             Token(
-                opname=f"BUILD_{collection_type}",
+                opname="BUILD_%s" % collection_type,
                 attr=t.attr,
                 pattr=t.pattr,
                 offset=t.offset,
@@ -283,7 +281,7 @@ class Scanner3(Scanner):
         return new_tokens
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None
-        ) -> Tuple[list, dict]:
+        ):
         """
         Create "tokens" the bytecode of an Python code object. Largely these
         are the opcode name, but in some cases that has been modified to make parsing
@@ -403,7 +401,7 @@ class Scanner3(Scanner):
                     else opname.split("_")[1]
                 )
                 try_tokens = self.bound_collection_from_inst(
-                    self.insts, new_tokens, inst, t, i, f"CONST_{collection_type}"
+                    self.insts, new_tokens, inst, t, i, "CONST_%s" % collection_type
                 )
                 if try_tokens is not None:
                     new_tokens = try_tokens
