@@ -227,7 +227,7 @@ class NonterminalActions:
         self.indent_more(INDENT_PER_LEVEL)
         sep = ""
         if is_dict:
-            keys = flat_elems[-1].pattr
+            keys = flat_elems[-1].attr
             assert isinstance(keys, tuple)
             assert len(keys) == len(flat_elems) - 1
             for i, elem in enumerate(flat_elems[:-1]):

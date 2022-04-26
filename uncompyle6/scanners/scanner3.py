@@ -230,10 +230,13 @@ class Scanner3(Scanner):
 
         for j in range(collection_start, i):
             if insts[j].opname not in (
+                "LOAD_ASSERT",
+                "LOAD_CODE",
                 "LOAD_CONST",
                 "LOAD_FAST",
                 "LOAD_GLOBAL",
                 "LOAD_NAME",
+                "LOAD_STR",
             ):
                 return None
 
@@ -376,11 +379,13 @@ class Scanner3(Scanner):
         for i, inst in enumerate(self.insts):
 
             opname = inst.opname
+            argval = inst.argval
+            pattr = inst.argrepr
 
             t = Token(
                     opname=opname,
-                    attr=inst.argval,
-                    pattr=inst.argrepr,
+                    attr=argval,
+                    pattr=pattr,
                     offset=inst.offset,
                     linestart=inst.starts_line,
                     op=inst.opcode,
@@ -431,8 +436,8 @@ class Scanner3(Scanner):
                         j = xdis.next_offset(op, self.opc, jump_offset)
                         come_from_opname = self.opname_for_offset(j)
 
-                    if opname.startswith("SETUP_"):
-                        come_from_type = opname[len("SETUP_") :]
+                    if come_from_opname.startswith("SETUP_"):
+                        come_from_type = come_from_opname[len("SETUP_") :]
                         come_from_name = "COME_FROM_%s" % come_from_type
                         pass
                     elif inst.offset in self.except_targets:
@@ -464,8 +469,6 @@ class Scanner3(Scanner):
                 )
 
                 pass
-
-            pattr = inst.argrepr
 
             if op in self.opc.CONST_OPS:
                 const = argval
@@ -640,6 +643,8 @@ class Scanner3(Scanner):
 
             last_op_was_break = opname == "BREAK_LOOP"
             t.kind = opname
+            t.attr = argval
+            t.pattr = pattr
             new_tokens.append(t)
             pass
 
