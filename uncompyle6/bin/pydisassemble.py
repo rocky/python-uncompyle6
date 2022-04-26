@@ -26,7 +26,7 @@ value are folded into the following instruction operand.
 
 Like the parser, you may find this more high-level and or helpful.
 However if you want a true disassembler see the Standard built-in
-Python library moudle module "dis", or pydisasm from the cross-version
+Python library module "dis", or pydisasm from the cross-version
 Python bytecode package "xdis".
 
 Examples:
