@@ -134,6 +134,96 @@ class Scanner2(Scanner):
             ]
         )
 
+    def bound_collection_from_tokens(
+        self, tokens, t, i, c, collection_type):
+        """
+        Try to a replace sequence of instruction that ends with a BUILD_LIST with a sequence that can
+        be parsed much faster, but inserting the token boundary at the beginning of the sequence.
+        """
+        count = t.attr
+        assert isinstance(count, int)
+        if count > i:
+            return None
+
+        # For small lists don't bother
+        if count < 5:
+            return None
+
+        collection_start = i - (count * 2)
+        assert (count * 2) <= i
+
+        for j in range(collection_start, i, 2):
+            try:
+                tokens[j]
+            except:
+                from trepan.api import debug; debug()
+            if tokens[j].opname not in (
+                "LOAD_CONST",
+            ):
+                return None
+            if tokens[j+1].opname not in (
+                "LOAD_CONST",
+            ):
+                return None
+
+        collection_start = i - (2 * count)
+        collection_enum = CONST_COLLECTIONS.index("CONST_MAP")
+
+        # If we get here, all instructions before tokens[i] are LOAD_CONST and we can replace
+        # add a boundary marker and change LOAD_CONST to something else
+        new_tokens = tokens[:-(2*count)]
+        start_offset = tokens[collection_start].offset
+        new_tokens.append(
+            Token(
+                opname="COLLECTION_START",
+                attr=collection_enum,
+                pattr="CONST_MAP",
+                offset="%s_0" % start_offset,
+                linestart=False,
+                has_arg=True,
+                has_extended_arg=False,
+                opc=self.opc,
+            )
+        )
+        for j in range(collection_start, i, 2):
+            new_tokens.append(
+                Token(
+                    opname="ADD_KEY",
+                    attr=tokens[j].argval,
+                    pattr=tokens[j].argrepr,
+                    offset=tokens[j].offset,
+                    linestart=tokens[j].starts_line,
+                    has_arg=True,
+                    has_extended_arg=False,
+                    opc=self.opc,
+                )
+            )
+            new_tokens.append(
+                Token(
+                    opname="ADD_VALUE",
+                    attr=tokens[j+1].argval,
+                    pattr=tokens[j+1].argrepr,
+                    offset=tokens[j+1].offset,
+                    linestart=tokens[j+1].starts_line,
+                    has_arg=True,
+                    has_extended_arg=False,
+                    opc=self.opc,
+                )
+            )
+        new_tokens.append(
+            Token(
+                opname=collection_type,
+                attr=t.attr,
+                pattr=t.pattr,
+                offset=t.offset,
+                linestart=t.linestart,
+                has_arg=t.has_arg,
+                has_extended_arg=False,
+                opc=t.opc,
+            )
+        )
+        return new_tokens
+
     @staticmethod
     def extended_arg_val(arg):
         """Return integer value of an EXTENDED_ARG operand.
@@ -209,7 +299,7 @@ class Scanner2(Scanner):
                 print(instr.disassemble())
 
         # list of tokens/instructions
-        tokens = []
+        new_tokens = []
 
         # "customize" is in the process of going away here
         customize = {}
@@ -286,7 +376,7 @@ class Scanner2(Scanner):
                         if come_from_type not in ("LOOP", "EXCEPT"):
                             come_from_name = "COME_FROM_%s" % come_from_type
                         pass
-                    tokens.append(
+                    new_tokens.append(
                         Token(
                             come_from_name,
                             jump_offset,
@@ -310,6 +400,9 @@ class Scanner2(Scanner):
                 if op == self.opc.EXTENDED_ARG:
                     extended_arg += self.extended_arg_val(oparg)
                     continue
+                ###
+                # Start here: look for BUILD_LIST
+                ###
                 if op in self.opc.CONST_OPS:
                     const = co.co_consts[oparg]
                     if iscode(const):
@@ -344,12 +437,12 @@ class Scanner2(Scanner):
                 elif op in self.opc.JREL_OPS:
                     #  use instead: hasattr(self, 'patch_continue'): ?
                     if self.version[:2] == (2, 7):
-                        self.patch_continue(tokens, offset, op)
+                        self.patch_continue(new_tokens, offset, op)
                     pattr = repr(offset + 3 + oparg)
                 elif op in self.opc.JABS_OPS:
                     # use instead: hasattr(self, 'patch_continue'): ?
                     if self.version[:2] == (2, 7):
-                        self.patch_continue(tokens, offset, op)
+                        self.patch_continue(new_tokens, offset, op)
                     pattr = repr(oparg)
                 elif op in self.opc.LOCAL_OPS:
                     pattr = varnames[oparg]
@@ -430,13 +523,13 @@ class Scanner2(Scanner):
             linestart = self.linestarts.get(offset, None)
 
             if offset not in replace:
-                tokens.append(
+                new_tokens.append(
                     Token(
                         op_name, oparg, pattr, offset, linestart, op, has_arg, self.opc
                     )
                 )
             else:
-                tokens.append(
+                new_tokens.append(
                     Token(
                         replace[offset],
                         oparg,
@@ -452,10 +545,10 @@ class Scanner2(Scanner):
             pass
 
         if show_asm in ("both", "after"):
-            for t in tokens:
+            for t in new_tokens:
                 print(t.format(line_prefix=""))
             print()
-        return tokens, customize
+        return new_tokens, customize
 
     def build_statement_indices(self):
         code = self.code
