@@ -212,7 +212,7 @@ class Scanner3(Scanner):
         self, insts, next_tokens, inst, t, i, collection_type
     ):
         """
-        Try to a sequence of instruction that ends with a BUILD_xxx into a sequence that can
+        Try to a replace sequence of instruction that ends with a BUILD_xxx with a sequence that can
         be parsed much faster, but inserting the token boundary at the beginning of the sequence.
         """
         count = t.attr
@@ -375,8 +375,6 @@ class Scanner3(Scanner):
             )
         )
         return new_tokens
-
-
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None
         ):

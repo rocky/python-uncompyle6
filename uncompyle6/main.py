@@ -315,11 +315,6 @@ def main(
                 else:
                     buffering = 0
                 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering)
-                if PYTHON_VERSION_TRIPLE >= (2, 7):
-                    tee = subprocess.Popen(["tee", current_outfile],
-                                           stdin=subprocess.PIPE)
-                    os.dup2(tee.stdin.fileno(), sys.stdout.fileno())
-                    os.dup2(tee.stdin.fileno(), sys.stderr.fileno())
         else:
             if filename.endswith(".pyc"):
                 current_outfile = os.path.join(out_base, filename[0:-1])

@@ -74,8 +74,8 @@ class Scanner37(Scanner37Base):
 
         collection_enum = CONST_COLLECTIONS.index(collection_type)
 
-        # If we go there all instructions before tokens[i] are LOAD_CONST and we can replace
-        # add a boundary marker and change LOAD_CONST to something else
+        # If we get here, all instructions before tokens[i] are LOAD_CONST and we can replace
+        # add a boundary marker and change LOAD_CONST to something else.
         new_tokens = next_tokens[:-count]
         start_offset = tokens[collection_start].offset
         new_tokens.append(
