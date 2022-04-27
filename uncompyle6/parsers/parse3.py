@@ -748,6 +748,12 @@ class Python3Parser(PythonParser):
                 kvlist_n = "expr " * (token.attr)
                 rule = "dict ::= %sLOAD_CONST %s" % (kvlist_n, opname)
                 self.addRule(rule, nop_func)
+            elif opname.startswith("BUILD_DICT_OLDER"):
+                rule = """dict ::= COLLECTION_START key_value_pairs BUILD_DICT_OLDER
+                          key_value_pairs ::= key_value_pair+
+                          key_value_pair  ::= ADD_KEY ADD_VALUE
+                       """
+                self.addRule(rule, nop_func)
             elif opname.startswith("BUILD_LIST_UNPACK"):
                 v = token.attr
                 rule = "build_list_unpack ::= %s%s" % ("expr " * v, opname)

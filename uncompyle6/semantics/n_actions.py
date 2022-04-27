@@ -244,8 +244,6 @@ class NonterminalActions:
                 sep = ","
         else:
             for elem in flat_elems:
-                if elem.kind != "ADD_VALUE":
-                    from trepan.api import debug; debug()
                 assert elem.kind == "ADD_VALUE"
                 value = elem.pattr
                 if elem.linestart is not None:
@@ -395,6 +393,32 @@ class NonterminalActions:
                 template = ("**%C", (0, kwargs, ", **"))
                 self.template_engine(template, node)
                 sep = ""
+            if node[0].kind == "COLLECTION_START":
+                key_value_pairs = node[1]
+                for key_value_pair in key_value_pairs:
+                    key, value = key_value_pair
+                    if key.linestart is not None:
+                        line_number = key.linestart
+                    if line_number != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        self.line_number = line_number
+                    self.write(sep)
+                    self.write(key.pattr)
+                    self.write(": ")
+                    if value.linestart is not None:
+                        line_number = value.linestart
+                    if line_number != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        self.line_number = line_number
+                    else:
+                        sep += " "
+                        pass
+                    self.write(value.pattr)
+                    sep = ", "
+                    pass
+                if sep.startswith(",\n"):
+                    self.write(sep[1:])
+                pass
 
             pass
         else:
