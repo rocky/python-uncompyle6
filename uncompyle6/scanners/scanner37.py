@@ -24,8 +24,7 @@ scanner routine for Python 3.
 
 from typing import Tuple
 
-from uncompyle6.scanner import CONST_COLLECTIONS
-from uncompyle6.scanners.tok import Token
+from uncompyle6.scanner import CONST_COLLECTIONS, Token
 from uncompyle6.scanners.scanner37base import Scanner37Base
 
 # bytecode verification, verify(), uses JUMP_OPs from here

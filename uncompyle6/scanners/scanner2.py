@@ -200,7 +200,6 @@ class Scanner2(Scanner):
         grammar rules. Specifically, variable arg tokens like MAKE_FUNCTION or BUILD_LIST
         cause specific rules for the specific number of arguments they take.
         """
-
         if not show_asm:
             show_asm = self.show_asm
 
@@ -212,7 +211,7 @@ class Scanner2(Scanner):
                 print(instr.disassemble())
 
         # list of tokens/instructions
-        tokens = []
+        new_tokens = []
 
         # "customize" is in the process of going away here
         customize = {}
@@ -289,7 +288,7 @@ class Scanner2(Scanner):
                         if come_from_type not in ("LOOP", "EXCEPT"):
                             come_from_name = "COME_FROM_%s" % come_from_type
                         pass
-                    tokens.append(
+                    new_tokens.append(
                         Token(
                             come_from_name,
                             jump_offset,
@@ -313,6 +312,24 @@ class Scanner2(Scanner):
                 if op == self.opc.EXTENDED_ARG:
                     extended_arg += self.extended_arg_val(oparg)
                     continue
+
+                # Note: name used to match on rather than op since
+                # BUILD_SET isn't in earlier Pythons.
+                if op_name in (
+                    "BUILD_LIST",
+                    "BUILD_SET",
+                ):
+                    t = Token(
+                        op_name, oparg, pattr, offset, self.linestarts.get(offset, None), op, has_arg, self.opc
+                    )
+                    collection_type = op_name.split("_")[1]
+                    next_tokens = self.bound_collection_from_tokens(
+                        new_tokens, t, len(new_tokens), "CONST_%s" % collection_type
+                    )
+                    if next_tokens is not None:
+                        new_tokens = next_tokens
+                        continue
+
                 if op in self.opc.CONST_OPS:
                     const = co.co_consts[oparg]
                     if iscode(const):
@@ -347,12 +364,12 @@ class Scanner2(Scanner):
                 elif op in self.opc.JREL_OPS:
                     #  use instead: hasattr(self, 'patch_continue'): ?
                     if self.version[:2] == (2, 7):
-                        self.patch_continue(tokens, offset, op)
+                        self.patch_continue(new_tokens, offset, op)
                     pattr = repr(offset + 3 + oparg)
                 elif op in self.opc.JABS_OPS:
                     # use instead: hasattr(self, 'patch_continue'): ?
                     if self.version[:2] == (2, 7):
-                        self.patch_continue(tokens, offset, op)
+                        self.patch_continue(new_tokens, offset, op)
                     pattr = repr(oparg)
                 elif op in self.opc.LOCAL_OPS:
                     pattr = varnames[oparg]
@@ -433,13 +450,13 @@ class Scanner2(Scanner):
             linestart = self.linestarts.get(offset, None)
 
             if offset not in replace:
-                tokens.append(
+                new_tokens.append(
                     Token(
                         op_name, oparg, pattr, offset, linestart, op, has_arg, self.opc
                     )
                 )
             else:
-                tokens.append(
+                new_tokens.append(
                     Token(
                         replace[offset],
                         oparg,
@@ -455,10 +472,10 @@ class Scanner2(Scanner):
             pass
 
         if show_asm in ("both", "after"):
-            for t in tokens:
+            for t in new_tokens:
                 print(t.format(line_prefix=""))
             print()
-        return tokens, customize
+        return new_tokens, customize
 
     def build_statement_indices(self):
         code = self.code

@@ -748,18 +748,37 @@ class Python3Parser(PythonParser):
                 kvlist_n = "expr " * (token.attr)
                 rule = "dict ::= %sLOAD_CONST %s" % (kvlist_n, opname)
                 self.addRule(rule, nop_func)
+
+            elif opname in ("BUILD_CONST_LIST", "BUILD_CONST_DICT", "BUILD_CONST_SET"):
+                if opname == "BUILD_CONST_DICT":
+                    rule = """
+                           add_consts          ::= ADD_VALUE*
+                           const_list          ::= COLLECTION_START add_consts %s
+                           dict                ::= const_list
+                           expr                ::= dict
+                           """ % opname
+                else:
+                    rule = """
+                           add_consts          ::= ADD_VALUE*
+                           const_list          ::= COLLECTION_START add_consts %s
+                           expr                ::= const_list
+                           """ % opname
+                self.addRule(rule, nop_func)
+
             elif opname.startswith("BUILD_DICT_OLDER"):
                 rule = """dict ::= COLLECTION_START key_value_pairs BUILD_DICT_OLDER
                           key_value_pairs ::= key_value_pair+
                           key_value_pair  ::= ADD_KEY ADD_VALUE
                        """
                 self.addRule(rule, nop_func)
+
             elif opname.startswith("BUILD_LIST_UNPACK"):
                 v = token.attr
                 rule = "build_list_unpack ::= %s%s" % ("expr " * v, opname)
                 self.addRule(rule, nop_func)
                 rule = "expr ::= build_list_unpack"
                 self.addRule(rule, nop_func)
+
             elif opname_base in ("BUILD_MAP", "BUILD_MAP_UNPACK"):
                 kvlist_n = "kvlist_%s" % token.attr
                 if opname == "BUILD_MAP_n":
