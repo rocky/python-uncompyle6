@@ -22,8 +22,6 @@ This sets up opcodes Python's 3.7 and calls a generalized
 scanner routine for Python 3.
 """
 
-from uncompyle6.scanner import CONST_COLLECTIONS
-from uncompyle6.scanners.tok import Token
 from uncompyle6.scanners.scanner37base import Scanner37Base
 
 # bytecode verification, verify(), uses JUMP_OPs from here
@@ -39,83 +37,6 @@ class Scanner37(Scanner37Base):
         return
 
     pass
-
-    def bound_collection_from_tokens(
-        self, tokens, next_tokens, t, i, collection_type
-    ):
-        count = t.attr
-        assert isinstance(count, int)
-
-        assert count <= i
-
-        if collection_type == "CONST_DICT":
-            # constant dictonaries work via BUILD_CONST_KEY_MAP and
-            # handle the values() like sets and lists.
-            # However the keys() are an LOAD_CONST of the keys.
-            # adjust offset to account for this
-            count += 1
-
-        # For small lists don't bother
-        if count < 5:
-            return next_tokens + [t]
-
-        collection_start = i - count
-
-        for j in range(collection_start, i):
-            if tokens[j].kind not in (
-                "LOAD_CODE",
-                "LOAD_CONST",
-                "LOAD_FAST",
-                "LOAD_GLOBAL",
-                "LOAD_NAME",
-                "LOAD_STR",
-            ):
-                return next_tokens + [t]
-
-        collection_enum = CONST_COLLECTIONS.index(collection_type)
-
-        # If we get here, all instructions before tokens[i] are LOAD_CONST and we can replace
-        # add a boundary marker and change LOAD_CONST to something else.
-        new_tokens = next_tokens[:-count]
-        start_offset = tokens[collection_start].offset
-        new_tokens.append(
-            Token(
-                opname="COLLECTION_START",
-                attr=collection_enum,
-                pattr=collection_type,
-                offset="%s_0" % start_offset,
-                linestart=False,
-                has_arg=True,
-                has_extended_arg=False,
-                opc=self.opc,
-            )
-        )
-        for j in range(collection_start, i):
-            new_tokens.append(
-                Token(
-                    opname="ADD_VALUE",
-                    attr=tokens[j].attr,
-                    pattr=tokens[j].pattr,
-                    offset=tokens[j].offset,
-                    linestart=tokens[j].linestart,
-                    has_arg=True,
-                    has_extended_arg=False,
-                    opc=self.opc,
-                )
-            )
-        new_tokens.append(
-            Token(
-                opname="BUILD_%s" % collection_type,
-                attr=t.attr,
-                pattr=t.pattr,
-                offset=t.offset,
-                linestart=t.linestart,
-                has_arg=t.has_arg,
-                has_extended_arg=False,
-                opc=t.opc,
-            )
-        )
-        return new_tokens
 
     def ingest(
         self, co, classname=None, code_objects={}, show_asm=None
@@ -151,10 +72,12 @@ class Scanner37(Scanner37Base):
                     collection_type = "DICT"
                 else:
                     collection_type = t.kind.split("_")[1]
-                new_tokens = self.bound_collection(
-                    tokens, new_tokens, t, i, "CONST_%s" % collection_type
+                next_tokens = self.bound_collection_from_tokens(
+                    new_tokens, t, i, "CONST_%s" % collection_type
                 )
-                continue
+                if next_tokens is not None:
+                    new_tokens = next_tokens
+                    continue
 
             # The lowest bit of flags indicates whether the
             # var-keyword argument is placed at the top of the stack

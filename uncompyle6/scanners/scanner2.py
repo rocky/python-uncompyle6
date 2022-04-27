@@ -134,96 +134,6 @@ class Scanner2(Scanner):
             ]
         )
 
-    def bound_collection_from_tokens(
-        self, tokens, t, i, c, collection_type):
-        """
-        Try to a replace sequence of instruction that ends with a BUILD_LIST with a sequence that can
-        be parsed much faster, but inserting the token boundary at the beginning of the sequence.
-        """
-        count = t.attr
-        assert isinstance(count, int)
-        if count > i:
-            return None
-
-        # For small lists don't bother
-        if count < 5:
-            return None
-
-        collection_start = i - (count * 2)
-        assert (count * 2) <= i
-
-        for j in range(collection_start, i, 2):
-            try:
-                tokens[j]
-            except:
-                from trepan.api import debug; debug()
-            if tokens[j].opname not in (
-                "LOAD_CONST",
-            ):
-                return None
-            if tokens[j+1].opname not in (
-                "LOAD_CONST",
-            ):
-                return None
-
-        collection_start = i - (2 * count)
-        collection_enum = CONST_COLLECTIONS.index("CONST_MAP")
-
-        # If we get here, all instructions before tokens[i] are LOAD_CONST and we can replace
-        # add a boundary marker and change LOAD_CONST to something else
-        new_tokens = tokens[:-(2*count)]
-        start_offset = tokens[collection_start].offset
-        new_tokens.append(
-            Token(
-                opname="COLLECTION_START",
-                attr=collection_enum,
-                pattr="CONST_MAP",
-                offset="%s_0" % start_offset,
-                linestart=False,
-                has_arg=True,
-                has_extended_arg=False,
-                opc=self.opc,
-            )
-        )
-        for j in range(collection_start, i, 2):
-            new_tokens.append(
-                Token(
-                    opname="ADD_KEY",
-                    attr=tokens[j].argval,
-                    pattr=tokens[j].argrepr,
-                    offset=tokens[j].offset,
-                    linestart=tokens[j].starts_line,
-                    has_arg=True,
-                    has_extended_arg=False,
-                    opc=self.opc,
-                )
-            )
-            new_tokens.append(
-                Token(
-                    opname="ADD_VALUE",
-                    attr=tokens[j+1].argval,
-                    pattr=tokens[j+1].argrepr,
-                    offset=tokens[j+1].offset,
-                    linestart=tokens[j+1].starts_line,
-                    has_arg=True,
-                    has_extended_arg=False,
-                    opc=self.opc,
-                )
-            )
-        new_tokens.append(
-            Token(
-                opname=collection_type,
-                attr=t.attr,
-                pattr=t.pattr,
-                offset=t.offset,
-                linestart=t.linestart,
-                has_arg=t.has_arg,
-                has_extended_arg=False,
-                opc=t.opc,
-            )
-        )
-        return new_tokens
-
     @staticmethod
     def extended_arg_val(arg):
         """Return integer value of an EXTENDED_ARG operand.
@@ -287,7 +197,6 @@ class Scanner2(Scanner):
         grammar rules. Specifically, variable arg tokens like MAKE_FUNCTION or BUILD_LIST
         cause specific rules for the specific number of arguments they take.
         """
-
         if not show_asm:
             show_asm = self.show_asm
 
@@ -400,9 +309,24 @@ class Scanner2(Scanner):
                 if op == self.opc.EXTENDED_ARG:
                     extended_arg += self.extended_arg_val(oparg)
                     continue
-                ###
-                # Start here: look for BUILD_LIST
-                ###
+
+                # Note: name used to match on rather than op since
+                # BUILD_SET isn't in earlier Pythons.
+                if op_name in (
+                    "BUILD_LIST",
+                    "BUILD_SET",
+                ):
+                    t = Token(
+                        op_name, oparg, pattr, offset, self.linestarts.get(offset, None), op, has_arg, self.opc
+                    )
+                    collection_type = op_name.split("_")[1]
+                    next_tokens = self.bound_collection_from_tokens(
+                        new_tokens, t, len(new_tokens), "CONST_%s" % collection_type
+                    )
+                    if next_tokens is not None:
+                        new_tokens = next_tokens
+                        continue
+
                 if op in self.opc.CONST_OPS:
                     const = co.co_consts[oparg]
                     if iscode(const):

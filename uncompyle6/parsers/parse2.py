@@ -310,6 +310,14 @@ class Python2Parser(PythonParser):
 
             opname_base = opname[: opname.rfind("_")]
 
+            if opname in ("BUILD_CONST_LIST", "BUILD_CONST_SET"):
+                rule = """
+                       add_consts          ::= ADD_VALUE*
+                       const_list          ::= COLLECTION_START add_consts %s
+                       expr                ::= const_list
+                       """ % opname
+                self.addRule(rule, nop_func)
+
             # The order of opname listed is roughly sorted below
             if opname_base in ("BUILD_LIST", "BUILD_SET", "BUILD_TUPLE"):
                 # We do this complicated test to speed up parsing of

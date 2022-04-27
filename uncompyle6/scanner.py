@@ -128,8 +128,8 @@ class Scanner(object):
         # FIXME: This weird Python2 behavior is not Python3
         self.resetTokenClass()
 
-    def bound_collection(
-        self, tokens, next_tokens, t, i, collection_type
+    def bound_collection_from_tokens(
+        self, tokens, t, i, collection_type
     ):
         count = t.attr
         assert isinstance(count, int)
@@ -145,7 +145,7 @@ class Scanner(object):
 
         # For small lists don't bother
         if count < 5:
-            return next_tokens + [t]
+            return None
 
         collection_start = i - count
 
@@ -156,13 +156,13 @@ class Scanner(object):
                 "LOAD_GLOBAL",
                 "LOAD_NAME",
             ):
-                return next_tokens + [t]
+                return None
 
         collection_enum = CONST_COLLECTIONS.index(collection_type)
 
         # If we go there all instructions before tokens[i] are LOAD_CONST and we can replace
         # add a boundary marker and change LOAD_CONST to something else
-        new_tokens = next_tokens[:-count]
+        new_tokens = tokens[:-count]
         start_offset = tokens[collection_start].offset
         new_tokens.append(
             Token(
