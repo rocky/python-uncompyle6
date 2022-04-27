@@ -61,6 +61,7 @@ class PythonParser(GenericASTBuilder):
             "except_stmts",
             "exprlist",
             "importlist",
+            "key_value_pairs",
             "kvlist",
             "kwargs",
             "l_stmts",

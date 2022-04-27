@@ -63,10 +63,12 @@ class Scanner37(Scanner37Base):
 
         for j in range(collection_start, i):
             if tokens[j].kind not in (
+                "LOAD_CODE",
                 "LOAD_CONST",
                 "LOAD_FAST",
                 "LOAD_GLOBAL",
                 "LOAD_NAME",
+                "LOAD_STR",
             ):
                 return next_tokens + [t]
 

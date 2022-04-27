@@ -211,6 +211,10 @@ class Scanner3(Scanner):
     def bound_collection_from_inst(
         self, insts, next_tokens, inst, t, i, collection_type
     ):
+        """
+        Try to a sequence of instruction that ends with a BUILD_xxx into a sequence that can
+        be parsed much faster, but inserting the token boundary at the beginning of the sequence.
+        """
         count = t.attr
         assert isinstance(count, int)
 
@@ -231,10 +235,13 @@ class Scanner3(Scanner):
 
         for j in range(collection_start, i):
             if insts[j].opname not in (
+                "LOAD_ASSERT",
+                "LOAD_CODE",
                 "LOAD_CONST",
                 "LOAD_FAST",
                 "LOAD_GLOBAL",
                 "LOAD_NAME",
+                "LOAD_STR",
             ):
                 return None
 
@@ -282,6 +289,94 @@ class Scanner3(Scanner):
             )
         )
         return new_tokens
+
+    def bound_map_from_inst(
+        self, insts, next_tokens, inst, t, i):
+        """
+        Try to a sequence of instruction that ends with a BUILD_MAP into a sequence that can
+        be parsed much faster, but inserting the token boundary at the beginning of the sequence.
+        """
+        count = t.attr
+        assert isinstance(count, int)
+        if count > i:
+            return None
+
+        # For small lists don't bother
+        if count < 5:
+            return None
+
+        collection_start = i - (count * 2)
+        assert (count * 2) <= i
+
+        for j in range(collection_start, i, 2):
+            if insts[j].opname not in (
+                "LOAD_CONST",
+            ):
+                return None
+            if insts[j+1].opname not in (
+                "LOAD_CONST",
+            ):
+                return None
+
+        collection_start = i - (2 * count)
+        collection_enum = CONST_COLLECTIONS.index("CONST_MAP")
+
+        # If we get here, all instructions before tokens[i] are LOAD_CONST and we can replace
+        # add a boundary marker and change LOAD_CONST to something else
+        new_tokens = next_tokens[:-(2*count)]
+        start_offset = insts[collection_start].offset
+        new_tokens.append(
+            Token(
+                opname="COLLECTION_START",
+                attr=collection_enum,
+                pattr="CONST_MAP",
+                offset="%s_0" % start_offset,
+                linestart=False,
+                has_arg=True,
+                has_extended_arg=False,
+                opc=self.opc,
+            )
+        )
+        for j in range(collection_start, i, 2):
+            new_tokens.append(
+                Token(
+                    opname="ADD_KEY",
+                    attr=insts[j].argval,
+                    pattr=insts[j].argrepr,
+                    offset=insts[j].offset,
+                    linestart=insts[j].starts_line,
+                    has_arg=True,
+                    has_extended_arg=False,
+                    opc=self.opc,
+                )
+            )
+            new_tokens.append(
+                Token(
+                    opname="ADD_VALUE",
+                    attr=insts[j+1].argval,
+                    pattr=insts[j+1].argrepr,
+                    offset=insts[j+1].offset,
+                    linestart=insts[j+1].starts_line,
+                    has_arg=True,
+                    has_extended_arg=False,
+                    opc=self.opc,
+                )
+            )
+        new_tokens.append(
+            Token(
+                opname="BUILD_DICT_OLDER",
+                attr=t.attr,
+                pattr=t.pattr,
+                offset=t.offset,
+                linestart=t.linestart,
+                has_arg=t.has_arg,
+                has_extended_arg=False,
+                opc=t.opc,
+            )
+        )
+        return new_tokens
+
+
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None
         ):
@@ -407,6 +502,15 @@ class Scanner3(Scanner):
                     collection_type = opname.split("_")[1]
                 try_tokens = self.bound_collection_from_inst(
                     self.insts, new_tokens, inst, t, i, "CONST_%s" % collection_type
+                )
+                if try_tokens is not None:
+                    new_tokens = try_tokens
+                    continue
+            elif opname in (
+                "BUILD_MAP",
+            ):
+                try_tokens = self.bound_map_from_inst(
+                    self.insts, new_tokens, inst, t, i,
                 )
                 if try_tokens is not None:
                     new_tokens = try_tokens
