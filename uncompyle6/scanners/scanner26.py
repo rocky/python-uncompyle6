@@ -174,7 +174,7 @@ class Scanner26(scan.Scanner2):
 
                     collection_type = op_name.split("_")[1]
                     next_tokens = self.bound_collection_from_tokens(
-                        tokens, t, i, "CONST_%s" % collection_type
+                        tokens, t, len(tokens), "CONST_%s" % collection_type
                     )
                     if next_tokens is not None:
                         tokens = next_tokens
