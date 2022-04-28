@@ -226,6 +226,7 @@ class NonterminalActions:
 
         self.indent_more(INDENT_PER_LEVEL)
         sep = ""
+        line_len = len(self.indent)
         if is_dict:
             keys = flat_elems[-1].attr
             assert isinstance(keys, tuple)
@@ -235,26 +236,44 @@ class NonterminalActions:
                 value = elem.pattr
                 if elem.linestart is not None:
                     if elem.linestart != self.line_number:
-                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        next_indent = self.indent + INDENT_PER_LEVEL[:-1]
+                        line_len = len(next_indent)
+                        sep += "\n" + next_indent
                         self.line_number = elem.linestart
                     else:
                         if sep != "":
                             sep += " "
-                self.write(f"{sep} {repr(keys[i])}: {value}")
-                sep = ","
+                elif line_len > 80:
+                    next_indent = self.indent + INDENT_PER_LEVEL[:-1]
+                    line_len = len(next_indent)
+                    sep += "\n" + next_indent
+
+                sep_key_value = f" {repr(keys[i])}: {value}"
+                line_len += len(sep_key_value)
+                self.write(sep_key_value)
+                sep = ", "
         else:
             for elem in flat_elems:
                 assert elem.kind == "ADD_VALUE"
                 value = elem.pattr
                 if elem.linestart is not None:
                     if elem.linestart != self.line_number:
-                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        next_indent = self.indent + INDENT_PER_LEVEL[:-1]
+                        line_len += len(next_indent)
+                        sep += "\n" + next_indent
                         self.line_number = elem.linestart
                     else:
                         if sep != "":
                             sep += " "
+                        line_len += len(sep)
+                elif line_len > 80:
+                    next_indent = self.indent + INDENT_PER_LEVEL[:-1]
+                    line_len = len(next_indent)
+                    sep += "\n" + next_indent
+
+                line_len += len(sep) + len(str(value)) + 1
                 self.write(sep, value)
-                sep = ","
+                sep = ", "
         self.write(endchar)
         self.indent_less(INDENT_PER_LEVEL)
 
