@@ -1,4 +1,4 @@
-#  Copyright (c) 2018 Rocky Bernstein
+#  Copyright (c) 2018, 2022 Rocky Bernstein
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parser import PythonParserSingle
@@ -8,11 +8,24 @@ class Python14Parser(Python15Parser):
 
     def p_misc14(self, args):
         """
-        # Not much here yet, but will probably need to add UNARY_CALL, BINARY_CALL,
-        # RAISE_EXCEPTION, BUILD_FUNCTION, UNPACK_ARG, UNPACK_VARARG, LOAD_LOCAL,
-        # SET_FUNC_ARGS, and RESERVE_FAST
+        # Not much here yet, but will probably need to add UNARY_CALL,
+        # LOAD_LOCAL, SET_FUNC_ARGS
+
+        call            ::= expr tuple BINARY_CALL
+        expr            ::= call
+        kv              ::= DUP_TOP expr ROT_TWO LOAD_CONST STORE_SUBSCR
+        mkfunc          ::= LOAD_CODE BUILD_FUNCTION
+        print_expr_stmt ::= expr PRINT_EXPR
+        raise_stmt2     ::= expr expr RAISE_EXCEPTION
+        star_args       ::= RESERVE_FAST UNPACK_VARARG_1 args_store
+        args            ::= RESERVE_FAST UNPACK_ARG args_store
+        stmt            ::= print_expr_stmt
+        args_store      ::= STORE_FAST+
+        stmt            ::= args
+        stmt            ::= star_args
 
         # Not strictly needed, but tidies up output
+
         stmt     ::= doc_junk
         doc_junk ::= LOAD_CONST POP_TOP
 

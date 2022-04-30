@@ -228,7 +228,8 @@ class Scanner26(scan.Scanner2):
                 elif op in self.opc.JABS_OPS:
                     pattr = repr(oparg)
                 elif op in self.opc.LOCAL_OPS:
-                    pattr = varnames[oparg]
+                    if oparg in varnames:
+                        pattr = varnames[oparg]
                 elif op in self.opc.COMPARE_OPS:
                     pattr = self.opc.cmp_op[oparg]
                 elif op in self.opc.FREE_OPS:

@@ -1,4 +1,4 @@
-#  Copyright (c) 2018-2019, 2021 by Rocky Bernstein
+#  Copyright (c) 2018-2019, 2021-2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 """
 
 from uncompyle6.parsers.treenode import SyntaxTree
-from uncompyle6.semantics.consts import INDENT_PER_LEVEL, PRECEDENCE, TABLE_R, TABLE_DIRECT
+from uncompyle6.semantics.consts import INDENT_PER_LEVEL, NO_PARENTHESIS_EVER, PRECEDENCE, TABLE_R, TABLE_DIRECT
 from uncompyle6.semantics.helper import flatten_list
 from uncompyle6.scanners.tok import Token
 
@@ -47,7 +47,7 @@ def customize_for_version(self, is_pypy, version):
         if version[:2] >= (3, 7):
 
             def n_call_kw_pypy37(node):
-                self.template_engine(("%p(", (0, 100)), node)
+                self.template_engine(("%p(", (0, NO_PARENTHESIS_EVER)), node)
                 assert node[-1] == "CALL_METHOD_KW"
                 arg_count = node[-1].attr
                 kw_names = node[-2]
@@ -193,7 +193,26 @@ def customize_for_version(self, is_pypy, version):
                     self.prune()
 
                 self.n_iftrue_stmt24 = n_iftrue_stmt24
-            else:  # version <= 2.3:
+            elif version <= (1, 4):
+                TABLE_DIRECT.update(
+                    {
+                        "call":	(
+                            "%p(%P)",
+                            (0, "expr", 100), (1,-1,", ")
+                        ),
+                        "print_expr_stmt": (
+                            ("%|print %c,\n", 0)
+                        ),
+                    }
+                )
+
+                # FIXME: figure out how to handle LOAD_FAST
+                # it uses code.names
+                # def n_LOAD_FAST(node):
+                #     pass
+                # self.n_LOAD_FAST = n_LOAD_FAST
+
+            else:  # 1.0 <= version <= 2.3:
                 TABLE_DIRECT.update({"if1_stmt": ("%|if 1\n%+%c%-", 5)})
                 if version <= (2, 1):
                     TABLE_DIRECT.update(

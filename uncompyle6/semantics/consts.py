@@ -199,6 +199,9 @@ TABLE_DIRECT = {
     "BINARY_AND": ("&",),
     "BINARY_OR": ("|",),
     "BINARY_XOR": ("^",),
+    "DELETE_FAST": ("%|del %{pattr}\n",),
+    "DELETE_NAME": ("%|del %{pattr}\n",),
+    "DELETE_GLOBAL": ("%|del %{pattr}\n",),
     "INPLACE_ADD": ("+=",),
     "INPLACE_SUBTRACT": ("-=",),
     "INPLACE_MULTIPLY": ("*=",),
@@ -215,8 +218,6 @@ TABLE_DIRECT = {
     "INPLACE_XOR": ("^=",),
     # bin_op (formerly "binary_expr") is the Python AST BinOp
     "bin_op": ("%c %c %c", 0, (-1, "binary_operator"), (1, "expr")),
-    "UNARY_POSITIVE": ("+",),
-    "UNARY_NEGATIVE": ("-",),
     "UNARY_INVERT": ("~"),
     # unary_op (formerly "unary_expr") is the Python AST UnaryOp
     "unary_op": ("%c%c", (1, "unary_operator"), (0, "expr")),
@@ -238,9 +239,6 @@ TABLE_DIRECT = {
     "LOAD_DEREF": ("%{pattr}",),
     "LOAD_LOCALS": ("locals()",),
     "LOAD_ASSERT": ("%{pattr}",),
-    "DELETE_FAST": ("%|del %{pattr}\n",),
-    "DELETE_NAME": ("%|del %{pattr}\n",),
-    "DELETE_GLOBAL": ("%|del %{pattr}\n",),
     "delete_subscript": (
         "%|del %p[%c]\n",
         (0, "expr", PRECEDENCE["subscript"]),
@@ -264,6 +262,8 @@ TABLE_DIRECT = {
     "STORE_NAME": ("%{pattr}",),
     "STORE_GLOBAL": ("%{pattr}",),
     "STORE_DEREF": ("%{pattr}",),
+    "UNARY_POSITIVE": ("+",),
+    "UNARY_NEGATIVE": ("-",),
     "unpack": ("%C%,", (1, maxint, ", ")),
     # This nonterminal we create on the fly in semantic routines
     "unpack_w_parens": ("(%C%,)", (1, maxint, ", ")),
