@@ -24,7 +24,6 @@ use in deparsing.
 
 import sys
 import uncompyle6.scanners.scanner2 as scan
-from uncompyle6.scanner import L65536
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_26
@@ -228,7 +227,9 @@ class Scanner26(scan.Scanner2):
                 elif op in self.opc.JABS_OPS:
                     pattr = repr(oparg)
                 elif op in self.opc.LOCAL_OPS:
-                    if oparg in varnames:
+                    if self.version < (1, 5):
+                        pattr = names[oparg]
+                    else:
                         pattr = varnames[oparg]
                 elif op in self.opc.COMPARE_OPS:
                     pattr = self.opc.cmp_op[oparg]

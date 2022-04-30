@@ -193,24 +193,27 @@ def customize_for_version(self, is_pypy, version):
                     self.prune()
 
                 self.n_iftrue_stmt24 = n_iftrue_stmt24
-            elif version <= (1, 4):
-                TABLE_DIRECT.update(
-                    {
-                        "call":	(
-                            "%p(%P)",
-                            (0, "expr", 100), (1,-1,", ")
-                        ),
-                        "print_expr_stmt": (
-                            ("%|print %c,\n", 0)
-                        ),
-                    }
-                )
+            elif version < (1, 4):
+                from uncompyle6.semantics.customize14 import customize_for_version14
+                customize_for_version14(self, version)
 
-                # FIXME: figure out how to handle LOAD_FAST
-                # it uses code.names
-                # def n_LOAD_FAST(node):
-                #     pass
-                # self.n_LOAD_FAST = n_LOAD_FAST
+                def n_call(node):
+                    expr = node[0]
+                    assert expr == "expr"
+                    params = node[1]
+                    if params == "tuple":
+                        self.template_engine(("%p(", (0, NO_PARENTHESIS_EVER)), expr)
+                        sep = ""
+                        for param in params[:-1]:
+                            self.write(sep)
+                            self.preorder(param)
+                            sep = ", "
+                        self.write(")")
+                    else:
+                        self.template_engine(("%p(%P)",
+                                              (0, "expr", 100), (1,-1,", ", NO_PARENTHESIS_EVER)), node)
+                    self.prune()
+                self.n_call = n_call
 
             else:  # 1.0 <= version <= 2.3:
                 TABLE_DIRECT.update({"if1_stmt": ("%|if 1\n%+%c%-", 5)})
