@@ -42,6 +42,8 @@ jobs:
     - run:
         command: | # Use pip to install dependengcies
           pip install --user --upgrade setuptools
+          # Until the next release
+          pip install git+https://github.com/rocky/python-xdis#egg=xdis
           pip install --user -e .
           pip install --user -r requirements-dev.txt
 
