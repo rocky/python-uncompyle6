@@ -45,12 +45,12 @@ def make_function1(self, node, is_lambda, nested=1, code_node=None):
         args = tree[0]
         del tree[0]
         params = []
-        assert args.kind in ("star_args", "args")
-        has_star_arg = args.kind == "star_args"
+        assert args.kind in ("star_args", "args", "varargs")
+        has_star_arg = args.kind in ("star_args", "varargs")
         args_store = args[2]
-        assert args_store == "args_store"
-        for arg in args_store:
-            params.append(param_names[arg.attr])
+        if args_store == "args_store":
+            for arg in args_store:
+                params.append(param_names[arg.attr])
         return has_star_arg, params
 
     # MAKE_FUNCTION_... or MAKE_CLOSURE_...
@@ -118,16 +118,16 @@ def make_function1(self, node, is_lambda, nested=1, code_node=None):
         # to have something to after the yield finishes.
         # FIXME: this is a bit hoaky and not general
         if (
-            len(ast) > 1
-            and self.traverse(ast[-1]) == "None"
-            and self.traverse(ast[-2]).strip().startswith("yield")
+            len(tree) > 1
+            and self.traverse(tree[-1]) == "None"
+            and self.traverse(tree[-2]).strip().startswith("yield")
         ):
-            del ast[-1]
+            del tree[-1]
             # Now pick out the expr part of the last statement
-            ast_expr = ast[-1]
-            while ast_expr.kind != "expr":
-                ast_expr = ast_expr[0]
-            ast[-1] = ast_expr
+            tree_expr = tree[-1]
+            while tree_expr.kind != "expr":
+                tree_expr = tree_expr[0]
+            tree[-1] = tree_expr
             pass
     else:
         self.write("(", ", ".join(params))
