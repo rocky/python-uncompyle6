@@ -242,13 +242,13 @@ class NonterminalActions:
                         self.line_number = elem.linestart
                     else:
                         if sep != "":
-                            sep += " "
+                            sep += ", "
                 elif line_len > 80:
                     next_indent = self.indent + INDENT_PER_LEVEL[:-1]
                     line_len = len(next_indent)
                     sep += "\n" + next_indent
 
-                sep_key_value = f" {repr(keys[i])}: {value}"
+                sep_key_value = f"{sep}{repr(keys[i])}: {value}"
                 line_len += len(sep_key_value)
                 self.write(sep_key_value)
                 sep = ", "
