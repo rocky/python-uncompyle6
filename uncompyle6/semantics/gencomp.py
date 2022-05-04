@@ -19,14 +19,13 @@ Generators and comprehension functions
 
 from typing import Optional
 
-from xdis import iscode
+from xdis import co_flags_is_async, iscode
 
 from uncompyle6.parser import get_python_parser
 from uncompyle6.scanner import Code
 from uncompyle6.semantics.consts import PRECEDENCE
 from uncompyle6.semantics.helper import is_lambda_mode
 from uncompyle6.scanners.tok import Token
-
 
 class ComprehensionMixin:
     """
@@ -39,7 +38,8 @@ class ComprehensionMixin:
     are not seen.
     """
     def closure_walk(self, node, collection_index):
-        """Dictionary and comprehensions using closure the way they are done in Python3.
+        """
+        Dictionary and comprehensions using closure the way they are done in Python3.
         """
         p = self.prec
         self.prec = 27
@@ -58,6 +58,10 @@ class ComprehensionMixin:
         n = tree[iter_index]
         list_if = None
         assert n == "comp_iter"
+
+        # Pick out important parts of the comprehension:
+        # * the variables we iterate over: "stores"
+        # * the results we accumulate: "n"
 
         # Find inner-most node.
         while n == "comp_iter":
@@ -128,7 +132,7 @@ class ComprehensionMixin:
 
         assert iscode(cn.attr)
 
-        code = Code(cn.attr, self.scanner, self.currentclass)
+        code = Code(cn.attr, self.scanner, self.currentclass, self.debug_opts["asm"])
 
         # FIXME: is there a way we can avoid this?
         # The problem is that in filter in top-level list comprehensions we can
@@ -435,3 +439,136 @@ class ComprehensionMixin:
             self.prec = 100
             tree = tree[1] if tree[0] in ("dom_start", "dom_start_opt") else tree[0]
         return tree
+
+    def listcomp_closure3(self, node):
+        """
+        List comprehensions in Python 3 when handled as a closure.
+        See if we can combine code.
+        """
+
+        # FIXME: DRY with comprehension_walk_newer
+        p = self.prec
+        self.prec = 27
+
+        code_obj = node[1].attr
+        assert iscode(code_obj), node[1]
+        code = Code(code_obj, self.scanner, self.currentclass, self.debug_opts["asm"])
+
+        tree = self.build_ast(code._tokens, code._customize, code)
+        self.customize(code._customize)
+
+        # skip over: sstmt, stmt, return, return_expr
+        # and other singleton derivations
+        while len(tree) == 1 or (
+            tree in ("sstmt", "return") and tree[-1] in ("RETURN_LAST", "RETURN_VALUE")
+        ):
+            self.prec = 100
+            tree = tree[0]
+
+        n = tree[1]
+
+        # Pick out important parts of the comprehension:
+        # * the variables we iterate over: "stores"
+        # * the results we accumulate: "n"
+
+        # collections is the name of the expression(s) we are iterating over
+        collections = [node[-3]]
+        list_ifs = []
+
+        if self.version[:2] == (3, 0) and n != "list_iter":
+            # FIXME 3.0 is a snowflake here. We need
+            # special code for this. Not sure if this is totally
+            # correct.
+            stores = [tree[3]]
+            assert tree[4] == "comp_iter"
+            n = tree[4]
+            # Find the list comprehension body. It is the inner-most
+            # node that is not comp_.. .
+            while n == "comp_iter":
+                if n[0] == "comp_for":
+                    n = n[0]
+                    stores.append(n[2])
+                    n = n[3]
+                elif n[0] in ("comp_if", "comp_if_not"):
+                    n = n[0]
+                    # FIXME: just a guess
+                    if n[0].kind == "expr":
+                        list_ifs.append(n)
+                    else:
+                        list_ifs.append([1])
+                    n = n[2]
+                    pass
+                else:
+                    break
+                pass
+
+            # Skip over n[0] which is something like: _[1]
+            self.preorder(n[1])
+
+        else:
+            assert n == "list_iter"
+            stores = []
+            # Find the list comprehension body. It is the inner-most
+            # node that is not list_.. .
+            while n == "list_iter":
+
+                # recurse one step
+                n = n[0]
+
+                # FIXME: adjust for set comprehension
+                if n == "list_for":
+                    stores.append(n[2])
+                    n = n[3]
+                    if n[0] == "list_for":
+                        # Dog-paddle down largely singleton reductions
+                        # to find the collection (expr)
+                        c = n[0][0]
+                        if c == "expr":
+                            c = c[0]
+                        # FIXME: grammar is wonky here? Is this really an attribute?
+                        if c == "attribute":
+                            c = c[0]
+                        collections.append(c)
+                        pass
+                elif n in ("list_if", "list_if_not", "list_if_or_not"):
+                    if n[0].kind == "expr":
+                        list_ifs.append(n)
+                    else:
+                        list_ifs.append([1])
+                    n = n[-2] if n[-1] == "come_from_opt" else n[-1]
+                    pass
+                elif n == "list_if37":
+                    list_ifs.append(n)
+                    n = n[-1]
+                    pass
+                elif n == "list_afor":
+                    collections.append(n[0][0])
+                    n = n[1]
+                    stores.append(n[1][0])
+                    n = n[2] if n[2].kind == "list_iter" else n[3]
+                pass
+
+            assert n == "lc_body", tree
+
+            self.preorder(n[0])
+
+        # FIXME: add indentation around "for"'s and "in"'s
+        n_colls = len(collections)
+        for i, store in enumerate(stores):
+            if i >= n_colls:
+                break
+            token = collections[i]
+            if not isinstance(token, Token):
+                token = token.first_child()
+            if token == "LOAD_DEREF" and co_flags_is_async(code_obj.co_flags):
+                self.write(" async")
+                pass
+            self.write(" for ")
+            self.preorder(store)
+            self.write(" in ")
+            self.preorder(collections[i])
+            if i < len(list_ifs):
+                self.preorder(list_ifs[i])
+                pass
+            pass
+        self.prec = p

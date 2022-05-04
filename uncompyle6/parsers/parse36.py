@@ -222,7 +222,18 @@ class Python36Parser(Python35Parser):
                                   else_suite COME_FROM_LOOP
 
         """)
-        self.check_reduce['call_kw'] = 'AST'
+        self.check_reduce["call_kw"] = "AST"
+
+        # Opcode names in the custom_ops_processed set have rules that get added
+        # unconditionally and the rules are constant. So they need to be done
+        # only once and if we see the opcode a second we don't have to consider
+        # adding more rules.
+        #
+        # Note: BUILD_TUPLE_UNPACK_WITH_CALL gets considered by
+        # default because it starts with BUILD. So we'll set to ignore it from
+        # the start.
+        custom_ops_processed = set()
+
 
         for i, token in enumerate(tokens):
             opname = token.kind
@@ -307,6 +318,59 @@ class Python36Parser(Python35Parser):
                 self.addRule(rule, nop_func)
                 rule = ('starred ::= %s %s' % ('expr ' * v, opname))
                 self.addRule(rule, nop_func)
+            elif opname == "GET_AITER":
+                self.addRule(
+                    """
+                    expr                ::= generator_exp_async
+                    generator_exp_async ::= load_genexpr LOAD_STR MAKE_FUNCTION_0 expr
+                                            GET_AITER CALL_FUNCTION_1
+
+                    stmt                ::= genexpr_func_async
+
+                    func_async_prefix   ::= _come_froms
+                                            LOAD_CONST YIELD_FROM
+                                            SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
+                    func_async_middle   ::= POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT
+                                            DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                                            END_FINALLY COME_FROM
+                    genexpr_func_async  ::= LOAD_FAST func_async_prefix
+                                            store func_async_middle comp_iter
+                                            JUMP_BACK COME_FROM
+                                            POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
+
+                    expr                ::= list_comp_async
+                    list_comp_async     ::= LOAD_LISTCOMP LOAD_STR MAKE_FUNCTION_0
+                                            expr GET_AITER CALL_FUNCTION_1
+                                            GET_AWAITABLE LOAD_CONST
+                                            YIELD_FROM
+
+                    expr                ::= list_comp_async
+                    list_afor2          ::= func_async_prefix
+                                            store func_async_middle list_iter
+                                            JUMP_BACK
+                                            POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
+                    list_comp_async     ::= BUILD_LIST_0 LOAD_FAST list_afor2
+                    get_aiter           ::= expr GET_AITER
+                    list_afor           ::= get_aiter list_afor2
+                    list_iter           ::= list_afor
+                   """,
+                    nop_func,
+                )
+            elif opname == "GET_ANEXT":
+                self.addRule(
+                    """
+                    func_async_prefix   ::= _come_froms SETUP_FINALLY GET_ANEXT LOAD_CONST YIELD_FROM POP_BLOCK
+                    func_async_middle   ::= JUMP_FORWARD COME_FROM_EXCEPT
+                                            DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                    list_afor2          ::= func_async_prefix
+                                            store list_iter
+                                            JUMP_BACK COME_FROM_FINALLY
+                                            END_ASYNC_FOR
+                   """,
+                    nop_func,
+                )
+                custom_ops_processed.add(opname)
+
             elif opname == 'SETUP_ANNOTATIONS':
                 # 3.6 Variable Annotations PEP 526
                 # This seems to come before STORE_ANNOTATION, and doesn't

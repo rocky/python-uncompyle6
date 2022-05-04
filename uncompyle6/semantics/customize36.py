@@ -73,6 +73,12 @@ def customize_for_version36(self, version):
 
             "ifstmtl":            ("%|if %c:\n%+%c%-",
                                    (0, "testexpr"), (1, "_ifstmts_jumpl")),
+
+            "list_afor": (
+                " async for %[1]{%c} in %c%[1]{%c}",
+                (1, "store"), (0, "get_aiter"), (3, "list_iter"),
+            ),
+
             "try_except36":       ("%|try:\n%+%c%-%c\n\n", 1, -2),
             "tryfinally36":       ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", (1, "returns"), 3),
             "tryfinally_return_stmt": ("%|try:\n%+%c%-%|finally:\n%+%|return%-\n\n", 1),
