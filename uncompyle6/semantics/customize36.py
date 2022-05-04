@@ -61,7 +61,7 @@ def customize_for_version36(self, version):
                 "%|async for %c in %c:\n%+%c%-\n\n",
                 (9, "store"),
                 (1, "expr"),
-                (18, "for_block"),
+                (-9, "for_block"),  # Count from end, since COME_FROM shifts things in the forward direction
             ),
             "call_ex":            ("%c(%p)", (0, "expr"), (1, 100)),
             "except_return":      ("%|except:\n%+%c%-", 3),

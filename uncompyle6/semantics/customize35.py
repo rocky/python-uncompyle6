@@ -28,6 +28,7 @@ from uncompyle6.semantics.helper import flatten_list, gen_function_parens_adjust
 # Python 3.5+ Changes #
 #######################
 def customize_for_version35(self, version):
+    # fmt: off
     TABLE_DIRECT.update(
         {
             # nested await expressions like:
@@ -36,15 +37,24 @@ def customize_for_version35(self, version):
             "await_expr": ("await %p", (0, PRECEDENCE["await_expr"]-1)),
 
             "await_stmt": ("%|%c\n", 0),
-            "async_for_stmt": ("%|async for %c in %c:\n%+%|%c%-\n\n", 9, 1, 25),
+            "async_for_stmt": (
+                "%|async for %c in %c:\n%+%|%c%-\n\n",
+                (9, "store"),
+                (1, "expr"),
+                (25, "for_block"),
+            ),
             "async_forelse_stmt": (
                 "%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
-                9,
-                1,
-                25,
+                (9, "store"),
+                (1, "expr"),
+                (25, "for_block"),
                 (27, "else_suite"),
             ),
-            "async_with_stmt": ("%|async with %c:\n%+%c%-", (0, "expr"), 3),
+            "async_with_stmt": (
+                "%|async with %c:\n%+%c%-",
+                (0, "expr"),
+                3
+            ),
             "async_with_as_stmt": (
                 "%|async with %c as %c:\n%+%c%-",
                 (0, "expr"),
@@ -55,6 +65,7 @@ def customize_for_version35(self, version):
             # "unmapexpr":	       ( "{**%c}", 0), # done by n_unmapexpr
         }
     )
+    # fmt: on
 
     def async_call(node):
         self.f.write("async ")

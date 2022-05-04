@@ -29,7 +29,13 @@ class Python36Parser(Python35Parser):
         self.customized = {}
 
 
-    def p_36misc(self, args):
+    def p_jump_36(self, args):
+        """
+        # Zero or one COME_FROM
+        # And/or expressions have this
+        come_from_opt ::= COME_FROM?
+        """
+    def p_misc_36(self, args):
         """sstmt ::= sstmt RETURN_LAST
 
         # long except clauses in a loop can sometimes cause a JUMP_BACK to turn into a
@@ -67,6 +73,33 @@ class Python36Parser(Python35Parser):
 
         if_exp ::= expr jmp_false expr jf_cf expr COME_FROM
 
+        async_for_stmt36   ::= SETUP_LOOP expr
+                               GET_AITER
+                               LOAD_CONST YIELD_FROM
+                               SETUP_EXCEPT GET_ANEXT LOAD_CONST
+                               YIELD_FROM
+                               store
+                               POP_BLOCK JUMP_BACK COME_FROM_EXCEPT DUP_TOP
+                               LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                               END_FINALLY for_block
+                               COME_FROM
+                               POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP POP_BLOCK
+                               COME_FROM_LOOP
+
+        async_for_stmt36   ::= SETUP_LOOP expr
+                               GET_AITER
+                               LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
+                               YIELD_FROM
+                               store
+                               POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
+                               LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                               END_FINALLY
+                               COME_FROM
+                               for_block
+                               COME_FROM
+                               POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP POP_BLOCK
+                               COME_FROM_LOOP
+
         async_for_stmt     ::= SETUP_LOOP expr
                                GET_AITER
                                LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
@@ -80,20 +113,6 @@ class Python36Parser(Python35Parser):
                                COME_FROM_LOOP
 
         stmt      ::= async_for_stmt36
-
-        async_for_stmt36   ::= SETUP_LOOP expr
-                               GET_AITER
-                               LOAD_CONST YIELD_FROM
-                               SETUP_EXCEPT GET_ANEXT LOAD_CONST
-                               YIELD_FROM
-                               store
-                               POP_BLOCK JUMP_BACK COME_FROM_EXCEPT DUP_TOP
-                               LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
-                               END_FINALLY for_block
-                               COME_FROM
-                               POP_TOP POP_TOP POP_TOP POP_EXCEPT
-                               POP_TOP POP_BLOCK
-                               COME_FROM_LOOP
 
         async_forelse_stmt ::= SETUP_LOOP expr
                                GET_AITER
