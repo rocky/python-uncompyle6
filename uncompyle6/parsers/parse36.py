@@ -135,7 +135,7 @@ class Python36Parser(Python35Parser):
                                POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
                                LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
                                END_FINALLY COME_FROM
-                               for_block
+                               for_block _come_froms
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
                                POP_BLOCK
                                else_suite COME_FROM_LOOP

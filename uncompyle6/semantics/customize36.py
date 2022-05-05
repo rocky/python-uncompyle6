@@ -67,7 +67,7 @@ def customize_for_version36(self, version):
                 "%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
                 (9, "store"),
                 (1, "expr"),
-                (-9, "for_block"),
+                (-10, "for_block"),
                 (-2, "else_suite"),
             ),
             "call_ex":            ("%c(%p)", (0, "expr"), (1, 100)),
