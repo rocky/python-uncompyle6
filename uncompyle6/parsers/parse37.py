@@ -590,6 +590,7 @@ class Python37Parser(Python37BaseParser):
         # Order of LOAD_CONST YIELD_FROM is switched from 3.6 to save a LOAD_CONST
         async_for_stmt37   ::= setup_loop expr
                                GET_AITER
+                               _come_froms
                                SETUP_EXCEPT GET_ANEXT
                                LOAD_CONST YIELD_FROM
                                store
@@ -602,6 +603,7 @@ class Python37Parser(Python37BaseParser):
 
         async_forelse_stmt ::= setup_loop expr
                                GET_AITER
+                               _come_froms
                                SETUP_EXCEPT GET_ANEXT LOAD_CONST
                                YIELD_FROM
                                store
