@@ -510,7 +510,7 @@ class Python37Parser(Python37BaseParser):
         _ifstmts_jump ::= c_stmts_opt JUMP_ABSOLUTE JUMP_FORWARD _come_froms
         """
 
-    def p_35on(self, args):
+    def p_35_on(self, args):
         """
 
         while1elsestmt ::= setup_loop l_stmts JUMP_BACK
@@ -568,7 +568,7 @@ class Python37Parser(Python37BaseParser):
         iflaststmt ::= testexpr c_stmts_opt JUMP_FORWARD
         """
 
-    def p_37async(self, args):
+    def p_37_async(self, args):
         """
         stmt     ::= async_for_stmt37
         stmt     ::= async_for_stmt
@@ -616,7 +616,7 @@ class Python37Parser(Python37BaseParser):
                                else_suite COME_FROM_LOOP
         """
 
-    def p_37chained(self, args):
+    def p_37_chained(self, args):
         """
         testtrue         ::= compare_chained37
         testfalse        ::= compare_chained37_false
@@ -661,7 +661,7 @@ class Python37Parser(Python37BaseParser):
                                        compare_chained2a_false_37
         """
 
-    def p_37conditionals(self, args):
+    def p_37_conditionals(self, args):
         """
         expr                       ::= if_exp37
         if_exp37                   ::= expr expr jf_cfs expr COME_FROM
@@ -1195,7 +1195,7 @@ class Python37Parser(Python37BaseParser):
         compare_chained2 ::= expr COMPARE_OP come_froms JUMP_FORWARD
         """
 
-    def p_37misc(self, args):
+    def p_37_misc(self, args):
         """
         # long except clauses in a loop can sometimes cause a JUMP_BACK to turn into a
         # JUMP_FORWARD to a JUMP_BACK. And when this happens there is an additional

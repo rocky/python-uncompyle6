@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2020 Rocky Bernstein
+#  Copyright (c) 2016-2020, 2022 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -29,13 +29,13 @@ class Python36Parser(Python35Parser):
         self.customized = {}
 
 
-    def p_jump_36(self, args):
+    def p_36_jump(self, args):
         """
         # Zero or one COME_FROM
         # And/or expressions have this
         come_from_opt ::= COME_FROM?
         """
-    def p_misc_36(self, args):
+    def p_36_misc(self, args):
         """sstmt ::= sstmt RETURN_LAST
 
         # long except clauses in a loop can sometimes cause a JUMP_BACK to turn into a
@@ -113,6 +113,7 @@ class Python36Parser(Python35Parser):
                                COME_FROM_LOOP
 
         stmt      ::= async_for_stmt36
+        stmt      ::= async_forelse_stmt36
 
         async_forelse_stmt ::= SETUP_LOOP expr
                                GET_AITER
@@ -124,6 +125,19 @@ class Python36Parser(Python35Parser):
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
                                JUMP_ABSOLUTE END_FINALLY COME_FROM
                                for_block POP_BLOCK
+                               else_suite COME_FROM_LOOP
+
+        async_forelse_stmt36 ::= SETUP_LOOP expr
+                               GET_AITER
+                               LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
+                               YIELD_FROM
+                               store
+                               POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
+                               LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                               END_FINALLY COME_FROM
+                               for_block
+                               POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
+                               POP_BLOCK
                                else_suite COME_FROM_LOOP
 
         # Adds a COME_FROM_ASYNC_WITH over 3.5
@@ -182,7 +196,7 @@ class Python36Parser(Python35Parser):
 
     # Some of this is duplicated from parse37. Eventually we'll probably rebase from
     # that and then we can remove this.
-    def p_37conditionals(self, args):
+    def p_36_conditionals(self, args):
         """
         expr                       ::= if_exp37
         if_exp37                   ::= expr expr jf_cfs expr COME_FROM
