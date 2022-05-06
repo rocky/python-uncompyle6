@@ -693,6 +693,16 @@ def customize_for_version36(self, version):
 
     self.n_joined_str = n_joined_str
 
+    def n_list_comp_async(node):
+        self.write("[")
+        if node[0].kind == "load_closure":
+            self.listcomp_closure3(node)
+        else:
+            self.comprehension_walk_newer(node, iter_index=3, code_index=0)
+        self.write("]")
+        self.prune()
+    self.n_list_comp_async = n_list_comp_async
+
     # def kwargs_only_36(node):
     #     keys = node[-1].attr
     #     num_kwargs = len(keys)
