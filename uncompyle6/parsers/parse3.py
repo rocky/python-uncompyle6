@@ -65,7 +65,9 @@ class Python3Parser(PythonParser):
 
         list_comp ::= BUILD_LIST_0 list_iter
         lc_body   ::= expr LIST_APPEND
-        list_for ::= expr FOR_ITER store list_iter jb_or_c
+        list_for  ::= expr_or_arg
+                      FOR_ITER
+                      store list_iter jb_or_c
 
         # This is seen in PyPy, but possibly it appears on other Python 3?
         list_if     ::= expr jmp_false list_iter COME_FROM
@@ -77,10 +79,10 @@ class Python3Parser(PythonParser):
 
         stmt ::= set_comp_func
 
-        set_comp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
+        set_comp_func ::= BUILD_SET_0 LOAD_ARG FOR_ITER store comp_iter
                           JUMP_BACK RETURN_VALUE RETURN_LAST
 
-        set_comp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
+        set_comp_func ::= BUILD_SET_0 LOAD_ARG FOR_ITER store comp_iter
                           COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
 
         comp_body ::= dict_comp_body
@@ -88,6 +90,8 @@ class Python3Parser(PythonParser):
         dict_comp_body ::= expr expr MAP_ADD
         set_comp_body ::= expr SET_ADD
 
+        expr_or_arg     ::= LOAD_ARG
+        expr_or_arg     ::= expr
         # See also common Python p_list_comprehension
         """
 
@@ -95,7 +99,7 @@ class Python3Parser(PythonParser):
         """"
         expr ::= dict_comp
         stmt ::= dict_comp_func
-        dict_comp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
+        dict_comp_func ::= BUILD_MAP_0 LOAD_ARG FOR_ITER store
                            comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
 
         comp_iter     ::= comp_if_not
