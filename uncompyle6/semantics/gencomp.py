@@ -200,10 +200,15 @@ class ComprehensionMixin:
     ):
         """Non-closure-based comprehensions the way they are done in Python3
         and some Python 2.7. Note: there are also other set comprehensions.
+
+        Note: there are also other comprehensions.
         """
         # FIXME: DRY with listcomp_closure3
+
         p = self.prec
         self.prec = PRECEDENCE["lambda_body"] - 1
+
+        comp_for = None
 
         # FIXME? Nonterminals in grammar maybe should be split out better?
         # Maybe test on self.compile_mode?
@@ -239,52 +244,114 @@ class ComprehensionMixin:
         is_30_dict_comp = False
         store = None
         if node == "list_comp_async":
-            n = tree[2][1]
+            # We have two different kinds of grammar rules:
+            #   list_comp_async ::= LOAD_LISTCOMP LOAD_STR MAKE_FUNCTION_0 expr ...
+            # and:
+            #  list_comp_async  ::= BUILD_LIST_0 LOAD_ARG list_afor2
+            if tree[0] == "expr" and tree[0][0] == "list_comp_async":
+                tree = tree[0][0]
+            if tree[0] == "BUILD_LIST_0":
+                list_afor2 = tree[2]
+                assert list_afor2 == "list_afor2"
+                store = list_afor2[1]
+                assert store == "store"
+                n = list_afor2[3] if list_afor2[3] == "list_iter" else list_afor2[2]
+            else:
+                # ???
+                pass
+        elif node.kind in ("dict_comp_async", "set_comp_async"):
+            # We have two different kinds of grammar rules:
+            #   dict_comp_async ::= LOAD_DICTCOMP LOAD_STR MAKE_FUNCTION_0 expr ...
+            #   set_comp_async  ::= LOAD_SETCOMP LOAD_STR MAKE_FUNCTION_0 expr ...
+            # and:
+            #  dict_comp_async  ::= BUILD_MAP_0 genexpr_func_async
+            #  set_comp_async   ::= BUILD_SET_0 genexpr_func_async
+            if tree[0] == "expr":
+                tree = tree[0]
+
+            if tree[0].kind in ("BUILD_MAP_0", "BUILD_SET_0"):
+                genexpr_func_async = tree[1]
+                if genexpr_func_async == "genexpr_func_async":
+                    store = genexpr_func_async[2]
+                    assert store.kind.startswith("store")
+                    n = genexpr_func_async[4]
+                    assert n == "comp_iter"
+                    comp_for = collection_node
+                else:
+                    set_afor2 = genexpr_func_async
+                    assert set_afor2 == "set_afor2"
+                    n = set_afor2[1]
+                    store = n[1]
+                    comp_for = node[3]
+            else:
+                # ???
+                pass
+
+        elif node == "list_afor":
+            comp_for = node[0]
+            list_afor2 = node[1]
+            assert list_afor2 == "list_afor2"
+            store = list_afor2[1]
+            assert store == "store"
+            n = list_afor2[2]
+        elif node == "set_afor2":
+            comp_for = node[0]
+            set_iter_async = node[1]
+            assert set_iter_async == "set_iter_async"
+
+            store = set_iter_async[1]
+            assert store == "store"
+            n = set_iter_async[2]
         else:
             n = tree[iter_index]
 
         if tree in (
-            "set_comp_func",
             "dict_comp_func",
+            "genexpr_func_async",
+            "generator_exp",
             "list_comp",
+            "set_comp",
+            "set_comp_func",
             "set_comp_func_header",
         ):
             for k in tree:
-                if k == "comp_iter":
+                if k.kind in ("comp_iter", "list_iter", "set_iter", "await_expr"):
                     n = k
                 elif k == "store":
                     store = k
                     pass
                 pass
             pass
-        elif tree in ("dict_comp", "set_comp"):
-            assert self.version == (3, 0)
-            for k in tree:
-                if k in ("dict_comp_header", "set_comp_header"):
-                    n = k
-                elif k == "store":
-                    store = k
-                elif k == "dict_comp_iter":
-                    is_30_dict_comp = True
-                    n = (k[3], k[1])
+        elif tree.kind in ("list_comp_async", "dict_comp_async", "set_afor2"):
+            if self.version == (3, 0):
+                for k in tree:
+                    if k in ("dict_comp_header", "set_comp_header"):
+                        n = k
+                    elif k == "store":
+                        store = k
+                    elif k == "dict_comp_iter":
+                        is_30_dict_comp = True
+                        n = (k[3], k[1])
+                        pass
+                    elif k == "comp_iter":
+                        n = k[0]
+                        pass
                     pass
-                elif k == "comp_iter":
-                    n = k[0]
-                    pass
-                pass
         elif tree == "list_comp_async":
             store = tree[2][1]
         else:
-            assert n == "list_iter", n
+            if n.kind in ("RETURN_VALUE_LAMBDA", "return_expr_lambda"):
+                self.prune()
+
+            assert n in ("list_iter", "comp_iter"), n
 
         # FIXME: I'm not totally sure this is right.
 
         # Find the list comprehension body. It is the inner-most
         # node that is not list_.. .
         if_node = None
-        comp_for = None
         comp_store = None
-        if n == "comp_iter":
+        if n == "comp_iter" and store is None:
             comp_for = n
             comp_store = tree[3]
 
@@ -370,7 +437,10 @@ class ComprehensionMixin:
             self.preorder(store)
 
         self.write(" in ")
-        self.preorder(node[in_node_index])
+        if comp_for:
+            self.preorder(comp_for)
+        else:
+            self.preorder(node[in_node_index])
 
         # Here is where we handle nested list iterations.
         if tree == "list_comp" and self.version != (3, 0):
@@ -436,7 +506,7 @@ class ComprehensionMixin:
                 tree = tree[1]
 
         while len(tree) == 1 or (
-            tree in ("stmt", "sstmt", "return", "return_expr", "return_expr_lambda")
+            tree in ("stmt", "sstmt", "return", "return_expr")
         ):
             self.prec = 100
             tree = tree[1] if tree[0] in ("dom_start", "dom_start_opt") else tree[0]

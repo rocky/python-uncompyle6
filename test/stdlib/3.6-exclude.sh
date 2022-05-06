@@ -39,7 +39,7 @@ SKIP_TESTS=(
     [test_compile.py]=1  # Code introspects on co_consts in a non-decompilable way
     [test_concurrent_futures.py]=1 # Takes long
 
-    [test_coroutines.py]=1 # FIXME: async parse error
+    # [test_coroutines.py]=1 # FIXME: async parse error
 
     [test_curses.py]=1 # Parse error
     [test_ctypes.py]=1 # it fails on its own

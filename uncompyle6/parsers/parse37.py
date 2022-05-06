@@ -1499,7 +1499,7 @@ class Python37Parser(Python37BaseParser):
                                              RETURN_VALUE_LAMBDA
 
                     return_expr_lambda   ::= BUILD_SET_0 genexpr_func_async
-                                             RETURN_VALUE_LAMBDA
+                                             RETURN_VALUE_LAMBDA LAMBDA_MARKER
                    """,
                     nop_func,
                 )
@@ -1579,14 +1579,18 @@ class Python37Parser(Python37BaseParser):
 
         if frozenset(("GET_AWAITABLE", "YIELD_FROM")).issubset(self.seen_ops):
             rule = (
-                "async_call ::= expr "
+                """
+                await      ::= GET_AWAITABLE LOAD_CONST YIELD_FROM
+                await_expr ::= expr await
+                expr       ::= await_expr
+                async_call ::= expr """
                 + ("pos_arg " * args_pos)
                 + ("kwarg " * args_kw)
                 + "expr " * nak
                 + token.kind
                 + " GET_AWAITABLE LOAD_CONST YIELD_FROM"
             )
-            self.add_unique_rule(rule, token.kind, uniq_param, customize)
+            self.add_unique_doc_rules(rule, customize)
             self.add_unique_rule(
                 "expr ::= async_call", token.kind, uniq_param, customize
             )
