@@ -725,7 +725,6 @@ class Python37Parser(Python37BaseParser):
                       store set_iter
                       jb_or_c _come_froms
 
-        list_if_not_end ::= pjump_ift _come_froms
         # This is seen in PyPy, but possibly it appears on other Python 3?
         list_if     ::= expr jmp_false list_iter COME_FROM
         list_if_not ::= expr jmp_true list_iter COME_FROM

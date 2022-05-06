@@ -74,6 +74,11 @@ def test_grammar():
         pass
     pass
 
+    if PYTHON_VERSION_TRIPLE >= (3, 7):
+        expect_lhs.add("set_for")
+        unused_rhs.add("set_iter")
+        pass
+    pass
     # FIXME
     if PYTHON_VERSION_TRIPLE < (3, 8):
         assert expect_lhs == set(lhs)

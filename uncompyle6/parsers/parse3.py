@@ -1072,9 +1072,8 @@ class Python3Parser(PythonParser):
                 # A PyPy speciality - DRY with parse3
                 self.addRule(
                     """
-                             expr      ::= attribute
-                             attribute ::= expr LOOKUP_METHOD
-                             """,
+                    attribute ::= expr LOOKUP_METHOD
+                    """,
                     nop_func,
                 )
                 custom_ops_processed.add(opname)
