@@ -456,8 +456,6 @@ class Python36Parser(Python35Parser):
                                             DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
                                             END_FINALLY _come_froms
 
-                    # async_iter         ::= block_break SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
-
                     get_aiter            ::= expr GET_AITER
 
                     list_afor            ::= get_aiter list_afor2
@@ -482,13 +480,22 @@ class Python36Parser(Python35Parser):
             elif opname == "GET_ANEXT":
                 self.addRule(
                     """
+                    func_async_prefix   ::= _come_froms SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
                     func_async_prefix   ::= _come_froms SETUP_FINALLY GET_ANEXT LOAD_CONST YIELD_FROM POP_BLOCK
+                    func_async_prefix   ::= _come_froms
+                                            LOAD_CONST YIELD_FROM
+                                            SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
                     func_async_middle   ::= JUMP_FORWARD COME_FROM_EXCEPT
                                             DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                    list_comp_async     ::= BUILD_LIST_0 LOAD_ARG list_afor2
                     list_afor2          ::= func_async_prefix
                                             store list_iter
                                             JUMP_BACK COME_FROM_FINALLY
                                             END_ASYNC_FOR
+                    list_afor2          ::= func_async_prefix
+                                            store func_async_middle list_iter
+                                            JUMP_LOOP COME_FROM
+                                            POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
                    """,
                     nop_func,
                 )
