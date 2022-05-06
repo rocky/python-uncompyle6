@@ -182,9 +182,11 @@ class ComprehensionMixin:
         self.write(" in ")
         if node[2] == "expr":
             iter_expr = node[2]
+        elif node[3] == "get_aiter":
+            iter_expr = node[3]
         else:
             iter_expr = node[-3]
-        assert iter_expr == "expr"
+        assert iter_expr in ("expr", "get_aiter"), iter_expr
         self.preorder(iter_expr)
         self.preorder(tree[iter_index])
         self.prec = p

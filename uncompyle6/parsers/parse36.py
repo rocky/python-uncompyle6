@@ -347,7 +347,7 @@ class Python36Parser(Python35Parser):
                     func_async_middle   ::= POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT
                                             DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
                                             END_FINALLY COME_FROM
-                    genexpr_func_async  ::= LOAD_FAST func_async_prefix
+                    genexpr_func_async  ::= LOAD_ARG func_async_prefix
                                             store func_async_middle comp_iter
                                             JUMP_BACK COME_FROM
                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
@@ -363,7 +363,7 @@ class Python36Parser(Python35Parser):
                                             store func_async_middle list_iter
                                             JUMP_BACK
                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
-                    list_comp_async     ::= BUILD_LIST_0 LOAD_FAST list_afor2
+                    list_comp_async     ::= BUILD_LIST_0 LOAD_ARG list_afor2
                     get_aiter           ::= expr GET_AITER
                     list_afor           ::= get_aiter list_afor2
                     list_iter           ::= list_afor

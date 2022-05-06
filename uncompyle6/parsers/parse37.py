@@ -138,7 +138,7 @@ class Python37Parser(Python37BaseParser):
         returns ::= _stmts return
 
         stmt ::= genexpr_func
-        genexpr_func ::= LOAD_FAST _come_froms FOR_ITER store comp_iter JUMP_BACK
+        genexpr_func ::= LOAD_ARG _come_froms FOR_ITER store comp_iter JUMP_BACK
         """
         pass
 
@@ -714,8 +714,18 @@ class Python37Parser(Python37BaseParser):
 
         list_comp ::= BUILD_LIST_0 list_iter
         lc_body   ::= expr LIST_APPEND
-        list_for ::= expr for_iter store list_iter jb_or_c
 
+        list_for  ::= expr_or_arg
+                      for_iter
+                      store list_iter
+                      jb_or_c _come_froms
+
+        set_for   ::= expr_or_arg
+                      for_iter
+                      store set_iter
+                      jb_or_c _come_froms
+
+        list_if_not_end ::= pjump_ift _come_froms
         # This is seen in PyPy, but possibly it appears on other Python 3?
         list_if     ::= expr jmp_false list_iter COME_FROM
         list_if_not ::= expr jmp_true list_iter COME_FROM
@@ -725,10 +735,10 @@ class Python37Parser(Python37BaseParser):
 
         stmt ::= set_comp_func
 
-        set_comp_func ::= BUILD_SET_0 LOAD_FAST for_iter store comp_iter
+        set_comp_func ::= BUILD_SET_0 LOAD_ARG for_iter store comp_iter
                           JUMP_BACK RETURN_VALUE RETURN_LAST
 
-        set_comp_func ::= BUILD_SET_0 LOAD_FAST for_iter store comp_iter
+        set_comp_func ::= BUILD_SET_0 LOAD_ARG for_iter store comp_iter
                           COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
 
         comp_body ::= dict_comp_body
@@ -743,13 +753,16 @@ class Python37Parser(Python37BaseParser):
         """"
         expr ::= dict_comp
         stmt ::= dict_comp_func
-        dict_comp_func ::= BUILD_MAP_0 LOAD_FAST for_iter store
+        dict_comp_func ::= BUILD_MAP_0 LOAD_ARG for_iter store
                            comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
 
         comp_iter     ::= comp_if
         comp_iter     ::= comp_if_not
         comp_if_not   ::= expr jmp_true comp_iter
         comp_iter     ::= comp_body
+
+        expr_or_arg     ::= LOAD_ARG
+        expr_or_arg     ::= expr
         """
 
     def p_expr3(self, args):
@@ -1212,6 +1225,16 @@ class Python37Parser(Python37BaseParser):
         super(Python37Parser, self).customize_grammar_rules(tokens, customize)
         self.check_reduce["call_kw"] = "AST"
 
+        # Opcode names in the custom_ops_processed set have rules that get added
+        # unconditionally and the rules are constant. So they need to be done
+        # only once and if we see the opcode a second we don't have to consider
+        # adding more rules.
+        #
+        # Note: BUILD_TUPLE_UNPACK_WITH_CALL gets considered by
+        # default because it starts with BUILD. So we'll set to ignore it from
+        # the start.
+        custom_ops_processed = set()
+
         for i, token in enumerate(tokens):
             opname = token.kind
 
@@ -1312,6 +1335,211 @@ class Python37Parser(Python37BaseParser):
                 self.addRule(rule, nop_func)
                 rule = "starred ::= %s %s" % ("expr " * v, opname)
                 self.addRule(rule, nop_func)
+
+            elif opname == "GET_AITER":
+                self.add_unique_doc_rules("get_aiter ::= expr GET_AITER", customize)
+
+                if not {"MAKE_FUNCTION_0", "MAKE_FUNCTION_CLOSURE"} in self.seen_ops:
+                    self.addRule(
+                        """
+                        expr                ::= dict_comp_async
+                        expr                ::= generator_exp_async
+                        expr                ::= list_comp_async
+
+                        dict_comp_async     ::= LOAD_DICTCOMP
+                                                LOAD_STR
+                                                MAKE_FUNCTION_0
+                                                get_aiter
+                                                CALL_FUNCTION_1
+
+                        dict_comp_async     ::= BUILD_MAP_0 LOAD_ARG
+                                                dict_comp_async
+
+                        func_async_middle   ::= POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT
+                                                DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                                                END_FINALLY COME_FROM
+
+                        func_async_prefix   ::= _come_froms SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
+
+                        generator_exp_async ::= load_genexpr LOAD_STR MAKE_FUNCTION_0
+                                                get_aiter CALL_FUNCTION_1
+
+                        genexpr_func_async  ::= LOAD_ARG func_async_prefix
+                                                store func_async_middle comp_iter
+                                                JUMP_LOOP COME_FROM
+                                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
+
+                        # FIXME this is a workaround for probalby some bug in the Earley parser
+                        # if we use get_aiter, then list_comp_async doesn't match, and I don't
+                        # understand why.
+                        expr_get_aiter      ::= expr GET_AITER
+
+                        list_afor           ::= get_aiter list_afor2
+
+                        list_afor2          ::= func_async_prefix
+                                                store func_async_middle list_iter
+                                                JUMP_LOOP COME_FROM
+                                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
+
+                        list_comp_async     ::= BUILD_LIST_0 LOAD_ARG list_afor2
+                        list_comp_async     ::= LOAD_LISTCOMP LOAD_STR MAKE_FUNCTION_0
+                                                expr_get_aiter CALL_FUNCTION_1
+                                                GET_AWAITABLE LOAD_CONST
+                                                YIELD_FROM
+
+                        list_iter           ::= list_afor
+
+                        set_comp_async       ::= LOAD_SETCOMP
+                                                 LOAD_STR
+                                                 MAKE_FUNCTION_0
+                                                 get_aiter
+                                                 CALL_FUNCTION_1
+
+                        set_comp_async       ::= LOAD_CLOSURE
+                                                 BUILD_TUPLE_1
+                                                 LOAD_SETCOMP
+                                                 LOAD_STR MAKE_FUNCTION_CLOSURE
+                                                 get_aiter CALL_FUNCTION_1
+                                                 await
+                       """,
+                        nop_func,
+                    )
+                    custom_ops_processed.add(opname)
+
+                self.addRule(
+                    """
+                    dict_comp_async      ::= BUILD_MAP_0 LOAD_ARG
+                                             dict_comp_async
+
+                    expr                 ::= dict_comp_async
+                    expr                 ::= generator_exp_async
+                    expr                 ::= list_comp_async
+                    expr                 ::= set_comp_async
+
+                    func_async_middle   ::= POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT
+                                            DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                                            END_FINALLY _come_froms
+
+                    # async_iter         ::= block_break SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
+
+                    get_aiter            ::= expr GET_AITER
+
+                    list_afor            ::= get_aiter list_afor2
+
+                    list_comp_async      ::= BUILD_LIST_0 LOAD_ARG list_afor2
+                    list_iter            ::= list_afor
+
+
+                    set_afor             ::= get_aiter set_afor2
+                    set_iter             ::= set_afor
+                    set_iter             ::= set_for
+
+                    set_comp_async       ::= BUILD_SET_0 LOAD_ARG
+                                             set_comp_async
+
+                   """,
+                    nop_func,
+                )
+                custom_ops_processed.add(opname)
+
+            elif opname == "GET_ANEXT":
+                self.addRule(
+                    """
+                    expr                 ::= genexpr_func_async
+                    expr                 ::= BUILD_MAP_0 genexpr_func_async
+                    expr                 ::= list_comp_async
+
+                    dict_comp_async      ::= BUILD_MAP_0 genexpr_func_async
+
+                    async_iter           ::= _come_froms
+                                             SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
+
+                    store_async_iter_end ::= store
+                                             POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT
+                                             DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                                             END_FINALLY COME_FROM
+
+                    # We use store_async_iter_end to make comp_iter come out in the right position,
+                    # (after the logical "store")
+                    genexpr_func_async   ::= LOAD_ARG async_iter
+                                             store_async_iter_end
+                                             comp_iter
+                                             JUMP_LOOP COME_FROM
+                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
+
+                    list_afor2           ::= async_iter
+                                             store
+                                             list_iter
+                                             JUMP_LOOP
+                                             COME_FROM_FINALLY
+                                             END_ASYNC_FOR
+
+                    list_comp_async      ::= BUILD_LIST_0 LOAD_ARG list_afor2
+
+                    set_afor2            ::= async_iter
+                                             store
+                                             func_async_middle
+                                             set_iter
+                                             JUMP_LOOP COME_FROM
+                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
+
+                    set_afor2            ::= expr_or_arg
+                                             set_iter_async
+
+                    set_comp_async       ::= BUILD_SET_0 set_afor2
+
+                    set_iter_async       ::= async_iter
+                                             store
+                                             set_iter
+                                             JUMP_LOOP
+                                             _come_froms
+                                             END_ASYNC_FOR
+
+                    return_expr_lambda   ::= genexpr_func_async
+                                             LOAD_CONST RETURN_VALUE
+                                             RETURN_VALUE_LAMBDA
+
+                    return_expr_lambda   ::= BUILD_SET_0 genexpr_func_async
+                                             RETURN_VALUE_LAMBDA
+                   """,
+                    nop_func,
+                )
+                custom_ops_processed.add(opname)
+
+            elif opname == "GET_AWAITABLE":
+                rule_str = """
+                    await_expr ::= expr GET_AWAITABLE LOAD_CONST YIELD_FROM
+                    expr       ::= await_expr
+                """
+                self.add_unique_doc_rules(rule_str, customize)
+
+            elif opname == "GET_ITER":
+                self.addRule(
+                    """
+                    expr      ::= get_iter
+                    get_iter  ::= expr GET_ITER
+                    """,
+                    nop_func,
+                )
+                custom_ops_processed.add(opname)
+
+            elif opname == "LOAD_ASSERT":
+                if "PyPy" in customize:
+                    rules_str = """
+                    stmt ::= JUMP_IF_NOT_DEBUG stmts COME_FROM
+                    """
+                    self.add_unique_doc_rules(rules_str, customize)
+
+            elif opname == "LOAD_ATTR":
+                self.addRule(
+                    """
+                  expr      ::= attribute
+                  attribute ::= expr LOAD_ATTR
+                  """,
+                    nop_func,
+                )
+                custom_ops_processed.add(opname)
+
             elif opname == "SETUP_WITH":
                 rules_str = """
                 with       ::= expr SETUP_WITH POP_TOP suite_stmts_opt COME_FROM_WITH

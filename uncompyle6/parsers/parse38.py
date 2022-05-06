@@ -75,7 +75,7 @@ class Python38Parser(Python37Parser):
                                COME_FROM_FINALLY
                                END_ASYNC_FOR
 
-       genexpr_func_async  ::= LOAD_FAST func_async_prefix
+       genexpr_func_async  ::= LOAD_ARG func_async_prefix
                                store comp_iter
                                JUMP_BACK COME_FROM_FINALLY
                                END_ASYNC_FOR

@@ -387,6 +387,11 @@ class Scanner37Base(Scanner):
                 if "." in inst.argval:
                     opname = "IMPORT_NAME_ATTR"
                     pass
+
+            elif opname == "LOAD_FAST" and argval == ".0":
+                # Used as the parameter of a list expression
+                opname = "LOAD_ARG"
+
             elif opname in ("MAKE_FUNCTION", "MAKE_CLOSURE"):
                 flags = argval
                 opname = "MAKE_FUNCTION_%d" % (flags)
