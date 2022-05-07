@@ -1,4 +1,13 @@
 # These are from 3.6 test_coroutines.py
+async def run_gen(f):
+    return (10 async for i in f)
+
+async def run_list(f):
+    return [i async for i in f()]
+
+# async def run_dict():
+#  return {i + 1 async for i in [10, 20]}
+
 async def iterate(gen):
     res = []
     async for i in gen:

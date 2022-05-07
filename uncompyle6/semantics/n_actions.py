@@ -681,17 +681,20 @@ class NonterminalActions:
         self.write("(")
         iter_index = 3
         if self.version > (3, 2):
-            code_index = -6
-            if self.version > (3, 6):
-                # Python 3.7+ adds optional "come_froms" at node[0]
+            if self.version >= (3, 6):
                 if node[0].kind in ("load_closure", "load_genexpr") and self.version >= (3, 8):
+                    code_index = -6
                     is_lambda = self.is_lambda
                     if node[0].kind == "load_genexpr":
                         self.is_lambda = False
                     self.closure_walk(node, collection_index=4)
                     self.is_lambda = is_lambda
                 else:
-                    code_index = -6
+                    # Python 3.7+ adds optional "come_froms" at node[0] so count from the end
+                    if node == "generator_exp_async" and self.version[:2] == (3, 6):
+                        code_index = 0
+                    else:
+                        code_index = -6
                     iter_index = 4 if self.version < (3, 8) else 3
                     self.comprehension_walk(node, iter_index=iter_index, code_index=code_index)
                     pass
