@@ -192,6 +192,8 @@ class Python36Parser(Python35Parser):
 
         compare_chained2 ::= expr COMPARE_OP come_froms JUMP_FORWARD
 
+        stmt ::= genexpr_func
+        genexpr_func ::= LOAD_ARG _come_froms FOR_ITER store comp_iter JUMP_BACK
         """
 
     # Some of this is duplicated from parse37. Eventually we'll probably rebase from
@@ -336,9 +338,9 @@ class Python36Parser(Python35Parser):
                 self.addRule(
                     """
                     expr                ::= generator_exp_async
-                    generator_exp_async ::= load_genexpr LOAD_STR MAKE_FUNCTION_0 expr
-                                            GET_AITER CALL_FUNCTION_1
 
+                    generator_exp_async ::= load_genexpr LOAD_STR MAKE_FUNCTION_0 expr
+                                            GET_AITER LOAD_CONST YIELD_FROM CALL_FUNCTION_1
                     stmt                ::= genexpr_func_async
 
                     func_async_prefix   ::= _come_froms
@@ -349,7 +351,7 @@ class Python36Parser(Python35Parser):
                                             END_FINALLY COME_FROM
                     genexpr_func_async  ::= LOAD_ARG func_async_prefix
                                             store func_async_middle comp_iter
-                                            JUMP_BACK COME_FROM
+                                            JUMP_BACK
                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
                     expr                ::= list_comp_async
