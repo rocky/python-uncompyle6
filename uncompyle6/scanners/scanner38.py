@@ -22,6 +22,8 @@ This sets up opcodes Python's 3.8 and calls a generalized
 scanner routine for Python 3.7 and up.
 """
 
+from typing import Dict, Tuple
+
 from uncompyle6.scanners.tok import off2int
 from uncompyle6.scanners.scanner37 import Scanner37
 from uncompyle6.scanners.scanner37base import Scanner37Base
@@ -34,14 +36,16 @@ JUMP_OPs = opc.JUMP_OPS
 
 
 class Scanner38(Scanner37):
-    def __init__(self, show_asm=None):
-        Scanner37Base.__init__(self, (3, 8), show_asm)
-        self.debug = False
+    def __init__(self, show_asm=None, debug="", is_pypy=False):
+        Scanner37Base.__init__(self, (3, 8), show_asm, debug, is_pypy)
+        self.debug = debug
         return
 
     pass
 
-    def ingest(self, co, classname=None, code_objects={}, show_asm=None):
+    def ingest(
+        self, co, classname=None, code_objects={}, show_asm=None
+    ) -> Tuple[list, dict]:
         """
         Create "tokens" the bytecode of an Python code object. Largely these
         are the opcode name, but in some cases that has been modified to make parsing
@@ -69,7 +73,7 @@ class Scanner38(Scanner37):
         # The value is where the loop ends. In current Python,
         # JUMP_BACKS are always to loops. And blocks are ordered so that the
         # JUMP_BACK with the highest offset will be where the range ends.
-        jump_back_targets = {}
+        jump_back_targets: Dict[int, int] = {}
         for token in tokens:
             if token.kind == "JUMP_BACK":
                 jump_back_targets[token.attr] = token.offset
@@ -88,7 +92,7 @@ class Scanner38(Scanner37):
             if offset == next_end:
                 loop_ends.pop()
                 if self.debug:
-                    print("%sremove loop offset %s" % (" " * len(loop_ends), offset))
+                    print(f"{'  ' * len(loop_ends)}remove loop offset {offset}")
                     pass
                 next_end = (
                     loop_ends[-1]
@@ -102,13 +106,12 @@ class Scanner38(Scanner37):
                 next_end = off2int(jump_back_targets[offset], prefer_last=False)
                 if self.debug:
                     print(
-                        "%sadding loop offset %s ending at %s"
-                        % ("  " * len(loop_ends), offset, next_end)
+                        f"{'  ' * len(loop_ends)}adding loop offset {offset} ending at {next_end}"
                     )
                 loop_ends.append(next_end)
 
             # Turn JUMP opcodes into "BREAK_LOOP" opcodes.
-            # FIXME: this should be replaced by proper control flow.
+            # FIXME!!!!: this should be replaced by proper control flow.
             if opname in ("JUMP_FORWARD", "JUMP_ABSOLUTE") and len(loop_ends):
                 jump_target = token.attr
 
@@ -162,4 +165,4 @@ if __name__ == "__main__":
             print(t.format())
         pass
     else:
-        print("Need to be Python 3.8 to demo; I am version %s" % version_tuple_to_str())
+        print(f"Need to be Python 3.8 to demo; I am version {version_tuple_to_str()}.")

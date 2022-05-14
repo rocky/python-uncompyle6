@@ -29,7 +29,7 @@ For example:
 Finally we save token information.
 """
 
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Set, Tuple
 
 from xdis import iscode, instruction_size, Instruction
 from xdis.bytecode import _get_const_info
@@ -48,8 +48,10 @@ globals().update(op3.opmap)
 
 
 class Scanner37Base(Scanner):
-    def __init__(self, version, show_asm=None, is_pypy=False):
+    def __init__(self, version: Tuple[int], show_asm=None, debug="", is_pypy=False):
         super(Scanner37Base, self).__init__(version, show_asm, is_pypy)
+        self.debug = debug
+        self.is_pypy = is_pypy
 
         # Create opcode classification sets
         # Note: super initilization above initializes self.opc
@@ -887,16 +889,6 @@ class Scanner37Base(Scanner):
                     self.return_end_ifs.remove(rtarget_prev)
                 pass
         return
-
-    def is_jump_back(self, offset, extended_arg):
-        """
-        Return True if the code at offset is some sort of jump back.
-        That is, it is ether "JUMP_FORWARD" or an absolute jump that
-        goes forward.
-        """
-        if self.code[offset] != self.opc.JUMP_ABSOLUTE:
-            return False
-        return offset > self.get_target(offset, extended_arg)
 
     def next_except_jump(self, start):
         """
