@@ -478,8 +478,17 @@ TABLE_DIRECT = {
     "kv2": ("%c: %c", 1, 2),
     "import": ("%|import %c\n", 2),
     "importlist": ("%C", (0, maxint, ", ")),
-    "import_from": ("%|from %[2]{pattr} import %c\n", (3, "importlist")),
-    "import_from_star": ("%|from %[2]{pattr} import *\n",),
+
+    # Note: the below rule isn't really complete:
+    # n_import_from() smashes node[2].pattr
+    "import_from": (
+        "%|from %[2]{pattr} import %c\n",
+        (3, "importlist")
+     ),
+
+    "import_from_star": (
+        "%|from %[2]{pattr} import *\n",
+    ),
 }
 
 
