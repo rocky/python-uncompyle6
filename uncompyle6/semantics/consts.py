@@ -256,7 +256,7 @@ TABLE_DIRECT = {
         (1, NO_PARENTHESIS_EVER)
         ),
 
-    "slice2": ( "[%c:%p]",
+    "slice2": ( "%c[:%p]",
         (0, "expr"),
         (1, NO_PARENTHESIS_EVER)
         ),
