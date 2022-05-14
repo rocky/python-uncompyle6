@@ -226,6 +226,7 @@ class NonterminalActions:
 
         self.indent_more(INDENT_PER_LEVEL)
         sep = ""
+        line_len = len(self.indent)
         if is_dict:
             keys = flat_elems[-1].attr
             assert isinstance(keys, tuple)
@@ -235,26 +236,44 @@ class NonterminalActions:
                 value = elem.pattr
                 if elem.linestart is not None:
                     if elem.linestart != self.line_number:
-                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        next_indent = self.indent + INDENT_PER_LEVEL[:-1]
+                        line_len = len(next_indent)
+                        sep += "\n" + next_indent
                         self.line_number = elem.linestart
                     else:
                         if sep != "":
-                            sep += " "
-                self.write("%s %s: %s" % (sep, repr(keys[i]), value))
-                sep = ","
+                            sep += ", "
+                elif line_len > 80:
+                    next_indent = self.indent + INDENT_PER_LEVEL[:-1]
+                    line_len = len(next_indent)
+                    sep += "\n" + next_indent
+
+                sep_key_value = "%s %s: %s" % (sep, repr(keys[i]), value)
+                line_len += len(sep_key_value)
+                self.write(sep_key_value)
+                sep = ", "
         else:
             for elem in flat_elems:
                 assert elem.kind == "ADD_VALUE"
                 value = elem.pattr
                 if elem.linestart is not None:
                     if elem.linestart != self.line_number:
-                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        next_indent = self.indent + INDENT_PER_LEVEL[:-1]
+                        line_len += len(next_indent)
+                        sep += "\n" + next_indent
                         self.line_number = elem.linestart
                     else:
                         if sep != "":
                             sep += " "
+                        line_len += len(sep)
+                elif line_len > 80:
+                    next_indent = self.indent + INDENT_PER_LEVEL[:-1]
+                    line_len = len(next_indent)
+                    sep += "\n" + next_indent
+
+                line_len += len(sep) + len(str(value)) + 1
                 self.write(sep, value)
-                sep = ","
+                sep = ", "
         self.write(endchar)
         self.indent_less(INDENT_PER_LEVEL)
 
@@ -662,17 +681,20 @@ class NonterminalActions:
         self.write("(")
         iter_index = 3
         if self.version > (3, 2):
-            code_index = -6
-            if self.version > (3, 6):
-                # Python 3.7+ adds optional "come_froms" at node[0]
+            if self.version >= (3, 6):
                 if node[0].kind in ("load_closure", "load_genexpr") and self.version >= (3, 8):
+                    code_index = -6
                     is_lambda = self.is_lambda
                     if node[0].kind == "load_genexpr":
                         self.is_lambda = False
                     self.closure_walk(node, collection_index=4)
                     self.is_lambda = is_lambda
                 else:
-                    code_index = -6
+                    # Python 3.7+ adds optional "come_froms" at node[0] so count from the end
+                    if node == "generator_exp_async" and self.version[:2] == (3, 6):
+                        code_index = 0
+                    else:
+                        code_index = -6
                     if self.version < (3, 8):
                         iter_index = 4
                     else:

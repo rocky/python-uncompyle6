@@ -75,6 +75,8 @@ class PythonParser(GenericASTBuilder):
             "come_from_loops",
             # Python 3.7+
             "importlist37",
+            # Python < 1.4
+            "args_store",
         ]
         self.collect = frozenset(nt_list)
 

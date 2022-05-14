@@ -46,8 +46,10 @@ globals().update(op3.opmap)
 
 
 class Scanner37Base(Scanner):
-    def __init__(self, version, show_asm=None, is_pypy=False):
+    def __init__(self, version: tuple, show_asm=None, debug="", is_pypy=False):
         super(Scanner37Base, self).__init__(version, show_asm, is_pypy)
+        self.debug = debug
+        self.is_pypy = is_pypy
 
         # Create opcode classification sets
         # Note: super initilization above initializes self.opc
@@ -385,6 +387,11 @@ class Scanner37Base(Scanner):
                 if "." in inst.argval:
                     opname = "IMPORT_NAME_ATTR"
                     pass
+
+            elif opname == "LOAD_FAST" and argval == ".0":
+                # Used as the parameter of a list expression
+                opname = "LOAD_ARG"
+
             elif opname in ("MAKE_FUNCTION", "MAKE_CLOSURE"):
                 flags = argval
                 opname = "MAKE_FUNCTION_%d" % (flags)
@@ -880,16 +887,6 @@ class Scanner37Base(Scanner):
                     self.return_end_ifs.remove(rtarget_prev)
                 pass
         return
-
-    def is_jump_back(self, offset, extended_arg):
-        """
-        Return True if the code at offset is some sort of jump back.
-        That is, it is ether "JUMP_FORWARD" or an absolute jump that
-        goes forward.
-        """
-        if self.code[offset] != self.opc.JUMP_ABSOLUTE:
-            return False
-        return offset > self.get_target(offset, extended_arg)
 
     def next_except_jump(self, start):
         """

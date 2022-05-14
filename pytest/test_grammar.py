@@ -54,6 +54,41 @@ def test_grammar():
             expect_lhs.add("except_handler_else")
 
     expect_lhs.add("kwarg")
+    expect_lhs.add("load_genexpr")
+
+    unused_rhs = unused_rhs.union(
+        set(
+            """
+    except_pop_except generator_exp
+    """.split()
+        )
+    )
+    if PYTHON_VERSION_TRIPLE < (3, 7):
+        expect_lhs.add("annotate_arg")
+        expect_lhs.add("annotate_tuple")
+        unused_rhs.add("mkfunc_annotate")
+
+    unused_rhs.add("dict_comp")
+    unused_rhs.add("classdefdeco1")
+    unused_rhs.add("tryelsestmtl")
+    if PYTHON_VERSION_TRIPLE >= (3, 5):
+        expect_right_recursive.add(
+            (("l_stmts", ("lastl_stmt", "come_froms", "l_stmts")))
+        )
+        pass
+    pass
+
+    if PYTHON_VERSION_TRIPLE >= (3, 7):
+        expect_lhs.add("set_for")
+        unused_rhs.add("set_iter")
+        pass
+    pass
+    # FIXME
+    if PYTHON_VERSION_TRIPLE < (3, 8):
+        assert expect_lhs == set(lhs)
+        assert unused_rhs == set(rhs)
+
+>>>>>>> python-3.3-to-3.5
     assert expect_right_recursive == right_recursive
 
     expect_dup_rhs = frozenset(

@@ -604,6 +604,10 @@ class Scanner3(Scanner):
                     # other parts like n_LOAD_CONST in pysource.py for example.
                     pattr = const
                     pass
+            elif opname == "LOAD_FAST" and argval == ".0":
+                # Used as the parameter of a list expression
+                opname = "LOAD_ARG"
+
             elif opname in ("MAKE_FUNCTION", "MAKE_CLOSURE"):
                 if self.version >= (3, 6):
                     # 3.6+ doesn't have MAKE_CLOSURE, so opname == 'MAKE_FUNCTION'

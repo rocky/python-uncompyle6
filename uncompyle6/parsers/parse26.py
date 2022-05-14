@@ -427,6 +427,7 @@ class Python26Parser(Python2Parser):
             # since the operand can be a relative offset rather than
             # an absolute offset.
             setup_inst = self.insts[self.offset2inst_index[tokens[first].offset]]
+            last = min(len(tokens)-1, last)
             if self.version <= (2, 2) and tokens[last] == "COME_FROM":
                 last += 1
             return tokens[last-1].off2int() > setup_inst.argval

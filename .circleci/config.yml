@@ -38,7 +38,7 @@ jobs:
         command: | # Use pip to install dependengcies
           sudo easy_install click==7.1.2
           # Until next release use github xdis
-          sudo pip install git+git://github.com/rocky/python-xdis.git@python-2.4-to-2.7#egg=xdis
+          sudo pip install git+https://github.com/rocky/python-xdis@python-2.34to-2.7#egg=xdis
           sudo pip install -e .
           sudo pip install -r requirements-dev.txt
 

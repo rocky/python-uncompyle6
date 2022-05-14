@@ -1,4 +1,4 @@
-#  Copyright (c) 2018-2019, 2021 by Rocky Bernstein
+#  Copyright (c) 2018-2019, 2021-2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 """
 
 from uncompyle6.parsers.treenode import SyntaxTree
-from uncompyle6.semantics.consts import INDENT_PER_LEVEL, PRECEDENCE, TABLE_R, TABLE_DIRECT
+from uncompyle6.semantics.consts import INDENT_PER_LEVEL, NO_PARENTHESIS_EVER, PRECEDENCE, TABLE_R, TABLE_DIRECT
 from uncompyle6.semantics.helper import flatten_list
 from uncompyle6.scanners.tok import Token
 
@@ -47,7 +47,7 @@ def customize_for_version(self, is_pypy, version):
         if version[:2] >= (3, 7):
 
             def n_call_kw_pypy37(node):
-                self.template_engine(("%p(", (0, 100)), node)
+                self.template_engine(("%p(", (0, NO_PARENTHESIS_EVER)), node)
                 assert node[-1] == "CALL_METHOD_KW"
                 arg_count = node[-1].attr
                 kw_names = node[-2]
@@ -194,7 +194,29 @@ def customize_for_version(self, is_pypy, version):
                     self.prune()
 
                 self.n_iftrue_stmt24 = n_iftrue_stmt24
-            else:  # version <= 2.3:
+            elif version < (1, 4):
+                from uncompyle6.semantics.customize14 import customize_for_version14
+                customize_for_version14(self, version)
+
+                def n_call(node):
+                    expr = node[0]
+                    assert expr == "expr"
+                    params = node[1]
+                    if params == "tuple":
+                        self.template_engine(("%p(", (0, NO_PARENTHESIS_EVER)), expr)
+                        sep = ""
+                        for param in params[:-1]:
+                            self.write(sep)
+                            self.preorder(param)
+                            sep = ", "
+                        self.write(")")
+                    else:
+                        self.template_engine(("%p(%P)",
+                                              (0, "expr", 100), (1,-1,", ", NO_PARENTHESIS_EVER)), node)
+                    self.prune()
+                self.n_call = n_call
+
+            else:  # 1.0 <= version <= 2.3:
                 TABLE_DIRECT.update({"if1_stmt": ("%|if 1\n%+%c%-", 5)})
                 if version <= (2, 1):
                     TABLE_DIRECT.update(

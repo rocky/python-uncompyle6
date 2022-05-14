@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2016, 2818-2021 by Rocky Bernstein
+#  Copyright (c) 2015-2016, 2818-2022 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -60,8 +60,17 @@ def disco_loop(disasm, queue, real_out):
     while len(queue) > 0:
         co = queue.popleft()
         if co.co_name != "<module>":
-            real_out.write("\n# %s line %d of %s\n" %
-                      (co.co_name, co.co_firstlineno, co.co_filename))
+            if hasattr(co, "co_firstlineno"):
+                real_out.write(
+                    "\n# %s line %d of %s\n"
+                    % (co.co_name, co.co_firstlineno, co.co_filename)
+                )
+            else:
+                real_out.write(
+                    "\n# %s %s\n"
+                    % (co.co_name, co.co_filename)
+                )
+                print(
         tokens, customize = disasm(co)
         for t in tokens:
             if iscode(t.pattr):

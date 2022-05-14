@@ -24,9 +24,9 @@ use in deparsing.
 
 import sys
 import uncompyle6.scanners.scanner2 as scan
-from uncompyle6.scanner import L65536
 
 # bytecode verification, verify(), uses JUMP_OPs from here
+from xdis import iscode
 from xdis.opcodes import opcode_26
 from xdis.bytecode import _get_const_info
 
@@ -71,7 +71,7 @@ class Scanner26(scan.Scanner2):
         bytecode = self.build_instructions(co)
 
         # show_asm = 'after'
-        if show_asm in ('both', 'before'):
+        if show_asm in ("both", "before"):
             for instr in bytecode.get_instructions(co):
                 print(instr.disassemble())
 
@@ -80,7 +80,7 @@ class Scanner26(scan.Scanner2):
 
         customize = {}
         if self.is_pypy:
-            customize['PyPy'] = 1
+            customize["PyPy"] = 0
 
         codelen = len(self.code)
 
@@ -92,6 +92,7 @@ class Scanner26(scan.Scanner2):
         # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
         for i in self.op_range(0, codelen):
+
             # We need to detect the difference between:
             #   raise AssertionError
             #  and
@@ -114,9 +115,9 @@ class Scanner26(scan.Scanner2):
                 # Distinguish "print ..." from "print ...,"
                 if self.code[last_stmt] == self.opc.PRINT_ITEM:
                     if self.code[i] == self.opc.PRINT_ITEM:
-                        replace[i] = 'PRINT_ITEM_CONT'
+                        replace[i] = "PRINT_ITEM_CONT"
                     elif self.code[i] == self.opc.PRINT_NEWLINE:
-                        replace[i] = 'PRINT_NEWLINE_CONT'
+                        replace[i] = "PRINT_NEWLINE_CONT"
             last_stmt = i
             i = self.next_stmt[i]
 
@@ -172,7 +173,7 @@ class Scanner26(scan.Scanner2):
 
                     collection_type = op_name.split("_")[1]
                     next_tokens = self.bound_collection_from_tokens(
-                        tokens, t, i, "CONST_%s" % collection_type
+                        tokens, t, len(tokens), "CONST_%s" % collection_type
                     )
                     if next_tokens is not None:
                         tokens = next_tokens
@@ -180,29 +181,25 @@ class Scanner26(scan.Scanner2):
 
                 if op in self.opc.CONST_OPS:
                     const = co.co_consts[oparg]
-                    # We can't use inspect.iscode() because we may be
-                    # using a different version of Python than the
-                    # one that this was byte-compiled on. So the code
-                    # types may mismatch.
-                    if hasattr(const, 'co_name'):
+                    if iscode(const):
                         oparg = const
-                        if const.co_name == '<lambda>':
-                            assert op_name == 'LOAD_CONST'
-                            op_name = 'LOAD_LAMBDA'
+                        if const.co_name == "<lambda>":
+                            assert op_name == "LOAD_CONST"
+                            op_name = "LOAD_LAMBDA"
                         elif const.co_name == self.genexpr_name:
-                            op_name = 'LOAD_GENEXPR'
-                        elif const.co_name == '<dictcomp>':
-                            op_name = 'LOAD_DICTCOMP'
-                        elif const.co_name == '<setcomp>':
-                            op_name = 'LOAD_SETCOMP'
+                            op_name = "LOAD_GENEXPR"
+                        elif const.co_name == "<dictcomp>":
+                            op_name = "LOAD_DICTCOMP"
+                        elif const.co_name == "<setcomp>":
+                            op_name = "LOAD_SETCOMP"
                         else:
                             op_name = "LOAD_CODE"
-                        # verify uses 'pattr' for comparison, since 'attr'
+                        # verify() uses 'pattr' for comparison, since 'attr'
                         # now holds Code(const) and thus can not be used
                         # for comparison (todo: think about changing this)
-                        # pattr = 'code_object @ 0x%x %s->%s' % \
+                        # pattr = 'code_object @ 0x%x %s->%s' %\
                         # (id(const), const.co_filename, const.co_name)
-                        pattr = '<code_object ' + const.co_name + '>'
+                        pattr = "<code_object " + const.co_name + ">"
                     else:
                         if oparg < len(co.co_consts):
                             argval, _ = _get_const_info(oparg, co.co_consts)
@@ -226,11 +223,15 @@ class Scanner26(scan.Scanner2):
                 elif op in self.opc.JABS_OPS:
                     pattr = repr(oparg)
                 elif op in self.opc.LOCAL_OPS:
-                    pattr = varnames[oparg]
+                    if self.version < (1, 5):
+                        pattr = names[oparg]
+                    else:
+                        pattr = varnames[oparg]
                 elif op in self.opc.COMPARE_OPS:
                     pattr = self.opc.cmp_op[oparg]
                 elif op in self.opc.FREE_OPS:
                     pattr = free[oparg]
+
             if op in self.varargs_ops:
                 # CE - Hack for >= 2.5
                 #      Now all values loaded via LOAD_CLOSURE are packed into
@@ -281,25 +282,36 @@ class Scanner26(scan.Scanner2):
 
             elif op == self.opc.LOAD_GLOBAL:
                 if offset in self.load_asserts:
-                    op_name = 'LOAD_ASSERT'
+                    op_name = "LOAD_ASSERT"
             elif op == self.opc.RETURN_VALUE:
                 if offset in self.return_end_ifs:
-                    op_name = 'RETURN_END_IF'
+                    op_name = "RETURN_END_IF"
 
             linestart = self.linestarts.get(offset, None)
 
             if offset not in replace:
-                tokens.append(Token(
-                    op_name, oparg, pattr, offset, linestart, op,
-                    has_arg, self.opc))
+                tokens.append(
+                    Token(
+                        op_name, oparg, pattr, offset, linestart, op, has_arg, self.opc
+                    )
+                )
             else:
-                tokens.append(Token(
-                    replace[offset], oparg, pattr, offset, linestart, op,
-                    has_arg, self.opc))
+                tokens.append(
+                    Token(
+                        replace[offset],
+                        oparg,
+                        pattr,
+                        offset,
+                        linestart,
+                        op,
+                        has_arg,
+                        self.opc,
+                    )
+                )
                 pass
             pass
 
-        if show_asm in ('both', 'after'):
+        if show_asm in ("both", "after"):
             for t in tokens:
                 print(t.format(line_prefix=""))
             print()

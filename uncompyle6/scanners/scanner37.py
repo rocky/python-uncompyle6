@@ -13,7 +13,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Python 3.7 bytecode decompiler scanner
+Python 3.7 bytecode decompiler scanner.
 
 Does some additional massaging of xdis-disassembled instructions to
 make things easier for decompilation.
@@ -22,6 +22,12 @@ This sets up opcodes Python's 3.7 and calls a generalized
 scanner routine for Python 3.
 """
 
+<<<<<<< HEAD
+=======
+from uncompyle6.scanner import CONST_COLLECTIONS
+from uncompyle6.scanners.tok import Token
+
+>>>>>>> python-3.3-to-3.5
 from uncompyle6.scanners.scanner37base import Scanner37Base
 
 # bytecode verification, verify(), uses JUMP_OPs from here
@@ -30,14 +36,101 @@ from xdis.opcodes import opcode_37 as opc
 # bytecode verification, verify(), uses JUMP_OPS from here
 JUMP_OPs = opc.JUMP_OPS
 
+
 class Scanner37(Scanner37Base):
+<<<<<<< HEAD
     def __init__(self, show_asm=None, is_pypy=False):
         Scanner37Base.__init__(self, (3, 7), show_asm)
         self.is_pypy = is_pypy
+=======
+    def __init__(self, show_asm=None, debug="", is_pypy=False):
+        Scanner37Base.__init__(self, (3, 7), show_asm, debug, is_pypy)
+        self.debug = debug
+>>>>>>> python-3.3-to-3.5
         return
 
     pass
 
+<<<<<<< HEAD
+=======
+    def bound_collection_from_tokens(
+        self, tokens: list, next_tokens: list, t: Token, i: int, collection_type: str
+    ) -> list:
+        count = t.attr
+        assert isinstance(count, int)
+
+        assert count <= i
+
+        if collection_type == "CONST_DICT":
+            # constant dictonaries work via BUILD_CONST_KEY_MAP and
+            # handle the values() like sets and lists.
+            # However the keys() are an LOAD_CONST of the keys.
+            # adjust offset to account for this
+            count += 1
+
+        # For small lists don't bother
+        if count < 5:
+            return next_tokens + [t]
+
+        collection_start = i - count
+
+        for j in range(collection_start, i):
+            if tokens[j].kind not in (
+                "LOAD_CODE",
+                "LOAD_CONST",
+                "LOAD_FAST",
+                "LOAD_GLOBAL",
+                "LOAD_NAME",
+                "LOAD_STR",
+            ):
+                return next_tokens + [t]
+
+        collection_enum = CONST_COLLECTIONS.index(collection_type)
+
+        # If we get here, all instructions before tokens[i] are LOAD_CONST and we can replace
+        # add a boundary marker and change LOAD_CONST to something else.
+        new_tokens = next_tokens[:-count]
+        start_offset = tokens[collection_start].offset
+        new_tokens.append(
+            Token(
+                opname="COLLECTION_START",
+                attr=collection_enum,
+                pattr=collection_type,
+                offset="%s_0" % start_offset,
+                linestart=False,
+                has_arg=True,
+                has_extended_arg=False,
+                opc=self.opc,
+            )
+        )
+        for j in range(collection_start, i):
+            new_tokens.append(
+                Token(
+                    opname="ADD_VALUE",
+                    attr=tokens[j].attr,
+                    pattr=tokens[j].pattr,
+                    offset=tokens[j].offset,
+                    linestart=tokens[j].linestart,
+                    has_arg=True,
+                    has_extended_arg=False,
+                    opc=self.opc,
+                )
+            )
+        new_tokens.append(
+            Token(
+                opname="BUILD_%s" % collection_type,
+                attr=t.attr,
+                pattr=t.pattr,
+                offset=t.offset,
+                linestart=t.linestart,
+                has_arg=t.has_arg,
+                has_extended_arg=False,
+                opc=t.opc,
+            )
+        )
+        return new_tokens
+
+>>>>>>> python-3.3-to-3.5
     def ingest(
         self, co, classname=None, code_objects={}, show_asm=None
     ):
@@ -59,7 +152,9 @@ class Scanner37(Scanner37Base):
         grammar rules. Specifically, variable arg tokens like MAKE_FUNCTION or BUILD_LIST
         cause specific rules for the specific number of arguments they take.
         """
-        tokens, customize = Scanner37Base.ingest(self, co, classname, code_objects, show_asm)
+        tokens, customize = Scanner37Base.ingest(
+            self, co, classname, code_objects, show_asm
+        )
         new_tokens = []
         for i, t in enumerate(tokens):
             # things that smash new_tokens like BUILD_LIST have to come first.
@@ -75,9 +170,10 @@ class Scanner37(Scanner37Base):
                 next_tokens = self.bound_collection_from_tokens(
                     new_tokens, t, i, "CONST_%s" % collection_type
                 )
-                if next_tokens is not None:
-                    new_tokens = next_tokens
-                    continue
+                new_tokens = self.bound_collection_from_tokens(
+                    tokens, new_tokens, t, i, "CONST_%s" % collection_type
+                )
+                continue
 
             # The lowest bit of flags indicates whether the
             # var-keyword argument is placed at the top of the stack
@@ -99,6 +195,7 @@ class Scanner37(Scanner37Base):
             new_tokens.append(t)
 
         return new_tokens, customize
+
 
 if __name__ == "__main__":
     from xdis.version_info import PYTHON_VERSION_TRIPLE, version_tuple_to_str

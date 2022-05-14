@@ -143,6 +143,7 @@ from uncompyle6.scanner import Code, get_scanner
 import uncompyle6.parser as python_parser
 from uncompyle6.semantics.check_ast import checker
 
+from uncompyle6.semantics.make_function1 import make_function1
 from uncompyle6.semantics.make_function2 import make_function2
 from uncompyle6.semantics.make_function3 import make_function3
 from uncompyle6.semantics.make_function36 import make_function36
@@ -151,9 +152,7 @@ from uncompyle6.semantics.customize import customize_for_version
 from uncompyle6.semantics.gencomp import ComprehensionMixin
 from uncompyle6.semantics.helper import (
     print_docstring,
-    find_code_node,
     find_globals_and_nonlocals,
-    flatten_list,
 )
 
 from uncompyle6.scanners.tok import Token
@@ -176,7 +175,6 @@ from uncompyle6.semantics.consts import (
     TAB,
     TABLE_R,
     escape,
-    minint,
 )
 
 
@@ -551,7 +549,9 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
     # Python changes make function this much that we need at least 3 different routines,
     # and probably more in the future.
     def make_function(self, node, is_lambda, nested=1, code_node=None, annotate=None):
-        if self.version <= (2, 7):
+        if self.version <= (1, 2):
+            make_function1(self, node, is_lambda, nested, code_node)
+        elif self.version <= (2, 7):
             make_function2(self, node, is_lambda, nested, code_node)
         elif (3, 0) <= self.version <= (3, 5):
             make_function3(self, node, is_lambda, nested, code_node)
@@ -1006,6 +1006,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                     result = "(%s)" % result
                 return result
             # return self.traverse(node[1])
+        return "(" + name
         raise Exception("Can't find tuple parameter " + name)
 
     def build_class(self, code):

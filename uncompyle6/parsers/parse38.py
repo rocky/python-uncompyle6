@@ -74,7 +74,7 @@ class Python38Parser(Python37Parser):
                                COME_FROM_FINALLY
                                END_ASYNC_FOR
 
-       genexpr_func_async  ::= LOAD_FAST func_async_prefix
+       genexpr_func_async  ::= LOAD_ARG func_async_prefix
                                store comp_iter
                                JUMP_BACK COME_FROM_FINALLY
                                END_ASYNC_FOR
@@ -137,7 +137,6 @@ class Python38Parser(Python37Parser):
 
         # while1elsestmt   ::=          l_stmts     JUMP_BACK
         whileTruestmt      ::= _come_froms l_stmts              JUMP_BACK POP_BLOCK
-        while1stmt         ::= _come_froms l_stmts COME_FROM_LOOP
         while1stmt         ::= _come_froms l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
         whileTruestmt38    ::= _come_froms l_stmts JUMP_BACK
         whileTruestmt38    ::= _come_froms l_stmts JUMP_BACK COME_FROM_EXCEPT_CLAUSE
