@@ -113,7 +113,7 @@ class Scanner26(scan.Scanner2):
         i = self.next_stmt[last_stmt]
         replace = {}
         while i < codelen - 1:
-            if self.lines[last_stmt].next > i:
+            if self.lines and self.lines[last_stmt].next > i:
                 # Distinguish "print ..." from "print ...,"
                 if self.code[last_stmt] == self.opc.PRINT_ITEM:
                     if self.code[i] == self.opc.PRINT_ITEM:

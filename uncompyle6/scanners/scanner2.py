@@ -521,7 +521,7 @@ class Scanner2(Scanner):
         for s in stmt_list:
             if code[s] == self.opc.JUMP_ABSOLUTE and s not in pass_stmts:
                 target = self.get_target(s)
-                if target > s or self.lines[last_stmt].l_no == self.lines[s].l_no:
+                if target > s or (self.lines and self.lines[last_stmt].l_no == self.lines[s].l_no):
                     stmts.remove(s)
                     continue
                 j = self.prev[s]
@@ -622,6 +622,7 @@ class Scanner2(Scanner):
         parent = self.structs[0]
         start = parent["start"]
         end = parent["end"]
+        next_line_byte = end
 
         # Pick inner-most parent for our offset
         for struct in self.structs:
@@ -650,7 +651,8 @@ class Scanner2(Scanner):
             if setup_target != loop_end_offset:
                 self.fixed_jumps[offset] = loop_end_offset
 
-            (line_no, next_line_byte) = self.lines[offset]
+            if self.lines:
+                (line_no, next_line_byte) = self.lines[offset]
 
             # jump_back_offset is the instruction after the SETUP_LOOP
             # where we iterate back to.
