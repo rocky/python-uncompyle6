@@ -146,6 +146,7 @@ def customize_for_version37(self, version):
             ),
             "ifstmtl": ("%|if %c:\n%+%c%-", (0, "testexpr"), (1, "_ifstmts_jumpl")),
             'import_as37':     ( '%|import %c as %c\n', 2, -2),
+            "import_from37": ("%|from %[2]{pattr} import %c\n", (3, "importlist37")),
             "import_from_as37": (
                 "%|from %c as %c\n",
                 (2, "import_from_attr37"),
