@@ -230,6 +230,8 @@ class Scanner(object):
         # Locally we use list for more convenient iteration using indices
         linestarts = list(self.opc.findlinestarts(code_obj))
         self.linestarts = dict(linestarts)
+        if not self.linestarts:
+            return []
 
         # 'List-map' which shows line number of current op and offset of
         # first op on following line, given offset of op as index
