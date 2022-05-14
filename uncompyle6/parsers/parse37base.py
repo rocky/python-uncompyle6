@@ -367,7 +367,7 @@ class Python37BaseParser(PythonParser):
                 if opname == "BUILD_MAP_n":
                     # PyPy sometimes has no count. Sigh.
                     rule = (
-                        "dict_comp_func ::= BUILD_MAP_n LOAD_FAST for_iter store "
+                        "dict_comp_func ::= BUILD_MAP_n LOAD_ARG for_iter store "
                         "comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST"
                     )
                     self.add_unique_rule(rule, "dict_comp_func", 1, customize)
@@ -644,7 +644,7 @@ class Python37BaseParser(PythonParser):
                     func_async_middle   ::= POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT
                                             DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
                                             END_FINALLY COME_FROM
-                    genexpr_func_async  ::= LOAD_FAST func_async_prefix
+                    genexpr_func_async  ::= LOAD_ARG func_async_prefix
                                             store func_async_middle comp_iter
                                             JUMP_BACK COME_FROM
                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
@@ -660,7 +660,7 @@ class Python37BaseParser(PythonParser):
                                             store func_async_middle list_iter
                                             JUMP_BACK COME_FROM
                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
-                    list_comp_async     ::= BUILD_LIST_0 LOAD_FAST list_afor2
+                    list_comp_async     ::= BUILD_LIST_0 LOAD_ARG list_afor2
                     get_aiter           ::= expr GET_AITER
                     list_afor           ::= get_aiter list_afor2
                     list_iter           ::= list_afor

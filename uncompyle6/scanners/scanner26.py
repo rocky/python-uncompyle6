@@ -24,7 +24,6 @@ use in deparsing.
 
 import sys
 import uncompyle6.scanners.scanner2 as scan
-from uncompyle6.scanner import L65536
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_26
@@ -123,7 +122,9 @@ class Scanner26(scan.Scanner2):
             i = self.next_stmt[i]
 
         extended_arg = 0
+        i = -1
         for offset in self.op_range(0, codelen):
+            i += 1
             op = self.code[offset]
             op_name = self.opname[op]
             oparg = None; pattr = None
@@ -156,8 +157,28 @@ class Scanner26(scan.Scanner2):
                 oparg = self.get_argument(offset) + extended_arg
                 extended_arg = 0
                 if op == self.opc.EXTENDED_ARG:
-                    extended_arg = oparg * L65536
-                    continue
+                     extended_arg += self.extended_arg_val(oparg)
+                     continue
+
+
+                # Note: name used to match on rather than op since
+                # BUILD_SET isn't in earlier Pythons.
+                if op_name in (
+                    "BUILD_LIST",
+                    "BUILD_SET",
+                ):
+                    t = Token(
+                        op_name, oparg, pattr, offset, self.linestarts.get(offset, None), op, has_arg, self.opc
+                    )
+
+                    collection_type = op_name.split("_")[1]
+                    next_tokens = self.bound_collection_from_tokens(
+                        tokens, t, len(tokens), "CONST_%s" % collection_type
+                    )
+                    if next_tokens is not None:
+                        tokens = next_tokens
+                        continue
+
                 if op in self.opc.CONST_OPS:
                     const = co.co_consts[oparg]
                     # We can't use inspect.iscode() because we may be
@@ -206,7 +227,10 @@ class Scanner26(scan.Scanner2):
                 elif op in self.opc.JABS_OPS:
                     pattr = repr(oparg)
                 elif op in self.opc.LOCAL_OPS:
-                    pattr = varnames[oparg]
+                    if self.version < (1, 5):
+                        pattr = names[oparg]
+                    else:
+                        pattr = varnames[oparg]
                 elif op in self.opc.COMPARE_OPS:
                     pattr = self.opc.cmp_op[oparg]
                 elif op in self.opc.FREE_OPS:

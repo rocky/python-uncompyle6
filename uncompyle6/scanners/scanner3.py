@@ -209,7 +209,7 @@ class Scanner3(Scanner):
         self, insts: list, next_tokens: list, inst: Instruction, t: Token, i: int, collection_type: str
     ):
         """
-        Try to a sequence of instruction that ends with a BUILD_xxx into a sequence that can
+        Try to a replace sequence of instruction that ends with a BUILD_xxx with a sequence that can
         be parsed much faster, but inserting the token boundary at the beginning of the sequence.
         """
         count = t.attr
@@ -372,8 +372,6 @@ class Scanner3(Scanner):
             )
         )
         return new_tokens
-
-
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None
         ):
@@ -601,6 +599,10 @@ class Scanner3(Scanner):
                     # other parts like n_LOAD_CONST in pysource.py for example.
                     pattr = const
                     pass
+            elif opname == "LOAD_FAST" and argval == ".0":
+                # Used as the parameter of a list expression
+                opname = "LOAD_ARG"
+
             elif opname in ("MAKE_FUNCTION", "MAKE_CLOSURE"):
                 if self.version >= (3, 6):
                     # 3.6+ doesn't have MAKE_CLOSURE, so opname == 'MAKE_FUNCTION'

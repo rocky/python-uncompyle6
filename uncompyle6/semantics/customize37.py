@@ -62,9 +62,9 @@ def customize_for_version37(self, version):
             ),
             "async_for_stmt37": (
                 "%|async for %c in %c:\n%+%c%-\n\n",
-                (7, "store"),
+                (8, "store"),
                 (1, "expr"),
-                (16, "for_block"),
+                (17, "for_block"),
             ),
             "async_with_stmt": ("%|async with %c:\n%+%c%-", (0, "expr"), 3),
             "async_with_as_stmt": (
@@ -75,10 +75,10 @@ def customize_for_version37(self, version):
             ),
             "async_forelse_stmt": (
                 "%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
-                (7, "store"),
+                (8, "store"),
                 (1, "expr"),
-                (17, "for_block"),
-                (25, "else_suite"),
+                (-10, "for_block"),
+                (-2, "else_suite"),
             ),
             "attribute37": ("%c.%[1]{pattr}", (0, "expr")),
             "attributes37": ("%[0]{pattr} import %c",
@@ -146,6 +146,7 @@ def customize_for_version37(self, version):
             ),
             "ifstmtl": ("%|if %c:\n%+%c%-", (0, "testexpr"), (1, "_ifstmts_jumpl")),
             'import_as37':     ( '%|import %c as %c\n', 2, -2),
+            "import_from37": ("%|from %[2]{pattr} import %c\n", (3, "importlist37")),
             "import_from_as37": (
                 "%|from %c as %c\n",
                 (2, "import_from_attr37"),

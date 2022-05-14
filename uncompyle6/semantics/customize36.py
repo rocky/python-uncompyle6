@@ -61,7 +61,14 @@ def customize_for_version36(self, version):
                 "%|async for %c in %c:\n%+%c%-\n\n",
                 (9, "store"),
                 (1, "expr"),
-                (18, "for_block"),
+                (-9, "for_block"),  # Count from end, since COME_FROM shifts things in the forward direction
+            ),
+            "async_forelse_stmt36": (
+                "%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
+                (9, "store"),
+                (1, "expr"),
+                (-10, "for_block"),
+                (-2, "else_suite"),
             ),
             "call_ex":            ("%c(%p)", (0, "expr"), (1, 100)),
             "except_return":      ("%|except:\n%+%c%-", 3),
@@ -73,6 +80,12 @@ def customize_for_version36(self, version):
 
             "ifstmtl":            ("%|if %c:\n%+%c%-",
                                    (0, "testexpr"), (1, "_ifstmts_jumpl")),
+
+            "list_afor": (
+                " async for %[1]{%c} in %c%[1]{%c}",
+                (1, "store"), (0, "get_aiter"), (3, "list_iter"),
+            ),
+
             "try_except36":       ("%|try:\n%+%c%-%c\n\n", 1, -2),
             "tryfinally36":       ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", (1, "returns"), 3),
             "tryfinally_return_stmt": ("%|try:\n%+%c%-%|finally:\n%+%|return%-\n\n", 1),
@@ -679,6 +692,16 @@ def customize_for_version36(self, version):
         self.prune()
 
     self.n_joined_str = n_joined_str
+
+    def n_list_comp_async(node):
+        self.write("[")
+        if node[0].kind == "load_closure":
+            self.listcomp_closure3(node)
+        else:
+            self.comprehension_walk_newer(node, iter_index=3, code_index=0)
+        self.write("]")
+        self.prune()
+    self.n_list_comp_async = n_list_comp_async
 
     # def kwargs_only_36(node):
     #     keys = node[-1].attr

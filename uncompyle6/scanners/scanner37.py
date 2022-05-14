@@ -13,7 +13,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Python 3.7 bytecode decompiler scanner
+Python 3.7 bytecode decompiler scanner.
 
 Does some additional massaging of xdis-disassembled instructions to
 make things easier for decompilation.
@@ -24,6 +24,7 @@ scanner routine for Python 3.
 
 from uncompyle6.scanner import CONST_COLLECTIONS
 from uncompyle6.scanners.tok import Token
+
 from uncompyle6.scanners.scanner37base import Scanner37Base
 
 # bytecode verification, verify(), uses JUMP_OPs from here
@@ -32,10 +33,11 @@ from xdis.opcodes import opcode_37 as opc
 # bytecode verification, verify(), uses JUMP_OPS from here
 JUMP_OPs = opc.JUMP_OPS
 
+
 class Scanner37(Scanner37Base):
-    def __init__(self, show_asm=None, is_pypy: bool=False):
-        Scanner37Base.__init__(self, (3, 7), show_asm)
-        self.is_pypy = is_pypy
+    def __init__(self, show_asm=None, debug="", is_pypy=False):
+        Scanner37Base.__init__(self, (3, 7), show_asm, debug, is_pypy)
+        self.debug = debug
         return
 
     pass
@@ -74,8 +76,8 @@ class Scanner37(Scanner37Base):
 
         collection_enum = CONST_COLLECTIONS.index(collection_type)
 
-        # If we go there all instructions before tokens[i] are LOAD_CONST and we can replace
-        # add a boundary marker and change LOAD_CONST to something else
+        # If we get here, all instructions before tokens[i] are LOAD_CONST and we can replace
+        # add a boundary marker and change LOAD_CONST to something else.
         new_tokens = next_tokens[:-count]
         start_offset = tokens[collection_start].offset
         new_tokens.append(
@@ -138,7 +140,9 @@ class Scanner37(Scanner37Base):
         grammar rules. Specifically, variable arg tokens like MAKE_FUNCTION or BUILD_LIST
         cause specific rules for the specific number of arguments they take.
         """
-        tokens, customize = Scanner37Base.ingest(self, co, classname, code_objects, show_asm)
+        tokens, customize = Scanner37Base.ingest(
+            self, co, classname, code_objects, show_asm
+        )
         new_tokens = []
         for i, t in enumerate(tokens):
             # things that smash new_tokens like BUILD_LIST have to come first.
@@ -178,6 +182,7 @@ class Scanner37(Scanner37Base):
 
         return new_tokens, customize
 
+
 if __name__ == "__main__":
     from xdis.version_info import PYTHON_VERSION_TRIPLE, version_tuple_to_str
 
@@ -190,4 +195,4 @@ if __name__ == "__main__":
             print(t.format())
         pass
     else:
-        print("Need to be Python 3.7 to demo; I am version %s" % version_tuple_to_str())
+        print("Need to be Python 3.7 to demo; I am version %s." % version_tuple_to_str())

@@ -227,10 +227,7 @@ class Scanner(object):
 
         # Offset: lineno pairs, only for offsets which start line.
         # Locally we use list for more convenient iteration using indices
-        if self.version > (1, 4):
-            linestarts = list(self.opc.findlinestarts(code_obj))
-        else:
-            linestarts = [[0, 1]]
+        linestarts = list(self.opc.findlinestarts(code_obj))
         self.linestarts = dict(linestarts)
 
         # 'List-map' which shows line number of current op and offset of

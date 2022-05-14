@@ -12,7 +12,6 @@ SKIP_TESTS=(
     [test_aifc.py]=1  #
     [test_argparse.py]=1 # it fails on its own
     [test_asdl_parser.py]=1 # it fails on its own
-    [test_asyncgen.py]=1  # parse error
     [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
 
     [test_baseexception.py]=1 # test assert error
@@ -39,9 +38,9 @@ SKIP_TESTS=(
     [test_collections.py]= # it fails on its own
     [test_compile.py]=1  # Code introspects on co_consts in a non-decompilable way
     [test_concurrent_futures.py]=1 # Takes long
-    [test_contextlib.py]=1 # test assertion failure
-    [test_contextlib_async.py]=1 # Investigate
-    [test_coroutines.py]=1 # parse error
+
+    # [test_coroutines.py]=1 # FIXME: async parse error
+
     [test_curses.py]=1 # Parse error
     [test_ctypes.py]=1 # it fails on its own
 
