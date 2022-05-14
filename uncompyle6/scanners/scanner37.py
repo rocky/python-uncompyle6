@@ -22,18 +22,9 @@ This sets up opcodes Python's 3.7 and calls a generalized
 scanner routine for Python 3.
 """
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 from uncompyle6.scanner import CONST_COLLECTIONS
 from uncompyle6.scanners.tok import Token
 
->>>>>>> python-3.3-to-3.5
-=======
-from uncompyle6.scanner import CONST_COLLECTIONS
-from uncompyle6.scanners.tok import Token
-
->>>>>>> python-2.4-nogood-merge
 from uncompyle6.scanners.scanner37base import Scanner37Base
 
 # bytecode verification, verify(), uses JUMP_OPs from here
@@ -44,30 +35,13 @@ JUMP_OPs = opc.JUMP_OPS
 
 
 class Scanner37(Scanner37Base):
-<<<<<<< HEAD
-<<<<<<< HEAD
-    def __init__(self, show_asm=None, is_pypy=False):
-        Scanner37Base.__init__(self, (3, 7), show_asm)
-        self.is_pypy = is_pypy
-=======
     def __init__(self, show_asm=None, debug="", is_pypy=False):
         Scanner37Base.__init__(self, (3, 7), show_asm, debug, is_pypy)
         self.debug = debug
->>>>>>> python-3.3-to-3.5
-=======
-    def __init__(self, show_asm=None, debug="", is_pypy=False):
-        Scanner37Base.__init__(self, (3, 7), show_asm, debug, is_pypy)
-        self.debug = debug
->>>>>>> python-2.4-nogood-merge
         return
 
     pass
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> python-2.4-nogood-merge
     def bound_collection_from_tokens(
         self, tokens, next_tokens, t, i, collection_type
     ):
@@ -145,10 +119,6 @@ class Scanner37(Scanner37Base):
         )
         return new_tokens
 
-<<<<<<< HEAD
->>>>>>> python-3.3-to-3.5
-=======
->>>>>>> python-2.4-nogood-merge
     def ingest(
         self, co, classname=None, code_objects={}, show_asm=None
     ):
