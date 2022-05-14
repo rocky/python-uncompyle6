@@ -48,3 +48,9 @@ def customize_for_version25(self, version):
                 node[1][0][0][0].kind = 'tf_tryelsestmt'
         self.default(node)
     self.n_tryfinallystmt = tryfinallystmt
+
+    def n_import_from(node):
+        if node[0].pattr > 0:
+            node[2].pattr = ("." * node[0].pattr) + node[2].pattr
+        self.default(node)
+    self.n_import_from = n_import_from

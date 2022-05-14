@@ -62,12 +62,7 @@ def customize_for_version26_27(self, version):
     self.n_call = n_call
 
     def n_import_from(node):
-        import_name = node[2]
-        if import_name == "IMPORT_NAME" and import_name.pattr == "":
-            fmt = "%|from . import %c\n"
-            self.template_engine(
-                (fmt, (3, "importlist")), node
-            )
-            self.prune()
+        if node[0].pattr > 0:
+            node[2].pattr = ("." * node[0].pattr) + node[2].pattr
         self.default(node)
     self.n_import_from = n_import_from
