@@ -54,7 +54,6 @@ def test_grammar():
             expect_lhs.add("except_handler_else")
 
     expect_lhs.add("kwarg")
-<<<<<<< HEAD
     expect_lhs.add("load_genexpr")
 
     unused_rhs = unused_rhs.union(
