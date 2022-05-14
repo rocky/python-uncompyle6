@@ -46,7 +46,7 @@ globals().update(op3.opmap)
 
 
 class Scanner37Base(Scanner):
-    def __init__(self, version: tuple, show_asm=None, debug="", is_pypy=False):
+    def __init__(self, version, show_asm=None, debug="", is_pypy=False):
         super(Scanner37Base, self).__init__(version, show_asm, is_pypy)
         self.debug = debug
         self.is_pypy = is_pypy

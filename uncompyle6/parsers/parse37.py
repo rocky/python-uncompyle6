@@ -1337,7 +1337,7 @@ class Python37Parser(Python37BaseParser):
             elif opname == "GET_AITER":
                 self.add_unique_doc_rules("get_aiter ::= expr GET_AITER", customize)
 
-                if not {"MAKE_FUNCTION_0", "MAKE_FUNCTION_CLOSURE"} in self.seen_ops:
+                if not set(["MAKE_FUNCTION_0", "MAKE_FUNCTION_CLOSURE"]) in self.seen_ops:
                     self.addRule(
                         """
                         expr                ::= dict_comp_async
@@ -1738,9 +1738,9 @@ if __name__ == "__main__":
     # FIXME: DRY this with other parseXX.py routines
     p = Python37Parser()
     p.check_grammar()
-    from uncompyle6 import PYTHON_VERSION, IS_PYPY
+    from xdis import PYTHON_VERSION_TRIPLE, IS_PYPY
 
-    if PYTHON_VERSION == 3.7:
+    if PYTHON_VERSION_TRIPLE[:2]  == (3, 7):
         lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from uncompyle6.scanner import get_scanner
 

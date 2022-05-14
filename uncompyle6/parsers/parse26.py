@@ -523,11 +523,11 @@ if __name__ == '__main__':
     # Check grammar
     p = Python26Parser()
     p.check_grammar()
-    from uncompyle6 import PYTHON_VERSION, IS_PYPY
-    if PYTHON_VERSION == 2.6:
+    from xdis import PYTHON_VERSION_TRIPLE, IS_PYPY
+    if PYTHON_VERSION_TRIPLE[:2] == (2, 6):
         lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from uncompyle6.scanner import get_scanner
-        s = get_scanner(PYTHON_VERSION, IS_PYPY)
+        s = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY)
         opcode_set = set(s.opc.opname).union(set(
             """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
                LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP

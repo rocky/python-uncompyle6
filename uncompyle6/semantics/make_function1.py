@@ -34,7 +34,7 @@ def make_function1(self, node, is_lambda, nested=1, code_node=None):
     This code is specialied for Python 2.
     """
 
-    def build_param(tree, param_names: list) -> tuple:
+    def build_param(tree, param_names):
         """build parameters:
             - handle defaults
             - handle format tuple parameters
@@ -93,7 +93,7 @@ def make_function1(self, node, is_lambda, nested=1, code_node=None):
             is_lambda=is_lambda,
             noneInNames=("None" in code.co_names),
         )
-    except (ParserError, ParserError2) as p:
+    except (ParserError(p), ParserError2(p)):
         self.write(str(p))
         if not self.tolerate_errors:
             self.ERROR = p

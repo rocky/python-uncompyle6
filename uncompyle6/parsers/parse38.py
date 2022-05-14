@@ -344,9 +344,9 @@ if __name__ == "__main__":
     p = Python38Parser()
     p.remove_rules_38()
     p.check_grammar()
-    from uncompyle6 import PYTHON_VERSION, IS_PYPY
+    from xdis import PYTHON_VERSION_TRIPLE, IS_PYPY
 
-    if PYTHON_VERSION == 3.8:
+    if PYTHON_VERSION_TRIPLE[:2] == (3, 8):
         lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from uncompyle6.scanner import get_scanner
 

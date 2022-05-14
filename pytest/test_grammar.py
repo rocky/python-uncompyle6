@@ -54,6 +54,7 @@ def test_grammar():
             expect_lhs.add("except_handler_else")
 
     expect_lhs.add("kwarg")
+<<<<<<< HEAD
     expect_lhs.add("load_genexpr")
 
     unused_rhs = unused_rhs.union(
@@ -88,7 +89,6 @@ def test_grammar():
         assert expect_lhs == set(lhs)
         assert unused_rhs == set(rhs)
 
->>>>>>> python-3.3-to-3.5
     assert expect_right_recursive == right_recursive
 
     expect_dup_rhs = frozenset(

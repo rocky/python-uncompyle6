@@ -70,7 +70,6 @@ def disco_loop(disasm, queue, real_out):
                     "\n# %s %s\n"
                     % (co.co_name, co.co_filename)
                 )
-                print(
         tokens, customize = disasm(co)
         for t in tokens:
             if iscode(t.pattr):

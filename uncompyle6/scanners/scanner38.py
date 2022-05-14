@@ -43,7 +43,7 @@ class Scanner38(Scanner37):
 
     def ingest(
         self, co, classname=None, code_objects={}, show_asm=None
-    ) -> tuple:
+    ):
         """
         Create "tokens" the bytecode of an Python code object. Largely these
         are the opcode name, but in some cases that has been modified to make parsing

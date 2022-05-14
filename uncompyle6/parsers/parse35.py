@@ -272,8 +272,8 @@ if __name__ == '__main__':
     # Check grammar
     p = Python35Parser()
     p.check_grammar()
-    from uncompyle6 import PYTHON_VERSION, IS_PYPY
-    if PYTHON_VERSION == 3.5:
+    from xdis import PYTHON_VERSION_TRIPLE, IS_PYPY
+    if PYTHON_VERSION_TRIPLE[:2] == (3, 5):
         lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from uncompyle6.scanner import get_scanner
         s = get_scanner(PYTHON_VERSION, IS_PYPY)

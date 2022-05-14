@@ -269,7 +269,10 @@ class ComprehensionMixin(object):
                 assert list_afor2 == "list_afor2"
                 store = list_afor2[1]
                 assert store == "store"
-                n = list_afor2[3] if list_afor2[3] == "list_iter" else list_afor2[2]
+                if list_afor2[3] == "list_iter":
+                    n = list_afor2[3]
+                else:
+                    n = list_afor2[2]
             else:
                 # ???
                 pass
@@ -629,7 +632,10 @@ class ComprehensionMixin(object):
                         list_ifs.append(n)
                     else:
                         list_ifs.append([1])
-                    n = n[-2] if n[-1] == "come_from_opt" else n[-1]
+                    if n[-1] == "come_from_opt":
+                        n = n[-2]
+                    else:
+                        n = n[-1]
                     pass
                 elif n == "list_if37":
                     list_ifs.append(n)
@@ -639,7 +645,10 @@ class ComprehensionMixin(object):
                     collections.append(n[0][0])
                     n = n[1]
                     stores.append(n[1][0])
-                    n = n[2] if n[2].kind == "list_iter" else n[3]
+                    if n[2].kind:
+                        n = n[2]
+                    else:
+                        n = n[3]
                 pass
 
             assert n == "lc_body", tree

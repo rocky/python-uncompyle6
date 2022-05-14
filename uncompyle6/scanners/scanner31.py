@@ -31,4 +31,3 @@ if __name__ == "__main__":
         pass
     else:
         print("Need to be Python 3.1 to demo; I am version %s." % version_tuple_to_str())
-[<
