@@ -156,7 +156,7 @@ class Scanner37(Scanner37Base):
                     if t.kind.startswith("BUILD_CONST_KEY_MAP")
                     else t.kind.split("_")[1]
                 )
-                new_tokens = self.bound_collection(
+                new_tokens = self.bound_collection_from_tokens(
                     tokens, new_tokens, t, i, "CONST_%s" % collection_type
                 )
                 continue

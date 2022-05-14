@@ -64,7 +64,7 @@ class Python14Parser(Python15Parser):
 
             if opname_base == "UNPACK_VARARG":
                 if token.attr > 1:
-                    self.addRule(f"star_args ::= RESERVE_FAST {opname} args_store", nop_func)
+                    self.addRule("star_args ::= RESERVE_FAST %s args_store" % opname, nop_func)
 
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):

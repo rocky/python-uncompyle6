@@ -22,8 +22,6 @@ This sets up opcodes Python's 3.8 and calls a generalized
 scanner routine for Python 3.7 and up.
 """
 
-from typing import Dict, Tuple
-
 from uncompyle6.scanners.tok import off2int
 from uncompyle6.scanners.scanner37 import Scanner37
 from uncompyle6.scanners.scanner37base import Scanner37Base
@@ -45,7 +43,7 @@ class Scanner38(Scanner37):
 
     def ingest(
         self, co, classname=None, code_objects={}, show_asm=None
-    ) -> Tuple[list, dict]:
+    ) -> tuple:
         """
         Create "tokens" the bytecode of an Python code object. Largely these
         are the opcode name, but in some cases that has been modified to make parsing
@@ -73,7 +71,7 @@ class Scanner38(Scanner37):
         # The value is where the loop ends. In current Python,
         # JUMP_BACKS are always to loops. And blocks are ordered so that the
         # JUMP_BACK with the highest offset will be where the range ends.
-        jump_back_targets: Dict[int, int] = {}
+        jump_back_targets = {}
         for token in tokens:
             if token.kind == "JUMP_BACK":
                 jump_back_targets[token.attr] = token.offset
@@ -92,7 +90,7 @@ class Scanner38(Scanner37):
             if offset == next_end:
                 loop_ends.pop()
                 if self.debug:
-                    print(f"{'  ' * len(loop_ends)}remove loop offset {offset}")
+                    print("%sremove loop offset %s" % (" " * len(loop_ends), offset))
                     pass
                 next_end = (
                     loop_ends[-1]
@@ -106,7 +104,8 @@ class Scanner38(Scanner37):
                 next_end = off2int(jump_back_targets[offset], prefer_last=False)
                 if self.debug:
                     print(
-                        f"{'  ' * len(loop_ends)}adding loop offset {offset} ending at {next_end}"
+                        "%sadding loop offset %s ending at %s"
+                        % ("  " * len(loop_ends), offset, next_end)
                     )
                 loop_ends.append(next_end)
 
@@ -165,4 +164,4 @@ if __name__ == "__main__":
             print(t.format())
         pass
     else:
-        print(f"Need to be Python 3.8 to demo; I am version {version_tuple_to_str()}.")
+        print("Need to be Python 3.8 to demo; I am version %s." % version_tuple_to_str())

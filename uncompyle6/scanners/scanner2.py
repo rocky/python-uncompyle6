@@ -200,6 +200,7 @@ class Scanner2(Scanner):
         grammar rules. Specifically, variable arg tokens like MAKE_FUNCTION or BUILD_LIST
         cause specific rules for the specific number of arguments they take.
         """
+
         if not show_asm:
             show_asm = self.show_asm
 
@@ -1441,3 +1442,15 @@ class Scanner2(Scanner):
             instr_offsets = filtered
             filtered = []
         return instr_offsets
+
+
+if __name__ == "__main__":
+    import inspect
+    from xdis.version_info import PYTHON_VERSION_TRIPLE
+
+    co = inspect.currentframe().f_code
+
+    tokens, customize = Scanner2(PYTHON_VERSION_TRIPLE).ingest(co)
+    for t in tokens:
+            print(t)
+    pass
