@@ -30,10 +30,10 @@ def customize_for_version26_27(self, version):
     ########################################
     if version > (2, 6):
         TABLE_DIRECT.update({
-            'except_cond2':	( '%|except %c as %c:\n', 1, 5 ),
+            "except_cond2":	( "%|except %c as %c:\n", 1, 5 ),
             # When a generator is a single parameter of a function,
             # it doesn't need the surrounding parenethesis.
-            'call_generator': ('%c%P', 0, (1, -1, ', ', 100)),
+            "call_generator": ('%c%P', 0, (1, -1, ', ', 100)),
         })
     else:
         TABLE_DIRECT.update({
@@ -60,3 +60,14 @@ def customize_for_version26_27(self, version):
 
         self.default(node)
     self.n_call = n_call
+
+    def n_import_from(node):
+        import_name = node[2]
+        if import_name == "IMPORT_NAME" and import_name.pattr == "":
+            fmt = "%|from . import %c\n"
+            self.template_engine(
+                (fmt, (3, "importlist")), node
+            )
+            self.prune()
+        self.default(node)
+    self.n_import_from = n_import_from
