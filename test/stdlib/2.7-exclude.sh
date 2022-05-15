@@ -9,7 +9,6 @@ SKIP_TESTS=(
     [test_doctest.py]=1 # Fails on its own
     [test_exceptions.py]=1
     [test_format.py]=1 # Control flow "and" vs nested "if"
-    [test_grammar.py]=1     # Too many stmts. Handle large stmts
     [test_grp.py]=1     # test takes to long, works interactively though
     [test_io.py]=1 # Test takes too long to run
     [test_ioctl.py]=1 # Test takes too long to run
