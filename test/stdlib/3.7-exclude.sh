@@ -14,22 +14,19 @@ SKIP_TESTS=(
     # complicated control flow and "and/or" expressions
     [test_pickle.py]=1
 
-    [test_builtin.py]=1 # FIXME works on decompyle6
     [test_context.py]=1 # FIXME works on decompyle6
-    [test_doctest2.py]=1 # FIXME works on decompyle6
     [test_format.py]=1 # FIXME works on decompyle6
     [test_marshal.py]=1 # FIXME works on decompyle6
     [test_normalization.py]=1 # FIXME works on decompyle6
     [test_os.py]=1 # FIXME works on decompyle6
-    [test_pow.py]=1 # FIXME works on decompyle6
     [test_slice.py]=1 # FIXME works on decompyle6
     [test_sort.py]=1 # FIXME works on decompyle6
     [test_statistics.py]=1 # FIXME works on decompyle6
     [test_timeit.py]=1 # FIXME works on decompyle6
     [test_urllib2_localnet.py]=1 # FIXME works on decompyle6
     [test_urllib2.py]=1 # FIXME: works on uncompyle6
-    [test_generators.py]=1  # FIXME: works on uncompyle6 - lambda parsing probably
-    [test_grammar.py]=1 # FIXME: works on uncompyle6 - lambda parsing probably
+    [test_generators.py]=1  # File "test_generators.py", line 44, in test_raise_and_yield_from self.assertEqual(exc.value, 'PASSED')
+    [test_grammar.py]=1 # FIXME: invalid syntax: l4 = lambda x=lambda y=lambda z=1: z: y(): x()
 
     [test___all__.py]=1 # it fails on its own
     [test_argparse.py]=1 #- it fails on its own
