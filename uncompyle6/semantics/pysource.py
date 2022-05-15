@@ -1180,11 +1180,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             # Adding a "\n" after "lambda x: x" will give an error message:
             #    SyntaxError: f-string expression part cannot include a backslash
             # So avoid that.
-            if self.in_format_string and is_lambda:
-                printfn = self.write
-            else:
-                printfn = self.println
-            printfn(self.text)
+            self.write(self.text)
         self.name = old_name
         self.return_none = rn
 

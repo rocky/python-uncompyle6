@@ -46,10 +46,7 @@ def test_grammar():
         expect_lhs.add("kv3")
         unused_rhs.add("dict")
     else:
-        # NOTE: this may disappear
-        expect_lhs.add("except_handler_else")
-
-        if PYTHON_VERSION_TRIPLE < (3, 7) and PYTHON_VERSION_TRIPLE[:2] != (2, 7):
+        if PYTHON_VERSION_TRIPLE < (3, 7) and PYTHON_VERSION_TRIPLE[:2] not in ((2, 7), (2, 6)):
             # NOTE: this may disappear
             expect_lhs.add("except_handler_else")
 
