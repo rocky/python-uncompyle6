@@ -127,7 +127,6 @@ SKIP_TESTS=(
     [test_traceback.py]=1 # Probably uses comment for testing
     [test_tracemalloc.py]=1 # test assert failres
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
-    [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
     [test_typing.py]=1 # parse error
     [test_types.py]=1 # parse error
 
