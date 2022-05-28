@@ -11,6 +11,17 @@ Bugs are not for asking questions about a problem you
 are trying to solve that involve the use of uncompyle6 along the way,
 although I may be more tolerent of this if you sponsor the project.
 
+Bugs are also not for general or novice kind help on how to install
+this Python program in your environment in the way you would like to
+have it set up, or how to interpret a Python traceback e.g. that winds
+up saying Python X.Y.Z is not supported.
+
+For these kinds of things, you will save yourself time by asking
+instead on forums like StackOverflow that are geared to helping people
+for such general or novice kinds questions and tasks. And unless you
+are a sponsor of the project, if your question seems to be of this
+category, the issue may just be closed.
+
 Also, the unless you are a sponsor of the project, it may take a
 while, maybe a week or so, before the bug report is noticed, let alone
 acted upon.
