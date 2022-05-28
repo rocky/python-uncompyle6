@@ -65,7 +65,7 @@ Bug reports that violate the above may be discarded.
 
 ## Description
 
-<!-- Please add a clear and concise description of the bug. -->
+<!-- Please add a clear and concise description of the bug. Try to narrow the problem down to the smallest that exhibits the bug.-->
 
 ## How to Reproduce
 
