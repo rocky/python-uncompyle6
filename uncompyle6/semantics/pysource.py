@@ -1167,11 +1167,8 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             #    f'{(lambda x:x)("8")!r}'
             # Adding a "\n" after "lambda x: x" will give an error message:
             #    SyntaxError: f-string expression part cannot include a backslash
-            # So avoid that.
-            printfn = (
-                self.write if self.in_format_string and is_lambda else self.println
-            )
-            printfn(self.text)
+            # So avoid \n after writing text
+            self.write(self.text)
         self.name = old_name
         self.return_none = rn
 

@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2020 Rocky Bernstein
+#  Copyright (c) 2017-2020, 2022 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -22,34 +22,31 @@ from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parsers.parse37 import Python37Parser
 
 class Python38Parser(Python37Parser):
-    def p_38walrus(self, args):
-        """
-        # named_expr is also known as the "walrus op" :=
-        expr              ::= named_expr
-        named_expr        ::= expr DUP_TOP store
-        """
-
-    def p_38misc(self, args):
+    def p_38_stmt(self, args):
         """
         stmt               ::= async_for_stmt38
         stmt               ::= async_forelse_stmt38
+        stmt               ::= call_stmt
+        stmt               ::= continue
         stmt               ::= for38
-        stmt               ::= forelsestmt38
         stmt               ::= forelselaststmt38
         stmt               ::= forelselaststmtl38
-        stmt               ::= tryfinally38stmt
+        stmt               ::= forelsestmt38
+        stmt               ::= try_elsestmtl38
+        stmt               ::= try_except38
+        stmt               ::= try_except38r
+        stmt               ::= try_except38r2
+        stmt               ::= try_except38r3
+        stmt               ::= try_except38r4
+        stmt               ::= try_except_as
+        stmt               ::= try_except_ret38
+        stmt               ::= tryfinally38astmt
         stmt               ::= tryfinally38rstmt
         stmt               ::= tryfinally38rstmt2
         stmt               ::= tryfinally38rstmt3
-        stmt               ::= tryfinally38astmt
-        stmt               ::= try_elsestmtl38
-        stmt               ::= try_except_ret38
-        stmt               ::= try_except38
-        stmt               ::= try_except_as
-        stmt               ::= whilestmt38
+        stmt               ::= tryfinally38stmt
         stmt               ::= whileTruestmt38
-        stmt               ::= call_stmt
-        stmt               ::= continue
+        stmt               ::= whilestmt38
 
         call_stmt          ::= call
         break ::= POP_BLOCK BREAK_LOOP
@@ -129,6 +126,10 @@ class Python38Parser(Python37Parser):
         forelselaststmt38  ::= expr get_for_iter store for_block POP_BLOCK else_suitec
         forelselaststmtl38 ::= expr get_for_iter store for_block POP_BLOCK else_suitel
 
+        returns_in_except   ::= _stmts except_return_value
+        except_return_value ::= POP_BLOCK return
+        except_return_value ::= expr POP_BLOCK RETURN_VALUE
+
         whilestmt38        ::= _come_froms testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
         whilestmt38        ::= _come_froms testexpr l_stmts_opt JUMP_BACK POP_BLOCK
         whilestmt38        ::= _come_froms testexpr l_stmts_opt JUMP_BACK come_froms
@@ -155,8 +156,52 @@ class Python38Parser(Python37Parser):
                                else_suitel opt_come_from_except
         try_except         ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                except_handler38
+
         try_except38       ::= SETUP_FINALLY POP_BLOCK POP_TOP suite_stmts_opt
                                except_handler38a
+
+        # suite_stmts has a return
+        try_except38       ::= SETUP_FINALLY POP_BLOCK suite_stmts
+                               except_handler38b
+        try_except38r      ::= SETUP_FINALLY return_except
+                               except_handler38b
+        return_except      ::= stmts POP_BLOCK return
+
+
+        # In 3.8 there seems to be some sort of code fiddle with POP_EXCEPT when there
+        # is a final return in the "except" block.
+        # So we treat the "return" separate from the other statements
+        cond_except_stmt      ::= except_cond1 except_stmts
+        cond_except_stmts_opt ::= cond_except_stmt*
+
+        try_except38r2     ::= SETUP_FINALLY
+                               suite_stmts_opt
+                               POP_BLOCK JUMP_FORWARD
+                               COME_FROM_FINALLY POP_TOP POP_TOP POP_TOP
+                               cond_except_stmts_opt
+                               POP_EXCEPT return
+                               END_FINALLY
+                               COME_FROM
+
+        try_except38r3     ::= SETUP_FINALLY
+                               suite_stmts_opt
+                               POP_BLOCK JUMP_FORWARD
+                               COME_FROM_FINALLY
+                               cond_except_stmts_opt
+                               POP_EXCEPT return
+                               COME_FROM
+                               END_FINALLY
+                               COME_FROM
+
+
+        try_except38r4     ::= SETUP_FINALLY
+                               returns_in_except
+                               COME_FROM_FINALLY
+                               except_cond1
+                               return
+                               COME_FROM
+                               END_FINALLY
+
 
         # suite_stmts has a return
         try_except38       ::= SETUP_FINALLY POP_BLOCK suite_stmts
@@ -232,6 +277,13 @@ class Python38Parser(Python37Parser):
         tryfinally38astmt  ::= LOAD_CONST SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                BEGIN_FINALLY COME_FROM_FINALLY
                                POP_FINALLY POP_TOP suite_stmts_opt END_FINALLY POP_TOP
+        """
+
+    def p_38walrus(self, args):
+        """
+        # named_expr is also known as the "walrus op" :=
+        expr              ::= named_expr
+        named_expr        ::= expr DUP_TOP store
         """
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
