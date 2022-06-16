@@ -125,7 +125,10 @@ def customize_for_version38(self, version):
                 (1, "testexpr"),
                 (2, ("l_stmts", "pass")),
             ),
-            "whileTruestmt38": ("%|while True:\n%+%c%-\n\n", (1, "l_stmts", "pass"),),
+            "whileTruestmt38": (
+                "%|while True:\n%+%c%-\n\n",
+                (1, ("l_stmts", "pass")),
+            ),
             "try_elsestmtl38": (
                 "%|try:\n%+%c%-%c%|else:\n%+%c%-",
                 (1, "suite_stmts_opt"),
