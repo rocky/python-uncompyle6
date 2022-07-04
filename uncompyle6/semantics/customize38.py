@@ -66,6 +66,9 @@ def customize_for_version38(self, version):
                 (1, "c_suite_stmts_opt"),
                 (-2, "c_suite_stmts_opt"),
             ),
+            # Python 3.8 reverses the order of keys and items
+            # from all prior versions of Python.
+            "dict_comp_body": ("%c: %c", (0, "expr"), (1, "expr"),),
             "except_cond1a": ("%|except %c:\n", (1, "expr"),),
             "except_cond_as": (
                 "%|except %c as %c:\n",
@@ -125,7 +128,10 @@ def customize_for_version38(self, version):
                 (1, "testexpr"),
                 (2, ("l_stmts", "pass")),
             ),
-            "whileTruestmt38": ("%|while True:\n%+%c%-\n\n", (1, "l_stmts", "pass"),),
+            "whileTruestmt38": (
+                "%|while True:\n%+%c%-\n\n",
+                (1, ("l_stmts", "pass")),
+            ),
             "try_elsestmtl38": (
                 "%|try:\n%+%c%-%c%|else:\n%+%c%-",
                 (1, "suite_stmts_opt"),
