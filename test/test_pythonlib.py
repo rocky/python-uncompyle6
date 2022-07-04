@@ -31,11 +31,15 @@ import getopt, os, py_compile, sys, shutil, tempfile, time
 
 from fnmatch import fnmatch
 from uncompyle6.main import main
-from xdis.version_info import PYTHON_VERSION
+from xdis.version_info import PYTHON_VERSION, PYTHON_VERSION_TRIPLE
 
 
 def get_srcdir():
-    filename = os.path.normcase(os.path.dirname(__file__))
+    if PYTHON_VERSION_TRIPLE < (2, 5):
+        def five(): return 5
+        filename = five.func_code.co_filename
+    else:
+        filename = os.path.normcase(os.path.dirname(__file__))
     return os.path.realpath(filename)
 
 

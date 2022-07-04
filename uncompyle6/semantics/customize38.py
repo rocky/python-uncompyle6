@@ -252,7 +252,10 @@ def customize_for_version38(self, version):
             # list_afor ::= get_iter list_afor
             self.comprehension_walk_newer(node, 0)
         else:
-            list_iter_index = 2 if node[2] == "list_iter" else 3
+            if node[2] == "list_iter":
+                list_iter_index = 2
+            else:
+                list_iter_index = 3
             self.template_engine(
                 (
                     " async for %[1]{%c} in %c%[1]{%c}",
