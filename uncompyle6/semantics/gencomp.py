@@ -319,6 +319,9 @@ class ComprehensionMixin(object):
             store = set_iter_async[1]
             assert store == "store"
             n = set_iter_async[2]
+        elif node == "list_comp" and tree[0] == "expr":
+            tree = tree[0][0]
+            n = tree[iter_index]
         else:
             n = tree[iter_index]
 

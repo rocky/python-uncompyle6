@@ -49,14 +49,15 @@ NO_PARENTHESIS_EVER = 100
 # fmt: off
 PRECEDENCE = {
     "named_expr":             40,  # :=
-    "yield":                  38,  # Needs to be below named_expr
-    "yield_from":             38,
-    "tuple_list_starred":     38,  # *x, *y, *z - about at the level of yield?
     "dict_unpack":            38,  # **kwargs
     "list_unpack":            38,  # *args
+    "yield_from":             38,
+    "tuple_list_starred":     38,  # *x, *y, *z - about at the level of yield?
 
     "_lambda_body":           30,
-    "lambda_body":            30,  # lambda ... : lambda_body
+    "lambda_body":            32,  # lambda ... : lambda_body
+
+    "yield":                  30,  # Needs to be below named_expr and lambda_body
 
     "if_exp":                 28,  # IfExp ( a if x else b)
     "if_exp_lambda":          28,  # IfExp involving a lambda expression
