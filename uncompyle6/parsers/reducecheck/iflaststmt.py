@@ -13,9 +13,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-def iflaststmt(
-    self, lhs: str, n: int, rule, tree, tokens: list, first: int, last: int
-) -> bool:
+def iflaststmt(self, lhs, n, rule, tree, tokens, first, last):
     testexpr = tree[0]
 
     if testexpr[0] in ("testtrue", "testfalse"):
