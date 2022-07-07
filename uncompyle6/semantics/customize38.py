@@ -322,7 +322,7 @@ def customize_for_version38(self, version):
             f_conversion = self.traverse(formatted_value, indent="")
             # Remove leaving "f" and quotes
             conversion = strip_quotes(f_conversion[1:])
-            f_str = "f%s" % escape_string(f"{value_equal}{conversion}" + post_str)
+            f_str = "f%s" % escape_string(("%s%s" % (value_equal, conversion)) + post_str)
 
         self.write(f_str)
         self.in_format_string = old_in_format_string
