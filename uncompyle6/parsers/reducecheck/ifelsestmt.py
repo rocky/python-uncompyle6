@@ -1,4 +1,4 @@
-#  Copyright (c) 2020-2021 Rocky Bernstein
+#  Copyright (c) 2020-2022 Rocky Bernstein
 
 from uncompyle6.scanners.tok import Token
 
@@ -125,7 +125,7 @@ IFELSE_STMT_RULES = frozenset(
         ),
     ])
 
-def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
+def ifelsestmt(self, lhs, n, rule, tree, tokens, first, last):
 
     if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP" and lhs != "ifelsestmtc":
         # ifelsestmt jumped outside of loop. No good.
@@ -142,7 +142,7 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
 
     # Avoid if/else where the "then" is a "raise_stmt1" for an
     # assert statement. Parse this as an "assert" instead.
-    stmts = ast[1]
+    stmts = tree[1]
     if stmts in ("c_stmts",) and len(stmts) == 1:
         raise_stmt1 = stmts[0]
         if (
@@ -156,8 +156,8 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
     # Since the come_froms are ordered so that lowest
     # offset COME_FROM is last, it is sufficient to test
     # just the last one.
-    if len(ast) == 5:
-        end_come_froms = ast[-1]
+    if len(tree) == 5:
+        end_come_froms = tree[-1]
         if end_come_froms.kind != "else_suite" and self.version >= (3, 0):
             if end_come_froms == "opt_come_from_except" and len(end_come_froms) > 0:
                 end_come_froms = end_come_froms[0]
@@ -170,21 +170,21 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
         # FIXME: There is weirdness in the grammar we need to work around.
         # we need to clean up the grammar.
         if self.version < (3, 0):
-            last_token = ast[-1]
+            last_token = tree[-1]
         else:
             last_token = tokens[last]
         if last_token == "COME_FROM" and tokens[first].offset > last_token.attr:
             if self.version < (3, 0) and self.insts[self.offset2inst_index[last_token.attr]].opname != "SETUP_LOOP":
                 return True
 
-    testexpr = ast[0]
+    testexpr = tree[0]
 
     # Check that the condition portion of the "if"
     # jumps to the "else" part.
     if testexpr[0] in ("testtrue", "testfalse"):
         if_condition = testexpr[0]
 
-        else_suite = ast[3]
+        else_suite = tree[3]
         assert else_suite.kind.startswith("else_suite")
 
         if len(if_condition) > 1 and if_condition[1].kind.startswith("jmp_"):
@@ -205,7 +205,7 @@ def ifelsestmt(self, lhs, n, rule, ast, tokens, first, last):
 
             # FIXME: the below logic for jf_cfs could probably be
             # simplified.
-            jump_else_end = ast[2]
+            jump_else_end = tree[2]
             if jump_else_end == "jf_cf_pop":
                 jump_else_end = jump_else_end[0]
 

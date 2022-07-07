@@ -20,6 +20,7 @@ from __future__ import print_function
 from uncompyle6.parser import PythonParserSingle, nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parsers.parse37 import Python37Parser
+from uncompyle6.parsers.reducecheck import joined_str_check
 
 class Python38Parser(Python37Parser):
     def p_38_stmt(self, args):
@@ -521,6 +522,29 @@ class Python38Parser(Python37Parser):
                     self.add_unique_rules(["expr ::= %s" % collection, rule], customize)
                     continue
                 continue
+
+            elif opname == "BUILD_STRING_2":
+               self.addRule(
+                   """
+                     expr                  ::= formatted_value_debug
+                     formatted_value_debug ::= LOAD_STR formatted_value2 BUILD_STRING_2
+                     formatted_value_debug ::= LOAD_STR formatted_value1 BUILD_STRING_2
+                   """,
+                   nop_func,
+               )
+               custom_ops_processed.add(opname)
+
+            elif opname == "BUILD_STRING_3":
+               self.addRule(
+                   """
+                     expr                  ::= formatted_value_debug
+                     formatted_value_debug ::= LOAD_STR formatted_value2 LOAD_STR BUILD_STRING_3
+                     formatted_value_debug ::= LOAD_STR formatted_value1 LOAD_STR BUILD_STRING_3
+                   """,
+                   nop_func,
+               )
+               custom_ops_processed.add(opname)
+
             elif opname == "LOAD_CLOSURE":
                 self.addRule("""load_closure ::= LOAD_CLOSURE+""", nop_func)
 
