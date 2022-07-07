@@ -24,6 +24,8 @@ from uncompyle6.semantics.consts import (
 
 from uncompyle6.semantics.helper import flatten_list
 
+FSTRING_CONVERSION_MAP = {1: "!s", 2: "!r", 3: "!a", "X": ":X"}
+
 #######################
 def customize_for_version37(self, version):
     ########################
@@ -39,7 +41,9 @@ def customize_for_version37(self, version):
     PRECEDENCE["call_ex_kw4"]      =   1
     PRECEDENCE["call_kw"]          =   0
     PRECEDENCE["call_kw36"]        =   1
-    PRECEDENCE["formatted_value1"] = 100
+    PRECEDENCE["formatted_value1"] =  38 # f"...". This has to be below "named_expr" to make
+                                         # f'{(x := 10)}' preserve parenthesis
+    PRECEDENCE["formatted_value2"] =  38 # See above
     PRECEDENCE["if_exp_37a"]       =  28
     PRECEDENCE["if_exp_37b"]       =  28
     PRECEDENCE["dict_unpack"]      =   0  # **{...}
