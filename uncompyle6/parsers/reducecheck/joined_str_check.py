@@ -13,9 +13,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-def joined_str_ok(
-    self, lhs: str, n: int, rule, tree, tokens: list, first: int, last: int
-) -> bool:
+def joined_str_ok(self, lhs, n, rule, tree, tokens, first, last):
     # In Python 3.8, there is a new "=" specifier.
     # See https://docs.python.org/3/whatsnew/3.8.html#f-strings-support-for-self-documenting-expressions-and-debugging
     # We detect this here inside joined_str by looking for an
