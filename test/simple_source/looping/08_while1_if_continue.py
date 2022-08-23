@@ -19,7 +19,7 @@ def _parse(a, b, source, state):
         else:
             raise
 
-def _parse2(source, state):
+def _parse2(source, state, a, b, this):
     while 1:
         if a:
             if b:
@@ -32,10 +32,10 @@ def _parse2(source, state):
             if b:
                 break
 
-        x = 3
+        x = this
 
 # Bug was in 2.3 decompilation
-def _parse3(source, state):
+def _parse3(source, state, a, b):
     while 1:
         if a:
             if b:
