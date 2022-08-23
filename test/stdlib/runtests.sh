@@ -1,6 +1,9 @@
 #!/bin/bash
 me=${BASH_SOURCE[0]}
 
+# Note: for 2.6 sometimes we need to set PYTHON=pytest
+PYTHON=${PYTHON:-python}
+
 typeset -i BATCH=${BATCH:-0}
 if (( ! BATCH )) ; then
     isatty=$(/usr/bin/tty 2>/dev/null)
@@ -191,7 +194,7 @@ for file in $files; do
     if [ ! -r $file ]; then
 	echo "Skipping test $file -- not readable. Does it exist?"
 	continue
-    elif ! python $file >/dev/null 2>&1 ; then
+    elif ! $PYTHON $file >/dev/null 2>&1 ; then
 	echo "Skipping test $file -- it fails on its own"
 	continue
     fi
@@ -214,7 +217,7 @@ for file in $files; do
     rc=$?
     if (( rc == 0 )) ; then
 	echo ========== $(date +%X) Running $file ===========
-	timeout_cmd python $file
+	timeout_cmd $PYTHON $file
 	rc=$?
     else
 	echo ======= Skipping $file due to compile/decompile errors ========
