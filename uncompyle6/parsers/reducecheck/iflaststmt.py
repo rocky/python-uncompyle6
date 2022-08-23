@@ -16,6 +16,10 @@
 def iflaststmt(self, lhs, n, rule, tree, tokens, first, last):
     testexpr = tree[0]
 
+    # print("XXX", first, last, rule)
+    # for t in range(first, last): print(tokens[t])
+    # print("="*40)
+
     if testexpr[0] in ("testtrue", "testfalse"):
 
         test = testexpr[0]
