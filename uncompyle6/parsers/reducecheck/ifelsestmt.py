@@ -158,13 +158,15 @@ def ifelsestmt(self, lhs, n, rule, tree, tokens, first, last):
     # just the last one.
     if len(tree) == 5:
         end_come_froms = tree[-1]
+        offset = tokens[first].offset
+        offset = int(tokens[first].offset.split('_')[0]) if isinstance(offset, str) else offset
         if end_come_froms.kind != "else_suite" and self.version >= (3, 0):
             if end_come_froms == "opt_come_from_except" and len(end_come_froms) > 0:
                 end_come_froms = end_come_froms[0]
             if not isinstance(end_come_froms, Token):
                 if len(end_come_froms):
-                    return tokens[first].offset > end_come_froms[-1].attr
-            elif tokens[first].offset > end_come_froms.attr:
+                    return offset > end_come_froms[-1].attr
+            elif offset > end_come_froms.attr:
                 return True
 
         # FIXME: There is weirdness in the grammar we need to work around.
@@ -173,7 +175,7 @@ def ifelsestmt(self, lhs, n, rule, tree, tokens, first, last):
             last_token = tree[-1]
         else:
             last_token = tokens[last]
-        if last_token == "COME_FROM" and tokens[first].offset > last_token.attr:
+        if last_token == "COME_FROM" and offset > last_token.attr:
             if self.version < (3, 0) and self.insts[self.offset2inst_index[last_token.attr]].opname != "SETUP_LOOP":
                 return True
 
