@@ -94,6 +94,10 @@ class Python24Parser(Python25Parser):
         if self.version[:2] == (2, 4):
             self.check_reduce['nop_stmt'] = 'tokens'
 
+        if self.version[:2] <= (2, 4):
+            # TODO: We may add something different or customize something
+            del self.reduce_check_table["ifelsestmt"]
+
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python24Parser,
                         self).reduce_is_invalid(rule, ast,

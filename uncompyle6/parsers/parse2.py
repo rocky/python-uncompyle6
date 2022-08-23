@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2021 Rocky Bernstein
+#  Copyright (c) 2015-2022 Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 #  Copyright (c) 1999 John Aycock
@@ -25,6 +25,7 @@ If we succeed in creating a parse tree, then we have a Python program
 that a later phase can turn into a sequence of ASCII text.
 """
 
+from __future__ import print_function
 from uncompyle6.parsers.reducecheck import (except_handler_else, ifelsestmt, tryelsestmt)
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.treenode import SyntaxTree
@@ -311,11 +312,14 @@ class Python2Parser(PythonParser):
             opname_base = opname[: opname.rfind("_")]
 
             if opname in ("BUILD_CONST_LIST", "BUILD_CONST_SET"):
-                rule = """
+                rule = (
+                    """
                        add_consts          ::= ADD_VALUE*
                        const_list          ::= COLLECTION_START add_consts %s
                        expr                ::= const_list
-                       """ % opname
+                       """
+                    % opname
+                )
                 self.addRule(rule, nop_func)
 
             # The order of opname listed is roughly sorted below
@@ -694,7 +698,7 @@ class Python2Parser(PythonParser):
             # an optimization where the "and" jump_false is back to a loop.
             jmp_false = ast[1]
             if jmp_false[0] == "POP_JUMP_IF_FALSE":
-                while (first < last and isinstance(tokens[last].offset, str)):
+                while first < last and isinstance(tokens[last].offset, str):
                     last -= 1
                 if jmp_false[0].attr < tokens[last].offset:
                     return True
@@ -703,8 +707,10 @@ class Python2Parser(PythonParser):
             # or that it jumps to the same place as the end of "and"
             jmp_false = ast[1][0]
             jmp_target = jmp_false.offset + jmp_false.attr + 3
-            return not (jmp_target == tokens[last].offset or
-                        tokens[last].pattr == jmp_false.pattr)
+            return not (
+                jmp_target == tokens[last].offset
+                or tokens[last].pattr == jmp_false.pattr
+            )
         # Dead code testing...
         # if lhs == 'while1elsestmt':
         #     from trepan.api import debug; debug()
