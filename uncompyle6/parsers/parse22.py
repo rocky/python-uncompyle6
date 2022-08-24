@@ -29,6 +29,10 @@ class Python22Parser(Python23Parser):
         self.remove_rules("""
         kvlist ::= kvlist kv2
         """)
+        if self.version[:2] <= (2, 2):
+            # TODO: We may add something different or customize something
+            del self.reduce_check_table["ifstmt"]
+
 
 class Python22ParserSingle(Python23Parser, PythonParserSingle):
     pass
