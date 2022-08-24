@@ -6,6 +6,7 @@ from uncompyle6.parsers.reducecheck.ifelsestmt import *
 from uncompyle6.parsers.reducecheck.ifelsestmt2 import *
 from uncompyle6.parsers.reducecheck.iflaststmt import *
 from uncompyle6.parsers.reducecheck.ifstmt import *
+from uncompyle6.parsers.reducecheck.ifstmt2 import *
 from uncompyle6.parsers.reducecheck.ifstmts_jump import *
 from uncompyle6.parsers.reducecheck.or_check import *
 from uncompyle6.parsers.reducecheck.testtrue import *
