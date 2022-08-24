@@ -5,7 +5,7 @@ SKIP_TESTS=(
     #   if filename == 'destfile':
     #      return destfile
     #   assert 0  # shouldn't reach here.
-    [test_shutil.py]=1
+    # [test_shutil.py]=1 # OK but needs PYTHON=pytest
 
     [test___all__.py]=1 # it fails on its own
     [test_aepack.py]=1 # it fails on its own
@@ -17,7 +17,7 @@ SKIP_TESTS=(
     [test_bsddb3.py]=1 # it fails on its own
     [test_bsddb.py]=1 # it fails on its own
 
-    [test_cd.py]=1 # it fails on its own
+    # [test_cd.py]=1 # it fails on its own
     [test_cl.py]=1 # it fails on its own
     [test_codecmaps_cn.py]=1 # it fails on its own
     [test_codecmaps_jp.py]=1 # it fails on its own
@@ -35,7 +35,7 @@ SKIP_TESTS=(
     [test_file.py]=1 # it fails on its own
     [test_future5.py]=1 # it fails on its own
 
-    [test_generators.py]=1 # Investigate
+    # [test_generators.py]=1 # Investigate
     [test_gl.py]=1 # it fails on its own
     [test_grp.py]=1      # Long test - might work Control flow?
 
