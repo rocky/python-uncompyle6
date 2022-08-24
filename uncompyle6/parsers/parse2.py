@@ -660,14 +660,15 @@ class Python2Parser(PythonParser):
             "tryelsestmtl": tryelsestmt,
         }
         self.check_reduce["and"] = "AST"
-        self.check_reduce["except_handler_else"] = "tokens"
-        self.check_reduce["raise_stmt1"] = "tokens"
         self.check_reduce["assert_expr_and"] = "AST"
+        self.check_reduce["aug_assign2"] = "AST"
+        self.check_reduce["except_handler_else"] = "tokens"
+        self.check_reduce["ifelsestmt"] = "AST"
+        self.check_reduce["ifstmt"] = "tokens"
+        self.check_reduce["or"] = "AST"
+        self.check_reduce["raise_stmt1"] = "tokens"
         self.check_reduce["tryelsestmt"] = "AST"
         self.check_reduce["tryelsestmtl"] = "AST"
-        self.check_reduce["aug_assign2"] = "AST"
-        self.check_reduce["or"] = "AST"
-        self.check_reduce["ifstmt"] = "tokens"
         # self.check_reduce['_stmts'] = 'AST'
 
         # Dead code testing...

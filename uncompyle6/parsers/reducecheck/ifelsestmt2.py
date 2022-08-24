@@ -1,4 +1,7 @@
 #  Copyright (c) 2020-2022 Rocky Bernstein
+"""
+If/else statement reduction check for Python 2.6 (and older?)
+"""
 
 IFELSE_STMT_RULES = frozenset(
     [
