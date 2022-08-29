@@ -136,6 +136,8 @@ def ifelsestmt(self, lhs, n, rule, tree, tokens, first, last):
     #     print(tokens[t])
     # print("=" * 30)
 
+    first_offset = tokens[first].off2int()
+
     if rule not in IFELSE_STMT_RULES:
         # print("XXX", rule)
         return False
@@ -151,7 +153,7 @@ def ifelsestmt(self, lhs, n, rule, tree, tokens, first, last):
         ):
             return True
 
-    # Make sure all of the "come froms" offset at the
+    # Make sure all the offsets from the "come froms" at the
     # end of the "if" come from somewhere inside the "if".
     # Since the come_froms are ordered so that lowest
     # offset COME_FROM is last, it is sufficient to test
@@ -163,8 +165,8 @@ def ifelsestmt(self, lhs, n, rule, tree, tokens, first, last):
                 end_come_froms = end_come_froms[0]
             if not isinstance(end_come_froms, Token):
                 if len(end_come_froms):
-                    return tokens[first].off2int() > end_come_froms[-1].attr
-            elif tokens[first].off2int() > end_come_froms.attr:
+                    return first_offset > end_come_froms[-1].attr
+            elif first_offset > end_come_froms.attr:
                 return True
 
         # FIXME: There is weirdness in the grammar we need to work around.
@@ -173,7 +175,7 @@ def ifelsestmt(self, lhs, n, rule, tree, tokens, first, last):
             last_token = tree[-1]
         else:
             last_token = tokens[last]
-        if last_token == "COME_FROM" and tokens[first].off2int() > last_token.attr:
+        if last_token == "COME_FROM" and first_offset > last_token.attr:
             if self.version < (3, 0) and self.insts[self.offset2inst_index[last_token.attr]].opname != "SETUP_LOOP":
                 return True
 
@@ -237,7 +239,7 @@ def ifelsestmt(self, lhs, n, rule, tree, tokens, first, last):
                 if jump_else_end[-1].off2int() != jmp_target:
                     return True
 
-            if tokens[first].off2int() > jmp_target:
+            if first_offset > jmp_target:
                 return True
 
             return (jmp_target > last_offset) and tokens[last] != "JUMP_FORWARD"

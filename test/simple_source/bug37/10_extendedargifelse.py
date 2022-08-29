@@ -1,3 +1,10 @@
+# This is RUNNABLE!
+
+"""This program is self-checking!"""
+
+# Bug was handling if which has EXTENDED_ARG
+# See https://github.com/rocky/python-uncompyle6/pull/406
+
 aa = 0
 ab = 0
 ac = 0
@@ -262,3 +269,4 @@ if var:
     aa = 1
 else:
     aa = 2
+assert aa == 1
