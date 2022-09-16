@@ -13,6 +13,7 @@ from xdis.opcodes import opcode_37pypy as opc  # is this right?
 
 JUMP_OPs = opc.JUMP_OPS
 
+
 # We base this off of 3.7
 class ScannerPyPy37(scan.Scanner37):
     def __init__(self, show_asm):

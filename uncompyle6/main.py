@@ -18,7 +18,7 @@ import datetime, py_compile, os, sys
 
 from xdis import iscode
 from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, version_tuple_to_str
-from uncompyle6.disas import check_object_path
+from uncompyle6.code_fns import check_object_path
 from uncompyle6.semantics import pysource
 from uncompyle6.semantics.pysource import PARSER_DEFAULT_DEBUG
 from uncompyle6.parser import ParserError
