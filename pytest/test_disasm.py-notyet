@@ -1,7 +1,7 @@
 import os.path
 import pytest
 
-from uncompyle6.disas import disassemble_file
+from uncompyle6.code_fns import disassemble_file
 
 def get_srcdir():
     filename = os.path.normcase(os.path.dirname(__file__))

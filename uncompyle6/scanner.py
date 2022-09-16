@@ -137,9 +137,9 @@ class Scanner(object):
         assert count <= i
 
         if collection_type == "CONST_DICT":
-            # constant dictonaries work via BUILD_CONST_KEY_MAP and
+            # constant dictionaries work via BUILD_CONST_KEY_MAP and
             # handle the values() like sets and lists.
-            # However the keys() are an LOAD_CONST of the keys.
+            # However, the keys() are an LOAD_CONST of the keys.
             # adjust offset to account for this
             count += 1
 

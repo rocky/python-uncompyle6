@@ -5,7 +5,7 @@
 #
 import sys, os, getopt
 
-from uncompyle6.disas import disassemble_file
+from uncompyle6.code_fns import disassemble_file
 from uncompyle6.version import __version__
 
 program, ext = os.path.splitext(os.path.basename(__file__))

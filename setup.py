@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Setup script for the 'uncompyle6' distribution."""
 
+import setuptools
 import sys
 
 SYS_VERSION = sys.version_info[0:2]
@@ -37,9 +38,7 @@ from __pkginfo__ import (
     zip_safe,
 )
 
-from setuptools import setup, find_packages
-
-setup(
+setuptools.setup(
     author=author,
     author_email=author_email,
     classifiers=classifiers,
@@ -50,7 +49,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/x-rst",
     name=modname,
-    packages=find_packages(),
+    packages=setuptools.find_packages(),
     py_modules=py_modules,
     test_suite="nose.collector",
     url=web,
