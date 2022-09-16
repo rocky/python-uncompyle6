@@ -1,9 +1,5 @@
 # Pick up stuff from setup.py
-hypothesis==2.0.0
 pytest
 -e .
 
-Click~=7.0
 xdis>=6.0.4
-configobj~=5.0.6
-setuptools~=65.3.0
