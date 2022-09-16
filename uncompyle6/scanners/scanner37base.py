@@ -45,14 +45,18 @@ import sys
 globals().update(op3.opmap)
 
 
+CONST_COLLECTIONS = ("CONST_LIST", "CONST_SET", "CONST_DICT")
+
+
 class Scanner37Base(Scanner):
     def __init__(self, version: tuple, show_asm=None, debug="", is_pypy=False):
         super(Scanner37Base, self).__init__(version, show_asm, is_pypy)
+        self.offset2tok_index = None
         self.debug = debug
         self.is_pypy = is_pypy
 
         # Create opcode classification sets
-        # Note: super initilization above initializes self.opc
+        # Note: super initialization above initializes self.opc
 
         # Ops that start SETUP_ ... We will COME_FROM with these names
         # Some blocks and END_ statements. And they can start
@@ -137,7 +141,7 @@ class Scanner37Base(Scanner):
                 self.opc.POP_JUMP_IF_FALSE,
             ]
         )
-        # Not really a set, but still clasification-like
+        # Not really a set, but still classification-like
         self.statement_opcode_sequences = [
             (self.opc.POP_JUMP_IF_FALSE, self.opc.JUMP_FORWARD),
             (self.opc.POP_JUMP_IF_FALSE, self.opc.JUMP_ABSOLUTE),
@@ -272,7 +276,7 @@ class Scanner37Base(Scanner):
             if inst.opname == "JUMP_FORWARD":
                 jump_inst = self.insts[self.offset2inst_index[inst.argval]]
                 if jump_inst.has_extended_arg and jump_inst.opname.startswith("JUMP"):
-                    # Create comination of the jump-to instruction and
+                    # Create a combination of the jump-to instruction and
                     # this one. Keep the position information of this instruction,
                     # but the operator and operand properties come from the other
                     # instruction
@@ -440,9 +444,9 @@ class Scanner37Base(Scanner):
             elif op == self.opc.JUMP_ABSOLUTE:
                 #  Refine JUMP_ABSOLUTE further in into:
                 #
-                # * "JUMP_LOOP"    - which are are used in loops. This is sometimes
+                # * "JUMP_LOOP"    - which are used in loops. This is sometimes
                 #                   found at the end of a looping construct
-                # * "BREAK_LOOP"  - which are are used to break loops.
+                # * "BREAK_LOOP"  - which are used to break loops.
                 # * "CONTINUE"    - jumps which may appear in a "continue" statement.
                 #                   It is okay to confuse this with JUMP_LOOP. The
                 #                   grammar should tolerate this.

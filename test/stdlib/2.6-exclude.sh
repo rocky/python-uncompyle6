@@ -35,14 +35,14 @@ SKIP_TESTS=(
     [test_file.py]=1 # it fails on its own
     [test_future5.py]=1 # it fails on its own
 
-    # [test_generators.py]=1 # Investigate
+    # [test_generators.py]=1 # works but use PYTHON=pytest
     [test_gl.py]=1 # it fails on its own
-    [test_grp.py]=1      # Long test - might work Control flow?
+    # [test_grp.py]=1  # works but use PYTHON=pytest
 
     [test_imageop.py]=1 # it fails on its own
     [test_imaplib.py]=1 # it fails on its own
     [test_imgfile.py]=1 # it fails on its own
-    [test_ioctl.py]=1 # it fails on its own
+    # [test_ioctl.py]=1  # works but use PYTHON=pytest
 
     [test_kqueue.py]=1 # it fails on its own
 
@@ -52,7 +52,7 @@ SKIP_TESTS=(
     [test_macostools.py]=1 # it fails on its own
     [test_mailbox.py]=1 # FIXME: release 3.6.2 may have worked
 
-    [test_normalization.py]=1 # it fails on its own
+    # [test_normalization.py]=1 # it fails on its own
 
     [test_ossaudiodev.py]=1 # it fails on its own
 

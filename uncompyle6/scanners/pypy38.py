@@ -13,6 +13,7 @@ from xdis.opcodes import opcode_38pypy as opc
 
 JUMP_OPs = opc.JUMP_OPS
 
+
 # We base this off of 3.8
 class ScannerPyPy38(scan.Scanner38):
     def __init__(self, show_asm):

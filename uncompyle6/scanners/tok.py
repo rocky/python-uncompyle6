@@ -15,7 +15,8 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import re, sys
+import re
+import sys
 
 intern = sys.intern
 
@@ -87,7 +88,7 @@ class Token:
                 print("I don't know about Python version %s yet." % e)
                 try:
                     version_tuple = tuple(int(i) for i in str(e)[1:-1].split("."))
-                except:
+                except Exception:
                     pass
                 else:
                     if version_tuple > (3, 9):

@@ -119,9 +119,7 @@ class Scanner37(Scanner37Base):
         )
         return new_tokens
 
-    def ingest(
-        self, co, classname=None, code_objects={}, show_asm=None
-    ):
+    def ingest(self, bytecode, classname=None, code_objects={}, show_asm=None):
         """
         Create "tokens" the bytecode of an Python code object. Largely these
         are the opcode name, but in some cases that has been modified to make parsing
@@ -141,7 +139,7 @@ class Scanner37(Scanner37Base):
         cause specific rules for the specific number of arguments they take.
         """
         tokens, customize = Scanner37Base.ingest(
-            self, co, classname, code_objects, show_asm
+            self, bytecode, classname, code_objects, show_asm
         )
         new_tokens = []
         for i, t in enumerate(tokens):

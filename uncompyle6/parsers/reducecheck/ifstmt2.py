@@ -6,7 +6,6 @@ If statement reduction check for Python 2.6 (and older?)
 
 def ifstmt2(self, lhs, n, rule, ast, tokens, first, last):
 
-    # print("XXX", first, last)
     # for t in range(first, last):
     #     print(tokens[t])
     # print("=" * 30)
@@ -61,16 +60,25 @@ def ifstmt2(self, lhs, n, rule, ast, tokens, first, last):
 
         if testexpr[0] in ("testtrue", "testfalse"):
             test = testexpr[0]
-            if len(test) > 1 and test[1].kind.startswith("jmp_"):
-                jmp_target = int(test[1][0].pattr)
+            jmp = test[1]
+            if len(test) > 1 and jmp.kind.startswith("jmp_"):
+                jmp_target = int(jmp[0].pattr)
                 if last == len(tokens):
                     last -= 1
+
+                if_end_offset = tokens[last].off2int(prefer_last=False)
                 if (
                     tokens[first].off2int(prefer_last=True)
                     <= jmp_target
-                    < tokens[last].off2int(prefer_last=False)
+                    < if_end_offset
                 ):
-                    return True
+                    # In 2.6 (and before?) we need to check if the previous instruction
+                    # is a jump to the last token. If so, testexpr is negated? and so
+                    # jmp_target < if_end_offset.
+                    previous_inst_index = self.offset2inst_index[jmp_target] - 1
+                    previous_inst = self.insts[previous_inst_index]
+                    if previous_inst.opname != "JUMP_ABSOLUTE" and previous_inst.argval != if_end_offset:
+                        return True
                 # jmp_target less than tokens[first] is okay - is to a loop
                 # jmp_target equal tokens[last] is also okay: normal non-optimized non-loop jump
                 if jmp_target > tokens[last].off2int():
