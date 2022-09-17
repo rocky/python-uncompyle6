@@ -97,9 +97,12 @@ class ComprehensionMixin:
         self.prec = p
 
     def comprehension_walk(
-        self, node, iter_index: Optional[int], code_index: int = -5,
+        self,
+        node,
+        iter_index: Optional[int],
+        code_index: int = -5,
     ):
-        p = self.prec
+        p: int = self.prec
         self.prec = PRECEDENCE["lambda_body"] - 1
 
         # FIXME: clean this up
@@ -151,6 +154,22 @@ class ComprehensionMixin:
         # Remove single reductions as in ("stmts", "sstmt"):
         while len(tree) == 1:
             tree = tree[0]
+
+        if tree == "stmts":
+            # FIXME: rest is a return None?
+            # Verify this
+            # rest = tree[1:]
+            tree = tree[0]
+        elif tree == "lambda_start":
+            assert len(tree) <= 3
+            tree = tree[-2]
+            if tree == "return_expr_lambda":
+                tree = tree[1]
+            pass
+
+        if tree in ("genexpr_func_async",):
+            if tree[3] == "comp_iter":
+                iter_index = 3
 
         n = tree[iter_index]
 

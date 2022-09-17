@@ -167,6 +167,8 @@ def customize_for_version36(self, version):
         if node == "classdefdeco2":
             if isinstance(node[1][1].attr, str):
                 class_name = node[1][1].attr
+                if self.is_pypy and class_name.find("<locals>") > 0:
+                    class_name = class_name.split(".")[-1]
             else:
                 class_name = node[1][2].attr
             build_class = node
