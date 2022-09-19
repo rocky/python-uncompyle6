@@ -417,7 +417,16 @@ class Scanner2(Scanner):
                     #   either to a FOR_ITER or the instruction after a SETUP_LOOP
                     #   and it is followed by another JUMP_FORWARD
                     # then we'll take it as a "continue".
-                    j = self.offset2inst_index[offset]
+                    j = self.offset2inst_index.get(offset)
+
+                    # EXTENDED_ARG doesn't appear in instructions,
+                    # but is instead the next opcode folded into it, and has the offset
+                    # of the EXTENDED_ARG. Therefor in self.offset2nist_index we'll find
+                    # the instruction at the previous EXTENDED_ARG offset which is 3
+                    # bytes back.
+                    if j is None and offset > self.opc.ARG_MAX_VALUE:
+                        j = self.offset2inst_index[offset - 3]
+
                     target_index = self.offset2inst_index[target]
                     is_continue = (
                         self.insts[target_index - 1].opname == "SETUP_LOOP"
