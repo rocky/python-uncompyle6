@@ -29,7 +29,19 @@ function displaytime {
 # Python version setup
 FULLVERSION=$(pyenv local)
 PYVERSION=${FULLVERSION%.*}
-MINOR=${FULLVERSION##?.?.}
+
+if [[ $PYVERSION =~ 'pypy' ]] ; then
+    IS_PYPY=1
+else
+    IS_PYPY=0
+fi
+
+if [[ $FULLVERSION =~ pypy([2-3])\.([7-9]) ]]; then
+    MAJOR="${BASH_REMATCH[1]}"
+    MINOR="${BASH_REMATCH[2]}"
+else
+   MINOR=${FULLVERSION##?.?.}
+fi
 
 STOP_ONERROR=${STOP_ONERROR:-1}
 
@@ -150,7 +162,12 @@ done
 
 
 mkdir $TESTDIR || exit $?
-cp -r ${PYENV_ROOT}/versions/${PYVERSION}.${MINOR}/lib/python${PYVERSION}/test $TESTDIR
+
+if ((IS_PYPY)); then
+    cp -r ${PYENV_ROOT}/versions/${PYVERSION}.${MINOR}/lib-python/${MAJOR}/test $TESTDIR
+else
+    cp -r ${PYENV_ROOT}/versions/${PYVERSION}.${MINOR}/lib/python${PYVERSION}/test $TESTDIR
+fi
 if [[ $PYVERSION == 3.2 ]] ; then
     cp ${PYENV_ROOT}/versions/${PYVERSION}.${MINOR}/lib/python${PYVERSION}/test/* $TESTDIR
     cd $TESTDIR
@@ -209,7 +226,11 @@ for file in $files; do
     ((i++))
     # (( i > 40 )) && break
     short_name=$(basename $file .py)
-    decompiled_file=$short_name-${PYVERSION}.pyc
+    if ((IS_PYPY)); then
+	decompiled_file=$short_name-${MAJOR}.${MINOR}.pyc
+    else
+	decompiled_file=$short_name-${PYVERSION}.pyc
+    fi
     $fulldir/compile-file.py $file && \
     mv $file{,.orig} && \
     echo ==========  $(date +%X) Decompiling $file ===========

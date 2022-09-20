@@ -94,8 +94,7 @@ def customize_for_version37(self, version):
             # need parenthesis.
             # Note there are async dictionary expressions are like await expr's
             # the below is just the default fersion
-            "await_expr": ("await %p", (0, PRECEDENCE["await_expr"]-1)),
-
+            "await_expr": ("await %p", (0, PRECEDENCE["await_expr"] - 1)),
             "await_stmt": ("%|%c\n", 0),
             "c_async_with_stmt": ("%|async with %c:\n%+%c%-", (0, "expr"), 3),
             "call_ex": ("%c(%p)", (0, "expr"), (1, 100)),
@@ -156,7 +155,10 @@ def customize_for_version37(self, version):
                 (2, "import_from_attr37"),
                 (3, "store"),
             ),
-            "import_one": ("%c", (0, "importlists"),),
+            "import_one": (
+                "%c",
+                (0, "importlists"),
+            ),
             "importattr37": ("%c", (0, "IMPORT_NAME_ATTR")),
             "import_from_attr37": (
                 "%c import %c",
@@ -165,12 +167,9 @@ def customize_for_version37(self, version):
             ),
             "list_afor": (
                 " async for %[1]{%c} in %c%[1]{%c}",
-                (1, "store"), (0, "get_aiter"), (3, "list_iter"),
-            ),
-
-            "list_afor": (
-                " async for %[1]{%c} in %c%[1]{%c}",
-                (1, "store"), (0, "get_aiter"), (3, "list_iter"),
+                (1, "store"),
+                (0, "get_aiter"),
+                (3, "list_iter"),
             ),
 
             "list_if37": (" if %p%c", (0, 27), 1),
@@ -408,12 +407,17 @@ def customize_for_version37(self, version):
     self.n_call = n_call
 
     def n_compare_chained(node):
-        if node[0] == "compare_chained37":
+        if node[0] in (
+            "c_compare_chained37",
+            "c_compare_chained37_false",
+            "compare_chained37",
+            "compare_chained37_false",
+        ):
             self.default(node[0])
         else:
             self.default(node)
 
-    self.n_compare_chained = n_compare_chained
+    self.n_compare_chained = self.n_c_compare_chained = n_compare_chained
 
     def n_importlist37(node):
         if len(node) == 1:
@@ -439,3 +443,26 @@ def customize_for_version37(self, version):
         self.prune()
 
     self.n_list_comp_async = n_list_comp_async
+
+    # FIXME: The following adjusts I guess a bug in the parser.
+    # It might be as simple as renaming grammar symbol "testtrue" to "testtrue_or_false"
+    # and then keeping this as is with the name change.
+    # Fixing in the parsing by inspection is harder than doing it here.
+    def n_testtrue(node):
+        compare_chained37 = node[0]
+        if (
+            compare_chained37 == "compare_chained37"
+            and compare_chained37[1] == "compare_chained1b_37"
+        ):
+            compare_chained1b_37 = compare_chained37[1]
+            if (
+                len(compare_chained1b_37) > 2
+                and compare_chained1b_37[-2] == "JUMP_FORWARD"
+            ):
+                node.kind = "testfalse"
+                pass
+            pass
+        self.default(node)
+        return
+
+    self.n_testtrue = n_testtrue
