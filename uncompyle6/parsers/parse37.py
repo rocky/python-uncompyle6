@@ -137,7 +137,8 @@ class Python37Parser(Python37BaseParser):
         returns ::= _stmts return
 
         stmt ::= genexpr_func
-        genexpr_func ::= LOAD_ARG _come_froms FOR_ITER store comp_iter JUMP_BACK
+        genexpr_func ::= LOAD_ARG _come_froms FOR_ITER store comp_iter
+                         _come_froms JUMP_BACK _come_froms
         """
         pass
 
@@ -1364,7 +1365,7 @@ class Python37Parser(Python37BaseParser):
 
                         genexpr_func_async  ::= LOAD_ARG func_async_prefix
                                                 store func_async_middle comp_iter
-                                                JUMP_LOOP COME_FROM
+                                                JUMP_BACK COME_FROM
                                                 POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
                         # FIXME this is a workaround for probalby some bug in the Earley parser
@@ -1376,7 +1377,7 @@ class Python37Parser(Python37BaseParser):
 
                         list_afor2          ::= func_async_prefix
                                                 store func_async_middle list_iter
-                                                JUMP_LOOP COME_FROM
+                                                JUMP_BACK COME_FROM
                                                 POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
                         list_comp_async     ::= BUILD_LIST_0 LOAD_ARG list_afor2
@@ -1462,13 +1463,13 @@ class Python37Parser(Python37BaseParser):
                     genexpr_func_async   ::= LOAD_ARG async_iter
                                              store_async_iter_end
                                              comp_iter
-                                             JUMP_LOOP COME_FROM
+                                             JUMP_BACK COME_FROM
                                              POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
                     list_afor2           ::= async_iter
                                              store
                                              list_iter
-                                             JUMP_LOOP
+                                             JUMP_BACK
                                              COME_FROM_FINALLY
                                              END_ASYNC_FOR
 
@@ -1478,7 +1479,7 @@ class Python37Parser(Python37BaseParser):
                                              store
                                              func_async_middle
                                              set_iter
-                                             JUMP_LOOP COME_FROM
+                                             JUMP_BACK COME_FROM
                                              POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
                     set_afor2            ::= expr_or_arg
@@ -1489,7 +1490,7 @@ class Python37Parser(Python37BaseParser):
                     set_iter_async       ::= async_iter
                                              store
                                              set_iter
-                                             JUMP_LOOP
+                                             JUMP_BACK
                                              _come_froms
                                              END_ASYNC_FOR
 

@@ -421,7 +421,7 @@ class Scanner2(Scanner):
                     # the instruction at the previous EXTENDED_ARG offset which is 3
                     # bytes back.
                     if j is None and offset > self.opc.ARG_MAX_VALUE:
-                        j = self.offset2inst_index[offset-3]
+                        j = self.offset2inst_index[offset - 3]
 
                     target_index = self.offset2inst_index[target]
                     is_continue = (

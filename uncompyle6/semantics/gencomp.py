@@ -106,7 +106,7 @@ class ComprehensionMixin(object):
         self,
         node,
         iter_index,
-        code_index=-5,
+        code_index = -5,
     ):
         p = self.prec
         self.prec = PRECEDENCE["lambda_body"] - 1
@@ -165,6 +165,22 @@ class ComprehensionMixin(object):
         # Remove single reductions as in ("stmts", "sstmt"):
         while len(tree) == 1:
             tree = tree[0]
+
+        if tree == "stmts":
+            # FIXME: rest is a return None?
+            # Verify this
+            # rest = tree[1:]
+            tree = tree[0]
+        elif tree == "lambda_start":
+            assert len(tree) <= 3
+            tree = tree[-2]
+            if tree == "return_expr_lambda":
+                tree = tree[1]
+            pass
+
+        if tree in ("genexpr_func_async",):
+            if tree[3] == "comp_iter":
+                iter_index = 3
 
         n = tree[iter_index]
 
