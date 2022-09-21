@@ -329,7 +329,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         if self.showast.get(phase, False):
             maybe_show_tree(self, ast)
 
-    def str_with_template(self, ast) -> str:
+    def str_with_template(self, ast):
         stream = sys.stdout
         stream.write(self.str_with_template1(ast, "", None))
         stream.write("\n")
