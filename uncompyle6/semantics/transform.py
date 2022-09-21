@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2021 by Rocky Bernstein
+#  Copyright (c) 2019-2022 by Rocky Bernstein
 
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -432,7 +432,7 @@ class TreeTransform(GenericASTTraversal, object):
                         if sstmt[0] == "ann_assign":
                             sstmt[0] = ann_assign_init
                         else:
-                            sstmt[0][0] = ann_assing_init
+                            sstmt[0][0] = ann_assign_init
                         sstmt[0].transformed_by = "n_stmts"
                         pass
                     pass

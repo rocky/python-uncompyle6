@@ -133,51 +133,34 @@ import sys
 
 IS_PYPY = "__pypy__" in sys.builtin_module_names
 
-from xdis import iscode, COMPILER_FLAG_BIT
+from spark_parser import GenericASTTraversal
+from xdis import COMPILER_FLAG_BIT, iscode
 from xdis.version_info import PYTHON_VERSION_TRIPLE
 
+import uncompyle6.parser as python_parser
 from uncompyle6.parser import get_python_parser
 from uncompyle6.parsers.treenode import SyntaxTree
-from spark_parser import GenericASTTraversal
 from uncompyle6.scanner import Code, get_scanner
-import uncompyle6.parser as python_parser
+from uncompyle6.scanners.tok import Token
 from uncompyle6.semantics.check_ast import checker
-
+from uncompyle6.semantics.consts import (ASSIGN_DOC_STRING, ASSIGN_TUPLE_PARAM,
+                                         INDENT_PER_LEVEL, LINE_LENGTH, MAP,
+                                         MAP_DIRECT, NAME_MODULE, NONE, PASS,
+                                         PRECEDENCE, RETURN_LOCALS,
+                                         RETURN_NONE, TAB, TABLE_R, escape)
+from uncompyle6.semantics.customize import customize_for_version
+from uncompyle6.semantics.gencomp import ComprehensionMixin
+from uncompyle6.semantics.helper import (
+    find_globals_and_nonlocals,
+    print_docstring
+)
 from uncompyle6.semantics.make_function1 import make_function1
 from uncompyle6.semantics.make_function2 import make_function2
 from uncompyle6.semantics.make_function3 import make_function3
 from uncompyle6.semantics.make_function36 import make_function36
-from uncompyle6.semantics.parser_error import ParserError
-from uncompyle6.semantics.customize import customize_for_version
-from uncompyle6.semantics.gencomp import ComprehensionMixin
-from uncompyle6.semantics.helper import (
-    print_docstring,
-    find_globals_and_nonlocals,
-)
-
-from uncompyle6.scanners.tok import Token
-
 from uncompyle6.semantics.n_actions import NonterminalActions
-from uncompyle6.semantics.transform import is_docstring, TreeTransform
-from uncompyle6.semantics.consts import (
-    ASSIGN_DOC_STRING,
-    ASSIGN_TUPLE_PARAM,
-    INDENT_PER_LEVEL,
-    LINE_LENGTH,
-    MAP,
-    MAP_DIRECT,
-    NAME_MODULE,
-    NONE,
-    PASS,
-    PRECEDENCE,
-    RETURN_LOCALS,
-    RETURN_NONE,
-    TAB,
-    TABLE_R,
-    escape,
-)
-
-
+from uncompyle6.semantics.parser_error import ParserError
+from uncompyle6.semantics.transform import TreeTransform, is_docstring
 from uncompyle6.show import maybe_show_tree
 from uncompyle6.util import better_repr
 
