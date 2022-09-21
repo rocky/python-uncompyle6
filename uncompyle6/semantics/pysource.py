@@ -541,7 +541,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             make_function1(self, node, is_lambda, nested, code_node)
         elif self.version <= (2, 7):
             make_function2(self, node, is_lambda, nested, code_node)
-        elif (3, 0) <= self.version <= (3, 5):
+        elif (3, 0) <= self.version < (3, 6):
             make_function3(self, node, is_lambda, nested, code_node)
         elif self.version >= (3, 6):
             make_function36(self, node, is_lambda, nested, code_node)
