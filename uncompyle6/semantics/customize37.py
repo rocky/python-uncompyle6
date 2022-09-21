@@ -26,6 +26,7 @@ from uncompyle6.semantics.helper import flatten_list
 
 FSTRING_CONVERSION_MAP = {1: "!s", 2: "!r", 3: "!a", "X": ":X"}
 
+
 #######################
 def customize_for_version37(self, version):
     ########################
@@ -41,9 +42,9 @@ def customize_for_version37(self, version):
     PRECEDENCE["call_ex_kw4"]      =   1
     PRECEDENCE["call_kw"]          =   0
     PRECEDENCE["call_kw36"]        =   1
-    PRECEDENCE["formatted_value1"] =  38 # f"...". This has to be below "named_expr" to make
-                                         # f'{(x := 10)}' preserve parenthesis
-    PRECEDENCE["formatted_value2"] =  38 # See above
+    PRECEDENCE["formatted_value1"] =  38  # f"...". This has to be below "named_expr" to make
+                                          # f'{(x := 10)}' preserve parenthesis
+    PRECEDENCE["formatted_value2"] =  38  # See above
     PRECEDENCE["if_exp_37a"]       =  28
     PRECEDENCE["if_exp_37b"]       =  28
     PRECEDENCE["dict_unpack"]      =   0  # **{...}
@@ -85,9 +86,11 @@ def customize_for_version37(self, version):
                 (-2, "else_suite"),
             ),
             "attribute37": ("%c.%[1]{pattr}", (0, "expr")),
-            "attributes37": ("%[0]{pattr} import %c",
-                            (0, "IMPORT_NAME_ATTR"),
-                            (1, "IMPORT_FROM")),
+            "attributes37": (
+                "%[0]{pattr} import %c",
+                (0, "IMPORT_NAME_ATTR"),
+                (1, "IMPORT_FROM")
+            ),
 
             # nested await expressions like:
             #   return await (await bar())
@@ -131,8 +134,10 @@ def customize_for_version37(self, version):
                 (0, PRECEDENCE["compare"] - 1),
                 (6, PRECEDENCE["compare"] - 1),
             ),
-            'if_exp37': ( '%p if %c else %c',
-                          (1, 'expr', 27), 0, 3 ),
+            'if_exp37': (
+                '%p if %c else %c',
+                (1, 'expr', 27), 0, 3
+            ),
 
             "except_return": ("%|except:\n%+%c%-", 3),
             "if_exp_37a": (
@@ -148,7 +153,9 @@ def customize_for_version37(self, version):
                 (5, "expr", 27),
             ),
             "ifstmtl": ("%|if %c:\n%+%c%-", (0, "testexpr"), (1, "_ifstmts_jumpl")),
-            'import_as37':     ( '%|import %c as %c\n', 2, -2),
+            'import_as37': (
+                "%|import %c as %c\n", 2, -2
+            ),
             "import_from37": ("%|from %[2]{pattr} import %c\n", (3, "importlist37")),
             "import_from_as37": (
                 "%|from %c as %c\n",
@@ -256,6 +263,8 @@ def customize_for_version37(self, version):
         if lastnodetype.startswith("BUILD_LIST"):
             self.write("[")
             endchar = "]"
+        else:
+            endchar = ""
 
         flat_elems = flatten_list(node)
 

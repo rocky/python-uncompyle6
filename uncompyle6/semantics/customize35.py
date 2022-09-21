@@ -24,6 +24,7 @@ from uncompyle6.semantics.consts import (
 
 from uncompyle6.semantics.helper import flatten_list, gen_function_parens_adjust
 
+
 #######################
 # Python 3.5+ Changes #
 #######################
@@ -34,7 +35,7 @@ def customize_for_version35(self, version):
             # nested await expressions like:
             #   return await (await bar())
             # need parenthesis.
-            "await_expr": ("await %p", (0, PRECEDENCE["await_expr"]-1)),
+            "await_expr": ("await %p", (0, PRECEDENCE["await_expr"] - 1)),
 
             "await_stmt": ("%|%c\n", 0),
             "async_for_stmt": (
@@ -65,6 +66,7 @@ def customize_for_version35(self, version):
             # "unmapexpr":	       ( "{**%c}", 0), # done by n_unmapexpr
         }
     )
+
     # fmt: on
 
     def async_call(node):
@@ -97,6 +99,8 @@ def customize_for_version35(self, version):
         if lastnodetype.startswith("BUILD_LIST"):
             self.write("[")
             endchar = "]"
+        else:
+            endchar = ""
 
         flat_elems = flatten_list(node)
 

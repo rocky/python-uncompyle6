@@ -396,7 +396,7 @@ def customize_for_version36(self, version):
 
     def call36_tuple(node):
         """
-        A tuple used in a call, these are like normal tuples but they
+        A tuple used in a call; these are like normal tuples, but they
         don't have the enclosing parenthesis.
         """
         assert node == "tuple"
@@ -671,7 +671,7 @@ def customize_for_version36(self, version):
             else:
                 # {{ and }} in Python source-code format strings mean
                 # { and } respectively. But only when *not* part of a
-                # formatted value. However in the LOAD_STR
+                # formatted value. However, in the LOAD_STR
                 # bytecode, the escaping of the braces has been
                 # removed. So we need to put back the braces escaping in
                 # reconstructing the source.
