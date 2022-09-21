@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2020 by Rocky Bernstein
+#  Copyright (c) 2019-2020, 2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ def customize_for_version35(self, version):
                 "%|async for %c in %c:\n%+%|%c%-\n\n",
                 (9, "store"),
                 (1, "expr"),
-                (25, "for_block"),
+                (25, ("for_block", "pass")),
             ),
             "async_forelse_stmt": (
                 "%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",

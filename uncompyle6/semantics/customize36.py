@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2021 by Rocky Bernstein
+#  Copyright (c) 2019-2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -61,7 +61,8 @@ def customize_for_version36(self, version):
                 "%|async for %c in %c:\n%+%c%-\n\n",
                 (9, "store"),
                 (1, "expr"),
-                (-9, "for_block"),  # Count from end, since COME_FROM shifts things in the forward direction
+                # Count from end, since COME_FROM shifts things in the forward direction
+                (-9, ("for_block", "pass")),
             ),
             "async_forelse_stmt36": (
                 "%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
