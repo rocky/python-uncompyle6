@@ -36,7 +36,7 @@ def customize_for_version38(self, version):
                 "%|async for %c in %c:\n%+%c%-%-\n\n",
                 (2, "store"),
                 (0, "expr"),
-                (3, "for_block"),
+                (3, ("for_block", "pass")),
             ),
             "async_forelse_stmt38": (
                 "%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",

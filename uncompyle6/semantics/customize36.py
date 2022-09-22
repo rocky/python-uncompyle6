@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2021 by Rocky Bernstein
+#  Copyright (c) 2019-2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -61,7 +61,8 @@ def customize_for_version36(self, version):
                 "%|async for %c in %c:\n%+%c%-\n\n",
                 (9, "store"),
                 (1, "expr"),
-                (-9, "for_block"),  # Count from end, since COME_FROM shifts things in the forward direction
+                # Count from end, since COME_FROM shifts things in the forward direction
+                (-9, ("for_block", "pass")),
             ),
             "async_forelse_stmt36": (
                 "%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
@@ -395,7 +396,7 @@ def customize_for_version36(self, version):
 
     def call36_tuple(node):
         """
-        A tuple used in a call, these are like normal tuples but they
+        A tuple used in a call; these are like normal tuples, but they
         don't have the enclosing parenthesis.
         """
         assert node == "tuple"
@@ -670,7 +671,7 @@ def customize_for_version36(self, version):
             else:
                 # {{ and }} in Python source-code format strings mean
                 # { and } respectively. But only when *not* part of a
-                # formatted value. However in the LOAD_STR
+                # formatted value. However, in the LOAD_STR
                 # bytecode, the escaping of the braces has been
                 # removed. So we need to put back the braces escaping in
                 # reconstructing the source.
