@@ -9,6 +9,7 @@ from uncompyle6.parsers.parse2 import Python2Parser
 from uncompyle6.parsers.reducecheck import (
     aug_assign1_check,
     ifelsestmt,
+    for_block_check,
     or_check,
     tryelsestmt,
     except_handler,
@@ -87,6 +88,11 @@ class Python27Parser(Python2Parser):
 
         for_block    ::= l_stmts_opt JUMP_BACK
 
+        # In 2.7 there is occasionally a for_block has an unusual
+        # form: there is a JUMP_ABSOLUTE which jumps to the second JUMP_BACK
+        # listed below. Both JUMP_BACKS go to the same position so the
+        # the JUMP_ABSOLUTE and JUMP_BACK not necessary
+        for_block    ::= l_stmts_opt JUMP_ABSOLUTE JUMP_BACK JUMP_BACK
         """
 
     def p_jump27(self, args):
@@ -234,6 +240,7 @@ class Python27Parser(Python2Parser):
         self.reduce_check_table = {
             "aug_assign1": aug_assign1_check,
             "except_handler": except_handler,
+            "for_block": for_block_check.for_block_invalid,
             "ifelsestmt": ifelsestmt,
             "or": or_check,
             "tryelsestmt": tryelsestmt,
@@ -246,6 +253,8 @@ class Python27Parser(Python2Parser):
 
         self.check_reduce["except_handler"] = "tokens"
         self.check_reduce["except_handler_else"] = "tokens"
+
+        self.check_reduce["for_block"] = "tokens"
 
         self.check_reduce["or"] = "AST"
         self.check_reduce["raise_stmt1"] = "AST"

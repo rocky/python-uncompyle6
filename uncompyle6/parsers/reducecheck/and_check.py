@@ -1,7 +1,11 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020, 2022 Rocky Bernstein
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
 
 
-def and_check(self, lhs, n, rule, ast, tokens, first, last):
+
+def and_invalid( self, lhs, n, rule, ast, tokens, first, last):
     jmp = ast[1]
     if jmp.kind.startswith("jmp_"):
         if last == n:

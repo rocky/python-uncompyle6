@@ -221,12 +221,12 @@ def customize_for_version37(self, version):
 
     def n_async_call(node):
         self.f.write("async ")
-        node.kind == "call"
+        node.kind = "call"
         p = self.prec
         self.prec = 80
         self.template_engine(("%c(%P)", 0, (1, -4, ", ", 100)), node)
         self.prec = p
-        node.kind == "async_call"
+        node.kind = "async_call"
         self.prune()
 
     self.n_async_call = n_async_call

@@ -19,7 +19,6 @@ spark grammar differences over Python 3.7 for Python 3.8
 from uncompyle6.parser import PythonParserSingle, nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from uncompyle6.parsers.parse37 import Python37Parser
-from uncompyle6.parsers.reducecheck import joined_str_check
 
 class Python38Parser(Python37Parser):
     def p_38_stmt(self, args):

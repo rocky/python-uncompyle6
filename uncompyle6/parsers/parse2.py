@@ -651,10 +651,10 @@ class Python2Parser(PythonParser):
             pass
 
         self.reduce_check_table = {
-            # "and": and_check,
+            # "and": and_invalid,
             "except_handler_else": except_handler_else,
             "ifelsestmt": ifelsestmt,
-            # "or": or_check,
+            # "or": or_invalid,
             "tryelsestmt": tryelsestmt,
             "tryelsestmtl": tryelsestmt,
         }

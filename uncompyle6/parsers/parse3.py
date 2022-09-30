@@ -30,7 +30,7 @@ import re
 from uncompyle6.scanners.tok import Token
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.reducecheck import (
-    and_check,
+    and_invalid,
     except_handler_else,
     ifelsestmt,
     ifstmt,
@@ -1567,7 +1567,7 @@ class Python3Parser(PythonParser):
         }
 
         if self.version == (3, 6):
-            self.reduce_check_table["and"] =  and_check
+            self.reduce_check_table["and"] =  and_invalid
             self.check_reduce["and"] = "AST"
 
         self.check_reduce["annotate_tuple"] = "noAST"
