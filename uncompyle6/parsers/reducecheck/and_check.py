@@ -5,9 +5,7 @@
 
 
 
-def and_invalid(
-    self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
- ) -> bool:
+def and_invalid( self, lhs, n, rule, ast, tokens, first, last):
     jmp = ast[1]
     if jmp.kind.startswith("jmp_"):
         if last == n:

@@ -3,7 +3,7 @@
 from uncompyle6.scanners.tok import Token
 
 
-def for_block_invalid(self, lhs, n, rule, tree, tokens, first: int, last: int) -> bool:
+def for_block_invalid(self, lhs, n, rule, tree, tokens, first, last):
 
     # print("XXX", first, last)
     # for t in range(first, last):
