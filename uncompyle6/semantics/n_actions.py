@@ -233,7 +233,10 @@ class NonterminalActions:
             assert len(keys) == len(flat_elems) - 1
             for i, elem in enumerate(flat_elems[:-1]):
                 assert elem.kind == "ADD_VALUE"
-                value = elem.pattr
+                try:
+                    value = "%r" % elem.pattr
+                except Exception:
+                    value = elem.pattr
                 if elem.linestart is not None:
                     if elem.linestart != self.line_number:
                         next_indent = self.indent + INDENT_PER_LEVEL[:-1]
@@ -255,7 +258,10 @@ class NonterminalActions:
         else:
             for elem in flat_elems:
                 assert elem.kind == "ADD_VALUE"
-                value = elem.pattr
+                try:
+                    value = "%r" % elem.pattr
+                except Exception:
+                    value = elem.pattr
                 if elem.linestart is not None:
                     if elem.linestart != self.line_number:
                         next_indent = self.indent + INDENT_PER_LEVEL[:-1]
