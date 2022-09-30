@@ -234,7 +234,7 @@ for file in $files; do
     $fulldir/compile-file.py $file && \
     mv $file{,.orig} && \
     echo ==========  $(date +%X) Decompiling $file ===========
-    $DECOMPILER $OPTS $decompiled_file > $file
+    $DECOMPILER $OPTS $decompiled_file > $file 2>/dev/null
     rc=$?
     if (( rc == 0 )) ; then
 	echo ========== $(date +%X) Running $file ===========
