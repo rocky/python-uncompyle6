@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2021 by Rocky Bernstein
+#  Copyright (c) 2019-2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ from uncompyle6.semantics.helper import (
     find_none,
     zip_longest
 )
+
 from uncompyle6.show import maybe_show_tree_param_default
 
 
@@ -248,7 +249,9 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
                 self.write(", ")
                 ends_in_comma = True
 
-        ann_dict = kw_dict = default_tup = None
+        # ann_dict = kw_dict = default_tup = None
+        kw_dict = None
+
         fn_bits = node[-1].attr
         # Skip over:
         #  MAKE_FUNCTION,
