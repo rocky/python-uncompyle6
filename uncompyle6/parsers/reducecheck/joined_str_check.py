@@ -13,7 +13,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-def joined_str_ok(
+def joined_str_invalid(
     self, lhs: str, n: int, rule, tree, tokens: list, first: int, last: int
 ) -> bool:
     # In Python 3.8, there is a new "=" specifier.
