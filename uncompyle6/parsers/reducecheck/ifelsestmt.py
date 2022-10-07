@@ -4,7 +4,7 @@ from uncompyle6.scanners.tok import Token
 
 IFELSE_STMT_RULES = frozenset(
     [
-                (
+        (
             "ifelsestmt",
             (
                 "testexpr",
@@ -53,6 +53,15 @@ IFELSE_STMT_RULES = frozenset(
             ),
         ),
         (
+            "ifelsestmtc",
+            (
+                "testexpr",
+                "c_stmts_opt",
+                "JUMP_ABSOLUTE",
+                "else_suitec",
+            ),
+        ),
+        (
             "ifelsestmt",
             (
                 "testexpr",
@@ -74,7 +83,13 @@ IFELSE_STMT_RULES = frozenset(
         ),
         (
             "ifelsestmt",
-            ("testexpr", "c_stmts", "come_froms", "else_suite", "come_froms",),
+            (
+                "testexpr",
+                "c_stmts",
+                "come_froms",
+                "else_suite",
+                "come_froms",
+            ),
         ),
         (
             "ifelsestmt",
@@ -112,7 +127,8 @@ IFELSE_STMT_RULES = frozenset(
                 "stmts",
                 "jf_cfs",
                 "\\e_else_suite_opt",
-                "\\e_opt_come_from_except")
+                "\\e_opt_come_from_except",
+            ),
         ),
         (
             "ifelsestmt",
@@ -121,9 +137,12 @@ IFELSE_STMT_RULES = frozenset(
                 "stmts",
                 "jf_cfs",
                 "\\e_else_suite_opt",
-                "opt_come_from_except")
+                "opt_come_from_except",
+            ),
         ),
-    ])
+    ]
+)
+
 
 def ifelsestmt(self, lhs, n, rule, tree, tokens, first, last):
 
