@@ -257,11 +257,14 @@ class NonterminalActions:
                 sep = ", "
         else:
             for elem in flat_elems:
-                assert elem.kind == "ADD_VALUE"
-                try:
+                if elem == "add_value":
+                    elem = elem[0]
+                if elem == "ADD_VALUE":
                     value = "%r" % elem.pattr
-                except Exception:
-                    value = elem.pattr
+                else:
+                    assert elem.kind == "ADD_VALUE_VAR"
+                    value = "%s" % elem.pattr
+
                 if elem.linestart is not None:
                     if elem.linestart != self.line_number:
                         next_indent = self.indent + INDENT_PER_LEVEL[:-1]

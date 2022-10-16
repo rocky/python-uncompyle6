@@ -99,7 +99,7 @@ class PythonParser(GenericASTBuilder):
         # so on but that would require major changes to the
         # semantic actions
         self.singleton = frozenset(
-            ("str", "store", "_stmts", "suite_stmts_opt", "inplace_op")
+            ("str", "store", "_stmts", "suite_stmts_opt", "inplace_op", "add_value")
         )
         # Instructions filled in from scanner
         self.insts = []
