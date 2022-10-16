@@ -313,7 +313,9 @@ class Python2Parser(PythonParser):
             if opname in ("BUILD_CONST_LIST", "BUILD_CONST_SET"):
                 rule = (
                     """
-                       add_consts          ::= ADD_VALUE*
+                       add_consts          ::= add_value+
+                       add_value           ::= ADD_VALUE
+                       add_value           ::= ADD_VALUE_VAR
                        const_list          ::= COLLECTION_START add_consts %s
                        expr                ::= const_list
                        """
