@@ -195,7 +195,11 @@ def ifelsestmt(self, lhs, n, rule, tree, tokens, first, last):
         else:
             last_token = tokens[last]
         if last_token == "COME_FROM" and first_offset > last_token.attr:
-            if self.version < (3, 0) and self.insts[self.offset2inst_index[last_token.attr]].opname != "SETUP_LOOP":
+            if (
+                self.version < (3, 0)
+                and self.insts[self.offset2inst_index[last_token.attr]].opname
+                != "SETUP_LOOP"
+            ):
                 return True
 
     testexpr = tree[0]
@@ -216,7 +220,6 @@ def ifelsestmt(self, lhs, n, rule, tree, tokens, first, last):
                 jmp_target = jmp[0].attr
             else:
                 jmp_target = int(jmp[0].pattr)
-
 
             # Below we check that jmp_target is jumping to a feasible
             # location. It should be to the transition after the "then"
@@ -259,6 +262,32 @@ def ifelsestmt(self, lhs, n, rule, tree, tokens, first, last):
                     return True
 
             if first_offset > jmp_target:
+                # A backward or loop jump from the end of an "else"
+                # clause before the beginning of the "if" test is okay
+                # only if we are trying to match or reduce an "if"
+                # statement of the kind that can occur only inside a
+                # loop construct.
+                if lhs in ("ifelsestmtl", "ifelsestmtc"):
+                    jump_false = jmp
+                    if (
+                        tree[2].kind == "JUMP_FORWARD"
+                        and jump_false == "jmp_false"
+                        and len(else_suite) == 1
+                    ):
+                        suite_stmts = else_suite[0]
+                        continue_stmt = suite_stmts[0]
+                        if (
+                            suite_stmts == "suite_stmts"
+                            and len(suite_stmts) == 1
+                            and continue_stmt == "continue"
+                            and jump_false[0].attr == continue_stmt[0].attr
+                        ):
+                            # for ...:
+                            #   if ...:
+                            #     ...
+                            #   else:
+                            #     continue
+                            return False
                 return True
 
             return (jmp_target > last_offset) and tokens[last] != "JUMP_FORWARD"
