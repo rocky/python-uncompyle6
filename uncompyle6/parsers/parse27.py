@@ -142,6 +142,7 @@ class Python27Parser(Python2Parser):
     def p_stmt27(self, args):
         """
         stmt ::= ifelsestmtr
+        stmt ::= ifelsestmtc
 
         # assert condition
         assert        ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1
@@ -194,6 +195,7 @@ class Python27Parser(Python2Parser):
         ifstmt            ::= testexpr return_if_stmts COME_FROM
         ifelsestmt        ::= testexpr c_stmts_opt JUMP_FORWARD else_suite come_froms
         ifelsestmtc       ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
+        ifelsestmtc       ::= testexpr c_stmts_opt JUMP_FORWARD else_suite come_froms
         ifelsestmtl       ::= testexpr c_stmts_opt JUMP_BACK else_suitel
         ifelsestmtl       ::= testexpr c_stmts_opt CONTINUE else_suitel
 
@@ -242,6 +244,7 @@ class Python27Parser(Python2Parser):
             "except_handler": except_handler,
             "for_block": for_block_check.for_block_invalid,
             "ifelsestmt": ifelsestmt,
+            "ifelsestmtc": ifelsestmt,
             "or": or_check,
             "tryelsestmt": tryelsestmt,
             "tryelsestmtl": tryelsestmt,
@@ -258,8 +261,9 @@ class Python27Parser(Python2Parser):
 
         self.check_reduce["or"] = "AST"
         self.check_reduce["raise_stmt1"] = "AST"
-        self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["ifelsestmt"] = "AST"
+        self.check_reduce["ifelsestmtc"] = "AST"
+        self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["list_if_not"] = "AST"
         self.check_reduce["list_if"] = "AST"
         self.check_reduce["comp_if"] = "AST"
