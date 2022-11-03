@@ -378,7 +378,7 @@ class Scanner30(Scanner3):
                 if self.is_pypy and code[jump_prev] == self.opc.COMPARE_OP:
                     if self.opc.cmp_op[code[jump_prev + 1]] == "exception-match":
                         return
-                if self.version >= 3.5:
+                if self.version >= (3, 5):
                     # Python 3.5 may remove as dead code a JUMP
                     # instruction after a RETURN_VALUE. So we check
                     # based on seeing SETUP_EXCEPT various places.
@@ -399,7 +399,7 @@ class Scanner30(Scanner3):
                             pass
                     pass
                 if code[pre_rtarget] == self.opc.RETURN_VALUE:
-                    if self.version == 3.0:
+                    if self.version == (3, 0):
                         next_op = rtarget
                         if code[next_op] == self.opc.POP_TOP:
                             next_op = rtarget
