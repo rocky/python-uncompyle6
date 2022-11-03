@@ -40,7 +40,7 @@ class Scanner30(Scanner3):
         start = parent["start"]
         end = parent["end"]
 
-        # Pick inner-most parent for our offset
+        # Pick innermost parent for our offset
         for struct in self.structs:
             current_start = struct["start"]
             current_end = struct["end"]
@@ -193,7 +193,7 @@ class Scanner30(Scanner3):
             # Is it an "and" inside an "if" or "while" block
             if op == opc.JUMP_IF_FALSE:
 
-                # Search for another JUMP_IF_FALSE targetting the same op,
+                # Search for another JUMP_IF_FALSE targeting the same op,
                 # in current statement, starting from current offset, and filter
                 # everything inside inner 'or' jumps and midline ifs
                 match = self.rem_or(
@@ -348,7 +348,7 @@ class Scanner30(Scanner3):
                     if if_end > start:
                         return
 
-                end = self.restrict_to_parent(if_end, parent)
+                self.restrict_to_parent(if_end, parent)
 
                 self.structs.append(
                     {"type": "if-then", "start": start, "end": pre_rtarget}
@@ -372,7 +372,7 @@ class Scanner30(Scanner3):
                 self.not_continue.add(pre_rtarget)
             elif code[pre_rtarget] in (self.opc.RETURN_VALUE, self.opc.BREAK_LOOP):
                 self.structs.append({"type": "if-then", "start": start, "end": rtarget})
-                # It is important to distingish if this return is inside some sort
+                # It is important to distinguish if this return is inside some sort
                 # except block return
                 jump_prev = prev_op[offset]
                 if self.is_pypy and code[jump_prev] == self.opc.COMPARE_OP:
