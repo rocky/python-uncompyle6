@@ -437,7 +437,7 @@ class Scanner30(Scanner3):
                     self.fixed_jumps[offset] = self.restrict_to_parent(target, parent)
                     pass
                 pass
-        elif self.version >= 3.5:
+        elif self.version >= (3, 5):
             # 3.5+ has Jump optimization which too often causes RETURN_VALUE to get
             # misclassified as RETURN_END_IF. Handle that here.
             # In RETURN_VALUE, JUMP_ABSOLUTE, RETURN_VALUE is never RETURN_END_IF
@@ -483,4 +483,3 @@ if __name__ == "__main__":
         pass
     else:
         print("Need to be Python 3.0 to demo; I am version %s" % version_tuple_to_str())
-[w
