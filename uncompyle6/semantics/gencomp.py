@@ -113,10 +113,7 @@ class ComprehensionMixin:
             elif node[0] == "load_closure":
                 cn = node[1]
 
-        elif self.version >= (3, 0) and node in (
-            "generator_exp",
-            "generator_exp_async",
-        ):
+        elif self.version >= (3, 0) and node in ("generator_exp", "generator_exp_async"):
             if node[0] == "load_genexpr":
                 load_genexpr = node[0]
             elif node[1] == "load_genexpr":
@@ -145,9 +142,7 @@ class ComprehensionMixin:
         if is_lambda_mode(self.compile_mode):
             p_save = self.p
             self.p = get_python_parser(
-                self.version,
-                compile_mode="exec",
-                is_pypy=self.is_pypy,
+                self.version, compile_mode="exec", is_pypy=self.is_pypy,
             )
             tree = self.build_ast(code._tokens, code._customize, code)
             self.p = p_save
@@ -388,7 +383,7 @@ class ComprehensionMixin:
 
         while n in ("list_iter", "list_afor", "list_afor2", "comp_iter"):
             # iterate one nesting deeper
-            if self.version == 3.0 and len(n) == 3:
+            if self.version == (3, 0) and len(n) == 3:
                 assert n[0] == "expr" and n[1] == "expr"
                 n = n[1]
             elif n == "list_afor":
@@ -401,19 +396,20 @@ class ComprehensionMixin:
                 n = n[0]
 
             if n in ("list_for", "comp_for"):
-                if n[2] == "store" and not store:
-                    store = n[2]
+                n_index = 3
+                if ((n[2] == "store")
+                    or (self.version == (3, 0) and n[4] == "store") and not store):
+                    if self.version == (3, 0):
+                        store = n[4]
+                        n_index = 5
+                    else:
+                        store = n[2]
                     if not comp_store:
                         comp_store = store
-                n = n[3]
-            elif n in (
-                "list_if",
-                "list_if_not",
-                "list_if37",
-                "list_if37_not",
-                "comp_if",
-                "comp_if_not",
-            ):
+                n = n[n_index]
+            elif n in ("list_if", "list_if_not",
+                       "list_if37", "list_if37_not",
+                       "comp_if", "comp_if_not"):
                 have_not = n in ("list_if_not", "comp_if_not", "list_if37_not")
                 if n in ("list_if37", "list_if37_not"):
                     n = n[1]
@@ -452,7 +448,11 @@ class ComprehensionMixin:
             self.write(": ")
             self.preorder(n[1])
         else:
-            self.preorder(n[0])
+            if self.version == (3, 0):
+                body = n[1]
+            else:
+                body = n[0]
+            self.preorder(body)
 
         if node == "list_comp_async":
             self.write(" async")
@@ -464,6 +464,7 @@ class ComprehensionMixin:
 
         if comp_store:
             self.preorder(comp_store)
+            comp_store = None
         else:
             self.preorder(store)
 
@@ -517,9 +518,7 @@ class ComprehensionMixin:
         if self.compile_mode in ("listcomp",):  # add other comprehensions to this list
             p_save = self.p
             self.p = get_python_parser(
-                self.version,
-                compile_mode="exec",
-                is_pypy=self.is_pypy,
+                self.version, compile_mode="exec", is_pypy=self.is_pypy,
             )
             tree = self.build_ast(
                 code._tokens, code._customize, code, is_lambda=self.is_lambda
