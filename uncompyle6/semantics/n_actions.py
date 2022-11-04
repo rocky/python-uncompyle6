@@ -1085,7 +1085,11 @@ class NonterminalActions:
     def n_set_comp(self, node):
         self.write("{")
         if node[0] in ["LOAD_SETCOMP", "LOAD_DICTCOMP"]:
-            self.comprehension_walk_newer(node, 1, 0)
+            if self.version == (3, 0):
+                iter_index = 6
+            else:
+                iter_index = 1
+            self.comprehension_walk_newer(node, iter_index=iter_index, code_index=0)
         elif node[0].kind == "load_closure" and self.version >= (3, 0):
             self.closure_walk(node, collection_index=4)
         else:
