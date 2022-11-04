@@ -408,7 +408,6 @@ class ComprehensionMixin:
                     or (self.version == (3, 0) and n[4] == "store")
                     and not store
                 ):
->>>>>>> python-3.3-to-3.5
                     if self.version == (3, 0):
                         store = n[4]
                         n_index = 5
