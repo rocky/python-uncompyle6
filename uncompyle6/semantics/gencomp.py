@@ -27,6 +27,7 @@ from uncompyle6.semantics.consts import PRECEDENCE
 from uncompyle6.semantics.helper import is_lambda_mode
 from uncompyle6.scanners.tok import Token
 
+
 class ComprehensionMixin:
     """
     These functions hand nonterminal common actions that occur
@@ -37,12 +38,13 @@ class ComprehensionMixin:
     Python source code. In source code, the implicit function calls
     are not seen.
     """
+
     def closure_walk(self, node, collection_index):
         """
         Dictionary and comprehensions using closure the way they are done in Python3.
         """
         p = self.prec
-        self.prec = 27
+        self.prec = PRECEDENCE["lambda_body"] - 1
 
         code_index = 0 if node[0] == "load_genexpr" else 1
         tree = self.get_comprehension_function(node, code_index=code_index)
@@ -114,7 +116,10 @@ class ComprehensionMixin:
             elif node[0] == "load_closure":
                 cn = node[1]
 
-        elif self.version >= (3, 0) and node in ("generator_exp", "generator_exp_async"):
+        elif self.version >= (3, 0) and node in (
+            "generator_exp",
+            "generator_exp_async",
+        ):
             if node[0] == "load_genexpr":
                 load_genexpr = node[0]
             elif node[1] == "load_genexpr":
@@ -143,7 +148,9 @@ class ComprehensionMixin:
         if is_lambda_mode(self.compile_mode):
             p_save = self.p
             self.p = get_python_parser(
-                self.version, compile_mode="exec", is_pypy=self.is_pypy,
+                self.version,
+                compile_mode="exec",
+                is_pypy=self.is_pypy,
             )
             tree = self.build_ast(code._tokens, code._customize, code)
             self.p = p_save
@@ -398,8 +405,11 @@ class ComprehensionMixin:
 
             if n in ("list_for", "comp_for"):
                 n_index = 3
-                if ((n[2] == "store")
-                    or (self.version == (3, 0) and n[4] == "store") and not store):
+                if (
+                    (n[2] == "store")
+                    or (self.version == (3, 0) and n[4] == "store")
+                    and not store
+                ):
                     if self.version == (3, 0):
                         store = n[4]
                         n_index = 5
@@ -408,9 +418,14 @@ class ComprehensionMixin:
                     if not comp_store:
                         comp_store = store
                 n = n[n_index]
-            elif n in ("list_if", "list_if_not",
-                       "list_if37", "list_if37_not",
-                       "comp_if", "comp_if_not"):
+            elif n in (
+                "list_if",
+                "list_if_not",
+                "list_if37",
+                "list_if37_not",
+                "comp_if",
+                "comp_if_not",
+            ):
                 have_not = n in ("list_if_not", "comp_if_not", "list_if37_not")
                 if n in ("list_if37", "list_if37_not"):
                     n = n[1]
@@ -492,7 +507,7 @@ class ComprehensionMixin:
             if have_not:
                 self.write("not ")
                 pass
-            self.prec = 27
+            self.prec = PRECEDENCE["lambda_body"] - 1
             self.preorder(if_node)
             pass
         self.prec = p
@@ -503,7 +518,7 @@ class ComprehensionMixin:
         find the comprehension node buried in the tree which may
         be surrounded with start-like symbols or dominiators,.
         """
-        self.prec = 27
+        self.prec = PRECEDENCE["lambda_body"] - 1
         code_node = node[code_index]
         if code_node == "load_genexpr":
             code_node = code_node[0]
@@ -519,7 +534,9 @@ class ComprehensionMixin:
         if self.compile_mode in ("listcomp",):  # add other comprehensions to this list
             p_save = self.p
             self.p = get_python_parser(
-                self.version, compile_mode="exec", is_pypy=self.is_pypy,
+                self.version,
+                compile_mode="exec",
+                is_pypy=self.is_pypy,
             )
             tree = self.build_ast(
                 code._tokens, code._customize, code, is_lambda=self.is_lambda
@@ -538,9 +555,7 @@ class ComprehensionMixin:
             if tree[0] in ("dom_start", "dom_start_opt"):
                 tree = tree[1]
 
-        while len(tree) == 1 or (
-            tree in ("stmt", "sstmt", "return", "return_expr")
-        ):
+        while len(tree) == 1 or (tree in ("stmt", "sstmt", "return", "return_expr")):
             self.prec = 100
             tree = tree[1] if tree[0] in ("dom_start", "dom_start_opt") else tree[0]
         return tree
