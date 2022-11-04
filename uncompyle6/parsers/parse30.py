@@ -101,6 +101,11 @@ class Python30Parser(Python31Parser):
                              LOAD_FAST FOR_ITER store dict_comp_iter
                              JUMP_BACK _come_froms POP_TOP JUMP_BACK
 
+        dict_comp_func   ::= BUILD_MAP_0
+                             DUP_TOP STORE_FAST
+                             LOAD_ARG FOR_ITER store
+                             dict_comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
+
         stmt         ::= try_except30
         try_except30 ::= SETUP_EXCEPT suite_stmts_opt
                         _come_froms pt_bp
