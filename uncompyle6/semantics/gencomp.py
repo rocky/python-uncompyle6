@@ -25,6 +25,7 @@ from uncompyle6.semantics.consts import PRECEDENCE
 from uncompyle6.semantics.helper import is_lambda_mode
 from uncompyle6.scanners.tok import Token
 
+
 class ComprehensionMixin:
     """
     These functions hand nonterminal common actions that occur
@@ -402,8 +403,12 @@ class ComprehensionMixin:
 
             if n in ("list_for", "comp_for"):
                 n_index = 3
-                if ((n[2] == "store")
-                    or (self.version == (3, 0) and n[4] == "store") and not store):
+                if (
+                    (n[2] == "store")
+                    or (self.version == (3, 0) and n[4] == "store")
+                    and not store
+                ):
+>>>>>>> python-3.3-to-3.5
                     if self.version == (3, 0):
                         store = n[4]
                         n_index = 5
@@ -549,9 +554,7 @@ class ComprehensionMixin:
             if tree[0] in ("dom_start", "dom_start_opt"):
                 tree = tree[1]
 
-        while len(tree) == 1 or (
-            tree in ("stmt", "sstmt", "return", "return_expr")
-        ):
+        while len(tree) == 1 or (tree in ("stmt", "sstmt", "return", "return_expr")):
             self.prec = 100
             tree = tree[1] if tree[0] in ("dom_start", "dom_start_opt") else tree[0]
         return tree
