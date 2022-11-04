@@ -269,6 +269,7 @@ class ComprehensionMixin:
 
         is_30_dict_comp = False
         store = None
+
         if node == "list_comp_async":
             # We have two different kinds of grammar rules:
             #   list_comp_async ::= LOAD_LISTCOMP LOAD_STR MAKE_FUNCTION_0 expr ...
@@ -595,7 +596,7 @@ class ComprehensionMixin:
         collections = [node[-3]]
         list_ifs = []
 
-        if self.version[:2] == (3, 0) and n != "list_iter":
+        if self.version[:2] == (3, 0) and n.kind != "list_iter":
             # FIXME 3.0 is a snowflake here. We need
             # special code for this. Not sure if this is totally
             # correct.
@@ -638,7 +639,12 @@ class ComprehensionMixin:
                 # FIXME: adjust for set comprehension
                 if n == "list_for":
                     stores.append(n[2])
-                    n = n[3]
+                    if self.version[:2] == (3, 0):
+                        body_index = 5
+                    else:
+                        body_index = 3
+
+                    n = n[body_index]
                     if n[0] == "list_for":
                         # Dog-paddle down largely singleton reductions
                         # to find the collection (expr)
@@ -670,7 +676,11 @@ class ComprehensionMixin:
 
             assert n == "lc_body", tree
 
-            self.preorder(n[0])
+            if self.version[:2] == (3, 0):
+                body_index = 1
+            else:
+                body_index = 0
+            self.preorder(n[body_index])
 
         # FIXME: add indentation around "for"'s and "in"'s
         n_colls = len(collections)
@@ -684,6 +694,8 @@ class ComprehensionMixin:
                 self.write(" async")
                 pass
             self.write(" for ")
+            if self.version[:2] == (3, 0):
+                store = token
             self.preorder(store)
             self.write(" in ")
             self.preorder(collections[i])
