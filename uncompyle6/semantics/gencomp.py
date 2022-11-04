@@ -25,6 +25,7 @@ from uncompyle6.semantics.consts import PRECEDENCE
 from uncompyle6.semantics.helper import is_lambda_mode
 from uncompyle6.scanners.tok import Token
 
+
 class ComprehensionMixin(object):
     """
     These functions hand nonterminal common actions that occur
