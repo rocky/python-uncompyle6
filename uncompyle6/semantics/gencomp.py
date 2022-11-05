@@ -672,11 +672,10 @@ class ComprehensionMixin(object):
                         list_ifs.append([1])
                     if self.version[:2] == (3, 0) and n[2] == "list_iter":
                         n = n[2]
-                    else
-                        if n[-1] == "come_from_opt":
-                            n = n[-2]
-                        else:
-                            n = n[-1]
+                    elif n[-1] == "come_from_opt":
+                        n = n[-2]
+                    else:
+                        n = n[-1]
                     pass
                 elif n == "list_if37":
                     list_ifs.append(n)
