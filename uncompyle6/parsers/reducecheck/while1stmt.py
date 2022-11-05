@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020, 2022 Rocky Bernstein
 
 
 def while1stmt(self, lhs, n, rule, ast, tokens, first, last):
@@ -42,7 +42,7 @@ def while1stmt(self, lhs, n, rule, ast, tokens, first, last):
         # token could be a pseudo-op like "LOAD_STR", which is not in
         # self.opc.  We will replace that with LOAD_CONST as an
         # example of an instruction that is not in self.opc.JUMP_OPS
-        if self.opc.opmap.get(token.kind, "LOAD_CONST") in self.opc.JUMP_OPS:
+        if token.opc.opmap.get(token.kind, "LOAD_CONST") in self.opc.JUMP_OPS:
             if token.attr >= loop_end_offset:
                 return True
 
