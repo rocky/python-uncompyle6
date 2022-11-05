@@ -32,6 +32,7 @@ from uncompyle6.semantics.helper import (
     flatten_list,
 )
 
+
 class NonterminalActions:
     """
     Methods here all start with n_ and the remaining portion should be a nonterminal
@@ -42,6 +43,12 @@ class NonterminalActions:
 
     node is the subtree of the parse tree the that nonterminal name as the root.
     """
+
+    def __init__(self):
+        # Precedence is used to determine when an expression needs
+        # parenthesis surrounding it. A high value indicates no
+        # parenthesis are needed.
+        self.prec = 1000
 
     def n_alias(self, node):
         if self.version <= (2, 1):
@@ -65,6 +72,7 @@ class NonterminalActions:
         else:
             self.write(iname, " as ", sname)
         self.prune()  # stop recursing
+
     n_alias37 = n_alias
 
     def n_assign(self, node):
@@ -122,7 +130,6 @@ class NonterminalActions:
             self.preorder(node[1])
         self.prec = p
         self.prune()  # stop recursing
-
 
     def n_build_slice3(self, node):
         p = self.prec
@@ -1058,7 +1065,7 @@ class NonterminalActions:
         else:
             self.n_expr(node)
 
-    # Python 3.x can have be dead code as a result of its optimization?
+    # Python 3.x can have dead code as a result of its optimization?
     # So we'll add a # at the end of the return lambda so the rest is ignored
     def n_return_expr_lambda(self, node):
         if 1 <= len(node) <= 2:
@@ -1198,7 +1205,7 @@ class NonterminalActions:
             self.write("...")
         elif attr is None:
             # LOAD_CONST 'None' only occurs, when None is
-            # implicit eg. in 'return' w/o params
+            # implicit e.g. in 'return' w/o params
             # pass
             self.write("None")
         elif isinstance(data, tuple):
