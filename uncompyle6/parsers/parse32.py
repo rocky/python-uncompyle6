@@ -16,7 +16,7 @@ class Python32Parser(Python3Parser):
         """
 
 
-    def p_gen_comp(self, args):
+    def p_gen_comp32(self, args):
         """
         genexpr_func ::= LOAD_ARG FOR_ITER store comp_iter JUMP_BACK
         """
