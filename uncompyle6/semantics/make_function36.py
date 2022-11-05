@@ -25,6 +25,7 @@ from xdis import (
 )
 from uncompyle6.scanner import Code
 from uncompyle6.semantics.parser_error import ParserError
+from uncompyle6.parser import ParserError as ParserError2
 from uncompyle6.semantics.helper import (
     find_all_globals,
     find_globals_and_nonlocals,
