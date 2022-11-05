@@ -115,11 +115,13 @@ class Python30Parser(Python31Parser):
         # From Python 2.6
 
 
-        list_iter  ::= list_if JUMP_BACK
-        list_iter  ::= list_if JUMP_BACK _come_froms POP_TOP
-        lc_body    ::= LOAD_NAME expr LIST_APPEND
-	lc_body    ::= LOAD_FAST expr LIST_APPEND
-        list_if    ::= expr jmp_false_then list_iter
+	lc_body     ::= LOAD_FAST expr LIST_APPEND
+        lc_body     ::= LOAD_NAME expr LIST_APPEND
+        list_if     ::= expr jmp_false_then list_iter
+        list_if_not ::= expr jmp_true list_iter JUMP_BACK come_froms POP_TOP
+        list_iter   ::= list_if JUMP_BACK
+        list_iter   ::= list_if JUMP_BACK _come_froms POP_TOP
+
         #############
 
         dict_comp_iter   ::= expr expr ROT_TWO expr STORE_SUBSCR
