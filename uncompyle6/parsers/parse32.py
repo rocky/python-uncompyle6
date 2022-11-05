@@ -13,6 +13,12 @@ class Python32Parser(Python3Parser):
         store_locals   ::= LOAD_FAST STORE_LOCALS
         """
 
+
+    def p_gen_comp32(self, args):
+        """
+        genexpr_func ::= LOAD_ARG FOR_ITER store comp_iter JUMP_BACK
+        """
+
     def p_32to35(self, args):
         """
         if_exp            ::= expr jmp_false expr jump_forward_else expr COME_FROM

@@ -25,6 +25,7 @@ from xdis import (
 )
 from uncompyle6.scanner import Code
 from uncompyle6.semantics.parser_error import ParserError
+from uncompyle6.parser import ParserError as ParserError2
 from uncompyle6.semantics.helper import (
     find_all_globals,
     find_globals_and_nonlocals,
@@ -39,11 +40,12 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
     """Dump function definition, doc string, and function body in
     Python version 3.6 and above.
     """
+
     # MAKE_CLOSURE adds an additional closure slot
 
     # In Python 3.6 and above stack change again. I understand
     # 3.7 changes some of those changes, although I don't
-    # see it in this code yet. Yes, it is hard to follow
+    # see it in this code yet. Yes, it is hard to follow,
     # and I am sure I haven't been able to keep up.
 
     # Thank you, Python.
@@ -85,16 +87,15 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
     args_attr = args_node.attr
 
     if len(args_attr) == 3:
-        pos_args, kw_args, annotate_argc = args_attr
+        _, kw_args, annotate_argc = args_attr
     else:
-        pos_args, kw_args, annotate_argc, closure = args_attr
+        _, kw_args, annotate_argc, closure = args_attr
 
     if node[-2] != "docstring":
         i = -4
     else:
         i = -5
 
-    kw_pairs = 0
     if annotate_argc:
         # Turn into subroutine and DRY with other use
         annotate_node = node[i]
@@ -106,9 +107,9 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
             ):
                 types = [self.traverse(n, indent="") for n in annotate_node[:-2]]
                 names = annotate_node[-2].attr
-                l = len(types)
-                assert l == len(names)
-                for i in range(l):
+                length = len(types)
+                assert length == len(names)
+                for i in range(length):
                     annotate_dict[names[i]] = types[i]
                 pass
             pass
@@ -118,11 +119,6 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         # FIXME: fill in
         # annotate = node[i]
         i -= 1
-
-    if kw_args:
-        kw_node = node[pos_args]
-        if kw_node == "expr":
-            kw_node = kw_node[0]
 
     defparams = []
     # FIXME: DRY with code below
@@ -181,9 +177,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
     if defparams:
         for i, defparam in enumerate(defparams):
             params.append(
-                build_param(
-                    ast, paramnames[i], defparam, annotate_dict.get(paramnames[i])
-                )
+                build_param(paramnames[i], defparam, annotate_dict.get(paramnames[i]))
             )
 
         for param in paramnames[i + 1 :]:
@@ -236,7 +230,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
 
     ends_in_comma = False
     if kwonlyargcount > 0:
-        if not (4 & code.co_flags):
+        if not 4 & code.co_flags:
             if argc > 0:
                 self.write(", *, ")
             else:
@@ -303,7 +297,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
                 pass
             pass
         # handle others
-        other_kw = [c == None for c in kw_args]
+        other_kw = [c is None for c in kw_args]
 
         for i, flag in enumerate(other_kw):
             if flag:

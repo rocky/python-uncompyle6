@@ -402,7 +402,7 @@ class Python37Parser(Python37BaseParser):
         list_if_not ::= expr jmp_true list_iter
         """
 
-    def p_set_comp(self, args):
+    def p_gen_comp37(self, args):
         """
         comp_iter ::= comp_for
         comp_body ::= gen_comp_body
