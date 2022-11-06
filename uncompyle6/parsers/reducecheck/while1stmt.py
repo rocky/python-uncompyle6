@@ -37,7 +37,7 @@ def while1stmt(self, lhs, n, rule, ast, tokens, first, last):
     if tokens[loop_end] == "JUMP_BACK":
         loop_end += 1
     loop_end_offset = tokens[loop_end].off2int(prefer_last=False)
-    for t in range(first+1, loop_end):
+    for t in range(first + 1, loop_end):
         token = tokens[t]
         # token could be a pseudo-op like "LOAD_STR", which is not in
         # token.opc.  We will replace that with LOAD_CONST as an
@@ -45,7 +45,6 @@ def while1stmt(self, lhs, n, rule, ast, tokens, first, last):
         if token.opc.opmap.get(token.kind, "LOAD_CONST") in token.opc.JUMP_OPS:
             if token.attr >= loop_end_offset:
                 return True
-
 
     # SETUP_LOOP location must jump either to the last token or the token after the last one
     return tokens[first].attr not in (offset, offset + 2)
