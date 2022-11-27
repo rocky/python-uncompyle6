@@ -1739,13 +1739,13 @@ if __name__ == "__main__":
     # FIXME: DRY this with other parseXX.py routines
     p = Python37Parser()
     p.check_grammar()
-    from xdis import PYTHON_VERSION_TRIPLE, IS_PYPY
+    from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
 
-    if PYTHON_VERSION_TRIPLE[:2]  == (3, 7):
+    if PYTHON_VERSION_TRIPLE[:2] == (3, 7):
         lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from uncompyle6.scanner import get_scanner
 
-        s = get_scanner(PYTHON_VERSION, IS_PYPY)
+        s = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY)
         opcode_set = set(s.opc.opname).union(
             set(
                 """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM

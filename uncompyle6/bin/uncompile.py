@@ -193,9 +193,9 @@ def main_bin():
         try:
             result = main(src_base, out_base, pyc_paths, source_paths, outfile,
                           **options)
-            result = list(result) + [options.get('do_verify', None)]
+            result = [options.get('do_verify', None)] + list(result)
             if len(pyc_paths) > 1:
-                mess = status_msg(do_verify, *result)
+                mess = status_msg(*result)
                 print('# ' + mess)
                 pass
         except ImportError:

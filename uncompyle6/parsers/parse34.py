@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2018 Rocky Bernstein
+#  Copyright (c) 2017-2018, 2022 Rocky Bernstein
 
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -70,11 +70,11 @@ if __name__ == '__main__':
     # Check grammar
     p = Python34Parser()
     p.check_grammar()
-    from xdis import PYTHON_VERSION_TRIPLE, IS_PYPY
-    if PYTHON_VERSION_TRIPLE == (3, 4):
+    from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
+    if PYTHON_VERSION_TRIPLE[:2] == (3, 4):
         lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from uncompyle6.scanner import get_scanner
-        s = get_scanner(PYTHON_VERSION, IS_PYPY)
+        s = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY)
         opcode_set = set(s.opc.opname).union(set(
             """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
                LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME

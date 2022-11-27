@@ -545,7 +545,7 @@ if __name__ == "__main__":
     # Check grammar
     p = Python26Parser()
     p.check_grammar()
-    from xdis import PYTHON_VERSION_TRIPLE, IS_PYPY
+    from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
     if PYTHON_VERSION_TRIPLE[:2] == (2, 6):
         lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from uncompyle6.scanner import get_scanner

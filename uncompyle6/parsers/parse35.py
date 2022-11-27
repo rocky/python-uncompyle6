@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017, 2019, 2021 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2019, 2021-2022 Rocky Bernstein
 """
 spark grammar differences over Python 3.4 for Python 3.5.
 """
@@ -272,11 +272,11 @@ if __name__ == '__main__':
     # Check grammar
     p = Python35Parser()
     p.check_grammar()
-    from xdis import PYTHON_VERSION_TRIPLE, IS_PYPY
+    from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
     if PYTHON_VERSION_TRIPLE[:2] == (3, 5):
         lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from uncompyle6.scanner import get_scanner
-        s = get_scanner(PYTHON_VERSION, IS_PYPY)
+        s = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY)
         opcode_set = set(s.opc.opname).union(set(
             """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
                LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME

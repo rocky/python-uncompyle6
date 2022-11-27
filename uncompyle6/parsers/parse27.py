@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2020 Rocky Bernstein
+#  Copyright (c) 2016-2020, 2022 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 
@@ -375,11 +375,11 @@ if __name__ == "__main__":
     # Check grammar
     p = Python27Parser()
     p.check_grammar()
-    from xdis import PYTHON_VERSION_TRIPLE, IS_PYPY
+    from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
     if PYTHON_VERSION_TRIPLE[:2] == (2, 7):
         lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from uncompyle6.scanner import get_scanner
-        s = get_scanner(PYTHON_VERSION, IS_PYPY)
+        s = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY)
         opcode_set = set(s.opc.opname).union(set(
             """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
                LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP

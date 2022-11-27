@@ -905,7 +905,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                     p2 = (1, -2, ", ")
                 if op == "CALL_FUNCTION_VAR":
                     # Python 3.5 only puts optional args (the VAR part)
-                    # lowest down the stack
+                    # the lowest down the stack
                     if self.version == (3, 5):
                         if str == "%c(%C, ":
                             entry = ("%c(*%C, %c)", 0, p2, -2)
@@ -929,7 +929,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                 elif op == "CALL_FUNCTION_VAR_KW":
                     str += "*%c, **%c)"
                     # Python 3.5 only puts optional args (the VAR part)
-                    # lowest down the stack
+                    # the lowest down the stack
                     na = v & 0xFF  # positional parameters
                     if self.version == (3, 5) and na == 0:
                         if p2[2]:
@@ -1207,7 +1207,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             return transform_tree
 
         # The bytecode for the end of the main routine has a
-        # "return None". However you can't issue a "return" statement in
+        # "return None". However, you can't issue a "return" statement in
         # main. So as the old cigarette slogan goes: I'd rather switch (the token stream)
         # than fight (with the grammar to not emit "return None").
         if self.hide_internal:
