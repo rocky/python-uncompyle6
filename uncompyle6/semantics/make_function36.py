@@ -40,7 +40,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
     Python version 3.6 and above.
     """
 
-    # MAKE_CLOSURE adds an additional closure slot
+    # MAKE_CLOSURE adds a closure slot
 
     # In Python 3.6 and above stack change again. I understand
     # 3.7 changes some of those changes, although I don't
@@ -150,7 +150,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
     kwonlyargcount = code.co_kwonlyargcount
 
     paramnames = list(scanner_code.co_varnames[:argc])
-    kwargs = list(scanner_code.co_varnames[argc : argc + kwonlyargcount])
+    kwargs = list(scanner_code.co_varnames[argc: argc + kwonlyargcount])
 
     paramnames.reverse()
     defparams.reverse()
@@ -181,7 +181,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
                 )
             )
 
-        for param in paramnames[i + 1 :]:
+        for param in paramnames[i + 1:]:
             if param in annotate_dict:
                 params.append("%s: %s" % (param, annotate_dict[param]))
             else:
@@ -243,11 +243,9 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
             else:
                 self.write("*, ")
             pass
-            ends_in_comma = True
         else:
             if argc > 0:
                 self.write(", ")
-                ends_in_comma = True
 
         # ann_dict = kw_dict = default_tup = None
         kw_dict = None
