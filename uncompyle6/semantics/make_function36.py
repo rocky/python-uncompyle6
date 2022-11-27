@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2021 by Rocky Bernstein
+#  Copyright (c) 2019-2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
     Python version 3.6 and above.
     """
 
-    # MAKE_CLOSURE adds an additional closure slot
+    # MAKE_CLOSURE adds a closure slot
 
     # In Python 3.6 and above stack change again. I understand
     # 3.7 changes some of those changes, although I don't
@@ -150,13 +150,13 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
     kwonlyargcount = code.co_kwonlyargcount
 
     paramnames = list(scanner_code.co_varnames[:argc])
-    kwargs = list(scanner_code.co_varnames[argc : argc + kwonlyargcount])
+    kwargs = list(scanner_code.co_varnames[argc: argc + kwonlyargcount])
 
     paramnames.reverse()
     defparams.reverse()
 
     try:
-        ast = self.build_ast(
+        tree = self.build_ast(
             scanner_code._tokens,
             scanner_code._customize,
             scanner_code,
@@ -176,10 +176,12 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
     if defparams:
         for i, defparam in enumerate(defparams):
             params.append(
-                build_param(paramnames[i], defparam, annotate_dict.get(paramnames[i]))
+                build_param(
+                    tree, paramnames[i], defparam, annotate_dict.get(paramnames[i])
+                )
             )
 
-        for param in paramnames[i + 1 :]:
+        for param in paramnames[i + 1:]:
             if param in annotate_dict:
                 params.append("%s: %s" % (param, annotate_dict[param]))
             else:
@@ -204,7 +206,13 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
 
     # dump parameter list (with default values)
     if is_lambda:
-        self.write("lambda ", ", ".join(params))
+        self.write("lambda")
+        if len(params):
+            self.write(" ", ", ".join(params))
+        elif kwonlyargcount > 0 and not (4 & code.co_flags):
+            assert argc == 0
+            self.write(" ")
+
         # If the last statement is None (which is the
         # same thing as "return None" in a lambda) and the
         # next to last statement is a "yield". Then we want to
@@ -212,16 +220,16 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         # to have something to after the yield finishes.
         # FIXME: this is a bit hoaky and not general
         if (
-            len(ast) > 1
-            and self.traverse(ast[-1]) == "None"
-            and self.traverse(ast[-2]).strip().startswith("yield")
+            len(tree) > 1
+            and self.traverse(tree[-1]) == "None"
+            and self.traverse(tree[-2]).strip().startswith("yield")
         ):
-            del ast[-1]
+            del tree[-1]
             # Now pick out the expr part of the last statement
-            ast_expr = ast[-1]
-            while ast_expr.kind != "expr":
-                ast_expr = ast_expr[0]
-            ast[-1] = ast_expr
+            tree_expr = tree[-1]
+            while tree_expr.kind != "expr":
+                tree_expr = tree_expr[0]
+            tree[-1] = tree_expr
             pass
     else:
         self.write("(", ", ".join(params))
@@ -235,11 +243,9 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
             else:
                 self.write("*, ")
             pass
-            ends_in_comma = True
         else:
             if argc > 0:
                 self.write(", ")
-                ends_in_comma = True
 
         # ann_dict = kw_dict = default_tup = None
         kw_dict = None
@@ -331,11 +337,11 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         # docstring exists, dump it
         self.println(self.traverse(node[-2]))
 
-    assert ast == "stmts"
+    assert tree in ("stmts", "lambda_start")
 
-    all_globals = find_all_globals(ast, set())
+    all_globals = find_all_globals(tree, set())
     globals, nonlocals = find_globals_and_nonlocals(
-        ast, set(), set(), code, self.version
+        tree, set(), set(), code, self.version
     )
 
     for g in sorted((all_globals & self.mod_globs) | globals):
@@ -346,9 +352,9 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
 
     self.mod_globs -= all_globals
     has_none = "None" in code.co_names
-    rn = has_none and not find_none(ast)
+    rn = has_none and not find_none(tree)
     self.gen_source(
-        ast,
+        tree,
         code.co_name,
         scanner_code._customize,
         is_lambda=is_lambda,
