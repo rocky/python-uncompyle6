@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018, 2020 Rocky Bernstein
+#  Copyright (c) 2016-2018, 2020, 2022 Rocky Bernstein
 """
 spark grammar differences over Python2.6 for Python 2.5.
 """
