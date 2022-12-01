@@ -19,6 +19,7 @@ spark grammar differences over Python 3.3 for Python 3.4
 from uncompyle6.parser import PythonParserSingle
 from uncompyle6.parsers.parse33 import Python33Parser
 
+
 class Python34Parser(Python33Parser):
 
     def p_misc34(self, args):
@@ -70,7 +71,7 @@ if __name__ == '__main__':
     # Check grammar
     p = Python34Parser()
     p.check_grammar()
-    from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
+    from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
     if PYTHON_VERSION_TRIPLE[:2] == (3, 4):
         lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from uncompyle6.scanner import get_scanner

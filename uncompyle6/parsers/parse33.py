@@ -6,6 +6,7 @@ spark grammar differences over Python 3.2 for Python 3.3.
 from uncompyle6.parser import PythonParserSingle
 from uncompyle6.parsers.parse32 import Python32Parser
 
+
 class Python33Parser(Python32Parser):
 
     def p_33on(self, args):

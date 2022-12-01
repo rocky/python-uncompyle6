@@ -1,12 +1,14 @@
-#  Copyright (c) 2016-2018, 2020 Rocky Bernstein
+#  Copyright (c) 2016-2018, 2020, 2022 Rocky Bernstein
 """
 spark grammar differences over Python2.6 for Python 2.5.
 """
 
-from uncompyle6.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+
+from uncompyle6.parser import PythonParserSingle
 from uncompyle6.parsers.parse26 import Python26Parser
-from uncompyle6.parsers.reducecheck import (ifelsestmt)
+from uncompyle6.parsers.reducecheck import ifelsestmt
+
 
 class Python25Parser(Python26Parser):
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
@@ -95,7 +97,8 @@ class Python25Parser(Python26Parser):
                                return_stmt_lambda LAMBDA_MARKER
         if_exp_not_lambda ::= expr jmp_true_then expr return_if_lambda
                               return_stmt_lambda LAMBDA_MARKER
-        """)
+        """
+        )
         super(Python25Parser, self).customize_grammar_rules(tokens, customize)
         if self.version[:2] == (2, 5):
             self.check_reduce["try_except"] = "AST"
@@ -103,9 +106,9 @@ class Python25Parser(Python26Parser):
         self.check_reduce["ifelsestmt"] = "AST"
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
-        invalid = super(Python25Parser,
-                        self).reduce_is_invalid(rule, ast,
-                                                tokens, first, last)
+        invalid = super(Python25Parser, self).reduce_is_invalid(
+            rule, ast, tokens, first, last
+        )
         if invalid or tokens is None:
             return invalid
         if rule == ("aug_assign1", ("expr", "expr", "inplace_op", "store")):
@@ -119,6 +122,7 @@ class Python25Parser(Python26Parser):
 
 class Python25ParserSingle(Python26Parser, PythonParserSingle):
     pass
+
 
 if __name__ == "__main__":
     # Check grammar

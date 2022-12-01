@@ -6,14 +6,17 @@ This sets up opcodes Python's 3.0 and calls a generalized
 scanner routine for Python 3.
 """
 
+from __future__ import print_function
+
+import xdis
+from xdis import instruction_size
+
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_30 as opc
-from xdis import instruction_size
-import xdis
-
-JUMP_TF = frozenset([opc.JUMP_IF_FALSE, opc.JUMP_IF_TRUE])
 
 from uncompyle6.scanners.scanner3 import Scanner3
+
+JUMP_TF = frozenset([opc.JUMP_IF_FALSE, opc.JUMP_IF_TRUE])
 
 
 class Scanner30(Scanner3):
@@ -363,7 +366,6 @@ class Scanner30(Scanner3):
                 #                          'end': end})
                 #     self.else_start[rtarget] = end
             elif self.is_jump_back(pre_rtarget, 0):
-                if_end = rtarget
                 self.structs.append(
                     {"type": "if-then", "start": start, "end": pre_rtarget}
                 )

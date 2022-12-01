@@ -3,15 +3,16 @@
 spark grammar differences over Python2 for Python 2.6.
 """
 
-from uncompyle6.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+
+from uncompyle6.parser import PythonParserSingle
 from uncompyle6.parsers.parse2 import Python2Parser
 from uncompyle6.parsers.reducecheck import (
     except_handler,
     ifelsestmt2,
     ifstmt2,
-    tryexcept,
     tryelsestmt,
+    tryexcept,
 )
 
 
@@ -64,8 +65,8 @@ class Python26Parser(Python2Parser):
         except_suite   ::= c_stmts_opt jmp_abs come_from_pop
 
         # This is what happens after a jump where
-        # we start a new block. For reasons I don't fully
-        # understand, there is also a value on the top of the stack
+        # we start a new block. For reasons that I don't fully
+        # understand, there is also a value on the top of the stack.
         come_from_pop   ::=  COME_FROM POP_TOP
         come_froms_pop  ::= come_froms POP_TOP
         """
@@ -78,7 +79,7 @@ class Python26Parser(Python2Parser):
     def p_jumps26(self, args):
         """
 
-        # The are the equivalents of Python 2.7+'s
+        # There are the equivalents of Python 2.7+'s
         # POP_JUMP_IF_TRUE and POP_JUMP_IF_FALSE
         jmp_true     ::= JUMP_IF_TRUE POP_TOP
         jmp_false    ::= JUMP_IF_FALSE POP_TOP
@@ -106,8 +107,8 @@ class Python26Parser(Python2Parser):
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD come_froms POP_TOP COME_FROM
 
         # This is what happens after a jump where
-        # we start a new block. For reasons I don't fully
-        # understand, there is also a value on the top of the stack
+        # we start a new block. For reasons that I don't fully
+        # understand, there is also a value on the top of the stack.
         come_froms_pop  ::=  come_froms POP_TOP
 
         """
@@ -394,7 +395,7 @@ class Python26Parser(Python2Parser):
             if ast[1] is None:
                 return False
 
-            # For now, we won't let the 2nd 'expr' be a "if_exp_not"
+            # For now, we won't let the 2nd 'expr' be an "if_exp_not"
             # However in < 2.6 where we don't have if/else expression it *can*
             # be.
             if self.version >= (2, 6) and ast[2][0] == "if_exp_not":
@@ -463,7 +464,7 @@ class Python26Parser(Python2Parser):
             ja_attr = ast[4].attr
             return tokens[last].offset != ja_attr
         elif lhs == "try_except":
-            # We need to distingush try_except from tryelsestmt and we do that
+            # We need to distingush "try_except" from "tryelsestmt"; we do that
             # by checking the jump before the END_FINALLY
             # If we have:
             #    insn
@@ -489,7 +490,7 @@ class Python26Parser(Python2Parser):
                 ) or (tokens[last - 3] == "JUMP_FORWARD" and tokens[last - 3].attr != 2)
         elif lhs == "tryelsestmt":
 
-            # We need to distingush try_except from tryelsestmt and we do that
+            # We need to distinguish "try_except" from "tryelsestmt"; we do that
             # by making sure that the jump before the except handler jumps to
             # code somewhere before the end of the construct.
             # This AST method is slower, but the token-only based approach
@@ -507,8 +508,8 @@ class Python26Parser(Python2Parser):
                         return else_start >= last_offset
 
             # The above test apparently isn't good enough, so we have additional
-            # checks distinguish try_except from tryelsestmt and we do that
-            # by checking the jump before the END_FINALLY
+            # checks distinguish "try_except" from "tryelsestmt". we do that
+            # by checking the jump before the "END_FINALLY".
             # If we have:
             #    insn
             #    POP_TOP
@@ -545,7 +546,8 @@ if __name__ == "__main__":
     # Check grammar
     p = Python26Parser()
     p.check_grammar()
-    from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
+    from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
+
     if PYTHON_VERSION_TRIPLE[:2] == (2, 6):
         lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from uncompyle6.scanner import get_scanner
