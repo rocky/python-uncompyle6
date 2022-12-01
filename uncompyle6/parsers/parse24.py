@@ -3,9 +3,11 @@
 spark grammar differences over Python2.5 for Python 2.4.
 """
 
-from uncompyle6.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+
+from uncompyle6.parser import PythonParserSingle
 from uncompyle6.parsers.parse25 import Python25Parser
+
 
 class Python24Parser(Python25Parser):
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
@@ -13,9 +15,9 @@ class Python24Parser(Python25Parser):
         self.customized = {}
 
     def p_misc24(self, args):
-        '''
+        """
         # Python 2.4 only adds something like the below for if 1:
-        # However we will just treat it as a noop (which of course messes up
+        # However we will just treat it as a noop which messes up
         # simple verify of bytecode.
         # See also below in reduce_is_invalid where we check that the JUMP_FORWARD
         # target matches the COME_FROM target
@@ -69,16 +71,18 @@ class Python24Parser(Python25Parser):
         # Python 2.3- use kv
         kvlist ::= kvlist kv2
         kv2    ::= DUP_TOP expr expr ROT_THREE STORE_SUBSCR
-        '''
+        """
 
     def remove_rules_24(self):
-        self.remove_rules("""
+        self.remove_rules(
+            """
         expr ::= if_exp
-        """)
-
+        """
+        )
 
     def customize_grammar_rules(self, tokens, customize):
-        self.remove_rules("""
+        self.remove_rules(
+            """
         gen_comp_body ::= expr YIELD_VALUE POP_TOP
         kvlist        ::= kvlist kv3
         while1stmt    ::= SETUP_LOOP l_stmts JUMP_BACK COME_FROM
@@ -91,44 +95,49 @@ class Python24Parser(Python25Parser):
         with          ::= expr setupwith SETUP_FINALLY suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM with_cleanup
         stmt ::= with
         stmt ::= withasstmt
-        """)
+        """
+        )
         super(Python24Parser, self).customize_grammar_rules(tokens, customize)
         self.remove_rules_24()
         if self.version[:2] == (2, 4):
-            self.check_reduce['nop_stmt'] = 'tokens'
+            self.check_reduce["nop_stmt"] = "tokens"
 
         if self.version[:2] <= (2, 4):
             # TODO: We may add something different or customize something
             del self.reduce_check_table["ifelsestmt"]
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
-        invalid = super(Python24Parser,
-                        self).reduce_is_invalid(rule, ast,
-                                                tokens, first, last)
+        invalid = super(Python24Parser, self).reduce_is_invalid(
+            rule, ast, tokens, first, last
+        )
         if invalid or tokens is None:
             return invalid
 
         lhs = rule[0]
-        if lhs == 'nop_stmt':
+        if lhs == "nop_stmt":
             l = len(tokens)
             if 0 <= l < len(tokens):
                 return not int(tokens[first].pattr) == tokens[last].offset
-        elif lhs == 'try_except':
+        elif lhs == "try_except":
             if last == len(tokens):
                 last -= 1
-            if tokens[last] != 'COME_FROM' and tokens[last-1] == 'COME_FROM':
+            if tokens[last] != "COME_FROM" and tokens[last - 1] == "COME_FROM":
                 last -= 1
-            return (tokens[last] == 'COME_FROM'
-                    and tokens[last-1] == 'END_FINALLY'
-                    and tokens[last-2] == 'POP_TOP'
-                    and tokens[last-3].kind != 'JUMP_FORWARD')
+            return (
+                tokens[last] == "COME_FROM"
+                and tokens[last - 1] == "END_FINALLY"
+                and tokens[last - 2] == "POP_TOP"
+                and tokens[last - 3].kind != "JUMP_FORWARD"
+            )
 
         return False
+
 
 class Python24ParserSingle(Python24Parser, PythonParserSingle):
     pass
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Check grammar
     p = Python24Parser()
     p.check_grammar()
