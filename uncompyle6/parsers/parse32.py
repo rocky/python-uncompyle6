@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2022 Rocky Bernstein
 """
 spark grammar differences over Python 3 for Python 3.2.
 """
@@ -7,6 +7,7 @@ from __future__ import print_function
 from uncompyle6.parser import PythonParserSingle
 from uncompyle6.parsers.parse3 import Python3Parser
 
+
 class Python32Parser(Python3Parser):
     def p_30to33(self, args):
         """
@@ -14,7 +15,6 @@ class Python32Parser(Python3Parser):
         stmt           ::= store_locals
         store_locals   ::= LOAD_FAST STORE_LOCALS
         """
-
 
     def p_gen_comp32(self, args):
         """
@@ -59,6 +59,7 @@ class Python32Parser(Python3Parser):
 
         kv3       ::= expr expr STORE_MAP
         """
+
     pass
 
     def p_32on(self, args):
@@ -69,7 +70,8 @@ class Python32Parser(Python3Parser):
         pass
 
     def customize_grammar_rules(self, tokens, customize):
-        self.remove_rules("""
+        self.remove_rules(
+            """
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY COME_FROM
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY COME_FROM_EXCEPT
         except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts END_FINALLY COME_FROM_EXCEPT_CLAUSE
@@ -77,17 +79,22 @@ class Python32Parser(Python3Parser):
         tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK except_handler else_suite come_from_except_clauses
         whileTruestmt  ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP COME_FROM_LOOP
         whileTruestmt  ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP COME_FROM_LOOP
-        """)
+        """
+        )
         super(Python32Parser, self).customize_grammar_rules(tokens, customize)
         for i, token in enumerate(tokens):
             opname = token.kind
-            if opname.startswith('MAKE_FUNCTION_A'):
-                args_pos, args_kw, annotate_args  = token.attr
+            if opname.startswith("MAKE_FUNCTION_A"):
+                args_pos, args_kw, annotate_args = token.attr
                 # Check that there are 2 annotated params?
-                rule = (('mkfunc_annotate ::= %s%sannotate_tuple '
-                         'LOAD_CONST LOAD_CODE EXTENDED_ARG %s') %
-                        (('pos_arg ' * (args_pos)),
-                         ('annotate_arg ' * (annotate_args-1)), opname))
+                rule = (
+                    "mkfunc_annotate ::= %s%sannotate_tuple "
+                    "LOAD_CONST LOAD_CODE EXTENDED_ARG %s"
+                ) % (
+                    ("pos_arg " * args_pos),
+                    ("annotate_arg " * (annotate_args - 1)),
+                    opname,
+                )
                 self.add_unique_rule(rule, opname, token.attr, customize)
                 pass
             return

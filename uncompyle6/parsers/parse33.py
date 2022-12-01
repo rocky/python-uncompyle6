@@ -7,6 +7,7 @@ from __future__ import print_function
 from uncompyle6.parser import PythonParserSingle
 from uncompyle6.parsers.parse32 import Python32Parser
 
+
 class Python33Parser(Python32Parser):
 
     def p_33on(self, args):
