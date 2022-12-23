@@ -103,16 +103,16 @@ Installation
 
 You can install from PyPI using the name ``uncompyle6``::
 
-    pip install uncompyle6
+   $ pip install uncompyle6
 
 
 To install from source code, this project uses setup.py, so it follows the standard Python routine::
 
-    $ pip install -e .  # set up to run from source tree
+   $ pip install -e .  # set up to run from source tree
 
 or::
 
-    $ python setup.py install # may need sudo
+   $ python setup.py install # may need sudo
 
 A GNU Makefile is also provided so :code:`make install` (possibly as root or
 sudo) will do the steps above.
