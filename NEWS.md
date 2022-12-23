@@ -1,4 +1,26 @@
-3.8.0: 2020-10-29
+3.9.0: 2022-12-22
+=================
+
+* deparse generator expressions for Python 3.0 .. 3.2
+* Python 3.0 list comprehension.
+* Fix Issues #310, #344, #377, #391, #409, #414
+* Limited support for 3.8+ f-string "=" specifier
+* Correct 2.5-7 relative import formatting
+* Miscellaneous bug fixing
+* remove \n in lambda
+* Python 2.6 gramar cleanup
+* Correct some Python 2.6 chain compare decompilation
+* Ensure no parenthesis subscript slices
+* Correct 2.x formatting "slice2" nonterminal
+* Correct 3.7 imports
+* Improve "async for" parsing
+* Handle BUILD_MAP opcode
+* match Python AT better
+* Correct 3.7 positional args
+* PyPy 3.7 and PyPy 3.8 support
+* Miscellaneous linting, isorting, blacking
+
+3.8.0: 2021-10-29
 =================
 
 * Better handling of invalid bytecode magic
