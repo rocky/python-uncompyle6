@@ -199,7 +199,7 @@ class PythonParser(GenericASTBuilder):
             if instructions[finish].linestart:
                 break
             pass
-        if start > 0:
+        if start >= 0:
             err_token = instructions[index]
             print("Instruction context:")
             for i in range(start, finish):
