@@ -845,18 +845,18 @@ class Python3Parser(PythonParser):
 
             elif opname in ("BUILD_CONST_LIST", "BUILD_CONST_DICT", "BUILD_CONST_SET"):
                 if opname == "BUILD_CONST_DICT":
-                    rule = f"""
+                    rule = """
                            add_consts          ::= ADD_VALUE*
-                           const_list          ::= COLLECTION_START add_consts {opname}
+                           const_list          ::= COLLECTION_START add_consts %s
                            dict                ::= const_list
                            expr                ::= dict
-                           """
+                           """ % opname
                 else:
-                    rule = f"""
+                    rule = """
                            add_consts          ::= ADD_VALUE*
-                           const_list          ::= COLLECTION_START add_consts {opname}
+                           const_list          ::= COLLECTION_START add_consts %s
                            expr                ::= const_list
-                           """
+                           """ % opname
                 self.addRule(rule, nop_func)
 
             elif opname_base in (
@@ -1178,7 +1178,9 @@ class Python3Parser(PythonParser):
                             "pos_arg " * args_pos,
                             opname,
                         )
-                elif self.version == (3, 3):
+                    self.add_unique_rule(rule, opname, token.attr, customize)
+
+                elif (3, 3) <= self.version < (3, 5):
                     if annotate_args > 0:
                         rule = (
                             "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure LOAD_CODE LOAD_STR %s"
@@ -1195,8 +1197,10 @@ class Python3Parser(PythonParser):
                             "pos_arg " * args_pos,
                             opname,
                         )
+                    self.add_unique_rule(rule, opname, token.attr, customize)
 
-                elif self.version >= (3, 4):
+
+                if self.version >= (3, 4):
                     if not self.is_pypy:
                         load_op = "LOAD_STR"
                     else:
@@ -1221,7 +1225,7 @@ class Python3Parser(PythonParser):
                             opname,
                         )
 
-                self.add_unique_rule(rule, opname, token.attr, customize)
+                    self.add_unique_rule(rule, opname, token.attr, customize)
 
                 if args_kw == 0:
                     rule = "mkfunc ::= %sload_closure load_genexpr %s" % (
