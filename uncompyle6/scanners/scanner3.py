@@ -628,9 +628,9 @@ class Scanner3(Scanner):
                     )
 
                     correct_annotate_args = annotate_args
-                    if opname == "MAKE_CLOSURE" and ((3, 4) <= self.version < (3, 6)) and annotate_args > 0:
-                        # For some reason that I don't understand annotate_args is off by one
-                        # here from what is documented in
+                    if opname in ("MAKE_CLOSURE", "MAKE_FUNCTION") and ((3, 4) <= self.version < (3, 6)) and annotate_args > 0:
+                        # For some reason that I don't understand, annotate_args is off by one
+                        # when there is an EXENDED_ARG instruction from what is documented in
                         # https://docs.python.org/3.4/library/dis.html#opcode-MAKE_CLOSURE
                         # However in parsing rule, we have already adjusted for the one-fewer annotate arg
                         correct_annotate_args -= 1
