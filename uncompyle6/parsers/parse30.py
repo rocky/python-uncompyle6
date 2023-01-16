@@ -74,8 +74,8 @@ class Python30Parser(Python31Parser):
         # Need to keep LOAD_FAST as index 1
         set_comp_header  ::= BUILD_SET_0 DUP_TOP STORE_FAST
         set_comp_func ::= set_comp_header
-                          LOAD_FAST FOR_ITER store comp_iter
-                          JUMP_BACK POP_TOP JUMP_BACK RETURN_VALUE RETURN_LAST
+                          LOAD_ARG FOR_ITER store comp_iter
+                          JUMP_BACK COME_FROM POP_TOP JUMP_BACK RETURN_VALUE RETURN_LAST
 
         list_comp_header ::= BUILD_LIST_0 DUP_TOP STORE_FAST
         list_comp        ::= list_comp_header
