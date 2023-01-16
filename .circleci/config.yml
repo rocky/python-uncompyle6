@@ -36,11 +36,15 @@ jobs:
 
     - run:
         command: | # Use pip to install dependengcies
+          # Install the version of click that works with Python 2.7.
+          # DO this before upgrading setuptool
           sudo easy_install click==7.1.2
-          # Until next release use github xdis
-          sudo pip install git+https://github.com/rocky/python-xdis@python-2.34to-2.7#egg=xdis
-          sudo pip install -e .
-          sudo pip install -r requirements-dev.txt
+          # Install a version of xdis that works for this code
+          pip install --user git+https://github.com/rocky/python-xdis@python-2.4/#egg=xdis
+          # Install a version of spark-parser that works for this code
+          pip install git+https://github.com/rocky/spark-parser@python-2.4/#egg=spark-parser
+          pip install --user -e .
+          pip install --user -r requirements-dev.txt
 
     # Save dependency cache
     - save_cache:
@@ -58,7 +62,7 @@ jobs:
     # Test
     #   This would typically be a build job when using workflows, possibly combined with build
     # This is based on your 1.0 configuration file or project settings
-    - run: sudo python ./setup.py develop && make check-2.7
+    - run: make check-2.7
     - run: cd test/stdlib && bash ./runtests.sh 'test_[p-z]*.py'
     # Teardown
     #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
