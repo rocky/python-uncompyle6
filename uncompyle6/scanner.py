@@ -21,7 +21,7 @@ scanner/ingestion module. From here we call various version-specific
 scanners, e.g. for Python 2.7 or 3.4.
 """
 
-from typing import Optional
+from typing import Optional, Tuple
 from array import array
 from collections import namedtuple
 
@@ -600,8 +600,25 @@ class Scanner(object):
         return self.Token
 
 
-def parse_fn_counts(argc):
-    return ((argc & 0xFF), (argc >> 8) & 0xFF, (argc >> 16) & 0x7FFF)
+# TODO: after the next xdis release, use from there instead.
+def parse_fn_counts_30_35(argc: int) -> Tuple[int, int, int]:
+    """
+    In Python 3.0 to 3.5 MAKE_CLOSURE and MAKE_FUNCTION encode
+    arguments counts of positional, default + named, and annotation
+    arguments a particular kind of encoding where each of
+    the entry a a packe byted value of the lower 24 bits
+    of ``argc``.  The high bits of argc may have come from
+    an EXTENDED_ARG instruction. Here, we unpack the values
+    from the ``argc`` int and return a triple of the
+    positional args, named_args, and annotation args.
+    """
+    annotate_count = (argc >> 16) & 0x7FFF
+    # For some reason that I don't understand, annotate_args is off by one
+    # when there is an EXENDED_ARG instruction from what is documented in
+    # https://docs.python.org/3.4/library/dis.html#opcode-MAKE_CLOSURE
+    if annotate_count > 1:
+        annotate_count -= 1
+    return ((argc & 0xFF), (argc >> 8) & 0xFF, annotate_count)
 
 
 def get_scanner(version, is_pypy=False, show_asm=None):
