@@ -1093,7 +1093,12 @@ class NonterminalActions:
         self.write("{")
         if node[0] in ["LOAD_SETCOMP", "LOAD_DICTCOMP"]:
             if self.version == (3, 0):
-                iter_index = 6
+                if len(node) >= 6:
+                    iter_index = 6
+                else:
+                    assert node[1].kind.startswith("MAKE_FUNCTION")
+                    iter_index = 2
+                    pass
             else:
                 iter_index = 1
             self.comprehension_walk_newer(node, iter_index=iter_index, code_index=0)
