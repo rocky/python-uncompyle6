@@ -123,6 +123,7 @@ def test_grammar():
             opcode_set.add("THEN")
         check_tokens(tokens, opcode_set)
     elif PYTHON_VERSION_TRIPLE[:2] == (3, 4):
+        ignore_set.add("LOAD_ARG")  # Used in grammar for comprehension. But not in 3.4
         ignore_set.add("LOAD_CLASSNAME")
         ignore_set.add("STORE_LOCALS")
         opcode_set = set(s.opc.opname).union(ignore_set)

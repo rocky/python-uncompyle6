@@ -92,7 +92,7 @@ class Python32Parser(Python3Parser):
                     "LOAD_CONST LOAD_CODE EXTENDED_ARG %s"
                 ) % (
                     ("pos_arg " * args_pos),
-                    ("annotate_arg " * (annotate_args - 1)),
+                    ("annotate_arg " * (annotate_args)),
                     opname,
                 )
                 self.add_unique_rule(rule, opname, token.attr, customize)
