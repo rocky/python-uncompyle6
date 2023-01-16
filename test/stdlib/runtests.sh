@@ -27,7 +27,11 @@ function displaytime {
 }
 
 # Python version setup
-FULLVERSION=$(pyenv local)
+if [[ "$CIRCLECI" == "true" ]]; then
+    FULLVERSION=$(pyenv local)
+else
+    FULLVERSION=$(pyenv local)
+fi
 PYVERSION=${FULLVERSION%.*}
 
 if [[ $PYVERSION =~ 'pypy' ]] ; then
