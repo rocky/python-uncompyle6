@@ -26,26 +26,9 @@ function displaytime {
   printf '%d seconds\n' $S
 }
 
-# Python version setup
-if [[ "$CIRCLECI" == "true" ]]; then
-    FULLVERSION=$(pyenv local)
-else
-    FULLVERSION=$(pyenv local)
-fi
-PYVERSION=${FULLVERSION%.*}
-
-if [[ $PYVERSION =~ 'pypy' ]] ; then
-    IS_PYPY=1
-else
-    IS_PYPY=0
-fi
-
-if [[ $FULLVERSION =~ pypy([2-3])\.([7-9]) ]]; then
-    MAJOR="${BASH_REMATCH[1]}"
-    MINOR="${BASH_REMATCH[2]}"
-else
-   MINOR=${FULLVERSION##?.?.}
-fi
+FULLVERSION=2.7.18
+IS_PYPY=0
+MINOR=${FULLVERSION##?.?.}
 
 STOP_ONERROR=${STOP_ONERROR:-1}
 
@@ -69,77 +52,7 @@ function timeout_cmd {
   )
 }
 
-typeset -A SKIP_TESTS
-case $PYVERSION in
-    2.4)
-	. ./2.4-exclude.sh
-	;;
-    2.5)
-	. ./2.5-exclude.sh
-	;;
-    2.6)
-	. ./2.6-exclude.sh
-	;;
-    2.7)
-	. ./2.7-exclude.sh
-	;;
-    3.0)
-	SKIP_TESTS=(
-	    [test_array.py]=1  # Handling of bytestring
-	    [test_binascii.py]=1 # handling of bytearray?
-	    [test_concurrent_futures.py]=1 # too long to run over 46 seconds by itself
-	    [test_datetimetester.py]=1
-	    [test_decimal.py]=1
-	    [test_dis.py]=1   # We change line numbers - duh!
-	    [test_fileio.py]=1
-	)
-	if (( BATCH )) ; then
-	    # Fails in crontab environment?
-	    # Figure out what's up here
-	    SKIP_TESTS[test_exception_variations.py]=1
-	fi
-	;;
-    3.1)
-	SKIP_TESTS=(
-	    [test_concurrent_futures.py]=1 # too long to run over 46 seconds by itself
-	    [test_dis.py]=1   # We change line numbers - duh!
-	    [test_fileio.py]=1
-	)
-	if (( BATCH )) ; then
-	    # Fails in crontab environment?
-	    # Figure out what's up here
-	    SKIP_TESTS[test_exception_variations.py]=1
-	fi
-	;;
-    3.2)
-	. ./3.2-exclude.sh
-	;;
-    3.3)
-	. ./3.3-exclude.sh
-	;;
-    3.4)
-	. ./3.4-exclude.sh
-	;;
-    3.5)
-	. ./3.5-exclude.sh
-	;;
-    3.6)
-	. ./3.6-exclude.sh
-	;;
-    3.7)
-	. ./3.7-exclude.sh
-	;;
-    3.8)
-	. ./3.8-exclude.sh
-	;;
-    *)
-	SKIP_TESTS=( [test_aepack.py]=1
-		     [audiotests.py]=1
-		     [test_dis.py]=1   # We change line numbers - duh!
-		     [test_generators.py]=1  # I think string formatting of docstrings gets in the way. Not sure
-		   )
-	;;
-esac
+. ./2.7-exclude.sh
 
 # Test directory setup
 srcdir=$(dirname $me)
@@ -149,38 +62,16 @@ fulldir=$(pwd)
 # DECOMPILER=uncompyle2
 DECOMPILER=${DECOMPILER:-"$fulldir/../../bin/uncompyle6"}
 OPTS=${OPTS:-""}
-TESTDIR=/tmp/test${PYVERSION}
+TESTDIR=/tmp/test2.7
 if [[ -e $TESTDIR ]] ; then
     rm -fr $TESTDIR
 fi
 
-PYENV_ROOT=${PYENV_ROOT:-$HOME/.pyenv}
-pyenv_local=$(pyenv local)
-
-echo Python version is $pyenv_local
-
-# pyenv version update
-for dir in ../ ../../ ; do
-    cp -v .python-version $dir
-done
-
-
 mkdir $TESTDIR || exit $?
-
-if ((IS_PYPY)); then
-    cp -r ${PYENV_ROOT}/versions/${PYVERSION}.${MINOR}/lib-python/${MAJOR}/test $TESTDIR
-else
-    cp -r ${PYENV_ROOT}/versions/${PYVERSION}.${MINOR}/lib/python${PYVERSION}/test $TESTDIR
-fi
-if [[ $PYVERSION == 3.2 ]] ; then
-    cp ${PYENV_ROOT}/versions/${PYVERSION}.${MINOR}/lib/python${PYVERSION}/test/* $TESTDIR
-    cd $TESTDIR
-else
-    cd $TESTDIR/test
-fi
-pyenv local $FULLVERSION
-export PYTHONPATH=$TESTDIR
-export PATH=${PYENV_ROOT}/shims:${PATH}
+(cd /usr/local/lib/python2.7/site-packages && cp */test*.pyc $TESTDIR)
+(cd /usr/local/lib/python2.7/site-packages && cp */*/test*.pyc $TESTDIR)
+cd $TESTDIR
+export PATH=/usr/local/bin/python:${PATH}
 
 DONT_SKIP_TESTS=${DONT_SKIP_TESTS:-0}
 
@@ -193,6 +84,8 @@ if [[ -n $1 ]] ; then
     if (( ${#files_ary[@]} == 1 || DONT_SKIP_TESTS == 1 )) ; then
 	SKIP_TESTS=()
     fi
+elif [[ "$CIRCLECI" == "true" ]] ; then
+    files=$(echo test_*.pyc)
 else
     files=$(echo test_*.py)
 fi
@@ -203,13 +96,6 @@ typeset -i skipped=0
 NOT_INVERTED_TESTS=${NOT_INVERTED_TESTS:-1}
 
 for file in $files; do
-    # AIX bash doesn't grok [[ -v SKIP... ]]
-    [[ -z ${SKIP_TESTS[$file]} ]] && SKIP_TESTS[$file]=0
-    if [[ ${SKIP_TESTS[$file]} == ${NOT_INVERTED_TESTS} ]] ; then
-	((skipped++))
-	continue
-    fi
-
     # If the fails *before* decompiling, skip it!
     typeset -i STARTTIME=$(date +%s)
     if [ ! -r $file ]; then
@@ -260,5 +146,4 @@ typeset -i ALL_FILES_ENDTIME=$(date +%s)
 printf "Ran $i unit-test files, $allerrs errors; Elapsed time: "
 displaytime $time_diff
 echo "Skipped $skipped test for known failures."
-cd $fulldir/../.. && pyenv local $FULLVERSION
 exit $allerrs
