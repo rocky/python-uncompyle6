@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017, 2019-2020, 2022 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2019-2020, 2022-2023 Rocky Bernstein
 """
 Python 3.7 base code. We keep non-custom-generated grammar rules out of this file.
 """
@@ -558,7 +558,7 @@ class Python37BaseParser(PythonParser):
                     nak = (len(opname_base) - len("CALL_METHOD")) // 3
                     rule = (
                         "call ::= expr "
-                        + ("expr " * args_pos)
+                        + ("pos_arg " * args_pos)
                         + ("kwarg " * args_kw)
                         + "expr " * nak
                         + opname
