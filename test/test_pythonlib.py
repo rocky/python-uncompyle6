@@ -29,11 +29,18 @@ Step 2: Run the test:
 
 from __future__ import print_function
 
-import getopt, os, py_compile, sys, shutil, tempfile, time
-
+import getopt
+import os
+import py_compile
+import shutil
+import sys
+import tempfile
+import time
 from fnmatch import fnmatch
+
+from xdis.version_info import PYTHON_VERSION_TRIPLE
+
 from uncompyle6.main import main
-from xdis.version_info import PYTHON_VERSION
 
 
 def get_srcdir():
@@ -164,10 +171,10 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
 
     if opts["do_compile"]:
         compiled_version = opts["compiled_version"]
-        if compiled_version and PYTHON_VERSION != compiled_version:
+        if compiled_version and PYTHON_VERSION_TRIPLE != compiled_version:
             print(
                 "Not compiling: desired Python version is %s but we are running %s"
-                % (compiled_version, PYTHON_VERSION),
+                % (compiled_version, PYTHON_VERSION_TRIPLE),
                 file=sys.stderr,
             )
         else:
