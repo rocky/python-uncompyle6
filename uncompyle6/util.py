@@ -3,7 +3,7 @@
 # More could be done here though.
 
 from math import copysign
-from xdis.version_info import PYTHON_VERSION
+from xdis.version_info import PYTHON_VERSION_TRIPLE
 
 
 def is_negative_zero(n):
@@ -36,7 +36,7 @@ def better_repr(v, version):
         if len(v) == 1:
             return "(%s,)" % better_repr(v[0], version)
         return "(%s)" % ", ".join(better_repr(i, version) for i in v)
-    elif PYTHON_VERSION < 3.0 and isinstance(v, long):
+    elif PYTHON_VERSION_TRIPLE < (3, 0) and isinstance(v, long):
         s = repr(v)
         if version >= 3.0 and s[-1] == "L":
             return s[:-1]
