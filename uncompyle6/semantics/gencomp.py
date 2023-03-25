@@ -474,7 +474,12 @@ class ComprehensionMixin(object):
             self.preorder(n[1])
         else:
             if self.version == (3, 0):
-                body = n[1]
+                if isinstance(n, Token):
+                    body = store
+                elif len(n) > 1:
+                    body = n[1]
+                else:
+                    body = n[0]
             else:
                 body = n[0]
             self.preorder(body)

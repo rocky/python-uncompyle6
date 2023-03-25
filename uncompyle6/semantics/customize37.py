@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2022 by Rocky Bernstein
+#  Copyright (c) 2019-2023 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -16,12 +16,8 @@
 """
 
 import re
-from uncompyle6.semantics.consts import (
-    PRECEDENCE,
-    TABLE_DIRECT,
-    INDENT_PER_LEVEL,
-)
 
+from uncompyle6.semantics.consts import INDENT_PER_LEVEL, PRECEDENCE, TABLE_DIRECT
 from uncompyle6.semantics.helper import flatten_list
 
 FSTRING_CONVERSION_MAP = {1: "!s", 2: "!r", 3: "!a", "X": ":X"}
@@ -54,10 +50,13 @@ def customize_for_version37(self, version):
         {
             "and_not": ("%c and not %c", (0, "expr"), (2, "expr")),
             "ann_assign": (
-                "%|%[2]{attr}: %c\n", 0,
+                "%|%[2]{attr}: %c\n",
+                0,
             ),
             "ann_assign_init": (
-                "%|%[2]{attr}: %c = %c\n", 0, 1,
+                "%|%[2]{attr}: %c = %c\n",
+                0,
+                1,
             ),
             "async_for_stmt": (
                 "%|async for %c in %c:\n%+%c%-\n\n",
@@ -89,9 +88,8 @@ def customize_for_version37(self, version):
             "attributes37": (
                 "%[0]{pattr} import %c",
                 (0, "IMPORT_NAME_ATTR"),
-                (1, "IMPORT_FROM")
+                (1, "IMPORT_FROM"),
             ),
-
             # nested await expressions like:
             #   return await (await bar())
             # need parenthesis.
@@ -126,19 +124,24 @@ def customize_for_version37(self, version):
                 (0, PRECEDENCE["compare"] - 1),
                 (-2, PRECEDENCE["compare"] - 1),
             ),
-            "compare_chained2a_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"] - 1)),
-            "compare_chained2b_false_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"] - 1)),
-            "compare_chained2a_false_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"] - 1)),
+            "compare_chained2a_37": (
+                '%[1]{pattr.replace("-", " ")} %p',
+                (0, PRECEDENCE["compare"] - 1),
+            ),
+            "compare_chained2b_false_37": (
+                '%[1]{pattr.replace("-", " ")} %p',
+                (0, PRECEDENCE["compare"] - 1),
+            ),
+            "compare_chained2a_false_37": (
+                '%[1]{pattr.replace("-", " ")} %p',
+                (0, PRECEDENCE["compare"] - 1),
+            ),
             "compare_chained2c_37": (
                 '%[3]{pattr.replace("-", " ")} %p %p',
                 (0, PRECEDENCE["compare"] - 1),
                 (6, PRECEDENCE["compare"] - 1),
             ),
-            'if_exp37': (
-                '%p if %c else %c',
-                (1, 'expr', 27), 0, 3
-            ),
-
+            "if_exp37": ("%p if %c else %c", (1, "expr", 27), 0, 3),
             "except_return": ("%|except:\n%+%c%-", 3),
             "if_exp_37a": (
                 "%p if %p else %p",
@@ -153,9 +156,7 @@ def customize_for_version37(self, version):
                 (5, "expr", 27),
             ),
             "ifstmtl": ("%|if %c:\n%+%c%-", (0, "testexpr"), (1, "_ifstmts_jumpl")),
-            'import_as37': (
-                "%|import %c as %c\n", 2, -2
-            ),
+            "import_as37": ("%|import %c as %c\n", 2, -2),
             "import_from37": ("%|from %[2]{pattr} import %c\n", (3, "importlist37")),
             "import_from_as37": (
                 "%|from %c as %c\n",
@@ -178,12 +179,11 @@ def customize_for_version37(self, version):
                 (0, "get_aiter"),
                 (3, "list_iter"),
             ),
-
             "list_if37": (" if %p%c", (0, 27), 1),
             "list_if37_not": (" if not %p%c", (0, 27), 1),
             "testfalse_not_or": ("not %c or %c", (0, "expr"), (2, "expr")),
             "testfalse_not_and": ("not (%c)", 0),
-            "testfalsel":  ("not %c", (0, "expr")),
+            "testfalsel": ("not %c", (0, "expr")),
             "try_except36": ("%|try:\n%+%c%-%c\n\n", 1, -2),
             "tryfinally36": ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", (1, "returns"), 3),
             "dict_unpack": ("{**%C}", (0, -1, ", **")),

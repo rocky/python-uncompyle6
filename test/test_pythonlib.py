@@ -27,11 +27,20 @@ Step 2: Run the test:
   test_pythonlib.py --mylib --verify # decompile verify 'mylib'
 """
 
-import getopt, os, py_compile, sys, shutil, tempfile, time
+from __future__ import print_function
 
+import getopt
+import os
+import py_compile
+import shutil
+import sys
+import tempfile
+import time
 from fnmatch import fnmatch
+
+from xdis.version_info import PYTHON_VERSION_TRIPLE
+
 from uncompyle6.main import main
-from xdis.version_info import PYTHON_VERSION, PYTHON_VERSION_TRIPLE
 
 
 def get_srcdir():

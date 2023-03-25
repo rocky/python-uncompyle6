@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2021 by Rocky Bernstein
+#  Copyright (c) 2016-2021, 2023 by Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 #
@@ -184,7 +184,7 @@ class Token:   # Python 2.4 can't have empty ()
                 elif name == "LOAD_ASSERT":
                     return "%s%s        %s" % (prefix, offset_opname, pattr)
                 elif self.op in self.opc.NAME_OPS:
-                    if self.opc.version >= 3.0:
+                    if self.opc.version_tuple >= (3, 0):
                         return "%s%s%s %s" % (prefix, offset_opname, argstr, self.attr)
                 elif name == "EXTENDED_ARG":
                     return "%s%s%s 0x%x << %s = %s" % (

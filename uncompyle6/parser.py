@@ -199,7 +199,7 @@ class PythonParser(GenericASTBuilder):
             if instructions[finish].linestart:
                 break
             pass
-        if start > 0:
+        if start >= 0:
             err_token = instructions[index]
             print("Instruction context:")
             for i in range(start, finish):
@@ -213,10 +213,16 @@ class PythonParser(GenericASTBuilder):
             raise ParserError(None, -1, self.debug["reduce"])
 
     def get_pos_kw(self, token):
-        """Return then the number of positional parameters and
-        represented by the attr field of token"""
+        """
+        Return then the number of positional parameters and keyword
+        parfameters represented by the attr (operand) field of
+        token.
+
+        This appears in CALL_FUNCTION or CALL_METHOD (PyPy) tokens
+        """
         # Low byte indicates number of positional paramters,
         # high byte number of keyword parameters
+        assert token.kind.startswith("CALL_FUNCTION") or token.kind.startswith("CALL_METHOD")
         args_pos = token.attr & 0xFF
         args_kw = (token.attr >> 8) & 0xFF
         return args_pos, args_kw

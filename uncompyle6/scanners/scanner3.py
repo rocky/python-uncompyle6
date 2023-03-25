@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2019, 2021-2022 by Rocky Bernstein
+#  Copyright (c) 2015-2019, 2021-2023 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -44,7 +44,7 @@ from xdis import iscode, instruction_size, Instruction
 from xdis.bytecode import _get_const_info
 
 from uncompyle6.scanners.tok import Token
-from uncompyle6.scanner import parse_fn_counts
+from uncompyle6.scanner import parse_fn_counts_30_35
 import xdis
 
 # Get all the opcodes into globals
@@ -626,23 +626,31 @@ class Scanner3(Scanner):
                         flags >>= 1
                     attr = attr[:4]  # remove last value: attr[5] == False
                 else:
-                    pos_args, name_pair_args, annotate_args = parse_fn_counts(
+                    pos_args, name_pair_args, annotate_args = parse_fn_counts_30_35(
                         inst.argval
+                        )
+
+                    pattr = "%s positional, %s keyword only, %s annotated" % (
+                        pos_args, name_pair_args, annotate_args
                     )
-                    pattr = "%d positional, %d keyword only, %d annotated" % (
-                        pos_args,
-                        name_pair_args,
-                        annotate_args,
-                    )
-                    if name_pair_args > 0:
+
+                    if name_pair_args > 0 and annotate_args > 0:
                         # FIXME: this should probably be K_
-                        opname = "%s_N%d" % (opname, name_pair_args)
+                        opname += "_N%s_A%s" % (name_pair_args, annotate_args)
                         pass
-                    if annotate_args > 0:
-                        opname = "%s_A_%d" % (opname, annotate_args)
+                    elif annotate_args > 0:
+                        opname += "_A_%s" % annotate_args
                         pass
-                    opname = "%s_%d" % (opname, pos_args)
+                    elif name_pair_args > 0:
+                        opname += "_N_%s" % name_pair_args
+                        pass
+                    else:
+                        # Rule customization mathics, MAKE_FUNCTION_...
+                        # so make sure to add the "_"
+                        opname += "_0"
+
                     attr = (pos_args, name_pair_args, annotate_args)
+
                 new_tokens.append(
                     Token(
                         opname=opname,

@@ -3,3 +3,5 @@ pytest
 -e .
 
 xdis>=6.0.4
+configobj~=5.0.6
+setuptools~=65.5.1
