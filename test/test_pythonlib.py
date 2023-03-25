@@ -27,8 +27,6 @@ Step 2: Run the test:
   test_pythonlib.py --mylib --verify # decompile verify 'mylib'
 """
 
-from __future__ import print_function
-
 import getopt
 import os
 import py_compile
