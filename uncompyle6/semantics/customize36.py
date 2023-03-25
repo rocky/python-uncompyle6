@@ -207,17 +207,12 @@ def customize_for_version36(self, version):
         elif build_class[1][0] == "load_closure":
             # Python 3 with closures not functions
             load_closure = build_class[1]
-            if load_closure[-4] == "LOAD_CODE":
-                subclass_code = load_closure[-4].attr
-            elif hasattr(load_closure[-3], "attr"):
-                # Python 3.3 classes with closures work like this.
-                # Note have to test before 3.2 case because
-                # index -2 also has an attr.
-                subclass_code = load_closure[-3].attr
-            elif hasattr(load_closure[-2], "attr"):
-                # Python 3.2 works like this
-                subclass_code = load_closure[-2].attr
-            else:
+            subclass_code = None
+            for i in range(-4, -1):
+                if load_closure[i] == "LOAD_CODE":
+                    subclass_code = load_closure[i].attr
+                    break
+            if subclass_code is None:
                 raise RuntimeError(
                     "Internal Error n_classdef: cannot find " "class body"
                 )
