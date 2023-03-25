@@ -1261,11 +1261,6 @@ class Python37BaseParser(PythonParser):
         except Exception:
             import sys, traceback
 
-            print(
-                f"Exception in {fn.__name__} {sys.exc_info()[1]}\n"
-                + f"rule: {rule2str(rule)}\n"
-                + f"offsets {tokens[first].offset} .. {tokens[last].offset}"
-            )
             print(traceback.print_tb(sys.exc_info()[2], -1))
             raise ParserError(tokens[last], tokens[last].off2int(), self.debug["rules"])
 
