@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2022 by Rocky Bernstein
+#  Copyright (c) 2019-2023 by Rocky Bernstein
 
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -119,15 +119,10 @@ class TreeTransform(GenericASTTraversal, object):
 
         mkfunc_pattr = node[-1].pattr
         if isinstance(mkfunc_pattr, tuple):
-            assert len(mkfunc_pattr, 4) and isinstance(mkfunc_pattr, int)
-            is_closure = node[-1].pattr[3] != 0
-        else:
-            # FIXME: This is what we had before. It is hoaky and probably wrong.
-            is_closure = mkfunc_pattr == "closure"
+            assert len(mkfunc_pattr) == 4 and isinstance(mkfunc_pattr, int)
 
         if (
-            (not is_closure)
-            and len(code.co_consts) > 0
+            len(code.co_consts) > 0
             and isinstance(code.co_consts[0], str)
         ):
             docstring_node = SyntaxTree(
