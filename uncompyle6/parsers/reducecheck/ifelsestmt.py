@@ -82,6 +82,16 @@ IFELSE_STMT_RULES = frozenset(
             ),
         ),
         (
+            'ifelsestmtc',
+            (
+                'testexpr',
+                'c_stmts_opt',
+                'JUMP_FORWARD',
+                'else_suite',
+                'come_froms'
+            ),
+        ),
+        (
             "ifelsestmt",
             (
                 "testexpr",
