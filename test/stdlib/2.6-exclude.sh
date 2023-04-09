@@ -81,7 +81,7 @@ SKIP_TESTS=(
     [test_winreg.py]=1 # it fails on its own
     [test_winsound.py]=1 # it fails on its own
 
-    [test_zipimport_support.py]=1
+    [test_zipimport_support.py]=1 # expected test to raise ImportError
     [test_zipfile64.py]=1  # Skip Long test
     # .pyenv/versions/2.6.9/lib/python2.6/lib2to3/refactor.pyc
     # .pyenv/versions/2.6.9/lib/python2.6/pyclbr.pyc
