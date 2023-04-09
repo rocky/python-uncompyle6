@@ -22,25 +22,20 @@ SKIP_TESTS=(
     [test_doctest2.py]=1 # Fails on its own
 
     [test_format.py]=1 # Control flow "and" vs nested "if"
-    [test_float.py]=1
-    [test_grp.py]=1     # test takes to long, works interactively though
     [test_io.py]=1 # Test takes too long to run
-    [test_ioctl.py]=1 # Test takes too long to run
-    [test_lib2to3.py]=1 # test takes too long to run: 28 seconds
     [test_memoryio.py]=1 # FIX
     [test_multiprocessing.py]=1 # On uncompyle2, takes 24 secs
-    [test_poll.py]=1  # test takes too long to run: 11 seconds
     [test_regrtest.py]=1 #
     [test_runpy.py]=1   # Long and fails on its own
     [test_socket.py]=1  # Runs ok but takes 22 seconds
-    [test_ssl.py]=1  #
+    [test_ssl.py]=1  # Fails on its own
     [test_subprocess.py]=1 # Runs ok but takes 22 seconds
     [test_sys_settrace.py]=1 # Line numbers are expected to be different
 
     [test_traceback.py]=1 # Line numbers change - duh.
     [test_xpickle.py]=1 # Runs ok but takes 72 seconds
     [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
-    [test_zipimport.py]=1  #
+    [test_zipimport.py]=1  # expected test to raise ImportError
 )
 # 334 unit-test files in about 15 minutes
 
