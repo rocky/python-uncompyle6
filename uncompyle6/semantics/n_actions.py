@@ -67,7 +67,7 @@ class NonterminalActions:
         assert store_node.kind.startswith("STORE_")
         iname = node[0].pattr  # import name
         sname = store_node.pattr  # store_name
-        if iname and iname == sname or iname.startswith(sname + "."):
+        if iname and iname == sname or iname.startswith(str(sname) + "."):
             self.write(iname)
         else:
             self.write(iname, " as ", sname)

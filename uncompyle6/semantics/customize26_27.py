@@ -63,6 +63,6 @@ def customize_for_version26_27(self, version):
 
     def n_import_from(node):
         if node[0].pattr > 0:
-            node[2].pattr = ("." * node[0].pattr) + node[2].pattr
+            node[2].pattr = ("." * node[0].pattr) + str(node[2].pattr)
         self.default(node)
     self.n_import_from = n_import_from

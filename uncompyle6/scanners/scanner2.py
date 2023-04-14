@@ -360,7 +360,7 @@ class Scanner2(Scanner):
                         pattr = const
                         pass
                 elif op in self.opc.NAME_OPS:
-                    pattr = names[oparg]
+                    pattr = PattrWrapper(names[oparg])
                 elif op in self.opc.JREL_OPS:
                     #  use instead: hasattr(self, 'patch_continue'): ?
                     if self.version[:2] == (2, 7):
@@ -1452,3 +1452,43 @@ class Scanner2(Scanner):
             instr_offsets = filtered
             filtered = []
         return instr_offsets
+
+
+class PattrWrapper(object):
+    def __init__(self,str1):
+        self.str1 = str1
+
+    def __repr__(self):
+        return self.str1
+
+    def __getattr__(self,name):
+        return getattr(self.str1,name)
+
+    def __str__(self):
+        return self.str1
+
+    def do_cmp(self,targ,fn):
+        if (isinstance(targ,PattrWrapper)):
+            targ = targ.str1
+        return fn(targ)
+
+    def __lt__(self, other):
+        return self.do_cmp(other,self.str1.__lt__)
+
+    def __le__(self, other):
+        return self.do_cmp(other,self.str1.__le__)
+
+    def __eq__(self, other):
+        return self.do_cmp(other,self.str1.__eq__)
+
+    def __ne__(self, other):
+        return self.do_cmp(other,self.str1.__ne__)
+
+    def __gt__(self, other):
+        return self.do_cmp(other,self.str1.__gt__)
+
+    def __ge__(self, other):
+        return self.do_cmp(other,self.str1.__ge__)
+
+    def __hash__(self):
+        return self.str1.__hash__()
