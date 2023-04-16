@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2022 by Rocky Bernstein
+#  Copyright (c) 2015-2023 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -38,7 +38,7 @@ from __future__ import print_function
 from copy import copy
 
 from xdis import code2num, iscode, op_has_argument, instruction_size
-from xdis.bytecode import _get_const_info
+from xdis.bytecode import _get_const_info, _get_name_info
 from uncompyle6.scanner import Scanner, Token
 
 from sys import intern
@@ -360,6 +360,7 @@ class Scanner2(Scanner):
                         pattr = const
                         pass
                 elif op in self.opc.NAME_OPS:
+                    _, pattr = _get_name_info(oparg, names)
                     pattr = names[oparg]
                 elif op in self.opc.JREL_OPS:
                     #  use instead: hasattr(self, 'patch_continue'): ?
