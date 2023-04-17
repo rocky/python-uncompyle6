@@ -728,7 +728,7 @@ assert sorted(values.values())[1:] == list(range(2, 34))
 
 
 # Check that we can distinguish names from strings in literal collections, e.g. lists.
-# The list has to have more than 4 items go get accumulated in a collection
+# The list has to have more than 4 items to get accumulated in a collection
 a = ["y", 'Exception', "x", Exception, "z"]
 assert a[1] == "Exception"
 assert a[3] == Exception
