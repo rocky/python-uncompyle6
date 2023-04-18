@@ -83,22 +83,27 @@ class Token:
             self.pattr = None
 
         if opc is None:
-            try:
-                from xdis.std import _std_api
-            except KeyError as e:
-                print(f"I don't know about Python version {e} yet.")
-                try:
-                    version_tuple = tuple(int(i) for i in str(e)[1:-1].split("."))
-                except Exception:
-                    pass
-                else:
-                    if version_tuple > (3, 9):
-                        print("Python versions 3.9 and greater are not supported.")
-                    else:
-                        print(f"xdis might need to be informed about version {e}")
-                return
+            from uncompyle6 import PYC_version
+            from xdis.std import make_std_api
 
-            self.opc = _std_api.opc
+            self.opc = make_std_api(PYC_version).opc
+
+            # try:
+            #     from xdis.std import _std_api
+            # except KeyError as e:
+            #     print(f"I don't know about Python version {e} yet.")
+            #     try:
+            #         version_tuple = tuple(int(i) for i in str(e)[1:-1].split("."))
+            #     except Exception:
+            #         pass
+            #     else:
+            #         if version_tuple > (3, 9):
+            #             print("Python versions 3.9 and greater are not supported.")
+            #         else:
+            #             print(f"xdis might need to be informed about version {e}")
+            #     return
+
+            # self.opc = _std_api.opc
         else:
             self.opc = opc
         if op is None:

@@ -62,7 +62,7 @@ Extensions of generated files:
 
 program = 'uncompyle6'
 
-from uncompyle6 import verify
+from uncompyle6 import verify, PYC_version
 from uncompyle6.main import main, status_msg
 from uncompyle6.version import __version__
 
@@ -72,7 +72,8 @@ def usage():
 
 
 def main_bin():
-    if not (sys.version_info[0:2] in ((2, 6), (2, 7), (3, 0),
+    ver = (int(PYC_version), int((PYC_version - int(PYC_version)) * 10))
+    if not (ver in ((2, 6), (2, 7), (3, 0),
                                       (3, 1), (3, 2), (3, 3),
                                       (3, 4), (3, 5), (3, 6),
                                       (3, 7), (3, 8), (3, 9), (3, 10)
