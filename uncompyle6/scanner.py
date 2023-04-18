@@ -174,11 +174,11 @@ class Scanner(object):
                 has_extended_arg=False,
             )
         )
-        if tokens[j] == "LOAD_CONST":
-            opname = "ADD_VALUE"
-        else:
-            opname = "ADD_VALUE_VAR"
         for j in range(collection_start, i):
+            if tokens[j] == "LOAD_CONST":
+                opname = "ADD_VALUE"
+            else:
+                opname = "ADD_VALUE_VAR"
             new_tokens.append(
                 Token(
                     opname=opname,
