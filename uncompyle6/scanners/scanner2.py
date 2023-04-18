@@ -316,7 +316,9 @@ class Scanner2(Scanner):
                     "BUILD_SET",
                 ):
                     t = Token(
-                        op_name, oparg, pattr, offset, self.linestarts.get(offset, None), op, has_arg, self.opc
+                        op_name, oparg, pattr, offset,
+                        self.linestarts.get(offset, None),
+                        op, has_arg, self.opc
                     )
                     collection_type = op_name.split("_")[1]
                     next_tokens = self.bound_collection_from_tokens(

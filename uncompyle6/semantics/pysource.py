@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2022 by Rocky Bernstein
+#  Copyright (c) 2015-2023 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -131,8 +131,6 @@ Python.
 
 import sys
 
-IS_PYPY = "__pypy__" in sys.builtin_module_names
-
 from spark_parser import GenericASTTraversal
 from xdis import COMPILER_FLAG_BIT, iscode
 from xdis.version_info import PYTHON_VERSION_TRIPLE
@@ -143,7 +141,7 @@ from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanner import Code, get_scanner
 from uncompyle6.scanners.tok import Token
 from uncompyle6.semantics.check_ast import checker
-from uncompyle6.semantics.consts import (ASSIGN_DOC_STRING, ASSIGN_TUPLE_PARAM,
+from uncompyle6.semantics.consts import (ASSIGN_TUPLE_PARAM,
                                          INDENT_PER_LEVEL, LINE_LENGTH, MAP,
                                          MAP_DIRECT, NAME_MODULE, NONE, PASS,
                                          PRECEDENCE, RETURN_LOCALS,
@@ -189,6 +187,8 @@ PARSER_DEFAULT_DEBUG = {
     "context": True,
     "dups": False,
 }
+
+IS_PYPY = "__pypy__" in sys.builtin_module_names
 
 TREE_DEFAULT_DEBUG = {"before": False, "after": False}
 
@@ -990,7 +990,6 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                 return result
             # return self.traverse(node[1])
         return "(" + name
-        raise Exception("Can't find tuple parameter " + name)
 
     def build_class(self, code):
         """Dump class definition, doc string and class body."""
@@ -1206,10 +1205,11 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             del ast  # Save memory
             return transform_tree
 
-        # The bytecode for the end of the main routine has a
-        # "return None". However, you can't issue a "return" statement in
-        # main. So as the old cigarette slogan goes: I'd rather switch (the token stream)
-        # than fight (with the grammar to not emit "return None").
+        # The bytecode for the end of the main routine has a "return
+        # None". However, you can't issue a "return" statement in
+        # main. So as the old cigarette slogan goes: I'd rather switch
+        # (the token stream) than fight (with the grammar to not emit
+        # "return None").
         if self.hide_internal:
             if len(tokens) >= 2 and not noneInNames:
                 if tokens[-1].kind in ("RETURN_VALUE", "RETURN_VALUE_LAMBDA"):
@@ -1269,6 +1269,7 @@ def code_deparse(
     """
 
     assert iscode(co)
+
 
     if version is None:
         version = PYTHON_VERSION_TRIPLE
@@ -1341,16 +1342,11 @@ def code_deparse(
 
     assert not nonlocals
 
-    if version >= (3, 0):
-        load_op = "LOAD_STR"
-    else:
-        load_op = "LOAD_CONST"
-
     # convert leading '__doc__ = "..." into doc string
     try:
         stmts = deparsed.ast
-        first_stmt = stmts[0][0]
-        if (version >= (3, 6, 0)):
+        first_stmt = stmts[0]
+        if version >= (3, 6):
             if first_stmt[0] == "SETUP_ANNOTATIONS":
                 del stmts[0]
                 assert stmts[0] == "sstmt"
@@ -1358,13 +1354,13 @@ def code_deparse(
                 first_stmt = stmts[0][0]
                 pass
             pass
-        if first_stmt == ASSIGN_DOC_STRING(co.co_consts[0], load_op):
+        if first_stmt == "docstring":
             print_docstring(deparsed, "", co.co_consts[0])
             del stmts[0]
         if stmts[-1] == RETURN_NONE:
             stmts.pop()  # remove last node
             # todo: if empty, add 'pass'
-    except:
+    except Exception:
         pass
 
     deparsed.FUTURE_UNICODE_LITERALS = (
