@@ -19,7 +19,6 @@ import re
 import sys
 
 intern = sys.intern
-from typing import Union
 
 
 def off2int(offset, prefer_last=True):
@@ -61,7 +60,7 @@ class Token:
         opname,
         attr=None,
         pattr=None,
-        offset:Union[int, str]=-1,
+        offset=-1,
         linestart=None,
         op=None,
         has_arg=None,
