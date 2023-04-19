@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 by Rocky Bernstein
+#  Copyright (c) 2022-2023 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -159,7 +159,7 @@ class NonterminalActions:
         # * class_name - the name of the class
         # * subclass_info - the parameters to the class  e.g.
         #      class Foo(bar, baz)
-        #             -----------
+        #            ------------
         # * subclass_code - the code for the subclass body
 
         if node == "classdefdeco2":
@@ -181,7 +181,7 @@ class NonterminalActions:
             subclass_code = build_class[-3][1].attr
             class_name = node[0][0].pattr
         else:
-            raise "Internal Error n_classdef: cannot find class name"
+            raise RuntimeError("Internal Error n_classdef: cannot find class name")
 
         if node == "classdefdeco2":
             self.write("\n")
@@ -228,7 +228,8 @@ class NonterminalActions:
         else:
             # from trepan.api import debug; debug()
             raise TypeError(
-                f"Internal Error: n_const_list expects dict, list set, or set; got {lastnodetype}"
+                ("Internal Error: n_const_list expects dict, list set, or set; got "
+                 f"{lastnodetype}")
             )
 
         self.indent_more(INDENT_PER_LEVEL)
@@ -267,7 +268,7 @@ class NonterminalActions:
                 if elem == "add_value":
                     elem = elem[0]
                 if elem == "ADD_VALUE":
-                    if self.version[0] == 2:
+                    if self.version < (3, 0, 0):
                         value = "%r" % elem.pattr
                     else:
                         value = "%s" % elem.pattr
