@@ -32,6 +32,8 @@ from uncompyle6.semantics.linemap import deparse_code_with_map
 
 from xdis.load import load_module
 
+from uncompyle6 import PYC_version
+
 def _get_outstream(outfile: str) -> Any:
     dir = os.path.dirname(outfile)
     failed_file = outfile + "_failed"
@@ -191,6 +193,8 @@ def decompile_file(
     (version, timestamp, magic_int, co, is_pypy, source_size, sip_hash) = load_module(
         filename, code_objects
     )
+
+    PYC_version = version
 
     if isinstance(co, list):
         deparsed = []

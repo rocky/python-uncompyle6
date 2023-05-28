@@ -46,6 +46,9 @@ from uncompyle6.main import decompile_file  # noqa
 
 from uncompyle6.semantics.pysource import code_deparse, deparse_code2str
 
+
+PYC_version = 3.6
+
 __all__ = [
     "__version__",
     "code_deparse",
