@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2022 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2023 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -13,24 +13,26 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
+import os
+import py_compile
+import sys
 from typing import Any, Tuple
-import datetime, py_compile, os, sys
 
 from xdis import iscode
+from xdis.load import load_module
 from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, version_tuple_to_str
+
 from uncompyle6.code_fns import check_object_path
-from uncompyle6.semantics import pysource
-from uncompyle6.semantics.pysource import PARSER_DEFAULT_DEBUG
 from uncompyle6.parser import ParserError
+from uncompyle6.semantics import pysource
+from uncompyle6.semantics.fragments import code_deparse as code_deparse_fragments
+from uncompyle6.semantics.linemap import deparse_code_with_map
+from uncompyle6.semantics.pysource import PARSER_DEFAULT_DEBUG, code_deparse
 from uncompyle6.version import __version__
 
 # from uncompyle6.linenumbers import line_number_mapping
 
-from uncompyle6.semantics.pysource import code_deparse
-from uncompyle6.semantics.fragments import code_deparse as code_deparse_fragments
-from uncompyle6.semantics.linemap import deparse_code_with_map
-
-from xdis.load import load_module
 
 def _get_outstream(outfile: str) -> Any:
     dir = os.path.dirname(outfile)
@@ -55,7 +57,7 @@ def decompile(
     source_encoding=None,
     code_objects={},
     source_size=None,
-    is_pypy=None,
+    is_pypy=False,
     magic_int=None,
     mapstream=None,
     do_fragments=False,
@@ -145,8 +147,8 @@ def decompile(
                 out,
                 bytecode_version,
                 debug_opts=debug_opts,
-                is_pypy=is_pypy,
                 compile_mode=compile_mode,
+                is_pypy=is_pypy,
             )
             pass
         return deparsed
@@ -188,7 +190,7 @@ def decompile_file(
 
     filename = check_object_path(filename)
     code_objects = {}
-    (version, timestamp, magic_int, co, is_pypy, source_size, sip_hash) = load_module(
+    version, timestamp, magic_int, co, is_pypy, source_size, _ = load_module(
         filename, code_objects
     )
 
@@ -394,14 +396,14 @@ def main(
             try:
                 # FIXME: Something is weird with Pypy here
                 sys.stdout.flush()
-            except:
+            except Exception:
                 pass
     if current_outfile:
         sys.stdout.write("\n")
         try:
             # FIXME: Something is weird with Pypy here
             sys.stdout.flush()
-        except:
+        except Exception:
             pass
         pass
     return (tot_files, okay_files, failed_files, verify_failed_files)
@@ -416,7 +418,6 @@ if sys.platform.startswith("linux") and os.uname()[2][:2] in ["2.", "3.", "4."]:
         mu = mi.readline().split()[22]
         mi.close()
         return int(mu) / 1000000
-
 
 else:
 

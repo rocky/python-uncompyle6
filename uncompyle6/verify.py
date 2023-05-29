@@ -411,7 +411,7 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2, verify, name=""):
                                 check_jumps[dest1].append((i1, i2, dest2))
                             else:
                                 check_jumps[dest1] = [(i1, i2, dest2)]
-                        except:
+                        except Exception:
                             pass
 
                 i1 += 1
