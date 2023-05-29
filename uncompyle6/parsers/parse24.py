@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018, 2020, 2022 Rocky Bernstein
+#  Copyright (c) 2016-2018, 2020, 2022-2023 Rocky Bernstein
 """
 spark grammar differences over Python2.5 for Python 2.4.
 """
@@ -115,8 +115,8 @@ class Python24Parser(Python25Parser):
 
         lhs = rule[0]
         if lhs == "nop_stmt":
-            l = len(tokens)
-            if 0 <= l < len(tokens):
+            token_len = len(tokens)
+            if 0 <= token_len < len(tokens):
                 return not int(tokens[first].pattr) == tokens[last].offset
         elif lhs == "try_except":
             if last == len(tokens):

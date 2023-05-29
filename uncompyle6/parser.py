@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2022 Rocky Bernstein
+#  Copyright (c) 2015-2023 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -44,8 +44,8 @@ def nop_func(self, args):
 
 
 class PythonParser(GenericASTBuilder):
-    def __init__(self, SyntaxTree, start, debug):
-        super(PythonParser, self).__init__(SyntaxTree, start, debug)
+    def __init__(self, syntax_tree_class, start, debug):
+        super(PythonParser, self).__init__(syntax_tree_class, start, debug)
         # FIXME: customize per python parser version
 
         # These are the non-terminals we should collect into a list.
@@ -103,6 +103,7 @@ class PythonParser(GenericASTBuilder):
         )
         # Instructions filled in from scanner
         self.insts = []
+        self.version = tuple()
 
     def ast_first_offset(self, ast):
         if hasattr(ast, "offset"):
@@ -151,9 +152,9 @@ class PythonParser(GenericASTBuilder):
         Remove recursive references to allow garbage
         collector to collect this object.
         """
-        for dict in (self.rule2func, self.rules, self.rule2name):
-            for i in list(dict.keys()):
-                dict[i] = None
+        for rule_dict in (self.rule2func, self.rules, self.rule2name):
+            for i in list(rule_dict.keys()):
+                rule_dict[i] = None
         for i in dir(self):
             setattr(self, i, None)
 
@@ -164,11 +165,11 @@ class PythonParser(GenericASTBuilder):
 
         def fix(c):
             s = str(c)
-            last_token_pos = s.find("_")
-            if last_token_pos == -1:
+            token_pos = s.find("_")
+            if token_pos == -1:
                 return s
             else:
-                return s[:last_token_pos]
+                return s[:token_pos]
 
         prefix = ""
         if parent and tokens:
@@ -267,13 +268,13 @@ class PythonParser(GenericASTBuilder):
         print(children)
         return GenericASTBuilder.ambiguity(self, children)
 
-    def resolve(self, list):
-        if len(list) == 2 and "function_def" in list and "assign" in list:
+    def resolve(self, rule: list):
+        if len(rule) == 2 and "function_def" in rule and "assign" in rule:
             return "function_def"
-        if "grammar" in list and "expr" in list:
+        if "grammar" in rule and "expr" in rule:
             return "expr"
-        # print >> sys.stderr, 'resolve', str(list)
-        return GenericASTBuilder.resolve(self, list)
+        # print >> sys.stderr, 'resolve', str(rule)
+        return GenericASTBuilder.resolve(self, rule)
 
     ###############################################
     #  Common Python 2 and Python 3 grammar rules #
@@ -667,7 +668,7 @@ def get_python_parser(
                 if compile_mode == "exec":
                     p = parse10.Python10Parser(debug_parser)
                 else:
-                    p = parse10.Python01ParserSingle(debug_parser)
+                    p = parse10.Python10ParserSingle(debug_parser)
             elif version == (1, 1):
                 import uncompyle6.parsers.parse11 as parse11
 
@@ -873,6 +874,7 @@ def python_parser(
     :param showasm:         Flag which determines whether the disassembled and
                             ingested code is written to sys.stdout or not.
     :param parser_debug:    dict containing debug flags for the spark parser.
+    :param is_pypy:         True if we are running PyPY
 
     :return: Abstract syntax tree representation of the code object.
     """
