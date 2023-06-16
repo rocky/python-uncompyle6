@@ -94,7 +94,6 @@ class Token:
                 else:
                     if version_tuple > (3, 9):
                         print("Python versions 3.9 and greater are not supported.")
-                        sys.exit(1)
                     else:
                         print(f"xdis might need to be informed about version {e}")
                 return
