@@ -80,30 +80,7 @@ def usage():
 
 
 def main_bin():
-    if not (
-        sys.version_info[0:2]
-        in (
-            (2, 6),
-            (2, 7),
-            (3, 0),
-            (3, 1),
-            (3, 2),
-            (3, 3),
-            (3, 4),
-            (3, 5),
-            (3, 6),
-            (3, 7),
-            (3, 8),
-            (3, 9),
-            (3, 10),
-        )
-    ):
-        print(
-            f"Error: {program} can decompile only bytecode from Python 3.7"
-            f""" to 3.8.\n\tYou have version: {version_tuple_to_str()}."""
-        )
-        sys.exit(-1)
-
+    current_bytecode_supported = True
     recurse_dirs = False
     numproc = 0
     outfile = "-"
