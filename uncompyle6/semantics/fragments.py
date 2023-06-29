@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2019, 2021-2022 by Rocky Bernstein
+#  Copyright (c) 2015-2019, 2021-2023 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -1169,11 +1169,14 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 self.p.insts = self.scanner.insts
                 self.p.offset2inst_index = self.scanner.offset2inst_index
                 ast = python_parser.parse(self.p, tokens, customize, code)
+                self.customize(customize)
                 self.p.insts = p_insts
+
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
+            transform_tree = self.treeTransform.transform(ast, code)
             maybe_show_tree(self, ast)
-            return ast
+            return transform_tree
 
         # The bytecode for the end of the main routine has a
         # "return None". However you can't issue a "return" statement in
@@ -1199,23 +1202,28 @@ class FragmentsWalker(pysource.SourceWalker, object):
         if len(tokens) == 0:
             return PASS
 
-        # Build parse tree from tokenized and massaged disassembly.
+        # Build a parse tree from tokenized and massaged disassembly.
         try:
             # FIXME: have p.insts update in a better way
             # modularity is broken here
             p_insts = self.p.insts
             self.p.insts = self.scanner.insts
             self.p.offset2inst_index = self.scanner.offset2inst_index
+            self.p.opc = self.scanner.opc
             ast = parser.parse(self.p, tokens, customize, code)
             self.p.insts = p_insts
-        except (parser.ParserError, AssertionError) as e:
+        except (python_parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens, {})
-
-        maybe_show_tree(self, ast)
 
         checker(ast, False, self.ast_errors)
 
-        return ast
+        self.customize(customize)
+        transform_tree = self.treeTransform.transform(ast, code)
+
+        maybe_show_tree(self, ast)
+
+        del ast  # Save memory
+        return transform_tree
 
     # FIXME: we could provide another customized routine
     # that fixes up parents along a particular path to a node that
