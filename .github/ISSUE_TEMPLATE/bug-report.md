@@ -7,6 +7,11 @@ about: Tell us about uncompyle6 bugs
 <!-- __Note:__ If you are using this program to do something illegal - don't.
 The issue may be flagged to make it easier for those looking for illegal activity.
 
+If you are reporting a bug in decompilation, it will probably not be acted upon
+unless it is narrowed to a small example. You may have to do some work remove
+extraneous code from the source example. Most bugs  can be expressed in 30 lines of
+code.
+
 Bugs are not for asking questions about a problem you
 are trying to solve that involve the use of uncompyle6 along the way,
 although I may be more tolerant of this if you sponsor the project.
@@ -50,6 +55,7 @@ Prerequisites/Caveats
 
 * Make sure the bytecode you have can be disassembled with a
   disassembler and produces valid results.
+* Try to make the bytecode that exhibits a bug as small as possible.
 * Don't put bytecode and corresponding source code on any service that
   requires registration to download.
 * When you open a bug report there is no privacy. If you need privacy, then
@@ -118,7 +124,11 @@ Please modify for your setup
 
 ## Priority
 
-<!-- If this is blocking some important activity let us know what activity it blocks. -->
+<!-- If this is important for a particular public good state that here.
+     If this is blocking some important activity let us know what activity it blocks.
+
+	 Otherwise, we'll assume this has the lowest priority in addressing.
+	 -->
 
 ## Additional Context
 

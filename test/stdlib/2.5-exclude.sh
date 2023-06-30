@@ -25,7 +25,6 @@ SKIP_TESTS=(
     [test_nis.py]=1 # it fails on its own
     [test_normalization.py]=1 # it fails on its own
     [test_ossaudiodev.py]=1 # it fails on its own
-    [test_pep277.py]=1 # it fails on its own
     [test_plistlib.py]=1 # it fails on its own
     [test_rgbimg.py]=1 # it fails on its own
     [test_scriptpackages.py]=1 # it fails on its own

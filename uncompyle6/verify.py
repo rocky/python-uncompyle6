@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2015-2018, 2020-2021 by Rocky Bernstein
+# (C) Copyright 2015-2018, 2020-2021, 2023 by Rocky Bernstein
 # (C) Copyright 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -411,7 +411,7 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2, verify, name=""):
                                 check_jumps[dest1].append((i1, i2, dest2))
                             else:
                                 check_jumps[dest1] = [(i1, i2, dest2)]
-                        except:
+                        except Exception:
                             pass
 
                 i1 += 1

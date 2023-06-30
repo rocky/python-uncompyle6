@@ -1,11 +1,12 @@
-#  Copyright (c) 2018 Rocky Bernstein
+#  Copyright (c) 2018, 2023 Rocky Bernstein
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+
 from uncompyle6.parser import PythonParserSingle
 from uncompyle6.parsers.parse14 import Python14Parser
 
-class Python13Parser(Python14Parser):
 
+class Python13Parser(Python14Parser):
     def p_misc13(self, args):
         """
         # Nothing here yet, but will need to add LOAD_GLOBALS
@@ -24,7 +25,6 @@ class Python13Parser(Python14Parser):
     #     """)
     #     self.check_reduce['doc_junk'] = 'tokens'
 
-
     # def reduce_is_invalid(self, rule, ast, tokens, first, last):
     #     invalid = super(Python14Parser,
     #                     self).reduce_is_invalid(rule, ast,
@@ -35,11 +35,11 @@ class Python13Parser(Python14Parser):
     #         return not isinstance(tokens[first].pattr, str)
 
 
-
 class Python13ParserSingle(Python13Parser, PythonParserSingle):
     pass
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Check grammar
     p = Python13Parser()
     p.check_grammar()
