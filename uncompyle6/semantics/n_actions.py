@@ -721,7 +721,8 @@ class NonterminalActions:
                         iter_index = 4
                     else:
                         iter_index = 3
-                    self.comprehension_walk(node, iter_index=iter_index, code_index=code_index)
+                    self.comprehension_walk(node, iter_index=iter_index,
+                                            code_index=code_index)
                     pass
                 pass
         else:

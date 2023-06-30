@@ -42,7 +42,6 @@ else:
 
 from xdis import iscode, instruction_size, Instruction
 from xdis.bytecode import _get_const_info
-from xdis.codetype import UnicodeForPython3
 
 from uncompyle6.scanners.tok import Token
 from uncompyle6.scanner import parse_fn_counts_30_35
@@ -577,8 +576,6 @@ class Scanner3(Scanner):
                 const = argval
                 if iscode(const):
                     co_name = const.co_name
-                    if isinstance(const.co_name, UnicodeForPython3):
-                        co_name = const.co_name.value.decode("utf-8")
                     if co_name == "<lambda>":
                         assert opname == "LOAD_CONST"
                         opname = "LOAD_LAMBDA"
@@ -599,8 +596,6 @@ class Scanner3(Scanner):
                     # (id(const), const.co_filename, const.co_name)
                     pattr = "<code_object " + const.co_name + ">"
                 elif isinstance(const, str) or isinstance(const, unicode):
-                elif isinstance(const, str):
->>>>>>> python-3.0-to-3.2
                     opname = "LOAD_STR"
                 else:
                     if isinstance(inst.arg, int) and inst.arg < len(co.co_consts):
