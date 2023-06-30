@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
-# Copyright (c) 2015-2016, 2018, 2020, 2022 by Rocky Bernstein <rb@dustyfeet.com>
+# Copyright (c) 2015-2016, 2018, 2020, 2022-2023 by Rocky Bernstein
+# <rb@dustyfeet.com>
 #
-import sys, os, getopt
+import getopt
+import os
+import sys
 
 from uncompyle6.code_fns import disassemble_file
 from uncompyle6.version import __version__
@@ -41,11 +44,15 @@ Options:
 
 """ % ((program,) * 5)
 
-PATTERNS = ('*.pyc', '*.pyo')
+PATTERNS = ("*.pyc", "*.pyo")
+
 
 def main():
-    Usage_short = """usage: %s FILE...
-Type -h for for full help.""" % program
+    Usage_short = (
+        """usage: %s FILE...
+Type -h for for full help."""
+        % program
+    )
 
     if len(sys.argv) == 1:
         sys.stderr.write("No file(s) given\n")
@@ -53,17 +60,18 @@ Type -h for for full help.""" % program
         sys.exit(1)
 
     try:
-        opts, files = getopt.getopt(sys.argv[1:], 'hVU',
-                                    ['help', 'version', 'uncompyle6'])
+        opts, files = getopt.getopt(
+            sys.argv[1:], "hVU", ["help", "version", "uncompyle6"]
+        )
     except getopt.GetoptError(e):
         sys.stderr.write('%s: %s' % (os.path.basename(sys.argv[0]), e))
         sys.exit(-1)
 
     for opt, val in opts:
-        if opt in ('-h', '--help'):
+        if opt in ("-h", "--help"):
             print(__doc__)
             sys.exit(1)
-        elif opt in ('-V', '--version'):
+        elif opt in ("-V", "--version"):
             print("%s %s" % (program, __version__))
             sys.exit(0)
         else:
@@ -80,5 +88,6 @@ Type -h for for full help.""" % program
         pass
     return
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
