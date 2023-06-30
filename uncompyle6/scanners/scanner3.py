@@ -37,6 +37,7 @@ from __future__ import print_function
 
 from xdis import iscode, instruction_size, Instruction
 from xdis.bytecode import _get_const_info
+from xdis.codetype import UnicodeForPython3
 
 from uncompyle6.scanners.tok import Token
 from uncompyle6.scanner import parse_fn_counts_30_35
@@ -570,16 +571,19 @@ class Scanner3(Scanner):
             if op in self.opc.CONST_OPS:
                 const = argval
                 if iscode(const):
-                    if const.co_name == "<lambda>":
+                    co_name = const.co_name
+                    if isinstance(const.co_name, UnicodeForPython3):
+                        co_name = const.co_name.value.decode("utf-8")
+                    if co_name == "<lambda>":
                         assert opname == "LOAD_CONST"
                         opname = "LOAD_LAMBDA"
-                    elif const.co_name == "<genexpr>":
+                    elif co_name == "<genexpr>":
                         opname = "LOAD_GENEXPR"
-                    elif const.co_name == "<dictcomp>":
+                    elif co_name == "<dictcomp>":
                         opname = "LOAD_DICTCOMP"
-                    elif const.co_name == "<setcomp>":
+                    elif co_name == "<setcomp>":
                         opname = "LOAD_SETCOMP"
-                    elif const.co_name == "<listcomp>":
+                    elif co_name == "<listcomp>":
                         opname = "LOAD_LISTCOMP"
                     else:
                         opname = "LOAD_CODE"
@@ -587,8 +591,8 @@ class Scanner3(Scanner):
                     # now holds Code(const) and thus can not be used
                     # for comparison (todo: think about changing this)
                     # pattr = 'code_object @ 0x%x %s->%s' %\
-                    # (id(const), const.co_filename, const.co_name)
-                    pattr = "<code_object " + const.co_name + ">"
+                    # (id(const), const.co_filename, co_name)
+                    pattr = "<code_object " + co_name + ">"
                 elif isinstance(const, str):
                     opname = "LOAD_STR"
                 else:

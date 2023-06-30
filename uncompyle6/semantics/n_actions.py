@@ -146,7 +146,6 @@ class NonterminalActions:
         self.prune()  # stop recursing
 
     def n_classdef(self, node):
-
         if self.version >= (3, 6):
             self.n_classdef36(node)
         elif self.version >= (3, 0):
@@ -521,7 +520,6 @@ class NonterminalActions:
         self.prune()
 
     def n_docstring(self, node):
-
         indent = self.indent
         doc_node = node[0]
         if doc_node.attr:
@@ -543,7 +541,7 @@ class NonterminalActions:
         self.write(indent)
         docstring = repr(docstring.expandtabs())[1:-1]
 
-        for (orig, replace) in (
+        for orig, replace in (
             ("\\\\", "\t"),
             ("\\r\\n", "\n"),
             ("\\n", "\n"),
@@ -701,8 +699,11 @@ class NonterminalActions:
         self.write("(")
         iter_index = 3
         if self.version > (3, 2):
-            if self.version >= (3, 6):
-                if node[0].kind in ("load_closure", "load_genexpr") and self.version >= (3, 8):
+            if self.version >= (3, 4):
+                if node[0].kind in (
+                    "load_closure",
+                    "load_genexpr",
+                ) and self.version >= (3, 8):
                     code_index = -6
                     is_lambda = self.is_lambda
                     if node[0].kind == "load_genexpr":
@@ -710,13 +711,20 @@ class NonterminalActions:
                     self.closure_walk(node, collection_index=4)
                     self.is_lambda = is_lambda
                 else:
-                    # Python 3.7+ adds optional "come_froms" at node[0] so count from the end
+                    # Python 3.7+ adds optional "come_froms" at node[0] so count from
+                    # the end.
                     if node == "generator_exp_async" and self.version[:2] == (3, 6):
                         code_index = 0
                     else:
                         code_index = -6
-                    iter_index = 4 if self.version < (3, 8) else 3
-                    self.comprehension_walk(node, iter_index=iter_index, code_index=code_index)
+                    iter_index = (
+                        4
+                        if self.version < (3, 8) and not isinstance(node[4], Token)
+                        else 3
+                    )
+                    self.comprehension_walk(
+                        node, iter_index=iter_index, code_index=code_index
+                    )
                     pass
                 pass
         else:
@@ -1028,7 +1036,6 @@ class NonterminalActions:
         self.prune()
 
     def n_mkfunc(self, node):
-
         code_node = find_code_node(node, -2)
         code = code_node.attr
         self.write(code.co_name)
@@ -1076,7 +1083,10 @@ class NonterminalActions:
         else:
             # We can't comment out like above because there may be a trailing ')'
             # that needs to be written
-            assert len(node) == 3 and node[2] in ("RETURN_VALUE_LAMBDA", "LAMBDA_MARKER")
+            assert len(node) == 3 and node[2] in (
+                "RETURN_VALUE_LAMBDA",
+                "LAMBDA_MARKER",
+            )
             self.preorder(node[0])
             self.prune()
 

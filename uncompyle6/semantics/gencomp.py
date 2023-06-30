@@ -172,9 +172,11 @@ class ComprehensionMixin:
                 tree = tree[1]
             pass
 
-        if tree in ("genexpr_func_async",):
-            if tree[3] == "comp_iter":
-                iter_index = 3
+        if tree in ("genexpr_func", "genexpr_func_async",):
+            for i in range(3, 5):
+                if tree[i] == "comp_iter":
+                    iter_index = i
+                    break
 
         n = tree[iter_index]
 

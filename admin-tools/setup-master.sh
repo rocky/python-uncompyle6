@@ -1,5 +1,5 @@
 #!/bin/bash
-PYTHON_VERSION=3.7.16
+PYTHON_VERSION=3.8.17
 
 function checkout_version {
     local repo=$1

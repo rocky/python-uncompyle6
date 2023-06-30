@@ -191,9 +191,6 @@ class Python36Parser(Python35Parser):
                                    COME_FROM_FINALLY
 
         compare_chained2 ::= expr COMPARE_OP come_froms JUMP_FORWARD
-
-        stmt ::= genexpr_func
-        genexpr_func ::= LOAD_ARG _come_froms FOR_ITER store comp_iter JUMP_BACK
         """
 
     # Some of this is duplicated from parse37. Eventually we'll probably rebase from
