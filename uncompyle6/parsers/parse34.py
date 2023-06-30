@@ -52,6 +52,8 @@ class Python34Parser(Python33Parser):
         yield_from ::= expr GET_ITER LOAD_CONST YIELD_FROM
 
         _ifstmts_jump ::= c_stmts_opt JUMP_ABSOLUTE JUMP_FORWARD COME_FROM
+
+        genexpr_func ::= LOAD_ARG _come_froms FOR_ITER store comp_iter JUMP_BACK
         """
 
     def customize_grammar_rules(self, tokens, customize):
