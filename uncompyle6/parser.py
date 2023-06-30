@@ -268,7 +268,7 @@ class PythonParser(GenericASTBuilder):
         print(children)
         return GenericASTBuilder.ambiguity(self, children)
 
-    def resolve(self, rule: list):
+    def resolve(self, rule):
         if len(rule) == 2 and "function_def" in rule and "assign" in rule:
             return "function_def"
         if "grammar" in rule and "expr" in rule:

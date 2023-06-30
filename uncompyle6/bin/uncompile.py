@@ -82,6 +82,8 @@ def main_bin():
     if not (
         sys.version_info[0:2]
         in (
+            (2, 4),
+            (2, 5),
             (2, 6),
             (2, 7),
             (3, 0),

@@ -23,9 +23,12 @@ from xdis import iscode
 from xdis.load import load_module
 from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, version_tuple_to_str
 
+from uncompyle6 import verify
 from uncompyle6.code_fns import check_object_path
 from uncompyle6.parser import ParserError
-from uncompyle6 import verify
+from uncompyle6.semantics import pysource
+from uncompyle6.semantics.fragments import code_deparse as code_deparse_fragments
+from uncompyle6.semantics.pysource import PARSER_DEFAULT_DEBUG, code_deparse
 from uncompyle6.version import __version__
 
 # from uncompyle6.linenumbers import line_number_mapping
