@@ -80,7 +80,6 @@ def usage():
 
 
 def main_bin():
-    current_bytecode_supported = True
     recurse_dirs = False
     numproc = 0
     outfile = "-"

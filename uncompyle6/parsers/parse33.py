@@ -15,12 +15,12 @@ class Python33Parser(Python32Parser):
         # Python 3.3+ adds yield from.
         expr          ::= yield_from
         yield_from    ::= expr expr YIELD_FROM
+        stmt         ::= genexpr_func
         """
 
     def customize_grammar_rules(self, tokens, customize):
         self.remove_rules("""
         # 3.3+ adds POP_BLOCKS
-        genexpr_func  ::= LOAD_ARG FOR_ITER store comp_iter JUMP_BACK
         whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP COME_FROM_LOOP
         whileTruestmt ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP COME_FROM_LOOP
         """)
