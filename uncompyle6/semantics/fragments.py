@@ -65,8 +65,8 @@ The node position 0 will be associated with "import".
 
 import re
 import sys
+from bisect import bisect_right
 from collections import namedtuple
-from typing import Optional
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from spark_parser.ast import GenericASTTraversalPruningException
@@ -170,13 +170,15 @@ class FragmentsWalker(pysource.SourceWalker, object):
             tolerate_errors=tolerate_errors,
         )
 
-        # hide_internal suppresses displaying the additional instructions that sometimes
+        # Hide_internal suppresses displaying the additional instructions that sometimes
         # exist in code but but were not written in the source code.
         # An example is:
-        # __module__ = __name__
-        # If showing source code we generally don't want to show this. However in fragment
-        # deparsing we generally do need to see these instructions since we may be stopped
-        # at one. So here we do not want to suppress showing such instructions.
+        #   __module__ = __name__
+        #
+        # If showing source code we generally don't want to show this. However
+        # in fragment deparsing we generally do need to see these instructions
+        # since we may be stopped at one. So here we do not want to suppress
+        # showing such instructions.
         self.hide_internal = False
         self.offsets = {}
         self.last_finish = -1
@@ -2122,9 +2124,6 @@ def code_deparse(
     return deparsed
 
 
-from bisect import bisect_right
-
-
 def find_gt(a, x):
     "Find leftmost value greater than x"
     i = bisect_right(a, x)
@@ -2138,7 +2137,7 @@ def code_deparse_around_offset(
     offset,
     co,
     out=StringIO(),
-    version=Optional[tuple],
+    version=None,
     is_pypy=None,
     debug_opts=DEFAULT_DEBUG_OPTS,
 ):
@@ -2314,5 +2313,6 @@ def deparsed_find(tup, deparsed, code):
 #     # deparse_test(get_code_for_fn(FragmentsWalker.fixup_offsets))
 #     # deparse_test(get_code_for_fn(FragmentsWalker.n_list))
 #     print("=" * 30)
-#     # deparse_test_around(408, 'n_list', get_code_for_fn(FragmentsWalker.n_build_list))
+#     # deparse_test_around(408, 'n_list',
+#                           get_code_for_fn(FragmentsWalker.n_build_list))
 #     # deparse_test(inspect.currentframe().f_code)

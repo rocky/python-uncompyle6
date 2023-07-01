@@ -37,7 +37,6 @@ from __future__ import print_function
 
 from xdis import iscode, instruction_size, Instruction
 from xdis.bytecode import _get_const_info
-from xdis.codetype import UnicodeForPython3
 
 from uncompyle6.scanners.tok import Token
 from uncompyle6.scanner import parse_fn_counts_30_35
