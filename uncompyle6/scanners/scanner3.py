@@ -38,7 +38,6 @@ from xdis.bytecode import _get_const_info
 
 from uncompyle6.scanners.tok import Token
 from uncompyle6.scanner import parse_fn_counts_30_35
-from uncompyle6.util import get_code_name
 import xdis
 
 # Get all the opcodes into globals
@@ -574,7 +573,7 @@ class Scanner3(Scanner):
             if op in self.opc.CONST_OPS:
                 const = argval
                 if iscode(const):
-                    co_name = get_code_name(const)
+                    co_name = const.co_name
                     if co_name == "<lambda>":
                         assert opname == "LOAD_CONST"
                         opname = "LOAD_LAMBDA"

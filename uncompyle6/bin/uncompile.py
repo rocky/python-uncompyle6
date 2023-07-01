@@ -10,7 +10,9 @@ import os
 import sys
 import time
 
-from xdis.version_info import version_tuple_to_str
+from uncompyle6.verify import VerifyCmpError
+from uncompyle6.main import main, status_msg
+from uncompyle6.version import __version__
 
 program = "uncompyle6"
 
@@ -227,7 +229,7 @@ def main_bin():
             sys.exit(2)
         except KeyboardInterrupt:
             pass
-        except verify.VerifyCmpError:
+        except VerifyCmpError:
             raise
     else:
         from multiprocessing import Process, Queue

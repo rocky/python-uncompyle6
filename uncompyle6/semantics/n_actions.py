@@ -25,12 +25,12 @@ from uncompyle6.semantics.consts import (
 
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanners.tok import Token
-from uncompyle6.util import better_repr, get_code_name
 
 from uncompyle6.semantics.helper import (
     find_code_node,
     flatten_list,
 )
+from uncompyle6.util import better_repr
 
 
 class NonterminalActions:
@@ -1036,7 +1036,7 @@ class NonterminalActions:
     def n_mkfunc(self, node):
         code_node = find_code_node(node, -2)
         code = code_node.attr
-        self.write(get_code_name(code))
+        self.write(code.co_name)
         self.indent_more()
 
         self.make_function(node, is_lambda=False, code_node=code_node)

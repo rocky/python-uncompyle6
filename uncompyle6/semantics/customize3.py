@@ -322,7 +322,7 @@ def customize_for_version3(self, version):
         # But when derived from funcdefdeco it hasn't Would like a better
         # way to distinquish.
         if self.f.getvalue()[-4:] == "def ":
-            self.write(get_code_name(code_node.attr))
+            self.write(code_node.attr.co_name)
 
         # FIXME: handle and pass full annotate args
         make_function3_annotate(

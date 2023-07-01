@@ -65,19 +65,19 @@ The node position 0 will be associated with "import".
 
 import re
 
-from uncompyle6.semantics import pysource
-from uncompyle6 import parser
-from uncompyle6.scanner import Token, Code, get_scanner
-import uncompyle6.parser as python_parser
-from uncompyle6.semantics.check_ast import checker
-
-from uncompyle6.show import maybe_show_asm, maybe_show_tree
-
-from uncompyle6.parsers.treenode import SyntaxTree
-
-from uncompyle6.semantics.pysource import ParserError
+from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from spark_parser.ast import GenericASTTraversalPruningException
 from xdis import iscode
 from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
+
+import uncompyle6.parser as python_parser
+from uncompyle6 import parser
+from uncompyle6.parsers.treenode import SyntaxTree
+from uncompyle6.scanner import Code, Token, get_scanner
+from uncompyle6.semantics import pysource
+from uncompyle6.semantics.check_ast import checker
+from uncompyle6.semantics.pysource import ParserError
+from uncompyle6.show import maybe_show_asm, maybe_show_tree
 
 if PYTHON_VERSION_TRIPLE < (2, 5):
     from cStringIO import StringIO
@@ -86,18 +86,14 @@ else:
 
 from uncompyle6.semantics.consts import (
     INDENT_PER_LEVEL,
+    MAP,
     NONE,
+    PASS,
     PRECEDENCE,
     TABLE_DIRECT,
     escape,
-    MAP,
-    PASS,
 )
 
-from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from spark_parser.ast import GenericASTTraversalPruningException
-
-from xdis.version_info import PYTHON_VERSION_TRIPLE
 if PYTHON_VERSION_TRIPLE < (2, 6):
     from xdis.namedtuple24 import namedtuple
 else:
@@ -907,7 +903,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def n_generator_exp(self, node):
         start = len(self.f.getvalue())
-        self.write('(')
+        self.write("(")
         if self.version >= (3, 3):
             code_index = -6
         else:
@@ -1067,11 +1063,11 @@ class FragmentsWalker(pysource.SourceWalker, object):
                         subclass = n.attr
                         break
                     pass
-                if node == 'classdefdeco2':
+                if node == "classdefdeco2":
                     subclass_info = node
                 else:
                     subclass_info = node[0]
-            elif buildclass[1][0] == 'load_closure':
+            elif buildclass[1][0] == "load_closure":
                 # Python 3 with closures not functions
                 load_closure = buildclass[1]
                 if hasattr(load_closure[-3], "attr"):
@@ -1094,7 +1090,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 subclass = buildclass[1][0].attr
                 subclass_info = node[0]
         else:
-            if node == 'classdefdeco2':
+            if node == "classdefdeco2":
                 buildclass = node
             else:
                 buildclass = node[0]

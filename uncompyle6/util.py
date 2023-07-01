@@ -7,7 +7,7 @@ try:
     def is_negative_zero(n):
         """Returns true if n is -0.0"""
         return n == 0.0 and copysign(1, n) == -1
-except:
+except Exception:
     def is_negative_zero(n):
         return False
 
