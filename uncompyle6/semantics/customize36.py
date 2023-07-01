@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2022 by Rocky Bernstein
+#  Copyright (c) 2019-2023 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ from uncompyle6.semantics.consts import (
     TABLE_DIRECT,
     TABLE_R,
 )
+from uncompyle6.util import get_code_name
 
 
 def escape_format(s):
@@ -190,7 +191,7 @@ def customize_for_version36(self, version):
                 code_node = build_class[1][1]
             else:
                 code_node = build_class[1][0]
-            class_name = code_node.attr.co_name
+            class_name = get_code_name(code_node.attr)
 
         assert "mkfunc" == build_class[1]
         mkfunc = build_class[1]

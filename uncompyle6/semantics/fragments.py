@@ -63,38 +63,33 @@ The node position 0 will be associated with "import".
 
 # FIXME: DRY code with pysource
 
-from __future__ import print_function
-
 import re
-
-from uncompyle6.semantics import pysource
-from uncompyle6 import parser
-from uncompyle6.scanner import Token, Code, get_scanner
-import uncompyle6.parser as python_parser
-from uncompyle6.semantics.check_ast import checker
-
-from uncompyle6.show import maybe_show_asm, maybe_show_tree
-
-from uncompyle6.parsers.treenode import SyntaxTree
-
-from uncompyle6.semantics.pysource import ParserError, StringIO
-from xdis import iscode
-from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
-
-from uncompyle6.semantics.consts import (
-    INDENT_PER_LEVEL,
-    NONE,
-    PRECEDENCE,
-    TABLE_DIRECT,
-    escape,
-    MAP,
-    PASS,
-)
+import sys
+from collections import namedtuple
+from typing import Optional
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from spark_parser.ast import GenericASTTraversalPruningException
+from xdis import iscode
+from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
 
-from collections import namedtuple
+import uncompyle6.parser as python_parser
+from uncompyle6 import parser
+from uncompyle6.parsers.treenode import SyntaxTree
+from uncompyle6.scanner import Code, Token, get_scanner
+from uncompyle6.semantics import pysource
+from uncompyle6.semantics.check_ast import checker
+from uncompyle6.semantics.consts import (
+    INDENT_PER_LEVEL,
+    MAP,
+    NONE,
+    PASS,
+    PRECEDENCE,
+    TABLE_DIRECT,
+    escape,
+)
+from uncompyle6.semantics.pysource import ParserError, StringIO
+from uncompyle6.show import maybe_show_asm, maybe_show_tree
 
 NodeInfo = namedtuple("NodeInfo", "node start finish")
 ExtractInfo = namedtuple(
@@ -149,7 +144,6 @@ TABLE_DIRECT_FRAGMENT = {
 
 
 class FragmentsWalker(pysource.SourceWalker, object):
-
     MAP_DIRECT_FRAGMENT = ()
 
     stacked_params = ("f", "indent", "is_lambda", "_globals")
@@ -346,7 +340,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.prune()  # stop recursing
 
     def n_return_if_stmt(self, node):
-
         start = len(self.f.getvalue()) + len(self.indent)
         if self.params["is_lambda"]:
             node[0].parent = node
@@ -667,7 +660,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         assert n == "comp_iter"
         # Find the comprehension body. It is the inner-most
         # node that is not list_.. .
-        while n == "comp_iter":   # list_iter
+        while n == "comp_iter":  # list_iter
             n = n[0]  # recurse one step
             if n == "comp_for":
                 if n[0] == "SETUP_LOOP":
@@ -1123,8 +1116,9 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     n_classdefdeco2 = n_classdef
 
-    def gen_source(self, ast, name, customize, is_lambda=False, returnNone=False,
-                   debug_opts=None):
+    def gen_source(
+        self, ast, name, customize, is_lambda=False, returnNone=False, debug_opts=None
+    ):
         """convert parse tree to Python source code"""
 
         rn = self.return_none
@@ -1150,7 +1144,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
         noneInNames=False,
         is_top_level_module=False,
     ):
-
         # FIXME: DRY with pysource.py
 
         # assert isinstance(tokens[0], Token)
@@ -1463,7 +1456,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.set_pos_info(node, start, len(self.f.getvalue()))
 
     def print_super_classes3(self, node):
-
         # FIXME: wrap superclasses onto a node
         # as a custom rule
         start = len(self.f.getvalue())
@@ -1482,7 +1474,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     # FIXME: this doesn't handle positional and keyword args
                     # properly. Need to do something more like that below
                     # in the non-PYPY 3.6 case.
-                    self.template_engine(('(%[0]{attr}=%c)', 1), node[n-1])
+                    self.template_engine(("(%[0]{attr}=%c)", 1), node[n - 1])
                     return
                 else:
                     kwargs = node[n - 1].attr
@@ -1846,9 +1838,13 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
                 index = entry[arg]
                 if isinstance(index, tuple):
-                    assert node[index[0]] == index[1], (
-                        "at %s[%d], expected %s node; got %s"
-                        % (node.kind, arg, node[index[0]].kind, index[1])
+                    assert (
+                        node[index[0]] == index[1]
+                    ), "at %s[%d], expected %s node; got %s" % (
+                        node.kind,
+                        arg,
+                        node[index[0]].kind,
+                        index[1],
                     )
                     index = index[0]
                 assert isinstance(
@@ -1869,9 +1865,13 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 assert isinstance(tup, tuple)
                 if len(tup) == 3:
                     (index, nonterm_name, self.prec) = tup
-                    assert node[index] == nonterm_name, (
-                        "at %s[%d], expected '%s' node; got '%s'"
-                        % (node.kind, arg, nonterm_name, node[index].kind)
+                    assert (
+                        node[index] == nonterm_name
+                    ), "at %s[%d], expected '%s' node; got '%s'" % (
+                        node.kind,
+                        arg,
+                        nonterm_name,
+                        node[index].kind,
                     )
                 else:
                     assert len(tup) == 2
@@ -1984,6 +1984,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 #
 DEFAULT_DEBUG_OPTS = {"asm": False, "tree": False, "grammar": False}
 
+
 # This interface is deprecated
 def deparse_code(
     version,
@@ -2074,7 +2075,9 @@ def code_deparse(
     )
 
     is_top_level_module = co.co_name == "<module>"
-    deparsed.ast = deparsed.build_ast(tokens, customize, co, is_top_level_module=is_top_level_module)
+    deparsed.ast = deparsed.build_ast(
+        tokens, customize, co, is_top_level_module=is_top_level_module
+    )
 
     assert deparsed.ast == "stmts", "Should have parsed grammar start"
 
@@ -2084,7 +2087,7 @@ def code_deparse(
     # convert leading '__doc__ = "..." into doc string
     assert deparsed.ast == "stmts"
 
-    (deparsed.mod_globs, nonlocals) = pysource.find_globals_and_nonlocals(
+    (deparsed.mod_globs, _) = pysource.find_globals_and_nonlocals(
         deparsed.ast, set(), set(), co, version
     )
 
@@ -2135,7 +2138,7 @@ def code_deparse_around_offset(
     offset,
     co,
     out=StringIO(),
-    version=None,
+    version=Optional[tuple],
     is_pypy=None,
     debug_opts=DEFAULT_DEBUG_OPTS,
 ):
@@ -2147,7 +2150,7 @@ def code_deparse_around_offset(
     assert iscode(co)
 
     if version is None:
-        version = sysinfo2float()
+        version = sys.version_info[:3]
     if is_pypy is None:
         is_pypy = IS_PYPY
 
@@ -2200,8 +2203,7 @@ def deparsed_find(tup, deparsed, code):
     """Return a NodeInfo nametuple for a fragment-deparsed `deparsed` at `tup`.
 
     `tup` is a name and offset tuple, `deparsed` is a fragment object
-    and `code` is instruction bytecode.
-"""
+    and `code` is instruction bytecode."""
     nodeInfo = None
     name, last_i = tup
     if not hasattr(deparsed, "offsets"):

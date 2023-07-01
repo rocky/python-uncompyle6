@@ -11,6 +11,10 @@ import os
 import sys
 import time
 
+from uncompyle6 import verify
+from uncompyle6.main import main, status_msg
+from uncompyle6.version import __version__
+
 program = "uncompyle6"
 
 __doc__ = """
@@ -67,11 +71,6 @@ Extensions of generated files:
 
 program = "uncompyle6"
 
-from uncompyle6 import verify
-from uncompyle6.main import main, status_msg
-from uncompyle6.version import __version__
-
-
 def usage():
     print(__doc__)
     sys.exit(1)
@@ -81,6 +80,8 @@ def main_bin():
     if not (
         sys.version_info[0:2]
         in (
+            (2, 4),
+            (2, 5),
             (2, 6),
             (2, 7),
             (3, 0),
@@ -99,7 +100,6 @@ def main_bin():
     ):
         print("Error: %s requires Python 2.4-3.11" % program, file=sys.stderr)
         sys.exit(-1)
-
     recurse_dirs = False
     numproc = 0
     outfile = "-"
