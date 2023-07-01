@@ -68,11 +68,6 @@ Extensions of generated files:
 
 program = "uncompyle6"
 
-from uncompyle6 import verify
-from uncompyle6.main import main, status_msg
-from uncompyle6.version import __version__
-
-
 def usage():
     print(__doc__)
     sys.exit(1)
@@ -102,7 +97,6 @@ def main_bin():
     ):
         print('Error: %s requires Python 2.4-3.10' % program)
         sys.exit(-1)
-
     recurse_dirs = False
     numproc = 0
     outfile = "-"
