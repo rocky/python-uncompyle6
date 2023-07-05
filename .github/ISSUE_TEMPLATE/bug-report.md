@@ -113,6 +113,7 @@ If this is too long, then try narrowing the problem to something short.
 Please modify for your setup
 
 - Uncompyle6 version: output from  `uncompyle6 --version` or `pip show uncompyle6`
+- xdis version: output from `pydisasm --version` or or `pip show xdis`
 - Python version for the version of Python the byte-compiled the file: `python -c "import sys; print(sys.version)"` where `python` is the correct CPython or PyPy binary.
 - OS and Version: [e.g. Ubuntu bionic]
 
