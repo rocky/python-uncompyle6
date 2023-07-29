@@ -65,6 +65,7 @@ The node position 0 will be associated with "import".
 
 import re
 import sys
+from bisect import bisect_right
 from collections import namedtuple
 from typing import Optional
 
@@ -2122,9 +2123,6 @@ def code_deparse(
     return deparsed
 
 
-from bisect import bisect_right
-
-
 def find_gt(a, x):
     "Find leftmost value greater than x"
     i = bisect_right(a, x)
@@ -2138,8 +2136,8 @@ def code_deparse_around_offset(
     offset,
     co,
     out=StringIO(),
-    version=Optional[tuple],
-    is_pypy=None,
+    version: Optional[tuple] = None,
+    is_pypy: bool = False,
     debug_opts=DEFAULT_DEBUG_OPTS,
 ):
     """
