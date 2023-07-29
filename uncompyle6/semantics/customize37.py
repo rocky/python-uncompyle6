@@ -99,44 +99,44 @@ def customize_for_version37(self, version):
             "await_stmt": ("%|%c\n", 0),
             "c_async_with_stmt": ("%|async with %c:\n%+%c%-", (0, "expr"), 3),
             "call_ex": ("%c(%p)", (0, "expr"), (1, 100)),
-            "compare_chained1a_37": (
+            "compared_chained_middlea_37": (
                 ' %[3]{pattr.replace("-", " ")} %p %p',
                 (0, PRECEDENCE["compare"] - 1),
                 (-4, PRECEDENCE["compare"] - 1),
             ),
-            "compare_chained1_false_37": (
+            "compared_chained_middle_false_37": (
                 ' %[3]{pattr.replace("-", " ")} %p %p',
                 (0, PRECEDENCE["compare"] - 1),
                 (-4, PRECEDENCE["compare"] - 1),
             ),
-            "compare_chained2_false_37": (
+            "compare_chained_right_false_37": (
                 ' %[3]{pattr.replace("-", " ")} %p %p',
                 (0, PRECEDENCE["compare"] - 1),
                 (-5, PRECEDENCE["compare"] - 1),
             ),
-            "compare_chained1b_false_37": (
+            "compared_chained_middleb_false_37": (
                 ' %[3]{pattr.replace("-", " ")} %p %p',
                 (0, PRECEDENCE["compare"] - 1),
                 (-4, PRECEDENCE["compare"] - 1),
             ),
-            "compare_chained1c_37": (
+            "compared_chained_middlec_37": (
                 ' %[3]{pattr.replace("-", " ")} %p %p',
                 (0, PRECEDENCE["compare"] - 1),
                 (-2, PRECEDENCE["compare"] - 1),
             ),
-            "compare_chained2a_37": (
+            "compare_chained_righta_37": (
                 '%[1]{pattr.replace("-", " ")} %p',
                 (0, PRECEDENCE["compare"] - 1),
             ),
-            "compare_chained2b_false_37": (
+            "compare_chained_rightb_false_37": (
                 '%[1]{pattr.replace("-", " ")} %p',
                 (0, PRECEDENCE["compare"] - 1),
             ),
-            "compare_chained2a_false_37": (
+            "compare_chained_righta_false_37": (
                 '%[1]{pattr.replace("-", " ")} %p',
                 (0, PRECEDENCE["compare"] - 1),
             ),
-            "compare_chained2c_37": (
+            "compare_chained_rightc_37": (
                 '%[3]{pattr.replace("-", " ")} %p %p',
                 (0, PRECEDENCE["compare"] - 1),
                 (6, PRECEDENCE["compare"] - 1),
@@ -464,12 +464,12 @@ def customize_for_version37(self, version):
         compare_chained37 = node[0]
         if (
             compare_chained37 == "compare_chained37"
-            and compare_chained37[1] == "compare_chained1b_37"
+            and compare_chained37[1] == "compared_chained_middleb_37"
         ):
-            compare_chained1b_37 = compare_chained37[1]
+            compared_chained_middleb_37 = compare_chained37[1]
             if (
-                len(compare_chained1b_37) > 2
-                and compare_chained1b_37[-2] == "JUMP_FORWARD"
+                len(compared_chained_middleb_37) > 2
+                and compared_chained_middleb_37[-2] == "JUMP_FORWARD"
             ):
                 node.kind = "testfalse"
                 pass

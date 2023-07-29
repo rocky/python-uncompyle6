@@ -16,7 +16,6 @@
 import datetime
 import os
 import py_compile
-import subprocess
 import sys
 
 from xdis import iscode
@@ -130,7 +129,7 @@ def decompile(
     if showgrammar:
         grammar["reduce"] = True
 
-    debug_opts = {"asm": asm, "tree": showast, "grammar": grammar}
+    debug_opts = {"asm": showasm, "tree": showast, "grammar": grammar}
 
     try:
         if mapstream:

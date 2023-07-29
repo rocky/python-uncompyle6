@@ -699,7 +699,7 @@ class NonterminalActions:
         self.write("(")
         iter_index = 3
         if self.version > (3, 2):
-            if self.version >= (3, 4):
+            if self.version >= (3, 3):
                 if node[0].kind in (
                     "load_closure",
                     "load_genexpr",
