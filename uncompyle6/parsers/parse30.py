@@ -20,8 +20,8 @@ class Python30Parser(Python31Parser):
                               RAISE_VARARGS_1 come_froms
         call_stmt         ::= expr _come_froms POP_TOP
 
-        return_if_lambda  ::= RETURN_END_IF_LAMBDA COME_FROM POP_TOP
-        compare_chained2  ::= expr COMPARE_OP RETURN_END_IF_LAMBDA
+        return_if_lambda       ::= RETURN_END_IF_LAMBDA COME_FROM POP_TOP
+        compare_chained_right  ::= expr COMPARE_OP RETURN_END_IF_LAMBDA
 
         # FIXME: combine with parse3.2
         whileTruestmt     ::= SETUP_LOOP l_stmts_opt
@@ -206,12 +206,12 @@ class Python30Parser(Python31Parser):
                            come_froms POP_TOP POP_BLOCK COME_FROM_LOOP
 
 
-        # compare_chained is x <= y <= z
+        # A "compare_chained" is two comparisions like x <= y <= z
         compared_chained_middle  ::= expr DUP_TOP ROT_THREE COMPARE_OP
-                              jmp_false compared_chained_middle _come_froms
+                                     jmp_false compared_chained_middle _come_froms
         compared_chained_middle  ::= expr DUP_TOP ROT_THREE COMPARE_OP
-                              jmp_false compare_chained2 _come_froms
-        compare_chained2 ::= expr COMPARE_OP RETURN_END_IF
+                                     jmp_false compare_chained_right _come_froms
+        compare_chained_right ::= expr COMPARE_OP RETURN_END_IF
         """
 
 
@@ -275,7 +275,7 @@ class Python30Parser(Python31Parser):
                                     JUMP_IF_FALSE_OR_POP compared_chained_middle
                                     COME_FROM
         compared_chained_middle ::= expr DUP_TOP ROT_THREE COMPARE_OP
-                                    JUMP_IF_FALSE_OR_POP compare_chained2 COME_FROM
+                                    JUMP_IF_FALSE_OR_POP compare_chained_right COME_FROM
         ret_or           ::= expr JUMP_IF_TRUE_OR_POP  return_expr_or_cond COME_FROM
         ret_and          ::= expr JUMP_IF_FALSE_OR_POP return_expr_or_cond COME_FROM
         if_exp_ret       ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF

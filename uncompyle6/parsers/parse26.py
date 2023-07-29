@@ -307,22 +307,22 @@ class Python26Parser(Python2Parser):
 
         and                ::= expr JUMP_IF_FALSE POP_TOP expr JUMP_IF_FALSE POP_TOP
 
-        # compare_chained is x <= y <= z
+        # A "compare_chained" is two comparisions like x <= y <= z
         compare_chained          ::= expr compared_chained_middle ROT_TWO
                                      COME_FROM POP_TOP _come_froms
         compared_chained_middle  ::= expr DUP_TOP ROT_THREE COMPARE_OP
                                      jmp_false compared_chained_middle _come_froms
         compared_chained_middle   ::= expr DUP_TOP ROT_THREE COMPARE_OP
-                                     jmp_false compare_chained2 _come_froms
+                                     jmp_false compare_chained_right _come_froms
 
         compared_chained_middle   ::= expr DUP_TOP ROT_THREE COMPARE_OP
                                       jmp_false_then compared_chained_middle _come_froms
         compared_chained_middle   ::= expr DUP_TOP ROT_THREE COMPARE_OP
-                                      jmp_false_then compare_chained2 _come_froms
+                                      jmp_false_then compare_chained_right _come_froms
 
-        compare_chained2   ::= expr COMPARE_OP return_expr_lambda
-        compare_chained2   ::= expr COMPARE_OP RETURN_END_IF_LAMBDA
-        compare_chained2   ::= expr COMPARE_OP RETURN_END_IF COME_FROM
+        compare_chained_right   ::= expr COMPARE_OP return_expr_lambda
+        compare_chained_right   ::= expr COMPARE_OP RETURN_END_IF_LAMBDA
+        compare_chained_right   ::= expr COMPARE_OP RETURN_END_IF COME_FROM
 
         return_if_lambda   ::= RETURN_END_IF_LAMBDA POP_TOP
         stmt               ::= if_exp_lambda

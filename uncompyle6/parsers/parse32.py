@@ -25,10 +25,9 @@ class Python32Parser(Python3Parser):
         """
         if_exp            ::= expr jmp_false expr jump_forward_else expr COME_FROM
 
-        # compare_chained2 is used in a "chained_compare": x <= y <= z
-        # used exclusively in compare_chained
-        compare_chained2 ::= expr COMPARE_OP RETURN_VALUE
-        compare_chained2 ::= expr COMPARE_OP RETURN_VALUE_LAMBDA
+        # compare_chained_right is used in a "chained_compare": x <= y <= z
+        compare_chained_right ::= expr COMPARE_OP RETURN_VALUE
+        compare_chained_right ::= expr COMPARE_OP RETURN_VALUE_LAMBDA
 
         # Python < 3.5 no POP BLOCK
         whileTruestmt  ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM_LOOP

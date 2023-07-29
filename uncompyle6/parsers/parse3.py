@@ -354,7 +354,7 @@ class Python3Parser(PythonParser):
         compared_chained_middle ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
                                     compared_chained_middle COME_FROM
         compared_chained_middle ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
-                                    compare_chained2 COME_FROM
+                                    compare_chained_right COME_FROM
         """
 
     def p_stmt3(self, args):

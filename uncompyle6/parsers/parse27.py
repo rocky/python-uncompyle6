@@ -120,13 +120,13 @@ class Python27Parser(Python2Parser):
                                     JUMP_IF_FALSE_OR_POP compared_chained_middle
                                     COME_FROM
         compared_chained_middle ::= expr DUP_TOP ROT_THREE COMPARE_OP
-                                    JUMP_IF_FALSE_OR_POP compare_chained2 COME_FROM
+                                    JUMP_IF_FALSE_OR_POP compare_chained_right COME_FROM
 
         return_lambda      ::= RETURN_VALUE
         return_lambda      ::= RETURN_VALUE_LAMBDA
 
-        compare_chained2 ::= expr COMPARE_OP return_lambda
-        compare_chained2 ::= expr COMPARE_OP return_lambda
+        compare_chained_right ::= expr COMPARE_OP return_lambda
+        compare_chained_right ::= expr COMPARE_OP return_lambda
 
         # if_exp_true are for conditions which always evaluate true
         # There is dead or non-optional remnants of the condition code though,

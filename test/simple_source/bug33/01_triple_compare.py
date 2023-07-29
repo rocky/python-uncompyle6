@@ -1,7 +1,7 @@
 # In Python 3.3+ this uses grammar rule
-# compare_chained2 ::= expr COMPARE_OP RETURN_VALUE
+# compare_chained_right ::= expr COMPARE_OP RETURN_VALUE
 # In Python 3.6 uses this uses grammar rule
-# compare_chained2 ::= expr COMPARE_OP come_froms JUMP_FORWARD
+# compare_chained_right ::= expr COMPARE_OP come_froms JUMP_FORWARD
 
 # Seen in Python 3.3 ipaddress.py
 

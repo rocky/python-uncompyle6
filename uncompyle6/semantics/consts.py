@@ -339,7 +339,7 @@ TABLE_DIRECT = {
     "compare_single": ('%p %[-1]{pattr.replace("-", " ")} %p', (0, 19), (1, 19)),
     "compare_chained": ("%p %p", (0, 29), (1, 30)),
     "compared_chained_middle": ('%[3]{pattr.replace("-", " ")} %p %p', (0, 19), (-2, 19)),
-    "compare_chained2": ('%[1]{pattr.replace("-", " ")} %p', (0, 19)),
+    "compare_chained_right": ('%[1]{pattr.replace("-", " ")} %p', (0, 19)),
     #   "classdef": 	(), # handled by n_classdef()
     # A custom rule in n_function def distinguishes whether to call this or
     # function_def_async

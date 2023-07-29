@@ -190,7 +190,7 @@ class Python36Parser(Python35Parser):
         tryfinally_return_stmt ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK LOAD_CONST
                                    COME_FROM_FINALLY
 
-        compare_chained2 ::= expr COMPARE_OP come_froms JUMP_FORWARD
+        compare_chained_right ::= expr COMPARE_OP come_froms JUMP_FORWARD
         """
 
     # Some of this is duplicated from parse37. Eventually we'll probably rebase from
