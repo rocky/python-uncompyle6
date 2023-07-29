@@ -122,7 +122,9 @@ def main_bin():
         print("%s: %s" % (os.path.basename(sys.argv[0]), e), file=sys.stderr)
         sys.exit(-1)
 
-    options = {}
+    options = {
+        "showasm": None
+    }
     for opt, val in opts:
         if opt in ("-h", "--help"):
             print(__doc__)
@@ -141,7 +143,10 @@ def main_bin():
         elif opt == "--linemaps":
             options["do_linemaps"] = True
         elif opt in ("--asm", "-a"):
-            options["showasm"] = "after"
+            if options["showasm"] == None:
+                options["showasm"] = "after"
+            else:
+                options["showasm"] = "both"
             options["do_verify"] = None
         elif opt in ("--tree", "-t"):
             if "showast" not in options:
@@ -246,6 +251,8 @@ def main_bin():
             fqueue.put(None)
 
         rqueue = Queue(numproc)
+
+        tot_files = okay_files = failed_files = verify_failed_files = 0
 
         def process_func():
             try:

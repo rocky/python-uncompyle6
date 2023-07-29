@@ -206,10 +206,17 @@ class Scanner2(Scanner):
 
         bytecode = self.build_instructions(co)
 
-        # show_asm = 'after'
         if show_asm in ("both", "before"):
-            for instr in bytecode.get_instructions(co):
-                print(instr.disassemble())
+            print("\n# ---- before tokenization:")
+            bytecode.disassemble_bytes(
+                co.co_code,
+                varnames=co.co_varnames,
+                names=co.co_names,
+                constants=co.co_consts,
+                cells=bytecode._cell_names,
+                linestarts=bytecode._linestarts,
+                asm_format="extended",
+            )
 
         # list of tokens/instructions
         new_tokens = []
@@ -484,6 +491,7 @@ class Scanner2(Scanner):
             pass
 
         if show_asm in ("both", "after"):
+            print("\n# ---- after tokenization:")
             for t in new_tokens:
                 print(t.format(line_prefix=""))
             print()

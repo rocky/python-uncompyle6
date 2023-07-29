@@ -17,9 +17,9 @@ are trying to solve that involve the use of uncompyle6 along the way,
 although I may be more tolerant of this if you sponsor the project.
 
 Bugs are also not for general or novice kind help on how to install
-this Python program in your environment in the way you would like to
-have it set up, or how to interpret a Python traceback e.g. that winds
-up saying Python X.Y.Z is not supported.
+this Python program and its dependencies in your environment, or in
+the way you would like to have it set up, or how to interpret a Python
+traceback e.g. that winds up saying Python X.Y.Z is not supported.
 
 For these kinds of things, you will save yourself time by asking
 instead on forums like StackOverflow that are geared to helping people
@@ -113,6 +113,7 @@ If this is too long, then try narrowing the problem to something short.
 Please modify for your setup
 
 - Uncompyle6 version: output from  `uncompyle6 --version` or `pip show uncompyle6`
+- xdis version: output from `pydisasm --version` or or `pip show xdis`
 - Python version for the version of Python the byte-compiled the file: `python -c "import sys; print(sys.version)"` where `python` is the correct CPython or PyPy binary.
 - OS and Version: [e.g. Ubuntu bionic]
 

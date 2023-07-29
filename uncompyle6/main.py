@@ -49,7 +49,7 @@ def decompile(
     co,
     bytecode_version = PYTHON_VERSION_TRIPLE,
     out=sys.stdout,
-    showasm=None,
+    showasm: Optional[str]=None,
     showast={},
     timestamp=None,
     showgrammar=False,
@@ -106,14 +106,11 @@ def decompile(
     if source_size:
         write("# Size of source mod 2**32: %d bytes" % source_size)
 
-    # maybe a second -a will do before as well
-    asm = "after" if showasm else None
-
     grammar = dict(PARSER_DEFAULT_DEBUG)
     if showgrammar:
         grammar["reduce"] = True
 
-    debug_opts = {"asm": asm, "tree": showast, "grammar": grammar}
+    debug_opts = {"asm": showasm, "tree": showast, "grammar": grammar}
 
     try:
         if mapstream:
@@ -243,7 +240,7 @@ def main(
     compiled_files,
     source_files,
     outfile=None,
-    showasm=None,
+    showasm: Optional[str] = None,
     showast={},
     do_verify=False,
     showgrammar=False,
