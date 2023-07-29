@@ -2137,7 +2137,7 @@ def code_deparse_around_offset(
     offset,
     co,
     out=StringIO(),
-    version=Optional[tuple],
+    version=None,
     is_pypy=None,
     debug_opts=DEFAULT_DEBUG_OPTS,
 ):
