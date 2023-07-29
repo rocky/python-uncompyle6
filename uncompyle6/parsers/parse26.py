@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2022 Rocky Bernstein
+#  Copyright (c) 2017-2023 Rocky Bernstein
 """
 spark grammar differences over Python2 for Python 2.6.
 """
@@ -307,17 +307,18 @@ class Python26Parser(Python2Parser):
 
         and                ::= expr JUMP_IF_FALSE POP_TOP expr JUMP_IF_FALSE POP_TOP
 
-        # compare_chained is like x <= y <= z
-        compare_chained    ::= expr compare_chained1 ROT_TWO COME_FROM POP_TOP _come_froms
-        compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
-                               jmp_false compare_chained1 _come_froms
-        compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
-                               jmp_false compare_chained2 _come_froms
+        # compare_chained is x <= y <= z
+        compare_chained          ::= expr compared_chained_middle ROT_TWO
+                                     COME_FROM POP_TOP _come_froms
+        compared_chained_middle  ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                                     jmp_false compared_chained_middle _come_froms
+        compared_chained_middle   ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                                     jmp_false compare_chained2 _come_froms
 
-        compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
-                               jmp_false_then compare_chained1 _come_froms
-        compare_chained1   ::= expr DUP_TOP ROT_THREE COMPARE_OP
-                               jmp_false_then compare_chained2 _come_froms
+        compared_chained_middle   ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                                      jmp_false_then compared_chained_middle _come_froms
+        compared_chained_middle   ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                                      jmp_false_then compare_chained2 _come_froms
 
         compare_chained2   ::= expr COMPARE_OP return_expr_lambda
         compare_chained2   ::= expr COMPARE_OP RETURN_END_IF_LAMBDA
@@ -565,7 +566,7 @@ if __name__ == "__main__":
         remain_tokens = set(tokens) - opcode_set
         import re
 
-        remain_tokens = set([re.sub("_\d+$", "", t) for t in remain_tokens])
+        remain_tokens = set([re.sub(r"_\d+$", "", t) for t in remain_tokens])
         remain_tokens = set([re.sub("_CONT$", "", t) for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         print(remain_tokens)

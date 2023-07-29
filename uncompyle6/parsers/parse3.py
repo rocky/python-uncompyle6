@@ -346,14 +346,15 @@ class Python3Parser(PythonParser):
         # FIXME: Common with 2.7
         ret_and    ::= expr JUMP_IF_FALSE_OR_POP return_expr_or_cond COME_FROM
         ret_or     ::= expr JUMP_IF_TRUE_OR_POP return_expr_or_cond COME_FROM
-        if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM return_expr_or_cond
+        if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM
+                       return_expr_or_cond
 
 
-        # compare_chained1 is used exclusively in chained_compare
-        compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
-                             compare_chained1 COME_FROM
-        compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
-                             compare_chained2 COME_FROM
+        # compared_chained_middle is used exclusively in chained_compare
+        compared_chained_middle ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
+                                    compared_chained_middle COME_FROM
+        compared_chained_middle ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
+                                    compare_chained2 COME_FROM
         """
 
     def p_stmt3(self, args):
@@ -419,24 +420,24 @@ class Python3Parser(PythonParser):
         for               ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
                               COME_FROM_LOOP
 
-        forelsestmt       ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suite
-                              COME_FROM_LOOP
+        forelsestmt       ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
+                              else_suite COME_FROM_LOOP
 
-        forelselaststmt   ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitec
-                              COME_FROM_LOOP
+        forelselaststmt   ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
+                              else_suitec COME_FROM_LOOP
 
-        forelselaststmtl  ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitel
-                              COME_FROM_LOOP
+        forelselaststmtl  ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
+                              else_suitel COME_FROM_LOOP
 
-        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
-                              COME_FROM_LOOP
+        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt COME_FROM JUMP_BACK
+                              POP_BLOCK COME_FROM_LOOP
 
-        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK JUMP_BACK
-                              COME_FROM_LOOP
+        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+                              JUMP_BACK COME_FROM_LOOP
         whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
-        whilestmt         ::= SETUP_LOOP testexpr returns          POP_BLOCK
+        whilestmt         ::= SETUP_LOOP testexpr returns               POP_BLOCK
                               COME_FROM_LOOP
 
         while1elsestmt    ::= SETUP_LOOP          l_stmts     JUMP_BACK

@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2020, 2022 Rocky Bernstein
+#  Copyright (c) 2016-2020, 2023 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <hartmut@goebel.noris.de>
 
@@ -115,11 +115,12 @@ class Python27Parser(Python2Parser):
         or         ::= expr_jitop expr COME_FROM
         and        ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
 
-        # compare_chained{1,2} is used exclusively in chained_compare
-        compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
-                             compare_chained1 COME_FROM
-        compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
-                             compare_chained2 COME_FROM
+        # compare_chained{middle,2} is used exclusively in chained_compare
+        compared_chained_middle ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                                    JUMP_IF_FALSE_OR_POP compared_chained_middle
+                                    COME_FROM
+        compared_chained_middle ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                                    JUMP_IF_FALSE_OR_POP compare_chained2 COME_FROM
 
         return_lambda      ::= RETURN_VALUE
         return_lambda      ::= RETURN_VALUE_LAMBDA
@@ -177,11 +178,13 @@ class Python27Parser(Python2Parser):
         while1stmt        ::= SETUP_LOOP returns pb_come_from
         while1stmt        ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM
 
-        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK _come_froms
+        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+                              _come_froms
 
         # Should this be JUMP_BACK+ ?
         # JUMP_BACK should all be to the same location
-        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK JUMP_BACK POP_BLOCK _come_froms
+        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK
+                              JUMP_BACK POP_BLOCK _come_froms
 
         while1elsestmt    ::= SETUP_LOOP l_stmts JUMP_BACK POP_BLOCK
                               else_suitel COME_FROM
