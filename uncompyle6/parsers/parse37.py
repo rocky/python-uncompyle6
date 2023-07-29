@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2020, 2022 Rocky Bernstein
+#  Copyright (c) 2017-2020, 2022-2023 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -130,7 +130,8 @@ class Python37Parser(Python37BaseParser):
         stmt   ::= return
         return ::= return_expr RETURN_VALUE
 
-        # "returns" nonterminal is a sequence of statements that ends in a RETURN statement.
+        # "returns" nonterminal is a sequence of statements that ends in a
+        # RETURN statement.
         # In later Python versions with jump optimization, this can cause JUMPs
         # that would normally appear to be omitted.
 
@@ -221,8 +222,8 @@ class Python37Parser(Python37BaseParser):
         compare_single ::= expr expr COMPARE_OP
 
         # A compare_chained is two comparisions like x <= y <= z
-        compare_chained  ::= expr compare_chained1 ROT_TWO POP_TOP _come_froms
-        compare_chained2 ::= expr COMPARE_OP JUMP_FORWARD
+        compare_chained  ::= expr compared_chained_middle ROT_TWO POP_TOP _come_froms
+        compare_chained_right ::= expr COMPARE_OP JUMP_FORWARD
 
         # Non-null kvlist items are broken out in the indiviual grammars
         kvlist ::=
@@ -439,10 +440,10 @@ class Python37Parser(Python37BaseParser):
         """
         if_exp::= expr jmp_false expr jump_forward_else expr COME_FROM
 
-        # compare_chained2 is used in a "chained_compare": x <= y <= z
+        # compare_chained_right is used in a "chained_compare": x <= y <= z
         # used exclusively in compare_chained
-        compare_chained2 ::= expr COMPARE_OP RETURN_VALUE
-        compare_chained2 ::= expr COMPARE_OP RETURN_VALUE_LAMBDA
+        compare_chained_right ::= expr COMPARE_OP RETURN_VALUE
+        compare_chained_right ::= expr COMPARE_OP RETURN_VALUE_LAMBDA
 
         # Python < 3.5 no POP BLOCK
         whileTruestmt  ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM_LOOP
@@ -625,41 +626,41 @@ class Python37Parser(Python37BaseParser):
         compare_chained     ::= compare_chained37
         compare_chained     ::= compare_chained37_false
 
-        compare_chained37   ::= expr compare_chained1a_37
-        compare_chained37   ::= expr compare_chained1c_37
+        compare_chained37   ::= expr compared_chained_middlea_37
+        compare_chained37   ::= expr compared_chained_middlec_37
 
-        compare_chained37_false  ::= expr compare_chained1_false_37
-        compare_chained37_false  ::= expr compare_chained1b_false_37
-        compare_chained37_false  ::= expr compare_chained2_false_37
+        compare_chained37_false  ::= expr compared_chained_middle_false_37
+        compare_chained37_false  ::= expr compared_chained_middleb_false_37
+        compare_chained37_false  ::= expr compare_chained_right_false_37
 
-        compare_chained1a_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-        compare_chained1a_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                      compare_chained2a_37 COME_FROM POP_TOP COME_FROM
-        compare_chained1b_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                      compare_chained2b_false_37 POP_TOP _jump COME_FROM
+        compared_chained_middlea_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
+        compared_chained_middlea_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
+                                      compare_chained_righta_37 COME_FROM POP_TOP COME_FROM
+        compared_chained_middleb_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
+                                      compare_chained_rightb_false_37 POP_TOP _jump COME_FROM
 
-        compare_chained1c_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                      compare_chained2a_37 POP_TOP
+        compared_chained_middlec_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
+                                      compare_chained_righta_37 POP_TOP
 
-        compare_chained1_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                      compare_chained2c_37 POP_TOP JUMP_FORWARD COME_FROM
-        compare_chained1_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                      compare_chained2b_false_37 POP_TOP _jump COME_FROM
+        compared_chained_middle_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
+                                      compare_chained_rightc_37 POP_TOP JUMP_FORWARD COME_FROM
+        compared_chained_middle_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
+                                      compare_chained_rightb_false_37 POP_TOP _jump COME_FROM
 
-        compare_chained2_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                      compare_chained2a_false_37 POP_TOP JUMP_BACK COME_FROM
+        compare_chained_right_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
+                                      compare_chained_righta_false_37 POP_TOP JUMP_BACK COME_FROM
 
-        compare_chained2a_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE JUMP_FORWARD
-        compare_chained2a_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE JUMP_BACK
-        compare_chained2a_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE jf_cfs
+        compare_chained_righta_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE JUMP_FORWARD
+        compare_chained_righta_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE JUMP_BACK
+        compare_chained_righta_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE jf_cfs
 
-        compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE JUMP_FORWARD COME_FROM
-        compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE JUMP_FORWARD
+        compare_chained_rightb_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE JUMP_FORWARD COME_FROM
+        compare_chained_rightb_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE JUMP_FORWARD
 
-        compare_chained2c_37       ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
-                                       compare_chained2a_false_37 ELSE
-        compare_chained2c_37       ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
-                                       compare_chained2a_false_37
+        compare_chained_rightc_37       ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
+                                       compare_chained_righta_false_37 ELSE
+        compare_chained_rightc_37       ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
+                                       compare_chained_righta_false_37
         """
 
     def p_37_conditionals(self, args):
@@ -667,11 +668,13 @@ class Python37Parser(Python37BaseParser):
         expr                       ::= if_exp37
         if_exp37                   ::= expr expr jf_cfs expr COME_FROM
         jf_cfs                     ::= JUMP_FORWARD _come_froms
-        ifelsestmt                 ::= testexpr c_stmts_opt jf_cfs else_suite opt_come_from_except
+        ifelsestmt                 ::= testexpr c_stmts_opt jf_cfs else_suite
+                                       opt_come_from_except
 
         # This is probably more realistically an "ifstmt" (with a null else)
         # see _cmp() of python3.8/distutils/__pycache__/version.cpython-38.opt-1.pyc
-        ifelsestmt                 ::= testexpr stmts jf_cfs else_suite_opt opt_come_from_except
+        ifelsestmt                 ::= testexpr stmts jf_cfs else_suite_opt
+                                       opt_come_from_except
 
 
         expr_pjit                  ::= expr POP_JUMP_IF_TRUE
@@ -694,7 +697,8 @@ class Python37Parser(Python37BaseParser):
         expr                       ::= if_exp_37a
         expr                       ::= if_exp_37b
         if_exp_37a                 ::= and_not expr JUMP_FORWARD come_froms expr COME_FROM
-        if_exp_37b                 ::= expr jmp_false expr POP_JUMP_IF_FALSE jump_forward_else expr
+        if_exp_37b                 ::= expr jmp_false expr POP_JUMP_IF_FALSE
+                                       jump_forward_else expr
         jmp_false_cf               ::= POP_JUMP_IF_FALSE COME_FROM
         comp_if                    ::= or jmp_false_cf comp_iter
         """
@@ -1014,11 +1018,11 @@ class Python37Parser(Python37BaseParser):
         and ::= expr jmp_false expr COME_FROM
         or  ::= expr_jt  expr COME_FROM
 
-        # compare_chained1 is used exclusively in chained_compare
-        compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
-                             compare_chained1 COME_FROM
-        compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
-                             compare_chained2 COME_FROM
+        # compared_chained_middle is used exclusively in chained_compare
+        compared_chained_middle ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
+                                    compared_chained_middle COME_FROM
+        compared_chained_middle ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
+                                    compare_chained_right COME_FROM
         """
 
     def p_stmt3(self, args):
@@ -1205,7 +1209,7 @@ class Python37Parser(Python37BaseParser):
         tryfinally_return_stmt ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK LOAD_CONST
                                    COME_FROM_FINALLY
 
-        compare_chained2 ::= expr COMPARE_OP come_froms JUMP_FORWARD
+        compare_chained_right ::= expr COMPARE_OP come_froms JUMP_FORWARD
         """
 
     def p_37_misc(self, args):

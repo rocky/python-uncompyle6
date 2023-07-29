@@ -597,9 +597,10 @@ class PythonParser(GenericASTBuilder):
         compare        ::= compare_single
         compare_single ::= expr expr COMPARE_OP
 
-        # A compare_chained is two comparisions like x <= y <= z
-        compare_chained  ::= expr compare_chained1 ROT_TWO POP_TOP _come_froms
-        compare_chained2 ::= expr COMPARE_OP JUMP_FORWARD
+        # A compare_chained is two comparisions, as in: x <= y <= z
+        compare_chained       ::= expr compared_chained_middle ROT_TWO POP_TOP
+                                  _come_froms
+        compare_chained_right ::= expr COMPARE_OP JUMP_FORWARD
 
         # Non-null kvlist items are broken out in the indiviual grammars
         kvlist ::=
