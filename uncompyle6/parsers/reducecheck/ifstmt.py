@@ -1,13 +1,16 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020, 2023 Rocky Bernstein
 
 
 def ifstmt(self, lhs, n, rule, ast, tokens, first, last):
+
+    first_offset = tokens[first].off2int(prefer_last=False)
+
     if lhs == "ifstmtl":
         if last == n:
             last -= 1
             pass
         if tokens[last].attr and isinstance(tokens[last].attr, int):
-            if tokens[first].offset >= tokens[last].attr:
+            if first_offset >= tokens[last].attr:
                 return True
             pass
         pass
@@ -36,7 +39,7 @@ def ifstmt(self, lhs, n, rule, ast, tokens, first, last):
                 if tokens[l] == "JUMP_FORWARD":
                     return tokens[l].attr != pjif_target
                 return True
-            elif lhs == "ifstmtl" and tokens[first].off2int() > pjif_target:
+            elif lhs == "ifstmtl" and first_offset > pjif_target:
                 # A conditional JUMP to the loop is expected for "ifstmtl"
                 return False
             pass
@@ -55,7 +58,7 @@ def ifstmt(self, lhs, n, rule, ast, tokens, first, last):
             if len(test) > 1 and test[1].kind.startswith("jmp_"):
                 jmp_target = test[1][0].attr
                 if (
-                    tokens[first].off2int(prefer_last=True)
+                    first_offset
                     <= jmp_target
                     < tokens[last].off2int(prefer_last=False)
                 ):
