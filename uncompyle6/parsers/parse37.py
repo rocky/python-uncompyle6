@@ -741,9 +741,13 @@ class Python37Parser(Python37BaseParser):
 
         set_comp_func ::= BUILD_SET_0 LOAD_ARG for_iter store comp_iter
                           JUMP_BACK RETURN_VALUE RETURN_LAST
+        set_comp_func ::= BUILD_SET_0 LOAD_ARG for_iter store comp_iter
+                          JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
 
         set_comp_func ::= BUILD_SET_0 LOAD_ARG for_iter store comp_iter
                           COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
+        set_comp_func ::= BUILD_SET_0 LOAD_ARG for_iter store comp_iter
+                          COME_FROM JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
 
         comp_body ::= dict_comp_body
         comp_body ::= set_comp_body
@@ -757,8 +761,11 @@ class Python37Parser(Python37BaseParser):
         """"
         expr ::= dict_comp
         stmt ::= dict_comp_func
+
         dict_comp_func ::= BUILD_MAP_0 LOAD_ARG for_iter store
                            comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
+        dict_comp_func ::= BUILD_MAP_0 LOAD_ARG for_iter store
+                           comp_iter JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
 
         comp_iter     ::= comp_if
         comp_iter     ::= comp_if_not
