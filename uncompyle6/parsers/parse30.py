@@ -73,9 +73,15 @@ class Python30Parser(Python31Parser):
 
         # Need to keep LOAD_FAST as index 1
         set_comp_header  ::= BUILD_SET_0 DUP_TOP STORE_FAST
+
         set_comp_func ::= set_comp_header
                           LOAD_ARG FOR_ITER store comp_iter
-                          JUMP_BACK COME_FROM POP_TOP JUMP_BACK RETURN_VALUE RETURN_LAST
+                          JUMP_BACK COME_FROM POP_TOP JUMP_BACK
+                          RETURN_VALUE RETURN_LAST
+        set_comp_func ::= set_comp_header
+                          LOAD_ARG FOR_ITER store comp_iter
+                          JUMP_BACK COME_FROM POP_TOP JUMP_BACK
+                          RETURN_VALUE_LAMBDA LAMBDA_MARKER
 
         list_comp_header ::= BUILD_LIST_0 DUP_TOP STORE_FAST
         list_comp        ::= list_comp_header
@@ -106,6 +112,10 @@ class Python30Parser(Python31Parser):
                              DUP_TOP STORE_FAST
                              LOAD_ARG FOR_ITER store
                              dict_comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
+        dict_comp_func   ::= BUILD_MAP_0
+                             DUP_TOP STORE_FAST
+                             LOAD_ARG FOR_ITER store
+                             dict_comp_iter JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
 
         stmt         ::= try_except30
         try_except30 ::= SETUP_EXCEPT suite_stmts_opt
