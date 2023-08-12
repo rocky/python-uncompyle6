@@ -77,11 +77,11 @@ class Python30Parser(Python31Parser):
 
         set_comp_func ::= set_comp_header
                           LOAD_ARG FOR_ITER store comp_iter
-                          JUMP_BACK COME_FROM POP_TOP JUMP_BACK
+                          JUMP_BACK
                           RETURN_VALUE RETURN_LAST
         set_comp_func ::= set_comp_header
                           LOAD_ARG FOR_ITER store comp_iter
-                          JUMP_BACK COME_FROM POP_TOP JUMP_BACK
+                          JUMP_BACK
                           RETURN_VALUE_LAMBDA LAMBDA_MARKER
 
         list_comp_header ::= BUILD_LIST_0 DUP_TOP STORE_FAST

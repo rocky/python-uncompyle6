@@ -81,9 +81,17 @@ class Python3Parser(PythonParser):
 
         set_comp_func ::= BUILD_SET_0 LOAD_ARG FOR_ITER store comp_iter
                           JUMP_BACK RETURN_VALUE RETURN_LAST
+        set_comp_func ::= BUILD_SET_0 LOAD_ARG FOR_ITER store comp_iter
+                          JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
+        set_comp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
+                          JUMP_BACK RETURN_VALUE RETURN_LAST
+        set_comp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
+                          JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
 
         set_comp_func ::= BUILD_SET_0 LOAD_ARG FOR_ITER store comp_iter
                           COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
+        set_comp_func ::= BUILD_SET_0 LOAD_ARG FOR_ITER store comp_iter
+                          COME_FROM JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
 
         comp_body ::= dict_comp_body
         comp_body ::= set_comp_body
@@ -101,6 +109,12 @@ class Python3Parser(PythonParser):
         stmt ::= dict_comp_func
         dict_comp_func ::= BUILD_MAP_0 LOAD_ARG FOR_ITER store
                            comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
+        dict_comp_func ::= BUILD_MAP_0 LOAD_ARG FOR_ITER store
+                           comp_iter JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
+        dict_comp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
+                           comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
+        dict_comp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
+                           comp_iter JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
 
         comp_iter     ::= comp_if_not
         comp_if_not   ::= expr jmp_true comp_iter
