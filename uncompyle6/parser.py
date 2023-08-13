@@ -304,6 +304,9 @@ class PythonParser(GenericASTBuilder):
         c_stmts ::= lastc_stmt
         c_stmts ::= continues
 
+        ending_return  ::= RETURN_VALUE RETURN_LAST
+        ending_return  ::= RETURN_VALUE_LAMBDA LAMBDA_MARKER
+
         lastc_stmt ::= iflaststmt
         lastc_stmt ::= forelselaststmt
         lastc_stmt ::= ifelsestmtc
