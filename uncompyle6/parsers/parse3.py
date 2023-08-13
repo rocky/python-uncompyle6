@@ -79,19 +79,13 @@ class Python3Parser(PythonParser):
 
         stmt ::= set_comp_func
 
+        # TODO this can be simplified
         set_comp_func ::= BUILD_SET_0 LOAD_ARG FOR_ITER store comp_iter
-                          JUMP_BACK RETURN_VALUE RETURN_LAST
-        set_comp_func ::= BUILD_SET_0 LOAD_ARG FOR_ITER store comp_iter
-                          JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
+                          JUMP_BACK ending_return
         set_comp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
-                          JUMP_BACK RETURN_VALUE RETURN_LAST
-        set_comp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
-                          JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
-
+                          JUMP_BACK ending_return
         set_comp_func ::= BUILD_SET_0 LOAD_ARG FOR_ITER store comp_iter
-                          COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
-        set_comp_func ::= BUILD_SET_0 LOAD_ARG FOR_ITER store comp_iter
-                          COME_FROM JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
+                          COME_FROM JUMP_BACK ending_return
 
         comp_body ::= dict_comp_body
         comp_body ::= set_comp_body

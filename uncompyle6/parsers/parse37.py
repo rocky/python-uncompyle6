@@ -62,6 +62,9 @@ class Python37Parser(Python37BaseParser):
         c_stmts ::= lastc_stmt
         c_stmts ::= continues
 
+        ending_return  ::= RETURN_VALUE RETURN_LAST
+        ending_return  ::= RETURN_VALUE_LAMBDA LAMBDA_MARKER
+
         lastc_stmt ::= iflaststmt
         lastc_stmt ::= forelselaststmt
         lastc_stmt ::= ifelsestmtc
@@ -739,15 +742,11 @@ class Python37Parser(Python37BaseParser):
 
         stmt ::= set_comp_func
 
+        # TODO: simplify this
         set_comp_func ::= BUILD_SET_0 LOAD_ARG for_iter store comp_iter
-                          JUMP_BACK RETURN_VALUE RETURN_LAST
+                          JUMP_BACK ending_return
         set_comp_func ::= BUILD_SET_0 LOAD_ARG for_iter store comp_iter
-                          JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
-
-        set_comp_func ::= BUILD_SET_0 LOAD_ARG for_iter store comp_iter
-                          COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
-        set_comp_func ::= BUILD_SET_0 LOAD_ARG for_iter store comp_iter
-                          COME_FROM JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
+                          COME_FROM JUMP_BACK ending_return
 
         comp_body ::= dict_comp_body
         comp_body ::= set_comp_body
@@ -763,9 +762,7 @@ class Python37Parser(Python37BaseParser):
         stmt ::= dict_comp_func
 
         dict_comp_func ::= BUILD_MAP_0 LOAD_ARG for_iter store
-                           comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
-        dict_comp_func ::= BUILD_MAP_0 LOAD_ARG for_iter store
-                           comp_iter JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
+                           comp_iter JUMP_BACK ending_return
 
         comp_iter     ::= comp_if
         comp_iter     ::= comp_if_not
