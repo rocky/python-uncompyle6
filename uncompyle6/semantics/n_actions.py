@@ -272,7 +272,7 @@ class NonterminalActions:
                     if self.version < (3, 0, 0):
                         value = "%r" % elem.pattr
                     else:
-                        value = "%s" % elem.pattr
+                        value = "%s" % str(elem.pattr)
                 else:
                     assert elem.kind == "ADD_VALUE_VAR"
                     value = "%s" % elem.pattr
