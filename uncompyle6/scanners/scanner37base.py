@@ -221,7 +221,7 @@ class Scanner37Base(Scanner):
 
         if show_asm in ("both", "before"):
             print("\n# ---- before tokenization:")
-            bytecode.disassemble_bytes(
+            self.insts = bytecode.disassemble_bytes(
                 co.co_code,
                 varnames=co.co_varnames,
                 names=co.co_names,
@@ -229,6 +229,9 @@ class Scanner37Base(Scanner):
                 cells=bytecode._cell_names,
                 linestarts=bytecode._linestarts,
                 asm_format="extended",
+                filename=co.co_filename,
+                show_source=True,
+                first_line_number=co.co_firstlineno,
             )
 
         # "customize" is in the process of going away here
@@ -302,6 +305,8 @@ class Scanner37Base(Scanner):
                         inst.starts_line,
                         inst.is_jump_target,
                         inst.has_extended_arg,
+                        None,
+                        None,
                     )
 
         # Get jump targets
@@ -348,9 +353,9 @@ class Scanner37Base(Scanner):
                     j = tokens_append(
                         j,
                         Token(
-                            come_from_name,
-                            jump_offset,
-                            repr(jump_offset),
+                            opname=come_from_name,
+                            attr=jump_offset,
+                            pattr=repr(jump_offset),
                             offset="%s_%s" % (inst.offset, jump_idx),
                             has_arg=True,
                             opc=self.opc,
