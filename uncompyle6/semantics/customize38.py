@@ -128,7 +128,7 @@ def customize_for_version38(self, version):
             "whilestmt38": (
                 "%|while %c:\n%+%c%-\n\n",
                 (1, ("bool_op", "testexpr", "testexprc")),
-                (2, ("l_stmts", "pass")),
+                (2, ("l_stmts", "l_stmts_opt", "pass")),
             ),
             "whileTruestmt38": (
                 "%|while True:\n%+%c%-\n\n",
