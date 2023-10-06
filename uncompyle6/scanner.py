@@ -1,4 +1,4 @@
-#  Copyright (c) 2016, 2018-2022 by Rocky Bernstein
+#  Copyright (c) 2016, 2018-2023 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -21,7 +21,8 @@ scanner/ingestion module. From here we call various version-specific
 scanners, e.g. for Python 2.7 or 3.4.
 """
 
-from typing import Optional, Tuple
+from types import ModuleType
+from typing import Optional, Tuple, Union
 from array import array
 from collections import namedtuple
 
@@ -101,11 +102,14 @@ class Code(object):
         self._tokens, self._customize = scanner.ingest(co, classname, show_asm=show_asm)
 
 
-class Scanner(object):
+class Scanner:
     def __init__(self, version: tuple, show_asm=None, is_pypy=False):
         self.version = version
         self.show_asm = show_asm
         self.is_pypy = is_pypy
+
+        # Temoorary initialization.
+        self.opc = ModuleType("uninitialized")
 
         if version[:2] in PYTHON_VERSIONS:
             v_str = f"""opcode_{version_tuple_to_str(version, start=0, end=2, delimiter="")}"""
@@ -319,15 +323,6 @@ class Scanner(object):
     def next_offset(self, op, offset: int) -> int:
         return xdis.next_offset(op, self.opc, offset)
 
-    def print_bytecode(self):
-        for i in self.op_range(0, len(self.code)):
-            op = self.code[i]
-            if op in self.JUMP_OPS:
-                dest = self.get_target(i, op)
-                print("%i\t%s\t%i" % (i, self.opname[op], dest))
-            else:
-                print("%i\t%s\t" % (i, self.opname[op]))
-
     def first_instr(self, start: int, end: int, instr, target=None, exact=True):
         """
         Find the first <instr> in the block from start to end.
@@ -483,7 +478,6 @@ class Scanner(object):
         result = []
         extended_arg = 0
         for offset in self.op_range(start, end):
-
             op = code[offset]
 
             if op == self.opc.EXTENDED_ARG:
@@ -542,7 +536,6 @@ class Scanner(object):
                 offset = inst.offset
                 continue
             if last_was_extarg:
-
                 # j = self.stmts.index(inst.offset)
                 # self.lines[j] = offset
 
@@ -595,7 +588,7 @@ class Scanner(object):
             target = parent["end"]
         return target
 
-    def setTokenClass(self, tokenClass) -> Token:
+    def setTokenClass(self, tokenClass: Token) -> Token:
         self.Token = tokenClass
         return self.Token
 
@@ -621,7 +614,7 @@ def parse_fn_counts_30_35(argc: int) -> Tuple[int, int, int]:
     return ((argc & 0xFF), (argc >> 8) & 0xFF, annotate_count)
 
 
-def get_scanner(version, is_pypy=False, show_asm=None):
+def get_scanner(version: Union[str, tuple], is_pypy=False, show_asm=None) -> Scanner:
 
     # If version is a string, turn that into the corresponding float.
     if isinstance(version, str):

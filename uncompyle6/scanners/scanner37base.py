@@ -188,8 +188,7 @@ class Scanner37Base(Scanner):
         return
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
-        """
-        Create "tokens" the bytecode of an Python code object. Largely these
+        """Create "tokens" the bytecode of an Python code object. Largely these
         are the opcode name, but in some cases that has been modified to make parsing
         easier.
         returning a list of uncompyle6 Token's.
@@ -197,14 +196,18 @@ class Scanner37Base(Scanner):
         Some transformations are made to assist the deparsing grammar:
            -  various types of LOAD_CONST's are categorized in terms of what they load
            -  COME_FROM instructions are added to assist parsing control structures
-           -  operands with stack argument counts or flag masks are appended to the opcode name, e.g.:
-              *  BUILD_LIST, BUILD_SET
-              *  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional arguments
+           -  operands with stack argument counts or flag masks are appended to the
+              opcode name, e.g.:
+                *  BUILD_LIST, BUILD_SET
+                *  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional
+                   arguments
            -  EXTENDED_ARGS instructions are removed
 
-        Also, when we encounter certain tokens, we add them to a set which will cause custom
-        grammar rules. Specifically, variable arg tokens like MAKE_FUNCTION or BUILD_LIST
-        cause specific rules for the specific number of arguments they take.
+        Also, when we encounter certain tokens, we add them to a set
+        which will cause custom grammar rules. Specifically, variable
+        arg tokens like MAKE_FUNCTION or BUILD_LIST cause specific
+        rules for the specific number of arguments they take.
+
         """
 
         def tokens_append(j, token):
