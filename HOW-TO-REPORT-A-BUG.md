@@ -22,7 +22,7 @@ TL;DR (too long; didn't read)
 * Don't do something illegal. And don't ask me to do something illegal or help you do something illegal
 * We already have an infinite supply of decompilation bugs that need fixing, and an automated mechanism for finding more. Decompilation bugs get addressed by easiness to fix and by whim. If you expect yours to be fixed ahead of those, you need to justify why.
 * When asking for help, you may be asked for what you've tried on your own first. There are plenty of sources of information about this code.
-* If you are looking for *timely* help or support, well, that is typically known paid service. I don't really have a mechanism for that since I have a full-time job. But supporting the project is an approximation.
+* If you are looking for *timely* help or support, well, that is typically known as a _paid_ service. I don't really have a mechanism for that since I have a full-time job. But supporting the project is an approximation.
 * Submitting a bug or issue report that is likely to get acted upon may require a bit of effort on your part to make it easy for the problem solver. If you are not willing to do that, please don't waste our time. As indicated above, supporting the project will increase the likelihood of your issue getting noticed and acted upon.
 
 # Ethics
@@ -74,7 +74,7 @@ obfuscation.
 Checking if bytecode is valid is pretty simple: disassemble the code.
 Python comes with a disassembly module called `dis`. A prerequisite
 module for this package, `xdis` has a cross-python version
-disassembler called `pydisasm`.
+disassembler called `pydisasm`. Using that with the `-F extended` option, generally provides a more comprehensive disassembly than is provided by other disassemblers.
 
 ## Semantic equivalence vs. exact source code
 
