@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2022 Rocky Bernstein
+#  Copyright (c) 2015-2023 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -634,7 +634,7 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
     def add_make_function_rule(self, rule, opname, attr, customize):
-        """Python 3.3 added a an addtional LOAD_STR before MAKE_FUNCTION and
+        """Python 3.3 added a an additional LOAD_STR before MAKE_FUNCTION and
         this has an effect on many rules.
         """
         if self.version >= (3, 3):

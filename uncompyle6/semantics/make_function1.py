@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2022 by Rocky Bernstein
+#  Copyright (c) 2015-2023 by Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -31,7 +31,7 @@ from xdis import iscode
 
 def make_function1(self, node, is_lambda, nested=1, code_node=None):
     """
-    Dump function defintion, doc string, and function body.
+    Dump function definition, doc string, and function body.
     This code is specialied for Python 2.
     """
 
@@ -40,7 +40,7 @@ def make_function1(self, node, is_lambda, nested=1, code_node=None):
             - handle defaults
             - handle format tuple parameters
         """
-        # if formal parameter is a tuple, the paramater name
+        # if formal parameter is a tuple, the parameter name
         # starts with a dot (eg. '.1', '.2')
         args = tree[0]
         del tree[0]

@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 Rocky Bernstein
+#  Copyright (c) 2022-2023 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ def escape_string(s, quotes=('"', "'", '"""', "'''")):
         s = s.replace(orig, replace)
     return "%s%s%s" % (quote, s, quote)
 
-# FIXME: this and find_globals could be paramaterized with one of the
+# FIXME: this and find_globals could be parameterized with one of the
 # above global ops
 def find_all_globals(node, globs):
     """Search Syntax Tree node to find variable names that are global."""

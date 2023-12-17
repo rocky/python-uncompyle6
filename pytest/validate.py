@@ -67,7 +67,7 @@ def are_instructions_equal(i1, i2):
     Determine if two instructions are approximately equal,
     ignoring certain fields which we allow to differ, namely:
 
-    * code objects are ignore (should probaby be checked) due to address
+    * code objects are ignore (should probably be checked) due to address
     * line numbers
 
     :param i1: left instruction to compare

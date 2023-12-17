@@ -185,7 +185,7 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2, verify, name=""):
     # print dir(code_obj1)
     if isinstance(code_obj1, object):
         # new style classes (Python 2.2)
-        # assume _both_ code objects to be new stle classes
+        # assume _both_ code objects to be new style classes
         assert dir(code_obj1) == dir(code_obj2)
     else:
         # old style classes
@@ -205,7 +205,7 @@ def cmp_code_objects(version, is_pypy, code_obj1, code_obj2, verify, name=""):
         # should be faster and more sophisticated
         # if this compare fails, we use the old routine to
         # find out, what exactly is nor equal
-        # if this compare succeds, simply return
+        # if this compare succeeds, simply return
         # return
         pass
 

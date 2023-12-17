@@ -91,7 +91,7 @@ Python.
 #         the second item is the nonterminal name and the precedence is given last.
 #
 #     %C  evaluate/travers children recursively, with sibling children separated by the
-#         given string.  It needs a 3-tuple: a starting node, the maximimum
+#         given string.  It needs a 3-tuple: a starting node, the maximum
 #         value of an end node, and a string to be inserted between sibling children
 #
 #     %,  Append ',' if last %C only printed one item. This is mostly for tuples
@@ -99,12 +99,12 @@ Python.
 #         other tuples. The specifier takes no arguments
 #
 #     %P  same as %C but sets operator precedence.  Its argument is a 4-tuple:
-#         the node low and high indices, the separator, a string the precidence
+#         the node low and high indices, the separator, a string the precedence
 #         value, an integer.
 #
 #     %D Same as `%C` this is for left-recursive lists like kwargs where goes
 #         to epsilon at the beginning. It needs a 3-tuple: a starting node, the
-#         maximimum value of an end node, and a string to be inserted between
+#         maximum value of an end node, and a string to be inserted between
 #         sibling children. If we were to use `%C` an extra separator with an
 #         epsilon would appear at the beginning.
 #
@@ -119,7 +119,7 @@ Python.
 #     %[N]{EXPR} Python eval(EXPR) in context of node[N]. Takes no arguments
 #
 #     %[N]{%X} evaluate/recurse on child node[N], using specifier %X.
-#     %X can be one of the above, e.g. %c, %p, etc. Takes the arguemnts
+#     %X can be one of the above, e.g. %c, %p, etc. Takes the arguments
 #     that the specifier uses.
 #
 #     %% literal '%'. Takes no arguments.
@@ -214,22 +214,22 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         of both the syntax tree and language we should produce.
 
         `out' is IO-like file pointer to where the output should go. It
-        whould have a getvalue() method.
+        would have a getvalue() method.
 
         `scanner' is a method to call when we need to scan tokens. Sometimes
         in producing output we will run across further tokens that need
-        to be scaned.
+        to be scanned.
 
         If `showast' is True, we print the syntax tree.
 
         `compile_mode' is is either 'exec' or 'single'. It is the compile
         mode that was used to create the Syntax Tree and specifies a
-        gramar variant within a Python version to use.
+        grammar variant within a Python version to use.
 
         `is_pypy` should be True if the Syntax Tree was generated for PyPy.
 
         `linestarts` is a dictionary of line number to bytecode offset. This
-        can sometimes assist in determinte which kind of source-code construct
+        can sometimes assist in determining which kind of source-code construct
         to use when there is ambiguity.
 
         """
@@ -680,7 +680,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             pass
 
     def template_engine(self, entry, startnode):
-        """The format template interpetation engine.  See the comment at the
+        """The format template interpretation engine.  See the comment at the
         beginning of this module for the how we interpret format
         specifications such as %c, %C, and so on.
         """
@@ -970,7 +970,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                 # within the function definition
                 assert node[1] == "store"
                 # if lhs is not a UNPACK_TUPLE (or equiv.),
-                # add parenteses to make this a tuple
+                # add parentheses to make this a tuple
                 # if node[1][0] not in ('unpack', 'unpack_list'):
                 result = self.traverse(node[1])
                 if not (result.startswith("(") and result.endswith(")")):

@@ -66,7 +66,7 @@ def decompile(
     """
     ingests and deparses a given code block 'co'
 
-    if `bytecode_version` is None, use the current Python intepreter
+    if `bytecode_version` is None, use the current Python interpreter
     version.
 
     Caller is responsible for closing `out` and `mapstream`

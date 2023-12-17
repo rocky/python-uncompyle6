@@ -27,7 +27,7 @@ def test_if_in_for():
         fjt = scan.find_jump_targets(False)
 
         ## FIXME: the data below is wrong.
-        ## we get different results currenty as well.
+        ## we get different results currently as well.
         ## We need to probably fix both the code
         ## and the test below
         # assert {15: [3], 69: [66], 63: [18]} == fjt

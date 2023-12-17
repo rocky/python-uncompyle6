@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017, 2022 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2022-2023 Rocky Bernstein
 """
 spark grammar differences over Python 3.1 for Python 3.0.
 """
@@ -31,8 +31,8 @@ class Python30Parser(Python31Parser):
 
         # In many ways Python 3.0 code generation is more like Python 2.6 than
         # it is 2.7 or 3.1. So we have a number of 2.6ish (and before) rules below
-        # Specifically POP_TOP is more prevelant since there is no POP_JUMP_IF_...
-        # instructions
+        # Specifically POP_TOP is more prevalant since there is no POP_JUMP_IF_...
+        # instructions.
 
         _ifstmts_jump  ::= c_stmts JUMP_FORWARD _come_froms POP_TOP COME_FROM
         _ifstmts_jump  ::= c_stmts COME_FROM POP_TOP
@@ -208,7 +208,7 @@ class Python30Parser(Python31Parser):
                            come_froms POP_TOP POP_BLOCK COME_FROM_LOOP
 
 
-        # A "compare_chained" is two comparisions like x <= y <= z
+        # A "compare_chained" is two comparisons like x <= y <= z
         compared_chained_middle  ::= expr DUP_TOP ROT_THREE COMPARE_OP
                                      jmp_false compared_chained_middle _come_froms
         compared_chained_middle  ::= expr DUP_TOP ROT_THREE COMPARE_OP

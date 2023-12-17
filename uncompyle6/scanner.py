@@ -599,7 +599,7 @@ def parse_fn_counts_30_35(argc: int) -> Tuple[int, int, int]:
     In Python 3.0 to 3.5 MAKE_CLOSURE and MAKE_FUNCTION encode
     arguments counts of positional, default + named, and annotation
     arguments a particular kind of encoding where each of
-    the entry a a packe byted value of the lower 24 bits
+    the entry a a packed byted value of the lower 24 bits
     of ``argc``.  The high bits of argc may have come from
     an EXTENDED_ARG instruction. Here, we unpack the values
     from the ``argc`` int and return a triple of the
