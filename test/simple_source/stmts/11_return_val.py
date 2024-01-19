@@ -1,6 +1,6 @@
 # 2.5.6 decimal.py
 # Bug on 2.5 and 2.6 by incorrectly changing opcode to
-# RETURN_VALUE to psuedo op: RETURN_END_IF
+# RETURN_VALUE to pseudo op: RETURN_END_IF
 def _formatparam(param, value=None, quote=True):
     if value is not None and len(value) > 0:
         if isinstance(value, tuple):
