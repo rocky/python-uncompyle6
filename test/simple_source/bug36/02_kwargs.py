@@ -5,7 +5,7 @@ def bug(self, j, a, b):
     self.parse_comment(a, b, report=3)
 
 # From 3.6 fnmatch.py
-# Bug was precidence parenthesis around decorator
+# Bug was precedence parenthesis around decorator
 
 import functools
 @functools.lru_cache(maxsize=256, typed=True)

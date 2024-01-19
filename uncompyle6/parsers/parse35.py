@@ -114,7 +114,7 @@ class Python35Parser(Python34Parser):
         ifelsestmtl ::= testexpr c_stmts_opt jb_else else_suitel
 
         # 3.5 Has jump optimization which can route the end of an
-        # "if/then" back to to a loop just before an else.
+        # "if/then" back to a loop just before an else.
         jump_absolute_else ::= jb_else
         jump_absolute_else ::= CONTINUE ELSE
 

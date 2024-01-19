@@ -2093,7 +2093,7 @@ def code_deparse(
     )
 
     # Just when you think we've forgotten about what we
-    # were supposed to to: Generate source from the Syntax ree!
+    # were supposed to do: Generate source from the Syntax tree!
     deparsed.gen_source(deparsed.ast, co.co_name, customize)
 
     deparsed.set_pos_info(deparsed.ast, 0, len(deparsed.text))
