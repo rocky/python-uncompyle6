@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2023 by Rocky Bernstein
+#  Copyright (c) 2015-2024 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -196,6 +196,10 @@ class SourceWalkerError(Exception):
 
 
 class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
+    """
+    Class to traverses a Parse Tree of the bytecode instruction built from parsing to produce some sort of source text.
+    The Parse tree may be turned an Abstract Syntax tree as an intermediate step.
+    """
     stacked_params = ("f", "indent", "is_lambda", "_globals")
 
     def __init__(
@@ -245,24 +249,24 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             is_pypy=is_pypy,
         )
 
-        # Initialize p_lambda on demand
-        self.p_lambda = None
-
-        self.treeTransform = TreeTransform(version=self.version, show_ast=showast)
+        self.ast_errors = []
+        self.currentclass = None
+        self.classes = []
         self.debug_parser = dict(debug_parser)
-        self.showast = showast
+        # Initialize p_lambda on demand
+        self.line_number = 1
+        self.linemap = {}
+        self.p_lambda = None
         self.params = params
         self.param_stack = []
         self.ERROR = None
         self.prec = 100
         self.return_none = False
         self.mod_globs = set()
-        self.currentclass = None
-        self.classes = []
+        self.showast = showast
         self.pending_newlines = 0
         self.linestarts = linestarts
-        self.line_number = 1
-        self.ast_errors = []
+        self.treeTransform = TreeTransform(version=self.version, show_ast=showast)
         # FIXME: have p.insts update in a better way
         # modularity is broken here
         self.insts = scanner.insts
@@ -1256,7 +1260,6 @@ def code_deparse(
     """
 
     assert iscode(co)
-
 
     if version is None:
         version = PYTHON_VERSION_TRIPLE

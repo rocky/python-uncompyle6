@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2024 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -35,12 +35,15 @@ from uncompyle6.version import __version__
 
 
 def _get_outstream(outfile: str) -> Any:
-    dir = os.path.dirname(outfile)
+    """
+    Return an opened output file descriptor for ``outfile``.
+    """
+    dir_name = os.path.dirname(outfile)
     failed_file = outfile + "_failed"
     if os.path.exists(failed_file):
         os.remove(failed_file)
     try:
-        os.makedirs(dir)
+        os.makedirs(dir_name)
     except OSError:
         pass
     return open(outfile, mode="w", encoding="utf-8")
@@ -50,7 +53,7 @@ def decompile(
     co,
     bytecode_version: Tuple[int] = PYTHON_VERSION_TRIPLE,
     out=sys.stdout,
-    showasm: Optional[str]=None,
+    showasm: Optional[str] = None,
     showast={},
     timestamp=None,
     showgrammar=False,
@@ -118,13 +121,12 @@ def decompile(
             if isinstance(mapstream, str):
                 mapstream = _get_outstream(mapstream)
 
+            debug_opts = {"asm": showasm, "tree": showast, "grammar": showgrammar}
+
             deparsed = deparse_code_with_map(
-                bytecode_version,
-                co,
-                out,
-                showasm,
-                showast,
-                showgrammar,
+                co=co,
+                out=out,
+                version=bytecode_version,
                 code_objects=code_objects,
                 is_pypy=is_pypy,
             )

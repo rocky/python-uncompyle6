@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2019, 2021-2023 by Rocky Bernstein
+#  Copyright (c) 2015-2019, 2021-2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -75,7 +75,6 @@ from xdis import iscode
 from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
 
 import uncompyle6.parser as python_parser
-from uncompyle6 import parser
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanner import Code, Token, get_scanner
 from uncompyle6.semantics import pysource
@@ -89,7 +88,7 @@ from uncompyle6.semantics.consts import (
     TABLE_DIRECT,
     escape,
 )
-from uncompyle6.semantics.pysource import ParserError, StringIO
+from uncompyle6.semantics.pysource import DEFAULT_DEBUG_OPTS, ParserError, StringIO
 from uncompyle6.show import maybe_show_asm, maybe_show_tree
 
 NodeInfo = namedtuple("NodeInfo", "node start finish")
@@ -1118,7 +1117,13 @@ class FragmentsWalker(pysource.SourceWalker, object):
     n_classdefdeco2 = n_classdef
 
     def gen_source(
-        self, ast, name, customize, is_lambda=False, returnNone=False, debug_opts=None
+        self,
+        ast,
+        name,
+        customize,
+        is_lambda=False,
+        returnNone=False,
+        debug_opts=DEFAULT_DEBUG_OPTS,
     ):
         """convert parse tree to Python source code"""
 
@@ -1204,7 +1209,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.p.insts = self.scanner.insts
             self.p.offset2inst_index = self.scanner.offset2inst_index
             self.p.opc = self.scanner.opc
-            ast = parser.parse(self.p, tokens, customize, code)
+            ast = python_parser.parse(self.p, tokens, customize, code)
             self.p.insts = p_insts
         except (python_parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens, {})
@@ -2065,11 +2070,11 @@ def code_deparse(
 
     # Build Syntax Tree from tokenized and massaged disassembly.
     # deparsed = pysource.FragmentsWalker(out, scanner, showast=showast)
-    show_ast = debug_opts.get("ast", None)
+    show_tree = debug_opts.get("tree", False)
     deparsed = walker(
         version,
         scanner,
-        showast=show_ast,
+        showast=show_tree,
         debug_parser=debug_parser,
         compile_mode=compile_mode,
         is_pypy=is_pypy,
