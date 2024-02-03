@@ -146,9 +146,9 @@ def decompile(
                 co,
                 out,
                 bytecode_version,
+                is_pypy=is_pypy,
                 debug_opts=debug_opts,
                 compile_mode=compile_mode,
-                is_pypy=is_pypy,
             )
             pass
         return deparsed
@@ -247,7 +247,6 @@ def main(
     showast={},
     showgrammar=False,
     source_encoding=None,
-    raise_on_error=False,
     do_linemaps=False,
     do_fragments=False,
 ) -> Tuple[int, int, int, int]:
