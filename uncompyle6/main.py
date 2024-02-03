@@ -90,7 +90,7 @@ def decompile(
     run_pypy_str = "PyPy " if IS_PYPY else ""
     sys_version_lines = sys.version.split("\n")
     if source_encoding:
-        write("# -*- coding: %s -*-" % source_encoding)
+        write(f"# -*- coding: {source_encoding} -*-")
     write(
         "# uncompyle6 version %s\n"
         "# %sPython bytecode version base %s%s\n# Decompiled from: %sPython %s"
@@ -104,9 +104,9 @@ def decompile(
         )
     )
     if co.co_filename:
-        write("# Embedded file name: %s" % co.co_filename)
+        write(f"# Embedded file name: {co.co_filename}")
     if timestamp:
-        write("# Compiled at: %s" % datetime.datetime.fromtimestamp(timestamp))
+        write(f"# Compiled at: {datetime.datetime.fromtimestamp(timestamp)}")
     if source_size:
         write("# Size of source mod 2**32: %d bytes" % source_size)
 
@@ -129,13 +129,14 @@ def decompile(
                 version=bytecode_version,
                 code_objects=code_objects,
                 is_pypy=is_pypy,
+                debug_opts=debug_opts,
             )
             header_count = 3 + len(sys_version_lines)
             linemap = [
                 (line_no, deparsed.source_linemap[line_no] + header_count)
                 for line_no in sorted(deparsed.source_linemap.keys())
             ]
-            mapstream.write("\n\n# %s\n" % linemap)
+            mapstream.write(f"\n\n# {linemap}\n")
         else:
             if do_fragments:
                 deparse_fn = code_deparse_fragments
@@ -163,11 +164,11 @@ def compile_file(source_path: str) -> str:
         basename = source_path
 
     if hasattr(sys, "pypy_version_info"):
-        bytecode_path = "%s-pypy%s.pyc" % (basename, version_tuple_to_str())
+        bytecode_path = f"{basename}-pypy{version_tuple_to_str()}.pyc"
     else:
-        bytecode_path = "%s-%s.pyc" % (basename, version_tuple_to_str())
+        bytecode_path = f"{basename}-{version_tuple_to_str()}.pyc"
 
-    print("compiling %s to %s" % (source_path, bytecode_path))
+    print(f"compiling {source_path} to {bytecode_path}")
     py_compile.compile(source_path, bytecode_path, "exec")
     return bytecode_path
 
@@ -232,7 +233,6 @@ def decompile_file(
                 compile_mode="exec",
             )
         ]
-    co = None
     return deparsed
 
 
@@ -245,7 +245,6 @@ def main(
     outfile=None,
     showasm: Optional[str] = None,
     showast={},
-    do_verify=False,
     showgrammar=False,
     source_encoding=None,
     raise_on_error=False,
@@ -274,7 +273,7 @@ def main(
         infile = os.path.join(in_base, filename)
         # print("XXX", infile)
         if not os.path.exists(infile):
-            sys.stderr.write("File '%s' doesn't exist. Skipped\n" % infile)
+            sys.stderr.write(f"File '{infile}' doesn't exist. Skipped\n")
             continue
 
         if do_linemaps:
@@ -322,13 +321,13 @@ def main(
                     ):
                         if e[0] != last_mod:
                             line = "=" * len(e[0])
-                            outstream.write("%s\n%s\n%s\n" % (line, e[0], line))
+                            outstream.write(f"{line}\n{e[0]}\n{line}\n")
                         last_mod = e[0]
                         info = offsets[e]
-                        extractInfo = d.extract_node_info(info)
-                        outstream.write("%s" % info.node.format().strip() + "\n")
-                        outstream.write(extractInfo.selectedLine + "\n")
-                        outstream.write(extractInfo.markerLine + "\n\n")
+                        extract_info = d.extract_node_info(info)
+                        outstream.write(f"{info.node.format().strip()}" + "\n")
+                        outstream.write(extract_info.selectedLine + "\n")
+                        outstream.write(extract_info.markerLine + "\n\n")
                     pass
                 pass
             tot_files += 1
@@ -349,14 +348,14 @@ def main(
             if str(e).startswith("Unsupported Python"):
                 sys.stdout.write("\n")
                 sys.stderr.write(
-                    "\n# Unsupported bytecode in file %s\n# %s\n" % (infile, e)
+                    f"\n# Unsupported bytecode in file {infile}\n# {e}\n"
                 )
             else:
                 if outfile:
                     outstream.close()
                     os.remove(outfile)
                 sys.stdout.write("\n")
-                sys.stderr.write("\nLast file: %s   " % (infile))
+                sys.stderr.write(f"\nLast file: {infile}   ")
                 raise
 
         # except:
@@ -376,7 +375,7 @@ def main(
                 okay_files += 1
                 if not current_outfile:
                     mess = "\n# okay decompiling"
-                    # mem_usage = __memUsage()
+                    # mem_usage = __mem_usage()
                     print(mess, infile)
         if current_outfile:
             sys.stdout.write(
@@ -384,7 +383,6 @@ def main(
                 % (
                     infile,
                     status_msg(
-                        do_verify,
                         tot_files,
                         okay_files,
                         failed_files,
@@ -405,14 +403,14 @@ def main(
         except Exception:
             pass
         pass
-    return (tot_files, okay_files, failed_files, verify_failed_files)
+    return tot_files, okay_files, failed_files, verify_failed_files
 
 
 # ---- main ----
 
 if sys.platform.startswith("linux") and os.uname()[2][:2] in ["2.", "3.", "4."]:
 
-    def __memUsage():
+    def __mem_sage():
         mi = open("/proc/self/stat", "r")
         mu = mi.readline().split()[22]
         mi.close()
@@ -420,11 +418,11 @@ if sys.platform.startswith("linux") and os.uname()[2][:2] in ["2.", "3.", "4."]:
 
 else:
 
-    def __memUsage():
+    def __mem_usage():
         return ""
 
 
-def status_msg(do_verify, tot_files, okay_files, failed_files, verify_failed_files):
+def status_msg(tot_files, okay_files, failed_files, verify_failed_files):
     if tot_files == 1:
         if failed_files:
             return "\n# decompile failed"

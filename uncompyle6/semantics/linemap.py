@@ -1,5 +1,6 @@
 #  Copyright (c) 2018, 2024 by Rocky Bernstein
 #
+
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +14,10 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from uncompyle6.semantics.fragments import FragmentsWalker, code_deparse as fragments_code_deparse
+from uncompyle6.semantics.fragments import (
+    FragmentsWalker,
+    code_deparse as fragments_code_deparse,
+)
 from uncompyle6.semantics.pysource import SourceWalker, code_deparse
 
 
@@ -25,9 +29,9 @@ class LineMapWalker(SourceWalker):
         self.current_line_number = 1
 
     def write(self, *data):
-        """Augment write routine to keep track of current line"""
+        """Augment write routine to keep track of current line."""
         for line in data:
-            ## print("XXX write: '%s'" % l)
+            # print(f"XXX write: '{line}'")
             for i in str(line):
                 if i == "\n":
                     self.current_line_number += 1
@@ -39,7 +43,7 @@ class LineMapWalker(SourceWalker):
     # Note n_expr needs treatment too
 
     def default(self, node):
-        """Augment write default routine to record line number changes"""
+        """Augment default-write routine to record line number changes."""
         if hasattr(node, "linestart"):
             if node.linestart:
                 self.source_linemap[self.current_line_number] = node.linestart
@@ -85,7 +89,7 @@ def code_deparse_with_fragments_and_map(*args, **kwargs):
 if __name__ == "__main__":
 
     def deparse_test(co):
-        "This is a docstring"
+        """This is a docstring"""
         deparsed = code_deparse_with_map(co)
         a = 1
         b = 2
