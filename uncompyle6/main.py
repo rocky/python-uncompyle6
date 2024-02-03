@@ -239,7 +239,7 @@ def decompile_file(
 # FIXME: combine into an options parameter
 def main(
     in_base: str,
-    out_base: str,
+    out_base: Optional[str],
     compiled_files: list,
     source_files: list,
     outfile=None,
