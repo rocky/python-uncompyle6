@@ -64,7 +64,6 @@ The node position 0 will be associated with "import".
 # FIXME: DRY code with pysource
 
 import re
-import sys
 from bisect import bisect_right
 from collections import namedtuple
 from typing import Optional
@@ -88,7 +87,12 @@ from uncompyle6.semantics.consts import (
     TABLE_DIRECT,
     escape,
 )
-from uncompyle6.semantics.pysource import DEFAULT_DEBUG_OPTS, ParserError, StringIO
+from uncompyle6.semantics.pysource import (
+    DEFAULT_DEBUG_OPTS,
+    TREE_DEFAULT_DEBUG,
+    ParserError,
+    StringIO,
+)
 from uncompyle6.show import maybe_show_asm, maybe_show_tree
 
 NodeInfo = namedtuple("NodeInfo", "node start finish")
@@ -150,12 +154,13 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def __init__(
         self,
-        version,
+        version: tuple,
         scanner,
-        showast=False,
+        showast=TREE_DEFAULT_DEBUG,
         debug_parser=PARSER_DEFAULT_DEBUG,
         compile_mode="exec",
-        is_pypy=False,
+        is_pypy=IS_PYPY,
+        linestarts={},
         tolerate_errors=True,
     ):
         pysource.SourceWalker.__init__(
@@ -167,6 +172,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             debug_parser=debug_parser,
             compile_mode=compile_mode,
             is_pypy=is_pypy,
+            linestarts=linestarts,
             tolerate_errors=tolerate_errors,
         )
 
@@ -657,7 +663,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         n = ast[iter_index]
 
-        assert n == "comp_iter"
+        assert n == "comp_iter", n.kind
         # Find the comprehension body. It is the inner-most
         # node that is not list_.. .
         while n == "comp_iter":  # list_iter
@@ -716,7 +722,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         assert iscode(code), node[code_index]
         code_name = code.co_name
-        code = Code(code, self.scanner, self.currentclass)
+        code = Code(code, self.scanner, self.currentclass, self.debug_opts["asm"])
 
         ast = self.build_ast(code._tokens, code._customize, code)
 
@@ -1063,13 +1069,17 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     # Python 3.2 works like this
                     subclass = load_closure[-2].attr
                 else:
-                    raise "Internal Error n_classdef: cannot find class body"
+                    raise RuntimeError(
+                        "Internal Error n_classdef: cannot find class body"
+                    )
                 if hasattr(buildclass[3], "__len__"):
                     subclass_info = buildclass[3]
                 elif hasattr(buildclass[2], "__len__"):
                     subclass_info = buildclass[2]
                 else:
-                    raise "Internal Error n_classdef: cannot superclass name"
+                    raise RuntimeError(
+                        "Internal Error n_classdef: cannot superclass name"
+                    )
             else:
                 subclass = buildclass[1][0].attr
                 subclass_info = node[0]
@@ -1570,19 +1580,19 @@ class FragmentsWalker(pysource.SourceWalker, object):
             if node[0].kind.startswith("kvlist"):
                 # Python 3.5+ style key/value list in dict
                 kv_node = node[0]
-                l = list(kv_node)
-                length = len(l)
+                ll = list(kv_node)
+                length = len(ll)
                 if kv_node[-1].kind.startswith("BUILD_MAP"):
                     length -= 1
                 i = 0
                 while i < length:
                     self.write(sep)
-                    name = self.traverse(l[i], indent="")
-                    l[i].parent = kv_node
-                    l[i + 1].parent = kv_node
+                    name = self.traverse(ll[i], indent="")
+                    ll[i].parent = kv_node
+                    ll[i + 1].parent = kv_node
                     self.write(name, ": ")
                     value = self.traverse(
-                        l[i + 1], indent=self.indent + (len(name) + 2) * " "
+                        ll[i + 1], indent=self.indent + (len(name) + 2) * " "
                     )
                     self.write(sep, name, ": ", value)
                     sep = line_seperator
@@ -1592,25 +1602,25 @@ class FragmentsWalker(pysource.SourceWalker, object):
             elif len(node) > 1 and node[1].kind.startswith("kvlist"):
                 # Python 3.0..3.4 style key/value list in dict
                 kv_node = node[1]
-                l = list(kv_node)
-                if len(l) > 0 and l[0].kind == "kv3":
+                ll = list(kv_node)
+                if len(ll) > 0 and ll[0].kind == "kv3":
                     # Python 3.2 does this
                     kv_node = node[1][0]
-                    l = list(kv_node)
+                    ll = list(kv_node)
                 i = 0
-                while i < len(l):
-                    l[i].parent = kv_node
-                    l[i + 1].parent = kv_node
+                while i < len(ll):
+                    ll[i].parent = kv_node
+                    ll[i + 1].parent = kv_node
                     key_start = len(self.f.getvalue()) + len(sep)
-                    name = self.traverse(l[i + 1], indent="")
+                    name = self.traverse(ll[i + 1], indent="")
                     key_finish = key_start + len(name)
                     val_start = key_finish + 2
                     value = self.traverse(
-                        l[i], indent=self.indent + (len(name) + 2) * " "
+                        ll[i], indent=self.indent + (len(name) + 2) * " "
                     )
                     self.write(sep, name, ": ", value)
-                    self.set_pos_info_recurse(l[i + 1], key_start, key_finish)
-                    self.set_pos_info_recurse(l[i], val_start, val_start + len(value))
+                    self.set_pos_info_recurse(ll[i + 1], key_start, key_finish)
+                    self.set_pos_info_recurse(ll[i], val_start, val_start + len(value))
                     sep = line_seperator
                     i += 3
                     pass
@@ -1814,7 +1824,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 if m.group("child"):
                     node = node[int(m.group("child"))]
                     node.parent = startnode
-            except:
+            except Exception:
                 print(node.__dict__)
                 raise
 
@@ -1951,7 +1961,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     start = len(self.f.getvalue())
                     self.write(eval(expr, d, d))
                     self.set_pos_info(node, start, len(self.f.getvalue()))
-                except:
+                except Exception:
                     print(node)
                     raise
             m = escape.search(fmt, i)
@@ -2001,7 +2011,7 @@ def deparse_code(
     showgrammar=False,
     code_objects={},
     compile_mode="exec",
-    is_pypy=None,
+    is_pypy=IS_PYPY,
     walker=FragmentsWalker,
 ):
     debug_opts = {"asm": showasm, "ast": showast, "grammar": showgrammar}
@@ -2054,7 +2064,7 @@ def code_deparse(
         is_pypy = IS_PYPY
 
     # store final output stream for case of error
-    scanner = get_scanner(version, is_pypy=is_pypy)
+    scanner = get_scanner(version, is_pypy=is_pypy, show_asm=debug_opts["asm"])
 
     show_asm = debug_opts.get("asm", None)
     tokens, customize = scanner.ingest(co, code_objects=code_objects, show_asm=show_asm)
@@ -2078,6 +2088,7 @@ def code_deparse(
         debug_parser=debug_parser,
         compile_mode=compile_mode,
         is_pypy=is_pypy,
+        linestarts=linestarts,
     )
 
     is_top_level_module = co.co_name == "<module>"
@@ -2153,7 +2164,7 @@ def code_deparse_around_offset(
     assert iscode(co)
 
     if version is None:
-        version = sys.version_info[:3]
+        version = PYTHON_VERSION_TRIPLE
     if is_pypy is None:
         is_pypy = IS_PYPY
 
@@ -2180,7 +2191,7 @@ def deparse_code_around_offset(
     out=StringIO(),
     showasm=False,
     showast=False,
-    showgrammar=False,
+    showgrammar=PARSER_DEFAULT_DEBUG,
     is_pypy=False,
 ):
     debug_opts = {"asm": showasm, "ast": showast, "grammar": showgrammar}
