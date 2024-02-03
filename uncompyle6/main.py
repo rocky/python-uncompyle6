@@ -121,7 +121,7 @@ def decompile(
             if isinstance(mapstream, str):
                 mapstream = _get_outstream(mapstream)
 
-            debug_opts = {"asm": showasm, "tree": showast, "grammar": showgrammar}
+            debug_opts = {"asm": showasm, "tree": showast, "grammar": grammar}
 
             deparsed = deparse_code_with_map(
                 co=co,
@@ -347,9 +347,7 @@ def main(
             sys.stdout.write(f"\n{str(e)}\n")
             if str(e).startswith("Unsupported Python"):
                 sys.stdout.write("\n")
-                sys.stderr.write(
-                    f"\n# Unsupported bytecode in file {infile}\n# {e}\n"
-                )
+                sys.stderr.write(f"\n# Unsupported bytecode in file {infile}\n# {e}\n")
             else:
                 if outfile:
                     outstream.close()
