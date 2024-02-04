@@ -65,7 +65,6 @@ The node position 0 will be associated with "import".
 
 import re
 from bisect import bisect_right
-from collections import namedtuple
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from spark_parser.ast import GenericASTTraversalPruningException
@@ -77,7 +76,7 @@ from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanner import Code, Token, get_scanner
 from uncompyle6.semantics import pysource
 from uncompyle6.semantics.check_ast import checker
-from uncompyle6.semantics.pysource import ParserError
+from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.show import maybe_show_asm, maybe_show_tree
 
 if PYTHON_VERSION_TRIPLE < (2, 5):
@@ -94,18 +93,17 @@ from uncompyle6.semantics.consts import (
     TABLE_DIRECT,
     escape,
 )
+from uncompyle6.semantics.pysource import (
+    DEFAULT_DEBUG_OPTS,
+    TREE_DEFAULT_DEBUG,
+    StringIO,
+)
+from uncompyle6.show import maybe_show_asm, maybe_show_tree
+
 if PYTHON_VERSION_TRIPLE < (2, 6):
     from xdis.namedtuple24 import namedtuple
 else:
     from collections import namedtuple
-
-from uncompyle6.semantics.pysource import (
-    DEFAULT_DEBUG_OPTS,
-    TREE_DEFAULT_DEBUG,
-    ParserError,
-    StringIO,
-)
-from uncompyle6.show import maybe_show_asm, maybe_show_tree
 
 NodeInfo = namedtuple("NodeInfo", "node start finish")
 ExtractInfo = namedtuple(
@@ -166,7 +164,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def __init__(
         self,
-        version: tuple,
+        version,
         scanner,
         showast=TREE_DEFAULT_DEBUG,
         debug_parser=PARSER_DEFAULT_DEBUG,
@@ -1201,7 +1199,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 ast = python_parser.parse(self.p, tokens, customize, code)
                 self.customize(customize)
                 self.p.insts = p_insts
-            except (parser.ParserError(e), AssertionError(e)):
+            except (ParserError(e), AssertionError(e)):
                 raise ParserError(e, tokens)
             transform_tree = self.treeTransform.transform(ast, code)
             maybe_show_tree(self, ast)
@@ -1241,7 +1239,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.p.opc = self.scanner.opc
             ast = python_parser.parse(self.p, tokens, customize, code)
             self.p.insts = p_insts
-        except (parser.ParserError(e), AssertionError(e)):
+        except (ParserError(e), AssertionError(e)):
             raise ParserError(e, tokens, {})
 
         checker(ast, False, self.ast_errors)

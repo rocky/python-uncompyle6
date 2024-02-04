@@ -307,17 +307,6 @@ def main(
             outstream = sys.stdout
             if do_linemaps:
                 linemap_stream = sys.stdout
-            if do_verify:
-                prefix = os.path.basename(filename) + "-"
-                if prefix.endswith(".py"):
-                    prefix = prefix[: -len(".py")]
-
-                # Unbuffer output if possible
-                if sys.stdout.isatty():
-                    buffering = -1
-                else:
-                    buffering = 0
-                sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering)
         else:
             if filename.endswith(".pyc"):
                 current_outfile = os.path.join(out_base, filename[0:-1])
@@ -399,39 +388,7 @@ def main(
         else:  # uncompile successful
             if current_outfile:
                 outstream.close()
-                if do_verify:
-                    try:
-                        msg = verify.compare_code_with_srcfile(
-                            infile, current_outfile, do_verify
-                        )
-                        if not current_outfile:
-                            if not msg:
-                                print("\n# okay decompiling %s" % infile)
-                                okay_files += 1
-                            else:
-                                verify_failed_files += 1
-                                print("\n# %s\n\t%s", infile, msg)
-                                pass
-                        else:
-                            okay_files += 1
-                            pass
-                    except verify.VerifyCmpError, e:
-                        print(e)
-                        verify_failed_files += 1
-                        os.rename(current_outfile, current_outfile + "_unverified")
-                        sys.stderr.write("### Error Verifying %s\n" % filename)
-                        sys.stderr.write(str(e) + "\n")
-                        if not outfile:
-                            sys.stderr.write("### Error Verifiying %s" %
-                                            filename)
-                            sys.stderr.write(e)
-                            if raise_on_error:
-                                raise
-                            pass
-                        pass
-                    pass
-                else:
-                    okay_files += 1
+                okay_files += 1
                 pass
             elif do_verify:
                 sys.stderr.write("\n### uncompile successful, "

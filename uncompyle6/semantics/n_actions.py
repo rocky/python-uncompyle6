@@ -1,4 +1,4 @@
-#  Copyright (c) 2022-2023 by Rocky Bernstein
+#  Copyright (c) 2022-2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -18,16 +18,10 @@ Custom Nonterminal action functions. See NonterminalActions docstring.
 
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanners.tok import Token
-
-from uncompyle6.semantics.helper import (
-    find_code_node,
-    flatten_list,
-)
-from uncompyle6.util import better_repr
-
 from uncompyle6.semantics.consts import INDENT_PER_LEVEL, NONE, PRECEDENCE, minint
 from uncompyle6.semantics.helper import find_code_node, flatten_list
-from uncompyle6.util import better_repr, get_code_name
+from uncompyle6.util import better_repr
+
 
 class NonterminalActions:
     """
@@ -719,8 +713,9 @@ class NonterminalActions:
                         iter_index = 4
                     else:
                         iter_index = 3
-                    self.comprehension_walk(node, iter_index=iter_index,
-                                            code_index=code_index)
+                    self.comprehension_walk(
+                        node, iter_index=iter_index, code_index=code_index
+                    )
                     pass
                 pass
         else:

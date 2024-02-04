@@ -48,7 +48,7 @@ CONST_COLLECTIONS = ("CONST_LIST", "CONST_SET", "CONST_DICT")
 
 class Scanner37Base(Scanner):
     def __init__(self, version, show_asm=None, debug="", is_pypy=False):
-        super(Scanner37Base, self).__init__(version, show_asm, is_pypy)
+        Scanner.__init__(self, version, show_asm, is_pypy)
         self.offset2tok_index = None
         self.debug = debug
         self.is_pypy = is_pypy

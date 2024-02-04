@@ -22,12 +22,12 @@ This sets up opcodes Python's 3.8 and calls a generalized
 scanner routine for Python 3.7 and up.
 """
 
-from uncompyle6.scanners.tok import off2int
-from uncompyle6.scanners.scanner37 import Scanner37
-from uncompyle6.scanners.scanner37base import Scanner37Base
-
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_38 as opc
+
+from uncompyle6.scanners.scanner37 import Scanner37
+from uncompyle6.scanners.scanner37base import Scanner37Base
+from uncompyle6.scanners.tok import off2int
 
 # bytecode verification, verify(), uses JUMP_OPS from here
 JUMP_OPs = opc.JUMP_OPS
@@ -60,8 +60,8 @@ class Scanner38(Scanner37):
         grammar rules. Specifically, variable arg tokens like MAKE_FUNCTION or BUILD_LIST
         cause specific rules for the specific number of arguments they take.
         """
-        tokens, customize = super(Scanner38, self).ingest(
-            bytecode, classname, code_objects, show_asm
+        tokens, customize = Scanner37.ingest(
+            self, bytecode, classname, code_objects, show_asm
         )
 
         # Hacky way to detect loop ranges.
@@ -93,7 +93,7 @@ class Scanner38(Scanner37):
                 if len(loop_ends):
                     next_end = loop_ends[-1]
                 else:
-                    next_end = tokens[len(tokens)-1].off2int() + 10
+                    next_end = tokens[len(tokens) - 1].off2int() + 10
 
             # things that smash new_tokens like BUILD_LIST have to come first.
 
@@ -161,4 +161,6 @@ if __name__ == "__main__":
             print(t.format())
         pass
     else:
-        print("Need to be Python 3.8 to demo; I am version %s." % version_tuple_to_str())
+        print(
+            "Need to be Python 3.8 to demo; I am version %s." % version_tuple_to_str()
+        )

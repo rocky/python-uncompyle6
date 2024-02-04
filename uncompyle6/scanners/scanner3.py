@@ -33,11 +33,6 @@ For example:
 Finally we save token information.
 """
 
-from xdis import iscode, instruction_size
-from xdis.bytecode import _get_const_info
-
-from uncompyle6.scanners.tok import Token
-from uncompyle6.scanner import parse_fn_counts_30_35
 import xdis
 
 # Get all the opcodes into globals
@@ -54,7 +49,7 @@ globals().update(op3.opmap)
 
 class Scanner3(Scanner):
     def __init__(self, version, show_asm=None, is_pypy=False):
-        super(Scanner3, self).__init__(version, show_asm, is_pypy)
+        Scanner.__init__(self, version, show_asm, is_pypy)
 
         # Create opcode classification sets
         # Note: super initialization above initializes self.opc
@@ -286,8 +281,7 @@ class Scanner3(Scanner):
         )
         return new_tokens
 
-    def bound_map_from_inst(
-        self, insts, next_tokens, inst, t, i):
+    def bound_map_from_inst(self, insts, next_tokens, inst, t, i):
         """
         Try to a sequence of instruction that ends with a BUILD_MAP into
         a sequence that can be parsed much faster, but inserting the
@@ -1532,16 +1526,3 @@ class Scanner3(Scanner):
             instr_offsets = filtered
             filtered = []
         return instr_offsets
-
-
-if __name__ == "__main__":
-    import inspect
-
-    from xdis.version_info import PYTHON_VERSION_TRIPLE
-
-    co = inspect.currentframe().f_code
-
-    tokens, customize = Scanner3(PYTHON_VERSION_TRIPLE).ingest(co)
-    for t in tokens:
-        print(t)
->>>>>>> python-3.0-to-3.2

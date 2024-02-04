@@ -32,9 +32,7 @@ from xdis import (
     instruction_size,
     next_offset,
 )
-from xdis.version_info import PYTHON_VERSION_TRIPLE
-
-from xdis.version_info import IS_PYPY, version_tuple_to_str
+from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, version_tuple_to_str
 
 from uncompyle6.scanners.tok import Token
 
@@ -106,7 +104,7 @@ class Code(object):
 
 
 class Scanner:
-    def __init__(self, version: tuple, show_asm=None, is_pypy=False):
+    def __init__(self, version, show_asm=None, is_pypy=False):
         self.version = version
         self.show_asm = show_asm
         self.is_pypy = is_pypy
@@ -321,7 +319,7 @@ class Scanner:
         return arg
 
     def next_offset(self, op, offset):
-        return xdis.next_offset(op, self.opc, offset)
+        return next_offset(op, self.opc, offset)
 
     def print_bytecode(self):
         for i in self.op_range(0, len(self.code)):
@@ -646,7 +644,7 @@ def get_scanner(version, is_pypy=False, show_asm=None):
             raise RuntimeError(
                 "Import Python version, %s, for decompilation failed"
                 % version_tuple_to_str(version)
-                )
+            )
 
         if is_pypy:
             scanner_class_name = "ScannerPyPy%s" % v_str
@@ -671,5 +669,6 @@ if __name__ == "__main__":
     # scanner = get_scanner('2.7.13', True)
     # scanner = get_scanner(sys.version[:5], False)
     from xdis.version_info import PYTHON_VERSION_TRIPLE
+
     scanner = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY, True)
     tokens, customize = scanner.ingest(co, {}, show_asm="after")

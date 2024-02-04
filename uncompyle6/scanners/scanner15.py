@@ -6,21 +6,18 @@ This massages tokenized 1.5 bytecode to make it more amenable for
 grammar parsing.
 """
 
+# bytecode verification, verify(), uses JUMP_OPs from here
+from xdis.opcodes import opcode_15
+
 import uncompyle6.scanners.scanner21 as scan
 
 # from uncompyle6.scanners.scanner26 import ingest as  ingest26
 
-# bytecode verification, verify(), uses JUMP_OPs from here
-from xdis.opcodes import opcode_15
 
 JUMP_OPS = opcode_15.JUMP_OPS
 
-<<<<<<< HEAD
-# We base this off of 2.1 instead of the other way around
-=======
 
-# We base this off of 2.2 instead of the other way around
->>>>>>> python-3.0-to-3.2
+# We base this off of 2.1 instead of the other way around
 # because we cleaned things up this way.
 # The history is that 2.7 support is the cleanest,
 # then from that we got 2.6 and so on.

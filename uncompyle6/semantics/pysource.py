@@ -168,6 +168,7 @@ from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.semantics.transform import TreeTransform, is_docstring
 from uncompyle6.show import maybe_show_tree
 from uncompyle6.util import better_repr
+
 if PYTHON_VERSION_TRIPLE < (2, 5):
     from cStringIO import StringIO
 else:
@@ -1260,7 +1261,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             self.p.opc = self.scanner.opc
             ast = parse(self.p, tokens, customize, code)
             self.p.insts = p_insts
-        except python_parser.ParserError, e:
+        except ParserError, e:
             raise ParserError(e, tokens, self.p.debug["reduce"])
 
         checker(ast, False, self.ast_errors)
