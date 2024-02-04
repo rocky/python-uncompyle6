@@ -3,7 +3,7 @@
 # More could be done here though.
 
 from math import copysign
-from xdis.codetype import UnicodeForPython3
+from xdis.cross_types import UnicodeForPython3
 from xdis.version_info import PYTHON_VERSION_TRIPLE
 
 def get_code_name(code) -> str:
