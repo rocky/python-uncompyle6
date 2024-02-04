@@ -2,11 +2,10 @@
 """
 Python 3.7 base code. We keep non-custom-generated grammar rules out of this file.
 """
-from uncompyle6.parser import ParserError, PythonParser, nop_func
-from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from spark_parser.spark import rule2str
 
+from uncompyle6.parser import ParserError, PythonParser, nop_func
 from uncompyle6.parsers.reducecheck import (
     and_invalid,
     ifelsestmt,
@@ -16,9 +15,10 @@ from uncompyle6.parsers.reducecheck import (
     or_check,
     testtrue,
     tryelsestmtl3,
-    while1stmt,
     while1elsestmt,
+    while1stmt,
 )
+from uncompyle6.parsers.treenode import SyntaxTree
 
 
 class Python37BaseParser(PythonParser):
@@ -38,7 +38,7 @@ class Python37BaseParser(PythonParser):
             return "%s_0" % (token.kind)
 
     def add_make_function_rule(self, rule, opname, attr, customize):
-        """Python 3.3 added a an addtional LOAD_STR before MAKE_FUNCTION and
+        """Python 3.3 added a an additional LOAD_STR before MAKE_FUNCTION and
         this has an effect on many rules.
         """
         new_rule = rule % "LOAD_STR "
@@ -54,7 +54,7 @@ class Python37BaseParser(PythonParser):
                         expr
                         call
                         CALL_FUNCTION_3
-         """
+        """
         # FIXME: I bet this can be simplified
         # look for next MAKE_FUNCTION
         for i in range(i + 1, len(tokens)):
@@ -104,7 +104,6 @@ class Python37BaseParser(PythonParser):
     # organization for this. For example, arrange organize by opcode base?
 
     def customize_grammar_rules(self, tokens, customize):
-
         is_pypy = False
 
         # For a rough break out on the first word. This may
@@ -321,18 +320,24 @@ class Python37BaseParser(PythonParser):
 
             elif opname in ("BUILD_CONST_LIST", "BUILD_CONST_DICT", "BUILD_CONST_SET"):
                 if opname == "BUILD_CONST_DICT":
-                    rule = """
+                    rule = (
+                        """
                             add_consts          ::= ADD_VALUE*
                             const_list          ::= COLLECTION_START add_consts %s
                             dict                ::= const_list
                             expr                ::= dict
-                        """ % opname
+                        """
+                        % opname
+                    )
                 else:
-                    rule = """
+                    rule = (
+                        """
                             add_consts          ::= ADD_VALUE*
                             const_list          ::= COLLECTION_START add_consts %s
                             expr                ::= const_list
-                        """ % opname
+                        """
+                        % opname
+                    )
                 self.addRule(rule, nop_func)
 
             elif opname_base == "BUILD_CONST_KEY_MAP":
@@ -348,7 +353,6 @@ class Python37BaseParser(PythonParser):
                 self.addRule(rule, nop_func)
 
             elif opname_base in ("BUILD_MAP", "BUILD_MAP_UNPACK"):
-
                 if opname == "BUILD_MAP_UNPACK":
                     self.addRule(
                         """
@@ -525,7 +529,6 @@ class Python37BaseParser(PythonParser):
                     "CALL_FUNCTION_VAR_KW",
                 )
             ) or opname.startswith("CALL_FUNCTION_KW"):
-
                 if opname == "CALL_FUNCTION" and token.attr == 1:
                     rule = """
                      expr         ::= dict_comp
@@ -1259,12 +1262,11 @@ class Python37BaseParser(PythonParser):
             if fn:
                 return fn(self, lhs, n, rule, ast, tokens, first, last)
         except Exception:
-            import sys, traceback
+            import sys
+            import traceback
 
             print(
-                ("Exception in %s %s\n"
-                 + "rule: %s\n"
-                 + "offsets %s .. %s")
+                ("Exception in %s %s\n" + "rule: %s\n" + "offsets %s .. %s")
                 % (
                     fn.__name__,
                     sys.exc_info()[1],

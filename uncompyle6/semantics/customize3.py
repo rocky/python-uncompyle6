@@ -225,7 +225,7 @@ def customize_for_version3(self, version):
             assert node[0] == "expr"
             if node[0][0] == "get_iter":
                 # Skip over yield_from.expr.get_iter which adds an
-                # extra iter(). Maybe we can do in tranformation phase instead?
+                # extra iter(). Maybe we can do in transformation phase instead?
                 template = ("yield from %c", (0, "expr"))
                 self.template_engine(template, node[0][0])
             else:
@@ -320,7 +320,7 @@ def customize_for_version3(self, version):
         # FIXME: the real situation is that when derived from
         # function_def_annotate we the name has been filled in.
         # But when derived from funcdefdeco it hasn't Would like a better
-        # way to distinquish.
+        # way to distinguish.
         if self.f.getvalue()[-4:] == "def ":
             self.write(code_node.attr.co_name)
 

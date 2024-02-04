@@ -11,6 +11,16 @@ except Exception:
     def is_negative_zero(n):
         return False
 
+def get_code_name(code) -> str:
+    code_name = code.co_name
+    if isinstance(code_name, UnicodeForPython3):
+        return code_name.value.decode("utf-8")
+    return code_name
+
+def is_negative_zero(n):
+    """Returns true if n is -0.0"""
+    return n == 0.0 and copysign(1, n) == -1
+
 def better_repr(v, version):
     """Work around Python's unorthogonal and unhelpful repr() for primitive float
     and complex."""

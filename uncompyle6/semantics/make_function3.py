@@ -36,7 +36,7 @@ def make_function3_annotate(
     self, node, is_lambda, nested=1, code_node=None, annotate_last=-1
 ):
     """
-    Dump function defintion, doc string, and function
+    Dump function definition, doc string, and function
     body. This code is specialized for Python 3"""
 
     def build_param(ast, name, default):
@@ -312,7 +312,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     #   the object on the stack, for keyword-only parameters
     # * parameter annotation objects
     # * a tuple listing the parameter names for the annotations
-    #   (only if there are ony annotation objects)
+    #   (only if there are only annotation objects)
     # * the code associated with the function (at TOS1)
     # * the qualified name of the function (at TOS)
 

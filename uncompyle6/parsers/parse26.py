@@ -307,7 +307,7 @@ class Python26Parser(Python2Parser):
 
         and                ::= expr JUMP_IF_FALSE POP_TOP expr JUMP_IF_FALSE POP_TOP
 
-        # A "compare_chained" is two comparisions like x <= y <= z
+        # A "compare_chained" is two comparisons like x <= y <= z
         compare_chained          ::= expr compared_chained_middle ROT_TWO
                                      COME_FROM POP_TOP _come_froms
         compared_chained_middle  ::= expr DUP_TOP ROT_THREE COMPARE_OP
@@ -465,7 +465,7 @@ class Python26Parser(Python2Parser):
             ja_attr = ast[4].attr
             return tokens[last].offset != ja_attr
         elif lhs == "try_except":
-            # We need to distingush "try_except" from "tryelsestmt"; we do that
+            # We need to distinguish "try_except" from "tryelsestmt"; we do that
             # by checking the jump before the END_FINALLY
             # If we have:
             #    insn

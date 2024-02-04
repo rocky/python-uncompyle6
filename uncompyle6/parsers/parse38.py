@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2020, 2022 Rocky Bernstein
+#  Copyright (c) 2017-2020, 2022-2023 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -120,7 +120,8 @@ class Python38Parser(Python37Parser):
         for38              ::= expr get_for_iter store for_block
 
         forelsestmt38      ::= expr get_for_iter store for_block POP_BLOCK else_suite
-        forelsestmt38      ::= expr get_for_iter store for_block JUMP_BACK _come_froms else_suite
+        forelsestmt38      ::= expr get_for_iter store for_block JUMP_BACK _come_froms
+                               else_suite
 
         forelselaststmt38  ::= expr get_for_iter store for_block POP_BLOCK else_suitec
         forelselaststmtl38 ::= expr get_for_iter store for_block POP_BLOCK else_suitel
@@ -129,7 +130,8 @@ class Python38Parser(Python37Parser):
         except_return_value ::= POP_BLOCK return
         except_return_value ::= expr POP_BLOCK RETURN_VALUE
 
-        whilestmt38        ::= _come_froms testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
+        whilestmt38        ::= _come_froms testexpr l_stmts_opt COME_FROM JUMP_BACK
+                                POP_BLOCK
         whilestmt38        ::= _come_froms testexpr l_stmts_opt JUMP_BACK POP_BLOCK
         whilestmt38        ::= _come_froms testexpr l_stmts_opt JUMP_BACK come_froms
         whilestmt38        ::= _come_froms testexpr returns               POP_BLOCK

@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2024 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ from uncompyle6.code_fns import check_object_path
 from uncompyle6.parser import ParserError
 from uncompyle6.semantics import pysource
 from uncompyle6.semantics.fragments import code_deparse as code_deparse_fragments
+from uncompyle6.semantics.linemap import deparse_code_with_map
 from uncompyle6.semantics.pysource import PARSER_DEFAULT_DEBUG, code_deparse
 from uncompyle6.version import __version__
 
@@ -34,19 +35,22 @@ from uncompyle6.version import __version__
 
 
 def _get_outstream(outfile):
-    dir = os.path.dirname(outfile)
+    """
+    Return an opened output file descriptor for ``outfile``.
+    """
+    dir_name = os.path.dirname(outfile)
     failed_file = outfile + "_failed"
     if os.path.exists(failed_file):
         os.remove(failed_file)
     try:
-        os.makedirs(dir)
+        os.makedirs(dir_name)
     except OSError:
         pass
     return open(outfile, 'wb')
 
 def decompile(
     co,
-    bytecode_version = PYTHON_VERSION_TRIPLE,
+    bytecode_version=PYTHON_VERSION_TRIPLE,
     out=sys.stdout,
     showasm=None,
     showast={},
@@ -64,7 +68,7 @@ def decompile(
     """
     ingests and deparses a given code block 'co'
 
-    if `bytecode_version` is None, use the current Python intepreter
+    if `bytecode_version` is None, use the current Python interpreter
     version.
 
     Caller is responsible for closing `out` and `mapstream`
@@ -79,7 +83,7 @@ def decompile(
         s += "\n"
         real_out.write(s)
 
-    assert iscode(co), ("%s does not smell like code" % co)
+    assert iscode(co), "%s does not smell like code" % co
 
     if is_pypy:
         co_pypy_str = "PyPy "
@@ -136,15 +140,15 @@ def decompile(
             if isinstance(mapstream, str):
                 mapstream = _get_outstream(mapstream)
 
+            debug_opts = {"asm": showasm, "tree": showast, "grammar": grammar}
+
             deparsed = deparse_code_with_map(
-                bytecode_version,
-                co,
-                out,
-                showasm,
-                showast,
-                showgrammar,
+                co=co,
+                out=out,
+                version=bytecode_version,
                 code_objects=code_objects,
                 is_pypy=is_pypy,
+                debug_opts=debug_opts,
                 compile_mode=compile_mode,
             )
             header_count = 3 + len(sys_version_lines)
@@ -162,9 +166,9 @@ def decompile(
                 co,
                 out,
                 bytecode_version,
+                is_pypy=is_pypy,
                 debug_opts=debug_opts,
                 compile_mode=compile_mode,
-                is_pypy=is_pypy,
             )
             pass
         return deparsed
@@ -249,7 +253,6 @@ def decompile_file(
                 compile_mode="exec",
             )
         ]
-    co = None
     return deparsed
 
 
@@ -262,10 +265,8 @@ def main(
     outfile=None,
     showasm=None,
     showast={},
-    do_verify=False,
     showgrammar=False,
     source_encoding=None,
-    raise_on_error=False,
     do_linemaps=False,
     do_fragments=False,
 ):
@@ -353,10 +354,10 @@ def main(
                             outstream.write("%s\n%s\n%s\n" % (line, e[0], line))
                         last_mod = e[0]
                         info = offsets[e]
-                        extractInfo = d.extract_node_info(info)
+                        extract_info = d.extract_node_info(info)
                         outstream.write("%s" % info.node.format().strip() + "\n")
-                        outstream.write(extractInfo.selectedLine + "\n")
-                        outstream.write(extractInfo.markerLine + "\n\n")
+                        outstream.write(extract_info.selectedLine + "\n")
+                        outstream.write(extract_info.markerLine + "\n\n")
                     pass
                 pass
             tot_files += 1
@@ -448,7 +449,6 @@ def main(
                 % (
                     infile,
                     status_msg(
-                        do_verify,
                         tot_files,
                         okay_files,
                         failed_files,
@@ -469,14 +469,14 @@ def main(
         except Exception:
             pass
         pass
-    return (tot_files, okay_files, failed_files, verify_failed_files)
+    return tot_files, okay_files, failed_files, verify_failed_files
 
 
 # ---- main ----
 
 if sys.platform.startswith("linux") and os.uname()[2][:2] in ["2.", "3.", "4."]:
 
-    def __memUsage():
+    def __mem_sage():
         mi = open("/proc/self/stat", "r")
         mu = mi.readline().split()[22]
         mi.close()
@@ -484,11 +484,11 @@ if sys.platform.startswith("linux") and os.uname()[2][:2] in ["2.", "3.", "4."]:
 
 else:
 
-    def __memUsage():
+    def __mem_usage():
         return ""
 
 
-def status_msg(do_verify, tot_files, okay_files, failed_files, verify_failed_files):
+def status_msg(tot_files, okay_files, failed_files, verify_failed_files):
     if tot_files == 1:
         if failed_files:
             return "\n# decompile failed"

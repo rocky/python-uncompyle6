@@ -39,14 +39,10 @@ class Python27Parser(Python2Parser):
         stmt           ::= dict_comp_func
 
         dict_comp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
-                           comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
-        dict_comp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
-                           comp_iter JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
+                           comp_iter JUMP_BACK ending_return
 
         set_comp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
-                          JUMP_BACK RETURN_VALUE RETURN_LAST
-        set_comp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
-                          JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
+                          JUMP_BACK ending_return
 
         comp_iter     ::= comp_if_not
         comp_if_not   ::= expr jmp_true comp_iter

@@ -1,5 +1,5 @@
 # From 2.7 test_normalize.py
-# Bug has to to with finding the end of the tryelse block. I think thrown
+# Bug has to do with finding the end of the tryelse block. I think thrown
 # off by the "continue". In instructions the COME_FROM for END_FINALLY
 # was at the wrong offset because some sort of "rtarget" was adjust.
 

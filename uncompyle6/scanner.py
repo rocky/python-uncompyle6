@@ -1,4 +1,4 @@
-#  Copyright (c) 2016, 2018-2023 by Rocky Bernstein
+#  Copyright (c) 2016, 2018-2024 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -21,12 +21,9 @@ scanner/ingestion module. From here we call various version-specific
 scanners, e.g. for Python 2.7 or 3.4.
 """
 
-from array import array
 import sys
+from array import array
 
-from uncompyle6.scanners.tok import Token
-from xdis.version_info import IS_PYPY, version_tuple_to_str
-import xdis
 from xdis import (
     Bytecode,
     canonic_python_version,
@@ -36,6 +33,10 @@ from xdis import (
     next_offset,
 )
 from xdis.version_info import PYTHON_VERSION_TRIPLE
+
+from xdis.version_info import IS_PYPY, version_tuple_to_str
+
+from uncompyle6.scanners.tok import Token
 
 if PYTHON_VERSION_TRIPLE < (2, 6):
     from xdis.namedtuple24 import namedtuple
@@ -81,6 +82,7 @@ CANONIC2VERSION = dict(
 CANONIC2VERSION["3.5.2"] = 3.5
 L65536 = 65536
 
+
 def long(num):
     return num
 
@@ -103,8 +105,8 @@ class Code(object):
         self._tokens, self._customize = scanner.ingest(co, classname, show_asm=show_asm)
 
 
-class Scanner(object):
-    def __init__(self, version, show_asm=None, is_pypy=False):
+class Scanner:
+    def __init__(self, version: tuple, show_asm=None, is_pypy=False):
         self.version = version
         self.show_asm = show_asm
         self.is_pypy = is_pypy
@@ -128,9 +130,7 @@ class Scanner(object):
         # FIXME: This weird Python2 behavior is not Python3
         self.resetTokenClass()
 
-    def bound_collection_from_tokens(
-        self, tokens, t, i, collection_type
-    ):
+    def bound_collection_from_tokens(self, tokens, t, i, collection_type):
         count = t.attr
         assert isinstance(count, int)
 
@@ -483,7 +483,6 @@ class Scanner(object):
         result = []
         extended_arg = 0
         for offset in self.op_range(start, end):
-
             op = code[offset]
 
             if op == self.opc.EXTENDED_ARG:
@@ -542,7 +541,6 @@ class Scanner(object):
                 offset = inst.offset
                 continue
             if last_was_extarg:
-
                 # j = self.stmts.index(inst.offset)
                 # self.lines[j] = offset
 
@@ -607,7 +605,7 @@ def parse_fn_counts_30_35(argc):
     In Python 3.0 to 3.5 MAKE_CLOSURE and MAKE_FUNCTION encode
     arguments counts of positional, default + named, and annotation
     arguments a particular kind of encoding where each of
-    the entry a a packe byted value of the lower 24 bits
+    the entry a a packed byted value of the lower 24 bits
     of ``argc``.  The high bits of argc may have come from
     an EXTENDED_ARG instruction. Here, we unpack the values
     from the ``argc`` int and return a triple of the
@@ -623,7 +621,6 @@ def parse_fn_counts_30_35(argc):
 
 
 def get_scanner(version, is_pypy=False, show_asm=None):
-
     # If version is a string, turn that into the corresponding float.
     if isinstance(version, str):
         if version not in canonic_python_version:
@@ -673,5 +670,6 @@ if __name__ == "__main__":
     co = inspect.currentframe().f_code
     # scanner = get_scanner('2.7.13', True)
     # scanner = get_scanner(sys.version[:5], False)
+    from xdis.version_info import PYTHON_VERSION_TRIPLE
     scanner = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY, True)
     tokens, customize = scanner.ingest(co, {}, show_asm="after")

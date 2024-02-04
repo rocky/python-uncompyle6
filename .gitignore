@@ -2,6 +2,7 @@
 *.pyo
 *_dis
 *~
+.mypy_cache
 /.cache
 /.eggs
 /.hypothesis
@@ -10,7 +11,6 @@
 /.pytest_cache
 /.python-version
 /.tox
-.mypy_cache
 /.venv*
 /README
 /__pkginfo__.pyc
@@ -20,6 +20,7 @@
 /tmp
 /uncompyle6.egg-info
 /unpyc
+/venv
 ChangeLog
 __pycache__
 build

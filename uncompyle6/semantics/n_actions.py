@@ -16,13 +16,6 @@
 Custom Nonterminal action functions. See NonterminalActions docstring.
 """
 
-from uncompyle6.semantics.consts import (
-    INDENT_PER_LEVEL,
-    NONE,
-    PRECEDENCE,
-    minint,
-)
-
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanners.tok import Token
 
@@ -32,6 +25,9 @@ from uncompyle6.semantics.helper import (
 )
 from uncompyle6.util import better_repr
 
+from uncompyle6.semantics.consts import INDENT_PER_LEVEL, NONE, PRECEDENCE, minint
+from uncompyle6.semantics.helper import find_code_node, flatten_list
+from uncompyle6.util import better_repr, get_code_name
 
 class NonterminalActions:
     """
@@ -227,8 +223,10 @@ class NonterminalActions:
         else:
             # from trepan.api import debug; debug()
             raise TypeError(
-                ("Internal Error: n_const_list expects dict, list set, or set; got %s"
-                 % lastnodetype)
+                (
+                    "Internal Error: n_const_list expects dict, list set, or set; got %s"
+                    % lastnodetype
+                )
             )
 
         self.indent_more(INDENT_PER_LEVEL)
@@ -270,7 +268,7 @@ class NonterminalActions:
                     if self.version < (3, 0, 0):
                         value = "%r" % elem.pattr
                     else:
-                        value = "%s" % elem.pattr
+                        value = "%s" % str(elem.pattr)
                 else:
                     assert elem.kind == "ADD_VALUE_VAR"
                     value = "%s" % elem.pattr

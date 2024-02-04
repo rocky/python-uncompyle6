@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2022 Rocky Bernstein
+#  Copyright (c) 2015-2023 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -79,11 +79,13 @@ class Python3Parser(PythonParser):
 
         stmt ::= set_comp_func
 
+        # TODO this can be simplified
         set_comp_func ::= BUILD_SET_0 LOAD_ARG FOR_ITER store comp_iter
-                          JUMP_BACK RETURN_VALUE RETURN_LAST
-
+                          JUMP_BACK ending_return
+        set_comp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
+                          JUMP_BACK ending_return
         set_comp_func ::= BUILD_SET_0 LOAD_ARG FOR_ITER store comp_iter
-                          COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
+                          COME_FROM JUMP_BACK ending_return
 
         comp_body ::= dict_comp_body
         comp_body ::= set_comp_body
@@ -101,6 +103,12 @@ class Python3Parser(PythonParser):
         stmt ::= dict_comp_func
         dict_comp_func ::= BUILD_MAP_0 LOAD_ARG FOR_ITER store
                            comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
+        dict_comp_func ::= BUILD_MAP_0 LOAD_ARG FOR_ITER store
+                           comp_iter JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
+        dict_comp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
+                           comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
+        dict_comp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
+                           comp_iter JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
 
         comp_iter     ::= comp_if_not
         comp_if_not   ::= expr jmp_true comp_iter
@@ -628,7 +636,7 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
     def add_make_function_rule(self, rule, opname, attr, customize):
-        """Python 3.3 added a an addtional LOAD_STR before MAKE_FUNCTION and
+        """Python 3.3 added a an additional LOAD_STR before MAKE_FUNCTION and
         this has an effect on many rules.
         """
         if self.version >= (3, 3):

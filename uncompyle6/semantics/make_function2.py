@@ -33,7 +33,7 @@ from uncompyle6.show import maybe_show_tree_param_default
 
 def make_function2(self, node, is_lambda, nested=1, code_node=None):
     """
-    Dump function defintion, doc string, and function body.
+    Dump function definition, doc string, and function body.
     This code is specialied for Python 2.
     """
 

@@ -57,7 +57,7 @@ class Python36Parser(Python35Parser):
                             come_froms JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
 
         # 3.6 due to jump optimization, we sometimes add RETURN_END_IF where
-        # RETURN_VALUE is meant. Specifcally this can happen in
+        # RETURN_VALUE is meant. Specifically, this can happen in
         # ifelsestmt -> ...else_suite _. suite_stmts... (last) stmt
         return             ::= return_expr RETURN_END_IF
         return             ::= return_expr RETURN_VALUE COME_FROM
@@ -403,7 +403,7 @@ class Python36Parser(Python35Parser):
                                                 JUMP_LOOP COME_FROM
                                                 POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
-                        # FIXME this is a workaround for probalby some bug in the Earley parser
+                        # FIXME this is a workaround for probably some bug in the Earley parser
                         # if we use get_aiter, then list_comp_async doesn't match, and I don't
                         # understand why.
                         expr_get_aiter      ::= expr GET_AITER

@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2022 by Rocky Bernstein
+#  Copyright (c) 2015-2023 by Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -17,29 +17,31 @@
 All the crazy things we have to do to handle Python functions in Python before 3.0.
 The saga of changes continues in 3.0 and above and in other files.
 """
-from uncompyle6.scanner import Code
-from uncompyle6.semantics.parser_error import ParserError
+from xdis import iscode
+
 from uncompyle6.parser import ParserError as ParserError2
+from uncompyle6.scanner import Code
 from uncompyle6.semantics.helper import (
-    print_docstring,
     find_all_globals,
     find_globals_and_nonlocals,
     find_none,
+    print_docstring,
 )
-from xdis import iscode
+from uncompyle6.semantics.parser_error import ParserError
+
 
 def make_function1(self, node, is_lambda, nested=1, code_node=None):
     """
-    Dump function defintion, doc string, and function body.
+    Dump function definition, doc string, and function body.
     This code is specialied for Python 2.
     """
 
     def build_param(tree, param_names):
         """build parameters:
-            - handle defaults
-            - handle format tuple parameters
+        - handle defaults
+        - handle format tuple parameters
         """
-        # if formal parameter is a tuple, the paramater name
+        # if formal parameter is a tuple, the parameter name
         # starts with a dot (eg. '.1', '.2')
         args = tree[0]
         del tree[0]
@@ -186,5 +188,5 @@ def make_function1(self, node, is_lambda, nested=1, code_node=None):
         tree, code.co_name, code._customize, is_lambda=is_lambda, returnNone=rn
     )
 
-    code._tokens = None # save memory
+    code._tokens = None  # save memory
     code._customize = None  # save memory

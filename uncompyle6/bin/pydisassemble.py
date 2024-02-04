@@ -22,7 +22,7 @@ Disassemble/Tokenize FILE with in the way that is done to
 assist uncompyle6 in parsing the instruction stream. For example
 instructions with variable-length arguments like CALL_FUNCTION and
 BUILD_LIST have argument counts appended to the instruction name, and
-COME_FROM psuedo instructions are inserted into the instruction stream.
+COME_FROM pseudo instructions are inserted into the instruction stream.
 Bit flag values encoded in an operand are expanding, EXTENDED_ARG
 value are folded into the following instruction operand.
 
