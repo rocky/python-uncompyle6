@@ -29,6 +29,9 @@ class TestGrammar(unittest.TestCase):
         )
         expect_lhs.add("kwarg")
 
+        if PYTHON_VERSION_TRIPLE[:2] <= (3, 6):
+            unused_rhs.add("call")
+
         if PYTHON_VERSION_TRIPLE[:2] == (2, 7):
             expect_lhs.add("kv3")
             expect_lhs.add("kvlist")

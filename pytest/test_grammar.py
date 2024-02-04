@@ -1,7 +1,9 @@
 import re
+
+from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
+
 from uncompyle6.parser import get_python_parser, python_parser
 from uncompyle6.scanner import get_scanner
-from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
 
 
 def test_grammar():
@@ -28,7 +30,7 @@ def test_grammar():
 
         expect_lhs.add("get_iter")
 
-        if PYTHON_VERSION_TRIPLE >= (3, 8) or PYTHON_VERSION_TRIPLE < (3, 0):
+        if PYTHON_VERSION_TRIPLE >= (3, 8):
             expect_lhs.add("stmts_opt")
     else:
         expect_lhs.add("async_with_as_stmt")
@@ -46,7 +48,10 @@ def test_grammar():
         expect_lhs.add("kv3")
         unused_rhs.add("dict")
     else:
-        if PYTHON_VERSION_TRIPLE < (3, 7) and PYTHON_VERSION_TRIPLE[:2] not in ((2, 7), (2, 6)):
+        if PYTHON_VERSION_TRIPLE < (3, 7) and PYTHON_VERSION_TRIPLE[:2] not in (
+            (2, 7),
+            (2, 6),
+        ):
             # NOTE: this may disappear
             expect_lhs.add("except_handler_else")
 
@@ -101,7 +106,9 @@ def test_grammar():
     )
     reduced_dup_rhs = dict((k, dup_rhs[k]) for k in dup_rhs if k not in expect_dup_rhs)
     if reduced_dup_rhs:
-        print("\nPossible duplicate RHS that might be folded, into one of the LHS symbols")
+        print(
+            "\nPossible duplicate RHS that might be folded, into one of the LHS symbols"
+        )
         for k in reduced_dup_rhs:
             print(k, reduced_dup_rhs[k])
     # assert not reduced_dup_rhs, reduced_dup_rhs
