@@ -38,6 +38,9 @@ class Python27Parser(Python2Parser):
 
         stmt           ::= dict_comp_func
 
+        ending_return  ::= RETURN_VALUE RETURN_LAST
+        ending_return  ::= RETURN_VALUE_LAMBDA LAMBDA_MARKER
+
         dict_comp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
                            comp_iter JUMP_BACK ending_return
 

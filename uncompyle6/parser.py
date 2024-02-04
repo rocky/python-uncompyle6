@@ -21,9 +21,10 @@ Common uncompyle6 parser routines.
 
 import sys
 
-from spark_parser import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from uncompyle6.show import maybe_show_asm
+from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG, GenericASTBuilder
 from xdis import iscode
+
+from uncompyle6.show import maybe_show_asm
 
 
 class ParserError(Exception):
@@ -91,7 +92,14 @@ class PythonParser(GenericASTBuilder):
         # singleton reduction that we can simplify. It also happens to be optional
         # in its other derivation
         self.optional_nt |= frozenset(
-            ("come_froms", "suite_stmts", "l_stmts_opt", "c_stmts_opt", "stmts_opt", "stmt")
+            (
+                "come_froms",
+                "suite_stmts",
+                "l_stmts_opt",
+                "c_stmts_opt",
+                "stmts_opt",
+                "stmt",
+            )
         )
 
         # Reduce singleton reductions in these nonterminals:
@@ -113,10 +121,10 @@ class PythonParser(GenericASTBuilder):
 
     def add_unique_rule(self, rule, opname, arg_count, customize):
         """Add rule to grammar, but only if it hasn't been added previously
-           opname and stack_count are used in the customize() semantic
-           the actions to add the semantic action rule. Stack_count is
-           used in custom opcodes like MAKE_FUNCTION to indicate how
-           many arguments it has. Often it is not used.
+        opname and stack_count are used in the customize() semantic
+        the actions to add the semantic action rule. Stack_count is
+        used in custom opcodes like MAKE_FUNCTION to indicate how
+        many arguments it has. Often it is not used.
         """
         if rule not in self.new_rules:
             # print("XXX ", rule) # debug
@@ -223,7 +231,9 @@ class PythonParser(GenericASTBuilder):
         """
         # Low byte indicates number of positional parameters,
         # high byte number of keyword parameters
-        assert token.kind.startswith("CALL_FUNCTION") or token.kind.startswith("CALL_METHOD")
+        assert token.kind.startswith("CALL_FUNCTION") or token.kind.startswith(
+            "CALL_METHOD"
+        )
         args_pos = token.attr & 0xFF
         args_kw = (token.attr >> 8) & 0xFF
         return args_pos, args_kw
@@ -304,18 +314,12 @@ class PythonParser(GenericASTBuilder):
         c_stmts ::= lastc_stmt
         c_stmts ::= continues
 
-        ending_return  ::= RETURN_VALUE RETURN_LAST
-        ending_return  ::= RETURN_VALUE_LAMBDA LAMBDA_MARKER
-
         lastc_stmt ::= iflaststmt
         lastc_stmt ::= forelselaststmt
         lastc_stmt ::= ifelsestmtc
 
         c_stmts_opt ::= c_stmts
         c_stmts_opt ::= pass
-
-        stmts_opt ::= _stmts
-        stmts_opt ::= pass
 
         # statements inside a loop
         l_stmts ::= _stmts
@@ -907,9 +911,12 @@ def python_parser(
 if __name__ == "__main__":
 
     def parse_test(co):
-        from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
+        from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
 
-        ast = python_parser(PYTHON_VERSION_TRIPLE[:2], co, showasm=True, is_pypy=IS_PYPY)
+        ast = python_parser(
+            PYTHON_VERSION_TRIPLE[:2], co, showasm=True, is_pypy=IS_PYPY
+        )
         print(ast)
         return
+
     parse_test(parse_test.func_code)
