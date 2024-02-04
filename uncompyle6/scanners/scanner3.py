@@ -35,20 +35,18 @@ Finally we save token information.
 
 from __future__ import print_function
 
-from xdis import iscode, instruction_size, Instruction
-from xdis.bytecode import _get_const_info
+import sys
 
-from uncompyle6.scanners.tok import Token
-from uncompyle6.scanner import parse_fn_counts_30_35
-from uncompyle6.util import get_code_name
 import xdis
 
 # Get all the opcodes into globals
 import xdis.opcodes.opcode_33 as op3
+from xdis import Instruction, instruction_size, iscode
+from xdis.bytecode import _get_const_info
 
-from uncompyle6.scanner import Scanner, CONST_COLLECTIONS
-
-import sys
+from uncompyle6.scanner import CONST_COLLECTIONS, Scanner, parse_fn_counts_30_35
+from uncompyle6.scanners.tok import Token
+from uncompyle6.util import get_code_name
 
 intern = sys.intern
 
@@ -60,7 +58,7 @@ class Scanner3(Scanner):
         super(Scanner3, self).__init__(version, show_asm, is_pypy)
 
         # Create opcode classification sets
-        # Note: super initilization above initializes self.opc
+        # Note: super initialization above initializes self.opc
 
         # For ops that start SETUP_ ... we will add COME_FROM with these names
         # at the their targets.
@@ -226,7 +224,7 @@ class Scanner3(Scanner):
         assert count <= i
 
         if collection_type == "CONST_DICT":
-            # constant dictonaries work via BUILD_CONST_KEY_MAP and
+            # constant dictionaries work via BUILD_CONST_KEY_MAP and
             # handle the values() like sets and lists.
             # However the keys() are an LOAD_CONST of the keys.
             # adjust offset to account for this
@@ -261,7 +259,7 @@ class Scanner3(Scanner):
                 opname="COLLECTION_START",
                 attr=collection_enum,
                 pattr=collection_type,
-                offset= "%s_0" % start_offset,
+                offset="%s_0" % start_offset,
                 linestart=False,
                 has_arg=True,
                 has_extended_arg=False,
@@ -296,7 +294,8 @@ class Scanner3(Scanner):
         return new_tokens
 
     def bound_map_from_inst(
-        self, insts: list, next_tokens: list, inst: Instruction, t: Token, i: int):
+        self, insts: list, next_tokens: list, inst: Instruction, t: Token, i: int
+    ):
         """
         Try to a sequence of instruction that ends with a BUILD_MAP into
         a sequence that can be parsed much faster, but inserting the
@@ -379,9 +378,7 @@ class Scanner3(Scanner):
         )
         return new_tokens
 
-    def ingest(
-        self, co, classname=None, code_objects={}, show_asm=None
-    ):
+    def ingest(self, co, classname=None, code_objects={}, show_asm=None):
         """
         Create "tokens" the bytecode of an Python code object. Largely these
         are the opcode name, but in some cases that has been modified to make parsing
@@ -647,7 +644,9 @@ class Scanner3(Scanner):
                     )
 
                     pattr = "%s positional, %s keyword only, %s annotated" % (
-                        pos_args, name_pair_args, annotate_args
+                        pos_args,
+                        name_pair_args,
+                        annotate_args,
                     )
 
                     if name_pair_args > 0 and annotate_args > 0:
@@ -1129,7 +1128,7 @@ class Scanner3(Scanner):
 
             # Is it an "and" inside an "if" or "while" block
             if op == self.opc.POP_JUMP_IF_FALSE:
-                # Search for another POP_JUMP_IF_FALSE targetting the same op,
+                # Search for another POP_JUMP_IF_FALSE targeting the same op,
                 # in current statement, starting from current offset, and filter
                 # everything inside inner 'or' jumps and midline ifs
                 match = self.rem_or(
@@ -1336,7 +1335,7 @@ class Scanner3(Scanner):
                 self.not_continue.add(pre_rtarget)
             elif code[pre_rtarget] in rtarget_break:
                 self.structs.append({"type": "if-then", "start": start, "end": rtarget})
-                # It is important to distingish if this return is inside some sort
+                # It is important to distinguish if this return is inside some sort
                 # except block return
                 jump_prev = prev_op[offset]
                 if self.is_pypy and code[jump_prev] == self.opc.COMPARE_OP:
@@ -1542,9 +1541,9 @@ class Scanner3(Scanner):
 
 
 if __name__ == "__main__":
-    from xdis.version_info import PYTHON_VERSION_TRIPLE
-
     import inspect
+
+    from xdis.version_info import PYTHON_VERSION_TRIPLE
 
     co = inspect.currentframe().f_code
 

@@ -21,7 +21,7 @@ def checker(ast, in_loop, errors):
     if ast.kind in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
         text = str(ast)
         error_text = (
-            "\n# improper augmented assigment (e.g. +=, *=, ...):\n#\t"
+            "\n# improper augmented assignment (e.g. +=, *=, ...):\n#\t"
             + "\n# ".join(text.split("\n"))
             + "\n"
         )

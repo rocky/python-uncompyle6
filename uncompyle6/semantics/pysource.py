@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2023 by Rocky Bernstein
+#  Copyright (c) 2015-2024 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -91,7 +91,7 @@ Python.
 #         the second item is the nonterminal name and the precedence is given last.
 #
 #     %C  evaluate/travers children recursively, with sibling children separated by the
-#         given string.  It needs a 3-tuple: a starting node, the maximimum
+#         given string.  It needs a 3-tuple: a starting node, the maximum
 #         value of an end node, and a string to be inserted between sibling children
 #
 #     %,  Append ',' if last %C only printed one item. This is mostly for tuples
@@ -99,12 +99,12 @@ Python.
 #         other tuples. The specifier takes no arguments
 #
 #     %P  same as %C but sets operator precedence.  Its argument is a 4-tuple:
-#         the node low and high indices, the separator, a string the precidence
+#         the node low and high indices, the separator, a string the precedence
 #         value, an integer.
 #
 #     %D Same as `%C` this is for left-recursive lists like kwargs where goes
 #         to epsilon at the beginning. It needs a 3-tuple: a starting node, the
-#         maximimum value of an end node, and a string to be inserted between
+#         maximum value of an end node, and a string to be inserted between
 #         sibling children. If we were to use `%C` an extra separator with an
 #         epsilon would appear at the beginning.
 #
@@ -119,7 +119,7 @@ Python.
 #     %[N]{EXPR} Python eval(EXPR) in context of node[N]. Takes no arguments
 #
 #     %[N]{%X} evaluate/recurse on child node[N], using specifier %X.
-#     %X can be one of the above, e.g. %c, %p, etc. Takes the arguemnts
+#     %X can be one of the above, e.g. %c, %p, etc. Takes the arguments
 #     that the specifier uses.
 #
 #     %% literal '%'. Takes no arguments.
@@ -135,22 +135,30 @@ from spark_parser import GenericASTTraversal
 from xdis import COMPILER_FLAG_BIT, iscode
 from xdis.version_info import PYTHON_VERSION_TRIPLE
 
-from uncompyle6.parser import parse, get_python_parser
+from uncompyle6.parser import get_python_parser, parse
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanner import Code, get_scanner
 from uncompyle6.scanners.tok import Token
 from uncompyle6.semantics.check_ast import checker
-from uncompyle6.semantics.consts import (ASSIGN_TUPLE_PARAM,
-                                         INDENT_PER_LEVEL, LINE_LENGTH, MAP,
-                                         MAP_DIRECT, NAME_MODULE, NONE, PASS,
-                                         PRECEDENCE, RETURN_LOCALS,
-                                         RETURN_NONE, TAB, TABLE_R, escape)
+from uncompyle6.semantics.consts import (
+    ASSIGN_TUPLE_PARAM,
+    INDENT_PER_LEVEL,
+    LINE_LENGTH,
+    MAP,
+    MAP_DIRECT,
+    NAME_MODULE,
+    NONE,
+    PASS,
+    PRECEDENCE,
+    RETURN_LOCALS,
+    RETURN_NONE,
+    TAB,
+    TABLE_R,
+    escape,
+)
 from uncompyle6.semantics.customize import customize_for_version
 from uncompyle6.semantics.gencomp import ComprehensionMixin
-from uncompyle6.semantics.helper import (
-    find_globals_and_nonlocals,
-    print_docstring
-)
+from uncompyle6.semantics.helper import find_globals_and_nonlocals, print_docstring
 from uncompyle6.semantics.make_function1 import make_function1
 from uncompyle6.semantics.make_function2 import make_function2
 from uncompyle6.semantics.make_function3 import make_function3
@@ -161,9 +169,11 @@ from uncompyle6.semantics.transform import TreeTransform, is_docstring
 from uncompyle6.show import maybe_show_tree
 from uncompyle6.util import better_repr
 
-DEFAULT_DEBUG_OPTS = {"asm": False, "tree": False, "grammar": False}
 
-def unicode(x): return x
+def unicode(x):
+    return x
+
+
 from io import StringIO
 
 PARSER_DEFAULT_DEBUG = {
@@ -195,6 +205,11 @@ class SourceWalkerError(Exception):
 
 
 class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
+    """
+    Class to traverses a Parse Tree of the bytecode instruction built from parsing to produce some sort of source text.
+    The Parse tree may be turned an Abstract Syntax tree as an intermediate step.
+    """
+
     stacked_params = ("f", "indent", "is_lambda", "_globals")
 
     def __init__(
@@ -213,22 +228,22 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         of both the syntax tree and language we should produce.
 
         `out' is IO-like file pointer to where the output should go. It
-        whould have a getvalue() method.
+        would have a getvalue() method.
 
         `scanner' is a method to call when we need to scan tokens. Sometimes
         in producing output we will run across further tokens that need
-        to be scaned.
+        to be scanned.
 
         If `showast' is True, we print the syntax tree.
 
         `compile_mode' is is either 'exec' or 'single'. It is the compile
         mode that was used to create the Syntax Tree and specifies a
-        gramar variant within a Python version to use.
+        grammar variant within a Python version to use.
 
         `is_pypy` should be True if the Syntax Tree was generated for PyPy.
 
         `linestarts` is a dictionary of line number to bytecode offset. This
-        can sometimes assist in determinte which kind of source-code construct
+        can sometimes assist in determining which kind of source-code construct
         to use when there is ambiguity.
 
         """
@@ -244,24 +259,24 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             is_pypy=is_pypy,
         )
 
-        # Initialize p_lambda on demand
-        self.p_lambda = None
-
-        self.treeTransform = TreeTransform(version=self.version, show_ast=showast)
+        self.ast_errors = []
+        self.currentclass = None
+        self.classes = []
         self.debug_parser = dict(debug_parser)
-        self.showast = showast
+        # Initialize p_lambda on demand
+        self.line_number = 1
+        self.linemap = {}
+        self.p_lambda = None
         self.params = params
         self.param_stack = []
         self.ERROR = None
         self.prec = 100
         self.return_none = False
         self.mod_globs = set()
-        self.currentclass = None
-        self.classes = []
+        self.showast = showast
         self.pending_newlines = 0
         self.linestarts = linestarts
-        self.line_number = 1
-        self.ast_errors = []
+        self.treeTransform = TreeTransform(version=self.version, show_ast=showast)
         # FIXME: have p.insts update in a better way
         # modularity is broken here
         self.insts = scanner.insts
@@ -283,7 +298,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         self.in_format_string = None
 
         # hide_internal suppresses displaying the additional instructions that sometimes
-        # exist in code but but were not written in the source code.
+        # exist in code but were not written in the source code.
         # An example is:
         # __module__ = __name__
         self.hide_internal = True
@@ -350,7 +365,6 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         indent += "    "
         i = 0
         for node in ast:
-
             if hasattr(node, "__repr1__"):
                 if enumerate_children:
                     child = self.str_with_template1(node, indent, i)
@@ -370,9 +384,9 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             i += 1
         return rv
 
-    def indent_if_source_nl(self, line_number, indent):
+    def indent_if_source_nl(self, line_number: int, indent: int):
         if line_number != self.line_number:
-            self.write("\n" + self.indent + INDENT_PER_LEVEL[:-1])
+            self.write("\n" + indent + INDENT_PER_LEVEL[:-1])
         return self.line_number
 
     f = property(
@@ -679,8 +693,8 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             pass
 
     def template_engine(self, entry, startnode):
-        """The format template interpetation engine.  See the comment at the
-        beginning of this module for the how we interpret format
+        """The format template interpretation engine.  See the comment at the
+        beginning of this module for how we interpret format
         specifications such as %c, %C, and so on.
         """
 
@@ -724,20 +738,31 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                     if isinstance(index[1], str):
                         # if node[index[0]] != index[1]:
                         #     from trepan.api import debug; debug()
-                        assert node[index[0]] == index[1], (
-                            "at %s[%d], expected '%s' node; got '%s'"
-                            % (node.kind, arg, index[1], node[index[0]].kind,)
+                        assert (
+                            node[index[0]] == index[1]
+                        ), "at %s[%d], expected '%s' node; got '%s'" % (
+                            node.kind,
+                            arg,
+                            index[1],
+                            node[index[0]].kind,
                         )
                     else:
-                        assert node[index[0]] in index[1], (
-                            "at %s[%d], expected to be in '%s' node; got '%s'"
-                            % (node.kind, arg, index[1], node[index[0]].kind,)
+                        assert (
+                            node[index[0]] in index[1]
+                        ), "at %s[%d], expected to be in '%s' node; got '%s'" % (
+                            node.kind,
+                            arg,
+                            index[1],
+                            node[index[0]].kind,
                         )
 
                     index = index[0]
-                assert isinstance(index, int), (
-                    "at %s[%d], %s should be int or tuple"
-                    % (node.kind, arg, type(index),)
+                assert isinstance(
+                    index, int
+                ), "at %s[%d], %s should be int or tuple" % (
+                    node.kind,
+                    arg,
+                    type(index),
                 )
 
                 try:
@@ -747,7 +772,8 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                         """
                         Expanding '%s' in template '%s[%s]':
                         %s is invalid; has only %d entries
-                        """ % (node.kind, entry, arg, index, len(node))
+                        """
+                        % (node.kind, entry, arg, index, len(node))
                     )
                 self.preorder(node[index])
 
@@ -760,14 +786,22 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                 if len(tup) == 3:
                     (index, nonterm_name, self.prec) = tup
                     if isinstance(tup[1], str):
-                        assert node[index] == nonterm_name, (
-                            "at %s[%d], expected '%s' node; got '%s'"
-                            % (node.kind, arg, nonterm_name, node[index].kind,)
+                        assert (
+                            node[index] == nonterm_name
+                        ), "at %s[%d], expected '%s' node; got '%s'" % (
+                            node.kind,
+                            arg,
+                            nonterm_name,
+                            node[index].kind,
                         )
                     else:
-                        assert node[tup[0]] in tup[1], (
-                            "at %s[%d], expected to be in '%s' node; got '%s'"
-                            % (node.kind, arg, index[1], node[index[0]].kind,)
+                        assert (
+                            node[tup[0]] in tup[1]
+                        ), "at %s[%d], expected to be in '%s' node; got '%s'" % (
+                            node.kind,
+                            arg,
+                            index[1],
+                            node[index[0]].kind,
                         )
 
                 else:
@@ -880,52 +914,51 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                 "CALL_FUNCTION_VAR_KW",
                 "CALL_FUNCTION_KW",
             ):
-
                 # FIXME: handle everything in customize.
                 # Right now, some of this is here, and some in that.
 
                 if v == 0:
-                    str = "%c(%C"  # '%C' is a dummy here ...
-                    p2 = (0, 0, None)  # .. because of the None in this
+                    template_str = "%c(%C"  # '%C' is a dummy here ...
+                    p2 = (0, 0, None)  # because of the None in this
                 else:
-                    str = "%c(%C, "
+                    template_str = "%c(%C, "
                     p2 = (1, -2, ", ")
                 if op == "CALL_FUNCTION_VAR":
                     # Python 3.5 only puts optional args (the VAR part)
                     # the lowest down the stack
                     if self.version == (3, 5):
-                        if str == "%c(%C, ":
+                        if template_str == "%c(%C, ":
                             entry = ("%c(*%C, %c)", 0, p2, -2)
-                        elif str == "%c(%C":
+                        elif template_str == "%c(%C":
                             entry = ("%c(*%C)", 0, (1, 100, ""))
                     elif self.version == (3, 4):
                         # CALL_FUNCTION_VAR's top element of the stack contains
                         # the variable argument list
                         if v == 0:
-                            str = "%c(*%c)"
-                            entry = (str, 0, -2)
+                            template_str = "%c(*%c)"
+                            entry = (template_str, 0, -2)
                         else:
-                            str = "%c(%C, *%c)"
-                            entry = (str, 0, p2, -2)
+                            template_str = "%c(%C, *%c)"
+                            entry = (template_str, 0, p2, -2)
                     else:
-                        str += "*%c)"
-                        entry = (str, 0, p2, -2)
+                        template_str += "*%c)"
+                        entry = (template_str, 0, p2, -2)
                 elif op == "CALL_FUNCTION_KW":
-                    str += "**%c)"
-                    entry = (str, 0, p2, -2)
+                    template_str += "**%c)"
+                    entry = (template_str, 0, p2, -2)
                 elif op == "CALL_FUNCTION_VAR_KW":
-                    str += "*%c, **%c)"
+                    template_str += "*%c, **%c)"
                     # Python 3.5 only puts optional args (the VAR part)
                     # the lowest down the stack
                     na = v & 0xFF  # positional parameters
                     if self.version == (3, 5) and na == 0:
                         if p2[2]:
                             p2 = (2, -2, ", ")
-                        entry = (str, 0, p2, 1, -2)
+                        entry = (template_str, 0, p2, 1, -2)
                     else:
                         if p2[2]:
                             p2 = (1, -3, ", ")
-                        entry = (str, 0, p2, -3, -2)
+                        entry = (template_str, 0, p2, -3, -2)
                     pass
                 else:
                     assert False, "Unhandled CALL_FUNCTION %s" % op
@@ -969,7 +1002,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                 # within the function definition
                 assert node[1] == "store"
                 # if lhs is not a UNPACK_TUPLE (or equiv.),
-                # add parenteses to make this a tuple
+                # add parentheses to make this a tuple
                 # if node[1][0] not in ('unpack', 'unpack_list'):
                 result = self.traverse(node[1])
                 if not (result.startswith("(") and result.endswith(")")):
@@ -1009,7 +1042,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                         if ast[0] == "sstmt":
                             ast[0] = ast[0][0]
                         first_stmt = ast[0]
-            except:
+            except Exception:
                 pass
 
         try:
@@ -1018,7 +1051,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                     del ast[0]
                     first_stmt = ast[0]
             pass
-        except:
+        except Exception:
             pass
 
         have_qualname = False
@@ -1030,17 +1063,15 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         if self.version < (3, 0):
             # Should we ditch this in favor of the "else" case?
             qualname = ".".join(self.classes)
-            QUAL_NAME = SyntaxTree(
+            qual_name_tree = SyntaxTree(
                 "assign",
                 [
                     SyntaxTree("expr", [Token("LOAD_CONST", pattr=qualname)]),
-                    SyntaxTree(
-                        "store", [Token("STORE_NAME", pattr="__qualname__")]
-                    ),
+                    SyntaxTree("store", [Token("STORE_NAME", pattr="__qualname__")]),
                 ],
             )
             # FIXME: is this right now that we've redone the grammar?
-            have_qualname = ast[0] == QUAL_NAME
+            have_qualname = ast[0] == qual_name_tree
         else:
             # Python 3.4+ has constants like 'cmp_to_key.<locals>.K'
             # which are not simple classes like the < 3 case.
@@ -1052,7 +1083,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                     and first_stmt[1][0] == Token("STORE_NAME", pattr="__qualname__")
                 ):
                     have_qualname = True
-            except:
+            except Exception:
                 pass
 
         if have_qualname:
@@ -1073,7 +1104,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                 try:
                     # FIXME: Is there an extra [0]?
                     docstring = ast[i][0][0][0][0].pattr
-                except:
+                except Exception:
                     docstring = code.co_consts[0]
                 if print_docstring(self, indent, docstring):
                     self.println()
@@ -1098,7 +1129,6 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                 pass
             # else:
             #    print stmt[-1]
-
 
         globals, nonlocals = find_globals_and_nonlocals(
             ast, set(), set(), code, self.version
@@ -1143,7 +1173,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         else:
             self.customize(customize)
             self.text = self.traverse(ast, is_lambda=is_lambda)
-            # In a formatted string using "lambda',  we should not add "\n".
+            # In a formatted string using "lambda",  we should not add "\n".
             # For example in:
             #    f'{(lambda x:x)("8")!r}'
             # Adding a "\n" after "lambda x: x" will give an error message:
@@ -1162,7 +1192,6 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         noneInNames=False,
         is_top_level_module=False,
     ):
-
         # FIXME: DRY with fragments.py
 
         # assert isinstance(tokens[0], Token)
@@ -1256,7 +1285,6 @@ def code_deparse(
 
     assert iscode(co)
 
-
     if version is None:
         version = PYTHON_VERSION_TRIPLE
 
@@ -1294,7 +1322,7 @@ def code_deparse(
         is_top_level_module=is_top_level_module,
     )
 
-    #### XXX workaround for profiling
+    # XXX workaround for profiling
     if deparsed.ast is None:
         return None
 
@@ -1315,10 +1343,10 @@ def code_deparse(
     if expected_start:
         assert (
             deparsed.ast == expected_start
-        ), (
-            "Should have parsed grammar start to '%s'; got: %s" %
-            (expected_start, deparsed.ast.kind)
-            )
+        ), "Should have parsed grammar start to '%s'; got: %s" % (
+            expected_start,
+            deparsed.ast.kind,
+        )
     # save memory
     del tokens
 
@@ -1405,7 +1433,7 @@ def deparse_code2str(
 if __name__ == "__main__":
 
     def deparse_test(co):
-        "This is a docstring"
+        """This is a docstring"""
         s = deparse_code2str(co)
         # s = deparse_code2str(co, debug_opts={"asm": "after", "tree": {'before': False, 'after': False}})
         print(s)

@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2019, 2021-2022 by Rocky Bernstein
+#  Copyright (c) 2016-2019, 2021-2023 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -22,13 +22,12 @@ This sets up opcodes Python's 3.7 and calls a generalized
 scanner routine for Python 3.
 """
 
-from uncompyle6.scanner import CONST_COLLECTIONS
-from uncompyle6.scanners.tok import Token
-
-from uncompyle6.scanners.scanner37base import Scanner37Base
-
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_37 as opc
+
+from uncompyle6.scanner import CONST_COLLECTIONS
+from uncompyle6.scanners.scanner37base import Scanner37Base
+from uncompyle6.scanners.tok import Token
 
 # bytecode verification, verify(), uses JUMP_OPS from here
 JUMP_OPs = opc.JUMP_OPS
@@ -51,7 +50,7 @@ class Scanner37(Scanner37Base):
         assert count <= i
 
         if collection_type == "CONST_DICT":
-            # constant dictonaries work via BUILD_CONST_KEY_MAP and
+            # constant dictionaries work via BUILD_CONST_KEY_MAP and
             # handle the values() like sets and lists.
             # However the keys() are an LOAD_CONST of the keys.
             # adjust offset to account for this
@@ -193,4 +192,6 @@ if __name__ == "__main__":
             print(t.format())
         pass
     else:
-        print("Need to be Python 3.7 to demo; I am version %s." % version_tuple_to_str())
+        print(
+            "Need to be Python 3.7 to demo; I am version %s." % version_tuple_to_str()
+        )

@@ -1,6 +1,6 @@
 """
 test_prettyprint.py --	source test pattern for tesing the prettyprint
-			funcionality of decompyle
+			functionality of decompyle
 
 This source is part of the decompyle test suite.
 

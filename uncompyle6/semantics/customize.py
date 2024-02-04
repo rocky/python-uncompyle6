@@ -17,15 +17,15 @@
 """
 
 from uncompyle6.parsers.treenode import SyntaxTree
+from uncompyle6.scanners.tok import Token
 from uncompyle6.semantics.consts import (
     INDENT_PER_LEVEL,
     NO_PARENTHESIS_EVER,
     PRECEDENCE,
-    TABLE_R,
     TABLE_DIRECT,
+    TABLE_R,
 )
 from uncompyle6.semantics.helper import flatten_list
-from uncompyle6.scanners.tok import Token
 
 
 def customize_for_version(self, is_pypy, version):
@@ -87,7 +87,7 @@ def customize_for_version(self, is_pypy, version):
                     if line_number != self.line_number:
                         sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
                         pass
-                    self.write("%s%s" (sep, value))
+                    self.write("%s%s" % (sep, value))
                     sep = ", "
 
                 assert n >= len(kwargs_names)

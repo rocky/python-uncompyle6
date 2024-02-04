@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017, 2022 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2022-2023 Rocky Bernstein
 """
 spark grammar differences over Python 3.1 for Python 3.0.
 """
@@ -31,8 +31,8 @@ class Python30Parser(Python31Parser):
 
         # In many ways Python 3.0 code generation is more like Python 2.6 than
         # it is 2.7 or 3.1. So we have a number of 2.6ish (and before) rules below
-        # Specifically POP_TOP is more prevelant since there is no POP_JUMP_IF_...
-        # instructions
+        # Specifically POP_TOP is more prevalant since there is no POP_JUMP_IF_...
+        # instructions.
 
         _ifstmts_jump  ::= c_stmts JUMP_FORWARD _come_froms POP_TOP COME_FROM
         _ifstmts_jump  ::= c_stmts COME_FROM POP_TOP
@@ -77,12 +77,8 @@ class Python30Parser(Python31Parser):
 
         set_comp_func ::= set_comp_header
                           LOAD_ARG FOR_ITER store comp_iter
-                          JUMP_BACK COME_FROM POP_TOP JUMP_BACK
+                          JUMP_BACK ending_return
                           RETURN_VALUE RETURN_LAST
-        set_comp_func ::= set_comp_header
-                          LOAD_ARG FOR_ITER store comp_iter
-                          JUMP_BACK COME_FROM POP_TOP JUMP_BACK
-                          RETURN_VALUE_LAMBDA LAMBDA_MARKER
 
         list_comp_header ::= BUILD_LIST_0 DUP_TOP STORE_FAST
         list_comp        ::= list_comp_header
@@ -112,11 +108,7 @@ class Python30Parser(Python31Parser):
         dict_comp_func   ::= BUILD_MAP_0
                              DUP_TOP STORE_FAST
                              LOAD_ARG FOR_ITER store
-                             dict_comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
-        dict_comp_func   ::= BUILD_MAP_0
-                             DUP_TOP STORE_FAST
-                             LOAD_ARG FOR_ITER store
-                             dict_comp_iter JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
+                             dict_comp_iter JUMP_BACK ending_return
 
         stmt         ::= try_except30
         try_except30 ::= SETUP_EXCEPT suite_stmts_opt
@@ -216,7 +208,7 @@ class Python30Parser(Python31Parser):
                            come_froms POP_TOP POP_BLOCK COME_FROM_LOOP
 
 
-        # A "compare_chained" is two comparisions like x <= y <= z
+        # A "compare_chained" is two comparisons like x <= y <= z
         compared_chained_middle  ::= expr DUP_TOP ROT_THREE COMPARE_OP
                                      jmp_false compared_chained_middle _come_froms
         compared_chained_middle  ::= expr DUP_TOP ROT_THREE COMPARE_OP

@@ -29,18 +29,16 @@ For example:
 Finally we save token information.
 """
 
-from xdis import iscode, instruction_size, Instruction
-from xdis.bytecode import _get_const_info
+import sys
 
-from uncompyle6.scanner import Token
 import xdis
 
 # Get all the opcodes into globals
 import xdis.opcodes.opcode_37 as op3
+from xdis import Instruction, instruction_size, iscode
+from xdis.bytecode import _get_const_info
 
-from uncompyle6.scanner import Scanner
-
-import sys
+from uncompyle6.scanner import Scanner, Token
 
 globals().update(op3.opmap)
 
@@ -186,8 +184,7 @@ class Scanner37Base(Scanner):
         return
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
-        """
-        Create "tokens" the bytecode of an Python code object. Largely these
+        """Create "tokens" the bytecode of an Python code object. Largely these
         are the opcode name, but in some cases that has been modified to make parsing
         easier.
         returning a list of uncompyle6 Token's.
@@ -195,14 +192,18 @@ class Scanner37Base(Scanner):
         Some transformations are made to assist the deparsing grammar:
            -  various types of LOAD_CONST's are categorized in terms of what they load
            -  COME_FROM instructions are added to assist parsing control structures
-           -  operands with stack argument counts or flag masks are appended to the opcode name, e.g.:
-              *  BUILD_LIST, BUILD_SET
-              *  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional arguments
+           -  operands with stack argument counts or flag masks are appended to the
+              opcode name, e.g.:
+                *  BUILD_LIST, BUILD_SET
+                *  MAKE_FUNCTION and FUNCTION_CALLS append the number of positional
+                   arguments
            -  EXTENDED_ARGS instructions are removed
 
-        Also, when we encounter certain tokens, we add them to a set which will cause custom
-        grammar rules. Specifically, variable arg tokens like MAKE_FUNCTION or BUILD_LIST
-        cause specific rules for the specific number of arguments they take.
+        Also, when we encounter certain tokens, we add them to a set
+        which will cause custom grammar rules. Specifically, variable
+        arg tokens like MAKE_FUNCTION or BUILD_LIST cause specific
+        rules for the specific number of arguments they take.
+
         """
 
         def tokens_append(j, token):
@@ -219,7 +220,7 @@ class Scanner37Base(Scanner):
 
         if show_asm in ("both", "before"):
             print("\n# ---- before tokenization:")
-            bytecode.disassemble_bytes(
+            self.insts = bytecode.disassemble_bytes(
                 co.co_code,
                 varnames=co.co_varnames,
                 names=co.co_names,
@@ -227,6 +228,9 @@ class Scanner37Base(Scanner):
                 cells=bytecode._cell_names,
                 linestarts=bytecode._linestarts,
                 asm_format="extended",
+                filename=co.co_filename,
+                show_source=True,
+                first_line_number=co.co_firstlineno,
             )
 
         # "customize" is in the process of going away here
@@ -246,7 +250,6 @@ class Scanner37Base(Scanner):
 
         n = len(self.insts)
         for i, inst in enumerate(self.insts):
-
             # We need to detect the difference between:
             #   raise AssertionError
             #  and
@@ -276,7 +279,6 @@ class Scanner37Base(Scanner):
         # To simplify things we want to untangle this. We also
         # do this loop before we compute jump targets.
         for i, inst in enumerate(self.insts):
-
             # One artifact of the "too-small" operand problem, is that
             # some backward jumps, are turned into forward jumps to another
             # "extended arg" backward jump to the same location.
@@ -313,7 +315,6 @@ class Scanner37Base(Scanner):
 
         j = 0
         for i, inst in enumerate(self.insts):
-
             argval = inst.argval
             op = inst.opcode
 
@@ -348,9 +349,9 @@ class Scanner37Base(Scanner):
                     j = tokens_append(
                         j,
                         Token(
-                            come_from_name,
-                            jump_offset,
-                            repr(jump_offset),
+                            opname=come_from_name,
+                            attr=jump_offset,
+                            pattr=repr(jump_offset),
                             offset="%s_%s" % (inst.offset, jump_idx),
                             has_arg=True,
                             opc=self.opc,
@@ -701,9 +702,7 @@ class Scanner37Base(Scanner):
         # Finish filling the list for last statement
         slist += [codelen] * (codelen - len(slist))
 
-    def detect_control_flow(
-        self, offset, targets, inst_index
-    ):
+    def detect_control_flow(self, offset, targets, inst_index):
         """
         Detect type of block structures and their boundaries to fix optimized jumps
         in python2.3+
@@ -950,5 +949,7 @@ if __name__ == "__main__":
         for t in tokens:
             print(t)
     else:
-        print("Need to be Python 3.7 to demo; I am version %s." % version_tuple_to_str())
+        print(
+            "Need to be Python 3.7 to demo; I am version %s." % version_tuple_to_str()
+        )
     pass

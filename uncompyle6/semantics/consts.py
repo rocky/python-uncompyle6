@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2022 by Rocky Bernstein
+#  Copyright (c) 2017-2023 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ minint = -sys.maxsize - 1
 maxint = sys.maxsize
 
 
-# Operator precidence See
+# Operator precedence See
 # https://docs.python.org/2/reference/expressions.html#operator-precedence
 # or
 # https://docs.python.org/3/reference/expressions.html#operator-precedence
@@ -37,11 +37,11 @@ maxint = sys.maxsize
 # various templates we use odd values. Avoiding equal-precedent comparisons
 # avoids ambiguity what to do when the precedence is equal.
 
-# The precidence of a key below applies the key, a node, and the its
-# *parent*. A node however sometimes sets the precidence for its
-# children. For example, "call" has precidence 2 so we don't get
+# The precedence of a key below applies the key, a node, and the its
+# *parent*. A node however sometimes sets the precedence for its
+# children. For example, "call" has precedence 2 so we don't get
 # additional the additional parenthesis of: ".. op (call())".  However
-# for call's children, it parameters, we set the the precidence high,
+# for call's children, it parameters, we set the the precedence high,
 # say to 100, to make sure we avoid additional prenthesis in
 # call((.. op ..)).
 
@@ -428,7 +428,7 @@ TABLE_DIRECT = {
 
     "expr_stmt": (
         "%|%p\n",
-        # When a statment contains only a named_expr (:=)
+        # When a statement contains only a named_expr (:=)
         # the named_expr should have parenthesis around it.
         (0, "expr", PRECEDENCE["named_expr"] - 1)
         ),

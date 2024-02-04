@@ -41,7 +41,7 @@ although compatible with the original intention, is yet a little bit
 different.  See this_ for more information.
 
 Python fragment deparsing given an instruction offset is useful in
-showing stack traces and can be encorporated into any program that
+showing stack traces and can be incorporated into any program that
 wants to show a location in more detail than just a line number at
 runtime.  This code can be also used when source-code information does
 not exist and there is just bytecode. Again, my debuggers make use of
@@ -161,8 +161,8 @@ Python syntax changes, you should use this option if the bytecode is
 the right bytecode for the Python interpreter that will be checking
 the syntax.
 
-You can also cross compare the results with either another version of
-`uncompyle6` since there are are sometimes regressions in decompiling
+You can also cross compare the results with another version of
+`uncompyle6` since there are sometimes regressions in decompiling
 specific bytecode as the overall quality improves.
 
 For Python 3.7 and 3.8, the code in decompyle3_ is generally
@@ -199,7 +199,7 @@ On the lower end of Python versions, decompilation seems pretty good although
 we don't have any automated testing in place for Python's distributed tests.
 Also, we don't have a Python interpreter for versions 1.6, and 2.0.
 
-In the Python 3 series, Python support is is strongest around 3.4 or
+In the Python 3 series, Python support is strongest around 3.4 or
 3.3 and drops off as you move further away from those versions. Python
 3.0 is weird in that it in some ways resembles 2.6 more than it does
 3.1 or 2.7. Python 3.6 changes things drastically by using word codes

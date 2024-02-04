@@ -221,7 +221,7 @@ class PythonParser(GenericASTBuilder):
 
         This appears in CALL_FUNCTION or CALL_METHOD (PyPy) tokens
         """
-        # Low byte indicates number of positional paramters,
+        # Low byte indicates number of positional parameters,
         # high byte number of keyword parameters
         assert token.kind.startswith("CALL_FUNCTION") or token.kind.startswith("CALL_METHOD")
         args_pos = token.attr & 0xFF
@@ -303,6 +303,9 @@ class PythonParser(GenericASTBuilder):
         c_stmts ::= _stmts lastc_stmt
         c_stmts ::= lastc_stmt
         c_stmts ::= continues
+
+        ending_return  ::= RETURN_VALUE RETURN_LAST
+        ending_return  ::= RETURN_VALUE_LAMBDA LAMBDA_MARKER
 
         lastc_stmt ::= iflaststmt
         lastc_stmt ::= forelselaststmt
@@ -597,12 +600,12 @@ class PythonParser(GenericASTBuilder):
         compare        ::= compare_single
         compare_single ::= expr expr COMPARE_OP
 
-        # A compare_chained is two comparisions, as in: x <= y <= z
+        # A compare_chained is two comparisons, as in: x <= y <= z
         compare_chained       ::= expr compared_chained_middle ROT_TWO POP_TOP
                                   _come_froms
         compare_chained_right ::= expr COMPARE_OP JUMP_FORWARD
 
-        # Non-null kvlist items are broken out in the indiviual grammars
+        # Non-null kvlist items are broken out in the individual grammars
         kvlist ::=
 
         # Positional arguments in make_function

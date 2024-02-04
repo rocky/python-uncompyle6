@@ -62,6 +62,9 @@ class Python37Parser(Python37BaseParser):
         c_stmts ::= lastc_stmt
         c_stmts ::= continues
 
+        ending_return  ::= RETURN_VALUE RETURN_LAST
+        ending_return  ::= RETURN_VALUE_LAMBDA LAMBDA_MARKER
+
         lastc_stmt ::= iflaststmt
         lastc_stmt ::= forelselaststmt
         lastc_stmt ::= ifelsestmtc
@@ -221,11 +224,11 @@ class Python37Parser(Python37BaseParser):
         compare        ::= compare_single
         compare_single ::= expr expr COMPARE_OP
 
-        # A compare_chained is two comparisions like x <= y <= z
+        # A compare_chained is two comparisons like x <= y <= z
         compare_chained  ::= expr compared_chained_middle ROT_TWO POP_TOP _come_froms
         compare_chained_right ::= expr COMPARE_OP JUMP_FORWARD
 
-        # Non-null kvlist items are broken out in the indiviual grammars
+        # Non-null kvlist items are broken out in the individual grammars
         kvlist ::=
 
         # Positional arguments in make_function
@@ -555,7 +558,7 @@ class Python37Parser(Python37BaseParser):
         ifelsestmtl ::= testexpr_cf c_stmts_opt jb_else else_suitel
 
         # 3.5 Has jump optimization which can route the end of an
-        # "if/then" back to to a loop just before an else.
+        # "if/then" back to a loop just before an else.
         jump_absolute_else ::= jb_else
         jump_absolute_else ::= CONTINUE ELSE
 
@@ -739,15 +742,11 @@ class Python37Parser(Python37BaseParser):
 
         stmt ::= set_comp_func
 
+        # TODO: simplify this
         set_comp_func ::= BUILD_SET_0 LOAD_ARG for_iter store comp_iter
-                          JUMP_BACK RETURN_VALUE RETURN_LAST
+                          JUMP_BACK ending_return
         set_comp_func ::= BUILD_SET_0 LOAD_ARG for_iter store comp_iter
-                          JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
-
-        set_comp_func ::= BUILD_SET_0 LOAD_ARG for_iter store comp_iter
-                          COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
-        set_comp_func ::= BUILD_SET_0 LOAD_ARG for_iter store comp_iter
-                          COME_FROM JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
+                          COME_FROM JUMP_BACK ending_return
 
         comp_body ::= dict_comp_body
         comp_body ::= set_comp_body
@@ -763,9 +762,7 @@ class Python37Parser(Python37BaseParser):
         stmt ::= dict_comp_func
 
         dict_comp_func ::= BUILD_MAP_0 LOAD_ARG for_iter store
-                           comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
-        dict_comp_func ::= BUILD_MAP_0 LOAD_ARG for_iter store
-                           comp_iter JUMP_BACK RETURN_VALUE_LAMBDA LAMBDA_MARKER
+                           comp_iter JUMP_BACK ending_return
 
         comp_iter     ::= comp_if
         comp_iter     ::= comp_if_not
@@ -1147,7 +1144,7 @@ class Python37Parser(Python37BaseParser):
                             come_froms JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
 
         # 3.6 due to jump optimization, we sometimes add RETURN_END_IF where
-        # RETURN_VALUE is meant. Specifcally this can happen in
+        # RETURN_VALUE is meant. Specifically this can happen in
         # ifelsestmt -> ...else_suite _. suite_stmts... (last) stmt
         return ::= return_expr RETURN_END_IF
         return ::= return_expr RETURN_VALUE COME_FROM
@@ -1380,7 +1377,7 @@ class Python37Parser(Python37BaseParser):
                                                 JUMP_BACK COME_FROM
                                                 POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
-                        # FIXME this is a workaround for probalby some bug in the Earley parser
+                        # FIXME this is a workaround for probably some bug in the Earley parser
                         # if we use get_aiter, then list_comp_async doesn't match, and I don't
                         # understand why.
                         expr_get_aiter      ::= expr GET_AITER
