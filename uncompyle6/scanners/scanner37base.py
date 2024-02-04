@@ -300,6 +300,8 @@ class Scanner37Base(Scanner):
                         inst.starts_line,
                         inst.is_jump_target,
                         inst.has_extended_arg,
+                        None,
+                        None,
                     )
 
         # Get jump targets
