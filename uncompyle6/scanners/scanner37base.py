@@ -29,18 +29,16 @@ For example:
 Finally we save token information.
 """
 
-from xdis import iscode, instruction_size, Instruction
-from xdis.bytecode import _get_const_info
+import sys
 
-from uncompyle6.scanner import Token
 import xdis
 
 # Get all the opcodes into globals
 import xdis.opcodes.opcode_37 as op3
+from xdis import Instruction, instruction_size, iscode
+from xdis.bytecode import _get_const_info
 
-from uncompyle6.scanner import Scanner
-
-import sys
+from uncompyle6.scanner import Scanner, Token
 
 globals().update(op3.opmap)
 
@@ -252,7 +250,6 @@ class Scanner37Base(Scanner):
 
         n = len(self.insts)
         for i, inst in enumerate(self.insts):
-
             # We need to detect the difference between:
             #   raise AssertionError
             #  and
@@ -282,7 +279,6 @@ class Scanner37Base(Scanner):
         # To simplify things we want to untangle this. We also
         # do this loop before we compute jump targets.
         for i, inst in enumerate(self.insts):
-
             # One artifact of the "too-small" operand problem, is that
             # some backward jumps, are turned into forward jumps to another
             # "extended arg" backward jump to the same location.
@@ -319,7 +315,6 @@ class Scanner37Base(Scanner):
 
         j = 0
         for i, inst in enumerate(self.insts):
-
             argval = inst.argval
             op = inst.opcode
 
@@ -707,9 +702,7 @@ class Scanner37Base(Scanner):
         # Finish filling the list for last statement
         slist += [codelen] * (codelen - len(slist))
 
-    def detect_control_flow(
-        self, offset, targets, inst_index
-    ):
+    def detect_control_flow(self, offset, targets, inst_index):
         """
         Detect type of block structures and their boundaries to fix optimized jumps
         in python2.3+
@@ -956,5 +949,7 @@ if __name__ == "__main__":
         for t in tokens:
             print(t)
     else:
-        print("Need to be Python 3.7 to demo; I am version %s." % version_tuple_to_str())
+        print(
+            "Need to be Python 3.7 to demo; I am version %s." % version_tuple_to_str()
+        )
     pass

@@ -50,7 +50,7 @@ def _get_outstream(outfile):
 
 def decompile(
     co,
-    bytecode_version = PYTHON_VERSION_TRIPLE,
+    bytecode_version=PYTHON_VERSION_TRIPLE,
     out=sys.stdout,
     showasm=None,
     showast={},
@@ -83,13 +83,13 @@ def decompile(
         s += "\n"
         real_out.write(s)
 
-    assert iscode(co), ("%s does not smell like code" % co)
+    assert iscode(co), "%s does not smell like code" % co
 
     co_pypy_str = "PyPy " if is_pypy else ""
     run_pypy_str = "PyPy " if IS_PYPY else ""
     sys_version_lines = sys.version.split("\n")
     if source_encoding:
-        write(f"# -*- coding: {source_encoding} -*-")
+        write("# -*- coding: %s -*-" % source_encoding)
     write(
         "# uncompyle6 version %s\n"
         "# %sPython bytecode version base %s%s\n# Decompiled from: %sPython %s"
@@ -103,9 +103,9 @@ def decompile(
         )
     )
     if co.co_filename:
-        write(f"# Embedded file name: {co.co_filename}")
+        write("# Embedded file name: %s" % co.co_filename)
     if timestamp:
-        write(f"# Compiled at: {datetime.datetime.fromtimestamp(timestamp)}")
+        write("# Compiled at: %s" % datetime.datetime.fromtimestamp(timestamp))
     if source_size:
         write("# Size of source mod 2**32: %d bytes" % source_size)
 
@@ -135,7 +135,7 @@ def decompile(
                 (line_no, deparsed.source_linemap[line_no] + header_count)
                 for line_no in sorted(deparsed.source_linemap.keys())
             ]
-            mapstream.write(f"\n\n# {linemap}\n")
+            mapstream.write("\n\n# %s\n" % linemap)
         else:
             if do_fragments:
                 deparse_fn = code_deparse_fragments
@@ -163,11 +163,11 @@ def compile_file(source_path):
         basename = source_path
 
     if hasattr(sys, "pypy_version_info"):
-        bytecode_path = f"{basename}-pypy{version_tuple_to_str()}.pyc"
+        bytecode_path = "%s-pypy%s.pyc" % (basename, version_tuple_to_str())
     else:
-        bytecode_path = f"{basename}-{version_tuple_to_str()}.pyc"
+        bytecode_path = "%s-%s.pyc" % (basename, version_tuple_to_str())
 
-    print(f"compiling {source_path} to {bytecode_path}")
+    print("compiling %s to %s" % (source_path, bytecode_path))
     py_compile.compile(source_path, bytecode_path, "exec")
     return bytecode_path
 
@@ -271,7 +271,7 @@ def main(
         infile = os.path.join(in_base, filename)
         # print("XXX", infile)
         if not os.path.exists(infile):
-            sys.stderr.write(f"File '{infile}' doesn't exist. Skipped\n")
+            sys.stderr.write("File '%s' doesn't exist. Skipped\n" % infile)
             continue
 
         if do_linemaps:
@@ -319,11 +319,11 @@ def main(
                     ):
                         if e[0] != last_mod:
                             line = "=" * len(e[0])
-                            outstream.write(f"{line}\n{e[0]}\n{line}\n")
+                            outstream.write("%s\n%s\n%s\n" % (line, e[0], line))
                         last_mod = e[0]
                         info = offsets[e]
                         extract_info = d.extract_node_info(info)
-                        outstream.write(f"{info.node.format().strip()}" + "\n")
+                        outstream.write("%s" % info.node.format().strip() + "\n")
                         outstream.write(extract_info.selectedLine + "\n")
                         outstream.write(extract_info.markerLine + "\n\n")
                     pass
@@ -345,13 +345,15 @@ def main(
             sys.stdout.write("\n%s\n" % str(e))
             if str(e).startswith("Unsupported Python"):
                 sys.stdout.write("\n")
-                sys.stderr.write(f"\n# Unsupported bytecode in file {infile}\n# {e}\n")
+                sys.stderr.write(
+                    "\n# Unsupported bytecode in file %s\n# %s\n" % (infile, e)
+                )
             else:
                 if outfile:
                     outstream.close()
                     os.remove(outfile)
                 sys.stdout.write("\n")
-                sys.stderr.write(f"\nLast file: {infile}   ")
+                sys.stderr.write("\nLast file: %s   " % (infile))
                 raise
 
         # except:

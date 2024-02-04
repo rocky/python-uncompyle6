@@ -17,16 +17,18 @@
 All the crazy things we have to do to handle Python functions in Python before 3.0.
 The saga of changes continues in 3.0 and above and in other files.
 """
-from uncompyle6.scanner import Code
-from uncompyle6.semantics.parser_error import ParserError
+from xdis import iscode
+
 from uncompyle6.parser import ParserError as ParserError2
+from uncompyle6.scanner import Code
 from uncompyle6.semantics.helper import (
-    print_docstring,
     find_all_globals,
     find_globals_and_nonlocals,
     find_none,
+    print_docstring,
 )
-from xdis import iscode
+from uncompyle6.semantics.parser_error import ParserError
+
 
 def make_function1(self, node, is_lambda, nested=1, code_node=None):
     """
@@ -36,8 +38,8 @@ def make_function1(self, node, is_lambda, nested=1, code_node=None):
 
     def build_param(tree, param_names: list) -> tuple:
         """build parameters:
-            - handle defaults
-            - handle format tuple parameters
+        - handle defaults
+        - handle format tuple parameters
         """
         # if formal parameter is a tuple, the parameter name
         # starts with a dot (eg. '.1', '.2')
@@ -186,5 +188,5 @@ def make_function1(self, node, is_lambda, nested=1, code_node=None):
         tree, code.co_name, code._customize, is_lambda=is_lambda, returnNone=rn
     )
 
-    code._tokens = None # save memory
+    code._tokens = None  # save memory
     code._customize = None  # save memory

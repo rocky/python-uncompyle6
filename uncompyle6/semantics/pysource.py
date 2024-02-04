@@ -773,7 +773,8 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                         """
                         Expanding '%s' in template '%s[%s]':
                         %s is invalid; has only %d entries
-                        """ % (node.kind, entry, arg, index, len(node))
+                        """
+                        % (node.kind, entry, arg, index, len(node))
                     )
                 self.preorder(node[index])
 
@@ -1343,10 +1344,10 @@ def code_deparse(
     if expected_start:
         assert (
             deparsed.ast == expected_start
-        ), (
-            "Should have parsed grammar start to '%s'; got: %s" %
-            (expected_start, deparsed.ast.kind)
-            )
+        ), "Should have parsed grammar start to '%s'; got: %s" % (
+            expected_start,
+            deparsed.ast.kind,
+        )
     # save memory
     del tokens
 

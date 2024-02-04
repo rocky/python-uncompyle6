@@ -36,12 +36,12 @@ Finally we save token information.
 from __future__ import print_function
 
 from copy import copy
-
-from xdis import code2num, iscode, op_has_argument, instruction_size
-from xdis.bytecode import _get_const_info
-from uncompyle6.scanner import Scanner, Token
-
 from sys import intern
+
+from xdis import code2num, instruction_size, iscode, op_has_argument
+from xdis.bytecode import _get_const_info
+
+from uncompyle6.scanner import Scanner, Token
 
 
 class Scanner2(Scanner):
@@ -236,7 +236,6 @@ class Scanner2(Scanner):
         # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
         for i in self.op_range(0, codelen):
-
             # We need to detect the difference between:
             #   raise AssertionError
             #  and
@@ -328,9 +327,14 @@ class Scanner2(Scanner):
                     "BUILD_SET",
                 ):
                     t = Token(
-                        op_name, oparg, pattr, offset,
+                        op_name,
+                        oparg,
+                        pattr,
+                        offset,
                         self.linestarts.get(offset, None),
-                        op, has_arg, self.opc
+                        op,
+                        has_arg,
+                        self.opc,
                     )
                     collection_type = op_name.split("_")[1]
                     next_tokens = self.bound_collection_from_tokens(
@@ -541,14 +545,17 @@ class Scanner2(Scanner):
         for s in stmt_list:
             if code[s] == self.opc.JUMP_ABSOLUTE and s not in pass_stmts:
                 target = self.get_target(s)
-                if target > s or (self.lines and self.lines[last_stmt].l_no == self.lines[s].l_no):
+                if target > s or (
+                    self.lines and self.lines[last_stmt].l_no == self.lines[s].l_no
+                ):
                     stmts.remove(s)
                     continue
                 j = self.prev[s]
                 while code[j] == self.opc.JUMP_ABSOLUTE:
                     j = self.prev[j]
                 if (
-                    self.version >= (2, 3) and self.opname_for_offset(j) == "LIST_APPEND"
+                    self.version >= (2, 3)
+                    and self.opname_for_offset(j) == "LIST_APPEND"
                 ):  # list comprehension
                     stmts.remove(s)
                     continue
@@ -925,7 +932,6 @@ class Scanner2(Scanner):
 
             # Is it an "and" inside an "if" or "while" block
             if op == self.opc.PJIF:
-
                 # Search for other POP_JUMP_IF_...'s targeting the
                 # same target, of the current POP_JUMP_... instruction,
                 # starting from current offset, and filter everything inside inner 'or'
@@ -1117,7 +1123,6 @@ class Scanner2(Scanner):
 
                 # Is this a loop and not an "if" statement?
                 if (if_end < pre_rtarget) and (pre[if_end] in self.setup_loop_targets):
-
                     if if_end > start:
                         return
                     else:
@@ -1467,11 +1472,12 @@ class Scanner2(Scanner):
 
 if __name__ == "__main__":
     import inspect
+
     from xdis.version_info import PYTHON_VERSION_TRIPLE
 
     co = inspect.currentframe().f_code
 
     tokens, customize = Scanner2(PYTHON_VERSION_TRIPLE).ingest(co)
     for t in tokens:
-            print(t)
+        print(t)
     pass

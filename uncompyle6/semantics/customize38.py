@@ -23,8 +23,8 @@ from uncompyle6.semantics.consts import PRECEDENCE, TABLE_DIRECT
 from uncompyle6.semantics.customize37 import FSTRING_CONVERSION_MAP
 from uncompyle6.semantics.helper import escape_string, strip_quotes
 
-def customize_for_version38(self, version):
 
+def customize_for_version38(self, version):
     # FIXME: pytest doesn't add proper keys in testing. Reinstate after we have fixed pytest.
     # for lhs in 'for forelsestmt forelselaststmt '
     #             'forelselaststmtc tryfinally38'.split():
@@ -40,10 +40,10 @@ def customize_for_version38(self, version):
             ),
             "async_forelse_stmt38": (
                 "%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
-                (7, 'store'),
-                (0, 'expr'),
-                (8, 'for_block'),
-                (-1, 'else_suite')
+                (7, "store"),
+                (0, "expr"),
+                (8, "for_block"),
+                (-1, "else_suite"),
             ),
             "async_with_stmt38": (
                 "%|async with %c:\n%+%c%-\n",
@@ -70,8 +70,15 @@ def customize_for_version38(self, version):
             ),
             # Python 3.8 reverses the order of keys and items
             # from all prior versions of Python.
-            "dict_comp_body": ("%c: %c", (0, "expr"), (1, "expr"),),
-            "except_cond1a": ("%|except %c:\n", (1, "expr"),),
+            "dict_comp_body": (
+                "%c: %c",
+                (0, "expr"),
+                (1, "expr"),
+            ),
+            "except_cond1a": (
+                "%|except %c:\n",
+                (1, "expr"),
+            ),
             "except_cond_as": (
                 "%|except %c as %c:\n",
                 (1, "expr"),
@@ -124,7 +131,11 @@ def customize_for_version38(self, version):
             "pop_return": ("%|return %c\n", (1, "return_expr")),
             "popb_return": ("%|return %c\n", (0, "return_expr")),
             "pop_ex_return": ("%|return %c\n", (0, "return_expr")),
-            "set_for": (" for %c in %c", (2, "store"), (0, "expr_or_arg"),),
+            "set_for": (
+                " for %c in %c",
+                (2, "store"),
+                (0, "expr_or_arg"),
+            ),
             "whilestmt38": (
                 "%|while %c:\n%+%c%-\n\n",
                 (1, ("bool_op", "testexpr", "testexprc")),
@@ -322,7 +333,9 @@ def customize_for_version38(self, version):
             f_conversion = self.traverse(formatted_value, indent="")
             # Remove leaving "f" and quotes
             conversion = strip_quotes(f_conversion[1:])
-            f_str = "f%s" % escape_string(("%s%s" % (value_equal, conversion)) + post_str)
+            f_str = "f%s" % escape_string(
+                ("%s%s" % (value_equal, conversion)) + post_str
+            )
 
         self.write(f_str)
         self.in_format_string = old_in_format_string

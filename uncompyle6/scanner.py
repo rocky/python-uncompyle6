@@ -21,12 +21,10 @@ scanner/ingestion module. From here we call various version-specific
 scanners, e.g. for Python 2.7 or 3.4.
 """
 
+import sys
 from array import array
 from collections import namedtuple
-import sys
 
-from uncompyle6.scanners.tok import Token
-from xdis.version_info import IS_PYPY, version_tuple_to_str
 import xdis
 from xdis import (
     Bytecode,
@@ -36,6 +34,9 @@ from xdis import (
     instruction_size,
     next_offset,
 )
+from xdis.version_info import IS_PYPY, version_tuple_to_str
+
+from uncompyle6.scanners.tok import Token
 
 # The byte code versions we support.
 # Note: these all have to be tuples of 2 ints
@@ -80,6 +81,7 @@ CANONIC2VERSION["3.5.2"] = 3.5
 intern = sys.intern
 L65536 = 65536
 
+
 def long(num):
     return num
 
@@ -108,9 +110,6 @@ class Scanner:
         self.show_asm = show_asm
         self.is_pypy = is_pypy
 
-        # Temoorary initialization.
-        self.opc = ModuleType("uninitialized")
-
         if version[:2] in PYTHON_VERSIONS:
             v_str = "opcode_%s" % version_tuple_to_str(
                 version, start=0, end=2, delimiter=""
@@ -130,9 +129,7 @@ class Scanner:
         # FIXME: This weird Python2 behavior is not Python3
         self.resetTokenClass()
 
-    def bound_collection_from_tokens(
-        self, tokens, t, i, collection_type
-    ):
+    def bound_collection_from_tokens(self, tokens, t, i, collection_type):
         count = t.attr
         assert isinstance(count, int)
 
@@ -334,7 +331,7 @@ class Scanner:
             else:
                 print("%i\t%s\t" % (i, self.opname[op]))
 
-    def first_instr(self, start: int, end: int, instr, target=None, exact=True):
+    def first_instr(self, start, end, instr, target=None, exact=True):
         """
         Find the first <instr> in the block from start to end.
         <instr> is any python bytecode instruction or a list of opcodes
@@ -622,8 +619,7 @@ def parse_fn_counts_30_35(argc):
     return ((argc & 0xFF), (argc >> 8) & 0xFF, annotate_count)
 
 
-def get_scanner(version: Union[str, tuple], is_pypy=False, show_asm=None) -> Scanner:
-
+def get_scanner(version, is_pypy=False, show_asm=None):
     # If version is a string, turn that into the corresponding float.
     if isinstance(version, str):
         if version not in canonic_python_version:
@@ -684,5 +680,6 @@ if __name__ == "__main__":
     # scanner = get_scanner('2.7.13', True)
     # scanner = get_scanner(sys.version[:5], False)
     from xdis.version_info import PYTHON_VERSION_TRIPLE
+
     scanner = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY, True)
     tokens, customize = scanner.ingest(co, {}, show_asm="after")

@@ -22,13 +22,12 @@ This sets up opcodes Python's 3.7 and calls a generalized
 scanner routine for Python 3.
 """
 
-from uncompyle6.scanner import CONST_COLLECTIONS
-from uncompyle6.scanners.tok import Token
-
-from uncompyle6.scanners.scanner37base import Scanner37Base
-
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_37 as opc
+
+from uncompyle6.scanner import CONST_COLLECTIONS
+from uncompyle6.scanners.scanner37base import Scanner37Base
+from uncompyle6.scanners.tok import Token
 
 # bytecode verification, verify(), uses JUMP_OPS from here
 JUMP_OPs = opc.JUMP_OPS
@@ -193,4 +192,6 @@ if __name__ == "__main__":
             print(t.format())
         pass
     else:
-        print("Need to be Python 3.7 to demo; I am version %s." % version_tuple_to_str())
+        print(
+            "Need to be Python 3.7 to demo; I am version %s." % version_tuple_to_str()
+        )
