@@ -23,9 +23,9 @@ from xdis import co_flags_is_async, iscode
 
 from uncompyle6.parser import get_python_parser
 from uncompyle6.scanner import Code
+from uncompyle6.scanners.tok import Token
 from uncompyle6.semantics.consts import PRECEDENCE
 from uncompyle6.semantics.helper import is_lambda_mode
-from uncompyle6.scanners.tok import Token
 
 
 class ComprehensionMixin:
@@ -513,8 +513,9 @@ class ComprehensionMixin:
         else:
             self.preorder(node[in_node_index])
 
-        from trepan.api import debug; debug()
+        from trepan.api import debug
 
+        debug()
         # Here is where we handle nested list iterations.
         if tree == "list_comp" and self.version != (3, 0):
             list_iter = tree[1]
