@@ -221,7 +221,7 @@ class PythonParser(GenericASTBuilder):
 
         This appears in CALL_FUNCTION or CALL_METHOD (PyPy) tokens
         """
-        # Low byte indicates number of positional paramters,
+        # Low byte indicates number of positional parameters,
         # high byte number of keyword parameters
         assert token.kind.startswith("CALL_FUNCTION") or token.kind.startswith("CALL_METHOD")
         args_pos = token.attr & 0xFF
@@ -303,6 +303,9 @@ class PythonParser(GenericASTBuilder):
         c_stmts ::= _stmts lastc_stmt
         c_stmts ::= lastc_stmt
         c_stmts ::= continues
+
+        ending_return  ::= RETURN_VALUE RETURN_LAST
+        ending_return  ::= RETURN_VALUE_LAMBDA LAMBDA_MARKER
 
         lastc_stmt ::= iflaststmt
         lastc_stmt ::= forelselaststmt

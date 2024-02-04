@@ -7,7 +7,7 @@ In the interest of shortening what is written here, I am going to start where we
 For the earlier history up to 2006 and the code up until Python 2.4, which I find interesting, look at that link.
 
 Sometime around 2014 was the dawn of ["uncompyle" and PyPI](https://pypi.python.org/pypi/uncompyle/1.1) &mdash; the era of
-public version control. Dan Pascu's code although not public used [darcs](http://darcs.net/) for version control. I converted the darcs to to git and put this at [decompyle-2.4](https://github.com/rocky/decompile-2.4).
+public version control. Dan Pascu's code although not public used [darcs](http://darcs.net/) for version control. I converted the darcs repository to git and put this at [decompyle-2.4](https://github.com/rocky/decompile-2.4).
 
 # uncompyle, unpyc
 
@@ -17,7 +17,7 @@ The project exists not only on [github](https://github.com/gstarnberger/uncompyl
 [bitbucket](https://bitbucket.org/gstarnberger/uncompyle) and later the defunct [google
 code](https://code.google.com/archive/p/unpyc/) under the name _unpyc_. The git/svn history goes back to 2009. Somewhere in there the name was changed from "decompyle" to "unpyc" by Keknehv, and then to "uncompyle" by Guenther Starnberger.
 
-The name Thomas Grainger isn't found in (m)any of the commits in the several years of active development. First Keknehv worked on this up to Python 2.5 or so while acceping Python bytecode back to 2.0 or so. Then "hamled" made a few commits earler on, while Eike Siewertsen made a few commits later on. But mostly "wibiti", and Guenther Starnberger got the code to where uncompyle2 was around 2012.
+The name Thomas Grainger isn't found in (m)any of the commits in the several years of active development. First Keknehv worked on this up to Python 2.5 or so while accepting Python bytecode back to 2.0 or so. Then "hamled" made a few commits earlier on, while Eike Siewertsen made a few commits later on. But mostly "wibiti", and Guenther Starnberger got the code to where uncompyle2 was around 2012.
 
 While John Aycock and Hartmut Goebel were well versed in compiler technology, those that have come afterwards don't seem to have been as facile in it.  Furthermore, documentation or guidance on how the decompiler code worked, comparison to a conventional compiler pipeline, how to add new constructs, or debug grammars was weak. Some of the grammar tracing and error reporting was a bit weak as well.
 
@@ -38,7 +38,7 @@ I started working on this late 2015, mostly to add fragment support. In that, I 
 * this project - grammar and semantic actions for decompiling
   ([uncompyle6](https://pypi.python.org/pypi/uncompyle6)).
 
- `uncompyle6`, abandons the idea found in some 2.7 version of `uncompyle` that support Python 2.6 and 2.5 by trying to rewite opcodes at the bytecode level.
+ `uncompyle6`, abandons the idea found in some 2.7 version of `uncompyle` that support Python 2.6 and 2.5 by trying to rewrite opcodes at the bytecode level.
 
 Having a grammar per Python version is simpler to maintain, cleaner and it scales indefinitely.
 
@@ -68,13 +68,13 @@ project is largely by Michael Hansen and Darryl Pogue. If they supported getting
 
 # So you want to write a decompiler for Python?
 
-If you think, as I am sure will happen in the future, "hey, I can just write a decompiler from scratch and not have to deal with all all of the complexity in uncompyle6", think again. What is likely to happen is that you'll get at best a 90% solution working for a single Python release that will be obsolete in about a year, and more obsolete each subsequent year.
+If you think, as I am sure will happen in the future, "hey, I can just write a decompiler from scratch and not have to deal with all of the complexity in uncompyle6", think again. What is likely to happen is that you'll get at best a 90% solution working for a single Python release that will be obsolete in about a year, and more obsolete each subsequent year.
 
 Writing a decompiler for Python gets harder as it Python progresses. Writing decompiler for Python 3.7 isn't as easy as it was for Python 2.2. For one thing, now that Python has a well-established AST, that opens another interface by which code can be improved.
 
 In Python 3.10 I am seeing (for the first time?) bytecode getting moved around so that it is no longer the case that line numbers have to be strictly increasing as bytecode offsets increase. And I am seeing dead code appear as well.
 
-That said, if you still feel you want to write a single version decompiler, look at the test cases in this project and talk to me. I may have some ideas that I haven't made public yet. See also what I've wrtten about the on how this code works and on [decompilation in dynamic runtime languages](http://rocky.github.io/Deparsing-Paper.pdf) in general.
+That said, if you still feel you want to write a single version decompiler, look at the test cases in this project and talk to me. I may have some ideas that I haven't made public yet. See also what I've written about the on how this code works and on [decompilation in dynamic runtime languages](http://rocky.github.io/Deparsing-Paper.pdf) in general.
 
 
 
@@ -82,8 +82,8 @@ That said, if you still feel you want to write a single version decompiler, look
 
 This project deparses using an Earley-algorithm parse. But in order to do this accurately, the process of tokenization is a bit more involved in the scanner. We don't just disassemble bytecode and use the opcode name. That aspect hasn't changed from the very first decompilers. However understanding _what_ information needs to be made explicit and what pseudo instructions to add that accomplish this has taken some time to understand.
 
-Earley-algorithm parsers have gotten negative press, most notably by the dragon book. Having used this a bit, I am convinced having a system that handles ambiguous grammars is the right thing to do and matches the problem well. Iin practice the speed of the parser isn't a problem when one understand what's up. And this has taken a little while to understand.
-Earley-algorim parsers for context free languages or languages that are to a large extent context free and tend to be linear and the grammar stears towards left recursive rules. There is a technique for improving LL right recursion, but our parser doesn't have that yet.
+Earley-algorithm parsers have gotten negative press, most notably by the dragon book. Having used this a bit, I am convinced having a system that handles ambiguous grammars is the right thing to do and matches the problem well. In practice the speed of the parser isn't a problem when one understand what's up. And this has taken a little while to understand.
+Earley-algorithm parsers for context free languages or languages that are to a large extent context free and tend to be linear and the grammar steers towards left recursive rules. There is a technique for improving LL right recursion, but our parser doesn't have that yet.
 
 The [decompiling paper](http://rocky.github.io/Deparsing-Paper.pdf) discusses these aspects in a more detail.
 

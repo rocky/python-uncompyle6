@@ -64,7 +64,6 @@ The node position 0 will be associated with "import".
 # FIXME: DRY code with pysource
 
 import re
-import sys
 from bisect import bisect_right
 from collections import namedtuple
 
@@ -154,7 +153,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def __init__(
         self,
-        version,
+        version: tuple,
         scanner,
         showast=TREE_DEFAULT_DEBUG,
         debug_parser=PARSER_DEFAULT_DEBUG,

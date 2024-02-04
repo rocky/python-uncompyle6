@@ -8,7 +8,7 @@
 * Correct 2.5-7 relative import formatting
 * Miscellaneous bug fixing
 * remove \n in lambda
-* Python 2.6 gramar cleanup
+* Python 2.6 grammar cleanup
 * Correct some Python 2.6 chain compare decompilation
 * Ensure no parenthesis subscript slices
 * Correct 2.x formatting "slice2" nonterminal
@@ -35,7 +35,7 @@
 ================
 
 * Fragment parsing was borked. This means deparsing in trepan2/trepan3k was broken
-* 3.7+: narrow precedence for call tatement
+* 3.7+: narrow precedence for call statement
 * del_stmt -> delete to better match Python AST
 * 3.8+ Add another `forelsestmt` (found only in a loop)
 * 3.8+ Add precedence on walrus operator
@@ -66,7 +66,7 @@ Mostly small miscellaneous bug fixes
 3.7.1: 2020-6-12 Fleetwood66
 ====================================================
 
-Released to pick up new xdis version which has fixes to read bytestings better on 3.x
+Released to pick up new xdis version which has fixes to read bytestrings better on 3.x
 
 * Handle 3.7+ "else" branch removal adAs seen in `_cmp()` of `python3.8/distutils/version.py` with optimization `-O2`
 * 3.6+ "with" and "with .. as" grammar improvements
@@ -89,10 +89,10 @@ More upheaval in xdis which we need to track here.
 3.6.6: 2020-4-20 Love in the time of Cholera
 ============================================
 
-The main reason for this release is an incompatablity bump in xdis which handles
+The main reason for this release is an incompatibility bump in xdis which handles
 3.7 SipHash better.
 
-* Go over "yield" as an expression precidence
+* Go over "yield" as an expression precedence
 * Some small alignment with code in decompyle3 for "or" and "and" was done
 
 
@@ -118,7 +118,7 @@ The main focus in this release was fix some of the more glaring problems creapt 
 `uncompyle6` code is at a plateau where what is most needed is a code refactoring. In doing this, until everything refactored and replaced, decomplation may get worse.
 Therefore, this release largely serves as a checkpoint before more major upheaval.
 
-The upheaval, in  started last release, I believe the pinnicle was around c90ff51 which wasn't a release. I suppose I should tag that.
+The upheaval, in  started last release, I believe the pinnacle was around c90ff51 which wasn't a release. I suppose I should tag that.
 
 After c90ff5, I started down the road of redoing control flow in a more comprehensible, debuggable, and scalable way. See [The Control Flow Mess](https://github.com/rocky/python-uncompyle6/wiki/The-Control-Flow-Mess)
 
@@ -132,7 +132,7 @@ In the decompyle3 code, I've gone down the road making the grammar goal symbol b
 
 I cringe in thinking about how the code has lived for so long without noticing such a simple stupidity, and lapse of sufficient thought.
 
-Some stats from testing. The below give numbers of decompiled tests from Python's test suite which succesfully ran
+Some stats from testing. The below give numbers of decompiled tests from Python's test suite which successfully ran
 
 ```
    Version  test-suites passing
@@ -175,14 +175,14 @@ On the most recent Python versions I regularly decompile thousands of Python pro
 
 Does this mean the decompiler works perfectly? No. There are still a dozen or so failing programs, although the actual number of bugs is probably smaller though.
 
-However, in perparation of a more major refactoring of the parser grammar, this release was born.
+However, in preparation of a more major refactoring of the parser grammar, this release was born.
 
 In many cases, decompilation is better. But there are some cases where decompilation has gotten worse. For lack of time (and interest) 3.0 bytecode suffered a hit. Possibly some code in the 3.x range did too. In time and with cleaner refactored code, this will come back.
 
-Commit c90ff51 was a local maxiumum before, I started reworking the grammar to separate productions that were specific to loops versus those that are not in loops.
-In the middle of that I added another grammar simplication to remove singleton productions of the form `sstmts-> stmts`. These were always was a bit ugly, and complicated output.
+Commit c90ff51 was a local maximum before, I started reworking the grammar to separate productions that were specific to loops versus those that are not in loops.
+In the middle of that I added another grammar simplification to remove singleton productions of the form `sstmts-> stmts`. These were always was a bit ugly, and complicated output.
 
-At any rate if decompilation fails, you can try c90ff51. Or another decompiler. `unpyc37` is pretty good for 3.7. wibiti `uncompyle2` is great for 2.7. `pycdc` is mediocre for Python before 3.5 or so, and not that good for the most recent Python. Geerally these programs will give some sort of answer even if it isn't correct.
+At any rate if decompilation fails, you can try c90ff51. Or another decompiler. `unpyc37` is pretty good for 3.7. wibiti `uncompyle2` is great for 2.7. `pycdc` is mediocre for Python before 3.5 or so, and not that good for the most recent Python. Generally these programs will give some sort of answer even if it isn't correct.
 
 decompyle3 isn't that good for 3.7 and worse for 3.8, but right now it does things no other Python decompiler like `unpyc37` or `pycdc` does. For example, `decompyle3` handles variable annotations. As always, the issue trackers for the various programs will give you a sense for what needs to be done. For now, I've given up on reporting issues in the other decompilers because there are already enough issues reported, and they are just not getting fixed anyway.
 
@@ -213,7 +213,7 @@ indicate when an import contains a dotted import. Similarly, code for
 3.7 `import .. as ` is basically the same as `from .. import`, the
 only difference is the target of the name changes to an "alias" in the
 former. As a result, the disambiguation is now done on the semantic
-action side, rathero than in parsing grammar rules.
+action side, rather than in parsing grammar rules.
 
 Some small specific fixes:
 
@@ -246,13 +246,13 @@ versions better. This however comes with a big decompilation speed
 penalty. When we redo control flow this should go back to normal, but
 for now, accuracy is more important than speed.
 
-Another `assert` transform rule was added. Parser rules to distingish
+Another `assert` transform rule was added. Parser rules to distinguish
 `try/finally` in 3.8 were added and we are more stringent about what
 can be turned into an `assert`. There was some grammar cleanup here
 too.
 
 A number of small bugs were fixed, and some administrative changes to
-make `make check-short` really be short, but check more throughly what
+make `make check-short` really be short, but check more thoroughly what
 it checks. minimum xdis version needed was bumped to include in the
 newer 3.6-3.9 releases. See the `ChangeLog` for details.
 
@@ -261,7 +261,7 @@ newer 3.6-3.9 releases. See the `ChangeLog` for details.
 =============================
 
 The main focus in this release was more accurate decompilation especially
-for 3.7 and 3.8. However there are some improvments to Python 2.x as well,
+for 3.7 and 3.8. However there are some improvements to Python 2.x as well,
 including one of the long-standing problems of detecting the difference between
 `try ... ` and `try else ...`.
 
@@ -269,11 +269,11 @@ With this release we now rebase Python 3.7 on off of a 3.7 base; This
 is also as it is (now) in decompyle3.  This facilitates removing some of the
 cruft in control-flow detection in the 2.7 uncompyle2 base.
 
-Alas, decompilation speed for 3.7 on is greatly increased. Hopefull
+Alas, decompilation speed for 3.7 on is greatly increased. Hopefully
 this is temporary (cough, cough) until we can do a static control flow
 pass.
 
-Finally, runing in 3.9-dev is tolerated. We can disassemble, but no parse tables yet.
+Finally, running in 3.9-dev is tolerated. We can disassemble, but no parse tables yet.
 
 
 3.5.1 2019-11-17 JNC
@@ -566,7 +566,7 @@ function calls and definitions.
 - Misc pydisasm fixes
 - Weird comprehension bug seen via new loctraceback
 - Fix Python 3.5+ CALL_FUNCTION_VAR and BUILD_LIST_UNPACK in call; with this
-  we can can handle 3.5+ f(a, b, *c, *d, *e) now
+  we can handle 3.5+ f(a, b, *c, *d, *e) now
 
 2.15.1 2018-02-05
 =====================
@@ -661,7 +661,7 @@ Overall: better 3.6 decompiling and some much needed code refactoring and cleanu
 - Handle `EXTENDED_ARGS` better. While relevant to all Python versions it is most noticeable in
   version 3.6+ where in switching to wordcodes the size of operands has been reduced from 2^16
   to 2^8. `JUMP` instruction then often need EXTENDED_ARGS.
-- Refactor find_jump_targets() with via working of of instructions rather the bytecode array.
+- Refactor find_jump_targets() with via working of instructions rather the bytecode array.
 - use `--weak-verify` more and additional fuzzing on verify()
 - fragment parser now ignores errors in nested function definitions; an parameter was
   added to assist here. Ignoring errors may be okay because the fragment parser often just needs,

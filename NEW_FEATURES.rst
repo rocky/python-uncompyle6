@@ -171,7 +171,7 @@ Expanding decompiler availability to multiple Python Versions
 --------------------------------------------------------------
 
 Above we mention decompiling multiple versions of bytecode from a
-single Python interpreter. We we talk about having the decompiler
+single Python interpreter. We talk about having the decompiler
 runnable from multiple versions of Python, independent of the set of
 bytecode that the decompiler supports.
 
@@ -185,7 +185,7 @@ implemented correctly. These also make excellent programs to check
 whether a program has decompiled correctly.
 
 Aside from this, debugging can be easier as well. To assist
-understanding bytcode and single stepping it see `x-python
+understanding bytecode and single stepping it see `x-python
 <https://pypi.org/project/x-python/>`_ and the debugger for it
 `trepan-xpy <https://pypi.org/project/trepanxpy/>`_.
 

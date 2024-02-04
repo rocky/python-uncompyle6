@@ -60,7 +60,7 @@ class Scanner3(Scanner):
         super(Scanner3, self).__init__(version, show_asm, is_pypy)
 
         # Create opcode classification sets
-        # Note: super initilization above initializes self.opc
+        # Note: super initialization above initializes self.opc
 
         # For ops that start SETUP_ ... we will add COME_FROM with these names
         # at the their targets.
@@ -226,7 +226,7 @@ class Scanner3(Scanner):
         assert count <= i
 
         if collection_type == "CONST_DICT":
-            # constant dictonaries work via BUILD_CONST_KEY_MAP and
+            # constant dictionaries work via BUILD_CONST_KEY_MAP and
             # handle the values() like sets and lists.
             # However the keys() are an LOAD_CONST of the keys.
             # adjust offset to account for this
@@ -1129,7 +1129,7 @@ class Scanner3(Scanner):
 
             # Is it an "and" inside an "if" or "while" block
             if op == self.opc.POP_JUMP_IF_FALSE:
-                # Search for another POP_JUMP_IF_FALSE targetting the same op,
+                # Search for another POP_JUMP_IF_FALSE targeting the same op,
                 # in current statement, starting from current offset, and filter
                 # everything inside inner 'or' jumps and midline ifs
                 match = self.rem_or(
@@ -1336,7 +1336,7 @@ class Scanner3(Scanner):
                 self.not_continue.add(pre_rtarget)
             elif code[pre_rtarget] in rtarget_break:
                 self.structs.append({"type": "if-then", "start": start, "end": rtarget})
-                # It is important to distingish if this return is inside some sort
+                # It is important to distinguish if this return is inside some sort
                 # except block return
                 jump_prev = prev_op[offset]
                 if self.is_pypy and code[jump_prev] == self.opc.COMPARE_OP:

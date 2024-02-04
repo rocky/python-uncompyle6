@@ -263,7 +263,7 @@ class TreeTransform(GenericASTTraversal, object):
     # if elif elif
     def n_ifelsestmt(self, node, preprocess=False):
         """
-        Transformation involving if..else statments.
+        Transformation involving if..else statements.
         For example
 
 

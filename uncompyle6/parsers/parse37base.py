@@ -38,7 +38,7 @@ class Python37BaseParser(PythonParser):
             return "%s_0" % (token.kind)
 
     def add_make_function_rule(self, rule, opname, attr, customize):
-        """Python 3.3 added a an addtional LOAD_STR before MAKE_FUNCTION and
+        """Python 3.3 added a an additional LOAD_STR before MAKE_FUNCTION and
         this has an effect on many rules.
         """
         new_rule = rule % "LOAD_STR "

@@ -1,4 +1,4 @@
-#  Copyright (c) 2016, 2018-2023 by Rocky Bernstein
+#  Copyright (c) 2016, 2018-2024 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -102,11 +102,14 @@ class Code(object):
         self._tokens, self._customize = scanner.ingest(co, classname, show_asm=show_asm)
 
 
-class Scanner(object):
-    def __init__(self, version, show_asm=None, is_pypy=False):
+class Scanner:
+    def __init__(self, version: tuple, show_asm=None, is_pypy=False):
         self.version = version
         self.show_asm = show_asm
         self.is_pypy = is_pypy
+
+        # Temoorary initialization.
+        self.opc = ModuleType("uninitialized")
 
         if version[:2] in PYTHON_VERSIONS:
             v_str = "opcode_%s" % version_tuple_to_str(
@@ -331,7 +334,7 @@ class Scanner(object):
             else:
                 print("%i\t%s\t" % (i, self.opname[op]))
 
-    def first_instr(self, start, end, instr, target=None, exact=True):
+    def first_instr(self, start: int, end: int, instr, target=None, exact=True):
         """
         Find the first <instr> in the block from start to end.
         <instr> is any python bytecode instruction or a list of opcodes
@@ -482,7 +485,6 @@ class Scanner(object):
         result = []
         extended_arg = 0
         for offset in self.op_range(start, end):
-
             op = code[offset]
 
             if op == self.opc.EXTENDED_ARG:
@@ -541,7 +543,6 @@ class Scanner(object):
                 offset = inst.offset
                 continue
             if last_was_extarg:
-
                 # j = self.stmts.index(inst.offset)
                 # self.lines[j] = offset
 
@@ -606,7 +607,7 @@ def parse_fn_counts_30_35(argc):
     In Python 3.0 to 3.5 MAKE_CLOSURE and MAKE_FUNCTION encode
     arguments counts of positional, default + named, and annotation
     arguments a particular kind of encoding where each of
-    the entry a a packe byted value of the lower 24 bits
+    the entry a a packed byted value of the lower 24 bits
     of ``argc``.  The high bits of argc may have come from
     an EXTENDED_ARG instruction. Here, we unpack the values
     from the ``argc`` int and return a triple of the
@@ -621,7 +622,7 @@ def parse_fn_counts_30_35(argc):
     return ((argc & 0xFF), (argc >> 8) & 0xFF, annotate_count)
 
 
-def get_scanner(version, is_pypy=False, show_asm=None):
+def get_scanner(version: Union[str, tuple], is_pypy=False, show_asm=None) -> Scanner:
 
     # If version is a string, turn that into the corresponding float.
     if isinstance(version, str):

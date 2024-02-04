@@ -216,7 +216,7 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
     print("Output directory: ", target_dir)
     try:
         _, _, failed_files, failed_verify = main(
-            src_dir, target_dir, files, [], do_verify=opts["do_verify"]
+            src_dir, target_dir, files, []
         )
         if failed_files != 0:
             sys.exit(2)
