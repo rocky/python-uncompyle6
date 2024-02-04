@@ -135,8 +135,7 @@ from spark_parser import GenericASTTraversal
 from xdis import COMPILER_FLAG_BIT, iscode
 from xdis.version_info import PYTHON_VERSION_TRIPLE
 
-import uncompyle6.parser as python_parser
-from uncompyle6.parser import get_python_parser
+from uncompyle6.parser import get_python_parser, parse
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanner import Code, get_scanner
 from uncompyle6.scanners.tok import Token
@@ -1210,11 +1209,11 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                 p_insts = self.p.insts
                 self.p.insts = self.scanner.insts
                 self.p.offset2inst_index = self.scanner.offset2inst_index
-                ast = python_parser.parse(self.p, tokens, customize, code)
+                ast = parse(self.p, tokens, customize, code)
                 self.customize(customize)
                 self.p.insts = p_insts
 
-            except (python_parser.ParserError, AssertionError) as e:
+            except (ParserError, AssertionError) as e:
                 raise ParserError(e, tokens, self.p.debug["reduce"])
             transform_tree = self.treeTransform.transform(ast, code)
             self.maybe_show_tree(ast, phase="after")
@@ -1249,9 +1248,9 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             self.p.insts = self.scanner.insts
             self.p.offset2inst_index = self.scanner.offset2inst_index
             self.p.opc = self.scanner.opc
-            ast = python_parser.parse(self.p, tokens, customize, code)
+            ast = parse(self.p, tokens, customize, code)
             self.p.insts = p_insts
-        except (python_parser.ParserError, AssertionError) as e:
+        except (ParserError, AssertionError) as e:
             raise ParserError(e, tokens, self.p.debug["reduce"])
 
         checker(ast, False, self.ast_errors)
