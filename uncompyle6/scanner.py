@@ -1,4 +1,4 @@
-#  Copyright (c) 2016, 2018-2023 by Rocky Bernstein
+#  Copyright (c) 2016, 2018-2024 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -21,13 +21,11 @@ scanner/ingestion module. From here we call various version-specific
 scanners, e.g. for Python 2.7 or 3.4.
 """
 
-from types import ModuleType
-from typing import Optional, Tuple, Union
 from array import array
 from collections import namedtuple
+from types import ModuleType
+from typing import Optional, Tuple, Union
 
-from uncompyle6.scanners.tok import Token
-from xdis.version_info import IS_PYPY, version_tuple_to_str
 import xdis
 from xdis import (
     Bytecode,
@@ -37,6 +35,9 @@ from xdis import (
     instruction_size,
     next_offset,
 )
+from xdis.version_info import IS_PYPY, version_tuple_to_str
+
+from uncompyle6.scanners.tok import Token
 
 # The byte code versions we support.
 # Note: these all have to be tuples of 2 ints
@@ -80,6 +81,7 @@ CANONIC2VERSION["3.5.2"] = 3.5
 # FIXME: DRY
 L65536 = 65536
 
+
 def long(num):
     return num
 
@@ -96,7 +98,6 @@ class Code(object):
     """
 
     def __init__(self, co, scanner, classname=None, show_asm=None):
-
         # Full initialization is given below, but for linters
         # well set up some initial values.
         self.co_code = None  # Really either bytes for >= 3.0 and string in < 3.0
@@ -133,9 +134,7 @@ class Scanner:
         # FIXME: This weird Python2 behavior is not Python3
         self.resetTokenClass()
 
-    def bound_collection_from_tokens(
-        self, tokens, t, i, collection_type
-    ):
+    def bound_collection_from_tokens(self, tokens, t, i, collection_type):
         count = t.attr
         assert isinstance(count, int)
 
@@ -429,7 +428,7 @@ class Scanner:
         """
         try:
             None in instr
-        except:
+        except Exception:
             instr = [instr]
 
         first = self.offset2inst_index[start]
@@ -620,16 +619,14 @@ def parse_fn_counts_30_35(argc: int) -> Tuple[int, int, int]:
 
 
 def get_scanner(version: Union[str, tuple], is_pypy=False, show_asm=None) -> Scanner:
-
     # If version is a string, turn that into the corresponding float.
     if isinstance(version, str):
         if version not in canonic_python_version:
-            raise RuntimeError("Unknown Python version in xdis %s" % version)
+            raise RuntimeError(f"Unknown Python version in xdis {version}")
         canonic_version = canonic_python_version[version]
         if canonic_version not in CANONIC2VERSION:
             raise RuntimeError(
-                "Unsupported Python version %s (canonic %s)"
-                % (version, canonic_version)
+                f"Unsupported Python version {version} (canonic {canonic_version})"
             )
         version = CANONIC2VERSION[canonic_version]
 
@@ -680,5 +677,6 @@ if __name__ == "__main__":
     # scanner = get_scanner('2.7.13', True)
     # scanner = get_scanner(sys.version[:5], False)
     from xdis.version_info import PYTHON_VERSION_TRIPLE
+
     scanner = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY, True)
     tokens, customize = scanner.ingest(co, {}, show_asm="after")
