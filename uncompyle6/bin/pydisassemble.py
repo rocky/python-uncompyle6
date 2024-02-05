@@ -51,7 +51,7 @@ PATTERNS = ("*.pyc", "*.pyo")
 
 
 def main():
-    Usage_short = (
+    usage_short = (
         """usage: %s FILE...
 Type -h for for full help."""
         % program
@@ -59,7 +59,7 @@ Type -h for for full help."""
 
     if len(sys.argv) == 1:
         print("No file(s) given", file=sys.stderr)
-        print(Usage_short, file=sys.stderr)
+        print(usage_short, file=sys.stderr)
         sys.exit(1)
 
     try:
@@ -79,7 +79,7 @@ Type -h for for full help."""
             sys.exit(0)
         else:
             print(opt)
-            print(Usage_short, file=sys.stderr)
+            print(usage_short, file=sys.stderr)
             sys.exit(1)
 
     for file in files:
