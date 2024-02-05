@@ -130,6 +130,7 @@ Python.
 #   evaluating the escape code.
 
 import sys
+from io import StringIO
 
 from spark_parser import GenericASTTraversal
 from xdis import COMPILER_FLAG_BIT, iscode
@@ -173,8 +174,6 @@ from uncompyle6.util import better_repr
 def unicode(x):
     return x
 
-
-from io import StringIO
 
 PARSER_DEFAULT_DEBUG = {
     "rules": False,
@@ -384,9 +383,9 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             i += 1
         return rv
 
-    def indent_if_source_nl(self, line_number: int, indent: int):
+    def indent_if_source_nl(self, line_number: int, indent_spaces: str):
         if line_number != self.line_number:
-            self.write("\n" + indent + INDENT_PER_LEVEL[:-1])
+            self.write("\n" + indent_spaces + INDENT_PER_LEVEL[:-1])
         return self.line_number
 
     f = property(
@@ -564,6 +563,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
 
     def print_super_classes3(self, node):
         n = len(node) - 1
+        j = 0
         if node.kind != "expr":
             if node == "kwarg":
                 self.template_engine(("(%[0]{attr}=%c)", 1), node)
@@ -601,9 +601,9 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             self.write("(")
             if kwargs:
                 # Last arg is tuple of keyword values: omit
-                l = n - 1
+                m = n - 1
             else:
-                l = n
+                m = n
 
             if kwargs:
                 # 3.6+ does this
@@ -615,7 +615,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                     j += 1
 
                 j = 0
-                while i < l:
+                while i < m:
                     self.write(sep)
                     value = self.traverse(node[i])
                     self.write("%s=%s" % (kwargs[j], value))
@@ -623,7 +623,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                     j += 1
                     i += 1
             else:
-                while i < l:
+                while i < m:
                     value = self.traverse(node[i])
                     i += 1
                     self.write(sep, value)
@@ -1093,8 +1093,8 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         # if docstring exists, dump it
         if code.co_consts and code.co_consts[0] is not None and len(ast) > 0:
             do_doc = False
+            i = 0
             if is_docstring(ast[0], self.version, code.co_consts):
-                i = 0
                 do_doc = True
             elif len(ast) > 1 and is_docstring(ast[1], self.version, code.co_consts):
                 i = 1
@@ -1427,12 +1427,12 @@ def deparse_code2str(
 
 
 if __name__ == "__main__":
-
     def deparse_test(co):
         """This is a docstring"""
         s = deparse_code2str(co)
         # s = deparse_code2str(co, debug_opts={"asm": "after", "tree": {'before': False, 'after': False}})
         print(s)
         return
+
 
     deparse_test(deparse_test.__code__)
