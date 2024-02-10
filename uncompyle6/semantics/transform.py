@@ -13,14 +13,15 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from uncompyle6.show import maybe_show_tree
 from copy import copy
+
 from spark_parser import GenericASTTraversal, GenericASTTraversalPruningException
 
-from uncompyle6.semantics.helper import find_code_node
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanners.tok import NoneToken, Token
-from uncompyle6.semantics.consts import RETURN_NONE, ASSIGN_DOC_STRING
+from uncompyle6.semantics.consts import ASSIGN_DOC_STRING, RETURN_NONE
+from uncompyle6.semantics.helper import find_code_node
+from uncompyle6.show import maybe_show_tree
 
 
 def is_docstring(node, version, co_consts):
@@ -74,7 +75,9 @@ class TreeTransform(GenericASTTraversal, object):
         return
 
     def maybe_show_tree(self, ast):
-        if isinstance(self.showast, dict) and self.showast:
+        if isinstance(self.showast, dict) and (
+            self.showast.get("before") or self.showast.get("after")
+        ):
             maybe_show_tree(self, ast)
 
     def preorder(self, node=None):
@@ -121,10 +124,7 @@ class TreeTransform(GenericASTTraversal, object):
         if isinstance(mkfunc_pattr, tuple):
             assert len(mkfunc_pattr) == 4 and isinstance(mkfunc_pattr, int)
 
-        if (
-            len(code.co_consts) > 0
-            and isinstance(code.co_consts[0], str)
-        ):
+        if len(code.co_consts) > 0 and isinstance(code.co_consts[0], str):
             docstring_node = SyntaxTree(
                 "docstring", [Token("LOAD_STR", has_arg=True, pattr=code.co_consts[0])]
             )
@@ -136,7 +136,7 @@ class TreeTransform(GenericASTTraversal, object):
 
     def n_ifstmt(self, node):
         """Here we check if we can turn an `ifstmt` or 'iflaststmtl` into
-           some kind of `assert` statement"""
+        some kind of `assert` statement"""
 
         testexpr = node[0]
 
@@ -148,7 +148,11 @@ class TreeTransform(GenericASTTraversal, object):
 
             if ifstmts_jump == "_ifstmts_jumpl" and ifstmts_jump[0] == "_ifstmts_jump":
                 ifstmts_jump = ifstmts_jump[0]
-            elif ifstmts_jump not in ("_ifstmts_jump", "_ifstmts_jumpl", "ifstmts_jumpl"):
+            elif ifstmts_jump not in (
+                "_ifstmts_jump",
+                "_ifstmts_jumpl",
+                "ifstmts_jumpl",
+            ):
                 return node
             stmts = ifstmts_jump[0]
         else:
@@ -208,7 +212,7 @@ class TreeTransform(GenericASTTraversal, object):
                         kind = "assert2not"
 
                     LOAD_ASSERT = call[0].first_child()
-                    if LOAD_ASSERT not in ( "LOAD_ASSERT", "LOAD_GLOBAL"):
+                    if LOAD_ASSERT not in ("LOAD_ASSERT", "LOAD_GLOBAL"):
                         return node
                     if isinstance(call[1], SyntaxTree):
                         expr = call[1][0]
@@ -289,7 +293,12 @@ class TreeTransform(GenericASTTraversal, object):
 
         len_n = len(n)
         # Sometimes stmt  is reduced away and n[0] can be a single reduction like continue -> CONTINUE.
-        if len_n == 1 and isinstance(n[0], SyntaxTree) and len(n[0]) == 1 and n[0] == "stmt":
+        if (
+            len_n == 1
+            and isinstance(n[0], SyntaxTree)
+            and len(n[0]) == 1
+            and n[0] == "stmt"
+        ):
             n = n[0][0]
         elif len_n == 0:
             return node
@@ -413,17 +422,15 @@ class TreeTransform(GenericASTTraversal, object):
             new_stmts = [node[0]]
             for i, sstmt in enumerate(node[1:]):
                 ann_assign = sstmt[0]
-                if (
-                    ann_assign == "ann_assign"
-                    and prev == "assign"
-                ):
+                if ann_assign == "ann_assign" and prev == "assign":
                     annotate_var = ann_assign[-2]
                     if annotate_var.attr == prev[-1][0].attr:
                         node[i].kind = "deleted " + node[i].kind
                         del new_stmts[-1]
                         ann_assign_init = SyntaxTree(
-                            "ann_assign_init", [ann_assign[0], copy(prev[0]), annotate_var]
-                            )
+                            "ann_assign_init",
+                            [ann_assign[0], copy(prev[0]), annotate_var],
+                        )
                         if sstmt[0] == "ann_assign":
                             sstmt[0] = ann_assign_init
                         else:
