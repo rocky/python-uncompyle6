@@ -1,9 +1,21 @@
 #!/usr/bin/env python
-# Mode: -*- python -*-
 #
-# Copyright (c) 2015-2016, 2018, 2020, 2022-2023 by Rocky Bernstein <rb@dustyfeet.com>
+#  Copyright (c) 2015-2016, 2018, 2020, 2022-2024
+#  by Rocky Bernstein <rb@dustyfeet.com>
 #
-from __future__ import print_function
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 import getopt
 import os
@@ -51,15 +63,14 @@ PATTERNS = ("*.pyc", "*.pyo")
 
 
 def main():
-    Usage_short = (
-        """usage: %s FILE...
+    usage_short = (
+        f"""usage: {program} FILE...
 Type -h for for full help."""
-        % program
     )
 
     if len(sys.argv) == 1:
         print("No file(s) given", file=sys.stderr)
-        print(Usage_short, file=sys.stderr)
+        print(usage_short, file=sys.stderr)
         sys.exit(1)
 
     try:
@@ -67,7 +78,7 @@ Type -h for for full help."""
             sys.argv[1:], "hVU", ["help", "version", "uncompyle6"]
         )
     except getopt.GetoptError as e:
-        print("%s: %s" % (os.path.basename(sys.argv[0]), e), file=sys.stderr)
+        print(f"{os.path.basename(sys.argv[0])}: {e}", file=sys.stderr)
         sys.exit(-1)
 
     for opt, val in opts:
@@ -75,18 +86,18 @@ Type -h for for full help."""
             print(__doc__)
             sys.exit(1)
         elif opt in ("-V", "--version"):
-            print("%s %s" % (program, __version__))
+            print(f"{program} {__version__}")
             sys.exit(0)
         else:
             print(opt)
-            print(Usage_short, file=sys.stderr)
+            print(usage_short, file=sys.stderr)
             sys.exit(1)
 
     for file in files:
         if os.path.exists(files[0]):
             disassemble_file(file, sys.stdout)
         else:
-            print("Can't read %s - skipping" % files[0], file=sys.stderr)
+            print(f"Can't read {files[0]} - skipping", file=sys.stderr)
             pass
         pass
     return

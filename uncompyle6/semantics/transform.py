@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2023 by Rocky Bernstein
+#  Copyright (c) 2019-2024 by Rocky Bernstein
 
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -13,14 +13,15 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from uncompyle6.show import maybe_show_tree
 from copy import copy
+
 from spark_parser import GenericASTTraversal, GenericASTTraversalPruningException
 
-from uncompyle6.semantics.helper import find_code_node
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanners.tok import NoneToken, Token
-from uncompyle6.semantics.consts import RETURN_NONE, ASSIGN_DOC_STRING
+from uncompyle6.semantics.consts import ASSIGN_DOC_STRING, RETURN_NONE
+from uncompyle6.semantics.helper import find_code_node
+from uncompyle6.show import maybe_show_tree
 
 
 def is_docstring(node, version, co_consts):
@@ -55,27 +56,34 @@ def is_docstring(node, version, co_consts):
     return node == ASSIGN_DOC_STRING(co_consts[0], doc_load)
 
 
-def is_not_docstring(call_stmt_node):
+def is_not_docstring(call_stmt_node) -> bool:
     try:
         return (
             call_stmt_node == "call_stmt"
             and call_stmt_node[0][0] == "LOAD_STR"
             and call_stmt_node[1] == "POP_TOP"
         )
-    except:
+    except Exception:
         return False
 
 
 class TreeTransform(GenericASTTraversal, object):
-    def __init__(self, version, show_ast=None, is_pypy=False):
+    def __init__(
+        self,
+        version: tuple,
+        is_pypy=False,
+        show_ast=None,
+    ):
         self.version = version
         self.showast = show_ast
         self.is_pypy = is_pypy
         return
 
-    def maybe_show_tree(self, ast):
-        if isinstance(self.showast, dict) and self.showast:
-            maybe_show_tree(self, ast)
+    def maybe_show_tree(self, tree):
+        if isinstance(self.showast, dict) and (
+            self.showast.get("before") or self.showast.get("after")
+        ):
+            maybe_show_tree(self, tree)
 
     def preorder(self, node=None):
         """Walk the tree in roughly 'preorder' (a bit of a lie explained below).
@@ -119,12 +127,10 @@ class TreeTransform(GenericASTTraversal, object):
 
         mkfunc_pattr = node[-1].pattr
         if isinstance(mkfunc_pattr, tuple):
+            assert isinstance(mkfunc_pattr, tuple)
             assert len(mkfunc_pattr) == 4 and isinstance(mkfunc_pattr, int)
 
-        if (
-            len(code.co_consts) > 0
-            and isinstance(code.co_consts[0], str)
-        ):
+        if len(code.co_consts) > 0 and isinstance(code.co_consts[0], str):
             docstring_node = SyntaxTree(
                 "docstring", [Token("LOAD_STR", has_arg=True, pattr=code.co_consts[0])]
             )
@@ -136,7 +142,7 @@ class TreeTransform(GenericASTTraversal, object):
 
     def n_ifstmt(self, node):
         """Here we check if we can turn an `ifstmt` or 'iflaststmtl` into
-           some kind of `assert` statement"""
+        some kind of `assert` statement"""
 
         testexpr = node[0]
 
@@ -148,7 +154,11 @@ class TreeTransform(GenericASTTraversal, object):
 
             if ifstmts_jump == "_ifstmts_jumpl" and ifstmts_jump[0] == "_ifstmts_jump":
                 ifstmts_jump = ifstmts_jump[0]
-            elif ifstmts_jump not in ("_ifstmts_jump", "_ifstmts_jumpl", "ifstmts_jumpl"):
+            elif ifstmts_jump not in (
+                "_ifstmts_jump",
+                "_ifstmts_jumpl",
+                "ifstmts_jumpl",
+            ):
                 return node
             stmts = ifstmts_jump[0]
         else:
@@ -208,10 +218,11 @@ class TreeTransform(GenericASTTraversal, object):
                         kind = "assert2not"
 
                     LOAD_ASSERT = call[0].first_child()
-                    if LOAD_ASSERT not in ( "LOAD_ASSERT", "LOAD_GLOBAL"):
+                    if LOAD_ASSERT not in ("LOAD_ASSERT", "LOAD_GLOBAL"):
                         return node
                     if isinstance(call[1], SyntaxTree):
                         expr = call[1][0]
+                        assert_expr.transformed_by = "n_ifstmt"
                         node = SyntaxTree(
                             kind,
                             [
@@ -221,8 +232,8 @@ class TreeTransform(GenericASTTraversal, object):
                                 expr,
                                 RAISE_VARARGS_1,
                             ],
+                            transformed_by="n_ifstmt",
                         )
-                        node.transformed_by = "n_ifstmt"
                         pass
                     pass
                 else:
@@ -250,9 +261,10 @@ class TreeTransform(GenericASTTraversal, object):
 
                     LOAD_ASSERT = expr[0]
                     node = SyntaxTree(
-                        kind, [assert_expr, jump_cond, LOAD_ASSERT, RAISE_VARARGS_1]
+                        kind,
+                        [assert_expr, jump_cond, LOAD_ASSERT, RAISE_VARARGS_1],
+                        transformed_by="n_ifstmt",
                     )
-                node.transformed_by = ("n_ifstmt",)
                 pass
             pass
         return node
@@ -289,7 +301,12 @@ class TreeTransform(GenericASTTraversal, object):
 
         len_n = len(n)
         # Sometimes stmt  is reduced away and n[0] can be a single reduction like continue -> CONTINUE.
-        if len_n == 1 and isinstance(n[0], SyntaxTree) and len(n[0]) == 1 and n[0] == "stmt":
+        if (
+            len_n == 1
+            and isinstance(n[0], SyntaxTree)
+            and len(n[0]) == 1
+            and n[0] == "stmt"
+        ):
             n = n[0][0]
         elif len_n == 0:
             return node
@@ -407,23 +424,27 @@ class TreeTransform(GenericASTTraversal, object):
             list_for_node.transformed_by = ("n_list_for",)
         return list_for_node
 
+    def n_negated_testtrue(self, node):
+        assert node[0] == "testtrue"
+        test_node = node[0][0]
+        test_node.transformed_by = "n_negated_testtrue"
+        return test_node
+
     def n_stmts(self, node):
         if node.first_child() == "SETUP_ANNOTATIONS":
             prev = node[0][0]
             new_stmts = [node[0]]
             for i, sstmt in enumerate(node[1:]):
                 ann_assign = sstmt[0]
-                if (
-                    ann_assign == "ann_assign"
-                    and prev == "assign"
-                ):
+                if ann_assign == "ann_assign" and prev == "assign":
                     annotate_var = ann_assign[-2]
                     if annotate_var.attr == prev[-1][0].attr:
                         node[i].kind = "deleted " + node[i].kind
                         del new_stmts[-1]
                         ann_assign_init = SyntaxTree(
-                            "ann_assign_init", [ann_assign[0], copy(prev[0]), annotate_var]
-                            )
+                            "ann_assign_init",
+                            [ann_assign[0], copy(prev[0]), annotate_var],
+                        )
                         if sstmt[0] == "ann_assign":
                             sstmt[0] = ann_assign_init
                         else:
@@ -441,26 +462,28 @@ class TreeTransform(GenericASTTraversal, object):
         node = self.preorder(node)
         return node
 
-    def transform(self, ast, code):
-        self.maybe_show_tree(ast)
-        self.ast = copy(ast)
+    def transform(self, parse_tree: GenericASTTraversal, code) -> GenericASTTraversal:
+        self.maybe_show_tree(parse_tree)
+        self.ast = copy(parse_tree)
+        del parse_tree
         self.ast = self.traverse(self.ast, is_lambda=False)
+        n = len(self.ast)
 
         try:
             # Disambiguate a string (expression) which appears as a "call_stmt" at
             # the beginning of a function versus a docstring. Seems pretty academic,
             # but this is Python.
-            call_stmt = ast[0][0]
+            call_stmt = self.ast[0][0]
             if is_not_docstring(call_stmt):
                 call_stmt.kind = "string_at_beginning"
                 call_stmt.transformed_by = "transform"
                 pass
-        except:
+        except Exception:
             pass
 
         try:
-            for i in range(len(self.ast)):
-                sstmt = ast[i]
+            for i in range(n):
+                sstmt = self.ast[i]
                 if len(sstmt) == 1 and sstmt == "sstmt":
                     self.ast[i] = self.ast[i][0]
 
@@ -486,7 +509,7 @@ class TreeTransform(GenericASTTraversal, object):
             if self.ast[-1] == RETURN_NONE:
                 self.ast.pop()  # remove last node
                 # todo: if empty, add 'pass'
-        except:
+        except Exception:
             pass
 
         return self.ast

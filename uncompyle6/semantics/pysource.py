@@ -130,6 +130,7 @@ Python.
 #   evaluating the escape code.
 
 import sys
+from io import StringIO
 
 from spark_parser import GenericASTTraversal
 from xdis import COMPILER_FLAG_BIT, iscode
@@ -158,7 +159,11 @@ from uncompyle6.semantics.consts import (
 )
 from uncompyle6.semantics.customize import customize_for_version
 from uncompyle6.semantics.gencomp import ComprehensionMixin
-from uncompyle6.semantics.helper import find_globals_and_nonlocals, print_docstring
+from uncompyle6.semantics.helper import (
+    find_globals_and_nonlocals,
+    is_lambda_mode,
+    print_docstring,
+)
 from uncompyle6.semantics.make_function1 import make_function1
 from uncompyle6.semantics.make_function2 import make_function2
 from uncompyle6.semantics.make_function3 import make_function3
@@ -173,8 +178,6 @@ from uncompyle6.util import better_repr
 def unicode(x):
     return x
 
-
-from io import StringIO
 
 PARSER_DEFAULT_DEBUG = {
     "rules": False,
@@ -206,7 +209,8 @@ class SourceWalkerError(Exception):
 
 class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
     """
-    Class to traverses a Parse Tree of the bytecode instruction built from parsing to produce some sort of source text.
+    Class to traverses a Parse Tree of the bytecode instruction built from parsing to
+    produce some sort of source text.
     The Parse tree may be turned an Abstract Syntax tree as an intermediate step.
     """
 
@@ -214,7 +218,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
 
     def __init__(
         self,
-        version,
+        version: tuple,
         out,
         scanner,
         showast=TREE_DEFAULT_DEBUG,
@@ -224,7 +228,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         linestarts={},
         tolerate_errors=False,
     ):
-        """`version' is the Python version (a float) of the Python dialect
+        """`version' is the Python version of the Python dialect
         of both the syntax tree and language we should produce.
 
         `out' is IO-like file pointer to where the output should go. It
@@ -236,9 +240,12 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
 
         If `showast' is True, we print the syntax tree.
 
-        `compile_mode' is is either 'exec' or 'single'. It is the compile
-        mode that was used to create the Syntax Tree and specifies a
-        grammar variant within a Python version to use.
+        `compile_mode` is is either `exec`, `single` or `lambda`.
+
+        For `lambda`, the grammar that can be used in lambda
+        expressions is used.  Otherwise, it is the compile mode that
+        was used to create the Syntax Tree and specifies a grammar
+        variant within a Python version to use.
 
         `is_pypy` should be True if the Syntax Tree was generated for PyPy.
 
@@ -263,10 +270,8 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         self.currentclass = None
         self.classes = []
         self.debug_parser = dict(debug_parser)
-        # Initialize p_lambda on demand
         self.line_number = 1
         self.linemap = {}
-        self.p_lambda = None
         self.params = params
         self.param_stack = []
         self.ERROR = None
@@ -277,10 +282,14 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         self.pending_newlines = 0
         self.linestarts = linestarts
         self.treeTransform = TreeTransform(version=self.version, show_ast=showast)
+
         # FIXME: have p.insts update in a better way
         # modularity is broken here
         self.insts = scanner.insts
         self.offset2inst_index = scanner.offset2inst_index
+
+        # Initialize p_lambda on demand
+        self.p_lambda = None
 
         # This is in Python 2.6 on. It changes the way
         # strings get interpreted. See n_LOAD_CONST
@@ -309,12 +318,13 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         customize_for_version(self, is_pypy, version)
         return
 
-    def maybe_show_tree(self, ast, phase):
+    def maybe_show_tree(self, tree, phase):
         if self.showast.get("before", False):
             self.println(
                 """
 ---- end before transform
 """
+                + " "
             )
         if self.showast.get("after", False):
             self.println(
@@ -324,7 +334,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                 + " "
             )
         if self.showast.get(phase, False):
-            maybe_show_tree(self, ast)
+            maybe_show_tree(self, tree)
 
     def str_with_template(self, ast):
         stream = sys.stdout
@@ -384,9 +394,9 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             i += 1
         return rv
 
-    def indent_if_source_nl(self, line_number: int, indent: int):
+    def indent_if_source_nl(self, line_number: int, indent_spaces: str):
         if line_number != self.line_number:
-            self.write("\n" + indent + INDENT_PER_LEVEL[:-1])
+            self.write("\n" + indent_spaces + INDENT_PER_LEVEL[:-1])
         return self.line_number
 
     f = property(
@@ -508,19 +518,19 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
     def pp_tuple(self, tup):
         """Pretty print a tuple"""
         last_line = self.f.getvalue().split("\n")[-1]
-        l = len(last_line) + 1
-        indent = " " * l
+        ll = len(last_line) + 1
+        indent = " " * ll
         self.write("(")
         sep = ""
         for item in tup:
             self.write(sep)
-            l += len(sep)
+            ll += len(sep)
             s = better_repr(item, self.version)
-            l += len(s)
+            ll += len(s)
             self.write(s)
             sep = ","
-            if l > LINE_LENGTH:
-                l = 0
+            if ll > LINE_LENGTH:
+                ll = 0
                 sep += "\n" + indent
             else:
                 sep += " "
@@ -564,6 +574,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
 
     def print_super_classes3(self, node):
         n = len(node) - 1
+        j = 0
         if node.kind != "expr":
             if node == "kwarg":
                 self.template_engine(("(%[0]{attr}=%c)", 1), node)
@@ -601,9 +612,9 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             self.write("(")
             if kwargs:
                 # Last arg is tuple of keyword values: omit
-                l = n - 1
+                m = n - 1
             else:
-                l = n
+                m = n
 
             if kwargs:
                 # 3.6+ does this
@@ -615,7 +626,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                     j += 1
 
                 j = 0
-                while i < l:
+                while i < m:
                     self.write(sep)
                     value = self.traverse(node[i])
                     self.write("%s=%s" % (kwargs[j], value))
@@ -623,7 +634,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                     j += 1
                     i += 1
             else:
-                while i < l:
+                while i < m:
                     value = self.traverse(node[i])
                     i += 1
                     self.write(sep, value)
@@ -699,9 +710,10 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         """
 
         # print("-----")
-        # print(startnode)
+        # print(startnode.kind)
         # print(entry[0])
         # print('======')
+
         fmt = entry[0]
         arg = 1
         i = 0
@@ -870,7 +882,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                     d = node.__dict__
                     try:
                         self.write(eval(expr, d, d))
-                    except:
+                    except Exception:
                         raise
             m = escape.search(fmt, i)
         self.write(fmt[i:])
@@ -1094,8 +1106,8 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         # if docstring exists, dump it
         if code.co_consts and code.co_consts[0] is not None and len(ast) > 0:
             do_doc = False
+            i = 0
             if is_docstring(ast[0], self.version, code.co_consts):
-                i = 0
                 do_doc = True
             elif len(ast) > 1 and is_docstring(ast[1], self.version, code.co_consts):
                 i = 1
@@ -1191,7 +1203,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         is_lambda=False,
         noneInNames=False,
         is_top_level_module=False,
-    ):
+    ) -> GenericASTTraversal:
         # FIXME: DRY with fragments.py
 
         # assert isinstance(tokens[0], Token)
@@ -1243,7 +1255,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         # Build a parse tree from a tokenized and massaged disassembly.
         try:
             # FIXME: have p.insts update in a better way
-            # modularity is broken here
+            # Modularity is broken here.
             p_insts = self.p.insts
             self.p.insts = self.scanner.insts
             self.p.offset2inst_index = self.scanner.offset2inst_index
@@ -1256,6 +1268,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         checker(ast, False, self.ast_errors)
 
         self.customize(customize)
+
         transform_tree = self.treeTransform.transform(ast, code)
 
         self.maybe_show_tree(ast, phase="before")
@@ -1277,6 +1290,8 @@ def code_deparse(
     compile_mode="exec",
     is_pypy=IS_PYPY,
     walker=SourceWalker,
+    start_offset: int = 0,
+    stop_offset: int = -1,
 ):
     """
     ingests and deparses a given code block 'co'. If version is None,
@@ -1284,6 +1299,9 @@ def code_deparse(
     """
 
     assert iscode(co)
+
+    if out is None:
+        out = sys.stdout
 
     if version is None:
         version = PYTHON_VERSION_TRIPLE
@@ -1294,6 +1312,21 @@ def code_deparse(
     tokens, customize = scanner.ingest(
         co, code_objects=code_objects, show_asm=debug_opts["asm"]
     )
+
+    if start_offset > 0:
+        for i, t in enumerate(tokens):
+            # If t.offset is a string, we want to skip this.
+            if isinstance(t.offset, int) and t.offset >= start_offset:
+                tokens = tokens[i:]
+                break
+
+    if stop_offset > -1:
+        for i, t in enumerate(tokens):
+            # In contrast to the test for start_offset If t.offset is
+            # a string, we want to extract the integer offset value.
+            if t.off2int() >= stop_offset:
+                tokens = tokens[:i]
+                break
 
     debug_parser = debug_opts.get("grammar", dict(PARSER_DEFAULT_DEBUG))
 
@@ -1318,7 +1351,7 @@ def code_deparse(
         tokens,
         customize,
         co,
-        is_lambda=(compile_mode == "lambda"),
+        is_lambda=is_lambda_mode(compile_mode),
         is_top_level_module=is_top_level_module,
     )
 
@@ -1327,7 +1360,7 @@ def code_deparse(
         return None
 
     # FIXME use a lookup table here.
-    if compile_mode == "lambda":
+    if is_lambda_mode(compile_mode):
         expected_start = "lambda_start"
     elif compile_mode == "eval":
         expected_start = "expr_start"
@@ -1340,6 +1373,7 @@ def code_deparse(
         expected_start = None
     else:
         expected_start = None
+
     if expected_start:
         assert (
             deparsed.ast == expected_start
@@ -1386,7 +1420,7 @@ def code_deparse(
         deparsed.ast,
         name=co.co_name,
         customize=customize,
-        is_lambda=compile_mode == "lambda",
+        is_lambda=is_lambda_mode(compile_mode),
         debug_opts=debug_opts,
     )
 
@@ -1414,9 +1448,12 @@ def deparse_code2str(
     compile_mode="exec",
     is_pypy=IS_PYPY,
     walker=SourceWalker,
-):
-    """Return the deparsed text for a Python code object. `out` is where any intermediate
-    output for assembly or tree output will be sent.
+    start_offset: int = 0,
+    stop_offset: int = -1,
+) -> str:
+    """
+    Return the deparsed text for a Python code object. `out` is where
+    any intermediate output for assembly or tree output will be sent.
     """
     return code_deparse(
         code,

@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2019, 2021-2022 by Rocky Bernstein
+#  Copyright (c) 2015-2019, 2021-2022, 2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -19,19 +19,21 @@ This sets up opcodes Python's 3.3 and calls a generalized
 scanner routine for Python 3.
 """
 
-from __future__ import print_function
-
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_33 as opc
-JUMP_OPS = opc.JUMP_OPS
 
 from uncompyle6.scanners.scanner3 import Scanner3
-class Scanner33(Scanner3):
 
+JUMP_OPS = opc.JUMP_OPS
+
+
+class Scanner33(Scanner3):
     def __init__(self, show_asm=False, is_pypy=False):
         Scanner3.__init__(self, (3, 3), show_asm)
         return
+
     pass
+
 
 if __name__ == "__main__":
     from xdis.version_info import PYTHON_VERSION_TRIPLE, version_tuple_to_str

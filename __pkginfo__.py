@@ -1,4 +1,4 @@
-# Copyright (C) 2018, 2020-2021 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018, 2020-2021 2024 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -32,9 +32,11 @@
 # 3.3            | pip     | 10.0.1       |
 # 3.4            | pip     | 19.1.1       |
 
+import os.path as osp
+
 # Things that change more often go here.
 copyright = """
-Copyright (C) 2015-2021 Rocky Bernstein <rb@dustyfeet.com>.
+Copyright (C) 2015-2021, 2024 Rocky Bernstein <rb@dustyfeet.com>.
 """
 
 classifiers = [
@@ -75,7 +77,7 @@ entry_points = {
     ]
 }
 ftp_url = None
-install_requires = ["spark-parser >= 1.8.9, < 1.9.0", "xdis >= 6.0.8, < 6.2.0"]
+install_requires = ["click", "spark-parser >= 1.8.9, < 1.9.0", "xdis >= 6.0.8, < 6.2.0"]
 
 license = "GPL3"
 mailing_list = "python-debugger@googlegroups.com"
@@ -88,21 +90,18 @@ web = "https://github.com/rocky/python-uncompyle6/"
 zip_safe = True
 
 
-import os.path
-
-
 def get_srcdir():
-    filename = os.path.normcase(os.path.dirname(os.path.abspath(__file__)))
-    return os.path.realpath(filename)
+    filename = osp.normcase(osp.dirname(osp.abspath(__file__)))
+    return osp.realpath(filename)
 
 
 srcdir = get_srcdir()
 
 
 def read(*rnames):
-    return open(os.path.join(srcdir, *rnames)).read()
+    return open(osp.join(srcdir, *rnames)).read()
 
 
-# Get info from files; set: long_description and __version__
+# Get info from files; set: long_description and VERSION
 long_description = read("README.rst") + "\n"
 exec(read("uncompyle6/version.py"))

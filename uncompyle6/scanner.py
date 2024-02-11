@@ -98,6 +98,10 @@ class Code(object):
     """
 
     def __init__(self, co, scanner, classname=None, show_asm=None):
+        # Full initialization is given below, but for linters
+        # well set up some initial values.
+        self.co_code = None  # Really either bytes for >= 3.0 and string in < 3.0
+
         for i in dir(co):
             if i.startswith("co_"):
                 setattr(self, i, getattr(co, i))
@@ -430,7 +434,7 @@ class Scanner:
         """
         try:
             None in instr
-        except:
+        except Exception:
             instr = [instr]
 
         first = self.offset2inst_index[start]
