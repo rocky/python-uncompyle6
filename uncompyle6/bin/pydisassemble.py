@@ -63,8 +63,11 @@ PATTERNS = ("*.pyc", "*.pyo")
 
 
 def main():
-    usage_short = f"""usage: {program} FILE...
+    usage_short = (
+        """usage: %s FILE...
 Type -h for for full help."""
+        % program
+    )
 
     if len(sys.argv) == 1:
         sys.stderr.write("No file(s) given\n")
@@ -84,7 +87,7 @@ Type -h for for full help."""
             print(__doc__)
             sys.exit(1)
         elif opt in ("-V", "--version"):
-            print(f"{program} {__version__}")
+            print("%s %s" % (program, __version__))
             sys.exit(0)
         else:
             print(opt)
