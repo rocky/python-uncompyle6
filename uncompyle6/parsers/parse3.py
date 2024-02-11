@@ -869,6 +869,29 @@ class Python3Parser(PythonParser):
                 rule = "starred ::= %s %s" % ("expr " * v, opname)
                 self.addRule(rule, nop_func)
 
+            elif opname in ("BUILD_CONST_LIST", "BUILD_CONST_DICT", "BUILD_CONST_SET"):
+                if opname == "BUILD_CONST_DICT":
+                    rule = (
+                        """
+                           add_consts          ::= ADD_VALUE*
+                           const_list          ::= COLLECTION_START add_consts %s
+                           dict                ::= const_list
+                           expr                ::= dict
+                           """
+                        % opname
+                    )
+                else:
+                    rule = (
+                        """
+                           add_consts          ::= ADD_VALUE*
+                           const_list          ::= COLLECTION_START add_consts %s
+                           expr                ::= const_list
+                           """
+                        % opname
+                    )
+                self.addRule(rule, nop_func)
+
+>>>>>>> python-3.0-to-3.2
             elif opname_base in (
                 "BUILD_LIST",
                 "BUILD_SET",
@@ -1191,6 +1214,8 @@ class Python3Parser(PythonParser):
                     self.add_unique_rule(rule, opname, token.attr, customize)
 
                 elif (3, 3) <= self.version < (3, 6):
+                    # FIXME move this into version-specific custom rules.
+                    # In fact, some of this has been done for 3.3.
                     if annotate_args > 0:
                         rule = (
                             "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure LOAD_CODE LOAD_STR %s"
@@ -1454,9 +1479,6 @@ class Python3Parser(PythonParser):
                             )
                         )
                     if self.version >= (3, 3):
-                        # Normally we remove EXTENDED_ARG from the opcodes, but in the case of
-                        # annotated functions can use the EXTENDED_ARG tuple to signal we have an annotated function.
-                        # Yes this is a little hacky
                         if self.version == (3, 3):
                             # 3.3 puts kwargs before pos_arg
                             pos_kw_tuple = (
@@ -1470,17 +1492,17 @@ class Python3Parser(PythonParser):
                                 ("kwargs " * kw_args_count),
                             )
                         rule = (
-                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE LOAD_STR EXTENDED_ARG %s"
+                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE LOAD_STR %s"
                             % (
                                 pos_kw_tuple[0],
                                 pos_kw_tuple[1],
-                                ("call " * annotate_args),
+                                ("annotate_arg " * annotate_args),
                                 opname,
                             )
                         )
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         rule = (
-                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE LOAD_STR EXTENDED_ARG %s"
+                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE LOAD_STR %s"
                             % (
                                 pos_kw_tuple[0],
                                 pos_kw_tuple[1],
@@ -1489,9 +1511,8 @@ class Python3Parser(PythonParser):
                             )
                         )
                     else:
-                        # See above comment about use of EXTENDED_ARG
                         rule = (
-                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE EXTENDED_ARG %s"
+                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE %s"
                             % (
                                 ("kwargs " * kw_args_count),
                                 ("pos_arg " * (pos_args_count)),
@@ -1501,7 +1522,7 @@ class Python3Parser(PythonParser):
                         )
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         rule = (
-                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE EXTENDED_ARG %s"
+                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE %s"
                             % (
                                 ("kwargs " * kw_args_count),
                                 ("pos_arg " * pos_args_count),
