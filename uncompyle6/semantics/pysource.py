@@ -324,6 +324,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                 """
 ---- end before transform
 """
+                + " "
             )
         if self.showast.get("after", False):
             self.println(
