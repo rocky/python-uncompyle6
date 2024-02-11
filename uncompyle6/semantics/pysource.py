@@ -210,7 +210,8 @@ class SourceWalkerError(Exception):
 
 class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
     """
-    Class to traverses a Parse Tree of the bytecode instruction built from parsing to produce some sort of source text.
+    Class to traverses a Parse Tree of the bytecode instruction built from parsing to
+    produce some sort of source text.
     The Parse tree may be turned an Abstract Syntax tree as an intermediate step.
     """
 
@@ -318,7 +319,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         customize_for_version(self, is_pypy, version)
         return
 
-    def maybe_show_tree(self, ast, phase):
+    def maybe_show_tree(self, tree, phase):
         if self.showast.get("before", False):
             self.println(
                 """
@@ -334,7 +335,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                 + " "
             )
         if self.showast.get(phase, False):
-            maybe_show_tree(self, ast)
+            maybe_show_tree(self, tree)
 
     def str_with_template(self, ast):
         stream = sys.stdout
