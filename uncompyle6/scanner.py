@@ -22,8 +22,10 @@ scanners, e.g. for Python 2.7 or 3.4.
 """
 
 import sys
+
 from array import array
 from collections import namedtuple
+from types import ModuleType
 
 import xdis
 from xdis import (
@@ -98,6 +100,10 @@ class Code(object):
     """
 
     def __init__(self, co, scanner, classname=None, show_asm=None):
+        # Full initialization is given below, but for linters
+        # well set up some initial values.
+        self.co_code = None  # Really either bytes for >= 3.0 and string in < 3.0
+
         for i in dir(co):
             if i.startswith("co_"):
                 setattr(self, i, getattr(co, i))
@@ -430,7 +436,7 @@ class Scanner:
         """
         try:
             None in instr
-        except:
+        except Exception:
             instr = [instr]
 
         first = self.offset2inst_index[start]
@@ -623,12 +629,11 @@ def get_scanner(version, is_pypy=False, show_asm=None):
     # If version is a string, turn that into the corresponding float.
     if isinstance(version, str):
         if version not in canonic_python_version:
-            raise RuntimeError("Unknown Python version in xdis %s" % version)
+            raise RuntimeError(f"Unknown Python version in xdis {version}")
         canonic_version = canonic_python_version[version]
         if canonic_version not in CANONIC2VERSION:
             raise RuntimeError(
-                "Unsupported Python version %s (canonic %s)"
-                % (version, canonic_version)
+                f"Unsupported Python version {version} (canonic {canonic_version})"
             )
         version = CANONIC2VERSION[canonic_version]
 

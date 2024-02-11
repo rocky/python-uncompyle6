@@ -15,8 +15,10 @@
 
 import datetime
 import os
+import os.path as osp
 import py_compile
 import sys
+import tempfile
 
 from xdis import iscode
 from xdis.load import load_module
@@ -37,9 +39,9 @@ def _get_outstream(outfile):
     """
     Return an opened output file descriptor for ``outfile``.
     """
-    dir_name = os.path.dirname(outfile)
+    dir_name = osp.dirname(outfile)
     failed_file = outfile + "_failed"
-    if os.path.exists(failed_file):
+    if osp.exists(failed_file):
         os.remove(failed_file)
     try:
         os.makedirs(dir_name)
@@ -59,11 +61,13 @@ def decompile(
     source_encoding=None,
     code_objects={},
     source_size=None,
-    is_pypy=False,
+    is_pypy: bool = False,
     magic_int=None,
     mapstream=None,
     do_fragments=False,
     compile_mode="exec",
+    start_offset: int = 0,
+    stop_offset: int = -1,
 ):
     """
     ingests and deparses a given code block 'co'
@@ -131,11 +135,12 @@ def decompile(
                 debug_opts=debug_opts,
             )
             header_count = 3 + len(sys_version_lines)
-            linemap = [
-                (line_no, deparsed.source_linemap[line_no] + header_count)
-                for line_no in sorted(deparsed.source_linemap.keys())
-            ]
-            mapstream.write("\n\n# %s\n" % linemap)
+            if deparsed is not None:
+                linemap = [
+                    (line_no, deparsed.source_linemap[line_no] + header_count)
+                    for line_no in sorted(deparsed.source_linemap.keys())
+                ]
+                mapstream.write("\n\n# %s\n" % linemap)
         else:
             if do_fragments:
                 deparse_fn = code_deparse_fragments
@@ -148,8 +153,11 @@ def decompile(
                 is_pypy=is_pypy,
                 debug_opts=debug_opts,
                 compile_mode=compile_mode,
+                start_offset=start_offset,
+                stop_offset=stop_offset,
             )
             pass
+        real_out.write("\n")
         return deparsed
     except pysource.SourceWalkerError as e:
         # deparsing failed
@@ -173,7 +181,7 @@ def compile_file(source_path):
 
 
 def decompile_file(
-    filename,
+    filename: str,
     outstream=None,
     showasm=None,
     showast={},
@@ -181,6 +189,8 @@ def decompile_file(
     source_encoding=None,
     mapstream=None,
     do_fragments=False,
+    start_offset=0,
+    stop_offset=-1,
 ):
     """
     decompile Python byte-code file (.pyc). Return objects to
@@ -210,6 +220,8 @@ def decompile_file(
                     is_pypy=is_pypy,
                     magic_int=magic_int,
                     mapstream=mapstream,
+                    start_offset=start_offset,
+                    stop_offset=stop_offset,
                 ),
             )
     else:
@@ -230,6 +242,8 @@ def decompile_file(
                 mapstream=mapstream,
                 do_fragments=do_fragments,
                 compile_mode="exec",
+                start_offset=start_offset,
+                stop_offset=stop_offset,
             )
         ]
     return deparsed
@@ -244,10 +258,13 @@ def main(
     outfile=None,
     showasm=None,
     showast={},
-    showgrammar=False,
+    do_verify = None,
+    showgrammar: bool = False,
     source_encoding=None,
     do_linemaps=False,
     do_fragments=False,
+    start_offset: int = 0,
+    stop_offset: int = -1,
 ):
     """
     in_base	base directory for input files
@@ -260,7 +277,8 @@ def main(
     - files below out_base	out_base=...
     - stdout			out_base=None, outfile=None
     """
-    tot_files = okay_files = failed_files = verify_failed_files = 0
+    tot_files = okay_files = failed_files = 0
+    verify_failed_files = 0 if do_verify else 0
     current_outfile = outfile
     linemap_stream = None
 
@@ -268,9 +286,9 @@ def main(
         compiled_files.append(compile_file(source_path))
 
     for filename in compiled_files:
-        infile = os.path.join(in_base, filename)
+        infile = osp.join(in_base, filename)
         # print("XXX", infile)
-        if not os.path.exists(infile):
+        if not osp.exists(infile):
             sys.stderr.write("File '%s' doesn't exist. Skipped\n" % infile)
             continue
 
@@ -283,14 +301,19 @@ def main(
         if outfile:  # outfile was given as parameter
             outstream = _get_outstream(outfile)
         elif out_base is None:
-            outstream = sys.stdout
+            out_base = tempfile.mkdtemp(prefix="py-dis-")
+            if do_verify and filename.endswith(".pyc"):
+                current_outfile = osp.join(out_base, filename[0:-1])
+                outstream = open(current_outfile, "w")
+            else:
+                outstream = sys.stdout
             if do_linemaps:
                 linemap_stream = sys.stdout
         else:
             if filename.endswith(".pyc"):
-                current_outfile = os.path.join(out_base, filename[0:-1])
+                current_outfile = osp.join(out_base, filename[0:-1])
             else:
-                current_outfile = os.path.join(out_base, filename) + "_dis"
+                current_outfile = osp.join(out_base, filename) + "_dis"
                 pass
             pass
 
@@ -298,9 +321,9 @@ def main(
 
         # print(current_outfile, file=sys.stderr)
 
-        # Try to uncompile the input file
+        # Try to decompile the input file.
         try:
-            deparsed = decompile_file(
+            deparsed_objects = decompile_file(
                 infile,
                 outstream,
                 showasm,
@@ -309,11 +332,13 @@ def main(
                 source_encoding,
                 linemap_stream,
                 do_fragments,
+                start_offset,
+                stop_offset,
             )
             if do_fragments:
-                for d in deparsed:
+                for deparsed_object in deparsed_objects:
                     last_mod = None
-                    offsets = d.offsets
+                    offsets = deparsed_object.offsets
                     for e in sorted(
                         [k for k in offsets.keys() if isinstance(k[1], int)]
                     ):
@@ -322,11 +347,48 @@ def main(
                             outstream.write("%s\n%s\n%s\n" % (line, e[0], line))
                         last_mod = e[0]
                         info = offsets[e]
-                        extract_info = d.extract_node_info(info)
+                        extract_info = deparse_object.extract_node_info(info)
                         outstream.write("%s" % info.node.format().strip() + "\n")
                         outstream.write(extract_info.selectedLine + "\n")
                         outstream.write(extract_info.markerLine + "\n\n")
                     pass
+
+            if do_verify:
+                for deparsed_object in deparsed_objects:
+                    deparsed_object.f.close()
+                    if PYTHON_VERSION_TRIPLE[:2] != deparsed_object.version[:2]:
+                        sys.stdout.write(
+                            f"\n# skipping running {deparsed_object.f.name}; it is"
+                            f"{version_tuple_to_str(deparsed_object.version, end=2)}, "
+                            "and we are "
+                            f"{version_tuple_to_str(PYTHON_VERSION_TRIPLE, end=2)}\n"
+                        )
+                    else:
+                        check_type = "syntax check"
+                        if do_verify == "run":
+                            check_type = "run"
+                            result = subprocess.run(
+                                [sys.executable, deparsed_object.f.name],
+                                capture_output=True,
+                            )
+                            valid = result.returncode == 0
+                            output = result.stdout.decode()
+                            if output:
+                                print(output)
+                            pass
+                            if not valid:
+                                print(result.stderr.decode())
+
+                        else:
+                            valid = syntax_check(deparsed_object.f.name)
+
+                        if not valid:
+                            verify_failed_files += 1
+                            sys.stderr.write(
+                                f"\n# {check_type} failed on file {deparsed_object.f.name}\n"
+                            )
+
+                    # sys.stderr.write(f"Ran {deparsed_object.f.name}\n")
                 pass
             tot_files += 1
         except (ValueError, SyntaxError, ParserError, pysource.SourceWalkerError) as e:
