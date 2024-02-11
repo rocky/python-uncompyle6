@@ -36,7 +36,6 @@ Finally we save token information.
 from __future__ import print_function
 
 import sys
-
 import xdis
 
 # Get all the opcodes into globals
@@ -479,6 +478,7 @@ class Scanner3(Scanner):
 
         last_op_was_break = False
         new_tokens = []
+        operand_value = 0
 
         for i, inst in enumerate(self.insts):
             opname = inst.opname
@@ -530,10 +530,11 @@ class Scanner3(Scanner):
             op = inst.opcode
 
             if opname == "EXTENDED_ARG":
-                # FIXME: The EXTENDED_ARG is used to signal annotation
-                # parameters
-                if i + 1 < n and self.insts[i + 1].opcode != self.opc.MAKE_FUNCTION:
+                if i + 1 < n:
+                    operand_value = argval << 16
                     continue
+                else:
+                    operand_value = 0
 
             if inst.offset in jump_targets:
                 jump_idx = 0
@@ -640,7 +641,7 @@ class Scanner3(Scanner):
                     attr = attr[:4]  # remove last value: attr[5] == False
                 else:
                     pos_args, name_pair_args, annotate_args = parse_fn_counts_30_35(
-                        inst.argval
+                        inst.argval + operand_value
                     )
 
                     pattr = "%s positional, %s keyword only, %s annotated" % (

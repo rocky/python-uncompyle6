@@ -27,22 +27,24 @@ that a later phase can turn into a sequence of ASCII text.
 """
 
 import re
-from uncompyle6.scanners.tok import Token
+
+from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
 from uncompyle6.parsers.reducecheck import (
     and_invalid,
     except_handler_else,
     ifelsestmt,
-    ifstmt,
     iflaststmt,
+    ifstmt,
     or_check,
     testtrue,
     tryelsestmtl3,
     tryexcept,
-    while1stmt
+    while1stmt,
 )
 from uncompyle6.parsers.treenode import SyntaxTree
-from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from uncompyle6.scanners.tok import Token
 
 
 class Python3Parser(PythonParser):
@@ -98,7 +100,7 @@ class Python3Parser(PythonParser):
         """
 
     def p_dict_comp3(self, args):
-        """"
+        """ "
         expr ::= dict_comp
         stmt ::= dict_comp_func
         dict_comp_func ::= BUILD_MAP_0 LOAD_ARG FOR_ITER store
@@ -519,7 +521,7 @@ class Python3Parser(PythonParser):
                         expr
                         call
                         CALL_FUNCTION_3
-         """
+        """
         # FIXME: I bet this can be simplified
         # look for next MAKE_FUNCTION
         for i in range(i + 1, len(tokens)):
@@ -625,7 +627,11 @@ class Python3Parser(PythonParser):
         self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
         if "LOAD_BUILD_CLASS" in self.seen_ops:
-            if next_token == "CALL_FUNCTION" and next_token.attr == 1 and pos_args_count > 1:
+            if (
+                next_token == "CALL_FUNCTION"
+                and next_token.attr == 1
+                and pos_args_count > 1
+            ):
                 rule = "classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d" % (
                     ("expr " * (pos_args_count - 1)),
                     opname,
@@ -764,18 +770,24 @@ class Python3Parser(PythonParser):
 
             elif opname in ("BUILD_CONST_LIST", "BUILD_CONST_DICT", "BUILD_CONST_SET"):
                 if opname == "BUILD_CONST_DICT":
-                    rule = """
+                    rule = (
+                        """
                            add_consts          ::= ADD_VALUE*
                            const_list          ::= COLLECTION_START add_consts %s
                            dict                ::= const_list
                            expr                ::= dict
-                           """ % opname
+                           """
+                        % opname
+                    )
                 else:
-                    rule = """
+                    rule = (
+                        """
                            add_consts          ::= ADD_VALUE*
                            const_list          ::= COLLECTION_START add_consts %s
                            expr                ::= const_list
-                           """ % opname
+                           """
+                        % opname
+                    )
                 self.addRule(rule, nop_func)
 
             elif opname.startswith("BUILD_DICT_OLDER"):
@@ -854,18 +866,24 @@ class Python3Parser(PythonParser):
 
             elif opname in ("BUILD_CONST_LIST", "BUILD_CONST_DICT", "BUILD_CONST_SET"):
                 if opname == "BUILD_CONST_DICT":
-                    rule = """
+                    rule = (
+                        """
                            add_consts          ::= ADD_VALUE*
                            const_list          ::= COLLECTION_START add_consts %s
                            dict                ::= const_list
                            expr                ::= dict
-                           """ % opname
+                           """
+                        % opname
+                    )
                 else:
-                    rule = """
+                    rule = (
+                        """
                            add_consts          ::= ADD_VALUE*
                            const_list          ::= COLLECTION_START add_consts %s
                            expr                ::= const_list
-                           """ % opname
+                           """
+                        % opname
+                    )
                 self.addRule(rule, nop_func)
 
             elif opname_base in (
@@ -946,7 +964,6 @@ class Python3Parser(PythonParser):
                     "CALL_FUNCTION_VAR_KW",
                 )
             ) or opname.startswith("CALL_FUNCTION_KW"):
-
                 if opname == "CALL_FUNCTION" and token.attr == 1:
                     rule = """
                      dict_comp    ::= LOAD_DICTCOMP LOAD_STR MAKE_FUNCTION_0 expr
@@ -1122,7 +1139,8 @@ class Python3Parser(PythonParser):
                 if has_get_iter_call_function1:
                     rule_pat = (
                         "generator_exp ::= %sload_closure load_genexpr %%s%s expr "
-                        "GET_ITER CALL_FUNCTION_1" % ("pos_arg " * pos_args_count, opname)
+                        "GET_ITER CALL_FUNCTION_1"
+                        % ("pos_arg " * pos_args_count, opname)
                     )
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
@@ -1190,6 +1208,8 @@ class Python3Parser(PythonParser):
                     self.add_unique_rule(rule, opname, token.attr, customize)
 
                 elif (3, 3) <= self.version < (3, 6):
+                    # FIXME move this into version-specific custom rules.
+                    # In fact, some of this has been done for 3.3.
                     if annotate_args > 0:
                         rule = (
                             "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure LOAD_CODE LOAD_STR %s"
@@ -1207,7 +1227,6 @@ class Python3Parser(PythonParser):
                             opname,
                         )
                     self.add_unique_rule(rule, opname, token.attr, customize)
-
 
                 if self.version >= (3, 4):
                     if not self.is_pypy:
@@ -1292,14 +1311,16 @@ class Python3Parser(PythonParser):
                     if has_get_iter_call_function1:
                         rule_pat = (
                             "generator_exp ::= %sload_genexpr %%s%s expr "
-                            "GET_ITER CALL_FUNCTION_1" % ("pos_arg " * pos_args_count, opname)
+                            "GET_ITER CALL_FUNCTION_1"
+                            % ("pos_arg " * pos_args_count, opname)
                         )
                         self.add_make_function_rule(
                             rule_pat, opname, token.attr, customize
                         )
                         rule_pat = (
                             "generator_exp ::= %sload_closure load_genexpr %%s%s expr "
-                            "GET_ITER CALL_FUNCTION_1" % ("pos_arg " * pos_args_count, opname)
+                            "GET_ITER CALL_FUNCTION_1"
+                            % ("pos_arg " * pos_args_count, opname)
                         )
                         self.add_make_function_rule(
                             rule_pat, opname, token.attr, customize
@@ -1351,7 +1372,8 @@ class Python3Parser(PythonParser):
                 if has_get_iter_call_function1:
                     rule_pat = (
                         "generator_exp ::= %sload_genexpr %%s%s expr "
-                        "GET_ITER CALL_FUNCTION_1" % ("pos_arg " * pos_args_count, opname)
+                        "GET_ITER CALL_FUNCTION_1"
+                        % ("pos_arg " * pos_args_count, opname)
                     )
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
@@ -1363,7 +1385,8 @@ class Python3Parser(PythonParser):
                         # Todo: For Pypy we need to modify this slightly
                         rule_pat = (
                             "listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
-                            "GET_ITER CALL_FUNCTION_1" % ("expr " * pos_args_count, opname)
+                            "GET_ITER CALL_FUNCTION_1"
+                            % ("expr " * pos_args_count, opname)
                         )
                         self.add_make_function_rule(
                             rule_pat, opname, token.attr, customize
@@ -1450,9 +1473,6 @@ class Python3Parser(PythonParser):
                             )
                         )
                     if self.version >= (3, 3):
-                        # Normally we remove EXTENDED_ARG from the opcodes, but in the case of
-                        # annotated functions can use the EXTENDED_ARG tuple to signal we have an annotated function.
-                        # Yes this is a little hacky
                         if self.version == (3, 3):
                             # 3.3 puts kwargs before pos_arg
                             pos_kw_tuple = (
@@ -1466,17 +1486,17 @@ class Python3Parser(PythonParser):
                                 ("kwargs " * kw_args_count),
                             )
                         rule = (
-                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE LOAD_STR EXTENDED_ARG %s"
+                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE LOAD_STR %s"
                             % (
                                 pos_kw_tuple[0],
                                 pos_kw_tuple[1],
-                                ("call " * annotate_args),
+                                ("annotate_arg " * annotate_args),
                                 opname,
                             )
                         )
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         rule = (
-                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE LOAD_STR EXTENDED_ARG %s"
+                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE LOAD_STR %s"
                             % (
                                 pos_kw_tuple[0],
                                 pos_kw_tuple[1],
@@ -1485,9 +1505,8 @@ class Python3Parser(PythonParser):
                             )
                         )
                     else:
-                        # See above comment about use of EXTENDED_ARG
                         rule = (
-                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE EXTENDED_ARG %s"
+                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE %s"
                             % (
                                 ("kwargs " * kw_args_count),
                                 ("pos_arg " * (pos_args_count)),
@@ -1497,7 +1516,7 @@ class Python3Parser(PythonParser):
                         )
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         rule = (
-                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE EXTENDED_ARG %s"
+                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE %s"
                             % (
                                 ("kwargs " * kw_args_count),
                                 ("pos_arg " * pos_args_count),
@@ -1594,7 +1613,7 @@ class Python3Parser(PythonParser):
         }
 
         if self.version == (3, 6):
-            self.reduce_check_table["and"] =  and_invalid
+            self.reduce_check_table["and"] = and_invalid
             self.check_reduce["and"] = "AST"
 
         self.check_reduce["annotate_tuple"] = "noAST"
@@ -1624,7 +1643,7 @@ class Python3Parser(PythonParser):
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         lhs = rule[0]
         n = len(tokens)
-        last = min(last, n-1)
+        last = min(last, n - 1)
         fn = self.reduce_check_table.get(lhs, None)
         if fn:
             if fn(self, lhs, n, rule, ast, tokens, first, last):
@@ -1650,12 +1669,17 @@ class Python3Parser(PythonParser):
                 condition_jump2 = tokens[min(last - 1, len(tokens) - 1)]
                 # If there are two *distinct* condition jumps, they should not jump to the
                 # same place. Otherwise we have some sort of "and"/"or".
-                if condition_jump2.kind.startswith("POP_JUMP_IF") and condition_jump != condition_jump2:
+                if (
+                    condition_jump2.kind.startswith("POP_JUMP_IF")
+                    and condition_jump != condition_jump2
+                ):
                     return condition_jump.attr == condition_jump2.attr
 
-                if tokens[last] == "COME_FROM" and tokens[last].off2int() != condition_jump.attr:
+                if (
+                    tokens[last] == "COME_FROM"
+                    and tokens[last].off2int() != condition_jump.attr
+                ):
                     return False
-
 
                 # if condition_jump.attr < condition_jump2.off2int():
                 #     print("XXX", first, last)
@@ -1678,7 +1702,6 @@ class Python3Parser(PythonParser):
                 < tokens[last].off2int()
             )
         elif lhs == "while1stmt":
-
             if while1stmt(self, lhs, n, rule, ast, tokens, first, last):
                 return True
 
@@ -1700,7 +1723,6 @@ class Python3Parser(PythonParser):
                     return True
             return False
         elif lhs == "while1elsestmt":
-
             n = len(tokens)
             if last == n:
                 # Adjust for fuzziness in parsing

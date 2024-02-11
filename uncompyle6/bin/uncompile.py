@@ -13,7 +13,6 @@ import time
 import click
 from xdis.version_info import version_tuple_to_str
 
-from uncompyle6 import verify
 from uncompyle6.main import main, status_msg
 from uncompyle6.version import __version__
 
@@ -159,7 +158,7 @@ def main_bin(
     version_tuple = sys.version_info[0:2]
     if not ((3, 3) <= version_tuple < (3, 6)):
         print(
-            "Error: This version of the {program} runs from Python 3.3 to 3.6."
+            "Error: This version of the {program} runs from Python 3.3 to 3.5."
             "You need another branch of this code for other Python versions."
             " \n\tYou have version: %s." % version_tuple_to_str()
         )
