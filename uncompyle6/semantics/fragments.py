@@ -2054,8 +2054,8 @@ def code_deparse(
     code_objects={},
     compile_mode="exec",
     walker=FragmentsWalker,
-    start_offset: int = 0,
-    stop_offset: int = -1,
+    start_offset=0,
+    stop_offset=-1,
 ):
     """
     Convert the code object co into a python source fragment.
@@ -2189,7 +2189,7 @@ def code_deparse_around_offset(
     co,
     out=StringIO(),
     version=None,
-    is_pypy = False,
+    is_pypy=False,
     debug_opts=DEFAULT_DEBUG_OPTS,
 ):
     """

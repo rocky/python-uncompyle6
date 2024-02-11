@@ -130,9 +130,9 @@ Python.
 #   evaluating the escape code.
 
 import sys
-from io import StringIO
 
 from spark_parser import GenericASTTraversal
+from StringIO import StringIO
 from xdis import COMPILER_FLAG_BIT, iscode
 from xdis.version_info import PYTHON_VERSION_TRIPLE
 
@@ -221,7 +221,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
 
     def __init__(
         self,
-        version: tuple,
+        version,
         out,
         scanner,
         showast=TREE_DEFAULT_DEBUG,
@@ -397,7 +397,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             i += 1
         return rv
 
-    def indent_if_source_nl(self, line_number, indent):
+    def indent_if_source_nl(self, line_number, indent_spaces):
         if line_number != self.line_number:
             self.write("\n" + indent_spaces + INDENT_PER_LEVEL[:-1])
         return self.line_number
@@ -1206,7 +1206,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         is_lambda=False,
         noneInNames=False,
         is_top_level_module=False,
-    ) -> GenericASTTraversal:
+    ):
         # FIXME: DRY with fragments.py
 
         # assert isinstance(tokens[0], Token)
@@ -1294,8 +1294,8 @@ def code_deparse(
     compile_mode="exec",
     is_pypy=IS_PYPY,
     walker=SourceWalker,
-    start_offset: int = 0,
-    stop_offset: int = -1,
+    start_offset = 0,
+    stop_offset = -1,
 ):
     """
     ingests and deparses a given code block 'co'. If version is None,
@@ -1452,9 +1452,9 @@ def deparse_code2str(
     compile_mode="exec",
     is_pypy=IS_PYPY,
     walker=SourceWalker,
-    start_offset: int = 0,
-    stop_offset: int = -1,
-) -> str:
+    start_offset=0,
+    stop_offset=-1,
+):
     """
     Return the deparsed text for a Python code object. `out` is where
     any intermediate output for assembly or tree output will be sent.

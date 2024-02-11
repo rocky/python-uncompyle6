@@ -55,16 +55,16 @@ Options:
   -V | --version     show version and stop
   -h | --help        show this message
 
-""" % ((program,) * 5)
+""" % (
+    (program,) * 5
+)
 
 PATTERNS = ("*.pyc", "*.pyo")
 
 
 def main():
-    usage_short = (
-        f"""usage: {program} FILE...
+    usage_short = f"""usage: {program} FILE...
 Type -h for for full help."""
-    )
 
     if len(sys.argv) == 1:
         sys.stderr.write("No file(s) given\n")
@@ -76,7 +76,7 @@ Type -h for for full help."""
             sys.argv[1:], "hVU", ["help", "version", "uncompyle6"]
         )
     except getopt.GetoptError(e):
-        sys.stderr.write('%s: %s' % (os.path.basename(sys.argv[0]), e))
+        sys.stderr.write("%s: %s" % (os.path.basename(sys.argv[0]), e))
         sys.exit(-1)
 
     for opt, val in opts:

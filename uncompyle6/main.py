@@ -13,7 +13,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import ast
+# import ast
 import datetime
 import os
 import os.path as osp
@@ -52,15 +52,19 @@ def _get_outstream(outfile):
         pass
     return open(outfile, 'wb')
 
-def syntax_check(filename: str) -> bool:
-    with open(filename) as f:
-        source = f.read()
-    valid = True
-    try:
-        ast.parse(source)
-    except SyntaxError:
-        valid = False
-    return valid
+# def syntax_check(filename):
+#     f = open(filename, "r")
+#     try:
+#         source = f.read()
+#     finally:
+#         f.close()
+#     valid = True
+#     try:
+#         ast.parse(source)
+#     except SyntaxError:
+#         valid = False
+#     return valid
+
 
 
 def decompile(
@@ -74,13 +78,13 @@ def decompile(
     source_encoding=None,
     code_objects={},
     source_size=None,
-    is_pypy: bool = False,
+    is_pypy=False,
     magic_int=None,
     mapstream=None,
     do_fragments=False,
     compile_mode="exec",
-    start_offset: int = 0,
-    stop_offset: int = -1,
+    start_offset=0,
+    stop_offset=-1,
 ):
     """
     ingests and deparses a given code block 'co'
@@ -215,7 +219,7 @@ def compile_file(source_path):
 
 
 def decompile_file(
-    filename: str,
+    filename,
     outstream=None,
     showasm=None,
     showast={},
@@ -293,12 +297,12 @@ def main(
     showasm=None,
     showast={},
     do_verify=None,
-    showgrammar: bool = False,
+    showgrammar = False,
     source_encoding=None,
     do_linemaps=False,
     do_fragments=False,
-    start_offset: int = 0,
-    stop_offset: int = -1,
+    start_offset=0,
+    stop_offset=-1,
 ):
     """
     in_base	base directory for input files
@@ -312,7 +316,9 @@ def main(
     - stdout			out_base=None, outfile=None
     """
     tot_files = okay_files = failed_files = 0
-    verify_failed_files = 0 if do_verify else 0
+
+    verify_failed_files = 0
+
     current_outfile = outfile
     linemap_stream = None
 
@@ -423,7 +429,9 @@ def main(
                                 print(result.stderr.decode())
 
                         else:
-                            valid = syntax_check(deparsed_object.f.name)
+                            print("Syntax checking not supported before Python 3.0")
+                            # valid = syntax_check(deparsed_object.f.name)
+                            valid = True
 
                         if not valid:
                             verify_failed_files += 1

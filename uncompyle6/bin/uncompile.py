@@ -6,21 +6,16 @@
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 
+import getopt
 import os
 import sys
 import time
 
-from uncompyle6.verify import VerifyCmpError
 from uncompyle6.main import main, status_msg
+from uncompyle6.verify import VerifyCmpError
 from uncompyle6.version import __version__
 
 program = "uncompyle6"
-
-
-def usage():
-    print(__doc__)
-    sys.exit(1)
-
 
 __doc__ = """
 Usage:
@@ -74,18 +69,44 @@ Extensions of generated files:
     (program,) * 5
 )
 
+program = "uncompyle6"
+
+def usage():
+    print(__doc__)
+    sys.exit(1)
+
+
+def main_bin():
+    if not (
+        sys.version_info[0:2]
+        in (
+            (2, 4),
+            (2, 5),
+            (2, 6),
+            (2, 7),
+            (3, 0),
+            (3, 1),
+            (3, 2),
+            (3, 3),
+            (3, 4),
+            (3, 5),
+            (3, 6),
+            (3, 7),
+            (3, 8),
+            (3, 9),
+            (3, 10),
+            (3, 11),
+        )
     ):
         print('Error: %s requires Python 2.4-3.10' % program)
         sys.exit(-1)
-
+    recurse_dirs = False
     numproc = 0
-    out_base = None
-
+    outfile = "-"
     out_base = None
     source_paths = []
     timestamp = False
     timestampfmt = "# %Y.%m.%d %H:%M:%S %Z"
-    pyc_paths = files
 
     try:
         opts, pyc_paths = getopt.getopt(
@@ -196,17 +217,10 @@ Extensions of generated files:
         out_base = outfile
         outfile = None
 
-    # A second -a turns show_asm="after" into show_asm="before"
-    if asm_plus or asm:
-        asm_opt = "both" if asm_plus else "after"
-    else:
-        asm_opt = None
-
     if timestamp:
         print(time.strftime(timestampfmt))
 
     if numproc <= 1:
-        show_ast = {"before": tree or tree_plus, "after": tree_plus}
         try:
             result = main(
                 src_base,
@@ -214,14 +228,15 @@ Extensions of generated files:
                 pyc_paths,
                 source_paths,
                 outfile,
-                showasm=asm_opt,
-                showgrammar=show_grammar,
-                showast=show_ast,
-                do_verify=verify,
-                do_linemaps=linemaps,
-                start_offset=start_offset,
-                stop_offset=stop_offset,
+                showasm=options["showasm"],
+                showgrammar=options["showgrammar"],
+                showast=options["showast"],
+                do_verify=options["do_verify"],
+                do_linemaps=options["do_linemaps"],
+                start_offset=0,
+                stop_offset=-1,
             )
+            result = [options.get("do_verify", None)] + list(result)
             if len(pyc_paths) > 1:
                 mess = status_msg(*result)
                 print("# " + mess)

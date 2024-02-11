@@ -56,7 +56,7 @@ def is_docstring(node, version, co_consts):
     return node == ASSIGN_DOC_STRING(co_consts[0], doc_load)
 
 
-def is_not_docstring(call_stmt_node) -> bool:
+def is_not_docstring(call_stmt_node):
     try:
         return (
             call_stmt_node == "call_stmt"
@@ -70,7 +70,7 @@ def is_not_docstring(call_stmt_node) -> bool:
 class TreeTransform(GenericASTTraversal, object):
     def __init__(
         self,
-        version: tuple,
+        version,
         is_pypy=False,
         show_ast=None,
     ):
@@ -462,7 +462,7 @@ class TreeTransform(GenericASTTraversal, object):
         node = self.preorder(node)
         return node
 
-    def transform(self, parse_tree: GenericASTTraversal, code) -> GenericASTTraversal:
+    def transform(self, parse_tree, code):
         self.maybe_show_tree(parse_tree)
         self.ast = copy(parse_tree)
         del parse_tree
