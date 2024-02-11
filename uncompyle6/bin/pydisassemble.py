@@ -64,8 +64,9 @@ PATTERNS = ("*.pyc", "*.pyo")
 
 def main():
     usage_short = (
-        f"""usage: {program} FILE...
+        """usage: %s FILE...
 Type -h for for full help."""
+        % program
     )
 
     if len(sys.argv) == 1:
@@ -78,7 +79,7 @@ Type -h for for full help."""
             sys.argv[1:], "hVU", ["help", "version", "uncompyle6"]
         )
     except getopt.GetoptError as e:
-        print(f"{os.path.basename(sys.argv[0])}: {e}", file=sys.stderr)
+        print("%s: %s" % (os.path.basename(sys.argv[0]), e), file=sys.stderr)
         sys.exit(-1)
 
     for opt, val in opts:
@@ -86,7 +87,7 @@ Type -h for for full help."""
             print(__doc__)
             sys.exit(1)
         elif opt in ("-V", "--version"):
-            print(f"{program} {__version__}")
+            print("%s %s" % (program, __version__))
             sys.exit(0)
         else:
             print(opt)
@@ -97,7 +98,7 @@ Type -h for for full help."""
         if os.path.exists(files[0]):
             disassemble_file(file, sys.stdout)
         else:
-            print(f"Can't read {files[0]} - skipping", file=sys.stderr)
+            print("Can't read %s - skipping" % files[0], file=sys.stderr)
             pass
         pass
     return
