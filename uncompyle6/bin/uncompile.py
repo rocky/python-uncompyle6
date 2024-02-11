@@ -159,10 +159,10 @@ def main_bin(
     """
 
     version_tuple = sys.version_info[0:2]
-    if version_tuple < (3, 7):
+    if version_tuple < (3, 6):
         print(
-            f"Error: This version of the {program} runs from Python 3.7 or greater."
-            f"You need another branch of this code for Python before 3.7."
+            f"Error: This version of the {program} runs from Python 3.6 or greater."
+            f"You need another branch of this code for Python before 3.6."
             f""" \n\tYou have version: {version_tuple_to_str()}."""
         )
         sys.exit(-1)

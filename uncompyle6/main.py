@@ -13,10 +13,12 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import ast
 import datetime
 import os
 import os.path as osp
 import py_compile
+import subprocess
 import sys
 import tempfile
 from typing import Any, Optional, TextIO, Tuple
@@ -49,6 +51,17 @@ def _get_outstream(outfile: str) -> Any:
     except OSError:
         pass
     return open(outfile, mode="w", encoding="utf-8")
+
+
+def syntax_check(filename: str) -> bool:
+    with open(filename) as f:
+        source = f.read()
+    valid = True
+    try:
+        ast.parse(source)
+    except SyntaxError:
+        valid = False
+    return valid
 
 
 def decompile(
@@ -368,15 +381,22 @@ def main(
                         check_type = "syntax check"
                         if do_verify == "run":
                             check_type = "run"
-                            result = subprocess.run(
-                                [sys.executable, deparsed_object.f.name],
-                                capture_output=True,
-                            )
-                            valid = result.returncode == 0
-                            output = result.stdout.decode()
-                            if output:
-                                print(output)
-                            pass
+                            if PYTHON_VERSION_TRIPLE >= (3, 7):
+                                result = subprocess.run(
+                                    [sys.executable, deparsed_object.f.name],
+                                    capture_output=True,
+                                )
+                                valid = result.returncode == 0
+                                output = result.stdout.decode()
+                                if output:
+                                    print(output)
+                                pass
+                            else:
+                                result = subprocess.run(
+                                    [sys.executable, deparsed_object.f.name],
+                                )
+                                valid = result.returncode == 0
+                                pass
                             if not valid:
                                 print(result.stderr.decode())
 
