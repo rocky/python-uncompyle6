@@ -131,7 +131,6 @@ Python.
 
 import sys
 from io import StringIO
-from typing import Optional
 
 from spark_parser import GenericASTTraversal
 from xdis import COMPILER_FLAG_BIT, iscode
@@ -808,9 +807,13 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                             node[index].kind,
                         )
                     else:
-                        assert node[tup[0]] in tup[1], (
-                            f"at {node.kind}[{tup[0]}], expected to be in '{tup[1]}' "
-                            f"node; got '{node[tup[0]].kind}'"
+                        assert (
+                            node[tup[0]] in tup[1]
+                        ), "at %s[%d], expected to be in '%s' node; got '%s'" % (
+                            node.kind,
+                            arg,
+                            index[1],
+                            node[index[0]].kind,
                         )
 
                 else:
@@ -1281,7 +1284,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
 def code_deparse(
     co,
     out=sys.stdout,
-    version: Optional[tuple] = None,
+    version=None,
     debug_opts=DEFAULT_DEBUG_OPTS,
     code_objects={},
     compile_mode="exec",
@@ -1289,7 +1292,7 @@ def code_deparse(
     walker=SourceWalker,
     start_offset: int = 0,
     stop_offset: int = -1,
-) -> Optional[SourceWalker]:
+):
     """
     ingests and deparses a given code block 'co'. If version is None,
     we will use the current Python interpreter version.

@@ -258,7 +258,7 @@ def main(
     outfile=None,
     showasm=None,
     showast={},
-    do_verify = None,
+    do_verify=None,
     showgrammar: bool = False,
     source_encoding=None,
     do_linemaps=False,
@@ -358,10 +358,12 @@ def main(
                     deparsed_object.f.close()
                     if PYTHON_VERSION_TRIPLE[:2] != deparsed_object.version[:2]:
                         sys.stdout.write(
-                            f"\n# skipping running {deparsed_object.f.name}; it is"
-                            f"{version_tuple_to_str(deparsed_object.version, end=2)}, "
-                            "and we are "
-                            f"{version_tuple_to_str(PYTHON_VERSION_TRIPLE, end=2)}\n"
+                            "\n# skipping running %s; it is %s and we are %s"
+                            % (
+                                deparsed_object.f.name,
+                                version_tuple_to_str(deparsed_object.version, end=2),
+                                version_tuple_to_str(PYTHON_VERSION_TRIPLE, end=2),
+                            )
                         )
                     else:
                         check_type = "syntax check"
@@ -385,10 +387,11 @@ def main(
                         if not valid:
                             verify_failed_files += 1
                             sys.stderr.write(
-                                f"\n# {check_type} failed on file {deparsed_object.f.name}\n"
+                                "\n# %s failed on file %s\n"
+                                % (check_type, deparsed_object.f.name)
                             )
 
-                    # sys.stderr.write(f"Ran {deparsed_object.f.name}\n")
+                    # sys.stderr.write("Ran %\n" % deparsed_object.f.name)
                 pass
             tot_files += 1
         except (ValueError, SyntaxError, ParserError, pysource.SourceWalkerError) as e:

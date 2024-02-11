@@ -22,10 +22,8 @@ scanners, e.g. for Python 2.7 or 3.4.
 """
 
 import sys
-
 from array import array
 from collections import namedtuple
-from types import ModuleType
 
 import xdis
 from xdis import (
@@ -629,11 +627,12 @@ def get_scanner(version, is_pypy=False, show_asm=None):
     # If version is a string, turn that into the corresponding float.
     if isinstance(version, str):
         if version not in canonic_python_version:
-            raise RuntimeError(f"Unknown Python version in xdis {version}")
+            raise RuntimeError("Unknown Python version in xdis %s" % version)
         canonic_version = canonic_python_version[version]
         if canonic_version not in CANONIC2VERSION:
             raise RuntimeError(
-                f"Unsupported Python version {version} (canonic {canonic_version})"
+                "Unsupported Python version %s (canonic %s)"
+                % (version, canonic_version)
             )
         version = CANONIC2VERSION[canonic_version]
 

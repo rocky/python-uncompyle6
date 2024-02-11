@@ -14,7 +14,6 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from copy import copy
-from typing import Optional
 
 from spark_parser import GenericASTTraversal, GenericASTTraversalPruningException
 
@@ -73,7 +72,7 @@ class TreeTransform(GenericASTTraversal, object):
         self,
         version: tuple,
         is_pypy=False,
-        show_ast: Optional[dict] = None,
+        show_ast=None,
     ):
         self.version = version
         self.showast = show_ast
