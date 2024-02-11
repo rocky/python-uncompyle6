@@ -36,6 +36,7 @@ Finally we save token information.
 from __future__ import print_function
 
 import sys
+
 import xdis
 
 # Get all the opcodes into globals
