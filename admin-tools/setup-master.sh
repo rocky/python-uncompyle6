@@ -25,7 +25,7 @@ function finish {
 owd=$(pwd)
 trap finish EXIT
 
-export PATH=$HOME/.pyenv/bin/pyenv:$PATHb
+export PATH=$HOME/.pyenv/bin/pyenv:$PATH
 
 mydir=$(dirname $bs)
 fulldir=$(readlink -f $mydir)
