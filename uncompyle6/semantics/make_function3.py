@@ -17,12 +17,10 @@ All the crazy things we have to do to handle Python functions in 3.0-3.5 or so.
 The saga of changes before and after is in other files.
 """
 from xdis import CO_GENERATOR, code_has_star_arg, code_has_star_star_arg, iscode
-from uncompyle6.scanner import Code
+
 from uncompyle6.parser import ParserError as ParserError2
 from uncompyle6.parsers.treenode import SyntaxTree
-from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.scanner import Code
->>>>>>> python-3.0-to-3.2
 from uncompyle6.semantics.helper import (
     find_all_globals,
     find_globals_and_nonlocals,
