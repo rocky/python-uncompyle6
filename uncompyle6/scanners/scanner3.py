@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2019, 2021-2023 by Rocky Bernstein
+#  Copyright (c) 2015-2019, 2021-2024 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -479,7 +479,6 @@ class Scanner3(Scanner):
 
         last_op_was_break = False
         new_tokens = []
-        operand_value = 0
 
         for i, inst in enumerate(self.insts):
             opname = inst.opname
@@ -531,11 +530,9 @@ class Scanner3(Scanner):
             op = inst.opcode
 
             if opname == "EXTENDED_ARG":
-                if i + 1 < n:
-                    operand_value = argval << 16
-                    continue
-                else:
-                    operand_value = 0
+                # EXTEND_ARG adjustments to the operand value should have
+                # already been accounted for in xdis instruction creation.
+                continue
 
             if inst.offset in jump_targets:
                 jump_idx = 0
@@ -642,7 +639,7 @@ class Scanner3(Scanner):
                     attr = attr[:4]  # remove last value: attr[5] == False
                 else:
                     pos_args, name_pair_args, annotate_args = parse_fn_counts_30_35(
-                        inst.argval + operand_value
+                        inst.argval
                     )
 
                     pattr = "%s positional, %s keyword only, %s annotated" % (
