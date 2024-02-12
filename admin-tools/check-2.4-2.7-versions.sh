@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 function finish {
   cd $owd
 }
@@ -25,3 +26,4 @@ for version in $PYVERSIONS; do
     fi
     echo === $version ===
 done
+finish
