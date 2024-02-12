@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2020, 2022-2023 by Rocky Bernstein
+#  Copyright (c) 2015-2020, 2022-2024 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -15,7 +15,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Python 37 bytecode scanner/deparser base.
+Python 3.7 bytecode scanner/deparser base.
 
 Also we *modify* the instruction sequence to assist deparsing code.
 For example:
