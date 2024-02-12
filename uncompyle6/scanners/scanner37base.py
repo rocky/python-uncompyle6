@@ -318,12 +318,6 @@ class Scanner37Base(Scanner):
             argval = inst.argval
             op = inst.opcode
 
-            if inst.opname == "EXTENDED_ARG":
-                # FIXME: The EXTENDED_ARG is used to signal annotation
-                # parameters
-                if i + 1 < n and self.insts[i + 1].opcode != self.opc.MAKE_FUNCTION:
-                    continue
-
             if inst.offset in jump_targets:
                 jump_idx = 0
                 # We want to process COME_FROMs to the same offset to be in *descending*

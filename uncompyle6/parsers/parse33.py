@@ -16,6 +16,12 @@ class Python33Parser(Python32Parser):
         stmt         ::= genexpr_func
         """
 
+    def p_33_function_def(self, args):
+        """
+        annotate_pair      ::= LOAD_NAME LOAD_CONST
+
+        """
+
     def customize_grammar_rules(self, tokens, customize):
         self.remove_rules(
             """

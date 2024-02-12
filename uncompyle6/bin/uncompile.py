@@ -14,6 +14,7 @@ import click
 from xdis.version_info import version_tuple_to_str
 
 from uncompyle6.main import main, status_msg
+from uncompyle6.verify import VerifyCmpError
 from uncompyle6.version import __version__
 
 program = "uncompyle6"
@@ -157,12 +158,20 @@ def main_bin(
 
     version_tuple = sys.version_info[0:2]
     if not ((3, 3) <= version_tuple < (3, 6)):
-        print(
-            "Error: This version of the {program} runs from Python 3.3 to 3.5."
-            "You need another branch of this code for other Python versions."
-            " \n\tYou have version: %s." % version_tuple_to_str()
-        )
-        sys.exit(-1)
+        if version_tuple > (3, 5):
+            print(
+                "This version of the {program} is tailored for Python 3.3 to 3.5.\n"
+                "It may run on other versions, but there are problems, switch to code "
+                "from another branch.\n"
+                "You have version: %s." % version_tuple_to_str()
+            )
+        else:
+            print(
+                "Error: This version of the {program} runs from Python 3.3 to 3.5.\n"
+                "You need another branch of this code for other Python versions."
+                " \n\tYou have version: %s." % version_tuple_to_str()
+            )
+            sys.exit(-1)
 
     numproc = 0
     out_base = None
@@ -242,7 +251,7 @@ def main_bin(
             sys.exit(2)
         except KeyboardInterrupt:
             pass
-        except verify.VerifyCmpError:
+        except VerifyCmpError:
             raise
     else:
         from multiprocessing import Process, Queue
