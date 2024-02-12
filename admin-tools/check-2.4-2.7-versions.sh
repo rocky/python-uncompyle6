@@ -1,4 +1,6 @@
 #!/bin/bash
+# Run tests over all Python versions in branch python-2.4-2.7
+set -e
 function finish {
   cd $owd
 }
@@ -10,7 +12,7 @@ if ! source ./pyenv-2.4-2.7-versions ; then
     exit $?
 fi
 if ! source ./setup-python-2.4.sh ; then
-    exit $?
+    exit $rc
 fi
 
 cd ..
@@ -20,9 +22,9 @@ for version in $PYVERSIONS; do
 	exit $?
     fi
     make clean && python setup.py develop
-    if ! make check-short ; then
+    if ! make check ; then
 	exit $?
     fi
     echo === $version ===
 done
-make check
+finish
