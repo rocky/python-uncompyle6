@@ -3,7 +3,7 @@ PYTHON_VERSION=2.4.6
 
 function checkout_version {
     local repo=$1
-    version=${2:-python-2.4}
+    version=${2:-python-2.4-to-2.7}
     echo Checking out $version.4 on $repo ...
     (cd ../$repo && git checkout $version && pyenv local $PYTHON_VERSION) && \
 	git pull
