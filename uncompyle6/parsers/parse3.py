@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2023 Rocky Bernstein
+#  Copyright (c) 2015-2024 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -1204,9 +1204,24 @@ class Python3Parser(PythonParser):
                             )
                         )
                     else:
-                        rule = "mkfunc ::= %s%sload_closure LOAD_CODE LOAD_STR %s" % (
-                            kwargs_str,
-                            "pos_arg " * pos_args_count,
+                        if self.version == (3, 3):
+                            # 3.3 puts kwargs before pos_arg
+                            pos_kw_tuple = (
+                                ("kwargs " * kw_args_count),
+                                ("pos_arg " * pos_args_count),
+                            )
+                        else:
+                            # 3.4 and 3.5 puts pos_arg before kwargs
+                            pos_kw_tuple = (
+                                "pos_arg " * (pos_args_count),
+                                ("kwargs " * kw_args_count),
+                            )
+                        rule = (
+                            "mkfunc ::= %s%s%s " "load_closure LOAD_CODE LOAD_STR %s"
+                        ) % (
+                            pos_kw_tuple[0],
+                            pos_kw_tuple[1],
+                            "annotate_tuple " * (annotate_args),
                             opname,
                         )
                     self.add_unique_rule(rule, opname, token.attr, customize)
@@ -1448,12 +1463,12 @@ class Python3Parser(PythonParser):
                         )
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         rule = (
-                            "mkfunc_annotate ::= %s%sannotate_tuple LOAD_CODE LOAD_STR %s"
-                            % (
-                                ("pos_arg " * pos_args_count),
-                                ("annotate_arg " * annotate_args),
-                                opname,
-                            )
+                            "mkfunc_annotate ::= %s%sannotate_tuple LOAD_CODE "
+                            "LOAD_STR %s"
+                        ) % (
+                            ("pos_arg " * pos_args_count),
+                            ("annotate_arg " * annotate_args),
+                            opname,
                         )
                     if self.version >= (3, 3):
                         if self.version == (3, 3):
@@ -1463,29 +1478,19 @@ class Python3Parser(PythonParser):
                                 ("pos_arg " * pos_args_count),
                             )
                         else:
-                            # 3.4 and 3.5puts pos_arg before kwargs
+                            # 3.4 and 3.5 puts pos_arg before kwargs
                             pos_kw_tuple = (
                                 "pos_arg " * (pos_args_count),
                                 ("kwargs " * kw_args_count),
                             )
                         rule = (
-                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE LOAD_STR %s"
-                            % (
-                                pos_kw_tuple[0],
-                                pos_kw_tuple[1],
-                                ("annotate_arg " * annotate_args),
-                                opname,
-                            )
-                        )
-                        self.add_unique_rule(rule, opname, token.attr, customize)
-                        rule = (
-                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE LOAD_STR %s"
-                            % (
-                                pos_kw_tuple[0],
-                                pos_kw_tuple[1],
-                                ("annotate_arg " * annotate_args),
-                                opname,
-                            )
+                            "mkfunc_annotate ::= %s%s%sannotate_tuple LOAD_CODE "
+                            "LOAD_STR %s"
+                        ) % (
+                            pos_kw_tuple[0],
+                            pos_kw_tuple[1],
+                            ("annotate_arg " * annotate_args),
+                            opname,
                         )
                     else:
                         rule = (

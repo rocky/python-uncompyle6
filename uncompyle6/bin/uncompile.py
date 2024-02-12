@@ -267,18 +267,18 @@ def main_bin():
         tot_files = okay_files = failed_files = verify_failed_files = 0
 
         def process_func():
+            (tot_files, okay_files, failed_files, verify_failed_files) = (
+                0,
+                0,
+                0,
+                0,
+            )
             try:
-                (tot_files, okay_files, failed_files, verify_failed_files) = (
-                    0,
-                    0,
-                    0,
-                    0,
-                )
                 while 1:
                     f = fqueue.get()
                     if f is None:
                         break
-                    (t, o, f, v) = main(src_base, out_base, [f], [], outfile, **options)
+                    (t, o, f, v) = main(src_base, out_base, [f], [], outfile)
                     tot_files += t
                     okay_files += o
                     failed_files += f

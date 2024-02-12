@@ -409,25 +409,14 @@ def main(
                         check_type = "syntax check"
                         if do_verify == "run":
                             check_type = "run"
-                            if PYTHON_VERSION_TRIPLE >= (3, 7):
-                                result = subprocess.run(
-                                    [sys.executable, deparsed_object.f.name],
-                                    capture_output=True,
-                                )
-                                valid = result.returncode == 0
-                                output = result.stdout.decode()
-                                if output:
-                                    print(output)
-                                pass
-                            else:
-                                result = subprocess.run(
-                                    [sys.executable, deparsed_object.f.name],
-                                )
-                                valid = result.returncode == 0
-                                pass
+                            return_code = subprocess.call(
+                                [sys.executable, deparsed_object.f.name],
+                                stdout=sys.stdout,
+                                stderr=sys.stderr,
+                            )
+                            valid = return_code == 0
                             if not valid:
-                                print(result.stderr.decode())
-
+                                sys.stderr.write("Got return code %d\n" % return_code)
                         else:
                             print("Syntax checking not supported before Python 3.0")
                             # valid = syntax_check(deparsed_object.f.name)
