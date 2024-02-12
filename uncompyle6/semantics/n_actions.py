@@ -1,4 +1,4 @@
-#  Copyright (c) 2022-2023 by Rocky Bernstein
+#  Copyright (c) 2022-2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -16,21 +16,11 @@
 Custom Nonterminal action functions. See NonterminalActions docstring.
 """
 
-from uncompyle6.semantics.consts import (
-    INDENT_PER_LEVEL,
-    NONE,
-    PRECEDENCE,
-    minint,
-)
-
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanners.tok import Token
+from uncompyle6.semantics.consts import INDENT_PER_LEVEL, NONE, PRECEDENCE, minint
+from uncompyle6.semantics.helper import find_code_node, flatten_list
 from uncompyle6.util import better_repr, get_code_name
-
-from uncompyle6.semantics.helper import (
-    find_code_node,
-    flatten_list,
-)
 
 
 class NonterminalActions:
@@ -826,7 +816,8 @@ class NonterminalActions:
 
         p = self.prec
         self.prec = PRECEDENCE["yield"] - 1
-        lastnode = node.pop()
+        lastnode = node[-1]
+        node = node[:-1]
         lastnodetype = lastnode.kind
 
         # If this build list is inside a CALL_FUNCTION_VAR,
