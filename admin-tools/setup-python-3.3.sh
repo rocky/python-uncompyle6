@@ -1,7 +1,13 @@
 #!/bin/bash
+# Check out python-3.3-to-3.5 and dependent development branches.
 set -e
 PYTHON_VERSION=3.3.7
-pyenv local $PYTHON_VERSION
+
+bs=${BASH_SOURCE[0]}
+if [[ $0 == $bs ]] ; then
+    echo "This script should be *sourced* rather than run directly through bash"
+    exit 1
+fi
 
 # FIXME put some of the below in a common routine
 function checkout_version {
@@ -16,14 +22,10 @@ function checkout_version {
 function finish {
   cd $owd
 }
+owd=$(pwd)
+trap finish EXIT
 
 export PATH=$HOME/.pyenv/bin/pyenv:$PATH
-owd=$(pwd)
-bs=${BASH_SOURCE[0]}
-if [[ $0 == $bs ]] ; then
-    echo "This script should be *sourced* rather than run directly through bash"
-    exit 1
-fi
 
 mydir=$(dirname $bs)
 fulldir=$(readlink -f $mydir)
@@ -32,6 +34,6 @@ cd $fulldir/..
      checkout_version python-uncompyle6)
 rm -v */.python-version || true
 
-git checkout python-3.3-to-3.5  && git pull && pyenv local $PYTHON_VERSION
+git pull
 rm -v */.python-version || true
 finish
