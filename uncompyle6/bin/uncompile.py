@@ -15,8 +15,8 @@ from typing import List
 import click
 from xdis.version_info import version_tuple_to_str
 
-from uncompyle6 import verify
 from uncompyle6.main import main, status_msg
+from uncompyle6.verify import VerifyCmpError
 from uncompyle6.version import __version__
 
 program = "uncompyle6"
@@ -245,7 +245,7 @@ def main_bin(
             sys.exit(2)
         except KeyboardInterrupt:
             pass
-        except verify.VerifyCmpError:
+        except VerifyCmpError:
             raise
     else:
         from multiprocessing import Process, Queue
@@ -266,18 +266,18 @@ def main_bin(
         tot_files = okay_files = failed_files = verify_failed_files = 0
 
         def process_func():
+            (tot_files, okay_files, failed_files, verify_failed_files) = (
+                0,
+                0,
+                0,
+                0,
+            )
             try:
-                (tot_files, okay_files, failed_files, verify_failed_files) = (
-                    0,
-                    0,
-                    0,
-                    0,
-                )
                 while 1:
                     f = fqueue.get()
                     if f is None:
                         break
-                    (t, o, f, v) = main(src_base, out_base, [f], [], outfile, **options)
+                    (t, o, f, v) = main(src_base, out_base, [f], [], outfile)
                     tot_files += t
                     okay_files += o
                     failed_files += f

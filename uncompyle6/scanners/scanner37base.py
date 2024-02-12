@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2020, 2022-2023 by Rocky Bernstein
+#  Copyright (c) 2015-2020, 2022-2024 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -15,7 +15,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Python 37 bytecode scanner/deparser base.
+Python 3.7 bytecode scanner/deparser base.
 
 Also we *modify* the instruction sequence to assist deparsing code.
 For example:
@@ -29,20 +29,17 @@ For example:
 Finally we save token information.
 """
 
+import sys
 from typing import Any, Dict, List, Set, Tuple
 
-from xdis import iscode, instruction_size, Instruction
-from xdis.bytecode import _get_const_info
-
-from uncompyle6.scanner import Token
 import xdis
 
 # Get all the opcodes into globals
 import xdis.opcodes.opcode_37 as op3
+from xdis import Instruction, instruction_size, iscode
+from xdis.bytecode import _get_const_info
 
-from uncompyle6.scanner import Scanner
-
-import sys
+from uncompyle6.scanner import Scanner, Token
 
 globals().update(op3.opmap)
 
@@ -51,7 +48,9 @@ CONST_COLLECTIONS = ("CONST_LIST", "CONST_SET", "CONST_DICT")
 
 
 class Scanner37Base(Scanner):
-    def __init__(self, version: Tuple[int, int], show_asm=None, debug="", is_pypy=False):
+    def __init__(
+        self, version: Tuple[int, int], show_asm=None, debug="", is_pypy=False
+    ):
         super(Scanner37Base, self).__init__(version, show_asm, is_pypy)
         self.offset2tok_index = None
         self.debug = debug
@@ -254,7 +253,6 @@ class Scanner37Base(Scanner):
 
         n = len(self.insts)
         for i, inst in enumerate(self.insts):
-
             # We need to detect the difference between:
             #   raise AssertionError
             #  and
@@ -284,7 +282,6 @@ class Scanner37Base(Scanner):
         # To simplify things we want to untangle this. We also
         # do this loop before we compute jump targets.
         for i, inst in enumerate(self.insts):
-
             # One artifact of the "too-small" operand problem, is that
             # some backward jumps, are turned into forward jumps to another
             # "extended arg" backward jump to the same location.
@@ -321,15 +318,8 @@ class Scanner37Base(Scanner):
 
         j = 0
         for i, inst in enumerate(self.insts):
-
             argval = inst.argval
             op = inst.opcode
-
-            if inst.opname == "EXTENDED_ARG":
-                # FIXME: The EXTENDED_ARG is used to signal annotation
-                # parameters
-                if i + 1 < n and self.insts[i + 1].opcode != self.opc.MAKE_FUNCTION:
-                    continue
 
             if inst.offset in jump_targets:
                 jump_idx = 0
