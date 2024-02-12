@@ -1238,7 +1238,7 @@ class Python3Parser(PythonParser):
                         ) % (
                             pos_kw_tuple[0],
                             pos_kw_tuple[1],
-                            "annotate_pair " * (annotate_args),
+                            "annotate_tuple " * (annotate_args),
                             opname,
                         )
                     self.add_unique_rule(rule, opname, token.attr, customize)
