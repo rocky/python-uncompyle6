@@ -10,6 +10,10 @@ function checkout_version {
     return $?
 }
 
+function finish {
+  cd $owd
+}
+
 owd=$(pwd)
 bs=${BASH_SOURCE[0]}
 if [[ $0 == $bs ]] ; then
@@ -20,5 +24,5 @@ mydir=$(dirname $bs)
 fulldir=$(readlink -f $mydir)
 (cd $fulldir/.. && checkout_version python-spark && checkout_version python-xdis python-2.4-to-2.7 &&
       checkout_version python-uncompyle6)
-cd $owd
 rm -v */.python-version || true
+finish

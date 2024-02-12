@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 PYTHON_VERSION=3.0.1
 pyenv local $PYTHON_VERSION
 
@@ -29,7 +30,7 @@ fulldir=$(readlink -f $mydir)
 cd $fulldir/..
 (cd $fulldir/.. && checkout_version python-spark master && checkout_version python-xdis &&
       checkout_version python-uncompyle6)
-cd $owd
-rm -v */.python-version || true
 
 git checkout python-3.0-to-3.2  && git pull && pyenv local $PYTHON_VERSION
+rm -v */.python-version || true
+finish
