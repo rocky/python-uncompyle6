@@ -124,7 +124,11 @@ def main_bin():
         sys.exit(-1)
 
     options = {
-        "showasm": None
+        "showasm": None,
+        "showgrammar": None,
+        "showast": {},
+        "do_verify": None,
+        "do_linemaps": False,
     }
     for opt, val in opts:
         if opt in ("-h", "--help"):
