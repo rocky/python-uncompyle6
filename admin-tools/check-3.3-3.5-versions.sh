@@ -1,4 +1,6 @@
 #!/bin/bash
+# Run tests over all Python versions in branch python-3.3-3.5
+set -e
 function finish {
   cd $owd
 }
@@ -25,3 +27,4 @@ for version in $PYVERSIONS; do
     fi
     echo === $version ===
 done
+finish
