@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017, 2022-2023 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2022-2024 Rocky Bernstein
 """
 spark grammar differences over Python 3.1 for Python 3.0.
 """
@@ -6,8 +6,8 @@ spark grammar differences over Python 3.1 for Python 3.0.
 from uncompyle6.parser import PythonParserSingle
 from uncompyle6.parsers.parse31 import Python31Parser
 
-class Python30Parser(Python31Parser):
 
+class Python30Parser(Python31Parser):
     def p_30(self, args):
         """
 
@@ -77,7 +77,6 @@ class Python30Parser(Python31Parser):
         set_comp_func ::= set_comp_header
                           LOAD_ARG FOR_ITER store comp_iter
                           JUMP_BACK ending_return
-                          RETURN_VALUE RETURN_LAST
 
         list_comp_header ::= BUILD_LIST_0 DUP_TOP STORE_FAST
         list_comp        ::= list_comp_header
@@ -117,7 +116,7 @@ class Python30Parser(Python31Parser):
         # From Python 2.6
 
 
-	lc_body     ::= LOAD_FAST expr LIST_APPEND
+        lc_body     ::= LOAD_FAST expr LIST_APPEND
         lc_body     ::= LOAD_NAME expr LIST_APPEND
         list_if     ::= expr jmp_false_then list_iter
         list_if_not ::= expr jmp_true list_iter JUMP_BACK come_froms POP_TOP
@@ -215,9 +214,9 @@ class Python30Parser(Python31Parser):
         compare_chained_right ::= expr COMPARE_OP RETURN_END_IF
         """
 
-
     def remove_rules_30(self):
-        self.remove_rules("""
+        self.remove_rules(
+            """
 
         # The were found using grammar coverage
         while1stmt     ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
@@ -285,29 +284,30 @@ class Python30Parser(Python31Parser):
         or               ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         and              ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         and              ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
-        """)
+        """
+        )
 
     def customize_grammar_rules(self, tokens, customize):
         super(Python30Parser, self).customize_grammar_rules(tokens, customize)
         self.remove_rules_30()
 
         self.check_reduce["iflaststmtl"] = "AST"
-        self.check_reduce['ifstmt'] = "AST"
+        self.check_reduce["ifstmt"] = "AST"
         self.check_reduce["ifelsestmtc"] = "AST"
         self.check_reduce["ifelsestmt"] = "AST"
         # self.check_reduce["and"] = "stmt"
         return
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
-        invalid = super(Python30Parser,
-                        self).reduce_is_invalid(rule, ast,
-                                                tokens, first, last)
+        invalid = super(Python30Parser, self).reduce_is_invalid(
+            rule, ast, tokens, first, last
+        )
         if invalid:
             return invalid
         lhs = rule[0]
         if (
-            lhs in ("iflaststmtl", "ifstmt",
-                        "ifelsestmt", "ifelsestmtc") and ast[0] == "testexpr"
+            lhs in ("iflaststmtl", "ifstmt", "ifelsestmt", "ifelsestmtc")
+            and ast[0] == "testexpr"
         ):
             testexpr = ast[0]
             if testexpr[0] == "testfalse":
@@ -315,7 +315,10 @@ class Python30Parser(Python31Parser):
                 if lhs == "ifelsestmtc" and ast[2] == "jump_absolute_else":
                     jump_absolute_else = ast[2]
                     come_from = jump_absolute_else[2]
-                    return come_from == "COME_FROM" and come_from.attr < tokens[first].offset
+                    return (
+                        come_from == "COME_FROM"
+                        and come_from.attr < tokens[first].offset
+                    )
                     pass
                 elif lhs in ("ifelsestmt", "ifelsestmtc") and ast[2] == "jump_cf_pop":
                     jump_cf_pop = ast[2]
@@ -338,11 +341,11 @@ class Python30Parser(Python31Parser):
                     jmp_false = testfalse[1]
                     if last == len(tokens):
                         last -= 1
-                    while (isinstance(tokens[first].offset, str) and first < last):
+                    while isinstance(tokens[first].offset, str) and first < last:
                         first += 1
                     if first == last:
                         return True
-                    while (first < last and isinstance(tokens[last].offset, str)):
+                    while first < last and isinstance(tokens[last].offset, str):
                         last -= 1
                     if rule[0] == "iflaststmtl":
                         return not (jmp_false[0].attr <= tokens[last].offset)
@@ -350,8 +353,9 @@ class Python30Parser(Python31Parser):
                         jmp_false_target = jmp_false[0].attr
                         if tokens[first].offset > jmp_false_target:
                             return True
-                        return (
-                            (jmp_false_target > tokens[last].offset) and tokens[last] != "JUMP_FORWARD")
+                        return (jmp_false_target > tokens[last].offset) and tokens[
+                            last
+                        ] != "JUMP_FORWARD"
                     pass
                 pass
             pass
@@ -360,33 +364,43 @@ class Python30Parser(Python31Parser):
 
     pass
 
+
 class Python30ParserSingle(Python30Parser, PythonParserSingle):
     pass
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Check grammar
     p = Python30Parser()
     p.remove_rules_30()
     p.check_grammar()
-    from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
+    from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
+
     if PYTHON_VERSION_TRIPLE[:2] == (3, 0):
         lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from uncompyle6.scanner import get_scanner
+
         s = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY)
-        opcode_set = set(s.opc.opname).union(set(
-            """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+        opcode_set = set(s.opc.opname).union(
+            set(
+                """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
                LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
                LAMBDA_MARKER RETURN_LAST
-            """.split()))
+            """.split()
+            )
+        )
         ## FIXME: try this
         remain_tokens = set(tokens) - opcode_set
         import re
-        remain_tokens = set([re.sub(r'_\d+$', '',  t) for t in remain_tokens])
-        remain_tokens = set([re.sub('_CONT$', '', t) for t in remain_tokens])
+
+        remain_tokens = set([re.sub(r"_\d+$", "", t) for t in remain_tokens])
+        remain_tokens = set([re.sub("_CONT$", "", t) for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         print(remain_tokens)
         import sys
+
         if len(sys.argv) > 1:
             from spark_parser.spark import rule2str
+
             for rule in sorted(p.rule2name.items()):
                 print(rule2str(rule[0]))

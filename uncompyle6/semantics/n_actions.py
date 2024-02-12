@@ -815,7 +815,8 @@ class NonterminalActions:
 
         p = self.prec
         self.prec = PRECEDENCE["yield"] - 1
-        lastnode = node.pop()
+        lastnode = node[-1]
+        node = node[:-1]
         lastnodetype = lastnode.kind
 
         # If this build list is inside a CALL_FUNCTION_VAR,
