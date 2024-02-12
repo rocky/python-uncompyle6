@@ -27,6 +27,7 @@ trap finish EXIT
 
 export PATH=$HOME/.pyenv/bin/pyenv:$PATH
 
+mydir=$(dirname $bs)
 fulldir=$(readlink -f $mydir)
 cd $fulldir/..
 (cd $fulldir/.. && checkout_version python-spark master && checkout_version python-xdis &&
