@@ -20,9 +20,6 @@ function checkout_version {
     return $?
 }
 
-function finish {
-  cd $owd
-}
 owd=$(pwd)
 trap finish EXIT
 
@@ -36,4 +33,4 @@ cd $fulldir/..
 
 git pull
 rm -v */.python-version || true
-finish
+cd $owd

@@ -38,7 +38,7 @@ import xdis.opcodes.opcode_37 as op3
 from xdis import Instruction, instruction_size, iscode
 from xdis.bytecode import _get_const_info
 
-from uncompyle6.scanner import Scanner, Token
+from uncompyle6.scanner import Scanner, Token, prefer_double_quote
 
 globals().update(op3.opmap)
 
@@ -383,6 +383,7 @@ class Scanner37Base(Scanner):
                     pattr = "<code_object " + const.co_name + ">"
                 elif isinstance(const, str):
                     opname = "LOAD_STR"
+                    pattr = prefer_double_quote(inst.argval)
                 else:
                     if isinstance(inst.arg, int) and inst.arg < len(co.co_consts):
                         argval, _ = _get_const_info(inst.arg, co.co_consts)
