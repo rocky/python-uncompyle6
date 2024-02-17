@@ -597,16 +597,6 @@ class Scanner:
         return self.Token
 
 
-def prefer_double_quote(string: str) -> str:
-    """
-    Prefer a double quoted string over a
-    single quoted string when possible
-    """
-    if string.find("'") == -1:
-        return f'"{string}"'
-    return str(string)
-
-
 def get_scanner(version: Union[str, tuple], is_pypy=False, show_asm=None) -> Scanner:
     # If version is a string, turn that into the corresponding float.
     if isinstance(version, str):
@@ -657,6 +647,16 @@ def get_scanner(version: Union[str, tuple], is_pypy=False, show_asm=None) -> Sca
             f"Unsupported Python version, {version_tuple_to_str(version)}, for decompilation"
         )
     return scanner
+
+
+def prefer_double_quote(string: str) -> str:
+    """
+    Prefer a double quoted string over a
+    single quoted string when possible
+    """
+    if string.find("'") == -1:
+        return f'"{string}"'
+    return repr(string)
 
 
 if __name__ == "__main__":

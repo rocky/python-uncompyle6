@@ -18,7 +18,14 @@ Custom Nonterminal action functions. See NonterminalActions docstring.
 
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanners.tok import Token
-from uncompyle6.semantics.consts import INDENT_PER_LEVEL, NONE, PRECEDENCE, minint
+from uncompyle6.semantics.consts import (
+    INDENT_PER_LEVEL,
+    NO_PARENTHESIS_EVER,
+    NONE,
+    PARENTHESIS_ALWAYS,
+    PRECEDENCE,
+    minint,
+)
 from uncompyle6.semantics.helper import find_code_node, flatten_list
 from uncompyle6.util import better_repr, get_code_name
 
@@ -41,7 +48,7 @@ class NonterminalActions:
         self.prec = 1000
         self.in_format_string = False
 
-    def n_alias(self, node):
+    def n_alias(self, node: SyntaxTree):
         if self.version <= (2, 1):
             if len(node) == 2:
                 store = node[1]
@@ -66,7 +73,7 @@ class NonterminalActions:
 
     n_alias37 = n_alias
 
-    def n_assign(self, node):
+    def n_assign(self, node: SyntaxTree):
         # A horrible hack for Python 3.0 .. 3.2
         if (3, 0) <= self.version <= (3, 2) and len(node) == 2:
             if (
@@ -77,19 +84,19 @@ class NonterminalActions:
                 self.prune()
         self.default(node)
 
-    def n_assign2(self, node):
+    def n_assign2(self, node: SyntaxTree):
         for n in node[-2:]:
             if n[0] == "unpack":
                 n[0].kind = "unpack_w_parens"
         self.default(node)
 
-    def n_assign3(self, node):
+    def n_assign3(self, node: SyntaxTree):
         for n in node[-3:]:
             if n[0] == "unpack":
                 n[0].kind = "unpack_w_parens"
         self.default(node)
 
-    def n_attribute(self, node):
+    def n_attribute(self, node: SyntaxTree):
         if node[0] == "LOAD_CONST" or node[0] == "expr" and node[0][0] == "LOAD_CONST":
             # FIXME: I didn't record which constants parenthesis is
             # necessary. However, I suspect that we could further
@@ -99,7 +106,7 @@ class NonterminalActions:
             node.kind = "attribute_w_parens"
         self.default(node)
 
-    def n_bin_op(self, node):
+    def n_bin_op(self, node: SyntaxTree):
         """bin_op (formerly "binary_expr") is the Python AST BinOp"""
         self.preorder(node[0])
         self.write(" ")
@@ -111,9 +118,9 @@ class NonterminalActions:
         self.prec += 1
         self.prune()
 
-    def n_build_slice2(self, node):
+    def n_build_slice2(self, node: SyntaxTree):
         p = self.prec
-        self.prec = 100
+        self.prec = NO_PARENTHESIS_EVER
         if not node[0].isNone():
             self.preorder(node[0])
         self.write(":")
@@ -122,9 +129,9 @@ class NonterminalActions:
         self.prec = p
         self.prune()  # stop recursing
 
-    def n_build_slice3(self, node):
+    def n_build_slice3(self, node: SyntaxTree):
         p = self.prec
-        self.prec = 100
+        self.prec = NO_PARENTHESIS_EVER
         if not node[0].isNone():
             self.preorder(node[0])
         self.write(":")
@@ -136,7 +143,7 @@ class NonterminalActions:
         self.prec = p
         self.prune()  # stop recursing
 
-    def n_classdef(self, node):
+    def n_classdef(self, node: SyntaxTree):
         if self.version >= (3, 6):
             self.n_classdef36(node)
         elif self.version >= (3, 0):
@@ -199,7 +206,7 @@ class NonterminalActions:
 
     n_classdefdeco2 = n_classdef
 
-    def n_const_list(self, node):
+    def n_const_list(self, node: SyntaxTree):
         """
         prettyprint a constant dict, list, set or tuple.
         """
@@ -293,7 +300,7 @@ class NonterminalActions:
         self.prune()
         return
 
-    def n_delete_subscript(self, node):
+    def n_delete_subscript(self, node: SyntaxTree):
         if node[-2][0] == "build_list" and node[-2][0][-1].kind.startswith(
             "BUILD_TUPLE"
         ):
@@ -303,7 +310,7 @@ class NonterminalActions:
 
     n_store_subscript = n_subscript = n_delete_subscript
 
-    def n_dict(self, node):
+    def n_dict(self, node: SyntaxTree):
         """
         Prettyprint a dict.
         'dict' is something like k = {'a': 1, 'b': 42}"
@@ -315,7 +322,7 @@ class NonterminalActions:
             return
 
         p = self.prec
-        self.prec = 100
+        self.prec = PRECEDENCE["dict"]
 
         self.indent_more(INDENT_PER_LEVEL)
         sep = INDENT_PER_LEVEL[:-1]
@@ -327,8 +334,8 @@ class NonterminalActions:
             if node[0].kind.startswith("kvlist"):
                 # Python 3.5+ style key/value list in dict
                 kv_node = node[0]
-                l = list(kv_node)
-                length = len(l)
+                ll = list(kv_node)
+                length = len(ll)
                 if kv_node[-1].kind.startswith("BUILD_MAP"):
                     length -= 1
                 i = 0
@@ -336,7 +343,7 @@ class NonterminalActions:
                 # Respect line breaks from source
                 while i < length:
                     self.write(sep)
-                    name = self.traverse(l[i], indent="")
+                    name = self.traverse(ll[i], indent="")
                     if i > 0:
                         line_number = self.indent_if_source_nl(
                             line_number, self.indent + INDENT_PER_LEVEL[:-1]
@@ -344,7 +351,7 @@ class NonterminalActions:
                     line_number = self.line_number
                     self.write(name, ": ")
                     value = self.traverse(
-                        l[i + 1], indent=self.indent + (len(name) + 2) * " "
+                        ll[i + 1], indent=self.indent + (len(name) + 2) * " "
                     )
                     self.write(value)
                     sep = ", "
@@ -357,15 +364,15 @@ class NonterminalActions:
             elif len(node) > 1 and node[1].kind.startswith("kvlist"):
                 # Python 3.0..3.4 style key/value list in dict
                 kv_node = node[1]
-                l = list(kv_node)
-                if len(l) > 0 and l[0].kind == "kv3":
+                ll = list(kv_node)
+                if len(ll) > 0 and ll[0].kind == "kv3":
                     # Python 3.2 does this
                     kv_node = node[1][0]
-                    l = list(kv_node)
+                    ll = list(kv_node)
                 i = 0
-                while i < len(l):
+                while i < len(ll):
                     self.write(sep)
-                    name = self.traverse(l[i + 1], indent="")
+                    name = self.traverse(ll[i + 1], indent="")
                     if i > 0:
                         line_number = self.indent_if_source_nl(
                             line_number, self.indent + INDENT_PER_LEVEL[:-1]
@@ -374,7 +381,7 @@ class NonterminalActions:
                     line_number = self.line_number
                     self.write(name, ": ")
                     value = self.traverse(
-                        l[i], indent=self.indent + (len(name) + 2) * " "
+                        ll[i], indent=self.indent + (len(name) + 2) * " "
                     )
                     self.write(value)
                     sep = ", "
@@ -592,7 +599,7 @@ class NonterminalActions:
             self.println(lines[-1], quote)
         self.prune()
 
-    def n_elifelsestmtr(self, node):
+    def n_elifelsestmtr(self, node: SyntaxTree):
         if node[2] == "COME_FROM":
             return_stmts_node = node[3]
             node.kind = "elifelsestmtr2"
@@ -623,7 +630,7 @@ class NonterminalActions:
         self.indent_less()
         self.prune()
 
-    def n_except_cond2(self, node):
+    def n_except_cond2(self, node: SyntaxTree):
         if node[-1] == "come_from_opt":
             unpack_node = -3
         else:
@@ -637,7 +644,7 @@ class NonterminalActions:
     # FIXME: figure out how to get this into customization
     # put so that we can get access via super from
     # the fragments routine.
-    def n_exec_stmt(self, node):
+    def n_exec_stmt(self, node: SyntaxTree):
         """
         exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
         exec_stmt ::= expr exprlist EXEC_STMT
@@ -669,7 +676,9 @@ class NonterminalActions:
         #     hasattr(self, 'current_line_number')):
         #     self.source_linemap[self.current_line_number] = n.linestart
 
-        self.prec = PRECEDENCE.get(n.kind, -2)
+        if n.kind != "expr":
+            self.prec = PRECEDENCE.get(n.kind, PARENTHESIS_ALWAYS)
+
         if n == "LOAD_CONST" and repr(n.pattr)[0] == "-":
             self.prec = 6
 
@@ -726,7 +735,7 @@ class NonterminalActions:
         self.write(")")
         self.prune()
 
-    n_generator_exp_async = n_generator_exp
+    n_genexpr_func = n_generator_exp_async = n_generator_exp
 
     def n_ifelsestmtr(self, node):
         if node[2] == "COME_FROM":
@@ -806,7 +815,7 @@ class NonterminalActions:
         self.make_function(node, is_lambda=True, code_node=node[-2])
         self.prune()  # stop recursing
 
-    def n_list(self, node):
+    def n_list(self, node: SyntaxTree):
         """
         prettyprint a dict, list, set or tuple.
         """
@@ -837,13 +846,16 @@ class NonterminalActions:
         if lastnodetype.startswith("BUILD_LIST"):
             self.write("[")
             endchar = "]"
+
         elif lastnodetype.startswith("BUILD_MAP_UNPACK"):
             self.write("{*")
             endchar = "}"
+
         elif lastnodetype.startswith("BUILD_SET"):
             self.write("{")
             endchar = "}"
-        elif lastnodetype.startswith("BUILD_TUPLE"):
+
+        elif lastnodetype.startswith("BUILD_TUPLE") or node == "tuple":
             # Tuples can appear places that can NOT
             # have parenthesis around them, like array
             # subscripts. We check for that by seeing
@@ -864,6 +876,7 @@ class NonterminalActions:
         elif lastnodetype.startswith("ROT_TWO"):
             self.write("(")
             endchar = ")"
+
         else:
             raise TypeError(
                 "Internal Error: n_build_list expects list, tuple, set, or unpack"
@@ -902,7 +915,7 @@ class NonterminalActions:
         self.prune()
         return
 
-    n_set = n_tuple = n_build_set = n_list
+    n_set = n_build_set = n_tuple = n_list
 
     def n_list_comp(self, node):
         """List comprehensions"""
