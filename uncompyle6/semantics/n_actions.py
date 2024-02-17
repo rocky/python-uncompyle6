@@ -48,7 +48,7 @@ class NonterminalActions:
         self.prec = 1000
         self.in_format_string = False
 
-    def n_alias(self, node: SyntaxTree):
+    def n_alias(self, node):
         if self.version <= (2, 1):
             if len(node) == 2:
                 store = node[1]
@@ -73,7 +73,7 @@ class NonterminalActions:
 
     n_alias37 = n_alias
 
-    def n_assign(self, node: SyntaxTree):
+    def n_assign(self, node):
         # A horrible hack for Python 3.0 .. 3.2
         if (3, 0) <= self.version <= (3, 2) and len(node) == 2:
             if (
@@ -84,19 +84,19 @@ class NonterminalActions:
                 self.prune()
         self.default(node)
 
-    def n_assign2(self, node: SyntaxTree):
+    def n_assign2(self, node):
         for n in node[-2:]:
             if n[0] == "unpack":
                 n[0].kind = "unpack_w_parens"
         self.default(node)
 
-    def n_assign3(self, node: SyntaxTree):
+    def n_assign3(self, node):
         for n in node[-3:]:
             if n[0] == "unpack":
                 n[0].kind = "unpack_w_parens"
         self.default(node)
 
-    def n_attribute(self, node: SyntaxTree):
+    def n_attribute(self, node):
         if node[0] == "LOAD_CONST" or node[0] == "expr" and node[0][0] == "LOAD_CONST":
             # FIXME: I didn't record which constants parenthesis is
             # necessary. However, I suspect that we could further
@@ -106,7 +106,7 @@ class NonterminalActions:
             node.kind = "attribute_w_parens"
         self.default(node)
 
-    def n_bin_op(self, node: SyntaxTree):
+    def n_bin_op(self, node):
         """bin_op (formerly "binary_expr") is the Python AST BinOp"""
         self.preorder(node[0])
         self.write(" ")
@@ -118,7 +118,7 @@ class NonterminalActions:
         self.prec += 1
         self.prune()
 
-    def n_build_slice2(self, node: SyntaxTree):
+    def n_build_slice2(self, node):
         p = self.prec
         self.prec = NO_PARENTHESIS_EVER
         if not node[0].isNone():
@@ -129,7 +129,7 @@ class NonterminalActions:
         self.prec = p
         self.prune()  # stop recursing
 
-    def n_build_slice3(self, node: SyntaxTree):
+    def n_build_slice3(self, node):
         p = self.prec
         self.prec = NO_PARENTHESIS_EVER
         if not node[0].isNone():
@@ -143,7 +143,7 @@ class NonterminalActions:
         self.prec = p
         self.prune()  # stop recursing
 
-    def n_classdef(self, node: SyntaxTree):
+    def n_classdef(self, node):
         if self.version >= (3, 6):
             self.n_classdef36(node)
         elif self.version >= (3, 0):
@@ -206,7 +206,7 @@ class NonterminalActions:
 
     n_classdefdeco2 = n_classdef
 
-    def n_const_list(self, node: SyntaxTree):
+    def n_const_list(self, node):
         """
         prettyprint a constant dict, list, set or tuple.
         """
@@ -300,7 +300,7 @@ class NonterminalActions:
         self.prune()
         return
 
-    def n_delete_subscript(self, node: SyntaxTree):
+    def n_delete_subscript(self, node):
         if node[-2][0] == "build_list" and node[-2][0][-1].kind.startswith(
             "BUILD_TUPLE"
         ):
@@ -310,7 +310,7 @@ class NonterminalActions:
 
     n_store_subscript = n_subscript = n_delete_subscript
 
-    def n_dict(self, node: SyntaxTree):
+    def n_dict(self, node):
         """
         Prettyprint a dict.
         'dict' is something like k = {'a': 1, 'b': 42}"
@@ -599,7 +599,7 @@ class NonterminalActions:
             self.println(lines[-1], quote)
         self.prune()
 
-    def n_elifelsestmtr(self, node: SyntaxTree):
+    def n_elifelsestmtr(self, node):
         if node[2] == "COME_FROM":
             return_stmts_node = node[3]
             node.kind = "elifelsestmtr2"
@@ -630,7 +630,7 @@ class NonterminalActions:
         self.indent_less()
         self.prune()
 
-    def n_except_cond2(self, node: SyntaxTree):
+    def n_except_cond2(self, node):
         if node[-1] == "come_from_opt":
             unpack_node = -3
         else:
@@ -644,7 +644,7 @@ class NonterminalActions:
     # FIXME: figure out how to get this into customization
     # put so that we can get access via super from
     # the fragments routine.
-    def n_exec_stmt(self, node: SyntaxTree):
+    def n_exec_stmt(self, node):
         """
         exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
         exec_stmt ::= expr exprlist EXEC_STMT
@@ -814,7 +814,7 @@ class NonterminalActions:
         self.make_function(node, is_lambda=True, code_node=node[-2])
         self.prune()  # stop recursing
 
-    def n_list(self, node: SyntaxTree):
+    def n_list(self, node):
         """
         prettyprint a dict, list, set or tuple.
         """
