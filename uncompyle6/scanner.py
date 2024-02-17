@@ -662,7 +662,7 @@ def prefer_double_quote(string: str) -> str:
     single quoted string when possible
     """
     if string.find("'") == -1:
-        return f'"{string}"'
+        return '"%s"' % string
     return repr(string)
 
 
