@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2023 by Rocky Bernstein
+#  Copyright (c) 2017-2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -14,9 +14,11 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Constants and initial table values used in pysource.py and fragments.py"""
 
-import re, sys
+import re
+import sys
+
 from uncompyle6.parsers.treenode import SyntaxTree
-from uncompyle6.scanners.tok import Token, NoneToken
+from uncompyle6.scanners.tok import NoneToken, Token
 
 minint = -sys.maxint - 1
 maxint = sys.maxint
@@ -45,6 +47,7 @@ maxint = sys.maxint
 # call((.. op ..)).
 
 NO_PARENTHESIS_EVER = 100
+PARENTHESIS_ALWAYS = -2
 
 # fmt: off
 PRECEDENCE = {

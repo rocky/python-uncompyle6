@@ -39,8 +39,9 @@ import xdis
 import xdis.opcodes.opcode_33 as op3
 from xdis import Instruction, instruction_size, iscode
 from xdis.bytecode import _get_const_info
+from xdis.opcodes.opcode_3x import parse_fn_counts_30_35
 
-from uncompyle6.scanner import CONST_COLLECTIONS, Scanner, parse_fn_counts_30_35
+from uncompyle6.scanner import CONST_COLLECTIONS, Scanner, prefer_double_quote
 from uncompyle6.scanners.tok import Token
 from uncompyle6.util import get_code_name
 
@@ -596,6 +597,7 @@ class Scanner3(Scanner):
                     pattr = "<code_object " + const.co_name + ">"
                 elif isinstance(const, str) or isinstance(const, unicode):
                     opname = "LOAD_STR"
+                    pattr = prefer_double_quote(inst.argval)
                 else:
                     if isinstance(inst.arg, int) and inst.arg < len(co.co_consts):
                         argval, _ = _get_const_info(inst.arg, co.co_consts)
