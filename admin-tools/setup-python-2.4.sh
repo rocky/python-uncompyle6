@@ -19,11 +19,7 @@ function checkout_version {
     return $?
 }
 
-function finish {
-  cd $owd
-}
 owd=$(pwd)
-trap finish EXIT
 
 export PATH=$HOME/.pyenv/bin/pyenv:$PATH
 
@@ -34,4 +30,4 @@ fulldir=$(readlink -f $mydir)
 
 git pull
 rm -v */.python-version || true
-finish
+cd $owd
