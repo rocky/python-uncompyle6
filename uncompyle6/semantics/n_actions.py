@@ -39,6 +39,7 @@ class NonterminalActions:
         # parenthesis surrounding it. A high value indicates no
         # parenthesis are needed.
         self.prec = 1000
+        self.in_format_string = False
 
     def n_alias(self, node):
         if self.version <= (2, 1):
