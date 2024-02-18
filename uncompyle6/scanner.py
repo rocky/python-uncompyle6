@@ -649,16 +649,6 @@ def get_scanner(version: Union[str, tuple], is_pypy=False, show_asm=None) -> Sca
     return scanner
 
 
-def prefer_double_quote(string: str) -> str:
-    """
-    Prefer a double quoted string over a
-    single quoted string when possible
-    """
-    if string[1:-1].find('"') == -1:
-        return f'"{string[1:-1]}"'
-    return string
-
-
 if __name__ == "__main__":
     import inspect
 
