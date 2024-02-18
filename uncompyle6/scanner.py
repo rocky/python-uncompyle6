@@ -654,8 +654,8 @@ def prefer_double_quote(string: str) -> str:
     Prefer a double quoted string over a
     single quoted string when possible
     """
-    if string.find("'") == -1 and not string.startswith("'''"):
-        return f'"{string[1:-2]}"'
+    if string[1:-1].find('"') == -1:
+        return f'"{string[1:-1]}"'
     return string
 
 
