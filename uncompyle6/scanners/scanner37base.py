@@ -386,7 +386,7 @@ class Scanner37Base(Scanner):
                     pattr = "<code_object " + const.co_name + ">"
                 elif isinstance(const, str):
                     opname = "LOAD_STR"
-                    pattr = prefer_double_quote(inst.argval)
+                    pattr = prefer_double_quote(inst.argrepr)
                 else:
                     if isinstance(inst.arg, int) and inst.arg < len(co.co_consts):
                         argval, _ = _get_const_info(inst.arg, co.co_consts)

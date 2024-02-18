@@ -24,7 +24,7 @@ scanners, e.g. for Python 2.7 or 3.4.
 from array import array
 from collections import namedtuple
 from types import ModuleType
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
 import xdis
 from xdis import (
@@ -654,9 +654,9 @@ def prefer_double_quote(string: str) -> str:
     Prefer a double quoted string over a
     single quoted string when possible
     """
-    if string.find("'") == -1:
-        return f'"{string}"'
-    return repr(string)
+    if string.find("'") == -1 and not string.startswith("'''"):
+        return f'"{string[1:-2]}"'
+    return string
 
 
 if __name__ == "__main__":
