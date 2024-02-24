@@ -133,7 +133,7 @@ import sys
 from io import StringIO
 
 from spark_parser import GenericASTTraversal
-from xdis import COMPILER_FLAG_BIT, iscode
+from xdis import COMPILER_FLAG_BIT, IS_PYPY, iscode
 from xdis.version_info import PYTHON_VERSION_TRIPLE
 
 from uncompyle6.parser import get_python_parser, parse
@@ -148,6 +148,7 @@ from uncompyle6.semantics.consts import (
     MAP,
     MAP_DIRECT,
     NAME_MODULE,
+    NO_PARENTHESIS_EVER,
     NONE,
     PASS,
     PRECEDENCE,
@@ -188,8 +189,6 @@ PARSER_DEFAULT_DEBUG = {
     "dups": False,
 }
 
-IS_PYPY = "__pypy__" in sys.builtin_module_names
-
 TREE_DEFAULT_DEBUG = {"before": False, "after": False}
 
 DEFAULT_DEBUG_OPTS = {
@@ -209,7 +208,7 @@ class SourceWalkerError(Exception):
 
 class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
     """
-    Class to traverses a Parse Tree of the bytecode instruction built from parsing to
+    Class to traverse a Parse Tree of the bytecode instruction built from parsing to
     produce some sort of source text.
     The Parse tree may be turned an Abstract Syntax tree as an intermediate step.
     """
@@ -266,27 +265,32 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             is_pypy=is_pypy,
         )
 
-        self.ast_errors = []
-        self.currentclass = None
-        self.classes = []
-        self.debug_parser = dict(debug_parser)
-        self.line_number = 1
-        self.linemap = {}
-        self.params = params
-        self.param_stack = []
         self.ERROR = None
-        self.prec = 100
-        self.return_none = False
-        self.mod_globs = set()
-        self.showast = showast
-        self.pending_newlines = 0
+        self.ast_errors = []
+        self.classes = []
+        self.compile_mode = compile_mode
+        self.currentclass = None
+        self.debug_parser = dict(debug_parser)
+        self.is_pypy = is_pypy
+        self.linemap = {}
+        self.line_number = 1
         self.linestarts = linestarts
+        self.mod_globs = set()
+        self.name = None
+        self.offset2inst_index = scanner.offset2inst_index
+        self.param_stack = []
+        self.params = params
+        self.pending_newlines = 0
+        self.prec = NO_PARENTHESIS_EVER
+        self.return_none = False
+        self.showast = showast
+        self.version = version
+
         self.treeTransform = TreeTransform(version=self.version, show_ast=showast)
 
         # FIXME: have p.insts update in a better way
         # modularity is broken here
         self.insts = scanner.insts
-        self.offset2inst_index = scanner.offset2inst_index
 
         # Initialize p_lambda on demand
         self.p_lambda = None
@@ -311,10 +315,6 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         # An example is:
         # __module__ = __name__
         self.hide_internal = True
-        self.compile_mode = compile_mode
-        self.name = None
-        self.version = version
-        self.is_pypy = is_pypy
         customize_for_version(self, is_pypy, version)
         return
 

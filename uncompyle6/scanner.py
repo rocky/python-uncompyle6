@@ -656,16 +656,6 @@ def get_scanner(version, is_pypy=False, show_asm=None):
     return scanner
 
 
-def prefer_double_quote(string: str) -> str:
-    """
-    Prefer a double quoted string over a
-    single quoted string when possible
-    """
-    if string.find("'") == -1:
-        return '"%s"' % string
-    return repr(string)
-
-
 if __name__ == "__main__":
     import inspect
 
