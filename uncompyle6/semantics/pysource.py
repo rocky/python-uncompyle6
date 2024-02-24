@@ -134,7 +134,7 @@ import sys
 from spark_parser import GenericASTTraversal
 from StringIO import StringIO
 from xdis import COMPILER_FLAG_BIT, iscode
-from xdis.version_info import PYTHON_VERSION_TRIPLE
+from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
 
 from uncompyle6.parser import get_python_parser, parse
 from uncompyle6.parsers.treenode import SyntaxTree
