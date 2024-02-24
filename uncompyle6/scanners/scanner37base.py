@@ -38,7 +38,7 @@ import xdis.opcodes.opcode_37 as op3
 from xdis import Instruction, instruction_size, iscode
 from xdis.bytecode import _get_const_info
 
-from uncompyle6.scanner import Scanner, Token, prefer_double_quote
+from uncompyle6.scanner import Scanner, Token
 
 globals().update(op3.opmap)
 
@@ -290,20 +290,21 @@ class Scanner37Base(Scanner):
                     # but the operator and operand properties come from the other
                     # instruction
                     self.insts[i] = Instruction(
-                        jump_inst.opname,
-                        jump_inst.opcode,
-                        jump_inst.optype,
-                        jump_inst.inst_size,
-                        jump_inst.arg,
-                        jump_inst.argval,
-                        jump_inst.argrepr,
-                        jump_inst.has_arg,
-                        inst.offset,
-                        inst.starts_line,
-                        inst.is_jump_target,
-                        inst.has_extended_arg,
-                        None,
-                        None,
+                        opcode=jump_inst.opcode,
+                        opname=jump_inst.opname,
+                        arg=jump_inst.arg,
+                        argval=jump_inst.argval,
+                        argrepr=jump_inst.argrepr,
+                        offset=inst.offset,
+                        starts_line=inst.starts_line,
+                        is_jump_target=inst.is_jump_target,
+                        positions=None,
+                        optype=jump_inst.optype,
+                        has_arg=jump_inst.has_arg,
+                        inst_size=jump_inst.inst_size,
+                        has_extended_arg=inst.has_extended_arg,
+                        tos_str=None,
+                        start_offset=None,
                     )
 
         # Get jump targets
@@ -383,7 +384,6 @@ class Scanner37Base(Scanner):
                     pattr = "<code_object " + const.co_name + ">"
                 elif isinstance(const, str):
                     opname = "LOAD_STR"
-                    pattr = prefer_double_quote(inst.argval)
                 else:
                     if isinstance(inst.arg, int) and inst.arg < len(co.co_consts):
                         argval, _ = _get_const_info(inst.arg, co.co_consts)
@@ -935,7 +935,7 @@ class Scanner37Base(Scanner):
 if __name__ == "__main__":
     from xdis.version_info import PYTHON_VERSION_TRIPLE, version_tuple_to_str
 
-    if PYTHON_VERSION_TRIPLE[:2] == (3, 7):
+    if (3, 7) <= PYTHON_VERSION_TRIPLE[:2] < (3, 9):
         import inspect
 
         co = inspect.currentframe().f_code  # type: ignore
