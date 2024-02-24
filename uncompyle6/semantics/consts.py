@@ -136,7 +136,7 @@ ASSIGN_DOC_STRING = lambda doc_string, doc_load: SyntaxTree(
         SyntaxTree(
             "expr", [Token(doc_load, pattr=doc_string, attr=doc_string)]
         ),
-        SyntaxTree("store", [Token("STORE_NAME", pattr="__doc__")]),
+        SyntaxTree("store", [Token("STORE_NAME", pattr="__doc__", optype="name")]),
     ],
 )
 
@@ -148,10 +148,10 @@ NAME_MODULE = SyntaxTree(
     "assign",
     [
         SyntaxTree(
-            "expr", [Token("LOAD_NAME", pattr="__name__", offset=0, has_arg=True)]
+            "expr", [Token("LOAD_NAME", pattr="__name__", offset=0, has_arg=True, optype="name")]
         ),
         SyntaxTree(
-            "store", [Token("STORE_NAME", pattr="__module__", offset=3, has_arg=True)]
+            "store", [Token("STORE_NAME", pattr="__module__", offset=3, has_arg=True, optype="name")]
         ),
     ],
 )
