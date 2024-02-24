@@ -1,6 +1,6 @@
 SKIP_TESTS=(
     [test_ast.py]=1 # FIXME: Works on c90ff51
-    [test_cmath.py]=1  # FIXME: Works on c90ff51
+    [test_cmath.py]=1  # fails on its own
     [test_format.py]=1 # FIXME: Works on c90ff51
     [test_ftplib.py]=1 # FIXME: Works on c90ff51
     [test_slice.py]=1 # FIXME: Works on c90ff51
