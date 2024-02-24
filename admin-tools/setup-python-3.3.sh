@@ -1,6 +1,5 @@
 #!/bin/bash
 # Check out python-3.3-to-3.5 and dependent development branches.
-set -e
 PYTHON_VERSION=3.3.7
 
 bs=${BASH_SOURCE[0]}
