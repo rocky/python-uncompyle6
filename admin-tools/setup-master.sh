@@ -1,6 +1,5 @@
 #!/bin/bash
 # Check out master branch and dependent development master branches
-set -e
 PYTHON_VERSION=3.8.18
 
 bs=${BASH_SOURCE[0]}
