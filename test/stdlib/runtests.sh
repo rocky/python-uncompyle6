@@ -191,7 +191,11 @@ if [[ -n $1 ]] ; then
     files=$@
     typeset -a files_ary=( $(echo $@) )
     if (( ${#files_ary[@]} == 1 || DONT_SKIP_TESTS == 1 )) ; then
-	SKIP_TESTS=()
+	for file in $files; do
+	    if (( SKIP_TESTS[$file] != "pytest" )); then
+	       SKIP_TESTS[$file] = 1;
+	    fi
+	done
     fi
 else
     files=$(echo test_*.py)
@@ -205,9 +209,14 @@ NOT_INVERTED_TESTS=${NOT_INVERTED_TESTS:-1}
 for file in $files; do
     # AIX bash doesn't grok [[ -v SKIP... ]]
     [[ -z ${SKIP_TESTS[$file]} ]] && SKIP_TESTS[$file]=0
-    if [[ ${SKIP_TESTS[$file]} == ${NOT_INVERTED_TESTS} ]] ; then
-	((skipped++))
-	continue
+
+    if [[ ${SKIP_TESTS[$file]} == "pytest" ]]; then
+	PYTHON=pytest
+    else
+	if [[ ${SKIP_TESTS[$file]}s == ${NOT_INVERTED_TESTS} ]] ; then
+	    ((skipped++))
+	    continue
+	fi
     fi
 
     # If the fails *before* decompiling, skip it!
