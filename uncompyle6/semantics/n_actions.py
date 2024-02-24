@@ -277,9 +277,8 @@ class NonterminalActions:
                         value = elem.attr
                     elif elem.optype == "const" and not isinstance(elem.attr, str):
                         value = elem.attr
->>>>>>> python-3.0-to-3.2
                     else:
-                        value = "%s" % repr(elem.attr)
+                        value = "%s" % repr(elem.pattr)
                 else:
                     assert elem.kind == "ADD_VALUE_VAR"
                     value = "%s" % elem.pattr
