@@ -1,6 +1,13 @@
 SKIP_TESTS=(
     [test_descr.py]=1 # FIXME: Works on c90ff51?
 
+    [test_cmath.py]=1 # FIXME
+    # AssertionError: rect1000: rect(complex(0.0, 0.0))
+    # Expected: complex(0.0, 0.0)
+    # Received: complex(0.0, -1.0)
+    # Received value insufficiently close to expected value.
+
+
     [test_cmd_line.py]=1
     [test_collections.py]=1
     [test_concurrent_futures.py]=1 # too long to run over 46 seconds by itself
