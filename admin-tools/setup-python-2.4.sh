@@ -1,7 +1,6 @@
 #!/bin/bash
 # Check out python-2.4-to-2.7 and dependent development branches.
 
-set -e
 PYTHON_VERSION=2.4.6
 
 bs=${BASH_SOURCE[0]}
