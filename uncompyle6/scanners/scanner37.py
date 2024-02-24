@@ -89,6 +89,7 @@ class Scanner37(Scanner37Base):
                 has_arg=True,
                 has_extended_arg=False,
                 opc=self.opc,
+                optype=None,
             )
         )
         for j in range(collection_start, i):
@@ -102,6 +103,7 @@ class Scanner37(Scanner37Base):
                     has_arg=True,
                     has_extended_arg=False,
                     opc=self.opc,
+                    optype=tokens[j].optype,
                 )
             )
         new_tokens.append(

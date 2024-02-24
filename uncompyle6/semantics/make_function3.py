@@ -340,7 +340,6 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
         - handle format tuple parameters
         """
         value = self.traverse(default, indent="")
-        maybe_show_tree_param_default(self.showast, name, value)
         if annotation:
             result = "%s: %s=%s" % (name, annotation, value)
         else:

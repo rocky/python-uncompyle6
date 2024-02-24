@@ -17,19 +17,25 @@
 All the crazy things we have to do to handle Python functions in Python before 3.0.
 The saga of changes continues in 3.0 and above and in other files.
 """
-from uncompyle6.scanner import Code
-from uncompyle6.semantics.parser_error import ParserError
+from itertools import zip_longest
+
+from xdis import code_has_star_arg, code_has_star_star_arg, iscode
+
 from uncompyle6.parser import ParserError as ParserError2
+from uncompyle6.scanner import Code
 from uncompyle6.semantics.helper import (
-    print_docstring,
     find_all_globals,
     find_globals_and_nonlocals,
     find_none,
+    print_docstring,
     zip_longest
 )
 from xdis import iscode, code_has_star_arg, code_has_star_star_arg
 
+)
+from uncompyle6.semantics.parser_error import ParserError
 from uncompyle6.show import maybe_show_tree_param_default
+
 
 def make_function2(self, node, is_lambda, nested=1, code_node=None):
     """
@@ -39,8 +45,8 @@ def make_function2(self, node, is_lambda, nested=1, code_node=None):
 
     def build_param(ast, name, default):
         """build parameters:
-            - handle defaults
-            - handle format tuple parameters
+        - handle defaults
+        - handle format tuple parameters
         """
         # if formal parameter is a tuple, the paramater name
         # starts with a dot (eg. '.1', '.2')
@@ -51,7 +57,6 @@ def make_function2(self, node, is_lambda, nested=1, code_node=None):
 
         if default:
             value = self.traverse(default, indent="")
-            maybe_show_tree_param_default(self.showast, name, value)
             result = "%s=%s" % (name, value)
             if result[-2:] == "= ":  # default was 'LOAD_CONST None'
                 result += "None"
@@ -198,5 +203,5 @@ def make_function2(self, node, is_lambda, nested=1, code_node=None):
         ast, code.co_name, code._customize, is_lambda=is_lambda, returnNone=rn
     )
 
-    code._tokens = None # save memory
+    code._tokens = None  # save memory
     code._customize = None  # save memory
