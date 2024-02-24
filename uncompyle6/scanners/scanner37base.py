@@ -355,6 +355,7 @@ class Scanner37Base(Scanner):
                             has_arg=True,
                             opc=self.opc,
                             has_extended_arg=False,
+                            optype=inst.optype,
                         ),
                     )
                     jump_idx += 1
@@ -426,6 +427,7 @@ class Scanner37Base(Scanner):
                         has_arg=inst.has_arg,
                         opc=self.opc,
                         has_extended_arg=inst.has_extended_arg,
+                        optype=inst.optype,
                     ),
                 )
                 continue
@@ -527,6 +529,7 @@ class Scanner37Base(Scanner):
                     has_arg=inst.has_arg,
                     opc=self.opc,
                     has_extended_arg=inst.has_extended_arg,
+                    optype=inst.optype,
                 ),
             )
             pass

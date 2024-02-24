@@ -61,17 +61,19 @@ class Token:
         opname,
         attr=None,
         pattr=None,
-        offset:Union[int, str]=-1,
+        offset: Union[int, str] = -1,
         linestart=None,
         op=None,
         has_arg=None,
         opc=None,
         has_extended_arg=False,
+        optype=None,
     ):
         self.kind = intern(opname)
         self.has_arg = has_arg
         self.attr = attr
         self.pattr = pattr
+        self.optype = optype
         if has_extended_arg:
             self.offset = "%d_%d" % (offset, offset + 2)
         else:
@@ -107,8 +109,8 @@ class Token:
             self.op = op
 
     def __eq__(self, o):
-        """ '==' on kind and "pattr" attributes.
-            It is okay if offsets and linestarts are different"""
+        """'==' on kind and "pattr" attributes.
+        It is okay if offsets and linestarts are different"""
         if isinstance(o, Token):
             return (self.kind == o.kind) and (
                 (self.pattr == o.pattr) or self.attr == o.attr
@@ -118,7 +120,7 @@ class Token:
             return self.kind == o
 
     def __ne__(self, o):
-        """ '!=', but it's okay if offsets and linestarts are different"""
+        """'!=', but it's okay if offsets and linestarts are different"""
         return not self.__eq__(o)
 
     def __repr__(self):

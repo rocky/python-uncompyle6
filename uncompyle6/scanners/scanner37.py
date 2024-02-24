@@ -24,11 +24,11 @@ scanner routine for Python 3.
 
 from typing import Tuple
 
-from uncompyle6.scanner import CONST_COLLECTIONS, Token
-from uncompyle6.scanners.scanner37base import Scanner37Base
-
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_37 as opc
+
+from uncompyle6.scanner import CONST_COLLECTIONS, Token
+from uncompyle6.scanners.scanner37base import Scanner37Base
 
 # bytecode verification, verify(), uses JUMP_OPS from here
 JUMP_OPs = opc.JUMP_OPS
@@ -90,6 +90,7 @@ class Scanner37(Scanner37Base):
                 has_arg=True,
                 has_extended_arg=False,
                 opc=self.opc,
+                optype=None,
             )
         )
         for j in range(collection_start, i):
@@ -103,6 +104,7 @@ class Scanner37(Scanner37Base):
                     has_arg=True,
                     has_extended_arg=False,
                     opc=self.opc,
+                    optype=tokens[j].optype,
                 )
             )
         new_tokens.append(

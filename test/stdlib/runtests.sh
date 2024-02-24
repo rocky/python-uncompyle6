@@ -189,7 +189,7 @@ if [[ -n $1 ]] ; then
     if (( ${#files_ary[@]} == 1 || DONT_SKIP_TESTS == 1 )) ; then
 	for file in $files; do
 	    if (( SKIP_TESTS[$file] != "pytest" )); then
-	       SKIP_TESTS[$file] = 1;
+	       SKIP_TESTS[$file]=1;
 	    fi
 	done
     fi
