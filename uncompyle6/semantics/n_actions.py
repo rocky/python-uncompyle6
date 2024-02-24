@@ -268,7 +268,7 @@ class NonterminalActions:
                     elem = elem[0]
                 if elem == "ADD_VALUE":
                     if self.version < (3, 0, 0):
-                        value = "%r" % elem.pattr
+                        value = "%r" % repr(elem.pattr)
                     else:
                         value = "%s" % str(elem.pattr)
                 else:

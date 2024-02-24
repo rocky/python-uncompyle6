@@ -306,6 +306,7 @@ class Scanner37Base(Scanner):
                         has_arg=jump_inst.has_arg,
                         inst_size=jump_inst.inst_size,
                         has_extended_arg=inst.has_extended_arg,
+                        fallthrough=False,
                         tos_str=None,
                         start_offset=None,
                     )
