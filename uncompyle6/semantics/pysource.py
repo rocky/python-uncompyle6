@@ -1267,7 +1267,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
 
         transform_tree = self.treeTransform.transform(ast, code)
 
-        self.maybe_show_tree(ast, phase="before")
+        self.maybe_show_tree(transform_tree, phase="after")
 
         del ast  # Save memory
         return transform_tree

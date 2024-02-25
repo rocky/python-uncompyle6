@@ -489,19 +489,9 @@ class TreeTransform(GenericASTTraversal, object):
                     self.ast[i] = self.ast[i][0]
 
                 if is_docstring(self.ast[i], self.version, code.co_consts):
-                    load_const = self.ast[i].first_child()
-                    docstring_ast = SyntaxTree(
-                        "docstring",
-                        [
-                            Token(
-                                "LOAD_STR",
-                                has_arg=True,
-                                offset=0,
-                                attr=load_const.attr,
-                                pattr=load_const.pattr,
-                            )
-                        ],
-                    )
+                    load_const = copy(self.ast[i].first_child())
+                    store_name = copy(self.ast[i].last_child())
+                    docstring_ast = SyntaxTree("docstring", [load_const, store_name])
                     docstring_ast.transformed_by = "transform"
                     del self.ast[i]
                     self.ast.insert(0, docstring_ast)

@@ -266,7 +266,7 @@ class Scanner3(Scanner):
                 has_arg=True,
                 has_extended_arg=False,
                 opc=self.opc,
-                optype=None,
+                optype="pseudo",
             )
         )
         for j in range(collection_start, i):
@@ -293,7 +293,7 @@ class Scanner3(Scanner):
                 has_arg=t.has_arg,
                 has_extended_arg=False,
                 opc=t.opc,
-                optype=None,
+                optype="pseudo",
             )
         )
         return new_tokens
@@ -342,7 +342,7 @@ class Scanner3(Scanner):
                 has_arg=True,
                 has_extended_arg=False,
                 opc=self.opc,
-                optype=None,
+                optype="pseudo",
             )
         )
         for j in range(collection_start, i, 2):
