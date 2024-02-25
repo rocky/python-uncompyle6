@@ -23,9 +23,9 @@ from xdis import co_flags_is_async, iscode
 
 from uncompyle6.parser import get_python_parser
 from uncompyle6.scanner import Code
+from uncompyle6.scanners.tok import Token
 from uncompyle6.semantics.consts import PRECEDENCE
 from uncompyle6.semantics.helper import is_lambda_mode
-from uncompyle6.scanners.tok import Token
 
 
 class ComprehensionMixin:
@@ -174,7 +174,10 @@ class ComprehensionMixin:
                 tree = tree[1]
             pass
 
-        if tree in ("genexpr_func", "genexpr_func_async",):
+        if tree in (
+            "genexpr_func",
+            "genexpr_func_async",
+        ):
             for i in range(3, 5):
                 if tree[i] == "comp_iter":
                     iter_index = i
@@ -332,8 +335,19 @@ class ComprehensionMixin:
             assert store == "store"
             n = set_iter_async[2]
         elif node == "list_comp" and tree[0] == "expr":
-            tree = tree[0][0]
-            n = tree[iter_index]
+            list_iter = None
+            for list_iter_try in tree:
+                if list_iter_try == "list_iter":
+                    list_iter = list_iter_try
+                    break
+                if not list_iter_try:
+                    tree = tree[0][0]
+                    n = tree[iter_index]
+                else:
+                    n = list_iter
+                    pass
+                pass
+            pass
         else:
             n = tree[iter_index]
 
@@ -407,6 +421,9 @@ class ComprehensionMixin:
                 n = n[0]
 
             if n in ("list_for", "comp_for"):
+                if n == "list_for" and not comp_for and n[0] == "expr":
+                    comp_for = n[0]
+
                 n_index = 3
                 if (
                     (n[2] == "store")
@@ -496,11 +513,21 @@ class ComprehensionMixin:
         if comp_for:
             self.preorder(comp_for)
         else:
+            try:
+                node[in_node_index]
+            except:
+                from trepan.api import debug
+
+                debug()
             self.preorder(node[in_node_index])
 
         # Here is where we handle nested list iterations.
         if tree == "list_comp" and self.version != (3, 0):
-            list_iter = tree[1]
+            list_iter = None
+            for list_iter_try in tree:
+                if list_iter_try == "list_iter":
+                    list_iter = list_iter_try
+                    break
             assert list_iter == "list_iter"
             if list_iter[0] == "list_for":
                 self.preorder(list_iter[0][3])
@@ -639,7 +666,6 @@ class ComprehensionMixin:
             # Find the list comprehension body. It is the inner-most
             # node that is not list_.. .
             while n == "list_iter":
-
                 # recurse one step
                 n = n[0]
 

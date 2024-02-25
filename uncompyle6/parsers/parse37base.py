@@ -2,11 +2,10 @@
 """
 Python 3.7 base code. We keep non-custom-generated grammar rules out of this file.
 """
-from uncompyle6.parser import ParserError, PythonParser, nop_func
-from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from spark_parser.spark import rule2str
 
+from uncompyle6.parser import ParserError, PythonParser, nop_func
 from uncompyle6.parsers.reducecheck import (
     and_invalid,
     ifelsestmt,
@@ -16,9 +15,10 @@ from uncompyle6.parsers.reducecheck import (
     or_check,
     testtrue,
     tryelsestmtl3,
-    while1stmt,
     while1elsestmt,
+    while1stmt,
 )
+from uncompyle6.parsers.treenode import SyntaxTree
 
 
 class Python37BaseParser(PythonParser):
@@ -54,7 +54,7 @@ class Python37BaseParser(PythonParser):
                         expr
                         call
                         CALL_FUNCTION_3
-         """
+        """
         # FIXME: I bet this can be simplified
         # look for next MAKE_FUNCTION
         for i in range(i + 1, len(tokens)):
@@ -104,7 +104,6 @@ class Python37BaseParser(PythonParser):
     # organization for this. For example, arrange organize by opcode base?
 
     def customize_grammar_rules(self, tokens, customize):
-
         is_pypy = False
 
         # For a rough break out on the first word. This may
@@ -348,7 +347,6 @@ class Python37BaseParser(PythonParser):
                 self.addRule(rule, nop_func)
 
             elif opname_base in ("BUILD_MAP", "BUILD_MAP_UNPACK"):
-
                 if opname == "BUILD_MAP_UNPACK":
                     self.addRule(
                         """
@@ -525,7 +523,6 @@ class Python37BaseParser(PythonParser):
                     "CALL_FUNCTION_VAR_KW",
                 )
             ) or opname.startswith("CALL_FUNCTION_KW"):
-
                 if opname == "CALL_FUNCTION" and token.attr == 1:
                     rule = """
                      expr         ::= dict_comp
@@ -720,7 +717,9 @@ class Python37BaseParser(PythonParser):
                 )
                 custom_ops_processed.add(opname)
             elif opname == "LOAD_LISTCOMP":
-                self.add_unique_rule("expr ::= listcomp", opname, token.attr, customize)
+                self.add_unique_rule(
+                    "expr ::= list_comp", opname, token.attr, customize
+                )
                 custom_ops_processed.add(opname)
             elif opname == "LOAD_NAME":
                 if (
@@ -799,7 +798,7 @@ class Python37BaseParser(PythonParser):
                             #   and have GET_ITER CALL_FUNCTION_1
                             # Todo: For Pypy we need to modify this slightly
                             rule_pat = (
-                                "listcomp ::= %sload_closure LOAD_LISTCOMP %%s%s expr "
+                                "list_comp ::= %sload_closure LOAD_LISTCOMP %%s%s expr "
                                 "GET_ITER CALL_FUNCTION_1"
                                 % ("pos_arg " * args_pos, opname)
                             )
@@ -897,14 +896,14 @@ class Python37BaseParser(PythonParser):
                         # 'exprs' in the rule above into a
                         # tuple.
                         rule_pat = (
-                            "listcomp ::= load_closure LOAD_LISTCOMP %%s%s "
+                            "list_comp ::= load_closure LOAD_LISTCOMP %%s%s "
                             "expr GET_ITER CALL_FUNCTION_1" % (opname,)
                         )
                         self.add_make_function_rule(
                             rule_pat, opname, token.attr, customize
                         )
                         rule_pat = (
-                            "listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
+                            "list_comp ::= %sLOAD_LISTCOMP %%s%s expr "
                             "GET_ITER CALL_FUNCTION_1" % ("expr " * args_pos, opname)
                         )
                         self.add_make_function_rule(
@@ -938,7 +937,7 @@ class Python37BaseParser(PythonParser):
                         #   and have GET_ITER CALL_FUNCTION_1
                         # Todo: For Pypy we need to modify this slightly
                         rule_pat = (
-                            "listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
+                            "list_comp ::= %sLOAD_LISTCOMP %%s%s expr "
                             "GET_ITER CALL_FUNCTION_1" % ("expr " * args_pos, opname)
                         )
                         self.add_make_function_rule(
@@ -1259,7 +1258,8 @@ class Python37BaseParser(PythonParser):
             if fn:
                 return fn(self, lhs, n, rule, ast, tokens, first, last)
         except Exception:
-            import sys, traceback
+            import sys
+            import traceback
 
             print(
                 f"Exception in {fn.__name__} {sys.exc_info()[1]}\n"

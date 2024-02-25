@@ -28,12 +28,12 @@ SKIP_TESTS=(
 
     # These and the above may be due to new code generation or tests
     # between 3.8.3 and 3.8.5 ?
-    [test_decorators.py]=1 #
+    [test_decorators.py]=1 # parse error
 
-    [test_dtrace.py]=1 #
-    [test_exceptions.py]=1 #
+    [test_dtrace.py]=1 # parse error
+    [test_exceptions.py]=1 # parse error
     [test_ftplib.py]=1 #
-    [test_gc.py]=1 #
+    [test_gc.py]=1 # FIXME: return                 return strip_python_stderr(stderr)
     [test_gzip.py]=1 #
     [test_hashlib.py]=1 #
     [test_iter.py]=1 #
@@ -51,7 +51,6 @@ SKIP_TESTS=(
     [test_audioop.py]=1  # test failure
     [test_audit.py]=1  # parse error
 
-    [test_base64.py]=1  # parse error
     [test_baseexception.py]=1  #
     [test_bigaddrspace.py]=1  # parse error
     [test_bigmem.py]=1  # parse error
