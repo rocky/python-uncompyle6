@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2021 by Rocky Bernstein
+#  Copyright (c) 2015-2021 2024 by Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -17,6 +17,7 @@
 All the crazy things we have to do to handle Python functions in Python before 3.0.
 The saga of changes continues in 3.0 and above and in other files.
 """
+
 from itertools import zip_longest
 
 from xdis import code_has_star_arg, code_has_star_star_arg, iscode
@@ -30,7 +31,6 @@ from uncompyle6.semantics.helper import (
     print_docstring,
 )
 from uncompyle6.semantics.parser_error import ParserError
-from uncompyle6.show import maybe_show_tree_param_default
 
 
 def make_function2(self, node, is_lambda, nested=1, code_node=None):
