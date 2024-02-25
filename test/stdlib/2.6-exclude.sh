@@ -18,6 +18,7 @@ SKIP_TESTS=(
 
     [test_cd.py]=1 # i# No module cl
     [test_cl.py]=1 # it fails on its own
+    [test_cmath.py]=pytest
     [test_codecmaps_cn.py]=1 # it fails on its own
     [test_codecmaps_jp.py]=1 # it fails on its own
     [test_codecmaps_kr.py]=1 # it fails on its own

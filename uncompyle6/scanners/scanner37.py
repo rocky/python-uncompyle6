@@ -89,7 +89,7 @@ class Scanner37(Scanner37Base):
                 has_arg=True,
                 has_extended_arg=False,
                 opc=self.opc,
-                optype=None,
+                optype="pseudo",
             )
         )
         for j in range(collection_start, i):
