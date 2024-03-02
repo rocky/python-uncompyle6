@@ -22,7 +22,6 @@ scanners, e.g. for Python 2.7 or 3.4.
 """
 
 import sys
-from abc import ABC
 from array import array
 from collections import namedtuple
 
@@ -109,7 +108,7 @@ class Code:
         self._tokens, self._customize = scanner.ingest(co, classname, show_asm=show_asm)
 
 
-class Scanner(ABC):
+class Scanner:
     def __init__(self, version: tuple, show_asm=None, is_pypy=False):
         self.version = version
         self.show_asm = show_asm

@@ -100,7 +100,7 @@ class ComprehensionMixin:
         self,
         node,
         iter_index,
-        code_index = -5,
+        code_index=-5,
     ):
         p = self.prec
         self.prec = PRECEDENCE["lambda_body"] - 1
