@@ -1085,7 +1085,9 @@ class Python3Parser(PythonParser):
                 )
                 custom_ops_processed.add(opname)
             elif opname == "LOAD_LISTCOMP":
-                self.add_unique_rule("expr ::= listcomp", opname, token.attr, customize)
+                self.add_unique_rule(
+                    "expr ::= list_comp", opname, token.attr, customize
+                )
                 custom_ops_processed.add(opname)
             elif opname == "LOAD_SETCOMP":
                 # Should this be generalized and put under MAKE_FUNCTION?
@@ -1154,7 +1156,7 @@ class Python3Parser(PythonParser):
                             #   and have GET_ITER CALL_FUNCTION_1
                             # Todo: For Pypy we need to modify this slightly
                             rule_pat = (
-                                "listcomp ::= %sload_closure LOAD_LISTCOMP %%s%s expr "
+                                "list_comp ::= %sload_closure LOAD_LISTCOMP %%s%s expr "
                                 "GET_ITER CALL_FUNCTION_1"
                                 % ("pos_arg " * pos_args_count, opname)
                             )
@@ -1348,14 +1350,14 @@ class Python3Parser(PythonParser):
                                 # 'exprs' in the rule above into a
                                 # tuple.
                                 rule_pat = (
-                                    "listcomp ::= load_closure LOAD_LISTCOMP %%s%s "
+                                    "list_comp ::= load_closure LOAD_LISTCOMP %%s%s "
                                     "expr GET_ITER CALL_FUNCTION_1" % (opname,)
                                 )
                                 self.add_make_function_rule(
                                     rule_pat, opname, token.attr, customize
                                 )
                             rule_pat = (
-                                "listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
+                                "list_comp ::= %sLOAD_LISTCOMP %%s%s expr "
                                 "GET_ITER CALL_FUNCTION_1"
                                 % ("expr " * pos_args_count, opname)
                             )
@@ -1399,7 +1401,7 @@ class Python3Parser(PythonParser):
                         #   and have GET_ITER CALL_FUNCTION_1
                         # Todo: For Pypy we need to modify this slightly
                         rule_pat = (
-                            "listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
+                            "list_comp ::= %sLOAD_LISTCOMP %%s%s expr "
                             "GET_ITER CALL_FUNCTION_1"
                             % ("expr " * pos_args_count, opname)
                         )

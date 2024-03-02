@@ -89,7 +89,7 @@ def long(num):
 CONST_COLLECTIONS = ("CONST_LIST", "CONST_SET", "CONST_DICT", "CONST_MAP")
 
 
-class Code(object):
+class Code:
     """
     Class for representing code-objects.
 
@@ -292,7 +292,13 @@ class Scanner:
             return False
         return offset < self.get_target(offset)
 
-    def prev_offset(self, offset):
+    def ingest(self, co, classname=None, code_objects={}, show_asm=None):
+        """
+        Code to tokenize disassembly. Subclasses must implement this.
+        """
+        raise NotImplementedError("This method should have been implemented")
+
+    def prev_offset(self, offset: int) -> int:
         return self.insts[self.offset2inst_index[offset] - 1].offset
 
     def get_inst(self, offset):

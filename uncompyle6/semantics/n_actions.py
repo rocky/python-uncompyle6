@@ -1036,7 +1036,7 @@ class NonterminalActions:
         self.prec = p
         self.prune()  # stop recursing
 
-    def n_listcomp(self, node):
+    def n_list_comp(self, node):
         self.write("[")
         if node[0].kind == "load_closure":
             assert self.version >= (3, 0)
