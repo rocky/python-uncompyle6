@@ -1,4 +1,4 @@
-#  Copyright (c) 2018-2023 by Rocky Bernstein
+#  Copyright (c) 2018-2021, 2023-2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -138,14 +138,10 @@ def customize_for_version3(self, version):
                 # Python 3.2 works like this
                 subclass_code = find_code_node(load_closure, -2).attr
             else:
-                raise "Internal Error n_classdef: cannot find class body"
-            if hasattr(build_class[3], "__len__"):
-                if not subclass_info:
-                    subclass_info = build_class[3]
-            elif hasattr(build_class[2], "__len__"):
-                subclass_info = build_class[2]
-            else:
-                raise "Internal Error n_classdef: cannot superclass name"
+                raise RuntimeError("Internal Error n_classdef: cannot find class body")
+
+            subclass_info = build_class
+
         elif not subclass_info:
             if mkfunc[0] in ("no_kwargs", "kwargs"):
                 subclass_code = mkfunc[1].attr
