@@ -266,10 +266,9 @@ class Scanner37Base(Scanner):
                 if (
                     next_inst.opname == "LOAD_GLOBAL"
                     and next_inst.argval == "AssertionError"
-                    and inst.argval
+                    and inst.argval is not None
                 ):
-                    raise_idx = self.offset2inst_index[self.prev_op[inst.argval]]
-                    raise_inst = self.insts[raise_idx]
+                    raise_inst = self.get_inst(self.prev_op[inst.argval])
                     if raise_inst.opname.startswith("RAISE_VARARGS"):
                         self.load_asserts.add(next_inst.offset)
                     pass
@@ -286,7 +285,7 @@ class Scanner37Base(Scanner):
             # some backward jumps, are turned into forward jumps to another
             # "extended arg" backward jump to the same location.
             if inst.opname == "JUMP_FORWARD":
-                jump_inst = self.insts[self.offset2inst_index[inst.argval]]
+                jump_inst = self.get_inst(inst.argval)
                 if jump_inst.has_extended_arg and jump_inst.opname.startswith("JUMP"):
                     # Create a combination of the jump-to instruction and
                     # this one. Keep the position information of this instruction,
