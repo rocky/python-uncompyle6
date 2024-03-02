@@ -17,6 +17,7 @@
 All the crazy things we have to do to handle Python functions in Python before 3.0.
 The saga of changes continues in 3.0 and above and in other files.
 """
+
 from xdis import code_has_star_arg, code_has_star_star_arg, iscode
 
 from uncompyle6.scanner import Code

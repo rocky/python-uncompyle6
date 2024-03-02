@@ -10,7 +10,7 @@ SKIP_TESTS=(
     #       tgt.append(elem)
     [test_itertools.py]=1
 
-    [test_buffer.py]=1  # FIXME: Works on c90ff51
+    [test_buffer.py]=pytest  # FIXME: Works on c90ff51
     [test_cmath.py]=pytest
 
     [test_atexit.py]=1  # The atexit test starting at 3.3 looks for specific comments in error lines

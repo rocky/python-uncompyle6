@@ -172,12 +172,8 @@ if ((IS_PYPY)); then
 else
     cp -r ${PYENV_ROOT}/versions/${PYVERSION}.${MINOR}/lib/python${PYVERSION}/test $TESTDIR
 fi
-if [[ $PYVERSION == 3.2 ]] ; then
-    cp ${PYENV_ROOT}/versions/${PYVERSION}.${MINOR}/lib/python${PYVERSION}/test/* $TESTDIR
-    cd $TESTDIR
-else
-    cd $TESTDIR/test
-fi
+cd $TESTDIR/test
+
 pyenv local $FULLVERSION
 export PYTHONPATH=$TESTDIR
 export PATH=${PYENV_ROOT}/shims:${PATH}
@@ -192,7 +188,7 @@ if [[ -n $1 ]] ; then
     typeset -a files_ary=( $(echo $@) )
     if (( ${#files_ary[@]} == 1 || DONT_SKIP_TESTS == 1 )) ; then
 	for file in $files; do
-	    if (( SKIP_TESTS[$file] != "pytest" )); then
+	    if (( SKIP_TESTS[$file] != "pytest" || SKIP_TESTS[$file] != "pytest_module" )); then
 	       SKIP_TESTS[$file]=1;
 	    fi
 	done
@@ -212,6 +208,8 @@ for file in $files; do
 
     if [[ ${SKIP_TESTS[$file]} == "pytest" ]]; then
 	PYTHON=pytest
+    elif [[ ${SKIP_TESTS[$file]} == "pytest_module" ]]; then
+	PYTHON="$PYTHON -m pytest"
     else
 	if [[ ${SKIP_TESTS[$file]}s == ${NOT_INVERTED_TESTS} ]] ; then
 	    ((skipped++))

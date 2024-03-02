@@ -52,7 +52,7 @@ class Scanner37(Scanner37Base):
         if collection_type == "CONST_DICT":
             # constant dictionaries work via BUILD_CONST_KEY_MAP and
             # handle the values() like sets and lists.
-            # However the keys() are an LOAD_CONST of the keys.
+            # However, the keys() are an LOAD_CONST of the keys.
             # adjust offset to account for this
             count += 1
 
@@ -89,7 +89,7 @@ class Scanner37(Scanner37Base):
                 has_arg=True,
                 has_extended_arg=False,
                 opc=self.opc,
-                optype=None,
+                optype="pseudo",
             )
         )
         for j in range(collection_start, i):
