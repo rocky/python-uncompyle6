@@ -26,7 +26,16 @@ SKIP_TESTS=(
 
     [test_dbm_gnu.py]=1   # fails on its own
     [test_devpoll.py]=1 # it fails on its own
+
     [test_descr.py]=1   # test assertion errors
+    # ERROR: test_reent_set_bases_on_base (__main__.MroTest)
+    # Traceback (most recent call last):
+    # File "test_descr.py", line 5521, in test_reent_set_bases_on_base
+    # class A(metaclass=M):
+    # File "test_descr.py", line 5472, in __new__
+    # return type.__new__(mcls, name, bases, attrs)
+    # TypeError: 'NoneType' object is not iterable
+
     [test_dis.py]=1   # We change line numbers - duh!
     [test_distutils.py]=1 # it fails on its own
     [test_doctest2.py]=1

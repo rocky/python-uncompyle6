@@ -10,7 +10,7 @@ SKIP_TESTS=(
     #       tgt.append(elem)
     [test_itertools.py]=1
 
-    [test_buffer.py]=pytest  # FIXME: Works on c90ff51
+    [test_buffer.py]=pytest
     [test_cmath.py]=pytest
 
     [test_atexit.py]=1  # The atexit test starting at 3.3 looks for specific comments in error lines
@@ -19,7 +19,6 @@ SKIP_TESTS=(
     [test_concurrent_futures.py]=1  # too long?
 
     [test_decimal.py]=1 # test takes too long to run: 18 seconds
-    [test_descr.py]=1  # test assertion errors
     [test_doctest.py]=1  # test assertion errors
     [test_doctest2.py]=1  # test assertion errors
     [test_dis.py]=1   # We change line numbers - duh!
