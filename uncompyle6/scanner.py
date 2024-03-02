@@ -297,7 +297,7 @@ class Scanner:
         """
         raise NotImplementedError("This method should have been implemented")
 
-    def prev_offset(self, offset: int) -> int:
+    def prev_offset(self, offset):
         return self.insts[self.offset2inst_index[offset] - 1].offset
 
     def get_inst(self, offset):

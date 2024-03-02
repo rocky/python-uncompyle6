@@ -25,11 +25,6 @@ If we succeed in creating a parse tree, then we have a Python program
 that a later phase can turn into a sequence of ASCII text.
 """
 
-from uncompyle6.parsers.reducecheck import (except_handler_else, ifelsestmt, tryelsestmt)
-from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
-from uncompyle6.parsers.treenode import SyntaxTree
-from __future__ import print_function
-
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
