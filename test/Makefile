@@ -115,7 +115,7 @@ check-bytecode-2:
 # FIXME: Until we shaked out problems with xdis...
 check-bytecode-3:
 	$(PYTHON) test_pythonlib.py \
-	--bytecode-3.4 --bytecode-3.5 --bytecode-3.6 \
+	--bytecode-3.3 --bytecode-3.4 --bytecode-3.5 --bytecode-3.6 \
         --bytecode-3.7  --bytecode-3.8
 
 #: Check deparsing on selected bytecode 3.x
