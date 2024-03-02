@@ -21,6 +21,7 @@ scanner/ingestion module. From here we call various version-specific
 scanners, e.g. for Python 2.7 or 3.4.
 """
 
+from abc import ABC
 from array import array
 from collections import namedtuple
 from types import ModuleType
@@ -89,7 +90,7 @@ def long(num):
 CONST_COLLECTIONS = ("CONST_LIST", "CONST_SET", "CONST_DICT", "CONST_MAP")
 
 
-class Code(object):
+class Code:
     """
     Class for representing code-objects.
 
@@ -108,7 +109,7 @@ class Code(object):
         self._tokens, self._customize = scanner.ingest(co, classname, show_asm=show_asm)
 
 
-class Scanner:
+class Scanner(ABC):
     def __init__(self, version: tuple, show_asm=None, is_pypy=False):
         self.version = version
         self.show_asm = show_asm
@@ -293,18 +294,51 @@ class Scanner:
             return False
         return offset < self.get_target(offset)
 
+    def ingest(self, co, classname=None, code_objects={}, show_asm=None):
+        """
+        Code to tokenize disassembly. Subclasses must implement this.
+        """
+        raise NotImplementedError("This method should have been implemented")
+
     def prev_offset(self, offset: int) -> int:
         return self.insts[self.offset2inst_index[offset] - 1].offset
 
     def get_inst(self, offset: int):
-        # Instructions can get moved as a result of EXTENDED_ARGS removal.
-        # So if "offset" is not in self.offset2inst_index, then
-        # we assume that it was an instruction moved back.
-        # We check that assumption though by looking at
-        # self.code's opcode.
+        """
+        Returns the instruction from ``self.insts`` that has at offset
+        ``offset``.
+
+        Instructions can get moved as a result of ``EXTENDED_ARGS`` removal.
+        So if ``offset`` is not in self.offset2inst_index, then
+        we assume that it was an instruction moved back.
+        We check that assumption though by looking at
+        self.code's opcode.
+        Sadly instructions can get moved forward too.
+        So we have to check which direction we are going.
+        """
+        offset_increment = instruction_size(self.opc.EXTENDED_ARG, self.opc)
         if offset not in self.offset2inst_index:
-            offset -= instruction_size(self.opc.EXTENDED_ARG, self.opc)
-            assert self.code[offset] == self.opc.EXTENDED_ARG
+            if self.code[offset] != self.opc.EXTENDED_ARG:
+                target_name = self.opc.opname[self.code[offset]]
+                # JUMP_ABSOLUTE can be like this where
+                # the inst offset is at what used to be an EXTENDED_ARG
+                # so find the first extended arg.
+                next_offset = offset - offset_increment
+                while next_offset not in self.offset2inst_index:
+                    next_offset -= offset_increment
+                    assert self.code[next_offset] == self.opc.EXTENDED_ARG
+                inst = self.insts[self.offset2inst_index[next_offset]]
+                assert inst.opname == target_name, inst
+            else:
+                next_offset = offset + offset_increment
+                while next_offset not in self.offset2inst_index:
+                    next_offset += offset_increment
+
+                inst = self.insts[self.offset2inst_index[next_offset]]
+
+            assert inst.has_extended_arg is True
+            return inst
+
         return self.insts[self.offset2inst_index[offset]]
 
     def get_target(self, offset: int, extended_arg: int = 0) -> int:
@@ -446,7 +480,7 @@ class Scanner:
                         pass
                     pass
                 pass
-            if inst.offset >= end:
+            if isinstance(inst, int) and inst.offset >= end:
                 break
             pass
 
