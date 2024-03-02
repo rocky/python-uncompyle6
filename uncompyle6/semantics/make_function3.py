@@ -21,6 +21,7 @@ from xdis import CO_GENERATOR, code_has_star_arg, code_has_star_star_arg, iscode
 from uncompyle6.parser import ParserError as ParserError2
 from uncompyle6.parsers.treenode import SyntaxTree
 from uncompyle6.scanner import Code
+from uncompyle6.scanners.tok import Token
 from uncompyle6.semantics.helper import (
     find_all_globals,
     find_globals_and_nonlocals,
@@ -451,13 +452,6 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
         defparams = node[: args_node.attr]
         kw_args = 0
         pass
-
-    if 3.0 <= self.version <= 3.2:
-        lambda_index = -2
-    elif 3.03 <= self.version:
-        lambda_index = -3
-    else:
-        lambda_index = None
 
     if lambda_index and is_lambda and iscode(node[lambda_index].attr):
         assert node[lambda_index].kind == "LOAD_LAMBDA"
