@@ -310,21 +310,22 @@ class TreeTransform(GenericASTTraversal, object):
             n = n[0][0]
         elif len_n == 0:
             return node
-        elif n[0].kind in ("lastc_stmt", "lastl_stmt"):
+
+        if n[0].kind in ("lastc_stmt", "lastl_stmt"):
             n = n[0]
-            if n[0].kind in (
-                "ifstmt",
-                "iflaststmt",
-                "iflaststmtl",
-                "ifelsestmtl",
-                "ifelsestmtc",
-                "ifpoplaststmtl",
-            ):
-                n = n[0]
-                if n.kind == "ifpoplaststmtl":
-                    old_stmts = n[2]
-                    else_suite_index = 2
-                pass
+
+        if n[0].kind in (
+            "ifstmt",
+            "iflaststmt",
+            "iflaststmtl",
+            "ifelsestmtl",
+            "ifelsestmtc",
+            "ifpoplaststmtl",
+        ):
+            n = n[0]
+            if n.kind == "ifpoplaststmtl":
+                old_stmts = n[2]
+                else_suite_index = 2
             pass
         else:
             if (
