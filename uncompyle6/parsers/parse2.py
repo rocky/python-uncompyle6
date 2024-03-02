@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2021 Rocky Bernstein
+#  Copyright (c) 2015-2021, 2024 Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 #  Copyright (c) 1999 John Aycock
@@ -27,10 +27,11 @@ that a later phase can turn into a sequence of ASCII text.
 
 from __future__ import print_function
 
-from uncompyle6.parsers.reducecheck import except_handler_else, ifelsestmt, tryelsestmt
-from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
-from uncompyle6.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+
+from uncompyle6.parser import PythonParser, PythonParserSingle, nop_func
+from uncompyle6.parsers.reducecheck import except_handler_else, ifelsestmt, tryelsestmt
+from uncompyle6.parsers.treenode import SyntaxTree
 
 
 class Python2Parser(PythonParser):
@@ -405,7 +406,6 @@ class Python2Parser(PythonParser):
                 "CALL_FUNCTION_VAR_KW",
                 "CALL_FUNCTION_KW",
             ):
-
                 args_pos, args_kw = self.get_pos_kw(token)
 
                 # number of apply equiv arguments:
@@ -526,7 +526,7 @@ class Python2Parser(PythonParser):
                 custom_seen_ops.add(opname)
                 continue
             elif opname == "LOAD_LISTCOMP":
-                self.addRule("expr ::= listcomp", nop_func)
+                self.addRule("expr ::= list_comp", nop_func)
                 custom_seen_ops.add(opname)
                 continue
             elif opname == "LOAD_SETCOMP":
