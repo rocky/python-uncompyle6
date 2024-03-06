@@ -429,6 +429,10 @@ TABLE_DIRECT = {
     "whileelsestmt2": ("%|while %c:\n%+%c%-%|else:\n%+%c%-\n\n", 1, 2, -3),
     "whileelselaststmt": ("%|while %c:\n%+%c%-%|else:\n%+%c%-", 1, 2, -2),
 
+    # If there are situations where we need "with ... as ()"
+    # We may need to customize this in n_withasstmt
+    "withasstmt": ("%|with %c as %c:\n%+%c%-", 0, 2, 3),
+
     "expr_stmt": (
         "%|%p\n",
         # When a statement contains only a named_expr (:=)
