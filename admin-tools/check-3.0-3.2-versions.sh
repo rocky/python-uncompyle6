@@ -1,7 +1,12 @@
 #!/bin/bash
 # Run tests over all Python versions in branch python-3.0-3.2
+set -e
+function finish {
+  cd $owd
+}
 
 owd=$(pwd)
+trap finish EXIT
 
 cd $(dirname ${BASH_SOURCE[0]})
 if ! source ./pyenv-3.0-3.2-versions ; then
@@ -23,4 +28,4 @@ for version in $PYVERSIONS; do
     fi
     echo === $version ===
 done
-cd $owd
+finish
