@@ -272,8 +272,6 @@ TABLE_DIRECT = {
         (2, NO_PARENTHESIS_EVER)
         ),
 
-    "IMPORT_FROM": ("%{pattr}",),
-    "IMPORT_NAME_ATTR": ("%{pattr}",),
     "attribute": ("%c.%[1]{pattr}", (0, "expr")),
     "delete_subscript": (
         "%|del %p[%c]\n",
@@ -431,7 +429,12 @@ TABLE_DIRECT = {
 
     # If there are situations where we need "with ... as ()"
     # We may need to customize this in n_withasstmt
-    "withasstmt": ("%|with %c as %c:\n%+%c%-", 0, 2, 3),
+    "withasstmt": (
+        "%|with %c as %c:\n%+%c%-",
+        (0, "expr"),
+        (2, "store"),
+        (3, ("suite_stmts_opt", "suite_stmts")),
+    ),
 
     "expr_stmt": (
         "%|%p\n",

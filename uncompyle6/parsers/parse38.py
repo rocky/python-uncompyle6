@@ -586,6 +586,15 @@ class Python38Parser(Python37Parser):
                                     GET_ITER CALL_FUNCTION_1
                        """
                     self.addRule(rule, nop_func)
+            elif opname == "SETUP_WITH":
+                rules_str = """
+                  stmt        ::= with_as_pass
+                  with_as_pass ::= expr
+                                   SETUP_WITH store pass
+                                   POP_BLOCK BEGIN_FINALLY COME_FROM_WITH
+                                   with_suffix
+                 """
+                self.addRule(rules_str, nop_func)
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python38Parser, self).reduce_is_invalid(
