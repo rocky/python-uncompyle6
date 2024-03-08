@@ -51,7 +51,6 @@ def customize_for_version3(self, version):
             "tf_tryelsestmtl3": ("%c%-%c%|else:\n%+%c", 1, 3, 5),
             "store_locals": ("%|# inspect.currentframe().f_locals = __locals__\n",),
             "with": ("%|with %c:\n%+%c%-", 0, 3),
-            "withasstmt": ("%|with %c as (%c):\n%+%c%-", 0, 2, 3),
         }
     )
 

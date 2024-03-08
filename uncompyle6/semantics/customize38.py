@@ -128,6 +128,11 @@ def customize_for_version38(self, version):
                 -2,
             ),
             "ifpoplaststmtc": ("%|if %c:\n%+%c%-", (0, "testexpr"), (2, "l_stmts")),
+            "named_expr": (  # AKA "walrus operator"
+                "%c := %p",
+                (2, "store"),
+                (0, "expr", PRECEDENCE["named_expr"] - 1),
+            ),
             "pop_return": ("%|return %c\n", (1, "return_expr")),
             "popb_return": ("%|return %c\n", (0, "return_expr")),
             "pop_ex_return": ("%|return %c\n", (0, "return_expr")),
@@ -222,10 +227,11 @@ def customize_for_version38(self, version):
                 (2, "suite_stmts_opt"),
                 (8, "suite_stmts_opt"),
             ),
-            "named_expr": (  # AKA "walrus operator"
-                "%c := %p",
+            "with_as_pass": (
+                "%|with %c as %c:\n%+%c%-",
+                (0, "expr"),
                 (2, "store"),
-                (0, "expr", PRECEDENCE["named_expr"] - 1),
+                (3, "pass"),
             ),
         }
     )

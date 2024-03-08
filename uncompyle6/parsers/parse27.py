@@ -161,9 +161,9 @@ class Python27Parser(Python2Parser):
                        POP_BLOCK LOAD_CONST COME_FROM_WITH
                        WITH_CLEANUP END_FINALLY
 
-        withasstmt ::= expr SETUP_WITH store suite_stmts_opt
-                POP_BLOCK LOAD_CONST COME_FROM_WITH
-                WITH_CLEANUP END_FINALLY
+        with_as    ::= expr SETUP_WITH store suite_stmts_opt
+                       POP_BLOCK LOAD_CONST COME_FROM_WITH
+                       WITH_CLEANUP END_FINALLY
 
         whilestmt         ::= SETUP_LOOP testexpr returns
                               _come_froms POP_BLOCK COME_FROM
