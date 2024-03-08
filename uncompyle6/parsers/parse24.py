@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018, 2020, 2022-2023 Rocky Bernstein
+#  Copyright (c) 2016-2018, 2020, 2022-2024 Rocky Bernstein
 """
 spark grammar differences over Python2.5 for Python 2.4.
 """
@@ -89,12 +89,14 @@ class Python24Parser(Python25Parser):
         while1stmt    ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM
         while1stmt    ::= SETUP_LOOP returns COME_FROM
         whilestmt     ::= SETUP_LOOP testexpr returns POP_BLOCK COME_FROM
+        with          ::= expr setupwith SETUP_FINALLY suite_stmts_opt POP_BLOCK
+                          LOAD_CONST COME_FROM with_cleanup
+        with_as       ::= expr setupwithas store suite_stmts_opt POP_BLOCK
+                          LOAD_CONST COME_FROM with_cleanup
         with_cleanup  ::= LOAD_FAST DELETE_FAST WITH_CLEANUP END_FINALLY
         with_cleanup  ::= LOAD_NAME DELETE_NAME WITH_CLEANUP END_FINALLY
-        withasstmt    ::= expr setupwithas store suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM with_cleanup
-        with          ::= expr setupwith SETUP_FINALLY suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM with_cleanup
-        stmt ::= with
-        stmt ::= withasstmt
+        stmt          ::= with
+        stmt          ::= with_as
         """
         )
         super(Python24Parser, self).customize_grammar_rules(tokens, customize)
