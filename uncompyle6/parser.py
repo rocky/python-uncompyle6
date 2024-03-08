@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2023 Rocky Bernstein
+#  Copyright (c) 2015-2024 Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -368,7 +368,7 @@ class PythonParser(GenericASTBuilder):
         stmt ::= tryelsestmt
         stmt ::= tryfinallystmt
         stmt ::= with
-        stmt ::= withasstmt
+        stmt ::= with_as
 
         stmt   ::= delete
         delete ::= DELETE_FAST

@@ -290,9 +290,9 @@ class Python3Parser(PythonParser):
                     POP_BLOCK LOAD_CONST COME_FROM_WITH
                     WITH_CLEANUP END_FINALLY
 
-        withasstmt ::= expr SETUP_WITH store suite_stmts_opt
-                POP_BLOCK LOAD_CONST COME_FROM_WITH
-                WITH_CLEANUP END_FINALLY
+        with_as ::= expr SETUP_WITH store suite_stmts_opt
+                    POP_BLOCK LOAD_CONST COME_FROM_WITH
+                    WITH_CLEANUP END_FINALLY
 
         expr_jt     ::= expr jmp_true
         expr_jitop  ::= expr JUMP_IF_TRUE_OR_POP

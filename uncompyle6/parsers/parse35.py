@@ -1,14 +1,16 @@
-#  Copyright (c) 2016-2017, 2019, 2021, 2023 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2019, 2021, 2023-2024
+#  Rocky Bernstein
 """
 spark grammar differences over Python 3.4 for Python 3.5.
 """
 
-from uncompyle6.parser import PythonParserSingle, nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+
+from uncompyle6.parser import PythonParserSingle, nop_func
 from uncompyle6.parsers.parse34 import Python34Parser
 
-class Python35Parser(Python34Parser):
 
+class Python35Parser(Python34Parser):
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
         super(Python35Parser, self).__init__(debug_parser)
         self.customized = {}
@@ -54,7 +56,7 @@ class Python35Parser(Python34Parser):
                        POP_BLOCK LOAD_CONST COME_FROM_WITH
                        WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
-        withasstmt ::= expr
+        with_as ::= expr
                        SETUP_WITH store suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM_WITH
                        WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
@@ -134,40 +136,42 @@ class Python35Parser(Python34Parser):
         """
 
     def customize_grammar_rules(self, tokens, customize):
-        self.remove_rules("""
+        self.remove_rules(
+            """
           yield_from ::= expr GET_ITER LOAD_CONST YIELD_FROM
           yield_from ::= expr expr YIELD_FROM
           with       ::= expr SETUP_WITH POP_TOP suite_stmts_opt
                          POP_BLOCK LOAD_CONST COME_FROM_WITH
                          WITH_CLEANUP END_FINALLY
-          withasstmt ::= expr SETUP_WITH store suite_stmts_opt
+          with_as ::= expr SETUP_WITH store suite_stmts_opt
                          POP_BLOCK LOAD_CONST COME_FROM_WITH
                          WITH_CLEANUP END_FINALLY
-        """)
+        """
+        )
         super(Python35Parser, self).customize_grammar_rules(tokens, customize)
         for i, token in enumerate(tokens):
             opname = token.kind
-            if opname == 'LOAD_ASSERT':
-                if 'PyPy' in customize:
+            if opname == "LOAD_ASSERT":
+                if "PyPy" in customize:
                     rules_str = """
                     stmt ::= JUMP_IF_NOT_DEBUG stmts COME_FROM
                     """
                     self.add_unique_doc_rules(rules_str, customize)
             # FIXME: I suspect this is wrong for 3.6 and 3.5, but
             # I haven't verified what the 3.7ish fix is
-            elif opname == 'BUILD_MAP_UNPACK_WITH_CALL':
+            elif opname == "BUILD_MAP_UNPACK_WITH_CALL":
                 if self.version < (3, 7):
                     self.addRule("expr ::= unmapexpr", nop_func)
                     nargs = token.attr % 256
                     map_unpack_n = "map_unpack_%s" % nargs
-                    rule = map_unpack_n + ' ::= ' + 'expr ' * (nargs)
+                    rule = map_unpack_n + " ::= " + "expr " * (nargs)
                     self.addRule(rule, nop_func)
                     rule = "unmapexpr ::=  %s %s" % (map_unpack_n, opname)
                     self.addRule(rule, nop_func)
-                    call_token = tokens[i+1]
-                    rule = 'call ::= expr unmapexpr ' + call_token.kind
+                    call_token = tokens[i + 1]
+                    rule = "call ::= expr unmapexpr " + call_token.kind
                     self.addRule(rule, nop_func)
-            elif opname == 'BEFORE_ASYNC_WITH' and self.version < (3, 8):
+            elif opname == "BEFORE_ASYNC_WITH" and self.version < (3, 8):
                 # Some Python 3.5+ async additions
                 rules_str = """
                    stmt               ::= async_with_stmt
@@ -198,24 +202,27 @@ class Python35Parser(Python34Parser):
                                           async_with_post
                 """
                 self.addRule(rules_str, nop_func)
-            elif opname == 'BUILD_MAP_UNPACK':
-                self.addRule("""
+            elif opname == "BUILD_MAP_UNPACK":
+                self.addRule(
+                    """
                    expr        ::= dict_unpack
                    dict_unpack ::= dict_comp BUILD_MAP_UNPACK
-                   """, nop_func)
+                   """,
+                    nop_func,
+                )
 
-            elif opname == 'SETUP_WITH':
+            elif opname == "SETUP_WITH":
                 # Python 3.5+ has WITH_CLEANUP_START/FINISH
                 rules_str = """
-                  with ::= expr
-                           SETUP_WITH POP_TOP suite_stmts_opt
-                           POP_BLOCK LOAD_CONST COME_FROM_WITH
-                           WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                  with    ::= expr
+                              SETUP_WITH POP_TOP suite_stmts_opt
+                              POP_BLOCK LOAD_CONST COME_FROM_WITH
+                              WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
-                  withasstmt ::= expr
-                       SETUP_WITH store suite_stmts_opt
-                       POP_BLOCK LOAD_CONST COME_FROM_WITH
-                       WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                  with_as ::= expr
+                              SETUP_WITH store suite_stmts_opt
+                              POP_BLOCK LOAD_CONST COME_FROM_WITH
+                              WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
                 """
                 self.addRule(rules_str, nop_func)
             pass
@@ -229,19 +236,24 @@ class Python35Parser(Python34Parser):
         #  1 for CALL_FUNCTION_VAR or CALL_FUNCTION_KW
         #  2 for * and ** args (CALL_FUNCTION_VAR_KW).
         # Yes, this computation based on instruction name is a little bit hoaky.
-        nak = ( len(opname)-len('CALL_FUNCTION') ) // 3
+        nak = (len(opname) - len("CALL_FUNCTION")) // 3
         uniq_param = args_kw + args_pos
 
-        if frozenset(('GET_AWAITABLE', 'YIELD_FROM')).issubset(self.seen_ops):
-            rule = ('async_call ::= expr ' +
-                    ('pos_arg ' * args_pos) +
-                    ('kwarg ' * args_kw) +
-                    'expr ' * nak + token.kind +
-                    ' GET_AWAITABLE LOAD_CONST YIELD_FROM')
+        if frozenset(("GET_AWAITABLE", "YIELD_FROM")).issubset(self.seen_ops):
+            rule = (
+                "async_call ::= expr "
+                + ("pos_arg " * args_pos)
+                + ("kwarg " * args_kw)
+                + "expr " * nak
+                + token.kind
+                + " GET_AWAITABLE LOAD_CONST YIELD_FROM"
+            )
             self.add_unique_rule(rule, token.kind, uniq_param, customize)
-            self.add_unique_rule('expr ::= async_call', token.kind, uniq_param, customize)
+            self.add_unique_rule(
+                "expr ::= async_call", token.kind, uniq_param, customize
+            )
 
-        if opname.startswith('CALL_FUNCTION_VAR'):
+        if opname.startswith("CALL_FUNCTION_VAR"):
             # Python 3.5 changes the stack position of *args. KW args come
             # after *args.
 
@@ -249,43 +261,55 @@ class Python35Parser(Python34Parser):
             # CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
 
             token.kind = self.call_fn_name(token)
-            if opname.endswith('KW'):
-                kw = 'expr '
+            if opname.endswith("KW"):
+                kw = "expr "
             else:
-                kw = ''
-            rule = ('call ::= expr expr ' +
-                    ('pos_arg ' * args_pos) +
-                    ('kwarg ' * args_kw) + kw + token.kind)
+                kw = ""
+            rule = (
+                "call ::= expr expr "
+                + ("pos_arg " * args_pos)
+                + ("kwarg " * args_kw)
+                + kw
+                + token.kind
+            )
 
             # Note: semantic actions make use of the fact of whether  "args_pos"
             # zero or not in creating a template rule.
             self.add_unique_rule(rule, token.kind, args_pos, customize)
         else:
-            super(Python35Parser, self).custom_classfunc_rule(opname, token, customize, *args
+            super(Python35Parser, self).custom_classfunc_rule(
+                opname, token, customize, *args
             )
 
 
 class Python35ParserSingle(Python35Parser, PythonParserSingle):
     pass
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Check grammar
     p = Python35Parser()
     p.check_grammar()
-    from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
+    from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
+
     if PYTHON_VERSION_TRIPLE[:2] == (3, 5):
         lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from uncompyle6.scanner import get_scanner
+
         s = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY)
-        opcode_set = set(s.opc.opname).union(set(
-            """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+        opcode_set = set(s.opc.opname).union(
+            set(
+                """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
                LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
                LAMBDA_MARKER RETURN_LAST
-            """.split()))
+            """.split()
+            )
+        )
         remain_tokens = set(tokens) - opcode_set
         import re
-        remain_tokens = set([re.sub(r'_\d+$', '', t) for t in remain_tokens])
-        remain_tokens = set([re.sub('_CONT$', '', t) for t in remain_tokens])
+
+        remain_tokens = set([re.sub(r"_\d+$", "", t) for t in remain_tokens])
+        remain_tokens = set([re.sub("_CONT$", "", t) for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         print(remain_tokens)
         # print(sorted(p.rule2name.items()))

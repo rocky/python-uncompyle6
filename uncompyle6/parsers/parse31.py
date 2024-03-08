@@ -22,7 +22,7 @@ class Python31Parser(Python32Parser):
         # Keeps Python 3.1 "with .. as" designator in the same position as it is in other version.
         setupwithas31  ::= setupwithas SETUP_FINALLY load delete
 
-        withasstmt     ::= expr setupwithas31 store
+        with_as        ::= expr setupwithas31 store
                            suite_stmts_opt
                            POP_BLOCK LOAD_CONST COME_FROM_FINALLY
                            load delete WITH_CLEANUP END_FINALLY

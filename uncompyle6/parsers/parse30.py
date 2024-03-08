@@ -65,7 +65,7 @@ class Python30Parser(Python31Parser):
         iflaststmt  ::= testexpr c_stmts_opt JUMP_ABSOLUTE COME_FROM POP_TOP
 
 
-        withasstmt    ::= expr setupwithas store suite_stmts_opt
+        with_as    ::= expr setupwithas store suite_stmts_opt
                           POP_BLOCK LOAD_CONST COME_FROM_FINALLY
                           LOAD_FAST DELETE_FAST WITH_CLEANUP END_FINALLY
         setupwithas   ::= DUP_TOP LOAD_ATTR STORE_FAST LOAD_ATTR CALL_FUNCTION_0 setup_finally
@@ -221,12 +221,17 @@ class Python30Parser(Python31Parser):
         # The were found using grammar coverage
         while1stmt     ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
         whileTruestmt  ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM_LOOP
-        whileelsestmt  ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK else_suitel COME_FROM_LOOP
-        whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK COME_FROM_LOOP
-        whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK JUMP_BACK COME_FROM_LOOP
+        whileelsestmt  ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+                           else_suitel COME_FROM_LOOP
+        whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+                           COME_FROM_LOOP
+        whilestmt      ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK JUMP_BACK
+                           COME_FROM_LOOP
         whilestmt      ::= SETUP_LOOP testexpr returns POP_TOP POP_BLOCK COME_FROM_LOOP
-        withasstmt     ::= expr SETUP_WITH store suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM_WITH WITH_CLEANUP END_FINALLY
-        with           ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST COME_FROM_WITH WITH_CLEANUP END_FINALLY
+        with_as        ::= expr SETUP_WITH store suite_stmts_opt POP_BLOCK LOAD_CONST
+                           COME_FROM_WITH WITH_CLEANUP END_FINALLY
+        with           ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK LOAD_CONST
+                           COME_FROM_WITH WITH_CLEANUP END_FINALLY
 
         # lc_body ::= LOAD_FAST expr LIST_APPEND
         # lc_body ::= LOAD_NAME expr LIST_APPEND

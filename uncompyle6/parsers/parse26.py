@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2023 Rocky Bernstein
+#  Copyright (c) 2017-2024 Rocky Bernstein
 """
 spark grammar differences over Python2 for Python 2.6.
 """
@@ -136,7 +136,7 @@ class Python26Parser(Python2Parser):
                         POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
 
         # Semantic actions want store to be at index 2
-        withasstmt ::= expr setupwithas store suite_stmts_opt
+        with_as ::= expr setupwithas store suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
 
         # This is truly weird. 2.7 does this (not including POP_TOP) with
@@ -352,9 +352,9 @@ class Python26Parser(Python2Parser):
     def customize_grammar_rules(self, tokens, customize):
         self.remove_rules(
             """
-        withasstmt ::= expr SETUP_WITH store suite_stmts_opt
-                POP_BLOCK LOAD_CONST COME_FROM_WITH
-                WITH_CLEANUP END_FINALLY
+        with_as ::= expr SETUP_WITH store suite_stmts_opt
+                    POP_BLOCK LOAD_CONST COME_FROM_WITH
+                    WITH_CLEANUP END_FINALLY
         """
         )
         super(Python26Parser, self).customize_grammar_rules(tokens, customize)
@@ -391,7 +391,6 @@ class Python26Parser(Python2Parser):
             ("and", ("expr", "jmp_false", "expr", "come_from_opt")),
             ("assert_expr_and", ("assert_expr", "jmp_false", "expr")),
         ):
-
             # FIXME: workaround profiling bug
             if ast[1] is None:
                 return False
@@ -490,7 +489,6 @@ class Python26Parser(Python2Parser):
                     ("JUMP_FORWARD", "RETURN_VALUE")
                 ) or (tokens[last - 3] == "JUMP_FORWARD" and tokens[last - 3].attr != 2)
         elif lhs == "tryelsestmt":
-
             # We need to distinguish "try_except" from "tryelsestmt"; we do that
             # by making sure that the jump before the except handler jumps to
             # code somewhere before the end of the construct.
