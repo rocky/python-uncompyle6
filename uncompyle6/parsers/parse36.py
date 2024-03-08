@@ -382,7 +382,10 @@ class Python36Parser(Python35Parser):
             elif opname == "GET_AITER":
                 self.add_unique_doc_rules("get_aiter ::= expr GET_AITER", customize)
 
-                if not set(["MAKE_FUNCTION_0", "MAKE_FUNCTION_CLOSURE"]) in self.seen_ops:
+                if (
+                    not set(["MAKE_FUNCTION_0", "MAKE_FUNCTION_CLOSURE"])
+                    in self.seen_ops
+                ):
                     self.addRule(
                         """
                         expr                ::= dict_comp_async
@@ -581,7 +584,7 @@ class Python36Parser(Python35Parser):
                 )
             else:
                 self.addRule("expr ::= call_kw36", nop_func)
-                values = 'expr ' * token.attr
+                values = "expr " * token.attr
                 rule = "call_kw36 ::= expr %s LOAD_CONST %s" % (values, opname)
                 self.add_unique_rule(rule, token.kind, token.attr, customize)
         elif opname == "CALL_FUNCTION_EX_KW":

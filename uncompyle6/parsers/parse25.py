@@ -67,7 +67,8 @@ class Python25Parser(Python26Parser):
 
     def customize_grammar_rules(self, tokens, customize):
         # Remove grammar rules inherited from Python 2.6 or Python 2
-        self.remove_rules("""
+        self.remove_rules(
+            """
         # No jump to jumps in 2.4 so we have a single "COME_FROM", not "come_froms"
         ifelsestmt    ::= testexpr c_stmts_opt jf_cf_pop else_suite come_froms
 

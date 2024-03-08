@@ -550,9 +550,11 @@ if __name__ == "__main__":
     if PYTHON_VERSION_TRIPLE[:2] == (2, 6):
         lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from uncompyle6.scanner import get_scanner
+
         s = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY)
-        opcode_set = set(s.opc.opname).union(set(
-            """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+        opcode_set = set(s.opc.opname).union(
+            set(
+                """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
                LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP
                LAMBDA_MARKER RETURN_LAST
             """.split()

@@ -1347,7 +1347,10 @@ class Python37Parser(Python37BaseParser):
             elif opname == "GET_AITER":
                 self.add_unique_doc_rules("get_aiter ::= expr GET_AITER", customize)
 
-                if not set(["MAKE_FUNCTION_0", "MAKE_FUNCTION_CLOSURE"]) in self.seen_ops:
+                if (
+                    not set(["MAKE_FUNCTION_0", "MAKE_FUNCTION_CLOSURE"])
+                    in self.seen_ops
+                ):
                     self.addRule(
                         """
                         expr                ::= dict_comp_async
