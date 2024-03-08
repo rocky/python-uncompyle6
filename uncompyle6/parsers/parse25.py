@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018, 2020, 2022 Rocky Bernstein
+#  Copyright (c) 2016-2018, 2020, 2022, 2024 Rocky Bernstein
 """
 spark grammar differences over Python2.6 for Python 2.5.
 """
@@ -33,7 +33,7 @@ class Python25Parser(Python26Parser):
                       POP_BLOCK LOAD_CONST COME_FROM with_cleanup
 
         # Semantic actions want store to be at index 2
-        withasstmt ::= expr setupwithas store suite_stmts_opt
+        with_as ::= expr setupwithas store suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM with_cleanup
 
 
@@ -48,7 +48,7 @@ class Python25Parser(Python26Parser):
 
         # Python 2.6 omits the LOAD_FAST DELETE_FAST below
         # withas is allowed as a "from future" in 2.5
-        withasstmt ::= expr setupwithas store suite_stmts_opt
+        with_as ::= expr setupwithas store suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM
                        with_cleanup
 
@@ -67,7 +67,7 @@ class Python25Parser(Python26Parser):
         setupwith  ::= DUP_TOP LOAD_ATTR ROT_TWO LOAD_ATTR CALL_FUNCTION_0 POP_TOP
         with       ::= expr setupwith SETUP_FINALLY suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
-        withasstmt ::= expr setupwithas store suite_stmts_opt
+        with_as    ::= expr setupwithas store suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM WITH_CLEANUP END_FINALLY
         assert2       ::= assert_expr jmp_true LOAD_ASSERT expr CALL_FUNCTION_1 RAISE_VARARGS_1
         classdefdeco  ::= classdefdeco1 store

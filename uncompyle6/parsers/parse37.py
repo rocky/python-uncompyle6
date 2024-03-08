@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2020, 2022-2023 Rocky Bernstein
+#  Copyright (c) 2017-2020, 2022-2024 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -17,10 +17,12 @@ Python 3.7 grammar for the spark Earley-algorithm parser.
 """
 from __future__ import print_function
 
-from uncompyle6.scanners.tok import Token
-from uncompyle6.parser import PythonParserSingle, nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+
+from uncompyle6.parser import PythonParserSingle, nop_func
 from uncompyle6.parsers.parse37base import Python37BaseParser
+from uncompyle6.scanners.tok import Token
+
 
 class Python37Parser(Python37BaseParser):
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
@@ -249,8 +251,7 @@ class Python37Parser(Python37BaseParser):
         """
 
     def p_generator_exp(self, args):
-        """
-        """
+        """ """
 
     def p_jump(self, args):
         """
@@ -757,7 +758,7 @@ class Python37Parser(Python37BaseParser):
         """
 
     def p_dict_comp3(self, args):
-        """"
+        """ "
         expr ::= dict_comp
         stmt ::= dict_comp_func
 
@@ -1554,7 +1555,7 @@ class Python37Parser(Python37BaseParser):
                                WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
                 # Removes POP_BLOCK LOAD_CONST from 3.6-
-                withasstmt ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
+                with_as    ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
                                WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
                 """
                 if self.version < (3, 8):
@@ -1575,7 +1576,6 @@ class Python37Parser(Python37BaseParser):
             pass
 
     def custom_classfunc_rule(self, opname, token, customize, next_token):
-
         args_pos, args_kw = self.get_pos_kw(token)
 
         # Additional exprs for * and ** args:
@@ -1718,6 +1718,7 @@ class Python37Parser(Python37BaseParser):
             pass
         return False
 
+
 def info(args):
     # Check grammar
     p = Python37Parser()
@@ -1748,7 +1749,7 @@ if __name__ == "__main__":
     # FIXME: DRY this with other parseXX.py routines
     p = Python37Parser()
     p.check_grammar()
-    from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
+    from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
 
     if PYTHON_VERSION_TRIPLE[:2] == (3, 7):
         lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
