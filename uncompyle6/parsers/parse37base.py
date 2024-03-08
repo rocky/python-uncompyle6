@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017, 2019-2020, 2022-2023 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2019-2020, 2022-2024 Rocky Bernstein
 """
 Python 3.7 base code. We keep non-custom-generated grammar rules out of this file.
 """
@@ -1055,14 +1055,14 @@ class Python37BaseParser(PythonParser):
             elif opname == "SETUP_WITH":
                 rules_str = """
                   stmt       ::= with
-                  stmt       ::= withasstmt
+                  stmt       ::= with_as
 
                   with       ::= expr
                                  SETUP_WITH POP_TOP
                                  suite_stmts_opt
                                  COME_FROM_WITH
                                  with_suffix
-                  withasstmt ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
+                  with_as ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
                                  with_suffix
 
                   with       ::= expr
@@ -1071,7 +1071,7 @@ class Python37BaseParser(PythonParser):
                                  POP_BLOCK LOAD_CONST COME_FROM_WITH
                                  with_suffix
 
-                  withasstmt ::= expr
+                  with_as ::= expr
                                  SETUP_WITH store suite_stmts_opt
                                  POP_BLOCK LOAD_CONST COME_FROM_WITH
                                  with_suffix
@@ -1080,7 +1080,7 @@ class Python37BaseParser(PythonParser):
                                  SETUP_WITH POP_TOP suite_stmts_opt
                                  POP_BLOCK LOAD_CONST COME_FROM_WITH
                                  with_suffix
-                  withasstmt ::= expr
+                  with_as ::= expr
                                  SETUP_WITH store suite_stmts_opt
                                  POP_BLOCK LOAD_CONST COME_FROM_WITH
                                  with_suffix
@@ -1098,17 +1098,18 @@ class Python37BaseParser(PythonParser):
                                      POP_BLOCK LOAD_CONST COME_FROM_WITH
                                      with_suffix
 
-                      withasstmt ::= expr
-                                     SETUP_WITH store suite_stmts_opt
-                                     POP_BLOCK LOAD_CONST COME_FROM_WITH
-
-                      withasstmt ::= expr
-                                     SETUP_WITH store suite_stmts
-                                     POP_BLOCK BEGIN_FINALLY COME_FROM_WITH with_suffix
 
                       with       ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
                                      BEGIN_FINALLY COME_FROM_WITH
                                      with_suffix
+
+                      with_as    ::= expr
+                                     SETUP_WITH store suite_stmts_opt
+                                     POP_BLOCK LOAD_CONST COME_FROM_WITH
+
+                      with_as    ::= expr
+                                    SETUP_WITH store suite_stmts
+                                    POP_BLOCK BEGIN_FINALLY COME_FROM_WITH with_suffix
                     """
                 self.addRule(rules_str, nop_func)
 
