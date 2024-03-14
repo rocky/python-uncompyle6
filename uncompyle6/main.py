@@ -372,7 +372,7 @@ def main(
                     deparsed_object.f.close()
                     if PYTHON_VERSION_TRIPLE[:2] != deparsed_object.version[:2]:
                         sys.stdout.write(
-                            f"\n# skipping running {deparsed_object.f.name}; it is"
+                            f"\n# skipping running {deparsed_object.f.name}; it is "
                             f"{version_tuple_to_str(deparsed_object.version, end=2)}, "
                             "and we are "
                             f"{version_tuple_to_str(PYTHON_VERSION_TRIPLE, end=2)}\n"
