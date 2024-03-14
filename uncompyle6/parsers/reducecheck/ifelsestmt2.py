@@ -44,7 +44,6 @@ IFELSE_STMT_RULES = frozenset(
 
 
 def ifelsestmt2(self, lhs, n, rule, tree, tokens, first, last):
-
     if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP" and lhs != "ifelsestmtc":
         # ifelsestmt jumped outside of loop. No good.
         return True
@@ -66,7 +65,7 @@ def ifelsestmt2(self, lhs, n, rule, tree, tokens, first, last):
         if raise_stmt1 == "raise_stmt1" and raise_stmt1[0] in ("LOAD_ASSERT",):
             return True
 
-    # Make sure all of the "come froms" offset at the
+    # Make sure all of the "come_froms" offset at the
     # end of the "if" come from somewhere inside the "if".
     # Since the come_froms are ordered so that lowest
     # offset COME_FROM is last, it is sufficient to test

@@ -471,7 +471,7 @@ class ComprehensionMixin:
         assert store, "Couldn't find store in list/set comprehension"
 
         # A problem created with later Python code generation is that there
-        # is a lamda set up with a dummy argument name that is then called
+        # is a lambda set up with a dummy argument name that is then called
         # So we can't just translate that as is but need to replace the
         # dummy name. Below we are picking out the variable name as seen
         # in the code. And trying to generate code for the other parts

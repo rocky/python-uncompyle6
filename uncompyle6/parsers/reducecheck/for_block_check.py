@@ -4,7 +4,6 @@ from uncompyle6.scanners.tok import Token
 
 
 def for_block_invalid(self, lhs, n, rule, tree, tokens, first: int, last: int) -> bool:
-
     # print("XXX", first, last)
     # for t in range(first, last):
     #     print(tokens[t])
@@ -51,8 +50,8 @@ def for_block_invalid(self, lhs, n, rule, tree, tokens, first: int, last: int) -
         pop_jump_index -= 1
 
     # FIXME: something is fishy when and EXTENDED ARG is needed before the
-    # pop_jump_index instruction to get the argment. In this case, the
-    # _ifsmtst_jump can jump to a spot beyond the come_froms.
+    # pop_jump_index instruction to get the argument. In this case, the
+    # _ifsmtst_jump can jump to a spot beyond the ``come_froms``.
     # That is going on in the non-EXTENDED_ARG case is that the POP_JUMP_IF
     # jumps to a JUMP_(FORWARD) which is changed into an EXTENDED_ARG POP_JUMP_IF
     # to the jumped forwarded address
