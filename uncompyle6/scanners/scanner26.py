@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2017, 2021-2022 by Rocky Bernstein
+#  Copyright (c) 2015-2017, 2021-2022, 2024 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -80,7 +80,7 @@ class Scanner26(scan.Scanner2):
 
         # show_asm = 'after'
         if show_asm in ("both", "before"):
-            print("\n# ---- before tokenization:")
+            print("\n# ---- disassembly:")
             for instr in bytecode.get_instructions(co):
                 print(instr.disassemble(self.opc))
 
@@ -346,7 +346,7 @@ class Scanner26(scan.Scanner2):
             pass
 
         if show_asm in ("both", "after"):
-            print("\n# ---- after tokenization:")
+            print("\n# ---- tokenization:")
             for t in tokens:
                 print(t.format(line_prefix=""))
             print()

@@ -418,7 +418,7 @@ class Scanner3(Scanner):
 
         # show_asm = 'both'
         if show_asm in ("both", "before"):
-            print("\n# ---- before tokenization:")
+            print("\n# ---- disassembly:")
             bytecode.disassemble_bytes(
                 co.co_code,
                 varnames=co.co_varnames,
@@ -788,7 +788,7 @@ class Scanner3(Scanner):
             pass
 
         if show_asm in ("both", "after"):
-            print("\n# ---- after tokenization:")
+            print("\n# ---- tokenization:")
             for t in new_tokens:
                 print(t.format(line_prefix=""))
             print()
