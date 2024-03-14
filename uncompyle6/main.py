@@ -361,7 +361,7 @@ def main(
                             outstream.write(f"{line}\n{e[0]}\n{line}\n")
                         last_mod = e[0]
                         info = offsets[e]
-                        extract_info = deparse_object.extract_node_info(info)
+                        extract_info = deparsed_object.extract_node_info(info)
                         outstream.write(f"{info.node.format().strip()}" + "\n")
                         outstream.write(extract_info.selectedLine + "\n")
                         outstream.write(extract_info.markerLine + "\n\n")
