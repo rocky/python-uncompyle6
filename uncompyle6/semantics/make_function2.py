@@ -43,7 +43,7 @@ def make_function2(self, node, is_lambda, nested=1, code_node=None):
         - handle defaults
         - handle format tuple parameters
         """
-        # if formal parameter is a tuple, the paramater name
+        # if formal parameter is a tuple, the parameter name
         # starts with a dot (eg. '.1', '.2')
         if name.startswith("."):
             # replace the name with the tuple-string
