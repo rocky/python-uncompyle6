@@ -219,7 +219,7 @@ class Scanner37Base(Scanner):
         bytecode = self.build_instructions(co)
 
         if show_asm in ("both", "before"):
-            print("\n# ---- before tokenization:")
+            print("\n# ---- disassembly:")
             self.insts = bytecode.disassemble_bytes(
                 co.co_code,
                 varnames=co.co_varnames,
@@ -531,7 +531,7 @@ class Scanner37Base(Scanner):
             pass
 
         if show_asm in ("both", "after"):
-            print("\n# ---- after tokenization:")
+            print("\n# ---- tokenization:")
             for t in tokens:
                 print(t.format(line_prefix=""))
             print()
