@@ -54,7 +54,8 @@ Options:
   --help        show this message
 
 Debugging Options:
-  --asm     | -a        include byte-code       (disables --verify)
+  --asm     | -a        show disassembly        (disables --verify)
+  --asm++   | -A        also include tokenized assembly (disables --verify)
   --grammar | -g        show matching grammar
   --tree={before|after}
   -t {before|after}     include syntax before (or after) tree transformation
@@ -111,8 +112,8 @@ def main_bin():
     try:
         opts, pyc_paths = getopt.getopt(
             sys.argv[1:],
-            "hac:gtTdrVo:p:",
-            "help asm compile= grammar linemaps recurse "
+            "haAc:gtTdrVo:p:",
+            "help asm showasm compile= grammar linemaps recurse "
             "timestamp tree= tree+ "
             "fragments verify verify-run version "
             "syntax-verify "
@@ -148,10 +149,7 @@ def main_bin():
         elif opt == "--linemaps":
             options["do_linemaps"] = True
         elif opt in ("--asm", "-a"):
-            if options["showasm"] == None:
-                options["showasm"] = "after"
-            else:
-                options["showasm"] = "both"
+            options["showasm"] = "before"
             options["do_verify"] = None
         elif opt in ("--tree", "-t"):
             if "showast" not in options:
@@ -163,6 +161,8 @@ def main_bin():
             else:
                 options["showast"]["before"] = True
             options["do_verify"] = None
+        elif opt in ("--asm++", "-A"):
+            options["showasm"] = "both"
         elif opt in ("--tree+", "-T"):
             if "showast" not in options:
                 options["showast"] = {}

@@ -76,8 +76,9 @@ class Scanner26(Scanner2):
 
         # show_asm = 'after'
         if show_asm in ("both", "before"):
+            print("\n# ---- before tokenization:")
             for instr in bytecode.get_instructions(co):
-                print(instr.disassemble())
+                print(instr.disassemble(self.opc))
 
         # Container for tokens
         tokens = []
@@ -341,6 +342,7 @@ class Scanner26(Scanner2):
             pass
 
         if show_asm in ("both", "after"):
+            print("\n# ---- after tokenization:")
             for t in tokens:
                 print(t.format(line_prefix=""))
             print()
