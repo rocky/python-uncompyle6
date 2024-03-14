@@ -27,7 +27,6 @@ from xdis import iscode
 from xdis.bytecode import _get_const_info
 from xdis.opcodes import opcode_26
 
-import uncompyle6.scanners.scanner2 as scan
 from uncompyle6.scanner import Token
 from uncompyle6.scanners.scanner2 import Scanner2
 
