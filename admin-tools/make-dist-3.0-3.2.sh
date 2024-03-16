@@ -3,17 +3,17 @@ PACKAGE=uncompyle6
 
 # FIXME put some of the below in a common routine
 function finish {
-  cd $make_uncompyle6_newest_owd
+  cd $uncompyle6_30_make_dist_owd
 }
 
 cd $(dirname ${BASH_SOURCE[0]})
-make_uncompyle6_newest_owd=$(pwd)
+uncompyle6_30_make_dist_owd=$(pwd)
 trap finish EXIT
 
-if ! source ./pyenv-newest-versions ; then
+if ! source ./pyenv-3.0-3.2-versions ; then
     exit $?
 fi
-if ! source ./setup-master.sh ; then
+if ! source ./setup-python-3.0.sh ; then
     exit $?
 fi
 
@@ -38,7 +38,12 @@ for pyversion in $PYVERSIONS; do
     rm -fr build
     python setup.py bdist_egg bdist_wheel
     mv -v dist/${PACKAGE}-$__version__-{py2.py3,py$first_two}-none-any.whl
+    echo === $pyversion ===
 done
 
 python ./setup.py sdist
+tarball=dist/${PACKAGE}-${__version__}.tar.gz
+if [[ -f $tarball ]]; then
+    mv -v $tarball dist/${PACKAGE}_31-${__version__}.tar.gz
+fi
 finish

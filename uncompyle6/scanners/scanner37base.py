@@ -51,7 +51,12 @@ class Scanner37Base(Scanner):
         Scanner.__init__(self, version, show_asm, is_pypy)
         self.offset2tok_index = None
         self.debug = debug
+
+        # True is code is from PyPy
         self.is_pypy = is_pypy
+
+        # Bytecode converted into instruction
+        self.insts = []
 
         # Create opcode classification sets
         # Note: super initialization above initializes self.opc
