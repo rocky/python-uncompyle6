@@ -3,11 +3,11 @@ PACKAGE=uncompyle6
 
 # FIXME put some of the below in a common routine
 function finish {
-  cd $owd
+  cd $make_uncompyle6_newest_owd
 }
 
 cd $(dirname ${BASH_SOURCE[0]})
-owd=$(pwd)
+make_uncompyle6_newest_owd=$(pwd)
 trap finish EXIT
 
 if ! source ./pyenv-newest-versions ; then
@@ -22,6 +22,11 @@ source $PACKAGE/version.py
 echo $__version__
 
 for pyversion in $PYVERSIONS; do
+    echo --- $pyversion ---
+    if [[ ${pyversion:0:4} == "pypy" ]] ; then
+	echo "$pyversion - PyPy does not get special packaging"
+	continue
+    fi
     if ! pyenv local $pyversion ; then
 	exit $?
     fi
@@ -36,3 +41,4 @@ for pyversion in $PYVERSIONS; do
 done
 
 python ./setup.py sdist
+finish
