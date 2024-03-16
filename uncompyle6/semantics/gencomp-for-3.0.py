@@ -1,4 +1,4 @@
-#  Copyright (c) 2022-2023 by Rocky Bernstein
+#  Copyright (c) 2022-2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -46,7 +46,10 @@ class ComprehensionMixin:
         p = self.prec
         self.prec = PRECEDENCE["lambda_body"] - 1
 
-        code_index = 0 if node[0] == "load_genexpr" else 1
+        if node[0] == "load_genexpr":
+            code_index = 0
+        else:
+            code_index =  1
         tree = self.get_comprehension_function(node, code_index=code_index)
 
         # Remove single reductions as in ("stmts", "sstmt"):
@@ -56,7 +59,10 @@ class ComprehensionMixin:
         store = tree[3]
         collection = node[collection_index]
 
-        iter_index = 3 if tree == "genexpr_func_async" else 4
+        if tree == "genexpr_func_async":
+            iter_index = 3
+        else:
+            iter_index = 4
         n = tree[iter_index]
         list_if = None
         assert n == "comp_iter"
@@ -98,13 +104,8 @@ class ComprehensionMixin:
             self.preorder(list_if)
         self.prec = p
 
-    def comprehension_walk(
-        self,
-        node,
-        iter_index: Optional[int],
-        code_index: int = -5,
-    ):
-        p: int = self.prec
+    def comprehension_walk(self, node, iter_index, code_index = -5):
+        p = self.prec
         self.prec = PRECEDENCE["lambda_body"] - 1
 
         # FIXME: clean this up
@@ -225,8 +226,8 @@ class ComprehensionMixin:
     def comprehension_walk_newer(
         self,
         node,
-        iter_index: Optional[int],
-        code_index: int = -5,
+        iter_index,
+        code_index = -5,
         collection_node=None,
     ):
         """Non-closure-based comprehensions the way they are done in Python3
@@ -295,7 +296,10 @@ class ComprehensionMixin:
                 assert list_afor2 == "list_afor2"
                 store = list_afor2[1]
                 assert store == "store"
-                n = list_afor2[3] if list_afor2[3] == "list_iter" else list_afor2[2]
+                if list_afor2[3] == "list_iter":
+                    n = list_afor2[3]
+                else:
+                    n = list_afor2[2]
             else:
                 # ???
                 pass
@@ -538,7 +542,7 @@ class ComprehensionMixin:
             pass
         self.prec = p
 
-    def get_comprehension_function(self, node, code_index: int):
+    def get_comprehension_function(self, node, code_index):
         """
         Build the body of a comprehension function and then
         find the comprehension node buried in the tree which may
@@ -583,7 +587,10 @@ class ComprehensionMixin:
 
         while len(tree) == 1 or (tree in ("stmt", "sstmt", "return", "return_expr")):
             self.prec = 100
-            tree = tree[1] if tree[0] in ("dom_start", "dom_start_opt") else tree[0]
+            if tree[0] in ("dom_start", "dom_start_opt"):
+                tree = tree[1]
+            else:
+                tree = tree[0]
         return tree
 
     def listcomp_closure3(self, node):
@@ -688,7 +695,10 @@ class ComprehensionMixin:
                     if self.version[:2] == (3, 0) and n[2] == "list_iter":
                         n = n[2]
                     else:
-                        n = n[-2] if n[-1] == "come_from_opt" else n[-1]
+                        if n[-1] == "come_from_opt":
+                            n = n[-2]
+                        else:
+                            n = n[-1]
                     pass
                 elif n == "list_if37":
                     list_ifs.append(n)
@@ -698,7 +708,10 @@ class ComprehensionMixin:
                     collections.append(n[0][0])
                     n = n[1]
                     stores.append(n[1][0])
-                    n = n[2] if n[2].kind == "list_iter" else n[3]
+                    if n[2].kind == "list_iter":
+                        n = n[2]
+                    else:
+                        n = n[3]
                 pass
 
             assert n == "lc_body", tree

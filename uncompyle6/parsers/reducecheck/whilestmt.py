@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020, 2024 Rocky Bernstein
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, either version 3 of the License, or
@@ -13,9 +13,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-def whilestmt(
-    self, lhs: str, n: int, rule, tree, tokens: list, first: int, last: int
-) -> bool:
+def whilestmt(self, lhs, n, rule, tree, tokens, first, last):
     # When we are missing a COME_FROM_LOOP, the
     # "while" statement is nested inside an if/else
     # so after the POP_BLOCK we have a JUMP_FORWARD which forms the "else" portion of the "if"

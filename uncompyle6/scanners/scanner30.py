@@ -1,12 +1,10 @@
-#  Copyright (c) 2016-2017, 2020-2022 by Rocky Bernstein
+#  Copyright (c) 2016-2017, 2020-2022, 2024 by Rocky Bernstein
 """
 Python 3.0 bytecode scanner/deparser
 
 This sets up opcodes Python's 3.0 and calls a generalized
 scanner routine for Python 3.
 """
-
-from __future__ import print_function
 
 import xdis
 from xdis import instruction_size
