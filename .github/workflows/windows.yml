@@ -22,9 +22,9 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        # Until the next xdis release
-        pip install git+https://github.com/rocky/python-xdis#egg=xdis
         pip install -e .
+        # Not sure why "pip install -e" doesn't work above
+        # pip install click spark-parser xdis
         pip install -r requirements-dev.txt
     - name: Test uncompyle6
       run: |
