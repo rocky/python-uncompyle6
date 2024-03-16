@@ -1,3 +1,23 @@
+3.9.1: 2024-05-15
+=================
+
+Lots of changes major changes. track xdis API has changes.
+
+Separate Phases more clearly:
+* disassembly
+* tokenization
+* parsing
+* abstracting to AST (more is done in newer projects)
+* printing
+
+Although we do not decompile bytecode greater than 3.8, code supports running from up to 3.12.
+
+Many bugs fixed.
+
+A lot of Linting and coding style modernization.
+
+Work done in preparation for Blackhat Asia 2024
+
 3.9.0: 2022-12-22
 =================
 
