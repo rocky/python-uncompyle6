@@ -43,9 +43,9 @@ jobs:
       - run:
           command: | # Use pip to install dependengcies
             sudo pip install --user --upgrade setuptools
-            # Until the next release
-            sudo pip install git+https://github.com/rocky/python-xdis#egg=xdis
             pip install --user -e .
+            # Not sure why "pip install -e" doesn't work above
+            pip install click spark-parser xdis
             pip install --user -r requirements-dev.txt
 
       # Save dependency cache
