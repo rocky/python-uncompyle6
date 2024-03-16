@@ -80,8 +80,8 @@ class Python38Parser(Python37Parser):
                                 JUMP_BACK COME_FROM_FINALLY
                                 END_ASYNC_FOR
 
-         # FIXME: come froms after the else_suite or END_ASYNC_FOR distinguish which of
-         # for / forelse is used. Add come froms and check of add up control-flow detection phase.
+         # FIXME: "come_froms" after the "else_suite" or END_ASYNC_FOR distinguish which of
+         # for / forelse is used. Add "come_froms" and check of add up control-flow detection phase.
          async_forelse_stmt38 ::= expr
                                 GET_AITER
                                 SETUP_FINALLY

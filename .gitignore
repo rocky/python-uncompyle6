@@ -17,6 +17,7 @@
 /dist
 /how-to-make-a-release.txt
 /nose-*.egg
+/pycharm-venv
 /tmp
 /uncompyle6.egg-info
 /unpyc

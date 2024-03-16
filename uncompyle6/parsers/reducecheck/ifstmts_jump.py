@@ -4,7 +4,6 @@ from uncompyle6.scanners.tok import Token
 
 
 def ifstmts_jump(self, lhs, n, rule, ast, tokens, first, last):
-
     if len(rule[1]) <= 1 or not ast:
         return False
 
@@ -24,7 +23,7 @@ def ifstmts_jump(self, lhs, n, rule, ast, tokens, first, last):
         pop_jump_index -= 1
 
     # FIXME: something is fishy when and EXTENDED ARG is needed before the
-    # pop_jump_index instruction to get the argment. In this case, the
+    # pop_jump_index instruction to get the argument. In this case, the
     # _ifsmtst_jump can jump to a spot beyond the come_froms.
     # That is going on in the non-EXTENDED_ARG case is that the POP_JUMP_IF
     # jumps to a JUMP_(FORWARD) which is changed into an EXTENDED_ARG POP_JUMP_IF
@@ -34,16 +33,11 @@ def ifstmts_jump(self, lhs, n, rule, ast, tokens, first, last):
 
     pop_jump_offset = tokens[pop_jump_index].off2int(prefer_last=False)
     if isinstance(come_froms, Token):
-        if (
-            tokens[pop_jump_index].attr < pop_jump_offset and ast[0] != "pass"
-        ):
+        if tokens[pop_jump_index].attr < pop_jump_offset and ast[0] != "pass":
             # This is a jump backwards to a loop. All bets are off here when there the
             # unless statement is "pass" which has no instructions associated with it.
             return False
-        return (
-            come_froms.attr is not None
-            and pop_jump_offset > come_froms.attr
-        )
+        return come_froms.attr is not None and pop_jump_offset > come_froms.attr
 
     elif len(come_froms) == 0:
         return False

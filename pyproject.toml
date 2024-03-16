@@ -1,0 +1,64 @@
+[build-system]
+requires = [
+    "setuptools>=61.2",
+]
+
+build-backend = "setuptools.build_meta"
+
+[project]
+authors = [
+    {name = "Rocky Bernstein",	email = "rb@dustyfeet.com"},
+]
+
+name = "uncompyle6"
+description = "Python cross-version byte-code library and disassembler"
+dependencies = [
+    "click",
+    "spark-parser >= 1.8.9, < 1.9.0",
+    "xdis >= 6.0.8, < 6.2.0",
+]
+readme = "README.rst"
+license = {text = "GPL"}
+keywords = ["Python bytecode", "bytecode", "disassembler"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 2.4",
+    "Programming Language :: Python :: 2.5",
+    "Programming Language :: Python :: 2.6",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3.0",
+    "Programming Language :: Python :: 3.1",
+    "Programming Language :: Python :: 3.2",
+    "Programming Language :: Python :: 3.3",
+    "Programming Language :: Python :: 3.4",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/rocky/python-uncompyle6"
+Downloads = "https://github.com/rocky/python-uncompyle6/releases"
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+    "pytest",
+]
+
+[project.scripts]
+uncompyle6 = "uncompyle6.bin.uncompile:main_bin"
+uncompyle6-tokenize = "uncompyle6.bin.pydisassemble:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "uncompyle6.version.__version__"}
