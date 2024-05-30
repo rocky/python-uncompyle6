@@ -17,8 +17,6 @@ Generators and comprehension functions
 """
 
 
-from typing import Optional
-
 from xdis import co_flags_is_async, iscode
 
 from uncompyle6.parser import get_python_parser

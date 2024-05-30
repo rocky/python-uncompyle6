@@ -26,7 +26,6 @@ from uncompyle6.semantics.consts import (
     TABLE_R,
 )
 from uncompyle6.semantics.helper import escape_string, flatten_list, strip_quotes
-from uncompyle6.util import get_code_name
 
 
 def escape_format(s):
