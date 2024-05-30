@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2023 by Rocky Bernstein
+#  Copyright (c) 2019-2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -15,16 +15,17 @@
 """Isolate Python 3.6 version-specific semantic actions here.
 """
 
-from xdis import iscode
 from spark_parser.ast import GenericASTTraversalPruningException
+from xdis import iscode
+
 from uncompyle6.scanners.tok import Token
-from uncompyle6.semantics.helper import flatten_list, escape_string, strip_quotes
 from uncompyle6.semantics.consts import (
     INDENT_PER_LEVEL,
     PRECEDENCE,
     TABLE_DIRECT,
     TABLE_R,
 )
+from uncompyle6.semantics.helper import escape_string, flatten_list, strip_quotes
 from uncompyle6.util import get_code_name
 
 
@@ -38,7 +39,6 @@ def escape_format(s):
 
 
 def customize_for_version36(self, version):
-
     # fmt: off
     PRECEDENCE["call_kw"]          =   0
     PRECEDENCE["call_kw36"]        =   1
@@ -276,7 +276,7 @@ def customize_for_version36(self, version):
         if value == "":
             fmt = "%c(%p)"
         else:
-            fmt = "%%c(%s, %%p)" % value
+            fmt = "%c" + ("(%s, " % value).replace("%", "%%") + "%p)"
 
         self.template_engine(
             (fmt, (0, "expr"), (2, "build_map_unpack_with_call", 100)), node
@@ -295,7 +295,7 @@ def customize_for_version36(self, version):
         if value == "":
             fmt = "%c(%p)"
         else:
-            fmt = "%%c(%s, %%p)" % value
+            fmt = "%c" + ("(%s, " % value).replace("%", "%%") + "%p)"
 
         self.template_engine(
             (fmt, (0, "expr"), (2, "build_map_unpack_with_call", 100)), node
@@ -707,6 +707,7 @@ def customize_for_version36(self, version):
             self.comprehension_walk_newer(node, iter_index=3, code_index=0)
         self.write("]")
         self.prune()
+
     self.n_list_comp_async = n_list_comp_async
 
     # def kwargs_only_36(node):
