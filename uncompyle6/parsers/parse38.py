@@ -416,7 +416,7 @@ class Python38Parser(Python37Parser):
             [opname[: opname.rfind("_")] for opname in self.seen_ops]
         )
 
-        custom_ops_processed = {"DICT_MERGE"}
+        custom_ops_processed = set(["DICT_MERGE"])
 
         # Loop over instructions adding custom grammar rules based on
         # a specific instruction seen.

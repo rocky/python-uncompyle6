@@ -240,7 +240,7 @@ def main_bin():
                 start_offset=0,
                 stop_offset=-1,
             )
-            result = [options.get("do_verify", None)] + list(result)
+            result = list(result)
             if len(pyc_paths) > 1:
                 mess = status_msg(*result)
                 print("# " + mess)
