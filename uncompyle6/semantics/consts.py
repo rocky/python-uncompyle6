@@ -57,6 +57,8 @@ PRECEDENCE = {
     "list_unpack":            38,  # *args
     "yield_from":             38,
     "tuple_list_starred":     38,  # *x, *y, *z - about at the level of yield?
+    "unpack":                 38,  # A guess. Used in "async with ... as ...
+                                   # This might also get used in tuple assignment?
 
     "_lambda_body":           30,
     "lambda_body":            32,  # lambda ... : lambda_body
@@ -329,7 +331,7 @@ TABLE_DIRECT = {
         # When a statement contains only a named_expr (:=)
         # the named_expr should have parenthesis around it.
         (0, "expr", PRECEDENCE["named_expr"] - 1)
-        ),
+    ),
 
     # Note: Python 3.8+ changes this
     "for": ("%|for %c in %c:\n%+%c%-\n\n", (3, "store"), (1, "expr"), (4, "for_block")),
@@ -384,7 +386,7 @@ TABLE_DIRECT = {
     "ifelsestmtc": ("%|if %c:\n%+%c%-%|else:\n%+%c%-", 0, 1, 3),
     "ifelsestmtl": ("%|if %c:\n%+%c%-%|else:\n%+%c%-", 0, 1, 3),
 
-    #  This is created only via transformation
+    #  This is created only via transformation.
     "ifelifstmt": ("%|if %c:\n%+%c%-%c", 0, 1, 3),  # "testexpr" or "testexpr_then"
 
     "ifelsestmtr": ("%|if %c:\n%+%c%-%|else:\n%+%c%-", 0, 1, 2),
@@ -426,10 +428,10 @@ TABLE_DIRECT = {
     "list_if": (" if %p%c", (0, "expr", 27), 2),
     "list_if_not": (" if not %p%c", (0, "expr", PRECEDENCE["unary_not"]), 2),
 
-    "mkfuncdeco": ("%|@%c\n%c", 0, 1),
+    "mkfuncdeco": ("%|@%c\n%c", (0, "expr"), 1),
     # A custom rule in n_function def distinguishes whether to call this or
     # function_def_async
-    "mkfuncdeco0": ("%|def %c\n", 0),
+    "mkfuncdeco0": ("%|def %c\n", (0, "mkfunc")),
 
     # In cases where we desire an explict new line.
     # After docstrings which are followed by a "def" is
@@ -560,6 +562,7 @@ TABLE_DIRECT = {
     #    "yield":	        ( "yield %c", 0),
 
 }
+# fmt: on
 
 
 MAP_DIRECT = (TABLE_DIRECT,)
@@ -572,7 +575,7 @@ MAP = {
     "store": MAP_R,
 }
 
-ASSIGN_TUPLE_PARAM = lambda param_name: SyntaxTree(
+ASSIGN_TUPLE_PARAM = lambda param_name: SyntaxTree(  # noqa
     "expr", [Token("LOAD_FAST", pattr=param_name)]
 )
 
