@@ -138,7 +138,7 @@ class Python37BaseParser(PythonParser):
         # Note: BUILD_TUPLE_UNPACK_WITH_CALL gets considered by
         # default because it starts with BUILD. So we'll set to ignore it from
         # the start.
-        custom_ops_processed = set(("BUILD_TUPLE_UNPACK_WITH_CALL",))
+        custom_ops_processed = {"BUILD_TUPLE_UNPACK_WITH_CALL"}
 
         # A set of instruction operation names that exist in the token stream.
         # We use this customize the grammar that we create.
