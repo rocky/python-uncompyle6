@@ -27,7 +27,7 @@ while 1:
     else:
         raise RuntimeError
 
-# Degenerate case. Note: we can't run becase this causes an infinite loop.
+# Degenerate case. Note: we can't run because this causes an infinite loop.
 # Suggested in issue #172
 while 1:
     pass

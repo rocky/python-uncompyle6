@@ -29,6 +29,7 @@ storage.
 #------------------------------------------------------------------------
 
 import sys
+
 absolute_import = (sys.version_info[0] >= 3)
 if absolute_import :
     # Because this syntaxis is not valid before Python 2.5
@@ -229,7 +230,7 @@ class DBShelf(MutableMapping):
 
     def associate(self, secondaryDB, callback, flags=0):
         def _shelf_callback(priKey, priData, realCallback=callback):
-            # Safe in Python 2.x because expresion short circuit
+            # Safe in Python 2.x because expression short circuit
             if sys.version_info[0] < 3 or isinstance(priData, bytes) :
                 data = cPickle.loads(priData)
             else :
@@ -366,7 +367,7 @@ class DBShelfCursor:
             return None
         else:
             key, data = rec
-            # Safe in Python 2.x because expresion short circuit
+            # Safe in Python 2.x because expression short circuit
             if sys.version_info[0] < 3 or isinstance(data, bytes) :
                 return key, cPickle.loads(data)
             else :
