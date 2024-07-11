@@ -36,6 +36,8 @@ class Python25Parser(Python26Parser):
         with_as ::= expr setupwithas store suite_stmts_opt
                        POP_BLOCK LOAD_CONST COME_FROM with_cleanup
 
+        # The last except of a "try: ... except" can do this...
+        except_suite ::= c_stmts_opt COME_FROM JUMP_ABSOLUTE POP_TOP
 
         store ::= STORE_NAME
         store ::= STORE_FAST
