@@ -130,6 +130,10 @@ class Python26Parser(Python2Parser):
         # Semantic actions want else_suitel to be at index 3
         ifelsestmtl ::= testexpr c_stmts_opt cf_jb_cf_pop else_suitel
         ifelsestmtc ::= testexpr c_stmts_opt ja_cf_pop    else_suitec
+        ifelsestmt ::=  testexpr stmts_opt ja_cf_pop      else_suite
+
+        # The last except of a "try: ... except" can do this...
+        except_suite ::= stmts_opt COME_FROM JUMP_ABSOLUTE POP_TOP
 
         # Semantic actions want suite_stmts_opt to be at index 3
         with        ::= expr setupwith SETUP_FINALLY suite_stmts_opt
