@@ -1,26 +1,27 @@
 # From 3.6 _markupbase.py
 
-# Bug is that the routine is long enough that POP_JUMP_IF_FALSE instruciton has an
-# EXTENDED_ARG intruction before it and we weren't picking out the jump offset properly
+# Bug is that the routine is long enough that POP_JUMP_IF_FALSE instruction has an
+# EXTENDED_ARG instruction before it and we weren't picking out the jump offset properly
+
 
 def parse_declaration(self, i):
     if rawdata[j:j] in ("-", ""):
         return -1
     n = len(rawdata)
-    if rawdata[j:j+2] == '-':
+    if rawdata[j : j + 2] == "-":
         return self.parse_comment(i)
-    elif rawdata[j] == '[':
+    elif rawdata[j] == "[":
         return self.parse_marked_section(i)
     else:
         decltype, j = self._scan_name(j, i)
     if j < 0:
         return j
     if decltype == "d":
-        self._decl_otherchars = ''
+        self._decl_otherchars = ""
     while j < n:
         c = rawdata[j]
         if c == ">":
-            data = rawdata[i+2:j]
+            data = rawdata[i + 2 : j]
             if decltype == "d":
                 self.handle_decl(data)
             else:
@@ -43,8 +44,7 @@ def parse_declaration(self, i):
             else:
                 self.error("unexpected '[' char in declaration")
         else:
-            self.error(
-                "unexpected %r char in declaration" % rawdata[j])
+            self.error("unexpected %r char in declaration" % rawdata[j])
         if j < 0:
             return j
     return -1

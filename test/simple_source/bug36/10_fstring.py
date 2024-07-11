@@ -14,6 +14,7 @@ assert (
 assert "def0" == f"{abc}0"
 assert "defdef" == f"{abc}{abc!s}"
 
+
 # From 3.8 test/test_string.py
 # We had the precedence of yield vs. lambda incorrect.
 def fn(x):
@@ -97,9 +98,10 @@ else:
 (x, y, width) = ("foo", 2, 10)
 assert f"x={x*y:{width}}" == "x=foofoo    "
 
+
 # Why the fact that the distinction of docstring versus stmt is a
 # string expression is important academic, but we will decompile an
-# equivalent thing. For compatiblity with older Python we'll use "%"
+# equivalent thing. For compatibility with older Python we'll use "%"
 # instead of a format string
 def f():
     f"""Not a docstring"""  # noqa
