@@ -22,6 +22,7 @@ from itertools import zip_longest
 
 from xdis import code_has_star_arg, code_has_star_star_arg, iscode
 
+from uncompyle6.parser import ParserError as ParserError2
 from uncompyle6.scanner import Code
 from uncompyle6.semantics.helper import (
     find_all_globals,
