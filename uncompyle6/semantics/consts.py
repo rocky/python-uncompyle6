@@ -44,7 +44,7 @@ maxint = sys.maxsize
 # children. For example, "call" has precedence 2 so we don't get
 # additional the additional parenthesis of: ".. op (call())".  However
 # for call's children, it parameters, we set the the precedence high,
-# say to 100, to make sure we avoid additional prenthesis in
+# say to 100, to make sure we avoid additional parenthesis in
 # call((.. op ..)).
 
 NO_PARENTHESIS_EVER = 100
@@ -57,6 +57,8 @@ PRECEDENCE = {
     "list_unpack":            38,  # *args
     "yield_from":             38,
     "tuple_list_starred":     38,  # *x, *y, *z - about at the level of yield?
+    "unpack":                 38,  # A guess. Used in "async with ... as ...
+                                   # This might also get used in tuple assignment?
 
     "_lambda_body":           30,
     "lambda_body":            32,  # lambda ... : lambda_body
@@ -130,7 +132,7 @@ LINE_LENGTH = 80
 # Some parse trees created below are used for comparing code
 # fragments (like "return None" at the end of functions).
 
-ASSIGN_DOC_STRING = lambda doc_string, doc_load: SyntaxTree(
+ASSIGN_DOC_STRING = lambda doc_string, doc_load: SyntaxTree(    # noqa
     "assign",
     [
         SyntaxTree(
@@ -247,12 +249,17 @@ TABLE_DIRECT = {
     "assert_expr_or": ("%c or %c", 0, 2),
     "assert_expr_and": ("%c and %c", 0, 2),
 
+    "assign": (
+        "%|%c = %p\n",
+        -1,
+        (0, ("expr", "branch_op"), PRECEDENCE["tuple_list_starred"] + 1)
+        ),
+
     "attribute": ("%c.%[1]{pattr}", (0, "expr")),
 
     # This nonterminal we create on the fly in semantic routines
     "attribute_w_parens": ("(%c).%[1]{pattr}", (0, "expr")),
 
-    "assign": ("%|%c = %p\n", -1, (0, 200)),
     # The 2nd parameter should have a = suffix.
     # There is a rule with a 4th parameter "store"
     # which we don't use here.
@@ -267,6 +274,15 @@ TABLE_DIRECT = {
         "%P",
         (0, -1, ", ", NO_PARENTHESIS_EVER)
     ),
+
+    "call_stmt":	   ( "%|%p\n",
+                             # When a call statement contains only a named_expr (:=)
+                             # the named_expr should have parenthesis around it.
+                             (0, PRECEDENCE["named_expr"]-1)),
+
+    # "classdef": (), # handled by n_classdef()
+    # A custom rule in n_function def distinguishes whether to call this or
+    # function_def_async
 
     "classdefdeco": ("\n\n%c", 0),
     "classdefdeco1": ("%|@%c\n%c", 0, 1),
@@ -283,20 +299,30 @@ TABLE_DIRECT = {
 
     "continue": ("%|continue\n",),
 
-    #   "classdef": 	(), # handled by n_classdef()
-    # A custom rule in n_function def distinguishes whether to call this or
-    # function_def_async
-
     "delete_subscript": (
         "%|del %p[%c]\n",
         (0, "expr", PRECEDENCE["subscript"]),
         (1, "expr"),
     ),
+    "designList": ("%c = %c", 0, -1),
+    "dict_comp_body": ("%c: %c", 1, 0),
+
+    "elifelifstmt": ("%|elif %c:\n%+%c%-%c", 0, 1, 3),
+    "elifelsestmt": ("%|elif %c:\n%+%c%-%|else:\n%+%c%-", 0, 1, 3),
+    "elifelsestmtr": ("%|elif %c:\n%+%c%-%|else:\n%+%c%-\n\n", 0, 1, 2),
+    "elifelsestmtr2": (
+        "%|elif %c:\n%+%c%-%|else:\n%+%c%-\n\n",
+        0,
+        1,
+        3,
+    ),  # has COME_FROM
+    "elifstmt": ("%|elif %c:\n%+%c%-", 0, 1),
 
     "except": ("%|except:\n%+%c%-", 3),
     "except_cond1": ("%|except %c:\n", 1),
     "except_cond2": ("%|except %c as %c:\n", (1, "expr"), (5, "store")),
     "except_suite": ("%+%c%-%C", 0, (1, maxint, "")),
+
     # In Python 3.6+, this is more complicated in the presence of "returns"
     "except_suite_finalize": ("%+%c%-%C", 1, (3, maxint, "")),
 
@@ -305,7 +331,7 @@ TABLE_DIRECT = {
         # When a statement contains only a named_expr (:=)
         # the named_expr should have parenthesis around it.
         (0, "expr", PRECEDENCE["named_expr"] - 1)
-        ),
+    ),
 
     # Note: Python 3.8+ changes this
     "for": ("%|for %c in %c:\n%+%c%-\n\n", (3, "store"), (1, "expr"), (4, "for_block")),
@@ -332,15 +358,12 @@ TABLE_DIRECT = {
         -2,
     ),
 
+    "function_def": ("\n\n%|def %c\n", -2),  # -2 to handle closures
+    "function_def_deco": ("\n\n%c", 0),
+
+    "gen_comp_body": ("%c", 0),
     "get_iter": ("iter(%c)", (0, "expr"),),
 
-    "set_comp_body": ("%c", 0),
-    "gen_comp_body": ("%c", 0),
-    "dict_comp_body": ("%c: %c", 1, 0),
-    "designList": ("%c = %c", 0, -1),
-    "ret_and": ("%c and %c", 0, 2),
-    "or": ("%p or %p", (0, PRECEDENCE["or"]), (1, PRECEDENCE["or"])),
-    "ret_or": ("%c or %c", 0, 2),
     "if_exp": ("%p if %c else %c", (2, "expr", 27), 0, 4),
     "if_exp_lambda": ("%p if %c else %c", (2, "expr", 27), (0, "expr"), 4),
     "if_exp_true": ("%p if 1 else %c", (0, "expr", 27), 2),
@@ -353,28 +376,6 @@ TABLE_DIRECT = {
     ),
     "if_exp_not_lambda": ("%p if not %c else %c", (2, "expr", 27), 0, 4),
 
-    "function_def": ("\n\n%|def %c\n", -2),  # -2 to handle closures
-    "function_def_deco": ("\n\n%c", 0),
-
-    # This is only generated by transform
-    # it is a string at the beginning of a function that is *not* a docstring
-    # 3.7 test_fstring.py tests for this kind of crap.
-    # For compatibility with older Python, we'll use "%" instead of
-    # a format string.
-    "string_at_beginning": ('%|"%%s" %% %c\n', 0),
-    "call_stmt":	   ( "%|%p\n",
-                             # When a call statement contains only a named_expr (:=)
-                             # the named_expr should have parenthesis around it.
-                             (0, PRECEDENCE["named_expr"]-1)),
-
-    "ifstmt": (
-        "%|if %c:\n%+%c%-",
-        0,  # "testexpr" or "testexpr_then"
-        1,  # "_ifstmts_jump" or "return_stmts"
-    ),
-    "iflaststmt": ("%|if %c:\n%+%c%-", 0, 1),
-    "iflaststmtl": ("%|if %c:\n%+%c%-", 0, 1),
-    "testtrue": ("not %p", (0, PRECEDENCE["unary_not"])),
     # Generally the args here are 0: (some sort of) "testexpr",
     #                             1: (some sort of) "cstmts_opt",
     #                             2 or 3: "else_suite"
@@ -384,20 +385,21 @@ TABLE_DIRECT = {
     "ifelsestmt": ("%|if %c:\n%+%c%-%|else:\n%+%c%-", 0, 1, 3),
     "ifelsestmtc": ("%|if %c:\n%+%c%-%|else:\n%+%c%-", 0, 1, 3),
     "ifelsestmtl": ("%|if %c:\n%+%c%-%|else:\n%+%c%-", 0, 1, 3),
-    #  These are created only via transformation
+
+    #  This is created only via transformation.
     "ifelifstmt": ("%|if %c:\n%+%c%-%c", 0, 1, 3),  # "testexpr" or "testexpr_then"
-    "elifelifstmt": ("%|elif %c:\n%+%c%-%c", 0, 1, 3),
-    "elifstmt": ("%|elif %c:\n%+%c%-", 0, 1),
-    "elifelsestmt": ("%|elif %c:\n%+%c%-%|else:\n%+%c%-", 0, 1, 3),
+
     "ifelsestmtr": ("%|if %c:\n%+%c%-%|else:\n%+%c%-", 0, 1, 2),
     "ifelsestmtr2": ("%|if %c:\n%+%c%-%|else:\n%+%c%-\n\n", 0, 1, 3),  # has COME_FROM
-    "elifelsestmtr": ("%|elif %c:\n%+%c%-%|else:\n%+%c%-\n\n", 0, 1, 2),
-    "elifelsestmtr2": (
-        "%|elif %c:\n%+%c%-%|else:\n%+%c%-\n\n",
-        0,
-        1,
-        3,
-    ),  # has COME_FROM
+    "iflaststmt": ("%|if %c:\n%+%c%-", 0, 1),
+
+    "iflaststmtl": ("%|if %c:\n%+%c%-", 0, 1),
+
+    "ifstmt": (
+        "%|if %c:\n%+%c%-",
+        0,  # "testexpr" or "testexpr_then"
+        1,  # "_ifstmts_jump" or "return_stmts"
+    ),
 
     "import": ("%|import %c\n", 2),
     "importlist": ("%C", (0, maxint, ", ")),
@@ -415,6 +417,7 @@ TABLE_DIRECT = {
 
     "kv": ("%c: %c", 3, 1),
     "kv2": ("%c: %c", 1, 2),
+
     "kwarg": ("%[0]{pattr}=%c", 1),  # Change when Python 2 does LOAD_STR
     "kwargs": ("%D", (0, maxint, ", ")),
     "kwargs1": ("%D", (0, maxint, ", ")),
@@ -425,16 +428,20 @@ TABLE_DIRECT = {
     "list_if": (" if %p%c", (0, "expr", 27), 2),
     "list_if_not": (" if not %p%c", (0, "expr", PRECEDENCE["unary_not"]), 2),
 
-    "mkfuncdeco": ("%|@%c\n%c", 0, 1),
+    "mkfuncdeco": ("%|@%c\n%c", (0, "expr"), 1),
     # A custom rule in n_function def distinguishes whether to call this or
     # function_def_async
-    "mkfuncdeco0": ("%|def %c\n", 0),
+    "mkfuncdeco0": ("%|def %c\n", (0, "mkfunc")),
 
     # In cases where we desire an explict new line.
     # After docstrings which are followed by a "def" is
     # one situations where Python formatting desires two newlines,
     # and this is added, as a transformation rule.
     "newline": ("\n"),
+
+    "or": ("%p or %p", (0, PRECEDENCE["or"]), (1, PRECEDENCE["or"])),
+
+    "pass": ("%|pass\n",),
 
     "print_item": (", %c", 0),
     "print_items_nl_stmt": ("%|print %c%c\n", 0, 2),
@@ -445,15 +452,18 @@ TABLE_DIRECT = {
     "print_to_items": ("%C", (0, 2, ", ")),
     "print_to_nl": ("%|print >> %c, %c\n", 0, 1),
 
-    "pass": ("%|pass\n",),
-
     "raise_stmt0": ("%|raise\n",),
     "raise_stmt1": ("%|raise %c\n", 0),
     "raise_stmt3": ("%|raise %c, %c, %c\n", 0, 1, 2),
 
+    "ret_and": ("%c and %c", 0, 2),
+    "ret_or": ("%c or %c", 0, 2),
+
     # Note: we have a custom rule, which calls when we don't
     # have "return None"
     "return":	( "%|return %c\n", 0),
+
+    "set_comp_body": ("%c", 0),
 
     "set_iter":        ( "%c", 0 ),
 
@@ -491,6 +501,13 @@ TABLE_DIRECT = {
         (0, "expr")
     ),
 
+    # This is only generated by transform
+    # it is a string at the beginning of a function that is *not* a docstring
+    # 3.7 test_fstring.py tests for this kind of crap.
+    # For compatibility with older Python, we'll use "%" instead of
+    # a format string.
+    "string_at_beginning": ('%|"%%s" %% %c\n', 0),
+
     "subscript": (
         "%p[%p]",
         (0, "expr", PRECEDENCE["subscript"]),
@@ -503,13 +520,16 @@ TABLE_DIRECT = {
         (1, "expr", NO_PARENTHESIS_EVER)
     ),
 
+    "testtrue": ("not %p", (0, PRECEDENCE["unary_not"])),
+
+    # Note: this is generated generated by grammar rules but in this phase.
+    "tf_try_except": ("%c%-%c%+", 1, 3),
+    "tf_tryelsestmt": ("%c%-%c%|else:\n%+%c", 1, 3, 4),
+
     "try_except": ("%|try:\n%+%c%-%c\n\n", 1, 3),
     "tryelsestmt": ("%|try:\n%+%c%-%c%|else:\n%+%c%-\n\n", 1, 3, 4),
     "tryelsestmtc": ("%|try:\n%+%c%-%c%|else:\n%+%c%-", 1, 3, 4),
     "tryelsestmtl": ("%|try:\n%+%c%-%c%|else:\n%+%c%-", 1, 3, 4),
-    # Note: this is generated generated by grammar rules but in this phase.
-    "tf_try_except": ("%c%-%c%+", 1, 3),
-    "tf_tryelsestmt": ("%c%-%c%|else:\n%+%c", 1, 3, 4),
     "tryfinallystmt": ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", 1, 5),
 
     # unary_op (formerly "unary_expr") is the Python AST UnaryOp
@@ -542,6 +562,7 @@ TABLE_DIRECT = {
     #    "yield":	        ( "yield %c", 0),
 
 }
+# fmt: on
 
 
 MAP_DIRECT = (TABLE_DIRECT,)
@@ -554,7 +575,7 @@ MAP = {
     "store": MAP_R,
 }
 
-ASSIGN_TUPLE_PARAM = lambda param_name: SyntaxTree(
+ASSIGN_TUPLE_PARAM = lambda param_name: SyntaxTree(  # noqa
     "expr", [Token("LOAD_FAST", pattr=param_name)]
 )
 
