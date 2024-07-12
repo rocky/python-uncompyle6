@@ -108,4 +108,4 @@ if __name__ == "__main__":
         # assert linemap == linemap2
         return
 
-    deparse_test(deparse_test.__code__)
+    deparse_test(deparse_test.func_code)

@@ -1,7 +1,7 @@
 #  Copyright (c) 2020, 2022, 2024 Rocky Bernstein
 
 
-def tryexcept(self, lhs, n: int, rule, ast, tokens, first: int, last: int):
+def tryexcept(self, lhs, n, rule, ast, tokens, first, last):
     come_from_except = ast[-1]
     if rule == (
         "try_except",
