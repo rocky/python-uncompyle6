@@ -20,8 +20,8 @@ Step 2: Run the test:
 	  test_pyenvlib --mylib --verify # decompile verify 'mylib'
 """
 
-from __future__ import print_function
-
+# Does not work on 2.5.9 or before
+# from __future__ import print_function
 import os
 import re
 import shutil
