@@ -608,6 +608,10 @@ class Scanner:
 
 
 def get_scanner(version, is_pypy=False, show_asm=None):
+    """
+    Import the right scanner module for ``version`` and return the Scanner class
+    in that module.
+    """
     # If version is a string, turn that into the corresponding float.
     if isinstance(version, str):
         if version not in canonic_python_version:
