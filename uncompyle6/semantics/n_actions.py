@@ -926,66 +926,18 @@ class NonterminalActions:
     n_set = n_build_set = n_tuple = n_list
 
     def n_list_comp(self, node):
-        """List comprehensions"""
-        p = self.prec
-        self.prec = 100
-        if self.version >= (2, 7):
-            if self.is_pypy:
-                self.n_list_comp_pypy27(node)
-                return
-            n = node[-1]
-        elif node[-1] == "delete":
-            if node[-2] == "JUMP_BACK":
-                n = node[-3]
-            else:
-                n = node[-2]
-
-        assert n == "list_iter"
-
-        # Find the list comprehension body. It is the inner-most
-        # node that is not list_.. .
-        # FIXME: DRY with other use
-        while n == "list_iter":
-            n = n[0]  # iterate one nesting deeper
-            if n == "list_for":
-                n = n[3]
-            elif n == "list_if":
-                n = n[2]
-            elif n == "list_if_not":
-                n = n[2]
-        assert n == "lc_body"
-        self.write("[ ")
-
-        if self.version >= (2, 7):
-            expr = n[0]
-            list_iter = node[-1]
+        self.write("[")
+        if node[0].kind == "load_closure":
+            assert self.version >= (3, 0)
+            self.listcomp_closure3(node)
         else:
-            expr = n[1]
-            if node[-2] == "JUMP_BACK":
-                list_iter = node[-3]
+            if node == "listcomp_async":
+                list_iter_index = 5
             else:
-                list_iter = node[-2]
-
-        assert expr == "expr"
-        assert list_iter == "list_iter"
-
-        # FIXME: use source line numbers for directing line breaks
-
-        line_number = self.line_number
-        last_line = self.f.getvalue().split("\n")[-1]
-        l = len(last_line)
-        indent = " " * (l - 1)
-
-        self.preorder(expr)
-        line_number = self.indent_if_source_nl(line_number, indent)
-        self.preorder(list_iter)
-        l2 = self.indent_if_source_nl(line_number, indent)
-        if l2 != line_number:
-            self.write(" " * (len(indent) - len(self.indent) - 1) + "]")
-        else:
-            self.write(" ]")
-        self.prec = p
-        self.prune()  # stop recursing
+                list_iter_index = 1
+            self.comprehension_walk_newer(node, list_iter_index, 0)
+        self.write("]")
+        self.prune()
 
     def n_list_comp_pypy27(self, node):
         """List comprehensions in PYPY."""
@@ -1035,20 +987,6 @@ class NonterminalActions:
         self.write(" ]")
         self.prec = p
         self.prune()  # stop recursing
-
-    def n_list_comp(self, node):
-        self.write("[")
-        if node[0].kind == "load_closure":
-            assert self.version >= (3, 0)
-            self.listcomp_closure3(node)
-        else:
-            if node == "listcomp_async":
-                list_iter_index = 5
-            else:
-                list_iter_index = 1
-            self.comprehension_walk_newer(node, list_iter_index, 0)
-        self.write("]")
-        self.prune()
 
     def n_mkfunc(self, node):
         code_node = find_code_node(node, -2)

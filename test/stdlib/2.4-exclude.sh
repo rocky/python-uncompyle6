@@ -38,17 +38,14 @@ SKIP_TESTS=(
     [test_winreg.py]=1 # it fails on its own
     [test_winsound.py]=1 # it fails on its own
     [test_zlib.py]=1 # it fails on its own
-
-    [test_decimal.py]=1  #
+    [test_decimal.py]=1  # fails on its own - no module named test_support
     [test_dis.py]=1   # We change line numbers - duh!
-    [test_generators.py]=1  # Investigate
+    [test_generators.py]=1  # fails on its own - no module named test_support
     # [test_grammar.py]=1    # fails on its own - no module tests.test_support
     [test_grp.py]=1      # Long test - might work Control flow?
-    [test_pep247.py]=1 # Long test - might work? Control flow?
     [test_socketserver.py]=1 # -- test takes too long to run: 40 seconds
     [test_threading.py]=1 # test takes too long to run: 11 seconds
     [test_thread.py]=1 # test takes too long to run: 36 seconds
     [test_trace.py]=1 # Long test - works
-    [test_zipfile64.py]=1  # Runs ok but takes 204 seconds
 )
  # About 243 files, 0 in 19 minutes
