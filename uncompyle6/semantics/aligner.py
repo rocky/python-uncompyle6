@@ -1,4 +1,4 @@
-#  Copyright (c) 2018, 2022-2023 by Rocky Bernstein
+#  Copyright (c) 2018, 2022-2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -18,11 +18,14 @@ import sys
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from xdis import iscode
 
-from xdis.version_info import IS_PYPY
+from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
+
 from uncompyle6.scanner import get_scanner
+from uncompyle6.semantics.consts import  ASSIGN_DOC_STRING
+
 from uncompyle6.semantics.pysource import (
-    ASSIGN_DOC_STRING,
     RETURN_NONE,
+    TREE_DEFAULT_DEBUG,
     SourceWalker,
     SourceWalkerError,
     find_globals_and_nonlocals
@@ -38,7 +41,7 @@ class AligningWalker(SourceWalker, object):
         version,
         out,
         scanner,
-        showast=False,
+        showast=TREE_DEFAULT_DEBUG,
         debug_parser=PARSER_DEFAULT_DEBUG,
         compile_mode="exec",
         is_pypy=False,
@@ -48,6 +51,7 @@ class AligningWalker(SourceWalker, object):
         )
         self.desired_line_number = 0
         self.current_line_number = 0
+        self.showast = showast
 
     def println(self, *data):
         if data and not (len(data) == 1 and data[0] == ""):
@@ -113,12 +117,12 @@ class AligningWalker(SourceWalker, object):
             key = key[i]
             pass
 
-        if key.type in table:
-            self.template_engine(table[key.type], node)
+        if key.kind in table:
+            self.template_engine(table[key.kind], node)
             self.prune()
 
 
-DEFAULT_DEBUG_OPTS = {"asm": False, "tree": False, "grammar": False}
+DEFAULT_DEBUG_OPTS = {"asm": False, "tree": TREE_DEFAULT_DEBUG, "grammar": False}
 
 
 def code_deparse_align(
@@ -137,7 +141,7 @@ def code_deparse_align(
     assert iscode(co)
 
     if version is None:
-        version = float(sys.version[0:3])
+        version = PYTHON_VERSION_TRIPLE
     if is_pypy is None:
         is_pypy = IS_PYPY
 
@@ -156,11 +160,11 @@ def code_deparse_align(
         debug_parser["errorstack"] = True
 
     #  Build a parse tree from tokenized and massaged disassembly.
-    show_ast = debug_opts.get("ast", None)
+    show_ast = debug_opts.get("ast", TREE_DEFAULT_DEBUG)
     deparsed = AligningWalker(
         version,
-        scanner,
         out,
+        scanner,
         showast=show_ast,
         debug_parser=debug_parser,
         compile_mode=compile_mode,
@@ -210,4 +214,4 @@ if __name__ == "__main__":
         print(deparsed.text)
         return
 
-    deparse_test(deparse_test.__code__)
+    deparse_test(deparse_test.func_code)

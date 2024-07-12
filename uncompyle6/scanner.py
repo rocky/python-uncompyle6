@@ -22,6 +22,7 @@ scanners, e.g. for Python 2.7 or 3.4.
 """
 
 from abc import ABC
+>>>>>>> Stashed changes
 from array import array
 from collections import namedtuple
 from types import ModuleType
