@@ -39,7 +39,6 @@ SKIP_TESTS=(
     [test_winsound.py]=1 # it fails on its own
     [test_zlib.py]=1 # it fails on its own
     [test_decimal.py]=1  # fails on its own - no module named test_support
->>>>>>> python-3.0-to-3.2
     [test_dis.py]=1   # We change line numbers - duh!
     [test_generators.py]=1  # fails on its own - no module named test_support
     # [test_grammar.py]=1    # fails on its own - no module tests.test_support
