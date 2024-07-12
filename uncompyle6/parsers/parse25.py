@@ -62,6 +62,11 @@ class Python25Parser(Python26Parser):
         kv     ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
 
         _ifstmts_jump ::= c_stmts_opt COME_FROM JUMP_ABSOLUTE COME_FROM POP_TOP
+
+
+        # "and_then" is a hack around the fact we have THEN detection.
+        and_then ::= expr JUMP_IF_FALSE THEN POP_TOP expr JUMP_IF_FALSE THEN POP_TOP
+        testexpr_then ::= and_then
         """
 
     def customize_grammar_rules(self, tokens, customize):
