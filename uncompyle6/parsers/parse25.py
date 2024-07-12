@@ -60,6 +60,8 @@ class Python25Parser(Python26Parser):
 
         kvlist ::= kvlist kv
         kv     ::= DUP_TOP expr ROT_TWO expr STORE_SUBSCR
+
+        _ifstmts_jump ::= c_stmts_opt COME_FROM JUMP_ABSOLUTE COME_FROM POP_TOP
         """
 
     def customize_grammar_rules(self, tokens, customize):
