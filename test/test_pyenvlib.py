@@ -22,7 +22,6 @@ Step 2: Run the test:
 
 # Does not work on 2.5.9 or before
 # from __future__ import print_function
->>>>>>> python-3.0-to-3.2
 import os
 import re
 import shutil
