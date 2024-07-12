@@ -19,17 +19,17 @@
 
 TL;DR (too long; didn't read)
 
-* Don't do something illegal. And don't ask me to do something illegal or help you do something illegal
-* We already have an infinite supply of decompilation bugs that need fixing, and an automated mechanism for finding more. Decompilation bugs get addressed by easiness to fix and by whim. If you expect yours to be fixed ahead of those, you need to justify why.
+* Don't do something illegal. And don't ask me to do something illegal or help you do something illegal.
+* We already have an infinite supply of decompilation bugs that need fixing, and an automated mechanism for finding more. Decompilation bugs get addressed by easiness to fix and by whim. If you expect yours to be fixed ahead of those, you need to justify why. You can ask for a hand-assisted decompilation, but that is expensive and beyond what most are willing to spend. A $100 fee is needed just to look at the bytecode.
 * When asking for help, you may be asked for what you've tried on your own first. There are plenty of sources of information about this code.
-* If you are looking for *timely* help or support, well, that is typically known as a _paid_ service. I don't really have a mechanism for that since I have a full-time job. But supporting the project is an approximation.
-* Submitting a bug or issue report that is likely to get acted upon may require a bit of effort on your part to make it easy for the problem solver. If you are not willing to do that, please don't waste our time. As indicated above, supporting the project will increase the likelihood of your issue getting noticed and acted upon.
+* Bugs get fixed, slowly. Sometimes on the order of months or years. If you are looking for *timely* help or support, that is typically known as a _paid_ service.
+* Submitting a bug or issue report that is likely to get acted upon may require a bit of effort on your part to make it easy for the problem solver. If you are not willing to do that, please don't waste your or our time. Bug report may be closed with about as much thought and care as apparent in the effort to create the bug. Supporting the project however, does increase the likelihood of your issue getting noticed and acted upon.
 
 # Ethics
 
-I do not condone using this program for unethical or illegal purposes. More detestable, at least to me, is asking for help to assist you in something that might not legitimate.
+Do not use this program for unethical or illegal purposes. More detestable, at least to me, is asking for help to assist you in something that might not legitimate.
 
-Don't use the issue tracker for such solicitations. To try to stave off illegitimate behavior, you should note that the issue tracker, the code, and bugs mentioned in that are in the open: there is no
+Don't use the issue tracker for such unethical or illegal solicitations. To try to stave off illegitimate behavior, you should note that the issue tracker, the code, and bugs mentioned in that are in the open: there is no
 confidentiality. You may be asked about the authorship or claimed ownership of the bytecode. If I think something is not quite right, I may label the issue questionable which may make the it easier those who are looking for illegal activity.
 
 
@@ -37,13 +37,13 @@ confidentiality. You may be asked about the authorship or claimed ownership of t
 
 For many open-source projects bugs where the expectation is that bugs are rare, reporting bugs in a *thoughtful* way can be helpful. See also [How to Ask Questions the Smart Way](http://www.catb.org/~esr/faqs/smart-questions.html).
 
-In this project though, most of the bug reports boil down to the something like: I am trying to reverse engineer some code that I am not the author/owner and that person doesn't want me to have access to. I am hitting a problem somewhere along the line which might have to do with decompilation, but it could be something else like how the bytecode was extracted, some problem in deliberately obfuscated code, or the use some kind of Python bytecode version that isn't supported by the decompiler.
+In this project though, most of the bug reports boil down to the something like: I am trying to reverse engineer some code that I am not the author/owner and that person doesn't want me to have access to. I am hitting a problem somewhere along the line which might have to do with decompilation. But it could be something else like how the bytecode was extracted, some problem in deliberately obfuscated code, or the use some kind of Python bytecode version that isn't supported by the decompiler. Gee this stuff is complicated, here's an open source project, so maybe someone there will help me figure stuff out.
 
-While you are free to report these, unless you sponsor the project, I may close them with about the same amount of effort spent that I think was used to open the report for them. And if you spent a considerable amount of time to create the bug report but didn't follow instructions given here and in the issue template, I am sorry in advance. Just go back, read, and follow instructions.
+While you are free to report bugs, unless you sponsor the project, I may close them with about the same amount of effort spent that I think was used to open the report for them. And if you spent a considerable amount of time to create the bug report but didn't follow instructions given here and in the issue template, I am sorry in advance. Just go back, read, and follow instructions.
 
 This project already has an infinite supply of bugs that have been narrowed to the most minimal form and where I have source code to compare against. And in the unlikely event this supply runs out, I have automated means for generating *another* infinite supply.
 
-In this project the task of justifying why addressing your bug is of use to the community, and why it should be prioritized over the others, is the bug reporter's responsibility.
+The task of justifying why addressing your bug is of use to the community, and why it should be prioritized over the others, is the bug reporter's responsibility.
 
 While in the abstract, I have no problem answering questions about how to read a Python traceback or install Python software, or trying to understand what is going wrong in your particular setup, I am not a paid support person and there other things I'd rather be doing with my limited volunteer time. So save us both time, effort, and aggravation: use other avenues like StackOverflow. Again, justifying why you should receive unpaid help is the help requester's responsibility.
 

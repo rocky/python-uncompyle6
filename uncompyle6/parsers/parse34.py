@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2018 Rocky Bernstein
+#  Copyright (c) 2017-2018, 2022-2024 Rocky Bernstein
 
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ from uncompyle6.parsers.parse33 import Python33Parser
 
 
 class Python34Parser(Python33Parser):
-
     def p_misc34(self, args):
         """
         expr ::= LOAD_ASSERT
@@ -57,36 +56,45 @@ class Python34Parser(Python33Parser):
         """
 
     def customize_grammar_rules(self, tokens, customize):
-        self.remove_rules("""
+        self.remove_rules(
+            """
         yield_from    ::= expr expr YIELD_FROM
         # 3.4.2 has this. 3.4.4 may now
         # while1stmt ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
-        """)
+        """
+        )
         super(Python34Parser, self).customize_grammar_rules(tokens, customize)
         return
+
 
 class Python34ParserSingle(Python34Parser, PythonParserSingle):
     pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Check grammar
     p = Python34Parser()
     p.check_grammar()
     from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
+
     if PYTHON_VERSION_TRIPLE[:2] == (3, 4):
         lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from uncompyle6.scanner import get_scanner
+
         s = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY)
-        opcode_set = set(s.opc.opname).union(set(
-            """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+        opcode_set = set(s.opc.opname).union(
+            set(
+                """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
                LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
                LAMBDA_MARKER RETURN_LAST
-            """.split()))
+            """.split()
+            )
+        )
         remain_tokens = set(tokens) - opcode_set
         import re
-        remain_tokens = set([re.sub(r'_\d+$', '',  t) for t in remain_tokens])
-        remain_tokens = set([re.sub('_CONT$', '', t) for t in remain_tokens])
+
+        remain_tokens = set([re.sub(r"_\d+$", "", t) for t in remain_tokens])
+        remain_tokens = set([re.sub("_CONT$", "", t) for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         print(remain_tokens)
         # print(sorted(p.rule2name.items()))
