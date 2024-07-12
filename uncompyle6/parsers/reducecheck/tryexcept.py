@@ -1,16 +1,17 @@
-#  Copyright (c) 2020, 2022 Rocky Bernstein
+#  Copyright (c) 2020, 2022, 2024 Rocky Bernstein
 
-def tryexcept(self, lhs, n, rule, ast, tokens, first, last):
+
+def tryexcept(self, lhs, n: int, rule, ast, tokens, first: int, last: int):
     come_from_except = ast[-1]
     if rule == (
-            "try_except",
-            (
-                "SETUP_EXCEPT",
-                "suite_stmts_opt",
-                "POP_BLOCK",
-                "except_handler",
-                "opt_come_from_except",
-            ),
+        "try_except",
+        (
+            "SETUP_EXCEPT",
+            "suite_stmts_opt",
+            "POP_BLOCK",
+            "except_handler",
+            "opt_come_from_except",
+        ),
     ):
         if come_from_except[0] == "COME_FROM":
             # There should be at least two COME_FROMs, one from an
@@ -20,31 +21,31 @@ def tryexcept(self, lhs, n, rule, ast, tokens, first, last):
         pass
 
     elif rule == (
-            "try_except",
-            (
-                "SETUP_EXCEPT",
-                "suite_stmts_opt",
-                "POP_BLOCK",
-                "except_handler",
-                "COME_FROM",
-            ),
+        "try_except",
+        (
+            "SETUP_EXCEPT",
+            "suite_stmts_opt",
+            "POP_BLOCK",
+            "except_handler",
+            "COME_FROM",
+        ),
     ):
         return come_from_except.attr < tokens[first].offset
 
     elif rule == (
-            'try_except',
-            (
-                'SETUP_EXCEPT',
-                'suite_stmts_opt',
-                'POP_BLOCK',
-                'except_handler',
-                '\\e_opt_come_from_except'
-            ),
+        "try_except",
+        (
+            "SETUP_EXCEPT",
+            "suite_stmts_opt",
+            "POP_BLOCK",
+            "except_handler",
+            "\\e_opt_come_from_except",
+        ),
     ):
         # Find END_FINALLY.
         for i in range(last, first, -1):
             if tokens[i] == "END_FINALLY":
-                jump_before_finally = tokens[i-1]
+                jump_before_finally = tokens[i - 1]
                 if jump_before_finally.kind.startswith("JUMP"):
                     if jump_before_finally == "JUMP_FORWARD":
                         # If there is a JUMP_FORWARD before
@@ -52,7 +53,9 @@ def tryexcept(self, lhs, n, rule, ast, tokens, first, last):
                         # beyond tokens[last].off2int() then
                         # this is a try/else rather than an
                         # try (no else).
-                        return tokens[i-1].attr > tokens[last].off2int(prefer_last=True)
+                        return tokens[i - 1].attr > tokens[last].off2int(
+                            prefer_last=True
+                        )
                     elif jump_before_finally == "JUMP_BACK":
                         # If there is a JUMP_BACK before the
                         # END_FINALLY then this is a looping
@@ -61,8 +64,10 @@ def tryexcept(self, lhs, n, rule, ast, tokens, first, last):
                         # jump or this is a try/else rather
                         # than an try (no else).
                         except_handler = ast[3]
-                        if (except_handler == "except_handler" and
-                            except_handler[0] == "JUMP_FORWARD"):
+                        if (
+                            except_handler == "except_handler"
+                            and except_handler[0] == "JUMP_FORWARD"
+                        ):
                             return True
                         return False
                     pass

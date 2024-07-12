@@ -162,7 +162,7 @@ the right bytecode for the Python interpreter that will be checking
 the syntax.
 
 You can also cross compare the results with another version of
-`uncompyle6` since there are sometimes regressions in decompiling
+*uncompyle6* since there are sometimes regressions in decompiling
 specific bytecode as the overall quality improves.
 
 For Python 3.7 and 3.8, the code in decompyle3_ is generally
@@ -265,7 +265,7 @@ be solved if one were to put in the time to do so. The problem is that
 there aren't that many people who have been working on bug fixing.
 
 Some of the bugs in 3.7 and 3.8 are simply a matter of back-porting
-the fixes in decompyle3. Volunteers are welcome to do so.
+the fixes in *decompyle3*. Any volunteers?
 
 You may run across a bug, that you want to report. Please do so after
 reading `How to report a bug
@@ -274,7 +274,10 @@ follow the `instructions when opening an issue <https://github.com/rocky/python-
 
 Be aware that it might not get my attention for a while. If you
 sponsor or support the project in some way, I'll prioritize your
-issues above the queue of other things I might be doing instead.
+issues above the queue of other things I might be doing instead. In
+rare situtations, I can do a hand decompilation of bytecode for a fee.
+However this is expansive, usually beyond what most people are willing
+to spend.
 
 See Also
 --------

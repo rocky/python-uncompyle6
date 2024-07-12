@@ -469,14 +469,16 @@ class Python26Parser(Python2Parser):
             return tokens[last].offset != ja_attr
         elif lhs == "try_except":
             # We need to distinguish "try_except" from "tryelsestmt"; we do that
-            # by checking the jump before the END_FINALLY
+            # by looking for a jump before the END_FINALLY to the "else" clause of
+            # "try else".
+            #
             # If we have:
-            #    insn
+            #    <insn>
             #    POP_TOP
             #    END_FINALLY
             #    COME_FROM
-            # then insn has to be either a JUMP_FORWARD or a RETURN_VALUE
-            # and if it is JUMP_FORWARD, then it has to be a JUMP_FORWARD to right after
+            # then <insn> has to be either a a jump of some sort (JUMP_FORWARD, BREAK_LOOP, JUMP_BACK, or RETURN_VALUE).
+            # Furthermore, if it is JUMP_FORWARD, then it has to be a JUMP_FORWARD to right after
             # COME_FROM
             if last == len(tokens):
                 last -= 1
@@ -490,7 +492,7 @@ class Python26Parser(Python2Parser):
                 # A jump of 2 is a jump around POP_TOP, END_FINALLY which
                 # would indicate try/else rather than try
                 return tokens[last - 3].kind not in frozenset(
-                    ("JUMP_FORWARD", "RETURN_VALUE")
+                    ("JUMP_FORWARD", "JUMP_BACK", "BREAK_LOOP", "RETURN_VALUE")
                 ) or (tokens[last - 3] == "JUMP_FORWARD" and tokens[last - 3].attr != 2)
 
         return False
