@@ -120,19 +120,6 @@ class Python24Parser(Python25Parser):
             token_len = len(tokens)
             if 0 <= token_len < len(tokens):
                 return not int(tokens[first].pattr) == tokens[last].offset
-        elif lhs == "try_except":
-            if last == len(tokens):
-                last -= 1
-            if tokens[last] != "COME_FROM" and tokens[last - 1] == "COME_FROM":
-                last -= 1
-            return (
-                tokens[last] == "COME_FROM"
-                and tokens[last - 1] == "END_FINALLY"
-                and tokens[last - 2] == "POP_TOP"
-                and tokens[last - 3].kind != "JUMP_FORWARD"
-            )
-
-        return False
 
 
 class Python24ParserSingle(Python24Parser, PythonParserSingle):
