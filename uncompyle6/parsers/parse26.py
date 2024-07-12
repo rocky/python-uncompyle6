@@ -493,51 +493,6 @@ class Python26Parser(Python2Parser):
                 return tokens[last - 3].kind not in frozenset(
                     ("JUMP_FORWARD", "RETURN_VALUE")
                 ) or (tokens[last - 3] == "JUMP_FORWARD" and tokens[last - 3].attr != 2)
-        elif lhs == "tryelsestmt":
-            # We need to distinguish "try_except" from "tryelsestmt"; we do that
-            # by making sure that the jump before the except handler jumps to
-            # code somewhere before the end of the construct.
-            # This AST method is slower, but the token-only based approach
-            # didn't work as it failed with a "try" embedded inside a "try/else"
-            # since we can't detect COME_FROM boundaries.
-
-            if ast[3] == "except_handler":
-                except_handler = ast[3]
-                if except_handler[0] == "JUMP_FORWARD":
-                    else_start = int(except_handler[0].pattr)
-                    if last == len(tokens):
-                        last -= 1
-                    if tokens[last] == "COME_FROM" and isinstance:
-                        last_offset = int(tokens[last].offset.split("_")[0])
-                        return else_start >= last_offset
-
-            # The above test apparently isn't good enough, so we have additional
-            # checks distinguish "try_except" from "tryelsestmt". we do that
-            # by checking the jump before the "END_FINALLY".
-            # If we have:
-            #    insn
-            #    POP_TOP
-            #    END_FINALLY
-            #    COME_FROM
-            # then insn is neither a JUMP_FORWARD nor RETURN_VALUE,
-            # or if it is JUMP_FORWARD, then it can't be a JUMP_FORWARD to right after
-            # COME_FROM
-            if last == len(tokens):
-                last -= 1
-            while tokens[last - 1] == "COME_FROM" and tokens[last - 2] == "COME_FROM":
-                last -= 1
-            if tokens[last] == "COME_FROM" and tokens[last - 1] == "COME_FROM":
-                last -= 1
-            if (
-                tokens[last] == "COME_FROM"
-                and tokens[last - 1] == "END_FINALLY"
-                and tokens[last - 2] == "POP_TOP"
-            ):
-                # A jump of 2 is a jump around POP_TOP, END_FINALLY which
-                # would indicate try/else rather than try
-                return tokens[last - 3].kind in frozenset(
-                    ("JUMP_FORWARD", "RETURN_VALUE")
-                ) and (tokens[last - 3] != "JUMP_FORWARD" or tokens[last - 3].attr == 2)
 
         return False
 
