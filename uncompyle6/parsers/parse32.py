@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017, 2022 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2022-2024 Rocky Bernstein
 """
 spark grammar differences over Python 3 for Python 3.2.
 """
@@ -84,7 +84,7 @@ class Python32Parser(Python3Parser):
         for i, token in enumerate(tokens):
             opname = token.kind
             if opname.startswith("MAKE_FUNCTION_A"):
-                args_pos, args_kw, annotate_args = token.attr
+                args_pos, _, annotate_args = token.attr
                 # Check that there are 2 annotated params?
                 rule = (
                     "mkfunc_annotate ::= %s%sannotate_tuple "
