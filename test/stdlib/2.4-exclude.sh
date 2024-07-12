@@ -38,9 +38,10 @@ SKIP_TESTS=(
     [test_winreg.py]=1 # it fails on its own
     [test_winsound.py]=1 # it fails on its own
     [test_zlib.py]=1 # it fails on its own
-    [test_decimal.py]=1  # failes on its own - no module named test_support
+    [test_decimal.py]=1  # fails on its own - no module named test_support
+>>>>>>> python-3.0-to-3.2
     [test_dis.py]=1   # We change line numbers - duh!
-    [test_generators.py]=1  # Investigate
+    [test_generators.py]=1  # fails on its own - no module named test_support
     # [test_grammar.py]=1    # fails on its own - no module tests.test_support
     [test_grp.py]=1      # Long test - might work Control flow?
     [test_socketserver.py]=1 # -- test takes too long to run: 40 seconds

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # emacs-mode: -*-python-*-
 """
-test_pyenvlib -- uncompyle and verify Python libraries
+test_pyenvlib -- decompile and verify Python libraries
 
 Usage-Examples:
 
@@ -20,11 +20,18 @@ Step 2: Run the test:
 	  test_pyenvlib --mylib --verify # decompile verify 'mylib'
 """
 
-import os, time, re, shutil, sys
+from __future__ import print_function
+import os
+import re
+import shutil
+import sys
+import time
+import time
 from fnmatch import fnmatch
 
-from uncompyle6 import main
 import xdis.magics as magics
+
+from uncompyle6 import main
 
 # ----- configure this for your needs
 
@@ -79,6 +86,12 @@ for vers in TEST_VERSIONS:
     else:
         if vers == "native":
             short_vers = os.path.basename(sys.path[-1])
+            from xdis.version_info import PYTHON_VERSION_TRIPLE, version_tuple_to_str
+
+            if PYTHON_VERSION_TRIPLE > (3, 0):
+                version = version_tuple_to_str(end=2)
+                PYC = f"*.cpython-{version}.pyc"
+>>>>>>> python-3.0-to-3.2
             test_options[vers] = (sys.path[-1], PYC, short_vers)
         else:
             short_vers = vers[:3]
@@ -127,8 +140,17 @@ def do_tests(
             pass
 
     if len(files) > max_files:
-        files = [file for file in files if not "site-packages" in file and (file.endswith(".pyo") or file.endswith(".pyc"))]
-        files = [file for file in files if not "test" in file and (file.endswith(".pyo") or file.endswith(".pyc"))]
+        files = [
+            file
+            for file in files
+            if not "site-packages" in file
+            and (file.endswith(".pyo") or file.endswith(".pyc"))
+        ]
+        files = [
+            file
+            for file in files
+            if not "test" in file and (file.endswith(".pyo") or file.endswith(".pyc"))
+        ]
         if len(files) > max_files:
             # print("Number of files %d - truncating to last 200" % len(files))
             print(
@@ -145,7 +167,8 @@ def do_tests(
 
 
 if __name__ == "__main__":
-    import getopt, sys
+    import getopt
+    import sys
 
     do_coverage = do_verify = False
     test_dirs = []
