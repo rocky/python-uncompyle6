@@ -314,17 +314,25 @@ class Scanner3(Scanner):
         if count < 5:
             return None
 
-        collection_start = i - (count * 2)
-        assert (count * 2) <= i
+        if self.version >= (3, 5):
+            # Newer Python BUILD_MAP argument's count is a
+            # key and value pair so it is multiplied by two.
+            collection_start = i - (count * 2)
+            assert (count * 2) <= i
 
-        for j in range(collection_start, i, 2):
-            if insts[j].opname not in ("LOAD_CONST",):
-                return None
-            if insts[j + 1].opname not in ("LOAD_CONST",):
-                return None
+            for j in range(collection_start, i, 2):
+                if insts[j].opname not in ("LOAD_CONST",):
+                    return None
+                if insts[j + 1].opname not in ("LOAD_CONST",):
+                    return None
 
-        collection_start = i - (2 * count)
-        collection_enum = CONST_COLLECTIONS.index("CONST_MAP")
+            collection_start = i - (2 * count)
+            collection_enum = CONST_COLLECTIONS.index("CONST_MAP")
+        # else: Older Python count is sum of all key and value pairs
+        # Each pair is added individually like:
+        #    LOAD_CONST           ("Max-Age")
+        #    LOAD_CONST           ("max-age")
+        #    STORE_MAP
 
         # If we get here, all instructions before tokens[i] are LOAD_CONST and
         # we can replace add a boundary marker and change LOAD_CONST to
@@ -521,7 +529,7 @@ class Scanner3(Scanner):
                 if try_tokens is not None:
                     new_tokens = try_tokens
                     continue
-            elif opname in ("BUILD_MAP",):
+            elif opname in ("BUILD_MAP",) and self.version >= (3, 5):
                 try_tokens = self.bound_map_from_inst(
                     self.insts,
                     new_tokens,

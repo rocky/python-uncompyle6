@@ -90,7 +90,7 @@ for vers in TEST_VERSIONS:
 
             if PYTHON_VERSION_TRIPLE > (3, 0):
                 version = version_tuple_to_str(end=2)
-                PYC = f"*.cpython-{version}.pyc"
+                PYC = "*.cpython-%s.pyc" % version
             test_options[vers] = (sys.path[-1], PYC, short_vers)
         else:
             short_vers = vers[:3]
