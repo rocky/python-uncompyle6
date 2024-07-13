@@ -110,6 +110,8 @@ class Python35Parser(Python34Parser):
         return_if_stmt    ::= return_expr RETURN_END_IF POP_BLOCK
         return_if_lambda  ::= RETURN_END_IF_LAMBDA COME_FROM
 
+        return            ::= return_expr RETURN_END_IF
+
         jb_else     ::= JUMP_BACK ELSE
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
         ifelsestmtl ::= testexpr c_stmts_opt jb_else else_suitel
