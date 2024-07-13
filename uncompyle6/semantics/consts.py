@@ -431,7 +431,7 @@ TABLE_DIRECT = {
     "mkfuncdeco": ("%|@%c\n%c", (0, "expr"), 1),
     # A custom rule in n_function def distinguishes whether to call this or
     # function_def_async
-    "mkfuncdeco0": ("%|def %c\n", (0, "mkfunc")),
+    "mkfuncdeco0": ("%|def %c\n", (0, ("mkfunc", "mkfunc_annotate"))),
 
     # In cases where we desire an explict new line.
     # After docstrings which are followed by a "def" is
