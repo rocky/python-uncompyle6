@@ -213,7 +213,7 @@ class Scanner2(Scanner):
                 names=co.co_names,
                 constants=co.co_consts,
                 cells=bytecode._cell_names,
-                linestarts=bytecode._linestarts,
+                line_starts=bytecode._linestarts,
                 asm_format="extended",
             )
 
