@@ -87,6 +87,12 @@ for vers in TEST_VERSIONS:
     else:
         if vers == "native":
             short_vers = os.path.basename(sys.path[-1])
+            from xdis.version_info import PYTHON_VERSION_TRIPLE, version_tuple_to_str
+
+            if PYTHON_VERSION_TRIPLE > (3, 0):
+                version = version_tuple_to_str(end=2)
+                PYC = "*.cpython-%s.pyc" % version
+>>>>>>> python-3.0-to-3.2
             test_options[vers] = (sys.path[-1], PYC, short_vers)
         else:
             short_vers = vers[:3]

@@ -20,6 +20,7 @@ import re
 from uncompyle6.semantics.consts import INDENT_PER_LEVEL, PRECEDENCE, TABLE_DIRECT
 from uncompyle6.semantics.helper import flatten_list
 
+# FIXME get from a newer xdis
 FSTRING_CONVERSION_MAP = {1: "!s", 2: "!r", 3: "!a", "X": ":X"}
 
 
