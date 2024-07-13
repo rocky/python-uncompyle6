@@ -82,14 +82,8 @@ IFELSE_STMT_RULES = frozenset(
             ),
         ),
         (
-            'ifelsestmtc',
-            (
-                'testexpr',
-                'c_stmts_opt',
-                'JUMP_FORWARD',
-                'else_suite',
-                'come_froms'
-            ),
+            "ifelsestmtc",
+            ("testexpr", "c_stmts_opt", "JUMP_FORWARD", "else_suite", "come_froms"),
         ),
         (
             "ifelsestmt",
@@ -155,7 +149,6 @@ IFELSE_STMT_RULES = frozenset(
 
 
 def ifelsestmt(self, lhs, n, rule, tree, tokens, first, last):
-
     if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP" and lhs != "ifelsestmtc":
         # ifelsestmt jumped outside of loop. No good.
         return True
@@ -176,10 +169,7 @@ def ifelsestmt(self, lhs, n, rule, tree, tokens, first, last):
     stmts = tree[1]
     if stmts in ("c_stmts",) and len(stmts) == 1:
         raise_stmt1 = stmts[0]
-        if (
-                raise_stmt1 == "raise_stmt1" and
-                raise_stmt1[0] in ("LOAD_ASSERT",)
-        ):
+        if raise_stmt1 == "raise_stmt1" and raise_stmt1[0] in ("LOAD_ASSERT",):
             return True
 
     # Make sure all the offsets from the "come froms" at the
@@ -277,17 +267,18 @@ def ifelsestmt(self, lhs, n, rule, tree, tokens, first, last):
                 # only if we are trying to match or reduce an "if"
                 # statement of the kind that can occur only inside a
                 # loop construct.
+
                 if lhs in ("ifelsestmtl", "ifelsestmtc"):
                     jump_false = jmp
                     if (
-                        tree[2].kind == "JUMP_FORWARD"
+                        tree[2].kind in ("JUMP_FORWARD", "JUMP_ABSOLUTE")
                         and jump_false == "jmp_false"
                         and len(else_suite) == 1
                     ):
                         suite_stmts = else_suite[0]
                         continue_stmt = suite_stmts[0]
                         if (
-                            suite_stmts == "suite_stmts"
+                            suite_stmts in ("suite_stmts", "c_stmts")
                             and len(suite_stmts) == 1
                             and continue_stmt == "continue"
                             and jump_false[0].attr == continue_stmt[0].attr
