@@ -228,13 +228,13 @@ class Scanner37Base(Scanner):
 
         if show_asm in ("both", "before"):
             print("\n# ---- disassembly:")
-            self.insts = bytecode.disassemble_bytes(
+            bytecode.disassemble_bytes(
                 co.co_code,
                 varnames=co.co_varnames,
                 names=co.co_names,
                 constants=co.co_consts,
                 cells=bytecode._cell_names,
-                linestarts=bytecode._linestarts,
+                line_starts=bytecode._linestarts,
                 asm_format="extended",
                 filename=co.co_filename,
                 show_source=True,
@@ -481,12 +481,17 @@ class Scanner37Base(Scanner):
                     next_opname = self.insts[i + 1].opname
 
                     # 'Continue's include jumps to loops that are not
-                    # and the end of a block which follow with POP_BLOCK and COME_FROM_LOOP.
-                    # If the JUMP_ABSOLUTE is to a FOR_ITER and it is followed by another JUMP_FORWARD
-                    # then we'll take it as a "continue".
-                    is_continue = (
-                        self.insts[self.offset2inst_index[target]].opname == "FOR_ITER"
-                        and self.insts[i + 1].opname == "JUMP_FORWARD"
+                    # and the end of a block which follow with
+                    # POP_BLOCK and COME_FROM_LOOP.  If the
+                    # JUMP_ABSOLUTE is to a FOR_ITER, and it is
+                    # followed by another JUMP_FORWARD then we'll take
+                    # it as a "continue".
+                    next_inst = self.insts[i + 1]
+                    is_continue = self.insts[
+                        self.offset2inst_index[target]
+                    ].opname == "FOR_ITER" and next_inst.opname in (
+                        "JUMP_FORWARD",
+                        "JUMP_ABSOLUTE",
                     )
 
                     if self.version < (3, 8) and (
@@ -501,21 +506,65 @@ class Scanner37Base(Scanner):
                     ):
                         opname = "CONTINUE"
                     else:
+                        # "continue" versus "break_loop" dectction is more complicated
+                        # because "continue" to an outer loop is really a "break loop"
                         opname = "JUMP_BACK"
+
                         # FIXME: this is a hack to catch stuff like:
                         #   if x: continue
                         # the "continue" is not on a new line.
-                        # There are other situations where we don't catch
-                        # CONTINUE as well.
-                        if tokens[-1].kind == "JUMP_BACK" and tokens[-1].attr <= argval:
+                        #
+                        # Another situation is where we have
+                        #   for method in methods:
+                        #      for B in method:
+                        #         if c:
+                        #           return
+                        #        break  # A "continue" but not the innermost one
+                        if tokens[-1].kind == "JUMP_LOOP" and tokens[-1].attr <= argval:
                             if tokens[-2].kind == "BREAK_LOOP":
                                 del tokens[-1]
+                                j -= 1
                             else:
-                                # intern is used because we are changing the *previous* token
-                                tokens[-1].kind = sys.intern("CONTINUE")
-                    if last_op_was_break and opname == "CONTINUE":
-                        last_op_was_break = False
-                        continue
+                                # "intern" is used because we are
+                                # changing the *previous* token.  A
+                                # POP_TOP suggests a "break" rather
+                                # than a "continue"?
+                                if tokens[-2] == "POP_TOP" and (
+                                    is_continue and next_inst.argval != tokens[-1].attr
+                                ):
+                                    tokens[-1].kind = sys.intern("BREAK_LOOP")
+                                else:
+                                    tokens[-1].kind = sys.intern("CONTINUE")
+                                    last_continue = tokens[-1]
+                                    pass
+                                pass
+                            pass
+                    #     elif (
+                    #         last_continue is not None
+                    #         and tokens[-1].kind == "JUMP_LOOP"
+                    #         and last_continue.attr <= tokens[-1].attr
+                    #         and last_continue.offset > tokens[-1].attr
+                    #     ):
+                    #         # Handle mis-characterized "CONTINUE"
+                    #         # We have a situation like:
+                    #         # loop ... for or while)
+                    #         #   loop
+                    #         #     if ...:   # code below starts here
+                    #         #       break  # not continue
+                    #         #
+                    #         #   POP_JUMP_IF_FALSE_LOOP   # to outer loop
+                    #         #   JUMP_LOOP                # to inner loop
+                    #         #   ...
+                    #         #   JUMP_LOOP                # to outer loop
+                    #         tokens[-2].kind = sys.intern("BREAK_LOOP")
+                    #         pass
+
+                    # if last_op_was_break and opname == "CONTINUE":
+                    #     last_op_was_break = False
+                    #     continue
+                    pass
+                else:
+                    opname = "JUMP_FORWARD"
 
             elif inst.offset in self.load_asserts:
                 opname = "LOAD_ASSERT"
@@ -538,9 +587,10 @@ class Scanner37Base(Scanner):
             )
             pass
 
-        if show_asm in ("both", "after"):
+        if show_asm in ("both", "after") and self.version < (3, 8):
             print("\n# ---- tokenization:")
-            for t in tokens:
+            # FIXME: t.format() is changing tokens!
+            for t in tokens.copy():
                 print(t.format(line_prefix=""))
             print()
         return tokens, customize
