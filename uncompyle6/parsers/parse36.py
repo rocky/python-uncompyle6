@@ -54,6 +54,8 @@ class Python36Parser(Python35Parser):
         come_from_loops ::= COME_FROM_LOOP*
 
         whilestmt       ::= SETUP_LOOP testexpr l_stmts_opt
+                            JUMP_BACK come_froms POP_BLOCK
+        whilestmt       ::= SETUP_LOOP testexpr l_stmts_opt
                             JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
         whilestmt       ::= SETUP_LOOP testexpr l_stmts_opt
                             come_froms JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
