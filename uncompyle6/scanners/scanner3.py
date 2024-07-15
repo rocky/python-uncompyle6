@@ -216,7 +216,7 @@ class Scanner3(Scanner):
         collection_type: str,
     ) -> Optional[list]:
         """
-        Try to a replace sequence of instruction that ends with a
+        Try to replace a sequence of instruction that ends with a
         BUILD_xxx with a sequence that can be parsed much faster, but
         inserting the token boundary at the beginning of the sequence.
         """
@@ -298,8 +298,8 @@ class Scanner3(Scanner):
         )
         return new_tokens
 
-    def bound_map_from_inst(
-        self, insts: list, next_tokens: list, inst: Instruction, t: Token, i: int
+    def bound_map_from_inst_35(
+        self, insts: list, next_tokens: list, t: Token, i: int
     ) -> Optional[list]:
         """
         Try to a sequence of instruction that ends with a BUILD_MAP into
@@ -315,25 +315,19 @@ class Scanner3(Scanner):
         if count < 5:
             return None
 
-        if self.version >= (3, 5):
-            # Newer Python BUILD_MAP argument's count is a
-            # key and value pair so it is multiplied by two.
-            collection_start = i - (count * 2)
-            assert (count * 2) <= i
+        # Newer Python BUILD_MAP argument's count is a
+        # key and value pair so it is multiplied by two.
+        collection_start = i - (count * 2)
+        assert (count * 2) <= i
 
-            for j in range(collection_start, i, 2):
-                if insts[j].opname not in ("LOAD_CONST",):
-                    return None
-                if insts[j + 1].opname not in ("LOAD_CONST",):
-                    return None
+        for j in range(collection_start, i, 2):
+            if insts[j].opname not in ("LOAD_CONST",):
+                return None
+            if insts[j + 1].opname not in ("LOAD_CONST",):
+                return None
 
-            collection_start = i - (2 * count)
-            collection_enum = CONST_COLLECTIONS.index("CONST_MAP")
-        # else: Older Python count is sum of all key and value pairs
-        # Each pair is added individually like:
-        #    LOAD_CONST           ("Max-Age")
-        #    LOAD_CONST           ("max-age")
-        #    STORE_MAP
+        collection_start = i - (2 * count)
+        collection_enum = CONST_COLLECTIONS.index("CONST_MAP")
 
         # If we get here, all instructions before tokens[i] are LOAD_CONST and
         # we can replace add a boundary marker and change LOAD_CONST to
@@ -346,7 +340,7 @@ class Scanner3(Scanner):
                 attr=collection_enum,
                 pattr="CONST_MAP",
                 offset=f"{start_offset}_0",
-                linestart=False,
+                linestart=insts[collection_start].starts_line,
                 has_arg=True,
                 has_extended_arg=False,
                 opc=self.opc,
@@ -364,6 +358,7 @@ class Scanner3(Scanner):
                     has_arg=True,
                     has_extended_arg=False,
                     opc=self.opc,
+                    optype="pseudo",
                 )
             )
             new_tokens.append(
@@ -376,7 +371,7 @@ class Scanner3(Scanner):
                     has_arg=True,
                     has_extended_arg=False,
                     opc=self.opc,
-                    optype=insts[j + 1].optype,
+                    optype="pseudo",
                 )
             )
         new_tokens.append(
@@ -389,7 +384,93 @@ class Scanner3(Scanner):
                 has_arg=t.has_arg,
                 has_extended_arg=False,
                 opc=t.opc,
-                optype=t.optype,
+                optype="pseudo",
+            )
+        )
+        return new_tokens
+
+    def bound_map_from_inst_pre35(
+        self, insts: list, next_tokens: list, t: Token, i: int
+    ):
+        """
+        Try to a sequence of instruction that ends with a BUILD_MAP into
+        a sequence that can be parsed much faster, but inserting the
+        token boundary at the beginning of the sequence.
+        """
+        count = t.attr
+        assert isinstance(count, int)
+
+        # For small lists don't bother
+        if count < 10:
+            return None
+
+        # Older Python BUILD_MAP argument's count is a
+        # key and value pair and STORE_MAP. So it is multiplied by three.
+        collection_end = i + 1 + count * 3
+
+        for j in range(i + 1, collection_end, 3):
+            if insts[j].opname not in ("LOAD_CONST",):
+                return None
+            if insts[j + 1].opname not in ("LOAD_CONST",):
+                return None
+            if insts[j + 2].opname not in ("STORE_MAP",):
+                return None
+
+        collection_enum = CONST_COLLECTIONS.index("CONST_MAP")
+
+        new_tokens = next_tokens[:i]
+        start_offset = insts[i].offset
+        new_tokens.append(
+            Token(
+                opname="COLLECTION_START",
+                attr=collection_enum,
+                pattr="CONST_MAP",
+                offset=f"{start_offset}_0",
+                linestart=insts[i].starts_line,
+                has_arg=True,
+                has_extended_arg=False,
+                opc=self.opc,
+                optype="pseudo",
+            )
+        )
+        for j in range(i + 1, collection_end, 3):
+            new_tokens.append(
+                Token(
+                    opname="ADD_KEY",
+                    attr=insts[j + 1].argval,
+                    pattr=insts[j + 1].argrepr,
+                    offset=insts[j + 1].offset,
+                    linestart=insts[j + 1].starts_line,
+                    has_arg=True,
+                    has_extended_arg=False,
+                    opc=self.opc,
+                    optype="pseudo",
+                )
+            )
+            new_tokens.append(
+                Token(
+                    opname="ADD_VALUE",
+                    attr=insts[j].argval,
+                    pattr=insts[j].argrepr,
+                    offset=insts[j].offset,
+                    linestart=insts[j].starts_line,
+                    has_arg=True,
+                    has_extended_arg=False,
+                    opc=self.opc,
+                    optype="pseudo",
+                )
+            )
+        new_tokens.append(
+            Token(
+                opname="BUILD_DICT_OLDER",
+                attr=t.attr,
+                pattr=t.pattr,
+                offset=t.offset,
+                linestart=t.linestart,
+                has_arg=t.has_arg,
+                has_extended_arg=False,
+                opc=t.opc,
+                optype="pseudo",
             )
         )
         return new_tokens
@@ -497,8 +578,16 @@ class Scanner3(Scanner):
 
         last_op_was_break = False
         new_tokens = []
+        skip_end_offset = None
 
         for i, inst in enumerate(self.insts):
+            # BUILD_MAP for < 3.5 can skip *forward* in instructions and
+            # replace them. So we use the below to get up to the position
+            # scanned and replaced forward
+            if skip_end_offset and inst.offset <= skip_end_offset:
+                continue
+            skip_end_offset = None
+
             opname = inst.opname
             argval = inst.argval
             pattr = inst.argrepr
@@ -532,17 +621,38 @@ class Scanner3(Scanner):
                 if try_tokens is not None:
                     new_tokens = try_tokens
                     continue
-            elif opname in ("BUILD_MAP",) and self.version >= (3, 5):
-                try_tokens = self.bound_map_from_inst(
+
+            elif opname in ("BUILD_MAP",):
+                bound_map_from_insts_fn = (
+                    self.bound_map_from_inst_35
+                    if self.version >= (3, 5)
+                    else self.bound_map_from_inst_pre35
+                )
+                try_tokens = bound_map_from_insts_fn(
                     self.insts,
                     new_tokens,
-                    inst,
                     t,
                     i,
                 )
                 if try_tokens is not None:
-                    new_tokens = try_tokens
-                    continue
+                    if self.version < (3, 5):
+                        assert try_tokens[-1] == "BUILD_DICT_OLDER"
+                        prev_offset = inst.offset
+                        for j in range(i, len(self.insts)):
+                            if self.insts[j].opname == "STORE_NAME":
+                                new_tokens = try_tokens
+                                skip_end_offset = prev_offset
+                                # Set a hacky sentinal to indicate skipping to the
+                                # next instruction
+                                opname = "EXTENDED_ARG"
+                                break
+                            prev_offset = self.insts[j].offset
+                            pass
+                        pass
+                    else:
+                        new_tokens = try_tokens
+                        continue
+                pass
 
             argval = inst.argval
             op = inst.opcode
