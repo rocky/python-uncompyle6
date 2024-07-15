@@ -299,7 +299,7 @@ class Scanner3(Scanner):
 
     def bound_map_from_inst_35(
         self, insts: list, next_tokens: list, t: Token, i: int
-    ) -> Optional[list]:
+    ):
         """
         Try to a sequence of instruction that ends with a BUILD_MAP into
         a sequence that can be parsed much faster, but inserting the
@@ -424,7 +424,7 @@ class Scanner3(Scanner):
                 opname="COLLECTION_START",
                 attr=collection_enum,
                 pattr="CONST_MAP",
-                offset=f"{start_offset}_0",
+                offset="%s_0" % start_offset,
                 linestart=insts[i].starts_line,
                 has_arg=True,
                 has_extended_arg=False,
