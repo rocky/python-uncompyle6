@@ -33,6 +33,7 @@ For example:
 Finally we save token information.
 """
 
+from copy import deepcopy
 import xdis
 
 # Get all the opcodes into globals
@@ -285,7 +286,7 @@ class Scanner3(Scanner):
         )
         return new_tokens
 
-    def bound_map_from_inst(self, insts, next_tokens, t, i):
+    def bound_map_from_inst_35(self, insts, next_tokens, t, i):
         """
         Try to a sequence of instruction that ends with a BUILD_MAP into
         a sequence that can be parsed much faster, but inserting the
@@ -609,11 +610,10 @@ class Scanner3(Scanner):
                     continue
 
             elif opname in ("BUILD_MAP",):
-                bound_map_from_insts_fn = (
-                    self.bound_map_from_inst_35
-                    if self.version >= (3, 5)
-                    else self.bound_map_from_inst_pre35
-                )
+                if self.version >= (3, 5):
+                    bound_map_from_insts_fn = self.bound_map_from_inst_35
+                else:
+                    bound_map_from_insts_fn = self.bound_map_from_inst_pre35
                 try_tokens = bound_map_from_insts_fn(
                     self.insts,
                     new_tokens,
@@ -898,7 +898,7 @@ class Scanner3(Scanner):
         if show_asm in ("both", "after"):
             print("\n# ---- tokenization:")
             # FIXME: t.format() is changing tokens!
-            for t in new_tokens.copy():
+            for t in deepcopy(new_tokens):
                 print(t.format(line_prefix=""))
             print()
         return new_tokens, customize

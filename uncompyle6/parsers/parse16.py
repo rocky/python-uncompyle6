@@ -38,7 +38,7 @@ class Python16ParserSingle(Python16Parser, PythonParserSingle):
 
 if __name__ == '__main__':
     # Check grammar
-    p = Python15Parser()
+    p = Python16Parser()
     p.check_grammar()
     p.dump_grammar()
 

@@ -22,6 +22,8 @@ other versions of Python. Also, we save token information for later
 use in deparsing.
 """
 
+from copy import copy
+
 # bytecode verification, verify(), uses jump_ops from here
 from xdis import iscode
 from xdis.bytecode import _get_const_info
@@ -350,7 +352,7 @@ class Scanner26(Scanner2):
         if show_asm in ("both", "after"):
             print("\n# ---- tokenization:")
             # FIXME: t.format() is changing tokens!
-            for t in tokens.copy():
+            for t in copy(tokens):
                 print(t.format(line_prefix=""))
             print()
         return tokens, customize
