@@ -375,7 +375,7 @@ class Scanner3(Scanner):
         return new_tokens
 
     def bound_map_from_inst_pre35(
-        self, insts: list, next_tokens: list, t: Token, i: int
+        self, insts, next_tokens, t, i
     ):
         """
         Try to a sequence of instruction that ends with a BUILD_MAP into
