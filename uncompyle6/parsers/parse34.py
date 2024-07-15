@@ -54,9 +54,9 @@ class Python34Parser(Python33Parser):
 
         genexpr_func ::= LOAD_ARG _come_froms FOR_ITER store comp_iter JUMP_BACK
 
-        if_exp_lambda ::= expr jmp_false expr return_if_lambda come_froms return_stmt_lambda LAMBDA_MARKER
-
-        return_if_stmt    ::= return_expr RETURN_END_IF POP_BLOCK
+        if_exp_lambda      ::= expr jmp_false expr return_if_lambda come_froms return_stmt_lambda LAMBDA_MARKER
+        return_if_lambda   ::= RETURN_END_IF_LAMBDA come_froms
+        return_if_stmt     ::= return_expr RETURN_END_IF POP_BLOCK
         """
 
     def customize_grammar_rules(self, tokens, customize):
