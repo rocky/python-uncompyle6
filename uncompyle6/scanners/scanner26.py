@@ -349,7 +349,8 @@ class Scanner26(Scanner2):
 
         if show_asm in ("both", "after"):
             print("\n# ---- tokenization:")
-            for t in tokens:
+            # FIXME: t.format() is changing tokens!
+            for t in tokens.copy():
                 print(t.format(line_prefix=""))
             print()
         return tokens, customize
