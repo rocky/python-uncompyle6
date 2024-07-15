@@ -215,7 +215,7 @@ class Scanner3(Scanner):
         collection_type: str,
     ):
         """
-        Try to a replace sequence of instruction that ends with a
+        Try to replace a sequence of instruction that ends with a
         BUILD_xxx with a sequence that can be parsed much faster, but
         inserting the token boundary at the beginning of the sequence.
         """
@@ -297,8 +297,9 @@ class Scanner3(Scanner):
         )
         return new_tokens
 
-    # FIXME: consider moving to scanner35
-    def bound_map_from_inst_35(self, insts: list, next_tokens: list, t: Token, i: int):
+    def bound_map_from_inst_35(
+        self, insts: list, next_tokens: list, t: Token, i: int
+    ) -> Optional[list]:
         """
         Try to a sequence of instruction that ends with a BUILD_MAP into
         a sequence that can be parsed much faster, but inserting the
@@ -423,7 +424,7 @@ class Scanner3(Scanner):
                 opname="COLLECTION_START",
                 attr=collection_enum,
                 pattr="CONST_MAP",
-                offset="%s_0" % start_offset,
+                offset=f"{start_offset}_0",
                 linestart=insts[i].starts_line,
                 has_arg=True,
                 has_extended_arg=False,
@@ -618,6 +619,7 @@ class Scanner3(Scanner):
                 if try_tokens is not None:
                     new_tokens = try_tokens
                     continue
+
             elif opname in ("BUILD_MAP",):
                 bound_map_from_insts_fn = (
                     self.bound_map_from_inst_35
