@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2022 by Rocky Bernstein
+#  Copyright (c) 2019-2022, 2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -28,6 +28,10 @@ from uncompyle6.scanners.scanner37base import Scanner37Base
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_38 as opc
+
+from uncompyle6.scanners.scanner37 import Scanner37
+from uncompyle6.scanners.scanner37base import Scanner37Base
+from uncompyle6.scanners.tok import off2int
 
 # bytecode verification, verify(), uses JUMP_OPS from here
 JUMP_OPs = opc.JUMP_OPS
@@ -120,35 +124,26 @@ class Scanner38(Scanner37):
                     new_tokens.append(token)
                     continue
 
-                # We also want to avoid confusing BREAK_LOOPS with parts of the
-                # grammar rules for loops. (Perhaps we should change the grammar.)
-                # Try to find an adjacent JUMP_BACK which is part of the normal loop end.
+                j = i
+                while tokens[j - 1] in ("POP_TOP", "POP_BLOCK", "POP_EXCEPT"):
+                    j -= 1
+                    if tokens[j].linestart:
+                        break
+                token_with_linestart = tokens[j]
 
-                if i + 1 < len(tokens) and tokens[i + 1] == "JUMP_BACK":
-                    # Sometimes the jump back is after the "break" instruction..
-                    jump_back_index = i + 1
-                else:
-                    # and sometimes, because of jump-to-jump optimization, it is before the
-                    # jump target instruction.
-                    jump_back_index = self.offset2tok_index[jump_target] - 1
-                    while tokens[jump_back_index].kind.startswith("COME_FROM_"):
-                        jump_back_index -= 1
-                        pass
-                    pass
-                jump_back_token = tokens[jump_back_index]
-
-                # Is this a forward jump not next to a JUMP_BACK ? ...
-                break_loop = token.linestart and jump_back_token != "JUMP_BACK"
-
-                # or if there is looping jump back, then that loop
-                # should start before where the "break" instruction sits.
-                if break_loop or (
-                    jump_back_token == "JUMP_BACK"
-                    and jump_back_token.attr < token.off2int()
-                ):
+                if token_with_linestart.linestart:
                     token.kind = "BREAK_LOOP"
+
                 pass
             new_tokens.append(token)
+
+        if show_asm in ("both", "after"):
+            print("\n# ---- tokenization:")
+            # FIXME: t.format() is changing tokens!
+            for t in new_tokens.copy():
+                print(t.format(line_prefix=""))
+            print()
+
         return new_tokens, customize
 
 
