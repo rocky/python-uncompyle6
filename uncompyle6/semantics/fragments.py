@@ -1922,9 +1922,12 @@ class FragmentsWalker(pysource.SourceWalker, object):
                             node[index].kind,
                         )
                     else:
-                        assert node[tup[0]] in tup[1], (
-                            f"at {node.kind}[{tup[0]}], expected to be in '{tup[1]}' "
-                            f"node; got '{node[tup[0]].kind}'"
+                        assert (
+                            node[tup[0]] in tup[1],
+c                        ), "at %s[%d], expected '%s' node; got '%s'" % (
+                            tup[0].kind,
+                            tup[1],
+                            node[tup[0]].kind,
                         )
 
                 else:
