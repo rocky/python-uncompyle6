@@ -1538,9 +1538,9 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.write("(")
             if kwargs:
                 # Last arg is tuple of keyword values: omit
-                l = n - 1
+                m = n - 1
             else:
-                l = n
+                m = n
 
             if kwargs:
                 # 3.6+ does this
@@ -1552,7 +1552,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     j += 1
 
                 j = 0
-                while i < l:
+                while i < m:
                     self.write(sep)
                     value = self.traverse(node[i])
                     self.write("%s=%s" % (kwargs[j], value))
@@ -1560,7 +1560,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     j += 1
                     i += 1
             else:
-                while i < l:
+                while i < m:
                     value = self.traverse(node[i])
                     i += 1
                     self.write(sep, value)
@@ -1812,12 +1812,12 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def template_engine(self, entry, startnode):
         """The format template interpretation engine.  See the comment at the
-        beginning of this module for the how we interpret format
+        beginning of this module for how we interpret format
         specifications such as %c, %C, and so on.
         """
 
         # print("-----")
-        # print(startnode)
+        # print(startnode.kind)
         # print(entry[0])
         # print('======')
 
@@ -1872,14 +1872,27 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
                 index = entry[arg]
                 if isinstance(index, tuple):
-                    assert (
-                        node[index[0]] == index[1]
-                    ), "at %s[%d], expected %s node; got %s" % (
-                        node.kind,
-                        arg,
-                        node[index[0]].kind,
-                        index[1],
-                    )
+                    if isinstance(index[1], str):
+                        # if node[index[0]] != index[1]:
+                        #     from trepan.api import debug; debug()
+                        assert (
+                            node[index[0]] == index[1]
+                        ), "at %s[%d], expected '%s' node; got '%s'" % (
+                            node.kind,
+                            arg,
+                            index[1],
+                            node[index[0]].kind,
+                        )
+                    else:
+                        assert (
+                            node[index[0]] in index[1]
+                        ), "at %s[%d], expected to be in '%s' node; got '%s'" % (
+                            node.kind,
+                            arg,
+                            index[1],
+                            node[index[0]].kind,
+                        )
+
                     index = index[0]
                 assert isinstance(
                     index, int
@@ -1899,14 +1912,21 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 assert isinstance(tup, tuple)
                 if len(tup) == 3:
                     (index, nonterm_name, self.prec) = tup
-                    assert (
-                        node[index] == nonterm_name
-                    ), "at %s[%d], expected '%s' node; got '%s'" % (
-                        node.kind,
-                        arg,
-                        nonterm_name,
-                        node[index].kind,
-                    )
+                    if isinstance(tup[1], str):
+                        assert (
+                            node[index] == nonterm_name
+                        ), "at %s[%d], expected '%s' node; got '%s'" % (
+                            node.kind,
+                            arg,
+                            nonterm_name,
+                            node[index].kind,
+                        )
+                    else:
+                        assert node[tup[0]] in tup[1], (
+                            f"at {node.kind}[{tup[0]}], expected to be in '{tup[1]}' "
+                            f"node; got '{node[tup[0]].kind}'"
+                        )
+
                 else:
                     assert len(tup) == 2
                     (index, self.prec) = entry[arg]
@@ -2117,6 +2137,7 @@ def code_deparse(
     # Build Syntax Tree from tokenized and massaged disassembly.
     # deparsed = pysource.FragmentsWalker(out, scanner, showast=showast)
     show_tree = debug_opts.get("tree", False)
+    linestarts = dict(scanner.opc.findlinestarts(co))
     deparsed = walker(
         version,
         scanner,
