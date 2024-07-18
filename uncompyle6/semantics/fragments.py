@@ -1476,7 +1476,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # as a custom rule
         start = len(self.f.getvalue())
         n = len(node) - 1
-
+        j = 0
         if node.kind != "expr":
             if node == "kwarg":
                 self.template_engine(("(%[0]{attr}=%c)", 1), node)
