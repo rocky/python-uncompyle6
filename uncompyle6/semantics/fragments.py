@@ -1912,7 +1912,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 assert isinstance(tup, tuple)
                 if len(tup) == 3:
                     (index, nonterm_name, self.prec) = tup
-                    if isinstance(tup[1], str):
+                    if isinstance(nonterm_name, str):
                         assert (
                             node[index] == nonterm_name
                         ), "at %s[%d], expected '%s' node; got '%s'" % (
@@ -1923,11 +1923,13 @@ class FragmentsWalker(pysource.SourceWalker, object):
                         )
                     else:
                         assert (
-                            node[tup[0]] in tup[1],
-                        ), "at %s[%d], expected '%s' node; got '%s'" % (
-                            tup[0].kind,
-                            tup[1],
-                            node[tup[0]].kind,
+                            node[tup[index]] in nonterm_name,
+                            "at %s[%d], expected '%s' node; got '%s'"
+                            % (
+                                tup[0].kind,
+                                tup[1],
+                                node[tup[0]].kind,
+                            ),
                         )
 
                 else:

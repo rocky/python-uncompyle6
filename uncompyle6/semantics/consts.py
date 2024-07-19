@@ -251,7 +251,7 @@ TABLE_DIRECT = {
     "assign": (
         "%|%c = %p\n",
         -1,
-        (0, ("expr", "branch_op"), PRECEDENCE["tuple_list_starred"] + 1)
+        (0, ("expr", "branch_op")), PRECEDENCE["tuple_list_starred"] + 1
         ),
 
     "attribute": ("%c.%[1]{pattr}", (0, "expr")),
