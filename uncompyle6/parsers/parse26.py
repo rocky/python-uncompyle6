@@ -132,6 +132,9 @@ class Python26Parser(Python2Parser):
         ifelsestmtc ::= testexpr c_stmts_opt ja_cf_pop    else_suitec
         ifelsestmt ::=  testexpr stmts_opt ja_cf_pop      else_suite
 
+        stmts_opt ::= stmts
+        stmts_opt ::=
+
         # The last except of a "try: ... except" can do this...
         except_suite ::= stmts_opt COME_FROM JUMP_ABSOLUTE POP_TOP
 
