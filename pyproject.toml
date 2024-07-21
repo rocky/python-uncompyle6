@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools>=61.2",
+    "setuptools>=71.0.3",
 ]
 
 build-backend = "setuptools.build_meta"
@@ -15,7 +15,7 @@ description = "Python cross-version byte-code library and disassembler"
 dependencies = [
     "click",
     "spark-parser >= 1.8.9, < 1.9.0",
-    "xdis >= 6.0.8, < 6.2.0",
+    "xdis >= 6.1.0, < 6.2.0",
 ]
 readme = "README.rst"
 license = {text = "GPL"}
