@@ -172,7 +172,7 @@ def ifelsestmt(self, lhs, n, rule, tree, tokens, first, last):
         if raise_stmt1 == "raise_stmt1" and raise_stmt1[0] in ("LOAD_ASSERT",):
             return True
 
-    # Make sure all the offsets from the "come froms" at the
+    # Make sure all the offsets from the "COME_FROMs" at the
     # end of the "if" come from somewhere inside the "if".
     # Since the come_froms are ordered so that lowest
     # offset COME_FROM is last, it is sufficient to test

@@ -432,7 +432,7 @@ TABLE_DIRECT = {
     # function_def_async
     "mkfuncdeco0": ("%|def %c\n", (0, ("mkfunc", "mkfunc_annotate"))),
 
-    # In cases where we desire an explict new line.
+    # In cases where we desire an explicit new line.
     # After docstrings which are followed by a "def" is
     # one situations where Python formatting desires two newlines,
     # and this is added, as a transformation rule.
