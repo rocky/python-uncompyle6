@@ -669,6 +669,8 @@ def get_python_parser(
 
     version = version[:2]
 
+    p = None
+
     # FIXME: there has to be a better way...
     # We could do this as a table lookup, but that would force us
     # in import all of the parsers all of the time. Perhaps there is

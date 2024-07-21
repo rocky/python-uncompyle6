@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2016, 2818-2022 by Rocky Bernstein
+#  Copyright (c) 2015-2016, 2818-2022, 2024 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -17,10 +17,12 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-CPython magic- and version- independent disassembly routines
+CPython magic- and version-independent disassembly routines
 
 There are two reasons we can't use Python's built-in routines
-from dis. First, the bytecode we are extracting may be from a different
+from ``dis``.
+
+First, the bytecode we are extracting may be from a different
 version of Python (different magic number) than the version of Python
 that is doing the extraction.
 
@@ -39,12 +41,12 @@ from uncompyle6.scanner import get_scanner
 
 def disco(version, co, out=None, is_pypy=False):
     """
-    diassembles and deparses a given code block 'co'
+    diassembles and deparses a given code block ``co``.
     """
 
     assert iscode(co)
 
-    # store final output stream for case of error
+    # Store final output stream in case there is an error.
     real_out = out or sys.stdout
     print("# Python %s" % version_tuple_to_str(version), file=real_out)
     if co.co_filename:
@@ -99,7 +101,7 @@ def disco_loop(disasm, queue, real_out):
 
 def disassemble_file(filename, outstream=None):
     """
-    disassemble Python byte-code file (.pyc)
+    Disassemble Python byte-code file (.pyc).
 
     If given a Python source file (".py") file, we'll
     try to find the corresponding compiled object.
@@ -113,7 +115,6 @@ def disassemble_file(filename, outstream=None):
             disco(version, con, outstream)
     else:
         disco(version, co, outstream, is_pypy=is_pypy)
-    co = None
 
 
 def _test():
