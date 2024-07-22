@@ -1,6 +1,6 @@
 #!/bin/bash
 # Check out master branch and dependent development master branches
-PYTHON_VERSION=3.8.18
+PYTHON_VERSION=3.8
 
 bs=${BASH_SOURCE[0]}
 if [[ $0 == $bs ]] ; then
@@ -8,25 +8,13 @@ if [[ $0 == $bs ]] ; then
     exit 1
 fi
 
-function checkout_version {
-    local repo=$1
-    version=${2:-master}
-    echo Checking out $version on $repo ...
-    (cd ../$repo && git checkout $version && pyenv local $PYTHON_VERSION) && \
-	git pull
-    return $?
-}
-
-owd=$(pwd)
-
-export PATH=$HOME/.pyenv/bin/pyenv:$PATH
-
 mydir=$(dirname $bs)
+uncompyle6_owd=$(pwd)
+cd $mydir
+. ./checkout_common.sh
 fulldir=$(readlink -f $mydir)
 cd $fulldir/..
-(cd $fulldir/.. && checkout_version python-spark && checkout_version python-xdis &&
-     checkout_version python-uncompyle6)
-
-git pull
-rm -v */.python-version || true
-cd $owd
+(cd $fulldir/.. && \
+     setup_version python-spark master && \
+     setup_version python-xdis python-3.6 )
+checkout_finish master
