@@ -8,27 +8,12 @@ if [[ $0 == $bs ]] ; then
     exit 1
 fi
 
-# FIXME put some of the below in a common routine
-function checkout_version {
-    local repo=$1
-    version=${2:-python-3.3-to-3.5}
-    echo Checking out $version on $repo ...
-    (cd ../$repo && git checkout $version && pyenv local $PYTHON_VERSION) && \
-	git pull
-    return $?
-}
-
-owd=$(pwd)
-
-export PATH=$HOME/.pyenv/bin/pyenv:$PATH
-
 mydir=$(dirname $bs)
+. ./checkout_common.sh
 fulldir=$(readlink -f $mydir)
 cd $fulldir/..
-(cd $fulldir/.. && checkout_version python-spark master && checkout_version python-xdis &&
-     checkout_version python-uncompyle6)
-rm -v */.python-version || true
+(cd $fulldir/.. && \
+     setup_version python-spark master && \
+     setup_version python-xdis python-3.3 )
 
-git pull
-rm -v */.python-version || true
-cd $owd
+checkout_finish python-3.3-to-3.5
