@@ -1,32 +1,23 @@
 #!/bin/bash
 # Check out python-2.4-to-2.7 and dependent development branches.
 
-PYTHON_VERSION=2.4.6
-
 bs=${BASH_SOURCE[0]}
 if [[ $0 == $bs ]] ; then
     echo "This script should be *sourced* rather than run directly through bash"
     exit 1
 fi
 
-function checkout_version {
-    local repo=$1
-    version=${2:-python-2.4-to-2.7}
-    echo Checking out $version on $repo ...
-    (cd ../$repo && git checkout $version && pyenv local $PYTHON_VERSION) && \
-	git pull
-    return $?
-}
+PYTHON_VERSION=2.4.6
 
-owd=$(pwd)
-
-export PATH=$HOME/.pyenv/bin/pyenv:$PATH
-
+uncompyle6_owd=$(pwd)
 mydir=$(dirname $bs)
 fulldir=$(readlink -f $mydir)
-(cd $fulldir/.. && checkout_version python-spark && checkout_version python-xdis python-2.4-to-2.7 &&
-     checkout_version python-uncompyle6)
+cd $mydir
+. ./checkout_common.sh
 
-git pull
-rm -v */.python-version || true
-cd $owd
+(cd $fulldir/.. && \
+     setup_version python-spark python-2.4 && \
+     checkout_version python-xdis python-2.4-to-2.7)
+
+
+checkout_finish python-2.4-to-2.7
