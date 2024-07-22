@@ -16,6 +16,6 @@ cd $fulldir
 cd $fulldir/..
 (cd $fulldir/.. && \
      setup_version python-spark master && \
-     checkout_version python-xdis python-3.0)
+     checkout_version python-xdis python-3.0-to-3.2)
 
 checkout_finish python-3.0-to-3.2
