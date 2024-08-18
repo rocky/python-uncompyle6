@@ -10,6 +10,7 @@ PYTHON_VERSION=3.3.7
 
 uncompyle6_owd=$(pwd)
 mydir=$(dirname $bs)
+cd $mydir
 fulldir=$(readlink -f $mydir)
 . ./checkout_common.sh
 cd $fulldir/..
