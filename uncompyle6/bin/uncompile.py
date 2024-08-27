@@ -30,7 +30,7 @@ def usage():
 # __doc__ = """
 # Usage:
 #   %s [OPTIONS]... [ FILE | DIR]...
-#   %s [--help | -h | --V | --version]
+#   %s [--help | --version]
 
 # Examples:
 #   %s      foo.pyc bar.pyc       # decompile foo.pyc, bar.pyc to stdout
