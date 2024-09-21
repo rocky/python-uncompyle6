@@ -18,4 +18,4 @@ cd $fulldir/..
      setup_version python-spark master && \
      setup_version python-xdis python-3.3 )
 
-checkout_finish python-3.3-to-3.5
+checkout_finish uncompyle6 python-3.3-to-3.5
