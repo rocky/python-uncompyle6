@@ -14,7 +14,7 @@ fulldir=$(readlink -f $mydir)
 cd $mydir
 . ./checkout_common.sh
 (cd $fulldir/.. && \
-     setup_version python-spark master && \
+     setup_version python-spark python-3.0 && \
      setup_version python-xdis python-3.0)
 
 checkout_finish python-3.0-to-3.2
