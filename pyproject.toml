@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools>=71.0.3",
+    "setuptools",
     # "setuptools>=59.6.0", # for 3.6
 ]
 
