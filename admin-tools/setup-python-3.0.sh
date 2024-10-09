@@ -6,7 +6,7 @@ if [[ $0 == $bs ]] ; then
     exit 1
 fi
 
-PYTHON_VERSION=3.0.1
+PYTHON_VERSION=3.0
 
 uncompyle6_owd=$(pwd)
 mydir=$(dirname $bs)
