@@ -26,7 +26,7 @@ from uncompyle6.semantics.consts import (
     PRECEDENCE,
     minint,
 )
-from uncompyle6.semantics.helper import find_code_node, flatten_list
+from uncompyle6.semantics.helper import find_code_node, flatten_list, print_docstring
 from uncompyle6.util import better_repr, get_code_name
 
 
@@ -541,70 +541,7 @@ class NonterminalActions:
         else:
             docstring = node[0].pattr
 
-        quote = '"""'
-        if docstring.find(quote) >= 0:
-            if docstring.find("'''") == -1:
-                quote = "'''"
-
-        self.write(indent)
-        docstring = repr(docstring.expandtabs())[1:-1]
-
-        for orig, replace in (
-            ("\\\\", "\t"),
-            ("\\r\\n", "\n"),
-            ("\\n", "\n"),
-            ("\\r", "\n"),
-            ('\\"', '"'),
-            ("\\'", "'"),
-        ):
-            docstring = docstring.replace(orig, replace)
-
-        # Do a raw string if there are backslashes but no other escaped characters:
-        # also check some edge cases
-        if (
-            "\t" in docstring
-            and "\\" not in docstring
-            and len(docstring) >= 2
-            and docstring[-1] != "\t"
-            and (docstring[-1] != '"' or docstring[-2] == "\t")
-        ):
-            self.write("r")  # raw string
-            # Restore backslashes unescaped since raw
-            docstring = docstring.replace("\t", "\\")
-        else:
-            # Escape the last character if it is the same as the
-            # triple quote character.
-            quote1 = quote[-1]
-            if len(docstring) and docstring[-1] == quote1:
-                docstring = docstring[:-1] + "\\" + quote1
-
-            # Escape triple quote when needed
-            if quote == '"""':
-                replace_str = '\\"""'
-            else:
-                assert quote == "'''"
-                replace_str = "\\'''"
-
-            docstring = docstring.replace(quote, replace_str)
-            docstring = docstring.replace("\t", "\\\\")
-
-        lines = docstring.split("\n")
-
-        self.write(quote)
-        if len(lines) == 0:
-            self.println(quote)
-        elif len(lines) == 1:
-            self.println(lines[0], quote)
-        else:
-            self.println(lines[0])
-            for line in lines[1:-1]:
-                if line:
-                    self.println(line)
-                else:
-                    self.println("\n\n")
-                    pass
-                pass
-            self.println(lines[-1], quote)
+        print_docstring(self, indent, docstring)
         self.prune()
 
     def n_elifelsestmtr(self, node: SyntaxTree):
