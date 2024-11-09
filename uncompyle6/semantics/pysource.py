@@ -146,8 +146,6 @@ from uncompyle6.semantics.consts import (
     ASSIGN_TUPLE_PARAM,
     INDENT_PER_LEVEL,
     LINE_LENGTH,
-    MAP,
-    MAP_DIRECT,
     NAME_MODULE,
     NO_PARENTHESIS_EVER,
     NONE,
@@ -156,6 +154,7 @@ from uncompyle6.semantics.consts import (
     RETURN_LOCALS,
     RETURN_NONE,
     TAB,
+    TABLE_DIRECT,
     TABLE_R,
     escape,
 )
@@ -316,7 +315,21 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         # An example is:
         # __module__ = __name__
         self.hide_internal = True
+
+        self.TABLE_DIRECT = TABLE_DIRECT.copy()
+        self.TABLE_R = TABLE_R.copy()
+        self.MAP_DIRECT = (self.TABLE_DIRECT,)
+        self.MAP_R = (self.TABLE_R, -1)
+
+        self.MAP = {
+            "stmt": self.MAP_R,
+            "call": self.MAP_R,
+            "delete": self.MAP_R,
+            "store": self.MAP_R,
+        }
+
         customize_for_version(self, is_pypy, version)
+
         return
 
     def maybe_show_tree(self, tree, phase):
@@ -902,17 +915,17 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         of arguments -- we add a new entry for each in TABLE_R.
         """
         for k, v in list(customize.items()):
-            if k in TABLE_R:
+            if k in self.TABLE_R:
                 continue
             op = k[: k.rfind("_")]
 
             if k.startswith("CALL_METHOD"):
                 # This happens in PyPy and Python 3.7+
-                TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", 100))
+                self.TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", 100))
             elif self.version >= (3, 6) and k.startswith("CALL_FUNCTION_KW"):
-                TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", 100))
+                self.TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", 100))
             elif op == "CALL_FUNCTION":
-                TABLE_R[k] = (
+                self.TABLE_R[k] = (
                     "%c(%P)",
                     (0, "expr"),
                     (1, -1, ", ", PRECEDENCE["yield"] - 1),
@@ -971,13 +984,13 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                 else:
                     assert False, "Unhandled CALL_FUNCTION %s" % op
 
-                TABLE_R[k] = entry
+                self.TABLE_R[k] = entry
                 pass
             # handled by n_dict:
-            # if op == 'BUILD_SLICE':	TABLE_R[k] = ('%C'    ,    (0,-1,':'))
+            # if op == 'BUILD_SLICE':	self.TABLE_R[k] = ('%C'    ,    (0,-1,':'))
             # handled by n_list:
-            # if   op == 'BUILD_LIST':	TABLE_R[k] = ('[%C]'  ,    (0,-1,', '))
-            # elif op == 'BUILD_TUPLE':	TABLE_R[k] = ('(%C%,)',    (0,-1,', '))
+            # if   op == 'BUILD_LIST':	self.TABLE_R[k] = ('[%C]'  ,    (0,-1,', '))
+            # elif op == 'BUILD_TUPLE':	self.TABLE_R[k] = ('(%C%,)',    (0,-1,', '))
             pass
         return
 
@@ -1272,9 +1285,8 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         del ast  # Save memory
         return transform_tree
 
-    @classmethod
-    def _get_mapping(cls, node):
-        return MAP.get(node, MAP_DIRECT)
+    def _get_mapping(self, node):
+        return self.MAP.get(node, self.MAP_DIRECT)
 
 
 def code_deparse(

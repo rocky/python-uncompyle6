@@ -85,6 +85,7 @@ from uncompyle6.semantics.consts import (
     PASS,
     PRECEDENCE,
     TABLE_DIRECT,
+    TABLE_R,
     escape,
 )
 from uncompyle6.semantics.pysource import (
@@ -189,8 +190,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.is_pypy = is_pypy
 
         # FIXME: is there a better way?
-        global MAP_DIRECT_FRAGMENT
-        MAP_DIRECT_FRAGMENT = (dict(TABLE_DIRECT, **TABLE_DIRECT_FRAGMENT),)
+        self.MAP_DIRECT_FRAGMENT = (dict(TABLE_DIRECT, **TABLE_DIRECT_FRAGMENT),)
         return
 
     f = property(
@@ -655,6 +655,19 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         code = Code(cn.attr, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize, code)
+
+        self.TABLE_DIRECT = TABLE_DIRECT.copy()
+        self.TABLE_R = TABLE_R.copy()
+        self.MAP_DIRECT = (self.TABLE_DIRECT,)
+        self.MAP_R = (self.TABLE_R, -1)
+
+        self.MAP = {
+            "stmt": self.MAP_R,
+            "call": self.MAP_R,
+            "delete": self.MAP_R,
+            "store": self.MAP_R,
+        }
+
         self.customize(code._customize)
 
         # Remove single reductions as in ("stmts", "sstmt"):
@@ -2003,8 +2016,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.set_pos_info(last_node, startnode_start, self.last_finish)
         return
 
-    @classmethod
-    def _get_mapping(cls, node):
+    def _get_mapping(self, node):
         if (
             hasattr(node, "data")
             and len(node) > 0
@@ -2012,7 +2024,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             and not hasattr(node[-1], "parent")
         ):
             node[-1].parent = node
-        return MAP.get(node, MAP_DIRECT_FRAGMENT)
+        return self.MAP.get(node, self.MAP_DIRECT_FRAGMENT)
 
     pass
 
