@@ -181,9 +181,6 @@ def is_lambda_mode(compile_mode):
 
 
 def print_docstring(self, indent, docstring):
-    if isinstance(docstring, bytes):
-        docstring = docstring.decode("utf8", errors="backslashreplace")
-
     quote = '"""'
     if docstring.find(quote) >= 0:
         if docstring.find("'''") == -1:

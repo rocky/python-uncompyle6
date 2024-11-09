@@ -26,7 +26,7 @@ from uncompyle6.semantics.consts import (
     PRECEDENCE,
     minint,
 )
-from uncompyle6.semantics.helper import find_code_node, flatten_list
+from uncompyle6.semantics.helper import find_code_node, flatten_list, print_docstring
 from uncompyle6.util import better_repr
 
 
