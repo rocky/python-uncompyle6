@@ -6,4 +6,4 @@ pytest
 Click~=7.0
 xdis >= 6.1.0, < 6.2.0
 configobj~=5.0.6
-setuptools~=59.6.0
+setuptools
