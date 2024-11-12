@@ -29,8 +29,6 @@ def customize_for_version38(self, version: tuple):
     # for lhs in 'for forelsestmt forelselaststmt '
     #             'forelselaststmtc tryfinally38'.split():
     #     del TABLE_DIRECT[lhs]
-
-    self.TABLE_DIRECT = TABLE_DIRECT.copy()
     self.TABLE_DIRECT.update(
         {
             "async_for_stmt38": (

@@ -30,8 +30,6 @@ def customize_for_version37(self, version: tuple):
     # Python 3.7+ changes
     #######################
 
-    self.TABLE_DIRECT = TABLE_DIRECT.copy()
-
     # fmt: off
     PRECEDENCE["attribute37"]      =   2
     PRECEDENCE["call_ex"]          =   1

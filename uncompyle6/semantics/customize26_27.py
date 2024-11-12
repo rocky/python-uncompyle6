@@ -19,7 +19,6 @@ from uncompyle6.semantics.consts import TABLE_DIRECT
 
 
 def customize_for_version26_27(self, version: tuple):
-    self.TABLE_DIRECT = TABLE_DIRECT.copy()
     ########################################
     # Python 2.6+
     #    except <condition> as <var>
