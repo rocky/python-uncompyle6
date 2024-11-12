@@ -64,7 +64,7 @@ jobs:
       # Test
       #   This would typically be a build job when using workflows, possibly combined with build
       # This is based on your 1.0 configuration file or project settings
-      - run: sudo python ./setup.py develop && make check-3.6
+      - run: sudo pip install -e . && make check-3.6
       - run: cd ./test/stdlib && bash ./runtests.sh 'test_[p-z]*.py'
       # Teardown
       #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
