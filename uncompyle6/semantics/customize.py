@@ -29,7 +29,6 @@ from uncompyle6.semantics.helper import flatten_list
 
 
 def customize_for_version(self, is_pypy, version):
-    self.TABLE_DIRECT = TABLE_DIRECT.copy()
     if is_pypy:
         ########################
         # PyPy changes
@@ -264,7 +263,6 @@ def customize_for_version(self, is_pypy, version):
 
         # < 3.0 continues
 
-        self.TABLE_R = TABLE_R.copy()
         self.TABLE_R.update(
             {
                 "STORE_SLICE+0": ("%c[:]", 0),

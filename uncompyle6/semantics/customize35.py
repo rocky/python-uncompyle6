@@ -26,7 +26,6 @@ from uncompyle6.semantics.helper import flatten_list, gen_function_parens_adjust
 #######################
 def customize_for_version35(self, version: tuple):
     # fmt: off
-    self.TABLE_DIRECT = TABLE_DIRECT.copy()
     self.TABLE_DIRECT.update(
         {
             # nested await expressions like:

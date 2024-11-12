@@ -96,7 +96,6 @@ def customize_for_version36(self, version: tuple):
         }
     )
 
-    self.TABLE_R = TABLE_R.copy()
     self.TABLE_R.update(
         {
             "CALL_FUNCTION_EX":    ("%c(*%P)", 0, (1, 2, ", ", 100)),

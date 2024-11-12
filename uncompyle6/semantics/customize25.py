@@ -25,7 +25,7 @@ def customize_for_version25(self, version):
     ########################
     # Import style for 2.5+
     ########################
-    TABLE_DIRECT.update(
+    self.TABLE_DIRECT.update(
         {
             "importmultiple": ("%|import %c%c\n", 2, 3),
             "import_cont": (", %c", 2),
