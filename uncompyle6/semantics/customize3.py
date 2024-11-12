@@ -30,7 +30,6 @@ from uncompyle6.util import get_code_name
 
 
 def customize_for_version3(self, version: tuple):
-    self.TABLE_DIRECT = TABLE_DIRECT.copy()
     self.TABLE_DIRECT.update(
         {
             "comp_for": (" for %c in %c", (2, "store"), (0, "expr")),

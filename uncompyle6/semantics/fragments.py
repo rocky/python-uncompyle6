@@ -656,8 +656,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
         code = Code(cn.attr, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize, code)
 
-        self.TABLE_DIRECT = TABLE_DIRECT.copy()
-        self.TABLE_R = TABLE_R.copy()
         self.MAP_DIRECT = (self.TABLE_DIRECT,)
         self.MAP_R = (self.TABLE_R, -1)
 
