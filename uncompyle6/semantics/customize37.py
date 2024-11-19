@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2023 by Rocky Bernstein
+#  Copyright (c) 2019-2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ FSTRING_CONVERSION_MAP = {1: "!s", 2: "!r", 3: "!a", "X": ":X"}
 
 
 #######################
-def customize_for_version37(self, version):
+def customize_for_version37(self, version: tuple):
     ########################
     # Python 3.7+ changes
     #######################
@@ -47,7 +47,7 @@ def customize_for_version37(self, version):
     PRECEDENCE["dict_unpack"]      =   0  # **{...}
 
     # fmt: on
-    TABLE_DIRECT.update(
+    self.TABLE_DIRECT.update(
         {
             "and_not": ("%c and not %c", (0, "expr"), (2, "expr")),
             "ann_assign": (

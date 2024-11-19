@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 by Rocky Bernstein
+#  Copyright (c) 2022, 2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -15,16 +15,13 @@
 """Isolate Python 1.4- version-specific semantic actions here.
 """
 
-from uncompyle6.semantics.consts import TABLE_DIRECT
 
 #######################
 # Python 1.4- Changes #
 #######################
-def customize_for_version14(self, version):
-    TABLE_DIRECT.update(
+def customize_for_version14(self, version: tuple):
+    self.TABLE_DIRECT.update(
         {
-            "print_expr_stmt": (
-                ("%|print %c\n", 0)
-            ),
+            "print_expr_stmt": (("%|print %c\n", 0)),
         }
     )
