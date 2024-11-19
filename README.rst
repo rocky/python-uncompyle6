@@ -311,7 +311,6 @@ See Also
 		 :target: https://app.circleci.com/pipelines/github/rocky/python-uncompyle6
 .. |packagestatus| image:: https://repology.org/badge/vertical-allrepos/python:uncompyle6.svg
 		 :target: https://repology.org/project/python:uncompyle6/versions
->>>>>>> python-3.0-to-3.2
 .. _PJOrion: http://www.koreanrandom.com/forum/topic/15280-pjorion-%D1%80%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F-%D0%B4%D0%B5%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F-%D0%BE%D0%B1%D1%84
 .. _pydecipher: https://github.com/mitre/pydecipher
 .. _Deobfuscator: https://github.com/extremecoders-re/PjOrion-Deobfuscator
