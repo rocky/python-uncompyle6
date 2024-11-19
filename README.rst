@@ -282,6 +282,7 @@ to spend.
 See Also
 --------
 
+* https://rocky.github.io/blackhat-asia-2024-additional/all-notes-print.html :  How to Read and Write a High-Level Bytecode Decompiler: ``uncompyle6`` ``decompyle3`` -- BlackHat 2024 Asia (`video <https://www.youtube.com/watch?v=NA77SFncppE>`_. A big thanks to the Organizers and Reviewers for letting me speak. This kind of thing encourages me to work on projects like this.
 * https://github.com/rocky/python-decompile3 : Much smaller and more modern code, focusing on 3.7 and 3.8. Changes in that will get migrated back here.
 * https://code.google.com/archive/p/unpyc3/ : supports Python 3.2 only. The above projects use a different decompiling technique than what is used here. Currently unmaintained.
 * https://github.com/figment/unpyc3/ : fork of above, but supports Python 3.3 only. Includes some fixes like supporting function annotations. Currently unmaintained.
@@ -306,8 +307,8 @@ See Also
 .. _uncompyle2: https://github.com/wibiti/uncompyle2
 .. _unpyc37: https://github.com/andrew-tavera/unpyc37
 .. _this: https://github.com/rocky/python-uncompyle6/wiki/Deparsing-technology-and-its-use-in-exact-location-reporting
-.. |buildstatus| image:: https://travis-ci.org/rocky/python-uncompyle6.svg
-		 :target: https://travis-ci.org/rocky/python-uncompyle6
+.. |buildstatus| image:: https://circleci.com/gh/rocky/python-uncompyle6.svg?style=svg
+		 :target: https://app.circleci.com/pipelines/github/rocky/python-uncompyle6
 .. |packagestatus| image:: https://repology.org/badge/vertical-allrepos/python:uncompyle6.svg
 		 :target: https://repology.org/project/python:uncompyle6/versions
 .. _PJOrion: http://www.koreanrandom.com/forum/topic/15280-pjorion-%D1%80%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F-%D0%B4%D0%B5%D0%BA%D0%BE%D0%BC%D0%BF%D0%B8%D0%BB%D1%8F%D1%86%D0%B8%D1%8F-%D0%BE%D0%B1%D1%84
