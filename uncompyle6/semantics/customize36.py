@@ -38,7 +38,7 @@ def escape_format(s):
 #######################
 
 
-def customize_for_version36(self, version):
+def customize_for_version36(self, version: tuple):
     # fmt: off
     PRECEDENCE["call_kw"]          =   0
     PRECEDENCE["call_kw36"]        =   1
@@ -50,7 +50,7 @@ def customize_for_version36(self, version):
     PRECEDENCE["dict_pack"]        =   0  # **{ ... }
     PRECEDENCE["formatted_value1"] = 100
 
-    TABLE_DIRECT.update(
+    self.TABLE_DIRECT.update(
         {
             "ann_assign_init_value": (
                 "%|%c = %p\n",
@@ -96,7 +96,7 @@ def customize_for_version36(self, version):
         }
     )
 
-    TABLE_R.update(
+    self.TABLE_R.update(
         {
             "CALL_FUNCTION_EX":    ("%c(*%P)", 0, (1, 2, ", ", 100)),
             # Not quite right

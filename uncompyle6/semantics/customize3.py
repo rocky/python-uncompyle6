@@ -29,8 +29,8 @@ from uncompyle6.semantics.make_function3 import make_function3_annotate
 from uncompyle6.util import get_code_name
 
 
-def customize_for_version3(self, version):
-    TABLE_DIRECT.update(
+def customize_for_version3(self, version: tuple):
+    self.TABLE_DIRECT.update(
         {
             "comp_for": (" for %c in %c", (2, "store"), (0, "expr")),
             "if_exp_not": (
@@ -183,7 +183,7 @@ def customize_for_version3(self, version):
         # the iteration variable. These rules we can ignore
         # since we pick up the iteration variable some other way and
         # we definitely don't include in the source  _[dd].
-        TABLE_DIRECT.update(
+        self.TABLE_DIRECT.update(
             {
                 "ifstmt30": (
                     "%|if %c:\n%+%c%-",
@@ -335,7 +335,7 @@ def customize_for_version3(self, version):
 
     self.n_mkfunc_annotate = n_mkfunc_annotate
 
-    TABLE_DIRECT.update(
+    self.TABLE_DIRECT.update(
         {
             "tryelsestmtl3": (
                 "%|try:\n%+%c%-%c%|else:\n%+%c%-",
@@ -350,7 +350,7 @@ def customize_for_version3(self, version):
         #######################
         # Python 3.4+ Changes #
         #######################
-        TABLE_DIRECT.update(
+        self.TABLE_DIRECT.update(
             {
                 "LOAD_CLASSDEREF": ("%{pattr}",),
                 "yield_from": ("yield from %c", (0, "expr")),
