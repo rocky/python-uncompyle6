@@ -80,14 +80,13 @@ from uncompyle6.semantics import pysource
 from uncompyle6.semantics.check_ast import checker
 from uncompyle6.semantics.consts import (
     INDENT_PER_LEVEL,
-    MAP,
     NONE,
     PASS,
     PRECEDENCE,
     TABLE_DIRECT,
-    TABLE_R,
     escape,
 )
+from uncompyle6.semantics.helper import find_code_node
 from uncompyle6.semantics.pysource import (
     DEFAULT_DEBUG_OPTS,
     TREE_DEFAULT_DEBUG,
@@ -597,17 +596,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def n_mkfunc(self, node):
         start = len(self.f.getvalue())
 
-        if self.version >= (3, 3) or node[-2] == "kwargs":
-            # LOAD_CONST code object ..
-            # LOAD_CONST        'x0'  if >= 3.3
-            # MAKE_FUNCTION ..
-            code_node = node[-3]
-        elif node[-2] == "expr":
-            code_node = node[-2][0]
-        else:
-            # LOAD_CONST code object ..
-            # MAKE_FUNCTION ..
-            code_node = node[-2]
+        code_node = find_code_node(node, -2)
         func_name = code_node.attr.co_name
         self.write(func_name)
         self.set_pos_info(code_node, start, len(self.f.getvalue()))
