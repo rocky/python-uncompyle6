@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2021, 2023 by Rocky Bernstein
+#  Copyright (c) 2016-2021, 2023-2024 by Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 #
