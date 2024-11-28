@@ -1255,11 +1255,21 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                 if tokens[-1].kind in ("RETURN_VALUE", "RETURN_VALUE_LAMBDA"):
                     # Python 3.4's classes can add a "return None" which is
                     # invalid syntax.
-                    if tokens[-2].kind == "LOAD_CONST":
-                        if is_top_level_module or tokens[-2].pattr is None:
-                            del tokens[-2:]
-                        else:
-                            tokens.append(Token("RETURN_LAST"))
+                    load_const = tokens[-2]
+                    # We should have:
+                    #   LOAD_CONST None
+                    # with *no* line number associated the token.
+                    # A line number on the token or a non-None
+                    # token value a token based on user source
+                    # text.
+                    if (
+                        load_const.kind == "LOAD_CONST"
+                        and load_const.linestart is None
+                        and load_const.attr is None
+                        or is_top_level_module
+                    ):
+                        # Delete LOAD_CONST (None) RETURN_VALUE
+                        del tokens[-2:]
                     else:
                         tokens.append(Token("RETURN_LAST"))
             if len(tokens) == 0:
