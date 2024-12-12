@@ -1216,6 +1216,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         is_lambda=False,
         noneInNames=False,
         is_top_level_module=False,
+        compile_mode="exec",
     ) -> GenericASTTraversal:
         # FIXME: DRY with fragments.py
 
@@ -1255,11 +1256,20 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                 if tokens[-1].kind in ("RETURN_VALUE", "RETURN_VALUE_LAMBDA"):
                     # Python 3.4's classes can add a "return None" which is
                     # invalid syntax.
-                    if tokens[-2].kind == "LOAD_CONST":
-                        if is_top_level_module or tokens[-2].pattr is None:
-                            del tokens[-2:]
-                        else:
-                            tokens.append(Token("RETURN_LAST"))
+                    load_const = tokens[-2]
+                    # We should have:
+                    #   LOAD_CONST None
+                    # with *no* line number associated the token.
+                    # A line number on the token or a non-None
+                    # token value a token based on user source
+                    # text.
+                    if (
+                        load_const.kind == "LOAD_CONST"
+                        and load_const.linestart is None
+                        and load_const.attr is None
+                    ):
+                        # Delete LOAD_CONST (None) RETURN_VALUE
+                        del tokens[-2:]
                     else:
                         tokens.append(Token("RETURN_LAST"))
             if len(tokens) == 0:
@@ -1365,6 +1375,7 @@ def code_deparse(
         co,
         is_lambda=is_lambda_mode(compile_mode),
         is_top_level_module=is_top_level_module,
+        compile_mode=compile_mode,
     )
 
     # XXX workaround for profiling

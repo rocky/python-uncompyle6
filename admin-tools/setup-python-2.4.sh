@@ -17,7 +17,7 @@ cd $mydir
 
 (cd $fulldir/.. && \
      setup_version python-spark python-2.4 && \
-     setup_verseion python-xdis python-2.4-to-2.7)
+     setup_version python-xdis python-2.4-to-2.7)
 
 
 checkout_finish python-2.4-to-2.7
