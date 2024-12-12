@@ -1216,6 +1216,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         is_lambda=False,
         noneInNames=False,
         is_top_level_module=False,
+        compile_mode="exec",
     ) -> GenericASTTraversal:
         # FIXME: DRY with fragments.py
 
@@ -1266,7 +1267,6 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                         load_const.kind == "LOAD_CONST"
                         and load_const.linestart is None
                         and load_const.attr is None
-                        or is_top_level_module
                     ):
                         # Delete LOAD_CONST (None) RETURN_VALUE
                         del tokens[-2:]
@@ -1375,6 +1375,7 @@ def code_deparse(
         co,
         is_lambda=is_lambda_mode(compile_mode),
         is_top_level_module=is_top_level_module,
+        compile_mode=compile_mode,
     )
 
     # XXX workaround for profiling
