@@ -385,6 +385,10 @@ class PythonParser(GenericASTBuilder):
 
         returns ::= return
         returns ::= _stmts return
+        
+        # NOP
+        stmt     ::= nop_stmt
+        nop_stmt ::= NOP
 
         """
         pass
