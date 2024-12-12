@@ -17,7 +17,7 @@
 
 import re
 
-from uncompyle6.semantics.consts import INDENT_PER_LEVEL, PRECEDENCE, TABLE_DIRECT
+from uncompyle6.semantics.consts import INDENT_PER_LEVEL, PRECEDENCE
 from uncompyle6.semantics.helper import flatten_list
 
 # FIXME get from a newer xdis
