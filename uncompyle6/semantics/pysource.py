@@ -1378,7 +1378,6 @@ def code_deparse(
         co,
         is_lambda=is_lambda_mode(compile_mode),
         is_top_level_module=is_top_level_module,
-        compile_mode=compile_mode,
     )
 
     # XXX workaround for profiling
