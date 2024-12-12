@@ -1212,7 +1212,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         is_lambda=False,
         noneInNames=False,
         is_top_level_module=False,
-        compile_mode="exec"
+        compile_mode="exec",
     ) -> GenericASTTraversal:
         # FIXME: DRY with fragments.py
 
