@@ -15,10 +15,8 @@
 """Isolate Python 2.6 and 2.7 version-specific semantic actions here.
 """
 
-from uncompyle6.semantics.consts import TABLE_DIRECT
 
-
-def customize_for_version26_27(self, version: tuple):
+def customize_for_version26_27(self, version):
     ########################################
     # Python 2.6+
     #    except <condition> as <var>

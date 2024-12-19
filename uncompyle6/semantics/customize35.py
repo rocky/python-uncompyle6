@@ -17,14 +17,14 @@
 
 from xdis import co_flags_is_async, iscode
 
-from uncompyle6.semantics.consts import INDENT_PER_LEVEL, PRECEDENCE, TABLE_DIRECT
+from uncompyle6.semantics.consts import INDENT_PER_LEVEL, PRECEDENCE
 from uncompyle6.semantics.helper import flatten_list, gen_function_parens_adjust
 
 
 #######################
 # Python 3.5+ Changes #
 #######################
-def customize_for_version35(self, version: tuple):
+def customize_for_version35(self, version):
     # fmt: off
     self.TABLE_DIRECT.update(
         {

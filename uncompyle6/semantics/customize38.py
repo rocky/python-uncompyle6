@@ -19,12 +19,12 @@
 # Python 3.8+ changes
 #######################
 
-from uncompyle6.semantics.consts import PRECEDENCE, TABLE_DIRECT
+from uncompyle6.semantics.consts import PRECEDENCE
 from uncompyle6.semantics.customize37 import FSTRING_CONVERSION_MAP
 from uncompyle6.semantics.helper import escape_string, strip_quotes
 
 
-def customize_for_version38(self, version: tuple):
+def customize_for_version38(self, version):
     # FIXME: pytest doesn't add proper keys in testing. Reinstate after we have fixed pytest.
     # for lhs in 'for forelsestmt forelselaststmt '
     #             'forelselaststmtc tryfinally38'.split():

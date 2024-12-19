@@ -37,7 +37,7 @@ def escape_format(s):
 #######################
 
 
-def customize_for_version36(self, version: tuple):
+def customize_for_version36(self, version):
     # fmt: off
     PRECEDENCE["call_kw"]          =   0
     PRECEDENCE["call_kw36"]        =   1

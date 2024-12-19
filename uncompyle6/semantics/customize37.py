@@ -25,7 +25,7 @@ FSTRING_CONVERSION_MAP = {1: "!s", 2: "!r", 3: "!a", "X": ":X"}
 
 
 #######################
-def customize_for_version37(self, version: tuple):
+def customize_for_version37(self, version):
     ########################
     # Python 3.7+ changes
     #######################

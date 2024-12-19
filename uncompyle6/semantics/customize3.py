@@ -19,7 +19,6 @@ Isolate Python 3 version-specific semantic actions here.
 
 from xdis import iscode
 
-from uncompyle6.semantics.consts import TABLE_DIRECT
 from uncompyle6.semantics.customize35 import customize_for_version35
 from uncompyle6.semantics.customize36 import customize_for_version36
 from uncompyle6.semantics.customize37 import customize_for_version37
@@ -28,7 +27,7 @@ from uncompyle6.semantics.helper import find_code_node, gen_function_parens_adju
 from uncompyle6.semantics.make_function3 import make_function3_annotate
 
 
-def customize_for_version3(self, version: tuple):
+def customize_for_version3(self, version):
     self.TABLE_DIRECT.update(
         {
             "comp_for": (" for %c in %c", (2, "store"), (0, "expr")),

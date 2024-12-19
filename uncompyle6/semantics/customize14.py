@@ -19,7 +19,7 @@
 #######################
 # Python 1.4- Changes #
 #######################
-def customize_for_version14(self, version: tuple):
+def customize_for_version14(self, version):
     self.TABLE_DIRECT.update(
         {
             "print_expr_stmt": (("%|print %c\n", 0)),
