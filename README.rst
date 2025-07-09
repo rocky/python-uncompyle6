@@ -10,7 +10,7 @@ uncompyle6
 A native Python cross-version decompiler and fragment decompiler.
 The successor to decompyle, uncompyle, and uncompyle2.
 
-I gave a talk on this at [BlackHat Asia 2024](https://youtu.be/H-7ZNrpsV50?si=nOaixgYHr7RbILVS).
+I gave a talk on this at `BlackHat Asia 2024 <https://youtu.be/H-7ZNrpsV50?si=nOaixgYHr7RbILVS>`_.
 
 
 Introduction
