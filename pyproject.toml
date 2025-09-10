@@ -1,9 +1,5 @@
 [build-system]
-requires = [
-    "setuptools",
-    # "setuptools>=59.6.0", # for 3.6
-]
-
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -44,6 +40,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 dynamic = ["version"]
 
@@ -63,3 +60,6 @@ uncompyle6-tokenize = "uncompyle6.bin.pydisassemble:main"
 
 [tool.setuptools.dynamic]
 version = {attr = "uncompyle6.version.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["uncompyle6*"]  # Include all subpackages

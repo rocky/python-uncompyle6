@@ -30,27 +30,26 @@ import sys
 
 __docformat__ = "restructuredtext"
 
-from uncompyle6.version import __version__  # noqa
+# from uncompyle6.version import __version__  # noqa
 
-if hasattr(sys, "setrecursionlimit"):
-    # pyston doesn't have setrecursionlimit
-    sys.setrecursionlimit(5000)
+# if hasattr(sys, "setrecursionlimit"):
+#     # pyston doesn't have setrecursionlimit
+#     sys.setrecursionlimit(5000)
 
-from uncompyle6.semantics import fragments, pysource
+# from uncompyle6.semantics import semantics
 
-# Export some functions
-from uncompyle6.main import decompile_file  # noqa
+# # Export some functions
+# from uncompyle6.main import decompile_file  # noqa
 
-# Convenience functions so you can say:
-# from uncompyle6 import (code_deparse, deparse_code2str)
+# # Convenience functions so you can say:
+# # from uncompyle6 import (code_deparse, deparse_code2str)
 
-from uncompyle6.semantics.pysource import code_deparse, deparse_code2str
+# from uncompyle6.semantics.pysource import code_deparse, deparse_code2str
 
-__all__ = [
-    "__version__",
-    "code_deparse",
-    "decompile_file",
-    "deparse_code2str",
-    "fragments",
-    "pysource",
-]
+# # __all__ = [
+# #     "__version__",
+# #     "code_deparse",
+# #     "decompile_file",
+# #     "deparse_code2str",
+# #     "semantics",
+# # ]

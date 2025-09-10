@@ -43,8 +43,8 @@ check-3.0 check-3.1 check-3.2 check-3.6:
 check-3.7: pytest
 	$(MAKE) -C test check
 
-check-3.8:
-	$(MAKE) -C test check
+check-3.8 check-3.9 check-3.10 check-3.11 check-3.12 check-3.13:
+	$(MAKE) -C test check-3.8
 
 #:PyPy 2.6.1 PyPy 5.0.1, or PyPy 5.8.0-beta0
 # Skip for now
