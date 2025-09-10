@@ -415,7 +415,13 @@ def main(
                     # sys.stderr.write(f"Ran {deparsed_object.f.name}\n")
                 pass
             tot_files += 1
-        except (ValueError, SyntaxError, ParserError, SourceWalkerError) as e:
+        except (
+            ValueError,
+            SyntaxError,
+            ParserError,
+            SourceWalkerError,
+            ImportError,
+        ) as e:
             sys.stdout.write("\n")
             sys.stderr.write(f"\n# file {infile}\n# {e}\n")
             failed_files += 1
