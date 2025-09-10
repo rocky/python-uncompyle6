@@ -1,9 +1,7 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020, 2025 Rocky Bernstein
 
 
-def and_not_check(
-    self, lhs, n, rule, ast, tokens, first, last
-) -> bool:
+def and_not_check(self, lhs, n, rule, ast, tokens: list, first: int, last: int) -> bool:
     jmp = ast[1]
     if jmp.kind.startswith("jmp_"):
         if last == n:
