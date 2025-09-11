@@ -440,7 +440,6 @@ def main(
                     sys.stderr.write("\n# %s" % sys.exc_info()[1])
                     sys.stderr.write("\n# Can't uncompile %s\n" % infile)
 
->>>>>>> python-3.6-to-3.10
             else:
                 if outfile:
                     outstream.close()
