@@ -1,4 +1,4 @@
-#  Copyright (c) 2016, 2018-2024 by Rocky Bernstein
+#  Copyright (c) 2016, 2018-2025 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -21,6 +21,7 @@ scanner/ingestion module. From here we call various version-specific
 scanners, e.g. for Python 2.7 or 3.4.
 """
 
+import importlib
 from abc import ABC
 from array import array
 from collections import namedtuple
@@ -115,15 +116,15 @@ class Scanner(ABC):
         self.show_asm = show_asm
         self.is_pypy = is_pypy
 
-        # Temoorary initialization.
+        # Temporary initialization.
         self.opc = ModuleType("uninitialized")
 
         if version[:2] in PYTHON_VERSIONS:
             v_str = f"""opcode_{version_tuple_to_str(version, start=0, end=2, delimiter="")}"""
+            module_name = f"xdis.opcodes.{v_str}"
             if is_pypy:
-                v_str += "pypy"
-            exec(f"""from xdis.opcodes import {v_str}""")
-            exec("self.opc = %s" % v_str)
+                module_name += "pypy"
+            self.opc = importlib.import_module(module_name)
         else:
             raise TypeError(
                 "%s is not a Python version I know about"
