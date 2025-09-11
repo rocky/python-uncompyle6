@@ -200,7 +200,7 @@ def decompile(
             pass
         real_out.write("\n")
         return deparsed
-    except SourceWalkerError, e:
+    except SourceWalkerError(e):
         # deparsing failed
         raise SourceWalkerError(str(e))
 
@@ -436,12 +436,12 @@ def main(
                 pass
             tot_files += 1
         except (
-            ValueError,
-            SyntaxError,
-            ParserError,
-            SourceWalkerError,
-            ImportError,
-        )
+                ValueError,
+                SyntaxError,
+                ParserError,
+                SourceWalkerError,
+                ImportError,
+        ):
             sys.stdout.write("\n")
             sys.stderr.write("# file %s\n" % (infile))
             failed_files += 1
@@ -453,7 +453,7 @@ def main(
             sys.stdout.write("\n")
             sys.stderr.write("\nLast file: %s   " % (infile))
             raise
-        except RuntimeError, e:
+        except RuntimeError(e):
             sys.stdout.write("\n%s\n" % str(e))
             if str(e).startswith("Unsupported Python"):
                 sys.stdout.write("\n")
@@ -498,7 +498,7 @@ def main(
                 if not current_outfile:
                     mess = "\n# okay decompiling"
                     # mem_usage = __memUsage()
-                    print mess, infile
+                    print(mess, infile)
         if current_outfile:
             sys.stdout.write(
                 "%s -- %s\r"
