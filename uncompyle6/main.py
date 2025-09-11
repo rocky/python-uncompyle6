@@ -438,6 +438,14 @@ def main(
             if str(e).startswith("Unsupported Python"):
                 sys.stdout.write("\n")
                 sys.stderr.write(f"\n# Unsupported bytecode in file {infile}\n# {e}\n")
+                failed_files += 1
+                if current_outfile:
+                    outstream.close()
+                    os.rename(current_outfile, current_outfile + "_failed")
+                else:
+                    sys.stderr.write("\n# %s" % sys.exc_info()[1])
+                    sys.stderr.write("\n# Can't uncompile %s\n" % infile)
+
             else:
                 if outfile:
                     outstream.close()
