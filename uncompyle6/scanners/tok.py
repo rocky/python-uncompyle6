@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2021, 2023-2024 by Rocky Bernstein
+#  Copyright (c) 2016-2021, 2023-2025 by Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 #
@@ -17,6 +17,7 @@
 
 import re
 import sys
+from typing import Optional, Union
 
 intern = sys.intern
 
@@ -70,7 +71,7 @@ class Token:
     ):
         self.kind = intern(opname)
         self.has_arg = has_arg
-        self.attr = attr
+        self.attr: Optional[int] = attr
         self.pattr = pattr
         self.optype = optype
         if has_extended_arg:

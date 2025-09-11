@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020, 2025 Rocky Bernstein
 
 
 def and_not_check(
