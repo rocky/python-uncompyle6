@@ -1,5 +1,5 @@
 """
-  Copyright (c) 2015, 2018, 2021-2022 by Rocky Bernstein
+  Copyright (c) 2015, 2018, 2021-2022, 2025 by Rocky Bernstein
   Copyright (c) 2000 by hartmut Goebel <h.goebel@crazy-compilers.com>
   Copyright (c) 1999 John Aycock
 
@@ -36,21 +36,17 @@ if hasattr(sys, "setrecursionlimit"):
     # pyston doesn't have setrecursionlimit
     sys.setrecursionlimit(5000)
 
-from uncompyle6.semantics import fragments, pysource
-
 # Export some functions
 from uncompyle6.main import decompile_file  # noqa
+from uncompyle6.semantics.pysource import code_deparse, deparse_code2str
 
 # Convenience functions so you can say:
 # from uncompyle6 import (code_deparse, deparse_code2str)
 
-from uncompyle6.semantics.pysource import code_deparse, deparse_code2str
 
 __all__ = [
     "__version__",
     "code_deparse",
     "decompile_file",
     "deparse_code2str",
-    "fragments",
-    "pysource",
 ]

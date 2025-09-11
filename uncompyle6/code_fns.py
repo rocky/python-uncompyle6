@@ -41,7 +41,7 @@ from uncompyle6.scanner import get_scanner
 
 def disco(version, co, out=None, is_pypy=False):
     """
-    diassembles and deparses a given code block ``co``.
+    disassembles and deparses a given code block ``co``.
     """
 
     assert iscode(co)

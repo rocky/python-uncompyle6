@@ -1,4 +1,5 @@
-#  Copyright (c) 2020-2021 Rocky Bernstein
+#  Copyright (c) 2020, 2021, 2025 Rocky Bernstein
+>>>>>>> python-3.0-to-3.2
 
 
 def and_not_check(

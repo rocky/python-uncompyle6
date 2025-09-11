@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2024 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2025 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -29,10 +29,13 @@ from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, version_tuple_to_s
 from uncompyle6 import verify
 from uncompyle6.code_fns import check_object_path
 from uncompyle6.parser import ParserError
-from uncompyle6.semantics import pysource
 from uncompyle6.semantics.fragments import code_deparse as code_deparse_fragments
 from uncompyle6.semantics.linemap import deparse_code_with_map
-from uncompyle6.semantics.pysource import PARSER_DEFAULT_DEBUG, code_deparse
+from uncompyle6.semantics.pysource import (
+    PARSER_DEFAULT_DEBUG,
+    SourceWalkerError,
+    code_deparse,
+)
 from uncompyle6.version import __version__
 
 # from uncompyle6.linenumbers import line_number_mapping
@@ -197,9 +200,9 @@ def decompile(
             pass
         real_out.write("\n")
         return deparsed
-    except pysource.SourceWalkerError, e:
+    except SourceWalkerError, e:
         # deparsing failed
-        raise pysource.SourceWalkerError(str(e))
+        raise SourceWalkerError(str(e))
 
 
 def compile_file(source_path):
@@ -432,7 +435,13 @@ def main(
                     # sys.stderr.write("Ran %\n" % deparsed_object.f.name)
                 pass
             tot_files += 1
-        except (ValueError, SyntaxError, ParserError, pysource.SourceWalkerError):
+        except (
+            ValueError,
+            SyntaxError,
+            ParserError,
+            SourceWalkerError,
+            ImportError,
+        )
             sys.stdout.write("\n")
             sys.stderr.write("# file %s\n" % (infile))
             failed_files += 1
@@ -451,6 +460,14 @@ def main(
                 sys.stderr.write(
                     "\n# Unsupported bytecode in file %s\n# %s\n" % (infile, e)
                 )
+                failed_files += 1
+                if current_outfile:
+                    outstream.close()
+                    os.rename(current_outfile, current_outfile + "_failed")
+                else:
+                    sys.stderr.write("\n# %s" % sys.exc_info()[1])
+                    sys.stderr.write("\n# Can't uncompile %s\n" % infile)
+
             else:
                 if outfile:
                     outstream.close()
