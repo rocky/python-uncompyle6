@@ -17,7 +17,6 @@
 
 import re
 import sys
-from typing import Optional, Union
 
 intern = sys.intern
 
@@ -71,7 +70,7 @@ class Token:
     ):
         self.kind = intern(opname)
         self.has_arg = has_arg
-        self.attr: Optional[int] = attr
+        self.attr = attr
         self.pattr = pattr
         self.optype = optype
         if has_extended_arg:

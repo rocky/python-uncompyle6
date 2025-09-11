@@ -431,7 +431,6 @@ def main(
                 sys.stderr.write(
                     "\n# Unsupported bytecode in file %s\n# %s\n" % (infile, e)
                 )
-                sys.stderr.write(f"\n# Unsupported bytecode in file {infile}\n# {e}\n")
                 failed_files += 1
                 if current_outfile:
                     outstream.close()
