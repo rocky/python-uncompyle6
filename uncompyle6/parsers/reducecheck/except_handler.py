@@ -1,7 +1,7 @@
 #  Copyright (c) 2020, 2025 Rocky Bernstein
 
 
-def except_handler(self, lhs, n: int, rule, ast, tokens: list, first: int, last: int):
+def except_handler(self, lhs, n, rule, ast, tokens, first, last):
     end_token = tokens[last - 1]
 
     # print("XXX", first, last)

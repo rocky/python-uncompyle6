@@ -164,7 +164,7 @@ def decompile(
             if isinstance(mapstream, str):
                 mapstream = _get_outstream(mapstream)
 
-            debug_opts = {"asm": showasm, "tree": showast, "grammar": grammar}
+            debug_opts = {"asm": asm, "tree": showast, "grammar": grammar}
 
             deparsed = deparse_code_with_map(
                 co=co,
@@ -200,9 +200,10 @@ def decompile(
             pass
         real_out.write("\n")
         return deparsed
-    except SourceWalkerError(e):
+    except SourceWalkerError:
+        ex_value = sys.exc_info()[1]
         # deparsing failed
-        raise SourceWalkerError(str(e))
+        raise SourceWalkerError(str(ex_value))
 
 
 def compile_file(source_path):
@@ -453,12 +454,13 @@ def main(
             sys.stdout.write("\n")
             sys.stderr.write("\nLast file: %s   " % (infile))
             raise
-        except RuntimeError(e):
-            sys.stdout.write("\n%s\n" % str(e))
-            if str(e).startswith("Unsupported Python"):
+        except RuntimeError:
+            ex_value = sys.exc_info()[1]
+            sys.stdout.write("\n%s\n" % str(ex_value))
+            if str(ex_value).startswith("Unsupported Python"):
                 sys.stdout.write("\n")
                 sys.stderr.write(
-                    "\n# Unsupported bytecode in file %s\n# %s\n" % (infile, e)
+                    "\n# Unsupported bytecode in file %s\n# %s\n" % (infile, ex_value)
                 )
                 failed_files += 1
                 if current_outfile:
