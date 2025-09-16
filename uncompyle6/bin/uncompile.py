@@ -131,7 +131,6 @@ def usage():
     default=0,
     help="start decomplation at offset; default is 0 or the starting offset.",
 )
-@click.version_option(version=__version__)
 @click.option(
     "--stop-offset",
     "stop_offset",

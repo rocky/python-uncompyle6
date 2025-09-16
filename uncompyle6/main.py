@@ -302,6 +302,9 @@ def main(
     for source_path in source_files:
         compiled_files.append(compile_file(source_path))
 
+    if len(compiled_files) == 0:
+        return 0, 0, 0, 0
+
     for filename in compiled_files:
         infile = osp.join(in_base, filename)
         # print("XXX", infile)
