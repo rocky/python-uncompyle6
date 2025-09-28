@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -12,15 +12,14 @@ description = "Python cross-version byte-code library and disassembler"
 dependencies = [
     "click",
     "spark-parser >= 1.8.9, < 1.9.2",
-    "xdis >= 6.1.0, < 6.2.0",
+    "xdis >= 6.1.0, < 6.3",
 ]
 readme = "README.rst"
-license = {text = "GPL"}
+license = "GPL-3.0-or-later"
 keywords = ["Python bytecode", "bytecode", "disassembler"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Programming Language :: Python :: 2.4",
@@ -63,3 +62,8 @@ version = {attr = "uncompyle6.version.__version__"}
 
 [tool.setuptools.packages.find]
 include = ["uncompyle6*"]  # Include all subpackages
+
+[tool.pyright]
+include = ["trepan"]
+# exclude = []
+ignore = ["dist", "docs", "tmp", ".cache"]

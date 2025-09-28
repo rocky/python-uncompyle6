@@ -88,7 +88,9 @@ The way it does this though is by segregating consecutive Python versions into
 git branches:
 
 master
-   Python 3.6 and up (uses type annotations)
+   Python 3.11 and up
+python-3.6-to-3.10
+   Python 3.6 to python-3.10 (uses type annotations)
 python-3.3-to-3.5
    Python 3.3 through 3.5 (Generic Python 3)
 python-2.4
