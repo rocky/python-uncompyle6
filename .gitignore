@@ -12,6 +12,8 @@
 /.python-version
 /.tox
 /.venv*
+/ChangeLog-spell-corrected
+/ChangeLog.orig
 /README
 /__pkginfo__.pyc
 /dist
