@@ -15,7 +15,13 @@ dependencies = [
     "xdis >= 6.1.0, < 6.3",
 ]
 readme = "README.rst"
-license = "GPL-3.0-or-later"
+
+# 3.8 lingo
+license = {text = "GPL"}
+
+# Newer lingo
+# license = "GPL-3.0-or-later"
+
 keywords = ["Python bytecode", "bytecode", "disassembler"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
