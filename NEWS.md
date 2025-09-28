@@ -1,3 +1,11 @@
+3.9.3: 2025-09-28
+=================
+
+- Python 3.9+ tolerance and modern Python packaging, sigh.
+- Don't update global tables, copy them instead; Use a single TABLE copy (gdesmar)
+- Correct print_docstring()'s `docstring.find(quote)
+- short options -h and -v now do the right thing.
+
 3.9.2: 2024-07-21
 =================
 
