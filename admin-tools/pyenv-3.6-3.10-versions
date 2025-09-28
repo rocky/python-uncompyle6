@@ -5,4 +5,4 @@ if [[ $0 == ${BASH_SOURCE[0]} ]] ; then
     echo "This script should be *sourced* rather than run directly through bash"
     exit 1
 fi
-export PYVERSIONS='3.11 3.12 3.13'
+export PYVERSIONS='3.6 pypy3.6 pypy3.7 pypy3.810 pyston-2.3.5 3.8 3.9 3.10'
