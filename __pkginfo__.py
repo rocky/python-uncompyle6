@@ -36,7 +36,7 @@ import os.path as osp
 
 # Things that change more often go here.
 copyright = """
-Copyright (C) 2015-2021, 2024 Rocky Bernstein <rb@dustyfeet.com>.
+Copyright (C) 2015-2021, 2024-2025 Rocky Bernstein <rb@dustyfeet.com>.
 """
 
 classifiers = [
