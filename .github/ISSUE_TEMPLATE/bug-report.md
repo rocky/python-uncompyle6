@@ -5,42 +5,32 @@ about: Tell us about uncompyle6 bugs
 ---
 
 <!-- __Note:__ If you are using this program to do something illegal - don't.
-The issue may be flagged to make it easier for those looking for illegal activity.
+The issue may be flagged to make it easier for those seeking to report illegal activity.
 
 If you are reporting a bug in decompilation, it will probably not be acted upon
-unless it is narrowed to a small example. You may have to do some work remove
+unless it is narrowed to a small example. You may have to do some work to remove
 extraneous code from the source example. Most bugs can be expressed in 30 lines of
 code.
 
-Issues are not for asking questions about a problem you
-are trying to solve that involve the use of uncompyle6 along the way,
-although I may be more tolerant of this if you sponsor the project.
+Issues are not for asking questions about a problem you are trying to solve that involves the use of uncompyle6 along the way, although I may be more tolerant of this if you sponsor the project.
 
-Bugs are also not for general or novice kind help on how to install
+Bugs are also not for general or novice help on how to install
 this Python program and its dependencies in your environment, or in
 the way you would like to have it set up, or how to interpret a Python
-traceback e.g. that winds up saying Python X.Y.Z is not supported.
+traceback, e.g., that winds up saying Python X.Y.Z is not supported.
 
-For these kinds of things, you will save yourself time by asking
-instead on forums like StackOverflow that are geared to helping people
-for such general or novice kinds questions and tasks. And unless you
-are a sponsor of the project, if your question seems to be of this
-category, the issue may just be closed.
+For these kinds of things, you will save yourself time by asking instead on forums like StackOverflow or ChatGPT that are geared to helping people with such general or novice kinds of questions and tasks. And unless you are a sponsor of the project, if your question seems to be of this category, the issue may just be closed.
 
-Also, the unless you are a sponsor of the project, it may take a
+Also, unless you are a sponsor of the project, it may take a
 while, maybe a week or so, before the bug report is noticed, let alone
 acted upon.
 
-To set expectations, some legitimate bugs can take years to fix, but
-they eventually do get fixed.
+To set expectations, some legitimate bugs can take years to fix, but most eventually do get fixed.
 
-Funding the project was added to partially address the problem that there are
-lots of people seeking help and reporting bugs, but few people who are
+Funding the project was added to partially address the problem that there are lots of people seeking help and reporting bugs, but few people who are
 willing or capable of providing help or fixing bugs.
 
-Tasks or the kinds of things others can do, but you can't do or don't
-want to do yourself are typically the kind of thing that you pay
-someone to do, especially when you are the primary beneficiary of the
+Tasks or the kinds of things others can do, but you can't do or don't want to do yourself, are typically the kind of thing that you pay someone to do, especially when you are the primary beneficiary of the
 work, or the task is complex, long, or tedious. If your code is over
 30 lines long, it fits into this category.
 
@@ -57,13 +47,13 @@ Prerequisites/Caveats
   disassembler and produces valid results.
 * Try to make the bytecode that exhibits a bug as small as possible.
 * Don't put bytecode and corresponding source code on any service that
-  requires registration to download. Instead attach it as a zip file.
-* When you open a bug report there is no privacy. If you need privacy, then
+  requires registration to download. Instead, attach it as a zip file.
+* When you open a bug report, there is no privacy. If you need privacy, then
   contact me by email and explain who you are and the need for privacy.
   But be mindful that you may be asked to sponsor the project for the
   personal and private help that you are requesting.
 * If the legitimacy of the activity is deemed suspicious, I may flag it as suspicious,
-  making the issue even more easy to detect.
+  making the issue even easier to detect.
 
 Bug reports that violate the above may be discarded.
 
@@ -75,10 +65,9 @@ Bug reports that violate the above may be discarded.
 
 ## How to Reproduce
 
-<!-- Please show both the *input* you gave and the
-output you got in describing how to reproduce the bug:
+<!-- Please show both the *input* you gave and the output you got in describing how to reproduce the bug.
 
-or give a complete console log with input and output
+Or give a complete console log with input and output
 
 ```console
 $ uncompyle6 <command-line-options>
@@ -95,8 +84,8 @@ can add that too.
 ## Output Given
 
 <!--
-Please include not just the error message but all output leading to the message which includes echoing input and messages up to the error.
-For a command-line environment include command invocation and all the output produced.
+Please include not just the error message, but all output leading to the message, which includes echoing input and messages up to the error.
+For a command-line environment, include command invocation and all the output produced.
 
 If this is too long, then try narrowing the problem to something short.
 -->
@@ -115,7 +104,7 @@ Please modify for your setup
 - Uncompyle6 version: output from  `uncompyle6 --version` or `pip show uncompyle6`
 - xdis version: output from `pydisasm --version` or or `pip show xdis`
 - Python version for the version of Python the byte-compiled the file: `python -c "import sys; print(sys.version)"` where `python` is the correct CPython or PyPy binary.
-- OS and Version: [e.g. Ubuntu bionic]
+- OS and Version: [e.g., Ubuntu bionic]
 
 -->
 
@@ -125,8 +114,8 @@ Please modify for your setup
 
 ## Priority
 
-<!-- If this is important for a particular public good state that here.
-     If this is blocking some important activity let us know what activity it blocks.
+<!-- If this is important for a particular public good state it here.
+     If this is blocking some important activity, let us know what activity it blocks.
 
 	 Otherwise, we'll assume this has the lowest priority in addressing.
 	 -->
