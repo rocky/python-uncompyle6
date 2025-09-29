@@ -7,6 +7,7 @@ if [[ $0 == $bs ]] ; then
 fi
 
 PYTHON_VERSION=3.3
+pyenv local $PYTHON_VERSION
 
 uncompyle6_owd=$(pwd)
 mydir=$(dirname $bs)

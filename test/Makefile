@@ -71,11 +71,9 @@ check-3.7: check-bytecode
 check-pypy37: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-pypy37
 
-check-3.9: check-bytecode
-	@echo "Note that we do not support decompiling Python 3.9 bytecode - no 3.9 tests run"
+check-3.9 check-3.10 check-3.11 check-3.12 check-3.13: check-bytecode
+	@echo "Note that we do not support decompiling this version's bytecode - no 3.9 tests run"
 
-check-3.10: check-bytecode
-	@echo "Note that we do not support decompiling Python 3.10 bytecode - no 3.10 tests run"
 
 # FIXME
 #: this is called when running under pypy3.5-5.8.0, pypy2-5.6.0, pypy3.6-7.3.0 or pypy3.8-7.3.7
@@ -307,6 +305,10 @@ check-bytecode-3.7:
 check-bytecode-3.8:
 	$(PYTHON) test_pythonlib.py --bytecode-3.8-run
 	$(PYTHON) test_pythonlib.py --bytecode-3.8
+
+#: Check deparsing Python 3.8
+check-bytecode-3.9 check-bytecode-3.10 check-bytecode-3.11 check-bytecode-3.12 check-bytecode-3.13:
+	@echo "We don't support decompiling this bytecode for this version"
 
 #: short tests for bytecodes only for this version of Python
 check-native-short:
