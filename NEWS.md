@@ -1,4 +1,4 @@
-3.9.3: 2025-09-28
+3.9.3: 2025-09-29
 =================
 
 - Python 3.9+ tolerance and modern Python packaging, sigh.
