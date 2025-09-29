@@ -36,7 +36,7 @@ import os.path as osp
 
 # Things that change more often go here.
 copyright = """
-Copyright (C) 2015-2021, 2024 Rocky Bernstein <rb@dustyfeet.com>.
+Copyright (C) 2015-2021, 2024-2025 Rocky Bernstein <rb@dustyfeet.com>.
 """
 
 classifiers = [
@@ -79,7 +79,7 @@ entry_points = {
     ]
 }
 ftp_url = None
-install_requires = ["spark-parser >= 1.8.9, < 1.9.2", "xdis >= 6.1.1, < 6.2.0"]
+install_requires = ["spark-parser >= 1.8.9, < 1.9.2", "xdis >= 6.1.1, < 6.3.0"]
 
 license = "GPL3"
 mailing_list = "python-debugger@googlegroups.com"

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
-# Copyright (c) 2015-2017, 2019-2020, 2023-2024
+# Copyright (c) 2015-2017, 2019-2020, 2023-2025
 # by Rocky Bernstein
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -99,160 +99,12 @@ def main_bin():
             (3, 11),
             (3, 12),
             (3, 13),
+            (3, 14),
         )
     ):
-        print('Error: %s requires Python 2.4-3.10' % program)
+        print('Error: %s requires Python 2.4-3.14' % program)
         sys.exit(-1)
     recurse_dirs = False
-=======
-# __doc__ = """
-# Usage:
-#   %s [OPTIONS]... [ FILE | DIR]...
-#   %s [--help | --version]
-
-# Examples:
-#   %s      foo.pyc bar.pyc       # decompile foo.pyc, bar.pyc to stdout
-#   %s -o . foo.pyc bar.pyc       # decompile to ./foo.pyc_dis and ./bar.pyc_dis
-#   %s -o /tmp /usr/lib/python1.5 # decompile whole library
-
-# Options:
-#   -o <path>     output decompiled files to this path:
-#                 if multiple input files are decompiled, the common prefix
-#                 is stripped from these names and the remainder appended to
-#                 <path>
-#                   uncompyle6 -o /tmp bla/fasel.pyc bla/foo.pyc
-#                     -> /tmp/fasel.pyc_dis, /tmp/foo.pyc_dis
-#                   uncompyle6 -o /tmp bla/fasel.pyc bar/foo.pyc
-#                     -> /tmp/bla/fasel.pyc_dis, /tmp/bar/foo.pyc_dis
-#                   uncompyle6 -o /tmp /usr/lib/python1.5
-#                     -> /tmp/smtplib.pyc_dis ... /tmp/lib-tk/FixTk.pyc_dis
-#   --compile | -c <python-file>
-#                 attempts a decompilation after compiling <python-file>
-#   -d            print timestamps
-#   -p <integer>  use <integer> number of processes
-#   -r            recurse directories looking for .pyc and .pyo files
-#   --fragments   use fragments deparser
-#   --verify      compare generated source with input byte-code
-#   --verify-run  compile generated source, run it and check exit code
-#   --syntax-verify compile generated source
-#   --linemaps    generated line number correspondencies between byte-code
-#                 and generated source output
-#   --encoding  <encoding>
-#                 use <encoding> in generated source according to pep-0263
-#   --help        show this message
-
-# Debugging Options:
-#   --asm     | -a        include byte-code       (disables --verify)
-#   --grammar | -g        show matching grammar
-#   --tree={before|after}
-#   -t {before|after}     include syntax before (or after) tree transformation
-#                         (disables --verify)
-#   --tree++ | -T         add template rules to --tree=before when possible
-
-# Extensions of generated files:
-#   '.pyc_dis' '.pyo_dis'   successfully decompiled (and verified if --verify)
-#     + '_unverified'       successfully decompile but --verify failed
-#     + '_failed'           decompile failed (contact author for enhancement)
-# """ % (
-#     (program,) * 5
-# )
-
-
-@click.command()
-@click.option(
-    "--asm++/--no-asm++",
-    "-A",
-    "asm_plus",
-    default=False,
-    help="show xdis assembler and tokenized assembler",
-)
-@click.option("--asm/--no-asm", "-a", default=False)
-@click.option("--grammar/--no-grammar", "-g", "show_grammar", default=False)
-@click.option("--tree/--no-tree", "-t", default=False)
-@click.option(
-    "--tree++/--no-tree++",
-    "-T",
-    "tree_plus",
-    default=False,
-    help="show parse tree and Abstract Syntax Tree",
-)
-@click.option(
-    "--linemaps/--no-linemaps",
-    default=False,
-    help="show line number correspondencies between byte-code "
-    "and generated source output",
-)
-@click.option(
-    "--verify",
-    type=click.Choice(["run", "syntax"]),
-    default=None,
-)
-@click.option(
-    "--recurse/--no-recurse",
-    "-r",
-    "recurse_dirs",
-    default=False,
-)
-@click.option(
-    "--output",
-    "-o",
-    "outfile",
-    type=click.Path(
-        exists=True, file_okay=True, dir_okay=True, writable=True, resolve_path=True
-    ),
-    required=False,
-)
-@click.version_option(version=__version__)
-@click.option(
-    "--start-offset",
-    "start_offset",
-    default=0,
-    help="start decomplation at offset; default is 0 or the starting offset.",
-)
-@click.option(
-    "--stop-offset",
-    "stop_offset",
-    default=-1,
-    help="stop decomplation when seeing an offset greater or equal to this; default is "
-    "-1 which indicates no stopping point.",
-)
-@click.argument("files", nargs=-1, type=click.Path(readable=True), required=True)
-def main_bin(
-    asm: bool,
-    asm_plus: bool,
-    show_grammar,
-    tree: bool,
-    tree_plus: bool,
-    linemaps: bool,
-    verify,
-    recurse_dirs: bool,
-    outfile,
-    start_offset: int,
-    stop_offset: int,
-    files,
-):
-    """
-    Cross Python bytecode decompiler for Python bytecode up to Python 3.8.
-    """
-
-    version_tuple = sys.version_info[0:2]
-    if not ((3, 0) <= version_tuple < (3, 3)):
-        if version_tuple > (3, 3):
-            print(
-                "This version of the {program} is tailored for Python 3.0 to 3.2.\n"
-                "It may run on other versions, but there are problems, switch to code "
-                "from another branch.\n"
-                "You have version: %s." % version_tuple_to_str()
-            )
-        else:
-            print(
-                "Error: This version of the {program} runs from Python 3.0 to 3.2.\n"
-                "You need another branch of this code for other Python versions."
-                " \n\tYou have version: %s." % version_tuple_to_str()
-            )
-            sys.exit(-1)
-
->>>>>>> python-3.0-to-3.2
     numproc = 0
     outfile = "-"
     out_base = None

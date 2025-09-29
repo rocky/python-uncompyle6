@@ -23,8 +23,6 @@ if PYTHON_VERSION_TRIPLE < (2, 5):
 else:
     from StringIO import StringIO
 
-import six
-
 def _dis_to_text(co):
     return Bytecode(co).dis()
 
