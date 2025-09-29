@@ -17,5 +17,6 @@ function checkout_finish {
     cd $uncompyle6_owd
     git checkout $branch && pyenv local $PYTHON_VERSION && git pull
     rc=$?
+    pyenv local $PYTHON_VERSION
     return $rc
 }

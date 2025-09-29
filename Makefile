@@ -131,5 +131,6 @@ rmChangeLog:
 #: Create a ChangeLog from git via git log and git2cl
 ChangeLog: rmChangeLog
 	git log --pretty --numstat --summary | $(GIT2CL) >$@
+	patch ChangeLog < ChangeLog-spell-corrected.diff
 
 .PHONY: $(PHONY)
