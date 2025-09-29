@@ -37,13 +37,13 @@ for pyversion in $PYVERSIONS; do
     first_two=$(echo $pyversion | cut -d'.' -f 1-2 | sed -e 's/\.//')
     rm -fr build
     python setup.py bdist_egg bdist_wheel
-    mv -v dist/${PACKAGE}-$__version__-{py2.py3,py$first_two}-none-any.whl
+    mv -v dist/${PACKAGE}-$__version__-{py3,py$first_two}-none-any.whl
     echo === $pyversion ===
 done
 
 python ./setup.py sdist
 tarball=dist/${PACKAGE}-${__version__}.tar.gz
 if [[ -f $tarball ]]; then
-    mv -v $tarball dist/${PACKAGE}_31-${__version__}.tar.gz
+    mv -v $tarball dist/${PACKAGE}_30-${__version__}.tar.gz
 fi
 finish
