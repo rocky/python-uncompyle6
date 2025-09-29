@@ -23,6 +23,9 @@ cd ..
 source $PACKAGE/version.py
 echo $__version__
 
+# Python 3.12 and 3.13 are more restrictive in packaging
+pyenv local 3.11
+
 rm -fr build
 pip wheel --wheel-dir=dist .
 python -m build --sdist
