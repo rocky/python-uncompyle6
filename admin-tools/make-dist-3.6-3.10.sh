@@ -3,11 +3,11 @@ PACKAGE=uncompyle6
 
 # FIXME put some of the below in a common routine
 function finish {
-  cd $uncompyle6_33_make_owd
+  cd $uncompyle6_36_make_owd
 }
 
 cd $(dirname ${BASH_SOURCE[0]})
-uncompyle6_33_make_owd=$(pwd)
+uncompyle6_36_make_owd=$(pwd)
 trap finish EXIT
 
 if ! source ./pyenv-3.6-3.10-versions ; then

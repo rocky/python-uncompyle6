@@ -12,7 +12,6 @@ The successor to decompyle, uncompyle, and uncompyle2.
 
 I gave a talk on this at `BlackHat Asia 2024 <https://youtu.be/H-7ZNrpsV50?si=nOaixgYHr7RbILVS>`_.
 
-
 Introduction
 ------------
 
@@ -41,7 +40,7 @@ and associated with fragments of the source code. This purpose,
 although compatible with the original intention, is yet a little bit
 different.  See this_ for more information.
 
-Python fragment deparsing, given an instruction offset, is useful in 
+Python fragment deparsing, given an instruction offset, is useful in
 showing stack traces and can be incorporated into any program that
 wants to show a location in more detail than just a line number at
 runtime.  This code can also be used when source code information does
@@ -51,7 +50,7 @@ this.
 There were (and still are) several decompyle, uncompyle,
 uncompyle2, uncompyle3 forks around. Many of them come basically from
 the same code base, and (almost?) all of them are no longer actively
-maintained. One was really good at decompiling Python 1.5-2.3, another is really good at Python 2.7, 
+maintained. One was really good at decompiling Python 1.5-2.3, another is really good at Python 2.7,
 but only that. Another handles Python 3.2
 only; another patched that and handled only 3.3.  You get the
 idea. This code pulls all of these forks together and *moves
