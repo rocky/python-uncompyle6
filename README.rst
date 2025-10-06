@@ -121,7 +121,7 @@ If the Python version you are running uncompyle6 is between Python 3.6 through 3
 
 If the Python version you are running uncompyle6 is 3.11 or later, use a called uncompyle6-*x.y.z*.tar.gz.
 
-You can also try eggs or wheel that have the same version designation, e.g., uncompyle6-*x.y.z*-py39-non-any.whl for a Python 3.9 installation. *However, note that *the version without the designation, means Python 3.11 or greater*.
+You can also try eggs or wheels that have the same version designation, e.g., uncompyle6-*x.y.z*-py39-non-any.whl for a Python 3.9 installation. *However, note that *the version without the designation means Python 3.11 or greater*.
 
 Similarly a tarball with without `_`*xx* works only from Python 3.11 or greaters
 
@@ -134,7 +134,7 @@ It is currently impossible (if not impractical) to have one Python source code o
 Installation from source text
 ++++++++++++++++++++++++++++++
 
-To install from source code make sure you have the right github
+To install from source code, make sure you have the right github
 branch. See the Requirements section for the Git branch names.
 
 After setting the right branch:
@@ -231,12 +231,10 @@ In the Python 3 series, Python support is strongest around 3.4 or
 3.1 or 2.7. Python 3.6 changes things drastically by using word codes
 rather than byte codes. As a result, the jump offset field in a jump
 instruction argument has been reduced. This makes the :code:`EXTENDED_ARG` instructions now more prevalent in jump instructions; previously
-they had been rare.  Perhaps to compensate for the additional
-:code:`EXTENDED_ARG` instructions, additional jump optimization has been
-added. So in sum handling control flow by ad hoc means, as is currently
-done is worse.
+they had been rare.  Perhaps to compensate for the additional :code:`EXTENDED_ARG` instructions, additional jump optimization has been
+added. So in sum, handling control flow by ad hoc means, as is currently done, is worse.
 
-Between Python 3.5, 3.6, 3.7, there have been major changes to the
+Between Python 3.5, 3.6, and 3.7, there have been major changes to the
 :code:`MAKE_FUNCTION` and :code:`CALL_FUNCTION` instructions.
 
 Python 3.8 removes :code:`SETUP_LOOP`, :code:`SETUP_EXCEPT`,
@@ -244,16 +242,14 @@ Python 3.8 removes :code:`SETUP_LOOP`, :code:`SETUP_EXCEPT`,
 make control-flow detection harder, lacking the more sophisticated
 control-flow analysis that is planned. We'll see.
 
-Currently, not all Python magic numbers are supported. Specifically in
-some versions of Python, notably Python 3.6, the magic number has
+Currently, not all Python magic numbers are supported. Specifically in some versions of Python, notably Python 3.6, the magic number has
 changes several times within a version.
 
 **We support only released versions, not candidate versions.** Note, however, that the magic of a released version is usually the same as
-the *last* candidate version prior to release.
+the *last* candidate version before release.
 
 There are also customized Python interpreters, notably Dropbox,
-which use their own magic and encrypt bytecode. With the exception of
-Dropbox's old Python 2.5 interpreter, this kind of thing is not
+which use their own magic and encrypt bytecode. Except for Dropbox's old Python 2.5 interpreter, this kind of thing is not
 handled.
 
 We also don't handle PJOrion_ or otherwise obfuscated code. For
@@ -277,7 +273,7 @@ sophisticated. I suspect that attempts there will be fewer ad-hoc
 attempts like unpyc37_ (which is based on a 3.3 decompiler) simply
 because it is harder to do so. The good news, at least from my
 standpoint, is that I think I understand what's needed to address the
-problems in a more robust way. But right now, until such time as
+problems more robustly. But right now, until 
 the project is better funded, I do not intend to make any serious effort
 to support Python versions 3.8 or 3.9, including bugs that might come
 in. I imagine at some point I may be interested in it.
