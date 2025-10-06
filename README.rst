@@ -109,7 +109,7 @@ Installation
 
     pip install uncompyle6
 
-*For Python releases before 3.11*, do not install using PyPI, but instead install using a file in the [GitHub Releases section](https://github.com/rocky/python-uncompyle6/releases). Older Python used to use `easy_install <https://python101.pythonlibrary.org/chapter29_pip.html#using-easy-install>`_. But this is no longer supported in PyPi.
+*For Python releases before 3.11*, do not install using PyPI, but instead install using a file in the [GitHub Releases section](https://github.com/rocky/python-uncompyle6/releases). Older Python used to use `easy_install <https://python101.pythonlibrary.org/chapter29_pip.html#using-easy-install>`_. But this is no longer supported in PyPi. And <i>poetry</i> and sometimes even <i>pip</i>, the new ways are not supported in older Pythons.
 
 If the Python version you are running uncompyle6 is between Python 2.4 through 2.7, use a tarball called uncompyle6_24-*x.y.z*.tar.gz.
 
