@@ -86,12 +86,20 @@ The way it does this, though, is by segregating consecutive Python versions into
 git branches:
 
 master
+<<<<<<< Updated upstream
    Python 3.11 and up
 python-3.6-to-3.10
    Python 3.6 to python-3.10 (uses type annotations)
+=======
+   Python 3.11 and up (uses poetry install, and newer Python idioms)
+python-3.6-to-3.10
+   Python 3.6 through 3.10 (uses newer f-strings, and more modern, and more modern Type annotations)
+>>>>>>> Stashed changes
 python-3.3-to-3.5
    Python 3.3 through 3.5 (Generic Python 3)
-python-2.4
+python-3.3-to-3.5
+   Python 3.3 through 3.5 (Generic Python 3)
+python-2.4-to-2.7
    Python 2.4 through 2.7 (Generic Python 2)
 
 PyPy 3-2.4 and later works as well.
@@ -103,18 +111,42 @@ versions.
 Installation
 ------------
 
-You can install from PyPI using the name ``uncompyle6``::
+*For recent Python releases (Python 3.11+)*, you can install from PyPI using the name ``uncompyle6``::
 
     pip install uncompyle6
 
+*For Python releases before 3.11*, do not install using PyPI, but instead install using a file in the [GitHub Releases section](https://github.com/rocky/python-uncompyle6/releases). Older Python used to use `easy_install <https://python101.pythonlibrary.org/chapter29_pip.html#using-easy-install>`_. But this is no longer supported in PyPi.
 
-To install from source code, this project uses setup.py, so it follows the standard Python routine::
+If the Python version you are running uncompyle6 is between Python 2.4 through 2.7, use a tarball called uncompyle6_24-*x.y.z*.tar.gz.
+
+If the Python version you are running uncompyle6 is between Python 3.0 through 3.2, use a tarball called uncompyle6_30-*x.y.z*.tar.gz.
+
+If the Python version you are running uncompyle6 is between Python 3.3 through 3.5, use a tarball called uncompyle6_33-*x.y.z*.tar.gz.
+
+If the Python version you are running uncompyle6 is between Python 3.6 through 3.11, use a tarball called uncompyle6_36-*x.y.z*.tar.gz.
+
+If the Python version you are running uncompyle6 is 3.11 or later, use a called uncompyle6-*x.y.z*.tar.gz.
+
+You can also try eggs or wheel that have the same version designation, e.g., uncompyle6-*x.y.z*-py39-non-any.whl for a Python 3.9 installation. *However, note that *the version without the designation, means Python 3.11 or greater*.
+
+Similarly a tarball with without `_`*xx* works only from Python 3.11 or greaters
+
+
+Rationale for using Git Branches
+++++++++++++++++++++++++++++++++
+
+It is currently impossible (if not impractical) to have one Python source code of this complexity and with this many features that can run both Python 2.7 and Python 3.13+. The languages have drifted so much, and Packing is vastly different. In fact, the packaging practice for Python 3.11+ is incompatible with Python 2.7 (and before back to Python 2.4), which favored "easy_install".
+
+Installation from source text
+++++++++++++++++++++++++++++++
+
+To install from source code make sure you have the right github
+branch. See the Requirements section for the Git branch names.
+
+After setting the right branch:
 
     $ pip install -e .  # set up to run from source tree
 
-or::
-
-    $ python setup.py install # may need sudo
 
 A GNU Makefile is also provided, so :code:`make install` (possibly as root or
 sudo) will do the steps above.
@@ -274,7 +306,11 @@ Be aware that it might not get my attention for a while. If you
 sponsor or support the project in some way, I'll prioritize your
 issues above the queue of other things I might be doing instead. In
 rare situations, I can do a hand decompilation of bytecode for a fee.
+<<<<<<< Updated upstream
 However, this is expensive, usually beyond what most people are willing
+=======
+However this is expansive, usually beyond what most people are willing
+>>>>>>> Stashed changes
 to spend.
 
 See Also
