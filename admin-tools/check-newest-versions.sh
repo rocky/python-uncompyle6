@@ -1,10 +1,10 @@
 #!/bin/bash
 function finish {
-  cd $owd
+  cd $uncompyle6_check_owd
 }
 
 # FIXME put some of the below in a common routine
-owd=$(pwd)
+uncompyle6_check_owd=$(pwd)
 trap finish EXIT
 
 cd $(dirname ${BASH_SOURCE[0]})
