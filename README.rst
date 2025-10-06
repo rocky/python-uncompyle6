@@ -121,9 +121,9 @@ If the Python version you are running uncompyle6 is between Python 3.6 through 3
 
 If the Python version you are running uncompyle6 is 3.11 or later, use a called uncompyle6-*x.y.z*.tar.gz.
 
-You can also try eggs or wheels that have the same version designation, e.g., uncompyle6-*x.y.z*-py39-non-any.whl for a Python 3.9 installation. *However, note that *the version without the designation means Python 3.11 or greater*.
+You can also try eggs or wheels that have the same version designation, e.g., uncompyle6-*x.y.z*-py39-none-any.whl for a Python 3.9 installation. *However, note that *the version without the designation means Python 3.11 or greater*.
 
-Similarly a tarball with without `_`*xx* works only from Python 3.11 or greaters
+Similarly a tarball with without `_`*xx* works only from Python 3.11 or greater.
 
 
 Rationale for using Git Branches
@@ -273,7 +273,7 @@ sophisticated. I suspect that attempts there will be fewer ad-hoc
 attempts like unpyc37_ (which is based on a 3.3 decompiler) simply
 because it is harder to do so. The good news, at least from my
 standpoint, is that I think I understand what's needed to address the
-problems more robustly. But right now, until 
+problems more robustly. But right now, until
 the project is better funded, I do not intend to make any serious effort
 to support Python versions 3.8 or 3.9, including bugs that might come
 in. I imagine at some point I may be interested in it.
