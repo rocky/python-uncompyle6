@@ -86,15 +86,12 @@ The way it does this, though, is by segregating consecutive Python versions into
 git branches:
 
 master
-<<<<<<< Updated upstream
-   Python 3.11 and up
-python-3.6-to-3.10
-   Python 3.6 to python-3.10 (uses type annotations)
-=======
    Python 3.11 and up (uses poetry install, and newer Python idioms)
 python-3.6-to-3.10
    Python 3.6 through 3.10 (uses newer f-strings, and more modern, and more modern Type annotations)
->>>>>>> Stashed changes
+   Python 3.11 and up (uses poetry install, and newer Python idioms)
+python-3.6-to-3.10
+   Python 3.6 through 3.10 (uses newer f-strings, and more modern, and more modern Type annotations)
 python-3.3-to-3.5
    Python 3.3 through 3.5 (Generic Python 3)
 python-3.3-to-3.5
@@ -306,11 +303,7 @@ Be aware that it might not get my attention for a while. If you
 sponsor or support the project in some way, I'll prioritize your
 issues above the queue of other things I might be doing instead. In
 rare situations, I can do a hand decompilation of bytecode for a fee.
-<<<<<<< Updated upstream
 However, this is expensive, usually beyond what most people are willing
-=======
-However this is expansive, usually beyond what most people are willing
->>>>>>> Stashed changes
 to spend.
 
 See Also
