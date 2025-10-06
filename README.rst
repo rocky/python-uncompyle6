@@ -88,15 +88,15 @@ git branches:
 master
    Python 3.11 and up (uses poetry install, and newer Python idioms)
 python-3.6-to-3.10
-   Python 3.6 through 3.10 (uses newer f-strings, and more modern, and more modern Type annotations)
+   Python 3.6 through 3.10 (uses newer f-strings, and more modern idioms, and more modern Type annotations)
 python-3.3-to-3.5
    Python 3.3 through 3.5 (Generic Python 3)
-python-3.3-to-3.5
-   Python 3.3 through 3.5 (Generic Python 3)
+python-3.0-to-3.2
+   Python 3.0 through 3.2  (Early Python 3; 3.0 was in some areas closer to Python 2.6 than Python 2.7)
 python-2.4-to-2.7
    Python 2.4 through 2.7 (Generic Python 2)
 
-PyPy 3-2.4 and later works as well.
+PyPy from Version 2.4 up works as well.
 
 The bytecode files it can read have been tested on Python
 bytecodes from versions 1.4, 2.1-2.7, and 3.0-3.8 and later PyPy
@@ -109,7 +109,7 @@ Installation
 
     pip install uncompyle6
 
-*For Python releases before 3.11*, do not install using PyPI, but instead install using a file in the [GitHub Releases section](https://github.com/rocky/python-uncompyle6/releases). Older Python used to use `easy_install <https://python101.pythonlibrary.org/chapter29_pip.html#using-easy-install>`_. But this is no longer supported in PyPi. And <i>poetry</i> and sometimes even <i>pip</i>, the new ways are not supported in older Pythons.
+*For Python releases before 3.11*, do not install using PyPI, but instead install using a file in the [GitHub Releases section](https://github.com/rocky/python-uncompyle6/releases). Older Python used to use `easy_install <https://python101.pythonlibrary.org/chapter29_pip.html#using-easy-install>`_. But this is no longer supported on PyPi or newer Python versions. And vice versa, *poetry* nor *pip*, (the newer ways) are not supported on older Pythons.
 
 If the Python version you are running uncompyle6 is between Python 2.4 through 2.7, use a tarball called uncompyle6_24-*x.y.z*.tar.gz.
 
