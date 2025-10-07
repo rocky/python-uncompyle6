@@ -106,4 +106,7 @@ def read(*rnames):
 
 # Get info from files; set: long_description and VERSION
 long_description = read("README.rst") + "\n"
+
+# The "exec" below rewrites __version__.
+__version__="??"
 exec(read("uncompyle6/version.py"))
