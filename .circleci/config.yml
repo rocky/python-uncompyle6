@@ -16,7 +16,7 @@ jobs:
     # To see the list of pre-built images that CircleCI provides for most common languages see
     # https://circleci.com/docs/2.0/circleci-images/
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.13
     steps:
       # Machine Setup
       #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
@@ -42,7 +42,7 @@ jobs:
 
       - run:
           command: | # Use pip to install dependengcies
-            sudo pip install --user --upgrade setuptools
+            pip install --user --upgrade setuptools
             pip install --user -e .
             # Not sure why "pip install -e" doesn't work above
             # pip install click spark-parser xdis
@@ -64,7 +64,7 @@ jobs:
       # Test
       #   This would typically be a build job when using workflows, possibly combined with build
       # This is based on your 1.0 configuration file or project settings
-      - run: make check-3.6
+      - run: pip install -e . && make check-3.6
       - run: cd ./test/stdlib && bash ./runtests.sh 'test_[p-z]*.py'
       # Teardown
       #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each

@@ -137,16 +137,15 @@ It is currently impossible (if not impractical) to have one Python source code o
 Installation from source text
 ++++++++++++++++++++++++++++++
 
-To install from source code, make sure you have the right github
+To install from source code, make sure you have the right Git
 branch. See the Requirements section for the Git branch names.
 
-After setting the right branch:
+After setting the right branch::
 
     $ pip install -e .  # set up to run from source tree
 
 
-A GNU Makefile is also provided, so :code:`make install` (possibly as root or
-sudo) will do the steps above.
+A GNU Makefile is also provided, so :code:``make install`` (possibly as root or sudo) will do the steps above.
 
 Running Tests
 -------------
