@@ -2,9 +2,9 @@
 # Run tests over all Python versions in branch python-2.4-2.7
 set -e
 function finish {
-  cd $owd
+  cd $uncompyle6_check_owd
 }
-owd=$(pwd)
+uncompyle6_check_owd=$(pwd)
 trap finish EXIT
 
 cd $(dirname ${BASH_SOURCE[0]})

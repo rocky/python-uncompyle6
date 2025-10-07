@@ -2,16 +2,16 @@
 # Run tests over all Python versions in branch python-3.3-3.5
 set -e
 function finish {
-  cd $owd
+  cd $uncompyle6_check_owd
 }
-owd=$(pwd)
+uncompyle6_check_owd=$(pwd)
 trap finish EXIT
 
 cd $(dirname ${BASH_SOURCE[0]})
-if ! source ./pyenv-3.3-3.5-versions ; then
+if ! source ./pyenv-3.6-3.10-versions ; then
     exit $?
 fi
-if ! source ./setup-python-3.3.sh ; then
+if ! source ./setup-python-3.6.sh ; then
     exit $?
 fi
 

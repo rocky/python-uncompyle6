@@ -64,6 +64,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Debuggers",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -84,7 +85,7 @@ install_requires = ["spark-parser >= 1.8.9, < 1.9.2", "xdis >= 6.1.1, < 6.3.0"]
 license = "GPL3"
 mailing_list = "python-debugger@googlegroups.com"
 modname = "uncompyle6"
-py_modules = None
+py_modules = []
 short_desc = "Python cross-version byte-code decompiler"
 web = "https://github.com/rocky/python-uncompyle6/"
 
@@ -106,4 +107,7 @@ def read(*rnames):
 
 # Get info from files; set: long_description and VERSION
 long_description = read("README.rst") + "\n"
+
+# The "exec" below rewrites __version__.
+__version__="??"
 exec(read("uncompyle6/version.py"))
