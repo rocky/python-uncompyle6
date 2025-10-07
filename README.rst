@@ -142,13 +142,9 @@ branch. See the Requirements section for the Git branch names.
 
 After setting the right branch::
 
-   $ pip install -e .  # set up to run from source tree
-
-
    $ python setup.py install # may need sudo
 
 A GNU Makefile is also provided, so :code:``make install`` (possibly as root or sudo) will do the steps above.
->>>>>>> python-3.0-to-3.2
 
 Running Tests
 -------------
@@ -161,7 +157,7 @@ A GNU makefile has been added to smooth over setting up and running the right
 command, and running tests from fastest to slowest.
 
 If you have remake_ installed, you can see the list of all tasks
-including tests via :code:`remake --tasks`
+including tests via :code:``remake --tasks``
 
 
 Usage

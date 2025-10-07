@@ -5,16 +5,15 @@
 import sys
 
 import setuptools
-import sys
 
 major = sys.version_info[0]
 minor = sys.version_info[1]
 SYS_VERSION = sys.version_info[0:2]
 if not ((2, 4) <= SYS_VERSION < (3, 0)):
     sys.stderr.write("Python Release 2.4 .. 2.7 are supported in this code branch. You are running Python %s.%s.\n" % (major, minor))
-    if (2, 4) <= SYS_VERSION <= (2, 7):
-        sys.stderr.write("Please install using uncompyle6_24-x.y.z.tar.gz from https://github.com/rocky/python-uncompyle6/releases\n")
-        sys.stderr.write("Or to install from source, use the python-2.4-to-2.7 code/branch.\n")
+    if (3, 0) <= SYS_VERSION <= (3, 3):
+        sys.stderr.write("Please install using uncompyle6_30-x.y.z.tar.gz from https://github.com/rocky/python-uncompyle6/releases\n")
+        sys.stderr.write("Or to install from source, use the python-3.0-to-3.2 code/branch.\n")
         sys.exit(1)
     elif SYS_VERSION >= (3, 10):
         sys.stderr.write("Please install using uncompyle6-x.y.z.tar.gz from https://github.com/rocky/python-uncompyle6/releases\n")
@@ -32,7 +31,6 @@ if not ((2, 4) <= SYS_VERSION < (3, 0)):
         sys.stderr.write("This package is not supported for Python\n")
         sys.exit(1)
     raise Exception("Wrong Python version")
->>>>>>> python-3.0-to-3.2
 
 from __pkginfo__ import (
     __version__,
