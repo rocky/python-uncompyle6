@@ -27,7 +27,6 @@ if not ((3, 3) <= SYS_VERSION < (3, 6)):
         sys.stderr.write("Please install using uncompyle6_36-x.y.z.tar.gz from https://github.com/rocky/python-uncompyle6/releases\n")
         sys.stderr.write("Or to install from source, use the python-3.3-to-3.5 code/branch.\n")
         sys.exit(1)
->>>>>>> python-3.6-to-3.10
     elif SYS_VERSION < (2, 4):
         sys.stderr.write("This package is not supported for Python\n")
         sys.exit(1)

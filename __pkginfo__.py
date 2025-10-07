@@ -1,4 +1,4 @@
-# Copyright (C) 2018, 2020-2021 2024 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018, 2020-2021 2024-2025 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ import os.path as osp
 
 # Things that change more often go here.
 copyright = """
-Copyright (C) 2015-2021, 2024 Rocky Bernstein <rb@dustyfeet.com>.
+Copyright (C) 2015-2021, 2024-2025 Rocky Bernstein <rb@dustyfeet.com>.
 """
 
 classifiers = [
@@ -64,6 +64,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Debuggers",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -84,7 +85,7 @@ install_requires = ["click", "spark-parser >= 1.8.9, < 1.9.2", "xdis >= 6.1.1, <
 license = "GPL3"
 mailing_list = "python-debugger@googlegroups.com"
 modname = "uncompyle6"
-py_modules = None
+py_modules = []
 short_desc = "Python cross-version byte-code decompiler"
 web = "https://github.com/rocky/python-uncompyle6/"
 
