@@ -2,9 +2,9 @@ name: uncompyle6 (windows)
 
 on:
   push:
-    branches: [ master ]
+    branches: [ python-3.6-to-3.10 ]
   pull_request:
-    branches: [ master ]
+    branches: [ python-3.6-to-3.10 ]
 
 jobs:
   build:
@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         os: [windows]
-        python-version: [3.13]
+        python-version: ['3.8']
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
