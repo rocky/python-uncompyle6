@@ -16,11 +16,8 @@ dependencies = [
 ]
 readme = "README.rst"
 
-# 3.8 lingo
-license = {text = "GPL"}
-
 # Newer lingo
-# license = "GPL-3.0-or-later"
+license = "GPL-3.0-or-later"
 
 keywords = ["Python bytecode", "bytecode", "disassembler"]
 classifiers = [
