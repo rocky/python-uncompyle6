@@ -86,23 +86,20 @@ The way it does this, though, is by segregating consecutive Python versions into
 git branches:
 
 master
-<<<<<<< Updated upstream
-   Python 3.11 and up
-python-3.6-to-3.10
-   Python 3.6 to python-3.10 (uses type annotations)
-=======
    Python 3.11 and up (uses poetry install, and newer Python idioms)
 python-3.6-to-3.10
    Python 3.6 through 3.10 (uses newer f-strings, and more modern, and more modern Type annotations)
->>>>>>> Stashed changes
+   Python 3.11 and up (uses poetry install, and newer Python idioms)
+python-3.6-to-3.10
+   Python 3.6 through 3.10 (uses newer f-strings, and more modern, and more modern Type annotations)
 python-3.3-to-3.5
    Python 3.3 through 3.5 (Generic Python 3)
-python-3.3-to-3.5
-   Python 3.3 through 3.5 (Generic Python 3)
+python-3.0-to-3.2
+   Python 3.0 through 3.2  (Early Python 3; 3.0 was in some areas closer to Python 2.6 than Python 2.7)
 python-2.4-to-2.7
    Python 2.4 through 2.7 (Generic Python 2)
 
-PyPy 3-2.4 and later works as well.
+PyPy from Version 2.4 up works as well.
 
 The bytecode files it can read have been tested on Python
 bytecodes from versions 1.4, 2.1-2.7, and 3.0-3.8 and later PyPy
@@ -115,7 +112,7 @@ Installation
 
     pip install uncompyle6
 
-*For Python releases before 3.11*, do not install using PyPI, but instead install using a file in the [GitHub Releases section](https://github.com/rocky/python-uncompyle6/releases). Older Python used to use `easy_install <https://python101.pythonlibrary.org/chapter29_pip.html#using-easy-install>`_. But this is no longer supported in PyPi.
+*For Python releases before 3.11*, do not install using PyPI, but instead install using a file in the [GitHub Releases section](https://github.com/rocky/python-uncompyle6/releases). Older Python used to use `easy_install <https://python101.pythonlibrary.org/chapter29_pip.html#using-easy-install>`_. But this is no longer supported on PyPi or newer Python versions. And vice versa, *poetry* nor *pip*, (the newer ways) are not supported on older Pythons.
 
 If the Python version you are running uncompyle6 is between Python 2.4 through 2.7, use a tarball called uncompyle6_24-*x.y.z*.tar.gz.
 
@@ -127,9 +124,9 @@ If the Python version you are running uncompyle6 is between Python 3.6 through 3
 
 If the Python version you are running uncompyle6 is 3.11 or later, use a called uncompyle6-*x.y.z*.tar.gz.
 
-You can also try eggs or wheel that have the same version designation, e.g., uncompyle6-*x.y.z*-py39-non-any.whl for a Python 3.9 installation. *However, note that *the version without the designation, means Python 3.11 or greater*.
+You can also try eggs or wheels that have the same version designation, e.g., uncompyle6-*x.y.z*-py39-none-any.whl for a Python 3.9 installation. *However, note that *the version without the designation means Python 3.11 or greater*.
 
-Similarly a tarball with without `_`*xx* works only from Python 3.11 or greaters
+Similarly a tarball with without `_`*xx* works only from Python 3.11 or greater.
 
 
 Rationale for using Git Branches
@@ -140,7 +137,7 @@ It is currently impossible (if not impractical) to have one Python source code o
 Installation from source text
 ++++++++++++++++++++++++++++++
 
-To install from source code make sure you have the right github
+To install from source code, make sure you have the right github
 branch. See the Requirements section for the Git branch names.
 
 After setting the right branch:
@@ -237,12 +234,10 @@ In the Python 3 series, Python support is strongest around 3.4 or
 3.1 or 2.7. Python 3.6 changes things drastically by using word codes
 rather than byte codes. As a result, the jump offset field in a jump
 instruction argument has been reduced. This makes the :code:`EXTENDED_ARG` instructions now more prevalent in jump instructions; previously
-they had been rare.  Perhaps to compensate for the additional
-:code:`EXTENDED_ARG` instructions, additional jump optimization has been
-added. So in sum handling control flow by ad hoc means, as is currently
-done is worse.
+they had been rare.  Perhaps to compensate for the additional :code:`EXTENDED_ARG` instructions, additional jump optimization has been
+added. So in sum, handling control flow by ad hoc means, as is currently done, is worse.
 
-Between Python 3.5, 3.6, 3.7, there have been major changes to the
+Between Python 3.5, 3.6, and 3.7, there have been major changes to the
 :code:`MAKE_FUNCTION` and :code:`CALL_FUNCTION` instructions.
 
 Python 3.8 removes :code:`SETUP_LOOP`, :code:`SETUP_EXCEPT`,
@@ -250,16 +245,14 @@ Python 3.8 removes :code:`SETUP_LOOP`, :code:`SETUP_EXCEPT`,
 make control-flow detection harder, lacking the more sophisticated
 control-flow analysis that is planned. We'll see.
 
-Currently, not all Python magic numbers are supported. Specifically in
-some versions of Python, notably Python 3.6, the magic number has
+Currently, not all Python magic numbers are supported. Specifically in some versions of Python, notably Python 3.6, the magic number has
 changes several times within a version.
 
 **We support only released versions, not candidate versions.** Note, however, that the magic of a released version is usually the same as
-the *last* candidate version prior to release.
+the *last* candidate version before release.
 
 There are also customized Python interpreters, notably Dropbox,
-which use their own magic and encrypt bytecode. With the exception of
-Dropbox's old Python 2.5 interpreter, this kind of thing is not
+which use their own magic and encrypt bytecode. Except for Dropbox's old Python 2.5 interpreter, this kind of thing is not
 handled.
 
 We also don't handle PJOrion_ or otherwise obfuscated code. For
@@ -283,7 +276,7 @@ sophisticated. I suspect that attempts there will be fewer ad-hoc
 attempts like unpyc37_ (which is based on a 3.3 decompiler) simply
 because it is harder to do so. The good news, at least from my
 standpoint, is that I think I understand what's needed to address the
-problems in a more robust way. But right now, until such time as
+problems more robustly. But right now, until
 the project is better funded, I do not intend to make any serious effort
 to support Python versions 3.8 or 3.9, including bugs that might come
 in. I imagine at some point I may be interested in it.
@@ -306,11 +299,7 @@ Be aware that it might not get my attention for a while. If you
 sponsor or support the project in some way, I'll prioritize your
 issues above the queue of other things I might be doing instead. In
 rare situations, I can do a hand decompilation of bytecode for a fee.
-<<<<<<< Updated upstream
 However, this is expensive, usually beyond what most people are willing
-=======
-However this is expansive, usually beyond what most people are willing
->>>>>>> Stashed changes
 to spend.
 
 See Also
