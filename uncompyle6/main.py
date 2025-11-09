@@ -24,7 +24,12 @@ import tempfile
 
 from xdis import iscode
 from xdis.load import load_module
-from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, version_tuple_to_str
+from xdis.version_info import (
+    IS_PYPY,
+    PYTHON_VERSION_TRIPLE,
+    PythonImplementation,
+    version_tuple_to_str,
+)
 
 from uncompyle6.code_fns import check_object_path
 from uncompyle6.parser import ParserError
@@ -112,7 +117,7 @@ def decompile(
         write("# -*- coding: %s -*-" % source_encoding)
     write(
         "# uncompyle6 version %s\n"
-        "# %sPython bytecode version base %s%s\n# Decompiled from: %sPython %s"
+        "# %sPython bytecode version base %s%s\n#   Decompiled from: %sPython %s"
         % (
             __version__,
             co_pypy_str,
@@ -215,9 +220,16 @@ def decompile_file(
 
     filename = check_object_path(filename)
     code_objects = {}
-    version, timestamp, magic_int, co, is_pypy, source_size, _ = load_module(
-        filename, code_objects
-    )
+    (
+        version,
+        timestamp,
+        magic_int,
+        co,
+        python_implementation,
+        source_size,
+        _,
+        _,
+    ) = load_module(filename, code_objects)
 
     if isinstance(co, list):
         deparsed = []
@@ -233,7 +245,7 @@ def decompile_file(
                     showgrammar,
                     source_encoding,
                     code_objects=code_objects,
-                    is_pypy=is_pypy,
+                    is_pypy=python_implementation == PythonImplementation.PyPy,
                     magic_int=magic_int,
                     mapstream=mapstream,
                     start_offset=start_offset,
@@ -253,7 +265,7 @@ def decompile_file(
                 source_encoding,
                 code_objects=code_objects,
                 source_size=source_size,
-                is_pypy=is_pypy,
+                is_pypy=python_implementation == PythonImplementation.PyPy,
                 magic_int=magic_int,
                 mapstream=mapstream,
                 do_fragments=do_fragments,
