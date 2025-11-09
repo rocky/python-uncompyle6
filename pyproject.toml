@@ -12,7 +12,7 @@ description = "Python cross-version byte-code library and disassembler"
 dependencies = [
     "click",
     "spark-parser >= 1.8.9, < 1.9.2",
-    "xdis >= 6.1.0, < 6.3",
+    "xdis >= 6.2",
 ]
 readme = "README.rst"
 
