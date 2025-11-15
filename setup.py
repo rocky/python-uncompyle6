@@ -9,7 +9,7 @@ import setuptools
 major = sys.version_info[0]
 minor = sys.version_info[1]
 SYS_VERSION = sys.version_info[0:2]
-if not ((3, 0) <= SYS_VERSION < (3, 2)):
+if not ((3, 0) <= SYS_VERSION < (3, 3)):
     sys.stderr.write("Python Release 3.0 .. 3.2 are supported in this code branch. You are running Python %s.%s.\n" % (major, minor))
     if (2, 4) <= SYS_VERSION <= (2, 7):
         sys.stderr.write("Please install using uncompyle6_24-x.y.z.tar.gz from https://github.com/rocky/python-uncompyle6/releases\n")
