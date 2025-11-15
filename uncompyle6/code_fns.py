@@ -35,7 +35,8 @@ import sys
 from collections import deque
 
 from xdis import check_object_path, iscode, load_module
-from xdis.version_info import version_tuple_to_str
+from xdis.version_info import PythonImplementation, version_tuple_to_str
+
 from uncompyle6.scanner import get_scanner
 
 
@@ -69,8 +70,13 @@ def disco_loop(disasm, queue, real_out):
                 )
             else:
                 real_out.write(
-                    "\n# %s %s\n"
+                    "\n# %s of %s\n"
                     % (co.co_name, co.co_filename)
+=======
+                print(
+                    "\n# %s of %s" % (co.co_name, co.co_filename),
+                    file=real_out,
+>>>>>>> python-3.0-to-3.2
                 )
         tokens, customize = disasm(co)
         for t in tokens:
@@ -105,14 +111,26 @@ def disassemble_file(filename, outstream=None):
     try to find the corresponding compiled object.
     """
     filename = check_object_path(filename)
-    (version, timestamp, magic_int, co, is_pypy, source_size, sip_hash) = load_module(
-        filename
-    )
-    if type(co) == list:
+    (
+        version,
+        timestamp,
+        magic_int,
+        co,
+        python_implementation,
+        source_size,
+        sip_hash,
+        _,
+    ) = load_module(filename)
+    if isinstance(co, list):
         for con in co:
             disco(version, con, outstream)
     else:
-        disco(version, co, outstream, is_pypy=is_pypy)
+        disco(
+            version,
+            co,
+            outstream,
+            is_pypy=python_implementation == PythonImplementation.PyPy,
+        )
 
 
 def _test():
