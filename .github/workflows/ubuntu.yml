@@ -20,7 +20,8 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
+        # Until the next xdis release
+        pip install --local -e git+https://github.com/rocky/python-xdis.git#egg=xdis
         pip install -e .
         # pip install click spark-parser xdis
         pip install -r requirements-dev.txt
