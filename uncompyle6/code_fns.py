@@ -72,13 +72,8 @@ def disco_loop(disasm, queue, real_out):
                 real_out.write(
                     "\n# %s of %s\n"
                     % (co.co_name, co.co_filename)
-=======
-                print(
-                    "\n# %s of %s" % (co.co_name, co.co_filename),
-                    file=real_out,
->>>>>>> python-3.0-to-3.2
                 )
-        tokens, customize = disasm(co)
+        tokens, _ = disasm(co)
         for t in tokens:
             if iscode(t.pattr):
                 queue.append(t.pattr)

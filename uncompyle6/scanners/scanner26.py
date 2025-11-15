@@ -80,7 +80,7 @@ class Scanner26(Scanner2):
         if show_asm in ("both", "before"):
             print("\n# ---- disassembly:")
             bytecode.disassemble_bytes(
-                co.co_code,
+                co,
                 varnames=co.co_varnames,
                 names=co.co_names,
                 constants=co.co_consts,
