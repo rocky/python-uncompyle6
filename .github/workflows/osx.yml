@@ -22,7 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         # Until the next xdis release
-        pip install --local -e git+https://github.com/rocky/python-xdis.git@python-3.6-to-3.10#egg=xdis"
+        pip install --local -e "git+https://github.com/rocky/python-xdis.git@python-3.6-to-3.10#egg=xdis"
         pip install -e .
         # Not sure why "pip install -e" doesn't work above
         # pip install click spark-parser xdis
