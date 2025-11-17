@@ -81,10 +81,6 @@ class Scanner26(Scanner2):
             print("\n# ---- disassembly:")
             bytecode.disassemble_bytes(
                 co,
-                varnames=co.co_varnames,
-                names=co.co_names,
-                constants=co.co_consts,
-                cells=bytecode._cell_names,
                 line_starts=bytecode._linestarts,
                 asm_format="extended",
             )

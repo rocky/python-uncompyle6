@@ -411,11 +411,7 @@ class Scanner3(Scanner):
         if show_asm in ("both", "before"):
             print("\n# ---- disassembly:")
             bytecode.disassemble_bytes(
-                co.co_code,
-                varnames=co.co_varnames,
-                names=co.co_names,
-                constants=co.co_consts,
-                cells=bytecode._cell_names,
+                co,
                 line_starts=bytecode._linestarts,
                 asm_format="extended",
             )
