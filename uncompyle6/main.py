@@ -515,7 +515,7 @@ def main(
                 if not current_outfile:
                     mess = "\n# okay decompiling"
                     # mem_usage = __memUsage()
-                    print(mess, infile)
+                    print mess, infile
         if current_outfile:
             sys.stdout.write(
                 "%s -- %s\r"
