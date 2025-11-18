@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
-# Copyright (c) 2015-2017, 2019-2020, 2023-2024
+# Copyright (c) 2015-2017, 2019-2020, 2023-2025
 # by Rocky Bernstein
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -80,7 +80,7 @@ def usage():
 # )
 
 
-@click.command()
+@click.command(context_settings={"help_option_names": ["--help", "-help", "-h"]})
 @click.option(
     "--asm++/--no-asm++",
     "-A",
