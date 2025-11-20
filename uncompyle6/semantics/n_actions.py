@@ -1116,6 +1116,13 @@ class NonterminalActions:
             self.write("None")
         elif isinstance(data, tuple):
             self.pp_tuple(data)
+        elif isinstance(data, set):
+            # Deterministic set order.
+            self.write("{")
+            map_str_repr_to_data = {repr(x): x for x in data}
+            order = [map_str_repr_to_data[x] for x in sorted(map_str_repr_to_data)]
+            self.write(", ".join(repr(x) for x in order))
+            self.write("}")
         elif isinstance(attr, bool):
             self.write(repr(attr))
         elif self.FUTURE_UNICODE_LITERALS:
