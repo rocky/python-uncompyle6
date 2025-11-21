@@ -1262,7 +1262,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                     if (
                         load_const.kind == "LOAD_CONST"
                         and load_const.linestart is None
-                        and load_const.attr is None
+                        and ((load_const.pattr is None) if self.version < (3, 0, 0) else (load_const.attr is None))
                     ):
                         # Delete LOAD_CONST (None) RETURN_VALUE
                         del tokens[-2:]
