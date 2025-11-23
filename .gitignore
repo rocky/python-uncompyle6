@@ -7,6 +7,7 @@
 /.eggs
 /.hypothesis
 /.idea
+/.jython_cache
 /.mypy_cache
 /.pytest_cache
 /.python-version
