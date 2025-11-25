@@ -27,7 +27,6 @@ import xdis.std as dis
 from xdis import PYTHON_MAGIC_INT, iscode, load_file, load_module, pretty_code_flags
 from xdis.version_info import PythonImplementation
 
-import uncompyle6
 from uncompyle6.scanner import Token as ScannerToken, get_scanner
 
 truediv = operator.div
