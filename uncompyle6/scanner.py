@@ -184,8 +184,10 @@ class Scanner(ABC):
         for j in range(collection_start, i):
             if tokens[j] == "LOAD_CONST":
                 opname = "ADD_VALUE"
+                op_type = "const"
             else:
                 opname = "ADD_VALUE_VAR"
+                op_type = "name"
             new_tokens.append(
                 Token(
                     opname=opname,
@@ -196,6 +198,7 @@ class Scanner(ABC):
                     linestart=tokens[j].linestart,
                     opc=self.opc,
                     has_extended_arg=False,
+                    optype=op_type
                 )
             )
         new_tokens.append(
@@ -208,6 +211,7 @@ class Scanner(ABC):
                 linestart=t.linestart,
                 opc=t.opc,
                 has_extended_arg=False,
+                optype="vargs",
             )
         )
         return new_tokens
