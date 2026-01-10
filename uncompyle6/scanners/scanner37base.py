@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2020, 2022-2024 by Rocky Bernstein
+#  Copyright (c) 2015-2020, 2022-2024, 2026 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -32,11 +32,11 @@ Finally we save token information.
 import sys
 
 import xdis
-
-# Get all the opcodes into globals
-import xdis.opcodes.opcode_37 as op3
 from xdis import Instruction, instruction_size, iscode
 from xdis.bytecode import _get_const_info
+
+# Get all the opcodes into globals
+from xdis.opcodes import opcode_37 as op3
 
 from uncompyle6.scanner import Scanner, Token
 
