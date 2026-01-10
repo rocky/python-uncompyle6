@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2024 by Rocky Bernstein
+#  Copyright (c) 2015-2025 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -36,7 +36,8 @@ Finally we save token information.
 from copy import copy
 
 from xdis import code2num, iscode, op_has_argument, instruction_size
-from xdis.bytecode import _get_const_info
+from xdis.bytecode import _get_const_info, get_optype
+
 from uncompyle6.scanner import Scanner, Token
 
 
@@ -300,6 +301,7 @@ class Scanner2(Scanner):
 
             op = self.code[offset]
             op_name = self.op_name(op)
+            op_type = get_optype(op, self.opc)
 
             oparg = None
             pattr = None
@@ -466,7 +468,15 @@ class Scanner2(Scanner):
             if offset not in replace:
                 new_tokens.append(
                     Token(
-                        op_name, oparg, pattr, offset, linestart, op, has_arg, self.opc
+                        op_name,
+                        oparg,
+                        pattr,
+                        offset,
+                        linestart,
+                        op,
+                        has_arg,
+                        self.opc,
+                        optype=op_type,
                     )
                 )
             else:
@@ -480,6 +490,7 @@ class Scanner2(Scanner):
                         op,
                         has_arg,
                         self.opc,
+                        optype=op_type,
                     )
                 )
                 pass

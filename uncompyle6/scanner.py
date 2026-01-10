@@ -1,4 +1,4 @@
-#  Copyright (c) 2016, 2018-2025 by Rocky Bernstein
+#  Copyright (c) 2016, 2018-2026 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -32,7 +32,8 @@ from xdis import (
     instruction_size,
     next_offset,
 )
-from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, version_tuple_to_str
+from xdis.op_imports import get_opcode_module
+from xdis.version_info import IS_PYPY, PythonImplementation, version_tuple_to_str
 
 from uncompyle6.scanners.tok import Token
 
@@ -108,24 +109,19 @@ class Code:
 
 
 class Scanner:
-    def __init__(self, version, show_asm=None, is_pypy=False):
-        self.version = version
+    def __init__(self, version_tuple, show_asm=None, is_pypy=False):
+        self.version = version_tuple
         self.show_asm = show_asm
         self.is_pypy = is_pypy
 
-        if version[:2] in PYTHON_VERSIONS:
-            v_str = "opcode_%s" % version_tuple_to_str(
-                version, start=0, end=2, delimiter=""
+        if version_tuple[:2] in PYTHON_VERSIONS:
+            v_str = "opcode_%s" % version_tuple_to_str(version_tuple, start=0, end=2, delimiter="")
+            python_implementation = (
+                PythonImplementation.PyPy if is_pypy else PythonImplementation.CPython
             )
-            if is_pypy:
-                v_str += "pypy"
-            exec("from xdis.opcodes import %s" % v_str)
-            exec("self.opc = %s" % v_str)
+            self.opc = get_opcode_module(version_tuple, python_implementation)
         else:
-            raise TypeError(
-                "%s is not a Python version I know about"
-                % version_tuple_to_str(version)
-            )
+            raise TypeError("%s is not a Python version I know about" % v_str(version_tuple))
 
         self.opname = self.opc.opname
 
@@ -180,8 +176,10 @@ class Scanner:
         for j in range(collection_start, i):
             if tokens[j] == "LOAD_CONST":
                 opname = "ADD_VALUE"
+                op_type = "const"
             else:
                 opname = "ADD_VALUE_VAR"
+                op_type = "name"
             new_tokens.append(
                 Token(
                     opname=opname,
@@ -192,6 +190,7 @@ class Scanner:
                     linestart=tokens[j].linestart,
                     opc=self.opc,
                     has_extended_arg=False,
+                    optype=op_type,
                 )
             )
         new_tokens.append(
@@ -204,6 +203,7 @@ class Scanner:
                 linestart=t.linestart,
                 opc=t.opc,
                 has_extended_arg=False,
+                optype="vargs",
             )
         )
         return new_tokens
