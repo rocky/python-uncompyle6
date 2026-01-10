@@ -275,8 +275,8 @@ class NonterminalActions:
                 if elem == "ADD_VALUE":
                     if elem.optype in ("local", "name"):
                         value = elem.attr
-                    elif elem.optype == "const" and not isinstance(elem.attr, str):
-                        value = elem.attr
+                    elif elem.optype == "const":
+                        value = elem.pattr
                     else:
                         value = "%s" % repr(elem.attr)
                 else:
