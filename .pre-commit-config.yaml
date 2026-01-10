@@ -6,9 +6,9 @@ repos:
     hooks:
     - id: check-merge-conflict
     - id: debug-statements
-      stages: [commit]
+      stages: [pre-commit]
     - id: end-of-file-fixer
-      stages: [commit]
+      stages: [pre-commit]
 -   repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:
