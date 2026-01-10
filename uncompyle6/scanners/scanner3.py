@@ -36,12 +36,11 @@ Finally we save token information.
 from copy import deepcopy
 import xdis
 # Get all the opcodes into globals
-import xdis.opcodes.opcode_33 as op3
-from xdis import Instruction, instruction_size, iscode
+from xdis.opcodes import opcode_33 as op3
+from xdis import instruction_size, iscode
 from xdis.bytecode import _get_const_info
 
 # Get all the opcodes into globals
-from xdis.opcodes import opcode_33 as op3
 from xdis.opcodes.opcode_3x.opcode_3x import parse_fn_counts_30_35
 
 from uncompyle6.scanner import CONST_COLLECTIONS, Scanner

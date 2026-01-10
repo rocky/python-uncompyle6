@@ -21,7 +21,6 @@ scanner/ingestion module. From here we call various version-specific
 scanners, e.g. for Python 2.7 or 3.4.
 """
 
-import sys
 from array import array
 
 from xdis import (
@@ -33,7 +32,7 @@ from xdis import (
     next_offset,
 )
 from xdis.op_imports import get_opcode_module
-from xdis.version_info import IS_PYPY, PythonImplementation, version_tuple_to_str
+from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, PythonImplementation, version_tuple_to_str
 
 from uncompyle6.scanners.tok import Token
 
