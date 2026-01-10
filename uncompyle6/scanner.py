@@ -115,17 +115,14 @@ class Scanner:
         self.show_asm = show_asm
         self.is_pypy = is_pypy
 
-        # Temporary initialization.
-        self.opc = ModuleType("uninitialized")
-
         if version_tuple[:2] in PYTHON_VERSIONS:
-            v_str = f"""opcode_{version_tuple_to_str(version_tuple, start=0, end=2, delimiter="")}"""
+            v_str = "opcode_%s" % version_tuple_to_str(version_tuple, start=0, end=2, delimiter="")
             python_implementation = (
                 PythonImplementation.PyPy if is_pypy else PythonImplementation.CPython
             )
             self.opc = get_opcode_module(version_tuple, python_implementation)
         else:
-            raise TypeError("%s is not a Python version I know about" % v_str(version))
+            raise TypeError("%s is not a Python version I know about" % v_str(version_tuple))
 
         self.opname = self.opc.opname
 
