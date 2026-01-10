@@ -1,4 +1,4 @@
-#  Copyright (c) 2016, 2018-2025 by Rocky Bernstein
+#  Copyright (c) 2016, 2018-2026 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -37,7 +37,8 @@ from xdis import (
     instruction_size,
     next_offset,
 )
-from xdis.version_info import IS_PYPY, version_tuple_to_str
+from xdis.op_imports import get_opcode_module
+from xdis.version_info import IS_PYPY, PythonImplementation, version_tuple_to_str
 
 from uncompyle6.scanners.tok import Token
 
@@ -111,25 +112,22 @@ class Code:
 
 
 class Scanner(ABC):
-    def __init__(self, version: tuple, show_asm=None, is_pypy=False):
-        self.version = version
+    def __init__(self, version_tuple: tuple, show_asm=None, is_pypy=False):
+        self.version = version_tuple
         self.show_asm = show_asm
         self.is_pypy = is_pypy
 
         # Temporary initialization.
         self.opc = ModuleType("uninitialized")
 
-        if version[:2] in PYTHON_VERSIONS:
-            v_str = f"""opcode_{version_tuple_to_str(version, start=0, end=2, delimiter="")}"""
-            module_name = f"xdis.opcodes.{v_str}"
-            if is_pypy:
-                module_name += "pypy"
-            self.opc = importlib.import_module(module_name)
-        else:
-            raise TypeError(
-                "%s is not a Python version I know about"
-                % version_tuple_to_str(version)
+        if version_tuple[:2] in PYTHON_VERSIONS:
+            v_str = f"""opcode_{version_tuple_to_str(version_tuple, start=0, end=2, delimiter="")}"""
+            python_implementation = (
+                PythonImplementation.PyPy if is_pypy else PythonImplementation.CPython
             )
+            self.opc = get_opcode_module(version_tuple, python_implementation)
+        else:
+            raise TypeError("%s is not a Python version I know about" % v_str(version))
 
         self.opname = self.opc.opname
 
@@ -198,7 +196,7 @@ class Scanner(ABC):
                     linestart=tokens[j].linestart,
                     opc=self.opc,
                     has_extended_arg=False,
-                    optype=op_type
+                    optype=op_type,
                 )
             )
         new_tokens.append(
