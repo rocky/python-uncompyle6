@@ -3,14 +3,16 @@
 # More could be done here though.
 
 from math import copysign
+
 from xdis.cross_types import UnicodeForPython3
-from xdis.version_info import PYTHON_VERSION_TRIPLE
+
 
 def get_code_name(code) -> str:
     code_name = code.co_name
     if isinstance(code_name, UnicodeForPython3):
         return code_name.value.decode("utf-8")
     return code_name
+
 
 def is_negative_zero(n):
     """Returns true if n is -0.0"""
@@ -42,12 +44,6 @@ def better_repr(v, version):
         if len(v) == 1:
             return "(%s,)" % better_repr(v[0], version)
         return "(%s)" % ", ".join(better_repr(i, version) for i in v)
-    elif PYTHON_VERSION_TRIPLE < (3, 0) and isinstance(v, long):
-        s = repr(v)
-        if version >= 3.0 and s[-1] == "L":
-            return s[:-1]
-        else:
-            return s
     elif isinstance(v, list):
         if len(v) == 1:
             return "[%s,]" % better_repr(v[0], version)

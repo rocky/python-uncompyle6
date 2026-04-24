@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2015-2018, 2020-2021, 2023 by Rocky Bernstein
+# (C) Copyright 2015-2018, 2020-2021, 2023, 2026 by Rocky Bernstein
 # (C) Copyright 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -20,16 +20,18 @@ byte-code verification
 
 from __future__ import print_function
 
-import operator, sys
-import xdis.std as dis
+import operator
+import sys
+from functools import reduce
 from subprocess import call
+
+import xdis.std as dis
+from xdis import PYTHON_MAGIC_INT, iscode, load_file, load_module, pretty_code_flags
 
 import uncompyle6
 from uncompyle6.scanner import Token as ScannerToken, get_scanner
-from xdis import iscode, load_file, load_module, pretty_code_flags, PYTHON_MAGIC_INT
 
 truediv = operator.truediv
-from functools import reduce
 
 
 def code_equal(a, b):
