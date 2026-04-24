@@ -524,7 +524,7 @@ def compare_files(pyc_filename1, pyc_filename2, verify):
         python_implementation,
         source_size,
         sip_hash,
-        _
+        _,
     ) = load_module(pyc_filename1)
     is_pypy = python_implementation is PythonImplementation.PyPy
     (
@@ -535,7 +535,7 @@ def compare_files(pyc_filename1, pyc_filename2, verify):
         python_implementation,
         source_size,
         sip_hash,
-        _
+        _,
     ) = load_module(pyc_filename2)
     if (magic_int1 != magic_int2) and verify == "verify":
         verify = "weak_verify"
