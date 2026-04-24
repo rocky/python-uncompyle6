@@ -80,7 +80,7 @@ check-3.8: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.8-run --verify-run
 	$(PYTHON) test_pythonlib.py --bytecode-3.8 --syntax-verify $(COMPILE)
 
-check-3.9 check-3.10 check-3.11 check-3.12 check-3.13: check-bytecode
+check-3.9 check-3.10 check-3.11 check-3.12 check-3.13 check-3.14: check-bytecode
 	@echo "Note that we do not support decompiling this version's bytecode - no 3.9 tests run"
 
 
