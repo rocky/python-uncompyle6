@@ -1,4 +1,4 @@
-# Copyright (C) 2018, 2020, 2023 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018, 2020, 2023, 2026 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -13,9 +13,10 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import sys
+from typing import Any
 
 
-def maybe_show_asm(showasm, tokens):
+def maybe_show_asm(showasm: Any, tokens: list) -> None:
     """
     Show the asm based on the showasm flag (or file object), writing to the
     appropriate stream depending on the type of the flag.
@@ -32,15 +33,15 @@ def maybe_show_asm(showasm, tokens):
             stream.write("\n")
 
 
-def maybe_show_tree(walker, ast):
+def maybe_show_tree(walker, tree) -> None:
     """
-    Show the ast based on the showast flag (or file object), writing to the
+    Show the tree based on the tree flag (or file object), writing to the
     appropriate stream depending on the type of the flag.
 
     :param show_tree: Flag which determines whether the parse tree is
                       written to sys.stdout or not. (It is also to pass a file
                       like object, into which the ast will be written).
-    :param ast:     The ast to show.
+    :param tree:     The tree to show.
     """
     if walker.showast:
         if hasattr(walker.showast, "write"):
@@ -51,14 +52,15 @@ def maybe_show_tree(walker, ast):
             isinstance(walker.showast, dict)
             and walker.showast.get("after", False)
             and hasattr(walker, "str_with_template")
+            and walker.str_with_template
         ):
-            walker.str_with_template(ast)
+            walker.str_with_template(tree)
         else:
-            stream.write(str(ast))
+            stream.write(str(tree))
         stream.write("\n")
 
 
-def maybe_show_tree_param_default(show_tree, name, default):
+def maybe_show_tree_param_default(show_tree, name: str, default):
     """
     Show a function parameter with default for an grammar-tree based on the show_tree flag
     (or file object), writing to the appropriate stream depending on the type
