@@ -18,8 +18,6 @@
 byte-code verification
 """
 
-from __future__ import print_function
-
 import operator
 import sys
 from functools import reduce
@@ -27,8 +25,8 @@ from subprocess import call
 
 import xdis.std as dis
 from xdis import PYTHON_MAGIC_INT, iscode, load_file, load_module, pretty_code_flags
+from xdis.version_info import PythonImplementation
 
-import uncompyle6
 from uncompyle6.scanner import Token as ScannerToken, get_scanner
 
 truediv = operator.truediv
@@ -487,9 +485,10 @@ def compare_code_with_srcfile(pyc_filename, src_filename, verify):
         timestamp,
         magic_int,
         code_obj1,
-        is_pypy,
+        python_implementation,
         source_size,
         sip_hash,
+        _,
     ) = load_module(pyc_filename)
     if magic_int != PYTHON_MAGIC_INT:
         msg = (
@@ -502,7 +501,7 @@ def compare_code_with_srcfile(pyc_filename, src_filename, verify):
     except SyntaxError as e:
         # src_filename can be the first of a group sometimes
         return str(e).replace(src_filename, pyc_filename)
-    cmp_code_objects(version, is_pypy, code_obj1, code_obj2, verify)
+    cmp_code_objects(version, python_implementation, code_obj1, code_obj2, verify)
     if verify == "verify-run":
         try:
             retcode = call("%s %s" % (sys.executable, src_filename), shell=True)
@@ -522,19 +521,22 @@ def compare_files(pyc_filename1, pyc_filename2, verify):
         timestamp,
         magic_int1,
         code_obj1,
-        is_pypy,
+        python_implementation,
         source_size,
         sip_hash,
-    ) = uncompyle6.load_module(pyc_filename1)
+        _,
+    ) = load_module(pyc_filename1)
+    is_pypy = python_implementation is PythonImplementation.PyPy
     (
         version2,
         timestamp,
         magic_int2,
         code_obj2,
-        is_pypy,
+        python_implementation,
         source_size,
         sip_hash,
-    ) = uncompyle6.load_module(pyc_filename2)
+        _,
+    ) = load_module(pyc_filename2)
     if (magic_int1 != magic_int2) and verify == "verify":
         verify = "weak_verify"
     cmp_code_objects(version1, is_pypy, code_obj1, code_obj2, verify)
