@@ -12,7 +12,7 @@ description = "Python cross-version byte-code library and disassembler"
 dependencies = [
     "click",
     "spark-parser >= 1.8.9, < 1.9.2",
-    "xdis >= 6.2",
+    "xdis >= 6.3",
 ]
 readme = "README.rst"
 
@@ -43,6 +43,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dynamic = ["version"]
