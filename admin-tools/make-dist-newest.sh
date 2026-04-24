@@ -23,10 +23,28 @@ cd ..
 source $PACKAGE/version.py
 echo $__version__
 
-# Python 3.12 and 3.13 are more restrictive in packaging
-pyenv local 3.11
-
 rm -fr build
-pip wheel --wheel-dir=dist .
+for pyversion in $PYVERSIONS; do
+    echo --- $pyversion ---
+    if [[ ${pyversion:0:4} == "pypy" ]] ; then
+	echo "$pyversion - PyPy does not get special packaging"
+	continue
+    elif [[ ${pyversion:0:4} == "graa" ]] ; then
+	echo "$pyversion - Graal does not get special packaging"
+	continue
+    fi
+    if ! pyenv local $pyversion ; then
+	exit $?
+    fi
+    # pip bdist_egg create too-general wheels. So
+    # we narrow that by moving the generated wheel.
+
+    # Pick out first two number of version, e.g. 3.5.1 -> 35
+    first_two=$(echo $pyversion | cut -d'.' -f 1-2 | sed -e 's/\.//')
+    rm -fr build
+    pip wheel --wheel-dir=dist -e .
+    mv -v dist/${PACKAGE}-${__version__}-{py3,py$first_two}-none-any.whl
+done
+
 python -m build --sdist
 finish

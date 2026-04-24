@@ -71,7 +71,7 @@ check-3.7: check-bytecode
 check-pypy37: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-pypy37
 
-check-3.9 check-3.10 check-3.11 check-3.12 check-3.13: check-bytecode
+check-3.9 check-3.10 check-3.11 check-3.12 check-3.13 check-3.14: check-bytecode
 	@echo "Note that we do not support decompiling this version's bytecode - no 3.9 tests run"
 
 
