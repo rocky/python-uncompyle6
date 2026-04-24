@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2015-2018, 2020-2021, 2023, 2025 by Rocky Bernstein
+# (C) Copyright 2015-2018, 2020-2021, 2023, 2026 by Rocky Bernstein
 # (C) Copyright 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -27,7 +27,6 @@ import xdis.std as dis
 from xdis import PYTHON_MAGIC_INT, iscode, load_file, load_module, pretty_code_flags
 from xdis.version_info import PythonImplementation
 
-import uncompyle6
 from uncompyle6.scanner import Token as ScannerToken, get_scanner
 
 truediv = operator.truediv
@@ -502,8 +501,7 @@ def compare_code_with_srcfile(pyc_filename, src_filename, verify):
     except SyntaxError as e:
         # src_filename can be the first of a group sometimes
         return str(e).replace(src_filename, pyc_filename)
-    is_pypy = python_impementation is PythonImplementation.PyPy
-    cmp_code_objects(version, is_pypy, code_obj1, code_obj2, verify)
+    cmp_code_objects(version, python_implementation, code_obj1, code_obj2, verify)
     if verify == "verify-run":
         try:
             retcode = call("%s %s" % (sys.executable, src_filename), shell=True)
@@ -526,7 +524,7 @@ def compare_files(pyc_filename1, pyc_filename2, verify):
         python_implementation,
         source_size,
         sip_hash,
-        _
+        _,
     ) = load_module(pyc_filename1)
     is_pypy = python_implementation is PythonImplementation.PyPy
     (
@@ -537,7 +535,7 @@ def compare_files(pyc_filename1, pyc_filename2, verify):
         python_implementation,
         source_size,
         sip_hash,
-        _
+        _,
     ) = load_module(pyc_filename2)
     if (magic_int1 != magic_int2) and verify == "verify":
         verify = "weak_verify"
