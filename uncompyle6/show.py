@@ -13,10 +13,9 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import sys
-from typing import Any
 
 
-def maybe_show_asm(showasm: Any, tokens: list) -> None:
+def maybe_show_asm(showasm, tokens: list) -> None:
     """
     Show the asm based on the showasm flag (or file object), writing to the
     appropriate stream depending on the type of the flag.
