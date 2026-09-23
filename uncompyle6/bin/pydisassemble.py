@@ -94,10 +94,10 @@ Type -h for for full help."""
             sys.exit(1)
 
     for file in files:
-        if os.path.exists(files[0]):
+        if os.path.exists(file):
             disassemble_file(file, sys.stdout)
         else:
-            print(f"Can't read {files[0]} - skipping", file=sys.stderr)
+            print(f"Can't read {file} - skipping", file=sys.stderr)
             pass
         pass
     return
