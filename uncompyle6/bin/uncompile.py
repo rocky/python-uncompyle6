@@ -120,7 +120,7 @@ def usage():
     "-o",
     "outfile",
     type=click.Path(
-        exists=True, file_okay=True, dir_okay=True, writable=True, resolve_path=True
+        exists=False, file_okay=True, dir_okay=True, writable=True, resolve_path=True
     ),
     required=False,
 )
